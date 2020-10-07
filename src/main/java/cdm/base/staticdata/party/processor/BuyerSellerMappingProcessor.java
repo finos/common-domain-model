@@ -26,7 +26,7 @@ public abstract class BuyerSellerMappingProcessor extends MappingProcessor {
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		PartyMappingHelper.getInstance(getContext())
 				.ifPresent(helper -> getSetter(parent)
-						.ifPresent(setter -> helper.setCounterpartyEnum(setter, getModelPath(), synonymPath)));
+						.ifPresent(setter -> helper.setCounterpartyEnum(getModelPath(), synonymPath, setter)));
 	}
 
 	protected abstract Optional<Consumer<CounterpartyEnum>> getSetter(RosettaModelObjectBuilder builder);

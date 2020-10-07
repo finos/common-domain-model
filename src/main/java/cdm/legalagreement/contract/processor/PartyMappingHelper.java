@@ -42,13 +42,13 @@ public class PartyMappingHelper {
 	private final List<Mapping> mappings;
 	private final CompletableFuture<Map<String, CounterpartyEnum>> bothCounterpartiesCollected = new CompletableFuture<>();
 	private final CompletableFuture<TradableProductBuilder> tradableProductBuilderSupplied = new CompletableFuture<>();
-	private final Function<String, Optional<String>> externalRefTranslator;
+	private final Function<String, Optional<String>> translator;
 	private final ExecutorService executor;
 
-	PartyMappingHelper(MappingContext context, Function<String, Optional<String>> externalRefTranslator) {
+	PartyMappingHelper(MappingContext context, Function<String, Optional<String>> translator) {
 		this.mappings = context.getMappings();
 		this.executor = context.getExecutor();
-		this.externalRefTranslator = externalRefTranslator;
+		this.translator = translator;
 		this.partyExternalReferenceToCounterpartyEnumMap = new LinkedHashMap<>();
 	}
 
@@ -63,17 +63,16 @@ public class PartyMappingHelper {
 	/**
 	 * Maps party external reference to CounterpartyEnum, then sets on the given builder.
 	 */
-	public void setCounterpartyEnum(Consumer<CounterpartyEnum> setter, RosettaPath modelPath, Path synonymPath) {
+	public void setCounterpartyEnum(RosettaPath modelPath, Path synonymPath, Consumer<CounterpartyEnum> setter) {
 		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
 			setValueAndOptionallyUpdateMappings(
 					synonymPath.addElement("href"), // synonym path to party external reference
-					(externalRef) -> {
+					(partyExternalReference) -> {
 						// Map externalRef to CounterpartyEnm and update builder object
-						Optional<CounterpartyEnum> counterpartyEnum = Optional.of(externalRef)
-								// apply additional external reference translation function if provided
-								.map(x -> Optional.ofNullable(externalRefTranslator).flatMap(f -> f.apply(x)).orElse(x))
-								// translate to counterparty enum
-								.flatMap(this::getOrCreateCounterpartyEnum);
+						Optional<CounterpartyEnum> counterpartyEnum =
+								getOrCreateCounterpartyEnum(
+										// apply additional external reference translation function if provided
+										Optional.ofNullable(translator).flatMap(t -> t.apply(partyExternalReference)).orElse(partyExternalReference));
 						counterpartyEnum.ifPresent(setter);
 						return counterpartyEnum.isPresent(); // return true to update synonym mapping stats to success
 					},
@@ -154,12 +153,12 @@ public class PartyMappingHelper {
 
 		getBothCounterpartiesCollectedFuture()
 				.thenAcceptAsync(map ->
-						setCounterpartyOrRelatedParty(modelPath,
-								synonymPath,
-								counterpartySetter,
-								relatedPartySetter,
-								relatedPartyEnum,
-								(ref) -> Optional.ofNullable(map.get(ref))),
+								setCounterpartyOrRelatedParty(modelPath,
+										synonymPath,
+										counterpartySetter,
+										relatedPartySetter,
+										relatedPartyEnum,
+										(ref) -> Optional.ofNullable(map.get(ref))),
 						executor);
 	}
 
@@ -186,15 +185,14 @@ public class PartyMappingHelper {
 			Consumer<CounterpartyEnum> counterpartySetter,
 			Consumer<RelatedPartyEnum> relatedPartySetter,
 			RelatedPartyEnum relatedPartyEnum,
-			Function<String, Optional<CounterpartyEnum>> partyRefToCounterpartyFunc) {
+			Function<String, Optional<CounterpartyEnum>> partyToCounterpartyFunc) {
+
 		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
 			setValueAndUpdateMappings(synonymPath,
 					partyExternalReference -> {
-						Optional<CounterpartyEnum> counterparty = Optional.ofNullable(externalRefTranslator)
-								.map(translator -> translator.apply(partyExternalReference).orElse(partyExternalReference))
-								.flatMap(partyRefToCounterpartyFunc::apply);
+						Optional<CounterpartyEnum> counterparty = partyToCounterpartyFunc.apply(
+								Optional.ofNullable(translator).flatMap(t -> t.apply(partyExternalReference)).orElse(partyExternalReference));
 						if (counterparty.isPresent()) {
-							LOGGER.info("Adding {} CounterpartyEnum.{} for {}", relatedPartyEnum, counterparty.get(), partyExternalReference);
 							counterpartySetter.accept(counterparty.get());
 						} else {
 							LOGGER.info("Adding {} for {}", relatedPartyEnum, partyExternalReference);
@@ -213,7 +211,6 @@ public class PartyMappingHelper {
 	public void addRelatedParties(String partyExternalReference, RelatedPartyEnum relatedPartyEnum) {
 		tradableProductBuilderSupplied
 				.thenAcceptAsync(tradableProductBuilder -> {
-					// TODO
 							synchronized (tradableProductBuilder) {
 								LOGGER.info("Adding {} as {} to TradableProduct.relatedParties", partyExternalReference, relatedPartyEnum);
 								List<RelatedPartyReferenceBuilder> relatedParties = Optional.ofNullable(tradableProductBuilder.getRelatedParties())
