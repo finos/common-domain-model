@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import cdm.base.staticdata.party.RelatedPartyReference;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 
@@ -44,6 +45,7 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
                 guard(input.getTradableProduct().getQuantityNotation()),
                 guard(input.getTradableProduct().getPriceNotation()),
                 guard(input.getTradableProduct().getCounterparties()),
+                guard(input.getTradableProduct().getRelatedParties()),
                 guard(input.getParty()),
                 guard(input.getPartyRole()),
                 settlementTerm,
@@ -69,6 +71,10 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
 		        .map(Contract::getTradableProduct)
 		        .map(TradableProduct::getCounterparties)
 		        .orElse(Collections.emptyList());
+        List<RelatedPartyReference> relatedParties = Optional.ofNullable(input)
+                .map(Contract::getTradableProduct)
+                .map(TradableProduct::getRelatedParties)
+                .orElse(Collections.emptyList());
         return Optional.ofNullable(input)
                 .map(Contract::getTradableProduct)
                 .map(TradableProduct::getProduct)
@@ -77,7 +83,7 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
                 .map(EconomicTerms::getPayout)
                 .map(Payout::getCashflow)
                 .map(cashflows -> cashflows.stream()
-                        .map(cashflow -> cashflowSettlementTerms.evaluate(cashflow, counterparties))
+                        .map(cashflow -> cashflowSettlementTerms.evaluate(cashflow, counterparties, relatedParties))
                         .collect(Collectors.toList())
                 )
                 .orElse(Collections.emptyList());

@@ -44,11 +44,25 @@ type PayerReceiver: <"Specifies the parties responsible for making and receiving
         [metadata reference]
         [deprecated]
 
-	condition PayerCounterpartyOrRelatedPartyOrPartyReference: <"Payer should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver.">
+	condition PayerCounterpartyOrRelatedPartyOrPartyReference: <"Payer should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver.  The other attributes, payerRelatedParty and payerPartyReference, are deprecated.">
 		required choice payer, payerRelatedParty, payerPartyReference
 
-	condition ReceiverPayerCounterpartyOrRelatedPartyOrPartyReference: <"Receiver should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver.">
+	condition ReceiverPayerCounterpartyOrRelatedPartyOrPartyReference: <"Receiver should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver.  The other attributes, receiverRelatedParty and receiverPartyReference, are deprecated.">
 		required choice receiver, receiverRelatedParty, receiverPartyReference
+		
+	condition CashflowPayerRelatedParty: <"The payerRelatedParty is specified only on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
+		if payerRelatedParty exists
+		then payerRelatedParty = RelatedPartyEnum -> ArrangingBroker or payerRelatedParty = RelatedPartyEnum -> Beneficiary
+		    or payerRelatedParty = RelatedPartyEnum -> ClearingFirm or payerRelatedParty = RelatedPartyEnum -> CounterpartyAfflilate
+		    or payerRelatedParty = RelatedPartyEnum -> Guarantor or payerRelatedParty = RelatedPartyEnum -> OtherParty
+		    or payerRelatedParty = RelatedPartyEnum -> PrimeBroker or payerRelatedParty = RelatedPartyEnum -> SettlementAgent
+		
+	condition CashflowReceiverRelatedParty: <"The receiverRelatedParty is specified only on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
+		if receiverRelatedParty exists
+		then receiverRelatedParty = RelatedPartyEnum -> ArrangingBroker or receiverRelatedParty = RelatedPartyEnum -> Beneficiary
+		    or receiverRelatedParty = RelatedPartyEnum -> ClearingFirm or receiverRelatedParty = RelatedPartyEnum -> CounterpartyAfflilate
+		    or receiverRelatedParty = RelatedPartyEnum -> Guarantor or receiverRelatedParty = RelatedPartyEnum -> OtherParty
+		    or receiverRelatedParty = RelatedPartyEnum -> PrimeBroker or receiverRelatedParty = RelatedPartyEnum -> SettlementAgent
 
 type PartyReferencePayerReceiver: <"Specifies the parties responsible for making and receiving payments defined by this structure.">
 
