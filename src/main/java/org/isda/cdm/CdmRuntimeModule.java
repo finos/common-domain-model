@@ -4,18 +4,25 @@ import cdm.base.math.functions.*;
 import cdm.base.staticdata.party.functions.ExtractCounterpartyBySide;
 import cdm.base.staticdata.party.functions.ExtractCounterpartyBySideImpl;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
+import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.common.functions.CurrencyAmount;
+import cdm.observable.common.functions.CurrencyAmountImpl;
 import cdm.observable.common.functions.NoOfUnits;
+import cdm.observable.common.functions.NoOfUnitsImpl;
 import cdm.product.asset.functions.ResolveEquityInitialPrice;
+import cdm.product.asset.functions.ResolveEquityInitialPriceImpl;
 import cdm.product.common.functions.ResolveContractualProduct;
+import cdm.product.common.functions.ResolveContractualProductImpl;
 import cdm.product.common.functions.ResolvePayoutQuantity;
+import cdm.product.common.functions.ResolvePayoutQuantityImpl;
 import cdm.product.common.schedule.functions.CalculationPeriod;
+import cdm.product.common.schedule.functions.CalculationPeriodImpl;
 import cdm.product.template.functions.FpmlIrd8;
+import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
-import org.isda.cdm.functions.*;
 
 public class CdmRuntimeModule extends AbstractModule {
 
