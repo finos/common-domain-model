@@ -1,23 +1,38 @@
-# *CDM Model: Remaining model in org.isda.cdm namespace classification*
+# *Model Optimisation: Extract Party References from Product*
 
 _What is being released_
 
-This refactor is the sixth and final incremental change that will further transform the org.isda.cdm file into a hierarchical namespace.
-This refactor includes the reorganisation of some model objects to existing namespaces while other being deleted (as they are not being used in CDM).
+This change is the part of the ongoing model refactoring to externalise the definition of the parties involved in a transaction from the definition of the transacted product.
 
-Types to be moved to existing namespaces:
+- New enum `RelatedPartyEnum` specifies all the possible parties roles (other than counterparty) which are defined within the product.​  
+- The `RelatedPartyEnum` can be resolved to an actual party by looking up the enum value in type `RelatedPartyReference` to find the corresponding party reference.
+- New type `CounterpartyOrRelatedParty` is used when the party can be either one of the counterparties or a related party.​
+- `RelatedPartyEnum` is constrained within each usage in the model using conditions.
 
-* Types: CalculationAgentModel moved to __cdm.product.template__ namespace. 
-* Types: PackageInformation & ExerciseEvent moved to __cdm.event.common__ namespace.
-* Funcs: NewEquitySwapProduct, NewSingleNameEquityPayout & NewFloatingPayout moved to __cdm.event.common__ namespace.
+This release covers the party references in `CalculationAgent.calculationAgentParty`, `Cashflow.payerReceiver.payerRelatedParty` and `Cashflow.payerReceiver.receiverRelatedParty`, and completes the externalisation of parties from the translated product with a few exceptions.
 
-Objects to be deleted:
+- `PhysicalExercise` and `CashExercise` - the physical and cash exercise models require refactoring to use `TradableProduct`. Once completed, the deprecated attributes `PayerReceiver.payerPartyReference` and `PayerReceiver.receiverPartyReference` can be removed.
+- 3rd party payments should be modelled with `SettlementTerms` rather than `Cashflow` - Once completed, the deprecated attributes `PayerReceiver.payerRelatedParty` and `PayerReceiver.receiverRelatedParty` can be removed.
 
-* Types: CommoditySet, BondOptionStrike, CalculationAmount & DeterminationMethod.
-* Enums: StandardSettlementStyleEnum, OriginatingEventEnum, PaymentStatusEnum & PackageTypeEnum.
-* Funcs: EquityAmountPayer & ResolvePrice. 
+Functions have also been updated to work with counterparties and related parties.
+
+- `Create_Execution`, `Create_ExecutionPrimitive`, `Create_ClearedTrade`, `Create_CashTransferPrimitive`, `CashflowSettlementTerms`, `ExtractCounterpartyBySide`, and `ExtractRelatedParty`.
 
 _Review Directions_
 
-In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View. In the CDM Portal,
-navigate to the Downloads tile, then download artefacts in Java, DAML, Typescript or Scala distribution format and review the reorganised source folder.
+In the CDM Portal, use the Textual Browser to review the types, enums and functions mentioned above.
+
+In the CDM Portal, use the Ingestion page to review the following samples:
+
+CalculationAgent.calculationAgentParty:
+- `equity > eqs-ex01-single-underlyer-execution-long-form.xml`
+- `equity > eqs-ex01-single-underlyer-execution-long-form-related-party.xml`
+
+Cashflow.payerReceiver.payerRelatedParty and receiverRelatedParty:
+- `rates > swap-with-other-party-payment.xml`
+
+PhysicalExercise:
+- `events > exercise-swaption-physical.xml`
+
+CashExercise:
+- `events > exercise-swaption-cash.xml`
