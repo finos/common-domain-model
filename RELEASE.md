@@ -1,33 +1,24 @@
-# *Model Optimisation: Extract Party References from Product*
+# *CDM Model: Remaining model in org.isda.cdm namespace classification*
 
 _What is being released_
 
-This change is part of the ongoing model refactoring to externalise the definition of the parties involved in a transaction from the definition of the transacted product.
+This refactor is the sixth and final incremental change that will further transform the org.isda.cdm file into a hierarchical namespace.
+This refactor includes the reorganisation of some model objects to existing namespaces while other being deleted (as they are not being used in CDM).
 
-- New enum `RelatedPartyEnum` specifies all the possible parties roles (other than counterparty) which are defined within the product.​  
-- The `RelatedPartyEnum` can be resolved to an actual party by looking up the enum value in type `RelatedPartyReference` to find the corresponding party reference.
-- New type `CounterpartyOrRelatedParty` is used when the party can be either one of the counterparties or a related party.​
-- `RelatedPartyEnum` is constrained within each usage in the model using conditions.
+Types to be moved to existing namespaces:
 
-This release covers the party references in `AdditionalDisruptionEvents.determiningParty`, `DividendReturnTerms.extraordinaryDividendsParty`, `OptionPhysicalSettlement.predeterminedClearingOrganizationParty` and `ExerciseNotice.exerciseNoticeReceiver`.  Future releases will cover the remaining party references defined within the product.
+* Types: CalculationAgentModel moved to __cdm.product.template__ namespace. 
+* Types: PackageInformation & ExerciseEvent moved to __cdm.event.common__ namespace.
+* Enums: StandardSettlementStyleEnum moved to _cdm.product.common_.
+* Funcs: NewEquitySwapProduct, NewSingleNameEquityPayout & NewFloatingPayout moved to __cdm.event.common__ namespace.
+
+Objects to be deleted:
+
+* Types: CommoditySet, BondOptionStrike, CalculationAmount & DeterminationMethod.
+* Enums: OriginatingEventEnum, PaymentStatusEnum & PackageTypeEnum.
+* Funcs: EquityAmountPayer & ResolvePrice. 
 
 _Review Directions_
 
-In the CDM Portal, use the Textual Browser to review the enum and types mentioned above.
-
-In the CDM Portal, use the Ingestion page to review the following samples:
-
-AdditionalDisruptionEvents.determiningParty:
-- `equity > eqs-ex01-single-underlyer-execution-long-form.xml`
-- `equity > eqs-ex01-single-underlyer-execution-long-form-related-party.xml`
-- `equity > eqs-ex06-single-index-long-form.xml`
-
-DividendReturnTerms.extraordinaryDividendsParty:
-- `equity > eqs-ex01-single-underlyer-execution-long-form.xml`
-- `equity > eqs-ex01-single-underlyer-execution-long-form-related-party.xml`
-
-OptionPhysicalSettlement.predeterminedClearingOrganizationParty:
-- `events > exercise-swaption-physical-related-party.xml`
-
-ExerciseNotice.exerciseNoticeReceiver:
-- `rates > ird-ex12-euro-swaption-straddle-cash-related-party.xml`
+In Rosetta Core (https://ui.rosetta-technology.io/), review the File or Namespace structure in the Editor Textual View. In the CDM Portal,
+navigate to the Downloads tile, then download artefacts in Java, DAML, Typescript or Scala distribution format and review the reorganised source folder.

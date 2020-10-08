@@ -1,11 +1,11 @@
 package org.isda.cdm.merging;
 
+import cdm.product.template.Product;
 import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.merging.SimpleBuilderMerger;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.util.PathCollectorBuilderProcessor;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.Product;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-import static org.isda.cdm.Product.ProductBuilder;
-import static org.junit.jupiter.api.Assertions.*;
+import static cdm.product.template.Product.ProductBuilder;
+import static cdm.product.template.Product.builder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MergeTest {
 
@@ -31,7 +33,7 @@ class MergeTest {
 		ProductBuilder input1 = getProduct(INPUT_1);
 		ProductBuilder input2 = getProduct(INPUT_2);
 
-		ProductBuilder merged = Product.builder()
+		ProductBuilder merged = builder()
 				.merge(input1, input2, new SimpleBuilderMerger());
 
 		assertEquals(getProduct(EXPECTED_RESULT), merged);
@@ -42,7 +44,7 @@ class MergeTest {
 		ProductBuilder input1 = getProduct(INPUT_1);
 		ProductBuilder input2 = getProduct(INPUT_2);
 
-		ProductBuilder merged = Product.builder()
+		ProductBuilder merged = builder()
 				.merge(input2, input1, new SimpleBuilderMerger());
 
 		assertEquals(getProduct(EXPECTED_RESULT), merged);
@@ -55,7 +57,7 @@ class MergeTest {
 
 		IllegalArgumentException thrown = assertThrows(
 				IllegalArgumentException.class,
-				() ->Product.builder().merge(input1, input3, new SimpleBuilderMerger()));
+				() -> builder().merge(input1, input3, new SimpleBuilderMerger()));
 
 		assertEquals("Attempting to merge 2 different basic values [left=INITIAL_BUYER, right=EITHER, type=CallingPartyEnum]", thrown.getMessage());
 	}
