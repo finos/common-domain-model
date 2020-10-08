@@ -64,8 +64,11 @@ steps:
     commands:
       - mvn -s /settings.xml javadoc:jar
 #      - cd /codefresh/volume/rosetta-cdm/target
-      - mvn -s /settings.xml deploy:deploy-file -Dfile=codefresh/volume/rosetta-cdm/target/cdm-${RELEASE_NAME}-javadoc.jar -Dclassifier=javadoc -DgroupId=com.isda -DartifactId=cdm -Dversion=${RELEASE_NAME} -Dpackaging=jar -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local
-#      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar" -T cdm-${{RELEASE_NAME}}-javadoc.jar
+      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml deploy:deploy-file -Dfile=/codefresh/volume/rosetta-cdm/target/cdm-${RELEASE_NAME}-javadoc.jar -DpomFile=pom.xml -DrepositoryId=snapshots -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dclassifier=javadoc -Dpackaging=jar
+#      - mvn -s ~/.m2/settings.xml deploy:deploy-file -Dfile=target/cdm-${RELEASE_NAME}-javadoc.jar -DpomFile=pom.xml -DrepositoryId=snapshots -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dclassifier=javadoc -Dpackaging=jar
+
+  #      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar" -T cdm-${{RELEASE_NAME}}-javadoc.jar
 
   BuildDaml:
     title: DAML build and deploy
