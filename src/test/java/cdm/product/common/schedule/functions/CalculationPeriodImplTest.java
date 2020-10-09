@@ -1,20 +1,31 @@
 package cdm.product.common.schedule.functions;
 
-import cdm.base.datetime.*;
-import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
-import cdm.product.common.schedule.CalculationPeriodData;
-import cdm.product.common.schedule.CalculationPeriodDates;
-import com.google.inject.Inject;
-import com.opengamma.strata.basics.schedule.ScheduleException;
-import com.rosetta.model.lib.records.DateImpl;
-import org.isda.cdm.functions.AbstractFunctionTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.isda.cdm.functions.AbstractFunctionTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+
+import com.google.inject.Inject;
+import com.opengamma.strata.basics.schedule.ScheduleException;
+import com.rosetta.model.lib.records.DateImpl;
+
+import cdm.base.datetime.AdjustableDate;
+import cdm.base.datetime.AdjustableOrRelativeDate;
+import cdm.base.datetime.BusinessCenterEnum;
+import cdm.base.datetime.BusinessCenters;
+import cdm.base.datetime.BusinessDayAdjustments;
+import cdm.base.datetime.BusinessDayConventionEnum;
+import cdm.base.datetime.CalculationPeriodFrequency;
+import cdm.base.datetime.PeriodExtendedEnum;
+import cdm.base.datetime.RollConventionEnum;
+import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
+import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
+import cdm.product.common.schedule.CalculationPeriodData;
+import cdm.product.common.schedule.CalculationPeriodDates;
 
 class CalculationPeriodImplTest extends AbstractFunctionTest {
 	
@@ -42,7 +53,7 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
             						.build())
             				.build())
                     .build())
-            .setCalculationPeriodFrequency((CalculationPeriodFrequency) CalculationPeriodFrequency.builder()
+            .setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
                     .setRollConvention(RollConventionEnum._3)
                     .setPeriodMultiplier(3)
                     .setPeriod(PeriodExtendedEnum.M)
@@ -57,6 +68,42 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
                     .build())
             .build();
 
+	private final CalculationPeriodDates calculationPeriodDates2 = CalculationPeriodDates.builder()
+			.setEffectiveDate((AdjustableOrRelativeDate.builder()
+					.setAdjustableDate(AdjustableDate.builder()
+							.setUnadjustedDate(DateImpl.of(2020, 4, 27))
+							.setDateAdjustments(BusinessDayAdjustments.builder()
+									.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
+									.build())
+							.build())
+					.build()))
+			.setTerminationDate(AdjustableOrRelativeDate.builder()
+					.setAdjustableDate(AdjustableDate.builder()
+							.setUnadjustedDate(DateImpl.of(2022, 4, 27))
+							.setDateAdjustments(BusinessDayAdjustments.builder()
+									.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
+									.setBusinessCenters(BusinessCenters.builder()
+											.addBusinessCenter(FieldWithMetaBusinessCenterEnum.builder()
+													.setValue(BusinessCenterEnum.EUTA)
+													.build())
+											.build())
+									.build())
+							.build())
+					.build())
+			.setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
+					.setRollConvention(RollConventionEnum._27)
+					.setPeriod(PeriodExtendedEnum.M)
+					.setPeriodMultiplier(2)
+					.build())
+			.setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
+					.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
+					.setBusinessCenters(BusinessCenters.builder()
+							.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
+									.setExternalReference("primaryBusinessCenters")
+									.build())
+							.build())
+					.build())
+			.build();
     @Test
     void shouldReturnStartAndEndDateOfFirstPeriod() {
         CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 1, 3));
@@ -83,5 +130,18 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
         Executable result = () -> calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 4, 23));
 
         assertThrows(ScheduleException.class, result, "Date '2018-01-03' does not match roll convention 'Day1' when starting to roll forwards");
+    }
+    
+    @Test
+    void shouldReturnStartAndEndDateOfOverlappingPeriod() {
+        CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2020, 4, 27));
+
+        assertThat(usingStartDate.getStartDate(), is(DateImpl.of(2020, 4, 27)));
+        assertThat(usingStartDate.getEndDate(), is(DateImpl.of(2022, 4, 27)));
+
+        CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2020, 4, 27));
+        CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2022, 4, 27));
+
+        assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
     }
 }
