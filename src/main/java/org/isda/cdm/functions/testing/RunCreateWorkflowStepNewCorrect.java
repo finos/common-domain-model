@@ -14,22 +14,21 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.isda.cdm.ActionEnum;
-import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.EventTimestamp;
-import org.isda.cdm.EventTimestampQualificationEnum;
-import org.isda.cdm.MessageInformation;
-import org.isda.cdm.Workflow;
-import org.isda.cdm.WorkflowStep;
-import org.isda.cdm.functions.Create_Execution;
-import org.isda.cdm.functions.Create_WorkflowStep;
-
 import com.google.common.collect.Lists;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
+import cdm.event.common.ActionEnum;
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.functions.Create_Execution;
+import cdm.event.workflow.EventTimestamp;
+import cdm.event.workflow.EventTimestampQualificationEnum;
+import cdm.event.workflow.MessageInformation;
+import cdm.event.workflow.Workflow;
+import cdm.event.workflow.WorkflowStep;
+import cdm.event.workflow.functions.Create_WorkflowStep;
 import cdm.legalagreement.contract.Contract;
 import cdm.observable.asset.QuantityNotation;
 

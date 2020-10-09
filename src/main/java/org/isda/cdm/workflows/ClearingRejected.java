@@ -4,8 +4,6 @@ import static org.isda.cdm.workflows.ClearingUtils.getParty;
 
 import java.util.function.Function;
 
-import org.isda.cdm.Workflow;
-import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
 import com.google.common.collect.Lists;
@@ -14,6 +12,8 @@ import com.rosetta.model.lib.process.PostProcessor;
 
 import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.Party;
+import cdm.event.workflow.Workflow;
+import cdm.event.workflow.WorkflowStep;
 import cdm.legalagreement.contract.Contract;
 
 public class ClearingRejected implements Function<Contract, Workflow> {
