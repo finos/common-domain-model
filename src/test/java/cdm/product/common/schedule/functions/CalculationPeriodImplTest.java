@@ -28,111 +28,120 @@ import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
 
 class CalculationPeriodImplTest extends AbstractFunctionTest {
+	
+	@Inject CalculationPeriod calculationPeriod;
 
-	@Inject
-	CalculationPeriod calculationPeriod;
-
-	private final CalculationPeriodDates calculationPeriodDates = CalculationPeriodDates.builder()
-			.setEffectiveDate((AdjustableOrRelativeDate.builder()
-					.setAdjustableDate(AdjustableDate.builder().setUnadjustedDate(DateImpl.of(2018, 1, 3))
-							.setDateAdjustments(BusinessDayAdjustments.builder()
-									.setBusinessDayConvention(BusinessDayConventionEnum.NONE).build())
-							.build())
-					.build()))
-			.setTerminationDate(AdjustableOrRelativeDate.builder().setAdjustableDate(AdjustableDate.builder()
-					.setUnadjustedDate(DateImpl.of(2020, 1, 3))
-					.setDateAdjustments(BusinessDayAdjustments.builder()
-							.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
-							.setBusinessCenters(BusinessCenters.builder()
-									.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
-											.setExternalReference("primaryBusinessCenters").build())
-									.build())
-							.build())
-					.build()).build())
-			.setCalculationPeriodFrequency(CalculationPeriodFrequency.builder().setRollConvention(RollConventionEnum._3)
-					.setPeriodMultiplier(3).setPeriod(PeriodExtendedEnum.M).build())
-			.setCalculationPeriodDatesAdjustments(
-					BusinessDayAdjustments.builder().setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
-							.setBusinessCenters(BusinessCenters.builder()
-									.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
-											.setExternalReference("primaryBusinessCenters").build())
-									.build())
-							.build())
-			.build();
+    private final CalculationPeriodDates calculationPeriodDates = CalculationPeriodDates.builder()
+            .setEffectiveDate((AdjustableOrRelativeDate.builder()
+        			.setAdjustableDate(AdjustableDate.builder()
+        					.setUnadjustedDate(DateImpl.of(2018, 1, 3))
+        					.setDateAdjustments(BusinessDayAdjustments.builder()
+        							.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
+        							.build())
+        					.build())
+        			.build()))
+            .setTerminationDate(AdjustableOrRelativeDate.builder()
+            		.setAdjustableDate(AdjustableDate.builder()
+            				.setUnadjustedDate(DateImpl.of(2020, 1, 3))
+            				.setDateAdjustments(BusinessDayAdjustments.builder()
+            						.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
+            						.setBusinessCenters(BusinessCenters.builder()
+            								.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
+            										.setExternalReference("primaryBusinessCenters")
+            										.build())
+            								.build())
+            						.build())
+            				.build())
+                    .build())
+            .setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
+                    .setRollConvention(RollConventionEnum._3)
+                    .setPeriodMultiplier(3)
+                    .setPeriod(PeriodExtendedEnum.M)
+                    .build())
+            .setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
+                    .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
+                    .setBusinessCenters(BusinessCenters.builder()
+                            .setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
+                            		.setExternalReference("primaryBusinessCenters")
+                            		.build())
+                            .build())
+                    .build())
+            .build();
 
 	private final CalculationPeriodDates calculationPeriodDates2 = CalculationPeriodDates.builder()
 			.setEffectiveDate((AdjustableOrRelativeDate.builder()
-					.setAdjustableDate(AdjustableDate.builder().setUnadjustedDate(DateImpl.of(2020, 4, 27))
+					.setAdjustableDate(AdjustableDate.builder()
+							.setUnadjustedDate(DateImpl.of(2020, 4, 27))
 							.setDateAdjustments(BusinessDayAdjustments.builder()
-									.setBusinessDayConvention(BusinessDayConventionEnum.NONE).build())
+									.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
+									.build())
 							.build())
 					.build()))
 			.setTerminationDate(AdjustableOrRelativeDate.builder()
-					.setAdjustableDate(AdjustableDate.builder().setUnadjustedDate(DateImpl.of(2022, 4, 27))
+					.setAdjustableDate(AdjustableDate.builder()
+							.setUnadjustedDate(DateImpl.of(2022, 4, 27))
 							.setDateAdjustments(BusinessDayAdjustments.builder()
 									.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
 									.setBusinessCenters(BusinessCenters.builder()
 											.addBusinessCenter(FieldWithMetaBusinessCenterEnum.builder()
-													.setValue(BusinessCenterEnum.EUTA).build())
+													.setValue(BusinessCenterEnum.EUTA)
+													.build())
 											.build())
 									.build())
 							.build())
 					.build())
-			.setCalculationPeriodFrequency(
-					CalculationPeriodFrequency.builder().setRollConvention(RollConventionEnum._27)
-							.setPeriod(PeriodExtendedEnum.M).setPeriodMultiplier(2).build())
-			.setCalculationPeriodDatesAdjustments(
-					BusinessDayAdjustments.builder().setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
-							.setBusinessCenters(BusinessCenters.builder()
-									.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
-											.setExternalReference("primaryBusinessCenters").build())
+			.setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
+					.setRollConvention(RollConventionEnum._27)
+					.setPeriod(PeriodExtendedEnum.M)
+					.setPeriodMultiplier(2)
+					.build())
+			.setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
+					.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
+					.setBusinessCenters(BusinessCenters.builder()
+							.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
+									.setExternalReference("primaryBusinessCenters")
 									.build())
 							.build())
+					.build())
 			.build();
+    @Test
+    void shouldReturnStartAndEndDateOfFirstPeriod() {
+        CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 1, 3));
 
-	@Test
-	void shouldReturnStartAndEndDateOfFirstPeriod() {
-		CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates,
-				DateImpl.of(2018, 1, 3));
+        assertThat(usingStartDate.getStartDate(), is(DateImpl.of(2018, 1, 3)));
+        assertThat(usingStartDate.getEndDate(), is(DateImpl.of(2018, 4, 3)));
 
-		assertThat(usingStartDate.getStartDate(), is(DateImpl.of(2018, 1, 3)));
-		assertThat(usingStartDate.getEndDate(), is(DateImpl.of(2018, 4, 3)));
+        CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 2, 14));
+        CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 3, 31));
 
-		CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates,
-				DateImpl.of(2018, 2, 14));
-		CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates,
-				DateImpl.of(2018, 3, 31));
+        assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
+    }
 
-		assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
-	}
+    @Test
+    void shouldThrowWhenRollConventionNotTerminationDay() {
+        CalculationPeriodFrequency frequency = calculationPeriodDates.getCalculationPeriodFrequency().toBuilder()
+                .setRollConvention(RollConventionEnum._1)
+                .build();
 
-	@Test
-	void shouldThrowWhenRollConventionNotTerminationDay() {
-		CalculationPeriodFrequency frequency = calculationPeriodDates.getCalculationPeriodFrequency().toBuilder()
-				.setRollConvention(RollConventionEnum._1).build();
+        CalculationPeriodDates calculationPeriodDates = this.calculationPeriodDates.toBuilder()
+                .setCalculationPeriodFrequency(frequency)
+                .build();
 
-		CalculationPeriodDates calculationPeriodDates = this.calculationPeriodDates.toBuilder()
-				.setCalculationPeriodFrequency(frequency).build();
+        Executable result = () -> calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 4, 23));
 
-		Executable result = () -> calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 4, 23));
+        assertThrows(ScheduleException.class, result, "Date '2018-01-03' does not match roll convention 'Day1' when starting to roll forwards");
+    }
+    
+    @Test
+    void shouldReturnStartAndEndDateOfOverlappingPeriod() {
+        CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2020, 4, 27));
 
-		assertThrows(ScheduleException.class, result,
-				"Date '2018-01-03' does not match roll convention 'Day1' when starting to roll forwards");
-	}
+        assertThat(usingStartDate.getStartDate(), is(DateImpl.of(2020, 4, 27)));
+        assertThat(usingStartDate.getEndDate(), is(DateImpl.of(2022, 4, 27)));
 
-	@Test
-	void shouldReturnStartAndEndDateOfOverlappingPeriod() {
-		CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2,
-				DateImpl.of(2020, 4, 27));
+        CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2020, 4, 27));
+        CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2022, 4, 27));
 
-		assertThat(usingStartDate.getStartDate(), is(DateImpl.of(2020, 4, 27)));
-		assertThat(usingStartDate.getEndDate(), is(DateImpl.of(2022, 4, 27)));
-
-		CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates2,
-				DateImpl.of(2020, 4, 27));
-		CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates2,
-				DateImpl.of(2022, 4, 27));
-
-		assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
-	}
+        assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
+    }
 }
