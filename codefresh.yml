@@ -60,7 +60,8 @@ steps:
     when:
       condition:
         all:
-          isRelease: "${{TAG_REPO}}"
+          isNotRelease: "${{TAG_REPO}} == false"
+          masterBranch: '"${{CF_BRANCH}}" == "master"'
     commands:
       - mvn -s /settings.xml javadoc:jar
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
