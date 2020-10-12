@@ -52,16 +52,6 @@ steps:
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml clean deploy -P daml,scala,typescript,golang,csharp8,csharp9,full
 
-  BuildJavaDocs:
-    title: Javadocs build and deploy
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    commands:
-      - mvn -s /settings.xml javadoc:jar
-      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s /settings.xml deploy:deploy-file -Dfile=/codefresh/volume/rosetta-cdm/target/cdm-${RELEASE_NAME}-javadoc.jar -DpomFile=pom.xml -DrepositoryId=snapshots -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dclassifier=javadoc -Dpackaging=jar
-
   BuildDaml:
     title: DAML build and deploy
     fail_fast: false
@@ -127,6 +117,16 @@ steps:
     commands:
       - tar -cvzf cdm-golang.tar.gz golang
       - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-golang/${{RELEASE_NAME}}/cdm-golang-${{RELEASE_NAME}}.zip" -T cdm-golang.tar.gz
+
+  BuildJavaDocs:
+    title: Javadocs build and deploy
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    commands:
+      - mvn -s /settings.xml javadoc:jar
+      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml deploy:deploy-file -Dfile=/codefresh/volume/rosetta-cdm/target/cdm-${RELEASE_NAME}-javadoc.jar -DpomFile=pom.xml -DrepositoryId=snapshots -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dclassifier=javadoc -Dpackaging=jar
 
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
