@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -44,10 +43,12 @@ public class PartyMappingHelper {
 	private final CompletableFuture<TradableProductBuilder> tradableProductBuilderSupplied = new CompletableFuture<>();
 	private final Function<String, Optional<String>> translator;
 	private final ExecutorService executor;
+	private final List<CompletableFuture<?>> invokedTasks;
 
 	PartyMappingHelper(MappingContext context, Function<String, Optional<String>> translator) {
 		this.mappings = context.getMappings();
 		this.executor = context.getExecutor();
+		this.invokedTasks = context.getInvokedTasks();
 		this.translator = translator;
 		this.partyExternalReferenceToCounterpartyEnumMap = new LinkedHashMap<>();
 	}
@@ -101,22 +102,19 @@ public class PartyMappingHelper {
 	 */
 	void addCounterparties() {
 		// when the tradableProductBuilder has been supplied and both counterparties have been collected, update tradableProduct.counterparties
-		tradableProductBuilderSupplied.thenAcceptAsync(tradableProductBuilder -> {
-			try {
-				LOGGER.debug("Waiting for counterparties"); // call get() so thread pool doesn't shutdown before this step is complete
-				Map<String, CounterpartyEnum> map = bothCounterpartiesCollected.get();
-				LOGGER.info("Setting TradableProduct.counterparties");
-				tradableProductBuilder.clearCounterparties()
-						.addCounterparties(map.entrySet().stream()
-								.map(extRefCounterpartyEntry -> Counterparty.builder()
-										.setCounterparty(extRefCounterpartyEntry.getValue())
-										.setPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
-										.build())
-								.collect(Collectors.toList()));
-			} catch (InterruptedException | ExecutionException e) {
-				LOGGER.warn("bothCounterpartiesCollected thread interrupted");
-			}
-		}, executor);
+		invokedTasks.add(tradableProductBuilderSupplied
+				.thenAcceptBothAsync(bothCounterpartiesCollected,
+						(tradableProductBuilder, map) -> {
+							LOGGER.info("Setting TradableProduct.counterparties");
+							tradableProductBuilder.clearCounterparties()
+									.addCounterparties(map.entrySet().stream()
+											.map(extRefCounterpartyEntry -> Counterparty.builder()
+													.setCounterparty(extRefCounterpartyEntry.getValue())
+													.setPartyReferenceBuilder(
+															ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
+													.build())
+											.collect(Collectors.toList()));
+						}, executor));
 	}
 
 	public CompletableFuture<Map<String, CounterpartyEnum>> getBothCounterpartiesCollectedFuture() {
@@ -159,7 +157,7 @@ public class PartyMappingHelper {
 			Consumer<RelatedPartyEnum> relatedPartySetter,
 			RelatedPartyEnum relatedPartyEnum) {
 
-		getBothCounterpartiesCollectedFuture()
+		invokedTasks.add(getBothCounterpartiesCollectedFuture()
 				.thenAcceptAsync(map ->
 								setCounterpartyOrRelatedParty(modelPath,
 										synonymPath,
@@ -167,13 +165,13 @@ public class PartyMappingHelper {
 										relatedPartySetter,
 										relatedPartyEnum,
 										(ref) -> Optional.ofNullable(map.get(ref))),
-						executor);
+						executor));
 	}
 
 	/**
 	 * Cashflow payout is problematic because it is defined inside the Product yet can contain either a counterparty or related party.
 	 * Model should be refactored so cashflow payout only allows counterparties, and any 3rd party payments are defined outside the Product (e.g. SettlementTerms).
-	 *
+	 * <p>
 	 * If both counterparties have not yet been computed, get or create counterparty based on the party reference.
 	 * If both counterparties have already been computed, then add as a related party.
 	 */
@@ -219,7 +217,7 @@ public class PartyMappingHelper {
 	 * Add RelatedPartyEnum and associated partyExternalReference to tradableProduct.relatedParties.
 	 */
 	public void addRelatedParties(String partyExternalReference, RelatedPartyEnum relatedPartyEnum) {
-		tradableProductBuilderSupplied
+		invokedTasks.add(tradableProductBuilderSupplied
 				.thenAcceptAsync(tradableProductBuilder -> {
 							synchronized (tradableProductBuilder) {
 								LOGGER.info("Adding {} as {} to TradableProduct.relatedParties", partyExternalReference, relatedPartyEnum);
@@ -246,8 +244,7 @@ public class PartyMappingHelper {
 												.sorted(Comparator.comparing(RelatedPartyReference::getRelatedParty))
 												.collect(Collectors.toList()));
 							}
-
 						},
-						executor);
+						executor));
 	}
 }

@@ -1,6 +1,5 @@
 package cdm.product.template.processor;
 
-import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import cdm.legalagreement.contract.processor.PartyMappingHelper;
 import cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
@@ -16,9 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 @SuppressWarnings("unused")
@@ -38,12 +35,12 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 		@SuppressWarnings("unchecked")
 		List<InterestRatePayoutBuilder> irps = (List<InterestRatePayoutBuilder>) builder;
 		List<InterestRatePayoutBuilder> result = new ArrayList<>();
-		for (InterestRatePayoutBuilder irp:irps) {
+		for (InterestRatePayoutBuilder irp : irps) {
 			result.add(irp);
 			RateSpecificationBuilder rateSpec = irp.getRateSpecification();
-			if (rateSpec!=null) {
-				if (rateSpec.getFixedRate()!=null && rateSpec.getFixedRate().hasData() &&
-						rateSpec.getFloatingRate()!=null && rateSpec.getFloatingRate().hasData()) {
+			if (rateSpec != null) {
+				if (rateSpec.getFixedRate() != null && rateSpec.getFixedRate().hasData() &&
+						rateSpec.getFloatingRate() != null && rateSpec.getFloatingRate().hasData()) {
 					//this IRP has both fixed and floating - it needs to be split
 
 					InterestRatePayoutBuilder newIrp = irp.build().toBuilder();
@@ -51,26 +48,22 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 					rateSpec.setFloatingRateBuilder(null);
 					newIrp.getRateSpecification().setFixedRateBuilder(null);
 
-					executor.execute(() -> {
-						try {
-							LOGGER.debug("Waiting for both counterparties");
-							PartyMappingHelper helper = PartyMappingHelper.getInstance(getContext())
-									.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."));
-							Map<String, CounterpartyEnum> map = helper.getBothCounterpartiesCollectedFuture().get();
-							LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
-							PayerReceiverBuilder newBuilder = newIrp.getPayerReceiver();
-							getPartyReference("payer")
-									.map(helper::translatePartyExternalReference)
-									.map(map::get)
-									.ifPresent(newBuilder::setReceiver);
-							getPartyReference("receiver")
-									.map(helper::translatePartyExternalReference)
-									.map(map::get)
-									.ifPresent(newBuilder::setPayer);
-						} catch (InterruptedException|ExecutionException e) {
-							LOGGER.warn("FRA payer / receiver splitter thread interrupted - {}", e.getMessage());
-						}
-					});
+					PartyMappingHelper helper = PartyMappingHelper.getInstance(getContext())
+							.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."));
+
+					addInvokedTask(helper.getBothCounterpartiesCollectedFuture()
+							.thenAcceptAsync(map -> {
+								LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
+								PayerReceiverBuilder newBuilder = newIrp.getPayerReceiver();
+								getPartyReference("payer")
+										.map(helper::translatePartyExternalReference)
+										.map(map::get)
+										.ifPresent(newBuilder::setReceiver);
+								getPartyReference("receiver")
+										.map(helper::translatePartyExternalReference)
+										.map(map::get)
+										.ifPresent(newBuilder::setPayer);
+							}, executor));
 					result.add(newIrp);
 				}
 			}
