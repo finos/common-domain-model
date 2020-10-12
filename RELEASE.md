@@ -25,14 +25,25 @@ In the CDM Portal, use the Textual Browser to review the types, enums and functi
 In the CDM Portal, use the Ingestion page to review the following samples:
 
 CalculationAgent.calculationAgentParty:
+
 - `equity > eqs-ex01-single-underlyer-execution-long-form.xml`
 - `equity > eqs-ex01-single-underlyer-execution-long-form-related-party.xml`
 
 Cashflow.payerReceiver.payerRelatedParty and receiverRelatedParty:
+
 - `rates > swap-with-other-party-payment.xml`
 
 PhysicalExercise:
+
 - `events > exercise-swaption-physical.xml`
 
 CashExercise:
+
 - `events > exercise-swaption-cash.xml`
+
+
+# *CDM Function: Fix CalculationPeriod Function to Resolve the Correct Period in the Schedule.*
+
+_What is being fixed_
+
+When the valuation date is equal to the period start date, the function logic would use the wrong period.
