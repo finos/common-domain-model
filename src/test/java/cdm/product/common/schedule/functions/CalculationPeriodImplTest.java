@@ -133,15 +133,19 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
     }
     
     @Test
-    void shouldReturnStartAndEndDateOfOverlappingPeriod() {
-        CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2020, 4, 27));
+    void shouldReturnCorrectDaysInPeriodWhenOverlappingPeriods() {
+    	//day before endDate
+    	CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2021, 2, 26));
+        assertThat(usingStartDate.getDaysInPeriod(), is(62));
 
-        assertThat(usingStartDate.getStartDate(), is(DateImpl.of(2020, 4, 27)));
-        assertThat(usingStartDate.getEndDate(), is(DateImpl.of(2022, 4, 27)));
-
-        CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2020, 4, 27));
-        CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2022, 4, 27));
-
-        assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
+        //on overlapping endDate
+        usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2021, 2, 27));
+        assertThat(usingStartDate.getDaysInPeriod(), is(59));
+        
+        
+        //day after endDate
+        usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2021, 2, 28));
+        assertThat(usingStartDate.getDaysInPeriod(), is(59));
     }
+
 }
