@@ -55,11 +55,12 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 							.thenAcceptAsync(map -> {
 								LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
 								PayerReceiverBuilder newBuilder = newIrp.getPayerReceiver();
-								getPartyReference("payer")
+								// Get party references from xml mappings rather than rosetta mapped objects to avoid race conditions
+								getPartyReference("buyerPartyReference")
 										.map(helper::translatePartyExternalReference)
 										.map(map::get)
 										.ifPresent(newBuilder::setReceiver);
-								getPartyReference("receiver")
+								getPartyReference("sellerPartyReference")
 										.map(helper::translatePartyExternalReference)
 										.map(map::get)
 										.ifPresent(newBuilder::setPayer);
@@ -72,10 +73,10 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 		irps.addAll(result);
 	}
 
-	private Optional<String> getPartyReference(String attribute) {
+	private Optional<String> getPartyReference(String endsWith) {
 		return getMappings().stream()
-				.filter(m -> m.getRosettaPath() != null)
-				.filter(m -> m.getRosettaPath().endsWith("interestRatePayout", "payerReceiver", attribute))
+				.filter(m -> m.getXmlPath() != null && m.getXmlValue() != null)
+				.filter(m -> m.getXmlPath().endsWith("fra", endsWith, "href"))
 				.findFirst()
 				.map(Mapping::getXmlValue)
 				.map(String.class::cast);
