@@ -1,23 +1,22 @@
 package cdm.product.template.processor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-
-import org.isda.cdm.processor.PartyMappingHelper;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
+import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
+import cdm.product.asset.RateSpecification.RateSpecificationBuilder;
+import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
-import cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
-import cdm.product.asset.RateSpecification.RateSpecificationBuilder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 @SuppressWarnings("unused")
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
@@ -36,12 +35,12 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 		@SuppressWarnings("unchecked")
 		List<InterestRatePayoutBuilder> irps = (List<InterestRatePayoutBuilder>) builder;
 		List<InterestRatePayoutBuilder> result = new ArrayList<>();
-		for (InterestRatePayoutBuilder irp:irps) {
+		for (InterestRatePayoutBuilder irp : irps) {
 			result.add(irp);
 			RateSpecificationBuilder rateSpec = irp.getRateSpecification();
-			if (rateSpec!=null) {
-				if (rateSpec.getFixedRate()!=null && rateSpec.getFixedRate().hasData() &&
-						rateSpec.getFloatingRate()!=null && rateSpec.getFloatingRate().hasData()) {
+			if (rateSpec != null) {
+				if (rateSpec.getFixedRate() != null && rateSpec.getFixedRate().hasData() &&
+						rateSpec.getFloatingRate() != null && rateSpec.getFloatingRate().hasData()) {
 					//this IRP has both fixed and floating - it needs to be split
 
 					InterestRatePayoutBuilder newIrp = irp.build().toBuilder();
@@ -49,11 +48,23 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 					rateSpec.setFloatingRateBuilder(null);
 					newIrp.getRateSpecification().setFixedRateBuilder(null);
 
-					PartyMappingHelper.getInstance(getContext())
-							.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."))
-							.getBothCounterpartiesCollectedFuture()
-							.thenAcceptAsync(map -> flipPayerReceiver(irp.getPayerReceiver(), newIrp.getPayerReceiver()), executor);
+					PartyMappingHelper helper = PartyMappingHelper.getInstance(getContext())
+							.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."));
 
+					addInvokedTask(helper.getBothCounterpartiesCollectedFuture()
+							.thenAcceptAsync(map -> {
+								LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
+								PayerReceiverBuilder newBuilder = newIrp.getPayerReceiver();
+								// Get party references from xml mappings rather than rosetta mapped objects to avoid race conditions
+								getPartyReference("buyerPartyReference")
+										.map(helper::translatePartyExternalReference)
+										.map(map::get)
+										.ifPresent(newBuilder::setReceiver);
+								getPartyReference("sellerPartyReference")
+										.map(helper::translatePartyExternalReference)
+										.map(map::get)
+										.ifPresent(newBuilder::setPayer);
+							}, executor));
 					result.add(newIrp);
 				}
 			}
@@ -62,13 +73,12 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 		irps.addAll(result);
 	}
 
-	@NotNull
-	private void flipPayerReceiver(PayerReceiverBuilder originalBuilder, PayerReceiverBuilder newBuilder) {
-		LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
-		newBuilder.setPayer(originalBuilder.getReceiver());
-		newBuilder.setPayerPartyReferenceBuilder(originalBuilder.getReceiverPartyReference());
-
-		newBuilder.setReceiver(originalBuilder.getPayer());
-		newBuilder.setReceiverPartyReferenceBuilder(originalBuilder.getPayerPartyReference());
+	private Optional<String> getPartyReference(String endsWith) {
+		return getMappings().stream()
+				.filter(m -> m.getXmlPath() != null && m.getXmlValue() != null)
+				.filter(m -> m.getXmlPath().endsWith("fra", endsWith, "href"))
+				.findFirst()
+				.map(Mapping::getXmlValue)
+				.map(String.class::cast);
 	}
 }

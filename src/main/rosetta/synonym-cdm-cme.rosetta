@@ -166,14 +166,6 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 //		+ date
 //			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
 
-	NotifyingParty:
-	    - buyer
-		+ buyer
-			[value "buyerPartyReference" mapper "CmeCounterpartyEnum"]
-		- seller
-		+ seller
-			[value "sellerPartyReference" mapper "CmeCounterpartyEnum"]
-
 	AssignedIdentifier:
 		+ identifier
 			[value "RptID" path "TrdCaptRpt"]
@@ -186,7 +178,7 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
 		- tradableProduct
 		+ tradableProduct
-			[value "trade" path "Instrmt->SecXML->FpML" mapper "Party"]
+			[value "trade" path "Instrmt->SecXML->FpML" mapper "CmeParty"]
 		+ party
 			[value "party" path "Instrmt->SecXML->FpML"]
 
@@ -199,7 +191,7 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
 		- tradableProduct
 		+ tradableProduct
-			[value "trade" path "Instrmt->SecXML->FpML" mapper "Party"]
+			[value "trade" path "Instrmt->SecXML->FpML" mapper "CmeParty"]
 		+ party
 			[value "party" path "Instrmt->SecXML->FpML"]
 
@@ -209,33 +201,11 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 		+ forwardPayout
 			[value "ignore"]
 
-	BuyerSeller:
-	    - buyer
-		+ buyer
-			[value "buyerPartyReference" mapper "CmeCounterpartyEnum"]
-		- buyerPartyReference
-		+ buyerPartyReference
-			[value "buyerPartyReference" mapper "TradeSideToParty"]
-		- seller
-		+ seller
-			[value "sellerPartyReference" mapper "CmeCounterpartyEnum"]
-		- sellerPartyReference
-		+ sellerPartyReference
-			[value "sellerPartyReference" mapper "TradeSideToParty"]
-
-	PayerReceiver:
-	    - payer
-		+ payer
-			[value "payerPartyReference" mapper "CmeCounterpartyEnum"]
-			[value "buyerPartyReference" maps 2 mapper "CmeCounterpartyEnum"]
-		- payerPartyReference
+	PartyReferencePayerReceiver:
+    	- payerPartyReference
 		+ payerPartyReference
 			[value "payerPartyReference" mapper "TradeSideToParty"]
 			[value "buyerPartyReference" maps 2 mapper "TradeSideToParty"]
-		- receiver
-		+ receiver
-			[value "receiverPartyReference" mapper "CmeCounterpartyEnum"]
-			[value "sellerPartyReference" maps 2 mapper "CmeCounterpartyEnum"]
 		- receiverPartyReference
 		+ receiverPartyReference
 			[value "receiverPartyReference" mapper "TradeSideToParty"]

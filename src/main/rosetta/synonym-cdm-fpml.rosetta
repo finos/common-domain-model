@@ -70,7 +70,7 @@ synonym source FpML_5_10 extends FpML
 			[value "multipleExercise"]
 		+ exerciseFeeSchedule
 			[value "exerciseFeeSchedule"]
-	
+
 
 
 	AmountSchedule:
@@ -103,9 +103,9 @@ synonym source FpML_5_10 extends FpML
 			[value "brokerConfirmationType" meta "brokerConfirmationTypeScheme"]
 
 	CalculationAgent:
-		+ calculationAgentPartyReference
-			[value "calculationAgentPartyReference" meta "href"]
 		+ calculationAgentParty
+			[value "href" path "calculationAgentPartyReference" mapper "CalculationAgentParty"]
+		+ calculationAgentPartyEnum
 			[value "calculationAgentParty"]
 		+ calculationAgentBusinessCenter
 			[value "calculationAgentBusinessCenter" meta "businessCenterScheme"]
@@ -448,7 +448,7 @@ synonym source FpML_5_10 extends FpML
 			[value "floatingRateCalculation" path "interestCalculation"]
 			[value "floatingRateCalculation"]
 			[value "floatingAmountCalculation"]
-		
+
 	PrincipalExchanges:
 	 	[value "PrincipalExchanges" meta "id"]
 		+ initialExchange
@@ -732,9 +732,9 @@ synonym source FpML_5_10 extends FpML
 
 	NotifyingParty:
 		+ buyer
-			[value "buyerPartyReference" mapper "CounterpartyEnum"]
+			[value "buyerPartyReference" mapper "Buyer"]
 		+ seller
-			[value "sellerPartyReference" mapper "CounterpartyEnum"]
+			[value "sellerPartyReference" mapper "Seller"]
 
 	OptionDenomination:
 		+ optionEntitlement
@@ -789,7 +789,7 @@ synonym source FpML_5_10 extends FpML
 		+ averagingStrikeFeature
 			[value "FxAverageStrike"]
 
-	
+
 
 	FxRateObservable:
 		+ quotedCurrencyPair
@@ -808,7 +808,7 @@ synonym source FpML_5_10 extends FpML
 			[value "date"]
 		+ weight
 			[value "averageRateWeightingFactor"]
-		
+
 
 
 	OptionStyle:
@@ -1747,10 +1747,6 @@ synonym source FpML_5_10 extends FpML
 			[value "party"]
 		+ account
 			[value "account"]
-		+ calculationAgent
-			[value "calculationAgent" path "trade", "calculationAgent" path "contract"]
-			[value "calculationAgent" path "trade->swaption", "calculationAgent" path "contract->swaption"]
-			[value "trade"]
 		+ partyContractInformation
 			[value "partyTradeInformation" path "trade->tradeHeader"]
 
@@ -1813,6 +1809,9 @@ synonym source FpML_5_10 extends FpML
 			[value "earlyTerminationProvision"]
 		+ extraordinaryEvents
 			[value "extraordinaryEvents"]
+		+ calculationAgent
+			[value "calculationAgent"]
+			[hint "calculationAgentBusinessCenter"]
 
 	EquityPayout:
 		[meta "id"]
@@ -1977,7 +1976,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "notionalReference"]
 			// For Bond Option:
 			[value "notionalAmount"]
-			// For FX Option 
+			// For FX Option
             [value "putCurrencyAmount"]
             [value "callCurrencyAmount"]
 
@@ -2030,9 +2029,10 @@ synonym source FpML_5_10 extends FpML
 			// For Swaption:
 			[value "swaption"]
 			[hint "swaption"]
-			[value "fxOption"]
-			[hint "fxOption"]
-			// For CapFloor:			
+			// For FX Option:
+            [value "fxOption"]
+            [hint "fxOption"]
+            // For CapFloor:
 			[value "capFloor"]
 			// For FRA:
 			[hint "fra"]
@@ -2048,7 +2048,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "repo"]
 			// To handle the case when addition payments are part of the trade - TODO: should be part of the event,  not the contract
 			[hint "otherPartyPayment"]
-
+			[hint "calculationAgent", "calculationAgentBusinessCenter"]
 		+ index
 			[value "index"]
 		+ loan
@@ -2089,7 +2089,7 @@ synonym source FpML_5_10 extends FpML
 			// For FX Option:
 			[value "putCurrencyAmount" path "fxOption"]
 			[value "callCurrencyAmount" path "fxOption"]
-			
+
 		+ priceNotation
 			// For Swap Streams:
 			[value "swapStream" path "swap"]
@@ -2115,7 +2115,7 @@ synonym source FpML_5_10 extends FpML
 			// For Bond Options:
 			[value "premium" path "bondOption"]
 			// For FX
-			[value "fxSingleLeg"]	
+			[value "fxSingleLeg"]
 			// For Repo:
 			[value "repo"]
 			// For FX Options:
@@ -2489,27 +2489,23 @@ synonym source FpML_5_10 extends FpML
 
 	BuyerSeller:
 		+ buyer
-			[value "buyerPartyReference" mapper "CounterpartyEnum"]
-		+ buyerPartyReference
-			[value "buyerPartyReference" meta "href"]
+			[value "buyerPartyReference" mapper "Buyer"]
 		+ seller
-			[value "sellerPartyReference" mapper "CounterpartyEnum"]
-		+ sellerPartyReference
-			[value "sellerPartyReference" meta "href"]
+			[value "sellerPartyReference" mapper "Seller"]
 
 	PayerReceiver:
 		+ payer
-			[value "payerPartyReference" mapper "CounterpartyEnum"]
-			[value "buyerPartyReference" maps 2 mapper "CounterpartyEnum"]
+			[value "payerPartyReference" mapper "Payer"]
+			[value "buyerPartyReference" maps 2 mapper "Payer"]
+		+ receiver
+			[value "receiverPartyReference" mapper "Receiver"]
+			[value "sellerPartyReference" maps 2 mapper "Receiver"]
+
+	PartyReferencePayerReceiver:
 		+ payerPartyReference
 			[value "payerPartyReference" meta "href"]
-			[value "buyerPartyReference" maps 2 meta "href"]
-		+ receiver
-			[value "receiverPartyReference" mapper "CounterpartyEnum"]
-			[value "sellerPartyReference" maps 2 mapper "CounterpartyEnum"]
 		+ receiverPartyReference
 			[value "receiverPartyReference" meta "href"]
-			[value "sellerPartyReference" maps 2 meta "href"]
 
 	ReferenceBank:
 		+ referenceBankId
