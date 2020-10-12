@@ -1,5 +1,5 @@
-# *CDM Function: CalculationPeriod Function Overlapping Period bugfix*
+# *CDM Function: Fix CalculationPeriod Function to Resolve the Correct Period in the Schedule.*
 
 _What is being fixed_
 
-The fix for the CalculationPeriod function bug. The bug caused the wrong period to be picked for a given date, for the overlapping periods, due to endDate of one period being the startDate of the next.
+When the valuation date is equal to the period start date, the function logic would use the wrong period.
