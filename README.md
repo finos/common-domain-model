@@ -1,1 +1,1 @@
-# CDM - config PROD branch
+# CDM - config RC branch
