@@ -7,6 +7,7 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * FpML mapping processor.
@@ -15,6 +16,11 @@ import java.util.List;
 public class DisruptionEventsDeterminingPartyMappingProcessor extends CounterpartyOrRelatedPartyMappingProcessor {
 
 	public DisruptionEventsDeterminingPartyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
-		super(modelPath, synonymPaths, context, RelatedPartyEnum.DISRUPTION_EVENTS_DETERMINING_PARTY);
+		super(modelPath, synonymPaths, context);
+	}
+
+	@Override
+	public Optional<RelatedPartyEnum> getRelatedPartyEnum() {
+		return Optional.of(RelatedPartyEnum.DISRUPTION_EVENTS_DETERMINING_PARTY);
 	}
 }

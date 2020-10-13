@@ -36,6 +36,7 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
                 guard(contract.getTradableProduct().getQuantityNotation()),
                 guard(contract.getTradableProduct().getPriceNotation()),
                 guard(contract.getTradableProduct().getCounterparties()),
+                guard(contract.getTradableProduct().getRelatedParties()),
                 guard(contract.getParty()),
                 guard(contract.getPartyRole()),
                 Collections.emptyList(), 

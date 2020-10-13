@@ -33,24 +33,24 @@ public class ExerciseNoticeGiverMappingProcessor extends MappingProcessor {
 
 	@Override
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
-		setValueAndOptionallyUpdateMappings(
-				synonymPath,
-				(noticeGiverParty) -> {
-					Optional<ExerciseNoticeGiverEnum> noticeGiverEnum = getExerciseNoticeGiverEnum(noticeGiverParty);
-					if (noticeGiverEnum.isPresent()) {
-						LOGGER.info("Exercise notice giver party [{}] was mapped to option {}.", noticeGiverParty, noticeGiverEnum.get());
-						// set attribute
-						((ExerciseNoticeBuilder) parent).setExerciseNoticeGiver(noticeGiverEnum.get());
-						// return true to update mappings to success
-						return true;
-					} else {
-						LOGGER.info("Exercise notice giver party [{}] could not be mapped to either option BUYER or SELLER.", noticeGiverParty);
-						// return false to update mappings to failure
-						return false;
-					}
-				},
-				getMappings(),
-				getModelPath());
+			setValueAndOptionallyUpdateMappings(
+					synonymPath,
+					(noticeGiverParty) -> {
+						Optional<ExerciseNoticeGiverEnum> noticeGiverEnum = getExerciseNoticeGiverEnum(noticeGiverParty);
+						if (noticeGiverEnum.isPresent()) {
+							LOGGER.info("Exercise notice giver party [{}] was mapped to option {}.", noticeGiverParty, noticeGiverEnum.get());
+							// set attribute
+							((ExerciseNoticeBuilder) parent).setExerciseNoticeGiver(noticeGiverEnum.get());
+							// return true to update mappings to success
+							return true;
+						} else {
+							LOGGER.info("Exercise notice giver party [{}] could not be mapped to either option BUYER or SELLER.", noticeGiverParty);
+							// return false to update mappings to failure
+							return false;
+						}
+					},
+					getMappings(),
+					getModelPath());
 	}
 
 	private Optional<ExerciseNoticeGiverEnum> getExerciseNoticeGiverEnum(String noticeGiver) {
@@ -73,7 +73,7 @@ public class ExerciseNoticeGiverMappingProcessor extends MappingProcessor {
 		String cdmPath = getModelPath().buildPath();
 		Path tradableProductPath = PathUtils.toPath(RosettaPath.valueOf(cdmPath.substring(0, cdmPath.indexOf(".product."))));
 		return getMappings().stream()
-				.filter(m -> m.getRosettaPath() != null && m.getRosettaValue() != null)
+				.filter(m -> m.getRosettaPath() != null)
 				.filter(m -> tradableProductPath.fullStartMatches(m.getRosettaPath()))
 				.collect(Collectors.toList());
 	}

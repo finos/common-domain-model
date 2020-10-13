@@ -9,9 +9,11 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import cdm.base.staticdata.party.RelatedPartyReference;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 
+import cdm.base.staticdata.party.Counterparty;
 import cdm.event.common.BusinessEvent;
 import cdm.event.common.functions.Create_Execution;
 import cdm.legalagreement.contract.Contract;
@@ -43,6 +45,7 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
                 guard(input.getTradableProduct().getQuantityNotation()),
                 guard(input.getTradableProduct().getPriceNotation()),
                 guard(input.getTradableProduct().getCounterparties()),
+                guard(input.getTradableProduct().getRelatedParties()),
                 guard(input.getParty()),
                 guard(input.getPartyRole()),
                 settlementTerm,
@@ -64,6 +67,14 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
     }
 
     private List<SettlementTerms> getSettlementTerm(Contract input) {
+    	List<Counterparty> counterparties = Optional.ofNullable(input)
+		        .map(Contract::getTradableProduct)
+		        .map(TradableProduct::getCounterparties)
+		        .orElse(Collections.emptyList());
+        List<RelatedPartyReference> relatedParties = Optional.ofNullable(input)
+                .map(Contract::getTradableProduct)
+                .map(TradableProduct::getRelatedParties)
+                .orElse(Collections.emptyList());
         return Optional.ofNullable(input)
                 .map(Contract::getTradableProduct)
                 .map(TradableProduct::getProduct)
@@ -72,7 +83,7 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
                 .map(EconomicTerms::getPayout)
                 .map(Payout::getCashflow)
                 .map(cashflows -> cashflows.stream()
-                        .map(cashflow -> cashflowSettlementTerms.evaluate(cashflow))
+                        .map(cashflow -> cashflowSettlementTerms.evaluate(cashflow, counterparties, relatedParties))
                         .collect(Collectors.toList())
                 )
                 .orElse(Collections.emptyList());
