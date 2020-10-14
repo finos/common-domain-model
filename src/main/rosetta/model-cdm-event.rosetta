@@ -119,9 +119,20 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 	instructionFunction string (1..1) <"Name of the function that will be called">
 	allocation AllocationInstruction (0..1) <"Instruction to allocate">
 	clearing ClearingInstruction (0..1) <"Instruction to clear">
-
+	requiredResponders Party (0..*) <"Parties required to respond with an InstructionResponse">
 	condition OneOfInstruction: required choice allocation, clearing
 
+type InstructionResponse: <"A response that either approves or rejects an instruction">
+	[metadata key]
+	[rootType]
+	approved boolean (1..1) <"Flag whether the instruction is approved">
+	party Party (1..1) <"Party responding to the instruction">
+	rejectedReason string (0..1) <"Optional reason for rejecting the instruction">
+	timestamp EventTimestamp (1..1) <"Timestamp of the response">
+	// TODO: Decide if this should reference a WorkflowStep or an Instruction
+	workflowStep WorkflowStep (1..1) <"Reference to the workflow step containing the instruction being responded to">
+		[metadata reference]
+		
 type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedInstruction is present and is rejected if the rejected flag is set.">
 	[metadata key]
 	[rootType]
@@ -131,6 +142,7 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	proposedInstruction Instruction (0..1) <"The proposed instruction for the next workflow step. The proposedInstruction is optional when the businessEvent or rejection are present">
 		[synonym Workflow_Event value "proposedInstruction"]
 	// TODO - This will be replaced with a list of signatories that must sign off the 'previousWorkflowStep' and any operational reasons why it may be rejected.
+	responses InstructionResponse (0..*) <"Responses to the instruction in this workflow step.">
 	rejected boolean (0..1) <"Flags this step as rejected.">
 		[synonym Workflow_Event value "rejected"]
 	previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
