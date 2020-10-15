@@ -31,7 +31,7 @@ class SimpleUnmergerTest {
 		ProductBuilder template = getObject(Product.class, PRODUCT_TEMPLATE).toBuilder();
 		ProductBuilder merged = getObject(Product.class, PRODUCT_MERGED).toBuilder();
 
-		Product unmerged = SimpleUnmerger.merge(merged, template).build();
+		Product unmerged = SimpleUnmerger.unmerge(merged, template).build();
 
 		Product expected = getObject(Product.class, PRODUCT_UNMERGED);
 		assertEquals(expected, unmerged);
@@ -42,7 +42,7 @@ class SimpleUnmergerTest {
 		PartyBuilder template = getObject(Party.class, PARTY_TEMPLATE).toBuilder();
 		PartyBuilder merged = getObject(Party.class, PARTY_MERGED).toBuilder();
 
-		Party unmerged = SimpleUnmerger.merge(merged, template).build();
+		Party unmerged = SimpleUnmerger.unmerge(merged, template).build();
 
 		Party expected = getObject(Party.class, PARTY_UNMERGED);
 		assertEquals(expected, unmerged);
