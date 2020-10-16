@@ -39,7 +39,7 @@ class SimpleMergerTest {
 		ProductBuilder template = getObject(Product.class, PRODUCT_TEMPLATE).toBuilder();
 		ProductBuilder input = getObject(Product.class, PRODUCT_1).toBuilder();
 
-		Product merged = SimpleMerger.merge(input, template).build();
+		Product merged = new SimpleMerger().merge(input, template).build();
 
 		Product expected = getObject(Product.class, PRODUCT_MERGED);
 		assertEquals(expected, merged);
@@ -50,7 +50,7 @@ class SimpleMergerTest {
 		ProductBuilder template = getObject(Product.class, PRODUCT_TEMPLATE).toBuilder();
 		ProductBuilder input = getObject(Product.class, PRODUCT_1).toBuilder();
 
-		Product merged = SimpleMerger.merge(input, template).build();
+		Product merged = new SimpleMerger().merge(input, template).build();
 
 		Product expected = getObject(Product.class, PRODUCT_MERGED);
 		assertEquals(expected, merged);
@@ -63,7 +63,7 @@ class SimpleMergerTest {
 
 		IllegalArgumentException thrown = assertThrows(
 				IllegalArgumentException.class,
-				() -> SimpleMerger.merge(input, template));
+				() -> new SimpleMerger().merge(input, template));
 
 		assertEquals("Attempting to merge 2 different basic values [left=true, right=false, type=Boolean]", thrown.getMessage());
 	}
@@ -73,7 +73,7 @@ class SimpleMergerTest {
 		PartyBuilder template = getObject(Party.class, PARTY_TEMPLATE).toBuilder();
 		PartyBuilder input = getObject(Party.class, PARTY).toBuilder();
 
-		Party merged = SimpleMerger.merge(input, template).build();
+		Party merged = new SimpleMerger().merge(input, template).build();
 
 		Party expected = getObject(Party.class, PARTY_MERGED);
 		assertEquals(expected, merged);
