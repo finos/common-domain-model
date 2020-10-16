@@ -136,10 +136,6 @@ public class EventEffectProcessStep implements PostProcessStep{
 			return true;
 		}
 
-		@Override
-		public <T> void processBasic(RosettaPath path, Class<T> rosettaType, T instance,
-				RosettaModelObjectBuilder parent, AttributeMeta... metas) {
-		}
 
 		@Override
 		public Report report() {

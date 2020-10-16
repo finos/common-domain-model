@@ -51,10 +51,6 @@ public class ResolveContractualProductProcessStep implements PostProcessStep {
             }
 
             @Override
-            public <T> void processBasic(RosettaPath rosettaPath, Class<T> aClass, T t, RosettaModelObjectBuilder rosettaModelObjectBuilder, AttributeMeta... attributeMetas) {
-            }
-
-            @Override
             public Report report() {
                 return new Report() {
                 };
