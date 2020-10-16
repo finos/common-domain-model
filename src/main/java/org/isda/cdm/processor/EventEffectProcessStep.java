@@ -118,7 +118,7 @@ public class EventEffectProcessStep implements PostProcessStep{
 		}
 
 		@Override
-		public <R extends RosettaModelObject> boolean processRosetta(RosettaPath path, Class<? extends R> rosettaType,
+		public <R extends RosettaModelObject> boolean processRosetta(RosettaPath path, Class<R> rosettaType,
 				RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent, AttributeMeta... metas) {
 			if (builder instanceof BusinessEventBuilder && builder.hasData()) {
 				((BusinessEventBuilder) builder).getOrCreateEventEffect();
