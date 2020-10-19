@@ -36,6 +36,7 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">
 	optionProvision OptionProvision (0..1) <"Cancelable and/or extendible provisions.">
 	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events.">
+	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 
 	condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout.">
 		if extraordinaryEvents exists
@@ -64,6 +65,10 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 		if (payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate
 			and terminationDate) exists
 		then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate < terminationDate -> adjustableDate -> unadjustedDate
+	
+	condition IndependentCalculationAgent:
+		if calculationAgent -> calculationAgentParty -> relatedParty exists
+		then calculationAgent -> calculationAgentParty -> relatedParty = RelatedPartyEnum -> IndependentCalculationAgent
 
     // FIXME Object compare: effectiveDate > terminationDate
     // condition CalculationPeriodDates_effectiveDate_terminationDate: <"If the effective date and the termination date are specified, then the termination date must be after the effective date. This data rule extends the FpML validation rules ird-14 & cd-5, which scope is limited to the unadjusted date, to the adjusted date.">
@@ -200,6 +205,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 //	 			and equityPayout -> payoutQuantity -> quantitySchedule -> amount = 1.0 )
 //	  		or ( interestRatePayout -> payoutQuantity -> quantitySchedule exists
 //	 and interestRatePayout -> payoutQuantity -> quantitySchedule -> amount = 1.0 )
+
 	condition PayRelativeTo: <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardized CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 		if interestRatePayout count = 2
 			and interestRatePayout -> paymentDates exists
@@ -465,6 +471,10 @@ type MandatoryEarlyTermination: <"A data to:  define an early termination provis
 		if cashSettlement exists
 		then cashSettlement -> cashSettlementPaymentDate is absent
 
+    condition MandatoryEarlyTerminationCalculationAgent:
+        if calculationAgent -> calculationAgentParty -> relatedParty exists
+        then calculationAgent -> calculationAgentParty -> relatedParty = RelatedPartyEnum -> MandatoryEarlyTerminationCalculationAgent
+
 type MandatoryEarlyTerminationAdjustedDates: <"A data defining:  the adjusted dates associated with a mandatory early termination provision.">
 
 	adjustedEarlyTerminationDate date (1..1) <"The early termination date that is applicable if an early termination provision is exercised. This date should already be adjusted for any applicable business day convention.">
@@ -494,6 +504,10 @@ type OptionalEarlyTermination: <"A data defining:  an early termination provisio
 	condition OptionalEarlyTerminationExerciseNoticeReceiverParty:
 		if exerciseNotice -> exerciseNoticeReceiver exists
 		then exerciseNotice -> exerciseNoticeReceiver = RelatedPartyEnum -> OptionalEarlyTerminationExerciseNoticeReceiverParty
+
+    condition MandatoryEarlyTerminationCalculationAgent:
+        if calculationAgent -> calculationAgentParty -> relatedParty exists
+        then calculationAgent -> calculationAgentParty -> relatedParty = RelatedPartyEnum -> OptionalEarlyTerminationCalculationAgent
 
 type OptionalEarlyTerminationAdjustedDates: <"A data defining:  the adjusted dates associated with an optional early termination provision.">
 
