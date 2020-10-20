@@ -15,7 +15,7 @@ import org.isda.cdm.functions.Create_Execution;
 
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 
-public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contract, BusinessEvent> {
+public class RunExecutionWithSettlementTerms implements ExecutableFunction<TradeState, BusinessEvent> {
 
     @Inject
     Create_Execution execute;
@@ -25,28 +25,29 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
 
 
     @Override
-    public BusinessEvent execute(Contract input) {
+    public BusinessEvent execute(TradeState input) {
         List<SettlementTerms> settlementTerm = getSettlementTerm(input);
         if (!settlementTerm.isEmpty()) {
             input = clearCashPayout(input);
         }
 
-        return execute.evaluate(input.getTradableProduct().getProduct(),
-                guard(input.getTradableProduct().getQuantityNotation()),
-                guard(input.getTradableProduct().getPriceNotation()),
-                guard(input.getTradableProduct().getCounterparties()),
-                guard(input.getParty()),
-                guard(input.getPartyRole()),
+        return execute.evaluate(input.getTrade().getTradableProduct().getProduct(),
+                guard(input.getTrade().getTradableProduct().getQuantityNotation()),
+                guard(input.getTrade().getTradableProduct().getPriceNotation()),
+                guard(input.getTrade().getTradableProduct().getCounterparties()),
+                guard(input.getTrade().getParty()),
+                guard(input.getTrade().getPartyRole()),
                 settlementTerm,
                 null,
-                Optional.ofNullable(input.getTradeDate()).map(TradeDate::getDate).orElse(null),
-                guard(input.getContractIdentifier()));
+                Optional.ofNullable(input.getTrade().getTradeDate()).map(TradeDate::getDate).orElse(null),
+                guard(input.getTrade().getIdentifier()));
     }
 
-    private Contract clearCashPayout(Contract input) {
-        Contract.ContractBuilder contractBuilder = input.toBuilder();
+    private TradeState clearCashPayout(TradeState input) {
+        TradeState.TradeStateBuilder contractBuilder = input.toBuilder();
         Optional.of(contractBuilder)
-                .map(Contract.ContractBuilder::getTradableProduct)
+                .map(TradeState.TradeStateBuilder::getTrade)
+                .map(TradeNew.TradeNewBuilder::getTradableProduct)
                 .map(TradableProduct.TradableProductBuilder::getProduct)
                 .map(Product.ProductBuilder::getContractualProduct)
                 .map(ContractualProduct.ContractualProductBuilder::getEconomicTerms)
@@ -55,9 +56,10 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
         return contractBuilder.build();
     }
 
-    private List<SettlementTerms> getSettlementTerm(Contract input) {
+    private List<SettlementTerms> getSettlementTerm(TradeState input) {
         return Optional.ofNullable(input)
-                .map(Contract::getTradableProduct)
+                .map(TradeState::getTrade)
+                .map(TradeNew::getTradableProduct)
                 .map(TradableProduct::getProduct)
                 .map(Product::getContractualProduct)
                 .map(ContractualProduct::getEconomicTerms)
@@ -71,8 +73,8 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
     }
 
     @Override
-    public Class<Contract> getInputType() {
-        return Contract.class;
+    public Class<TradeState> getInputType() {
+        return TradeState.class;
     }
 
     @Override

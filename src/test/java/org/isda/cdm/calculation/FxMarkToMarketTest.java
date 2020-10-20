@@ -6,13 +6,7 @@ import static org.hamcrest.Matchers.closeTo;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.isda.cdm.Contract;
-import org.isda.cdm.ContractualProduct;
-import org.isda.cdm.EconomicTerms;
-import org.isda.cdm.ForwardPayout;
-import org.isda.cdm.Payout;
-import org.isda.cdm.Product;
-import org.isda.cdm.TradableProduct;
+import org.isda.cdm.*;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.functions.FxMarkToMarket;
 import org.isda.cdm.functions.InterpolateForwardRate;
@@ -82,8 +76,8 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
         assertThat(result, closeTo(BigDecimal.valueOf(-8_750_000), BigDecimal.valueOf(0.000001)));
     }
 
-    private static Contract createFxContract(String curr1, String curr2, int price1, int price2, QuoteBasisEnum basisEnum) {
-        return Contract.builder()
+    private static TradeNew createFxContract(String curr1, String curr2, int price1, int price2, QuoteBasisEnum basisEnum) {
+        return TradeNew.builder()
                 .setTradableProductBuilder(TradableProduct.builder()
                 	.setProductBuilder(Product.builder()
 		                .setContractualProductBuilder(ContractualProduct.builder()

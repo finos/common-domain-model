@@ -1,9 +1,15 @@
 package org.isda.cdm.functions;
 
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import cdm.base.math.NonNegativeQuantity;
+import cdm.observable.asset.QuantityNotation;
+import com.google.common.io.Resources;
+import com.google.inject.Inject;
+import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.rosetta.model.lib.GlobalKey;
+import com.rosetta.model.lib.meta.MetaFieldsI;
+import org.isda.cdm.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -15,28 +21,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.Contract;
-import org.isda.cdm.ContractualProduct;
-import org.isda.cdm.EconomicTerms;
-import org.isda.cdm.EquityPayout;
-import org.isda.cdm.InterestRatePayout;
-import org.isda.cdm.OptionPayout;
-import org.isda.cdm.Payout;
-import org.isda.cdm.PayoutBase;
-import org.isda.cdm.Product;
-import org.isda.cdm.ResolvablePayoutQuantity;
-import org.isda.cdm.TradableProduct;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import com.google.common.io.Resources;
-import com.google.inject.Inject;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.rosetta.model.lib.GlobalKey;
-import com.rosetta.model.lib.meta.MetaFieldsI;
-
-import cdm.base.math.NonNegativeQuantity;
-import cdm.observable.asset.QuantityNotation;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 
@@ -64,9 +52,9 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 
 	@Test
 	void shouldThrowExceptionForMissingQuantityNotation() throws IOException {
-		Contract contract = getContract(RATES_DIR + "GBP-Vanilla-uti.json");
-		ContractualProduct contractualProduct = contract.getTradableProduct().getProduct().getContractualProduct();
-		PayoutBase fixedLegPayout = getPayout(getInterestRatePayouts(contract), "fixedLeg1");
+		TradeState tradeState = getTradeState(RATES_DIR + "GBP-Vanilla-uti.json");
+		ContractualProduct contractualProduct = tradeState.getTrade().getTradableProduct().getProduct().getContractualProduct();
+		PayoutBase fixedLegPayout = getPayout(getInterestRatePayouts(tradeState), "fixedLeg1");
 
 		try {
 			resolveFunc.evaluate(fixedLegPayout.getPayoutQuantity(), Collections.emptyList(), contractualProduct);
@@ -82,18 +70,18 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForFixFloatVanilla() throws IOException {
-		Contract contract = getContract(RATES_DIR + "GBP-Vanilla-uti.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(RATES_DIR + "GBP-Vanilla-uti.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
-		PayoutBase fixedLegPayout = getPayout(getInterestRatePayouts(contract), "fixedLeg1");
+		PayoutBase fixedLegPayout = getPayout(getInterestRatePayouts(tradeState), "fixedLeg1");
 		NonNegativeQuantity resolvedFixedLegQuantity = resolveFunc.evaluate(fixedLegPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(4352000), getResolvedQuantityAmount(resolvedFixedLegQuantity));
 
 
-		PayoutBase floatingLegPayout = getPayout(getInterestRatePayouts(contract), "floatingLeg2");
+		PayoutBase floatingLegPayout = getPayout(getInterestRatePayouts(tradeState), "floatingLeg2");
 		NonNegativeQuantity resolvedFloatingLegQuantity = resolveFunc.evaluate(floatingLegPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(4352000), getResolvedQuantityAmount(resolvedFloatingLegQuantity));
@@ -105,18 +93,18 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForFra() throws IOException {
-		Contract contract = getContract(RATES_DIR + "ird-ex08-fra-no-discounting.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(RATES_DIR + "ird-ex08-fra-no-discounting.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
-		PayoutBase fixedLegPayout = getPayout(getInterestRatePayouts(contract), 0);
+		PayoutBase fixedLegPayout = getPayout(getInterestRatePayouts(tradeState), 0);
 		NonNegativeQuantity resolvedFixedLegQuantity = resolveFunc.evaluate(fixedLegPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(25000000), getResolvedQuantityAmount(resolvedFixedLegQuantity));
 
 
-		PayoutBase floatingLegPayout = getPayout(getInterestRatePayouts(contract), 1);
+		PayoutBase floatingLegPayout = getPayout(getInterestRatePayouts(tradeState), 1);
 		NonNegativeQuantity resolvedFloatingLegQuantity = resolveFunc.evaluate(floatingLegPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(25000000), getResolvedQuantityAmount(resolvedFloatingLegQuantity));
@@ -134,17 +122,17 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForEquitySwap() throws IOException {
-		Contract contract = getContract(EQUITY_DIR + "eqs-ex01-single-underlyer-execution-long-form.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(EQUITY_DIR + "eqs-ex01-single-underlyer-execution-long-form.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
-		PayoutBase equityPayout = getPayout(getEquityPayouts(contract));
+		PayoutBase equityPayout = getPayout(getEquityPayouts(tradeState));
 		NonNegativeQuantity resolvedEquityQuantity = resolveFunc.evaluate(equityPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(28469376), getResolvedQuantityAmount(resolvedEquityQuantity));
 
-		PayoutBase interestRatePayout = getPayout(getInterestRatePayouts(contract));
+		PayoutBase interestRatePayout = getPayout(getInterestRatePayouts(tradeState));
 		NonNegativeQuantity resolvedInterestRateQuantity = resolveFunc.evaluate(interestRatePayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(28469376), getResolvedQuantityAmount(resolvedInterestRateQuantity));
@@ -157,12 +145,12 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForResettingXccySwaps() throws IOException {
-		Contract contract = getContract(RATES_DIR + "ird-ex25-fxnotional-swap-usi-uti.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(RATES_DIR + "ird-ex25-fxnotional-swap-usi-uti.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
-		PayoutBase fixedLegPayout = getPayout(getInterestRatePayouts(contract), 0);
+		PayoutBase fixedLegPayout = getPayout(getInterestRatePayouts(tradeState), 0);
 		NonNegativeQuantity resolvedFixedLegQuantity = resolveFunc.evaluate(fixedLegPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(1000000000L), getResolvedQuantityAmount(resolvedFixedLegQuantity));
@@ -175,12 +163,12 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForRepo() throws IOException {
-		Contract contract = getContract(REPO_DIR + "repo-ex01-repo-fixed-rate.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(REPO_DIR + "repo-ex01-repo-fixed-rate.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
-		PayoutBase fixedLegPayout = getPayout(getInterestRatePayouts(contract));
+		PayoutBase fixedLegPayout = getPayout(getInterestRatePayouts(tradeState));
 		NonNegativeQuantity resolvedFixedLegQuantity = resolveFunc.evaluate(fixedLegPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(1292748), getResolvedQuantityAmount(resolvedFixedLegQuantity));
@@ -203,12 +191,12 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForBondOption() throws IOException {
-		Contract contract = getContract(RATES_DIR + "bond-option-uti.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(RATES_DIR + "bond-option-uti.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
-		PayoutBase optionPayout = getPayout(getOptionPayouts(contract));
+		PayoutBase optionPayout = getPayout(getOptionPayouts(tradeState));
 		NonNegativeQuantity resolvedOptionQuantity = resolveFunc.evaluate(optionPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(10000000000L), getResolvedQuantityAmount(resolvedOptionQuantity));
@@ -219,12 +207,12 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForCreditSwaption() throws IOException {
-		Contract contract = getContract(CREDIT_DIR + "cd-swaption-usi.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(CREDIT_DIR + "cd-swaption-usi.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
-		PayoutBase optionPayout = getPayout(getOptionPayouts(contract));
+		PayoutBase optionPayout = getPayout(getOptionPayouts(tradeState));
 		NonNegativeQuantity resolvedOptionQuantity = resolveFunc.evaluate(optionPayout.getPayoutQuantity(), quantityNotations, contractualProduct);
 
 		assertEquals(BigDecimal.valueOf(10000000), getResolvedQuantityAmount(resolvedOptionQuantity));
@@ -234,10 +222,10 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 		return resolvedQuantity.getAmount().setScale(0, RoundingMode.HALF_UP);
 	}
 
-	private Contract getContract(String resourceName) throws IOException {
+	private TradeState getTradeState(String resourceName) throws IOException {
 		URL url = Resources.getResource(resourceName);
 		String json = Resources.toString(url, Charset.defaultCharset());
-		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, Contract.class);
+		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, TradeState.class);
 	}
 
 	private PayoutBase getPayout(List<? extends PayoutBase> payouts) {
@@ -261,27 +249,28 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 				.orElseThrow(() -> new IllegalArgumentException("No Payout found with external key " + payoutExternalKey));
 	}
 
-	private List<InterestRatePayout> getInterestRatePayouts(Contract contract) {
-		return getPayouts(contract)
+	private List<InterestRatePayout> getInterestRatePayouts(TradeState tradeState) {
+		return getPayouts(tradeState)
 				.map(Payout::getInterestRatePayout)
 				.orElseThrow(() -> new IllegalArgumentException("Contract does not contain InterestRatePayout"));
 	}
 
-	private List<EquityPayout> getEquityPayouts(Contract contract) {
-		return getPayouts(contract)
+	private List<EquityPayout> getEquityPayouts(TradeState tradeState) {
+		return getPayouts(tradeState)
 				.map(Payout::getEquityPayout)
 				.orElseThrow(() -> new IllegalArgumentException("Contract does not contain EquityPayout"));
 	}
 
-	private List<OptionPayout> getOptionPayouts(Contract contract) {
-		return getPayouts(contract)
+	private List<OptionPayout> getOptionPayouts(TradeState tradeState) {
+		return getPayouts(tradeState)
 				.map(Payout::getOptionPayout)
 				.orElseThrow(() -> new IllegalArgumentException("Contract does not contain OptionPayout"));
 	}
 
-	private Optional<Payout> getPayouts(Contract contract) {
-		return Optional.ofNullable(contract)
-				.map(Contract::getTradableProduct)
+	private Optional<Payout> getPayouts(TradeState tradeState) {
+		return Optional.ofNullable(tradeState)
+				.map(TradeState::getTrade)
+				.map(TradeNew::getTradableProduct)
 				.map(TradableProduct::getProduct)
 				.map(Product::getContractualProduct)
 				.map(ContractualProduct::getEconomicTerms)

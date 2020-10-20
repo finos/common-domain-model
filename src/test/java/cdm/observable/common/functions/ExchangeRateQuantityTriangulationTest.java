@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.isda.cdm.Contract;
 import org.isda.cdm.TradableProduct;
+import org.isda.cdm.TradeState;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +23,6 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 
 import cdm.observable.asset.PriceNotation;
 import cdm.observable.asset.QuantityNotation;
-import cdm.observable.common.functions.ExchangeRateQuantityTriangulation;
 
 public class ExchangeRateQuantityTriangulationTest extends AbstractFunctionTest {
 
@@ -72,8 +72,8 @@ public class ExchangeRateQuantityTriangulationTest extends AbstractFunctionTest 
 	}
 
 	void shouldTriangulateFxRateAndNotionalAndReturnSuccess(String filename, int quantity1, int quantity2, double rate, int scale) throws IOException {
-		Contract contract = getContract(FX_DIR + filename);
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(FX_DIR + filename);
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<PriceNotation> priceNotation = tradableProduct.getPriceNotation();
 		List<QuantityNotation> quantityNotation = tradableProduct.getQuantityNotation();
 
@@ -85,9 +85,9 @@ public class ExchangeRateQuantityTriangulationTest extends AbstractFunctionTest 
 		assertThat(func.rate(priceNotation, quantityNotation).get().setScale(scale, RoundingMode.HALF_UP), is(BigDecimal.valueOf(rate).setScale(scale, RoundingMode.HALF_UP)));
 	}
 
-	private Contract getContract(String resourceName) throws IOException {
+	private TradeState getTradeState(String resourceName) throws IOException {
 		URL url = Resources.getResource(resourceName);
 		String json = Resources.toString(url, Charset.defaultCharset());
-		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, Contract.class);
+		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, TradeState.class);
 	}
 }

@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 
 import org.isda.cdm.Contract;
 import org.isda.cdm.TradableProduct;
+import org.isda.cdm.TradeState;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.io.Resources;
@@ -25,8 +26,8 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 	
 	@Test
 	void shouldTriangulateEquityPriceNotionalAndNoOfUnitsAndReturnSuccess() throws IOException {
-		Contract contract = getContract(EQUITY_DIR + "eqs-ex01-single-underlyer-execution-long-form.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState contract = getTradeState(EQUITY_DIR + "eqs-ex01-single-underlyer-execution-long-form.json");
+		TradableProduct tradableProduct = contract.getTrade().getTradableProduct();
 		
 		boolean success = func.evaluate(tradableProduct.getPriceNotation(), tradableProduct.getQuantityNotation());
 		
@@ -35,17 +36,17 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 	
 	@Test
 	void shouldReturnSuccessNotApplicableBecauseNoOfUnitsNotDefined() throws IOException {
-		Contract contract = getContract(EQUITY_DIR + "eqs-ex10-short-form-interestLeg-driving-schedule-dates.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState contract = getTradeState(EQUITY_DIR + "eqs-ex10-short-form-interestLeg-driving-schedule-dates.json");
+		TradableProduct tradableProduct = contract.getTrade().getTradableProduct();
 		
 		boolean success = func.evaluate(tradableProduct.getPriceNotation(), tradableProduct.getQuantityNotation());
 		
 		assertTrue(success);
 	}
 	
-	private Contract getContract(String resourceName) throws IOException {
+	private TradeState getTradeState(String resourceName) throws IOException {
 		URL url = Resources.getResource(resourceName);
 		String json = Resources.toString(url, Charset.defaultCharset());
-		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, Contract.class);
+		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, TradeState.class);
 	}
 }

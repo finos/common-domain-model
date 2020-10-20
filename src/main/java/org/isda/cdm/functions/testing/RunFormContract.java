@@ -10,12 +10,13 @@ import javax.inject.Inject;
 import org.isda.cdm.BusinessEvent;
 import org.isda.cdm.Contract;
 import org.isda.cdm.TradeDate;
+import org.isda.cdm.TradeState;
 import org.isda.cdm.functions.Create_ContractFormation;
 import org.isda.cdm.functions.Create_Execution;
 
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 
-public class RunFormContract implements ExecutableFunction<Contract, BusinessEvent> {
+public class RunFormContract implements ExecutableFunction<TradeState, BusinessEvent> {
 
     @Inject
     Create_Execution execute;
@@ -25,24 +26,24 @@ public class RunFormContract implements ExecutableFunction<Contract, BusinessEve
 
 
     @Override
-    public BusinessEvent execute(Contract contract) {
-        BusinessEvent executeBusinessEvent = execute.evaluate(contract.getTradableProduct().getProduct(),
-                guard(contract.getTradableProduct().getQuantityNotation()),
-                guard(contract.getTradableProduct().getPriceNotation()),
-                guard(contract.getTradableProduct().getCounterparties()),
-                guard(contract.getParty()),
-                guard(contract.getPartyRole()),
+    public BusinessEvent execute(TradeState tradeState) {
+        BusinessEvent executeBusinessEvent = execute.evaluate(tradeState.getTrade().getTradableProduct().getProduct(),
+                guard(tradeState.getTrade().getTradableProduct().getQuantityNotation()),
+                guard(tradeState.getTrade().getTradableProduct().getPriceNotation()),
+                guard(tradeState.getTrade().getTradableProduct().getCounterparties()),
+                guard(tradeState.getTrade().getParty()),
+                guard(tradeState.getTrade().getPartyRole()),
                 Collections.emptyList(),
                 null,
-                Optional.ofNullable(contract.getTradeDate()).map(TradeDate::getDate).orElse(null),
-                guard(contract.getContractIdentifier()));
+                Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(TradeDate::getDate).orElse(null),
+                guard(tradeState.getTrade().getIdentifier()));
 
         return formContract.evaluate(executeBusinessEvent, null);
     }
 
     @Override
-    public Class<Contract> getInputType() {
-        return Contract.class;
+    public Class<TradeState> getInputType() {
+        return TradeState.class;
     }
 
     @Override

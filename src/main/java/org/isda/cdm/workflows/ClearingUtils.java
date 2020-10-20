@@ -1,14 +1,7 @@
 package org.isda.cdm.workflows;
 
 import com.rosetta.model.lib.records.Date;
-import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.ClearingInstruction;
-import org.isda.cdm.Contract;
-import org.isda.cdm.ContractFormationPrimitive;
-import org.isda.cdm.Instruction;
-import org.isda.cdm.PostContractFormationState;
-import org.isda.cdm.PrimitiveEvent;
-import org.isda.cdm.WorkflowStep;
+import org.isda.cdm.*;
 import org.isda.cdm.functions.Create_ClearedTrade;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 import org.isda.cdm.metafields.ReferenceWithMetaWorkflowStep;
@@ -38,7 +31,7 @@ public class ClearingUtils {
 		return stepBuilder.build();
 	}
 
-	static WorkflowStep buildProposeStep(PostProcessor runner, WorkflowStep previous, Contract alphaContract, Party party1, Party party2, String externalReference, IdentifierService identifierService) {
+	static WorkflowStep buildProposeStep(PostProcessor runner, WorkflowStep previous, TradeState alphaContract, Party party1, Party party2, String externalReference, IdentifierService identifierService) {
 		WorkflowStep.WorkflowStepBuilder stepBuilder = WorkflowStep.builder();
 		stepBuilder
 			.setPreviousWorkflowStep(ReferenceWithMetaWorkflowStep.builder()
@@ -85,14 +78,12 @@ public class ClearingUtils {
 		return clearedTradeWorkflowEvent;
 	}
 
-	static WorkflowStep buildContractFormationStep(PostProcessor runner, Contract contract, String externalReference, IdentifierService identifierService) {
+	static WorkflowStep buildContractFormationStep(PostProcessor runner, TradeState tradeState, String externalReference, IdentifierService identifierService) {
 		WorkflowStep.WorkflowStepBuilder stepBuilder = WorkflowStep.builder();
 		stepBuilder.getOrCreateBusinessEvent()
 			.addPrimitives(PrimitiveEvent.builder()
 				.setContractFormation(ContractFormationPrimitive.builder()
-					.setAfter(PostContractFormationState.builder()
-						.setContract(contract)
-						.build())
+					.setAfter(tradeState)
 					.build())
 				.build());
 

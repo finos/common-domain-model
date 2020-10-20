@@ -30,13 +30,14 @@ class ResolveContractualProductProcessStepTest extends AbstractFunctionTest {
 
     @Test
     void postProcessStepResolvedQuantity() throws IOException {
-        Contract contract = getContract(RATES_DIR + "GBP-Vanilla-uti.json");
-        Contract.ContractBuilder builder = contract.toBuilder();
+        TradeState tradeState = getTradeState(RATES_DIR + "GBP-Vanilla-uti.json");
+        TradeState.TradeStateBuilder builder = tradeState.toBuilder();
         resolveContractualProductProcessStep.runProcessStep(Contract.class, builder);
-        Contract resolvedContract = builder.build();
+        TradeState resolvedTradeState = builder.build();
 
-        List<InterestRatePayout> interestRatePayouts = Optional.ofNullable(resolvedContract)
-                .map(Contract::getTradableProduct)
+        List<InterestRatePayout> interestRatePayouts = Optional.ofNullable(resolvedTradeState)
+                .map(TradeState::getTrade)
+                .map(TradeNew::getTradableProduct)
                 .map(TradableProduct::getProduct)
                 .map(Product::getContractualProduct)
                 .map(ContractualProduct::getEconomicTerms)
@@ -71,10 +72,10 @@ class ResolveContractualProductProcessStepTest extends AbstractFunctionTest {
                 .orElseThrow(() -> new IllegalArgumentException("No Payout found with external key " + payoutExternalKey));
     }
 
-    private Contract getContract(String resourceName) throws IOException {
+    private TradeState getTradeState(String resourceName) throws IOException {
         URL url = Resources.getResource(resourceName);
         String json = Resources.toString(url, Charset.defaultCharset());
-        return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, Contract.class);
+        return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, TradeState.class);
     }
 
 }
