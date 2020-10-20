@@ -126,7 +126,7 @@ func Qualify_Compression: <"The qualification of a compression event from the fa
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		businessEvent -> primitives -> quantityChange exists
-		and businessEvent -> primitives -> quantityChange -> before -> contract multiple exists
+		and businessEvent -> primitives -> quantityChange -> before -> trade multiple exists
 
 func Qualify_DerivedObservation: <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, (ii) there are multiple instances of such observations, and (iii) there is an associated call function to compute, say, an interpolation.">
 	[qualification BusinessEvent]
@@ -160,7 +160,7 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 				and businessEvent -> primitives -> transfer -> cashTransfer exists
 			))
 		and QuantityIncreased(businessEvent -> primitives -> quantityChange) = True
-		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
+		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
 
 func Qualify_MultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
 	[qualification BusinessEvent]
@@ -179,8 +179,8 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 		businessEvent -> primitives -> quantityChange exists
 		and businessEvent -> primitives -> contractFormation exists
 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
-		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Novated
-		and businessEvent -> primitives -> contractFormation -> after -> trade -> identifier <> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
+		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state = ClosedStateEnum -> Novated
+		and businessEvent -> primitives -> contractFormation -> after -> trade -> identifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> identifier
 		and businessEvent -> eventDate = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate -> date
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates only-element
 		//and originalContractParties <> newContractParties
@@ -201,7 +201,7 @@ func Qualify_PartialNovation: <"The qualification of a novation event from the f
 	assign-output is_event:
 		businessEvent -> primitives -> quantityChange exists
 		and businessEvent -> primitives -> contractFormation exists
-		and businessEvent -> primitives -> contractFormation -> after -> trade -> identifier <> businessEvent -> primitives -> quantityChange -> before -> contract -> contractIdentifier
+		and businessEvent -> primitives -> contractFormation -> after -> trade -> identifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> identifier
 		and businessEvent -> eventDate = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate -> date
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
@@ -220,7 +220,7 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 				and businessEvent -> primitives -> transfer -> cashTransfer exists
 			))
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
-		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState is absent
+		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
 
 func Qualify_Reset: <"The qualification of a reset event from the fact that the only primitive is the reset.">
 	[qualification BusinessEvent]
@@ -267,7 +267,7 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 				and businessEvent -> primitives -> transfer -> cashTransfer exists)
 			)
 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
-		and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Terminated
+		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 
 func Qualify_TradeWarehousePositionNotification:
 	[qualification BusinessEvent]
@@ -302,14 +302,14 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 	output: is_event boolean (1..1)
 
 	alias beforeQuantityNotation:
-		businessEvent -> primitives -> quantityChange -> before -> contract -> tradableProduct -> quantityNotation
+		businessEvent -> primitives -> quantityChange -> before -> trade -> tradableProduct -> quantityNotation
 	
 	alias beforeNoOfUnits:
 		if beforeQuantityNotation exists
 		then NoOfUnits( beforeQuantityNotation )
 	
 	alias afterQuantityNotation:
-		businessEvent -> primitives -> quantityChange -> after -> contract -> tradableProduct -> quantityNotation
+		businessEvent -> primitives -> quantityChange -> after -> trade -> tradableProduct -> quantityNotation
 	
 	alias afterNoOfUnits:
 		if afterQuantityNotation exists

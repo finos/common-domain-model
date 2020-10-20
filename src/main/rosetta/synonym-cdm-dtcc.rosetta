@@ -35,9 +35,9 @@ synonym source DTCC_BASE extends FpML_5_10
 		+ calculationAgentBusinessCenter
 			[value "calculationAgentBusinessCenter" path "Body->OTC_Matching->Trade->FpML->trade"]
 
-	Contract:
-		- contractIdentifier
-		+ contractIdentifier
+	TradeNew:
+		- identifier
+		+ identifier
 			[value "Submitter"]
 			[value "ContraTradeId"]
 			[value "YourTradeId"]
@@ -47,6 +47,19 @@ synonym source DTCC_BASE extends FpML_5_10
 			[value "UTI"]
 		+ tradableProduct
 			[hint "ProductType"]
+
+	Contract:
+		// - contractIdentifier
+		// + contractIdentifier
+		// 	[value "Submitter"]
+		// 	[value "ContraTradeId"]
+		// 	[value "YourTradeId"]
+		// 	[value "tradeIdentifyingItems"]
+		// 	[value "USI"]
+		// 	[value "OriginatingUSI"]
+		// 	[value "UTI"]
+		// + tradableProduct
+		// 	[hint "ProductType"]
 			
 	// TODO: fix mappings in next step
 	// Execution:
@@ -113,7 +126,7 @@ synonym source DTCC_BASE extends FpML_5_10
 		+ identifier
 			[value "tradeId" path "partyTradeIdentifier" maps 2
 			 set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "EventProcessingId" and rosettaPath = WorkflowStep -> eventIdentifier -> assignedIdentifier -> identifier,
-			 set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "TradeRefNbr" and rosettaPath = Contract -> contractIdentifier -> assignedIdentifier -> identifier meta "tradeIdScheme"]
+			 set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "TradeRefNbr" and rosettaPath = TradeNew -> identifier -> assignedIdentifier -> identifier meta "tradeIdScheme"]
 			[value "USITradeId" meta "tradeIdScheme"]
 			[value "UTITradeId" meta "tradeIdScheme"]
 			[value "identifier" path "payment" meta "paymentIdScheme"]
@@ -138,7 +151,7 @@ synonym source DTCC_BASE extends FpML_5_10
 			[value "breakdown"]
 
 	ContractState:
-		+ contract
+		+ trade
 			[value "FpML" path "Trade"]
 			[value "TradeMsg" path "Manifest"]
 			[value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
