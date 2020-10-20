@@ -2,14 +2,12 @@ package org.isda.cdm.merging;
 
 import cdm.legalagreement.contract.Contract;
 import cdm.product.template.ContractualProduct;
-import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
 import com.regnosys.rosetta.common.hashing.ReKeyProcessStep;
 import com.regnosys.rosetta.common.merging.MergeTemplateProcessStep;
 import com.regnosys.rosetta.common.merging.SimpleMerger;
 import com.regnosys.rosetta.common.merging.SimpleUnmerger;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.util.RosettaModelObjectSupplier;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
@@ -18,8 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +23,7 @@ import java.util.function.Consumer;
 
 import static java.util.Optional.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static util.ResourcesUtils.getObject;
 
 public class MergeTemplateProcessStepTest {
 
@@ -76,11 +73,5 @@ public class MergeTemplateProcessStepTest {
 		Contract unmerged = builder.build();
 		Contract expected = getObject(Contract.class, "merging/contract-unmerged.json");
 		assertEquals(expected, unmerged);
-	}
-
-	private <T extends RosettaModelObject> T getObject(Class<T> clazz, String resourceName) throws IOException {
-		URL url = Resources.getResource(resourceName);
-		String json = Resources.toString(url, Charset.defaultCharset());
-		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, clazz);
 	}
 }

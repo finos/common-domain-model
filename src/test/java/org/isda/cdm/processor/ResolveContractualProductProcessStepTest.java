@@ -1,6 +1,7 @@
 package org.isda.cdm.processor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static util.ResourcesUtils.getObject;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -39,7 +40,7 @@ class ResolveContractualProductProcessStepTest extends AbstractFunctionTest {
 
     @Test
     void postProcessStepResolvedQuantity() throws IOException {
-        Contract contract = getContract(RATES_DIR + "GBP-Vanilla-uti.json");
+        Contract contract = getObject(Contract.class, RATES_DIR + "GBP-Vanilla-uti.json");
         Contract.ContractBuilder builder = contract.toBuilder();
         resolveContractualProductProcessStep.runProcessStep(Contract.class, builder);
         Contract resolvedContract = builder.build();
@@ -79,11 +80,4 @@ class ResolveContractualProductProcessStepTest extends AbstractFunctionTest {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No Payout found with external key " + payoutExternalKey));
     }
-
-    private Contract getContract(String resourceName) throws IOException {
-        URL url = Resources.getResource(resourceName);
-        String json = Resources.toString(url, Charset.defaultCharset());
-        return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, Contract.class);
-    }
-
 }

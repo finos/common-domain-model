@@ -2,20 +2,16 @@ package org.isda.cdm.merging;
 
 import cdm.base.staticdata.party.Party;
 import cdm.product.template.Product;
-import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.merging.SimpleMerger;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.rosetta.model.lib.RosettaModelObject;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
 
 import static cdm.base.staticdata.party.Party.PartyBuilder;
 import static cdm.product.template.Product.ProductBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static util.ResourcesUtils.getObject;
 
 class SimpleMergerTest {
 
@@ -33,8 +29,9 @@ class SimpleMergerTest {
 		ProductBuilder template = getObject(Product.class, PRODUCT_TEMPLATE).toBuilder();
 		ProductBuilder input = getObject(Product.class, PRODUCT_1).toBuilder();
 
-		Product merged = new SimpleMerger().run(input, template).build();
+		new SimpleMerger().run(input, template);
 
+		Product merged = input.build();
 		Product expected = getObject(Product.class, PRODUCT_MERGED);
 		assertEquals(expected, merged);
 	}
@@ -44,8 +41,9 @@ class SimpleMergerTest {
 		ProductBuilder template = getObject(Product.class, PRODUCT_TEMPLATE).toBuilder();
 		ProductBuilder input = getObject(Product.class, PRODUCT_1).toBuilder();
 
-		Product merged = new SimpleMerger().run(input, template).build();
+		new SimpleMerger().run(input, template);
 
+		Product merged = input.build();
 		Product expected = getObject(Product.class, PRODUCT_MERGED);
 		assertEquals(expected, merged);
 	}
@@ -59,7 +57,7 @@ class SimpleMergerTest {
 				IllegalArgumentException.class,
 				() -> new SimpleMerger().run(input, template));
 
-		assertEquals("Attempting to merge 2 different basic values [left=true, right=false, type=Boolean]", thrown.getMessage());
+		assertEquals("Attempting to merge 2 different basic values [o1=true, o2=false, type=Boolean]", thrown.getMessage());
 	}
 
 	@Test
@@ -67,15 +65,12 @@ class SimpleMergerTest {
 		PartyBuilder template = getObject(Party.class, PARTY_TEMPLATE).toBuilder();
 		PartyBuilder input = getObject(Party.class, PARTY).toBuilder();
 
-		Party merged = new SimpleMerger().run(input, template).build();
+		new SimpleMerger().run(input, template);
 
+		Party merged = input.build();
 		Party expected = getObject(Party.class, PARTY_MERGED);
 		assertEquals(expected, merged);
 	}
 
-	private <T extends RosettaModelObject> T getObject(Class<T> clazz, String resourceName) throws IOException {
-		URL url = Resources.getResource(resourceName);
-		String json = Resources.toString(url, Charset.defaultCharset());
-		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, clazz);
-	}
+
 }

@@ -2,19 +2,15 @@ package org.isda.cdm.merging;
 
 import cdm.base.staticdata.party.Party;
 import cdm.product.template.Product;
-import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.merging.SimpleUnmerger;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.rosetta.model.lib.RosettaModelObject;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
 
 import static cdm.base.staticdata.party.Party.PartyBuilder;
 import static cdm.product.template.Product.ProductBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static util.ResourcesUtils.getObject;
 
 class SimpleUnmergerTest {
 
@@ -31,8 +27,9 @@ class SimpleUnmergerTest {
 		ProductBuilder template = getObject(Product.class, PRODUCT_TEMPLATE).toBuilder();
 		ProductBuilder merged = getObject(Product.class, PRODUCT_MERGED).toBuilder();
 
-		Product unmerged = new SimpleUnmerger().run(merged, template).build();
+		new SimpleUnmerger().run(merged, template);
 
+		Product unmerged = merged.build();
 		Product expected = getObject(Product.class, PRODUCT_UNMERGED);
 		assertEquals(expected, unmerged);
 	}
@@ -42,15 +39,10 @@ class SimpleUnmergerTest {
 		PartyBuilder template = getObject(Party.class, PARTY_TEMPLATE).toBuilder();
 		PartyBuilder merged = getObject(Party.class, PARTY_MERGED).toBuilder();
 
-		Party unmerged = new SimpleUnmerger().run(merged, template).build();
+		new SimpleUnmerger().run(merged, template);
 
+		Party unmerged = merged.build();
 		Party expected = getObject(Party.class, PARTY_UNMERGED);
 		assertEquals(expected, unmerged);
-	}
-
-	private <T extends RosettaModelObject> T getObject(Class<T> clazz, String resourceName) throws IOException {
-		URL url = Resources.getResource(resourceName);
-		String json = Resources.toString(url, Charset.defaultCharset());
-		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, clazz);
 	}
 }
