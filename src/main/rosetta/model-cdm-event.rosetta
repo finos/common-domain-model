@@ -259,7 +259,7 @@ type TradeState:
 	[metadata key]
 	trade TradeNew (1..1)
 		[synonym Workflow_Event value "fpmlTrade"]
-	state State (1..1)
+	state State (0..1)
 	observationHistory ObservationHistory (0..*)
 
 type ObservationHistory:
@@ -272,15 +272,15 @@ type TradeNew:
 	identifier Identifier (1..*)
 	tradeDate TradeDate (1..1)
 	tradableProduct TradableProduct (1..1)
-	party Party (1..*)
-	partyRole PartyRole (1..*)
+	party Party (0..*)
+	partyRole PartyRole (0..*)
 	settlementTerms SettlementTerms (0..*)
 	execution Execution (0..1)
 	contract Contract (0..1)
 
 	// Execution specific conditions
 	condition: 
-		required choice execution, contract 
+		optional choice execution, contract
 
 	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
 		if tradableProduct -> product -> security exists
