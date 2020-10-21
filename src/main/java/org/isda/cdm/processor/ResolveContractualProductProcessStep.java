@@ -36,7 +36,7 @@ public class ResolveContractualProductProcessStep implements PostProcessStep {
         builder.process(path, new SimpleBuilderProcessor() {
             @Override
             public <R extends RosettaModelObject> boolean processRosetta(RosettaPath path,
-                                                                         Class<? extends R> rosettaType,
+                                                                         Class<R> rosettaType,
                                                                          RosettaModelObjectBuilder builder,
                                                                          RosettaModelObjectBuilder parent,
                                                                          AttributeMeta... metas) {
@@ -48,10 +48,6 @@ public class ResolveContractualProductProcessStep implements PostProcessStep {
                     tradableProductBuilder.getProduct().setContractualProduct(contractualProduct);
                 }
                 return true;
-            }
-
-            @Override
-            public <T> void processBasic(RosettaPath rosettaPath, Class<T> aClass, T t, RosettaModelObjectBuilder rosettaModelObjectBuilder, AttributeMeta... attributeMetas) {
             }
 
             @Override

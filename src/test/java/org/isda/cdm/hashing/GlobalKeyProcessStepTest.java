@@ -1,4 +1,4 @@
-package util;
+package org.isda.cdm.hashing;
 
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.Party.PartyBuilder;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class GlobalKeyGenerationTest {
+public class GlobalKeyProcessStepTest {
 
 	@Test
 	public void shouldNotSetGlobalKeyOnFieldWithMetaBuilderWithoutMetadataId() {
