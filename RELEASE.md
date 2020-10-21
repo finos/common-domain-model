@@ -14,11 +14,11 @@ To specify a type as templatable and to enable a template reference to be specif
 
 _Review Directions_
 
-- In the CDM Portal, use the Textual Browser to review the type `ContractualProduct` and annotation [metadata template]`.
+- In the CDM Portal, use the Textual Browser to review the type `ContractualProduct` and annotation `[metadata template]`.
 
 *Merging Utilities and Examples*
 
-Once a template reference has been resolved, it will be necessary to merge the template data to form a single fully poplulated object.  This release includes code utilities, written in Java, that can merge to data from two object into one.  These utilities can be extended by implementors to change the merging strategy to meet their requirements.
+Once a template reference has been resolved, it will be necessary to merge the template data to form a single fully populated object.  This release includes code utilities, written in Java, that can merge the data from two objects into one.  These utilities can be extended by implementors to change the merging strategy to meet their requirements.
 
 This release also includes a example to show usage of data template and the merging utilities.
 
