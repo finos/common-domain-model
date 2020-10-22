@@ -239,7 +239,7 @@ type CashExercise: <"The cash exercise specifies the cashflow using the cashflow
 
 type ExerciseOutcome: <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
 
-	contract Contract (1..1)
+	contract TradeState (1..1)
 		[synonym Workflow_Event value "fpmlContract"]
 	physicalExercise PhysicalExercise (0..1)
 		[synonym Workflow_Event value "physicalExercise"]
@@ -258,7 +258,6 @@ type ExecutionState: <"A class to specify an execution instantiation with respec
 type TradeState:
 	[metadata key]
 	trade TradeNew (1..1)
-		[synonym Workflow_Event value "fpmlTrade"]
 	state State (0..1)
 	observationHistory ObservationHistory (0..*)
 
@@ -484,6 +483,7 @@ type TradeNew:
 // TODO: Meet with Ruddy, Ted and Jim to agree on set of status enum values.
 type State:
 	closedState ClosedState (0..1)
+	    [synonym Workflow_Event value "closedState" path "trade"]
 	positionState PositionStatusEnum (0..1)
 
 	condition: if positionState = PositionStatusEnum -> Closed then 
