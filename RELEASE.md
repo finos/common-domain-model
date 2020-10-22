@@ -10,7 +10,11 @@ In the business domain the same is achieved via master confirmation or portfolio
 
 *Model Changes*
 
-To specify a type as templatable and to enable a template reference to be specified, use the new annotation `[metadata template]`.  Currently the only type in the model specified as a templatable is `ContractualProduct`.  Other than the new annotation, data templates do not have any impact on the model, i.e. no new types, attributes, or conditions.
+The annotation type `[metadata template]` has been added to the model.  This annotation indicates that a data type is eligible to be used as a template.  The designation applies to all encapsulated types in that data type.
+
+For example, currently, the only date type in the model that has been assigned this new annotation is `ContractualProduct`.  The designation of template eligibility also applies to `EconomicTerms` which is an encapsulated type in `ContractualProduct`, and also likewise applies to `Payout` which is an encapsulated type in `EconomicTerms`.
+
+Other than the new annotation, data templates do not have any impact on the model, i.e. no new types, attributes, or conditions.
 
 _Review Directions_
 
