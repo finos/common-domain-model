@@ -44,12 +44,13 @@ type ContractFormationPrimitive: <"Specification of a primitive event that repre
 
 	before TradeState (0..1) <"The before state corresponds to the output of an execution between the parties.">
 		[metadata reference]
-		[synonym Workflow_Event value "before"]
+		[synonym Workflow_Event value "fpmlTrade" path "before"]
+		[synonym Workflow_Event value "fpmlExecution" path "before"]
 	after TradeState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
-		[synonym Workflow_Event value "after"]
+		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
 	condition: <"The product should be unchanged.">
-		before -> trade -> tradableProduct -> product = after -> trade -> tradableProduct -> product
+		after exists
 
 	condition: <"The quantity should be unchanged.">
 		if before exists then before -> trade -> tradableProduct -> quantityNotation = after -> trade -> tradableProduct -> quantityNotation
@@ -61,7 +62,7 @@ type SplitPrimitive: <"The primitive event to represent a split/allocation of a 
 
 	before TradeState (1..1) <"The trade before split, which is either an execution if split happens before the contract is formed, or an already formed contract.">
 		[metadata reference]
-		[synonym Workflow_Event value "before"]
+		[synonym Workflow_Event value "fpmlTrade" path "before"]
 	after SplitOutcome (1..1) <"Outcome of the split as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Split'.">
 		[synonym Workflow_Event value "after"]
 
@@ -120,7 +121,7 @@ type QuantityChangePrimitive: <"The primitive event to represent a change in qua
 
 	before TradeState (1..1) <"The state of the trade (either an execution or a contract, before the event.">
 		[metadata reference]
-		[synonym Workflow_Event value "before"]  <<=== HERE!!!
+		[synonym Workflow_Event value "fpmlTrade" path "before"]
 	after TradeState (1..1) <"The state of the trade (either an execution or a contract, as a follow-up from the event.">
 		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
@@ -139,9 +140,9 @@ type TermsChangePrimitive: <"The primitive event to represent change(s) to the c
 
 	before TradeState (1..1)
 		[metadata reference]
-		[synonym Workflow_Event value "before"]
+		[synonym Workflow_Event value "fpmlTrade" path "before"]
 	after TradeState (1..1)
-		[synonym Workflow_Event value "after"]
+		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
 type TransferPrimitive: <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security). The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
