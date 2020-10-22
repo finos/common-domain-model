@@ -2,7 +2,7 @@ package org.isda.cdm.merging;
 
 import cdm.base.staticdata.party.Party;
 import cdm.product.template.Product;
-import com.regnosys.rosetta.common.merging.SimpleUnmerger;
+import com.regnosys.rosetta.common.merging.SimpleSplitter;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ import static cdm.product.template.Product.ProductBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static util.ResourcesUtils.getObject;
 
-class SimpleUnmergerTest {
+class SimpleSplitterTest {
 
 	private static final String PRODUCT_TEMPLATE = "merging/product-template.json";
 	private static final String PRODUCT_MERGED = "merging/product-merged.json";
@@ -27,7 +27,7 @@ class SimpleUnmergerTest {
 		ProductBuilder template = getObject(Product.class, PRODUCT_TEMPLATE).toBuilder();
 		ProductBuilder merged = getObject(Product.class, PRODUCT_MERGED).toBuilder();
 
-		new SimpleUnmerger().run(merged, template);
+		new SimpleSplitter().run(merged, template);
 
 		Product unmerged = merged.build();
 		Product expected = getObject(Product.class, PRODUCT_UNMERGED);
@@ -39,7 +39,7 @@ class SimpleUnmergerTest {
 		PartyBuilder template = getObject(Party.class, PARTY_TEMPLATE).toBuilder();
 		PartyBuilder merged = getObject(Party.class, PARTY_MERGED).toBuilder();
 
-		new SimpleUnmerger().run(merged, template);
+		new SimpleSplitter().run(merged, template);
 
 		Party unmerged = merged.build();
 		Party expected = getObject(Party.class, PARTY_UNMERGED);
