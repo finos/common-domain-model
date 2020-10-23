@@ -26,11 +26,18 @@ synonym source DTCC_11_0 extends DTCC_BASE
 {
 	ContractFormationPrimitive:
 		+ after
-			[value "OTC_RM" path "Header", "OTC_Matching" path "Body" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
+		    [value "TradeMsg" path "Header->OTC_RM->Manifest", "ReportingJurisdiction" path "Body->OTC_Matching->ReportingData->ReportingHeader", "FpML" path "Body->OTC_Matching->Trade" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
+			// [value "TradeMsg" path "Header->OTC_RM->Manifest"]
+			// [value "FpML" path "Body->OTC_Matching->Trade" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
+			// [value "ReportingJurisdiction" path "Body->OTC_Matching->ReportingData->ReportingHeader" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
 }
 
 synonym source DTCC_BASE extends FpML_5_10
 {
+    BusinessEvent:
+        + tradeWarehouseWorkflow
+            [value "OTC_Matching" path "Body"]
+
 	CalculationAgentModel:
 		+ calculationAgentBusinessCenter
 			[value "calculationAgentBusinessCenter" path "Body->OTC_Matching->Trade->FpML->trade"]
@@ -38,17 +45,18 @@ synonym source DTCC_BASE extends FpML_5_10
 	TradeNew:
 		- identifier
 		+ identifier
-			[value "Submitter"]
+			[value "Submitter"] // below are taken from conrtact
 			[value "ContraTradeId"]
 			[value "YourTradeId"]
 			[value "tradeIdentifyingItems"]
 			[value "USI"]
 			[value "OriginatingUSI"]
 			[value "UTI"]
+			//[value "partyTradeIdentifier" path "Submitter"] // taken from execution
 		+ tradableProduct
 			[hint "ProductType"]
 
-	Contract:
+	// Contract:
 		// - contractIdentifier
 		// + contractIdentifier
 		// 	[value "Submitter"]
@@ -150,11 +158,11 @@ synonym source DTCC_BASE extends FpML_5_10
 		+ breakdown
 			[value "breakdown"]
 
-	ContractState:
-		+ trade
-			[value "FpML" path "Trade"]
-			[value "TradeMsg" path "Manifest"]
-			[value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
+	// ContractState:
+	//	+ trade
+	//		[value "FpML" path "Trade"]
+	//		[value "TradeMsg" path "Manifest"]
+	//		[value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
 
 	CustomisedWorkflow:
 		+ itemName
@@ -219,7 +227,7 @@ synonym source DTCC_BASE extends FpML_5_10
 
 	PartyCustomisedWorkflow:
 		+ partyReference
-			[value "partyReference" meta "href"]
+			[value "partyReference" maps 2 meta "href"]
 
 	Trade:
 		+ contract
