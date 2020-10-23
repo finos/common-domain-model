@@ -225,9 +225,17 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 		+ party
 			[value "party" path "Instrmt->SecXML->FpML"]
 
+	// Trade:
+	//	+ execution
+	//		[value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" exists]
+	//	+ contract
+	//		[value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" is absent]
+
 	Execution:
 		+ executionType
 			[value "VenuTyp"]
+		+ executionVenue
+		    [value "Hdr" set when "VenuTyp" exists]
 
 	Payout:
 		+ equityPayout
@@ -269,7 +277,8 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 
 	LegalEntity:
 		+ name
-			[value "SID" path "Hdr"]
+			//[value "SID" path "Hdr"]
+			[value "SID"]
 
 	Party:
 		+ name
@@ -324,12 +333,6 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 	PartyCustomisedWorkflow:
 		+ partyName
 			[value "ID" path "Pty"]
-
-	// Trade:
-	//	+ execution
-	//		[value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" exists]
-	//	+ contract
-	//		[value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" is absent]
 
 	TradeWarehouseWorkflow:
 		+ partyCustomisedWorkflow

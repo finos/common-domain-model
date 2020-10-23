@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
-public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<TradeNew, Workflow> {
+public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<TradeState, Workflow> {
 
     @Inject
     Create_WorkflowStep workflowStep;
@@ -35,14 +35,14 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
 
 
     @Override
-    public Workflow execute(TradeNew tradeNew) {
+    public Workflow execute(TradeState tradeState) {
         WorkflowStep newExecutionWorkflowStep = lineageUtils.withGlobalReference(WorkflowStep.class,
-        		workflowStep.evaluate(messageInformation("msg-1"), eventDate(tradeNew.getTradeDate(), LocalTime.of(18, 12)), identifier("id-1"), emptyList(), emptyList(),
-        				null, ActionEnum.NEW, newBusinessEvent(tradeNew)));
+        		workflowStep.evaluate(messageInformation("msg-1"), eventDate(tradeState.getTrade().getTradeDate(), LocalTime.of(18, 12)), identifier("id-1"), emptyList(), emptyList(),
+        				null, ActionEnum.NEW, newBusinessEvent(tradeState)));
 
         WorkflowStep correctedExecutionWorkflowStep = lineageUtils.withGlobalReference(WorkflowStep.class,
-        		workflowStep.evaluate(messageInformation("msg-2"), eventDate(tradeNew.getTradeDate(), LocalTime.of(19, 13)), identifier("id-2"), emptyList(), emptyList(),
-						newExecutionWorkflowStep, ActionEnum.CORRECT, correctedBusinessEvent(tradeNew)));
+        		workflowStep.evaluate(messageInformation("msg-2"), eventDate(tradeState.getTrade().getTradeDate(), LocalTime.of(19, 13)), identifier("id-2"), emptyList(), emptyList(),
+						newExecutionWorkflowStep, ActionEnum.CORRECT, correctedBusinessEvent(tradeState)));
 
         Workflow workflow = Workflow.builder()
                 .addSteps(Lists.newArrayList(newExecutionWorkflowStep, correctedExecutionWorkflowStep))
@@ -66,22 +66,22 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
 		return MessageInformation.builder().setMessageIdRef(messageId).build();
 	}
 
-	private BusinessEvent correctedBusinessEvent(TradeNew contract) {
-		BusinessEvent corrected = execute.evaluate(contract.getTradableProduct().getProduct(),
-                guard(contract.getTradableProduct().getQuantityNotation()),
-                guard(contract.getTradableProduct().getPriceNotation()),
-                guard(contract.getTradableProduct().getCounterparties()),
-                guard(contract.getParty()),
-                guard(contract.getPartyRole()),
+	private BusinessEvent correctedBusinessEvent(TradeState tradeState) {
+		BusinessEvent corrected = execute.evaluate(tradeState.getTrade().getTradableProduct().getProduct(),
+                guard(tradeState.getTrade().getTradableProduct().getQuantityNotation()),
+                guard(tradeState.getTrade().getTradableProduct().getPriceNotation()),
+                guard(tradeState.getTrade().getTradableProduct().getCounterparties()),
+                guard(tradeState.getTrade().getParty()),
+                guard(tradeState.getTrade().getPartyRole()),
                 Collections.emptyList(),
 				null,
-				Optional.ofNullable(contract.getTradeDate()).map(TradeDate::getDate).orElse(null),
-				guard(contract.getIdentifier()));
+				Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(TradeDate::getDate).orElse(null),
+				guard(tradeState.getTrade().getIdentifier()));
 		return corrected;
 	}
 
-	private BusinessEvent newBusinessEvent(TradeNew tradeNew) {
-        List<QuantityNotation> incorrectQuantity = tradeNew.getTradableProduct().getQuantityNotation().stream()
+	private BusinessEvent newBusinessEvent(TradeState tradeState) {
+        List<QuantityNotation> incorrectQuantity = tradeState.getTrade().getTradableProduct().getQuantityNotation().stream()
                 .map(QuantityNotation::toBuilder)
                 .map(x -> {
                 	x.getQuantity().setAmount(BigDecimal.valueOf(99999));
@@ -90,22 +90,22 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
                 .map(QuantityNotation.QuantityNotationBuilder::build)
                 .collect(Collectors.toList());
         
-        BusinessEvent newBusinessEvent = execute.evaluate(tradeNew.getTradableProduct().getProduct(),
+        BusinessEvent newBusinessEvent = execute.evaluate(tradeState.getTrade().getTradableProduct().getProduct(),
                 guard(incorrectQuantity),
-                guard(tradeNew.getTradableProduct().getPriceNotation()),
-                guard(tradeNew.getTradableProduct().getCounterparties()),
-                guard(tradeNew.getParty()),
-                guard(tradeNew.getPartyRole()),
+                guard(tradeState.getTrade().getTradableProduct().getPriceNotation()),
+                guard(tradeState.getTrade().getTradableProduct().getCounterparties()),
+                guard(tradeState.getTrade().getParty()),
+                guard(tradeState.getTrade().getPartyRole()),
                 Collections.emptyList(),
 				null,
-				Optional.ofNullable(tradeNew.getTradeDate()).map(TradeDate::getDate).orElse(null),
-				guard(tradeNew.getIdentifier()));
+				Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(TradeDate::getDate).orElse(null),
+				guard(tradeState.getTrade().getIdentifier()));
 		return newBusinessEvent;
 	}
 
     @Override
-    public Class<TradeNew> getInputType() {
-        return TradeNew.class;
+    public Class<TradeState> getInputType() {
+        return TradeState.class;
     }
 
     @Override
