@@ -9,6 +9,7 @@ The Common Domain Model
 * Process
 * Reference Data
 * Mapping (Synonym)
+* Data Templates
 
 The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure. All the Rosetta DSL modelling components that are used to express the CDM are described in the `Rosetta DSL Documentation`_
 
@@ -249,11 +250,14 @@ The data types that extend from ProductBase are Index, Commodity, Loan, and Secu
 .. code-block:: Haskell
 
  type Loan extends ProductBase:
-   borrower LegalEntity (0..*) 
-   lien string (0..1) 
-   facilityType string (0..1) 
-   creditAgreementDate date (0..1) 
-   tranche string (0..1) 
+   borrower LegalEntity (0..*)
+   lien string (0..1)
+     [metadata scheme]
+   facilityType string (0..1)
+     [metadata scheme]
+   creditAgreementDate date (0..1)
+   tranche string (0..1)
+     [metadata scheme]
 
 .. code-block:: Haskell
    
