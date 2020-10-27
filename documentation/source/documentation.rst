@@ -9,7 +9,6 @@ The Common Domain Model
 * Process
 * Reference Data
 * Mapping (Synonym)
-* Data Templates
 
 The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure. All the Rosetta DSL modelling components that are used to express the CDM are described in the `Rosetta DSL Documentation`_
 
@@ -157,6 +156,17 @@ In the CDM, contractual products are represented by the ``ContractualProduct`` t
     economicTerms EconomicTerms (1..1)
 
 Note that price and quantity are defined in ``TradableProduct`` as these are attributes common to all products.  The remaining economic terms of the contractual product are defined in ``EconomicTerms`` which is an encapsulated type in ``ContractualProduct`` .
+
+Data Templates
+""""""""""""""
+
+The ``ContractualProduct`` type is specified with the ``[metadata template]`` annotation indicating that it is eligible to be used as a **Template**.
+
+Financial systems often contain a high volume of contracts with near identical contractual product data.  Templates provide a way to store this data more efficiently.  The contractual product data which is duplicated on each contract can be extracted into a single template and replaced by a reference.  This allows each contract to specify only the unique contractual product data.  The template reference can be resolved to a template object which can then be merged in to form a single, complete object.
+
+Neither the template object nor the object containing incomplete data should be validated individually, so no cardinality or conditions can be written explicitly for the pre-merged objects.  Validation should only be performed once the template reference has been resolved and the objects merged together.
+
+Code libraries, written in Java and distributed with the CDM, contain tools to merge CDM objects together.  Implementors may extend these merging tools to change the merging strategy to suit their requirements.  The CDM Java Examples download, available via the `CDM Portal Downloads page <https://portal.cdm.rosetta-technology.io/#/downloads>`_, contains a example demonstrating usage of a data template and the merging tools. See ``com.regnosys.cdm.example.template.TemplateExample``.
 
 Economic Terms
 """"""""""""""
@@ -1950,35 +1960,3 @@ Those synonym sources are listed as part of a configuration file in the CDM usin
 
 .. _serialised: https://en.wikipedia.org/wiki/Serialization
 .. _data modelling: https://en.wikipedia.org/wiki/Cardinality_(data_modeling)#Application_program_modeling_approaches
-
-Data Templates
---------------
-
-Data templates provide a way to store data which is duplicated across multiple CDM objects in a single referenced template.
-
-One of the driving use-cases for templates in the CDM is Equity Swaps due to the high volume of contracts with near identical product details from Equity Financing desks.  The product details which are duplicated on each contract can be extracted into a single product template, and each contract can then specify a reference to that template.  Each contract would only specify the unique product details, which can be merged with the template product details to form a fully specified object.  In the business domain the same is achieved via master confirmation or portfolio swap agreements which can be bespoke or standard, or via clients having standard term sheets agreed and sitting with sales desks to be used when writing all future deals (a working practice which has parallels in almost every asset class).
-
-Model Changes
-^^^^^^^^^^^^^
-
-The annotation type ``[metadata template]`` has been added to the model.  This annotation indicates that a data type is eligible to be used as a template.
-
-The designation applies to all encapsulated types in that data type.  For example, currently, the only date type in the model that has been assigned this new annotation is ``ContractualProduct``.  The designation of template eligibility also applies to ``EconomicTerms`` which is an encapsulated type in ``ContractualProduct``, and also likewise applies to ``Payout`` which is an encapsulated type in ``EconomicTerms``.
-
-Other than the new annotation, data templates do not have any impact on the model, i.e. no new types, attributes, or conditions.
-
-.. code-block:: Haskell
-
- type ContractualProduct:
-   [metadata key]
-   [metadata template]
-   productIdentification ProductIdentification (0..1)
-   productTaxonomy ProductTaxonomy (0..*)
-   economicTerms EconomicTerms (1..1)
-
-Merging Utilities and Examples
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Once a template reference has been resolved, it will be necessary to merge the template data to form a single fully populated object.  The CDM distribution includes code libraries, written in Java, that can merge the data from two objects into one.  These utilities can be extended by implementors to change the merging strategy to meet their requirements.
-
-The CDM Java Examples download, available via the CDM Portal Downloads page, contains a example demonstrating usage of a data template and the merging utilities.  See ``com.regnosys.cdm.example.template.TemplateExample``.
