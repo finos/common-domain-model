@@ -5,6 +5,7 @@ import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.rates.*
+import cdm.base.staticdata.identifier.*
 
 import cdm.observable.asset.*
 
@@ -20,114 +21,603 @@ synonym source ORE
 
 synonym source ORE_1_0_39 extends ORE
 {
-	Contract:
-		+ contractIdentifier
+    Contract:
+        + contractIdentifier
             [value "Trade"]
-		+ party
-			[value "Envelope" path "Trade"]
-		+ tradableProduct
-			[value "Trade" mapper "ORECounterparty"]
+        + party
+            [value "ignore"]
+        + tradableProduct
+            [value "Trade" mapper "ORECounterparty"]
+        + tradeDate
+            [value "StartDate" path "Trade->SwapData->LegData->ScheduleData->Rules" maps 2 dateFormat "yyyyMMdd"] // For IR Swap
+            [value "StartDate" path "Trade->SwaptionData->LegData->ScheduleData->Rules" maps 2 dateFormat "yyyy-MM-dd"] // For IR Swaption
+            [value "StartDate" path "Trade->CapFloorData->LegData->ScheduleData->Rules" maps 2 dateFormat "yyyyMMdd"] // For IR CapFloor
+            [value "NearDate" path "Trade->FxSwapData" maps 2 dateFormat "yyyy-MM-dd"] // For FxSwap
 
-	TradableProduct:
-		+ quantityNotation
-			[value "LegData" path "SwapData"]
-		+ priceNotation
-			[value "LegData" path "SwapData"]
+    TradableProduct:
+        + quantityNotation
+            [value "LegData" path "SwapData"]
+            [value "LegData" path "SwaptionData"]
+            [value "OptionData" path "SwaptionData"]
+            [value "LegData" path "CapFloorData"]
+            [hint "FxForwardData"]
+            [hint "FxSwapData"]
+            [value "ForwardRateAgreementData"]
+        + priceNotation
+            [value "LegData" path "SwapData"]
+            [value "LegData" path "SwaptionData"]
+            [value "OptionData" path "SwaptionData"]
+            [value "LegData" path "CapFloorData"]
+            [hint "FxForwardData"]
+            [hint "FxSwapData"]
+            [value "ForwardRateAgreementData"]
 
-	Counterparty:
-		+ partyReference
-			[value "Envelope"]
-		+ counterparty
-			[set to CounterpartyEnum->Party2]
+    Counterparty:
+        + partyReference
+            [value "Envelope"]
+        + counterparty
+            [set to CounterpartyEnum->Party2 when "Envelope->CounterParty" exists]
 
-	PriceNotation:
+    Party:
+        + partyId
+            [value "CounterParty"]
+
+    PriceNotation:
         + price
+            [value "FloatingLegData"]
+            [value "FixedLegData"]
+            [value "ZeroCouponFixedLegData"]
+            [hint "PremiumAmount"]
+            [hint "PremiumCurrency"]
+            [hint "FxForwardData"]
+            [hint "FxSwapData"]
+            [hint "Strike"] // For FRA
         + assetIdentifier
             [hint "FloatingLegData"]
+            [hint "ZeroCouponFixedLegData"]
+            [hint "Currency"] // For IR products (inc. FRA)
             [value "ignore"]
 
-	FixedInterestRate:
-		+ rate
-			[value "Rate" path "FixedLegData->Rates"]
+    Money:
+        + amount
+            [value "PremiumAmount" maps 2]
+        + currency
+            [value "PremiumCurrency" maps 2]
 
-	Party:
-		+ partyId
-			[value "CounterParty" maps 2]
-			[value "party_id" path "AdditionalFields"]
+   EconomicTerms:
+       + earlyTerminationProvision
+           [value "ignore"]
+       + optionProvision
+           [value "ignore"]
+       + effectiveDate
+           [value "ignore"]
+       + terminationDate
+           [value "ignore"]
 
-	QuantityNotation:
-		+ assetIdentifier
-			// [value "LegData" path "SwapData"]
-		+ quantity
-			[value "Notionals"]
+    FloatingInterestRate:
+        + spread
+            [value "Spread" path "Spreads"]
 
-	Quantity:
-		+ amount
-			[value "Notional"]
+    QuantityNotation:
+        + quantity
+            [value "Notionals"]
+            [value "FxForwardData"]
+            [hint "FxSwapData"]
+            [hint "Notional"] // For FRA
+        + assetIdentifier
+            [hint "Currency"] // For FRA
+            [value "FxForwardData"]
+            [hint "FxSwapData"]
+            [value "ignore"]
 
-	Product:
-		+ contractualProduct
-			[value "SwapData"]
+    Quantity:
+        + amount
+            [value "Notional"] // For IR products (inc. FRA)
+            [value "BoughtAmount" path "FxForwardData"] // For FX Forward
+            [value "SoldAmount" path "FxForwardData"] // For FX Forward
 
-	Payout:
-		+ interestRatePayout
-			[value "LegData"]
+            [value "FarBoughtAmount" path "FxSwapData"] // For FX Swap
+            [value "NearBoughtAmount" path "FxSwapData" maps 2] // For FX Swap
+            [value "FarSoldAmount" path "FxSwapData"] // For FX Swap
+            [value "NearSoldAmount" path "FxSwapData" maps 2] // For FX Swap
 
-	InterestRatePayout:
-		+ calculationPeriodDates
-			[value "Rules" path "ScheduleData"]
-		+ rateSpecification
-		+ paymentDates
-			[value "Rules" path "ScheduleData"]
+    AssetIdentifier:
+        + currency
+            [value "Currency" maps 2 set when "LegType" = "Fixed"]
+            [value "Currency" set when rosettaPath = TradableProduct->quantityNotation]
+            [value "PremiumCurrency"]
+            [value "BoughtCurrency", "BoughtCurrency" path "FxForwardData" maps 2] // For FX Forward
+            [value "SoldCurrency", "SoldCurrency" path "FxForwardData" maps 2] // For FX Forward
+            [value "NearBoughtCurrency", "NearBoughtCurrency" path "FxSwapData" maps 2] // For FX Swap
+            [value "NearSoldCurrency", "NearSoldCurrency" path "FxSwapData" maps 2] // For FX Swap
+        + rateOption
+            [value "FloatingLegData"]
+            [hint "Index"] // For CPI Swap
 
-	Frequency:
-		+ periodMultiplier
-			[value "Tenor" maps 2 pattern "([0-9]*).*" "$1"]
-		+ period
-			[value "Tenor" maps 2 pattern "[0-9]*(.*)" "$1"]
+    Payout:
+        + interestRatePayout
+            [value "LegData" path "SwapData"] // For IR Swap (inc. CPI Swap)
+            [value "LegData"] // For IR Swaption swap legs
+            [value "LegData" path "CapFloorData"]
+            [hint "LongShort"] // For IR Swaption
+        + optionPayout
+            [value "SwaptionData"]
+        + cashflow
+            [value "OptionData" path "SwaptionData"]
+        + equityPayout
+            [value "ignore"]
+        + creditDefaultPayout
+            [value "ignore"]
+        + forwardPayout
+            [value "FxForwardData"]
+            [hint "FxSwapData"]
+        + securityPayout
+            [value "ignore"]
 
-	CalculationPeriodDates:
-		+ effectiveDate
-			[hint "StartDate"]
+    OptionPayout:
+        + optionType
+            [value "OptionType" path "OptionData"]
+        + buyerSeller
+            [value "OptionData"]
 
-	AdjustableOrRelativeDate:
-		+ adjustableDate
+    OptionSettlement:
+        + cashSettlementTerms
+            [value "OptionData" set when "OptionData->Settlement" = "Cash"]
+        + physicalSettlementTerms    
+            [value "OptionData" set when "OptionData->Settlement" = "Physical"]
+        + fxSettlementTerms
+            [hint "Settlement"]
+            [value "ignore"]
 
-	AdjustableDate:
-		+ unadjustedDate
-			[value "StartDate"]
+    OptionCashSettlement:
+        + cashSettlementPaymentDate
+            [value "ExerciseDates" set when "PayOffAtExpiry" = False,
+                set when "PayOffAtExpiry" is absent]
 
-	ResolvablePayoutQuantity:
-		+ assetIdentifier
-			[hint "Currency"]
+    SettlementTerms:
+        + settlementType
+            [value "Settlement" path "OptionData"] // For Swaption
+        + valueDate
+            [value "ValueDate"] // For FX Forward
+            [value "NearDate" path "FxSwapData"] // For FX Swap
+            [value "FarDate" path "FxSwapData"] // For FX Swap
+        + payerReceiver
+            [value "ignore"]
+        + assetIdentifier
+            [value "ignore"]
 
-	FloatingRateOption:
-		+ floatingRateIndex
-			[value "Index"]
+    ExchangeRate:
+        + crossRate
+            [value "ignore"]
+        + quotedCurrencyPair
+            [value "FxForwardData"]
+            [value "FxSwapData"]
 
-	RateSpecification:
-		+ fixedRate
-			[value "FixedLegData"]
-		+ floatingRate
-			[value "FloatingLegData"]
+    QuotedCurrencyPair:
+        + currency1
+            [value "BoughtCurrency" maps 2 set when rosettaPath = PriceNotation->price->exchangeRate->quotedCurrencyPair] // For FX Forward
+            [value "NearBoughtCurrency" maps 2 set when rosettaPath = PriceNotation->price->exchangeRate->quotedCurrencyPair]// set when "FxSwapData->NearBoughtAmount" exists]
+        + currency2
+            [value "SoldCurrency" maps 2 set when rosettaPath = PriceNotation->price->exchangeRate->quotedCurrencyPair] // For FX Forward
+            [value "NearSoldCurrency" maps 2 set when rosettaPath = PriceNotation->price->exchangeRate->quotedCurrencyPair]
 
-	AssetIdentifier:
-		+ currency
-			[value "Currency"]
+    ForeignExchange:
+        + exchangedCurrency1
+            [hint "BoughtCurrency"]
+            [value "ignore"]
+        + exchangedCurrency2
+            [hint "SoldCurrency"]
+            [value "ignore"]
 
+    OptionStyle:
+        + americanExercise
+            [value "OptionData" set when "OptionData->Style" = "American"]
+        + bermudaExercise
+            [value "OptionData" set when "OptionData->Style" = "Bermudan"]
+        + europeanExercise
+            [value "OptionData" set when "OptionData->Style" = "European"]
+
+    EuropeanExercise:
+        + relevantUnderlyingDate
+            [value "LegData"]
+        + exerciseFee
+            [value "ignore"]
+
+    BermudaExercise:
+        + relevantUnderlyingDate
+            [value "LegData"]
+        + bermudaExerciseDates
+            [value "ExerciseDates"]
+        + exerciseFeeSchedule
+            [value "ignore"]
+
+    Cashflow:
+        + cashflowType
+            [set to CashflowTypeEnum -> Premium when "OptionType" exists]
+        + premiumExpression
+            [value "ignore"]
+        + presentValueAmount
+            [value "ignore"]
+        + paymentDiscounting
+            [value "ignore"]
+        + cashflowAmount
+            [value "ignore"]
+
+        BuyerSeller:
+        + buyer
+            [set to CounterpartyEnum -> Party1 when "LongShort" = "Long",
+                set to CounterpartyEnum -> Party1 when "LongShort" = "L",
+                set to CounterpartyEnum -> Party2 when "LongShort" = "Short",
+                set to CounterpartyEnum -> Party2 when "LongShort" = "S"]
+        + seller
+            [set to CounterpartyEnum -> Party2 when "LongShort" = "Long",
+                set to CounterpartyEnum -> Party2 when "LongShort" = "L",
+                set to CounterpartyEnum -> Party1 when "LongShort" = "Short",
+                set to CounterpartyEnum -> Party1 when "LongShort" = "S"]
+
+    InterestRatePayout:
+        + calculationPeriodDates
+            [value "Rules" path "ScheduleData"]
+        + crossCurrencyTerms
+            [value "Notionals"]
+        + dayCountFraction
+            [value "DayCounter"]
+        + paymentDate
+            [value "ignore"]
+        + stubPeriod
+            [value "ignore"]
+
+    CrossCurrencyTerms:
+        + principalExchanges
+            [value "Exchanges"]
+
+    PrincipalExchanges:
+        + initialExchange
+            [value "NotionalInitialExchange"]
+            [set to False when "NotionalInitialExchange" is absent and "NotionalFinalExchange" exists]
+            [set to False when "NotionalInitialExchange" is absent and "NotionalAmortizingExchange" exists]
+        + finalExchange
+            [value "NotionalFinalExchange"]
+            [set to False when "NotionalFinalExchange" is absent and "NotionalInitialExchange" exists]
+            [set to False when "NotionalFinalExchange" is absent and "NotionalAmortizingExchange" exists]
+        + intermediateExchange
+            [value "NotionalAmortizingExchange"]
+            [set to False when "NotionalAmortizingExchange" is absent and "NotionalInitialExchange" exists]
+            [set to False when "NotionalAmortizingExchange" is absent and "NotionalFinalExchange" exists]
+
+    ResolvablePayoutQuantity:
+        + quantityMultiplier
+            [value "ignore"]
+
+    NonNegativeQuantitySchedule:
+        + initialQuantity
+            [value "Notional" maps 2]
+
+    NonNegativeStep:
+        + stepValue
+            [value "Notional" maps 2]
+
+    PaymentDates:
+        + payRelativeTo
+            [set to PayRelativeToEnum -> CalculationPeriodEndDate when rosettaPath = Payout->interestRatePayout]
+        + paymentFrequency
+            [value "Rules" path "ScheduleData"]
+        + paymentDaysOffset
+            [hint "PaymentLag"]
+            [value "ignore"]
+        + paymentDatesAdjustments
+            [hint "PaymentConvention"]
+            [value "ignore"]
+
+    CalculationPeriodDates:
+        + firstPeriodStartDate
+            [value "ignore"]
+        + firstRegularPeriodStartDate
+            [value "FirstDate" dateFormat "yyyyMMdd"]
+        + lastRegularPeriodEndDate
+            [value "LastDate" dateFormat "yyyyMMdd"]
+        + effectiveDate
+            [hint "StartDate"]
+            [value "ignore"]
+        + terminationDate
+            [hint "EndDate"]
+            [hint "TermConvention"]
+            [value "ignore"]
+        + calculationPeriodDatesAdjustments
+            [hint "Convention"]
+            [hint "Calendar"]
+            [value "ignore"]
+
+    AdjustableDates:
+        + unadjustedDate
+            [value "StartDate" path "ScheduleData" dateFormat "yyyy-MM-dd"]
+            [value "ExerciseDate" dateFormat "yyyy-MM-dd"] // To map ORE ExerciseDate to CDM OptionSettlement->cashSettlementTerms->cashSettlementPaymentDate when PayOffAtExpiry = False
+
+    AdjustableOrAdjustedOrRelativeDate:
+        + adjustedDate
+            [value "PremiumPayDate"]
+
+    AdjustableDate:
+        + unadjustedDate
+            [value "StartDate" maps 2 dateFormat "yyyyMMdd"]
+            [value "EndDate" maps 2 dateFormat "yyyyMMdd"]
+            // [value "StartDate" maps 2 dateFormat "yyyy-MM-dd"]
+            // [value "EndDate" maps 2 dateFormat "yyyy-MM-dd"]
+            [value "ExerciseDate" path "ExerciseDates" maps 2 dateFormat "yyyy-MM-dd"]
+
+    AdjustedRelativeDateOffset:
+        + relativeDateAdjustments
+            [value "ignore"]
+
+    FloatingRateOption:
+        + floatingRateIndex
+            [value "Index" maps 2]
+        + indexTenor
+            [value "ignore"]
+
+    RateSpecification:
+        + fixedRate
+            [value "FixedLegData"]
+            [hint "Currency"]
+        + floatingRate
+            [hint "FloatingLegData"]
+            [value "ignore"]
+        + inflationRate
+            [value "CPILegData"]
+            // [value "ignore"]
+
+    FixedRateSpecification:
+        + rateSchedule
+            [value "Rates"]
+
+    InflationRateSpecification:
+        + interpolationMethod
+            [value "Interpolation"]
+        + initialIndexLevel
+            [value "BaseCPI"]
+        // + inflationLag
+        //     [hint "ObservationLag"]
+        //     [value "ignore"]
+
+    Identifier:
+        + issuer
+            [set to "ME" when rosettaPath = Contract->contractIdentifier]
+ 
+    AssignedIdentifier:
+        + identifier
+            [value "id"]
+ 
+    BusinessDayAdjustments:
+        + businessDayConvention
+            [value "PaymentConvention"] // Payment convention of the leg coupons
+            [value "Convention" maps 2] // Determines the adjustment of the schedule dates generated
+            [value "TermConvention"] // Determines the adjustment of the final schedule date generated
+            [value "ignore"]
+
+    PaymentDateSchedule:
+        + finalPaymentDate
+            [value "ignore"]
+        + interimPaymentDates
+            [value "ignore"]
+
+    PayerReceiver:
+        // Party1: Owner of message
+        + payer
+            [set to CounterpartyEnum -> Party1 when "Payer" = True,
+                set to CounterpartyEnum -> Party2 when "Payer" = False] // For IR Swap
+            [set to CounterpartyEnum -> Party1 when "LongShort" = "Long",
+                set to CounterpartyEnum -> Party1 when "LongShort" = "L",
+                set to CounterpartyEnum -> Party2 when "LongShort" = "Short",
+                set to CounterpartyEnum -> Party2 when "LongShort" = "S"] // For IR Swaption
+            [set to CounterpartyEnum -> Party1 when "SoldCurrency" exists,
+                set to CounterpartyEnum -> Party2 when "BoughtCurrency" exists] // For FX Swap
+            
+        + receiver
+            [set to CounterpartyEnum -> Party2 when "Payer" = True,
+                set to CounterpartyEnum -> Party1 when "Payer" = False] // For IR Swap
+            [set to CounterpartyEnum -> Party2 when "LongShort" = "Long",
+                set to CounterpartyEnum -> Party2 when "LongShort" = "L",
+                set to CounterpartyEnum -> Party1 when "LongShort" = "Short",
+                set to CounterpartyEnum -> Party1 when "LongShort" = "S"] // For IR Swaption
+            [set to CounterpartyEnum -> Party2 when "SoldCurrency" exists,
+                set to CounterpartyEnum -> Party1 when "BoughtCurrency" exists] // For FX Swap
+
+    Frequency:
+        + period
+            [value "Tenor" maps 2 pattern "[0-9]*(.*)" "$1"]
+            [set to PeriodExtendedEnum -> T when "LegType" = "ZeroCouponFixed"]
+        + periodMultiplier
+            [value "Tenor" maps 2 pattern "([0-9]*).*" "$1"]
+            [set to 1 when "LegType" = "ZeroCouponFixed"]
+
+    CalculationPeriodFrequency:
+        + rollConvention
+            [set to RollConventionEnum -> NONE when "LegType" = "ZeroCouponFixed"]
+            [set to RollConventionEnum -> _1 when "EndOfMonth" exists]
+
+            // [set to RollConventionEnum -> _1 when "Rule" = "Forward" and "StartDate" = "2016-03-01" and "EndOfMonth" <> "Y",
+            //      set to RollConventionEnum -> _1 when "Rule" = "Backward" and "EndDate" = "2036-03-01" and "EndOfMonth" <> "Y"]
+            // As discussed:
+            //      The above is the desired mapping logic. The problem is that it causes a compilation error. When I reference them as subelements, like so,
+            //          [set to RollConventionEnum -> _1 when "Rules->Rule" = "Forward" and "Rules->StartDate" = "2016-03-01" and "Rules->EndOfMonth" <> "Y"]
+            //      then it compiles, but the mapping doesn't actually work. I have verified that each individual boolean operation works. It is when we combine them that the issue occurs.
+            //
+            // There is currently no CDM equivalent to "Rule" in ORE, but the "Forward" and "Backward" schedule date generation rules are equivalent to using the day of the reference date ("StartDate" and "EndDate", respectively) for the regular period.
+
+    FixedInterestRate:
+        + rate
+            [value "Rate" path "Rates"] // For IR products
+            [value "Strike"] // For FRA
+
+    ResetDates:
+        + resetRelativeTo
+            [set to ResetRelativeToEnum -> CalculationPeriodEndDate when "FloatingLegData->IsInArrears" = True,
+                set to ResetRelativeToEnum -> CalculationPeriodStartDate when "FloatingLegData->IsInArrears" = False]
+                // set to ResetRelativeToEnum -> CalculationPeriodStartDate when "FloatingLegData->IsInArrears" is absent]
+        + rateCutOffDaysOffset
+            [value "ignore"]
+        + initialFixingDate
+            [value "ignore"]
+        + finalFixingDate
+            [value "ignore"]
+        + resetDatesAdjustments
+            [value "ignore"]
+        + fixingDates
+            [hint "FloatingLegData"]
+            [hint "ScheduleData"]
+            [value "ignore"]
+
+    Offset:
+        + dayType
+            [set to DayTypeEnum -> Business when "FloatingLegData->FixingDays" exists,
+                set to DayTypeEnum -> Business when "PaymentLag" exists]
+    
+    Period:
+        + periodMultiplier
+            [value "FixingDays" path "FloatingLegData"]
+            [value "PaymentLag" maps 2] // Payment offset relative to calculation period end date
+            [value "ObservationLag" maps 2 pattern "([0-9])*.*" "$1" ] // For CPI Swap
+        + period
+            [set to PeriodEnum -> D when "FloatingLegData->FixingDays" exists,
+                set to PeriodEnum -> D when "PaymentLag" exists]
+            [value "ObservationLag" maps 2 pattern "[0-9]*(.*)" "$1" ] // For CPI Swap
+
+    RelativeDateOffset:
+        + businessDayConvention
+            [value "Convention" path "ScheduleData->Rules"]
+
+    BusinessCenters:
+        + businessCenter
+            [value "Calendar", "Calendar" path "ScheduleData->Rules" maps 2]
+
+    Schedule:
+        + initialValue
+            [value "Rate" maps 2]
+ 
     enums
+ 
+    BusinessCenterEnum:
+        // A lot of one to many relationships from ORE to CDM. For example, CA is used for all of Canada in ORE. CDM is more granular.
+        + EUTA
+            [value "TARGET"]
+            [value "TGT"]
+            [value "EUR"]
+        + GBLO
+            [value "GB"]
+            [value "GBR"]
+            [value "GBP"]
+            [value "LNB"]
+            [value "UK"]
+        + USNY
+            [value "US"]
+            [value "USA"]
+            [value "USD"]
+            [value "NYB"]
+ 
+    BusinessDayConventionEnum:
+        + FOLLOWING
+            [value "F"]
+            [value "Following"]
+            [value "FOLLOWING"]
+        + MODFOLLOWING
+            [value "MF"]
+            [value "ModifiedFollowing"]
+            [value "Modified Following"]
+            [value "MODIFIEDF"]
+        + PRECEDING
+            [value "P"]
+            [value "Preceding"]
+            [value "PRECEDING"]
+        + MODPRECEDING
+            [value "MP"]
+            [value "ModifiedPreceding"]
+            [value "Modified Preceding"]
+            [value "MODIFIEDP"]
+        + NONE
+            [value "U"]
+            [value "Unadjusted"]
+            [value "INDIFF"]
+        + NEAREST
+            [value "NEAREST"]
+ 
+    DayCountFractionEnum:
+        + ACT_360
+            [value "A360"]
+            [value "Actual/360"]
+            [value "ACT/360"]
+        + ACT_365_FIXED
+            [value "A365"]
+            [value "A365F"]
+            [value "Actual/365 (fixed)"]
+            [value "ACT/365"]
+        + ACT_ACT_AFB
+            [value "ActActAFB"]
+            [value "Actual/Actual (AFB)"]
+        + ACT_ACT_ICMA
+            [value "ActActICMA"]
+            [value "ActualActual (ICMA)"] 
+        + ACT_ACT_ISDA
+            [value "ActActISDA"]
+            [value "ActualActual (ISDA)"]
+            [value "ACT/ACT"]
+            [value "ACT"]
+        + BUS_252
+            [value "BUS/252"]
+            [value "Business/252"]
+        + _30E_360
+            [value "30E/360"]
+            [value "30E/360 (Eurobond Basis)"]
+        + _30_360
+            [value "T360"]
+            [value "30/360"]
+            [value "30/360 (Bond Basis)"]
+            [value "ACT/nACT"]
 
-	FloatingRateIndexEnum:
-		+ EUR_6M_EURIBOR_SWAP_CME_vs_LCH_ICAP
-			[value "EUR-EURIBOR-6M"]
+    InterpolationMethodEnum:
+        + LinearZeroYield
+            [value "Linear"]
+        + None
+            [value "Flat"]
+            [value "AsIndex"]
 
-	PeriodEnum:
-		+ D
-			[value "D"]
-		+ W
-			[value "W"]
-		+ M
-			[value "M"]
-		+ Y
-			[value "Y"]
+    FloatingRateIndexEnum:
+        // ORE allows a string in the format of CCY-INDEX-TENOR
+        + EUR_6M_EURIBOR_SWAP_CME_vs_LCH_ICAP
+            [value "EUR-EURIBOR-6M"]
+        + GBP_6M_LIBOR_SWAP_CME_vs_LCH_ICAP
+            [value "GBP-LIBOR-6M"]
+        + USD_3M_LIBOR_SWAP_CME_vs_LCH_ICAP
+            [value "USD-LIBOR-3M"]
+        + EUR_3M_EURIBOR_SWAP_CME_vs_LCH_ICAP
+            [value "EUR-EURIBOR-3M"]
+        + EUR_EONIA_Swap_Index
+            [value "EUR-EONIA"]
+        + USD_BMA_Municipal_Swap_Index
+            [value "USD-BMA-3M"]
+        + USA_CPI_U
+            [value "USCPI"]
+        + UK_RPIX
+            [value "UKRPI"]
+
+    PeriodEnum:
+        + D
+            [value "D"]
+        + W
+            [value "W"]
+        + M
+            [value "M"]
+        + Y
+            [value "Y"]
+
+    OptionTypeEnum:
+        + Put
+            [value "Put"]
+        + Call
+            [value "Call"]
+
+    SettlementTypeEnum:
+        + Cash
+            [value "Cash"]
+        + Physical
+            [value "Physical"]
 }
