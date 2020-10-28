@@ -1,0 +1,412 @@
+namespace cdm.product.common
+version "${project.version}"
+
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.asset.rates.*
+import cdm.base.staticdata.asset.common.*
+
+import cdm.observable.asset.*
+
+import cdm.product.asset.*
+import cdm.product.template.*
+import cdm.product.common.settlement.*
+import cdm.product.common.schedule.*
+
+import cdm.synonyms.config.*
+
+//***********************
+// Product Qualification
+
+isProduct root EconomicTerms;
+
+func ResolveContractualProduct: <"For a given ContractualProduct, the function finds all ResolvablePayoutQuantity instances, then for each instance, resolves the quantity, populates the quantity attribute on ResolvablePayoutQuantity, and finally returns the updated ContractualProduct.">
+	inputs:
+		contractualProduct ContractualProduct (1..1) <"The ContractualProduct to be resolved.">
+		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
+	output:
+		resolvedContractualProduct ContractualProduct (1..1) <"The updated ContractualProduct with all ResolvablePayoutQuantity instances resolved and updated with the corresponding quantity.">
+
+func ResolvePayoutQuantity: <"For a given ResolvablePayoutQuantity, the function resolves and returns the corresponding quantity from the QuantityNotations by matching on AssetIdentifier.">
+	inputs:
+		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The ResolvablePayoutQuantity to resolve.">
+		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
+		contractualProduct ContractualProduct (1..1) <"Provided to allow any references to be resolved.">
+
+	output:
+		resolvedQuantity NonNegativeQuantity (1..1) <"The resolved NonNegativeQuantity.">
+
+func Qualify_CreditDefaultSwap: <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+		economicTerms -> payout -> creditDefaultPayout exists
+		and (economicTerms -> payout -> interestRatePayout
+		or economicTerms -> payout -> cashflow) exists
+		and economicTerms -> payout -> equityPayout is absent
+		and economicTerms -> payout -> optionPayout is absent
+
+func Qualify_CreditDefaultSwaption: <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+		economicTerms -> payout -> optionPayout exists
+		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
+		and (economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout
+		or economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> cashflow) exists
+		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
+		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
+
+func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"The Price Return Basic Performance equity swap specified in the ISDA taxonomy V2.0 corresponds to the price and total return swaps.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "EquitySwap_PriceReturnBasicPerformance_SingleName"]
+	assign-output is_product:
+        economicTerms -> payout -> interestRatePayout exists
+        and ( economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Price
+            or economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Total )
+        and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
+            or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
+				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+			or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
+				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
+			or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
+            )
+
+func Qualify_EquitySwap_ParameterReturnDividend_SingleName: <"The Parameter Return Dividend equity swap specified in the ISDA taxonomy V2.0 corresponds to the dividend return swap.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "EquitySwap_ParameterReturnDividend_SingleName"]
+	assign-output is_product:
+        economicTerms -> payout -> interestRatePayout exists
+        and economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Dividend
+		and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
+            or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
+				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+			or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
+				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
+			or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
+            )
+
+
+func Qualify_InterestRate_IRSwap_Basis:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Basis"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> optionPayout is absent
+
+func Qualify_InterestRate_IRSwap_FixedFloat_PlainVanilla: <"This product qualification doesn't represent the exact terms of the ISDA Taxonomomy V2.0 for the plain vanilla swaps, as some of those cannot be represented as part of the CDM syntax (e.g. the qualification that there is no provision for early termination which uses an off-market valuation), while some other are deemed missing in the ISDA taxonomy and have been added as part of the CDM (absence of cross-currency settlement provision, absence of fixed rate and notional step schedule, absence of stub). ">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFloat"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> step is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule is absent
+		and economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step is absent
+		and economicTerms -> payout -> interestRatePayout -> stubPeriod is absent
+		and economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType is absent
+		/*
+		 * TODO - Cannot compare the below because in FpML the period associated with the reset frequency is of type PeriodExtendedEnum, which includes 'T'
+		 * Need to adjust the implementation once a proper implementation approach has been firmed out
+		 */
+//	and economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
+//		economicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
+		and economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier =
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> indexTenor -> periodMultiplier
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
+		and economicTerms -> payout -> interestRatePayout -> compoundingMethod is absent
+
+// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
+//	and Vanilla_AnnualPaymentDifferentResetFrequency, Vanilla_SemiAnnualPayment_QuarterlyReset, Vanilla_QuarterlyPayment_MonthlyReset apply
+/*
+ * TODO Address the below data rule
+ */
+//data rule Vanilla_SamePaymentResetFrequency
+//	when payout -> interestRatePayout -> resetDates exists
+//	then payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier
+// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
+//condition Vanilla_AnnualPaymentDifferentResetFrequency: <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is annual, the reset frequency is semi-annual or quarterly.">
+//	when payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> Y
+//	then payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
+//	and ( payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6
+//		or payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
+// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
+//condition Vanilla_SemiAnnualPayment_QuarterlyReset: <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is semi-annual, the reset frequency is quarterly.">
+//	when payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> M
+//		and payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
+//	then payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
+//		and payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
+// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
+//condition Vanilla_QuarterlyPayment_MonthlyReset: <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is quarterly, the reset frequency is monthly.">
+//	when payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> M
+//		and payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
+//	then payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
+//		and payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
+func Qualify_InterestRate_IRSwap_FixedFloat:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFloat"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
+		and (economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> step exists
+		or economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step exists
+		or economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule exists
+		or economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> step exists
+		or economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier <>
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> indexTenor -> periodMultiplier
+		or economicTerms -> payout -> interestRatePayout -> compoundingMethod exists
+		or economicTerms -> payout -> interestRatePayout -> stubPeriod exists
+		or economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType exists
+		or economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision exists)
+		and economicTerms -> payout -> interestRatePayout -> paymentDates exists
+
+func Qualify_InterestRate_IRSwap_FixedFixed:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFixed"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> optionPayout is absent
+
+func Qualify_InterestRate_CrossCurrency_Basis:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_CrossCurrency_Basis"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
+		and economicTerms -> payout -> optionPayout is absent
+
+func Qualify_InterestRate_CrossCurrency_FixedFloat:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_CrossCurrency_FixedFloat"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
+		and economicTerms -> payout -> optionPayout is absent
+
+func Qualify_InterestRate_CrossCurrency_FixedFixed:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_CrossCurrency_FixedFixed"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
+		and economicTerms -> payout -> optionPayout is absent
+
+func Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFloat"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
+
+/*
+ * TODO Adjust the Xtext grammar to support enumeration styles
+ */
+func Qualify_InterestRate_IRSwap_FixedFloat_OIS:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFloat"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
+
+func Qualify_InterestRate_IRSwap_Basis_OIS:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Basis"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
+
+func Qualify_InterestRate_InflationSwap_FixedFloat_YearOn_Year:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> Y
+
+func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
+
+func Qualify_InterestRate_InflationSwap_Basis_YearOn_Year:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> Y
+
+func Qualify_InterestRate_InflationSwap_Basis_ZeroCoupon:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
+		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
+
+func Qualify_InterestRate_Option_Swaption:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_Option_Swaption"]
+	assign-output is_product:
+		economicTerms -> payout -> optionPayout exists
+		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
+
+func Qualify_InterestRate_Option_DebtOption:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_DebtOption"]
+	assign-output is_product:
+        economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Debt
+		or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Debt
+			and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> debtType -> debtClass = DebtClassEnum -> Convertible)
+
+func Qualify_InterestRate_CapFloor:	
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_CapFloor"]
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> capRateSchedule exists
+		or economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floorRateSchedule exists
+
+func Qualify_InterestRate_Fra:
+	[qualification Product]
+	inputs: eTerms EconomicTerms(1..1)
+	output: result boolean(1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_Fra"]
+
+	assign-output result:
+		eTerms -> payout -> interestRatePayout count = 2
+		and eTerms -> payout -> creditDefaultPayout is absent
+		and eTerms -> payout -> cashflow is absent
+		and EffectiveDateContainsPaymentDate(eTerms) = True
+
+func Qualify_ForeignExchange:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Forward"]
+			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Spot"]
+	assign-output is_product:
+		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange exists and
+		economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
+
+func Qualify_ForeignExchange_NDF:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_NDF"]
+	assign-output is_product:
+		economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms exists
+
+func Qualify_ForeignExchangeVanillaOption: <"Qualifies a product as a FX Plain Vanilla Option based on economic terms.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "ForeignExchange:VanillaOption"]
+	assign-output is_product:
+		economicTerms -> payout -> optionPayout exists
+		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> foreignExchange only exists
+		and economicTerms -> payout -> optionPayout -> feature is absent
+
+func Qualify_RepurchaseAgreement:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+		economicTerms -> payout -> securityPayout -> securityLeg count >= 1 and
+		economicTerms -> payout -> interestRatePayout count = 1
+
+
+
+

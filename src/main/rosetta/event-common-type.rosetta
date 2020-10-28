@@ -1,0 +1,807 @@
+namespace cdm.event.common : <"Business event concepts: primitives, contract state and associated state transition function specifications.">
+version "${project.version}"
+
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.asset.*
+import cdm.base.staticdata.party.*
+import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.identifier.*
+
+import cdm.observable.asset.*
+import cdm.product.asset.*
+import cdm.product.template.*
+import cdm.product.common.settlement.*
+import cdm.product.common.schedule.*
+
+import cdm.legalagreement.csa.*
+import cdm.legalagreement.contract.*
+import cdm.legalagreement.common.*
+
+import cdm.event.workflow.*
+import cdm.event.position.*
+
+import cdm.synonyms.config.*
+
+type Confirmation: <"A class to specify a trade confirmation.">
+
+	identifier Identifier (1..*) <"The identifier(s) associated with the trade and resulting confirmation.">
+	party Party (1..*) <"The parties associated with the trade.">
+	partyRole PartyRole (1..*) <"The role(s) that party(ies) may have in relation to the trade">
+	lineage Lineage (0..1) <"The lineage attribute provides a linkage to previous lifecycle events and associated data.">
+	status ConfirmationStatusEnum (1..1)
+
+	condition BothBuyerAndSellerPartyRolesMustExist: <"For an security confirmation, both buyer and seller party roles must exist.">
+		if lineage -> executionReference -> tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
+
+type Affirmation: <"A class to specify a trade affirmation.">
+
+	identifier Identifier (1..*) <"The identifier(s) associated with the trade and resulting confirmation.">
+	party Party (1..*) <"The parties associated with the trade.">
+	partyRole PartyRole (1..*) <"The role(s) that party(ies) may have in relation to the trade">
+	lineage Lineage (0..1) <"The lineage attribute provides a linkage to previous lifecycle events and associated data.">
+	status AffirmationStatusEnum (1..1)
+
+	condition BothBuyerAndSellerPartyRolesMustExist: <"For an security affirmation, both buyer and seller party roles must exist.">
+		if lineage -> executionReference -> tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
+
+type AllocationInstruction:
+	// TODO: add other allocation context
+	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
+
+type AllocationBreakdown:
+
+	partyReference Party (1..1) <"Reference to the party to specify the account.">
+		[metadata reference]
+	quantity QuantityNotation (1..1) <"The quantity to be allocated to the party.">
+	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
+	account Account (0..1)<"The account to allocate the trade into">
+	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
+
+type SplitOutcome: <"A class to specify the allocated outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Allocated', and a set of Trade(s) of the same execution or contract type as before allocation. The allocation to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
+
+	originalTrade TradeState (1..1)
+		[synonym Workflow_Event value "fpmlTrade" path "originalTrade"]
+	splitTrades TradeState (1..*)
+		[synonym Workflow_Event value "fpmlTrade" path "splitTrade"]
+
+type CashTransferBreakdown extends TransferBreakdown:
+
+	payerReceiver PartyReferencePayerReceiver (1..1) <"The payer and receiver party information.">
+	amount Money (1..1) <"The currency amount of the payment.">
+		[synonym Workflow_Event value "amount"]
+	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">
+		[synonym Workflow_Event value "cashflowType"]
+
+type CashTransferComponent extends TransferBase:
+
+	payerReceiver PartyReferencePayerReceiver (1..1) <"The payer and receiver party information.">
+	amount Money (1..1) <"The currency amount.">
+		[synonym Workflow_Event value "amount"]
+	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">
+		[synonym Workflow_Event value "cashflowType"]
+	breakdown CashTransferBreakdown (0..*) <"The cash transfer breakdown, when the transfer corresponds to a net amount across several components which breakdown is deemed relevant (e.g. the net cash transfer related to several contracts, or to the net proceeds across several payout components).">
+		[synonym Workflow_Event value "breakdown"]
+
+/*
+ * TODO - The commodity transfer component and its associated breakdown should be deemed as sample implementations,
+ * which need to be confirmed through relevant user stories and use cases
+ */
+type CommodityTransferBreakdown extends TransferBreakdown:
+
+	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
+	commodity Commodity (1..1)
+	quantity number (1..1)
+		[synonym Workflow_Event value "quantity"]
+	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
+	timeUnit TimeUnitEnum (0..1)
+
+type CommodityTransferComponent extends TransferBase:
+
+	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
+	commodity Commodity (1..1)
+	quantity number (1..1)
+		[synonym Workflow_Event value "quantity"]
+	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
+	timeUnit TimeUnitEnum (0..1)
+	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">
+	breakdown CommodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
+		[synonym Workflow_Event value "breakdown"]
+
+type ContractState: <"A class to specify a contract state instantiation with respect to the before and/or after state of lifecycle events.">
+	[metadata key]
+
+	trade TradeNew (1..1) <"Reference to the original contract, such that the contract state can be resolved by super-imposing the updated values on top of the original contract.">
+		[synonym Workflow_Event value "fpmlTrade"]
+	updatedTrade TradeNew (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
+
+type Instruction: <"Instruction to a function that will be used to perform a business event">
+
+	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
+	instructionFunction string (1..1) <"Name of the function that will be called">
+	allocation AllocationInstruction (0..1) <"Instruction to allocate">
+	clearing ClearingInstruction (0..1) <"Instruction to clear">
+
+	condition OneOfInstruction: required choice allocation, clearing
+
+type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
+	[metadata key]
+	[rootType]
+
+	primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
+	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
+		[synonym Workflow_Event value "intent"]
+	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
+		[synonym Workflow_Event value "functionCall"]
+	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
+	eventDate date (1..1) <"Specifies the date on which the event is taking place. This is the equivalent of the trade date in the case of an execution.">
+		[synonym Workflow_Event value "eventDate"]
+	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
+		[synonym Workflow_Event value "effectiveDate"]
+	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of globalKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
+	// TODO - this needs to be moved/merged into the WorkflowStep
+	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
+		[deprecated]
+	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
+
+type EventEffect: <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
+
+	effectedTrade TradeNew (0..*)
+		[metadata reference]
+	effectedContract Contract (0..*) <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">
+		[metadata reference]
+	effectedExecution Execution (0..*) <"A pointer to the execution(s) to which the event effect(s) apply, i.e. in the before event state.">
+		[metadata reference]
+	contract Contract (0..*) <"A pointer to the contract effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">
+		[metadata reference]
+	execution Execution (0..*) <"A pointer to the execution effect(s), an example of such being a clearing submission event when taking place on the back of an execution.">
+		[metadata reference]
+	productIdentifier ProductIdentifier (0..*) <"A pointer to the product identifier effect(s), an example of such being the outcome of the physical exercise of a bond option.">
+		[metadata reference]
+	transfer TransferPrimitive (0..*) <"A pointer to the transfer effect(s), either a cash, security or other asset.">
+		[metadata reference]
+
+/* USED in downstrem */
+type EventTestBundle: <"A class which combines several events for testing purposes.">
+
+	event WorkflowStep (2..*)
+		[synonym Workflow_Event value "event"]
+	computedAmount ComputedAmount (0..*)
+		[synonym Workflow_Event value "computedAmount"]
+
+type CashExercise: <"The cash exercise specifies the cashflow using the cashflow payout and a given quantity.">
+
+	cashflow Cashflow (1..1) <"Cashflow payout specification, excluding the quantity.">
+	quantity QuantityNotation (1..1) <"Quantity of the cashflow payout.">
+
+type ExerciseOutcome: <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
+
+	contract TradeState (1..1)
+		[synonym Workflow_Event value "fpmlContract"]
+	physicalExercise PhysicalExercise (0..1)
+		[synonym Workflow_Event value "physicalExercise"]
+	cashExercise CashExercise (0..1)
+		[synonym Workflow_Event value "cashExercise"]
+	condition Choice: <"A option exercise results in either a physical or a cash exercise.">
+		required choice physicalExercise, cashExercise
+
+type ExecutionState: <"A class to specify an execution instantiation with respect to the before and/or after state of lifecycle events.">
+	[metadata key]
+
+	execution Execution (1..1)
+		[synonym Workflow_Event value "fpmlExecution"]
+
+type TradeState:
+	[metadata key]
+	trade TradeNew (1..1)
+	state State (0..1)
+	observationHistory ObservationHistory (0..*)
+
+type ObservationHistory:
+	observationDate date (1..1)
+	observedValue number (1..1)
+	informationSource ObservationSource (1..1)
+
+type TradeNew:
+	[metadata key]
+	identifier Identifier (1..*)
+	tradeDate TradeDate (1..1)
+	tradableProduct TradableProduct (1..1)
+	party Party (0..*)
+	partyRole PartyRole (0..*)
+	settlementTerms SettlementTerms (0..*)
+	execution Execution (0..1)
+	contract Contract (0..1)
+
+	// Execution specific conditions
+	condition:
+		optional choice execution, contract
+
+	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
+		if tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
+
+	condition SecurityPartyRoleBuyerSeller: <"When the executed product is a security, both buyer and seller party roles must exist.">
+		if tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> Buyer and partyRole -> role contains PartyRoleEnum -> Seller
+
+	condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
+		if tradableProduct -> product -> security exists
+		then tradableProduct -> priceNotation -> price exists
+
+	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
+		if tradableProduct -> product -> security exists
+		then settlementTerms exists
+
+	// Contract specific conditions
+	condition DeliverableObligationsPhysicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
+		if (contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
+			or contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent)
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations exists
+		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notSubordinated
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> specifiedCurrency
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notSovereignLender
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notDomesticCurrency
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notDomesticLaw
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notContingent
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notDomesticIssuance
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> assignableLoan
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> consentRequiredLoan
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> transferable
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> maximumMaturity
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notBearer
+			) exists
+			and (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> fullFaithAndCreditObLiability
+			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> generalFundObligationLiability
+			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> revenueObligationLiability
+			) exists
+
+	condition ObligationsPhysicalSettlementMatrix: <"The below set of obligation of the reference entity are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in case the case where an auction could not take place because of, say, liquidity considerations.">
+		if (contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
+			or contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent)
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations exists
+		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSubordinated
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSovereignLender
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticLaw
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticIssuance
+			) exists
+			and (
+			tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> fullFaithAndCreditObLiability
+			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> generalFundObligationLiability
+			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> revenueObligationLiability
+			) exists
+
+	condition CreditEventsPhysicalSettlementMatrix: <"The below set of credit events are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
+		if (contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
+			or contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent)
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
+		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> bankruptcy
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> obligationDefault
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> obligationAcceleration
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> repudiationMoratorium
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> governmentalIntervention
+			) exists
+
+	condition RestructuringPhysicalSettlementMatrix: <"The below multiple holder obligation restructuring provisions is specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that this provision can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
+		if (contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
+			or contract -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent)
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
+		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
+
+	/*
+	 * TODO - Confirm the set of Contractual Terms Supplements that qualify mortgage products
+	 */
+	condition AdditionalFixedPaymentsMortgages: <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
+		if ( (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType = SecurityTypeEnum -> Debt
+				and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security-> debtType ->debtClass = DebtClassEnum -> AssetBacked)
+			or contract -> documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum -> CDSonMBS)
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
+		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> principalShortfallReimbursement
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> writedownReimbursement
+			) exists
+
+	condition FloatingAmountEventsMortgages: <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
+
+		if ((tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType = SecurityTypeEnum -> Debt
+				and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security-> debtType ->debtClass = DebtClassEnum -> AssetBacked)
+			or contract -> documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum -> CDSonMBS)
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
+		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> writedown
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> impliedWritedown
+			) exists
+
+	condition CreditEventsMortgages: <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
+
+		if ((tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType = SecurityTypeEnum -> Debt
+				and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security-> debtType ->debtClass = DebtClassEnum -> AssetBacked)
+			or contract -> documentation -> documentationIdentification -> contractualTermsSupplement -> contractualTermsSupplementType = ContractualSupplementEnum -> CDSonMBS)
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
+		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayInterest
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> distressedRatingsDowngrade
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> maturityExtension
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> writedown
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> impliedWritedown
+			) exists
+
+	condition HedgingParty: <"FpML specifies that there cannot be more than 2 hedging parties.">
+		if partyRole -> role = PartyRoleEnum -> HedgingParty
+		then partyRole -> role count <= 2
+
+	condition DeterminingParty: <"FpML specifies that there cannot be more than 2 determining parties.">
+		if partyRole -> role = PartyRoleEnum -> DeterminingParty
+		then partyRole -> role count <= 2
+
+	condition BarrierDerterminationAgent: <"FpML specifies that there cannot be more than 1 barrier determination agent.">
+		if partyRole -> role = PartyRoleEnum -> BarrierDeterminationAgent
+		then partyRole -> role count <= 1
+
+	condition ClearedDate: <"If the cleared date exists, it needs to be on or after the trade date.">
+		if contract -> clearedDate exists
+		then contract -> clearedDate >= tradeDate -> date
+
+	condition ContractualProductExists:
+		tradableProduct -> product -> contractualProduct only exists
+
+	condition FpML_cd_1: <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
+		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+		then tradeDate -> date < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
+			or tradeDate -> date < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+
+	condition FpML_cd_7: <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists.">
+		if ( contract -> documentation -> documentationIdentification -> masterConfirmation and contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists
+			or tradeDate -> date < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+
+	condition FpML_cd_8: <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
+		if ( contract -> documentation -> documentationIdentification -> masterConfirmation and contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+		then tradableProduct -> product -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> dateAdjustments exists
+
+	condition FpML_cd_11: <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
+		if ( contract -> documentation -> documentationIdentification -> masterConfirmation and contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+			and contract -> documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum -> ISDA2003Credit
+		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees exists
+
+	condition FpML_cd_19: <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
+		if contract -> documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum -> ISDA1999Credit
+		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter
+            and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation
+            and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices
+            and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees
+            and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation
+            and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> substitution
+            and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery )
+            is absent
+
+	condition FpML_cd_20: <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist.">
+		if contract -> documentation -> documentationIdentification -> contractualDefinitions = ContractualDefinitionsEnum -> ISDA2003Credit
+		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
+
+	condition FpML_cd_23: <"FpML validation rule cd-23 - If the condition LongForm is true, then cashSettlementTerms or physicalSettlementTerms must exist.">
+		if ( contract -> documentation -> documentationIdentification -> masterConfirmation and contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> cashSettlementTerms or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms) exists
+
+	condition FpML_cd_24: <"FpML validation rule cd-24 - If the condition LongForm is true, then the following elements must exist: protectionTerms/creditEvents/creditEventNotice, protectionTerms/obligations, generalTerms/referenceInformation/referencePrice.">
+		if ( contract -> documentation -> documentationIdentification -> masterConfirmation and contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout ->generalTerms -> referenceInformation -> referencePrice
+			) exists
+
+	condition FpML_cd_25: <"FpML validation rule cd-25 - If the condition LongForm is true, and if physicalSettlementTerms exists, then physicalSettlementTerms must contain settlementCurrency, physicalSettlementPeriod, escrow and deliverableObligations/accruedInterest.">
+		if ( contract -> documentation -> documentationIdentification -> masterConfirmation and contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms exists
+		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> settlementCurrency
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> physicalSettlementPeriod
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> escrow
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> accruedInterest
+			) exists
+
+	condition FpML_cd_32: <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
+		if ( contract -> documentation -> documentationIdentification -> masterConfirmation and contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier -> currency exists
+			and tradableProduct -> quantityNotation -> quantity -> amount exists
+		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
+
+	condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
+        if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
+        then FpmlIrd8( tradableProduct, contract -> account ) = True
+
+// TODO: Meet with Ruddy, Ted and Jim to agree on set of status enum values.
+type State:
+	closedState ClosedState (0..1)
+	    [synonym Workflow_Event value "closedState" path "trade"]
+	positionState PositionStatusEnum (0..1)
+
+	condition: if positionState = PositionStatusEnum -> Closed then
+		closedState exists
+
+type LimitApplicable:
+
+	limitType CreditLimitTypeEnum (0..1) <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">
+		[metadata scheme]
+		[synonym Workflow_Event value "limitType" meta "creditLimitTypeScheme"]
+	clipSize int (0..1) <"This element is required in FpML, optional in CDM for the purpose of accommodating the CME data representation while making reference to the FpML one.">
+	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
+		[synonym Workflow_Event value "amountUtilized"]
+	utilization CreditLimitUtilisation (0..1)
+	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
+		[synonym Workflow_Event value "amountRemaining"]
+	currency string (0..1) <"The currency in which the applicable limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+		[metadata scheme]
+		[synonym Workflow_Event value "currency" meta "currencyScheme"]
+	velocity Velocity (0..1)
+
+	condition Choice: <"Choice rule to represent an FpML choice construct.">
+		optional choice amountUtilized, utilization
+
+type LimitApplicableExtended extends LimitApplicable: <"A class to represent the CDM attributes that are not part of the FpML standard. Once broader usage is confirmed, it is expected that those two classes can be collapsed.">
+
+	limitLevel LimitLevelEnum (0..1) <"The level at which the limit is set: customer business, proprietary business or account level. This attribute is specified as a string as part of the CME clearing confirmation specification.">
+		[metadata scheme]
+		[synonym Workflow_Event value "level" meta "creditLimitLevelScheme"]
+	limitAmount number (0..1) <"The total limit available for the limit level and limit type. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
+		[synonym Workflow_Event value "limitAmount"]
+	limitImpactDueToTrade number (0..1) <"The limit utilized by this specific trade. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
+		[synonym Workflow_Event value "limitImpactDueToTrade"]
+
+type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an contractFormation event is corrected, the correction event will have a lineage into the initial event, which takes the form of a globalKey into that initial contract formation event. Two referencing mechanisms are provided as part of the CDM: either the globalKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the globalKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.globalKey.GlobalKeyHashCalculator. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
+
+	contractReference Contract (0..*) <"The reference to the instantiation of a Contract object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+		[synonym Workflow_Event value "contractReference" meta "href"]
+	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a globalKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+		[synonym Workflow_Event value "eventReference" meta "href"]
+	executionReference TradeNew (0..*) <"The reference to the instantiation of a Execution object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+		[synonym Workflow_Event value "executionReference" meta "href"]
+	cashflowReference Cashflow (0..*) <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+		[synonym Workflow_Event value "cashflowReference" meta "href"]
+	creditDefaultPayoutReference CreditDefaultPayout (0..*) <"The reference to the instantiation of a CreditdefaultPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+		[synonym Workflow_Event value "creditDefaultReference" meta "href"]
+	interestRatePayoutReference InterestRatePayout (0..*) <"The reference to the instantiation of a InterestRatePayout component object. An expected typical usage is to provide lineage for the payment of, say, an interest rate swap reset, with the ability to relate the gross cashflow amounts to the respective payout components. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+		[synonym Workflow_Event value "interestRatePayoutReference" meta "href"]
+	optionPayoutReference OptionPayout (0..*) <"The reference to the instantiation of a OptionPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+		[synonym Workflow_Event value "optionPayoutReference" meta "href"]
+	equityPayoutReference EquityPayout (0..*) <"The reference to the instantiation of a EquityPayout object. An expected typical usage is to provide lineage for the payment of, say, an equity dividend. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+		[synonym Workflow_Event value "equityPayoutReference" meta "href"]
+	transferReference TransferPrimitive (0..*) <"The reference to the instantiation of a TransferPrimitive object.">
+		[metadata reference]
+		[synonym Workflow_Event value "transferReference" meta "href"]
+	legalAgreement LegalAgreement (0..*) <"The reference to the instantiation of a Legal Agreement object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+	portfolioStateReference PortfolioState (0..*) <"The refence to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
+		[metadata reference]
+
+type PhysicalExercise: <"The physical exercise results into a financial product which is represented through the Product class, with an associated quantity and cashflow (e.g. a physical exercise of a bond option will result into a bond with a cash proceed which will be a function of the option strike price).">
+
+	product Product (1..1)
+		[synonym Workflow_Event value "product"]
+	quantity Quantity (0..1) <"The quantity associated the asset that is physically settled. This quantity should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
+		[synonym Workflow_Event value "quantity"]
+	quantityNotation QuantityNotation (0..*) <"Complex attribute to specify the quantity of the contractual product that is being exercised. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
+		// For Swap Stream:
+		[synonym Workflow_Event value "notionalSchedule" path "product->swap->swapStream->calculationPeriodAmount->calculation"]
+		[synonym Workflow_Event value "cashflow"]
+	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">
+		[synonym Workflow_Event value "cashflow"]
+	condition PhysicalExerciseQuantity: <"The quantity attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
+		if product -> contractualProduct exists
+		then quantity is absent
+
+type PostContractFormationState extends ContractState:
+
+	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information.">
+	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1) <"Information related to trade warehouse workflow.">
+
+type SecurityTransferBreakdown:
+
+	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
+	security Security (1..*) <"The securities that are being transfered">
+		[synonym Workflow_Event value "security"]
+	quantity number (1..1)
+		[synonym Workflow_Event value "quantity"]
+
+type SecurityTransferComponent extends TransferBase:
+
+	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
+	security Security (1..1) <"The security that is being transfered">
+		[synonym Workflow_Event value "security"]
+	quantity number (1..1)
+		[synonym Workflow_Event value "quantity"]
+	assetTransferType AssetTransferTypeEnum (0..1) // The relevance of this attribute and the associated values need to be confirmed"
+		[synonym Workflow_Event value "assetTransferType"]
+	breakdown SecurityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
+		[synonym Workflow_Event value "breakdown"]
+
+type StockSplitInstruction: <"Data required to perform a stock split business event.">
+
+	tradeState TradeState (1..1) <"Contract to be split.">
+	adjustmentRatio number (1..1) <"The number that denotes the cumulative quantity of post-split shares issued to shareholders versus the quantity of pre-split shares previously issued to shareholders.  This number will be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.  With regard to any reference to price, the pre-split reference price will be divided by this number to determine the post-split reference price.">
+	date date (1..1) <"The effective date of the stock split, also known as the ex-date. This is the date on which the additional shares are paid to the shareholders, or in the case of a reverse stock split, the number shares held by each shareholder is proportionally reduced.  Equity derivative transactions can be amended in firms' internal systems on such date.   In most markets, the listed stock price is reduced (or increased for a reverse stock split) to account for the split on the same date, but in some markets the price adjustment occurs on a later date.  In either case, equity derivative transactions should be amended on the date that the stocks are paid to the shareholders (or consolidated).">
+
+type Trade: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
+	[metadata key]
+
+	execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">
+		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" exists]
+		[synonym Workflow_Event value "fpmlExecution"]
+	contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
+		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" is absent]
+		[synonym Workflow_Event value "fpmlContract"]
+	condition Trade: one-of
+
+type TransferBase:
+
+	identifier string (0..1) <"The identifier that can be associated with each of the transfer components">
+		[metadata scheme]
+	transferCalculation TransferCalculation (0..1) <"The calculation details underlying the transfer amount, when applicable.">
+
+type TransferCalculation:
+
+	period CalculationPeriodBase (0..1 ) <"The period adjusted start and end dates.">
+	lineage Lineage (0..*) <"The lineage into the components used for the calculation.">
+	calculationOutcome calculation (0..1) <"This is a conceptual placeholder for providing the breakdown into the cashflow calculation components, leveraging the fact that the CDM provides calculation components, starting with the FixedAmount and the FloatingAmount. Further evaluation of expected usage needs to take place to confirm and prioritize such implementation.">
+		[synonym Workflow_Event value "transferCalculation"]
+
+type TransferBreakdown extends TransferBase:
+
+	lineage Lineage (0..*) <"The lineage into the transfer components that might be associated with each of the transfer components.">
+		[synonym Workflow_Event value "lineage"]
+
+type TransferorTransferee: <"A class mimicking the PartyReferencePayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of security or commodities.">
+
+	transferorPartyReference Party (1..1) <"A reference to the party responsible for making the payments defined by this structure.">
+		[metadata reference]
+	transferorAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
+		[metadata reference]
+		[synonym Workflow_Event value "payerAccountReference" meta "href"]
+	transfereePartyReference Party (1..1) <"A reference to the party that receives the payments corresponding to this structure.">
+		[metadata reference]
+	transfereeAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
+		[metadata reference]
+		[synonym Workflow_Event value "receiverAccountReference" meta "href"]
+
+type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
+	alphaContract Contract (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
+
+	clearingParty Party(1..1) <"The Central Counter party (CCP) that the contract will be submitted to for clearing.">
+	party1 Party(1..1) <"First party facing the CCP if it is clearing for its own account.">
+	party2 Party(1..1) <"Second party facing the CCP if it is clearing for its own account.">
+
+	clearerParty1 Party(0..1) <"Optional party facing the CCP, acting as clearing member for party1.">
+	clearerParty2 Party(0..1) <"Optional party facing the CCP, acting as clearing member for party2.">
+
+type PrimitiveEvent: <"A primitive event is defined by one and only one atomic change in state of a trade. An example of this is a contract formation where the legal terms of the contact are added to the trade. A Primitive event contains a before and after state where the before is a reference to another after state of a primitive event in order to preserve lineage.">
+
+	execution ExecutionPrimitive (0..1)
+		[synonym Workflow_Event value "executionPrimitive" path "primitive"]
+	contractFormation ContractFormationPrimitive (0..1)
+		[synonym Workflow_Event value "contractFormation" path "primitive"]
+	split SplitPrimitive (0..1)
+		[synonym Workflow_Event value "split" path "primitive"]
+	exercise ExercisePrimitive (0..1)
+		[synonym Workflow_Event value "exercise" path "primitive"]
+	observation ObservationPrimitive (0..1)
+		[synonym Workflow_Event value "observation" path "primitive"]
+	quantityChange QuantityChangePrimitive (0..1)
+		[synonym Workflow_Event value "quantityChange" path "primitive"]
+	reset ResetPrimitive (0..1)
+		[synonym Workflow_Event value "reset" path "primitive"]
+	termsChange TermsChangePrimitive (0..1)
+		[synonym Workflow_Event value "termsChange" path "primitive"]
+	transfer TransferPrimitive (0..1)
+		[synonym Workflow_Event value "transfer" path "primitive"]
+	condition PrimitiveEvent: one-of
+
+type ExecutionPrimitive: <"Specification of the primitive event for an execution, with 'after' state being an ExecutionState and the 'before' state being Null. It is expected that the 'before' state will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
+
+	before ExecutionState (0..0) <"The 0 cardinality reflects the fact that there is no execution in the before state of an execution primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">
+		[metadata reference]
+		[synonym Workflow_Event value "before"]
+	after ExecutionState (1..1) <"The after state corresponds to the execution between the parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">
+		[synonym Workflow_Event value "after"]
+
+type ContractFormationPrimitive: <"Specification of a primitive event that represents an executed trade for a contractual product that has been affirmed (or confirmed) by the two parties.  The optional 'before' state is an 'ExecutionState' consisting of an ExecutionPrimitive.  The 'after' state is a 'PostContractFormationState' that includes a Contract in which there is an optional reference to a RelatedAgreeemnt, such as a Master Agreement.  If an 'after' and 'before' both exist, then they must have the same TradableProduct values.">
+
+	before ExecutionState (0..1) <"The before state corresponds to the output of an execution between the parties.">
+		[metadata reference]
+		[synonym Workflow_Event value "before"]
+	after PostContractFormationState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
+		[synonym Workflow_Event value "after"]
+
+	// TODO enable condition once party has been refactored out of product
+//	condition: <"The product should be unchanged.">
+//		before -> execution -> tradableProduct -> product = after -> contract -> tradableProduct -> product
+
+	condition: <"The quantity should be unchanged.">
+		if before exists then before -> execution -> tradableProduct -> quantityNotation = after -> contract -> tradableProduct -> quantityNotation
+
+	condition: <"The price should be unchanged.">
+		if before exists then before -> execution -> tradableProduct -> priceNotation = after -> contract -> tradableProduct -> priceNotation
+
+type SplitPrimitive: <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the ContractFormation primitive.">
+
+	before Trade (1..1) <"The trade before split, which is either an execution if split happens before the contract is formed, or an already formed contract.">
+		[metadata reference]
+		[synonym Workflow_Event value "before"]
+	after SplitOutcome (1..1) <"Outcome of the split as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Split'.">
+		[synonym Workflow_Event value "after"]
+
+	condition: <"If the pre-split trade is an execution, then the post-split trade must also be an execution.">
+		if before -> execution exists
+		then after -> originalTrade -> execution exists
+			and after -> splitTrades -> execution exists
+			and after -> splitTrades -> contract is absent
+
+	condition: <"If the pre-split trade is a contract, then the post-split trade must also be a contract.">
+		if before -> contract exists
+		then after -> originalTrade -> contract exists
+			and after -> splitTrades -> contract exists
+			and after -> splitTrades -> execution is absent
+
+	condition: <"The product should be unchanged.">
+		if before -> execution exists
+		then after -> splitTrades -> execution -> tradableProduct -> product = before -> execution -> tradableProduct -> product
+
+	condition: <"The product should be unchanged.">
+		if before -> contract exists
+		then after -> splitTrades -> contract -> tradableProduct -> product = before -> contract -> tradableProduct -> product
+
+	condition: <"The post-split quantities should sum to the pre-split quantity.">
+		if before -> execution exists
+		then Sum(after -> splitTrades -> execution -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> execution -> tradableProduct -> quantityNotation -> quantity -> amount
+
+	condition: <"The post-split quantities should sum to the pre-split quantity.">
+		if before -> contract exists
+		then Sum(after -> splitTrades -> contract -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> contract -> tradableProduct -> quantityNotation -> quantity -> amount
+
+	// TODO add syntax to handle comparison between list and single item.  https://github.com/REGnosys/rosetta-dsl/issues/167
+	condition: <"The price should be unchanged.">
+		if before -> execution exists
+		then after -> splitTrades -> execution -> tradableProduct -> priceNotation = before -> execution -> tradableProduct -> priceNotation
+
+	condition: <"The price should be unchanged.">
+		if before -> contract exists
+		then after -> splitTrades -> contract -> tradableProduct -> priceNotation = before -> contract -> tradableProduct -> priceNotation
+
+type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
+
+	exerciseDate AdjustableOrAdjustedDate (0..1)
+		[synonym Workflow_Event value "exerciseDate"]
+	exerciseTime BusinessCenterTime (0..1)
+		[synonym Workflow_Event value "exerciseTime"]
+	fullExercise boolean (1..1)
+		[synonym Workflow_Event value "fullExercise"]
+	before ContractState (1..1)
+		[metadata reference]
+		[synonym Workflow_Event value "before"]
+	after ExerciseOutcome (1..1)
+		[synonym Workflow_Event value "after"]
+
+type QuantityChangePrimitive: <"The primitive event to represent a change in quantity or notional.">
+
+	before Trade (1..1) <"The state of the trade (either an execution or a contract, before the event.">
+		[metadata reference]
+		[synonym Workflow_Event value "before"]
+	after Trade (1..1) <"The state of the trade (either an execution or a contract, as a follow-up from the event.">
+		[synonym Workflow_Event value "after"]
+
+type ResetPrimitive: <"The primitive event to represent a reset.">
+
+	before ContractState (1..1) <"Contract state before the reset, as per previous events processed on the contract.">
+		[metadata reference]
+		[synonym Workflow_Event value "ignore"]
+	after ContractState (1..1) <"Contract state after the reset, that embeds the reset value as an updated field on the contract state.">
+		[synonym Workflow_Event value "ignore"]
+	condition Contract: <"The original contract in the before/after state of a reset should match.">
+		if ResetPrimitive exists
+		then before -> contract = after -> contract
+
+type TermsChangePrimitive: <"The primitive event to represent change(s) to the contractual terms and the clearing submission and acceptance process.">
+
+	before Trade (1..1)
+		[metadata reference]
+		[synonym Workflow_Event value "before"]
+	after Trade (1..1)
+		[synonym Workflow_Event value "after"]
+
+type TransferPrimitive: <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security). The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+	[metadata key]
+
+	identifier string (0..1) <"The identifier which might be associated with the transfer.">
+		[metadata scheme]
+	settlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
+		[synonym Workflow_Event value "transferType"]
+	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
+		[synonym Workflow_Event value "settlementDate"]
+	cashTransfer CashTransferComponent (0..*) <"The cash transfer component of the transfer. In the case where several currencies are involved in the transfer, several components should be used, as the component supports one single currency amount.">
+		[synonym Workflow_Event value "cashTransfer"]
+	securityTransfer SecurityTransferComponent (0..*) <"The security transfer component of the transfer. In the case where several securities are involved in the transfer, several components should be used, as the component supports one single security.">
+		[synonym Workflow_Event value "securityTransfer"]
+	commodityTransfer CommodityTransferComponent (0..*)
+	status TransferStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled, ...">
+		[synonym Workflow_Event value "status"]
+	settlementReference string (0..1) <"The settlement reference, when applicable.">
+		[synonym Workflow_Event value "settlementReference"]
+
+type Execution: <"A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+	[metadata key]
+
+	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">
+		[synonym Workflow_Event value "executionType" path "trade"]
+	executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">
+	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">
+	tradeDate date (1..1) <"The trade/execution date.">
+		[metadata id]
+	tradableProduct TradableProduct (1..1) <"The product traded as part of this execution, including quantity and price">
+	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">
+		[metadata reference]
+	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
+		[synonym Workflow_Event value "trade"]
+	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
+		[synonym Workflow_Event value "closedState" path "trade"]
+	settlementTerms SettlementTerms (0..*) <"The settlement terms applicable to any initial transfer of cash or securities resulting from the transaction that is not part of the product definition: e.g. option premium, swap unwind fee, security delivery vs payment.">
+
+	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
+		if executionType = ExecutionTypeEnum -> Electronic
+		then executionVenue exists
+
+	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
+		if tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
+
+	condition SecurityPartyRoleBuyerSeller: <"When the executed product is a security, both buyer and seller party roles must exist.">
+		if tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> Buyer and partyRole -> role contains PartyRoleEnum -> Seller
+
+	condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
+		if tradableProduct -> product -> security exists
+		then tradableProduct -> priceNotation -> price exists
+
+	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
+		if tradableProduct -> product -> security exists
+		then settlementTerms exists
+
+/*
+ * Only some of the attributes have been incorporated at this point, as some seem questionable (e.g. executionDateTime, which should be associated to the relevant execution event).
+ */
+type PackageInformation: <"A class defining additional information that may be recorded alongside a transaction package.">
+	[deprecated]
+	// TODO Never referenced in CDM
+	relatedParty RelatedParty (0..*) <"This may be used to identify one or more parties that perform a role as part of the transaction.">
+	category CategoryEnum (0..*)
+	/*
+	 * Why should the below be specifically associated with package transactions?
+	 * It seems to also be relevant in the context of single trades
+	 */
+	intentToAllocate boolean (0..1) <"specifies whether the transaction package is anticipated to be allocated.">
+
+type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
+	[deprecated]
+	[metadata key]
+
+	adjustedExerciseDate date (1..1) <"The date on which the option exercise takes place. This date should already be adjusted for any applicable business day convention.">
+	adjustedRelevantSwapEffectiveDate date (1..1) <"The effective date of the underlying swap associated with a given exercise date. This date should already be adjusted for any applicable business day convention.">
+	adjustedCashSettlementValuationDate date (0..1) <"The date by which the cash settlement amount must be agreed. This date should already be adjusted for any applicable business day convention.">
+	adjustedCashSettlementPaymentDate date (0..1) <"The date on which the cash settlement amount is paid. This date should already be adjusted for any applicable business day convention.">
+	adjustedExerciseFeePaymentDate date (0..1) <"The date on which the exercise fee amount is paid. This date should already be adjusted for any applicable business day convention.">
+
+

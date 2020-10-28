@@ -1,15 +1,17 @@
 package org.isda.cdm.functions;
 
-import cdm.base.staticdata.party.PartyRole;
-import cdm.base.staticdata.party.PartyRoleEnum;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import com.rosetta.model.lib.validation.ValidationResult;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.isda.cdm.TradeNew;
 import org.isda.cdm.TradeState;
 import org.isda.cdm.meta.TradeStateMeta;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import com.rosetta.model.lib.validation.ValidationResult;
+
+import cdm.base.staticdata.party.PartyRole;
+import cdm.base.staticdata.party.PartyRoleEnum;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 
 public class ModelClassValidationTest {
 

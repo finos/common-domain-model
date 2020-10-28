@@ -12,7 +12,7 @@ This section provides directions for downloading and using the Java version of C
 Prerequisites
 -------------
 
-* Java SDK 11
+* Java SDK 8
 
 Introduction
 ---------------
@@ -23,7 +23,7 @@ Introduction
 
 Download page for zip files of the Java code and examples
 
-.. figure:: screenshots/cdm-portal.png
+.. figure:: cdm-portal.png
 
 * Direct links:
     `ISDA CDM as Java Code <https://isda:isda@regnosys.jfrog.io/regnosys/libs-snapshot/com/isda/cdm-distribution>`_
@@ -32,13 +32,13 @@ Download page for zip files of the Java code and examples
 
 Tutorials
 
-.. figure:: screenshots/cdm-tutorials.png
+.. figure:: cdm-tutorials.png
 
 Direct link: `Tutorials <https://vimeo.com/359012532>`_
 
 * The CDM model objects are classified into namespaces (cdm.base, cdm.base.staticdata, etc). These namespaces translate into Java packages with the same name, with each package containing a package-info file.
 
-.. figure:: screenshots/cdm-distribution.png
+.. figure:: cdm-distribution.png
 
 * The CDM uses `builder pattern <https://en.wikipedia.org/wiki/Builder_pattern>`_ for each of the pojos. The distribution ships with the json to java object serialisers.
 

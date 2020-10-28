@@ -11,9 +11,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import org.isda.cdm.Contract;
-import org.isda.cdm.TradableProduct;
-import org.isda.cdm.TradeState;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -21,8 +18,10 @@ import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 
+import cdm.legalagreement.contract.Contract;
 import cdm.observable.asset.PriceNotation;
 import cdm.observable.asset.QuantityNotation;
+import cdm.product.template.TradableProduct;
 
 public class ExchangeRateQuantityTriangulationTest extends AbstractFunctionTest {
 
@@ -72,8 +71,8 @@ public class ExchangeRateQuantityTriangulationTest extends AbstractFunctionTest 
 	}
 
 	void shouldTriangulateFxRateAndNotionalAndReturnSuccess(String filename, int quantity1, int quantity2, double rate, int scale) throws IOException {
-		TradeState tradeState = getTradeState(FX_DIR + filename);
-		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
+		Contract contract = getContract(FX_DIR + filename);
+		TradableProduct tradableProduct = contract.getTradableProduct();
 		List<PriceNotation> priceNotation = tradableProduct.getPriceNotation();
 		List<QuantityNotation> quantityNotation = tradableProduct.getQuantityNotation();
 
@@ -85,9 +84,9 @@ public class ExchangeRateQuantityTriangulationTest extends AbstractFunctionTest 
 		assertThat(func.rate(priceNotation, quantityNotation).get().setScale(scale, RoundingMode.HALF_UP), is(BigDecimal.valueOf(rate).setScale(scale, RoundingMode.HALF_UP)));
 	}
 
-	private TradeState getTradeState(String resourceName) throws IOException {
+	private Contract getContract(String resourceName) throws IOException {
 		URL url = Resources.getResource(resourceName);
 		String json = Resources.toString(url, Charset.defaultCharset());
-		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, TradeState.class);
+		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, Contract.class);
 	}
 }

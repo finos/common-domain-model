@@ -9,11 +9,22 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.isda.cdm.*;
-import org.isda.cdm.functions.CashflowSettlementTerms;
-import org.isda.cdm.functions.Create_Execution;
-
+import cdm.base.staticdata.party.RelatedPartyReference;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.metafields.FieldWithMetaDate;
+
+import cdm.base.staticdata.party.Counterparty;
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.functions.Create_Execution;
+import cdm.legalagreement.contract.Contract;
+import cdm.product.common.settlement.SettlementTerms;
+import cdm.product.common.settlement.functions.CashflowSettlementTerms;
+import cdm.product.template.ContractualProduct;
+import cdm.product.template.EconomicTerms;
+import cdm.product.template.Payout;
+import cdm.product.template.Product;
+import cdm.product.template.TradableProduct;
+import org.isda.cdm.TradeState;
 
 public class RunExecutionWithSettlementTerms implements ExecutableFunction<TradeState, BusinessEvent> {
 
@@ -35,11 +46,12 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
                 guard(input.getTrade().getTradableProduct().getQuantityNotation()),
                 guard(input.getTrade().getTradableProduct().getPriceNotation()),
                 guard(input.getTrade().getTradableProduct().getCounterparties()),
+                guard(input.getTrade().getTradableProduct().getRelatedParties()),
                 guard(input.getTrade().getParty()),
                 guard(input.getTrade().getPartyRole()),
                 settlementTerm,
                 null,
-                Optional.ofNullable(input.getTrade().getTradeDate()).map(TradeDate::getDate).orElse(null),
+                Optional.ofNullable(input.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
                 guard(input.getTrade().getIdentifier()));
     }
 
@@ -57,6 +69,14 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
     }
 
     private List<SettlementTerms> getSettlementTerm(TradeState input) {
+    	List<Counterparty> counterparties = Optional.ofNullable(input)
+		        .map(Contract::getTradableProduct)
+		        .map(TradableProduct::getCounterparties)
+		        .orElse(Collections.emptyList());
+        List<RelatedPartyReference> relatedParties = Optional.ofNullable(input)
+                .map(Contract::getTradableProduct)
+                .map(TradableProduct::getRelatedParties)
+                .orElse(Collections.emptyList());
         return Optional.ofNullable(input)
                 .map(TradeState::getTrade)
                 .map(TradeNew::getTradableProduct)
@@ -66,7 +86,7 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
                 .map(EconomicTerms::getPayout)
                 .map(Payout::getCashflow)
                 .map(cashflows -> cashflows.stream()
-                        .map(cashflow -> cashflowSettlementTerms.evaluate(cashflow))
+                        .map(cashflow -> cashflowSettlementTerms.evaluate(cashflow, counterparties, relatedParties))
                         .collect(Collectors.toList())
                 )
                 .orElse(Collections.emptyList());

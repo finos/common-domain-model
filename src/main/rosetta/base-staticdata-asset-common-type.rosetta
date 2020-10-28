@@ -1,9 +1,7 @@
 namespace cdm.base.staticdata.asset.common
 version "${project.version}"
 
-import cdm.base.*
 import cdm.base.staticdata.party.*
-import cdm.synonyms.config.*
 
 type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
 
@@ -167,3 +165,34 @@ type ExternalProductType: <"Provides a classification of the type of product tha
 	value string (1..1) <"Stores the product type value.">
 	    [metadata scheme]
 	externalProductTypeSource ExternalProductTypeSourceEnum (1..1) <"Denotes the enumerated value to identify the source for the specified product type.">
+
+type AssetType: <"A class to allow specification of the asset product type.">
+	assetType AssetTypeEnum (1..1) <"The type of collateral asset.">
+	securityType SecurityTypeEnum (0..1) <"Filter based on the type of security.">
+	debtType DebtType (0..1) <"Filter based on the type of bond.">
+	equityType EquityTypeEnum (0..1) <"Filter based on the type of equity.">
+	fundType FundProductTypeEnum (0..1) <"Filter based on the type of fund.">
+	// otherType string (0..1) <"Description of collateral when specified as Product Type - Other">
+
+	condition SecuritySubType:
+		if assetType <> AssetTypeEnum -> Security
+		then ( securityType and debtType and equityType ) is absent
+	
+	condition BondSubType:
+		if securityType <> SecurityTypeEnum -> Debt
+		then debtType is absent
+
+	condition EquitySubType:
+		if securityType <> SecurityTypeEnum -> Equity
+		then equityType is absent
+
+	condition FundSubType:
+		if securityType <> SecurityTypeEnum -> Fund
+		then fundType is absent
+
+	// condition OtherSubType:
+	// 	if securityType <> SecurityTypeEnum -> Other
+	// 	then otherType is absent
+
+
+	

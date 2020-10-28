@@ -1,64 +1,81 @@
 namespace cdm.base.staticdata.party
 version "${project.version}"
 
-import cdm.base.*
 import cdm.base.staticdata.identifier.*
 import cdm.synonyms.config.*
 
-type Counterparty: <"This class specifies which counterparty enum is associated to a party reference.  The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the counterparty enum (e.g. CounterpartyEnum values Party1 or Party2). The counterparty enum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this Counterparty type, which is positioned outside of the product definition, allows the counterparty enum to be associated with an actual party reference.">
+type Counterparty: <"Defines a counterparty enumerated value, e.g. Party1 or Party2, with an associated party reference. The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the CounterpartyEnum (e.g. values Party1 or Party2). The CounterpartyEnum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this Counterparty type, which is positioned outside of the product definition, allows the CounterpartyEnum to be associated with an actual party reference.">
 
-	counterparty CounterpartyEnum (1..1) <"Enumerated value specifying one of the two counterparties.">
-	party Party (1..1) <"Reference to the party associated to this counterparty.">
+	counterparty CounterpartyEnum (1..1) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2, that is associated to the partyReference.">
+	partyReference Party (1..1) <"Specifies the party that is associated to the counterparty.">
 		[metadata reference]
+
+type CounterpartyOrRelatedParty: <"Defines either a CounterpartyEnum or a RelatedPartyEnum which can be resolved to an actual party reference.">
+
+	counterparty CounterpartyEnum (0..1) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2.">
+	relatedParty RelatedPartyEnum (0..1) <"Specifies the RelatedPartyEnum, e.g. DisruptionEventsDeterminingParty, ExtraordinaryDividendsParty etc.">
+	
+	condition: one-of
+
+type RelatedPartyReference: <"Defines a related party enumerated value with an associated party reference. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the RelatedPartyEnum. The RelatedPartyEnum can then be positioned in the product and this RelatedPartyReferenc type, which is positioned outside of the product definition, allows the RelatedPartyEnum to be associated with an actual party reference.">
+
+	relatedParty RelatedPartyEnum (1..1) <"Specifies the RelatedPartyEnum, e.g. either Party1 or Party2, that is associated to the partyReference. A related party is any involved party that is not one of the two principal parties to the transaction.">
+	partyReference Party (1..*) <"Specifies the party, or parties, associated to the relatedParty.">
+		[metadata reference]
+	onBehalfOfCounterparty CounterpartyEnum (0..1) <"Optionally specifies the counterparty that the related party is acting on behalf of.">
 
 type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model construct.">
 
-	buyer CounterpartyEnum (0..1) <"Buyer party that can be resolved as one of the two counterparties to the transaction, populated when within the Product. The party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
-	buyerPartyReference Party (0..1) <"Buyer party reference populated when used outside of the Product. A reference to the party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
-		[metadata reference]
-	buyerAccountReference Account (0..1) <"A reference to the account that buys this instrument.">
-		[metadata reference]
-		[deprecated]
-	seller CounterpartyEnum (0..1) <"Seller party that can be resolved as one of the two counterparties to the transaction, populated when within the Product. The party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
-	sellerPartyReference Party (0..1) <"Seller party reference populated when used outside of the Product. A reference to the party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
-		[metadata reference]
-	sellerAccountReference Account (0..1) <"A reference to the account that sells this instrument.">
-		[metadata reference]
-		[deprecated]
+	buyer CounterpartyEnum (1..1) <"Buyer party that can be resolved as one of the two principal parties to the transaction. The party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
+	seller CounterpartyEnum (1..1) <"Seller party that can be resolved as one of the two principal parties to the transaction. The party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
 
-	condition BuyerOrBuyerPartyReference: <"Buyer should be populated when BuyerSeller is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->creditDefaultPayout->generalTerms->buyerSeller.  BuyerPartyReference should be populated when BuyerSeller is used outside the Product.">
-		required choice buyer, buyerPartyReference
+type PayerReceiver: <"Specifies the parties responsible for making and receiving payments defined by this structure.">
 
-	condition SellerOrSellerPartyReference: <"Seller should be populated when BuyerSeller is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->creditDefaultPayout->generalTerms->buyerSeller.  SellerPartyReference should be populated when BuyerSeller is used outside the Product.">
-		required choice seller, sellerPartyReference
+	payer CounterpartyEnum (0..1) <"Specifies the counterparty responsible for making the payments defined by this structure.  The party is one of the two principal parties to the transaction.">
+	payerRelatedParty RelatedPartyEnum (0..1) <"Specifies the party responsible for making the payments defined by this structure.  Only populated on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
+	    [deprecated]
+	payerPartyReference Party (0..1) <"Specifies the party responsible for making the payments defined by this structure.  Only populated on physical exercise and cash exercise which do not have the required model structure to specify the counterparties.">
+        [metadata reference]
+        [deprecated]
+    receiver CounterpartyEnum (0..1) <"Specifies the party that receives the payments corresponding to this structure.  The party is one of the two counterparties to the transaction.">
+    receiverRelatedParty RelatedPartyEnum (0..1) <"Specifies the party that receives the payments corresponding to this structure.  Only populated on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
+        [deprecated]
+    receiverPartyReference Party (0..1) <"Specifies the party that receives the payments corresponding to this structure.  Only populated on physical exercise and cash exercise which do not have the required model structure to specify the counterparties.">
+        [metadata reference]
+        [deprecated]
 
-	condition BuyerAndSellerExists:
-		if buyer exists then seller exists and if seller exists then buyer exists
+	condition PayerCounterpartyOrRelatedPartyOrPartyReference: <"Payer should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver.  The other attributes, payerRelatedParty and payerPartyReference, are deprecated.">
+		required choice payer, payerRelatedParty, payerPartyReference
 
-type PayerReceiver: <"A class to represent the FpML PayerReceiver.model.">
-	payer CounterpartyEnum (0..1) <"Payer party that can be resolved as one of the two counterparties to the transaction, populated when within the Product. The party responsible for making the payments defined by this structure.">
-	payerPartyReference Party (0..1) <"Payer party reference populated when used outside of the Product. A reference to the party responsible for making the payments defined by this structure.">
+	condition ReceiverPayerCounterpartyOrRelatedPartyOrPartyReference: <"Receiver should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver.  The other attributes, receiverRelatedParty and receiverPartyReference, are deprecated.">
+		required choice receiver, receiverRelatedParty, receiverPartyReference
+		
+	condition CashflowPayerRelatedParty: <"The payerRelatedParty is specified only on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
+		if payerRelatedParty exists
+		then payerRelatedParty = RelatedPartyEnum -> ArrangingBroker or payerRelatedParty = RelatedPartyEnum -> Beneficiary
+		    or payerRelatedParty = RelatedPartyEnum -> ClearingFirm or payerRelatedParty = RelatedPartyEnum -> CounterpartyAfflilate
+		    or payerRelatedParty = RelatedPartyEnum -> Guarantor or payerRelatedParty = RelatedPartyEnum -> OtherParty
+		    or payerRelatedParty = RelatedPartyEnum -> PrimeBroker or payerRelatedParty = RelatedPartyEnum -> SettlementAgent
+		
+	condition CashflowReceiverRelatedParty: <"The receiverRelatedParty is specified only on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
+		if receiverRelatedParty exists
+		then receiverRelatedParty = RelatedPartyEnum -> ArrangingBroker or receiverRelatedParty = RelatedPartyEnum -> Beneficiary
+		    or receiverRelatedParty = RelatedPartyEnum -> ClearingFirm or receiverRelatedParty = RelatedPartyEnum -> CounterpartyAfflilate
+		    or receiverRelatedParty = RelatedPartyEnum -> Guarantor or receiverRelatedParty = RelatedPartyEnum -> OtherParty
+		    or receiverRelatedParty = RelatedPartyEnum -> PrimeBroker or receiverRelatedParty = RelatedPartyEnum -> SettlementAgent
+
+type PartyReferencePayerReceiver: <"Specifies the parties responsible for making and receiving payments defined by this structure.">
+
+	payerPartyReference Party (1..1) <"The party responsible for making the payments defined by this structure.">
 		[metadata reference]
 	payerAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
 		[metadata reference]
-		[deprecated]
 		[synonym Workflow_Event value "payerAccountReference" meta "href" mapper "CashTransferAccount"]
-	receiver CounterpartyEnum (0..1) <"Receiver party that can be resolved as one of the two counterparties to the transaction, populated when within the Product.  The party that receives the payments corresponding to this structure.">
-	receiverPartyReference Party (0..1) <"Receiver party reference populated when used outside of the Product. A reference to the party that receives the payments corresponding to this structure.">
+	receiverPartyReference Party (1..1) <"The party that receives the payments corresponding to this structure.">
 		[metadata reference]
 	receiverAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
 		[metadata reference]
-		[deprecated]
 		[synonym Workflow_Event value "receiverAccountReference" meta "href" mapper "CashTransferAccount"]
-
-	condition PayerOrPayerPartyReference: <"Payer should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver. PayerPartyReference should be populated when PayerReceiver is used outside the Product, e.g. Contract->collateral->independentAmount->payerReceiver.">
-		required choice payer, payerPartyReference
-
-	condition ReceiverOrReceiverPartyReference: <"Receiver should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver. ReceiverPartyReference should be populated when PayerReceiver is used outside the Product, e.g. Contract->collateral->independentAmount->payerReceiver.">
-		required choice receiver, receiverPartyReference
-
-	condition PayerAndReceiverExists:
-		if payer exists then receiver exists and if receiver exists then payer exists
 
 type ReferenceBank: <"A class to describe an institution (party) identified by means of a coding scheme and an optional name.">
 
@@ -89,7 +106,7 @@ type Account: <"A class to specify an account as an account number alongside, op
 		[metadata scheme]
 	accountBeneficiary Party (0..1) <"A reference to the party beneficiary of the account.">
 		[metadata reference]
-	servicingParty Party (0..1)  <"The reference to the legal entity that services the account, i.e. in the books of which the account is held.">
+	servicingParty Party (0..1) <"The reference to the legal entity that services the account, i.e. in the books of which the account is held.">
 		[metadata reference]
 
 type Address: <"A class to specify a post or street address.">

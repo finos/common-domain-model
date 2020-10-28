@@ -1,6 +1,6 @@
 package cdm.base.staticdata.party.processor;
 
-import static org.isda.cdm.processor.CounterpartyMappingHelper.PRODUCT_SUB_PATH;
+import static cdm.legalagreement.contract.processor.PartyMappingHelper.PRODUCT_SUB_PATH;
 
 import java.util.List;
 import java.util.Optional;

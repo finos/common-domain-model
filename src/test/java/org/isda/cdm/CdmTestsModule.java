@@ -1,10 +1,9 @@
 package org.isda.cdm;
 
-import org.isda.cdm.calculation.functions.ResolveRateIndexImpl;
-import org.isda.cdm.functions.CalculationPeriod;
-import org.isda.cdm.functions.ResolveRateIndex;
-import org.isda.cdm.functions.TestableCalculationPeriod;
-
+import cdm.product.asset.functions.ResolveRateIndex;
+import cdm.product.common.schedule.functions.CalculationPeriod;
+import cdm.product.common.schedule.functions.ResolveRateIndexImpl;
+import cdm.product.common.schedule.functions.TestableCalculationPeriod;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
 
 public class CdmTestsModule extends CdmRuntimeModule {

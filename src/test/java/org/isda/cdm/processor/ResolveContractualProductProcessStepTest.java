@@ -1,13 +1,7 @@
 package org.isda.cdm.processor;
 
-import com.google.common.io.Resources;
-import com.google.inject.Inject;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.rosetta.model.lib.GlobalKey;
-import com.rosetta.model.lib.meta.MetaFieldsI;
-import org.isda.cdm.*;
-import org.isda.cdm.functions.AbstractFunctionTest;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static util.ResourcesUtils.getObject;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -17,7 +11,23 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.isda.cdm.functions.AbstractFunctionTest;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.io.Resources;
+import com.google.inject.Inject;
+import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.rosetta.model.lib.GlobalKey;
+import com.rosetta.model.lib.meta.GlobalKeyFields;
+
+import cdm.legalagreement.contract.Contract;
+import cdm.product.asset.InterestRatePayout;
+import cdm.product.common.settlement.PayoutBase;
+import cdm.product.template.ContractualProduct;
+import cdm.product.template.EconomicTerms;
+import cdm.product.template.Payout;
+import cdm.product.template.Product;
+import cdm.product.template.TradableProduct;
 
 class ResolveContractualProductProcessStepTest extends AbstractFunctionTest {
 
@@ -30,7 +40,7 @@ class ResolveContractualProductProcessStepTest extends AbstractFunctionTest {
 
     @Test
     void postProcessStepResolvedQuantity() throws IOException {
-        TradeState tradeState = getTradeState(RATES_DIR + "GBP-Vanilla-uti.json");
+        TradeState tradeState = getObject(TradeState.class, RATES_DIR + "GBP-Vanilla-uti.json");
         TradeState.TradeStateBuilder builder = tradeState.toBuilder();
         resolveContractualProductProcessStep.runProcessStep(Contract.class, builder);
         TradeState resolvedTradeState = builder.build();
@@ -59,7 +69,7 @@ class ResolveContractualProductProcessStepTest extends AbstractFunctionTest {
     private boolean externalKeyMatches(GlobalKey o, String key) {
         return Optional.ofNullable(o)
                 .map(GlobalKey::getMeta)
-                .map(MetaFieldsI::getExternalKey)
+                .map(GlobalKeyFields::getExternalKey)
                 .map(key::equals)
                 .orElse(false);
     }
@@ -71,11 +81,4 @@ class ResolveContractualProductProcessStepTest extends AbstractFunctionTest {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No Payout found with external key " + payoutExternalKey));
     }
-
-    private TradeState getTradeState(String resourceName) throws IOException {
-        URL url = Resources.getResource(resourceName);
-        String json = Resources.toString(url, Charset.defaultCharset());
-        return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, TradeState.class);
-    }
-
 }

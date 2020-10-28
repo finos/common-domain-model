@@ -1,44 +1,36 @@
 package org.isda.cdm.processor;
 
-import static java.util.Optional.ofNullable;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
 import com.rosetta.model.lib.annotations.RosettaSynonym;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-class CdmMappingProcessorUtils {
+import static java.util.Optional.ofNullable;
 
-	static final List<String> PARTIES = Arrays.asList("partyA", "partyB");
-	static final String ISDA_CREATE_SYNONYM_SOURCE = "ISDA_Create_1_0";
+public class CdmMappingProcessorUtils {
+
+	public static final List<String> PARTIES = Arrays.asList("partyA", "partyB");
+	public static final String ISDA_CREATE_SYNONYM_SOURCE = "ISDA_Create_1_0";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MappingProcessorUtils.class);
 
 	@NotNull
-	static FieldWithMetaString toFieldWithMetaString(String c) {
+	public static FieldWithMetaString toFieldWithMetaString(String c) {
 		return FieldWithMetaString.builder()
 				.setValue(c)
 				.build();
 	}
 
 	@NotNull
-	static FieldWithMetaString toFieldWithMetaString(String c, String scheme) {
+	public static FieldWithMetaString toFieldWithMetaString(String c, String scheme) {
 		return FieldWithMetaString.builder()
 				.setValue(c)
 				.setMeta(MetaFields.builder()
@@ -47,13 +39,13 @@ class CdmMappingProcessorUtils {
 				.build();
 	}
 
-	static boolean setIsoCurrency(Map<String, ISOCurrencyCodeEnum> synonymToIsoCurrencyCodeEnumMap, Consumer<FieldWithMetaString> setter, String synonym) {
+	public static boolean setIsoCurrency(Map<String, ISOCurrencyCodeEnum> synonymToIsoCurrencyCodeEnumMap, Consumer<FieldWithMetaString> setter, String synonym) {
 		Optional<ISOCurrencyCodeEnum> isoCurrencyCode = getEnumValue(synonymToIsoCurrencyCodeEnumMap, synonym, ISOCurrencyCodeEnum.class);
 		isoCurrencyCode.ifPresent(c -> setter.accept(toFieldWithMetaString(c.name(), "http://www.fpml.org/ext/iso4217")));
 		return isoCurrencyCode.isPresent();
 	}
 
-	static <E extends Enum<E>> Map<String, E> synonymToEnumValueMap(E[] enumValues, String synonymSource) {
+	public static <E extends Enum<E>> Map<String, E> synonymToEnumValueMap(E[] enumValues, String synonymSource) {
 		Map<String, E> synonymToEnumValueMap = new HashMap<>();
 		Arrays.stream(enumValues)
 				.forEach(e -> getEnumSynonyms(e, synonymSource)
@@ -61,7 +53,7 @@ class CdmMappingProcessorUtils {
 		return synonymToEnumValueMap;
 	}
 
-	static <E extends Enum<E>> Optional<E> getEnumValue(Map<String, E> synonymToEnumMap, String key, Class<E> clazz) {
+	public static <E extends Enum<E>> Optional<E> getEnumValue(Map<String, E> synonymToEnumMap, String key, Class<E> clazz) {
 		E value = synonymToEnumMap.get(key);
 		if (value == null) {
 			LOGGER.info("Could not find matching enum {} for {}", clazz.getSimpleName(), key);

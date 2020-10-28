@@ -1,21 +1,22 @@
 namespace cdm.synonyms.cme
 version "${project.version}"
 
-import cdm.base.*
-import cdm.base.math.*
-import cdm.base.datetime.*
-import cdm.base.staticdata.*
 import cdm.base.staticdata.party.*
-import cdm.base.staticdata.asset.*
-import cdm.base.staticdata.asset.credit.*
-import cdm.base.staticdata.asset.rates.*
-import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
 
 import cdm.observable.event.*
 import cdm.observable.asset.*
+
+import cdm.product.asset.*
+import cdm.product.template.*
+import cdm.product.common.settlement.*
+
+import cdm.legalagreement.contract.*
+
+import cdm.event.common.*
+import cdm.event.workflow.*
+
 import cdm.synonyms.fpml.*
-import cdm.synonyms.config.*
 import org.isda.cdm.*
 
 synonym source CME_ClearedConfirm_1_17 extends CME_BASE
@@ -33,12 +34,6 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 			[value "tradeId" meta "tradeIdScheme"]
 			[value "usi" meta "usiScheme"]
 
-	Identifier:
-		+ issuerReference
-			[value "partyReference" meta "href"]
-		+ issuer
-			[value "issuer" meta "issuerIdScheme"]
-
 	PartyContractInformation:
 		+ accountReference
 			[value "accountReference" meta "href"]
@@ -52,8 +47,6 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
     //		[value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" is absent]
 
 	Contract:
-		+ partyContractInformation
-			[value "partyTradeInformation" path "trade->tradeHeader"]
 		- account
 
 	OptionPayout:
@@ -146,24 +139,6 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 		+ UpfrontFee
 			[value "UPFRONT_FEE"]
 
-	OriginatingEventEnum:
-		+ Amendment
-			[value "TRADE_AMEND"]
-		+ Compression
-			[value "RESIDUAL_TRADE"]
-		+ Exercise
-			[value "EXERCISE"]
-		+ NewTrade
-			[value "NEW_TRADE"]
-		+ Novation
-			[value "ASSIGNMENT"]
-		+ PartialExercise
-			[value "PARTIAL_EXERCISE"]
-		+ PartialNovation
-			[value "NOVATION"]
-		+ Transfer
-			[value "TRANSFER"]
-
 	WorkflowStatusEnum:
 		+ Accepted
 			[value "Accepted"]
@@ -193,22 +168,9 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 		+ after
 		    [value "TrdCaptRpt"]
 
-	ExerciseNotice:
-	    - optionBuyer
-		+ optionBuyer
-			[value "partyReference" mapper "CmeCounterpartyEnum"]
-
-	TradeDate:
-		+ date
-			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
-
-	NotifyingParty:
-	    - buyer
-		+ buyer
-			[value "buyerPartyReference" mapper "CmeCounterpartyEnum"]
-		- seller
-		+ seller
-			[value "sellerPartyReference" mapper "CmeCounterpartyEnum"]
+//	TradeDate:
+//		+ date
+//			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
 
 	AssignedIdentifier:
 		+ identifier
@@ -218,10 +180,11 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 		+ identifier
 			[value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
 		+ tradeDate
-			[value "tradeHeader" path "Instrmt->SecXML->FpML->trade"]
+//			[value "tradeHeader" path "Instrmt->SecXML->FpML->trade"]
+			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
 		- tradableProduct
 		+ tradableProduct
-			[value "trade" path "Instrmt->SecXML->FpML" mapper "Counterparty"]
+			[value "trade" path "Instrmt->SecXML->FpML" mapper "CmeParty"]
 		+ party
 			[value "party" path "Instrmt->SecXML->FpML"]
 
@@ -243,33 +206,11 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 		+ forwardPayout
 			[value "ignore"]
 
-	BuyerSeller:
-	    - buyer
-		+ buyer
-			[value "buyerPartyReference" mapper "CmeCounterpartyEnum"]
-		- buyerPartyReference
-		+ buyerPartyReference
-			[value "buyerPartyReference" mapper "TradeSideToParty"]
-		- seller
-		+ seller
-			[value "sellerPartyReference" mapper "CmeCounterpartyEnum"]
-		- sellerPartyReference
-		+ sellerPartyReference
-			[value "sellerPartyReference" mapper "TradeSideToParty"]
-
-	PayerReceiver:
-	    - payer
-		+ payer
-			[value "payerPartyReference" mapper "CmeCounterpartyEnum"]
-			[value "buyerPartyReference" maps 2 mapper "CmeCounterpartyEnum"]
-		- payerPartyReference
+	PartyReferencePayerReceiver:
+    	- payerPartyReference
 		+ payerPartyReference
 			[value "payerPartyReference" mapper "TradeSideToParty"]
 			[value "buyerPartyReference" maps 2 mapper "TradeSideToParty"]
-		- receiver
-		+ receiver
-			[value "receiverPartyReference" mapper "CmeCounterpartyEnum"]
-			[value "sellerPartyReference" maps 2 mapper "CmeCounterpartyEnum"]
 		- receiverPartyReference
 		+ receiverPartyReference
 			[value "receiverPartyReference" mapper "TradeSideToParty"]
@@ -360,14 +301,6 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 			[value "2"]
 		+ Cancel
 			[value "1"]
-
-	OriginatingEventEnum:
-		+ Allocation
-			[value "1"]
-		+ Clearing
-			[value "2"]
-		+ NewTrade
-			[value "0"]
 
 	WorkflowStatusEnum:
 		+ Cancelled

@@ -1,106 +1,142 @@
 namespace cdm.synonyms.ore
 version "${project.version}"
 
-import org.isda.cdm.*
-import cdm.observable.asset.*
-import cdm.base.staticdata.party.*
 import cdm.base.math.*
 import cdm.base.datetime.*
+import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.rates.*
+
+import cdm.observable.asset.*
+
+import cdm.product.asset.*
+import cdm.product.template.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+
+import cdm.legalagreement.contract.*
+import org.isda.cdm.*
 
 synonym source ORE
 
 synonym source ORE_1_0_39 extends ORE
 {
     TradeNew:
+        + identifier
+            [value "Trade"]
         + party
             [value "Envelope" path "Trade"]
         + tradableProduct
-            [value "Trade"]
+            [value "Trade" mapper "ORECounterparty"]
+        + party
+            [value "Envelope" path "Trade"]
+	// Contract:
+	//	+ contractIdentifier
+    //        [value "Trade"]
+	//	+ party
+	//		[value "Envelope" path "Trade"]
+	//	+ tradableProduct
+	//		[value "Trade" mapper "ORECounterparty"]
 
-    // Contract:
-    //     + party
-    //         [value "Envelope" path "Trade"]
-    //     + tradableProduct
-    //         [value "Trade"]
+	TradableProduct:
+		+ quantityNotation
+			[value "LegData" path "SwapData"]
+		+ priceNotation
+			[value "LegData" path "SwapData"]
 
-    TradableProduct:
-        + quantityNotation
-            [value "LegData" path "SwapData"]
-        + priceNotation
-            [value "LegData" path "SwapData"]
+	Counterparty:
+		+ partyReference
+			[value "Envelope"]
+		+ counterparty
+			[set to CounterpartyEnum->Party2]
 
-    PriceNotation:
+	PriceNotation:
         + price
-
-    FixedInterestRate:
-        + rate
-            [value "Rate" path "FixedLegData->Rates"]
-
-    Party:
-        + partyId
-            [value "CounterParty"]
-            [value "party_id" path "AdditionalFields"]
-
-    QuantityNotation:
         + assetIdentifier
-            // [value "LegData" path "SwapData"]
-        + quantity
-            [value "Notionals"]
+            [hint "FloatingLegData"]
+            [value "ignore"]
 
-    Quantity:
-        + amount
-            [value "Notional"]
+	FixedInterestRate:
+		+ rate
+			[value "Rate" path "FixedLegData->Rates"]
 
-    Product:
-        + contractualProduct
-            [value "SwapData"]
+	Party:
+		+ partyId
+			[value "CounterParty" maps 2]
+			[value "party_id" path "AdditionalFields"]
 
-    Payout:
-        + interestRatePayout
-            [value "LegData"]
+	QuantityNotation:
+		+ assetIdentifier
+			// [value "LegData" path "SwapData"]
+		+ quantity
+			[value "Notionals"]
 
-    InterestRatePayout:
-        + calculationPeriodDates
-            [value "Rules" path "ScheduleData"]
-        + rateSpecification
+	Quantity:
+		+ amount
+			[value "Notional"]
 
+	Product:
+		+ contractualProduct
+			[value "SwapData"]
 
-    CalculationPeriodDates:
-        + effectiveDate
-            [hint "StartDate"]
+	Payout:
+		+ interestRatePayout
+			[value "LegData"]
 
-    AdjustableOrRelativeDate:
-        + adjustableDate
+	InterestRatePayout:
+		+ calculationPeriodDates
+			[value "Rules" path "ScheduleData"]
+		+ rateSpecification
+		+ paymentDates
+			[value "Rules" path "ScheduleData"]
 
-    AdjustableDate:
-        + unadjustedDate
-            [value "StartDate"]
+	Frequency:
+		+ periodMultiplier
+			[value "Tenor" maps 2 pattern "([0-9]*).*" "$1"]
+		+ period
+			[value "Tenor" maps 2 pattern "[0-9]*(.*)" "$1"]
 
-    ResolvablePayoutQuantity:
-        + assetIdentifier
-            [hint "Currency"]
+	CalculationPeriodDates:
+		+ effectiveDate
+			[hint "StartDate"]
 
-    FloatingRateOption:
-        + floatingRateIndex
-            [value "Index"]
+	AdjustableOrRelativeDate:
+		+ adjustableDate
 
-    RateSpecification:
-        + fixedRate
-            [value "FixedLegData"]
-        + floatingRate
-            [value "FloatingLegData"]
+	AdjustableDate:
+		+ unadjustedDate
+			[value "StartDate"]
 
+	ResolvablePayoutQuantity:
+		+ assetIdentifier
+			[hint "Currency"]
 
-    AssetIdentifier:
-        + currency
-            [value "Currency"]
+	FloatingRateOption:
+		+ floatingRateIndex
+			[value "Index"]
+
+	RateSpecification:
+		+ fixedRate
+			[value "FixedLegData"]
+		+ floatingRate
+			[value "FloatingLegData"]
+
+	AssetIdentifier:
+		+ currency
+			[value "Currency"]
 
     enums
 
-    FloatingRateIndexEnum:
-        + EUR_6M_EURIBOR_SWAP_CME_vs_LCH_ICAP
-            [value "EUR-EURIBOR-6M"]
+	FloatingRateIndexEnum:
+		+ EUR_6M_EURIBOR_SWAP_CME_vs_LCH_ICAP
+			[value "EUR-EURIBOR-6M"]
 
+	PeriodEnum:
+		+ D
+			[value "D"]
+		+ W
+			[value "W"]
+		+ M
+			[value "M"]
+		+ Y
+			[value "Y"]
 }
-

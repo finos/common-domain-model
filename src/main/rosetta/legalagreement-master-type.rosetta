@@ -1,0 +1,80 @@
+namespace cdm.legalagreement.master : <"Master agreement concepts.">
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.observable.asset.*
+
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+
+import cdm.legalagreement.common.*
+
+import cdm.synonyms.config.*
+
+type MasterAgreement: <"A class for defining the agreement executed between the parties and intended to govern all OTC derivatives transactions between those parties.">
+
+	masterAgreementId string (0..1) <"An identifier that has been created to identify the master agreement.">
+		[metadata scheme]
+	masterAgreementType MasterAgreementTypeEnum (1..1) <"The agreement executed between the parties and intended to govern product-specific derivatives transactions between those parties.">
+		[metadata scheme]
+	masterAgreementVersion string (0..1) <"The version of the master agreement.">
+		[metadata scheme]
+	masterAgreementDate date (0..1) <"The date on which the master agreement was signed.">
+		[synonym ISDA_Create_1_0 value "master_agreement_date" path "date_of_isda_master_agreement" maps 2] // TODO: remove "maps 2" once migration complete
+
+type MasterConfirmation: <"A class for defining the master confirmation agreement executed between the parties.">
+
+	masterConfirmationType MasterConfirmationTypeEnum (1..1) <"The type of master confirmation executed between the parties.">
+		[metadata scheme]
+	masterConfirmationDate date (1..1) <"The date of the confirmation executed between the parties and intended to govern all relevant transactions between those parties.">
+	masterConfirmationAnnexDate date (0..1) <"The date that an annex to the master confirmation was executed between the parties.">
+	masterConfirmationAnnexType MasterConfirmationAnnexTypeEnum (0..1) <"The type of master confirmation annex executed between the parties.">
+		[metadata scheme]
+
+//TODO - Deprecate: Still used by Equity Master Confirmation doc which hasn't been refactored.
+type EquitySwapMasterConfirmation2018 extends EquityMasterConfirmation: <"Specification for the General Terms and Relationship Supplement Elections as provided in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
+
+	typeOfSwapElection ReturnTypeEnum (1..1) <"Part 1 Section 4, 'Dividend Obligations', of the 2018 ISDA CDM Equity Confirmation, Para 4.2 'Dividend Returns': The Type Of Swap Election shall be 'Total Return', unless otherwise specified (as alternative 'Price Return') in the Transaction Supplement.">
+	pricingMethodElection PriceReturnTerms (1..1) <"Part 1 Section 5, 'Pricing', of the 2018 ISDA CDM Equity Confirmation, Para 5.1, 'Determining Prices': Each price in relation to a Pricing Date shall be determined pursuant to the specified Pricing Method. The relevant price specified under the column header 'Price' for a corresponding Pricing Date specified under the column header 'Pricing Date' shall be determined using the corresponding method specified under the column header 'Pricing Method'. Pricing Method for the final Equity Valuation Date shall be specified by the Final EVD Pricing Election and Pricing Method for any other Equity Valaution Date shall be 'Securities Close Pricing (Official)'">
+	// TODO: the initialPrice attribute should be optional in PriceReturnTerms, only the valuationPriceInterim and valuationPriceFinal methods should be specified at the Swap level
+	linearInterpolationElection InterpolationMethodEnum (1..1) <"Part 1 Section 3, 'Floating Obligations', of the 2018 ISDA CDM Equity Confirmation. Para 3.3, 'Linear Interpolation': If the initial Calculation Period is not equal to the Designated Maturity, then the Linear Interpolation Election shall be as specified in the Relationship Supplement, unless otherwise specified in the Transaction Supplement.">
+	settlementTerms SettlementTerms (1..1) <"Part 1 Section 8, 'Settlement', of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap. All Settlements are in Cash.">
+	equityCalculationPeriod CalculationPeriodDates (1..1) <"The parameters used to generate the 'Equity Valuation Dates' schedule, including the Effective Date and Termination Date for the Swap.">
+	equityCashSettlementDates PaymentDates (1..1) <"The parameters used to generate the payment date schedule, relative to the equityCalculationPeriod. Part 1 Section 12, 'Definitions', of the 2018 ISDA CDM Equity Confirmation. Para 73: 'Equity Cash Settlement Date' means each date falling one Settlement Cycle after an Equity Valuation Date; provided that if any such date is not a Settlement Currency Business Day, then such date shall be adjusted per Following Day Adjustment.">
+
+// TODO: Averaging Election, Dividend Payment Date Election, Break Funding Election
+// TODO - Deprecate: Still used by Equity Master Confirmation doc which hasn't been refactored.
+type EquityMasterConfirmation extends MasterConfirmationBase: <"Specification for General Terms and Elections of an Equity Master Confirmation that is applicable across multiple Equity confirmations and is referenced by each of these confirmations, an example of which being the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
+
+//TODO - Deprecate: Still used by Equity Master Confirmation doc which hasn't been refactored.
+type MasterConfirmationBase: <"Legal agreement specification for General Terms and Elections that are applicable across multiple confirmations and are referenced by these confirmations.">
+
+type AutomaticEarlyTermination: <"A class to specify the Automatic Early Termination provision applicable to a Master Agreement.">
+
+	fallbackAET boolean (1..1) <"A boolean election to specify whether provided that, where a party is governed by a system of law which does not permit the termination of one or more Transactions to occur following an Event of Default specified in Section 5(a)(vii)(1), (3), (4), (5), (6) or, to extent analogous thereto, (8) ,then the Automatic Early Termination provisions of Section 6(a) shall apply to such party.">
+	indemnity boolean (1..1) <"A boolean attribute to specify whether if an Early Termination Date occurs because Automatic Early Termination applies in respect of a party, the Defaulting Party shall indemnify the Non- defaulting Party, on demand, against any losses, costs, expenses or damages that the Non- defaulting Party incurs (to the extent not already taken into account in Section 6(e)) in relation to terminating, liquidating, establishing or re- establishing any hedge or related positions as result of movements of rates, indices, prices, yields, volatilities, spreads or other market data between the Early Termination Date and the Local Business Day on which the Non-defaulting Party becomes aware that the Early Termination Date has occurred">
+	partyElection AutomaticEarlyTerminationElection (0..2) <"The party election specific to the Automatic Early Termination Clause.">
+
+	condition fallbackAET: <"The fallback Automatic Early Termination provision can only be specified as applicable if the Automatic Early Termination Clause is not applicable to one of the parties.">
+		if fallbackAET = True
+		then partyElection->isApplicable = False
+
+	condition indemnity: <"If Automatic Early Termination can never apply then indemnity cannot apply.">
+		if fallbackAET = False and partyElection->isApplicable = False
+		then indemnity = False
+
+type AutomaticEarlyTerminationElection: <"A class to specify the party elections specific to the Automatic Early Termination Clause.">
+
+	party Party (1..1) <"The party for which the Automatic Early Termination provisions are being specified.">
+	isApplicable boolean (1..1) <"A boolean election to specify whether the Automatic Early Termination provisions of Section 6(a) are applicable (True) or not applicable (False).">
+
+type MasterAgreementSchedule: <"The set of elections which specify a Master Agreement.">
+
+	automaticEarlyTermination AutomaticEarlyTermination (1..1) <"The specification of whether there is an automatic occurrence of an Early Termination Date in respect of 			Transactions upon the occurrence of certain bankruptcy / insolvency related events.">
+	terminationCurrency TerminationCurrency (1..1) <"Specification of the currency in which the termination payment is made (including the process by which such currency is determined).">
+	addressForNotices AddressForNotices (0..1) <"Specification of the address and other details for notices.">
+
+type TerminationCurrency: <"The set of elections that specify the Termination Currency for the agreement.">
+
+

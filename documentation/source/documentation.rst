@@ -9,6 +9,7 @@ The Common Domain Model
 * Process
 * Reference Data
 * Mapping (Synonym)
+* Data Templates
 
 The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure. All the Rosetta DSL modelling components that are used to express the CDM are described in the `Rosetta DSL Documentation`_
 
@@ -149,6 +150,8 @@ In the CDM, contractual products are represented by the ``ContractualProduct`` t
 .. code-block:: Haskell
 
  type ContractualProduct:
+    [metadata key]
+    [metadata template]
     productIdentification ProductIdentification (0..1)
     productTaxonomy ProductTaxonomy (0..*)
     economicTerms EconomicTerms (1..1)
@@ -239,39 +242,42 @@ The abstract data type ProductBase serves as a base for all products that have a
 
 .. code-block:: Haskell
 
-type ProductBase: 
-    productIdentifier ProductIdentifier (1..*)
+ type ProductBase:
+   productIdentifier ProductIdentifier (1..*)
 
 The data types that extend from ProductBase are Index, Commodity, Loan, and Security.  Index and Commodity do not have any additional attributes.  In the case of Commodity, the applicable product identifiers are the ISDA definitions for reference benchmarks.  Loan and Security both have a set of additional attributes, as shown below:
 
 .. code-block:: Haskell
 
-type Loan extends ProductBase: 
-   borrower LegalEntity (0..*) 
-   lien string (0..1) 
-   facilityType string (0..1) 
-   creditAgreementDate date (0..1) 
-   tranche string (0..1) 
-   
+ type Loan extends ProductBase:
+   borrower LegalEntity (0..*)
+   lien string (0..1)
+     [metadata scheme]
+   facilityType string (0..1)
+     [metadata scheme]
+   creditAgreementDate date (0..1)
+   tranche string (0..1)
+     [metadata scheme]
+
 .. code-block:: Haskell
    
-type Security extends ProductBase: 
-	securityType SecurityTypeEnum (1..1) 
-	debtType DebtType (0..1)
-	equityType EquityTypeEnum (0..1) 
-	fundType FundProductTypeEnum (0..1) 
+ type Security extends ProductBase:
+   securityType SecurityTypeEnum (1..1)
+   debtType DebtType (0..1)
+   equityType EquityTypeEnum (0..1)
+   fundType FundProductTypeEnum (0..1)
 
-condition DebtSubType:
-        if securityType <> SecurityTypeEnum -> Debt
-        then debtType is absent
+ condition DebtSubType:
+   if securityType <> SecurityTypeEnum -> Debt
+   then debtType is absent
 
-condition EquitySubType:
-        if securityType <> SecurityTypeEnum -> Equity
-        then equityType is absent
+ condition EquitySubType:
+   if securityType <> SecurityTypeEnum -> Equity
+   then equityType is absent
 
-condition FundSubType:
-        if securityType <> SecurityTypeEnum -> Fund
-        then fundType is absent
+ condition FundSubType:
+   if securityType <> SecurityTypeEnum -> Fund
+   then fundType is absent
  
 The product identifier will uniquely identify the security.  The ``securityType`` is required for specific purposes in the model, for example for validation as a valid reference obligation for a Credit Default Swap.  The additional security details are optional as these could be determined from a reference database using the product identifier as a key
 
@@ -448,7 +454,8 @@ The contract type is only applicable to contractual products.  It represents the
    [metadata key]
    [rootType]
    contractIdentifier Identifier (1..*)
-   tradeDate TradeDate (1..1)
+   tradeDate date (1..1)
+   	 [metadata id]
    clearedDate date (0..1)
    tradableProduct TradableProduct (1..1)
    collateral Collateral (0..1)
@@ -458,7 +465,6 @@ The contract type is only applicable to contractual products.  It represents the
    party Party (0..*)
    account Account (0..*)
    partyRole PartyRole (0..*)
-   calculationAgent CalculationAgent (0..1)
    partyContractInformation PartyContractInformation (0..*)
    closedState ClosedState (0..1)
 
@@ -1069,7 +1075,6 @@ The CDM provides support for implementors to uniquely identify a legal agreement
    agreementDate date (1..1)
    effectiveDate date (0..1)
    identifier Identifier (0..*)
-   lineage Lineage (0..1)
    agreementType LegalAgreementType (1..1)
    contractualParty Party (2..2)
      [metadata reference]
@@ -1400,7 +1405,8 @@ Financial transactions defined in CDM can be referenced in the ``Contract`` data
    [metadata key]
    [rootType]
    contractIdentifier Identifier (1..*)
-   tradeDate TradeDate (1..1)
+   tradeDate date (1..1)
+   	 [metadata id]
    clearedDate date (0..1)
    tradableProduct TradableProduct (1..1)
    collateral Collateral (0..1)
@@ -1410,7 +1416,6 @@ Financial transactions defined in CDM can be referenced in the ``Contract`` data
    party Party (0..*)
    account Account (0..*)
    partyRole PartyRole (0..*)
-   calculationAgent CalculationAgent (0..1)
    partyContractInformation PartyContractInformation (0..*)
    closedState ClosedState (0..1)
 
@@ -1936,3 +1941,35 @@ Those synonym sources are listed as part of a configuration file in the CDM usin
 
 .. _serialised: https://en.wikipedia.org/wiki/Serialization
 .. _data modelling: https://en.wikipedia.org/wiki/Cardinality_(data_modeling)#Application_program_modeling_approaches
+
+Data Templates
+--------------
+
+Data templates provide a way to store data which is duplicated across multiple CDM objects in a single referenced template.
+
+One of the driving use-cases for templates in the CDM is Equity Swaps due to the high volume of contracts with near identical product details from Equity Financing desks.  The product details which are duplicated on each contract can be extracted into a single product template, and each contract can then specify a reference to that template.  Each contract would only specify the unique product details, which can be merged with the template product details to form a fully specified object.  In the business domain the same is achieved via master confirmation or portfolio swap agreements which can be bespoke or standard, or via clients having standard term sheets agreed and sitting with sales desks to be used when writing all future deals (a working practice which has parallels in almost every asset class).
+
+Model Changes
+^^^^^^^^^^^^^
+
+The annotation type ``[metadata template]`` has been added to the model.  This annotation indicates that a data type is eligible to be used as a template.
+
+The designation applies to all encapsulated types in that data type.  For example, currently, the only date type in the model that has been assigned this new annotation is ``ContractualProduct``.  The designation of template eligibility also applies to ``EconomicTerms`` which is an encapsulated type in ``ContractualProduct``, and also likewise applies to ``Payout`` which is an encapsulated type in ``EconomicTerms``.
+
+Other than the new annotation, data templates do not have any impact on the model, i.e. no new types, attributes, or conditions.
+
+.. code-block:: Haskell
+
+ type ContractualProduct:
+   [metadata key]
+   [metadata template]
+   productIdentification ProductIdentification (0..1)
+   productTaxonomy ProductTaxonomy (0..*)
+   economicTerms EconomicTerms (1..1)
+
+Merging Utilities and Examples
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Once a template reference has been resolved, it will be necessary to merge the template data to form a single fully populated object.  The CDM distribution includes code libraries, written in Java, that can merge the data from two objects into one.  These utilities can be extended by implementors to change the merging strategy to meet their requirements.
+
+The CDM Java Examples download, available via the CDM Portal Downloads page, contains a example demonstrating usage of a data template and the merging utilities.  See ``com.regnosys.cdm.example.template.TemplateExample``.

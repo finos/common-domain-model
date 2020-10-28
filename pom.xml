@@ -15,7 +15,7 @@
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<rosetta.common.version>0.0.0.master</rosetta.common.version>
-		<rosetta.dsl.version>3.2.1</rosetta.dsl.version>
+		<rosetta.dsl.version>4.0.0</rosetta.dsl.version>
 		<rosetta.code-generators.version>0.0.0.master</rosetta.code-generators.version>
 		<xtext.version>2.15.0</xtext.version>
 		<junit.jupiter.version>5.2.0</junit.jupiter.version>
@@ -79,7 +79,7 @@
 							<execution>
 								<id>copy-release-notes</id>
 								<phase>validate</phase>
-								<goals>
+                               <goals>
 									<goal>copy-resources</goal>
 								</goals>
 								<configuration>
@@ -478,7 +478,264 @@
 									</resources>
 								</configuration>
 							</execution>
+							<execution>
+								<id>copy-golang-build-resources</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes/cdm/golang</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/main/resources/golang-build-resources</directory>
+											<includes>
+												<include>**/*</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
 						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>csharp8</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.xtext</groupId>
+						<artifactId>xtext-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>generate-csharp8-src</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<sourceRoots>
+										<sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
+									</sourceRoots>
+									<classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+									<languages>
+										<language>
+											<setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
+											<outputConfigurations>
+												<!-- csharp8 output folder -->
+												<outputConfiguration>
+													<name>SRC_GEN_CSHARP8_OUTPUT</name>
+													<outputDirectory>src/generated/csharp8</outputDirectory>
+												</outputConfiguration>
+											</outputConfigurations>
+										</language>
+									</languages>
+								</configuration>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>com.regnosys.rosetta.code-generators</groupId>
+								<artifactId>default-cdm-generators</artifactId>
+								<version>${rosetta.code-generators.version}</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>copy-src-generated-csharp8</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes/cdm/csharp8</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/generated/csharp8</directory>
+											<includes>
+												<include>**/*.cs</include>
+											</includes>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-csharp8-build-resources</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes/cdm/csharp8</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/main/resources/csharp8-build-resources</directory>
+											<includes>
+												<include>**/*</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>cdm-code-gen-csharp8-resources</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes/cdm</outputDirectory>
+									<artifactItems>
+										<artifactItem>
+											<groupId>com.regnosys.rosetta.code-generators</groupId>
+											<artifactId>c-sharp</artifactId>
+											<version>${rosetta.code-generators.version}</version>
+											<type>jar</type>
+										</artifactItem>
+									</artifactItems>
+									<includes>**/*.cs,**/*.csproj</includes>
+									<overWriteReleases>false</overWriteReleases>
+									<overWriteSnapshots>false</overWriteSnapshots>
+									<overWriteIfNewer>true</overWriteIfNewer>
+								</configuration>
+							</execution>
+						</executions>
+						<configuration>
+							<includeScope>runtime</includeScope>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>csharp9</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.xtext</groupId>
+						<artifactId>xtext-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>generate-csharp9-src</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<sourceRoots>
+										<sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
+									</sourceRoots>
+									<classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+									<languages>
+										<language>
+											<setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
+											<outputConfigurations>
+												<!-- csharp9 output folder -->
+												<outputConfiguration>
+													<name>SRC_GEN_CSHARP9_OUTPUT</name>
+													<outputDirectory>src/generated/csharp9</outputDirectory>
+												</outputConfiguration>
+											</outputConfigurations>
+										</language>
+									</languages>
+								</configuration>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>com.regnosys.rosetta.code-generators</groupId>
+								<artifactId>default-cdm-generators</artifactId>
+								<version>${rosetta.code-generators.version}</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>copy-src-generated-csharp9</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes/cdm/csharp9</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/generated/csharp9</directory>
+											<includes>
+												<include>**/*.cs</include>
+											</includes>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-csharp9-build-resources</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes/cdm/csharp9</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/main/resources/csharp9-build-resources</directory>
+											<includes>
+												<include>**/*</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>cdm-code-gen-csharp9-resources</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes/cdm</outputDirectory>
+									<artifactItems>
+										<artifactItem>
+											<groupId>com.regnosys.rosetta.code-generators</groupId>
+											<artifactId>c-sharp</artifactId>
+											<version>${rosetta.code-generators.version}</version>
+											<type>jar</type>
+										</artifactItem>
+									</artifactItems>
+									<includes>**/*.cs,**/*.csproj</includes>
+									<overWriteReleases>false</overWriteReleases>
+									<overWriteSnapshots>false</overWriteSnapshots>
+									<overWriteIfNewer>true</overWriteIfNewer>
+								</configuration>
+							</execution>
+						</executions>
+						<configuration>
+							<includeScope>runtime</includeScope>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>
@@ -777,28 +1034,25 @@
 						</dependency>
 					</dependencies>
 				</plugin>
+				<plugin>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<configuration>
+						<sourcepath>
+							${project.build.sourceDirectory}:${project.basedir}/src/generated/java
+						</sourcepath>
+					</configuration>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
-
-	<reporting>
-		<excludeDefaults>true</excludeDefaults>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.1</version>
-				<reportSets>
-					<reportSet>
-						<reports>
-							<report>javadoc-no-fork</report>
-							<report>test-javadoc-no-fork</report>
-						</reports>
-					</reportSet>
-				</reportSets>
-			</plugin>
-		</plugins>
-	</reporting>
 
 	<dependencyManagement>
 		<dependencies>
@@ -821,6 +1075,11 @@
 				<groupId>com.regnosys</groupId>
 				<artifactId>rosetta-common</artifactId>
 				<version>${rosetta.common.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.regnosys.rosetta.code-generators</groupId>
+				<artifactId>default-cdm-generators</artifactId>
+				<version>${rosetta.code-generators.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.opengamma.strata</groupId>
