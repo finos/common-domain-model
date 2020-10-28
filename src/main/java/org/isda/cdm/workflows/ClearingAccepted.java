@@ -5,6 +5,7 @@ import static org.isda.cdm.workflows.ClearingUtils.getParty;
 import java.util.Optional;
 import java.util.function.Function;
 
+import cdm.event.common.TradeState;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
 import com.google.common.collect.Lists;
@@ -21,7 +22,7 @@ import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
 import cdm.legalagreement.contract.Contract;
 
-public class ClearingAccepted implements Function<Contract, Workflow> {
+public class ClearingAccepted implements Function<TradeState, Workflow> {
 	@Inject
 	private IdentifierService identifierService;
 	@Inject
@@ -30,14 +31,14 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 	private PostProcessor runner;
 
 	@Override
-	public Workflow apply(Contract contract) {
-		Contract.ContractBuilder contractBuilder = contract.toBuilder();
+	public Workflow apply(TradeState tradeState) {
+		TradeState.TradeStateBuilder contractBuilder = tradeState.toBuilder();
 		runner.postProcess(Contract.class, contractBuilder);  // TODO: is this needed here?
 
-		Contract alphaContract = contractBuilder.build();
+		TradeState alphaContract = contractBuilder.build();
 
-		Party party1 = getParty(contract, CounterpartyEnum.PARTY_1);
-		Party party2 = getParty(contract, CounterpartyEnum.PARTY_2);
+		Party party1 = getParty(tradeState, CounterpartyEnum.PARTY_1);
+		Party party2 = getParty(tradeState, CounterpartyEnum.PARTY_2);
 
 		String externalReference = alphaContract.getMeta().getGlobalKey();
 
@@ -47,10 +48,10 @@ public class ClearingAccepted implements Function<Contract, Workflow> {
 		// propose clear step
 		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, alphaContract, party1, party2, externalReference, identifierService);
 
-		Identifier identifier = Optional.ofNullable(alphaContract.getContractIdentifier())
+		Identifier identifier = Optional.ofNullable(alphaContract.getTrade().getIdentifier())
 				.flatMap(ids -> ids.stream().findFirst())
 				.orElse(null);
-		Date tradeDate = Optional.ofNullable(alphaContract.getTradeDate())
+		Date tradeDate = Optional.ofNullable(alphaContract.getTrade().getTradeDate())
 				.map(FieldWithMetaDate::getValue)
 				.orElse(null);
 

@@ -2,9 +2,9 @@ package org.isda.cdm.functions;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.isda.cdm.TradeNew;
-import org.isda.cdm.TradeState;
-import org.isda.cdm.meta.TradeStateMeta;
+import cdm.event.common.TradeNew;
+import cdm.event.common.TradeState;
+import cdm.event.common.meta.TradeStateMeta;
 import org.junit.jupiter.api.Test;
 
 import com.rosetta.model.lib.validation.ValidationResult;

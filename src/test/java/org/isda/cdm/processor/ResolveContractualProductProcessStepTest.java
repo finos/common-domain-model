@@ -1,33 +1,25 @@
 package org.isda.cdm.processor;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static util.ResourcesUtils.getObject;
+import cdm.event.common.TradeNew;
+import cdm.event.common.TradeState;
+import cdm.legalagreement.contract.Contract;
+import cdm.product.asset.InterestRatePayout;
+import cdm.product.common.settlement.PayoutBase;
+import cdm.product.template.*;
+import com.google.inject.Inject;
+import com.rosetta.model.lib.GlobalKey;
+import com.rosetta.model.lib.meta.GlobalKeyFields;
+import org.isda.cdm.functions.AbstractFunctionTest;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
 
-import org.isda.cdm.functions.AbstractFunctionTest;
-import org.junit.jupiter.api.Test;
-
-import com.google.common.io.Resources;
-import com.google.inject.Inject;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.rosetta.model.lib.GlobalKey;
-import com.rosetta.model.lib.meta.GlobalKeyFields;
-
-import cdm.legalagreement.contract.Contract;
-import cdm.product.asset.InterestRatePayout;
-import cdm.product.common.settlement.PayoutBase;
-import cdm.product.template.ContractualProduct;
-import cdm.product.template.EconomicTerms;
-import cdm.product.template.Payout;
-import cdm.product.template.Product;
-import cdm.product.template.TradableProduct;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static util.ResourcesUtils.getObject;
 
 class ResolveContractualProductProcessStepTest extends AbstractFunctionTest {
 

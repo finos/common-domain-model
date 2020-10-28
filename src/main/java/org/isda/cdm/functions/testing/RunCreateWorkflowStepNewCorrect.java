@@ -1,8 +1,19 @@
 package org.isda.cdm.functions.testing;
 
-import static java.util.Collections.emptyList;
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+import cdm.base.staticdata.identifier.AssignedIdentifier;
+import cdm.base.staticdata.identifier.Identifier;
+import cdm.event.common.ActionEnum;
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.TradeState;
+import cdm.event.common.functions.Create_Execution;
+import cdm.event.workflow.*;
+import cdm.event.workflow.functions.Create_WorkflowStep;
+import cdm.observable.asset.QuantityNotation;
+import com.google.common.collect.Lists;
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.metafields.FieldWithMetaDate;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -12,27 +23,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import static java.util.Collections.emptyList;
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
-import com.google.common.collect.Lists;
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
-import com.rosetta.model.metafields.FieldWithMetaDate;
-
-import cdm.base.staticdata.identifier.AssignedIdentifier;
-import cdm.base.staticdata.identifier.Identifier;
-import cdm.event.common.ActionEnum;
-import cdm.event.common.BusinessEvent;
-import cdm.event.common.functions.Create_Execution;
-import cdm.event.workflow.EventTimestamp;
-import cdm.event.workflow.EventTimestampQualificationEnum;
-import cdm.event.workflow.MessageInformation;
-import cdm.event.workflow.Workflow;
-import cdm.event.workflow.WorkflowStep;
-import cdm.event.workflow.functions.Create_WorkflowStep;
-import cdm.legalagreement.contract.Contract;
-import cdm.observable.asset.QuantityNotation;
-
-public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Contract, Workflow> {
+public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<TradeState, Workflow> {
 
     @Inject
     Create_WorkflowStep workflowStep;

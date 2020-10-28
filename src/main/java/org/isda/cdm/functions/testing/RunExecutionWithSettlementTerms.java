@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import cdm.base.staticdata.party.RelatedPartyReference;
+import cdm.event.common.TradeNew;
+import cdm.event.common.TradeState;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 
@@ -24,7 +26,6 @@ import cdm.product.template.EconomicTerms;
 import cdm.product.template.Payout;
 import cdm.product.template.Product;
 import cdm.product.template.TradableProduct;
-import org.isda.cdm.TradeState;
 
 public class RunExecutionWithSettlementTerms implements ExecutableFunction<TradeState, BusinessEvent> {
 
@@ -70,11 +71,13 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
 
     private List<SettlementTerms> getSettlementTerm(TradeState input) {
     	List<Counterparty> counterparties = Optional.ofNullable(input)
-		        .map(Contract::getTradableProduct)
+		        .map(TradeState::getTrade)
+		        .map(TradeNew::getTradableProduct)
 		        .map(TradableProduct::getCounterparties)
 		        .orElse(Collections.emptyList());
         List<RelatedPartyReference> relatedParties = Optional.ofNullable(input)
-                .map(Contract::getTradableProduct)
+                .map(TradeState::getTrade)
+                .map(TradeNew::getTradableProduct)
                 .map(TradableProduct::getRelatedParties)
                 .orElse(Collections.emptyList());
         return Optional.ofNullable(input)

@@ -2,6 +2,7 @@ package org.isda.cdm.hashing;
 
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.Party.PartyBuilder;
+import cdm.event.common.TradeNew;
 import cdm.legalagreement.contract.Contract;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
@@ -28,7 +29,7 @@ public class GlobalKeyProcessStepTest {
 
 	@Test
 	public void shouldSetGlobalKeyOnFieldWithMetaBuilderWithMetadataId() {
-		Contract.ContractBuilder contract = Contract.builder()
+		TradeNew.TradeNewBuilder contract = TradeNew.builder()
 				.setTradeDate(FieldWithMetaDate.builder().setValue(DateImpl.of(2020, 1, 1)).build());
 
 		new GlobalKeyProcessStep(NonNullHashCollector::new).runProcessStep(Contract.class, contract);

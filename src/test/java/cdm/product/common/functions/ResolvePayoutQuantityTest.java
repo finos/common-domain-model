@@ -1,7 +1,8 @@
 package cdm.product.common.functions;
 
 import cdm.base.math.NonNegativeQuantity;
-import cdm.legalagreement.contract.Contract;
+import cdm.event.common.TradeNew;
+import cdm.event.common.TradeState;
 import cdm.observable.asset.QuantityNotation;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.settlement.PayoutBase;

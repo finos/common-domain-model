@@ -207,7 +207,8 @@ type ObservationHistory:
 type TradeNew:
 	[metadata key]
 	identifier Identifier (1..*)
-	tradeDate TradeDate (1..1)
+	tradeDate date (1..1)
+        [metadata id]
 	tradableProduct TradableProduct (1..1)
 	party Party (0..*)
 	partyRole PartyRole (0..*)
@@ -342,21 +343,21 @@ type TradeNew:
 
 	condition ClearedDate: <"If the cleared date exists, it needs to be on or after the trade date.">
 		if contract -> clearedDate exists
-		then contract -> clearedDate >= tradeDate -> date
+		then contract -> clearedDate >= tradeDate
 
 	condition ContractualProductExists:
 		tradableProduct -> product -> contractualProduct only exists
 
 	condition FpML_cd_1: <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
 		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then tradeDate -> date < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
-			or tradeDate -> date < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+		then tradeDate < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
+			or tradeDate < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_7: <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists.">
 		if ( contract -> documentation -> documentationIdentification -> masterConfirmation and contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists
-			or tradeDate -> date < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+			or tradeDate < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_8: <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
 		if ( contract -> documentation -> documentationIdentification -> masterConfirmation and contract -> documentation -> documentationIdentification -> contractualMatrix ) is absent
@@ -426,35 +427,6 @@ type State:
 
 	condition: if positionState = PositionStatusEnum -> Closed then
 		closedState exists
-
-type LimitApplicable:
-
-	limitType CreditLimitTypeEnum (0..1) <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">
-		[metadata scheme]
-		[synonym Workflow_Event value "limitType" meta "creditLimitTypeScheme"]
-	clipSize int (0..1) <"This element is required in FpML, optional in CDM for the purpose of accommodating the CME data representation while making reference to the FpML one.">
-	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym Workflow_Event value "amountUtilized"]
-	utilization CreditLimitUtilisation (0..1)
-	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym Workflow_Event value "amountRemaining"]
-	currency string (0..1) <"The currency in which the applicable limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-		[synonym Workflow_Event value "currency" meta "currencyScheme"]
-	velocity Velocity (0..1)
-
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
-		optional choice amountUtilized, utilization
-
-type LimitApplicableExtended extends LimitApplicable: <"A class to represent the CDM attributes that are not part of the FpML standard. Once broader usage is confirmed, it is expected that those two classes can be collapsed.">
-
-	limitLevel LimitLevelEnum (0..1) <"The level at which the limit is set: customer business, proprietary business or account level. This attribute is specified as a string as part of the CME clearing confirmation specification.">
-		[metadata scheme]
-		[synonym Workflow_Event value "level" meta "creditLimitLevelScheme"]
-	limitAmount number (0..1) <"The total limit available for the limit level and limit type. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym Workflow_Event value "limitAmount"]
-	limitImpactDueToTrade number (0..1) <"The limit utilized by this specific trade. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym Workflow_Event value "limitImpactDueToTrade"]
 
 type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an contractFormation event is corrected, the correction event will have a lineage into the initial event, which takes the form of a globalKey into that initial contract formation event. Two referencing mechanisms are provided as part of the CDM: either the globalKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the globalKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.globalKey.GlobalKeyHashCalculator. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
 
@@ -613,74 +585,74 @@ type PrimitiveEvent: <"A primitive event is defined by one and only one atomic c
 
 type ExecutionPrimitive: <"Specification of the primitive event for an execution, with 'after' state being an ExecutionState and the 'before' state being Null. It is expected that the 'before' state will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
 
-	before ExecutionState (0..0) <"The 0 cardinality reflects the fact that there is no execution in the before state of an execution primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">
+	before TradeState (0..0) <"The 0 cardinality reflects the fact that there is no execution in the before state of an execution primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">
 		[metadata reference]
 		[synonym Workflow_Event value "before"]
-	after ExecutionState (1..1) <"The after state corresponds to the execution between the parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">
+	after TradeState (1..1) <"The after state corresponds to the execution between the parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">
 		[synonym Workflow_Event value "after"]
 
 type ContractFormationPrimitive: <"Specification of a primitive event that represents an executed trade for a contractual product that has been affirmed (or confirmed) by the two parties.  The optional 'before' state is an 'ExecutionState' consisting of an ExecutionPrimitive.  The 'after' state is a 'PostContractFormationState' that includes a Contract in which there is an optional reference to a RelatedAgreeemnt, such as a Master Agreement.  If an 'after' and 'before' both exist, then they must have the same TradableProduct values.">
 
-	before ExecutionState (0..1) <"The before state corresponds to the output of an execution between the parties.">
+	before TradeState (0..1) <"The before state corresponds to the output of an execution between the parties.">
 		[metadata reference]
-		[synonym Workflow_Event value "before"]
-	after PostContractFormationState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
-		[synonym Workflow_Event value "after"]
+		[synonym Workflow_Event value "fpmlTrade" path "before"]
+		[synonym Workflow_Event value "fpmlExecution" path "before"]
+	after TradeState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
+		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
-	// TODO enable condition once party has been refactored out of product
-//	condition: <"The product should be unchanged.">
-//		before -> execution -> tradableProduct -> product = after -> contract -> tradableProduct -> product
+	condition: <"The product should be unchanged.">
+		after exists
 
 	condition: <"The quantity should be unchanged.">
-		if before exists then before -> execution -> tradableProduct -> quantityNotation = after -> contract -> tradableProduct -> quantityNotation
+		if before exists then before -> trade -> tradableProduct -> quantityNotation = after -> trade -> tradableProduct -> quantityNotation
 
 	condition: <"The price should be unchanged.">
-		if before exists then before -> execution -> tradableProduct -> priceNotation = after -> contract -> tradableProduct -> priceNotation
+		if before exists then before -> trade -> tradableProduct -> priceNotation = after -> trade -> tradableProduct -> priceNotation
 
 type SplitPrimitive: <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the ContractFormation primitive.">
 
-	before Trade (1..1) <"The trade before split, which is either an execution if split happens before the contract is formed, or an already formed contract.">
+	before TradeState (1..1) <"The trade before split, which is either an execution if split happens before the contract is formed, or an already formed contract.">
 		[metadata reference]
-		[synonym Workflow_Event value "before"]
+		[synonym Workflow_Event value "fpmlTrade" path "before"]
 	after SplitOutcome (1..1) <"Outcome of the split as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Split'.">
 		[synonym Workflow_Event value "after"]
 
 	condition: <"If the pre-split trade is an execution, then the post-split trade must also be an execution.">
-		if before -> execution exists
-		then after -> originalTrade -> execution exists
-			and after -> splitTrades -> execution exists
-			and after -> splitTrades -> contract is absent
+		if before -> trade -> execution exists
+		then after -> originalTrade -> trade -> execution exists
+			and after -> splitTrades -> trade -> execution exists
+			and after -> splitTrades -> trade -> contract is absent
 
 	condition: <"If the pre-split trade is a contract, then the post-split trade must also be a contract.">
-		if before -> contract exists
-		then after -> originalTrade -> contract exists
-			and after -> splitTrades -> contract exists
-			and after -> splitTrades -> execution is absent
+		if before -> trade -> contract exists
+		then after -> originalTrade -> trade -> contract exists
+			and after -> splitTrades -> trade -> contract exists
+			and after -> splitTrades -> trade -> execution is absent
 
 	condition: <"The product should be unchanged.">
-		if before -> execution exists
-		then after -> splitTrades -> execution -> tradableProduct -> product = before -> execution -> tradableProduct -> product
+		if before -> trade -> execution exists
+		then after -> splitTrades -> trade -> tradableProduct -> product = before -> trade -> tradableProduct -> product
 
 	condition: <"The product should be unchanged.">
-		if before -> contract exists
-		then after -> splitTrades -> contract -> tradableProduct -> product = before -> contract -> tradableProduct -> product
+		if before -> trade -> contract exists
+		then after -> splitTrades -> trade -> tradableProduct -> product = before -> trade -> tradableProduct -> product
 
 	condition: <"The post-split quantities should sum to the pre-split quantity.">
-		if before -> execution exists
-		then Sum(after -> splitTrades -> execution -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> execution -> tradableProduct -> quantityNotation -> quantity -> amount
+		if before -> trade -> execution exists
+		then Sum(after -> splitTrades -> trade -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> trade -> tradableProduct -> quantityNotation -> quantity -> amount
 
 	condition: <"The post-split quantities should sum to the pre-split quantity.">
-		if before -> contract exists
-		then Sum(after -> splitTrades -> contract -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> contract -> tradableProduct -> quantityNotation -> quantity -> amount
+		if before -> trade -> contract exists
+		then Sum(after -> splitTrades -> trade -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> trade -> tradableProduct -> quantityNotation -> quantity -> amount
 
 	// TODO add syntax to handle comparison between list and single item.  https://github.com/REGnosys/rosetta-dsl/issues/167
 	condition: <"The price should be unchanged.">
-		if before -> execution exists
-		then after -> splitTrades -> execution -> tradableProduct -> priceNotation = before -> execution -> tradableProduct -> priceNotation
+		if before -> trade -> execution exists
+		then after -> splitTrades -> trade -> tradableProduct -> priceNotation = before -> trade -> tradableProduct -> priceNotation
 
 	condition: <"The price should be unchanged.">
-		if before -> contract exists
-		then after -> splitTrades -> contract -> tradableProduct -> priceNotation = before -> contract -> tradableProduct -> priceNotation
+		if before -> trade -> contract exists
+		then after -> splitTrades -> trade -> tradableProduct -> priceNotation = before -> trade -> tradableProduct -> priceNotation
 
 type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 
@@ -698,30 +670,30 @@ type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise const
 
 type QuantityChangePrimitive: <"The primitive event to represent a change in quantity or notional.">
 
-	before Trade (1..1) <"The state of the trade (either an execution or a contract, before the event.">
+	before TradeState (1..1) <"The state of the trade (either an execution or a contract, before the event.">
 		[metadata reference]
-		[synonym Workflow_Event value "before"]
-	after Trade (1..1) <"The state of the trade (either an execution or a contract, as a follow-up from the event.">
-		[synonym Workflow_Event value "after"]
+		[synonym Workflow_Event value "fpmlTrade" path "before"]
+	after TradeState (1..1) <"The state of the trade (either an execution or a contract, as a follow-up from the event.">
+		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
 type ResetPrimitive: <"The primitive event to represent a reset.">
 
-	before ContractState (1..1) <"Contract state before the reset, as per previous events processed on the contract.">
+	before TradeState (1..1) <"Contract state before the reset, as per previous events processed on the contract.">
 		[metadata reference]
 		[synonym Workflow_Event value "ignore"]
-	after ContractState (1..1) <"Contract state after the reset, that embeds the reset value as an updated field on the contract state.">
+	after TradeState (1..1) <"Contract state after the reset, that embeds the reset value as an updated field on the contract state.">
 		[synonym Workflow_Event value "ignore"]
 	condition Contract: <"The original contract in the before/after state of a reset should match.">
 		if ResetPrimitive exists
-		then before -> contract = after -> contract
+		then before -> trade = after -> trade
 
 type TermsChangePrimitive: <"The primitive event to represent change(s) to the contractual terms and the clearing submission and acceptance process.">
 
-	before Trade (1..1)
+	before TradeState (1..1)
 		[metadata reference]
-		[synonym Workflow_Event value "before"]
-	after Trade (1..1)
-		[synonym Workflow_Event value "after"]
+		[synonym Workflow_Event value "fpmlTrade" path "before"]
+	after TradeState (1..1)
+		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
 type TransferPrimitive: <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security). The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]

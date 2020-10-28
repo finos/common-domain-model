@@ -1,25 +1,19 @@
 package org.isda.cdm.functions.testing;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
-
-import java.util.Collections;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.TradeState;
+import cdm.event.common.functions.Create_ContractFormation;
+import cdm.event.common.functions.Create_Execution;
+import cdm.legalagreement.common.*;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 
-import cdm.event.common.BusinessEvent;
-import cdm.event.common.functions.Create_ContractFormation;
-import cdm.event.common.functions.Create_Execution;
-import cdm.legalagreement.common.GoverningLawEnum;
-import cdm.legalagreement.common.LegalAgreement;
-import cdm.legalagreement.common.LegalAgreementNameEnum;
-import cdm.legalagreement.common.LegalAgreementPublisherEnum;
-import cdm.legalagreement.common.LegalAgreementType;
-import cdm.legalagreement.contract.Contract;
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.Optional;
+
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 public class RunFormContractWithLegalAgreement implements ExecutableFunction<TradeState, BusinessEvent> {
 
