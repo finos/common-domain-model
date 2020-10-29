@@ -552,7 +552,7 @@ type TransferorTransferee: <"A class mimicking the PartyReferencePayerReceiver, 
 		[synonym Workflow_Event value "receiverAccountReference" meta "href"]
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
-	alphaContract Contract (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
+	alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
 
 	clearingParty Party(1..1) <"The Central Counter party (CCP) that the contract will be submitted to for clearing.">
 	party1 Party(1..1) <"First party facing the CCP if it is clearing for its own account.">
@@ -720,37 +720,10 @@ type Execution: <"A class to specify an execution, which consists essentially in
 	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">
 		[synonym Workflow_Event value "executionType" path "trade"]
 	executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">
-	identifier Identifier (1..*) <"The identifier(s) associated with the execution.">
-	tradeDate date (1..1) <"The trade/execution date.">
-		[metadata id]
-	tradableProduct TradableProduct (1..1) <"The product traded as part of this execution, including quantity and price">
-	party Party (0..*) <"The party reference is optional because positioned as part of the Event class when the execution is specified as part of such context.">
-		[metadata reference]
-	partyRole PartyRole (0..*) <"The role(s) that party(ies) may have in relation to the execution, further to the principal parties (i.e payer/receive or buyer/seller) to it.">
-		[synonym Workflow_Event value "trade"]
-	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
-		[synonym Workflow_Event value "closedState" path "trade"]
-	settlementTerms SettlementTerms (0..*) <"The settlement terms applicable to any initial transfer of cash or securities resulting from the transaction that is not part of the product definition: e.g. option premium, swap unwind fee, security delivery vs payment.">
 
 	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
 		if executionType = ExecutionTypeEnum -> Electronic
 		then executionVenue exists
-
-	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
-		if tradableProduct -> product -> security exists
-		then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
-
-	condition SecurityPartyRoleBuyerSeller: <"When the executed product is a security, both buyer and seller party roles must exist.">
-		if tradableProduct -> product -> security exists
-		then partyRole -> role contains PartyRoleEnum -> Buyer and partyRole -> role contains PartyRoleEnum -> Seller
-
-	condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
-		if tradableProduct -> product -> security exists
-		then tradableProduct -> priceNotation -> price exists
-
-	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
-		if tradableProduct -> product -> security exists
-		then settlementTerms exists
 
 /*
  * Only some of the attributes have been incorporated at this point, as some seem questionable (e.g. executionDateTime, which should be associated to the relevant execution event).
