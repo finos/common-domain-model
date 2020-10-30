@@ -195,6 +195,7 @@ type ExecutionState: <"A class to specify an execution instantiation with respec
 
 type TradeState:
 	[metadata key]
+	[rootType]
 	trade TradeNew (1..1)
 	state State (0..1)
 	observationHistory ObservationHistory (0..*)
@@ -205,16 +206,18 @@ type ObservationHistory:
 	informationSource ObservationSource (1..1)
 
 type TradeNew:
-	[metadata key]
+	[metadata key]  // TODO: This key should be removed, but is used in Create_Reset and Settle java examples
 	identifier Identifier (1..*)
 	tradeDate date (1..1)
         [metadata id]
 	tradableProduct TradableProduct (1..1)
 	party Party (0..*)
 	partyRole PartyRole (0..*)
+	    [synonym Workflow_Event value "trade"]
 	settlementTerms SettlementTerms (0..*)
 	execution Execution (0..1)
 	contract Contract (0..1)
+	    [synonym Workflow_Event value "trade" set when "trade->executionVenue" is absent]
 
 	// Execution specific conditions
 	condition:
