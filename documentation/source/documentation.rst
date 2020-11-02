@@ -157,17 +157,6 @@ In the CDM, contractual products are represented by the ``ContractualProduct`` t
 
 Note that price and quantity are defined in ``TradableProduct`` as these are attributes common to all products.  The remaining economic terms of the contractual product are defined in ``EconomicTerms`` which is an encapsulated type in ``ContractualProduct`` .
 
-Data Templates
-""""""""""""""
-
-The ``ContractualProduct`` type is specified with the ``[metadata template]`` annotation indicating that it is eligible to be used as a **Template**.
-
-Financial systems often contain a high volume of contracts with near identical contractual product data.  Templates provide a way to store this data more efficiently.  The contractual product data which is duplicated on each contract can be extracted into a single template and replaced by a reference.  This allows each contract to specify only the unique contractual product data.  The template reference can be resolved to a template object which can then be merged in to form a single, complete object.
-
-Neither the template object nor the object containing incomplete data should be validated individually, so no cardinality or conditions can be written explicitly for the pre-merged objects.  Validation should only be performed once the template reference has been resolved and the objects merged together.
-
-Code libraries, written in Java and distributed with the CDM, contain tools to merge CDM objects together.  Implementors may extend these merging tools to change the merging strategy to suit their requirements.  The CDM Java Examples download, available via the `CDM Portal Downloads page <https://portal.cdm.rosetta-technology.io/#/downloads>`_, contains a example demonstrating usage of a data template and the merging tools. See ``com.regnosys.cdm.example.template.TemplateExample``.
-
 Economic Terms
 """"""""""""""
 
@@ -244,6 +233,17 @@ There are a number of components that are reusable across several payout types. 
    lastRegularPeriodEndDate date (0..1)
    stubPeriodType StubPeriodTypeEnum (0..1)
    calculationPeriodFrequency CalculationPeriodFrequency (0..1)
+
+Data Templates
+""""""""""""""
+
+The ``ContractualProduct`` type is specified with the ``[metadata template]`` annotation indicating that it is eligible to be used as a template.
+
+Financial markets often trade a high volume of contracts with near identical contractual product data. Templates provide a way to store this data more efficiently. The contractual product data which is duplicated on each contract can be extracted into a single template and replaced by a reference. This allows each contract to specify only the unique contractual product data. The template reference can be resolved to a template object which can then be merged in to form a single, complete object.
+
+For instance, Equity Swaps used by Equity Financing desks sometimes refer to a *Master Confirmation* agreement, which is an overall agreement that specifies all the standard Equity Swap terms that do not need to be renegotiated on each trade. Each contractual product would only specify the unique product details (such as start and end date, underlier, price and spread) together with a reference to the Master Confirmation containing the template product details.
+
+Code libraries, written in Java and distributed with the CDM, contain tools to merge CDM objects together.  Implementors may extend these merging tools to change the merging strategy to suit their requirements.  The CDM Java Examples download, available via the `CDM Portal Downloads page <https://portal.cdm.rosetta-technology.io/#/downloads>`_, contains a example demonstrating usage of a data template and the merging tools. See ``com.regnosys.cdm.example.template.TemplateExample``.
 
 
 Products with Identifiers
