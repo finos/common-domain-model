@@ -19,7 +19,7 @@ type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption
 	maximumStockLoanRate number (0..1) <"Specifies the maximum stock loan rate for Loss of Stock Borrow. A percentage of 5% is represented as 0.05.">
 	increasedCostOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Stock Borrow | If true, then increased cost of stock borrow is applicable.">
 	initialStockLoanRate number (0..1) <"Specifies the initial stock loan rate for Increased Cost of Stock Borrow. A percentage of 5% is represented as 0.05.">
-	determiningParty CounterpartyOrRelatedParty (0..1) <"Specifies the party which determines additional disruption events.">
+	determiningParty AncillaryRoleEnum (0..1) <"Specifies the party which determines additional disruption events.">
 
 	condition MaximumStockLoanRate: <" FpML specifies the maximumStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
 		if maximumStockLoanRate exists
@@ -32,8 +32,8 @@ type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption
 			and initialStockLoanRate <= 1
 
 	condition DisruptionEventsDeterminingParty:
-		if determiningParty -> role exists
-		then determiningParty -> role = AncillaryRoleEnum -> DisruptionEventsDeterminingParty
+		if determiningParty exists
+		then determiningParty = AncillaryRoleEnum -> DisruptionEventsDeterminingParty
 
 /*
  * The FpML construct has a a number of other attributes: dividend valuation dates, fall-back provision, ...

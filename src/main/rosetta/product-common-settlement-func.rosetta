@@ -8,7 +8,7 @@ func CashflowSettlementTerms: <"The Payout type contains a cashflow to replicate
 	inputs:
 		cashflow Cashflow (0..1)
 		counterparties Counterparty (2..2)
-		relatedParties AncillaryRole (0..*)
+		ancillaryRoles AncillaryRole (0..*)
 
 	output:
 		settlementTerms SettlementTerms (0..1)
@@ -19,12 +19,12 @@ func CashflowSettlementTerms: <"The Payout type contains a cashflow to replicate
 	assign-output settlementTerms -> payerReceiver -> payerPartyReference:
 		if cashflow -> payerReceiver -> payer exists
 		then ExtractCounterpartyBySide( counterparties, cashflow -> payerReceiver -> payer ) -> partyReference
-		else ExtractAncillaryRole( relatedParties, cashflow -> payerReceiver -> payerRelatedParty ) -> partyReference only-element
+		else ExtractAncillaryRole( ancillaryRoles, cashflow -> payerReceiver -> payerRelatedParty ) -> partyReference only-element
 		
 	assign-output settlementTerms -> payerReceiver -> receiverPartyReference:
 		if cashflow -> payerReceiver -> receiver exists
 		then ExtractCounterpartyBySide( counterparties, cashflow -> payerReceiver -> receiver ) -> partyReference
-		else ExtractAncillaryRole( relatedParties, cashflow -> payerReceiver -> receiverRelatedParty ) -> partyReference only-element
+		else ExtractAncillaryRole( ancillaryRoles, cashflow -> payerReceiver -> receiverRelatedParty ) -> partyReference only-element
 	
 	assign-output settlementTerms -> assetIdentifier:
 		cashflow -> payoutQuantity -> assetIdentifier

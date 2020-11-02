@@ -1,9 +1,12 @@
 package cdm.observable.asset.processor;
 
 import cdm.base.staticdata.party.AncillaryRoleEnum;
-import cdm.base.staticdata.party.processor.CounterpartyOrRelatedPartyMappingProcessor;
+import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.observable.asset.CalculationAgent;
 import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +18,7 @@ import java.util.Optional;
  * FpML mapping processor.
  */
 @SuppressWarnings("unused")
-public class CalculationAgentPartyMappingProcessor extends CounterpartyOrRelatedPartyMappingProcessor {
+public class CalculationAgentPartyMappingProcessor extends MappingProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CalculationAgentPartyMappingProcessor.class);
 
@@ -28,7 +31,17 @@ public class CalculationAgentPartyMappingProcessor extends CounterpartyOrRelated
 		super(modelPath, synonymPaths, context);
 	}
 
-	protected Optional<AncillaryRoleEnum> getRelatedPartyEnum() {
+	@Override
+	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
+		getAncillaryRoleEnum().ifPresent(role ->
+				PartyMappingHelper.getInstanceOrThrow(getContext())
+						.setAncillaryRoleEnum(getModelPath(),
+								synonymPath.addElement("href"),
+								((CalculationAgent.CalculationAgentBuilder) parent)::setCalculationAgentParty,
+								role));
+	}
+
+	protected Optional<AncillaryRoleEnum> getAncillaryRoleEnum() {
 		if (getModelPath().containsPath(OPTIONAL_EARLY_TERMINATION_SUB_PATH)) {
 			return Optional.of(AncillaryRoleEnum.OPTIONAL_EARLY_TERMINATION_CALCULATION_AGENT);
 		} else if (getModelPath().containsPath(MANDATORY_EARLY_TERMINATION_SUB_PATH)) {

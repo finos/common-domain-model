@@ -1,9 +1,9 @@
 package cdm.legalagreement.contract.processor;
 
+import cdm.base.staticdata.party.AncillaryRole;
+import cdm.base.staticdata.party.AncillaryRoleEnum;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyEnum;
-import cdm.base.staticdata.party.AncillaryRoleEnum;
-import cdm.base.staticdata.party.AncillaryRole;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.product.template.TradableProduct.TradableProductBuilder;
 import com.regnosys.rosetta.common.translation.Mapping;
@@ -28,7 +28,7 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setV
 /**
  * Helper class for FpML mapper processors.
  * <p>
- * Handles Counterparty and RelatedParties.  A new instance is created for each TradableProduct.
+ * Handles Counterparty and AncillaryRole.  A new instance is created for each TradableProduct.
  */
 public class PartyMappingHelper {
 
@@ -40,15 +40,16 @@ public class PartyMappingHelper {
 	private final Map<String, CounterpartyEnum> partyExternalReferenceToCounterpartyEnumMap;
 	private final List<Mapping> mappings;
 	private final CompletableFuture<Map<String, CounterpartyEnum>> bothCounterpartiesCollected = new CompletableFuture<>();
-	private final CompletableFuture<TradableProductBuilder> tradableProductBuilderSupplied = new CompletableFuture<>();
+	private final TradableProductBuilder tradableProductBuilder;
 	private final Function<String, Optional<String>> translator;
 	private final ExecutorService executor;
 	private final List<CompletableFuture<?>> invokedTasks;
 
-	PartyMappingHelper(MappingContext context, Function<String, Optional<String>> translator) {
+	PartyMappingHelper(MappingContext context, TradableProductBuilder tradableProductBuilder, Function<String, Optional<String>> translator) {
 		this.mappings = context.getMappings();
 		this.executor = context.getExecutor();
 		this.invokedTasks = context.getInvokedTasks();
+		this.tradableProductBuilder = tradableProductBuilder;
 		this.translator = translator;
 		this.partyExternalReferenceToCounterpartyEnumMap = new LinkedHashMap<>();
 	}
@@ -59,6 +60,14 @@ public class PartyMappingHelper {
 	@NotNull
 	public synchronized static Optional<PartyMappingHelper> getInstance(MappingContext mappingContext) {
 		return Optional.ofNullable((PartyMappingHelper) mappingContext.getMappingParams().get(PARTY_MAPPING_HELPER_KEY));
+	}
+
+	/**
+	 * Get an instance of this party mapping helper from the MappingContext params.
+	 */
+	@NotNull
+	public synchronized static PartyMappingHelper getInstanceOrThrow(MappingContext mappingContext) {
+		return getInstance(mappingContext).orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."));
 	}
 
 	/**
@@ -90,31 +99,21 @@ public class PartyMappingHelper {
 	}
 
 	/**
-	 * Provides a TradableProductBuilder instance so the counterparties and relatedParties can be added.
-	 */
-	void supplyTradableProductBuilder(TradableProductBuilder tradableProductBuilder) {
-		// complete future so any updates can happen
-		tradableProductBuilderSupplied.complete(tradableProductBuilder);
-	}
-
-	/**
 	 * Waits until the partyExternalReference to CounterpartyEnum map is ready, then adds both Counterparty instances to TradableProductBuilder.
 	 */
 	void addCounterparties() {
-		// when the tradableProductBuilder has been supplied and both counterparties have been collected, update tradableProduct.counterparties
-		invokedTasks.add(tradableProductBuilderSupplied
-				.thenAcceptBothAsync(bothCounterpartiesCollected,
-						(tradableProductBuilder, map) -> {
-							LOGGER.info("Setting TradableProduct.counterparties");
-							tradableProductBuilder.clearCounterparty()
-									.addCounterparty(map.entrySet().stream()
-											.map(extRefCounterpartyEntry -> Counterparty.builder()
-													.setCounterparty(extRefCounterpartyEntry.getValue())
-													.setPartyReferenceBuilder(
-															ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
-													.build())
-											.collect(Collectors.toList()));
-						}, executor));
+		invokedTasks.add(bothCounterpartiesCollected
+				.thenAcceptAsync(map -> {
+					LOGGER.info("Setting TradableProduct.counterparties");
+					tradableProductBuilder.clearCounterparty()
+							.addCounterparty(map.entrySet().stream()
+									.map(extRefCounterpartyEntry -> Counterparty.builder()
+											.setCounterparty(extRefCounterpartyEntry.getValue())
+											.setPartyReferenceBuilder(
+													ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
+											.build())
+									.collect(Collectors.toList()));
+				}, executor));
 	}
 
 	public CompletableFuture<Map<String, CounterpartyEnum>> getBothCounterpartiesCollectedFuture() {
@@ -149,63 +148,31 @@ public class PartyMappingHelper {
 	}
 
 	/**
-	 * Wait until both counterparties have been computed then determine if this party is a counterparty or related party and update accordingly.
-	 */
-	public void setCounterpartyOrRelatedParty(RosettaPath modelPath,
-			Path synonymPath,
-			Consumer<CounterpartyEnum> counterpartySetter,
-			Consumer<AncillaryRoleEnum> relatedPartySetter,
-			AncillaryRoleEnum AncillaryRoleEnum) {
-
-		invokedTasks.add(getBothCounterpartiesCollectedFuture()
-				.thenAcceptAsync(map ->
-								setCounterpartyOrRelatedParty(modelPath,
-										synonymPath,
-										counterpartySetter,
-										relatedPartySetter,
-										AncillaryRoleEnum,
-										(ref) -> Optional.ofNullable(map.get(ref))),
-						executor));
-	}
-
-	/**
-	 * Cashflow payout is problematic because it is defined inside the Product yet can contain either a counterparty or related party.
-	 * Model should be refactored so cashflow payout only allows counterparties, and any 3rd party payments are defined outside the Product (e.g. SettlementTerms).
+	 * Cashflow payout is problematic because it is defined inside the Product yet can contain either a counterparty or ancillary role.
+	 * Model should be refactored so cashflow payout only allows counterparties, and any 3rd party payments are defined outside the
+	 * Product (e.g. SettlementTerms, or some new other party payment model similar to FpML).
 	 * <p>
 	 * If both counterparties have not yet been computed, get or create counterparty based on the party reference.
-	 * If both counterparties have already been computed, then add as a related party.
+	 * If both counterparties have already been computed, then add as an ancillary role.
 	 */
-	public void computeCashflowCounterpartyOrRelatedParty(RosettaPath modelPath,
+	public void computeCashflowParty(RosettaPath modelPath,
 			Path synonymPath,
 			Consumer<CounterpartyEnum> counterpartySetter,
-			Consumer<AncillaryRoleEnum> relatedPartySetter,
-			AncillaryRoleEnum AncillaryRoleEnum) {
-
-		setCounterpartyOrRelatedParty(modelPath,
-				synonymPath,
-				counterpartySetter,
-				relatedPartySetter,
-				AncillaryRoleEnum,
-				this::getOrCreateCounterpartyEnum);
-	}
-
-	private void setCounterpartyOrRelatedParty(RosettaPath modelPath,
-			Path synonymPath,
-			Consumer<CounterpartyEnum> counterpartySetter,
-			Consumer<AncillaryRoleEnum> relatedPartySetter,
-			AncillaryRoleEnum AncillaryRoleEnum,
-			Function<String, Optional<CounterpartyEnum>> partyToCounterpartyFunc) {
+			Consumer<AncillaryRoleEnum> ancillaryRoleSetter,
+			AncillaryRoleEnum ancillaryRoleEnum) {
 
 		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
 			setValueAndUpdateMappings(synonymPath,
 					partyExternalReference -> {
-						Optional<CounterpartyEnum> counterparty = partyToCounterpartyFunc.apply(translatePartyExternalReference(partyExternalReference));
+						String translatedPartyRef = translatePartyExternalReference(partyExternalReference);
+						Optional<CounterpartyEnum> counterparty = getOrCreateCounterpartyEnum(translatedPartyRef);
 						if (counterparty.isPresent()) {
 							counterpartySetter.accept(counterparty.get());
 						} else {
-							LOGGER.info("Adding {} for {}", AncillaryRoleEnum, partyExternalReference);
-							relatedPartySetter.accept(AncillaryRoleEnum);
-							addRelatedParties(partyExternalReference, AncillaryRoleEnum);
+							LOGGER.info("Adding {} for {}", ancillaryRoleEnum, translatedPartyRef);
+							ancillaryRoleSetter.accept(ancillaryRoleEnum);
+							// add to tradableProduct
+							addAncillaryRole(translatedPartyRef, ancillaryRoleEnum);
 						}
 					},
 					mappings,
@@ -213,38 +180,53 @@ public class PartyMappingHelper {
 		}
 	}
 
+	public void setAncillaryRoleEnum(RosettaPath modelPath,
+			Path synonymPath,
+			Consumer<AncillaryRoleEnum> ancillaryRoleSetter,
+			AncillaryRoleEnum ancillaryRoleEnum) {
+
+		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
+			setValueAndUpdateMappings(synonymPath,
+					partyExternalReference -> {
+						String translatedPartyRef = translatePartyExternalReference(partyExternalReference);
+						LOGGER.info("Adding {} for {}", ancillaryRoleEnum, translatedPartyRef);
+						ancillaryRoleSetter.accept(ancillaryRoleEnum);
+						// add to tradableProduct
+						addAncillaryRole(translatedPartyRef, ancillaryRoleEnum);
+					},
+					mappings,
+					modelPath);
+		}
+	}
+
 	/**
-	 * Add AncillaryRoleEnum and associated partyExternalReference to tradableProduct.relatedParties.
+	 * Add AncillaryRoleEnum and associated partyExternalReference to tradableProduct.ancillaryRole.
 	 */
-	public void addRelatedParties(String partyExternalReference, AncillaryRoleEnum roleEnum) {
-		invokedTasks.add(tradableProductBuilderSupplied
-				.thenAcceptAsync(tradableProductBuilder -> {
-							synchronized (tradableProductBuilder) {
-								LOGGER.info("Adding {} as {} to TradableProduct.relatedParties", partyExternalReference, roleEnum);
-								List<AncillaryRoleBuilder> roles = Optional.ofNullable(tradableProductBuilder.getAncillaryRole())
-										.orElse(new ArrayList<>());
-								Optional<AncillaryRoleBuilder> ancillaryRole = roles.stream()
-										.filter(r -> roleEnum == r.getRole())
-										.findFirst();
-								if (ancillaryRole.isPresent()) {
-									// Update existing entry
-									ancillaryRole.get()
-											.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build());
-								} else {
-									// Add new entry
-									roles.add(AncillaryRole.builder()
-											.setRole(roleEnum)
-											.addPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)));
-								}
-								// Clear related parties, and re-add sorted list so we don't get diffs on the list order on each ingestion
-								tradableProductBuilder
-										.clearAncillaryRole()
-										.addAncillaryRole(roles.stream()
-												.map(AncillaryRoleBuilder::build)
-												.sorted(Comparator.comparing(AncillaryRole::getRole))
-												.collect(Collectors.toList()));
-							}
-						},
-						executor));
+	private void addAncillaryRole(String partyExternalReference, AncillaryRoleEnum roleEnum) {
+		synchronized (tradableProductBuilder) {
+			LOGGER.info("Adding {} as {} to TradableProduct.ancillaryRole", partyExternalReference, roleEnum);
+			List<AncillaryRoleBuilder> roles = Optional.ofNullable(tradableProductBuilder.getAncillaryRole())
+					.orElse(new ArrayList<>());
+			Optional<AncillaryRoleBuilder> ancillaryRole = roles.stream()
+					.filter(r -> roleEnum == r.getRole())
+					.findFirst();
+			if (ancillaryRole.isPresent()) {
+				// Update existing entry
+				ancillaryRole.get()
+						.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build());
+			} else {
+				// Add new entry
+				roles.add(AncillaryRole.builder()
+						.setRole(roleEnum)
+						.addPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)));
+			}
+			// Clear ancillary role, and re-add sorted list so we don't get diffs on the list order on each ingestion
+			tradableProductBuilder
+					.clearAncillaryRole()
+					.addAncillaryRole(roles.stream()
+							.map(AncillaryRoleBuilder::build)
+							.sorted(Comparator.comparing(AncillaryRole::getRole))
+							.collect(Collectors.toList()));
+		}
 	}
 }

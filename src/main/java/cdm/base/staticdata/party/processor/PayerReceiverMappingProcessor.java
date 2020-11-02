@@ -33,7 +33,7 @@ public abstract class PayerReceiverMappingProcessor extends MappingProcessor {
 			LOGGER.warn("PayerReceiver used outside of the Product definition {}", getModelPath().buildPath());
 			setPartyReference(synonymPath, (PayerReceiverBuilder) parent);
 		} else if (getModelPath().toIndexless().containsPath(RosettaPath.valueOf("economicTerms.payout.cashflow.payerReceiver"))) {
-			setCashflowCounterpartyOrRelatedParty(synonymPath, (PayerReceiverBuilder) parent, getCashflowRelatedPartyEnum(synonymPath));
+			setCashflowParty(synonymPath, (PayerReceiverBuilder) parent, getCashflowRelatedPartyEnum(synonymPath));
 		} else {
 			setCounterparty(synonymPath, (PayerReceiverBuilder) parent);
 		}
@@ -41,7 +41,7 @@ public abstract class PayerReceiverMappingProcessor extends MappingProcessor {
 
 	abstract void setCounterparty(Path synonymPath, PayerReceiverBuilder builder);
 
-	abstract void setCashflowCounterpartyOrRelatedParty(Path synonymPath, PayerReceiverBuilder builder, AncillaryRoleEnum cashflowRelatedPartyEnum);
+	abstract void setCashflowParty(Path synonymPath, PayerReceiverBuilder builder, AncillaryRoleEnum cashflowRelatedPartyEnum);
 
 	abstract void setPartyReference(Path synonymPath, PayerReceiverBuilder builder);
 

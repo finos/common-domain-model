@@ -1,20 +1,18 @@
 package cdm.product.template.processor;
 
 import cdm.base.staticdata.party.AncillaryRoleEnum;
+import cdm.legalagreement.contract.processor.PartyMappingHelper;
 import cdm.product.template.ExerciseNotice;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
-
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 
 /**
  * FpML mapping processor.
@@ -35,24 +33,15 @@ public class ExerciseNoticeReceiverMappingProcessor extends MappingProcessor {
 
 	@Override
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
-		setValueAndOptionallyUpdateMappings(synonymPath,
-				partyExternalReference -> {
-					Optional<AncillaryRoleEnum> AncillaryRoleEnum = getRelatedPartyEnum();
-					AncillaryRoleEnum.ifPresent(p -> {
-						// set related party enum (inside product)
-						((ExerciseNotice.ExerciseNoticeBuilder) parent).setExerciseNoticeReceiver(p);
-						// add to related parties list (outside product)
-						PartyMappingHelper.getInstance(getContext())
-								.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."))
-								.addRelatedParties(partyExternalReference, p);
-					});
-					return AncillaryRoleEnum.isPresent();
-				},
-				getMappings(),
-				getModelPath());
+		getAncillaryRoleEnum().ifPresent(role ->
+				PartyMappingHelper.getInstanceOrThrow(getContext())
+						.setAncillaryRoleEnum(getModelPath(),
+								synonymPath.addElement("href"),
+								((ExerciseNotice.ExerciseNoticeBuilder) parent)::setExerciseNoticeReceiver,
+								role));
 	}
 
-	protected Optional<AncillaryRoleEnum> getRelatedPartyEnum() {
+	private Optional<AncillaryRoleEnum> getAncillaryRoleEnum() {
 		if (getModelPath().containsPath(CANCELABLE_PROVISION_SUB_PATH)) {
 			return Optional.of(AncillaryRoleEnum.CANCELABLE_PROVISION_EXERCISE_NOTICE_RECEIVER_PARTY);
 		} else if (getModelPath().containsPath(EXTENDIBLE_PROVISION_SUB_PATH)) {

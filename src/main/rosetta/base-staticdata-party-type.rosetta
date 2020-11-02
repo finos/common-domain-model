@@ -10,13 +10,6 @@ type Counterparty: <"Defines a counterparty enumerated value, e.g. Party1 or Par
 	partyReference Party (1..1) <"Specifies the party that is associated to the counterparty.">
 		[metadata reference]
 
-type CounterpartyOrRelatedParty: <"Defines either a CounterpartyEnum or a AncillaryRoleEnum which can be resolved to an actual party reference.">
-
-	counterparty CounterpartyEnum (0..1) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2.">
-	role AncillaryRoleEnum (0..1) <"Specifies the AncillaryRoleEnum, e.g. DisruptionEventsDeterminingParty, ExtraordinaryDividendsParty etc.">
-	
-	condition: one-of
-
 type AncillaryRole: <"Defines a related party enumerated value with an associated party reference. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this RelatedPartyReferenc type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
 
 	role AncillaryRoleEnum (1..1) <"Specifies the AncillaryRoleEnum, e.g. either Party1 or Party2, that is associated to the partyReference. A related party is any involved party that is not one of the two principal parties to the transaction.">
@@ -44,10 +37,10 @@ type PayerReceiver: <"Specifies the parties responsible for making and receiving
         [metadata reference]
         [deprecated]
 
-	condition PayerCounterpartyOrRelatedPartyOrPartyReference: <"Payer should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver.  The other attributes, payerRelatedParty and payerPartyReference, are deprecated.">
+	condition PayerAncillaryRoleEnumOrPartyReference: <"Payer should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver.  The other attributes, payerRelatedParty and payerPartyReference, are deprecated.">
 		required choice payer, payerRelatedParty, payerPartyReference
 
-	condition ReceiverPayerCounterpartyOrRelatedPartyOrPartyReference: <"Receiver should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver.  The other attributes, receiverRelatedParty and receiverPartyReference, are deprecated.">
+	condition ReceiverPayerAncillaryRoleEnumOrPartyReference: <"Receiver should be populated when PayerReceiver is used inside the Product, e.g. Contract->tradableProduct->product->contractualProduct->economicTerms->payout->interestRatePayout->payerReceiver.  The other attributes, receiverRelatedParty and receiverPartyReference, are deprecated.">
 		required choice receiver, receiverRelatedParty, receiverPartyReference
 		
 	condition CashflowPayerRelatedParty: <"The payerRelatedParty is specified only on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">

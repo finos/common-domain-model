@@ -1,28 +1,21 @@
 package org.isda.cdm.workflows;
 
-import java.util.Objects;
-
-import org.isda.cdm.functions.example.services.identification.IdentifierService;
-
-import com.rosetta.model.lib.process.PostProcessor;
-import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.metafields.FieldWithMetaString;
-
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import cdm.event.common.BusinessEvent;
-import cdm.event.common.ClearingInstruction;
-import cdm.event.common.ContractFormationPrimitive;
-import cdm.event.common.Instruction;
-import cdm.event.common.PostContractFormationState;
-import cdm.event.common.PrimitiveEvent;
+import cdm.event.common.*;
 import cdm.event.common.functions.Create_ClearedTrade;
 import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.metafields.ReferenceWithMetaWorkflowStep;
 import cdm.legalagreement.contract.Contract;
+import com.rosetta.model.lib.process.PostProcessor;
+import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.metafields.FieldWithMetaString;
+import org.isda.cdm.functions.example.services.identification.IdentifierService;
+
+import java.util.Objects;
 
 public class ClearingUtils {
 
@@ -69,7 +62,7 @@ public class ClearingUtils {
 	}
 
 	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction,
-			Create_ClearedTrade          clear, IdentifierService identifierService, Date tradeDate, Identifier identifier) {
+			Create_ClearedTrade clear, IdentifierService identifierService, Date tradeDate, Identifier identifier) {
 
 		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction, tradeDate, identifier).toBuilder();
 
