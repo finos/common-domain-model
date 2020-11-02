@@ -111,15 +111,15 @@ public class ClearingUtils {
 	/**
 	 * Extract the party related to the given counterparty enum.
 	 */
-	public static Party getParty(Contract contract, CounterpartyEnum counterparty) {
+	public static Party getParty(Contract contract, CounterpartyEnum role) {
 		return contract.getTradableProduct().getCounterparty().stream()
-				.filter(c -> c.getCounterparty() == counterparty)
+				.filter(c -> c.getRole() == role)
 				.map(Counterparty::getPartyReference)
 				.filter(Objects::nonNull)
 				.map(ReferenceWithMetaParty::getGlobalReference)
 				.flatMap(partyReference -> contract.getParty().stream().filter(p -> partyReference.equals(p.getMeta().getGlobalKey())))
 				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Party not found for counterparty " + counterparty));
+				.orElseThrow(() -> new IllegalArgumentException("Party not found for " + role));
 	}
 }
 

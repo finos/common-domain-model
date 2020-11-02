@@ -129,18 +129,18 @@ class PartyMappingHelperTest {
 		assertThat(counterparties,
 				hasItems(
 						Counterparty.builder()
-								.setCounterparty(CounterpartyEnum.PARTY_1)
+								.setRole(CounterpartyEnum.PARTY_1)
 								.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(PAYER_PARTY_REF).build()),
 						Counterparty.builder()
-								.setCounterparty(CounterpartyEnum.PARTY_2)
+								.setRole(CounterpartyEnum.PARTY_2)
 								.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(RECEIVER_PARTY_REF).build())));
 
 		Counterparty.CounterpartyBuilder counterparty1 = counterparties.get(0);
-		assertEquals(CounterpartyEnum.PARTY_1, counterparty1.getCounterparty());
+		assertEquals(CounterpartyEnum.PARTY_1, counterparty1.getRole());
 		assertEquals(PAYER_PARTY_REF, counterparty1.getOrCreatePartyReference().getExternalReference());
 
 		Counterparty.CounterpartyBuilder counterparty2 = counterparties.get(1);
-		assertEquals(CounterpartyEnum.PARTY_2, counterparty2.getCounterparty());
+		assertEquals(CounterpartyEnum.PARTY_2, counterparty2.getRole());
 		assertEquals(RECEIVER_PARTY_REF, counterparty2.getOrCreatePartyReference().getExternalReference());
 
 		// assert mappings

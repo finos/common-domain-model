@@ -104,11 +104,11 @@ public class PartyMappingHelper {
 	void addCounterparties() {
 		invokedTasks.add(bothCounterpartiesCollected
 				.thenAcceptAsync(map -> {
-					LOGGER.info("Setting TradableProduct.counterparties");
+					LOGGER.info("Setting TradableProduct.counterparty");
 					tradableProductBuilder.clearCounterparty()
 							.addCounterparty(map.entrySet().stream()
 									.map(extRefCounterpartyEntry -> Counterparty.builder()
-											.setCounterparty(extRefCounterpartyEntry.getValue())
+											.setRole(extRefCounterpartyEntry.getValue())
 											.setPartyReferenceBuilder(
 													ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
 											.build())

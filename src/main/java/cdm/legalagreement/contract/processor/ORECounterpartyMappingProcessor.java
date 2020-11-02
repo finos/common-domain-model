@@ -30,7 +30,7 @@ public class ORECounterpartyMappingProcessor extends MappingProcessor {
 							FieldWithMetaString.builder().setValue("ME").build())
 						.build())
 					.build())
-					.setCounterparty(CounterpartyEnum.PARTY_2)
+					.setRole(CounterpartyEnum.PARTY_2)
 				.build());
 		}
 	}
