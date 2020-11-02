@@ -10,16 +10,16 @@ type Counterparty: <"Defines a counterparty enumerated value, e.g. Party1 or Par
 	partyReference Party (1..1) <"Specifies the party that is associated to the counterparty.">
 		[metadata reference]
 
-type CounterpartyOrRelatedParty: <"Defines either a CounterpartyEnum or a RelatedPartyEnum which can be resolved to an actual party reference.">
+type CounterpartyOrRelatedParty: <"Defines either a CounterpartyEnum or a AncillaryRoleEnum which can be resolved to an actual party reference.">
 
 	counterparty CounterpartyEnum (0..1) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2.">
-	relatedParty RelatedPartyEnum (0..1) <"Specifies the RelatedPartyEnum, e.g. DisruptionEventsDeterminingParty, ExtraordinaryDividendsParty etc.">
+	role AncillaryRoleEnum (0..1) <"Specifies the AncillaryRoleEnum, e.g. DisruptionEventsDeterminingParty, ExtraordinaryDividendsParty etc.">
 	
 	condition: one-of
 
-type RelatedPartyReference: <"Defines a related party enumerated value with an associated party reference. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the RelatedPartyEnum. The RelatedPartyEnum can then be positioned in the product and this RelatedPartyReferenc type, which is positioned outside of the product definition, allows the RelatedPartyEnum to be associated with an actual party reference.">
+type AncillaryRole: <"Defines a related party enumerated value with an associated party reference. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this RelatedPartyReferenc type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
 
-	relatedParty RelatedPartyEnum (1..1) <"Specifies the RelatedPartyEnum, e.g. either Party1 or Party2, that is associated to the partyReference. A related party is any involved party that is not one of the two principal parties to the transaction.">
+	role AncillaryRoleEnum (1..1) <"Specifies the AncillaryRoleEnum, e.g. either Party1 or Party2, that is associated to the partyReference. A related party is any involved party that is not one of the two principal parties to the transaction.">
 	partyReference Party (1..*) <"Specifies the party, or parties, associated to the relatedParty.">
 		[metadata reference]
 	onBehalfOfCounterparty CounterpartyEnum (0..1) <"Optionally specifies the counterparty that the related party is acting on behalf of.">
@@ -32,13 +32,13 @@ type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model constru
 type PayerReceiver: <"Specifies the parties responsible for making and receiving payments defined by this structure.">
 
 	payer CounterpartyEnum (0..1) <"Specifies the counterparty responsible for making the payments defined by this structure.  The party is one of the two principal parties to the transaction.">
-	payerRelatedParty RelatedPartyEnum (0..1) <"Specifies the party responsible for making the payments defined by this structure.  Only populated on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
+	payerRelatedParty AncillaryRoleEnum (0..1) <"Specifies the party responsible for making the payments defined by this structure.  Only populated on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
 	    [deprecated]
 	payerPartyReference Party (0..1) <"Specifies the party responsible for making the payments defined by this structure.  Only populated on physical exercise and cash exercise which do not have the required model structure to specify the counterparties.">
         [metadata reference]
         [deprecated]
     receiver CounterpartyEnum (0..1) <"Specifies the party that receives the payments corresponding to this structure.  The party is one of the two counterparties to the transaction.">
-    receiverRelatedParty RelatedPartyEnum (0..1) <"Specifies the party that receives the payments corresponding to this structure.  Only populated on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
+    receiverRelatedParty AncillaryRoleEnum (0..1) <"Specifies the party that receives the payments corresponding to this structure.  Only populated on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
         [deprecated]
     receiverPartyReference Party (0..1) <"Specifies the party that receives the payments corresponding to this structure.  Only populated on physical exercise and cash exercise which do not have the required model structure to specify the counterparties.">
         [metadata reference]
@@ -52,17 +52,17 @@ type PayerReceiver: <"Specifies the parties responsible for making and receiving
 		
 	condition CashflowPayerRelatedParty: <"The payerRelatedParty is specified only on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
 		if payerRelatedParty exists
-		then payerRelatedParty = RelatedPartyEnum -> ArrangingBroker or payerRelatedParty = RelatedPartyEnum -> Beneficiary
-		    or payerRelatedParty = RelatedPartyEnum -> ClearingFirm or payerRelatedParty = RelatedPartyEnum -> CounterpartyAfflilate
-		    or payerRelatedParty = RelatedPartyEnum -> Guarantor or payerRelatedParty = RelatedPartyEnum -> OtherParty
-		    or payerRelatedParty = RelatedPartyEnum -> PrimeBroker or payerRelatedParty = RelatedPartyEnum -> SettlementAgent
+		then payerRelatedParty = AncillaryRoleEnum -> ArrangingBroker or payerRelatedParty = AncillaryRoleEnum -> Beneficiary
+		    or payerRelatedParty = AncillaryRoleEnum -> ClearingFirm or payerRelatedParty = AncillaryRoleEnum -> CounterpartyAfflilate
+		    or payerRelatedParty = AncillaryRoleEnum -> Guarantor or payerRelatedParty = AncillaryRoleEnum -> OtherParty
+		    or payerRelatedParty = AncillaryRoleEnum -> PrimeBroker or payerRelatedParty = AncillaryRoleEnum -> SettlementAgent
 		
 	condition CashflowReceiverRelatedParty: <"The receiverRelatedParty is specified only on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
 		if receiverRelatedParty exists
-		then receiverRelatedParty = RelatedPartyEnum -> ArrangingBroker or receiverRelatedParty = RelatedPartyEnum -> Beneficiary
-		    or receiverRelatedParty = RelatedPartyEnum -> ClearingFirm or receiverRelatedParty = RelatedPartyEnum -> CounterpartyAfflilate
-		    or receiverRelatedParty = RelatedPartyEnum -> Guarantor or receiverRelatedParty = RelatedPartyEnum -> OtherParty
-		    or receiverRelatedParty = RelatedPartyEnum -> PrimeBroker or receiverRelatedParty = RelatedPartyEnum -> SettlementAgent
+		then receiverRelatedParty = AncillaryRoleEnum -> ArrangingBroker or receiverRelatedParty = AncillaryRoleEnum -> Beneficiary
+		    or receiverRelatedParty = AncillaryRoleEnum -> ClearingFirm or receiverRelatedParty = AncillaryRoleEnum -> CounterpartyAfflilate
+		    or receiverRelatedParty = AncillaryRoleEnum -> Guarantor or receiverRelatedParty = AncillaryRoleEnum -> OtherParty
+		    or receiverRelatedParty = AncillaryRoleEnum -> PrimeBroker or receiverRelatedParty = AncillaryRoleEnum -> SettlementAgent
 
 type PartyReferencePayerReceiver: <"Specifies the parties responsible for making and receiving payments defined by this structure.">
 

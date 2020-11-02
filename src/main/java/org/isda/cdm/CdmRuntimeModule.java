@@ -3,8 +3,8 @@ package org.isda.cdm;
 import cdm.base.math.functions.*;
 import cdm.base.staticdata.party.functions.ExtractCounterpartyBySide;
 import cdm.base.staticdata.party.functions.ExtractCounterpartyBySideImpl;
-import cdm.base.staticdata.party.functions.ExtractRelatedParty;
-import cdm.base.staticdata.party.functions.ExtractRelatedPartyImpl;
+import cdm.base.staticdata.party.functions.ExtractAncillaryRole;
+import cdm.base.staticdata.party.functions.ExtractAncillaryRoleImpl;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.common.functions.CurrencyAmount;
@@ -48,7 +48,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
 		bind(ExtractCounterpartyBySide.class).to(bindExtractCounterpartyBySide());
-		bind(ExtractRelatedParty.class).to(bindExtractRelatedParty());
+		bind(ExtractAncillaryRole.class).to(bindExtractAncillaryRole());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -113,7 +113,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		return ExtractCounterpartyBySideImpl.class;
 	}
 
-	protected Class<? extends ExtractRelatedParty> bindExtractRelatedParty() {
-		return ExtractRelatedPartyImpl.class;
+	protected Class<? extends ExtractAncillaryRole> bindExtractAncillaryRole() {
+		return ExtractAncillaryRoleImpl.class;
 	}
 }

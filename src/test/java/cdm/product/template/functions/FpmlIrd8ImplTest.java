@@ -69,8 +69,8 @@ class FpmlIrd8ImplTest extends AbstractFunctionTest {
 
 	private TradableProduct getTradableProduct(Party party1, Party party2) {
 		return TradableProduct.builder()
-				.addCounterparties(getCounterparty(party1, CounterpartyEnum.PARTY_1))
-				.addCounterparties(getCounterparty(party2, CounterpartyEnum.PARTY_2))
+				.addCounterparty(getCounterparty(party1, CounterpartyEnum.PARTY_1))
+				.addCounterparty(getCounterparty(party2, CounterpartyEnum.PARTY_2))
 				.build();
 	}
 

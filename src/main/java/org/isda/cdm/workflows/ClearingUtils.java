@@ -119,7 +119,7 @@ public class ClearingUtils {
 	 * Extract the party related to the given counterparty enum.
 	 */
 	public static Party getParty(Contract contract, CounterpartyEnum counterparty) {
-		return contract.getTradableProduct().getCounterparties().stream()
+		return contract.getTradableProduct().getCounterparty().stream()
 				.filter(c -> c.getCounterparty() == counterparty)
 				.map(Counterparty::getPartyReference)
 				.filter(Objects::nonNull)

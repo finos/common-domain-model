@@ -1,6 +1,6 @@
 package cdm.base.staticdata.party.processor;
 
-import cdm.base.staticdata.party.RelatedPartyEnum;
+import cdm.base.staticdata.party.AncillaryRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.legalagreement.contract.processor.PartyMappingHelper;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -33,14 +33,14 @@ public class ReceiverMappingProcessor extends PayerReceiverMappingProcessor {
 	}
 
 	@Override
-	void setCashflowCounterpartyOrRelatedParty(Path synonymPath, PayerReceiverBuilder builder, RelatedPartyEnum relatedPartyEnum) {
+	void setCashflowCounterpartyOrRelatedParty(Path synonymPath, PayerReceiverBuilder builder, AncillaryRoleEnum AncillaryRoleEnum) {
 		PartyMappingHelper.getInstance(getContext())
 				.ifPresent(helper ->
 						helper.computeCashflowCounterpartyOrRelatedParty(getModelPath(),
 								synonymPath,
 								builder::setReceiver,
 								builder::setReceiverRelatedParty,
-								relatedPartyEnum));
+								AncillaryRoleEnum));
 	}
 
 	@Override

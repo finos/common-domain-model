@@ -1,6 +1,6 @@
 package cdm.base.staticdata.party.processor;
 
-import cdm.base.staticdata.party.RelatedPartyEnum;
+import cdm.base.staticdata.party.AncillaryRoleEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -30,10 +30,10 @@ public abstract class CounterpartyOrRelatedPartyMappingProcessor extends Mapping
 					helper.setCounterpartyOrRelatedParty(getModelPath(),
 							synonymPath,
 							counterpartyOrRelatedPartyBuilder::setCounterparty,
-							counterpartyOrRelatedPartyBuilder::setRelatedParty,
+							counterpartyOrRelatedPartyBuilder::setRole,
 							getRelatedPartyEnum().get());
 				});
 	}
 
-	protected abstract Optional<RelatedPartyEnum> getRelatedPartyEnum();
+	protected abstract Optional<AncillaryRoleEnum> getRelatedPartyEnum();
 }

@@ -1,6 +1,6 @@
 package cdm.product.template.processor;
 
-import cdm.base.staticdata.party.RelatedPartyEnum;
+import cdm.base.staticdata.party.AncillaryRoleEnum;
 import cdm.product.template.ExerciseNotice;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -37,8 +37,8 @@ public class ExerciseNoticeReceiverMappingProcessor extends MappingProcessor {
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		setValueAndOptionallyUpdateMappings(synonymPath,
 				partyExternalReference -> {
-					Optional<RelatedPartyEnum> relatedPartyEnum = getRelatedPartyEnum();
-					relatedPartyEnum.ifPresent(p -> {
+					Optional<AncillaryRoleEnum> AncillaryRoleEnum = getRelatedPartyEnum();
+					AncillaryRoleEnum.ifPresent(p -> {
 						// set related party enum (inside product)
 						((ExerciseNotice.ExerciseNoticeBuilder) parent).setExerciseNoticeReceiver(p);
 						// add to related parties list (outside product)
@@ -46,21 +46,21 @@ public class ExerciseNoticeReceiverMappingProcessor extends MappingProcessor {
 								.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."))
 								.addRelatedParties(partyExternalReference, p);
 					});
-					return relatedPartyEnum.isPresent();
+					return AncillaryRoleEnum.isPresent();
 				},
 				getMappings(),
 				getModelPath());
 	}
 
-	protected Optional<RelatedPartyEnum> getRelatedPartyEnum() {
+	protected Optional<AncillaryRoleEnum> getRelatedPartyEnum() {
 		if (getModelPath().containsPath(CANCELABLE_PROVISION_SUB_PATH)) {
-			return Optional.of(RelatedPartyEnum.CANCELABLE_PROVISION_EXERCISE_NOTICE_RECEIVER_PARTY);
+			return Optional.of(AncillaryRoleEnum.CANCELABLE_PROVISION_EXERCISE_NOTICE_RECEIVER_PARTY);
 		} else if (getModelPath().containsPath(EXTENDIBLE_PROVISION_SUB_PATH)) {
-			return Optional.of(RelatedPartyEnum.EXTENDIBLE_PROVISION_EXERCISE_NOTICE_RECEIVER_PARTY);
+			return Optional.of(AncillaryRoleEnum.EXTENDIBLE_PROVISION_EXERCISE_NOTICE_RECEIVER_PARTY);
 		} else if (getModelPath().containsPath(OPTIONAL_EARLY_TERMINATION_SUB_PATH)) {
-			return Optional.of(RelatedPartyEnum.OPTIONAL_EARLY_TERMINATION_EXERCISE_NOTICE_RECEIVER_PARTY);
+			return Optional.of(AncillaryRoleEnum.OPTIONAL_EARLY_TERMINATION_EXERCISE_NOTICE_RECEIVER_PARTY);
 		} else if (getModelPath().containsPath(MANUAL_EXERCISE_SUB_PATH)) {
-			return Optional.of(RelatedPartyEnum.MANUAL_EXERCISE_NOTICE_RECEIVER_PARTY);
+			return Optional.of(AncillaryRoleEnum.MANUAL_EXERCISE_NOTICE_RECEIVER_PARTY);
 		} else {
 			return Optional.empty();
 		}

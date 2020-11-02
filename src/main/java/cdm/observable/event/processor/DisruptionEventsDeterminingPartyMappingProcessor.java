@@ -1,6 +1,6 @@
 package cdm.observable.event.processor;
 
-import cdm.base.staticdata.party.RelatedPartyEnum;
+import cdm.base.staticdata.party.AncillaryRoleEnum;
 import cdm.base.staticdata.party.processor.CounterpartyOrRelatedPartyMappingProcessor;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -20,7 +20,7 @@ public class DisruptionEventsDeterminingPartyMappingProcessor extends Counterpar
 	}
 
 	@Override
-	public Optional<RelatedPartyEnum> getRelatedPartyEnum() {
-		return Optional.of(RelatedPartyEnum.DISRUPTION_EVENTS_DETERMINING_PARTY);
+	public Optional<AncillaryRoleEnum> getRelatedPartyEnum() {
+		return Optional.of(AncillaryRoleEnum.DISRUPTION_EVENTS_DETERMINING_PARTY);
 	}
 }

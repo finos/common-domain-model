@@ -1,6 +1,6 @@
 package cdm.product.asset.processor;
 
-import cdm.base.staticdata.party.RelatedPartyEnum;
+import cdm.base.staticdata.party.AncillaryRoleEnum;
 import cdm.base.staticdata.party.processor.CounterpartyOrRelatedPartyMappingProcessor;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -20,7 +20,7 @@ public class ExtraordinaryDividendsPartyMappingProcessor extends CounterpartyOrR
 	}
 
 	@Override
-	protected Optional<RelatedPartyEnum> getRelatedPartyEnum() {
-		return Optional.of(RelatedPartyEnum.EXTRAORDINARY_DIVIDENDS_PARTY);
+	protected Optional<AncillaryRoleEnum> getRelatedPartyEnum() {
+		return Optional.of(AncillaryRoleEnum.EXTRAORDINARY_DIVIDENDS_PARTY);
 	}
 }

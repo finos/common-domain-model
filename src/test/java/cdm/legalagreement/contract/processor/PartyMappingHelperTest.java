@@ -121,7 +121,7 @@ class PartyMappingHelperTest {
 		assertEquals(1, context.getInvokedTasks().size());
 		context.getInvokedTasks().get(0).get(1000, TimeUnit.MILLISECONDS);
 
-		List<Counterparty.CounterpartyBuilder> counterparties = tradableProductBuilder.getCounterparties();
+		List<Counterparty.CounterpartyBuilder> counterparties = tradableProductBuilder.getCounterparty();
 		assertThat(counterparties, hasSize(2));
 		// TODO add equals and hashcode to ReferenceWithMeta objects
 //		assertThat(counterparties,

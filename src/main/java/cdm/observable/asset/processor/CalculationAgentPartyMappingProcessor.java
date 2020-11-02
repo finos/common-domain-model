@@ -1,6 +1,6 @@
 package cdm.observable.asset.processor;
 
-import cdm.base.staticdata.party.RelatedPartyEnum;
+import cdm.base.staticdata.party.AncillaryRoleEnum;
 import cdm.base.staticdata.party.processor.CounterpartyOrRelatedPartyMappingProcessor;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -28,15 +28,15 @@ public class CalculationAgentPartyMappingProcessor extends CounterpartyOrRelated
 		super(modelPath, synonymPaths, context);
 	}
 
-	protected Optional<RelatedPartyEnum> getRelatedPartyEnum() {
+	protected Optional<AncillaryRoleEnum> getRelatedPartyEnum() {
 		if (getModelPath().containsPath(OPTIONAL_EARLY_TERMINATION_SUB_PATH)) {
-			return Optional.of(RelatedPartyEnum.OPTIONAL_EARLY_TERMINATION_CALCULATION_AGENT);
+			return Optional.of(AncillaryRoleEnum.OPTIONAL_EARLY_TERMINATION_CALCULATION_AGENT);
 		} else if (getModelPath().containsPath(MANDATORY_EARLY_TERMINATION_SUB_PATH)) {
-			return Optional.of(RelatedPartyEnum.MANDATORY_EARLY_TERMINATION_CALCULATION_AGENT);
+			return Optional.of(AncillaryRoleEnum.MANDATORY_EARLY_TERMINATION_CALCULATION_AGENT);
 		} else if (getModelPath().containsPath(FALLBACK_REFERENCE_PRICE_SUB_PATH)) {
-			return Optional.of(RelatedPartyEnum.FALLBACK_CALCULATION_AGENT);
+			return Optional.of(AncillaryRoleEnum.FALLBACK_CALCULATION_AGENT);
 		} else if (getModelPath().getParent().getParent().endsWith(ECONOMIC_TERMS_ENDS_WITH)) {
-			return Optional.of(RelatedPartyEnum.INDEPENDENT_CALCULATION_AGENT);
+			return Optional.of(AncillaryRoleEnum.INDEPENDENT_CALCULATION_AGENT);
 		} else {
 			return Optional.empty();
 		}

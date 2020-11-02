@@ -630,7 +630,7 @@ func Create_Execution: <"Specifies a function to create an execution business ev
 		quantityNotation QuantityNotation (1..*) <"Defines the quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
 		priceNotation PriceNotation (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
 		counterparties  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
-		relatedParties RelatedPartyReference (0..*) <"Maps any related parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
+		relatedParties AncillaryRole (0..*) <"Maps any related parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
 		parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
 		partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
 		settlementTerms SettlementTerms (0..*) <"Specifies the settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
@@ -654,7 +654,7 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 		quantityNotation QuantityNotation (1..*) <"Defines the quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
 		priceNotation PriceNotation (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
 		counterparties  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
-		relatedParties RelatedPartyReference (0..*) <"Maps any related parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
+		relatedParties AncillaryRole (0..*) <"Maps any related parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
 		parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
 		partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
 		settlementTerms SettlementTerms (0..*) <"Specifies the settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement.">
@@ -674,10 +674,10 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 	assign-output executionPrimitive -> after -> execution -> tradableProduct -> quantityNotation: <"Assign the quantities input to the tradable product of the execution object.">
 		quantityNotation
 
-	assign-output executionPrimitive -> after -> execution -> tradableProduct -> counterparties: <"Assign the counterparties input to the tradable product of the execution object.">
+	assign-output executionPrimitive -> after -> execution -> tradableProduct -> counterparty: <"Assign the counterparties input to the tradable product of the execution object.">
 		counterparties
 
-	assign-output executionPrimitive -> after -> execution -> tradableProduct -> relatedParties: <"Assign the relatedParties input to the tradable product of the execution object.">
+	assign-output executionPrimitive -> after -> execution -> tradableProduct -> ancillaryRole: <"Assign the relatedParties input to the tradable product of the execution object.">
 		relatedParties
 
 	assign-output executionPrimitive -> after -> execution -> party: <"Assign the parties input to the execution object.">
@@ -883,10 +883,10 @@ func Create_CashTransferPrimitive: <"Function specification to generate a transf
 		ResolveCashflow(contractState, date)
 
 	alias counterparties:
-		contractState -> contract -> tradableProduct -> counterparties
+		contractState -> contract -> tradableProduct -> counterparty
 	
 	alias relatedParties:
-		contractState -> contract -> tradableProduct -> relatedParties
+		contractState -> contract -> tradableProduct -> ancillaryRole
 
 	assign-output transfer -> status:
 		TransferStatusEnum -> Instructed
@@ -897,12 +897,12 @@ func Create_CashTransferPrimitive: <"Function specification to generate a transf
 	assign-output transfer -> cashTransfer -> payerReceiver -> payerPartyReference:
 		if cashflow -> payerReceiver -> payer exists
 		then ExtractCounterpartyBySide( counterparties, cashflow -> payerReceiver -> payer ) -> partyReference
-		else ExtractRelatedParty( relatedParties, cashflow -> payerReceiver -> payerRelatedParty ) -> partyReference only-element
+		else ExtractAncillaryRole( relatedParties, cashflow -> payerReceiver -> payerRelatedParty ) -> partyReference only-element
 		
 	assign-output transfer -> cashTransfer -> payerReceiver -> receiverPartyReference:
 		if cashflow -> payerReceiver -> receiver exists
 		then ExtractCounterpartyBySide( counterparties, cashflow -> payerReceiver -> receiver ) -> partyReference
-		else ExtractRelatedParty( relatedParties, cashflow -> payerReceiver -> receiverRelatedParty ) -> partyReference only-element
+		else ExtractAncillaryRole( relatedParties, cashflow -> payerReceiver -> receiverRelatedParty ) -> partyReference only-element
 	
 	assign-output transfer -> settlementDate:
 		cashflow -> cashflowDate
@@ -1066,8 +1066,8 @@ func TerminateContract: <"Function specification for a contract termination wher
 		contract -> tradeDate
 	assign-output terminatedContract -> clearedDate:
 		contract -> clearedDate
-	assign-output terminatedContract -> tradableProduct -> counterparties:
-		contract -> tradableProduct -> counterparties
+	assign-output terminatedContract -> tradableProduct -> counterparty:
+		contract -> tradableProduct -> counterparty
 	assign-output terminatedContract -> tradableProduct -> product:
 		contract -> tradableProduct -> product
 	assign-output terminatedContract -> tradableProduct -> priceNotation:
@@ -1153,7 +1153,7 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 		    clearingInstruction -> alphaContract -> tradableProduct -> quantityNotation,
 		    clearingInstruction -> alphaContract -> tradableProduct -> priceNotation,
 		    [betaCounterparty, clearerCounterparty],
-		    clearingInstruction -> alphaContract -> tradableProduct -> relatedParties,
+		    clearingInstruction -> alphaContract -> tradableProduct -> ancillaryRole,
 		    [betaParty, clearingInstruction -> clearingParty],
 		    [clearerRole],
 		    empty,
@@ -1179,7 +1179,7 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 		    clearingInstruction -> alphaContract -> tradableProduct -> quantityNotation,
 		    clearingInstruction -> alphaContract -> tradableProduct -> priceNotation,
 		    [gammaCounterparty, clearerCounterparty],
-		    clearingInstruction -> alphaContract -> tradableProduct -> relatedParties,
+		    clearingInstruction -> alphaContract -> tradableProduct -> ancillaryRole,
 		    [gammaParty, clearingInstruction -> clearingParty],
 		    [clearerRole],
 		    empty,

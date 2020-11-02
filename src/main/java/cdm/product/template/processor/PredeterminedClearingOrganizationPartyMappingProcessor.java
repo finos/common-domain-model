@@ -1,6 +1,6 @@
 package cdm.product.template.processor;
 
-import cdm.base.staticdata.party.RelatedPartyEnum;
+import cdm.base.staticdata.party.AncillaryRoleEnum;
 import cdm.base.staticdata.party.processor.CounterpartyOrRelatedPartyMappingProcessor;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -20,7 +20,7 @@ public class PredeterminedClearingOrganizationPartyMappingProcessor extends Coun
 	}
 
 	@Override
-	protected Optional<RelatedPartyEnum> getRelatedPartyEnum() {
-		return Optional.of(RelatedPartyEnum.PREDETERMINED_CLEARING_ORGANIZATION_PARTY);
+	protected Optional<AncillaryRoleEnum> getRelatedPartyEnum() {
+		return Optional.of(AncillaryRoleEnum.PREDETERMINED_CLEARING_ORGANIZATION_PARTY);
 	}
 }
