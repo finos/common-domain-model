@@ -180,6 +180,9 @@ public class PartyMappingHelper {
 		}
 	}
 
+	/**
+	 * Set ancillaryRoleEnum with given ancillaryRoleSetter and add associated partyExternalReference to tradableProduct.ancillaryRole.
+	 */
 	public void setAncillaryRoleEnum(RosettaPath modelPath,
 			Path synonymPath,
 			Consumer<AncillaryRoleEnum> ancillaryRoleSetter,

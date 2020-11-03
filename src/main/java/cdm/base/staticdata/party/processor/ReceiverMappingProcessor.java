@@ -39,7 +39,7 @@ public class ReceiverMappingProcessor extends PayerReceiverMappingProcessor {
 						helper.computeCashflowParty(getModelPath(),
 								synonymPath,
 								builder::setReceiver,
-								builder::setReceiverRelatedParty,
+								builder::setReceiverRole,
 								AncillaryRoleEnum));
 	}
 
