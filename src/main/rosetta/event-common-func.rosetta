@@ -23,8 +23,10 @@ import cdm.legalagreement.master.*
 import cdm.event.workflow.*
 
 isEvent root BusinessEvent;
+
 // TODO - Providing the ability to embed aliases would provide the ability to ensure consistency between this alias and the effectiveDate one, while also simplify the syntax
 // See Trello card https://trello.com/c/89Lv8rAn
+
 func NovatedContractEffectiveDate:
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -630,7 +632,7 @@ func Create_Execution: <"Specifies a function to create an execution business ev
 		quantityNotation QuantityNotation (1..*) <"Defines the quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
 		priceNotation PriceNotation (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
 		counterparties  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
-		ancillaryRoles AncillaryRole (0..*) <"Maps any related parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
+		ancillaryRoles AncillaryRole (0..*) <"Maps any parties performing ancillary roles, e.g. parties involved in the transaction that are not one of the two principal parties.">
 		parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
 		partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
 		settlementTerms SettlementTerms (0..*) <"Specifies the settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
@@ -654,7 +656,7 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 		quantityNotation QuantityNotation (1..*) <"Defines the quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
 		priceNotation PriceNotation (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
 		counterparties  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
-		ancillaryRoles AncillaryRole (0..*) <"Maps any related parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
+		ancillaryRoles AncillaryRole (0..*) <"Maps any parties performing ancillary roles, e.g. parties involved in the transaction that are not one of the two principal parties.">
 		parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
 		partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
 		settlementTerms SettlementTerms (0..*) <"Specifies the settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement.">
@@ -897,12 +899,12 @@ func Create_CashTransferPrimitive: <"Function specification to generate a transf
 	assign-output transfer -> cashTransfer -> payerReceiver -> payerPartyReference:
 		if cashflow -> payerReceiver -> payer exists
 		then ExtractCounterpartyByRole( counterparties, cashflow -> payerReceiver -> payer ) -> partyReference
-		else ExtractAncillaryRoleByRole( ancillaryRoles, cashflow -> payerReceiver -> payerRelatedParty ) -> partyReference only-element
+		else ExtractAncillaryRoleByRole( ancillaryRoles, cashflow -> payerReceiver -> payerRole ) -> partyReference only-element
 		
 	assign-output transfer -> cashTransfer -> payerReceiver -> receiverPartyReference:
 		if cashflow -> payerReceiver -> receiver exists
 		then ExtractCounterpartyByRole( counterparties, cashflow -> payerReceiver -> receiver ) -> partyReference
-		else ExtractAncillaryRoleByRole( ancillaryRoles, cashflow -> payerReceiver -> receiverRelatedParty ) -> partyReference only-element
+		else ExtractAncillaryRoleByRole( ancillaryRoles, cashflow -> payerReceiver -> receiverRole ) -> partyReference only-element
 	
 	assign-output transfer -> settlementDate:
 		cashflow -> cashflowDate
