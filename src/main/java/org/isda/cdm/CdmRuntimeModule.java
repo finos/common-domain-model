@@ -1,8 +1,20 @@
 package org.isda.cdm;
 
-import cdm.base.math.functions.*;
-import cdm.base.staticdata.party.functions.ExtractAncillaryRole;
-import cdm.base.staticdata.party.functions.ExtractAncillaryRoleImpl;
+import com.google.inject.AbstractModule;
+import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
+import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
+import com.rosetta.model.lib.validation.ModelObjectValidator;
+
+import cdm.base.math.functions.Abs;
+import cdm.base.math.functions.AbsImpl;
+import cdm.base.math.functions.ListsCompare;
+import cdm.base.math.functions.ListsCompareImpl;
+import cdm.base.math.functions.RoundToNearest;
+import cdm.base.math.functions.RoundToNearestImpl;
+import cdm.base.math.functions.Sum;
+import cdm.base.math.functions.SumImpl;
+import cdm.base.staticdata.party.functions.ExtractAncillaryRoleByRole;
+import cdm.base.staticdata.party.functions.ExtractAncillaryRoleByRoleImpl;
 import cdm.base.staticdata.party.functions.ExtractCounterpartyByRole;
 import cdm.base.staticdata.party.functions.ExtractCounterpartyByRoleImpl;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
@@ -21,10 +33,6 @@ import cdm.product.common.schedule.functions.CalculationPeriod;
 import cdm.product.common.schedule.functions.CalculationPeriodImpl;
 import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
-import com.google.inject.AbstractModule;
-import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
-import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
-import com.rosetta.model.lib.validation.ModelObjectValidator;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -48,7 +56,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
 		bind(ExtractCounterpartyByRole.class).to(bindExtractCounterpartyByRole());
-		bind(ExtractAncillaryRole.class).to(bindExtractAncillaryRole());
+		bind(ExtractAncillaryRoleByRole.class).to(bindExtractAncillaryRoleByRole());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -113,7 +121,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		return ExtractCounterpartyByRoleImpl.class;
 	}
 
-	protected Class<? extends ExtractAncillaryRole> bindExtractAncillaryRole() {
-		return ExtractAncillaryRoleImpl.class;
+	protected Class<? extends ExtractAncillaryRoleByRole> bindExtractAncillaryRoleByRole() {
+		return ExtractAncillaryRoleByRoleImpl.class;
 	}
 }

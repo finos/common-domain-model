@@ -5,7 +5,7 @@ import cdm.base.staticdata.party.AncillaryRole;
 
 import java.util.List;
 
-public class ExtractAncillaryRoleImpl extends ExtractAncillaryRole {
+public class ExtractAncillaryRoleByRoleImpl extends ExtractAncillaryRoleByRole {
 
 	@Override
 	protected AncillaryRole.AncillaryRoleBuilder doEvaluate(List<AncillaryRole> roles, AncillaryRoleEnum rolesEnumToExtract) {

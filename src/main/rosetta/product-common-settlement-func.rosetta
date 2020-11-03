@@ -19,12 +19,12 @@ func CashflowSettlementTerms: <"The Payout type contains a cashflow to replicate
 	assign-output settlementTerms -> payerReceiver -> payerPartyReference:
 		if cashflow -> payerReceiver -> payer exists
 		then ExtractCounterpartyByRole( counterparties, cashflow -> payerReceiver -> payer ) -> partyReference
-		else ExtractAncillaryRole( ancillaryRoles, cashflow -> payerReceiver -> payerRelatedParty ) -> partyReference only-element
+		else ExtractAncillaryRoleByRole( ancillaryRoles, cashflow -> payerReceiver -> payerRelatedParty ) -> partyReference only-element
 		
 	assign-output settlementTerms -> payerReceiver -> receiverPartyReference:
 		if cashflow -> payerReceiver -> receiver exists
 		then ExtractCounterpartyByRole( counterparties, cashflow -> payerReceiver -> receiver ) -> partyReference
-		else ExtractAncillaryRole( ancillaryRoles, cashflow -> payerReceiver -> receiverRelatedParty ) -> partyReference only-element
+		else ExtractAncillaryRoleByRole( ancillaryRoles, cashflow -> payerReceiver -> receiverRelatedParty ) -> partyReference only-element
 	
 	assign-output settlementTerms -> assetIdentifier:
 		cashflow -> payoutQuantity -> assetIdentifier
