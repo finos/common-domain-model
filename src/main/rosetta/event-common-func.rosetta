@@ -511,7 +511,7 @@ func ResolveEquityContract: <"Specifies how the updated contract should be const
 	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount:
 		if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod = False then price
 
-	// TODO: Move the performance number into TradeState -> observationHistory
+	// TODO: In Phase 2, move the performance number into TradeState -> observationHistory
 	assign-output resetTradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance:
 		<"Reset primitive after state must be correctly populated with the equity payout including the performance.">
 		equityPerformance
@@ -536,9 +536,7 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 		equityPayout -> payoutQuantity -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
 
 	assign-output equityCashSettlementAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
-		// TODO: Consider how equity reset will work in harmonised model.
-		// Abs(tradeState -> updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
-		0.0
+		Abs(tradeState -> observationHistory -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
 
 	assign-output equityCashSettlementAmount -> currency: <"Does not handle the cross currency case, currently.">
 		ResolveEquityInitialPrice( equityPayout only-element -> underlier, tradeState -> trade -> tradableProduct -> priceNotation ) -> netPrice -> currency
@@ -815,16 +813,13 @@ func Create_ResetPrimitive: <"Specifies how a Reset Primitive should be construc
 	output:
 		resetPrimitive ResetPrimitive (1..1)
 
-	//alias contractState:
-	//	ContractStateFromTradeState(tradeState)
-
 	assign-output resetPrimitive -> before:
 		tradeState
 
-	assign-output resetPrimitive -> after -> trade:
-		tradeState -> trade
+	assign-output resetPrimitive -> after:
+		tradeState
 
-	assign-output resetPrimitive -> after: <"To handle the various ways Contracts can change over time, ">
+	assign-output resetPrimitive -> after -> observationHistory: <"To handle the various ways Contracts can change over time, ">
 		ResolveUpdatedTrade(tradeState, observation, date)
 
 func ResolveUpdatedTrade: <"The updated contract should be generated differently in different reset scenarios. This function handles how the contract should update according to which payouts are present within the Economic Terms.">
@@ -1231,15 +1226,6 @@ func ExtractTradeState: <"Extracts a single Contract State, given an Event. This
 	assign-output tradeState:
 		if primitive -> contractFormation exists then primitive -> contractFormation -> after
 		else if primitive -> reset exists then primitive -> reset -> after
-
-// TODO: document as this causes code generation problems
-// func ExtractContractState: <"Extracts a single Contract State, given an Event. This function navigates all the possible paths to product and extracts a single value.">
-// 	inputs: event BusinessEvent (1..1)
-// 	output: contractState ContractState (1..1)
-// 	alias primitive: event -> primitives  only-element
-// 	assign-output contractState:
-// 		if primitive -> contractFormation exists then ContractStateFromTradeState(primitive -> contractFormation -> after)
-// 		else if primitive -> reset exists then primitive -> reset -> after
 
 func ContractFromTrade:
 	inputs:
