@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
 
 public class FrenchLawAddendumMappingProcessor extends MappingProcessor {
     public FrenchLawAddendumMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
@@ -26,7 +27,8 @@ public class FrenchLawAddendumMappingProcessor extends MappingProcessor {
 
     private Optional<FrenchLawAddendumElection> getFrenchLawAddendumElection(Path synonymPath, String party) {
         FrenchLawAddendumElection.FrenchLawAddendumElectionBuilder frenchLawAddendumElectionBuilder = FrenchLawAddendumElection.builder();
-        setValueAndUpdateMappings(synonymPath.addElement(party + "_french_law_addendum"), (value) -> frenchLawAddendumElectionBuilder.setParty(party).setIsApplicable(value.equals("specify")));
+        setValueAndUpdateMappings(synonymPath.addElement(party + "_french_law_addendum"),
+                (value) -> frenchLawAddendumElectionBuilder.setParty(toCounterpartyEnum(party)).setIsApplicable(value.equals("specify")));
         setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"), frenchLawAddendumElectionBuilder::setAddendumLanguage);
         return frenchLawAddendumElectionBuilder.hasData() ? Optional.of(frenchLawAddendumElectionBuilder.build()) : Optional.empty();
     }

@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
 
 /**
  * ISDA Create mapping processor.
@@ -73,7 +74,7 @@ public class AdditionalTerminationEventMappingProcessor extends MappingProcessor
 
 	private void addIfApplicable(AdditionalTerminationEvent.AdditionalTerminationEventBuilder eventBuilder, String party, String value, boolean nameSet) {
 		if (APPLICABLE.equals(value) && nameSet) {
-			eventBuilder.addApplicableParty(party);
+			eventBuilder.addApplicableParty(toCounterpartyEnum(party));
 		}
 	}
 }
