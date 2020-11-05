@@ -1,31 +1,24 @@
 package org.isda.cdm.functions.testing;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+import cdm.base.staticdata.party.Counterparty;
+import cdm.base.staticdata.party.RelatedPartyReference;
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.Trade;
+import cdm.event.common.TradeState;
+import cdm.event.common.functions.Create_Execution;
+import cdm.product.common.settlement.SettlementTerms;
+import cdm.product.common.settlement.functions.CashflowSettlementTerms;
+import cdm.product.template.*;
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.metafields.FieldWithMetaDate;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
-import cdm.base.staticdata.party.RelatedPartyReference;
-import cdm.event.common.TradeNew;
-import cdm.event.common.TradeState;
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
-import com.rosetta.model.metafields.FieldWithMetaDate;
-
-import cdm.base.staticdata.party.Counterparty;
-import cdm.event.common.BusinessEvent;
-import cdm.event.common.functions.Create_Execution;
-import cdm.legalagreement.contract.Contract;
-import cdm.product.common.settlement.SettlementTerms;
-import cdm.product.common.settlement.functions.CashflowSettlementTerms;
-import cdm.product.template.ContractualProduct;
-import cdm.product.template.EconomicTerms;
-import cdm.product.template.Payout;
-import cdm.product.template.Product;
-import cdm.product.template.TradableProduct;
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 public class RunExecutionWithSettlementTerms implements ExecutableFunction<TradeState, BusinessEvent> {
 
@@ -60,7 +53,7 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
         TradeState.TradeStateBuilder contractBuilder = input.toBuilder();
         Optional.of(contractBuilder)
                 .map(TradeState.TradeStateBuilder::getTrade)
-                .map(TradeNew.TradeNewBuilder::getTradableProduct)
+                .map(Trade.TradeBuilder::getTradableProduct)
                 .map(TradableProduct.TradableProductBuilder::getProduct)
                 .map(Product.ProductBuilder::getContractualProduct)
                 .map(ContractualProduct.ContractualProductBuilder::getEconomicTerms)
@@ -72,17 +65,17 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
     private List<SettlementTerms> getSettlementTerm(TradeState input) {
     	List<Counterparty> counterparties = Optional.ofNullable(input)
 		        .map(TradeState::getTrade)
-		        .map(TradeNew::getTradableProduct)
+		        .map(Trade::getTradableProduct)
 		        .map(TradableProduct::getCounterparties)
 		        .orElse(Collections.emptyList());
         List<RelatedPartyReference> relatedParties = Optional.ofNullable(input)
                 .map(TradeState::getTrade)
-                .map(TradeNew::getTradableProduct)
+                .map(Trade::getTradableProduct)
                 .map(TradableProduct::getRelatedParties)
                 .orElse(Collections.emptyList());
         return Optional.ofNullable(input)
                 .map(TradeState::getTrade)
-                .map(TradeNew::getTradableProduct)
+                .map(Trade::getTradableProduct)
                 .map(TradableProduct::getProduct)
                 .map(Product::getContractualProduct)
                 .map(ContractualProduct::getEconomicTerms)

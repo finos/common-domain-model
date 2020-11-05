@@ -51,7 +51,7 @@ func NovatedContractEffectiveDate:
 
 func QuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
 	inputs:
-		trade TradeNew (1..*)
+		trade Trade (1..*)
 	output:
 		quantityChange QuantityGroups(1..1)
 
@@ -543,7 +543,7 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
 	inputs:
-		trade TradeNew (1..1)
+		trade Trade (1..1)
 		observation number (1..1)
 		date date (1..1)
 
@@ -739,7 +739,7 @@ func Create_ContractFormation: <"Function specification to create the business e
 func Create_ContractFormationPrimitive: <"Function specification to create the primitive event that represents an executed trade for a contractual product that has been affirmed (or confirmed) by the two parties. The formed contract can reference a legal agreement for instance a master agreement, by using the optional legalAgreement input.">
 	[creation PrimitiveEvent]
 	inputs:
-		execution TradeNew (1..1) <"Execution consisting of the economic terms which are agreed between the parties.">
+		execution Trade (1..1) <"Execution consisting of the economic terms which are agreed between the parties.">
 		legalAgreement LegalAgreement (0..1) <"Optional legal agreement associated to the contract being formed, for instance a master agreement.">
 
 	output:
@@ -956,7 +956,7 @@ func Create_Allocation: <"Function specification to create the fully-formed busi
 func Create_SplitPrimitive: <"Function specification to create the Split primitive based by splitting the trade into separate trades with the qualities specified in the split instructions.">
 	[creation PrimitiveEvent]
 	inputs:
-		trade Trade (1..1) <"Block trade to be split.">
+		trade Trade_Deprecated (1..1) <"Block trade to be split.">
 		splitInstructions QuantityNotation (1..*) <"Split instructions to be applied.">
 
 	output:
@@ -965,7 +965,7 @@ func Create_SplitPrimitive: <"Function specification to create the Split primiti
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
 	// TODO Never referenced in CDM
 	inputs:
-		trade TradeNew (1..1) <"Execution to be settled.">
+		trade Trade (1..1) <"Execution to be settled.">
 		previousEvent WorkflowStep (1..1) <"Previous event for lineage purposes.">
 
 	output:
@@ -986,7 +986,7 @@ func Settle: <"Function specification to create the Transfer event based on an e
 func Create_TransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">
 	[creation PrimitiveEvent]
 	inputs:
-		trade TradeNew (1..1)
+		trade Trade (1..1)
 
 	output:
 		transferPrimitive TransferPrimitive (1..1) <"Transfer primitive generated from execution.">
@@ -1206,7 +1206,7 @@ func ExecutionAsTrade: <"Constructs a 'Trade' type that wraps an execution.">
 		execution Execution (0..1)
 
 	output:
-		trade Trade (1..1)
+		trade Trade_Deprecated (1..1)
 
 	assign-output trade -> execution:
 	execution
@@ -1221,7 +1221,7 @@ func ExtractTradeState: <"Extracts a single Contract State, given an Event. This
 
 func ContractFromTrade:
 	inputs:
-		trade TradeNew (1..1)
+		trade Trade (1..1)
 	output:
 		contract Contract (1..1)
 

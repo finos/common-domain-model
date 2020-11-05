@@ -1,7 +1,7 @@
 package cdm.product.common.functions;
 
 import cdm.base.math.NonNegativeQuantity;
-import cdm.event.common.TradeNew;
+import cdm.event.common.Trade;
 import cdm.event.common.TradeState;
 import cdm.observable.asset.QuantityNotation;
 import cdm.product.asset.InterestRatePayout;
@@ -276,7 +276,7 @@ class ResolvePayoutQuantityTest extends AbstractFunctionTest {
 	private Optional<Payout> getPayouts(TradeState tradeState) {
 		return Optional.ofNullable(tradeState)
 				.map(TradeState::getTrade)
-				.map(TradeNew::getTradableProduct)
+				.map(Trade::getTradableProduct)
 				.map(TradableProduct::getProduct)
 				.map(Product::getContractualProduct)
 				.map(ContractualProduct::getEconomicTerms)

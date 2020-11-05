@@ -1,8 +1,7 @@
 package cdm.event.position.functions;
 
 import cdm.base.math.NonNegativeQuantity;
-import cdm.event.common.TradeNew;
-import cdm.legalagreement.contract.Contract;
+import cdm.event.common.Trade;
 import cdm.observable.asset.*;
 import cdm.observable.common.functions.ExtractQuantityByCurrency;
 import cdm.product.template.*;
@@ -68,8 +67,8 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
         assertThat(result, closeTo(BigDecimal.valueOf(-8_750_000), BigDecimal.valueOf(0.000001)));
     }
 
-    private static TradeNew createFxContract(String curr1, String curr2, int price1, int price2, QuoteBasisEnum basisEnum) {
-        return TradeNew.builder()
+    private static Trade createFxContract(String curr1, String curr2, int price1, int price2, QuoteBasisEnum basisEnum) {
+        return Trade.builder()
                 .setTradableProductBuilder(TradableProduct.builder()
                 	.setProductBuilder(Product.builder()
 		                .setContractualProductBuilder(ContractualProduct.builder()

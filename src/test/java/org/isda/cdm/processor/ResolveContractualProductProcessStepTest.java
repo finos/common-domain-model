@@ -1,6 +1,6 @@
 package org.isda.cdm.processor;
 
-import cdm.event.common.TradeNew;
+import cdm.event.common.Trade;
 import cdm.event.common.TradeState;
 import cdm.legalagreement.contract.Contract;
 import cdm.product.asset.InterestRatePayout;
@@ -39,7 +39,7 @@ class ResolveContractualProductProcessStepTest extends AbstractFunctionTest {
 
         List<InterestRatePayout> interestRatePayouts = Optional.ofNullable(resolvedTradeState)
                 .map(TradeState::getTrade)
-                .map(TradeNew::getTradableProduct)
+                .map(Trade::getTradableProduct)
                 .map(TradableProduct::getProduct)
                 .map(Product::getContractualProduct)
                 .map(ContractualProduct::getEconomicTerms)

@@ -113,9 +113,9 @@ type CommodityTransferComponent extends TransferBase:
 type ContractState: <"A class to specify a contract state instantiation with respect to the before and/or after state of lifecycle events.">
 	[metadata key]
 
-	trade TradeNew (1..1) <"Reference to the original contract, such that the contract state can be resolved by super-imposing the updated values on top of the original contract.">
+	trade Trade (1..1) <"Reference to the original contract, such that the contract state can be resolved by super-imposing the updated values on top of the original contract.">
 		[synonym Workflow_Event value "fpmlTrade"]
-	updatedTrade TradeNew (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
+	updatedTrade Trade (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
 
 type Instruction: <"Instruction to a function that will be used to perform a business event">
 
@@ -148,7 +148,7 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 
 type EventEffect: <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
 
-	effectedTrade TradeNew (0..*)
+	effectedTrade Trade (0..*)
 		[metadata reference]
 	effectedContract Contract (0..*) <"A pointer to the contract(s) to which the event effect(s) apply, i.e. in the before event state.">
 		[metadata reference]
@@ -196,7 +196,7 @@ type ExecutionState: <"A class to specify an execution instantiation with respec
 type TradeState:
 	[metadata key]
 	[rootType]
-	trade TradeNew (1..1)
+	trade Trade (1..1)
 	state State (0..1)
 	observationHistory TradeState (0..*)  // TODO: migrate to ObservationHistory type in Primitive Harmonisation Phase 2
 
@@ -205,7 +205,7 @@ type ObservationHistory:
 	observedValue number (1..1)
 	informationSource ObservationSource (1..1)
 
-type TradeNew:
+type Trade:
 	[metadata key]  // TODO: This key should be removed, but is used in Create_Reset and Settle java examples
 	identifier Identifier (1..*)
 	tradeDate date (1..1)
@@ -439,7 +439,7 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a globalKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "eventReference" meta "href"]
-	executionReference TradeNew (0..*) <"The reference to the instantiation of a Execution object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+	executionReference Trade (0..*) <"The reference to the instantiation of a Execution object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "executionReference" meta "href"]
 	cashflowReference Cashflow (0..*) <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
@@ -512,8 +512,10 @@ type StockSplitInstruction: <"Data required to perform a stock split business ev
 	adjustmentRatio number (1..1) <"The number that denotes the cumulative quantity of post-split shares issued to shareholders versus the quantity of pre-split shares previously issued to shareholders.  This number will be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.  With regard to any reference to price, the pre-split reference price will be divided by this number to determine the post-split reference price.">
 	date date (1..1) <"The effective date of the stock split, also known as the ex-date. This is the date on which the additional shares are paid to the shareholders, or in the case of a reverse stock split, the number shares held by each shareholder is proportionally reduced.  Equity derivative transactions can be amended in firms' internal systems on such date.   In most markets, the listed stock price is reduced (or increased for a reverse stock split) to account for the split on the same date, but in some markets the price adjustment occurs on a later date.  In either case, equity derivative transactions should be amended on the date that the stocks are paid to the shareholders (or consolidated).">
 
-type Trade: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
+// TODO: to be removed completely by the end of Primitive Harmonisation work
+type Trade_Deprecated: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
 	[metadata key]
+	[deprecated]
 
 	execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">
 		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" exists]
