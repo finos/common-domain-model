@@ -43,8 +43,6 @@ public class EventEffectProcessStep implements PostProcessStep{
 			ImmutableMap.<BiPredicate<RosettaPath, Class<?>>, BiConsumer<EventEffectBuilder,String>>builder()
 			.put(matches(BEFORE, TradeStateBuilder.class), (EventEffectBuilder e, String s) -> e.addEffectedTradeBuilder(tradeStateRef(s)))
 			.put(matches(AFTER, TradeStateBuilder.class), (EventEffectBuilder e,String s) -> e.addTradeBuilder(tradeStateRef(s)))
-			.put(matches(BEFORE, TradeStateBuilder.class), (EventEffectBuilder e,String s) -> e.addEffectedTradeBuilder(tradeStateRef(s)))
-			.put(matches(AFTER, TradeStateBuilder.class), (EventEffectBuilder e,String s) -> e.addTradeBuilder(tradeStateRef(s)))
 			.put(matches(ANY, ProductIdentifierBuilder.class), (EventEffectBuilder e,String s) -> e.addProductIdentifierBuilder(productRef(s)))
 			.put(matches(ANY, TransferPrimitiveBuilder.class), (EventEffectBuilder e,String s) -> e.addTransferBuilder(transferRef(s)))
 			.build();
@@ -116,8 +114,8 @@ public class EventEffectProcessStep implements PostProcessStep{
 			}
 			if (builder instanceof EventEffectBuilder) {
 				EventEffectBuilder eventEffect = (EventEffectBuilder) builder;
-				for (Entry<RosettaPath, GlobalKeyBuilder> entry:globalKeyMap.entrySet()) {
-					for (Entry<BiPredicate<RosettaPath, Class<?>>, BiConsumer<EventEffectBuilder, String>> test:effectSetters.entrySet()) {
+				for (Entry<RosettaPath, GlobalKeyBuilder> entry : globalKeyMap.entrySet()) {
+					for (Entry<BiPredicate<RosettaPath, Class<?>>, BiConsumer<EventEffectBuilder, String>> test : effectSetters.entrySet()) {
 						if (test.getKey().test(entry.getKey(), entry.getValue().getClass())) {
 							test.getValue().accept(eventEffect, entry.getValue().getMeta().getGlobalKey());
 						}
