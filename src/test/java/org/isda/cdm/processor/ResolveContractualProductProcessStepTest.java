@@ -2,7 +2,6 @@ package org.isda.cdm.processor;
 
 import cdm.event.common.Trade;
 import cdm.event.common.TradeState;
-import cdm.legalagreement.contract.Contract;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.settlement.PayoutBase;
 import cdm.product.template.*;
@@ -34,7 +33,7 @@ class ResolveContractualProductProcessStepTest extends AbstractFunctionTest {
     void postProcessStepResolvedQuantity() throws IOException {
         TradeState tradeState = getObject(TradeState.class, RATES_DIR + "GBP-Vanilla-uti.json");
         TradeState.TradeStateBuilder builder = tradeState.toBuilder();
-        resolveContractualProductProcessStep.runProcessStep(Contract.class, builder);
+        resolveContractualProductProcessStep.runProcessStep(TradeState.class, builder);
         TradeState resolvedTradeState = builder.build();
 
         List<InterestRatePayout> interestRatePayouts = Optional.ofNullable(resolvedTradeState)

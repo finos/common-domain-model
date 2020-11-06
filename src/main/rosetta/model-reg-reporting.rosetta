@@ -168,7 +168,7 @@ eligibility rule IsExecutingEntityInvestmentFirm
 		extract ExecutingEntity -> isInvestmentFirm
 
 eligibility rule ExecutingEntityForReportingParty
-			extract Trade -> contract -> partyContractInformation then
+			extract Trade -> contractTradeDetails -> partyContractInformation then
 			filter when PartyContractInformation -> relatedParty -> role = PartyRoleEnum -> ReportingParty then
 			extract PartyContractInformation -> partyReference then
 			lookup ExecutingEntity ExecutingEntity
@@ -184,7 +184,7 @@ reporting rule ReportingCounterpartyID
 	[regulatoryReference ESMA EMIR ITS_9 field "1.2"
  	   	provision "Unique code identifying the reporting counterparty of the contract (the LEI)"]
  	TradeForEvent then
-	 	extract Trade -> contract -> partyContractInformation then
+	 	extract Trade -> contractTradeDetails -> partyContractInformation then
 			filter when PartyContractInformation -> relatedParty -> role = PartyRoleEnum -> ReportingParty then
 			extract PartyContractInformation -> partyReference -> partyId
 			as "Reporting Counterparty ID"
@@ -231,7 +231,7 @@ reporting rule ExecutingEntityIdentificationCode <"Code used to identify the ent
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "4"
 		   	provision "Code used to identify the entity executing the transaction."]
 			TradeForEvent then
-			extract Trade -> contract -> partyContractInformation then
+			extract Trade -> contractTradeDetails -> partyContractInformation then
 			filter when PartyContractInformation -> relatedParty -> role = PartyRoleEnum -> ReportingParty then
 			extract PartyContractInformation -> partyReference then
 			extract Party -> partyId
@@ -250,7 +250,7 @@ reporting rule SubmittingEntityIdentificationCode <"Submitting entity identifica
 			provision "Code used to identify the entity submitting the transaction report to the competent authority in accordance with Article 26(7) of Regulation (EU) No 600/2014. Where the report is submitted by the executing firm directly to the competent authority, it shall be populated with the LEI of the executing firm (where the executing firm is a legal entity). Where the report is submitted by a trading venue, it shall be populated with the LEI of the operator of the trading venue. Where the report is submitted by an ARM, it shall be populated with the LEI of the ARM."
 		]
  	TradeForEvent then
- 	extract Trade -> contract -> partyContractInformation then
+ 	extract Trade -> contractTradeDetails -> partyContractInformation then
  	filter when PartyContractInformation -> relatedParty -> role = PartyRoleEnum -> ReportingParty then
  	extract PartyContractInformation -> partyReference -> partyId
  		as "Submitting Entity Identification Code"

@@ -5,7 +5,6 @@ import cdm.base.staticdata.party.Party;
 import cdm.event.common.BusinessEvent;
 import cdm.event.common.ClearingInstruction;
 import cdm.event.common.TradeState;
-import cdm.legalagreement.contract.Contract;
 import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;

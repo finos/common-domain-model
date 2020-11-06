@@ -1,26 +1,23 @@
 package org.isda.cdm.workflows;
 
-import static org.isda.cdm.workflows.ClearingUtils.getParty;
-
-import java.util.Optional;
-import java.util.function.Function;
-
+import cdm.base.staticdata.identifier.Identifier;
+import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.Party;
 import cdm.event.common.TradeState;
-import org.isda.cdm.functions.example.services.identification.IdentifierService;
-
+import cdm.event.common.functions.Create_ClearedTrade;
+import cdm.event.workflow.Workflow;
+import cdm.event.workflow.WorkflowStep;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaDate;
+import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
-import cdm.base.staticdata.identifier.Identifier;
-import cdm.base.staticdata.party.CounterpartyEnum;
-import cdm.base.staticdata.party.Party;
-import cdm.event.common.functions.Create_ClearedTrade;
-import cdm.event.workflow.Workflow;
-import cdm.event.workflow.WorkflowStep;
-import cdm.legalagreement.contract.Contract;
+import java.util.Optional;
+import java.util.function.Function;
+
+import static org.isda.cdm.workflows.ClearingUtils.getParty;
 
 public class ClearingAccepted implements Function<TradeState, Workflow> {
 	@Inject
@@ -33,7 +30,7 @@ public class ClearingAccepted implements Function<TradeState, Workflow> {
 	@Override
 	public Workflow apply(TradeState tradeState) {
 		TradeState.TradeStateBuilder contractBuilder = tradeState.toBuilder();
-		runner.postProcess(Contract.class, contractBuilder);  // TODO: is this needed here?
+		runner.postProcess(TradeState.class, contractBuilder);  // TODO: is this needed here?
 
 		TradeState alphaContract = contractBuilder.build();
 

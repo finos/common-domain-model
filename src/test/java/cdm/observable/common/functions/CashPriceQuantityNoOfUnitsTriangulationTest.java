@@ -1,17 +1,12 @@
 package cdm.observable.common.functions;
 
 import cdm.event.common.TradeState;
-import cdm.legalagreement.contract.Contract;
 import cdm.product.template.TradableProduct;
-import com.google.common.io.Resources;
 import com.google.inject.Inject;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static util.ResourcesUtils.getObject;

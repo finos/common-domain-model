@@ -5,6 +5,9 @@ import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
+import cdm.event.common.TradeState.TradeStateBuilder;
+import cdm.event.common.metafields.ReferenceWithMetaTradeState;
+import cdm.event.common.metafields.ReferenceWithMetaTradeState.ReferenceWithMetaTradeStateBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep.KeyPostProcessReport;
@@ -23,16 +26,9 @@ import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdent
 import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
 import cdm.event.common.BusinessEvent.BusinessEventBuilder;
 import cdm.event.common.EventEffect.EventEffectBuilder;
-import cdm.event.common.Execution.ExecutionBuilder;
 import cdm.event.common.TransferPrimitive.TransferPrimitiveBuilder;
-import cdm.event.common.metafields.ReferenceWithMetaExecution;
-import cdm.event.common.metafields.ReferenceWithMetaExecution.ReferenceWithMetaExecutionBuilder;
 import cdm.event.common.metafields.ReferenceWithMetaTransferPrimitive;
 import cdm.event.common.metafields.ReferenceWithMetaTransferPrimitive.ReferenceWithMetaTransferPrimitiveBuilder;
-import cdm.legalagreement.contract.Contract.ContractBuilder;
-import cdm.legalagreement.contract.metafields.ReferenceWithMetaContract;
-import cdm.legalagreement.contract.metafields.ReferenceWithMetaContract.ReferenceWithMetaContractBuilder;
-
 
 public class EventEffectProcessStep implements PostProcessStep{
 	
@@ -45,10 +41,10 @@ public class EventEffectProcessStep implements PostProcessStep{
 	
 	private static Map<BiPredicate<RosettaPath, Class<?>>, BiConsumer<EventEffectBuilder,String>> effectSetters  = 
 			ImmutableMap.<BiPredicate<RosettaPath, Class<?>>, BiConsumer<EventEffectBuilder,String>>builder()
-			.put(matches(BEFORE, ContractBuilder.class), (EventEffectBuilder e,String s) -> e.addEffectedContractBuilder(contractRef(s)))
-			.put(matches(AFTER, ContractBuilder.class), (EventEffectBuilder e,String s) -> e.addContractBuilder(contractRef(s)))
-			.put(matches(BEFORE, ExecutionBuilder.class), (EventEffectBuilder e,String s) -> e.addEffectedExecutionBuilder(executionRef(s)))
-			.put(matches(AFTER, ExecutionBuilder.class), (EventEffectBuilder e,String s) -> e.addExecutionBuilder(executionRef(s)))
+			.put(matches(BEFORE, TradeStateBuilder.class), (EventEffectBuilder e, String s) -> e.addEffectedTradeBuilder(tradeStateRef(s)))
+			.put(matches(AFTER, TradeStateBuilder.class), (EventEffectBuilder e,String s) -> e.addTradeBuilder(tradeStateRef(s)))
+			.put(matches(BEFORE, TradeStateBuilder.class), (EventEffectBuilder e,String s) -> e.addEffectedTradeBuilder(tradeStateRef(s)))
+			.put(matches(AFTER, TradeStateBuilder.class), (EventEffectBuilder e,String s) -> e.addTradeBuilder(tradeStateRef(s)))
 			.put(matches(ANY, ProductIdentifierBuilder.class), (EventEffectBuilder e,String s) -> e.addProductIdentifierBuilder(productRef(s)))
 			.put(matches(ANY, TransferPrimitiveBuilder.class), (EventEffectBuilder e,String s) -> e.addTransferBuilder(transferRef(s)))
 			.build();
@@ -87,14 +83,9 @@ public class EventEffectProcessStep implements PostProcessStep{
 		return report;
 	}
 
-	private static ReferenceWithMetaContractBuilder contractRef(String key) {
-		ReferenceWithMetaContractBuilder contractReference = ReferenceWithMetaContract.builder().setGlobalReference(key);
-		return contractReference;
-	}
-	
-	private static ReferenceWithMetaExecutionBuilder executionRef(String key) {
-		ReferenceWithMetaExecutionBuilder contractReference = ReferenceWithMetaExecution.builder().setGlobalReference(key);
-		return contractReference;
+	private static ReferenceWithMetaTradeStateBuilder tradeStateRef(String key) {
+		ReferenceWithMetaTradeStateBuilder tradeStateReference = ReferenceWithMetaTradeState.builder().setGlobalReference(key);
+		return tradeStateReference;
 	}
 
 	private static ReferenceWithMetaProductIdentifierBuilder productRef(String key) {
