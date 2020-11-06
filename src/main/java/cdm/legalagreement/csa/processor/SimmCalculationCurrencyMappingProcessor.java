@@ -14,8 +14,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.setIsoCurrency;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.*;
 
 /**
  * ISDA Create mapping processor.

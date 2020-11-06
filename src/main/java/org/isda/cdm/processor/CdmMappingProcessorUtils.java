@@ -17,9 +17,6 @@ import static java.util.Optional.ofNullable;
 
 public class CdmMappingProcessorUtils {
 
-	public static final List<String> PARTIES = Arrays.asList("partyA", "partyB");
-	public static final String ISDA_CREATE_SYNONYM_SOURCE = "ISDA_Create_1_0";
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(MappingProcessorUtils.class);
 
 	@NotNull

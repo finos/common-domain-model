@@ -14,8 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.*;
 
 public class RecalculationOfValueMappingProcessor extends MappingProcessor {
 

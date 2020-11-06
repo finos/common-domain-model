@@ -1110,6 +1110,7 @@ Agreement Content
 
  type AgreementTerms:
    agreement Agreement (1..1)
+   counterparty Counterparty (2..2)
    relatedAgreements RelatedAgreement (0..*)
    umbrellaAgreement UmbrellaAgreement (0..1)
 

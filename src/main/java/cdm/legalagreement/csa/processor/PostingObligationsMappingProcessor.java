@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
 
 public class PostingObligationsMappingProcessor extends MappingProcessor {

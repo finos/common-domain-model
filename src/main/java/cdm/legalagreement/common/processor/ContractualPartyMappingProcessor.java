@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
 
 /**
  * ISDA Create mapping processor.
