@@ -1,5 +1,6 @@
 package cdm.legalagreement.common.processor;
 
+import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.Party.PartyBuilder;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
 
 /**
  * ISDA Create mapping processor.
@@ -36,19 +38,17 @@ public class ContractualPartyMappingProcessor extends MappingProcessor {
 		PARTIES.forEach(party ->
 				getContractualParty(party).ifPresent(
 						partyInfo -> legalAgreementBuilder
-								.addContractualParty(ReferenceWithMetaParty.builder()
-										.setValue(partyInfo)
-										.build())));
+								.addContractualPartyBuilder(Counterparty.builder()
+										.setCounterparty(toCounterpartyEnum(party))
+										.setPartyReference(ReferenceWithMetaParty.builder().setValue(partyInfo).build()))));
 	}
 
 	private Optional<Party> getContractualParty(String party) {
 		PartyBuilder partyBuilder = Party.builder();
 
 		setValueAndUpdateMappings(String.format("answers.partyA.parties.%s_name", party),
-				(value) -> {
-					partyBuilder.setNameRef(value);
-					partyBuilder.setMetaBuilder(MetaFields.builder().setExternalKey(party));
-				});
+				(value) -> partyBuilder.setNameRef(value)
+						.setMetaBuilder(MetaFields.builder().setExternalKey(party)));
 
 		setValueAndUpdateMappings(String.format("%s.entity.id", party),
 				(value) -> partyBuilder.addPartyId(toFieldWithMetaString(value)));

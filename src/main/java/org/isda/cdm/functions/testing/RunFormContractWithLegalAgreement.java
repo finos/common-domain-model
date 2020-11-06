@@ -3,10 +3,15 @@ package org.isda.cdm.functions.testing;
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import cdm.base.staticdata.party.Counterparty;
+import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaDate;
@@ -44,8 +49,17 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
                 Optional.ofNullable(contract.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null), 
                 guard(contract.getContractIdentifier()));
 
+        List<Counterparty.CounterpartyBuilder> counterparties = guard(contract.getTradableProduct().getCounterparties())
+                .stream()
+                .map(Counterparty::toBuilder)
+                .collect(Collectors.toList());
+        counterparties.forEach(c ->
+                c.setPartyReference(ReferenceWithMetaParty.builder()
+                        .setValueBuilder(extractParty(guard(contract.getParty()), c.getPartyReference().getGlobalReference()))
+                        .build()));
+
         LegalAgreement legalAgreement = LegalAgreement.builder()
-                .addContractualPartyRef(guard(contract.getParty()))
+                .addContractualParty(counterparties.stream().map(Counterparty.CounterpartyBuilder::build).collect(Collectors.toList()))
                 .setAgreementDate(DateImpl.of(1994, 12, 01))
                 .setAgreementType(LegalAgreementType.builder()
                         .setName(LegalAgreementNameEnum.MASTER_AGREEMENT)
@@ -66,5 +80,12 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
     @Override
     public Class<BusinessEvent> getOutputType() {
         return BusinessEvent.class;
+    }
+
+    private Party.PartyBuilder extractParty(List<Party> parties, String globalKey) {
+        return parties.stream()
+                .map(Party::toBuilder)
+                .filter(p -> p.getOrCreateMeta().getGlobalKey().equals(globalKey))
+                .findFirst().orElse(null);
     }
 }
