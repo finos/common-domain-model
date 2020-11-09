@@ -1,31 +1,38 @@
-# *CDM Model: Data Templates*
+# *CDM Model: Primitive Harmonisation Phase 1*
 
 _What is being released_
 
-This release introduces the concept of data templates to the CDM.  Data templates provide a way to store data which is common across multiple CDM objects in a single referenced template.
+Phase 1 of work to harmonise Primitive events such that all Primitives use the `TradeState` data type to represent it's before and after state.
 
-One of the driving use-cases for templates in the CDM is Equity Swaps.  Due to the high volume of contracts with near identical product details from Equity Financing desks.  The product details duplicated on each contract can be extracted into a single template, and each contract can then specify a reference to that template.  Each contract would only specify the unique product details, which can be merged with the template to form a fully specified object when required.
+Harmonisation will allow for easier combination of Primitves to form  complex business events. Migraqting before and after states to use the same data type means no need for data translations when combining Primitives. 
 
-In the business domain the same is achieved via master confirmation or portfolio swap agreements which can be bespoke or standard, or via clients having standard term sheets agreed and sitting with sales desks to be used when writing all future deals (a working practice which has parallels in almost every asset class).
+Whilst data translation can be addressed in the Function Model, defining the correct data types correctly, upfront in the Data Model removes the need for additional complexity. 
 
 *Model Changes*
 
-The annotation type `[metadata template]` has been added to the model.  This annotation indicates that a data type is eligible to be used as a template.  The designation applies to all encapsulated types in that data type.
+The key changes in this release relate to the creation of the `TradeState` data type. `TradeState` includes all necessary data definitions to: 
 
-For example, currently, the only date type in the model that has been assigned this new annotation is `ContractualProduct`.  The designation of template eligibility also applies to `EconomicTerms` which is an encapsulated type in `ContractualProduct`, and also likewise applies to `Payout` which is an encapsulated type in `EconomicTerms`.
+1. Replace trade representations `Execution` and `Contract`.
+1. Replace state representations `ContractState`, `PostContractFormationState`.
 
-Other than the new annotation, data templates do not have any impact on the model, i.e. no new types, attributes, or conditions.
+The following Primitives have been harmonised as a result of creating the `TradeState` data type:
+
+- Contract Formation
+- Execution
+- Quantity Change
+- Terms Change
+- Reset
+- Split (before state only)
+
+*Special Note*
+ 
+`Contract` represented the root of the Product Model and was referenced extensively in CDM and its associated tooling. All explicit references to `Contract` have been replaced by `TradeState`. This involved updating the following model and tooling elements:
+
+- Ingestion now produces a `TradeState` data instance.
+- Function Model references to `Execution`, `Contract`, `ContractState` or `PostContractFormationState` were migrated to use to `TradeState` instead.
+- Regulatory reporting makes many references to `Contract`, all of which have been updated.
+- Updated Handwritten java examples of event sequences and visualisations to account for the migration.
 
 _Review Directions_
 
-- In the CDM Portal, use the Textual Browser to review the type `ContractualProduct` and annotation `[metadata template]`.
-
-*Merging Utilities and Examples*
-
-Once a template reference has been resolved, it will be necessary to merge the template data to form a single fully populated object.  This release includes code utilities, written in Java, that can merge the data from two objects into one.  These utilities can be extended by implementors to change the merging strategy to meet their requirements.
-
-This release also includes a example to show usage of data template and the merging utilities.
-
-_Review Directions_
-
-- In the CDM Portal, go to the Downloads page, and download the Java Examples.  Review the example in Java class, `com.regnosys.cdm.example.template.TemplateExample`.
+- In the CDM Portal, use the Textual Browser or Graphical Navifator to review the type `TradeState`.
