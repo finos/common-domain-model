@@ -14,7 +14,8 @@ import org.isda.cdm.processor.CdmMappingProcessorUtils;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
 
 /**
  * ISDA Create mapping processor.
@@ -37,12 +38,9 @@ public class CustodianMappingProcessor extends MappingProcessor {
 
 		String suffix = synonymPath.endsWith("collateral_manager") ? "_specify" : "_custodian_name";
 		setValueAndUpdateMappings(synonymPath.addElement(party + suffix),
-				(value) -> {
-					custodianElectionBuilder.setParty(party);
-					custodianElectionBuilder.setCustodian(LegalEntity.builder()
-							.setName(CdmMappingProcessorUtils.toFieldWithMetaString(value))
-							.build());
-				});
+				(value) -> custodianElectionBuilder.setParty(toCounterpartyEnum(party))
+						.setCustodianBuilder(LegalEntity.builder()
+								.setName(CdmMappingProcessorUtils.toFieldWithMetaString(value))));
 
 		if (synonymPath.endsWith("custodian_and_segregated_account_details")) {
 			setValueAndUpdateMappings(synonymPath.addElement(party + "_cash"),

@@ -108,12 +108,20 @@ type Agreement: <"Specification of the standard set of terms that define a legal
 	masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
 		[synonym ISDA_Create_1_0 value "ignore"]
 	// transactionConfirmation TransactionConfirmation (0..1) <"A transaction confirmation"> //TODO: Rename Contract and move to here
-
+	
 	condition: one-of
 
 type AgreementTerms: <"Specification of the content of a legal agreement.">
 
 	agreement Agreement (1..1) <"Specification of the standard set of terms that define a legal agreement.">
+	counterparty Counterparty (2..2)
+		[synonym ISDA_Create_1_0 value "partyA" mapper "AgreementTermsParty"]
+
+type LegalAgreement extends LegalAgreementBase: <"The specification of a legal agreement between two parties, including the baseline information and the optional specification of agreement terms allowing .">
+	[metadata key]
+	[rootType]
+
+	agreementTerms AgreementTerms (0..1) <"Specification of the content of the legal agreement.">
 	relatedAgreements RelatedAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
 		[synonym ISDA_Create_1_0 value
 		    "date_of_euroclear_security_agreement" path "answers->partyA",
@@ -125,13 +133,7 @@ type AgreementTerms: <"Specification of the content of a legal agreement.">
 		]
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
 		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "umbrella_agreement_and_principal_identification" path "answers->partyA"]
-
-type LegalAgreement extends LegalAgreementBase: <"The specification of a legal agreement between two parties, including the baseline information and the optional specification of agreement terms allowing .">
-	[metadata key]
-	[rootType]
-
-	agreementTerms AgreementTerms (0..1) <"Specification of the content of the legal agreement.">
-
+	
 	condition agreementVerification: <"A validation rule to ensure that the agreement elections are associated with the correct legal agreement type as specified.">
 		if agreementTerms -> agreement -> securityAgreementElections exists
 		then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
@@ -142,7 +144,6 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
 
 		else if agreementTerms -> agreement -> masterAgreementSchedule exists
 		then agreementType -> name = LegalAgreementNameEnum->MasterAgreement
-
 
 type LegalAgreementBase: <"A class describing the legal agreement baseline information, other than the specialized elections: type of legal agreement, agreement date and effective date, parties to the agreement, ... The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalAgreement class as a way to enforce a systematic choice between its attributes.">
 

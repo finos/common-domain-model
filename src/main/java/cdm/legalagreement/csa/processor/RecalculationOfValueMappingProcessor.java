@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.*;
 
 public class RecalculationOfValueMappingProcessor extends MappingProcessor {
 
@@ -41,7 +43,7 @@ public class RecalculationOfValueMappingProcessor extends MappingProcessor {
         RecalculationOfValueElection.RecalculationOfValueElectionBuilder recalculationOfValueElectionBuilder = RecalculationOfValueElection.builder();
         setValueAndUpdateMappings(synonymPath.addElement(party + suffix),
                 (value) -> {
-                    recalculationOfValueElectionBuilder.setParty(party);
+                    recalculationOfValueElectionBuilder.setParty(toCounterpartyEnum(party));
                     if ("other".equals(value)) {
                         TERMS_SUFFIXES.forEach(termSuffix -> setValueAndUpdateMappings(synonymPath.addElement(party + termSuffix),
                                 (terms) -> recalculationOfValueElectionBuilder.setRecalculationOfValueTerms(value)));

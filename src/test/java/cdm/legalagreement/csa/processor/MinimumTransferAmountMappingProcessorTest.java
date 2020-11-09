@@ -1,5 +1,6 @@
 package cdm.legalagreement.csa.processor;
 
+import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.legalagreement.csa.ElectiveAmountElection;
 import cdm.legalagreement.csa.MinimumTransferAmount;
 import cdm.legalagreement.csa.MinimumTransferAmount.MinimumTransferAmountBuilder;
@@ -18,8 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MinimumTransferAmountMappingProcessorTest {
 
-	private static final String PARTY_A = "partyA";
-	private static final String PARTY_B = "partyB";
 	private static final String ZERO = "zero";
 
 	@Test
@@ -45,21 +44,21 @@ class MinimumTransferAmountMappingProcessorTest {
 
 		// assert
 
-		ElectiveAmountElection partyA = getPartyElection(minimumTransferAmount, PARTY_A);
+		ElectiveAmountElection partyA = getPartyElection(minimumTransferAmount, CounterpartyEnum.PARTY_1);
 		assertNull(partyA.getCustomElection());
 		Money amount = partyA.getAmount();
 		assertEquals(10000, amount.getAmount().intValue());
 		assertEquals("EUR", amount.getCurrency().getValue());
 
-		ElectiveAmountElection partyB = getPartyElection(minimumTransferAmount, PARTY_B);
+		ElectiveAmountElection partyB = getPartyElection(minimumTransferAmount, CounterpartyEnum.PARTY_2);
 		assertNull(partyB.getCustomElection());
 		assertNull(partyB.getAmount());
 		assertTrue(partyB.getZeroAmount());
 	}
 
-	private ElectiveAmountElection getPartyElection(MinimumTransferAmount minimumTransferAmount, String party) {
+	private ElectiveAmountElection getPartyElection(MinimumTransferAmount minimumTransferAmount, CounterpartyEnum party) {
 		return minimumTransferAmount.getPartyElection().stream()
-				.filter(e -> party.equals(e.getParty()))
+				.filter(e -> party == e.getParty())
 				.findFirst()
 				.orElseThrow(() -> new RuntimeException("No partyElection found for " + party));
 	}

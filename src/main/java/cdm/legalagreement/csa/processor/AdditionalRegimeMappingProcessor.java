@@ -16,7 +16,10 @@ import java.util.Optional;
 
 import static cdm.legalagreement.csa.AdditionalRegime.builder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
 
 @SuppressWarnings("unused")
 public class AdditionalRegimeMappingProcessor extends MappingProcessor {
