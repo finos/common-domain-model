@@ -2,7 +2,7 @@
 
 _What is being released_
 
-The change updates the legal model to specify the elective parties using the `CounterpartyEnum` values `Party1` and `Party2`, replacing the existing approach which used text values "partyA" and "partyB".
+This release updates the legal model to specify the elective parties using the `CounterpartyEnum` values `Party1` and `Party2`, replacing the existing approach which used text values "partyA" and "partyB".
 
 - Update all party election types under namespace `cdm.legalagreement.csa`, such as `AccessConditionsElections`, `AdditionalRepresentationElection`, `CalculationAgentTerms` etc, to specify the elective party as type `CounterpartyEnum`. 
 - Add `AgreementTerms.counterparty` attribute to specify the `Party` reference and corresponding `CounterpartyEnum`.
