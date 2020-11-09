@@ -1,20 +1,18 @@
 package cdm.legalagreement.contract.processor;
 
-import static cdm.legalagreement.contract.processor.PartyMappingHelper.PARTY_MAPPING_HELPER_KEY;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-
-import org.jetbrains.annotations.NotNull;
-
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.jetbrains.annotations.NotNull;
 
-import cdm.product.template.TradableProduct;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+
+import static cdm.legalagreement.contract.processor.PartyMappingHelper.PARTY_MAPPING_HELPER_KEY;
+import static cdm.product.template.TradableProduct.TradableProductBuilder;
 
 /**
  * FpML mapping processor.
@@ -35,15 +33,13 @@ public class PartyMappingProcessor extends MappingProcessor {
 
 	@Override
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		PartyMappingHelper partyMappigHelper = createHelper();
-		partyMappigHelper.supplyTradableProductBuilder((TradableProduct.TradableProductBuilder) builder);
-		partyMappigHelper.addCounterparties();
+		createHelper((TradableProductBuilder) builder).addCounterparties();
 	}
 
 	@NotNull
-	private PartyMappingHelper createHelper() {
+	private PartyMappingHelper createHelper(TradableProductBuilder builder) {
 		return (PartyMappingHelper) getContext().getMappingParams()
 				// Create new instance (and add to map) on each call
-				.compute(PARTY_MAPPING_HELPER_KEY, (key, value) -> new PartyMappingHelper(getContext(), externalRefTranslator));
+				.compute(PARTY_MAPPING_HELPER_KEY, (key, value) -> new PartyMappingHelper(getContext(), builder, externalRefTranslator));
 	}
 }

@@ -3,6 +3,7 @@ package cdm.legalagreement.contract.processor;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.PayerReceiver;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.product.template.TradableProduct;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import static cdm.product.template.TradableProduct.TradableProductBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,15 +43,17 @@ class PartyMappingHelperTest {
 	private static final String RECEIVER_PARTY_REF = "p2";
 
 	private MappingContext context;
+	private TradableProductBuilder tradableProductBuilder;
 
 	@BeforeEach
 	void setUp() {
 		context = new MappingContext(getMappings(PAYER_XML_PATH, PAYER_PARTY_REF, RECEIVER_XML_PATH, RECEIVER_PARTY_REF), Collections.emptyMap());
+		tradableProductBuilder = TradableProduct.builder();
 	}
 
 	@Test
 	void shouldMapPayerToParty1() {
-		PartyMappingHelper helper = new PartyMappingHelper(context, null);
+		PartyMappingHelper helper = new PartyMappingHelper(context, tradableProductBuilder, null);
 
 		PayerReceiverBuilder builder = PayerReceiver.builder();
 		Path synonymPath = PAYER_XML_PATH.getParent();
@@ -69,7 +73,7 @@ class PartyMappingHelperTest {
 
 	@Test
 	void shouldMapReceiverToParty1() {
-		PartyMappingHelper helper = new PartyMappingHelper(context, null);
+		PartyMappingHelper helper = new PartyMappingHelper(context, tradableProductBuilder, null);
 
 		PayerReceiverBuilder builder = PayerReceiver.builder();
 		Path synonymPath = RECEIVER_XML_PATH.getParent();
@@ -89,7 +93,7 @@ class PartyMappingHelperTest {
 
 	@Test
 	void shouldMapPayerToParty1AndReceiverToParty2() throws ExecutionException, InterruptedException, TimeoutException {
-		PartyMappingHelper helper = new PartyMappingHelper(context, null);
+		PartyMappingHelper helper = new PartyMappingHelper(context, tradableProductBuilder, null);
 
 		PayerReceiverBuilder builder = PayerReceiver.builder();
 
@@ -113,8 +117,6 @@ class PartyMappingHelperTest {
 		assertEquals(CounterpartyEnum.PARTY_2, partyExternalReferenceToCounterpartyEnumMap.get(RECEIVER_PARTY_REF));
 
 		 // test PartyMappingHelper.addCounterparties()
-		TradableProductBuilder tradableProductBuilder = TradableProduct.builder();
-		helper.supplyTradableProductBuilder(tradableProductBuilder);
 		helper.addCounterparties();
 
 		// wait for invoked tasks to complete before assertions
@@ -123,15 +125,14 @@ class PartyMappingHelperTest {
 
 		List<Counterparty.CounterpartyBuilder> counterparties = tradableProductBuilder.getCounterparties();
 		assertThat(counterparties, hasSize(2));
-		// TODO add equals and hashcode to ReferenceWithMeta objects
-//		assertThat(counterparties,
-//				hasItems(
-//						Counterparty.builder()
-//								.setCounterparty(CounterpartyEnum.PARTY_1)
-//								.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(PAYER_PARTY_REF).build()),
-//						Counterparty.builder()
-//								.setCounterparty(CounterpartyEnum.PARTY_2)
-//								.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(RECEIVER_PARTY_REF).build())));
+		assertThat(counterparties,
+				hasItems(
+						Counterparty.builder()
+								.setCounterparty(CounterpartyEnum.PARTY_1)
+								.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(PAYER_PARTY_REF).build()),
+						Counterparty.builder()
+								.setCounterparty(CounterpartyEnum.PARTY_2)
+								.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(RECEIVER_PARTY_REF).build())));
 
 		Counterparty.CounterpartyBuilder counterparty1 = counterparties.get(0);
 		assertEquals(CounterpartyEnum.PARTY_1, counterparty1.getCounterparty());
@@ -161,7 +162,7 @@ class PartyMappingHelperTest {
 
 	@Test
 	void shouldMapCounterpartyBecauseModelPathOutsideProduct() {
-		PartyMappingHelper helper = new PartyMappingHelper(context, null);
+		PartyMappingHelper helper = new PartyMappingHelper(context, tradableProductBuilder, null);
 
 		PayerReceiverBuilder builder = PayerReceiver.builder();
 		Path synonymPath = PAYER_XML_PATH.getParent();

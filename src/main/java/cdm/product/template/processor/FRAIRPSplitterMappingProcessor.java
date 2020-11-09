@@ -48,8 +48,7 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 					rateSpec.setFloatingRateBuilder(null);
 					newIrp.getRateSpecification().setFixedRateBuilder(null);
 
-					PartyMappingHelper helper = PartyMappingHelper.getInstance(getContext())
-							.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."));
+					PartyMappingHelper helper = PartyMappingHelper.getInstanceOrThrow(getContext());
 
 					addInvokedTask(helper.getBothCounterpartiesCollectedFuture()
 							.thenAcceptAsync(map -> {
