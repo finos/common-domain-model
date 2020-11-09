@@ -40,15 +40,16 @@ public class PartyMappingHelper {
 	private final Map<String, CounterpartyEnum> partyExternalReferenceToCounterpartyEnumMap;
 	private final List<Mapping> mappings;
 	private final CompletableFuture<Map<String, CounterpartyEnum>> bothCounterpartiesCollected = new CompletableFuture<>();
-	private final CompletableFuture<TradableProductBuilder> tradableProductBuilderSupplied = new CompletableFuture<>();
+	private final TradableProductBuilder tradableProductBuilder;
 	private final Function<String, Optional<String>> translator;
 	private final ExecutorService executor;
 	private final List<CompletableFuture<?>> invokedTasks;
 
-	PartyMappingHelper(MappingContext context, Function<String, Optional<String>> translator) {
+	PartyMappingHelper(MappingContext context, TradableProductBuilder tradableProductBuilder, Function<String, Optional<String>> translator) {
 		this.mappings = context.getMappings();
 		this.executor = context.getExecutor();
 		this.invokedTasks = context.getInvokedTasks();
+		this.tradableProductBuilder = tradableProductBuilder;
 		this.translator = translator;
 		this.partyExternalReferenceToCounterpartyEnumMap = new LinkedHashMap<>();
 	}
@@ -59,6 +60,14 @@ public class PartyMappingHelper {
 	@NotNull
 	public synchronized static Optional<PartyMappingHelper> getInstance(MappingContext mappingContext) {
 		return Optional.ofNullable((PartyMappingHelper) mappingContext.getMappingParams().get(PARTY_MAPPING_HELPER_KEY));
+	}
+
+	/**
+	 * Get an instance of this party mapping helper from the MappingContext params, or if not found throw exception.
+	 */
+	@NotNull
+	public synchronized static PartyMappingHelper getInstanceOrThrow(MappingContext mappingContext) {
+		return getInstance(mappingContext).orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."));
 	}
 
 	/**
@@ -90,21 +99,12 @@ public class PartyMappingHelper {
 	}
 
 	/**
-	 * Provides a TradableProductBuilder instance so the counterparties and relatedParties can be added.
-	 */
-	void supplyTradableProductBuilder(TradableProductBuilder tradableProductBuilder) {
-		// complete future so any updates can happen
-		tradableProductBuilderSupplied.complete(tradableProductBuilder);
-	}
-
-	/**
 	 * Waits until the partyExternalReference to CounterpartyEnum map is ready, then adds both Counterparty instances to TradableProductBuilder.
 	 */
 	void addCounterparties() {
 		// when the tradableProductBuilder has been supplied and both counterparties have been collected, update tradableProduct.counterparties
-		invokedTasks.add(tradableProductBuilderSupplied
-				.thenAcceptBothAsync(bothCounterpartiesCollected,
-						(tradableProductBuilder, map) -> {
+		invokedTasks.add(bothCounterpartiesCollected
+				.thenAcceptAsync(map -> {
 							LOGGER.info("Setting TradableProduct.counterparties");
 							tradableProductBuilder.clearCounterparties()
 									.addCounterparties(map.entrySet().stream()
@@ -217,34 +217,30 @@ public class PartyMappingHelper {
 	 * Add RelatedPartyEnum and associated partyExternalReference to tradableProduct.relatedParties.
 	 */
 	public void addRelatedParties(String partyExternalReference, RelatedPartyEnum relatedPartyEnum) {
-		invokedTasks.add(tradableProductBuilderSupplied
-				.thenAcceptAsync(tradableProductBuilder -> {
-							synchronized (tradableProductBuilder) {
-								LOGGER.info("Adding {} as {} to TradableProduct.relatedParties", partyExternalReference, relatedPartyEnum);
-								List<RelatedPartyReferenceBuilder> relatedParties = Optional.ofNullable(tradableProductBuilder.getRelatedParties())
-										.orElse(new ArrayList<>());
-								Optional<RelatedPartyReferenceBuilder> relatedPartyReference = relatedParties.stream()
-										.filter(r -> relatedPartyEnum == r.getRelatedParty())
-										.findFirst();
-								if (relatedPartyReference.isPresent()) {
-									// Update existing entry
-									relatedPartyReference.get()
-											.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build());
-								} else {
-									// Add new entry
-									relatedParties.add(RelatedPartyReference.builder()
-											.setRelatedParty(relatedPartyEnum)
-											.addPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)));
-								}
-								// Clear related parties, and re-add sorted list so we don't get diffs on the list order on each ingestion
-								tradableProductBuilder
-										.clearRelatedParties()
-										.addRelatedParties(relatedParties.stream()
-												.map(RelatedPartyReferenceBuilder::build)
-												.sorted(Comparator.comparing(RelatedPartyReference::getRelatedParty))
-												.collect(Collectors.toList()));
-							}
-						},
-						executor));
+		synchronized (tradableProductBuilder) {
+			LOGGER.info("Adding {} as {} to TradableProduct.relatedParties", partyExternalReference, relatedPartyEnum);
+			List<RelatedPartyReferenceBuilder> relatedParties = Optional.ofNullable(tradableProductBuilder.getRelatedParties())
+					.orElse(new ArrayList<>());
+			Optional<RelatedPartyReferenceBuilder> relatedPartyReference = relatedParties.stream()
+					.filter(r -> relatedPartyEnum == r.getRelatedParty())
+					.findFirst();
+			if (relatedPartyReference.isPresent()) {
+				// Update existing entry
+				relatedPartyReference.get()
+						.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build());
+			} else {
+				// Add new entry
+				relatedParties.add(RelatedPartyReference.builder()
+						.setRelatedParty(relatedPartyEnum)
+						.addPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)));
+			}
+			// Clear related parties, and re-add sorted list so we don't get diffs on the list order on each ingestion
+			tradableProductBuilder
+					.clearRelatedParties()
+					.addRelatedParties(relatedParties.stream()
+							.map(RelatedPartyReferenceBuilder::build)
+							.sorted(Comparator.comparing(RelatedPartyReference::getRelatedParty))
+							.collect(Collectors.toList()));
+		}
 	}
 }

@@ -42,9 +42,7 @@ public class ExerciseNoticeReceiverMappingProcessor extends MappingProcessor {
 						// set related party enum (inside product)
 						((ExerciseNotice.ExerciseNoticeBuilder) parent).setExerciseNoticeReceiver(p);
 						// add to related parties list (outside product)
-						PartyMappingHelper.getInstance(getContext())
-								.orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."))
-								.addRelatedParties(partyExternalReference, p);
+						PartyMappingHelper.getInstanceOrThrow(getContext()).addRelatedParties(partyExternalReference, p);
 					});
 					return relatedPartyEnum.isPresent();
 				},
