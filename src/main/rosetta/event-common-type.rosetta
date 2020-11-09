@@ -181,7 +181,7 @@ type ExerciseOutcome: <"The exercise outcome combines the option contract (which
 	condition Choice: <"A option exercise results in either a physical or a cash exercise.">
 		required choice physicalExercise, cashExercise
 
-type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState represents where a Trade is in its life-cycle.">
+type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
 	[rootType]
 	trade Trade (1..1) <"Represents the Trade that has been effected by a business or life-cycle event.">
@@ -193,7 +193,7 @@ type Observation: <"Defines an observed piece of market data, such as a rate fix
 	observedValue number (1..1) <"Specifies the numerical value of the observation.">
 	informationSource ObservationSource (1..1) <"Represents the data source of the observed value.">
 
-type State: <"Defines the state of a trade at a point in the Trade's life cycle.">
+type State: <"Defines the state of a trade at a point in the Trade's life cycle. Trades have many state dimensions, all of which are represented here. For example, states useful for position keeping are represented alongside those needed for regulatory reporting.">
 	closedState ClosedState (0..1) <"Represents the qualification of what led to the trade's closure alongside the dates on which this closure took effect.">
 	    [synonym Workflow_Event value "closedState" path "trade"]
 	positionState PositionStatusEnum (0..1) <"Identifies the state of the position, to distinguish if just executed, formed, already settled, closed, etc.">
@@ -417,26 +417,26 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
         if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
         then FpmlIrd8( tradableProduct, contractTradeDetails -> account ) = True
 
-type ExecutionTradeDetails: <"A class to specify an execution, which consists essentially in the economic terms which are agreed between the parties, alongside with the qualification of the type of execution. The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type ExecutionTradeDetails: <"Defines specific attributes that relate to trade executions.">
 	[metadata key]
 
-	executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, electronically...">
+	executionType ExecutionTypeEnum (1..1) <"Identifies the type of execution, e.g. via voice, electronically...">
 		[synonym Workflow_Event value "executionType" path "trade"]
-	executionVenue LegalEntity (0..1) <"The execution venue identification, when applicable.">
+	executionVenue LegalEntity (0..1) <"Represents the venue on which a trade was executed.">
 
 	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
 		if executionType = ExecutionTypeEnum -> Electronic
 		then executionVenue exists
 
-type ContractTradeDetails: <" A class to specify a financial contract object, which can be invoked either within the context of an event, or independently from it. It corresponds to the FpML Trade in the Confirmation view (while the CDM Execution class corresponds to the FpML trade in the Pre-Trade view). The associated globalKey denotes the ability to associate a hash value to the Contract instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type ContractTradeDetails: <"Defines specific attributes that relate to contractual details of trades.">
 	[metadata key]
-	clearedDate date (0..1) <"If the trade was cleared (novated) through a central counterparty clearing service, this represents the date the trade was cleared (transferred to the central counterparty).">
-	collateral Collateral (0..1) <"Defines the collateral obligations of a party.">
-	documentation RelatedAgreement (0..1) <"Specifies the document(s) that govern the document, either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
-	governingLaw GoverningLawEnum (0..1) <"Identification of the law governing the contract.">
+	clearedDate date (0..1) <"Specifies the date on which a trade is cleared (novated) through a central counterparty clearing service.">
+	collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
+	documentation RelatedAgreement (0..1) <"Represents the legal document(s) that governs a trade and associated contractual product terms, either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
+	governingLaw GoverningLawEnum (0..1) <"Represents the law governing the trade and associated contractual product terms.">
 		[metadata scheme]
-	account Account (0..*) <"Optional account information.">
-	partyContractInformation PartyContractInformation (0..*) <"Additional contract information that may be provided by each involved party.">
+	account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
+	partyContractInformation PartyContractInformation (0..*) <"Represents additional contractual information provided by each involved party.">
 
 type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an contractFormation event is corrected, the correction event will have a lineage into the initial event, which takes the form of a globalKey into that initial contract formation event. Two referencing mechanisms are provided as part of the CDM: either the globalKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the globalKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.globalKey.GlobalKeyHashCalculator. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
     tradeReference Trade (0..*)
@@ -598,21 +598,21 @@ type PrimitiveEvent: <"A primitive event is defined by one and only one atomic c
 		[synonym Workflow_Event value "transfer" path "primitive"]
 	condition PrimitiveEvent: one-of
 
-type ExecutionPrimitive: <"Specification of the primitive event for an execution, with 'after' state being an ExecutionState and the 'before' state being Null. It is expected that the 'before' state will be adjusted or deprecated once the CDM scope is extended to the pre-execution space.">
+type ExecutionPrimitive: <"Defines the primitive event for an execution, with 'after' attribute being a TradeState and the 'before' attribute being Null. It is expected that the 'before' attribute will be adjusted or deprecated once the CDM scope is extended to include pre-trade.">
 
-	before TradeState (0..0) <"The 0 cardinality reflects the fact that there is no execution in the before state of an execution primitive. As noted in the definition associated with the class, this is expected to change once the CDM scope is extended to the pre-execution space.">
+	before TradeState (0..0) <"Represents the connection point between pre and post trade life-cycle events. The TradeState associated to the 'before' attribute represents the final step of any pre-trade workflow. CDM scope does not include pre-trade and so cardinality of this attribute is specified as exactly 0, which enforces the absence of the 'before' attribute.">
 		[metadata reference]
 		[synonym Workflow_Event value "before"]
-	after TradeState (1..1) <"The after state corresponds to the execution between the parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">
+	after TradeState (1..1) <"Represents an execution between parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">
 		[synonym Workflow_Event value "after"]
 
-type ContractFormationPrimitive: <"Specification of a primitive event that represents an executed trade for a contractual product that has been affirmed (or confirmed) by the two parties.  The optional 'before' state is an 'ExecutionState' consisting of an ExecutionPrimitive.  The 'after' state is a 'PostContractFormationState' that includes a Contract in which there is an optional reference to a RelatedAgreeemnt, such as a Master Agreement.  If an 'after' and 'before' both exist, then they must have the same TradableProduct values.">
+type ContractFormationPrimitive: <"Defines the primitive event that represents an executed trade for a contractual product that has been affirmed (or confirmed) by the two parties. The 'after' attribute is of data type 'TradeState', which via 'Trade' and 'ContractTradeDetails' data types, contain an optional reference to a 'RelatedAgreeemnt', such as a Master Agreement.  If both 'after' and 'before' attributes exist, then both must have identical TradableProduct values.">
 
-	before TradeState (0..1) <"The before state corresponds to the output of an execution between the parties.">
+	before TradeState (0..1) <"Represents the output of an execution between the parties.">
 		[metadata reference]
 		[synonym Workflow_Event value "fpmlTrade" path "before"]
 		[synonym Workflow_Event value "fpmlExecution" path "before"]
-	after TradeState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
+	after TradeState (1..1) <"Represents the new contract being formed between the parties.">
 		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
 	condition: <"The product should be unchanged.">
@@ -624,9 +624,9 @@ type ContractFormationPrimitive: <"Specification of a primitive event that repre
 	condition: <"The price should be unchanged.">
 		if before exists then before -> trade -> tradableProduct -> priceNotation = after -> trade -> tradableProduct -> priceNotation
 
-type SplitPrimitive: <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the ContractFormation primitive.">
+type SplitPrimitive: <"Defines the primitive event to represent a split/allocation of a trade. Where executions are being split, each split execution can be transformed into a contract by additionally using the Contract Formation primitive.">
 
-	before TradeState (1..1) <"The trade before split, which is either an execution if split happens before the contract is formed, or an already formed contract.">
+	before TradeState (1..1) <"Represents the trade before split, which is either an execution if the split happens before the contract is formed, or an already formed contract.">
 		[metadata reference]
 		[synonym Workflow_Event value "fpmlTrade" path "before"]
 	after SplitOutcome (1..1) <"Outcome of the split as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Split'.">
@@ -683,31 +683,30 @@ type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise const
 	after ExerciseOutcome (1..1)
 		[synonym Workflow_Event value "after"]
 
-type QuantityChangePrimitive: <"The primitive event to represent a change in quantity or notional.">
+type QuantityChangePrimitive: <"Defines the primitive event to represent a change in quantity, which includes notional. For details of how the TradeState is changed between the `before` and `after` TradeStates, see the corresponding Create_QuantityChangePrimitive function.">
 
-	before TradeState (1..1) <"The state of the trade (either an execution or a contract, before the event.">
+	before TradeState (1..1) <"Represents the state of the trade before the event.">
 		[metadata reference]
 		[synonym Workflow_Event value "fpmlTrade" path "before"]
-	after TradeState (1..1) <"The state of the trade (either an execution or a contract, as a follow-up from the event.">
+	after TradeState (1..1) <"Represents the state of the trade as a follow-up from the event.">
 		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
-type ResetPrimitive: <"The primitive event to represent a reset.">
+type ResetPrimitive: <"Defines the primitive event to represent a reset. For details of how the TradeState is changed between the `before` and `after` TradeStates, see the corresponding Create_ResetPrimitive function.">
 
-	before TradeState (1..1) <"Contract state before the reset, as per previous events processed on the contract.">
+	before TradeState (1..1) <"Represents the TradeState prior applying the Reset primitive.">
 		[metadata reference]
 		[synonym Workflow_Event value "ignore"]
-	after TradeState (1..1) <"Contract state after the reset, that embeds the reset value as an updated field on the contract state.">
+	after TradeState (1..1) <"Represents the TradeState after to applying the Reset primitive.">
 		[synonym Workflow_Event value "ignore"]
 	condition Trade: <"The original trade in the before/after state of a reset should match.">
-		if ResetPrimitive exists
-		then before -> trade = after -> trade
+		before -> trade = after -> trade
 
-type TermsChangePrimitive: <"The primitive event to represent change(s) to the contractual terms and the clearing submission and acceptance process.">
+type TermsChangePrimitive: <"Defines the primitive event to represent changes to terms of the trade.">
 
-	before TradeState (1..1)
+	before TradeState (1..1) <"Represents the TradeState prior to applying the TermsChange primitive.">
 		[metadata reference]
 		[synonym Workflow_Event value "fpmlTrade" path "before"]
-	after TradeState (1..1)
+	after TradeState (1..1) <"Represents the TradeState after to applying the TermsChange primitive. ">
 		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
 type TransferPrimitive: <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security). The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
