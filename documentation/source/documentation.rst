@@ -1033,7 +1033,7 @@ The legal agreement model in the CDM comprises the following features:
 
   **Master Agreement Schedule**
 
-  * ISDA 2002 Master Agreement Schedule (Automatic Early Termination Clause only)
+  * ISDA 2002 Master Agreement Schedule (Partial agreement representation)
 
 
 * **Composable and normalised model representation** of the eligible collateral schedule for initial and variation margin into a directly machine readable format.
@@ -1073,7 +1073,7 @@ The components of the legal agreement model specified in the CDM are detailed in
 
 Legal Agreement Data Structure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The ``LegalAgreement`` data type represents the highest-level data type for defining a legal agreement in the CDM.  This data type extends the ``LegalAgreementBase``, which contains information to uniquely identify an agreement. The only non-inherited attribute in the ``LegalAgreement`` is the ``agreementTerms`` which defines all of the content in the agreement.
+The ``LegalAgreement`` data type represents the highest-level data type for defining a legal agreement in the CDM.  This data type extends the ``LegalAgreementBase``, which contains information to uniquely identify an agreement. There are three non-inherited components to ``LegalAgreement``, as shown in the code snippet below:.
 
 .. code-block:: Haskell
 
@@ -1084,7 +1084,7 @@ The ``LegalAgreement`` data type represents the highest-level data type for defi
     relatedAgreements RelatedAgreement (0..*)
     umbrellaAgreement UmbrellaAgreement (0..1)
 
-The ``LegalAgreementBase`` and ``agreementTerms`` are defined in the following sections
+The ``LegalAgreementBase``, ``RelatedAgreement``, ``UmbrellaAgreement``, and ``AgreementTerms`` are defined in the following sections.
 
 Agreement Identification
 """"""""""""""""""""""""
@@ -1102,34 +1102,6 @@ The CDM provides support for implementors to uniquely identify a legal agreement
    otherParty PartyRole (0..*)
 
 As indicated by the cardinality for the attributes in this data type, all legal agreements must contain an agreement date, two contractual parties, and information indicating the published form of market standard agreement being used (including the name and publisher of the legal agreement being specified in the ``agreementType`` attribute).  Provision is made for further information to be captured, for example an agreement identifier, which is an optional attribute.
-
-Agreement Content
-"""""""""""""""""
-
-``AgreementTerms`` is used to specify the content of a legal agreement in the CDM. There are three components to agreement terms, as shown in the code snippet below:
-
-.. code-block:: Haskell
-
- type AgreementTerms:
-   agreement Agreement (1..1)
-   counterparty Counterparty (2..2)
-
-The following sections describe each of these components.
-
-Agreement
-"""""""""
-``Agreement`` is a data type used to specify the individual elections contained within the legal agreement. It contains a set of encapsulated data types, each containing the elections used to define a specific group of agreements.
-
-.. code-block:: Haskell
-
- type Agreement:
-   creditSupportAgreementElections CreditSupportAgreementElections (0..1)
-   collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
-   securityAgreementElections SecurityAgreementElections (0..1)
-   masterAgreementSchedule MasterAgreementSchedule (0..1)
-   condition: one-of
-
-The modelling approach for elective provisions is explained in further detail in the corresponding section below.
 
 Related Agreement
 """""""""""""""""
@@ -1165,8 +1137,49 @@ The below snippet represents the ``UmbrellaAgreement`` data type.
    language string (0..1)
    parties UmbrellaAgreementEntity (0..*)
 
+Agreement Content
+"""""""""""""""""
+
+``AgreementTerms`` is used to specify the content of a legal agreement in the CDM. There are two components to agreement terms, as shown in the code snippet below:
+
+.. code-block:: Haskell
+
+ type AgreementTerms:
+   agreement Agreement (1..1)
+   counterparty Counterparty (2..2)
+
+The following sections describe each of these components.
+
+Agreement
+"""""""""
+
+``Agreement`` is a data type used to specify the individual elections contained within the legal agreement. It contains a set of encapsulated data types, each containing the elections used to define a specific group of agreements.
+
+.. code-block:: Haskell
+
+ type Agreement:
+   creditSupportAgreementElections CreditSupportAgreementElections (0..1)
+   collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
+   securityAgreementElections SecurityAgreementElections (0..1)
+   masterAgreementSchedule MasterAgreementSchedule (0..1)
+   condition: one-of
+
+Counterparty
+""""""""""""
+
+The two counterparties to the agreement are specified within the elections using the ``CounterpartyEnum`` values ``Party1`` and ``Party2``.  The ``Party`` corresponding to each enum value are specified in ``Counterparty``.
+
+.. code-block:: Haskell
+
+ enum CounterpartyEnum:
+   Party1
+   Party2
+
+The modelling approach for elective provisions is explained in further detail in the corresponding section below.
+
 Elective Provisions
 ^^^^^^^^^^^^^^^^^^^
+
 This section describes the modelling approach and data structure for election provisions, which are the detailed terms of agreement in each legal document.  The section concludes with relevant examples to illustrate the approach and structure.
 
 Modelling Approach
@@ -1265,7 +1278,7 @@ The ``partyElection`` attribute, which is of the type partyElection ``PostingObl
 .. code-block:: Haskell
 
  type PostingObligationsElection:
-   party CounterpartyEnum (1..1) 
+   party CounterpartyEnum (1..1)
    asPermitted boolean (1..1)
    eligibleCollateral EligibleCollateral (0..*)
    excludedCollateral string (0..1)
