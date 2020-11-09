@@ -1167,7 +1167,7 @@ Agreement
 Counterparty
 """"""""""""
 
-The two counterparties to the agreement are specified within the elections using the ``CounterpartyEnum`` values ``Party1`` and ``Party2``.  The ``Party`` corresponding to each enum value are then specified in the ``Counterparty`` type.
+The two counterparties to the agreement are specified within the elections using the ``CounterpartyEnum`` values ``Party1`` and ``Party2``.  The ``Party`` corresponding to each enum value are then specified using the ``Counterparty`` type.
 
 .. code-block:: Haskell
 
