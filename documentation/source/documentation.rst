@@ -1081,6 +1081,8 @@ The ``LegalAgreement`` data type represents the highest-level data type for defi
 	[metadata key]
  	[rootType]
     agreementTerms AgreementTerms (0..1)
+    relatedAgreements RelatedAgreement (0..*)
+    umbrellaAgreement UmbrellaAgreement (0..1)
 
 The ``LegalAgreementBase`` and ``agreementTerms`` are defined in the following sections
 
@@ -1095,7 +1097,8 @@ The CDM provides support for implementors to uniquely identify a legal agreement
    effectiveDate date (0..1)
    identifier Identifier (0..*)
    agreementType LegalAgreementType (1..1)
-   contractualParty Counterparty (2..2)
+   contractualParty Party (2..2)
+    [metadata reference]
    otherParty PartyRole (0..*)
 
 As indicated by the cardinality for the attributes in this data type, all legal agreements must contain an agreement date, two contractual parties, and information indicating the published form of market standard agreement being used (including the name and publisher of the legal agreement being specified in the ``agreementType`` attribute).  Provision is made for further information to be captured, for example an agreement identifier, which is an optional attribute.
@@ -1109,8 +1112,7 @@ Agreement Content
 
  type AgreementTerms:
    agreement Agreement (1..1)
-   relatedAgreements RelatedAgreement (0..*)
-   umbrellaAgreement UmbrellaAgreement (0..1)
+   counterparty Counterparty (2..2)
 
 The following sections describe each of these components.
 

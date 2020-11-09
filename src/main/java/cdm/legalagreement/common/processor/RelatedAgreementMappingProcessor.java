@@ -25,7 +25,7 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
 
     @Override
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-        AgreementTerms.AgreementTermsBuilder agreementTermsBuilder = (AgreementTerms.AgreementTermsBuilder) parent;
+        LegalAgreement.LegalAgreementBuilder agreementTermsBuilder = (LegalAgreement.LegalAgreementBuilder) parent;
         getRelatedAgreement(synonymPath).ifPresent(agreementTermsBuilder::addRelatedAgreements);
         PARTIES.forEach(party -> getRelatedAgreementForParty(synonymPath, party).ifPresent(agreementTermsBuilder::addRelatedAgreements));
 
