@@ -1,4 +1,4 @@
-# *Bugfix. Product Qualification Example*
+# *Bugfix Product Qualification Example & Minor Documentation Update*
 
 _What is being released_
 
