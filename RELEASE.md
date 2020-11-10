@@ -1,19 +1,11 @@
-# *Model Optimisation: Master Agreement Schedule*
+# *Bugfix Product Qualification Example & Minor Documentation Update*
 
 _What is being released_
 
-This change is part of the ongoing modelling of the clauses contained in the 2002 ISDA Master Agreement Schedule.
-
-This particular release adds a further seven clauses to allow specification of:
-
-- Address for Notices: Clause specifying the address and other details for notices.
-- Dated as of Date: The date specified as the "Dated as of Date" by the parties, which is used when transacting to identify the Master Agreement which shall govern that transaction.
-- Credit Support Provider: A defined term identifying entities that provide credit support in relation to a contractual party.
-- Credit Support Document: A defined term identifying documents that are relevant to the provision of credit support in relation to a contractual party.
-- Governing Law: Clause specifying the choice of governing law.
-- Specified Entity: A clause that allows each party specify its Specified Entities for certain Events of Default and Termination Events.
-- Termination Currency: A clause specifying the currency in which the termination payment is made (including the process by which such currency is determined).
+* Bugfix. Fixed the Qualification Java example to make use of the latest CDM Java APIs and additionally indicates where the qualification values should be stored on the CDM object. Added automated tests for several examples to catch code-level failures prior to releases. 
+* Documentation Update. Clarification of record types were added to the Rosetta DSL documentation. 
 
 _Review Directions_
 
-- In the CDM Portal, use the Textual Browser to review the data type `MasterAgreementSchedule` containing the data types mentioned above.
+* Bugfix. In the CDM Portal, in the Downloads section, download the CDM Java examples pack and inspect Qualification.java.
+* Documentation Update. See documentation at docs.rosetta-technology.io/dsl/documentation.html#syntax
