@@ -81,7 +81,7 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
                 Collections.emptyList(),
 				null,
 				Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-				guard(tradeState.getTrade().getIdentifier()));
+				guard(tradeState.getTrade().getTradeIdentifier()));
 		return corrected;
 	}
 
@@ -105,7 +105,7 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
                 Collections.emptyList(),
 				null,
 				Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-				guard(tradeState.getTrade().getIdentifier()));
+				guard(tradeState.getTrade().getTradeIdentifier()));
 		return newBusinessEvent;
 	}
 

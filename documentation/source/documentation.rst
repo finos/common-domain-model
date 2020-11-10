@@ -430,18 +430,18 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
 
  type Trade:
  	[metadata key]
- 	identifier Identifier (1..*)
+ 	tradeIdentifier Identifier (1..*)
  	tradeDate date (1..1)
          [metadata id]
  	tradableProduct TradableProduct (1..1)
  	party Party (0..*)
  	partyRole PartyRole (0..*)
  	settlementTerms SettlementTerms (0..*)
- 	executionTradeDetails ExecutionTradeDetails (0..1)
- 	contractTradeDetails ContractTradeDetails (0..1)
-
- 	condition:
- 		optional choice executionTradeDetails, contractTradeDetails
+ 	executionDetails ExecutionDetails (0..1)
+ 	contractualRelationships ContractualRelationships (0..1)
+    clearedDate date (0..1)
+    collateral Collateral (0..1)
+	account Account (0..*)
 
 The ``settlementTerms`` attribute define how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
@@ -454,7 +454,7 @@ The ``settlementTerms`` attribute define how the transaction should be settled (
    settlementAmount Money (0..1)
    transferSettlementType TransferSettlementEnum (0..1)
 
-Additionally, ``Trade`` supports representation of specific execution or contractual trade details via the ``executionTradeDetails`` and ``contractTradeDetails`` attributes.
+Additionally, ``Trade`` supports representation of specific execution or contractual trade details via the ``executionTradeDetails`` and ``contractualRelationships`` attributes.
 
 ExecutionTradeDetails
 """""""""""""""""""""
@@ -468,14 +468,11 @@ ContractTradeDetails are only applicable to contractual products.  It represents
 
 .. code-block:: Haskell
 
- type ContractTradeDetails:
+ type ContractualRelationships:
  	[metadata key]
- 	clearedDate date (0..1)
- 	collateral Collateral (0..1)
  	documentation RelatedAgreement (0..1)
  	governingLaw GoverningLawEnum (0..1)
  		[metadata scheme]
- 	account Account (0..*)
  	partyContractInformation PartyContractInformation (0..*)
 
 .. note:: Attributes within ``Trade`` and ``ContractTradeDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view.

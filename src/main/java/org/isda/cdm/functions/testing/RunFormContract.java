@@ -34,7 +34,7 @@ public class RunFormContract implements ExecutableFunction<TradeState, BusinessE
                 Collections.emptyList(),
                 null,
                 Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-                guard(tradeState.getTrade().getIdentifier()));
+                guard(tradeState.getTrade().getTradeIdentifier()));
 
         return formContract.evaluate(executeBusinessEvent, null);
     }

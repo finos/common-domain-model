@@ -85,7 +85,7 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<TradeSt
                 Collections.emptyList(),
 				null,
 				Optional.ofNullable(contract.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-				guard(contract.getTrade().getIdentifier()));
+				guard(contract.getTrade().getTradeIdentifier()));
 		return corrected;
 	}
 
@@ -109,7 +109,7 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<TradeSt
                 Collections.emptyList(),
 				null,
 				Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-				guard(tradeState.getTrade().getIdentifier()));
+				guard(tradeState.getTrade().getTradeIdentifier()));
 		return newBusinessEvent;
 	}
 

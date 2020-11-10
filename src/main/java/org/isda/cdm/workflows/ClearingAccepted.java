@@ -45,7 +45,7 @@ public class ClearingAccepted implements Function<TradeState, Workflow> {
 		// propose clear step
 		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, alphaContract, party1, party2, externalReference, identifierService);
 
-		Identifier identifier = Optional.ofNullable(alphaContract.getTrade().getIdentifier())
+		Identifier identifier = Optional.ofNullable(alphaContract.getTrade().getTradeIdentifier())
 				.flatMap(ids -> ids.stream().findFirst())
 				.orElse(null);
 		Date tradeDate = Optional.ofNullable(alphaContract.getTrade().getTradeDate())

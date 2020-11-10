@@ -29,7 +29,7 @@ public class RunExecute implements ExecutableFunction<TradeState, BusinessEvent>
                 Collections.emptyList(),
                 null,
                 Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-                guard(tradeState.getTrade().getIdentifier()));
+                guard(tradeState.getTrade().getTradeIdentifier()));
     }
 
     @Override

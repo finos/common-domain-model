@@ -36,7 +36,7 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Tra
                 Collections.emptyList(), 
                 null, 
                 Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-                guard(tradeState.getTrade().getIdentifier()));
+                guard(tradeState.getTrade().getTradeIdentifier()));
 
         LegalAgreement legalAgreement = LegalAgreement.builder()
                 .addContractualPartyRef(guard(tradeState.getTrade().getParty()))

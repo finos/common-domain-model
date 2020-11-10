@@ -46,7 +46,7 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
                 settlementTerm,
                 null,
                 Optional.ofNullable(input.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-                guard(input.getTrade().getIdentifier()));
+                guard(input.getTrade().getTradeIdentifier()));
     }
 
     private TradeState clearCashPayout(TradeState input) {
