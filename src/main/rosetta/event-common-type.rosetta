@@ -186,7 +186,7 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	[rootType]
 	trade Trade (1..1) <"Represents the Trade that has been effected by a business or life-cycle event.">
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
-	observationHistory TradeState (0..*) <"Represents the applicable set of observations related to the Trade from trade's inception.">  // TODO: Migrate to Observation data type in Primitive Harmonisation Phase 2.
+	observationHistory TradeState (0..*) <"Represents the applicable set of observations related to the Trade from trade's inception. The choice of data type TradeState is to support backwards compatibility with the Reset mechanism, which uses the TradeState structure to store reset values. See Create_Reset function for further details on how TradeState is used in the Reset event.">  // TODO: Migrate to ObservationHistory data type in Primitive Harmonisation Phase 2.
 
 type Observation: <"Defines an observed piece of market data, such as a rate fixing, which is applicable to the servicing of a position.">
 	observationDate date (1..1) <"Specifies the date on which the observation was made.">
@@ -216,8 +216,10 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 	contractualRelationships ContractualRelationships (0..1) <"Represents information specific to trades involving contractual products.">
 	    [synonym Workflow_Event value "trade" set when "trade->executionVenue" is absent]
     clearedDate date (0..1) <"Specifies the date on which a trade is cleared (novated) through a central counterparty clearing service.">
+        [deprecated] // TODO: Cleared date is a property of the trade's life-cycle and should be moved into the Event Model.
     collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
 	account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
+	    [deprecated] // TODO: Consider moving to inside party, where there already exists an optional Account attribute.
 
 	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
 		if tradableProduct -> product -> security exists
