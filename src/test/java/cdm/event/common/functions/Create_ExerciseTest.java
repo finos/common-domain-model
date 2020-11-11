@@ -35,22 +35,6 @@ public class Create_ExerciseTest extends AbstractFunctionTest {
 		assertEquals(getJson("expected-physical-exercise-business-event.json"), toJson(businessEvent));
 	}
 
-	@Test
-	void shouldCreateExercise() throws IOException {
-		Contract swaption = getObject(Contract.class,"result-json-files/products/rates/ird-ex09-euro-swaption-explicit-versioned.json");
-
-		BusinessEvent contractFormation = BusinessEvent.builder()
-				.addPrimitivesBuilder(PrimitiveEvent.builder()
-						.setContractFormationBuilder(ContractFormationPrimitive.builder()
-								.setAfterBuilder(PostContractFormationState.builder()
-										.setContract(swaption))))
-				.build();
-
-		BusinessEvent businessEvent = func.evaluate(contractFormation, ExerciseInstruction.builder().build());
-
-		assertEquals(getJson("expected-exercise-business-event.json"), toJson(businessEvent));
-	}
-
 	private String toJson(BusinessEvent businessEvent) throws JsonProcessingException {
 		return RosettaObjectMapper.getNewRosettaObjectMapper()
 				.writerWithDefaultPrettyPrinter()
