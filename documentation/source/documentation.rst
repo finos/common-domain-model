@@ -9,7 +9,6 @@ The Common Domain Model
 * Process
 * Reference Data
 * Mapping (Synonym)
-* Data Templates
 
 The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure. All the Rosetta DSL modelling components that are used to express the CDM are described in the `Rosetta DSL Documentation`_
 
@@ -235,6 +234,17 @@ There are a number of components that are reusable across several payout types. 
    stubPeriodType StubPeriodTypeEnum (0..1)
    calculationPeriodFrequency CalculationPeriodFrequency (0..1)
 
+Data Templates
+""""""""""""""
+
+The ``ContractualProduct`` type is specified with the ``[metadata template]`` annotation indicating that it is eligible to be used as a template.
+
+Financial markets often trade a high volume of contracts with near identical contractual product data. Templates provide a way to store this data more efficiently. The contractual product data which is duplicated on each contract can be extracted into a single template and replaced by a reference. This allows each contract to specify only the unique contractual product data. The template reference can be resolved to a template object which can then be merged in to form a single, complete object.
+
+For instance, Equity Swaps used by Equity Financing desks sometimes refer to a *Master Confirmation* agreement, which is an overall agreement that specifies all the standard Equity Swap terms that do not need to be renegotiated on each trade. Each contractual product would only specify the unique product details (such as start and end date, underlier, price and spread) together with a reference to the Master Confirmation containing the template product details.
+
+Code libraries, written in Java and distributed with the CDM, contain tools to merge CDM objects together.  Implementors may extend these merging tools to change the merging strategy to suit their requirements.  The CDM Java Examples download, available via the `CDM Portal Downloads page <https://portal.cdm.rosetta-technology.io/#/downloads>`_, contains a example demonstrating usage of a data template and the merging tools. See ``com.regnosys.cdm.example.template.TemplateExample``.
+
 
 Products with Identifiers
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -260,7 +270,7 @@ The data types that extend from ProductBase are Index, Commodity, Loan, and Secu
      [metadata scheme]
 
 .. code-block:: Haskell
-   
+
  type Security extends ProductBase:
    securityType SecurityTypeEnum (1..1)
    debtType DebtType (0..1)
@@ -278,7 +288,7 @@ The data types that extend from ProductBase are Index, Commodity, Loan, and Secu
  condition FundSubType:
    if securityType <> SecurityTypeEnum -> Fund
    then fundType is absent
- 
+
 The product identifier will uniquely identify the security.  The ``securityType`` is required for specific purposes in the model, for example for validation as a valid reference obligation for a Credit Default Swap.  The additional security details are optional as these could be determined from a reference database using the product identifier as a key
 
 Product Qualification
@@ -965,7 +975,7 @@ In addition to the Master Agreement are sets of credit support documentation whi
 There are several different types of ISDA credit support document, reflecting variation and initial margin, regulatory requirements and terms for legal relationships under different legal jurisdictions. The key components of the suite of credit support documents are summarized below:
 
 * **Credit Support Annexes (CSAs)** exist in New York, English, Irish, French, and Japanese law forms.  They define the terms for the provision of collateral by the parties in derivatives transactions, and in some cases they are specialized for initial margin or variation margin.
-* **Credit Support Deed CSD (CSD)** is very similar to a CSA, except that it is used to create specific types of legal rights over the collateral under English and Irish law, which requires a specific type of legal agreement (a deed). 
+* **Credit Support Deed CSD (CSD)** is very similar to a CSA, except that it is used to create specific types of legal rights over the collateral under English and Irish law, which requires a specific type of legal agreement (a deed).
 * **The Collateral Transfer Agreement and Security Agreement (CTA and SA)** together define a collateral arrangement where initial margin is posted to a custodian account for use in complying with initial margin requirements. The CTA/SA offers additional flexibility by allowing parties to apply one governing law to the mechanical aspects of the collateral relationship (the CTA) and a different governing law to the grant and enforcement of security over the custodian account (the SA).
 
 In the CDM and in this user documentation, *legal agreement* refers to the written terms of a relationship-level agreement, and *contract* refers to the written terms defining an executed financial transaction.
@@ -975,7 +985,7 @@ Legal Agreements in the CDM
 
 The CDM provides a digital representation of the legal agreements that govern transactions and workflows. The benefits of this digital representation are summarized below:
 
-* **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements. 
+* **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements.
 * **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event model and formally tying legal data to the business outcome and performance of legal clauses. (e.g. in collateral management where lifecycle processes require reference to parameters found in the associated legal agreements, such as the Credit Support Annex).
 * **Supporting the direct implementation of functional processes** by providing a normalised representation of legal agreements as structured data, as opposed to the unstructured data contained of a full legal text that needs to be interpreted first before any implementation (e.g. for a calculation of an amount specified in a legal definition).
 
@@ -999,7 +1009,7 @@ The legal agreement model in the CDM comprises the following features:
 * **Composable and normalised model representation** of the ISDA agreements. The terms of an ISDA agreement can be defined by identification of the published base document, and the elections or amendments made to that base in a specific legal agreement. There are distinct versions of the published agreements for jurisdiction and year of publication, but the set of elections and amendments to those base agreements often belong to a common universe. Therefore, the CDM defines each of these terms in a single location, and allows for the representation of a specific legal agreement by combining terms where appropriate. The following legal agreements are supported in the CDM:
 
   **Initial Margin Agreements**
-  
+
   * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
   * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
   * ISDA 2016 Phase One CSA (Loan – Japanese Law)
@@ -1023,7 +1033,7 @@ The legal agreement model in the CDM comprises the following features:
 
   **Master Agreement Schedule**
 
-  * ISDA 2002 Master Agreement Schedule (Automatic Early Termination Clause only)
+  * ISDA 2002 Master Agreement Schedule (Partial agreement representation)
 
 
 * **Composable and normalised model representation** of the eligible collateral schedule for initial and variation margin into a directly machine readable format.
@@ -1032,28 +1042,28 @@ The legal agreement model in the CDM comprises the following features:
 
 * **Mapping to ISDA Create derivative documentation negotiation platform** : Synonyms identified as belonging to ``ISDA_Create_1_0`` have been defined to establish mappings that support automated transformation of ISDA Create documents into objects that are compliant with the CDM.
 
-  * The mapping between the two models through the use of Synonyms validated that all the necessary permutations of elections and data associated with the supported agreements have been replicated in the CDM 
-  * Ingestion of JSON sample files generated from ISDA Create for samples of executed documents has been implemented in the ISDA CDM Portal to demonstrate this capability between ISDA Create and the CDM.  
+  * The mapping between the two models through the use of Synonyms validated that all the necessary permutations of elections and data associated with the supported agreements have been replicated in the CDM
+  * Ingestion of JSON sample files generated from ISDA Create for samples of executed documents has been implemented in the ISDA CDM Portal to demonstrate this capability between ISDA Create and the CDM.
   * More details on Synonyms are provided in the Mapping (Synonym) section of this document.
 
 .. note:: The CDM supports the ISDA CSA for Variation Margin, but this document is not yet represented in ISDA Create - the CDM representation of this document is tested with alternative external sample data.
 
- 
+
 Design Principles
 """""""""""""""""
 
 The key modelling principles that have been adopted to represent legal agreements are described below:
 
-* **Distinction between the agreement identification features and the agreement content features** 
+* **Distinction between the agreement identification features and the agreement content features**
 
   * The agreement identification features: agreement name, publisher (of the base agreement being used), identification, etc. are represented by the ``LegalAgreementBase`` type.
   * The agreement content features: elections and amendments to the published agreement, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
-   
+
 * **Composite and extendable model**.
 
   * The Legal Agreement model follows the CDM design principles of composability and reusability to develop an extendable model that can support multiple document types.
   * For instance, the ``LegalAgreementBase`` data type uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
-    
+
 * **Normalisation of the data representation**
 
   * Strong data type attributes such as numbers, Boolean, or enumerations are used where possible to create a series of normalised elections within terms used in ISDA documentation and create a data representation of the legal agreement that is machine readable and executable. This approach allows CDM users to define normalised elections into a corresponding legal agreement template to support functional processes.
@@ -1063,16 +1073,18 @@ The components of the legal agreement model specified in the CDM are detailed in
 
 Legal Agreement Data Structure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The ``LegalAgreement`` data type represents the highest-level data type for defining a legal agreement in the CDM.  This data type extends the ``LegalAgreementBase``, which contains information to uniquely identify an agreement. The only non-inherited attribute in the ``LegalAgreement`` is the ``agreementTerms`` which defines all of the content in the agreement.  
+The ``LegalAgreement`` data type represents the highest-level data type for defining a legal agreement in the CDM.  This data type extends the ``LegalAgreementBase``, which contains information to uniquely identify an agreement. There are three non-inherited components to ``LegalAgreement``, as shown in the code snippet below:.
 
 .. code-block:: Haskell
 
-  type LegalAgreement extends LegalAgreementBase: 
+  type LegalAgreement extends LegalAgreementBase:
 	[metadata key]
  	[rootType]
-    agreementTerms AgreementTerms (0..1) 
+    agreementTerms AgreementTerms (0..1)
+    relatedAgreements RelatedAgreement (0..*)
+    umbrellaAgreement UmbrellaAgreement (0..1)
 
-The ``LegalAgreementBase`` and ``agreementTerms`` are defined in the following sections
+The ``LegalAgreementBase``, ``RelatedAgreement``, ``UmbrellaAgreement``, and ``AgreementTerms`` are defined in the following sections.
 
 Agreement Identification
 """"""""""""""""""""""""
@@ -1086,44 +1098,15 @@ The CDM provides support for implementors to uniquely identify a legal agreement
    identifier Identifier (0..*)
    agreementType LegalAgreementType (1..1)
    contractualParty Party (2..2)
-     [metadata reference]
-   otherParty PartyRole (0..*)   
+    [metadata reference]
+   otherParty PartyRole (0..*)
 
 As indicated by the cardinality for the attributes in this data type, all legal agreements must contain an agreement date, two contractual parties, and information indicating the published form of market standard agreement being used (including the name and publisher of the legal agreement being specified in the ``agreementType`` attribute).  Provision is made for further information to be captured, for example an agreement identifier, which is an optional attribute.
-
-Agreement Content
-"""""""""""""""""
-
-``AgreementTerms`` is used to specify the content of a legal agreement in the CDM. There are three components to agreement terms, as shown in the code snippet below:
-
-.. code-block:: Haskell
-
- type AgreementTerms:
-   agreement Agreement (1..1)
-   relatedAgreements RelatedAgreement (0..*)
-   umbrellaAgreement UmbrellaAgreement (0..1)
- 
-The following sections describe each of these components.
-
-Agreement
-"""""""""
-``Agreement`` is a data type used to specify the individual elections contained within the legal agreement. It contains a set of encapsulated data types, each containing the elections used to define a specific group of agreements.
-
-.. code-block:: Haskell
-
- type Agreement:
-   creditSupportAgreementElections CreditSupportAgreementElections (0..1)
-   collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
-   securityAgreementElections SecurityAgreementElections (0..1)
-   masterAgreementSchedule MasterAgreementSchedule (0..1)
-   condition: one-of
-
-The modelling approach for elective provisions is explained in further detail in the corresponding section below.
 
 Related Agreement
 """""""""""""""""
 
-``RelatedAgreement`` is a data type used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.  
+``RelatedAgreement`` is a data type used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.
 
 The below snippet represents the ``RelatedAgreement`` data type.
 
@@ -1132,7 +1115,7 @@ The below snippet represents the ``RelatedAgreement`` data type.
  type RelatedAgreement:
    legalAgreement LegalAgreement (0..1)
    documentationIdentification DocumentationIdentification (0..1)
-   
+
 Through the ``legalAgreement`` attribute the CDM provides support for implementors to do the following:
 
 * Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage, and the agreement date.
@@ -1142,7 +1125,7 @@ Through the ``legalAgreement`` attribute the CDM provides support for implemento
 
 Umbrella Agreement
 """""""""""""""""
-   
+
 ``UmbrellaAgreement`` is a data type used to specify the applicability of Umbrella Agreement terms, relevant specific language, and underlying entities associated with the umbrella agreement.
 
 The below snippet represents the ``UmbrellaAgreement`` data type.
@@ -1154,8 +1137,56 @@ The below snippet represents the ``UmbrellaAgreement`` data type.
    language string (0..1)
    parties UmbrellaAgreementEntity (0..*)
 
+Agreement Content
+"""""""""""""""""
+
+``AgreementTerms`` is used to specify the content of a legal agreement in the CDM. There are two components to agreement terms, as shown in the code snippet below:
+
+.. code-block:: Haskell
+
+ type AgreementTerms:
+   agreement Agreement (1..1)
+   counterparty Counterparty (2..2)
+
+The following sections describe each of these components.
+
+Agreement
+"""""""""
+
+``Agreement`` is a data type used to specify the individual elections contained within the legal agreement. It contains a set of encapsulated data types, each containing the elections used to define a specific group of agreements.
+
+.. code-block:: Haskell
+
+ type Agreement:
+   creditSupportAgreementElections CreditSupportAgreementElections (0..1)
+   collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
+   securityAgreementElections SecurityAgreementElections (0..1)
+   masterAgreementSchedule MasterAgreementSchedule (0..1)
+   condition: one-of
+
+Counterparty
+""""""""""""
+
+Each counterparty to the agreement is assigned an enumerated value of either ``Party1`` or ``Party2`` through the association of a ``CounterpartyEnum`` with the corresponding ``Party``.  The ``CounterpartyEnum`` value is then used to specify elections throughout the rest of the document.
+
+.. code-block:: Haskell
+
+ enum CounterpartyEnum:
+   Party1
+   Party2
+
+.. code-block:: Haskell
+
+ type Counterparty:
+   counterparty CounterpartyEnum (1..1)
+   partyReference Party (1..1)
+    [metadata reference]
+
+The modelling approach for elective provisions is explained in further detail in the corresponding section below.
+
 Elective Provisions
 ^^^^^^^^^^^^^^^^^^^
+
 This section describes the modelling approach and data structure for election provisions, which are the detailed terms of agreement in each legal document.  The section concludes with relevant examples to illustrate the approach and structure.
 
 Modelling Approach
@@ -1163,7 +1194,7 @@ Modelling Approach
 
 In many cases the pre-printed clauses in legal agreement templates for OTC Derivatives offer pre-defined elections that the parties can select. In these cases, the clauses are explicitly identified in the agreement templates, including the potential values for each election (e.g. an election from a list of options or a specific type of information such as an amount, date or city). The design of the elective provisions in the CDM to represent these instances is a direct reflection of the choices in the clause and uses boolean attributes or enumeration lists to achieve the necessary outcome.
 
-However, in some cases, the agreement template may identify a clause but not all the applicable values, e.g. when a single version of a clause term is provided with a space for parties to agree on a term that is not defined in the template. In order to support these instances, the CDM uses string attributes to capture the clause in a free text format.  
+However, in some cases, the agreement template may identify a clause but not all the applicable values, e.g. when a single version of a clause term is provided with a space for parties to agree on a term that is not defined in the template. In order to support these instances, the CDM uses string attributes to capture the clause in a free text format.
 
 Election Structure
 """"""""""""""""""
@@ -1228,45 +1259,45 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
    trustSchemeAddendum boolean (1..1)
 
 .. note:: Validation exists in the model to ensure that the set of elections specified within the ``Agreement`` are consistent with the agreement identified as part of ``LegalAgreementBase``.  The below snippet represents a sample of a validation condition:
-  
+
 .. code-block:: Haskell
 
  condition agreementVerification:
    if agreementTerms -> agreement -> securityAgreementElections exists
    then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
-   
+
 The validation in this case requires that if the ``securityAgreementElections`` attribute is populated, then the value in ``LegalAgreementNameEnum`` must be ``SecurityAgreement`` .
 
 Selected examples from two of the agreement data types are explained in the following sections to illustrate the overall approach.
 
-Elective Provisions Example 1: Posting Obligations 
+Elective Provisions Example 1: Posting Obligations
 """""""""""""""""""""""""""""""""""""""""""""""""""
 ``postingObligations`` is one of the required attributes in ``CreditSupportAgreementElections`` .  It defines the security provider party to which a set of posting obligations applies and the applicable collateral posting obligations as indicated in the data structure shown below:
-  
+
 .. code-block:: Haskell
 
- type PostingObligations: 
+ type PostingObligations:
    securityProvider string (1..1)
-   partyElection PostingObligationsElection (1..2) 
-	
+   partyElection PostingObligationsElection (1..2)
+
 The ``partyElection`` attribute, which is of the type partyElection ``PostingObligationsElection`` defines the party that the collateral posting obligations apply to and defines the collateral that is eligible, as shown below:
-	  
+
 .. code-block:: Haskell
 
- type PostingObligationsElection: 
-   party string (1..1) 
-   asPermitted boolean (1..1) 
-   eligibleCollateral EligibleCollateral (0..*) 
-   excludedCollateral string (0..1)  
+ type PostingObligationsElection:
+   party CounterpartyEnum (1..1)
+   asPermitted boolean (1..1)
+   eligibleCollateral EligibleCollateral (0..*)
+   excludedCollateral string (0..1)
    additionalLanguage string (0..1)
-  
+
 .. note:: In order to provide compatibility with ISDA Create the ``party`` attribute in CDM is represented as a string.  Implementors should populate this field with ``PartyA`` , ``PartyB`` , or ``PartyAPartyB`` as appropriate to represent the party that the election terms are being defined for.
 
 The development of a digital data standard for representation of eligible collateral schedules is a crucial component required to drive digital negotiation, straight through processing, and digitisation of collateral management. The standard representation provided within the CDM allows institutions involved in the collateral workflow cycle to exchange eligible collateral information accurately and efficiently in digital form.  The ``EligibleCollateral`` data type is a root type with one attribute, as shown below:
 
 .. code-block:: Haskell
 
- type EligibleCollateral: 
+ type EligibleCollateral:
  [rootType]
    criteria EligibleCollateralCriteria (1..*)
 
@@ -1284,7 +1315,7 @@ The following code snippets represent these three components of the eligible col
    issuer IssuerCriteria (0..*)
    asset AssetCriteria (0..*)
    treatment CollateralTreatment (1..1)
-	
+
 .. code-block:: Haskell
 
  type IssuerCriteria:
@@ -1295,7 +1326,7 @@ The following code snippets represent these three components of the eligible col
    issuerAgencyRating AgencyRatingCriteria (0..*)
    sovereignAgencyRating AgencyRatingCriteria (0..*)
    counterpartyOwnIssuePermitted boolean (0..1)
-	
+
 .. code-block:: Haskell
 
  type AssetCriteria:
@@ -1338,7 +1369,7 @@ The ``SecurityAgreementElections`` data type is another one of the four agreemen
    additionalAmendments string (0..1)
    additionalBespokeTerms string (0..1)
    executionTerms ExecutionTerms (0..1)
-	
+
 Depending on the agreement being specified, a different combination of attributes would be used when specifying the agreement. The cardinality of each attribute allows the appropriate combination to be provided dependent on the agreement.
 
 An equivalent approach is followed for ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.
@@ -1393,7 +1424,7 @@ This set of elections in ``CreditSupportObligations`` is modelled to directly re
    rounding CollateralRounding (0..1)
    bespokeTransferTiming BespokeTransferTiming (0..1)
    creditSupportObligationsVariationMargin CreditSupportObligationsVariationMargin (0..1)
-	
+
 Each attribute is modelled based on the corresponding clause in the relevant legal agreement templates.  Therefore, each provides the necessary components to reflect the election structure. For example the attribute ``rounding`` is of data type ``CollateralRounding`` which allows the specification of rounding terms for the Delivery Amount and the Return Amount, as shown below:
 
 .. code-block:: Haskell
@@ -1950,35 +1981,3 @@ Those synonym sources are listed as part of a configuration file in the CDM usin
 
 .. _serialised: https://en.wikipedia.org/wiki/Serialization
 .. _data modelling: https://en.wikipedia.org/wiki/Cardinality_(data_modeling)#Application_program_modeling_approaches
-
-Data Templates
---------------
-
-Data templates provide a way to store data which is duplicated across multiple CDM objects in a single referenced template.
-
-One of the driving use-cases for templates in the CDM is Equity Swaps due to the high volume of contracts with near identical product details from Equity Financing desks.  The product details which are duplicated on each contract can be extracted into a single product template, and each contract can then specify a reference to that template.  Each contract would only specify the unique product details, which can be merged with the template product details to form a fully specified object.  In the business domain the same is achieved via master confirmation or portfolio swap agreements which can be bespoke or standard, or via clients having standard term sheets agreed and sitting with sales desks to be used when writing all future deals (a working practice which has parallels in almost every asset class).
-
-Model Changes
-^^^^^^^^^^^^^
-
-The annotation type ``[metadata template]`` has been added to the model.  This annotation indicates that a data type is eligible to be used as a template.
-
-The designation applies to all encapsulated types in that data type.  For example, currently, the only date type in the model that has been assigned this new annotation is ``ContractualProduct``.  The designation of template eligibility also applies to ``EconomicTerms`` which is an encapsulated type in ``ContractualProduct``, and also likewise applies to ``Payout`` which is an encapsulated type in ``EconomicTerms``.
-
-Other than the new annotation, data templates do not have any impact on the model, i.e. no new types, attributes, or conditions.
-
-.. code-block:: Haskell
-
- type ContractualProduct:
-   [metadata key]
-   [metadata template]
-   productIdentification ProductIdentification (0..1)
-   productTaxonomy ProductTaxonomy (0..*)
-   economicTerms EconomicTerms (1..1)
-
-Merging Utilities and Examples
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Once a template reference has been resolved, it will be necessary to merge the template data to form a single fully populated object.  The CDM distribution includes code libraries, written in Java, that can merge the data from two objects into one.  These utilities can be extended by implementors to change the merging strategy to meet their requirements.
-
-The CDM Java Examples download, available via the CDM Portal Downloads page, contains a example demonstrating usage of a data template and the merging utilities.  See ``com.regnosys.cdm.example.template.TemplateExample``.
