@@ -371,33 +371,42 @@ func Qualify_InterestRate_Fra:
 		and eTerms -> payout -> cashflow is absent
 		and EffectiveDateContainsPaymentDate(eTerms) = True
 
-func Qualify_ForeignExchange:
+func Qualify_ForeignExchange: <"Qualifies a product as Foreign Exchange based on economic terms, which is defined as an agreement to buy one currency against the delivery of another currency at a rate set on the trade date for settlement on a specified date in the future.  Dependent on conventions specific to local markets the product could be considered either Spot or Forward.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Forward"]
 			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Spot"]
+			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Forward"]
+			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Spot"]
 	assign-output is_product:
-		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange exists and
+		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange only exists and
 		economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
 
-func Qualify_ForeignExchange_NDF:
+func Qualify_ForeignExchange_NDF: <"Qualifies a product as Foreign Exchange Non-Deliverable Forward based on economic terms, which is defined as a Forward transaction where the notional amount of one of the currencies (the “reference currency”) is converted into the other currency (the “settlement currency”) at a spot foreign exchange rate that is observed on a valuation date prior to the settlement date, and a single net payment in the settlement currency is made on the settlement date. No payment or account transfer takes place in the reference currency.">
 	[qualification Product]
+
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_NDF"]
+			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_NDF"]
 	assign-output is_product:
 		economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms exists
+		and economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange only exists
 
-func Qualify_ForeignExchangeVanillaOption: <"Qualifies a product as a FX Plain Vanilla Option based on economic terms.">
+func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Vanilla Option based on economic terms, which is defined as one where 1) exercise style is American or European style only, and 2) does not contain any feature like Forward Starting Strike or Performance payout.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-			[synonym ISDA_Taxonomy_v1 value "ForeignExchange:VanillaOption"]
+			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_VanillaOption"]
+			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_VanillaOption"]
 	assign-output is_product:
 		economicTerms -> payout -> optionPayout exists
 		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> foreignExchange only exists
+		and	(economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
+			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists)
 		and economicTerms -> payout -> optionPayout -> feature is absent
+
 
 func Qualify_RepurchaseAgreement:
 	[qualification Product]
