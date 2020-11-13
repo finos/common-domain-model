@@ -371,7 +371,19 @@ func Qualify_InterestRate_Fra:
 		and eTerms -> payout -> cashflow is absent
 		and EffectiveDateContainsPaymentDate(eTerms) = True
 
-func Qualify_ForeignExchange: <"Qualifies a product as Foreign Exchange based on economic terms, which is defined as an agreement to buy one currency against the delivery of another currency at a rate set on the trade date for settlement on a specified date in the future.  Dependent on conventions specific to local markets the product could be considered either Spot or Forward.">
+// func Qualify_ForeignExchange: <"Qualifies a product as Foreign Exchange based on economic terms, which is defined as an agreement to buy one currency against the delivery of another currency at a rate set on the trade date for settlement on a specified date in the future.  Dependent on conventions specific to local markets the product could be considered either Spot or Forward.">
+// 	[qualification Product]
+// 	inputs: economicTerms EconomicTerms (1..1)
+// 	output: is_product boolean (1..1)
+// 			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Forward"]
+// 			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Spot"]
+// 			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Forward"]
+// 			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Spot"]
+// 	assign-output is_product:
+// 		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange only exists and
+// 		economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
+
+func Qualify_ForeignExchange_Spot_Forward: <"Qualifies a product as Foreign Exchange based on economic terms, which is defined as an agreement to buy one currency against the delivery of another currency at a rate set on the trade date for settlement on a specified date in the future.  Dependent on conventions specific to local markets the product could be considered either Spot or Forward.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
@@ -381,7 +393,22 @@ func Qualify_ForeignExchange: <"Qualifies a product as Foreign Exchange based on
 			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Spot"]
 	assign-output is_product:
 		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange only exists and
-		economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
+		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange count = 1
+		and economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
+
+func Qualify_ForeignExchange_Swap: <"Qualifies a product as Foreign Exchange Swap based on economic terms, which is defined as a contract in which one party borrows one currency from, and simultaneously lends another to, the second party. Each party uses the repayment obligation to its counterparty as collateral and the amount of repayment is fixed at the FX forward rate as of the start of the contract.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Forward"]
+			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Spot"]
+			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Forward"]
+			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Spot"]
+	assign-output is_product:
+		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange only exists and
+		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange count = 2
+		and economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
+
 
 func Qualify_ForeignExchange_NDF: <"Qualifies a product as Foreign Exchange Non-Deliverable Forward based on economic terms, which is defined as a Forward transaction where the notional amount of one of the currencies (the “reference currency”) is converted into the other currency (the “settlement currency”) at a spot foreign exchange rate that is observed on a valuation date prior to the settlement date, and a single net payment in the settlement currency is made on the settlement date. No payment or account transfer takes place in the reference currency.">
 	[qualification Product]
@@ -391,8 +418,9 @@ func Qualify_ForeignExchange_NDF: <"Qualifies a product as Foreign Exchange Non-
 			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_NDF"]
 			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_NDF"]
 	assign-output is_product:
-		economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms exists
-		and economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange only exists
+		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange only exists and
+		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange count = 1
+		and economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms exists
 
 func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Vanilla Option based on economic terms, which is defined as one where 1) exercise style is American or European style only, and 2) does not contain any feature like Forward Starting Strike or Performance payout.">
 	[qualification Product]
@@ -405,8 +433,8 @@ func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Va
 		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> foreignExchange only exists
 		and	(economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
 			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists)
-		and economicTerms -> payout -> optionPayout -> feature is absent
-
+		and (economicTerms -> payout -> optionPayout -> feature is absent
+			or economicTerms -> payout -> optionPayout -> feature -> averagingRateFeature only exists)
 
 func Qualify_RepurchaseAgreement:
 	[qualification Product]
