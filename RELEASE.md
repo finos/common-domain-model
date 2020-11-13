@@ -4,9 +4,9 @@ _What is being released_
 
 * Additional FX ingestion samples have been added to demonstrate CDM support for FX Swaps, FX Options, and FX Options with Averaging Schedules.
 * Qualification functions have been updated in the model to:
-- support explicit qualification of Spot / Forward trades (func Qualify_ForeignExchange_Spot_Forward)
-- support FX Options and other Options with Averaging Schedules (func Qualify_ForeignExchange_VanillaOption)
-- support FX Swaps (e.g. Spot-Forward, Forward-Forward) (func Qualify_ForeignExchange_Swap)
+    - support explicit qualification of Spot / Forward trades (func Qualify_ForeignExchange_Spot_Forward)
+    - support FX Options and other Options with Averaging Schedules (func Qualify_ForeignExchange_VanillaOption)
+    - support FX Swaps (e.g. Spot-Forward, Forward-Forward) (func Qualify_ForeignExchange_Swap)
 * Further synonym mappings have been added to synonym-cdm-fpml to enable ingestion of the additional ingestion samples. 
 
 _Review Directions_
