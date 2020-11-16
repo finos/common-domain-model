@@ -2,7 +2,7 @@
 
 _What is being released_
 
-- Include all CDM library source code in the CDM downloadable distribution. 
+- Include all Rosetta source files in the CDM downloadable distribution. 
 
 _Review Directions_
 
