@@ -123,8 +123,20 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 	instructionFunction string (1..1) <"Name of the function that will be called">
 	allocation AllocationInstruction (0..1) <"Instruction to allocate">
 	clearing ClearingInstruction (0..1) <"Instruction to clear">
+	requiredResponders Party (0..*) <"Parties required to respond with an InstructionResponse">
 
 	condition OneOfInstruction: required choice allocation, clearing
+
+type InstructionResponse: <"A response that either approves or rejects an instruction">
+	[metadata key]
+	[rootType]
+	approved boolean (1..1) <"Flag whether the instruction is approved">
+	party Party (1..1) <"Party responding to the instruction">
+	rejectedReason string (0..1) <"Optional reason for rejecting the instruction">
+	timestamp EventTimestamp (1..1) <"Timestamp of the response">
+	// TODO: Decide if this should reference a WorkflowStep or an Instruction
+	workflowStep WorkflowStep (1..1) <"Reference to the workflow step containing the instruction being responded to">
+		[metadata reference]
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
