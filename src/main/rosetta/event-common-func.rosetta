@@ -229,7 +229,7 @@ func Qualify_ClearingSubmission: <"The submission of a contract to a CCP, which 
 		)
 		and (
 			businessEvent -> primitives -> termsChange -> after -> trade -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
-			or businessEvent -> primitives -> termsChange -> after -> trade -> contractualRelationships -> partyContractInformation -> relatedParty -> role = PartyRoleEnum -> ClearingOrganization
+			or businessEvent -> primitives -> termsChange -> after -> trade -> contractDetails -> partyContractInformation -> relatedParty -> role = PartyRoleEnum -> ClearingOrganization
 			or businessEvent -> primitives -> termsChange -> after -> trade -> partyRole -> role = PartyRoleEnum -> ClearingOrganization
 		)
 
@@ -615,7 +615,7 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 		preSplitPrices only-element / instruction -> adjustmentRatio
 
 	condition:
-		instruction -> tradeState -> trade -> contractualRelationships exists
+		instruction -> tradeState -> trade -> contractDetails exists
 
 	assign-output businessEvent -> primitives -> quantityChange: <"Build QuantityChangePrimitive and add to WorkflowStep.">
 		Create_QuantityChangePrimitive(instruction -> tradeState, empty, postSplitNumberOfShares)
@@ -764,7 +764,7 @@ func Create_ContractFormationPrimitive: <"Function specification to create the p
 	assign-output trade -> party: <"Assign the party input to the execution object.">
 		execution -> party
 
-	assign-output trade -> contractualRelationships -> documentation -> legalAgreement: <"When an overlaying legal agreement exists, the contract must reference it.">
+	assign-output trade -> contractDetails -> documentation -> legalAgreement: <"When an overlaying legal agreement exists, the contract must reference it.">
 		if legalAgreement exists
 		then Create_LegalAgreementWithPartyReference(legalAgreement -> agreementTerms, legalAgreement -> agreementDate, legalAgreement -> effectiveDate, legalAgreement -> identifier, /*legalAgreement -> lineage,*/ legalAgreement -> agreementType, legalAgreement -> contractualParty, legalAgreement -> otherParty)
 
@@ -1015,7 +1015,7 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 
 	post-condition: <"The input and output types need to be consistent, if we started with an Execution, we should end with an Execution, likewise with Contract.">
 		if quantityChangePrimitive -> before -> trade -> executionDetails exists then quantityChangePrimitive -> after -> trade -> executionDetails exists
-			and if quantityChangePrimitive -> before -> trade -> contractualRelationships exists then quantityChangePrimitive -> after -> trade -> contractualRelationships exists
+			and if quantityChangePrimitive -> before -> trade -> contractDetails exists then quantityChangePrimitive -> after -> trade -> contractDetails exists
 
 func Create_PriceChangePrimitive:
 	[creation PrimitiveEvent]
@@ -1059,18 +1059,18 @@ func TerminateContract: <"Function specification for a contract termination wher
 		tradeState -> trade -> tradableProduct -> priceNotation
 	assign-output terminatedContract -> trade -> collateral:
 		tradeState -> trade -> collateral
-	assign-output terminatedContract -> trade -> contractualRelationships -> documentation:
-		tradeState -> trade -> contractualRelationships -> documentation
-	assign-output terminatedContract -> trade -> contractualRelationships -> governingLaw:
-		tradeState -> trade -> contractualRelationships -> governingLaw
+	assign-output terminatedContract -> trade -> contractDetails -> documentation:
+		tradeState -> trade -> contractDetails -> documentation
+	assign-output terminatedContract -> trade -> contractDetails -> governingLaw:
+		tradeState -> trade -> contractDetails -> governingLaw
 	assign-output terminatedContract -> trade -> party:
 		tradeState -> trade -> party
 	assign-output terminatedContract -> trade -> account:
 		tradeState -> trade -> account
 	assign-output terminatedContract -> trade -> partyRole:
 		tradeState -> trade -> partyRole
-	assign-output terminatedContract -> trade -> contractualRelationships -> partyContractInformation:
-		tradeState -> trade -> contractualRelationships -> partyContractInformation
+	assign-output terminatedContract -> trade -> contractDetails -> partyContractInformation:
+		tradeState -> trade -> contractDetails -> partyContractInformation
 
 	assign-output terminatedContract -> state -> closedState -> state: <"Set the closed state on the terminatedContract">
 		ClosedStateEnum -> Terminated
