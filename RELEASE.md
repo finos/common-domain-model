@@ -1,11 +1,13 @@
-# *Bugfix Product Qualification Example & Minor Documentation Update*
+# *Infrastructure: Distribute Source Code*
 
 _What is being released_
 
-* Bugfix. Fixed the Qualification Java example to make use of the latest CDM Java APIs and additionally indicates where the qualification values should be stored on the CDM object. Added automated tests for several examples to catch code-level failures prior to releases. 
-* Documentation Update. Clarification of record types were added to the Rosetta DSL documentation. 
+- Include all Rosetta source files in the CDM downloadable distribution. 
 
 _Review Directions_
 
-* Bugfix. In the CDM Portal, in the Downloads section, download the CDM Java examples pack and inspect Qualification.java.
-* Documentation Update. See documentation at docs.rosetta-technology.io/dsl/documentation.html#syntax
+In the CDM Portal Downloads page, download the ISDA CDM as Java distribution and review contents in folder `lib/dependencies`.  The sources code is now provided for the following CDM dependencies:
+
+- `rosetta-common`
+- `com.regnosys.rosetta.lib`
+- `com.regnosys.rosetta.blueprints`
