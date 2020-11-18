@@ -768,6 +768,63 @@ func Create_ContractFormationPrimitive: <"Function specification to create the p
 		if legalAgreement exists
 		then Create_LegalAgreementWithPartyReference(legalAgreement -> agreementTerms, legalAgreement -> agreementDate, legalAgreement -> effectiveDate, legalAgreement -> identifier, /*legalAgreement -> lineage,*/ legalAgreement -> agreementType, legalAgreement -> contractualParty, legalAgreement -> otherParty)
 
+func Create_Exercise: <"Constructs the business event that represents the exercise of an option in a pre-existing contractual product.">
+	[creation BusinessEvent]
+	inputs:
+		previousEvent BusinessEvent (1..1) <"Specifies the previous business event representing the state of a previously formed contractual product with an option payout. It is required that the description of the contractual product be contained within the previous business event, i.e. its lineage must contain the formation of a contractual product.">
+		exerciseInstruction ExerciseInstruction (1..1) <"Specifies the information required to communicate the choices made by the exercising party in accordance with the economic terms of the contractual product.">
+	
+	output:
+		exerciseEvent BusinessEvent(1..1) <"Produces the business event composed of primitive events describing the transfer, termination, or formation of new contracts as a result of the input exercise instruction.">
+	
+	alias contractState: <"Extracts the original state of the contractual product prior to executing the exercise decision.">
+		ExtractContractState( previousEvent )
+	
+	alias tradableProduct: <"Extracts the originally traded product.">
+		contractState -> contract -> tradableProduct
+		
+	alias optionPayout: <"Extracts the option payout.">
+		tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> optionPayout only-element
+	
+	alias exerciseTerms: <"Extracts the exercise terms provided as part of the original contract. Requires that the original contract contains an option payout.">
+		optionPayout -> exerciseTerms
+	
+	alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout.">
+		optionPayout -> underlier -> underlyingProduct
+	
+	alias execution: <"Creates the execution primitive describing the exchange of the underlying product, either as a cash transfer or as the formation of a new contractual product between parties.">
+		Create_ExecutionPrimitive( underlier,
+			tradableProduct -> quantityNotation, 
+			tradableProduct -> priceNotation, 
+			tradableProduct -> counterparties, 
+			tradableProduct -> relatedParties,
+			contractState -> contract -> party, 
+			contractState -> contract -> partyRole,
+			empty, /*settlementTerms*/
+			empty, /*executionType*/
+			contractState -> contract -> tradeDate,
+			contractState -> contract -> contractIdentifier ) -> after -> execution
+	
+	condition: <"Requires that the original contract must contain a state corresponding to a contractual product.">
+		contractState exists
+	
+	condition: <"Requires that the original contract contains an option payout.">
+		optionPayout exists
+	
+	assign-output exerciseEvent -> primitives -> quantityChange -> before -> contract: <"Creates a quantity change primitive indicating that the original contract's optionality has been exhausted. Note that this currently assumes there is a single option in the contractual product that is fully exercised.">
+		contractState -> contract
+	
+	assign-output exerciseEvent -> primitives -> quantityChange -> after -> contract: <"Creates a new contract within the quantity change primitive's after state equivalent to the original contract with the quantity set to zero, assuming there's a single option in the original financial contract that is fully exercised.">
+		TerminateContract( contractState -> contract )
+	
+	assign-output exerciseEvent -> primitives -> contractFormation: <"Creates a new contract formation primitive delivering the underlying financial product to the exercising party if physical settlement was mandated by the contract.">
+		if exerciseTerms -> settlement -> physicalSettlementTerms exists then
+			Create_ContractFormationPrimitive( execution, empty  /*legalAgreement*/ )
+	
+	assign-output exerciseEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the underlying financial product to the exercising party if cash settlement was mandated by the contract.">
+		if exerciseTerms -> settlement -> cashSettlementTerms exists then
+			Create_TransferPrimitive( execution )
+
 func Create_Reset:
 	[creation BusinessEvent]
 	inputs:
