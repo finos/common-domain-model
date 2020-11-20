@@ -608,7 +608,7 @@ type ExecutionPrimitive: <"Defines the primitive event for an execution, with 'a
 	condition:
 		after -> trade -> executionDetails exists
 
-type ContractFormationPrimitive: <"Defines the primitive event that represents an executed trade for a contractual product that has been affirmed (or confirmed) by the two parties. The 'after' attribute is of data type 'TradeState', which via 'Trade' and 'ContractDetails' data types, contain an optional reference to a 'RelatedAgreeemnt', such as a Master Agreement.  If both 'after' and 'before' attributes exist, then both must have identical TradableProduct values.">
+type ContractFormationPrimitive: <"Defines the primitive event that represents an executed trade that has been affirmed (or confirmed) by the two parties. If both 'after' and 'before' attributes exist, then both must have identical TradableProduct values.">
 
 	before TradeState (0..1) <"Represents the output of an execution between the parties.">
 		[metadata reference]
@@ -617,14 +617,9 @@ type ContractFormationPrimitive: <"Defines the primitive event that represents a
 	after TradeState (1..1) <"Represents the new contract being formed between the parties.">
 		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
-	condition: <"Ensures that contracutal relationships have been added to the trade. ">
-		after -> trade -> contractDetails exists
-
 	condition: <"The quantity should be unchanged.">
-		before -> trade -> tradableProduct -> quantityNotation = after -> trade -> tradableProduct -> quantityNotation
-
-	condition: <"The price should be unchanged.">
-		before -> trade -> tradableProduct -> priceNotation = after -> trade -> tradableProduct -> priceNotation
+		if before exists then
+		before -> trade -> tradableProduct = after -> trade -> tradableProduct
 
 type SplitPrimitive: <"Defines the primitive event to represent a split/allocation of a trade. Where executions are being split, each split execution can be transformed into a contract by additionally using the Contract Formation primitive.">
 
