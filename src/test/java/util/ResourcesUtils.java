@@ -11,8 +11,13 @@ import java.nio.charset.Charset;
 public class ResourcesUtils {
 
 	public static <T extends RosettaModelObject> T getObject(Class<T> clazz, String resourceName) throws IOException {
+		String json = getJson(resourceName);
+		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, clazz);
+	}
+
+	public static String getJson(String resourceName) throws IOException {
 		URL url = Resources.getResource(resourceName);
 		String json = Resources.toString(url, Charset.defaultCharset());
-		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, clazz);
+		return json;
 	}
 }

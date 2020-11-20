@@ -14,7 +14,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.setIsoCurrency;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.*;
 
 /**
  * ISDA Create mapping processor.
@@ -40,10 +42,7 @@ public class SimmCalculationCurrencyMappingProcessor extends MappingProcessor {
 		CalculationCurrencyElection.CalculationCurrencyElectionBuilder calculationCurrencyElectionBuilder = CalculationCurrencyElection.builder();
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_use_base_currency"),
-				(value) -> {
-					calculationCurrencyElectionBuilder.setParty(party);
-					calculationCurrencyElectionBuilder.setIsBaseCurrency(Boolean.valueOf(value));
-				});
+				(value) -> calculationCurrencyElectionBuilder.setParty(toCounterpartyEnum(party)).setIsBaseCurrency(Boolean.valueOf(value)));
 
 		setValueAndOptionallyUpdateMappings(synonymPath.addElement(party + "_use_other_currency"),
 				(value) -> setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, calculationCurrencyElectionBuilder::setCurrency, value),

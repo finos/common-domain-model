@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
 
 /**
  * ISDA Create mapping processor.
@@ -35,7 +36,7 @@ public class ControlAgreementMappingProcessor extends MappingProcessor {
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_" + synonymPath.getLastElement().getPathName()),
 				(value) -> {
-					controlAgreementElections.setParty(party);
+					controlAgreementElections.setParty(toCounterpartyEnum(party));
 					yesNoToBoolean(value).ifPresent(controlAgreementElections::setControlAgreementAsCsd);
 				});
 

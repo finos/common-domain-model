@@ -11,7 +11,10 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
 
 class RegimeMappingHelper {
 
@@ -35,10 +38,8 @@ class RegimeMappingHelper {
 		// only one suffix should exist
 		SUFFIXES.forEach(suffix -> {
 			setValueAndUpdateMappings(regimePath.addElement(party + suffix, index),
-					(value) -> getEnumValue(synonymToExceptionEnumMap, value, ExceptionEnum.class).ifPresent(enumValue -> {
-						regimeTermsBuilder.setParty(party);
-						regimeTermsBuilder.setIsApplicable(enumValue);
-					}),
+					(value) -> getEnumValue(synonymToExceptionEnumMap, value, ExceptionEnum.class).ifPresent(
+							enumValue -> regimeTermsBuilder.setParty(toCounterpartyEnum(party)).setIsApplicable(enumValue)),
 					mappings, path);
 
 			setValueAndUpdateMappings(regimePath.addElement(party + suffix + "_specify", index),

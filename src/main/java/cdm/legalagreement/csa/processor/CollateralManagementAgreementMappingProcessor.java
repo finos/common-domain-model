@@ -11,7 +11,8 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
 
 /**
  * ISDA Create mapping processor.
@@ -34,10 +35,7 @@ public class CollateralManagementAgreementMappingProcessor extends MappingProces
 		CollateralManagementAgreementElection.CollateralManagementAgreementElectionBuilder electionBuilder = CollateralManagementAgreementElection.builder();
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
-				(value) -> {
-					electionBuilder.setParty(party);
-					electionBuilder.setCollateralManagementAgreement(value);
-				});
+				(value) -> electionBuilder.setParty(toCounterpartyEnum(party)).setCollateralManagementAgreement(value));
 
 		return electionBuilder.hasData() ? Optional.of(electionBuilder.build()) : Optional.empty();
 	}
