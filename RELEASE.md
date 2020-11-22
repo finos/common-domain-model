@@ -4,7 +4,7 @@ _What is being released_
 
 Phase 1 of work to harmonise Primitive events such that all Primitives use the `TradeState` data type to represent it's before and after state.
 
-Harmonisation will allow for easier combination of Primitves to form  complex business events. Migraqting before and after states to use the same data type means no need for data translations when combining Primitives. 
+Harmonisation will allow for easier combination of Primitives to form  complex business events. Migrating before and after states to use the same data type means no need for data translations when combining Primitives. 
 
 Whilst data translation can be addressed in the Function Model, defining the correct data types correctly, upfront in the Data Model removes the need for additional complexity. 
 
@@ -35,4 +35,4 @@ The following Primitives have been harmonised as a result of creating the `Trade
 
 _Review Directions_
 
-- In the CDM Portal, use the Textual Browser or Graphical Navifator to review the type `TradeState`.
+- In the CDM Portal, use the Textual Browser or Graphical Navigator to review the type `TradeState`.
