@@ -38,8 +38,8 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 		+ accountReference
 			[value "accountReference" meta "href"]
 
-	Contract:
-		+ contractIdentifier
+	Trade:
+		+ tradeIdentifier
 			[value "universalSwapIdentifier" path "trade->tradeHeader"]
 		- account
 
@@ -59,6 +59,8 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 			[value "header" path "clearingConfirmed"]
 		+ account
 			[value "account" path "clearingConfirmed"]
+		+ creditLimitInformation
+		    [value "creditLimitInformation" path "clearingConfirmed->trade->tradeHeader"]
 
 	BusinessEvent:
 		+ eventDate
@@ -119,10 +121,6 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 		+ sentTo
 			[value "sendTo" meta "messageAddressScheme"]
 
-	PostContractFormationState:
-		+ creditLimitInformation
-			[value "creditLimitInformation" path "trade->tradeHeader"]
-
     enums
 
 	CategoryEnum:
@@ -161,20 +159,17 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 	TermsChangePrimitive:
 		+ before
 			[value "ignore"]
-
-//	TradeDate:
-//		+ date
-//			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
+		+ after
+		    [value "TrdCaptRpt"]
 
 	AssignedIdentifier:
 		+ identifier
 			[value "RptID" path "TrdCaptRpt"]
 
-	Contract:
-		+ contractIdentifier
+	Trade:
+		+ tradeIdentifier
 			[value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
 		+ tradeDate
-//			[value "tradeHeader" path "Instrmt->SecXML->FpML->trade"]
 			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
 		- tradableProduct
 		+ tradableProduct
@@ -182,18 +177,11 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 		+ party
 			[value "party" path "Instrmt->SecXML->FpML"]
 
-	Execution:
+	ExecutionDetails:
 		+ executionType
 			[value "VenuTyp"]
-		+ identifier
-			[value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
-		+ tradeDate
-			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
-		- tradableProduct
-		+ tradableProduct
-			[value "trade" path "Instrmt->SecXML->FpML" mapper "CmeParty"]
-		+ party
-			[value "party" path "Instrmt->SecXML->FpML"]
+		+ executionVenue
+		    [value "Hdr" set when "VenuTyp" exists]
 
 	Payout:
 		+ equityPayout
@@ -213,14 +201,14 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 
 	LegalEntity:
 		+ name
-			[value "SID" path "Hdr"]
+			[value "SID"]
 
 	Party:
 		+ name
 			[value "SID" path "Hdr"]
 
 	ContractState:
-		+ contract
+		+ trade
 			[value "FpML" path "Instrmt->SecXML"]
 
 	CustomisedWorkflow:
@@ -268,12 +256,6 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 	PartyCustomisedWorkflow:
 		+ partyName
 			[value "ID" path "Pty"]
-
-	Trade:
-		+ execution
-			[value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" exists]
-		+ contract
-			[value "TrdCaptRpt" set when "TrdCaptRpt->VenuTyp" is absent]
 
 	TradeWarehouseWorkflow:
 		+ partyCustomisedWorkflow

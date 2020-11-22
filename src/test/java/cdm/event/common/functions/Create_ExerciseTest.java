@@ -1,7 +1,6 @@
 package cdm.event.common.functions;
 
 import cdm.event.common.*;
-import cdm.legalagreement.contract.Contract;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
@@ -21,13 +20,12 @@ public class Create_ExerciseTest extends AbstractFunctionTest {
 
 	@Test
 	void shouldCreatePhysicalExercise() throws IOException {
-		Contract swaption = getObject(Contract.class,"result-json-files/products/rates/ird-ex09-euro-swaption-explicit-physical-exercise.json");
+		TradeState swaption = getObject(TradeState.class,"result-json-files/products/rates/ird-ex09-euro-swaption-explicit-physical-exercise.json");
 
 		BusinessEvent contractFormation = BusinessEvent.builder()
 				.addPrimitivesBuilder(PrimitiveEvent.builder()
 					.setContractFormationBuilder(ContractFormationPrimitive.builder()
-						.setAfterBuilder(PostContractFormationState.builder()
-							.setContract(swaption))))
+						.setAfter(swaption)))
 				.build();
 
 		BusinessEvent businessEvent = func.evaluate(contractFormation, ExerciseInstruction.builder().build());

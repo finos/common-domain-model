@@ -1728,31 +1728,38 @@ synonym source FpML_5_10 extends FpML
 		+ paymentDelay
 			[value "paymentDelay" path "trade->creditDefaultSwap->feeLeg"]
 
-	Contract:
-		[meta "id" path "trade"]
-		+ contractIdentifier
+    TradeState:
+        [meta "id" path "trade"]
+        + observationHistory
+            [value "ignore"]
+
+	Trade:
+		+ tradeIdentifier
 			[value "partyTradeIdentifier" path "trade->tradeHeader"]
 		+ tradeDate
 			[value "tradeDate" meta "id"]
-			[value "tradeDate" path "trade->tradeHeader" meta "id"]
-		+ clearedDate
-			[value "clearedDate" path "trade->tradeHeader"]
-			[value "clearedDate" path "tradeHeader"]
+            [value "tradeDate" path "trade->tradeHeader" meta "id"]
 		+ tradableProduct
 			[value "trade" mapper "Party"]
-		+ collateral
-			[value "collateral" path "trade"]
-			[value "collateral"]
+		+ party
+			[value "party"]
+	    + clearedDate
+            [value "clearedDate" path "trade->tradeHeader"]
+            [value "clearedDate" path "tradeHeader"]
+        + collateral
+            [value "collateral" path "trade"]
+            [value "collateral"]
+		+ account
+			[value "account"]
+
+	ContractDetails:
+		[meta "id" path "trade"]
 		+ documentation
 			[value "documentation" path "trade"]
 			[value "documentation"]
 		+ governingLaw
 			[value "governingLaw" path "trade" meta "governingLawScheme"]
 			[value "governingLaw"]
-		+ party
-			[value "party"]
-		+ account
-			[value "account"]
 		+ partyContractInformation
 			[value "partyTradeInformation" path "trade->tradeHeader"]
 
@@ -1831,15 +1838,6 @@ synonym source FpML_5_10 extends FpML
 			[value "fxFeature"]
 		+ paymentDates
 			[value "paymentDates" path "rateOfReturn"]
-
-	Execution:
-		+ identifier
-			[value "partyTradeIdentifier" path "trade->tradeHeader"]
-		+ tradeDate
-		    [value "tradeDate" meta "id"]
-			[value "tradeDate" path "trade->tradeHeader" meta "id"]
-		+ tradableProduct
-			[value "trade" mapper "Party"]
 
 	GeneralTerms:
 		+ referenceInformation
@@ -2670,7 +2668,7 @@ synonym source FpML_5_10 extends FpML
 			[value "collateral"]
 
 	ContractState:
-		+ updatedContract
+		+ updatedTrade
 			[value "ignore"]
 
 	CreditLimitUtilisation:

@@ -2,7 +2,8 @@ package org.isda.cdm.hashing;
 
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.Party.PartyBuilder;
-import cdm.legalagreement.contract.Contract;
+import cdm.event.common.Trade;
+import cdm.event.common.TradeState;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
 import com.rosetta.model.lib.records.DateImpl;
@@ -28,10 +29,10 @@ public class GlobalKeyProcessStepTest {
 
 	@Test
 	public void shouldSetGlobalKeyOnFieldWithMetaBuilderWithMetadataId() {
-		Contract.ContractBuilder contract = Contract.builder()
+		Trade.TradeBuilder contract = Trade.builder()
 				.setTradeDate(FieldWithMetaDate.builder().setValue(DateImpl.of(2020, 1, 1)).build());
 
-		new GlobalKeyProcessStep(NonNullHashCollector::new).runProcessStep(Contract.class, contract);
+		new GlobalKeyProcessStep(NonNullHashCollector::new).runProcessStep(TradeState.class, contract);
 
 		assertNotNull(contract.getMeta().getGlobalKey(),
 				"Contract implements GlobalKey and contains data so should have global key set");

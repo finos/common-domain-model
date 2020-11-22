@@ -2,30 +2,28 @@ package org.isda.cdm.functions.testing;
 
 import cdm.event.common.*;
 import cdm.event.common.functions.Create_Exercise;
-import cdm.legalagreement.contract.Contract;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 
 import javax.inject.Inject;
 
-public class RunCreateExercise implements ExecutableFunction<Contract, BusinessEvent> {
+public class RunCreateExercise implements ExecutableFunction<TradeState, BusinessEvent> {
 
     @Inject
     Create_Exercise func;
 
     @Override
-    public BusinessEvent execute(Contract contract) {
+    public BusinessEvent execute(TradeState tradeState) {
         return func.evaluate(
                 BusinessEvent.builder()
                         .addPrimitivesBuilder(PrimitiveEvent.builder()
                                 .setContractFormationBuilder(ContractFormationPrimitive.builder()
-                                        .setAfterBuilder(PostContractFormationState.builder()
-                                                .setContract(contract)))).build(),
+                                        .setAfter(tradeState))).build(),
                 ExerciseInstruction.builder().build());
     }
 
     @Override
-    public Class<Contract> getInputType() {
-        return Contract.class;
+    public Class<TradeState> getInputType() {
+        return TradeState.class;
     }
 
     @Override
