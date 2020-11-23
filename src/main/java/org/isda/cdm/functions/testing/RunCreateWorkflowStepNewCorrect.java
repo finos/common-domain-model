@@ -1,8 +1,19 @@
 package org.isda.cdm.functions.testing;
 
-import static java.util.Collections.emptyList;
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+import cdm.base.staticdata.identifier.AssignedIdentifier;
+import cdm.base.staticdata.identifier.Identifier;
+import cdm.event.common.ActionEnum;
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.TradeState;
+import cdm.event.common.functions.Create_Execution;
+import cdm.event.workflow.*;
+import cdm.event.workflow.functions.Create_WorkflowStep;
+import cdm.observable.asset.QuantityNotation;
+import com.google.common.collect.Lists;
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.metafields.FieldWithMetaDate;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -12,27 +23,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import static java.util.Collections.emptyList;
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
-import com.google.common.collect.Lists;
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
-import com.rosetta.model.metafields.FieldWithMetaDate;
-
-import cdm.base.staticdata.identifier.AssignedIdentifier;
-import cdm.base.staticdata.identifier.Identifier;
-import cdm.event.common.ActionEnum;
-import cdm.event.common.BusinessEvent;
-import cdm.event.common.functions.Create_Execution;
-import cdm.event.workflow.EventTimestamp;
-import cdm.event.workflow.EventTimestampQualificationEnum;
-import cdm.event.workflow.MessageInformation;
-import cdm.event.workflow.Workflow;
-import cdm.event.workflow.WorkflowStep;
-import cdm.event.workflow.functions.Create_WorkflowStep;
-import cdm.legalagreement.contract.Contract;
-import cdm.observable.asset.QuantityNotation;
-
-public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Contract, Workflow> {
+public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<TradeState, Workflow> {
 
     @Inject
     Create_WorkflowStep workflowStep;
@@ -45,14 +39,14 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Contr
 
 
     @Override
-    public Workflow execute(Contract contract) {
+    public Workflow execute(TradeState tradeState) {
         WorkflowStep newExecutionWorkflowStep = lineageUtils.withGlobalReference(WorkflowStep.class,
-        		workflowStep.evaluate(messageInformation("msg-1"), eventDate(contract.getTradeDate(), LocalTime.of(18, 12)), identifier("id-1"), emptyList(), emptyList(), 
-        				null, ActionEnum.NEW, newBusinessEvent(contract)));
+        		workflowStep.evaluate(messageInformation("msg-1"), eventDate(tradeState.getTrade().getTradeDate(), LocalTime.of(18, 12)), identifier("id-1"), emptyList(), emptyList(),
+        				null, ActionEnum.NEW, newBusinessEvent(tradeState)));
 
         WorkflowStep correctedExecutionWorkflowStep = lineageUtils.withGlobalReference(WorkflowStep.class,
-        		workflowStep.evaluate(messageInformation("msg-2"), eventDate(contract.getTradeDate(), LocalTime.of(19, 13)), identifier("id-2"), emptyList(), emptyList(),
-						newExecutionWorkflowStep, ActionEnum.CORRECT, correctedBusinessEvent(contract)));
+        		workflowStep.evaluate(messageInformation("msg-2"), eventDate(tradeState.getTrade().getTradeDate(), LocalTime.of(19, 13)), identifier("id-2"), emptyList(), emptyList(),
+						newExecutionWorkflowStep, ActionEnum.CORRECT, correctedBusinessEvent(tradeState)));
 
         Workflow workflow = Workflow.builder()
                 .addSteps(Lists.newArrayList(newExecutionWorkflowStep, correctedExecutionWorkflowStep))
@@ -76,23 +70,23 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Contr
 		return MessageInformation.builder().setMessageIdRef(messageId).build();
 	}
 
-	private BusinessEvent correctedBusinessEvent(Contract contract) {
-		BusinessEvent corrected = execute.evaluate(contract.getTradableProduct().getProduct(),
-                guard(contract.getTradableProduct().getQuantityNotation()),
-                guard(contract.getTradableProduct().getPriceNotation()),
-                guard(contract.getTradableProduct().getCounterparties()),
-                guard(contract.getTradableProduct().getRelatedParties()),
-                guard(contract.getParty()),
-                guard(contract.getPartyRole()),
+	private BusinessEvent correctedBusinessEvent(TradeState tradeState) {
+		BusinessEvent corrected = execute.evaluate(tradeState.getTrade().getTradableProduct().getProduct(),
+                guard(tradeState.getTrade().getTradableProduct().getQuantityNotation()),
+                guard(tradeState.getTrade().getTradableProduct().getPriceNotation()),
+                guard(tradeState.getTrade().getTradableProduct().getCounterparties()),
+                guard(tradeState.getTrade().getTradableProduct().getRelatedParties()),
+                guard(tradeState.getTrade().getParty()),
+                guard(tradeState.getTrade().getPartyRole()),
                 Collections.emptyList(),
 				null,
-				Optional.ofNullable(contract.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-				guard(contract.getContractIdentifier()));
+				Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
+				guard(tradeState.getTrade().getTradeIdentifier()));
 		return corrected;
 	}
 
-	private BusinessEvent newBusinessEvent(Contract contract) {
-        List<QuantityNotation> incorrectQuantity = contract.getTradableProduct().getQuantityNotation().stream()
+	private BusinessEvent newBusinessEvent(TradeState tradeState) {
+        List<QuantityNotation> incorrectQuantity = tradeState.getTrade().getTradableProduct().getQuantityNotation().stream()
                 .map(QuantityNotation::toBuilder)
                 .map(x -> {
                 	x.getQuantity().setAmount(BigDecimal.valueOf(99999));
@@ -101,23 +95,23 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Contr
                 .map(QuantityNotation.QuantityNotationBuilder::build)
                 .collect(Collectors.toList());
         
-        BusinessEvent newBusinessEvent = execute.evaluate(contract.getTradableProduct().getProduct(),
+        BusinessEvent newBusinessEvent = execute.evaluate(tradeState.getTrade().getTradableProduct().getProduct(),
                 guard(incorrectQuantity),
-                guard(contract.getTradableProduct().getPriceNotation()),
-                guard(contract.getTradableProduct().getCounterparties()),
-                guard(contract.getTradableProduct().getRelatedParties()),
-                guard(contract.getParty()),
-                guard(contract.getPartyRole()),
+                guard(tradeState.getTrade().getTradableProduct().getPriceNotation()),
+                guard(tradeState.getTrade().getTradableProduct().getCounterparties()),
+                guard(tradeState.getTrade().getTradableProduct().getRelatedParties()),
+                guard(tradeState.getTrade().getParty()),
+                guard(tradeState.getTrade().getPartyRole()),
                 Collections.emptyList(),
 				null,
-				Optional.ofNullable(contract.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-				guard(contract.getContractIdentifier()));
+				Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
+				guard(tradeState.getTrade().getTradeIdentifier()));
 		return newBusinessEvent;
 	}
 
     @Override
-    public Class<Contract> getInputType() {
-        return Contract.class;
+    public Class<TradeState> getInputType() {
+        return TradeState.class;
     }
 
     @Override

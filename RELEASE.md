@@ -1,16 +1,38 @@
-# *New ExerciseInstruction and Create_Exercise Function*
+# *CDM Model: Primitive Harmonisation Phase 1*
 
 _What is being released_
 
-A data type and function pair that allow for the representation of an instruction to exercise an option and a subsequent function that constructs the contract changes.
+Phase 1 of work to harmonise Primitive events such that Primitives use the `TradeState` data type to represent it's before and after state.
 
-- `ExerciseInstruction` is a new data type that specifies the information to communicate the intention to exercise, as expressed by the party holding the rights to an option.
-- `Create_Exercise` function constructs the business event that represents the exercise of an option according to the referenced `ExerciseInstruction`.
+Harmonisation will allow for easier combination of Primitives to form  complex business events. Migrating before and after states to use the same data type means no need for data translations when combining Primitives. 
 
-The initial structure of the data type and function are designed to support a use case of a European style Swaption that is exercised for physical settlement. The initial validation of the data type and function have been limited to that use case.
+Whilst data translation can be addressed in the Function Model, defining the correct data types correctly, upfront in the Data Model removes the need for additional complexity. 
+
+*Model Changes*
+
+The key changes in this release relate to the creation of the `TradeState` data type. `TradeState` includes all necessary data definitions to: 
+
+1. Replace trade representations `Execution` and `Contract`.
+1. Replace state representations `ContractState`, `PostContractFormationState`.
+
+The following Primitives have been harmonised as a result of creating the `TradeState` data type:
+
+- Contract Formation
+- Execution
+- Quantity Change
+- Terms Change
+- Reset
+- Split (before state only)
+
+*Special Note*
  
-The current structure may be valid for other cases, but these have not yet been validated. Over time, additional use cases will be validated or used as a reference to expand the structure as needed, for example, for cash settlement, other underlying asset types and for American style options.
+`Contract` represented the root of the Product Model and was referenced extensively in CDM and its associated tooling. All explicit references to `Contract` have been replaced by `TradeState`. This involved updating the following model and tooling elements:
+
+- Ingestion now produces a `TradeState` data instance.
+- Function Model references to `Execution`, `Contract`, `ContractState` or `PostContractFormationState` have been updated to use to `TradeState` instead.
+- Regulatory reporting previously making references to `Contract`, have been updated to use `TradeState`.
+- Updated Handwritten java examples of event sequences and visualisations to account for the migration have been updated.
 
 _Review Directions_
 
-In the CDM portal, reviews the data type and function listed above, and load examples in the Visualisation function to see an illustration of the use of the function.
+- In the CDM Portal, use the Textual Browser or Graphical Navigator to review the type `TradeState`.

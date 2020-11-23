@@ -1,42 +1,40 @@
 package org.isda.cdm.functions.testing;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
-
-import java.util.Collections;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.TradeState;
+import cdm.event.common.functions.Create_Execution;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 
-import cdm.event.common.BusinessEvent;
-import cdm.event.common.functions.Create_Execution;
-import cdm.legalagreement.contract.Contract;
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.Optional;
 
-public class RunExecute implements ExecutableFunction<Contract, BusinessEvent> {
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+
+public class RunExecute implements ExecutableFunction<TradeState, BusinessEvent> {
 
     @Inject
     Create_Execution execute;
 
     @Override
-    public BusinessEvent execute(Contract contract) {
-        return execute.evaluate(contract.getTradableProduct().getProduct(),
-                guard(contract.getTradableProduct().getQuantityNotation()),
-                guard(contract.getTradableProduct().getPriceNotation()),
-                guard(contract.getTradableProduct().getCounterparties()),
-                guard(contract.getTradableProduct().getRelatedParties()),
-                guard(contract.getParty()),
-                guard(contract.getPartyRole()),
+    public BusinessEvent execute(TradeState tradeState) {
+        return execute.evaluate(tradeState.getTrade().getTradableProduct().getProduct(),
+                guard(tradeState.getTrade().getTradableProduct().getQuantityNotation()),
+                guard(tradeState.getTrade().getTradableProduct().getPriceNotation()),
+                guard(tradeState.getTrade().getTradableProduct().getCounterparties()),
+                guard(tradeState.getTrade().getTradableProduct().getRelatedParties()),
+                guard(tradeState.getTrade().getParty()),
+                guard(tradeState.getTrade().getPartyRole()),
                 Collections.emptyList(),
                 null,
-                Optional.ofNullable(contract.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-                guard(contract.getContractIdentifier()));
+                Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
+                guard(tradeState.getTrade().getTradeIdentifier()));
     }
 
     @Override
-    public Class<Contract> getInputType() {
-        return Contract.class;
+    public Class<TradeState> getInputType() {
+        return TradeState.class;
     }
 
     @Override

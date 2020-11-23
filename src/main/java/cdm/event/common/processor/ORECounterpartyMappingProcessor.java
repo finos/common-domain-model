@@ -1,4 +1,4 @@
-package cdm.legalagreement.contract.processor;
+package cdm.event.common.processor;
 
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyEnum;

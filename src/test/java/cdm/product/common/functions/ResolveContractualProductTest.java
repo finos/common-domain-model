@@ -1,6 +1,6 @@
 package cdm.product.common.functions;
 
-import cdm.legalagreement.contract.Contract;
+import cdm.event.common.TradeState;
 import cdm.observable.asset.QuantityNotation;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.settlement.PayoutBase;
@@ -42,8 +42,8 @@ class ResolveContractualProductTest extends AbstractFunctionTest {
 
 	@Test
 	void shouldThrowExceptionForMissingQuantityNotation() throws IOException {
-		Contract contract = getContract(RATES_DIR + "GBP-Vanilla-uti.json");
-		ContractualProduct contractualProduct = contract.getTradableProduct().getProduct().getContractualProduct();
+		TradeState tradeState = getTradeState(RATES_DIR + "GBP-Vanilla-uti.json");
+		ContractualProduct contractualProduct = tradeState.getTrade().getTradableProduct().getProduct().getContractualProduct();
 
 		try {
 			resolveFunc.evaluate(contractualProduct, Collections.emptyList());
@@ -59,8 +59,8 @@ class ResolveContractualProductTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForFixFloatVanilla() throws IOException {
-		Contract contract = getContract(RATES_DIR + "GBP-Vanilla-uti.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(RATES_DIR + "GBP-Vanilla-uti.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
@@ -81,8 +81,8 @@ class ResolveContractualProductTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForFra() throws IOException {
-		Contract contract = getContract(RATES_DIR + "ird-ex08-fra-no-discounting.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(RATES_DIR + "ird-ex08-fra-no-discounting.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
@@ -107,8 +107,8 @@ class ResolveContractualProductTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForEquitySwap() throws IOException {
-		Contract contract = getContract(EQUITY_DIR + "eqs-ex01-single-underlyer-execution-long-form.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(EQUITY_DIR + "eqs-ex01-single-underlyer-execution-long-form.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
@@ -128,8 +128,8 @@ class ResolveContractualProductTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForResettingXccySwaps() throws IOException {
-		Contract contract = getContract(RATES_DIR + "ird-ex25-fxnotional-swap-usi-uti.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(RATES_DIR + "ird-ex25-fxnotional-swap-usi-uti.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
@@ -146,8 +146,8 @@ class ResolveContractualProductTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForRepo() throws IOException {
-		Contract contract = getContract(REPO_DIR + "repo-ex01-repo-fixed-rate.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(REPO_DIR + "repo-ex01-repo-fixed-rate.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
@@ -174,8 +174,8 @@ class ResolveContractualProductTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForBondOption() throws IOException {
-		Contract contract = getContract(RATES_DIR + "bond-option-uti.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(RATES_DIR + "bond-option-uti.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
@@ -190,8 +190,8 @@ class ResolveContractualProductTest extends AbstractFunctionTest {
 	 */
 	@Test
 	void shouldResolveQuantityForCreditSwaption() throws IOException {
-		Contract contract = getContract(CREDIT_DIR + "cd-swaption-usi.json");
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getTradeState(CREDIT_DIR + "cd-swaption-usi.json");
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<QuantityNotation> quantityNotations = tradableProduct.getQuantityNotation();
 		ContractualProduct contractualProduct = tradableProduct.getProduct().getContractualProduct();
 
@@ -205,10 +205,10 @@ class ResolveContractualProductTest extends AbstractFunctionTest {
 		return resolvedQuantity.getResolvedQuantity().getAmount().setScale(0, RoundingMode.HALF_UP);
 	}
 
-	private Contract getContract(String resourceName) throws IOException {
+	private TradeState getTradeState(String resourceName) throws IOException {
 		URL url = Resources.getResource(resourceName);
 		String json = Resources.toString(url, Charset.defaultCharset());
-		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, Contract.class);
+		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, TradeState.class);
 	}
 
 	private PayoutBase getPayout(List<? extends PayoutBase> payouts) {
