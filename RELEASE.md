@@ -2,7 +2,7 @@
 
 _What is being released_
 
-Phase 1 of work to harmonise Primitive events such that all Primitives use the `TradeState` data type to represent it's before and after state.
+Phase 1 of work to harmonise Primitive events such that Primitives use the `TradeState` data type to represent it's before and after state.
 
 Harmonisation will allow for easier combination of Primitives to form  complex business events. Migrating before and after states to use the same data type means no need for data translations when combining Primitives. 
 
@@ -29,9 +29,9 @@ The following Primitives have been harmonised as a result of creating the `Trade
 `Contract` represented the root of the Product Model and was referenced extensively in CDM and its associated tooling. All explicit references to `Contract` have been replaced by `TradeState`. This involved updating the following model and tooling elements:
 
 - Ingestion now produces a `TradeState` data instance.
-- Function Model references to `Execution`, `Contract`, `ContractState` or `PostContractFormationState` were migrated to use to `TradeState` instead.
-- Regulatory reporting makes many references to `Contract`, all of which have been updated.
-- Updated Handwritten java examples of event sequences and visualisations to account for the migration.
+- Function Model references to `Execution`, `Contract`, `ContractState` or `PostContractFormationState` have been updated to use to `TradeState` instead.
+- Regulatory reporting previously making references to `Contract`, have been updated to use `TradeState`.
+- Updated Handwritten java examples of event sequences and visualisations to account for the migration have been updated.
 
 _Review Directions_
 
