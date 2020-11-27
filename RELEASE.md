@@ -6,7 +6,7 @@ Projection is the translation from CDM format to external data formats.  This re
 
 _Review Directions_
 
-- In the Rosetta Core, open the Projection panel, and upload any of the CDM swaption json samples that are provided that are provided in the CDM distribution:
+- In the Rosetta Core, open the Projection panel, and upload any of the CDM swaption json samples that are provided in the CDM distribution:
 
 - `rates > ird-ex09-euro-swaption-explicit-physical-exercise`
 - `rates > ird-ex09-euro-swaption-explicit-versioned`
