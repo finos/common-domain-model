@@ -10,19 +10,31 @@
 <!-- This represents the non-public recordkeeping and reporting requirements published in draft form by the CFTC in 17 CFR 45 -->
 <!-- The comments indicate the reportable field name as described in the tables on
 pp. 76606-76607 of the Federal Register -->
-<!-- This example shows an IR swap -->
-<!-- The data values are taken from "Example 1" in Appendix A, on page 76156 of the Federal Register (part 43) -->
-<dataDocument xmlns="http://www.fpml.org/FpML-5/recordkeeping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-10"
-              xsi:schemaLocation="http://www.fpml.org/FpML-5/recordkeeping ../../schemas/fpml-5-10/recordkeeping/fpml-main-5-10.xsd">
+<!-- This example shows an initial report of a new trade -->
+<!-- The data values are taken from "Example 1" in Appendix A, on page 76156 of the Federal Register -->
+<nonpublicExecutionReport xmlns="http://www.fpml.org/FpML-5/recordkeeping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-10"
+                          xsi:schemaLocation="http://www.fpml.org/FpML-5/recordkeeping ../../schemas/fpml-5-10/recordkeeping/fpml-main-5-10.xsd">
+    <header>
+        <messageId messageIdScheme="http://www.bankx.com/msg_id">BANKX0001</messageId>
+        <sentBy>BANKX</sentBy>
+        <sendTo>SDR01</sendTo>
+        <creationTimestamp>2011-02-04T16:42:16Z</creationTimestamp>
+        <!-- Date stamp -->
+    </header>
+    <isCorrection>false</isCorrection>
+    <!-- Correction indicator -->
+    <correlationId correlationIdScheme="http://fpml.org/submitter_trade_id">TW19235</correlationId>
+    <sequenceNumber>1</sequenceNumber>
     <onBehalfOf>
         <partyReference href="party1"/>
         <!-- explicit reference to which party is the primary reporting party -->
     </onBehalfOf>
+    <originatingEvent>Trade</originatingEvent>
     <trade>
         <tradeHeader>
             <partyTradeIdentifier>
                 <issuer issuerIdScheme="http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier">1031234567</issuer>
-                <tradeId tradeIdScheme="http://www.fpml.org/coding-scheme/external/unique-transaction-identifier">712345678901234567890123456789012</tradeId>
+                <tradeId tradeIdScheme="http://www.fpml.org/coding-scheme/external/unique-transaction-identifier">12345678901234567890123456789012</tradeId>
             </partyTradeIdentifier>
             <partyTradeInformation>
                 <partyReference href="party1"/>
@@ -35,6 +47,11 @@ pp. 76606-76607 of the Federal Register -->
                     <role>ArrangingBroker</role>
                     <!-- arranging broker -->
                 </relatedParty>
+                <relatedParty>
+                    <partyReference href="party2"/>
+                    <role>AllocationAgent</role>
+                    <!-- firm defining the allocations -->
+                </relatedParty>
                 <relatedBusinessUnit>
                     <businessUnitReference href="desk1"/>
                     <role>TradingDesk</role>
@@ -45,8 +62,29 @@ pp. 76606-76607 of the Federal Register -->
                 </relatedPerson>
                 <executionDateTime>2011-02-04T16:20:47Z</executionDateTime>
                 <!-- Execution timestamp -->
+                <intentToAllocate>false</intentToAllocate>
                 <intentToClear>true</intentToClear>
                 <!-- NEW: cleared or uncleared = "C" in CFTC doc -->
+                <collateralizationType>Fully</collateralizationType>
+                <reportingRegime>
+                    <name>DoddFrankAct</name>
+                    <supervisorRegistration>
+                        <supervisoryBody>CFTC</supervisoryBody>
+                    </supervisorRegistration>
+                    <reportingRole>ReportingParty</reportingRole>
+                    <reportingPurpose>RealTimePublic</reportingPurpose>
+                    <reportingPurpose>PrimaryEconomicTerms</reportingPurpose>
+                    <mandatorilyClearable>false</mandatorilyClearable>
+                </reportingRegime>
+                <reportingRegime>
+                    <name>DoddFrankAct</name>
+                    <supervisorRegistration>
+                        <supervisoryBody>SEC</supervisoryBody>
+                    </supervisorRegistration>
+                    <reportingRole>VoluntaryParty</reportingRole>
+                    <reportingPurpose>PrimaryEconomicTerms</reportingPurpose>
+                    <mandatorilyClearable>false</mandatorilyClearable>
+                </reportingRegime>
                 <nonStandardTerms>false</nonStandardTerms>
                 <!-- NEW: indication of other price-affecting term -->
                 <offMarketPrice>false</offMarketPrice>
@@ -66,13 +104,13 @@ pp. 76606-76607 of the Federal Register -->
             <!-- Party A pays the floating rate every 3 months, based on 3M USD-LIBOR-BBA,
                         on an ACT/360 basis -->
             <primaryAssetClass>InterestRate</primaryAssetClass>
-            <!-- asset class -->
             <productType productTypeScheme="http://www.fpml.org/coding-scheme/product-taxonomy">InterestRate:IRSwap:FixedFloat</productType>
             <!-- contract type  = "S-" in CFTC doc -->
             <!-- <productSubType>FixedFloatSwap</productSubType> -->
             <!-- NEW: contract sub-type   -->
-            <productId productIdScheme="http://www.fpml.org/coding-scheme/external/unique-product-identifier">SWI-ST-USD-IRS</productId>
+            <productId>SWI-ST-USD-IRS</productId>
             <!-- swap instrument (NEW: coding scheme TBD, this example from CFTC rules) -->
+            <!-- asset class -->
             <!-- <subAssetClass>N/A</subAssetClass> -->
             <!-- NEW: sub-asset class not applicable for IR -->
             <swapStream>
@@ -214,6 +252,11 @@ pp. 76606-76607 of the Federal Register -->
             </swapStream>
         </swap>
     </trade>
+    <quote>
+        <value>1235</value>
+        <measureType>NPV</measureType>
+        <currency>USD</currency>
+    </quote>
     <party id="party1">
         <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">5493001RKR55V4X61F71</partyId>
         <!-- unique counterparty identifier of reporting party -->
@@ -242,5 +285,5 @@ pp. 76606-76607 of the Federal Register -->
         <!-- unique counterparty identifier of clearing service -->
         <partyName>ClearItAll</partyName>
     </party>
-</dataDocument>
+</nonpublicExecutionReport>
 

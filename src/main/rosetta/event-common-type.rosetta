@@ -114,7 +114,7 @@ type ContractState: <"A class to specify a contract state instantiation with res
 	[metadata key]
 
 	trade Trade (1..1) <"Reference to the original contract, such that the contract state can be resolved by super-imposing the updated values on top of the original contract.">
-		[synonym Workflow_Event value "fpmlTrade"]
+		[synonym Workflow_Event value "trade" path "fpmlTrade" mapper "Party"]
 	updatedTrade Trade (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
 
 type Instruction: <"Instruction to a function that will be used to perform a business event">
@@ -190,6 +190,7 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	[metadata key]
 	[rootType]
 	trade Trade (1..1) <"Represents the Trade that has been effected by a business or life-cycle event.">
+	    [synonym Workflow_Event hint "trade"]
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
 	observationHistory TradeState (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
 
@@ -215,11 +216,10 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 	tradableProduct TradableProduct (1..1) <"Represents the financial instrument The corresponding FpML construct is the product abstract element and the associated substitution group.">
 	party Party (0..*) <"Represents the parties to the trade. The cardinality is optional to address the case where the trade is defined within a BusinessEvent data type, in which case the party is specified in BusinessEvent.">
 	partyRole PartyRole (0..*) <"Represents the role each specified party takes in the trade. further to the principal roles, payer and receiver.">
-	    [synonym Workflow_Event value "trade"]
 	settlementTerms SettlementTerms (0..*) <"Represents how the financial instruments in the trade is to be settled e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
 	executionDetails ExecutionDetails (0..1) <"Represents information specific to trades that arose from executions.">
 	contractDetails ContractDetails (0..1) <"Represents information specific to trades involving contractual products.">
-	    [synonym Workflow_Event value "trade" set when "trade->executionVenue" is absent]
+	    [synonym Workflow_Event value "trade" set when "executionVenue" is absent]
     clearedDate date (0..1) <"Specifies the date on which a trade is cleared (novated) through a central counterparty clearing service.">
         [deprecated]
     collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
@@ -428,7 +428,7 @@ type ExecutionDetails: <"Defines specific attributes that relate to trade execut
 	[metadata key]
 
 	executionType ExecutionTypeEnum (1..1) <"Identifies the type of execution, e.g. via voice, electronically...">
-		[synonym Workflow_Event value "executionType" path "trade"]
+		[synonym Workflow_Event value "executionType"]
 	executionVenue LegalEntity (0..1) <"Represents the venue on which a trade was executed.">
 
 	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
