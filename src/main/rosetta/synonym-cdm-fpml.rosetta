@@ -1694,7 +1694,7 @@ synonym source FpML_5_10 extends FpML
 
 	PartyContractInformation:
 		+ partyReference
-			[value "partyReference" meta "href"]
+			[value "partyReference" maps 2 meta "href"]
 		+ naturalPersonRole
 			[value "relatedPerson"]
 		+ relatedParty
@@ -1746,7 +1746,8 @@ synonym source FpML_5_10 extends FpML
 		+ party
 			[value "party"]
 		+ partyRole
-		    [value "tradeHeader"]
+            [value "determiningParty" ,"barrierDeterminationAgent", "hedgingParty" , "brokerPartyReference" mapper "PartyRole"]
+		    [value "partyTradeIdentifier" path "tradeHeader", "partyTradeInformation" path "tradeHeader"]
 	    + clearedDate
             [value "clearedDate" path "tradeHeader"]
         + collateral
@@ -2537,7 +2538,7 @@ synonym source FpML_5_10 extends FpML
 
 	RelatedParty:
 		+ partyReference
-			[value "partyReference" meta "href"]
+			[value "partyReference" maps 2 meta "href"]
 		+ accountReference
 			[value "accountReference" meta "href"]
 		+ role
@@ -2644,20 +2645,11 @@ synonym source FpML_5_10 extends FpML
 
 	PartyRole:
 		+ partyReference
-			//[value "determiningParty" meta "href"]
-			//[value "barrierDeterminationAgent" meta "href"]
-			//[value "hedgingParty" meta "href"]
-			//[value "brokerPartyReference" meta "href"]
-			[value "partyReference" path "partyTradeIdentifier->relatedParty" meta "href"]
-			[value "partyReference" path "partyTradeInformation->relatedParty" meta "href"]
+			[value "partyReference" path "relatedParty" meta "href"]
 		+ role
-			//[set to PartyRoleEnum -> DeterminingParty when path = "determiningParty"]
-			//[set to PartyRoleEnum -> BarrierDeterminationAgent when path = "barrierDeterminationAgent"]
-			//[set to PartyRoleEnum -> HedgingParty when path = "hedgingParty"]
-			//[set to PartyRoleEnum -> ArrangingBroker when path = "brokerPartyReference"]
-			[value "role" path "partyTradeInformation->relatedParty"]
+			[value "role" path "relatedParty"]
 		+ ownershipPartyReference
-			[value "partyReference" path "partyTradeInformation" set when "partyTradeInformation->relatedParty->role" exists meta "href"]
+			[value "partyReference" set when "relatedParty->role" exists meta "href"]
 
 	AllocationBreakdown:
 		+ allocationTradeId
