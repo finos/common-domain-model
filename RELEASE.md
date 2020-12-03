@@ -1,8 +1,10 @@
-# *Ingestion: FpML 5.10 Record-Keeping View*
+# *Digital Regulatory Reporting: FpML Event Ingestion*
 
 _What is being released_
 
-Add FpML 5.10 Record-Keeping schema, and set up an ingestion environment that translates FpML documents into CDM events.
+As part of the Digital Regulatory Reporting workstream, the FpML record-keeping schema, and a corresponding ingestion environment, has been added to demonstrate CDM integration with FpML reporting.
+ 
+The FpML record-keeping schema is intended to be used for reporting the primary economic terms of derivative transactions to swaps data repositories.  FpML messages, such as `nonpublicExecutionReport`, can now be ingested into a CDM event, e.g. `WorkflowStep`, which can then be processed by CDM regulatory reporting logic.
 
 _Review Directions_
 
