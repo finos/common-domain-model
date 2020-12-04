@@ -1,21 +1,22 @@
 package org.isda.cdm.workflows;
 
+import java.util.Objects;
+
+import cdm.event.common.*;
+import org.isda.cdm.functions.example.services.identification.IdentifierService;
+
+import com.rosetta.model.lib.process.PostProcessor;
+import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.metafields.FieldWithMetaString;
+
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import cdm.event.common.*;
 import cdm.event.common.functions.Create_ClearedTrade;
 import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.metafields.ReferenceWithMetaWorkflowStep;
-import cdm.legalagreement.contract.Contract;
-import com.rosetta.model.lib.process.PostProcessor;
-import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.metafields.FieldWithMetaString;
-import org.isda.cdm.functions.example.services.identification.IdentifierService;
-
-import java.util.Objects;
 
 public class ClearingUtils {
 
@@ -36,7 +37,7 @@ public class ClearingUtils {
 		return stepBuilder.build();
 	}
 
-	static WorkflowStep buildProposeStep(PostProcessor runner, WorkflowStep previous, Contract alphaContract, Party party1, Party party2, String externalReference, IdentifierService identifierService) {
+	static WorkflowStep buildProposeStep(PostProcessor runner, WorkflowStep previous, TradeState alphaContract, Party party1, Party party2, String externalReference, IdentifierService identifierService) {
 		WorkflowStep.WorkflowStepBuilder stepBuilder = WorkflowStep.builder();
 		stepBuilder
 			.setPreviousWorkflowStep(ReferenceWithMetaWorkflowStep.builder()
@@ -62,7 +63,7 @@ public class ClearingUtils {
 	}
 
 	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction,
-			Create_ClearedTrade clear, IdentifierService identifierService, Date tradeDate, Identifier identifier) {
+			Create_ClearedTrade          clear, IdentifierService identifierService, Date tradeDate, Identifier identifier) {
 
 		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction, tradeDate, identifier).toBuilder();
 
@@ -83,14 +84,12 @@ public class ClearingUtils {
 		return clearedTradeWorkflowEvent;
 	}
 
-	static WorkflowStep buildContractFormationStep(PostProcessor runner, Contract contract, String externalReference, IdentifierService identifierService) {
+	static WorkflowStep buildContractFormationStep(PostProcessor runner, TradeState tradeState, String externalReference, IdentifierService identifierService) {
 		WorkflowStep.WorkflowStepBuilder stepBuilder = WorkflowStep.builder();
 		stepBuilder.getOrCreateBusinessEvent()
 			.addPrimitives(PrimitiveEvent.builder()
 				.setContractFormation(ContractFormationPrimitive.builder()
-					.setAfter(PostContractFormationState.builder()
-						.setContract(contract)
-						.build())
+					.setAfter(tradeState)
 					.build())
 				.build());
 
@@ -111,15 +110,15 @@ public class ClearingUtils {
 	/**
 	 * Extract the party related to the given counterparty enum.
 	 */
-	public static Party getParty(Contract contract, CounterpartyEnum role) {
-		return contract.getTradableProduct().getCounterparty().stream()
-				.filter(c -> c.getRole() == role)
+	public static Party getParty(TradeState tradeState, CounterpartyEnum counterparty) {
+		return tradeState.getTrade().getTradableProduct().getCounterparty().stream()
+				.filter(c -> c.getRole() == counterparty)
 				.map(Counterparty::getPartyReference)
 				.filter(Objects::nonNull)
 				.map(ReferenceWithMetaParty::getGlobalReference)
-				.flatMap(partyReference -> contract.getParty().stream().filter(p -> partyReference.equals(p.getMeta().getGlobalKey())))
+				.flatMap(partyReference -> tradeState.getTrade().getParty().stream().filter(p -> partyReference.equals(p.getMeta().getGlobalKey())))
 				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Party not found for " + role));
+				.orElseThrow(() -> new IllegalArgumentException("Party not found for counterparty " + counterparty));
 	}
 }
 

@@ -1,5 +1,6 @@
 package cdm.legalagreement.csa.processor;
 
+import cdm.base.staticdata.party.CounterpartyEnum;
 import cdm.legalagreement.csa.ElectiveAmountElection;
 import cdm.legalagreement.csa.Threshold;
 import cdm.legalagreement.csa.Threshold.ThresholdBuilder;
@@ -18,8 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ThresholdMappingProcessorTest {
 
-	private static final String PARTY_A = "partyA";
-	private static final String PARTY_B = "partyB";
 	private static final String ZERO = "zero";
 
 	@Test
@@ -43,21 +42,21 @@ class ThresholdMappingProcessorTest {
 
 		// assert
 
-		ElectiveAmountElection partyA = getPartyElection(threshold, PARTY_A);
+		ElectiveAmountElection partyA = getPartyElection(threshold, CounterpartyEnum.PARTY_1);
 		assertNull(partyA.getCustomElection());
 		Money amount = partyA.getAmount();
 		assertEquals(10, amount.getAmount().intValue());
 		assertEquals("EUR", amount.getCurrency().getValue());
 
-		ElectiveAmountElection partyB = getPartyElection(threshold, PARTY_B);
+		ElectiveAmountElection partyB = getPartyElection(threshold, CounterpartyEnum.PARTY_2);
 		assertNull(partyB.getCustomElection());
 		assertNull(partyB.getAmount());
 		assertTrue(partyB.getZeroAmount());
 	}
 
-	private ElectiveAmountElection getPartyElection(Threshold threshold, String party) {
+	private ElectiveAmountElection getPartyElection(Threshold threshold, CounterpartyEnum party) {
 		return threshold.getPartyElection().stream()
-				.filter(e -> party.equals(e.getParty()))
+				.filter(e -> party == e.getParty())
 				.findFirst()
 				.orElseThrow(() -> new RuntimeException("No partyElection found for " + party));
 	}

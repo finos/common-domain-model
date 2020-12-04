@@ -270,7 +270,7 @@ The data types that extend from ProductBase are Index, Commodity, Loan, and Secu
      [metadata scheme]
 
 .. code-block:: Haskell
-   
+
  type Security extends ProductBase:
    securityType SecurityTypeEnum (1..1)
    debtType DebtType (0..1)
@@ -288,7 +288,7 @@ The data types that extend from ProductBase are Index, Commodity, Loan, and Secu
  condition FundSubType:
    if securityType <> SecurityTypeEnum -> Fund
    then fundType is absent
- 
+
 The product identifier will uniquely identify the security.  The ``securityType`` is required for specific purposes in the model, for example for validation as a valid reference obligation for a Credit Default Swap.  The additional security details are optional as these could be determined from a reference database using the product identifier as a key
 
 Product Qualification
@@ -383,7 +383,7 @@ Event Model
 
 **The CDM event model provides data structures to represent the trade lifecycle events of financial transactions**. A trade moves from one state to another as the result of *state transition* events initiated by one or both trading parties, by external factors or by contractual terms such as maturity. For example, the execution of the trade is the initial event which results in the state of an executed trade. Subsequently, one party might initiate an allocation, both parties might initiate an amendment to a contractual agreement, or a default by an underlying entity on a Credit Default Swap would trigger a settlement according to defined protection terms.
 
-Examples of lifecyle events supported by the CDM Event Model include the following:
+Examples of lifecycle events supported by the CDM Event Model include the following:
 
 * Trade execution and confirmation
 * Clearing
@@ -412,44 +412,48 @@ Each of these sub-structures are described in the subsequent sections.
 Trade State
 ^^^^^^^^^^^
 
-The trade state is currently described in the CDM by the ``Trade`` type. The trade state can be either an ``Execution`` or a ``Contract``, as controlled by the ``one-of`` condition:
+The trade state is defined in CDM by the ``TradeState`` data type and represents the state of a trade at each stage in its lifecycle. With each trade creation or modification event, a new ``TradeState`` instance is created. Chaining together the sequence of ``TradeState`` instances then recreates the path each trade took within its lifecycle.
+
+``TradeState`` is a foundational data type within the CDM Event Model as it represents the input and output of Primitive Events. Therefore, all trade related information that can change throughout the trade lifecycle are representing within ``TradeState``.
+
+.. code-block:: Haskell
+
+type TradeState:
+	[metadata key]
+	[rootType]
+	trade Trade (1..1)
+	state State (0..1)
+	observationHistory TradeState (0..*)
+
+While many different types of events may occur through the trade lifecycle, the ``Trade``, ``State`` and ``Observationhistory`` data types are deemed sufficient to describe all of the possible (post-trade) states which may result from lifecycle events. The ``Trade`` data type contains the tradable product, which defines all of the economic terms of the transaction as agreed between the parties.
+
+.. note:: A tradable product is represented by the ``TradableProduct`` type, which is further detailed in the `Tradable Product Section`_ of the documentation.
+
+The ``Trade``, ``State`` and ``ObservationHistory`` data types are detailed in the sections below.
+
+Trade
+"""""
+
+The ``Trade`` data type defines the outcome of a financial transaction between parties, where the terms are primarily reflected in the tradable product. Additionally, ``Trade`` includes attributes such as the trade date, transacting parties, and settlement terms. Some attributes, such as the parties, may already be defined in a workflow step or business event and can simply be referenced in ``Trade``.
 
 .. code-block:: Haskell
 
  type Trade:
-   [metadata key]
-   execution Execution (0..1)
-   contract Contract (0..1)
-   condition Trade: one-of
-
-While many different types of events may occur through the transaction lifecycle, the execution and contract states are deemed sufficient to describe all of the possible (post-trade) states which may result from those lifecycle events. The execution and contract states always contain a tradable product, which defines all of the current economic terms of the transaction as they have been agreed between the parties.
-
-For instance in a partial termination scenario, the initial state is a contract and the resulting state is also a contract, where the quantity associated with the tradable product is smaller.
-
-.. note:: A tradable product is represented by the ``TradableProduct`` type, which is further detailed in the `Tradable Product Section`_ of the documentation.
-
-The execution and contract types are detailed in the sections below.
-
-Execution
-"""""""""
-
-The lifecycle of a transaction between two parties starts with an *execution* state, which is represented by the ``Execution`` type. In addition to the tradable product, an execution includes attributes such as the trade date, transacting parties, execution venue (if any) and settlement terms to describe the execution. Some attributes, such as the parties, may already be defined in a workflow step or business event and can simply be referenced as part of the execution.
-
-.. code-block:: Haskell
-
- type Execution:
-   [metadata key]
-   executionType ExecutionTypeEnum (1..1)
-   executionVenue LegalEntity (0..1)
-   identifier Identifier (1..*)
-   tradeDate date (1..1)
-     [metadata id]
-   tradableProduct TradableProduct (1..1)
-   party Party (0..*)
-     [metadata reference]
-   partyRole PartyRole (0..*)
-   closedState ClosedState (0..1)
-   settlementTerms SettlementTerms (0..*)
+ 	[metadata key]
+ 	tradeIdentifier Identifier (1..*)
+ 	tradeDate date (1..1)
+         [metadata id]
+ 	tradableProduct TradableProduct (1..1)
+ 	party Party (0..*)
+ 	partyRole PartyRole (0..*)
+ 	settlementTerms SettlementTerms (0..*)
+ 	executionDetails ExecutionDetails (0..1)
+ 	contractDetails ContractDetails (0..1)
+    clearedDate date (0..1)
+        [deprecated]
+    collateral Collateral (0..1)
+	account Account (0..*)
+        [deprecated]
 
 The ``settlementTerms`` attribute define how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
@@ -462,49 +466,47 @@ The ``settlementTerms`` attribute define how the transaction should be settled (
    settlementAmount Money (0..1)
    transferSettlementType TransferSettlementEnum (0..1)
 
-Post-Execution: Contract
-""""""""""""""""""""""""
+Additionally, ``Trade`` supports representation of specific execution or contractual trade details via the ``executionTradeDetails`` and ``contractDetails`` attributes.
 
-The contract type is only applicable to contractual products.  It represents the state of a trade after the execution has been confirmed.  A contract has a set of attributes which are optional but would only apply to a post-execution stage: calculation agent, documentation, governing law, etc.
+ExecutionTradeDetails
+"""""""""""""""""""""
 
-.. code-block:: Haskell
+The ExecutionTradeDetails data type represents field that are applicable only to trade executions and includes attributes that descirbe the execution venue and execution type.
 
- type Contract:
-   [metadata key]
-   [rootType]
-   contractIdentifier Identifier (1..*)
-   tradeDate date (1..1)
-   	 [metadata id]
-   clearedDate date (0..1)
-   tradableProduct TradableProduct (1..1)
-   collateral Collateral (0..1)
-   documentation RelatedAgreement (0..1)
-   governingLaw GoverningLawEnum (0..1)
-     [metadata scheme]
-   party Party (0..*)
-   account Account (0..*)
-   partyRole PartyRole (0..*)
-   partyContractInformation PartyContractInformation (0..*)
-   closedState ClosedState (0..1)
+ContractTradeDetails
+""""""""""""""""""""
 
-.. note:: The ``Contract`` type incorporates all the elements that are part of the FpML *trade confirmation* view (with the exception of: *tradeSummary*, *originatingPackage*, *allocations* and *approvals*), whereas the ``TradableProduct`` type corresponds to the *pre-trade* view in FpML.
-
-Closed State
-""""""""""""
-
-In the case when a contract or an execution is closed, it is necessary to record that closure as part of the trade state.
-
-For instance in a novation scenario, the initial state is a contract and the resulting state is two contracts: the first contract is a new contract, which is the same as the original one but where one of the parties has been changed, and the second contract is the original contract, now marked as *closed*.
-
-The ``closedState`` attribute on ``Contract`` and ``Execution`` captures this closed state and defines the reason for closure.
+ContractTradeDetails are only applicable to contractual products.  It represents details of the trade after the trade execution has been confirmed.
 
 .. code-block:: Haskell
 
- type ClosedState:
-   state ClosedStateEnum (1..1)
-   activityDate date (1..1)
-   effectiveDate date (0..1)
-   lastPaymentDate date (0..1)
+ type ContractDetails:
+ 	[metadata key]
+ 	documentation RelatedAgreement (0..1)
+ 	governingLaw GoverningLawEnum (0..1)
+ 		[metadata scheme]
+ 	partyContractInformation PartyContractInformation (0..*)
+
+.. note:: Attributes within ``Trade`` and ``ContractTradeDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view.
+
+State
+"""""
+
+The ``State`` data type defines the state of a trade at a point in the Trade's life cycle. Trades have many state dimensions, all of which are represented here. For example, states useful for position keeping are represented alongside those needed for regulatory reporting.
+
+.. code-block:: Haskell
+
+ type State:
+ 	closedState ClosedState (0..1)
+ 	positionState PositionStatusEnum (0..1)
+
+*ClosedState*.
+
+In the case when a trade is closed, it is necessary to record that closure as part of the trade state.
+
+For instance in a full novation scenario, the initial state is a single ``TradeState`` and the resulting state is two ``TradeState``s. The first resulting ``TradeState`` represents a new contract, which is the same as the original but where one of the parties has been changed, and the second resulting ``TradeState`` is the original contract, now marked as *closed*.
+
+The ``ClosedState`` data type (enclosed within ``State``) captures this closed state and defines the reason for closure.
 
 .. code-block:: Haskell
 
@@ -520,11 +522,11 @@ The ``closedState`` attribute on ``Contract`` and ``Execution`` captures this cl
 Primitive Event
 ^^^^^^^^^^^^^^^
 
-**Primitive events are the building block components used to specify business events in the CDM**. They describe the fundamental state-transition components that may impact the trade state during its lifecycle. The trade state always transitions to and from one of the trade types, i.e. contract or execution.
+**Primitive events are the building block components used to specify business events in the CDM**. They describe the fundamental state-transition components that impact the trade state during its lifecycle. The trade state always transitions to and from one a ``TradeState`` data type.
 
 Most of the primitive events include ``before`` and ``after`` trade state attributes that define the state transition in terms of evolution in the trade state.  The exceptions are ``ObservationPrimitive`` and ``TransferPrimitive``.
 
-The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a state that *already* exists. By contrast, the ``after`` state provides a full definition of that object, because that state is occurring for the first time and it is the occurence of the primitive event that triggers a transition to that new state. By tying each state in the lifecycle to a previous state, primitive events are one of the mechanisms by which *lineage* is implemented in the CDM.
+The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a state that *already* exists. By contrast, the ``after`` state provides a full definition of that object, because that state is occurring for the first time and it is the occurrence of the primitive event that triggers a transition to that new state. By tying each state in the lifecycle to a previous state, primitive events are one of the mechanisms by which *lineage* is implemented in the CDM.
 
 A ``PrimitiveEvent`` object consists of one of the primitive components, as captured by the ``one-of`` condition.  The list of primitive events can be seen in the ``PrimitiveEvent`` type definition:
 
@@ -555,22 +557,22 @@ The transition to an executed state prior to confirmation is represented by the 
 .. code-block:: Haskell
 
  type ExecutionPrimitive:
-   before ExecutionState (0..0)
+   before TradeState (0..0)
      [metadata reference]
-   after ExecutionState (1..1)
+   after TradeState (1..1)
 
-The execution primitive does not allow any before state (as marked by the 0 cardinality of the ``before`` attribute) because the current CDM event model only covers post-trade lifecycle events. In practice, this execution state would be the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client.
+The execution primitive does not allow any before state (as marked by the 0 cardinality of the ``before`` attribute) because the current CDM event model only covers post-trade lifecycle events. In practice, this execution state represents the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client.
 
-Following that execution, the trade gets confirmed and a legally binding contract is signed between the two executing parties. In an allocation scenario, the trade would first get split into sub-accounts as  designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts.
+Following that execution, the trade gets confirmed and a legally binding contract is signed between the two executing parties. In an allocation scenario, the trade would first get split into sub-accounts as designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts.
 
 The ``ContractFormationPrimitive`` represents that transition to the trade state after the trade is confirmed, which results in a ``PostContractFormationState`` containing a contract object.
 
 .. code-block:: Haskell
 
  type ContractFormationPrimitive:
-   before ExecutionState (0..1)
+   before TradeState (0..1)
      [metadata reference]
-   after PostContractFormationState (1..1)
+   after TradeState (1..1)
 
 The before state in the contract formation primitive is optional (as marked by the 0 cardinality lower bound of the ``before`` attribute), to represent cases where a new contract may be instantiated between parties without any prior execution, for instance in a clearing or novation scenario.
 
@@ -595,12 +597,11 @@ From that observation, a *reset* can be built which does affect the specific tra
 .. code-block:: Haskell
 
  type ResetPrimitive:
-   before ContractState (1..1)
+   before TradeState (1..1)
      [metadata reference]
-   after ContractState (1..1)
-   condition Contract:
-     if ResetPrimitive exists
-     then before -> contract = after -> contract
+   after TradeState (1..1)
+   condition Trade:
+     before -> trade = after -> trade
 
 Example 3: Transfer
 """""""""""""""""""
@@ -680,18 +681,14 @@ The ``eventEffect`` contains a set of pointers to the relevant objects that are 
 .. code-block:: Haskell
 
  type EventEffect:
-   effectedContract Contract (0..*)
+   effectedTrade TradeState (0..*)
      [metadata reference]
-   effectedExecution Execution (0..*)
+   trade TradeState (0..*)
      [metadata reference]
-   contract Contract (0..*)
+   productIdentifier ProductIdentifier (0..*)
      [metadata reference]
-	execution Execution (0..*)
-    [metadata reference]
-  productIdentifier ProductIdentifier (0..*)
-    [metadata reference]
-  transfer TransferPrimitive (0..*)
-    [metadata reference]
+   transfer TransferPrimitive (0..*)
+     [metadata reference]
 
 The JSON snippet below for a quantity change event on a contract illustrates the use of multiple metadata reference values in ``eventEffect``.
 
@@ -931,23 +928,19 @@ One distinction with the product approach is that the ``intent`` qualification i
 .. code-block:: Haskell
 
  func Qualify_Termination:
-   [qualification BusinessEvent]
-   inputs:
-     businessEvent BusinessEvent(1..1)
-   output: is_event boolean (1..1)
-     assign-output is_event:
-
-   (businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
-   and (
-     businessEvent -> primitives count = 1
-     and businessEvent -> primitives -> quantityChange exists
-     or (
-       businessEvent -> primitives -> quantityChange exists
-       and businessEvent -> primitives -> transfer -> cashTransfer exists
-     )
-   )
-   and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
-   and businessEvent -> primitives -> quantityChange -> after -> contract -> closedState -> state = ClosedStateEnum -> Terminated
+ 	[qualification BusinessEvent]
+ 	inputs:
+ 		businessEvent BusinessEvent(1..1)
+ 	output: is_event boolean (1..1)
+ 	assign-output is_event:
+ 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
+ 		and (businessEvent -> primitives count = 1
+ 		and businessEvent -> primitives -> quantityChange exists
+ 			or (businessEvent -> primitives -> quantityChange exists
+ 				and businessEvent -> primitives -> transfer -> cashTransfer exists)
+ 			)
+ 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
+ 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
@@ -975,7 +968,7 @@ In addition to the Master Agreement are sets of credit support documentation whi
 There are several different types of ISDA credit support document, reflecting variation and initial margin, regulatory requirements and terms for legal relationships under different legal jurisdictions. The key components of the suite of credit support documents are summarized below:
 
 * **Credit Support Annexes (CSAs)** exist in New York, English, Irish, French, and Japanese law forms.  They define the terms for the provision of collateral by the parties in derivatives transactions, and in some cases they are specialized for initial margin or variation margin.
-* **Credit Support Deed CSD (CSD)** is very similar to a CSA, except that it is used to create specific types of legal rights over the collateral under English and Irish law, which requires a specific type of legal agreement (a deed). 
+* **Credit Support Deed CSD (CSD)** is very similar to a CSA, except that it is used to create specific types of legal rights over the collateral under English and Irish law, which requires a specific type of legal agreement (a deed).
 * **The Collateral Transfer Agreement and Security Agreement (CTA and SA)** together define a collateral arrangement where initial margin is posted to a custodian account for use in complying with initial margin requirements. The CTA/SA offers additional flexibility by allowing parties to apply one governing law to the mechanical aspects of the collateral relationship (the CTA) and a different governing law to the grant and enforcement of security over the custodian account (the SA).
 
 In the CDM and in this user documentation, *legal agreement* refers to the written terms of a relationship-level agreement, and *contract* refers to the written terms defining an executed financial transaction.
@@ -985,7 +978,7 @@ Legal Agreements in the CDM
 
 The CDM provides a digital representation of the legal agreements that govern transactions and workflows. The benefits of this digital representation are summarized below:
 
-* **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements. 
+* **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements.
 * **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event model and formally tying legal data to the business outcome and performance of legal clauses. (e.g. in collateral management where lifecycle processes require reference to parameters found in the associated legal agreements, such as the Credit Support Annex).
 * **Supporting the direct implementation of functional processes** by providing a normalised representation of legal agreements as structured data, as opposed to the unstructured data contained of a full legal text that needs to be interpreted first before any implementation (e.g. for a calculation of an amount specified in a legal definition).
 
@@ -1009,7 +1002,7 @@ The legal agreement model in the CDM comprises the following features:
 * **Composable and normalised model representation** of the ISDA agreements. The terms of an ISDA agreement can be defined by identification of the published base document, and the elections or amendments made to that base in a specific legal agreement. There are distinct versions of the published agreements for jurisdiction and year of publication, but the set of elections and amendments to those base agreements often belong to a common universe. Therefore, the CDM defines each of these terms in a single location, and allows for the representation of a specific legal agreement by combining terms where appropriate. The following legal agreements are supported in the CDM:
 
   **Initial Margin Agreements**
-  
+
   * ISDA 2016 Phase One Credit Support Annex (“CSA”) (Security Interest – New York Law)
   * ISDA 2016 Phase One Credit Support Deed (“CSD”) (Security Interest – English Law)
   * ISDA 2016 Phase One CSA (Loan – Japanese Law)
@@ -1033,7 +1026,7 @@ The legal agreement model in the CDM comprises the following features:
 
   **Master Agreement Schedule**
 
-  * ISDA 2002 Master Agreement Schedule (Automatic Early Termination Clause only)
+  * ISDA 2002 Master Agreement Schedule (Partial agreement representation)
 
 
 * **Composable and normalised model representation** of the eligible collateral schedule for initial and variation margin into a directly machine readable format.
@@ -1042,28 +1035,28 @@ The legal agreement model in the CDM comprises the following features:
 
 * **Mapping to ISDA Create derivative documentation negotiation platform** : Synonyms identified as belonging to ``ISDA_Create_1_0`` have been defined to establish mappings that support automated transformation of ISDA Create documents into objects that are compliant with the CDM.
 
-  * The mapping between the two models through the use of Synonyms validated that all the necessary permutations of elections and data associated with the supported agreements have been replicated in the CDM 
-  * Ingestion of JSON sample files generated from ISDA Create for samples of executed documents has been implemented in the ISDA CDM Portal to demonstrate this capability between ISDA Create and the CDM.  
+  * The mapping between the two models through the use of Synonyms validated that all the necessary permutations of elections and data associated with the supported agreements have been replicated in the CDM
+  * Ingestion of JSON sample files generated from ISDA Create for samples of executed documents has been implemented in the ISDA CDM Portal to demonstrate this capability between ISDA Create and the CDM.
   * More details on Synonyms are provided in the Mapping (Synonym) section of this document.
 
 .. note:: The CDM supports the ISDA CSA for Variation Margin, but this document is not yet represented in ISDA Create - the CDM representation of this document is tested with alternative external sample data.
 
- 
+
 Design Principles
 """""""""""""""""
 
 The key modelling principles that have been adopted to represent legal agreements are described below:
 
-* **Distinction between the agreement identification features and the agreement content features** 
+* **Distinction between the agreement identification features and the agreement content features**
 
   * The agreement identification features: agreement name, publisher (of the base agreement being used), identification, etc. are represented by the ``LegalAgreementBase`` type.
   * The agreement content features: elections and amendments to the published agreement, related agreements and umbrella agreement terms are represented by the ``AgreementTerms``.
-   
+
 * **Composite and extendable model**.
 
   * The Legal Agreement model follows the CDM design principles of composability and reusability to develop an extendable model that can support multiple document types.
   * For instance, the ``LegalAgreementBase`` data type uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
-    
+
 * **Normalisation of the data representation**
 
   * Strong data type attributes such as numbers, Boolean, or enumerations are used where possible to create a series of normalised elections within terms used in ISDA documentation and create a data representation of the legal agreement that is machine readable and executable. This approach allows CDM users to define normalised elections into a corresponding legal agreement template to support functional processes.
@@ -1073,16 +1066,18 @@ The components of the legal agreement model specified in the CDM are detailed in
 
 Legal Agreement Data Structure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The ``LegalAgreement`` data type represents the highest-level data type for defining a legal agreement in the CDM.  This data type extends the ``LegalAgreementBase``, which contains information to uniquely identify an agreement. The only non-inherited attribute in the ``LegalAgreement`` is the ``agreementTerms`` which defines all of the content in the agreement.  
+The ``LegalAgreement`` data type represents the highest-level data type for defining a legal agreement in the CDM.  This data type extends the ``LegalAgreementBase``, which contains information to uniquely identify an agreement. There are three non-inherited components to ``LegalAgreement``, as shown in the code snippet below:.
 
 .. code-block:: Haskell
 
-  type LegalAgreement extends LegalAgreementBase: 
+  type LegalAgreement extends LegalAgreementBase:
 	[metadata key]
  	[rootType]
-    agreementTerms AgreementTerms (0..1) 
+    agreementTerms AgreementTerms (0..1)
+    relatedAgreements RelatedAgreement (0..*)
+    umbrellaAgreement UmbrellaAgreement (0..1)
 
-The ``LegalAgreementBase`` and ``agreementTerms`` are defined in the following sections
+The ``LegalAgreementBase``, ``RelatedAgreement``, ``UmbrellaAgreement``, and ``AgreementTerms`` are defined in the following sections.
 
 Agreement Identification
 """"""""""""""""""""""""
@@ -1096,44 +1091,15 @@ The CDM provides support for implementors to uniquely identify a legal agreement
    identifier Identifier (0..*)
    agreementType LegalAgreementType (1..1)
    contractualParty Party (2..2)
-     [metadata reference]
-   otherParty PartyRole (0..*)   
+    [metadata reference]
+   otherParty PartyRole (0..*)
 
 As indicated by the cardinality for the attributes in this data type, all legal agreements must contain an agreement date, two contractual parties, and information indicating the published form of market standard agreement being used (including the name and publisher of the legal agreement being specified in the ``agreementType`` attribute).  Provision is made for further information to be captured, for example an agreement identifier, which is an optional attribute.
-
-Agreement Content
-"""""""""""""""""
-
-``AgreementTerms`` is used to specify the content of a legal agreement in the CDM. There are three components to agreement terms, as shown in the code snippet below:
-
-.. code-block:: Haskell
-
- type AgreementTerms:
-   agreement Agreement (1..1)
-   relatedAgreements RelatedAgreement (0..*)
-   umbrellaAgreement UmbrellaAgreement (0..1)
- 
-The following sections describe each of these components.
-
-Agreement
-"""""""""
-``Agreement`` is a data type used to specify the individual elections contained within the legal agreement. It contains a set of encapsulated data types, each containing the elections used to define a specific group of agreements.
-
-.. code-block:: Haskell
-
- type Agreement:
-   creditSupportAgreementElections CreditSupportAgreementElections (0..1)
-   collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
-   securityAgreementElections SecurityAgreementElections (0..1)
-   masterAgreementSchedule MasterAgreementSchedule (0..1)
-   condition: one-of
-
-The modelling approach for elective provisions is explained in further detail in the corresponding section below.
 
 Related Agreement
 """""""""""""""""
 
-``RelatedAgreement`` is a data type used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.  
+``RelatedAgreement`` is a data type used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.
 
 The below snippet represents the ``RelatedAgreement`` data type.
 
@@ -1142,7 +1108,7 @@ The below snippet represents the ``RelatedAgreement`` data type.
  type RelatedAgreement:
    legalAgreement LegalAgreement (0..1)
    documentationIdentification DocumentationIdentification (0..1)
-   
+
 Through the ``legalAgreement`` attribute the CDM provides support for implementors to do the following:
 
 * Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage, and the agreement date.
@@ -1152,7 +1118,7 @@ Through the ``legalAgreement`` attribute the CDM provides support for implemento
 
 Umbrella Agreement
 """""""""""""""""
-   
+
 ``UmbrellaAgreement`` is a data type used to specify the applicability of Umbrella Agreement terms, relevant specific language, and underlying entities associated with the umbrella agreement.
 
 The below snippet represents the ``UmbrellaAgreement`` data type.
@@ -1164,8 +1130,56 @@ The below snippet represents the ``UmbrellaAgreement`` data type.
    language string (0..1)
    parties UmbrellaAgreementEntity (0..*)
 
+Agreement Content
+"""""""""""""""""
+
+``AgreementTerms`` is used to specify the content of a legal agreement in the CDM. There are two components to agreement terms, as shown in the code snippet below:
+
+.. code-block:: Haskell
+
+ type AgreementTerms:
+   agreement Agreement (1..1)
+   counterparty Counterparty (2..2)
+
+The following sections describe each of these components.
+
+Agreement
+"""""""""
+
+``Agreement`` is a data type used to specify the individual elections contained within the legal agreement. It contains a set of encapsulated data types, each containing the elections used to define a specific group of agreements.
+
+.. code-block:: Haskell
+
+ type Agreement:
+   creditSupportAgreementElections CreditSupportAgreementElections (0..1)
+   collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
+   securityAgreementElections SecurityAgreementElections (0..1)
+   masterAgreementSchedule MasterAgreementSchedule (0..1)
+   condition: one-of
+
+Counterparty
+""""""""""""
+
+Each counterparty to the agreement is assigned an enumerated value of either ``Party1`` or ``Party2`` through the association of a ``CounterpartyEnum`` with the corresponding ``Party``.  The ``CounterpartyEnum`` value is then used to specify elections throughout the rest of the document.
+
+.. code-block:: Haskell
+
+ enum CounterpartyEnum:
+   Party1
+   Party2
+
+.. code-block:: Haskell
+
+ type Counterparty:
+   role CounterpartyEnum (1..1)
+   partyReference Party (1..1)
+    [metadata reference]
+
+The modelling approach for elective provisions is explained in further detail in the corresponding section below.
+
 Elective Provisions
 ^^^^^^^^^^^^^^^^^^^
+
 This section describes the modelling approach and data structure for election provisions, which are the detailed terms of agreement in each legal document.  The section concludes with relevant examples to illustrate the approach and structure.
 
 Modelling Approach
@@ -1173,7 +1187,7 @@ Modelling Approach
 
 In many cases the pre-printed clauses in legal agreement templates for OTC Derivatives offer pre-defined elections that the parties can select. In these cases, the clauses are explicitly identified in the agreement templates, including the potential values for each election (e.g. an election from a list of options or a specific type of information such as an amount, date or city). The design of the elective provisions in the CDM to represent these instances is a direct reflection of the choices in the clause and uses boolean attributes or enumeration lists to achieve the necessary outcome.
 
-However, in some cases, the agreement template may identify a clause but not all the applicable values, e.g. when a single version of a clause term is provided with a space for parties to agree on a term that is not defined in the template. In order to support these instances, the CDM uses string attributes to capture the clause in a free text format.  
+However, in some cases, the agreement template may identify a clause but not all the applicable values, e.g. when a single version of a clause term is provided with a space for parties to agree on a term that is not defined in the template. In order to support these instances, the CDM uses string attributes to capture the clause in a free text format.
 
 Election Structure
 """"""""""""""""""
@@ -1238,45 +1252,45 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
    trustSchemeAddendum boolean (1..1)
 
 .. note:: Validation exists in the model to ensure that the set of elections specified within the ``Agreement`` are consistent with the agreement identified as part of ``LegalAgreementBase``.  The below snippet represents a sample of a validation condition:
-  
+
 .. code-block:: Haskell
 
  condition agreementVerification:
    if agreementTerms -> agreement -> securityAgreementElections exists
    then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
-   
+
 The validation in this case requires that if the ``securityAgreementElections`` attribute is populated, then the value in ``LegalAgreementNameEnum`` must be ``SecurityAgreement`` .
 
 Selected examples from two of the agreement data types are explained in the following sections to illustrate the overall approach.
 
-Elective Provisions Example 1: Posting Obligations 
+Elective Provisions Example 1: Posting Obligations
 """""""""""""""""""""""""""""""""""""""""""""""""""
 ``postingObligations`` is one of the required attributes in ``CreditSupportAgreementElections`` .  It defines the security provider party to which a set of posting obligations applies and the applicable collateral posting obligations as indicated in the data structure shown below:
-  
+
 .. code-block:: Haskell
 
- type PostingObligations: 
+ type PostingObligations:
    securityProvider string (1..1)
-   partyElection PostingObligationsElection (1..2) 
-	
+   partyElection PostingObligationsElection (1..2)
+
 The ``partyElection`` attribute, which is of the type partyElection ``PostingObligationsElection`` defines the party that the collateral posting obligations apply to and defines the collateral that is eligible, as shown below:
-	  
+
 .. code-block:: Haskell
 
- type PostingObligationsElection: 
-   party string (1..1) 
-   asPermitted boolean (1..1) 
-   eligibleCollateral EligibleCollateral (0..*) 
-   excludedCollateral string (0..1)  
+ type PostingObligationsElection:
+   party CounterpartyEnum (1..1)
+   asPermitted boolean (1..1)
+   eligibleCollateral EligibleCollateral (0..*)
+   excludedCollateral string (0..1)
    additionalLanguage string (0..1)
-  
+
 .. note:: In order to provide compatibility with ISDA Create the ``party`` attribute in CDM is represented as a string.  Implementors should populate this field with ``PartyA`` , ``PartyB`` , or ``PartyAPartyB`` as appropriate to represent the party that the election terms are being defined for.
 
 The development of a digital data standard for representation of eligible collateral schedules is a crucial component required to drive digital negotiation, straight through processing, and digitisation of collateral management. The standard representation provided within the CDM allows institutions involved in the collateral workflow cycle to exchange eligible collateral information accurately and efficiently in digital form.  The ``EligibleCollateral`` data type is a root type with one attribute, as shown below:
 
 .. code-block:: Haskell
 
- type EligibleCollateral: 
+ type EligibleCollateral:
  [rootType]
    criteria EligibleCollateralCriteria (1..*)
 
@@ -1294,7 +1308,7 @@ The following code snippets represent these three components of the eligible col
    issuer IssuerCriteria (0..*)
    asset AssetCriteria (0..*)
    treatment CollateralTreatment (1..1)
-	
+
 .. code-block:: Haskell
 
  type IssuerCriteria:
@@ -1305,7 +1319,7 @@ The following code snippets represent these three components of the eligible col
    issuerAgencyRating AgencyRatingCriteria (0..*)
    sovereignAgencyRating AgencyRatingCriteria (0..*)
    counterpartyOwnIssuePermitted boolean (0..1)
-	
+
 .. code-block:: Haskell
 
  type AssetCriteria:
@@ -1348,7 +1362,7 @@ The ``SecurityAgreementElections`` data type is another one of the four agreemen
    additionalAmendments string (0..1)
    additionalBespokeTerms string (0..1)
    executionTerms ExecutionTerms (0..1)
-	
+
 Depending on the agreement being specified, a different combination of attributes would be used when specifying the agreement. The cardinality of each attribute allows the appropriate combination to be provided dependent on the agreement.
 
 An equivalent approach is followed for ``CreditSupportAgreementElections`` and ``CollateralTransferAgreementElections``.
@@ -1403,7 +1417,7 @@ This set of elections in ``CreditSupportObligations`` is modelled to directly re
    rounding CollateralRounding (0..1)
    bespokeTransferTiming BespokeTransferTiming (0..1)
    creditSupportObligationsVariationMargin CreditSupportObligationsVariationMargin (0..1)
-	
+
 Each attribute is modelled based on the corresponding clause in the relevant legal agreement templates.  Therefore, each provides the necessary components to reflect the election structure. For example the attribute ``rounding`` is of data type ``CollateralRounding`` which allows the specification of rounding terms for the Delivery Amount and the Return Amount, as shown below:
 
 .. code-block:: Haskell
@@ -1416,27 +1430,7 @@ Each attribute is modelled based on the corresponding clause in the relevant leg
 
 Linking Legal Agreements to Contracts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Financial transactions defined in CDM can be referenced in the ``Contract`` data type.  This represents the transaction confirmation that is the legally binding agreement between two parties for an execution of a specified tradable product.  The ``documentation`` attribute uses the ``RelatedAgreement`` data type, which can be populated with the details for a relevant agreement that has been defined in the CDM.  For OTC derivatives, this attribute will contain a reference to the ISDA Master Agreement that governs any derivative transaction between the parties.
-
-.. code-block:: Haskell
-
- type Contract:
-   [metadata key]
-   [rootType]
-   contractIdentifier Identifier (1..*)
-   tradeDate date (1..1)
-   	 [metadata id]
-   clearedDate date (0..1)
-   tradableProduct TradableProduct (1..1)
-   collateral Collateral (0..1)
-   documentation RelatedAgreement (0..1)
-   governingLaw GoverningLawEnum (0..1)
-     [metadata scheme]
-   party Party (0..*)
-   account Account (0..*)
-   partyRole PartyRole (0..*)
-   partyContractInformation PartyContractInformation (0..*)
-   closedState ClosedState (0..1)
+Financial transactions defined in CDM can be referenced in the ``ContractTradeDetails`` data type.  This represents the transaction confirmation that is the legally binding agreement between two parties for an execution of a specified tradable product.  The ``documentation`` attribute uses the ``RelatedAgreement`` data type, which can be populated with the details for a relevant agreement that has been defined in the CDM.  For OTC derivatives, this attribute will contain a reference to the ISDA Master Agreement that governs any derivative transaction between the parties.
 
 Similarly, the ``ContractFormation`` business event that creates the legally binding agreement between the parties can reference a ``LegalAgreement`` governing the transaction.
 
@@ -1639,23 +1633,23 @@ Some of those calculations are presented below:
 
  func EquityCashSettlementAmount:
  	inputs:
- 		contractState ContractState (1..1)
+ 		tradeState TradeState (1..1)
  		date date (1..1)
 
  	output:
  		equityCashSettlementAmount Money (1..1)
 
  	alias equityPayout:
- 		contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout
+ 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout
 
  	condition:
- 		equityPayout -> payoutQuantity -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
+ 		tradeState -> trade -> tradableProduct -> quantityNotation -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
 
  	assign-output equityCashSettlementAmount -> amount:
- 		Abs(contractState -> updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
+ 		Abs(tradeState -> observationHistory -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
 
  	assign-output equityCashSettlementAmount -> currency:
- 		ResolveEquityInitialPrice( equityPayout only-element -> underlier, contractState -> contract -> tradableProduct -> priceNotation ) -> netPrice -> currency
+ 		ResolveEquityInitialPrice( equityPayout only-element -> underlier, tradeState -> trade -> tradableProduct -> priceNotation ) -> netPrice -> currency
 
 .. code-block:: Haskell
 
@@ -1820,30 +1814,44 @@ The observation is used as an input to *resolve* any Equity Derivative contract 
 
 .. code-block:: Haskell
 
- func ResolveEquityContract:
-   inputs:
-     contractState ContractState (1..1)
-     observation ObservationPrimitive (1..1)
-     date date (1..1)
-   output:
-     updatedContract Contract (1..1)
+ func ResolveEquityTradeState:
+ 	inputs:
+ 		tradeState TradeState (1..1)
+ 		observation ObservationPrimitive (1..1)
+ 		date date (1..1)
 
-   alias price: observation -> observation
-   alias equityPayout: contractState -> contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-   alias updatedEquityPayout: updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-   alias periodEndDate: CalculationPeriod( equityPayout -> calculationPeriodDates, date ) -> endDate
-   alias equityPerformance: EquityPerformance(contractState, observation -> observation, periodEndDate)
+ 	output:
+ 		resetTradeState TradeState (1..1)
 
-   condition IsEquityContract: equityPayout exists
+ 	alias price:
+ 		observation -> observation
 
-   assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice -> amount:
-     if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then price
-   assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount:
-     if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod = False then price
-   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance:
-     equityPerformance
-   assign-output updatedContract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue:
-     1 + equityPerformance / 100
+ 	alias equityPayout:
+ 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+
+ 	alias updatedEquityPayout:
+ 		resetTradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+
+ 	alias periodEndDate:
+ 		CalculationPeriod( equityPayout -> calculationPeriodDates, date ) -> endDate
+
+ 	alias equityPerformance:
+ 		EquityPerformance(tradeState -> trade, observation -> observation, periodEndDate)
+
+ 	condition IsEquityContract:
+ 		equityPayout exists
+
+ 	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice -> amount:
+ 		if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then price
+
+ 	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount:
+ 		if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod = False then price
+
+ 	assign-output resetTradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance:
+ 		equityPerformance
+
+ 	assign-output resetTradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue:
+ 		1 + equityPerformance / 100
 
 The set of updated values include the ``performance`` attribute on the ``equityPayout``, which represents the performance of the current calculation period. The resolution function uses some of the already defined *utility functions* such as ``CalculationPeriod`` and also a *calculation function* for the Equity performance.
 
@@ -1854,18 +1862,16 @@ This contract resolution mechanism is wired into the function that creates the `
  func Create_ResetPrimitive:
    [creation PrimitiveEvent]
    inputs:
-     contractState ContractState (1..1)
+     tradeState TradeState (1..1)
      observation ObservationPrimitive (1..1)
      date date (1..1)
    output:
      resetPrimitive ResetPrimitive (1..1)
 
-   alias contract: contractState -> contract
-
-   assign-output resetPrimitive -> before: contractState
-   assign-output resetPrimitive -> after -> contract: contractState -> contract
-   assign-output resetPrimitive -> after -> updatedContract:
-     ResolveUpdatedContract(contractState, observation, date)
+   assign-output resetPrimitive -> before: tradeState
+   assign-output resetPrimitive -> after: tradeState
+   assign-output resetPrimitive -> after -> observationHistory:
+     ResolveUpdatedTrade(tradeState, observation, date)
 
 .. note:: The Reset Event only resets some values on the contract but does not calculate nor pay any cashflow. Any cashflow calculation and payment would be handled separately as part of a Transfer Event which, when such cashflow depends on any resettable values, will use the values updated as part of the Reset Event (as is the case of the *Equity Cash Settlement Amount*).
 

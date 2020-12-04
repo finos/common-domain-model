@@ -63,7 +63,7 @@ public class PartyMappingHelper {
 	}
 
 	/**
-	 * Get an instance of this party mapping helper from the MappingContext params.
+	 * Get an instance of this party mapping helper from the MappingContext params, or if not found throw exception.
 	 */
 	@NotNull
 	public synchronized static PartyMappingHelper getInstanceOrThrow(MappingContext mappingContext) {
@@ -102,18 +102,18 @@ public class PartyMappingHelper {
 	 * Waits until the partyExternalReference to CounterpartyEnum map is ready, then adds both Counterparty instances to TradableProductBuilder.
 	 */
 	void addCounterparties() {
+		// when the tradableProductBuilder has been supplied and both counterparties have been collected, update tradableProduct.counterparties
 		invokedTasks.add(bothCounterpartiesCollected
 				.thenAcceptAsync(map -> {
-					LOGGER.info("Setting TradableProduct.counterparty");
-					tradableProductBuilder.clearCounterparty()
-							.addCounterparty(map.entrySet().stream()
-									.map(extRefCounterpartyEntry -> Counterparty.builder()
-											.setRole(extRefCounterpartyEntry.getValue())
-											.setPartyReferenceBuilder(
-													ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
-											.build())
-									.collect(Collectors.toList()));
-				}, executor));
+							LOGGER.info("Setting TradableProduct.counterparties");
+							tradableProductBuilder.clearCounterparty()
+									.addCounterparty(map.entrySet().stream()
+											.map(extRefCounterpartyEntry -> Counterparty.builder()
+													.setRole(extRefCounterpartyEntry.getValue())
+													.setPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
+													.build())
+											.collect(Collectors.toList()));
+						}, executor));
 	}
 
 	public CompletableFuture<Map<String, CounterpartyEnum>> getBothCounterpartiesCollectedFuture() {
@@ -205,28 +205,28 @@ public class PartyMappingHelper {
 	/**
 	 * Add AncillaryRoleEnum and associated partyExternalReference to tradableProduct.ancillaryRole.
 	 */
-	private void addAncillaryRole(String partyExternalReference, AncillaryRoleEnum roleEnum) {
+	public void addAncillaryRole(String partyExternalReference, AncillaryRoleEnum relatedPartyEnum) {
 		synchronized (tradableProductBuilder) {
-			LOGGER.info("Adding {} as {} to TradableProduct.ancillaryRole", partyExternalReference, roleEnum);
-			List<AncillaryRoleBuilder> roles = Optional.ofNullable(tradableProductBuilder.getAncillaryRole())
+			LOGGER.info("Adding {} as {} to TradableProduct.relatedParties", partyExternalReference, relatedPartyEnum);
+			List<AncillaryRoleBuilder> relatedParties = Optional.ofNullable(tradableProductBuilder.getAncillaryRole())
 					.orElse(new ArrayList<>());
-			Optional<AncillaryRoleBuilder> ancillaryRole = roles.stream()
-					.filter(r -> roleEnum == r.getRole())
+			Optional<AncillaryRoleBuilder> relatedPartyReference = relatedParties.stream()
+					.filter(r -> relatedPartyEnum == r.getRole())
 					.findFirst();
-			if (ancillaryRole.isPresent()) {
+			if (relatedPartyReference.isPresent()) {
 				// Update existing entry
-				ancillaryRole.get()
+				relatedPartyReference.get()
 						.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference).build());
 			} else {
 				// Add new entry
-				roles.add(AncillaryRole.builder()
-						.setRole(roleEnum)
+				relatedParties.add(AncillaryRole.builder()
+						.setRole(relatedPartyEnum)
 						.addPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)));
 			}
-			// Clear ancillary role, and re-add sorted list so we don't get diffs on the list order on each ingestion
+			// Clear related parties, and re-add sorted list so we don't get diffs on the list order on each ingestion
 			tradableProductBuilder
 					.clearAncillaryRole()
-					.addAncillaryRole(roles.stream()
+					.addAncillaryRole(relatedParties.stream()
 							.map(AncillaryRoleBuilder::build)
 							.sorted(Comparator.comparing(AncillaryRole::getRole))
 							.collect(Collectors.toList()));

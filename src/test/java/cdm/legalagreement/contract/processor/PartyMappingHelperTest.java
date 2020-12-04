@@ -93,7 +93,6 @@ class PartyMappingHelperTest {
 
 	@Test
 	void shouldMapPayerToParty1AndReceiverToParty2() throws ExecutionException, InterruptedException, TimeoutException {
-
 		PartyMappingHelper helper = new PartyMappingHelper(context, tradableProductBuilder, null);
 
 		PayerReceiverBuilder builder = PayerReceiver.builder();
@@ -117,7 +116,7 @@ class PartyMappingHelperTest {
 		assertEquals(CounterpartyEnum.PARTY_1, partyExternalReferenceToCounterpartyEnumMap.get(PAYER_PARTY_REF));
 		assertEquals(CounterpartyEnum.PARTY_2, partyExternalReferenceToCounterpartyEnumMap.get(RECEIVER_PARTY_REF));
 
-		// test
+		 // test PartyMappingHelper.addCounterparties()
 		helper.addCounterparties();
 
 		// wait for invoked tasks to complete before assertions

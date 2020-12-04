@@ -106,13 +106,22 @@ type Agreement: <"Specification of the standard set of terms that define a legal
 	securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">
 		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->documentType" = "Security Agreement"]
 	masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
+		[synonym ISDA_Create_1_0 value "ignore"]
 	// transactionConfirmation TransactionConfirmation (0..1) <"A transaction confirmation"> //TODO: Rename Contract and move to here
-
+	
 	condition: one-of
 
 type AgreementTerms: <"Specification of the content of a legal agreement.">
 
 	agreement Agreement (1..1) <"Specification of the standard set of terms that define a legal agreement.">
+	counterparty Counterparty (2..2)
+		[synonym ISDA_Create_1_0 value "partyA" mapper "AgreementTermsParty"]
+
+type LegalAgreement extends LegalAgreementBase: <"The specification of a legal agreement between two parties, including the baseline information and the optional specification of agreement terms allowing .">
+	[metadata key]
+	[rootType]
+
+	agreementTerms AgreementTerms (0..1) <"Specification of the content of the legal agreement.">
 	relatedAgreements RelatedAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
 		[synonym ISDA_Create_1_0 value
 		    "date_of_euroclear_security_agreement" path "answers->partyA",
@@ -124,13 +133,7 @@ type AgreementTerms: <"Specification of the content of a legal agreement.">
 		]
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
 		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "umbrella_agreement_and_principal_identification" path "answers->partyA"]
-
-type LegalAgreement extends LegalAgreementBase: <"The specification of a legal agreement between two parties, including the baseline information and the optional specification of agreement terms allowing .">
-	[metadata key]
-	[rootType]
-
-	agreementTerms AgreementTerms (0..1) <"Specification of the content of the legal agreement.">
-
+	
 	condition agreementVerification: <"A validation rule to ensure that the agreement elections are associated with the correct legal agreement type as specified.">
 		if agreementTerms -> agreement -> securityAgreementElections exists
 		then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
@@ -142,12 +145,11 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
 		else if agreementTerms -> agreement -> masterAgreementSchedule exists
 		then agreementType -> name = LegalAgreementNameEnum->MasterAgreement
 
-
 type LegalAgreementBase: <"A class describing the legal agreement baseline information, other than the specialized elections: type of legal agreement, agreement date and effective date, parties to the agreement, ... The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalAgreement class as a way to enforce a systematic choice between its attributes.">
 
 	agreementDate date (1..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
 		[synonym ISDA_Create_1_0 value "executionDate" path "answers->partyA->execution_date"]
-	effectiveDate date (0..1) <"The date on which the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">
+	effectiveDate date (0..1) <"The date on which, or as of which, the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">
 	identifier Identifier (0..*) <"The legal agreement identifier. Several identifiers can be specified.">
 //	lineage Lineage (0..1) <"The lineage into prior versions of this legal agreement or into other legal agreements that might be referenced by it.">
 	agreementType LegalAgreementType (1..1) <"The type of legal agreement, identified via a set of distinct attributes: name, publisher, governing law and version, e.g. ISDA 2013 Standard Credit Support Annex English Law.">

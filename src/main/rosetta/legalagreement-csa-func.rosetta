@@ -9,24 +9,24 @@ import cdm.legalagreement.common.*
 // Agreement Validation
 func SaIsdaBankCustodian2019NewYorkLaw:
 	// [validation agreement]
-	inputs: agreementTerms AgreementTerms (1..1)
+	inputs: legalAgreement LegalAgreement (1..1)
 	output: is_agreement boolean (1..1)
 
 	assign-output is_agreement:
-		agreementTerms -> relatedAgreements -> legalAgreement -> agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement // The agreement is a CTA
-		and agreementTerms -> relatedAgreements -> legalAgreement -> agreementType -> publisher = LegalAgreementPublisherEnum->ISDA // published by ISDA
-		and agreementTerms -> relatedAgreements -> legalAgreement -> agreementType -> governingLaw = GoverningLawEnum->USNY // under New York Law
-		and agreementTerms -> relatedAgreements -> legalAgreement -> agreementType -> vintage = "2019" // with vintage 2019
-		and agreementTerms -> relatedAgreements -> legalAgreement -> agreementDate exists // then the CTA should have an agreement date specified
-		and agreementTerms -> agreement -> securityAgreementElections -> pledgedAccount is absent // there should not be a PledgedAccount
-		and agreementTerms -> agreement -> securityAgreementElections -> enforcementEvent is absent // there should not be EnforcementEvent terms specified
-		and agreementTerms -> agreement -> securityAgreementElections -> deliveryInLieuRight is absent // there should not be Delivery in Lieu Right terms specified
-		and agreementTerms -> agreement -> securityAgreementElections -> fullDischarge is absent // there should not be Full Discharge terms specified
-		and agreementTerms -> agreement -> securityAgreementElections -> appropriatedCollateralValuation is absent // there should not be any Valuation of Appropriated Collateral terms specified
-		and agreementTerms -> agreement -> securityAgreementElections -> processAgent exists // there should be Process Agent terms specified
-		and agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> japaneseSecuritiesProvisions exists // there should be Japanese Securities Provisions specified
-		and agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> exclusiveJurisdiction exists // there should be Exclusive Jurisdiction terms specified
-		and agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> juryWaiver exists // there should be Jury Waiver terms specified
+		legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement // The agreement is a CTA
+		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> publisher = LegalAgreementPublisherEnum->ISDA // published by ISDA
+		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> governingLaw = GoverningLawEnum->USNY // under New York Law
+		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> vintage = "2019" // with vintage 2019
+		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementDate exists // then the CTA should have an agreement date specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> pledgedAccount is absent // there should not be a PledgedAccount
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> enforcementEvent is absent // there should not be EnforcementEvent terms specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> deliveryInLieuRight is absent // there should not be Delivery in Lieu Right terms specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> fullDischarge is absent // there should not be Full Discharge terms specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> appropriatedCollateralValuation is absent // there should not be any Valuation of Appropriated Collateral terms specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> processAgent exists // there should be Process Agent terms specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> japaneseSecuritiesProvisions exists // there should be Japanese Securities Provisions specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> exclusiveJurisdiction exists // there should be Exclusive Jurisdiction terms specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> juryWaiver exists // there should be Jury Waiver terms specified
 
 func PostedCreditSupportItemAmount: <"Calculates the Value for the given Posted Credit Support item. Value means, unless otherwise specified in Paragraph 13, for any Calculation Date (IM) or other date for which Value is calculated and subject to Paragraph 5 in the case of a dispute, with respect to: (i) save as provided in clause (ii) below, Eligible Collateral (IM) or Posted Collateral (IM) that is: (A) an amount of Cash, the Base Currency Equivalent of such amount multiplied by (VP – HFX); and (B) a security, the Base Currency Equivalent of the bid price obtained by the Calculation Agent (IM) multiplied by (VP – HFX); where: VP equals the applicable Valuation Percentage; and HFX equals the applicable FX Haircut Percentage, provided that, for the purposes of calculating Value under Paragraph 8(b)(iv)(B) or Paragraph 11(a), the VP will be 100% and HFX will be zero; (ii) Posted Collateral (IM) that consists of items that are, in respect of the relevant posting obligation, deemed as of such date to have a Value of zero pursuant to Paragraph 13, zero; and (iii) Other Eligible Support (IM) and Other Posted Support. (IM), as specified in Paragraph 13.">
 	[calculation]

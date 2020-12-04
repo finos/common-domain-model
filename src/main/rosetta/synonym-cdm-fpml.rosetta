@@ -56,7 +56,6 @@ synonym source FpML_5_10 extends FpML
 			[value "expirationDate"]
 			// FX Option
 			[hint "expiryDate"]
-			[hint "valueDate"]
 		+ relevantUnderlyingDate
 			[value "relevantUnderlyingDate"]
 		+ earliestExerciseTime
@@ -174,7 +173,6 @@ synonym source FpML_5_10 extends FpML
 			[value "expirationDate"]
 			// FX Option
 			[hint "expiryDate"]
-			[hint "valueDate"]
 		+ relevantUnderlyingDate
 			[value "relevantUnderlyingDate"]
 		+ earliestExerciseTime
@@ -410,8 +408,10 @@ synonym source FpML_5_10 extends FpML
 	PeriodicDates:
 		+ startDate
 			[value "calculationStartDate"]
+			[hint "startDate"]
 		+ endDate
 			[value "calculationEndDate"]
+			[hint "endDate"]
 		+ periodFrequency
 			[value "calculationPeriodFrequency"]
 		+ periodDatesAdjustments
@@ -461,10 +461,13 @@ synonym source FpML_5_10 extends FpML
 	QuotedCurrencyPair:
 		+ currency1
 			[value "currency1" meta "currencyScheme"]
+			[value "putCurrencyAmount"]
 		+ currency2
 			[value "currency2" meta "currencyScheme"]
+			[value "callCurrencyAmount"]
 		+ quoteBasis
 			[value "quoteBasis"]
+			[hint "rateObservationQuoteBasis"]
 
 	RateObservation:
 	 	[value "RateObservation" meta "id"]
@@ -529,6 +532,10 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementDate"]
 		+ valueDate
 			[value "valueDate"]
+			[value "valueDate" path "americanExercise"]
+			[value "valueDate" path "europeanExercise"]
+			[value "latestValueDate" path "americanExercise"]
+			[value "latestValueDate" path "europeanExercise"]
 		+ settlementAmount
 			[value "settlementAmount"]
 		+ payerReceiver
@@ -605,6 +612,10 @@ synonym source FpML_5_10 extends FpML
 			[value "averagingPeriodIn"]
 		+ averagingPeriodOut
 			[value "averagingPeriodOut"]
+
+	AveragingObservation:
+		+ observationTime
+			[value "fixingTime"]
 
 	AveragingObservationList:
 		+ averagingObservation
@@ -766,11 +777,8 @@ synonym source FpML_5_10 extends FpML
 
 	OptionSettlement:
 		+ cashSettlementTerms
-			[value "cashSettlement"]
 		+ physicalSettlementTerms
 			[value "physicalSettlement"]
-		+ fxSettlementTerms
-			[value "nonDeliverableSettlement"]
 
 	OptionStrike:
 		+ spread
@@ -789,27 +797,25 @@ synonym source FpML_5_10 extends FpML
 		+ averagingStrikeFeature
 			[value "FxAverageStrike"]
 
-
-
 	FxRateObservable:
 		+ quotedCurrencyPair
 			[value "quotedCurrencyPair"]
+			[value "rateObservationQuoteBasis"]
 		+ primaryFxSpotRateSource
 			[value "informationSource"]
+			[value "primaryRateSource"]
 		+ secondaryFxSpotRateSource
 			[value "informationSource"]
 
 	ObservationDates:
 		+ observationSchedule
 			[value "rateObservation"]
+		+ parametricSchedule
+			[value "observationSchedule"]
 
 	ObservationSchedule:
-		+ date
-			[value "date"]
 		+ weight
 			[value "averageRateWeightingFactor"]
-
-
 
 	OptionStyle:
 		+ americanExercise
@@ -1276,27 +1282,27 @@ synonym source FpML_5_10 extends FpML
 			[value "earlyTerminationEvent"]
 
 	OptionCashSettlement:
-	 	[value "CashSettlement" meta "id"]
+	 	[value "CashSettlement" meta "id" path "cashSettlement"]
 		+ cashSettlementValuationTime
-			[value "cashSettlementValuationTime"]
+			[value "cashSettlementValuationTime" path "cashSettlement"]
 		+ cashSettlementValuationDate
-			[value "cashSettlementValuationDate"]
+			[value "cashSettlementValuationDate" path "cashSettlement"]
 		+ cashSettlementPaymentDate
-			[value "cashSettlementPaymentDate"]
+			[value "cashSettlementPaymentDate" path "cashSettlement"]
 		+ cashPriceMethod
-			[value "cashPriceMethod"]
+			[value "cashPriceMethod" path "cashSettlement"]
 		+ cashPriceAlternateMethod
-			[value "cashPriceAlternateMethod"]
+			[value "cashPriceAlternateMethod" path "cashSettlement"]
 		+ parYieldCurveAdjustedMethod
-			[value "parYieldCurveAdjustedMethod"]
+			[value "parYieldCurveAdjustedMethod" path "cashSettlement"]
 		+ zeroCouponYieldAdjustedMethod
-			[value "zeroCouponYieldAdjustedMethod"]
+			[value "zeroCouponYieldAdjustedMethod" path "cashSettlement"]
 		+ parYieldCurveUnadjustedMethod
-			[value "parYieldCurveUnadjustedMethod"]
+			[value "parYieldCurveUnadjustedMethod" path "cashSettlement"]
 		+ crossCurrencyMethod
-			[value "crossCurrencyMethod"]
+			[value "crossCurrencyMethod" path "cashSettlement"]
 		+ collateralizedCashPriceMethod
-			[value "collateralizedCashPriceMethod"]
+			[value "collateralizedCashPriceMethod" path "cashSettlement"]
 
 	PaymentCalculationPeriod:
 	 	[value "PaymentCalculationPeriod" meta "id"]
@@ -1418,32 +1424,32 @@ synonym source FpML_5_10 extends FpML
 		    [value "instrumentId" path "equity" meta "instrumentIdScheme"]
 		    [value "productId" meta "productIdScheme"]
 		+ source
-		    [set to ProductIdSourceEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "CUSIP",
-                set to ProductIdSourceEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0",
-                set to ProductIdSourceEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP",
-                set to ProductIdSourceEnum -> CUSIP when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0",
-                set to ProductIdSourceEnum -> CUSIP when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP",
-                set to ProductIdSourceEnum -> CUSIP when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
-            [set to ProductIdSourceEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "ISIN",
-                set to ProductIdSourceEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0",
-                set to ProductIdSourceEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN",
-                set to ProductIdSourceEnum -> ISIN when "convertibleBond->instrumentId->instrumentIdScheme" = "ISIN",
-                set to ProductIdSourceEnum -> ISIN when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0",
-                set to ProductIdSourceEnum -> ISIN when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN",
-                set to ProductIdSourceEnum -> ISIN when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN",
-                set to ProductIdSourceEnum -> ISIN when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN-1-0"]
-            [set to ProductIdSourceEnum -> ISIN when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-ISIN-1-0",
-                set to ProductIdSourceEnum -> ISIN when "equity->instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-ISIN-1-0"]
-            [set to ProductIdSourceEnum -> BBGID when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-Bloomberg-1-0",
-                set to ProductIdSourceEnum -> BBGID when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-Bloomberg"]
-            [set to ProductIdSourceEnum -> RIC when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-Reuters-RIC-1-0",
-                set to ProductIdSourceEnum -> RIC when "equity->instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-Reuters-RIC-1-0",
-                set to ProductIdSourceEnum -> RIC when "instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-Reuters-RIC-1-0"]
-            [set to ProductIdSourceEnum -> Other when path = "mortgage->instrumentId",
-                set to ProductIdSourceEnum -> Other when path = "bond->instrumentId",
-                set to ProductIdSourceEnum -> Other when path = "instrumentId"]
-            [set to ProductIdSourceEnum -> Other when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId",
-                set to ProductIdSourceEnum -> Other when "instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
+		    [set to ProductIdSourceEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "CUSIP"]
+            [set to ProductIdSourceEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
+            [set to ProductIdSourceEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
+            [set to ProductIdSourceEnum -> CUSIP when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
+            [set to ProductIdSourceEnum -> CUSIP when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
+            [set to ProductIdSourceEnum -> CUSIP when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
+            [set to ProductIdSourceEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "ISIN"]
+            [set to ProductIdSourceEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0"]
+            [set to ProductIdSourceEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
+            [set to ProductIdSourceEnum -> ISIN when "convertibleBond->instrumentId->instrumentIdScheme" = "ISIN"]
+            [set to ProductIdSourceEnum -> ISIN when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0"]
+            [set to ProductIdSourceEnum -> ISIN when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
+            [set to ProductIdSourceEnum -> ISIN when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
+            [set to ProductIdSourceEnum -> ISIN when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN-1-0"]
+            [set to ProductIdSourceEnum -> ISIN when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-ISIN-1-0"]
+            [set to ProductIdSourceEnum -> ISIN when "equity->instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-ISIN-1-0"]
+            [set to ProductIdSourceEnum -> BBGID when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-Bloomberg-1-0"]
+            [set to ProductIdSourceEnum -> BBGID when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-Bloomberg"]
+            [set to ProductIdSourceEnum -> RIC when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-Reuters-RIC-1-0"]
+            [set to ProductIdSourceEnum -> RIC when "equity->instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-Reuters-RIC-1-0"]
+            [set to ProductIdSourceEnum -> RIC when "instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-Reuters-RIC-1-0"]
+            [set to ProductIdSourceEnum -> Other when path = "mortgage->instrumentId"]
+            [set to ProductIdSourceEnum -> Other when path = "bond->instrumentId"]
+            [set to ProductIdSourceEnum -> Other when path = "instrumentId"]
+            [set to ProductIdSourceEnum -> Other when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
+            [set to ProductIdSourceEnum -> Other when "instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
             [set to ProductIdSourceEnum -> Other when path = "productId"] // catch-all
 
     ProductIdentification:
@@ -1461,9 +1467,10 @@ synonym source FpML_5_10 extends FpML
 
 	Security:
 		+ securityType
-			[set to SecurityTypeEnum -> Debt when "bond" exists,
-                set to SecurityTypeEnum -> Debt when "convertibleBond" exists,
-                set to SecurityTypeEnum -> Debt when "mortgage" exists]
+			[set to SecurityTypeEnum -> Debt when "bond" exists]
+            [set to SecurityTypeEnum -> Debt when "convertibleBond" exists]
+            [set to SecurityTypeEnum -> Debt when "mortgage" exists]
+			
             [set to SecurityTypeEnum -> Equity when "equity" exists]
 
 	Quantity:
@@ -1672,11 +1679,10 @@ synonym source FpML_5_10 extends FpML
 
 	CalculationAgentModel:
 		+ calculationAgent
-			[value "calculationAgent" path "trade"]
-			[value "calculationAgent" path "trade->swaption"]
+			[value "calculationAgent"]
 			[value "calculationAgent" path "swaption"]
 		+ calculationAgentBusinessCenter
-			[value "calculationAgentBusinessCenter" path "trade"]
+			[value "calculationAgentBusinessCenter"]
 
 	PackageInformation:
 		+ relatedParty
@@ -1688,7 +1694,7 @@ synonym source FpML_5_10 extends FpML
 
 	PartyContractInformation:
 		+ partyReference
-			[value "partyReference" meta "href"]
+			[value "partyReference" maps 2 meta "href"]
 		+ naturalPersonRole
 			[value "relatedPerson"]
 		+ relatedParty
@@ -1720,35 +1726,42 @@ synonym source FpML_5_10 extends FpML
 		+ presentValueAmount
 			[value "presentValueAmount"]
 		+ paymentDelay
-			[value "paymentDelay" path "trade->creditDefaultSwap->feeLeg"]
+			[value "paymentDelay" path "creditDefaultSwap->feeLeg"]
 
-	Contract:
-		[meta "id" path "trade"]
-		+ contractIdentifier
-			[value "partyTradeIdentifier" path "trade->tradeHeader"]
+    TradeState:
+        [meta "id" path "trade"]
+        + trade
+            [value "trade" mapper "Party"]
+            [hint "party"]
+            [hint "account"]
+        + observationHistory
+            [value "ignore"]
+
+	Trade:
+		+ tradeIdentifier
+			[value "partyTradeIdentifier" path "tradeHeader"]
 		+ tradeDate
 			[value "tradeDate" meta "id"]
-			[value "tradeDate" path "trade->tradeHeader" meta "id"]
-		+ clearedDate
-			[value "clearedDate" path "trade->tradeHeader"]
-			[value "clearedDate" path "tradeHeader"]
-		+ tradableProduct
-			[value "trade" mapper "Party"]
-		+ collateral
-			[value "collateral" path "trade"]
-			[value "collateral"]
-		+ documentation
-			[value "documentation" path "trade"]
-			[value "documentation"]
-		+ governingLaw
-			[value "governingLaw" path "trade" meta "governingLawScheme"]
-			[value "governingLaw"]
+            [value "tradeDate" path "tradeHeader" meta "id"]
 		+ party
 			[value "party"]
+		+ partyRole
+            [value "determiningParty" ,"barrierDeterminationAgent", "hedgingParty" , "brokerPartyReference" mapper "PartyRole"]
+		    [value "partyTradeIdentifier" path "tradeHeader", "partyTradeInformation" path "tradeHeader"]
+	    + clearedDate
+            [value "clearedDate" path "tradeHeader"]
+        + collateral
+            [value "collateral"]
 		+ account
 			[value "account"]
+
+	ContractDetails:
+		+ documentation
+			[value "documentation"]
+		+ governingLaw
+			[value "governingLaw" meta "governingLawScheme"]
 		+ partyContractInformation
-			[value "partyTradeInformation" path "trade->tradeHeader"]
+			[value "partyTradeInformation" path "tradeHeader"]
 
 	FixedRateSpecification:
 		[meta "id" path "fixedRate"]
@@ -1826,15 +1839,6 @@ synonym source FpML_5_10 extends FpML
 		+ paymentDates
 			[value "paymentDates" path "rateOfReturn"]
 
-	Execution:
-		+ identifier
-			[value "partyTradeIdentifier" path "trade->tradeHeader"]
-		+ tradeDate
-		    [value "tradeDate" meta "id"]
-			[value "tradeDate" path "trade->tradeHeader" meta "id"]
-		+ tradableProduct
-			[value "trade" mapper "Party"]
-
 	GeneralTerms:
 		+ referenceInformation
 			[value "referenceInformation"]
@@ -1890,6 +1894,7 @@ synonym source FpML_5_10 extends FpML
 			[set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
 		+ feature
 			[value "feature"]
+			[value "features"]
 
 	SecurityLeg:
 		[meta "id"]
@@ -2004,6 +2009,8 @@ synonym source FpML_5_10 extends FpML
 			[hint "fxOption"]
 		+ forwardPayout
 			[value "fxSingleLeg"]
+			[value "nearLeg"]
+			[value "farLeg"]
 		+ securityPayout
 			[value "repo"]
 		+ cashflow
@@ -2044,6 +2051,8 @@ synonym source FpML_5_10 extends FpML
 			[hint "creditDefaultSwapOption"]
 			// For FX:
 			[hint "fxSingleLeg"]
+			// For fxSwap
+			[value "fxSwap"]
 			// For Repo:
 			[hint "repo"]
 			// To handle the case when addition payments are part of the trade - TODO: should be part of the event,  not the contract
@@ -2082,6 +2091,11 @@ synonym source FpML_5_10 extends FpML
 			// For FX:
 			[value "exchangedCurrency1" path "fxSingleLeg"]
 			[value "exchangedCurrency2" path "fxSingleLeg"]
+			// For FXSwap:
+			[value "exchangedCurrency1" path "fxSwap->nearLeg"]
+			[value "exchangedCurrency2" path "fxSwap->nearLeg"]			
+			[value "exchangedCurrency1" path "fxSwap->farLeg"]
+			[value "exchangedCurrency2" path "fxSwap->farLeg"]	
 			// For Repo:
 			[value "nearLeg" path "repo"]
 			// For Bond Option:
@@ -2116,6 +2130,9 @@ synonym source FpML_5_10 extends FpML
 			[value "premium" path "bondOption"]
 			// For FX
 			[value "fxSingleLeg"]
+			// For FXSwap
+			[value "nearLeg" path "fxSwap"]
+			[value "farLeg" path "fxSwap"]
 			// For Repo:
 			[value "repo"]
 			// For FX Options:
@@ -2175,7 +2192,6 @@ synonym source FpML_5_10 extends FpML
 			// For floatingRate:
 			// For Swap Streams etc
 			[value "floatingRateCalculation" path "calculationPeriodAmount->calculation"
-					set when "calculationPeriodAmount->calculation->floatingRateCalculation->floatingRate" exists,
 					set when "calculationPeriodAmount->calculation->floatingRateCalculation->initialRate" exists,
 					set when "calculationPeriodAmount->calculation->floatingRateCalculation->spreadSchedule" exists,
 					set when "calculationPeriodAmount->calculation->floatingRateCalculation->capRateSchedule" exists,
@@ -2297,6 +2313,8 @@ synonym source FpML_5_10 extends FpML
 			[value "unadjustedDate" path "paymentDate->adjustableDate"]
 			[value "firstPeriodStartDate"]
 			[value "adjustablePaymentDate"]
+			[value "startDate"]
+			[value "endDate"]
 		+ dateAdjustments
 			[value "dateAdjustments"]
 			[value "dateAdjustments" path "calculationPeriodDates->terminationDate"]
@@ -2333,6 +2351,7 @@ synonym source FpML_5_10 extends FpML
 			[value "dateAdjustments"]
 		+ adjustedDate
 			[value "adjustedDate" meta "id"]
+			[value "date"]
 
 	AdjustableOrAdjustedOrRelativeDate:
 		+ unadjustedDate
@@ -2497,9 +2516,13 @@ synonym source FpML_5_10 extends FpML
 		+ payer
 			[value "payerPartyReference" mapper "Payer"]
 			[value "buyerPartyReference" maps 2 mapper "Payer"]
+			[value "putCurrencyAmount" maps 2 mapper "OptionBuyerAsPayer"]
+			[value "callCurrencyAmount" maps 2 mapper "OptionSellerAsPayer"]
 		+ receiver
 			[value "receiverPartyReference" mapper "Receiver"]
 			[value "sellerPartyReference" maps 2 mapper "Receiver"]
+			[value "putCurrencyAmount" maps 2 mapper "OptionSellerAsReceiver"]
+            [value "callCurrencyAmount" maps 2 mapper "OptionBuyerAsReceiver"]
 
 	PartyReferencePayerReceiver:
 		+ payerPartyReference
@@ -2515,7 +2538,7 @@ synonym source FpML_5_10 extends FpML
 
 	RelatedParty:
 		+ partyReference
-			[value "partyReference" meta "href"]
+			[value "partyReference" maps 2 meta "href"]
 		+ accountReference
 			[value "accountReference" meta "href"]
 		+ role
@@ -2622,20 +2645,11 @@ synonym source FpML_5_10 extends FpML
 
 	PartyRole:
 		+ partyReference
-			[value "determiningParty" path "trade" meta "href"]
-			[value "barrierDeterminationAgent" path "trade" meta "href"]
-			[value "hedgingParty" path "trade" meta "href"]
-			[value "brokerPartyReference" path "trade" meta "href"]
-			[value "partyReference" path "trade->tradeHeader->partyTradeIdentifier->relatedParty" meta "href"]
-			[value "partyReference" path "tradeHeader->partyTradeInformation->relatedParty" meta "href"]
+			[value "partyReference" path "relatedParty" meta "href"]
 		+ role
-			[set to PartyRoleEnum -> DeterminingParty when path = "trade->determiningParty"]
-			[set to PartyRoleEnum -> BarrierDeterminationAgent when path = "trade->barrierDeterminationAgent"]
-			[set to PartyRoleEnum -> HedgingParty when path = "trade->hedgingParty"]
-			[set to PartyRoleEnum -> ArrangingBroker when path = "trade->brokerPartyReference"]
-			[value "role" path "tradeHeader->partyTradeInformation->relatedParty"]
+			[value "role" path "relatedParty"]
 		+ ownershipPartyReference
-			[value "partyReference" path "tradeHeader->partyTradeInformation" meta "href"]
+			[value "partyReference" set when "relatedParty->role" exists meta "href"]
 
 	AllocationBreakdown:
 		+ allocationTradeId
@@ -2644,7 +2658,7 @@ synonym source FpML_5_10 extends FpML
 			[value "collateral"]
 
 	ContractState:
-		+ updatedContract
+		+ updatedTrade
 			[value "ignore"]
 
 	CreditLimitUtilisation:
@@ -2987,10 +3001,10 @@ synonym source FpML_5_10 extends FpML
 	ForeignExchange:
 		+ exchangedCurrency1
 			[value "exchangedCurrency1"]
-			[hint "putCurrencyAmount"]// need to doublecheck
+			[hint "putCurrencyAmount"]
 		+ exchangedCurrency2
 			[value "exchangedCurrency2"]
-		    [hint "callCurrencyAmount"]// need to doublecheck
+			[hint "callCurrencyAmount"]
 		+ tenorPeriod
 			[value "tenorPeriod"]
 		+ exchangeRate
@@ -3020,13 +3034,17 @@ synonym source FpML_5_10 extends FpML
 
 	FxCashSettlement:
 		+ settlementCurrency
-			[value "settlementCurrency"]
+			[value "settlementCurrency" path "nonDeliverableSettlement"]
+			[value "settlementCurrency" path "cashSettlement"]
 		+ referenceCurrency
-			[value "referenceCurrency"]
+			[value "referenceCurrency" path "nonDeliverableSettlement"]
+			[value "referenceCurrency" path "cashSettlement"]
 		+ fixing
-			[value "fixing"]
+			[value "fixing" path "nonDeliverableSettlement"]
+			[value "fixing" path "cashSettlement"]
 		+ rateSourceFixing
-			[value "rateSourceFixing"]
+			[value "rateSourceFixing" path "nonDeliverableSettlement"]
+			[value "rateSourceFixing" path "cashSettlement"]
 
 	FxFixing:
 		+ quotedCurrencyPair
@@ -6086,8 +6104,10 @@ synonym source FpML_5_10 extends FpML
 	QuoteBasisEnum:
 		+ Currency1PerCurrency2
 			[value "Currency1PerCurrency2"]
+			[value "PutCurrencyPerCallCurrency"]
 		+ Currency2PerCurrency1
 			[value "Currency2PerCurrency1"]
+			[value "CallCurrencyPerPutCurrency"]
 
 	RateTreatmentEnum:
 		+ BondEquivalentYield

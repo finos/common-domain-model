@@ -12,7 +12,7 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.util.List;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
 
 public class ContactElectionMappingProcessor extends MappingProcessor {
     public ContactElectionMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
