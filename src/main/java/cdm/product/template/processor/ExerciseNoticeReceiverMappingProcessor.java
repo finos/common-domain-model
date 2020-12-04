@@ -39,12 +39,12 @@ public class ExerciseNoticeReceiverMappingProcessor extends MappingProcessor {
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		setValueAndOptionallyUpdateMappings(synonymPath,
 				partyExternalReference -> {
-					Optional<AncillaryRoleEnum> relatedPartyEnum = getRelatedPartyEnum();
+					Optional<AncillaryRoleEnum> relatedPartyEnum = getAncillaryRoleEnum();
 					relatedPartyEnum.ifPresent(p -> {
 						// set related party enum (inside product)
 						((ExerciseNotice.ExerciseNoticeBuilder) parent).setExerciseNoticeReceiver(p);
 						// add to related parties list (outside product)
-						PartyMappingHelper.getInstanceOrThrow(getContext()).addAncillaryRole(partyExternalReference, p);
+						PartyMappingHelper.getInstanceOrThrow(getContext()).addAncillaryParty(partyExternalReference, p);
 					});
 					return relatedPartyEnum.isPresent();
 				},
@@ -52,15 +52,15 @@ public class ExerciseNoticeReceiverMappingProcessor extends MappingProcessor {
 				getModelPath());
 	}
 
-	protected Optional<AncillaryRoleEnum> getRelatedPartyEnum() {
+	protected Optional<AncillaryRoleEnum> getAncillaryRoleEnum() {
 		if (getModelPath().containsPath(CANCELABLE_PROVISION_SUB_PATH)) {
-			return Optional.of(AncillaryRoleEnum.CANCELABLE_PROVISION_EXERCISE_NOTICE_RECEIVER_PARTY);
+			return Optional.of(AncillaryRoleEnum.EXERCISE_NOTICE_RECEIVER_PARTY_CANCELABLE_PROVISION);
 		} else if (getModelPath().containsPath(EXTENDIBLE_PROVISION_SUB_PATH)) {
-			return Optional.of(AncillaryRoleEnum.EXTENDIBLE_PROVISION_EXERCISE_NOTICE_RECEIVER_PARTY);
+			return Optional.of(AncillaryRoleEnum.EXERCISE_NOTICE_RECEIVER_PARTY_EXTENDIBLE_PROVISION);
 		} else if (getModelPath().containsPath(OPTIONAL_EARLY_TERMINATION_SUB_PATH)) {
-			return Optional.of(AncillaryRoleEnum.OPTIONAL_EARLY_TERMINATION_EXERCISE_NOTICE_RECEIVER_PARTY);
+			return Optional.of(AncillaryRoleEnum.EXERCISE_NOTICE_RECEIVER_PARTY_OPTIONAL_EARLY_TERMINATION);
 		} else if (getModelPath().containsPath(MANUAL_EXERCISE_SUB_PATH)) {
-			return Optional.of(AncillaryRoleEnum.MANUAL_EXERCISE_NOTICE_RECEIVER_PARTY);
+			return Optional.of(AncillaryRoleEnum.EXERCISE_NOTICE_RECEIVER_PARTY_MANUAL);
 		} else {
 			return Optional.empty();
 		}

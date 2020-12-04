@@ -6,56 +6,56 @@ import cdm.synonyms.config.*
 
 type Counterparty: <"Defines a counterparty enumerated value, e.g. Party1 or Party2, with an associated party reference. The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the CounterpartyEnum (e.g. values Party1 or Party2). The CounterpartyEnum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this Counterparty type, which is positioned outside of the product definition, allows the CounterpartyEnum to be associated with an actual party reference.">
 
-	role CounterpartyEnum (1..1) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2, that is associated to the partyReference.">
+	role CounterpartyRoleEnum (1..1) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2, that is associated to the partyReference.">
 	partyReference Party (1..1) <"Specifies the party that is associated to the counterparty.">
 		[metadata reference]
 
-type AncillaryRole: <"Defines an ancillary role enumerated value with an associated party reference. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this RelatedPartyReferenc type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
+type AncillaryParty: <"Defines an ancillary role enumerated value with an associated party reference. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this AncillaryParty type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
 
-	role AncillaryRoleEnum (1..1) <"Specifies the AncillaryRoleEnum, e.g. either Party1 or Party2, that is associated to the partyReference. A related party is any involved party that is not one of the two principal parties to the transaction.">
-	partyReference Party (1..*) <"Specifies the party, or parties, associated to the relatedParty.">
+	role AncillaryRoleEnum (1..1) <"Specifies the AncillaryRoleEnum that is associated to the party reference. An ancillary party is any involved party that is not one of the two principal parties to the transaction.">
+	partyReference Party (1..*) <"Specifies the party, or parties, associated to the ancillary role.">
 		[metadata reference]
-	onBehalfOfCounterparty CounterpartyEnum (0..1) <"Optionally specifies the counterparty that the related party is acting on behalf of.">
+	onBehalfOf CounterpartyRoleEnum (0..1) <"Optionally specifies the counterparty that the ancillary party is acting on behalf of.">
 
 type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model construct.">
 
-	buyer CounterpartyEnum (1..1) <"Buyer party that can be resolved as one of the two principal parties to the transaction. The party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
-	seller CounterpartyEnum (1..1) <"Seller party that can be resolved as one of the two principal parties to the transaction. The party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
+	buyer CounterpartyRoleEnum (1..1) <"Buyer party that can be resolved as one of the two principal parties to the transaction. The party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
+	seller CounterpartyRoleEnum (1..1) <"Seller party that can be resolved as one of the two principal parties to the transaction. The party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
 
 type PayerReceiver: <"Specifies the parties responsible for making and receiving payments defined by this structure.">
 
-	payer CounterpartyEnum (0..1) <"Specifies the counterparty responsible for making the payments defined by this structure.  The party is one of the two principal parties to the transaction.">
-	payerRole AncillaryRoleEnum (0..1) <"Specifies the ancillary role responsible for making the payments defined by this structure.  Only populated on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
+	payer CounterpartyRoleEnum (0..1) <"Specifies the counterparty responsible for making the payments defined by this structure.  The party is one of the two principal parties to the transaction.">
+	payerAncillaryRole AncillaryRoleEnum (0..1) <"Specifies the ancillary role responsible for making the payments defined by this structure.  Only populated on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
 	    [deprecated]
 	payerPartyReference Party (0..1) <"Specifies the party responsible for making the payments defined by this structure.  Only populated on physical exercise and cash exercise which do not have the required model structure to specify the counterparties.">
         [metadata reference]
         [deprecated]
-    receiver CounterpartyEnum (0..1) <"Specifies the party that receives the payments corresponding to this structure.  The party is one of the two counterparties to the transaction.">
-    receiverRole AncillaryRoleEnum (0..1) <"Specifies the ancillary role that receives the payments corresponding to this structure.  Only populated on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
+    receiver CounterpartyRoleEnum (0..1) <"Specifies the party that receives the payments corresponding to this structure.  The party is one of the two counterparties to the transaction.">
+    receiverAncillaryRole AncillaryRoleEnum (0..1) <"Specifies the ancillary role that receives the payments corresponding to this structure.  Only populated on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
         [deprecated]
     receiverPartyReference Party (0..1) <"Specifies the party that receives the payments corresponding to this structure.  Only populated on physical exercise and cash exercise which do not have the required model structure to specify the counterparties.">
         [metadata reference]
         [deprecated]
 
 	condition PayerCounterpartyOrAncillaryRoleOrPartyReference: <"Payer should be populated when PayerReceiver is used inside the Product.  The other attributes, payerRole and payerPartyReference, are deprecated.">
-		required choice payer, payerRole, payerPartyReference
+		required choice payer, payerAncillaryRole, payerPartyReference
 
 	condition ReceiverCounterpartyOrAncillaryRoleOrPartyReference: <"Receiver should be populated when PayerReceiver is used inside the Product.  The other attributes, receiverRole and receiverPartyReference, are deprecated.">
-		required choice receiver, receiverRole, receiverPartyReference
+		required choice receiver, receiverAncillaryRole, receiverPartyReference
 		
-	condition CashflowPayerRole: <"The payerRole is specified only on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
-		if payerRole exists
-		then payerRole = AncillaryRoleEnum -> ArrangingBroker or payerRole = AncillaryRoleEnum -> Beneficiary
-		    or payerRole = AncillaryRoleEnum -> ClearingFirm or payerRole = AncillaryRoleEnum -> CounterpartyAfflilate
-		    or payerRole = AncillaryRoleEnum -> Guarantor or payerRole = AncillaryRoleEnum -> OtherParty
-		    or payerRole = AncillaryRoleEnum -> PrimeBroker or payerRole = AncillaryRoleEnum -> SettlementAgent
+	condition CashflowPayerAncillaryRole: <"The payerRole is specified only on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
+		if payerAncillaryRole exists
+		then payerAncillaryRole = AncillaryRoleEnum -> ArrangingBroker or payerAncillaryRole = AncillaryRoleEnum -> Beneficiary
+		    or payerAncillaryRole = AncillaryRoleEnum -> ClearingFirm or payerAncillaryRole = AncillaryRoleEnum -> CounterpartyAfflilate
+		    or payerAncillaryRole = AncillaryRoleEnum -> Guarantor or payerAncillaryRole = AncillaryRoleEnum -> OtherParty
+		    or payerAncillaryRole = AncillaryRoleEnum -> PrimeBroker or payerAncillaryRole = AncillaryRoleEnum -> SettlementAgent
 		
-	condition CashflowReceiverrole: <"The receiverrole is specified only on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
-		if receiverRole exists
-		then receiverRole = AncillaryRoleEnum -> ArrangingBroker or receiverRole = AncillaryRoleEnum -> Beneficiary
-		    or receiverRole = AncillaryRoleEnum -> ClearingFirm or receiverRole = AncillaryRoleEnum -> CounterpartyAfflilate
-		    or receiverRole = AncillaryRoleEnum -> Guarantor or receiverRole = AncillaryRoleEnum -> OtherParty
-		    or receiverRole = AncillaryRoleEnum -> PrimeBroker or receiverRole = AncillaryRoleEnum -> SettlementAgent
+	condition CashflowReceiverAncillaryRole: <"The receiverrole is specified only on the cashflow payout when there is a payment to a party which is not one of the two principal parties to the transaction.">
+		if receiverAncillaryRole exists
+		then receiverAncillaryRole = AncillaryRoleEnum -> ArrangingBroker or receiverAncillaryRole = AncillaryRoleEnum -> Beneficiary
+		    or receiverAncillaryRole = AncillaryRoleEnum -> ClearingFirm or receiverAncillaryRole = AncillaryRoleEnum -> CounterpartyAfflilate
+		    or receiverAncillaryRole = AncillaryRoleEnum -> Guarantor or receiverAncillaryRole = AncillaryRoleEnum -> OtherParty
+		    or receiverAncillaryRole = AncillaryRoleEnum -> PrimeBroker or receiverAncillaryRole = AncillaryRoleEnum -> SettlementAgent
 
 type PartyReferencePayerReceiver: <"Specifies the parties responsible for making and receiving payments defined by this structure.">
 
@@ -82,7 +82,7 @@ type RelatedParty:
 		[metadata reference]
 	accountReference Account (0..1) <"Reference to an account.">
 		[metadata reference]
-	role PartyRoleEnum (1..1) <"The category of the relationship. The related party performs the role specified in this field for the base party. For example, if the role is ,Guarantor,, the related party acts as a guarantor for the base party.">
+	role PartyRoleEnum (1..1) <"The category of the relationship. The related party performs the role specified in this field for the base party. For example, if the role is ,Guarantor, the related party acts as a guarantor for the base party.">
 
 type Account: <"A class to specify an account as an account number alongside, optionally. an account name, an account type, an account beneficiary and a servicing party.">
 	[metadata key]

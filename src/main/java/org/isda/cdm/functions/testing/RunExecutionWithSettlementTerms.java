@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 
-import cdm.base.staticdata.party.AncillaryRole;
+import cdm.base.staticdata.party.AncillaryParty;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.event.common.BusinessEvent;
 import cdm.event.common.Trade;
@@ -46,7 +46,7 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
                 guard(input.getTrade().getTradableProduct().getQuantityNotation()),
                 guard(input.getTrade().getTradableProduct().getPriceNotation()),
                 guard(input.getTrade().getTradableProduct().getCounterparty()),
-                guard(input.getTrade().getTradableProduct().getAncillaryRole()),
+                guard(input.getTrade().getTradableProduct().getAncillaryParty()),
                 guard(input.getTrade().getParty()),
                 guard(input.getTrade().getPartyRole()),
                 settlementTerm,
@@ -74,10 +74,10 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
                 .map(Trade::getTradableProduct)
                 .map(TradableProduct::getCounterparty)
 		        .orElse(Collections.emptyList());
-        List<AncillaryRole> ancillaryRoles = Optional.ofNullable(input)
+        List<AncillaryParty> ancillaryParties = Optional.ofNullable(input)
                 .map(TradeState::getTrade)
                 .map(Trade::getTradableProduct)
-                .map(TradableProduct::getAncillaryRole)
+                .map(TradableProduct::getAncillaryParty)
                 .orElse(Collections.emptyList());
         return Optional.ofNullable(input)
                 .map(TradeState::getTrade)
@@ -88,7 +88,7 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
                 .map(EconomicTerms::getPayout)
                 .map(Payout::getCashflow)
                 .map(cashflows -> cashflows.stream()
-                        .map(cashflow -> cashflowSettlementTerms.evaluate(cashflow, counterparties, ancillaryRoles))
+                        .map(cashflow -> cashflowSettlementTerms.evaluate(cashflow, counterparties, ancillaryParties))
                         .collect(Collectors.toList())
                 )
                 .orElse(Collections.emptyList());

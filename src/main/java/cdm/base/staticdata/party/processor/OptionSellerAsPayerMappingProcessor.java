@@ -31,7 +31,7 @@ public class OptionSellerAsPayerMappingProcessor extends MappingProcessor {
 	@Override
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		PartyMappingHelper.getInstanceOrThrow(getContext())
-				.setCounterpartyEnum(getModelPath(),
+				.setCounterpartyRoleEnum(getModelPath(),
 						synonymPath.getParent().addElement("sellerPartyReference"),
 						((PayerReceiverBuilder) parent)::setPayer);
 	}

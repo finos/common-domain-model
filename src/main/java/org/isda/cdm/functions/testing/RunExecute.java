@@ -23,7 +23,7 @@ public class RunExecute implements ExecutableFunction<TradeState, BusinessEvent>
                 guard(tradeState.getTrade().getTradableProduct().getQuantityNotation()),
                 guard(tradeState.getTrade().getTradableProduct().getPriceNotation()),
                 guard(tradeState.getTrade().getTradableProduct().getCounterparty()),
-                guard(tradeState.getTrade().getTradableProduct().getAncillaryRole()),
+                guard(tradeState.getTrade().getTradableProduct().getAncillaryParty()),
                 guard(tradeState.getTrade().getParty()),
                 guard(tradeState.getTrade().getPartyRole()),
                 Collections.emptyList(),

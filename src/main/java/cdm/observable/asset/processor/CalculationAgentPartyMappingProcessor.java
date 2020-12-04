@@ -37,19 +37,19 @@ public class CalculationAgentPartyMappingProcessor extends MappingProcessor {
 				PartyMappingHelper.getInstanceOrThrow(getContext())
 						.setAncillaryRoleEnum(getModelPath(),
 								synonymPath.addElement("href"),
-								((CalculationAgent.CalculationAgentBuilder) parent)::setCalculationAgentParty,
+								((CalculationAgent.CalculationAgentBuilder) parent)::setCalculationAgentParty, 
 								role));
 	}
 
 	protected Optional<AncillaryRoleEnum> getAncillaryRoleEnum() {
 		if (getModelPath().containsPath(OPTIONAL_EARLY_TERMINATION_SUB_PATH)) {
-			return Optional.of(AncillaryRoleEnum.OPTIONAL_EARLY_TERMINATION_CALCULATION_AGENT);
+			return Optional.of(AncillaryRoleEnum.CALCULATION_AGENT_OPTIONAL_EARLY_TERMINATION);
 		} else if (getModelPath().containsPath(MANDATORY_EARLY_TERMINATION_SUB_PATH)) {
-			return Optional.of(AncillaryRoleEnum.MANDATORY_EARLY_TERMINATION_CALCULATION_AGENT);
+			return Optional.of(AncillaryRoleEnum.CALCULATION_AGENT_MANDATORY_EARLY_TERMINATION);
 		} else if (getModelPath().containsPath(FALLBACK_REFERENCE_PRICE_SUB_PATH)) {
-			return Optional.of(AncillaryRoleEnum.FALLBACK_CALCULATION_AGENT);
+			return Optional.of(AncillaryRoleEnum.CALCULATION_AGENT_FALLBACK);
 		} else if (getModelPath().getParent().getParent().endsWith(ECONOMIC_TERMS_ENDS_WITH)) {
-			return Optional.of(AncillaryRoleEnum.INDEPENDENT_CALCULATION_AGENT);
+			return Optional.of(AncillaryRoleEnum.CALCULATION_AGENT_INDEPENDENT);
 		} else {
 			return Optional.empty();
 		}

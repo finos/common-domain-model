@@ -1,7 +1,7 @@
 package cdm.legalagreement.csa.processor;
 
 import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
-import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.legalagreement.csa.TerminationCurrencyAmendment;
 import cdm.legalagreement.csa.TerminationCurrencyElection;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -40,13 +40,13 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 		TerminationCurrencyAmendment.TerminationCurrencyAmendmentBuilder terminationCurrencyAmendmentBuilder =
 				(TerminationCurrencyAmendment.TerminationCurrencyAmendmentBuilder) builder;
 
-		List<CounterpartyEnum> counterparties = PARTIES.stream()
-				.map(IsdaCreateMappingProcessorUtils::toCounterpartyEnum)
+		List<CounterpartyRoleEnum> counterparties = PARTIES.stream()
+				.map(IsdaCreateMappingProcessorUtils::toCounterpartyRoleEnum)
 				.collect(Collectors.toList());
 
 		if (synonymPath.endsWith("amendment_to_termination_currency")) {
 			PARTIES.forEach(party ->
-					getSpecifiedTerminationCurrencyElection(synonymPath, party + "_termination_currency", Collections.singletonList(toCounterpartyEnum(party)))
+					getSpecifiedTerminationCurrencyElection(synonymPath, party + "_termination_currency", Collections.singletonList(toCounterpartyRoleEnum(party)))
 							.ifPresent(terminationCurrencyAmendmentBuilder::addPartyElection));
 			getSpecifiedTerminationCurrencyElection(synonymPath, "both_parties_termination_currency", counterparties)
 					.ifPresent(terminationCurrencyAmendmentBuilder::addPartyElection);
@@ -55,14 +55,14 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 		PARTIES.forEach(party -> {
 			String isSpecifiedSynonym = party + "_amendment_to_termination_currency";
 			String currencySynonym = party + "_currency";
-			getOptionalTerminationCurrencyElection(synonymPath, isSpecifiedSynonym, currencySynonym, Collections.singletonList(toCounterpartyEnum(party)))
+			getOptionalTerminationCurrencyElection(synonymPath, isSpecifiedSynonym, currencySynonym, Collections.singletonList(toCounterpartyRoleEnum(party)))
 					.ifPresent(terminationCurrencyAmendmentBuilder::addPartyElection);
 		});
 		getOptionalTerminationCurrencyElection(synonymPath, "two_affected_parties", "two_affected_parties_currency", counterparties)
 				.ifPresent(terminationCurrencyAmendmentBuilder::addPartyElection);
 	}
 
-	private Optional<TerminationCurrencyElection> getSpecifiedTerminationCurrencyElection(Path basePath, String currencySynonym, List<CounterpartyEnum> parties) {
+	private Optional<TerminationCurrencyElection> getSpecifiedTerminationCurrencyElection(Path basePath, String currencySynonym, List<CounterpartyRoleEnum> parties) {
 		TerminationCurrencyElection.TerminationCurrencyElectionBuilder terminationCurrencyElectionBuilder = TerminationCurrencyElection.builder();
 
 		setValueAndOptionallyUpdateMappings(basePath.addElement(currencySynonym),
@@ -75,7 +75,7 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 		return terminationCurrencyElectionBuilder.hasData() ? Optional.of(terminationCurrencyElectionBuilder.build()) : Optional.empty();
 	}
 
-	private Optional<TerminationCurrencyElection> getOptionalTerminationCurrencyElection(Path basePath, String isSpecifiedSynonym, String currencySynonym, List<CounterpartyEnum> parties) {
+	private Optional<TerminationCurrencyElection> getOptionalTerminationCurrencyElection(Path basePath, String isSpecifiedSynonym, String currencySynonym, List<CounterpartyRoleEnum> parties) {
 		TerminationCurrencyElection.TerminationCurrencyElectionBuilder terminationCurrencyElectionBuilder = TerminationCurrencyElection.builder();
 
 		setValueAndUpdateMappings(basePath.addElement(isSpecifiedSynonym),

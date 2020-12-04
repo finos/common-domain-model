@@ -11,7 +11,7 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Counterparty;
-import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.functions.Create_ClearedTrade;
@@ -110,7 +110,7 @@ public class ClearingUtils {
 	/**
 	 * Extract the party related to the given counterparty enum.
 	 */
-	public static Party getParty(TradeState tradeState, CounterpartyEnum counterparty) {
+	public static Party getParty(TradeState tradeState, CounterpartyRoleEnum counterparty) {
 		return tradeState.getTrade().getTradableProduct().getCounterparty().stream()
 				.filter(c -> c.getRole() == counterparty)
 				.map(Counterparty::getPartyReference)

@@ -1,7 +1,7 @@
 package cdm.event.common.processor;
 
 import cdm.base.staticdata.party.Counterparty;
-import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.product.template.TradableProduct.TradableProductBuilder;
@@ -30,7 +30,7 @@ public class ORECounterpartyMappingProcessor extends MappingProcessor {
 							FieldWithMetaString.builder().setValue("ME").build())
 						.build())
 					.build())
-					.setRole(CounterpartyEnum.PARTY_2)
+					.setRole(CounterpartyRoleEnum.PARTY_2)
 				.build());
 		}
 	}

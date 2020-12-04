@@ -68,7 +68,7 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 	
 	condition IndependentCalculationAgent:
 		if calculationAgent -> calculationAgentParty exists
-		then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> IndependentCalculationAgent
+		then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> CalculationAgentIndependent
 
     // FIXME Object compare: effectiveDate > terminationDate
     // condition CalculationPeriodDates_effectiveDate_terminationDate: <"If the effective date and the termination date are specified, then the termination date must be after the effective date. This data rule extends the FpML validation rules ird-14 & cd-5, which scope is limited to the unadjusted date, to the adjusted date.">
@@ -271,7 +271,7 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		[synonym Workflow_Event value "cashflow"]
 	priceNotation PriceNotation (1..*) <"Price of the underlying product to be included in a contract or execution. Contractual products are defined as price-less in the CDM, with the actual price number(s) abstracted away from the product definition. Multiple price notations can be specified and the notation specifies the tags (e.g. asset identifier) allowing price to be then appropriately positioned in the contractual product. The synonym paths to FpML will tend to be quite deep, as we are extacting those values from where they are embedded within the product definition.">
 	counterparty Counterparty (2..2) <"Specifies the parties which are the two counterparties to the transaction.  The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the counterparty enum (e.g. CounterpartyEnum values Party1 or Party2). The counterparty enum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this counterparties attribute, which is positioned outside of the product definition, allows the counterparty enum to be associated with an actual party reference.">
-	ancillaryRole AncillaryRole (0..*) <"Specifies the parties with ancillary roles in the transaction. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this RelatedPartyReferenc type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
+	ancillaryParty AncillaryParty (0..*) <"Specifies the parties with ancillary roles in the transaction. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this AncillaryParty type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
 	adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
 
 	condition PriceQuantityTriangulation:
@@ -375,7 +375,7 @@ type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a
 	
 	condition CancelableProvisionExerciseNoticeReceiverParty:
 		if exerciseNotice -> exerciseNoticeReceiver exists
-		then exerciseNotice -> exerciseNoticeReceiver = AncillaryRoleEnum -> CancelableProvisionExerciseNoticeReceiverParty
+		then exerciseNotice -> exerciseNoticeReceiver = AncillaryRoleEnum -> ExerciseNoticeReceiverPartyCancelableProvision
 
 type CancelableProvisionAdjustedDates: <"A data to:  define the adjusted dates for a cancelable provision on a swap transaction.">
 
@@ -443,7 +443,7 @@ type ExtendibleProvision extends BuyerSeller: <"A data defining:  an option to e
 	
 	condition ExtendibleProvisionExerciseNoticeReceiverParty:
 		if exerciseNotice -> exerciseNoticeReceiver exists
-		then exerciseNotice -> exerciseNoticeReceiver = AncillaryRoleEnum -> ExtendibleProvisionExerciseNoticeReceiverParty
+		then exerciseNotice -> exerciseNoticeReceiver = AncillaryRoleEnum -> ExerciseNoticeReceiverPartyExtendibleProvision
 
 type ExtendibleProvisionAdjustedDates: <"A data defining:  the adjusted dates associated with a provision to extend a swap.">
 
@@ -473,7 +473,7 @@ type MandatoryEarlyTermination: <"A data to:  define an early termination provis
 
     condition MandatoryEarlyTerminationCalculationAgent:
         if calculationAgent -> calculationAgentParty exists
-        then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> MandatoryEarlyTerminationCalculationAgent
+        then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> CalculationAgentMandatoryEarlyTermination
 
 type MandatoryEarlyTerminationAdjustedDates: <"A data defining:  the adjusted dates associated with a mandatory early termination provision.">
 
@@ -503,11 +503,11 @@ type OptionalEarlyTermination: <"A data defining:  an early termination provisio
 
 	condition OptionalEarlyTerminationExerciseNoticeReceiverParty:
 		if exerciseNotice -> exerciseNoticeReceiver exists
-		then exerciseNotice -> exerciseNoticeReceiver = AncillaryRoleEnum -> OptionalEarlyTerminationExerciseNoticeReceiverParty
+		then exerciseNotice -> exerciseNoticeReceiver = AncillaryRoleEnum -> ExerciseNoticeReceiverPartyOptionalEarlyTermination
 
     condition MandatoryEarlyTerminationCalculationAgent:
         if calculationAgent -> calculationAgentParty exists
-        then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> OptionalEarlyTerminationCalculationAgent
+        then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> CalculationAgentOptionalEarlyTermination
 
 type OptionalEarlyTerminationAdjustedDates: <"A data defining:  the adjusted dates associated with an optional early termination provision.">
 
@@ -725,7 +725,7 @@ type ManualExercise: <"A class defining manual exercise, i.e. that the option bu
 
 	condition ManualExerciseNoticeReceiverParty:
 		if exerciseNotice -> exerciseNoticeReceiver exists
-		then exerciseNotice -> exerciseNoticeReceiver = AncillaryRoleEnum -> ManualExerciseNoticeReceiverParty
+		then exerciseNotice -> exerciseNoticeReceiver = AncillaryRoleEnum -> ExerciseNoticeReceiverPartyManual
 	
 
 type MultipleExercise extends PartialExercise: <"A class defining multiple exercises. As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more than the maximum notional amount, and if an integral multiple amount is specified, the notional exercised must be equal to or, be an integral multiple of, the integral multiple amount. In FpML, MultipleExercise is built upon the PartialExercise.model.">

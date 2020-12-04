@@ -1160,18 +1160,18 @@ Agreement
 Counterparty
 """"""""""""
 
-Each counterparty to the agreement is assigned an enumerated value of either ``Party1`` or ``Party2`` through the association of a ``CounterpartyEnum`` with the corresponding ``Party``.  The ``CounterpartyEnum`` value is then used to specify elections throughout the rest of the document.
+Each counterparty to the agreement is assigned an enumerated value of either ``Party1`` or ``Party2`` through the association of a ``CounterpartyRoleEnum`` with the corresponding ``Party``.  The ``CounterpartyRoleEnum`` value is then used to specify elections throughout the rest of the document.
 
 .. code-block:: Haskell
 
- enum CounterpartyEnum:
+ enum CounterpartyRoleEnum:
    Party1
    Party2
 
 .. code-block:: Haskell
 
  type Counterparty:
-   role CounterpartyEnum (1..1)
+   role CounterpartyRoleEnum (1..1)
    partyReference Party (1..1)
     [metadata reference]
 
@@ -1278,7 +1278,7 @@ The ``partyElection`` attribute, which is of the type partyElection ``PostingObl
 .. code-block:: Haskell
 
  type PostingObligationsElection:
-   party CounterpartyEnum (1..1)
+   party CounterpartyRoleEnum (1..1)
    asPermitted boolean (1..1)
    eligibleCollateral EligibleCollateral (0..*)
    excludedCollateral string (0..1)
