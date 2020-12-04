@@ -4,7 +4,7 @@ _What is being released_
 
 This change is the part of the ongoing model refactoring to externalise the definition of the parties involved in a transaction from the definition of the transacted product.
 
-Update the model naming based on feedback from the Architecture Review Committee:
+Updates the model naming based on feedback from the Architecture Review Committee:
 
 - Rename `RelatedPartyEnum` to `AncillaryRoleEnum`.
 - Rename `CounterpartyEnum` to `CounterpartyRoleEnum`.
@@ -12,7 +12,7 @@ Update the model naming based on feedback from the Architecture Review Committee
 - Rename `Counterparty.counterparty` to `Counterparty.role`.
 - Rename `TradableProduct` attributes with multiple cardinality to be singular, e.g. `TradableProduct.counterparty` and `TradableProduct.ancillaryParty`.
 
-Update the model to specify the ancillary role consistently regardless of whether the party is a counterparty or not:
+Updates the model to specify the ancillary role consistently regardless of whether the party is a counterparty or not:
 
 - Remove type `CounterpartyOrRelatedParty`.
 - Update attributes `CalculationAgent.calculationAgentParty`, `AdditionalDisruptionEvents.determiningParty`, `DividendReturnTerms.extraordinaryDividendsParty`, `OptionPhysicalSettlement.predeterminedClearingOrganisationParty` and `ExerciseNotice.exerciseNoticeReceiver` to use enum `AncillaryRoleEnum`.
