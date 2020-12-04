@@ -31,7 +31,7 @@ synonym source DTCC_11_0 extends DTCC_BASE
 {
 	ContractFormationPrimitive:
 		+ after
-		    [value "TradeMsg" path "Header->OTC_RM->Manifest", "ReportingJurisdiction" path "Body->OTC_Matching->ReportingData->ReportingHeader", "FpML" path "Body->OTC_Matching->Trade" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
+		    [value "Manifest" path "Header->OTC_RM", "ReportingHeader" path "Body->OTC_Matching->ReportingData", "FpML" path "Body->OTC_Matching->Trade" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
 }
 
 synonym source DTCC_BASE extends FpML_5_10
@@ -44,19 +44,21 @@ synonym source DTCC_BASE extends FpML_5_10
 		+ calculationAgentBusinessCenter
 			[value "calculationAgentBusinessCenter" path "Body->OTC_Matching->Trade->FpML->trade"]
 
+    TradeState:
+        + trade
+            [value "TradeMsg"]
+            [value "ReportingJurisdiction"]
+
 	Trade:
 		- tradeIdentifier
 		+ tradeIdentifier
-			[value "Submitter"] // below are taken from contract
+			[value "Submitter"]
 			[value "ContraTradeId"]
 			[value "YourTradeId"]
 			[value "tradeIdentifyingItems"]
-			[value "USI"]
+            [value "USI"]
 			[value "OriginatingUSI"]
-			[value "UTI"]
-			//[value "partyTradeIdentifier" path "Submitter"] // taken from execution
-		+ tradableProduct
-			[hint "ProductType"]
+            [value "UTI"]
 
 	Payout:
 		+ equityPayout
@@ -206,12 +208,6 @@ synonym source DTCC_BASE extends FpML_5_10
 	PartyCustomisedWorkflow:
 		+ partyReference
 			[value "partyReference" maps 2 meta "href"]
-
-	//Trade_Deprecated:
-	//	+ contract
-	//		[value "FpML" path "Trade"]
-	//		[value "TradeMsg" path "Manifest"]
-	//		[value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
 
 	TradeWarehouseWorkflow:
 		+ warehouseIdentity

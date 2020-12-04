@@ -40,7 +40,7 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 
 	Trade:
 		+ tradeIdentifier
-			[value "universalSwapIdentifier" path "trade->tradeHeader"]
+			[value "universalSwapIdentifier" path "tradeHeader"]
 		- account
 
 	OptionPayout:
@@ -160,22 +160,19 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 		+ before
 			[value "ignore"]
 		+ after
-		    [value "TrdCaptRpt"]
+		    [hint "TrdCaptRpt"]
 
 	AssignedIdentifier:
 		+ identifier
 			[value "RptID" path "TrdCaptRpt"]
 
-	Trade:
-		+ tradeIdentifier
-			[value "partyTradeIdentifier" path "Instrmt->SecXML->FpML->trade->tradeHeader"]
-		+ tradeDate
-			[value "tradeDate" path "Instrmt->SecXML->FpML->trade->tradeHeader" meta "id"]
-		- tradableProduct
-		+ tradableProduct
-			[value "trade" path "Instrmt->SecXML->FpML" mapper "CmeParty"]
-		+ party
-			[value "party" path "Instrmt->SecXML->FpML"]
+    TradeState:
+        [meta "id" path "TrdCaptRpt->Instrmt->SecXML->FpML->trade"]
+        - trade
+        + trade
+            [value "TrdCaptRpt"]
+            [value "trade" path "TrdCaptRpt->Instrmt->SecXML->FpML" mapper "CmeParty"]
+            [value "FpML" path "TrdCaptRpt->Instrmt->SecXML"]
 
 	ExecutionDetails:
 		+ executionType
@@ -230,6 +227,8 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 	WorkflowStep:
 		+ action
 			[value "TransTyp" path "TrdCaptRpt"]
+        + proposedInstruction
+            [value "ignore"]
 
 	EventTimestamp:
 		+ dateTime
