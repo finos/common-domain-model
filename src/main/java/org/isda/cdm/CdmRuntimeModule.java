@@ -1,10 +1,10 @@
 package org.isda.cdm;
 
 import cdm.base.math.functions.*;
-import cdm.base.staticdata.party.functions.ExtractCounterpartyBySide;
-import cdm.base.staticdata.party.functions.ExtractCounterpartyBySideImpl;
-import cdm.base.staticdata.party.functions.ExtractRelatedParty;
-import cdm.base.staticdata.party.functions.ExtractRelatedPartyImpl;
+import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRole;
+import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRoleImpl;
+import cdm.base.staticdata.party.functions.ExtractCounterpartyByRole;
+import cdm.base.staticdata.party.functions.ExtractCounterpartyByRoleImpl;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.common.functions.CurrencyAmount;
@@ -47,8 +47,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
-		bind(ExtractCounterpartyBySide.class).to(bindExtractCounterpartyBySide());
-		bind(ExtractRelatedParty.class).to(bindExtractRelatedParty());
+		bind(ExtractCounterpartyByRole.class).to(bindExtractCounterpartyByRole());
+		bind(ExtractAncillaryPartyByRole.class).to(bindExtractAncillaryPartyByRole());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -109,11 +109,11 @@ public class CdmRuntimeModule extends AbstractModule {
 		return FpmlIrd8Impl.class;
 	}
 
-	protected Class<? extends ExtractCounterpartyBySide> bindExtractCounterpartyBySide() {
-		return ExtractCounterpartyBySideImpl.class;
+	protected Class<? extends ExtractCounterpartyByRole> bindExtractCounterpartyByRole() {
+		return ExtractCounterpartyByRoleImpl.class;
 	}
 
-	protected Class<? extends ExtractRelatedParty> bindExtractRelatedParty() {
-		return ExtractRelatedPartyImpl.class;
+	protected Class<? extends ExtractAncillaryPartyByRole> bindExtractAncillaryPartyByRole() {
+		return ExtractAncillaryPartyByRoleImpl.class;
 	}
 }

@@ -1,7 +1,7 @@
 package org.isda.cdm.workflows;
 
 import cdm.base.staticdata.identifier.Identifier;
-import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.event.common.TradeState;
 import cdm.event.common.functions.Create_ClearedTrade;
@@ -34,8 +34,8 @@ public class ClearingAccepted implements Function<TradeState, Workflow> {
 
 		TradeState alphaContract = contractBuilder.build();
 
-		Party party1 = getParty(tradeState, CounterpartyEnum.PARTY_1);
-		Party party2 = getParty(tradeState, CounterpartyEnum.PARTY_2);
+		Party party1 = getParty(tradeState, CounterpartyRoleEnum.PARTY_1);
+		Party party2 = getParty(tradeState, CounterpartyRoleEnum.PARTY_2);
 
 		String externalReference = alphaContract.getMeta().getGlobalKey();
 

@@ -1,17 +1,28 @@
-# *Digital Regulatory Reporting: FpML Event Ingestion*
+# *Model Optimisation: Extract Party References from Product*
 
 _What is being released_
 
-As part of the Digital Regulatory Reporting workstream, the FpML record-keeping schema, and a corresponding ingestion environment, has been added to demonstrate CDM integration with FpML reporting.
- 
-The FpML record-keeping schema is intended to be used for reporting the primary economic terms of derivative transactions to swaps data repositories.  FpML messages, such as `nonpublicExecutionReport`, can now be ingested into a CDM event, e.g. `WorkflowStep`, which can then be processed by CDM regulatory reporting logic.
+This change is the part of the ongoing model refactoring to externalise the definition of the parties involved in a transaction from the definition of the transacted product.
+
+Updates the model naming based on feedback from the Architecture Review Committee:
+
+- Rename `RelatedPartyEnum` to `AncillaryRoleEnum`.
+- Rename `CounterpartyEnum` to `CounterpartyRoleEnum`.
+- Rename `RelatedPartyReference.relatedParty` to `AncillaryParty.role`.
+- Rename `Counterparty.counterparty` to `Counterparty.role`.
+- Rename `TradableProduct` attributes with multiple cardinality to be singular, e.g. `TradableProduct.counterparty` and `TradableProduct.ancillaryParty`.
+
+Updates the model to specify the ancillary role consistently regardless of whether the party is a counterparty or not:
+
+- Remove type `CounterpartyOrRelatedParty`.
+- Update attributes `CalculationAgent.calculationAgentParty`, `AdditionalDisruptionEvents.determiningParty`, `DividendReturnTerms.extraordinaryDividendsParty`, `OptionPhysicalSettlement.predeterminedClearingOrganisationParty` and `ExerciseNotice.exerciseNoticeReceiver` to use enum `AncillaryRoleEnum`.
+- Add conditions to `TradableProduct` type to ensure that if an `AncillaryRoleEnum` is specified in the product, there is a corresponding `AncillaryParty` entry. 
 
 _Review Directions_
 
-In the CDM Portal Ingestion section, review new FpML record-keeping samples:
+In the CDM Portal, use the Textual Browser to review the types mentioned above.
 
-- record-keeping > record-ex01-vanilla-swap
-- record-keeping > record-ex02-vanilla-swap-datadoc
-- record-keeping > record-ex100-new-trade
+In the CDM Portal, use the Ingestion page to compare the samples below, noting that the ancillary roles `CalculationAgentIndependent`, `ExtraordinaryDividendsParty` and `DisruptionEventDeterminingParty` are specified consistently in both samples:
 
-In the Rosetta Core, use the text editor to review the new synonyms in file `synonym-cdm-fpml-recordkeeping.rosetta`.
+- `equity > eqs-ex01-single-underlyer-execution-long-form.xml`
+- `equity > eqs-ex01-single-underlyer-execution-long-form-other-party.xml`

@@ -630,8 +630,8 @@ func Create_Execution: <"Specifies a function to create an execution business ev
 		product Product (1..1) <"Defines the financial product to be executed and contract formed.">
 		quantityNotation QuantityNotation (1..*) <"Defines the quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
 		priceNotation PriceNotation (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
-		counterparties  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
-		relatedParties RelatedPartyReference (0..*) <"Maps any related parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
+		counterparty  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
+		ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
 		parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
 		partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
 		settlementTerms SettlementTerms (0..*) <"Specifies the settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
@@ -643,7 +643,7 @@ func Create_Execution: <"Specifies a function to create an execution business ev
 		executionEvent BusinessEvent (1..1) <"Qualified execution business event containing a single execution primitive event, and no other primitive event.">
 
 	assign-output executionEvent -> primitives -> execution: <"Create and assign the execution primitive event to the execution business event, using the corresponding primitive event creation function.">
-		Create_ExecutionPrimitive(product, quantityNotation, priceNotation, counterparties, relatedParties, parties, partyRoles, settlementTerms, executionType, tradeDate, identifier)
+		Create_ExecutionPrimitive(product, quantityNotation, priceNotation, counterparty, ancillaryParty, parties, partyRoles, settlementTerms, executionType, tradeDate, identifier)
 
 	assign-output executionEvent -> eventEffect -> trade: <"The trade object, i.e. the after state of the execution primitive event, is the single event effect of the business event.">
     		executionEvent -> primitives -> execution -> after
@@ -654,8 +654,8 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 		product Product (1..1) <"Defines the financial product to be executed and contract formed.">
 		quantityNotation QuantityNotation (1..*) <"Defines the quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
 		priceNotation PriceNotation (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
-		counterparties  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
-		relatedParties RelatedPartyReference (0..*) <"Maps any related parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
+		counterparty Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
+		ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
 		parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
 		partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
 		settlementTerms SettlementTerms (0..*) <"Specifies the settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement.">
@@ -675,11 +675,11 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 	assign-output executionPrimitive -> after -> trade -> tradableProduct -> quantityNotation: <"Assign the quantities input to the tradable product of the execution object.">
 		quantityNotation
 
-	assign-output executionPrimitive -> after -> trade -> tradableProduct -> counterparties: <"Assign the counterparties input to the tradable product of the execution object.">
-		counterparties
+	assign-output executionPrimitive -> after -> trade -> tradableProduct -> counterparty: <"Assign the counterparty input to the tradable product of the execution object.">
+		counterparty
 
-	assign-output executionPrimitive -> after -> trade -> tradableProduct -> relatedParties: <"Assign the relatedParties input to the tradable product of the execution object.">
-		relatedParties
+	assign-output executionPrimitive -> after -> trade -> tradableProduct -> ancillaryParty: <"Assign the ancillaryRole input to the tradable product of the execution object.">
+		ancillaryParty
 
 	assign-output executionPrimitive -> after -> trade -> party: <"Assign the parties input to the execution object.">
 		parties
@@ -796,8 +796,8 @@ func Create_Exercise: <"Constructs the business event that represents the exerci
 		Create_ExecutionPrimitive( underlier,
 			tradableProduct -> quantityNotation, 
 			tradableProduct -> priceNotation, 
-			tradableProduct -> counterparties, 
-			tradableProduct -> relatedParties,
+			tradableProduct -> counterparty, 
+			tradableProduct -> ancillaryParty,
 			tradeState -> trade -> party,
 			tradeState -> trade -> partyRole,
 			empty, /*settlementTerms*/
@@ -931,10 +931,10 @@ func Create_CashTransferPrimitive: <"Function specification to generate a transf
 		ResolveCashflow(tradeState, date)
 
 	alias counterparties:
-		tradeState -> trade -> tradableProduct -> counterparties
+		tradeState -> trade -> tradableProduct -> counterparty
 
-	alias relatedParties:
-		tradeState -> trade -> tradableProduct -> relatedParties
+	alias ancillaryParties:
+		tradeState -> trade -> tradableProduct -> ancillaryParty
 
 	assign-output transfer -> status:
 		TransferStatusEnum -> Instructed
@@ -944,13 +944,13 @@ func Create_CashTransferPrimitive: <"Function specification to generate a transf
 
 	assign-output transfer -> cashTransfer -> payerReceiver -> payerPartyReference:
 		if cashflow -> payerReceiver -> payer exists
-		then ExtractCounterpartyBySide( counterparties, cashflow -> payerReceiver -> payer ) -> partyReference
-		else ExtractRelatedParty( relatedParties, cashflow -> payerReceiver -> payerRelatedParty ) -> partyReference only-element
+		then ExtractCounterpartyByRole( counterparties, cashflow -> payerReceiver -> payer ) -> partyReference
+		else ExtractAncillaryPartyByRole( ancillaryParties, cashflow -> payerReceiver -> payerAncillaryRole ) -> partyReference only-element
 
 	assign-output transfer -> cashTransfer -> payerReceiver -> receiverPartyReference:
 		if cashflow -> payerReceiver -> receiver exists
-		then ExtractCounterpartyBySide( counterparties, cashflow -> payerReceiver -> receiver ) -> partyReference
-		else ExtractRelatedParty( relatedParties, cashflow -> payerReceiver -> receiverRelatedParty ) -> partyReference only-element
+		then ExtractCounterpartyByRole( counterparties, cashflow -> payerReceiver -> receiver ) -> partyReference
+		else ExtractAncillaryPartyByRole( ancillaryParties, cashflow -> payerReceiver -> receiverAncillaryRole ) -> partyReference only-element
 
 	assign-output transfer -> settlementDate:
 		cashflow -> cashflowDate
@@ -1180,7 +1180,7 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 		Create_PartyRole(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
 
 	alias clearerCounterparty:
-		Create_Counterparty(clearingInstruction -> clearingParty, CounterpartyEnum -> Party2)
+		Create_Counterparty(clearingInstruction -> clearingParty, CounterpartyRoleEnum -> Party2)
 
 	alias betaParty: <"Beta party is the clearerParty1 when acting as a clearing member or else is party1 when it is clearing for its own account.">
 		if clearingInstruction -> clearerParty1 exists
@@ -1188,14 +1188,14 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 		else clearingInstruction -> party1
 
 	alias betaCounterparty:
-		Create_Counterparty(betaParty, CounterpartyEnum -> Party1)
+		Create_Counterparty(betaParty, CounterpartyRoleEnum -> Party1)
 
 	alias betaExecution: <"Execution between the CCP and the beta party.">
 		Create_ExecutionPrimitive(clearingInstruction -> alphaContract -> trade -> tradableProduct -> product,
 		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> quantityNotation,
 		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> priceNotation,
 		    [betaCounterparty, clearerCounterparty],
-		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> relatedParties,
+		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> ancillaryParty,
 		    [betaParty, clearingInstruction -> clearingParty],
 		    [clearerRole],
 		    empty,
@@ -1214,14 +1214,14 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 		else clearingInstruction -> party2
 
 	alias gammaCounterparty:
-		Create_Counterparty(gammaParty, CounterpartyEnum -> Party1)
+		Create_Counterparty(gammaParty, CounterpartyRoleEnum -> Party1)
 
 	alias gammaExecution: <"Execution between the CCP and the gamma party">
 		Create_ExecutionPrimitive(clearingInstruction -> alphaContract -> trade -> tradableProduct -> product,
 		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> quantityNotation,
 		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> priceNotation,
 		    [gammaCounterparty, clearerCounterparty],
-		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> relatedParties,
+		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> ancillaryParty,
 		    [gammaParty, clearingInstruction -> clearingParty],
 		    [clearerRole],
 		    empty,
