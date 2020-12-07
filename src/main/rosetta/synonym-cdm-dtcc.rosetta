@@ -31,31 +31,32 @@ synonym source DTCC_11_0 extends DTCC_BASE
 {
 	ContractFormationPrimitive:
 		+ after
-			[value "OTC_RM" path "Header", "OTC_Matching" path "Body" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
+		    [value "TradeMsg" path "Header->OTC_RM->Manifest", "ReportingJurisdiction" path "Body->OTC_Matching->ReportingData->ReportingHeader", "FpML" path "Body->OTC_Matching->Trade" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
 }
 
 synonym source DTCC_BASE extends FpML_5_10
 {
+    BusinessEvent:
+        + tradeWarehouseWorkflow
+            [value "OTC_Matching" path "Body"]
+
 	CalculationAgentModel:
 		+ calculationAgentBusinessCenter
 			[value "calculationAgentBusinessCenter" path "Body->OTC_Matching->Trade->FpML->trade"]
 
-	Contract:
-		- contractIdentifier
-		+ contractIdentifier
-			[value "Submitter"]
+	Trade:
+		- tradeIdentifier
+		+ tradeIdentifier
+			[value "Submitter"] // below are taken from contract
 			[value "ContraTradeId"]
 			[value "YourTradeId"]
 			[value "tradeIdentifyingItems"]
 			[value "USI"]
 			[value "OriginatingUSI"]
 			[value "UTI"]
+			//[value "partyTradeIdentifier" path "Submitter"] // taken from execution
 		+ tradableProduct
 			[hint "ProductType"]
-
-	Execution:
-		+ identifier
-			[value "partyTradeIdentifier" path "Submitter"]
 
 	Payout:
 		+ equityPayout
@@ -79,8 +80,8 @@ synonym source DTCC_BASE extends FpML_5_10
 	PrimitiveEvent:
 		+ split
 			[value "ignore"]
-		+ exercise
-			[value "ignore"]
+		// + exercise
+		// 	[value "ignore"]
 		+ quantityChange
 			[value "ignore"]
 		+ reset
@@ -90,9 +91,9 @@ synonym source DTCC_BASE extends FpML_5_10
 		+ transfer
 			[value "Payment" path "Body->OTC_Matching"]
 
-	ObservationPrimitive:
-		+ date
-			[value "observationDate"]
+	// ObservationPrimitive:
+	// 	+ date
+	// 		[value "observationDate"]
 
 	TransferPrimitive:
 		+ identifier
@@ -117,7 +118,7 @@ synonym source DTCC_BASE extends FpML_5_10
 		+ identifier
 			[value "tradeId" path "partyTradeIdentifier" maps 2
 			 set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "EventProcessingId" and rosettaPath = WorkflowStep -> eventIdentifier -> assignedIdentifier -> identifier,
-			 set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "TradeRefNbr" and rosettaPath = Contract -> contractIdentifier -> assignedIdentifier -> identifier meta "tradeIdScheme"]
+			 set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "TradeRefNbr" and rosettaPath = Trade -> tradeIdentifier -> assignedIdentifier -> identifier meta "tradeIdScheme"]
 			[value "USITradeId" meta "tradeIdScheme"]
 			[value "UTITradeId" meta "tradeIdScheme"]
 			[value "identifier" path "payment" meta "paymentIdScheme"]
@@ -140,12 +141,6 @@ synonym source DTCC_BASE extends FpML_5_10
 			[value "cashflowType" path "calculationDetails->grossCashflow" meta "cashflowTypeScheme"]
 		+ breakdown
 			[value "breakdown"]
-
-	ContractState:
-		+ contract
-			[value "FpML" path "Trade"]
-			[value "TradeMsg" path "Manifest"]
-			[value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
 
 	CustomisedWorkflow:
 		+ itemName
@@ -210,13 +205,13 @@ synonym source DTCC_BASE extends FpML_5_10
 
 	PartyCustomisedWorkflow:
 		+ partyReference
-			[value "partyReference" meta "href"]
+			[value "partyReference" maps 2 meta "href"]
 
-	Trade:
-		+ contract
-			[value "FpML" path "Trade"]
-			[value "TradeMsg" path "Manifest"]
-			[value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
+	//Trade_Deprecated:
+	//	+ contract
+	//		[value "FpML" path "Trade"]
+	//		[value "TradeMsg" path "Manifest"]
+	//		[value "ReportingJurisdiction" path "ReportingData->ReportingHeader"]
 
 	TradeWarehouseWorkflow:
 		+ warehouseIdentity

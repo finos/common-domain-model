@@ -59,6 +59,8 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	account Account (0..*) <"Optional account information that could be associated to the event.">
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the globalKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
 		[synonym Workflow_Event value "lineage"]
+	creditLimitInformation CreditLimitInformation (0..1)
+        [synonym Workflow_Event value "creditLimitInformation" path "primitive->contractFormation->after"]
 
 	condition WorkflowStepStatus:
 		(WorkflowStep -> businessEvent exists and WorkflowStep -> proposedInstruction is absent and WorkflowStep -> rejected is absent)
@@ -69,10 +71,10 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 
 	condition Intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 		if (businessEvent -> primitives -> split exists
-			or businessEvent -> primitives -> exercise exists
+			// or businessEvent -> primitives -> exercise exists
 			or businessEvent -> primitives -> execution exists
 			or businessEvent -> primitives -> contractFormation exists
-			or businessEvent -> primitives -> observation exists
+			// or businessEvent -> primitives -> observation exists
 			or businessEvent -> primitives -> reset exists)
 		then businessEvent -> intent is absent
 

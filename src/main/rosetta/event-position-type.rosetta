@@ -18,12 +18,12 @@ type Position: <" A Position describes how much of a given Product is being held
 	quantity Quantity (1..1) <"The quantity of the product, which can be a negative number in case of a short position.">
 	cashBalance Money (0..1) <"The aggregate cost of proceeds">
 	positionStatus PositionStatusEnum (1..1) <"Qualifier for the state of the Position, to distinguish if just executed, formed, already settled, closed etc.">
-	contractReference Contract (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
+	tradeReference Trade (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
 		[metadata reference]
 
 	condition ContractFormed: <"When the position status indicates that contract has been formed, a contract must exists">
 		if positionStatus = PositionStatusEnum -> Formed
-		then contractReference exists
+		then tradeReference exists
 
 
 type PortfolioState: <" State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
@@ -46,14 +46,16 @@ type AggregationParameters: <" Parameters to be used to filter events that are r
 		[metadata reference]
 	product Product (0..*) <"To aggregate based on a selection of products.">
 	productQualifier productType (0..*) <"To aggregate based on a selection of product type(s).">
-	contractReference Contract (0..*) <"To aggregate based only on given Contract(s).">
-		[metadata reference]
-	executionReference Execution (0..*) <"To aggregate based only on given Execution(s).">
-		[metadata reference]
+	tradeReference Trade (0..*)
+	    [metadata reference]
+	//contractReference Contract (0..*) <"To aggregate based only on given Contract(s).">
+	//	[metadata reference]
+	//executionReference Execution (0..*) <"To aggregate based only on given Execution(s).">
+	//	[metadata reference]
 
 // TO DO: add more possible aggregation attributes, and more complex filtering/aggregation rules such as exclusion instead of just inclusion, etc.
 // TBD: include the time dimension here to filter relevant events in a given period?
-type Portfolio: <" A Portfolio represents an aggregation of multiple Positions, by describing the parameters that this Portfolio should be aggregated based on. The resulting PortfolioState is calculated using these aggregation parameters as inputs, by aggregating all the Events that are relevant to this Portfolio. The concept of Portfolio works at all levels in the model: from the highest for a given LegalEntity for instance, to the lowest to account for security substitutions in a secutity financing transaction. As such, Portfolio can be used either above or below the Contract level.">
+type Portfolio: <" A Portfolio represents an aggregation of multiple Positions, by describing the parameters that this Portfolio should be aggregated based on. The resulting PortfolioState is calculated using these aggregation parameters as inputs, by aggregating all the Events that are relevant to this Portfolio. The concept of Portfoio works at all levels in the model: from the highest for a given LegalEntity for instance, to the lowest to account for security substitutions in a secutity financing transaction. As such, Portfolio can be used either above or below the Contract level.">
 
 	aggregationParameters AggregationParameters (1..1) <"Describes the portfolio by describing how to aggregate all its relevant Events.">
 	portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">
@@ -71,6 +73,10 @@ type ObservationDates: <"Describes date details for a set of observation dates i
    observationSchedule ObservationSchedule (0..*) <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable.  When no weight is specified, then weight of each date is assumed to be 1.0">
    parametricSchedule PeriodicDates (0..1) <"Specifies the date range and frequency on which market observations take place.  Weights can be assigned to dates in the schedule by assigning the weight and corresponding observationReference in the observationSchedule. ">
 
+   condition:
+	if observationSchedule is absent then parametricSchedule exists else
+	if parametricSchedule is absent then observationSchedule exists
+
 type FxRateObservable: <"Defines foreign exchange (FX) asset class specific parameters for market observations.">
    quotedCurrencyPair QuotedCurrencyPair (1..1) <"Describes the composition of a rate that has been quoted or is to be quoted.">
    primaryFxSpotRateSource InformationSource (1..1) <"Specifies the primary source from which a rate should be observed.">
@@ -80,3 +86,6 @@ type ObservationSchedule: <"Specifies a single date on which market observations
    date AdjustableOrAdjustedDate (0..1) <"Specifies an adjusted or unadjusted date for a market observation.">
    weight number (0..1) <"Specifies the degree of importance of the observation.">
    observationReference string (0..1) <"Specifies an identification key for the market observation. This attribute can be used as a reference to assign weights to a series of dates defined in a parametricSchedule.">
+
+   condition: 
+   	required choice date, observationReference

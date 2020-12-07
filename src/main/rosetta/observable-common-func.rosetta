@@ -5,6 +5,7 @@ import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
 
 import cdm.observable.asset.*
+import cdm.event.common.*
 
 func ResolveTimeZoneFromTimeType: <"Function to resolve a TimeType into a TimeZone based on a determination method.">
 	inputs:
@@ -23,7 +24,13 @@ func EquityPriceObservation: <"Function specification for the observation of an 
 		determinationMethod DeterminationMethodEnum (1..1)
 
 	output:
-		observation ObservationPrimitive (1..1)
+		observation Observation (1..1)
+
+	alias observationDate:
+		observation -> observationIdentifier -> observationDateTime -> date
+
+	alias observationTime:
+		observation -> observationIdentifier -> observationDateTime -> time
 
 	condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
 		if valuationTime exists then timeType is absent
@@ -31,20 +38,18 @@ func EquityPriceObservation: <"Function specification for the observation of an 
 			else False
 
 	post-condition: <"The date and time must be properly resolved as attributes on the output.">
-		observation -> date = ResolveAdjustableDate(valuationDate)
+		observationDate = ResolveAdjustableDate(valuationDate)
 		and if valuationTime exists then
-		observation -> time = TimeZoneFromBusinessCenterTime(valuationTime)
-		else
-		observation -> time = ResolveTimeZoneFromTimeType(timeType, determinationMethod)
+			observationTime = valuationTime -> hourMinuteTime
+			else observationTime = ResolveTimeZoneFromTimeType(timeType, determinationMethod) -> time
 
 	post-condition: <"The number recorded in the observation must match the number fetched from the source.">
-		observation -> observation = EquitySpot(equity, observation -> date, observation -> time)
+		observation -> observedValue = EquitySpot(equity, observation -> observationIdentifier -> observationDateTime)
 
 func EquitySpot: <"An external market data lookup for the spot equity price of the reference asset based on a determination method.">
 	inputs:
 		equity Equity (1..1)
-		date date (1..1)
-		time TimeZone (1..1 )
+		date zonedDateTime (1..1)
 
 	output: spot number (1..1)
 
