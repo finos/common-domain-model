@@ -78,6 +78,7 @@ func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed inst
 		account Account (0..*) <"Optional account information that could be associated to the event.">
 		previousWorkflowStep WorkflowStep (1..1) <"Required previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
 		businessEvent BusinessEvent (1..1) <"Life cycle event for the step">
+		responses InstructionResponse (0..*)
 
 	output:
 		acceptedWorkflowStep WorkflowStep (1..1) <"Accepted WorkflowStep populated with the business event and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step.">
@@ -89,7 +90,7 @@ func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed inst
 		previousWorkflowStep -> action <> ActionEnum -> Cancel
 
 	condition: <"The previous step cannot be rejected.">
-		previousWorkflowStep -> rejected <> True
+		previousWorkflowStep -> responses is absent
 
 	assign-output acceptedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
 		messageInformation
@@ -111,6 +112,9 @@ func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed inst
 
 	assign-output acceptedWorkflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
 		businessEvent
+
+	assign-output acceptedWorkflowStep -> responses: <"Assign the responses from the instruction.">
+		responses
 
 func Create_ProposedWorkflowStep: <"Represents the proposal to create a business event that results in a workflow step containing an instruction, message details, identifiers, event timestamps, parties and accounts. The optional previous workflow step input provides workflow lineage to where there has been a correction or cancellation to the proposed step. The action is constrained so that when a previous workflow step is specified, the valid actions are as follows; New -> Correct and Correct -> Cancel. When a previous workflow is not specified, the action must be New.">
 	[creation WorkflowStep]
@@ -183,5 +187,5 @@ func Create_RejectedWorkflowStep: <"Represents the rejection of a proposed instr
 	assign-output rejectedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
 		previousWorkflowStep as-key
 
-	assign-output rejectedWorkflowStep -> rejected: <"Set the rejected flag to True">
-		True
+	// assign-output rejectedWorkflowStep -> rejected: <"Set the rejected flag to True">
+	// 	True

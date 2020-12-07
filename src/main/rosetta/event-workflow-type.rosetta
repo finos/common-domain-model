@@ -39,9 +39,9 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedInstruction or rejection are present.">
 	proposedInstruction Instruction (0..1) <"The proposed instruction for the next workflow step. The proposedInstruction is optional when the businessEvent or rejection are present">
 		[synonym Workflow_Event value "proposedInstruction"]
-	// TODO - This will be replaced with a list of signatories that must sign off the 'previousWorkflowStep' and any operational reasons why it may be rejected.
-	rejected boolean (0..1) <"Flags this step as rejected.">
-		[synonym Workflow_Event value "rejected"]
+	// TODO: Add explanation that presence of responses on instruction means rejection
+	responses InstructionResponse (0..*) <"Responses to the instruction in this workflow step.">
+		[synonym Workflow_Event value "responses"]
 	previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
 		[metadata reference]
 		[synonym Workflow_Event value "previousWorkflowStep"]
@@ -60,12 +60,8 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the globalKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
 		[synonym Workflow_Event value "lineage"]
 
-	condition WorkflowStepStatus:
-		(WorkflowStep -> businessEvent exists and WorkflowStep -> proposedInstruction is absent and WorkflowStep -> rejected is absent)
-		or
-		(WorkflowStep -> proposedInstruction exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> rejected is absent)
-		or
-		(WorkflowStep -> rejected exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> proposedInstruction is absent)
+	condition WorkflowStepChoice:
+		required choice businessEvent, proposedInstruction
 
 	condition Intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 		if (businessEvent -> primitives -> split exists
@@ -75,6 +71,34 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 			or businessEvent -> primitives -> observation exists
 			or businessEvent -> primitives -> reset exists)
 		then businessEvent -> intent is absent
+
+	condition FullyApproved:
+		if (businessEvent exists)
+		then (responses is absent or responses -> approved = True)
+
+	condition RejectedInstruction:
+		if (proposedInstruction exists)
+		then (responses is absent or responses -> approved contains False)
+
+	condition Correction:
+		if (proposedInstruction exists
+			and action = ActionEnum -> Correct)
+		then
+			(previousWorkflowStep exists
+			and previousWorkflowStep -> proposedInstruction exists
+			and (previousWorkflowStep -> responses is absent
+				or
+				previousWorkflowStep -> responses -> approved contains False))
+
+	// TODO: Validate syntax for list comparison
+	condition RequiredResponses:
+		if (businessEvent exists
+			and previousWorkflowStep exists
+			and previousWorkflowStep -> proposedInstruction exists)
+		then
+			responses -> workflowStep = previousWorkflowStep
+			and previousWorkflowStep -> proposedInstruction -> requiredResponders contains responses -> party
+			and responses -> party contains previousWorkflowStep -> proposedInstruction -> requiredResponders
 
 type Workflow: <"A collection of workflow steps which together makeup an entire workflow sequence.">
 
