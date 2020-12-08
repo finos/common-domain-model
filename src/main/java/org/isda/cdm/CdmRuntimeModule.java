@@ -25,6 +25,7 @@ import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
+import com.rosetta.model.lib.validation.ValidatorFactory;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -33,6 +34,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		// create bindings here
 		bind(ModelObjectValidator.class).to(bindModelObjectValidator());
 		bind(QualifyFunctionFactory.class).to(bindQualifyFunctionFactory());
+		bind(ValidatorFactory.class).to(bindValidatorFactory());
 
 		// functions
 		bind(Abs.class).to(bindAbs());
@@ -61,6 +63,10 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends QualifyFunctionFactory> bindQualifyFunctionFactory() {
 		return QualifyFunctionFactory.Default.class;
+	}
+
+	protected Class<? extends ValidatorFactory> bindValidatorFactory() {
+		return ValidatorFactory.Default.class;
 	}
 
 	// Functions
