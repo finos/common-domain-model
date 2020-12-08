@@ -137,7 +137,7 @@ func Qualify_Allocation: <"The qualification of allocation event from the fact t
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
-	assign-output is_event: <"Special note should be made of the minus 1 from the count of trades in the after state of the SplitPrimitive, because the original trade is among the set of trades within the 'after' state, it is accounted for by minusing 1 from the total trade count.">
+	assign-output is_event: 
 		businessEvent -> primitives -> split count = 1
 		and businessEvent -> primitives -> split -> after count >= 2
 		and businessEvent -> primitives -> contractFormation exists
@@ -508,14 +508,23 @@ func ResolveEquityObservationIdentifiers: <"Defines which attributes on the Equi
 		equityValuation -> determinationMethod
 
 
-// TODO: Try to express in the model.
 func ResolveEquityValuationDateTime: <"Defines how to resolve the observation date and time from those specified in the Equity Valuation type.">
 	inputs:
 		equityValuation EquityValuation (1..1)
 		date date (1..1)
 	output:
-		datetime zonedDateTime (1..1)
+		valuationDatetime zonedDateTime (1..1)
 
+	condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
+		if equityValuation -> valuationTime exists then equityValuation -> valuationTimeType is absent
+		else if equityValuation -> valuationTimeType exists then equityValuation -> valuationTime is absent
+
+	post-condition:
+		ResolveAdjustableDate(equityValuation -> valuationDate) = valuationDatetime -> date
+		and if equityValuation -> valuationTime exists
+			then TimeZoneFromBusinessCenterTime(equityValuation -> valuationTime) -> time = valuationDatetime -> time
+			else ResolveTimeZoneFromTimeType(equityValuation -> valuationTimeType, equityValuation -> determinationMethod) -> time = valuationDatetime -> time
+	
 
 func ResolveEquityReset: <"Defines how to resolve the reset value for an equity payout.">
 	inputs:
@@ -551,7 +560,6 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 
 	assign-output equityCashSettlementAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
 		EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> reset -> resetValue, date)
-	//	Abs(tradeState -> resetHistory -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
 
 	assign-output equityCashSettlementAmount -> currency: <"Does not handle the cross currency case, currently.">
 		ResolveEquityInitialPrice( equityPayout only-element -> underlier, tradeState -> trade -> tradableProduct -> priceNotation ) -> netPrice -> currency
@@ -1023,8 +1031,9 @@ func Create_SplitPrimitive: <"Defines how to create the Split Primitive accordin
 	assign-output primitive -> before:
 		singleTrade
 
+	// The below post-condition should be re-enabled once code generators have been fixed to support it.
 	// post-condition: <"Ensure the number of splits equals the number of breakdowns plus the single trade.">
-	// 	splitBreakdowns count + 1 = primitive -> after count
+	//  	splitBreakdowns count + 1 = primitive -> after count
 
 	post-condition: <"Checks the closed state has been set.">
 	if closedState exists then
