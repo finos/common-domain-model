@@ -159,26 +159,10 @@ type EventTestBundle: <"A class which combines several events for testing purpos
 	computedAmount ComputedAmount (0..*)
 		[synonym Workflow_Event value "computedAmount"]
 
-// type CashExercise: <"The cash exercise specifies the cashflow using the cashflow payout and a given quantity.">
-
-// 	cashflow Cashflow (1..1) <"Cashflow payout specification, excluding the quantity.">
-// 	quantity QuantityNotation (1..1) <"Quantity of the cashflow payout.">
-
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 	
 	exerciseDate AdjustableOrAdjustedDate (0..1) <"Specifies the date on which an option contained within the financial product would be exercised. The date may be omitted if the contractual product allows for only a single date of exercise (European exercise).">
 	exerciseTime BusinessCenterTime (0..1) <"Specifies the time at which an option contained within the financial product woulld be exercised. The time may be omitted if the contractual product allows for only a single time of exercise (European exercise). ">
-
-// type ExerciseOutcome: <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
-
-// 	contract TradeState (1..1)
-// 		[synonym Workflow_Event value "fpmlContract"]
-// 	physicalExercise PhysicalExercise (0..1)
-// 		[synonym Workflow_Event value "physicalExercise"]
-// 	cashExercise CashExercise (0..1)
-// 		[synonym Workflow_Event value "cashExercise"]
-// 	condition Choice: <"A option exercise results in either a physical or a cash exercise.">
-// 		required choice physicalExercise, cashExercise
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
@@ -487,22 +471,6 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 	portfolioStateReference PortfolioState (0..*) <"The refence to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
 		[metadata reference]
 
-// type PhysicalExercise: <"The physical exercise results into a financial product which is represented through the Product class, with an associated quantity and cashflow (e.g. a physical exercise of a bond option will result into a bond with a cash proceed which will be a function of the option strike price).">
-
-// 	product Product (1..1)
-// 		[synonym Workflow_Event value "product"]
-// 	quantity Quantity (0..1) <"The quantity associated the asset that is physically settled. This quantity should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
-// 		[synonym Workflow_Event value "quantity"]
-// 	quantityNotation QuantityNotation (0..*) <"Complex attribute to specify the quantity of the contractual product that is being exercised. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
-// 		// For Swap Stream:
-// 		[synonym Workflow_Event value "notionalSchedule" path "product->swap->swapStream->calculationPeriodAmount->calculation"]
-// 		[synonym Workflow_Event value "cashflow"]
-// 	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">
-// 		[synonym Workflow_Event value "cashflow"]
-// 	condition PhysicalExerciseQuantity: <"The quantity attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
-// 		if product -> contractualProduct exists
-// 		then quantity is absent
-
 type PostContractFormationState extends ContractState:
 
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information.">
@@ -596,8 +564,6 @@ type PrimitiveEvent: <"A primitive event is defined by one and only one atomic c
 		[synonym Workflow_Event value "contractFormation" path "primitive"]
 	split SplitPrimitive (0..1)
 		[synonym Workflow_Event value "split" path "primitive"]
-	// exercise ExercisePrimitive (0..1)
-	// 	[synonym Workflow_Event value "exercise" path "primitive"]
 	observation ObservationPrimitive (0..1)
 		[synonym Workflow_Event value "observation" path "primitive"]
 	quantityChange QuantityChangePrimitive (0..1)
@@ -672,19 +638,6 @@ func FilterOpenTradeStates: <"Outlines inputs and outputs required to filter onl
 type TradeStates: <"Defines a set of TradeState objects. This type is a work-around to a bug in the code generators which prevents the model from returning a set of elements in the function.">
 	tradeStates TradeState (0..*)
 
-// type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
-
-// 	exerciseDate AdjustableOrAdjustedDate (0..1)
-// 		[synonym Workflow_Event value "exerciseDate"]
-// 	exerciseTime BusinessCenterTime (0..1)
-// 		[synonym Workflow_Event value "exerciseTime"]
-// 	fullExercise boolean (1..1)
-// 		[synonym Workflow_Event value "fullExercise"]
-// 	before ContractState (1..1)
-// 		[metadata reference]
-// 		[synonym Workflow_Event value "before"]
-// 	after ExerciseOutcome (1..1)
-// 		[synonym Workflow_Event value "after"]
 
 type QuantityChangePrimitive: <"Defines the primitive event to represent a change in quantity, which includes notional. For details of how the TradeState is changed between the `before` and `after` TradeStates, see the corresponding Create_QuantityChangePrimitive function.">
 
