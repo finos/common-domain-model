@@ -2,11 +2,13 @@
 
 _What is being released_
 
-Added the new `disjoint` keyword used to create an expression that is true if no element on the left side expression is equal to any element on the right side expression, e.g.
+Added the new `disjoint` keyword which can be used to write an expression that compares two lists to determine if there are any common elements.  If there are no common elements, the lists are disjoint, and the expression will evaluate to true.
+
+Given two lists of floating rate indexes, e.g.
 
 `before -> ... -> floatingRateIndex disjoint after -> ... -> floatingRateIndex`
 
-The expression will only evaluate to true if every "after" floating rate index is different from every "before" floating rate index.
+Then the expression will evaluate to true if every "after" floating rate index is different from every "before" floating rate index.
 
 # *Bug Fix: Data Rule Java Code Generation*
 
