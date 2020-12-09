@@ -1,28 +1,21 @@
-# *Model Optimisation: Extract Party References from Product*
+# *DSL Syntax: Disjoint Keyword*
 
 _What is being released_
 
-This change is the part of the ongoing model refactoring to externalise the definition of the parties involved in a transaction from the definition of the transacted product.
+Added the new `disjoint` keyword which can be used to write an expression that compares two lists to determine if there are any common elements.  If there are no common elements, the lists are disjoint, and the expression will evaluate to true.
 
-Updates the model naming based on feedback from the Architecture Review Committee:
+Given two lists of floating rate indexes, e.g.
 
-- Rename `RelatedPartyEnum` to `AncillaryRoleEnum`.
-- Rename `CounterpartyEnum` to `CounterpartyRoleEnum`.
-- Rename `RelatedPartyReference.relatedParty` to `AncillaryParty.role`.
-- Rename `Counterparty.counterparty` to `Counterparty.role`.
-- Rename `TradableProduct` attributes with multiple cardinality to be singular, e.g. `TradableProduct.counterparty` and `TradableProduct.ancillaryParty`.
+`before -> ... -> floatingRateIndex disjoint after -> ... -> floatingRateIndex`
 
-Updates the model to specify the ancillary role consistently regardless of whether the party is a counterparty or not:
+Then the expression will evaluate to true if every "after" floating rate index is different from every "before" floating rate index.
 
-- Remove type `CounterpartyOrRelatedParty`.
-- Update attributes `CalculationAgent.calculationAgentParty`, `AdditionalDisruptionEvents.determiningParty`, `DividendReturnTerms.extraordinaryDividendsParty`, `OptionPhysicalSettlement.predeterminedClearingOrganisationParty` and `ExerciseNotice.exerciseNoticeReceiver` to use enum `AncillaryRoleEnum`.
-- Add conditions to `TradableProduct` type to ensure that if an `AncillaryRoleEnum` is specified in the product, there is a corresponding `AncillaryParty` entry. 
+# *Bug Fix: Data Rule Java Code Generation*
+
+_What is being released_
+
+Fix bug in the Java code generation to allow data rules to be invoked after each function invocation.
 
 _Review Directions_
 
-In the CDM Portal, use the Textual Browser to review the types mentioned above.
-
-In the CDM Portal, use the Ingestion page to compare the samples below, noting that the ancillary roles `CalculationAgentIndependent`, `ExtraordinaryDividendsParty` and `DisruptionEventDeterminingParty` are specified consistently in both samples:
-
-- `equity > eqs-ex01-single-underlyer-execution-long-form.xml`
-- `equity > eqs-ex01-single-underlyer-execution-long-form-other-party.xml`
+In the CDM Portal, go to the Downloads page, and download the Java Examples. Review the example in Java class, `com.regnosys.cdm.example.template.Validation`.
