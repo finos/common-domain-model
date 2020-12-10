@@ -170,6 +170,7 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	trade Trade (1..1) <"Represents the Trade that has been effected by a business or life-cycle event.">
 	    [synonym Workflow_Event hint "trade"]
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
+	    [synonym Workflow_Event value "state"]
 	resetHistory ResetHistory (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
 
 type ResetHistory:
@@ -193,8 +194,9 @@ type AggregationMethod: <"Defines the ways in which multiple values can be aggre
 
 type State: <"Defines the state of a trade at a point in the Trade's life cycle. Trades have many state dimensions, all of which are represented here. For example, states useful for position keeping are represented alongside those needed for regulatory reporting.">
 	closedState ClosedState (0..1) <"Represents the qualification of what led to the trade's closure alongside the dates on which this closure took effect.">
-	    [synonym Workflow_Event value "closedState" path "trade"]
+	    [synonym Workflow_Event value "closedState"]
 	positionState PositionStatusEnum (0..1) <"Identifies the state of the position, to distinguish if just executed, formed, already settled, closed, etc.">
+	    [synonym Workflow_Event value "positionStatus"]
 
 	condition: <"When the position state is identified as closed, the closed state must also be specified.">
 	    if positionState = PositionStatusEnum -> Closed then
@@ -604,9 +606,9 @@ type SplitPrimitive: <"Defines splitting of a single trade into one or more trad
 
 	before TradeState (1..1) <"Represents the single trade to be split.">
 		[metadata reference]
-		[synonym Workflow_Event value "before"]
+		[synonym Workflow_Event value "fpmlTrade" path "before"]
 	after TradeState (2..*) <"Represents the outcome of the split. Includes the single trade (referenced in the 'before' attribute) with its Position State updated to closed, along with a reason.">
-		[synonym Workflow_Event value "after"]
+		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
 	condition: <"Ensure Execution Details are not lost in the split process.">
 		if before -> trade -> executionDetails exists

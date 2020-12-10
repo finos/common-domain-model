@@ -1841,8 +1841,11 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
  	assign-output identifiers -> observable -> productIdentifier:
  		payout -> underlier -> underlyingProduct -> security -> productIdentifier only-element
 
- 	assign-output identifiers -> observationDateTime:
- 		ResolveEquityValuationDateTime(equityValuation, date)
+ 	assign-output identifiers -> observationDate:
+ 		ResolveEquityValuationDate(equityValuation)
+
+ 	assign-output identifiers -> observationTime:
+ 		ResolveEquityValuationTime(equityValuation)
 
  	assign-output identifiers -> determinationMethodology -> determinationMethod:
  		equityValuation -> determinationMethod

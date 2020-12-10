@@ -371,6 +371,7 @@ func Qualify_SecuritySettlement: <"The qualification of a security settlement fr
 		and businessEvent -> primitives -> transfer -> securityTransfer exists
 		and businessEvent -> primitives -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference -> reference = businessEvent -> primitives -> transfer -> securityTransfer -> transferorTransferee -> transfereePartyReference -> reference
 		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
+		and businessEvent -> primitives -> quantityChange is absent
 
 func Qualify_Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
 	[qualification BusinessEvent]
@@ -526,15 +527,24 @@ func ResolveEquityValuationTime: <"Defines how to resolve the observation time f
 		equityValuation EquityValuation (1..1)
 	output:
 		time TimeZone (1..1)
-	
-	condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
-		if equityValuation -> valuationTime exists then equityValuation -> valuationTimeType is absent
-		else if equityValuation -> valuationTimeType exists then equityValuation -> valuationTime is absent
 
-	assign-output time:
-		if equityValuation -> valuationTime exists
-		then TimeZoneFromBusinessCenterTime(equityValuation -> valuationTime)
-		else ResolveTimeZoneFromTimeType(equityValuation -> valuationTimeType, equityValuation -> determinationMethod)
+//	alias valuationTime:
+//	    equityValuation -> valuationTime
+
+//	alias timeType:
+//	    equityValuation -> valuationTimeType
+
+//	condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
+//		if valuationTime exists then timeType is absent
+
+//	condition:
+//		if timeType exists then valuationTime is absent
+
+//	assign-output time:
+//		if valuationTime exists then TimeZoneFromBusinessCenterTime(valuationTime)
+
+//	assign-output time:
+//		if timeType exists then ResolveTimeZoneFromTimeType(timeType, equityValuation -> determinationMethod)
 
 
 func ResolveEquityReset: <"Defines how to resolve the reset value for an equity payout.">
