@@ -77,20 +77,34 @@ func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed inst
 		party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
 		account Account (0..*) <"Optional account information that could be associated to the event.">
 		previousWorkflowStep WorkflowStep (1..1) <"Required previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
+		// TODO: This parameter is only used to verify conditions, that should be checked in the parent function instead.
+		proposedWorkflowStep WorkflowStep (1..1)
 		businessEvent BusinessEvent (1..1) <"Life cycle event for the step">
-		responses InstructionResponse (0..*)
+		responses InstructionResponse (1..*)
 
 	output:
 		acceptedWorkflowStep WorkflowStep (1..1) <"Accepted WorkflowStep populated with the business event and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step.">
 
-	condition: <"The previous step being accepted must be a proposed step containing an instruction.">
-		previousWorkflowStep -> proposedInstruction exists
-
 	condition: <"You cannot accept a business event on a cancelled previous step.">
 		previousWorkflowStep -> action <> ActionEnum -> Cancel
 
-	condition: <"The previous step cannot be rejected.">
-		previousWorkflowStep -> responses is absent
+	condition: <"The previous workflow step must accepted.">
+	 	previousWorkflowStep -> businessEvent exists
+
+	condition: <"The proposed workflow step must be an instruction and must not be rejected.">
+		proposedWorkflowStep -> proposedInstruction exists
+		and proposedWorkflowStep -> responses is absent
+
+	condition: <"The responses must point to the proposed instruction.">
+		responses -> workflowStep = proposedWorkflowStep
+
+	// TODO: Requires set equality for lists
+	// condition RequiredResponses: <"The responding parties must equal the required responders of the instruction of the proposed workflow step.">
+	// 	proposedWorkflowStep -> proposedInstruction -> requiredResponders = responses -> party
+
+	// TODO: Requires "set contains" operator
+	// condition:
+	// party contains proposedWorkflowStep -> proposedInstruction -> requiredResponders
 
 	assign-output acceptedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
 		messageInformation
@@ -101,6 +115,7 @@ func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed inst
 	assign-output acceptedWorkflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
 		eventIdentifier
 
+	// TODO: Is assigning an optional parameter supported?
 	assign-output acceptedWorkflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
 		party
 
@@ -167,14 +182,39 @@ func Create_RejectedWorkflowStep: <"Represents the rejection of a proposed instr
 		messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header">
 		timestamp EventTimestamp (1..1) <"The dateTime and qualifier associated with this event.">
 		eventIdentifier Identifier (1..1) <"The identifier that uniquely identify this lifecycle event.">
+		party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
+		account Account (0..*) <"Optional account information that could be associated to the event.">
 		previousWorkflowStep WorkflowStep (1..1) <"Required previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
+		proposedWorkflowStep WorkflowStep (1..1)
+		responses InstructionResponse (1..*)
 
 	output:
 		rejectedWorkflowStep WorkflowStep (1..1) <"Rejected WorkflowStep with lineage to the proposed step that preceded it.">
 
-	condition: <"The previous proposed step being rejected must exist">
-		previousWorkflowStep -> proposedInstruction exists
-	// condition: Handle case where the previous step has already been rejected
+	condition: <"The previous  workflows step is a business event">
+		previousWorkflowStep -> businessEvent exists
+
+	condition: <"The proposed workflow step is an instruction and not already rejected.">
+		proposedWorkflowStep -> proposedInstruction exists
+		and proposedWorkflowStep -> responses is absent
+
+	condition: <"Responses must include at least one rejection.">
+		responses -> approved contains False
+
+	condition: <"The responses must point to the proposed instruction.">
+		responses -> workflowStep = proposedWorkflowStep
+
+	// TODO: Requires set contains operator for lists
+	condition RequiredRejectedResponse: <"The responding parties must equal the required responders of the instruction of the proposed workflow step.">
+	 	proposedWorkflowStep -> proposedInstruction -> requiredResponders contains responses -> party
+
+	// TODO: Requires "set contains" operator
+	// condition:
+	// party contains proposedWorkflowStep -> proposedInstruction -> requiredResponders
+
+	assign-output rejectedWorkflowStep -> proposedInstruction: <"Assign the instruction from the proposed workflow step.">
+		proposedWorkflowStep -> proposedInstruction
+
 	assign-output rejectedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
 		messageInformation
 
@@ -184,8 +224,11 @@ func Create_RejectedWorkflowStep: <"Represents the rejection of a proposed instr
 	assign-output rejectedWorkflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
 		eventIdentifier
 
+	assign-output rejectedWorkflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
+		party
+
+	assign-output rejectedWorkflowStep -> account: <"Assign the account information that could be associated to the event.">
+		account
+
 	assign-output rejectedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
 		previousWorkflowStep as-key
-
-	// assign-output rejectedWorkflowStep -> rejected: <"Set the rejected flag to True">
-	// 	True

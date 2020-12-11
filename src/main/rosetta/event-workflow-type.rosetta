@@ -84,21 +84,9 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 		if (proposedInstruction exists
 			and action = ActionEnum -> Correct)
 		then
-			(previousWorkflowStep exists
+			previousWorkflowStep exists
 			and previousWorkflowStep -> proposedInstruction exists
-			and (previousWorkflowStep -> responses is absent
-				or
-				previousWorkflowStep -> responses -> approved contains False))
-
-	// TODO: Validate syntax for list comparison
-	condition RequiredResponses:
-		if (businessEvent exists
-			and previousWorkflowStep exists
-			and previousWorkflowStep -> proposedInstruction exists)
-		then
-			responses -> workflowStep = previousWorkflowStep
-			and previousWorkflowStep -> proposedInstruction -> requiredResponders contains responses -> party
-			and responses -> party contains previousWorkflowStep -> proposedInstruction -> requiredResponders
+			and previousWorkflowStep -> responses is absent
 
 type Workflow: <"A collection of workflow steps which together makeup an entire workflow sequence.">
 
