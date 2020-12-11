@@ -23,14 +23,14 @@ isProduct root EconomicTerms;
 func ResolveContractualProduct: <"For a given ContractualProduct, the function finds all ResolvablePayoutQuantity instances, then for each instance, resolves the quantity, populates the quantity attribute on ResolvablePayoutQuantity, and finally returns the updated ContractualProduct.">
 	inputs:
 		contractualProduct ContractualProduct (1..1) <"The ContractualProduct to be resolved.">
-		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
+		quantity Quantity (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
 	output:
 		resolvedContractualProduct ContractualProduct (1..1) <"The updated ContractualProduct with all ResolvablePayoutQuantity instances resolved and updated with the corresponding quantity.">
 
 func ResolvePayoutQuantity: <"For a given ResolvablePayoutQuantity, the function resolves and returns the corresponding quantity from the QuantityNotations by matching on AssetIdentifier.">
 	inputs:
 		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The ResolvablePayoutQuantity to resolve.">
-		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
+		quantity Quantity (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
 		contractualProduct ContractualProduct (1..1) <"Provided to allow any references to be resolved.">
 
 	output:
@@ -130,7 +130,7 @@ func Qualify_InterestRate_IRSwap_FixedFloat_PlainVanilla: <"This product qualifi
 //	and economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
 //		economicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
 		and economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier =
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> indexTenor -> periodMultiplier
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> observable -> rateOption -> indexTenor -> periodMultiplier
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
 		and economicTerms -> payout -> interestRatePayout -> compoundingMethod is absent
 
@@ -177,7 +177,7 @@ func Qualify_InterestRate_IRSwap_FixedFloat:
 		or economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floatingRateMultiplierSchedule exists
 		or economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> step exists
 		or economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier <>
-		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> indexTenor -> periodMultiplier
+		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> observable -> rateOption -> indexTenor -> periodMultiplier
 		or economicTerms -> payout -> interestRatePayout -> compoundingMethod exists
 		or economicTerms -> payout -> interestRatePayout -> stubPeriod exists
 		or economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType exists
@@ -260,7 +260,7 @@ func Qualify_InterestRate_IRSwap_FixedFloat_OIS:
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 		and economicTerms -> payout -> optionPayout is absent
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> observable -> rateOption -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
 
 func Qualify_InterestRate_IRSwap_Basis_OIS:
 	[qualification Product]
@@ -273,7 +273,7 @@ func Qualify_InterestRate_IRSwap_Basis_OIS:
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 		and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
 		and economicTerms -> payout -> optionPayout is absent
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> observable -> rateOption -> floatingRateIndex = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
 
 func Qualify_InterestRate_InflationSwap_FixedFloat_YearOn_Year:
 	[qualification Product]

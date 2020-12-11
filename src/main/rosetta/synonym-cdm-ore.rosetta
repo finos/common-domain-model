@@ -29,9 +29,7 @@ synonym source ORE_1_0_39 extends ORE
 			[value "Trade" mapper "ORECounterparty"]
 
 	TradableProduct:
-		+ quantityNotation
-			[value "LegData" path "SwapData"]
-		+ priceNotation
+		+ priceQuantity
 			[value "LegData" path "SwapData"]
 
 	Counterparty:
@@ -40,11 +38,19 @@ synonym source ORE_1_0_39 extends ORE
 		+ counterparty
 			[set to CounterpartyEnum -> Party2 when rosettaPath = Contract -> tradableProduct]
 
-	PriceNotation:
+	 Price:
+        + amount
+         [value "Rate" path "FixedLegData->Rates"]
+        + unitOfAmount
+        + priceType
+			[set to PriceTypeEnum->RatePrice when  "FixedLegData->Rates->Rate" exists ]
+
+	 PriceQuantity:
         + price
-        + assetIdentifier
-            [hint "FloatingLegData"]
-            [value "ignore"]
+		+ observable
+            // [value "LegData" path "SwapData"]
+        + quantity
+            [value "Notionals"]
 
 	FixedInterestRate:
 		+ rate
@@ -54,12 +60,6 @@ synonym source ORE_1_0_39 extends ORE
 		+ partyId
 			[value "CounterParty" maps 2]
 			[value "party_id" path "AdditionalFields"]
-
-	QuantityNotation:
-		+ assetIdentifier
-			// [value "LegData" path "SwapData"]
-		+ quantity
-			[value "Notionals"]
 
 	Quantity:
 		+ amount
@@ -97,10 +97,6 @@ synonym source ORE_1_0_39 extends ORE
 		+ unadjustedDate
 			[value "StartDate"]
 
-	ResolvablePayoutQuantity:
-		+ assetIdentifier
-			[hint "Currency"]
-
 	FloatingRateOption:
 		+ floatingRateIndex
 			[value "Index"]
@@ -111,7 +107,7 @@ synonym source ORE_1_0_39 extends ORE
 		+ floatingRate
 			[value "FloatingLegData"]
 
-	AssetIdentifier:
+	UnitType:
 		+ currency
 			[value "Currency"]
 

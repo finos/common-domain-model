@@ -42,9 +42,6 @@ type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcom
 		if cashflowAmount exists
 		then cashflowAmount -> amount >= 0.0
 
-	condition QuantityAssetIdentifier:
-		if payoutQuantity -> assetIdentifier exists
-		then payoutQuantity -> assetIdentifier -> currency exists
 
 type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
@@ -56,25 +53,21 @@ type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be se
 type ResolvablePayoutQuantity: <"Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into a single quantity from the quantity notation which has a corresponding asset identifier. In addition to the base case, where quantity is directly specified as a number as part of the quantity notation, the other use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
 	[metadata key]
 
-	resolvedQuantity NonNegativeQuantity (0..1) <"A product's quantity as a single, non-negative amount.  When specified as part of a product definition, this quantity attribute would not be set.  Instead it is specified on the quantity notation along with an asset identifier matching this payout's asset identifier.  This allows the the quantity to be resolved for a payout leg, which can then be specified here for convenience during data processing.  There needs to be at least one resolvable quantity across payout legs of a product to define an anchor that other payout quantities can refer to.  This attribute is ignored when mapping existing FpML messages.">
+	resolvedQuantity Quantity (0..1) <"A product's quantity as a single, non-negative amount.  When specified as part of a product definition, this quantity attribute would not be set.  Instead it is specified on the quantity notation along with an asset identifier matching this payout's asset identifier.  This allows the the quantity to be resolved for a payout leg, which can then be specified here for convenience during data processing.  There needs to be at least one resolvable quantity across payout legs of a product to define an anchor that other payout quantities can refer to.  This attribute is ignored when mapping existing FpML messages.">
+		//[metadata address "quantity"] HUGO_TODO
 	quantitySchedule NonNegativeQuantitySchedule (0..1) <"Quantity step schedule, including an initial quantity specified as an absolute number.">
-	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being quantified.">
 	quantityReference ResolvablePayoutQuantity (0..1) <"Reference quantity when resolvable quantity is defined as relative to another (resolvable) quantity. A resolvable quantity needs to contain either an absolute quantity or a reference to another (resolvable) quantity. This requirement is captured by a choice rule on the class.">
 		[metadata reference]
 	quantityMultiplier QuantityMultiplier (0..1) <"Quantity multiplier is specified on top of a reference quantity and is used as a multiplying factor when resolving the quantity. A quantity multiplier can only exist when the resolvable quantity specifies a reference quantity.">
 	reset boolean (0..1) <"Whether the quantity is resettable">
 	futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">
 
-	condition Choice: <"A payout quantity can be resolved either (i) by fetching its actual quantity from a higher-level quantity notation specification referenced via an asset identifier, or (ii) by reference to another (resolvable) quantity.">
-		optional choice assetIdentifier, quantityReference
+	condition Choice: <"A payout quantity can be resolved either (i) by fetching its actual quantity from a higher-level quantity specification referenced via metadata location reference, or (ii) by reference to another (resolvable) quantity.">
+		optional choice resolvedQuantity, quantityReference
 
 	condition QuantityMultiplier: <"A quantity reference must exist when there is a quantity multiplier on a resolvable quantity.">
 		if quantityMultiplier exists
 		then ResolvablePayoutQuantity -> quantityReference -> reference exists
-
-	condition ResolvedQuantity: <"The resolved quantity must exist if the quantity is not specified elsewhere.">
-		if ResolvablePayoutQuantity -> quantityReference -> reference is absent and assetIdentifier is absent
-		then resolvedQuantity -> amount exists
 
 
 type CrossCurrencyTerms:
@@ -387,7 +380,8 @@ type SettlementTerms extends SettlementBase: <"The settlement terms applicable t
 	settlementAmount Money (0..1) <"The Settlement Amount, when known in advance.">
 	transferSettlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
 	payerReceiver PartyReferencePayerReceiver (0..1) <"The direction of transfer of the settlement.">
-	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being settled.">
+	priceQuantity PriceQuantity (0..1)<"Identifies the Price, Quantity, and Observable of the settlement.">
+	[metadata reference]
 
 	condition Choice: <"The settlementCurrency attribute is to be specified when the settlement amount is not known in advance.">
 		optional choice settlementAmount, settlementCurrency

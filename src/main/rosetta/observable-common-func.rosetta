@@ -50,35 +50,34 @@ func EquitySpot: <"An external market data lookup for the spot equity price of t
 
 func PriceQuantityTriangulation:
 	inputs:
-		priceNotation PriceNotation (0..*)
-		quantityNotation QuantityNotation (0..*)
-
+		priceQuantity PriceQuantity (0..*)
+		
 	output:
 		success boolean (1..1)
 
 	assign-output success:
-		if priceNotation -> price -> cashPrice exists
-		then CashPriceQuantityNoOfUnitsTriangulation(priceNotation, quantityNotation)
-		else if priceNotation -> price -> exchangeRate exists
-			then ExchangeRateQuantityTriangulation(priceNotation, quantityNotation)
+		if priceQuantity -> price -> priceType = PriceTypeEnum->CashPrice 
+
+		then CashPriceQuantityNoOfUnitsTriangulation(priceQuantity)
+		
 			else True
 
 func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
+//HUGO_Q - is this still applicable?  How do we calc number of units?
 	inputs:
-		priceNotation PriceNotation (0..*)
-		quantityNotation QuantityNotation (0..*)
+		priceQuantity PriceQuantity (0..*)
 
 	output:
 		success boolean (1..1)
 
 	alias notional:
-		CurrencyAmount(quantityNotation, empty)
+		CurrencyAmount(priceQuantity, empty)
 
 	alias noOfUnits:
-		NoOfUnits(quantityNotation)
+		NoOfUnits(priceQuantity)
 
 	alias cashPrices:
-		priceNotation -> price -> cashPrice -> netPrice -> amount
+		priceQuantity -> price -> amount
 
 	alias cashPrice:
 		cashPrices only-element
@@ -87,6 +86,8 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 		if (cashPrice and noOfUnits and notional) exists
 		then cashPrice * noOfUnits = notional
 
+/*
+No longer necessary with new PQ design
 func ExchangeRateQuantityTriangulation:
 	inputs:
 		priceNotation PriceNotation (0..*)
@@ -123,9 +124,11 @@ func ExchangeRateQuantityTriangulation:
 			else if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency2PerCurrency1
 				then quantity2 / quantity1 = rate
 
+*/
+
 func NoOfUnits: <"Get quantity associated with product identifier.">
 	inputs:
-		quantityNotations QuantityNotation (0..*)
+		priceQuantity PriceQuantity (0..*)
 
 	output:
 		noOfUnits number (1..1)
@@ -133,7 +136,7 @@ func NoOfUnits: <"Get quantity associated with product identifier.">
 
 func CurrencyAmount: <"Get quantity associated with currency.">
 	inputs:
-		quantityNotations QuantityNotation (0..*)
+		priceQuantity PriceQuantity (0..*)
 		currency string (0..1)
 
 	output:
@@ -142,16 +145,16 @@ func CurrencyAmount: <"Get quantity associated with currency.">
 // TODO: turn these functions into language level operators i.e. '+'
 func Plus:
 	inputs:
-		q1 QuantityNotation (1..1)
-		q2 QuantityNotation (1..1)
+		q1 cdm.base.math.Quantity (1..1)
+		q2 cdm.base.math.Quantity (1..1)
 	output:
-		result QuantityNotation (1..1)
+		result cdm.base.math.Quantity (1..1)
 
 // TODO: turn these functions into language level operators i.e. '='
 func Equals:
 	// TODO Never referenced in CDM
 	inputs:
-		quantity QuantityNotation (1..*)
+		quantity cdm.base.math.Quantity (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
@@ -159,7 +162,7 @@ func Equals:
 // TODO: turn these functions into language level operators i.e. '>'
 func GreaterThan:
 	inputs:
-		quantity QuantityNotation (1..*)
+		quantity cdm.base.math.Quantity (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
@@ -168,23 +171,23 @@ func GreaterThan:
 func GreaterThanEquals:
 	// TODO Never referenced in CDM
 	inputs:
-		quantity QuantityNotation (1..*)
+		quantity cdm.base.math.Quantity (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
 
 func ExtractQuantityByAsset:
 	inputs:
-		quantities QuantityNotation (1..*)
-		asset AssetIdentifier (1..1)
+		priceQuantities PriceQuantity (1..*)
+		observable Observable (1..1)
 	output:
-		quantity QuantityNotation (1..1)
+		priceQuantity PriceQuantity (1..1)
 
 func ExtractQuantityByCurrency:
 	inputs:
-		quantities QuantityNotation (1..*)
+		priceQuantities PriceQuantity (1..*)
 		currency string (1..1)
 	output:
-		quantity QuantityNotation (1..1)
+		priceQuantity PriceQuantity (1..1)
 
 

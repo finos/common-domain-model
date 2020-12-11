@@ -55,7 +55,7 @@ type AllocationBreakdown:
 
 	partyReference Party (1..1) <"Reference to the party to specify the account.">
 		[metadata reference]
-	quantity QuantityNotation (1..1) <"The quantity to be allocated to the party.">
+	quantity Quantity (1..1) <"The quantity to be allocated to the party.">
 	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
 	account Account (0..1)<"The account to allocate the trade into">
 	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
@@ -95,7 +95,7 @@ type CommodityTransferBreakdown extends TransferBreakdown:
 	commodity Commodity (1..1)
 	quantity number (1..1)
 		[synonym Workflow_Event value "quantity"]
-	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
+	unit CapacityUnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
 	timeUnit TimeUnitEnum (0..1)
 
 type CommodityTransferComponent extends TransferBase:
@@ -104,7 +104,7 @@ type CommodityTransferComponent extends TransferBase:
 	commodity Commodity (1..1)
 	quantity number (1..1)
 		[synonym Workflow_Event value "quantity"]
-	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
+	unit CapacityUnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
 	timeUnit TimeUnitEnum (0..1)
 	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">
 	breakdown CommodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
@@ -171,7 +171,7 @@ type EventTestBundle: <"A class which combines several events for testing purpos
 type CashExercise: <"The cash exercise specifies the cashflow using the cashflow payout and a given quantity.">
 
 	cashflow Cashflow (1..1) <"Cashflow payout specification, excluding the quantity.">
-	quantity QuantityNotation (1..1) <"Quantity of the cashflow payout.">
+	quantity Quantity (1..1) <"Quantity of the cashflow payout.">
 
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 	
@@ -233,17 +233,17 @@ type PhysicalExercise: <"The physical exercise results into a financial product 
 
 	product Product (1..1)
 		[synonym Workflow_Event value "product"]
-	quantity Quantity (0..1) <"The quantity associated the asset that is physically settled. This quantity should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
+	quantitySettled Quantity (0..1) <"The quantity associated the asset that is physically settled. This quantity should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
 		[synonym Workflow_Event value "quantity"]
-	quantityNotation QuantityNotation (0..*) <"Complex attribute to specify the quantity of the contractual product that is being exercised. This temporarily makes uses of the 'ExecutionQuantity' class, until such time when the latter can be renamed as, and supersede, the existing 'ContractualQuantity' class. To be later merged with the 'quantity' attribute to have consistent mechanism between contractual and non-contractual products.">
+	quantityExcercised Quantity (0..*) <"Complex attribute to specify the quantity of the contractual product that is being exercised. This temporarily makes uses of the 'ExecutionQuantity' class.">
 		// For Swap Stream:
 		[synonym Workflow_Event value "notionalSchedule" path "product->swap->swapStream->calculationPeriodAmount->calculation"]
 		[synonym Workflow_Event value "cashflow"]
 	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">
 		[synonym Workflow_Event value "cashflow"]
-	condition PhysicalExerciseQuantity: <"The quantity attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
+	condition PhysicalExerciseQuantity: <"The quantitySettled attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
 		if product -> contractualProduct exists
-		then quantity is absent
+		then quantitySettled is absent
 
 type PostContractFormationState extends ContractState:
 
@@ -367,15 +367,11 @@ type ContractFormationPrimitive: <"Specification of a primitive event that repre
 	after PostContractFormationState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
 		[synonym Workflow_Event value "after"]
 
-	// TODO enable condition once party has been refactored out of product
-//	condition: <"The product should be unchanged.">
-//		before -> execution -> tradableProduct -> product = after -> contract -> tradableProduct -> product
+	condition: <"The product should be unchanged.">
+		before -> execution -> tradableProduct -> product = after -> contract -> tradableProduct -> product
 
-	condition: <"The quantity should be unchanged.">
-		if before exists then before -> execution -> tradableProduct -> quantityNotation = after -> contract -> tradableProduct -> quantityNotation
-
-	condition: <"The price should be unchanged.">
-		if before exists then before -> execution -> tradableProduct -> priceNotation = after -> contract -> tradableProduct -> priceNotation
+	condition: <"The price, quantity, and observable should be unchanged.">
+		if before exists then before -> execution -> tradableProduct -> priceQuantity = after -> contract -> tradableProduct -> priceQuantity
 
 type SplitPrimitive: <"The primitive event to represent a split/allocation of a trade. As part of this primitive event the type of trade, either an execution or a contract, does not get altered. In the case of an execution, the further transformation of each split execution into a contract will be the purpose of the ContractFormation primitive.">
 
@@ -407,20 +403,20 @@ type SplitPrimitive: <"The primitive event to represent a split/allocation of a 
 
 	condition: <"The post-split quantities should sum to the pre-split quantity.">
 		if before -> execution exists
-		then Sum(after -> splitTrades -> execution -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> execution -> tradableProduct -> quantityNotation -> quantity -> amount
+		then Sum(after -> splitTrades -> execution -> tradableProduct -> priceQuantity -> quantity -> amount) = before -> execution -> tradableProduct -> priceQuantity -> quantity -> amount
 
 	condition: <"The post-split quantities should sum to the pre-split quantity.">
 		if before -> contract exists
-		then Sum(after -> splitTrades -> contract -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> contract -> tradableProduct -> quantityNotation -> quantity -> amount
+		then Sum(after -> splitTrades -> contract -> tradableProduct -> priceQuantity -> quantity -> amount) = before -> contract -> tradableProduct -> priceQuantity -> quantity -> amount
 
 	// TODO add syntax to handle comparison between list and single item.  https://github.com/REGnosys/rosetta-dsl/issues/167
 	condition: <"The price should be unchanged.">
 		if before -> execution exists
-		then after -> splitTrades -> execution -> tradableProduct -> priceNotation = before -> execution -> tradableProduct -> priceNotation
+		then after -> splitTrades -> execution -> tradableProduct -> priceQuantity-> price = before -> execution -> tradableProduct -> priceQuantity-> price
 
 	condition: <"The price should be unchanged.">
 		if before -> contract exists
-		then after -> splitTrades -> contract -> tradableProduct -> priceNotation = before -> contract -> tradableProduct -> priceNotation
+		then after -> splitTrades -> contract -> tradableProduct -> priceQuantity-> price = before -> contract -> tradableProduct -> priceQuantity-> price
 
 type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
 
@@ -498,7 +494,7 @@ type Execution: <"A class to specify an execution, which consists essentially in
 		[synonym Workflow_Event value "trade"]
 	closedState ClosedState (0..1) <"The qualification of what led to the execution closure alongside with the dates on which this closure takes effect.">
 		[synonym Workflow_Event value "closedState" path "trade"]
-	settlementTerms SettlementTerms (0..*) <"The settlement terms applicable to any initial transfer of cash or securities resulting from the transaction that is not part of the product definition: e.g. option premium, swap unwind fee, security delivery vs payment.">
+	
 
 	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
 		if executionType = ExecutionTypeEnum -> Electronic
@@ -514,11 +510,11 @@ type Execution: <"A class to specify an execution, which consists essentially in
 
 	condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
 		if tradableProduct -> product -> security exists
-		then tradableProduct -> priceNotation -> price exists
+		then tradableProduct -> priceQuantity -> price exists
 
 	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
 		if tradableProduct -> product -> security exists
-		then settlementTerms exists
+		then tradableProduct->settlementTerms exists
 
 /*
  * Only some of the attributes have been incorporated at this point, as some seem questionable (e.g. executionDateTime, which should be associated to the relevant execution event).

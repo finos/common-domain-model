@@ -29,7 +29,7 @@ type CreditDefaultPayout: <" The credit default payout specification provides th
 
 	condition FpML_cd_12: <"FpML validation rule cd-12 - If referencePrice exists, referencePrice must be greater or equal to 0">
 		if generalTerms -> referenceInformation -> referencePrice exists
-		then generalTerms -> referenceInformation -> referencePrice >= 0
+		then generalTerms -> referenceInformation -> referencePrice ->amount >= 0
 
 	condition FpML_cd_13: <"FpML validation rule cd-13 - If protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyer exists, then the protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyer is equal to the generalTerms/buyer.">
 		if protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyer exists
@@ -125,7 +125,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 	condition SettlementProvisionSettlementCurrency: <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
 		if crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement exists
-		then crossCurrencyTerms -> settlementProvision -> settlementCurrency <> payoutQuantity -> assetIdentifier -> currency
+		then crossCurrencyTerms -> settlementProvision -> settlementCurrency <> payoutQuantity ->resolvedQuantity ->unitOfAmount -> currency
 			or crossCurrencyTerms -> settlementProvision -> settlementCurrency <> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
 
 	/*
@@ -286,7 +286,7 @@ type ReferenceInformation: <"A class specifying the Credit Default Swap Referenc
 	noReferenceObligation boolean (0..1) <"Used to indicate that there is no Reference Obligation associated with this Credit Default Swap and that there will never be one.">
 	unknownReferenceObligation boolean (0..1) <"Used to indicate that the Reference obligation associated with the Credit Default Swap is currently not known. This is not valid for Legal Confirmation purposes, but is valid for earlier stages in the trade life cycle (e.g. Broker Confirmation).">
 	allGuarantees boolean (0..1) <"Indicates whether an obligation of the Reference Entity, guaranteed by the Reference Entity on behalf of a non-Affiliate, is to be considered an Obligation for the purpose of the transaction. It will be considered an obligation if allGuarantees is applicable (true) and not if allGuarantees is inapplicable (false). ISDA 2003 Term: All Guarantees.">
-	referencePrice number (0..1) <"Used to determine (a) for physically settled trades, the Physical Settlement Amount, which equals the Floating Rate Payer Calculation Amount times the Reference Price and (b) for cash settled trades, the Cash Settlement Amount, which equals the greater of (i) the difference between the Reference Price and the Final Price and (ii) zero. ISDA 2003 Term: Reference Price.">
+	referencePrice Price (0..1) <"Used to determine (a) for physically settled trades, the Physical Settlement Amount, which equals the Floating Rate Payer Calculation Amount times the Reference Price and (b) for cash settled trades, the Cash Settlement Amount, which equals the greater of (i) the difference between the Reference Price and the Final Price and (ii) zero. ISDA 2003 Term: Reference Price.">
 	referencePolicy boolean (0..1) <"Applicable to the transactions on mortgage-backed security, which can make use of a reference policy. Presence of the element with value set to 'true' indicates that the reference policy is applicable; absence implies that it is not.">
 	securedList boolean (0..1) <"With respect to any day, the list of Syndicated Secured Obligations of the Designated Priority of the Reference Entity published by Markit Group Limited or any successor thereto appointed by the Specified Dealers (the 'Secured List Publisher') on or most recently before such day, which list is currently available at [http://www.markit.com]. ISDA 2003 Term: Relevant Secured List.">
 
@@ -507,7 +507,7 @@ type InflationRateSpecification extends FloatingRateSpecification: <"A data to: 
 	fallbackBondApplicable boolean (1..1) <"The applicability of a fallback bond as defined in the 2006 ISDA Inflation Derivatives Definitions, sections 1.3 and 1.8.">
 
 	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
-		assetIdentifier -> rateOption only exists
+		observable -> rateOption only exists
 
 
 type FloatingRate extends RateSpecificationBase: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
@@ -528,7 +528,7 @@ type FloatingRateSpecification extends FloatingRate: <"A class to specify the fl
 	negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
 
 	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
-		assetIdentifier -> rateOption only exists
+		observable -> rateOption only exists
 
 type FutureValueAmount: <"A class defining a currency and a future value date.">
 

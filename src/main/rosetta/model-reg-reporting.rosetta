@@ -49,7 +49,7 @@ segment field
 segment paragraph
 segment question
 
-report ESMA MiFIR RTS_22 in T+1
+report ESMA MiFIR RTS_22 in T+1  
 	when MifirInvestmentFirm and ReportableTransaction and ReportableProduct
 	using standard ISO_20022 with fields
 		ReportStatus
@@ -85,7 +85,7 @@ report ESMA MiFIR RTS_22 in T+1
 		CommodityDerivativeIndicator
 		SecuritiesFinancingTransactionIndicator
 
-report ESMA EMIR ITS_9 in T+1
+report ESMA EMIR ITS_9 in T+1 
 	when EmirInvestmentFirm
 	using standard ISO_20022 with fields
 		// ReportingTimestamp
@@ -105,7 +105,7 @@ eligibility rule ReportableProduct <"When eligible for rts 22">
 eligibility rule HasContract <"When eligible for rts 22">
 	[regulatoryReference ESMA MiFIR RTS_22 article "2"
    		provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
-		ContractForEvent then
+		ContractForEvent then //HUGO_HELP - not sure what the issue is here - there is no error on the reporting rule ContractForEvent
 		extract Contract -> tradableProduct -> product -> contractualProduct exists
 
 eligibility rule ReportableTransaction <"When eligible for rts 22">
@@ -289,23 +289,20 @@ reporting rule Quantity <"The number of units of the financial instrument, or th
 		[regulatoryReference ESMA EMIR ITS_9 field "2.22"
 			provision "Number of contracts included in the report. For spread bets, the quantity shall be the monetary value wagered per point movement in the direct underlying financial instrument."]		
  	ContractForEvent then
- 	extract Contract -> tradableProduct -> quantityNotation -> quantity -> amount
+ 	extract Contract -> tradableProduct -> priceQuantity -> quantity -> amount
 		as "Quantity"
 
  reporting rule FixedRatePrice
  	ContractForEvent then
- 		//filter when RateSpecification -> fixedRate count > 0 then
- 		filter when Contract -> tradableProduct -> priceNotation -> price -> fixedInterestRate -> rate exists then
-	 		extract Contract -> tradableProduct -> priceNotation -> price -> fixedInterestRate -> rate
-	 		// extract max value
-		 	as "Price"
+		 filter when Contract -> tradableProduct -> priceQuantity -> price -> priceType = PriceTypeEnum->InterestRate then
+		 	extract Contract -> tradableProduct -> priceQuantity -> price -> amount
+		   as "Price"
 
-  reporting rule FloatingRatePrice
+reporting rule FloatingRatePrice
  	ContractForEvent then
-	 	filter when Contract -> tradableProduct -> priceNotation -> price -> floatingInterestRate -> spread exists then
-	 		extract Contract -> tradableProduct -> priceNotation -> price -> floatingInterestRate -> spread //filter when RateSpecification -> fixedRate count = 0 then
-	 		// extract max value
-	 		as "Price"
+	 	filter when Contract -> tradableProduct -> priceQuantity -> observable ->rateOption exists then
+	 		extract Contract -> tradableProduct -> priceQuantity -> price ->amount 
+			as "Price"
 
 reporting rule VenueOfExecution <"Venue of Execution">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "36"
@@ -569,7 +566,7 @@ reporting rule SingleCurrencyBasisSwap
             structured_provision "The Seller of a [Single-Currency] Basis Swap is by definition the Receiver of the  Spread"
             provision ""]
 	filter when rule IsIRSwapBasis then
-	filter when Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption = Contract -> tradableProduct -> priceNotation -> assetIdentifier -> rateOption then
+	filter when Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> observable -> rateOption = Contract -> tradableProduct -> priceQuantity -> observable -> rateOption then
 	(
 		InterestRatePayoutPayer then PartyToBuyer,
 		InterestRatePayoutReceiver then PartyToSeller
@@ -590,7 +587,7 @@ reporting rule CrossCurrencySwapBuyerSeller
 			structured_provision "The Seller of a Cross-Currency Swap is by definition the Payer of the ISO 4217 currency which is first when sorted ascending irrespective of the interest type or spread"
 			provision "The seller shall be the counterparty delivering this currency which is first when sorted alphabetically by ISO 4217 standard."]
 	filter when rule IsXCCYSwap then
-	minBy Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier -> currency then
+	minBy Contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> resolvedQuantity-> unitOfAmount -> currency then
 	(
 		InterestRatePayoutPayer then PartyToBuyer,
 		InterestRatePayoutReceiver then PartyToSeller
@@ -636,8 +633,8 @@ reporting rule Price
 	(
 		FixedFixedPrice,
 		FixedFloatPrice,
-		BasisSwapPrice,
-		CDSPrice
+		BasisSwapPrice// temporarily commenting out until CDSPrice is resolved HUGO_HELP
+		//
 	)
 
 reporting rule FixedFloatPrice
@@ -647,9 +644,11 @@ reporting rule FixedFloatPrice
 	 	   	structured_provision "The regulatoryPrice of a Fixed-Float or Fixed-Inflation Swap is by definition the highest Fixed Rate"
 	 	   	provision "Questions and Answers On MiFIR data reporting. Section 14 Financial instruments’ volatile attributes [Last update: 05/10/2017]. Question 1; Answer 1 (a) Where a swap rate or forward rate financial contract is quoted as the fixed rate and it is considered to be an attribute of the transaction rather than an attribute of the financial instrument, the respective reports should be completed as follows: Transaction report - the price (field 33) of the transaction should be populated with the fixed rate value. Question 2; Example 1: CFI code SRC*S* fixed-floating with single currency"]
 	filter when rule IsFixedFloat then
-	extract Contract -> tradableProduct -> priceNotation -> price -> fixedInterestRate then
-	maxBy FixedInterestRate -> rate then
-	extract FixedInterestRate -> rate as "Price"
+
+		filter when Contract -> tradableProduct -> priceQuantity -> price -> priceType = PriceTypeEnum->InterestRate then
+		extract Contract -> tradableProduct -> priceQuantity -> price then
+		maxBy Price-> amount then
+		extract Price -> amount as "Price"
 
 reporting rule BasisSwapPrice
 		[regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33"
@@ -658,14 +657,15 @@ reporting rule BasisSwapPrice
 	 	   	structured_provision "The regulatoryPrice of a Basis or Float-Inflation Swap is by definition the highest Spread"
 	 	   	provision "09April 2019|ESMA70-1861941480-56. Questions and Answers On MiFIR data reporting. Section 16 Interest Rate Swaps reporting [Last update: 26/09/2018]. Question 2 Answer 2 CFI SRA*S*, Tenor basis swap (float-to-float single currency). 10 Years EUR EURIBOR 3 months + 2 basis points VS EURIBOR 6 MONTHS. 33 Price 2: If the spread was negative i.e. Firm X was paying 3 month EUR EURIBOR - 2 basis points then Firm X should still be reported as the buyer but the price would be reported as '-2’ in the reports of X and Y."]
 	filter when rule IsIRSwapBasis then
-	extract Contract -> tradableProduct -> priceNotation -> price -> floatingInterestRate then
-	extract FloatingInterestRate -> initialRate as "Price"
+	filter when (Contract ->tradableProduct -> priceQuantity -> observable ->rateOption exists) then
+	extract Contract -> tradableProduct -> priceQuantity -> price -> amount as "Price"
 
 reporting rule FixedFixedPrice
 	filter when rule IsFixedFixed then
-	extract Contract -> tradableProduct -> priceNotation -> price -> fixedInterestRate then
-	maxBy FixedInterestRate -> rate then
-	extract FixedInterestRate -> rate as "Price"
+	filter when Contract -> tradableProduct -> priceQuantity -> price -> priceType = PriceTypeEnum->InterestRate then
+		extract Contract -> tradableProduct -> priceQuantity -> price then
+		maxBy Price-> amount then
+		extract Price -> amount as "Price"
 
 reporting rule CDSPrice
 		[regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33"
@@ -674,14 +674,16 @@ reporting rule CDSPrice
 	 	   	structured_provision "Of a Credit Default Swap is by definition the Fixed Rate unless the Fixed Rate is Zero and there is a Spread then the regulatoryPrice is by definition the Spread"
 	 	   	provision "For credit default swaps (CDS) it shall be the coupon in basis points. "]
 	filter when rule IsCreditDefaultSwap then
-	extract Contract -> tradableProduct -> priceNotation -> price then
+	extract Contract -> tradableProduct -> priceQuantity  then
+	 
 	if (
-		filter when Price -> fixedInterestRate -> rate <> 0
-			=> extract Price -> fixedInterestRate -> rate as "Price",
-		extract Price -> floatingInterestRate -> initialRate
-			=> extract Price -> floatingInterestRate -> initialRate as "Price",
+		filter when PriceQuantity->price -> priceType = PriceTypeEnum->InterestRate 
+			and PriceQuantity->price->amount <>0 
+			=> extract PriceQuantity -> price -> amount as "Price",
+		 filter when PriceQuantity->price -> priceType = PriceTypeEnum->Spread 
+			=> extract PriceQuantity -> price -> amount as "Price",
 		=> return 0 as "Price"
-	)
+		)
 
 type ExecutingEntity:
 	isInvestmentFirm boolean (1..1)
@@ -1053,3 +1055,5 @@ reporting rule Level <"Level">
 		provision "Indication whether the report is done at trade or position level. Position level report can be used only as a supplement to trade level reporting to report post-trade events and only if individual trades in fungible products have been replaced by the position."]
 	return "Not Modelled"
 			as "Level"
+
+		
