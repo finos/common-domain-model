@@ -528,23 +528,23 @@ func ResolveEquityValuationTime: <"Defines how to resolve the observation time f
 	output:
 		time TimeZone (1..1)
 
-//	alias valuationTime:
-//	    equityValuation -> valuationTime
+	alias valuationTime:
+	    equityValuation -> valuationTime
 
-//	alias timeType:
-//	    equityValuation -> valuationTimeType
+	alias timeType:
+	    equityValuation -> valuationTimeType
 
-//	condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
-//		if valuationTime exists then timeType is absent
+	//condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
+	//	if valuationTime exists then timeType is absent
 
-//	condition:
-//		if timeType exists then valuationTime is absent
+	//condition:
+	//	if timeType exists then valuationTime is absent
 
-//	assign-output time:
-//		if valuationTime exists then TimeZoneFromBusinessCenterTime(valuationTime)
+	assign-output time:
+		if valuationTime exists then TimeZoneFromBusinessCenterTime(valuationTime)
 
-//	assign-output time:
-//		if timeType exists then ResolveTimeZoneFromTimeType(timeType, equityValuation -> determinationMethod)
+	assign-output time:
+		if timeType exists then ResolveTimeZoneFromTimeType(timeType, equityValuation -> determinationMethod)
 
 
 func ResolveEquityReset: <"Defines how to resolve the reset value for an equity payout.">
@@ -580,7 +580,7 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 		tradeState -> trade -> tradableProduct -> quantityNotation -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
 
 	assign-output equityCashSettlementAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
-		EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> reset -> resetValue, date)
+		EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
 
 	assign-output equityCashSettlementAmount -> currency: <"Does not handle the cross currency case, currently.">
 		ResolveEquityInitialPrice( equityPayout only-element -> underlier, tradeState -> trade -> tradableProduct -> priceNotation ) -> netPrice -> currency
@@ -916,12 +916,8 @@ func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructe
 	assign-output resetPrimitive -> after:
 		tradeState
 
-	assign-output resetPrimitive -> after -> resetHistory -> resetDate: <"Assigns the date of the reset event to ResetHistory.">
-		date
-
-	assign-output resetPrimitive -> after -> resetHistory -> reset: <"To handle the various ways Contracts can change over time, ">
+	assign-output resetPrimitive -> after -> resetHistory: <"To handle the various ways Contracts can change over time, ">
 		if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date)
-
 
 
 func Create_CashTransfer: <"Function specification to build a transfer event following a reset on a contract">

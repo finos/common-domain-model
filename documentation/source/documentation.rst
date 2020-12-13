@@ -1645,7 +1645,7 @@ Some of those calculations are presented below:
   		tradeState -> trade -> tradableProduct -> quantityNotation -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
 
   	assign-output equityCashSettlementAmount -> amount:
-  		EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> reset -> resetValue, date)
+ 		EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
 
   	assign-output equityCashSettlementAmount -> currency:
   		ResolveEquityInitialPrice( equityPayout only-element -> underlier, tradeState -> trade -> tradableProduct -> priceNotation ) -> netPrice -> currency
@@ -1811,10 +1811,7 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
  	assign-output resetPrimitive -> after:
  		tradeState
 
- 	assign-output resetPrimitive -> after -> resetHistory -> resetDate:
- 		date
-
- 	assign-output resetPrimitive -> after -> resetHistory -> reset:
+ 	assign-output resetPrimitive -> after -> resetHistory:
  		if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date)
 
 First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
