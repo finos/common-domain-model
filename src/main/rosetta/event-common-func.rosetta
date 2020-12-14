@@ -489,7 +489,7 @@ func ResolveEquityObservationIdentifiers: <"Defines which attributes on the Equi
 		payout EquityPayout (1..1)
 		date date (1..1)
 	output:
-		identifiers ObservationIdentifier (1..1)
+		identifiers ObservationIdentifier (1..1)  // Will return multiple ObservationIdentifiers once code generators are fixed to support this use case
 
 	alias periodEndDate:
 		CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
@@ -571,19 +571,31 @@ func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity
 		date date (1..1)
 
 	output:
-		equityCashSettlementAmount Money (1..1)
+		equityCashSettlementAmount Cashflow (1..1)
 
 	alias equityPayout:
-		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout
+		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+
+	alias equityPerformance:
+	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
 
 	condition:
 		tradeState -> trade -> tradableProduct -> quantityNotation -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
 
-	assign-output equityCashSettlementAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
-		EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
+	assign-output equityCashSettlementAmount -> cashflowAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
+		Abs(equityPerformance)
 
-	assign-output equityCashSettlementAmount -> currency: <"Does not handle the cross currency case, currently.">
-		ResolveEquityInitialPrice( equityPayout only-element -> underlier, tradeState -> trade -> tradableProduct -> priceNotation ) -> netPrice -> currency
+	assign-output equityCashSettlementAmount -> cashflowAmount -> currency: <"Does not handle the cross currency case, currently.">
+		ResolveEquityInitialPrice( equityPayout -> underlier, tradeState -> trade -> tradableProduct -> priceNotation ) -> netPrice -> currency
+
+	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
+	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
+
+	assign-output equityCashSettlementAmount -> payerReceiver -> receiver:
+	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
+
+    assign-output equityCashSettlementAmount -> cashflowDate -> adjustedDate:
+        ResolveCashSettlementDate(tradeState)
 
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
 	inputs:
@@ -990,12 +1002,10 @@ func ResolveCashflow: <"A product agnostic function that calculates the amount d
 	output:
 		cashflow Cashflow (1..1)
 
-	assign-output cashflow -> cashflowAmount:
+	assign-output cashflow:
 		if tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout exists
 		then EquityCashSettlementAmount(tradeState, date)
 
-	assign-output cashflow -> cashflowDate -> adjustedDate:
-		ResolveCashSettlementDate(tradeState)
 
 func ResolveCashSettlementDate: <"A product agnostic function that resolves the settlement date of the payout for the period in question">
 	inputs: tradeState TradeState (1..1)
