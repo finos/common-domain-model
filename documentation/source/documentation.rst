@@ -239,7 +239,7 @@ Data Templates
 
 The ``ContractualProduct`` type is specified with the ``[metadata template]`` annotation indicating that it is eligible to be used as a template.
 
-Financial markets often trade a high volume of contracts with near identical contractual product data. Templates provide a way to store this data more efficiently. The contractual product data which is duplicated on each contract can be extracted into a single template and replaced by a reference. This allows each contract to specify only the unique contractual product data. The template reference can be resolved to a template object which can then be merged in to form a single, complete object.
+Financial markets often trade a high volume of trades with near identical contractual product data. Templates provide a way to store this data more efficiently. The contractual product data which is duplicated on each contract can be extracted into a single template and replaced by a reference. This allows each trade to specify only the unique contractual product data. The template reference can be resolved to a template object which can then be merged in to form a single, complete object.
 
 For instance, Equity Swaps used by Equity Financing desks sometimes refer to a *Master Confirmation* agreement, which is an overall agreement that specifies all the standard Equity Swap terms that do not need to be renegotiated on each trade. Each contractual product would only specify the unique product details (such as start and end date, underlier, price and spread) together with a reference to the Master Confirmation containing the template product details.
 
@@ -418,7 +418,7 @@ The trade state is defined in CDM by the ``TradeState`` data type and represents
 
 .. code-block:: Haskell
 
-type TradeState:
+ type TradeState:
 	[metadata key]
 	[rootType]
 	trade Trade (1..1)
@@ -565,7 +565,7 @@ The execution primitive does not allow any before state (as marked by the 0 card
 
 Following that execution, the trade gets confirmed and a legally binding contract is signed between the two executing parties. In an allocation scenario, the trade would first get split into sub-accounts as designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts.
 
-The ``ContractFormationPrimitive`` represents that transition to the trade state after the trade is confirmed, which results in a ``PostContractFormationState`` containing a contract object.
+The ``ContractFormationPrimitive`` represents that transition to the trade state after the trade is confirmed, which results in a ``TradeState`` containing a Trade object that can optionally reference legal documentation.
 
 .. code-block:: Haskell
 
@@ -690,7 +690,7 @@ The ``eventEffect`` contains a set of pointers to the relevant objects that are 
    transfer TransferPrimitive (0..*)
      [metadata reference]
 
-The JSON snippet below for a quantity change event on a contract illustrates the use of multiple metadata reference values in ``eventEffect``.
+The JSON snippet below for a quantity change event on a trade illustrates the use of multiple metadata reference values in ``eventEffect``.
 
 .. code-block:: Javascript
 
@@ -719,7 +719,7 @@ The JSON snippet below for a quantity change event on a contract illustrates the
     "quantityChange": [
       {
         "after": {
-          "contract": {
+          "trade": {
             (...)
             "meta": {
               "globalKey": "600e4873"
@@ -733,7 +733,7 @@ The JSON snippet below for a quantity change event on a contract illustrates the
           }
         },
         "before": {
-          "contract": {
+          "trade": {
             (...)
             "meta": {
               "globalKey": "d36e1d72"
@@ -776,8 +776,8 @@ The JSON snippet below for a quantity change event on a contract illustrates the
     ]
   }
 
-* For the ``effectedContract`` effect: ``d36e1d72`` points to the original contract in the ``before`` state of the ``quantityChange`` primitive event.
-* For the ``contract`` effect: ``600e4873`` points to the new contract in the ``after`` state of the ``quantityChange`` primitive event. Note how the new contract retains the initial ``tradeDate`` attribute of the original contract even after a quantity change.
+* For the ``effectedTrade`` effect: ``d36e1d72`` points to the original trade in the ``before`` state of the ``quantityChange`` primitive event.
+* For the ``trade`` effect: ``600e4873`` points to the new trade in the ``after`` state of the ``quantityChange`` primitive event. Note how the new contract retains the initial ``tradeDate`` attribute of the original trade even after a quantity change.
 * For the ``transfer`` effect: ``ee4f7520`` points to the ``transfer`` primitive event.
 
 Other Misc. Information
@@ -979,7 +979,7 @@ Legal Agreements in the CDM
 The CDM provides a digital representation of the legal agreements that govern transactions and workflows. The benefits of this digital representation are summarized below:
 
 * **Supporting marketplace initiatives to streamline and standardise legal agreements** with a comprehensive digital representation of such agreements.
-* **Providing a comprehensive representation of the financial workflows** by complementing the contract and lifecycle event model and formally tying legal data to the business outcome and performance of legal clauses. (e.g. in collateral management where lifecycle processes require reference to parameters found in the associated legal agreements, such as the Credit Support Annex).
+* **Providing a comprehensive representation of the financial workflows** by complementing the trade and lifecycle event model and formally tying legal data to the business outcome and performance of legal clauses. (e.g. in collateral management where lifecycle processes require reference to parameters found in the associated legal agreements, such as the Credit Support Annex).
 * **Supporting the direct implementation of functional processes** by providing a normalised representation of legal agreements as structured data, as opposed to the unstructured data contained of a full legal text that needs to be interpreted first before any implementation (e.g. for a calculation of an amount specified in a legal definition).
 
 The scope of the CDM legal agreement model includes all of the types of ISDA credit support documents. The legal agreement model is explained below, including examples and references to these types of documents.
@@ -1031,7 +1031,7 @@ The legal agreement model in the CDM comprises the following features:
 
 * **Composable and normalised model representation** of the eligible collateral schedule for initial and variation margin into a directly machine readable format.
 
-* **Linking of legal agreement into a contract object** through the CDM referencing mechanism.
+* **Linking of legal agreement into a trade object** through the CDM referencing mechanism.
 
 * **Mapping to ISDA Create derivative documentation negotiation platform** : Synonyms identified as belonging to ``ISDA_Create_1_0`` have been defined to establish mappings that support automated transformation of ISDA Create documents into objects that are compliant with the CDM.
 
@@ -1055,7 +1055,7 @@ The key modelling principles that have been adopted to represent legal agreement
 * **Composite and extendable model**.
 
   * The Legal Agreement model follows the CDM design principles of composability and reusability to develop an extendable model that can support multiple document types.
-  * For instance, the ``LegalAgreementBase`` data type uses components that are also used as part of the CDM contract and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
+  * For instance, the ``LegalAgreementBase`` data type uses components that are also used as part of the CDM trade and lifecycle event components: e.g. ``Party``, ``Identifier``, ``date``.
 
 * **Normalisation of the data representation**
 
@@ -1779,8 +1779,8 @@ Primitive creation functions can be thought of as the fundamental mathematical o
 
 An example of such use is the handling of a reset event, hereby presented an an equity reset example. The reset is processed in two steps:
 
-* An ``ObservationPrimitive`` is built for the equity price, independently from any single contract.
-* This observation is used to construct a ``ResetPrimitive`` on any contract affected by it.
+* An ``ObservationPrimitive`` is built for the equity price, independently from any single trade.
+* This observation is used to construct a ``ResetPrimitive`` on any trade affected by it.
 
 For the observation primitive, checks are performed on the valuation date and/or time inputs and on their consistency with a given price determination method. The function to fetch the equity price is also specified to ensure integrity of the observation number.
 
@@ -1810,7 +1810,7 @@ For the observation primitive, checks are performed on the valuation date and/or
    post-condition:
      observation -> observation = EquitySpot(equity, observation -> date, observation -> time)
 
-The observation is used as an input to *resolve* any Equity Derivative contract (i.e. update its resettable values) that depends on this observation:
+The observation is used as an input to *resolve* any Equity Derivative trade (i.e. update its resettable values) that depends on this observation:
 
 .. code-block:: Haskell
 
@@ -1855,7 +1855,7 @@ The observation is used as an input to *resolve* any Equity Derivative contract 
 
 The set of updated values include the ``performance`` attribute on the ``equityPayout``, which represents the performance of the current calculation period. The resolution function uses some of the already defined *utility functions* such as ``CalculationPeriod`` and also a *calculation function* for the Equity performance.
 
-This contract resolution mechanism is wired into the function that creates the ``ResetPrimitive`` object:
+This trade resolution mechanism is wired into the function that creates the ``ResetPrimitive`` object:
 
 .. code-block:: Haskell
 
@@ -1873,7 +1873,7 @@ This contract resolution mechanism is wired into the function that creates the `
    assign-output resetPrimitive -> after -> observationHistory:
      ResolveUpdatedTrade(tradeState, observation, date)
 
-.. note:: The Reset Event only resets some values on the contract but does not calculate nor pay any cashflow. Any cashflow calculation and payment would be handled separately as part of a Transfer Event which, when such cashflow depends on any resettable values, will use the values updated as part of the Reset Event (as is the case of the *Equity Cash Settlement Amount*).
+.. note:: The Reset Event only resets some values on the trade but does not calculate nor pay any cashflow. Any cashflow calculation and payment would be handled separately as part of a Transfer Event which, when such cashflow depends on any resettable values, will use the values updated as part of the Reset Event (as is the case of the *Equity Cash Settlement Amount*).
 
 Workflow Step Creation
 """"""""""""""""""""""
