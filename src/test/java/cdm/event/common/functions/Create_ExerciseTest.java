@@ -22,13 +22,7 @@ public class Create_ExerciseTest extends AbstractFunctionTest {
 	void shouldCreatePhysicalExercise() throws IOException {
 		TradeState swaption = getObject(TradeState.class,"result-json-files/products/rates/ird-ex09-euro-swaption-explicit-physical-exercise.json");
 
-		BusinessEvent contractFormation = BusinessEvent.builder()
-				.addPrimitivesBuilder(PrimitiveEvent.builder()
-					.setContractFormationBuilder(ContractFormationPrimitive.builder()
-						.setAfter(swaption)))
-				.build();
-
-		BusinessEvent businessEvent = func.evaluate(contractFormation, ExerciseInstruction.builder().build());
+		BusinessEvent businessEvent = func.evaluate(swaption, ExerciseInstruction.builder().build());
 
 		assertEquals(getJson("expected-physical-exercise-business-event.json"), toJson(businessEvent));
 	}

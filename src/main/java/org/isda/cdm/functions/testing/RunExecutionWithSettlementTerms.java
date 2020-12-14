@@ -1,24 +1,30 @@
 package org.isda.cdm.functions.testing;
 
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.metafields.FieldWithMetaDate;
+
+import cdm.base.staticdata.party.AncillaryParty;
 import cdm.base.staticdata.party.Counterparty;
-import cdm.base.staticdata.party.RelatedPartyReference;
 import cdm.event.common.BusinessEvent;
 import cdm.event.common.Trade;
 import cdm.event.common.TradeState;
 import cdm.event.common.functions.Create_Execution;
 import cdm.product.common.settlement.SettlementTerms;
 import cdm.product.common.settlement.functions.CashflowSettlementTerms;
-import cdm.product.template.*;
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
-import com.rosetta.model.metafields.FieldWithMetaDate;
-
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+import cdm.product.template.ContractualProduct;
+import cdm.product.template.EconomicTerms;
+import cdm.product.template.Payout;
+import cdm.product.template.Product;
+import cdm.product.template.TradableProduct;
 
 public class RunExecutionWithSettlementTerms implements ExecutableFunction<TradeState, BusinessEvent> {
 
@@ -39,8 +45,8 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
         return execute.evaluate(input.getTrade().getTradableProduct().getProduct(),
                 guard(input.getTrade().getTradableProduct().getQuantityNotation()),
                 guard(input.getTrade().getTradableProduct().getPriceNotation()),
-                guard(input.getTrade().getTradableProduct().getCounterparties()),
-                guard(input.getTrade().getTradableProduct().getRelatedParties()),
+                guard(input.getTrade().getTradableProduct().getCounterparty()),
+                guard(input.getTrade().getTradableProduct().getAncillaryParty()),
                 guard(input.getTrade().getParty()),
                 guard(input.getTrade().getPartyRole()),
                 settlementTerm,
@@ -64,14 +70,14 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
 
     private List<SettlementTerms> getSettlementTerm(TradeState input) {
     	List<Counterparty> counterparties = Optional.ofNullable(input)
-		        .map(TradeState::getTrade)
-		        .map(Trade::getTradableProduct)
-		        .map(TradableProduct::getCounterparties)
-		        .orElse(Collections.emptyList());
-        List<RelatedPartyReference> relatedParties = Optional.ofNullable(input)
                 .map(TradeState::getTrade)
                 .map(Trade::getTradableProduct)
-                .map(TradableProduct::getRelatedParties)
+                .map(TradableProduct::getCounterparty)
+		        .orElse(Collections.emptyList());
+        List<AncillaryParty> ancillaryParties = Optional.ofNullable(input)
+                .map(TradeState::getTrade)
+                .map(Trade::getTradableProduct)
+                .map(TradableProduct::getAncillaryParty)
                 .orElse(Collections.emptyList());
         return Optional.ofNullable(input)
                 .map(TradeState::getTrade)
@@ -82,7 +88,7 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
                 .map(EconomicTerms::getPayout)
                 .map(Payout::getCashflow)
                 .map(cashflows -> cashflows.stream()
-                        .map(cashflow -> cashflowSettlementTerms.evaluate(cashflow, counterparties, relatedParties))
+                        .map(cashflow -> cashflowSettlementTerms.evaluate(cashflow, counterparties, ancillaryParties))
                         .collect(Collectors.toList())
                 )
                 .orElse(Collections.emptyList());

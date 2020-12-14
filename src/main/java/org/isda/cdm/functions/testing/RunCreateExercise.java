@@ -13,12 +13,7 @@ public class RunCreateExercise implements ExecutableFunction<TradeState, Busines
 
     @Override
     public BusinessEvent execute(TradeState tradeState) {
-        return func.evaluate(
-                BusinessEvent.builder()
-                        .addPrimitivesBuilder(PrimitiveEvent.builder()
-                                .setContractFormationBuilder(ContractFormationPrimitive.builder()
-                                        .setAfter(tradeState))).build(),
-                ExerciseInstruction.builder().build());
+        return func.evaluate(tradeState, ExerciseInstruction.builder().build());
     }
 
     @Override

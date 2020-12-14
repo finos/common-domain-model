@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
 /**
  * ISDA Create mapping processor.
@@ -35,7 +35,7 @@ public class CollateralManagementAgreementMappingProcessor extends MappingProces
 		CollateralManagementAgreementElection.CollateralManagementAgreementElectionBuilder electionBuilder = CollateralManagementAgreementElection.builder();
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
-				(value) -> electionBuilder.setParty(toCounterpartyEnum(party)).setCollateralManagementAgreement(value));
+				(value) -> electionBuilder.setParty(toCounterpartyRoleEnum(party)).setCollateralManagementAgreement(value));
 
 		return electionBuilder.hasData() ? Optional.of(electionBuilder.build()) : Optional.empty();
 	}

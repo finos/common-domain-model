@@ -536,7 +536,6 @@ A ``PrimitiveEvent`` object consists of one of the primitive components, as capt
    execution ExecutionPrimitive (0..1)
    contractFormation ContractFormationPrimitive (0..1)
    split SplitPrimitive (0..1)
-   exercise ExercisePrimitive (0..1)
    observation ObservationPrimitive (0..1)
    quantityChange QuantityChangePrimitive (0..1)
    reset ResetPrimitive (0..1)
@@ -1160,18 +1159,18 @@ Agreement
 Counterparty
 """"""""""""
 
-Each counterparty to the agreement is assigned an enumerated value of either ``Party1`` or ``Party2`` through the association of a ``CounterpartyEnum`` with the corresponding ``Party``.  The ``CounterpartyEnum`` value is then used to specify elections throughout the rest of the document.
+Each counterparty to the agreement is assigned an enumerated value of either ``Party1`` or ``Party2`` through the association of a ``CounterpartyRoleEnum`` with the corresponding ``Party``.  The ``CounterpartyRoleEnum`` value is then used to specify elections throughout the rest of the document.
 
 .. code-block:: Haskell
 
- enum CounterpartyEnum:
+ enum CounterpartyRoleEnum:
    Party1
    Party2
 
 .. code-block:: Haskell
 
  type Counterparty:
-   counterparty CounterpartyEnum (1..1)
+   role CounterpartyRoleEnum (1..1)
    partyReference Party (1..1)
     [metadata reference]
 
@@ -1278,7 +1277,7 @@ The ``partyElection`` attribute, which is of the type partyElection ``PostingObl
 .. code-block:: Haskell
 
  type PostingObligationsElection:
-   party CounterpartyEnum (1..1)
+   party CounterpartyRoleEnum (1..1)
    asPermitted boolean (1..1)
    eligibleCollateral EligibleCollateral (0..*)
    excludedCollateral string (0..1)
@@ -1637,19 +1636,31 @@ Some of those calculations are presented below:
  		date date (1..1)
 
  	output:
- 		equityCashSettlementAmount Money (1..1)
+ 		equityCashSettlementAmount Cashflow (1..1)
 
  	alias equityPayout:
- 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout
+ 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+
+ 	alias equityPerformance:
+ 	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
 
  	condition:
  		tradeState -> trade -> tradableProduct -> quantityNotation -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
 
- 	assign-output equityCashSettlementAmount -> amount:
- 		Abs(tradeState -> observationHistory -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element -> performance)
+ 	assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
+ 		Abs(equityPerformance)
 
- 	assign-output equityCashSettlementAmount -> currency:
- 		ResolveEquityInitialPrice( equityPayout only-element -> underlier, tradeState -> trade -> tradableProduct -> priceNotation ) -> netPrice -> currency
+ 	assign-output equityCashSettlementAmount -> cashflowAmount -> currency:
+ 		ResolveEquityInitialPrice( equityPayout -> underlier, tradeState -> trade -> tradableProduct -> priceNotation ) -> netPrice -> currency
+
+ 	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
+ 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
+
+ 	assign-output equityCashSettlementAmount -> payerReceiver -> receiver:
+ 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
+
+     assign-output equityCashSettlementAmount -> cashflowDate -> adjustedDate:
+         ResolveCashSettlementDate(tradeState)
 
 .. code-block:: Haskell
 
@@ -1775,105 +1786,110 @@ Illustration of the three components are given in the sections below.
 Primitive Creation
 """"""""""""""""""
 
-Primitive creation functions can be thought of as the fundamental mathematical operators that operate on a trade *state*. While a primitive event object describes each state transition in terms of *before* and *after* states, a primitive creation function defines the logic to transition from that *before* state to the *after* state, using a set of *instructions*.
+Primitive creation functions can be thought of as the fundamental mathematical operators that operate on a *trade state*. While a primitive event object describes each state transition in terms of *before* and *after* trade states, a primitive creation function defines the logic to transition from that *before* trade state to the *after* trade state, using a set of *instructions*.
 
-An example of such use is the handling of a reset event, hereby presented an an equity reset example. The reset is processed in two steps:
+An example of such use is captured in the reset event of an Equity Swap. The reset is processed in following steps:
 
-* An ``ObservationPrimitive`` is built for the equity price, independently from any single trade.
-* This observation is used to construct a ``ResetPrimitive`` on any trade affected by it.
+1. Resolve the ``Observation`` that contains the equity price, using specific product definition terms defined on ``EquityPayout``.
+1. Construct a ``Reset`` using the equity price on ``Observation``. In this scenario, the reset value is the equity price.
+1. Append ``Reset`` onto ``TradeState``, creating a new instance of ``TradeState``.
 
-For the observation primitive, checks are performed on the valuation date and/or time inputs and on their consistency with a given price determination method. The function to fetch the equity price is also specified to ensure integrity of the observation number.
+At the end of each period in the life of the Equity Swap, the reset process will append further reset values onto the *trade state*. The series of equity prices then supports equity performance calculation as each reset value will represent the equity price at the end of one period and the start of the next.
 
-.. code-block:: Haskell
-
- func EquityPriceObservation:
-   inputs:
-     equity Equity (1..1)
-     valuationDate AdjustableOrRelativeDate (1..1)
-     valuationTime BusinessCenterTime (0..1)
-     timeType TimeTypeEnum (0..1)
-     determinationMethod DeterminationMethodEnum (1..1)
-   output:
-     observation ObservationPrimitive (1..1)
-
-   condition:
-     if valuationTime exists then timeType is absent
-     else if timeType exists then valuationTime is absent
-     else False
-
-   post-condition:
-     observation -> date = ResolveAdjustableDate(valuationDate)
-     and if valuationTime exists
-       then observation -> time = TimeZoneFromBusinessCenterTime(valuationTime)
-       else observation -> time = ResolveTimeZoneFromTimeType(timeType, determinationMethod)
-
-   post-condition:
-     observation -> observation = EquitySpot(equity, observation -> date, observation -> time)
-
-The observation is used as an input to *resolve* any Equity Derivative trade (i.e. update its resettable values) that depends on this observation:
-
-.. code-block:: Haskell
-
- func ResolveEquityTradeState:
- 	inputs:
- 		tradeState TradeState (1..1)
- 		observation ObservationPrimitive (1..1)
- 		date date (1..1)
-
- 	output:
- 		resetTradeState TradeState (1..1)
-
- 	alias price:
- 		observation -> observation
-
- 	alias equityPayout:
- 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-
- 	alias updatedEquityPayout:
- 		resetTradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-
- 	alias periodEndDate:
- 		CalculationPeriod( equityPayout -> calculationPeriodDates, date ) -> endDate
-
- 	alias equityPerformance:
- 		EquityPerformance(tradeState -> trade, observation -> observation, periodEndDate)
-
- 	condition IsEquityContract:
- 		equityPayout exists
-
- 	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceFinal -> netPrice -> amount:
- 		if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then price
-
- 	assign-output updatedEquityPayout -> priceReturnTerms -> valuationPriceInterim -> netPrice -> amount:
- 		if CalculationPeriod( equityPayout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod = False then price
-
- 	assign-output resetTradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> performance:
- 		equityPerformance
-
- 	assign-output resetTradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout -> payoutQuantity -> quantityMultiplier -> multiplierValue:
- 		1 + equityPerformance / 100
-
-The set of updated values include the ``performance`` attribute on the ``equityPayout``, which represents the performance of the current calculation period. The resolution function uses some of the already defined *utility functions* such as ``CalculationPeriod`` and also a *calculation function* for the Equity performance.
-
-This trade resolution mechanism is wired into the function that creates the ``ResetPrimitive`` object:
+These above steps are codified in the ``Create_ResetPrimitive`` function, which defines how the ``ResetPrimitive`` instance should be constructed.
 
 .. code-block:: Haskell
 
  func Create_ResetPrimitive:
-   [creation PrimitiveEvent]
-   inputs:
-     tradeState TradeState (1..1)
-     observation ObservationPrimitive (1..1)
-     date date (1..1)
-   output:
-     resetPrimitive ResetPrimitive (1..1)
+ 	[creation PrimitiveEvent]
+ 	inputs:
+ 		tradeState TradeState (1..1)
+ 		date date (1..1)
+ 	output:
+ 		resetPrimitive ResetPrimitive (1..1)
 
-   assign-output resetPrimitive -> before: tradeState
-   assign-output resetPrimitive -> after: tradeState
-   assign-output resetPrimitive -> after -> observationHistory:
-     ResolveUpdatedTrade(tradeState, observation, date)
+ 	alias payout:
+ 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout
 
-.. note:: The Reset Event only resets some values on the trade but does not calculate nor pay any cashflow. Any cashflow calculation and payment would be handled separately as part of a Transfer Event which, when such cashflow depends on any resettable values, will use the values updated as part of the Reset Event (as is the case of the *Equity Cash Settlement Amount*).
+ 	alias observationIdentifiers:
+ 		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, date)
+
+ 	alias observation:
+ 		ResolveObservation([observationIdentifiers], empty)
+
+ 	assign-output resetPrimitive -> before:
+ 		tradeState
+
+ 	assign-output resetPrimitive -> after:
+ 		tradeState
+
+ 	assign-output resetPrimitive -> after -> resetHistory:
+ 		if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date)
+
+First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
+
+Specifying precisely which attributes from ``EquityPayout`` should be used to resolve the equity price is important to ensure consistent equity price resolution for all model adopters.
+
+.. code-block:: Haskell
+
+ func ResolveEquityObservationIdentifiers:
+ 	inputs:
+ 		payout EquityPayout (1..1)
+ 		date date (1..1)
+ 	output:
+ 		identifiers ObservationIdentifier (1..1)
+
+ 	alias periodEndDate:
+ 		CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
+
+ 	alias equityValuation:
+ 		if CalculationPeriod( payout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then
+ 			payout -> priceReturnTerms -> valuationPriceFinal
+ 			else payout -> priceReturnTerms -> valuationPriceInterim
+
+ 	assign-output identifiers -> observable -> productIdentifier:
+ 		payout -> underlier -> underlyingProduct -> security -> productIdentifier only-element
+
+ 	assign-output identifiers -> observationDate:
+ 		ResolveEquityValuationDate(equityValuation)
+
+ 	assign-output identifiers -> observationTime:
+ 		ResolveEquityValuationTime(equityValuation)
+
+ 	assign-output identifiers -> determinationMethodology -> determinationMethod:
+ 		equityValuation -> determinationMethod
+
+``ResolveObservation`` provides an interface for adopters to integrate their market data systems. It specifies the input types and the output type, which ensures the integrity of the observed value.
+
+.. code-block:: Haskell
+
+ func ResolveObservation:
+ 	inputs:
+ 		identifiers ObservationIdentifier (1..*)
+ 		averagingMethod AveragingMethodEnum (0..1)
+ 	output:
+ 		observation Observation (1..1)
+
+The construction of the ``Reset`` in our scenario then becomes trivial, once the equity price has been retrieved, as the equity price and reset date are simply assigned to the corresponding attributes on the ``Reset``.
+
+.. code-block:: Haskell
+
+ func ResolveEquityReset:
+ 	inputs:
+ 		equityPayout EquityPayout (1..1)
+ 		observation Observation (1..1)
+ 		date date (1..1)
+ 	output:
+ 		reset Reset (1..1)
+
+ 	assign-output reset -> resetValue:
+ 		observation -> observedValue
+
+ 	assign-output reset -> resetDate:
+ 		date
+
+ 	assign-output reset -> observations:
+ 		observation
 
 Workflow Step Creation
 """"""""""""""""""""""
