@@ -52,6 +52,28 @@
             <xsd:enumeration value="terminated"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:simpleType name="AveragingMethodEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="unweighted"/>
+            <xsd:enumeration value="weighted"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="AveragingCalculationMethodEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="arithmetic"/>
+            <xsd:enumeration value="geometric"/>
+            <xsd:enumeration value="harmonic"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="PositionStatusEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="executed"/>
+            <xsd:enumeration value="form"/>
+            <xsd:enumeration value="settled"/>
+            <xsd:enumeration value="cancelled"/>
+            <xsd:enumeration value="closed"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:simpleType name="ExecutionTypeEnum">
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="Electronic"/>
@@ -130,7 +152,7 @@
     <xsd:complexType name="SplitPrimitive">
         <xsd:sequence>
             <xsd:element name="before" type="ContractState"/>
-            <xsd:element name="after" type="SplitOutcome"/>
+            <xsd:element name="after" type="ContractState" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="Asset">
@@ -200,6 +222,8 @@
             <xsd:choice>
                 <xsd:element name="trade" type="TradeState"/>
             </xsd:choice>
+            <xsd:element name="state" type="State" minOccurs="0"/>
+            <xsd:element name="resetHistory" type="ResetHistory" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="FpmlContractWrapper">
@@ -219,9 +243,9 @@
     <xsd:complexType name="Contract">
         <xsd:complexContent>
             <xsd:extension base="fpml:Trade">
-                <xsd:sequence>
-                    <xsd:element name="closedState" type="ClosedState" minOccurs="0"/>
-                </xsd:sequence>
+<!--                <xsd:sequence>-->
+<!--                    <xsd:element name="closedState" type="ClosedState" minOccurs="0"/>-->
+<!--                </xsd:sequence>-->
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -503,7 +527,7 @@
     <xsd:complexType name="Primitive">
         <xsd:sequence>
             <xsd:element name="split" type="SplitPrimitive" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="exercise" type="ExercisePrimitive" minOccurs="0" maxOccurs="unbounded"/>
+<!--            <xsd:element name="exercise" type="ExercisePrimitive" minOccurs="0" maxOccurs="unbounded"/>-->
             <xsd:element name="contractFormation" type="ContractFormation" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="observation" type="ObservationPrimitive" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="quantityChange" type="QuantityChange" minOccurs="0" maxOccurs="unbounded"/>
@@ -590,12 +614,38 @@
             <xsd:extension base="fpml:Trade">
                 <xsd:sequence>
                     <xsd:element name="executionType" type="ExecutionTypeEnum" minOccurs="0"/>
-                    <xsd:element name="closedState" type="ClosedState" minOccurs="0"/>
+<!--                    <xsd:element name="closedState" type="ClosedState" minOccurs="0"/>-->
                     <xsd:element name="executionVenue" type="xsd:string" minOccurs="0"/>
                     <xsd:element name="legalAgreement" type="xsd:string" minOccurs="0"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="State">
+        <xsd:sequence>
+            <xsd:element name="closedState" type="ClosedState" minOccurs="0"/>
+            <xsd:element name="positionStatus" type="PositionStatusEnum" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="ResetHistory">
+        <xsd:sequence>
+            <xsd:element name="resetDate" type="xsd:date"/>
+            <xsd:element name="reset" type="Reset"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="Reset">
+        <xsd:sequence>
+            <xsd:element name="resetValue" type="xsd:dateTime"/>
+            <xsd:element name="resetDate" type="xsd:date"/>
+            <xsd:element name="observation" type="xsd:string"/>
+            <xsd:element name="aggregationMethodology" type="AggregationMethod"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="AggregationMethod">
+        <xsd:sequence>
+            <xsd:element name="averagingMethod" type="AveragingMethodEnum" minOccurs="0"/>
+            <xsd:element name="averagingCalculationMethod" type="AveragingCalculationMethodEnum" minOccurs="0"/>
+        </xsd:sequence>
     </xsd:complexType>
     <!-- <xsd:complexType name="LegalAgreementReference">
         <xsd:complexContent>

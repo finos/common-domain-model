@@ -14,7 +14,7 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setV
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
 class RegimeMappingHelper {
 
@@ -39,7 +39,7 @@ class RegimeMappingHelper {
 		SUFFIXES.forEach(suffix -> {
 			setValueAndUpdateMappings(regimePath.addElement(party + suffix, index),
 					(value) -> getEnumValue(synonymToExceptionEnumMap, value, ExceptionEnum.class).ifPresent(
-							enumValue -> regimeTermsBuilder.setParty(toCounterpartyEnum(party)).setIsApplicable(enumValue)),
+							enumValue -> regimeTermsBuilder.setParty(toCounterpartyRoleEnum(party)).setIsApplicable(enumValue)),
 					mappings, path);
 
 			setValueAndUpdateMappings(regimePath.addElement(party + suffix + "_specify", index),

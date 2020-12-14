@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
 public class SecurityProviderRightsEventMappingProcessor extends MappingProcessor {
 
@@ -40,7 +40,7 @@ public class SecurityProviderRightsEventMappingProcessor extends MappingProcesso
     private Optional<SecurityProviderRightsEventElection> getSecurityProviderRightsEventElection(Path synonymPath, String party, String suffix) {
         SecurityProviderRightsEventElection.SecurityProviderRightsEventElectionBuilder securityProviderRightsEventElectionBuilder = SecurityProviderRightsEventElection.builder();
         setValueAndUpdateMappings(synonymPath.addElement(party + suffix),
-                (value) -> securityProviderRightsEventElectionBuilder.setParty(toCounterpartyEnum(party)).setRightsEvent(value.equals("applicable")));
+                (value) -> securityProviderRightsEventElectionBuilder.setParty(toCounterpartyRoleEnum(party)).setRightsEvent(value.equals("applicable")));
         return securityProviderRightsEventElectionBuilder.hasData() ? Optional.of(securityProviderRightsEventElectionBuilder.build()) : Optional.empty();
     }
 }

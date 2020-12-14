@@ -1,6 +1,6 @@
 package cdm.base.staticdata.party.processor;
 
-import cdm.base.staticdata.party.RelatedPartyEnum;
+import cdm.base.staticdata.party.AncillaryRoleEnum;
 import com.regnosys.rosetta.common.translation.*;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -33,7 +33,7 @@ public abstract class PayerReceiverMappingProcessor extends MappingProcessor {
 			LOGGER.warn("PayerReceiver used outside of the Product definition {}", getModelPath().buildPath());
 			setPartyReference(synonymPath, (PayerReceiverBuilder) parent);
 		} else if (getModelPath().toIndexless().containsPath(RosettaPath.valueOf("economicTerms.payout.cashflow.payerReceiver"))) {
-			setCashflowCounterpartyOrRelatedParty(synonymPath, (PayerReceiverBuilder) parent, getCashflowRelatedPartyEnum(synonymPath));
+			setCashflowParty(synonymPath, (PayerReceiverBuilder) parent, getCashflowRelatedPartyEnum(synonymPath));
 		} else {
 			setCounterparty(synonymPath, (PayerReceiverBuilder) parent);
 		}
@@ -41,18 +41,18 @@ public abstract class PayerReceiverMappingProcessor extends MappingProcessor {
 
 	abstract void setCounterparty(Path synonymPath, PayerReceiverBuilder builder);
 
-	abstract void setCashflowCounterpartyOrRelatedParty(Path synonymPath, PayerReceiverBuilder builder, RelatedPartyEnum cashflowRelatedPartyEnum);
+	abstract void setCashflowParty(Path synonymPath, PayerReceiverBuilder builder, AncillaryRoleEnum cashflowRelatedPartyEnum);
 
 	abstract void setPartyReference(Path synonymPath, PayerReceiverBuilder builder);
 
 	@NotNull
-	private RelatedPartyEnum getCashflowRelatedPartyEnum(Path synonymPath) {
+	private AncillaryRoleEnum getCashflowRelatedPartyEnum(Path synonymPath) {
 		String partyExternalReference = getNonNullMappedValue(filterMappings(getMappings(), synonymPath.addElement("href"))).orElse("");
 		if (getMappedValue("brokerPartyReference", "href").map(partyExternalReference::equals).orElse(false)) {
-			return RelatedPartyEnum.ARRANGING_BROKER;
+			return AncillaryRoleEnum.ARRANGING_BROKER;
 		}
 		// TODO add other checks to determine related party enum based on FpML roles
-		return RelatedPartyEnum.OTHER_PARTY;
+		return AncillaryRoleEnum.OTHER_PARTY;
 	}
 
 	private Optional<String> getMappedValue(String... endsWith) {
