@@ -1630,25 +1630,37 @@ Some of those calculations are presented below:
 
 .. code-block:: Haskell
 
-  func EquityCashSettlementAmount:
-  	inputs:
-  		tradeState TradeState (1..1)
-  		date date (1..1)
+ func EquityCashSettlementAmount:
+ 	inputs:
+ 		tradeState TradeState (1..1)
+ 		date date (1..1)
 
-  	output:
-  		equityCashSettlementAmount Money (1..1)
+ 	output:
+ 		equityCashSettlementAmount Cashflow (1..1)
 
-  	alias equityPayout:
-  		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout
+ 	alias equityPayout:
+ 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 
-  	condition:
-  		tradeState -> trade -> tradableProduct -> quantityNotation -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
+ 	alias equityPerformance:
+ 	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
 
-  	assign-output equityCashSettlementAmount -> amount:
- 		EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
+ 	condition:
+ 		tradeState -> trade -> tradableProduct -> quantityNotation -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
 
-  	assign-output equityCashSettlementAmount -> currency:
-  		ResolveEquityInitialPrice( equityPayout only-element -> underlier, tradeState -> trade -> tradableProduct -> priceNotation ) -> netPrice -> currency
+ 	assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
+ 		Abs(equityPerformance)
+
+ 	assign-output equityCashSettlementAmount -> cashflowAmount -> currency:
+ 		ResolveEquityInitialPrice( equityPayout -> underlier, tradeState -> trade -> tradableProduct -> priceNotation ) -> netPrice -> currency
+
+ 	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
+ 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
+
+ 	assign-output equityCashSettlementAmount -> payerReceiver -> receiver:
+ 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
+
+     assign-output equityCashSettlementAmount -> cashflowDate -> adjustedDate:
+         ResolveCashSettlementDate(tradeState)
 
 .. code-block:: Haskell
 
