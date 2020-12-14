@@ -14,25 +14,9 @@ import static util.ResourcesUtils.getObject;
 
 class SimpleSplitterTest {
 
-	private static final String PRODUCT_TEMPLATE = "merging/product-template.json";
-	private static final String PRODUCT_MERGED = "merging/product-merged.json";
-	private static final String PRODUCT_UNMERGED = "merging/product-unmerged1.json";
-
 	private static final String PARTY_TEMPLATE = "merging/party-template.json";
 	private static final String PARTY_MERGED = "merging/party-merged.json";
 	private static final String PARTY_UNMERGED = "merging/party-unmerged.json";
-
-	@Test
-	void shouldMergeProductObjects() throws IOException {
-		ProductBuilder template = getObject(Product.class, PRODUCT_TEMPLATE).toBuilder();
-		ProductBuilder merged = getObject(Product.class, PRODUCT_MERGED).toBuilder();
-
-		new SimpleSplitter().run(merged, template);
-
-		Product unmerged = merged.build();
-		Product expected = getObject(Product.class, PRODUCT_UNMERGED);
-		assertEquals(expected, unmerged);
-	}
 
 	@Test
 	void shouldMergePartyObjects() throws IOException {

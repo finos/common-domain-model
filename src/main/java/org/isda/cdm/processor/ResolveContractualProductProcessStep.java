@@ -40,13 +40,13 @@ public class ResolveContractualProductProcessStep implements PostProcessStep {
                                                                          RosettaModelObjectBuilder builder,
                                                                          RosettaModelObjectBuilder parent,
                                                                          AttributeMeta... metas) {
-                if (builder == null || !builder.hasData()) return false;
-                if (TradableProduct.class.isAssignableFrom(rosettaType)) {
-                    TradableProduct.TradableProductBuilder tradableProductBuilder = (TradableProduct.TradableProductBuilder) builder;
-                    TradableProduct tradableProduct = tradableProductBuilder.build();
-                    ContractualProduct contractualProduct = resolveFunc.evaluate(tradableProduct.getProduct().getContractualProduct(), tradableProduct.getQuantityNotation());
-                    tradableProductBuilder.getProduct().setContractualProduct(contractualProduct);
-                }
+//                if (builder == null || !builder.hasData()) return false;
+//                if (TradableProduct.class.isAssignableFrom(rosettaType)) {
+//                    TradableProduct.TradableProductBuilder tradableProductBuilder = (TradableProduct.TradableProductBuilder) builder;
+//                    TradableProduct tradableProduct = tradableProductBuilder.build();
+//                    ContractualProduct contractualProduct = resolveFunc.evaluate(tradableProduct.getProduct().getContractualProduct(), tradableProduct.getQuantityNotation());
+//                    tradableProductBuilder.getProduct().setContractualProduct(contractualProduct);
+//                }
                 return true;
             }
 

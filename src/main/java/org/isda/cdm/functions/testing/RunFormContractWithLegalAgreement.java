@@ -1,27 +1,21 @@
 package org.isda.cdm.functions.testing;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
-
-import java.util.Collections;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.TradeState;
+import cdm.event.common.functions.Create_ContractFormation;
+import cdm.event.common.functions.Create_Execution;
+import cdm.legalagreement.common.*;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 
-import cdm.event.common.BusinessEvent;
-import cdm.event.common.functions.Create_ContractFormation;
-import cdm.event.common.functions.Create_Execution;
-import cdm.legalagreement.common.GoverningLawEnum;
-import cdm.legalagreement.common.LegalAgreement;
-import cdm.legalagreement.common.LegalAgreementNameEnum;
-import cdm.legalagreement.common.LegalAgreementPublisherEnum;
-import cdm.legalagreement.common.LegalAgreementType;
-import cdm.legalagreement.contract.Contract;
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.Optional;
 
-public class RunFormContractWithLegalAgreement implements ExecutableFunction<Contract, BusinessEvent> {
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+
+public class RunFormContractWithLegalAgreement implements ExecutableFunction<TradeState, BusinessEvent> {
 
     @Inject
     Create_Execution execute;
@@ -31,21 +25,20 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
 
 
     @Override
-    public BusinessEvent execute(Contract contract) {
-        BusinessEvent executeBusinessEvent = execute.evaluate(contract.getTradableProduct().getProduct(),
-                guard(contract.getTradableProduct().getQuantityNotation()),
-                guard(contract.getTradableProduct().getPriceNotation()),
-                guard(contract.getTradableProduct().getCounterparties()),
-                guard(contract.getTradableProduct().getRelatedParties()),
-                guard(contract.getParty()),
-                guard(contract.getPartyRole()),
+    public BusinessEvent execute(TradeState tradeState) {
+        BusinessEvent executeBusinessEvent = execute.evaluate(tradeState.getTrade().getTradableProduct().getProduct(),
+                guard(tradeState.getTrade().getTradableProduct().getPriceQuantity()),
+                guard(tradeState.getTrade().getTradableProduct().getCounterparty()),
+                guard(tradeState.getTrade().getTradableProduct().getAncillaryParty()),
+                guard(tradeState.getTrade().getParty()),
+                guard(tradeState.getTrade().getPartyRole()),
                 Collections.emptyList(),
                 null,
-                Optional.ofNullable(contract.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-                guard(contract.getContractIdentifier()));
+                Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
+                guard(tradeState.getTrade().getTradeIdentifier()));
 
         LegalAgreement legalAgreement = LegalAgreement.builder()
-                .addContractualPartyRef(guard(contract.getParty()))
+                .addContractualPartyRef(guard(tradeState.getTrade().getParty()))
                 .setAgreementDate(DateImpl.of(1994, 12, 01))
                 .setAgreementType(LegalAgreementType.builder()
                         .setName(LegalAgreementNameEnum.MASTER_AGREEMENT)
@@ -59,8 +52,8 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Con
 
 
     @Override
-    public Class<Contract> getInputType() {
-        return Contract.class;
+    public Class<TradeState> getInputType() {
+        return TradeState.class;
     }
 
     @Override

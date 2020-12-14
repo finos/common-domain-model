@@ -1,10 +1,11 @@
-namespace cdm.event.position
+namespace cdm.event.position : <"Position concepts: portfolio and portfolio aggregation.">
 version "${project.version}"
 
 import cdm.observable.common.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 import cdm.legalagreement.contract.*
+import cdm.event.common.*
 
 /*
  * Variation Margin Mark to Market Calculation 
@@ -23,33 +24,36 @@ import cdm.legalagreement.contract.*
  */
 func FxMarkToMarket: <"Representation of sample mark to market calculation provided by a member firm.">
 	// TODO Never referenced in CDM
-	inputs: contract Contract (1..1)
+	inputs: trade Trade (1..1)
 	output: value number (1..1)
 	
 	alias forwardPayout: <"Alias to the forward pay out.">
-		contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> forwardPayout only-element
+		trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> forwardPayout only-element
+
 	alias forwardExchangeRate: <"Alias for the forward price.">
-		contract -> tradableProduct -> priceQuantity -> price -> priceType = PriceTypeEnum->ExchangeRate	
+		trade -> tradableProduct -> priceQuantity -> price -> priceType = PriceTypeEnum -> ExchangeRate
+
 	alias currency1Quantity: <"Alias for the forward price.">
-		contract->tradableProduct->product->foreignExchange->exchangedCurrency1->payoutQuantity->resolvedQuantity->amount
+		trade -> tradableProduct -> product -> foreignExchange -> exchangedCurrency1 -> payoutQuantity -> resolvedQuantity -> amount
+
 	alias currency2Quantity: <"Alias for the forward price.">
-		contract->tradableProduct->product->foreignExchange->exchangedCurrency2->payoutQuantity->resolvedQuantity->amount
-	
-	alias quotedQuantity: <"The amount of the quoted currency.">
-		if contract->tradableProduct->product->foreignExchange->exchangeRate->quotedCurrencyPair->quoteBasis=QuoteBasisEnum->Currency1PerCurrency2
+		trade -> tradableProduct -> product -> foreignExchange -> exchangedCurrency2 -> payoutQuantity -> resolvedQuantity -> amount
+
+	 alias quotedQuantity: <"The amount of the quoted currency.">
+		if trade -> tradableProduct -> product -> foreignExchange -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
 		then currency1Quantity
-		else currency2Quantity 
+		else currency2Quantity
 	
 	alias baseQuantity: <"The amount of the quoted currency.">
-		if contract->tradableProduct->product->foreignExchange->exchangeRate->quotedCurrencyPair->quoteBasis=QuoteBasisEnum->Currency2PerCurrency1
- 		then currency1Quantity 
-		else currency2Quantity 
+		if trade -> tradableProduct -> product -> foreignExchange -> exchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum -> Currency2PerCurrency1
+ 		then currency1Quantity
+		else currency2Quantity
 	
 	alias interpolatedRate:
 		InterpolateForwardRate(forwardPayout)
 	
 	condition: <"The forwardPayout on the contract must exist.">
-		contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> forwardPayout exists
+		trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> forwardPayout exists
 	
 	assign-output value:
 		(quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate

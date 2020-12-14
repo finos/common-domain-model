@@ -1,63 +1,56 @@
 package org.isda.cdm.functions.testing;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
-import cdm.base.staticdata.party.RelatedPartyReference;
+import cdm.base.staticdata.party.AncillaryParty;
+import cdm.base.staticdata.party.Counterparty;
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.Trade;
+import cdm.event.common.TradeState;
+import cdm.event.common.functions.Create_Execution;
+import cdm.product.common.settlement.SettlementTerms;
+import cdm.product.template.*;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 
-import cdm.base.staticdata.party.Counterparty;
-import cdm.event.common.BusinessEvent;
-import cdm.event.common.functions.Create_Execution;
-import cdm.legalagreement.contract.Contract;
-import cdm.product.common.settlement.SettlementTerms;
-import cdm.product.common.settlement.functions.CashflowSettlementTerms;
-import cdm.product.template.ContractualProduct;
-import cdm.product.template.EconomicTerms;
-import cdm.product.template.Payout;
-import cdm.product.template.Product;
-import cdm.product.template.TradableProduct;
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contract, BusinessEvent> {
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+
+public class RunExecutionWithSettlementTerms implements ExecutableFunction<TradeState, BusinessEvent> {
 
     @Inject
     Create_Execution execute;
 
-    @Inject
-    CashflowSettlementTerms cashflowSettlementTerms;
+//    @Inject
+//    CashflowSettlementTerms cashflowSettlementTerms;
 
 
     @Override
-    public BusinessEvent execute(Contract input) {
+    public BusinessEvent execute(TradeState input) {
         List<SettlementTerms> settlementTerm = getSettlementTerm(input);
         if (!settlementTerm.isEmpty()) {
             input = clearCashPayout(input);
         }
 
-        return execute.evaluate(input.getTradableProduct().getProduct(),
-                guard(input.getTradableProduct().getQuantityNotation()),
-                guard(input.getTradableProduct().getPriceNotation()),
-                guard(input.getTradableProduct().getCounterparties()),
-                guard(input.getTradableProduct().getRelatedParties()),
-                guard(input.getParty()),
-                guard(input.getPartyRole()),
+        return execute.evaluate(input.getTrade().getTradableProduct().getProduct(),
+                guard(input.getTrade().getTradableProduct().getPriceQuantity()),
+                guard(input.getTrade().getTradableProduct().getCounterparty()),
+                guard(input.getTrade().getTradableProduct().getAncillaryParty()),
+                guard(input.getTrade().getParty()),
+                guard(input.getTrade().getPartyRole()),
                 settlementTerm,
                 null,
-                Optional.ofNullable(input.getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-                guard(input.getContractIdentifier()));
+                Optional.ofNullable(input.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
+                guard(input.getTrade().getTradeIdentifier()));
     }
 
-    private Contract clearCashPayout(Contract input) {
-        Contract.ContractBuilder contractBuilder = input.toBuilder();
+    private TradeState clearCashPayout(TradeState input) {
+        TradeState.TradeStateBuilder contractBuilder = input.toBuilder();
         Optional.of(contractBuilder)
-                .map(Contract.ContractBuilder::getTradableProduct)
+                .map(TradeState.TradeStateBuilder::getTrade)
+                .map(Trade.TradeBuilder::getTradableProduct)
                 .map(TradableProduct.TradableProductBuilder::getProduct)
                 .map(Product.ProductBuilder::getContractualProduct)
                 .map(ContractualProduct.ContractualProductBuilder::getEconomicTerms)
@@ -66,32 +59,36 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Contr
         return contractBuilder.build();
     }
 
-    private List<SettlementTerms> getSettlementTerm(Contract input) {
+    private List<SettlementTerms> getSettlementTerm(TradeState input) {
     	List<Counterparty> counterparties = Optional.ofNullable(input)
-		        .map(Contract::getTradableProduct)
-		        .map(TradableProduct::getCounterparties)
+                .map(TradeState::getTrade)
+                .map(Trade::getTradableProduct)
+                .map(TradableProduct::getCounterparty)
 		        .orElse(Collections.emptyList());
-        List<RelatedPartyReference> relatedParties = Optional.ofNullable(input)
-                .map(Contract::getTradableProduct)
-                .map(TradableProduct::getRelatedParties)
+        List<AncillaryParty> ancillaryParties = Optional.ofNullable(input)
+                .map(TradeState::getTrade)
+                .map(Trade::getTradableProduct)
+                .map(TradableProduct::getAncillaryParty)
                 .orElse(Collections.emptyList());
-        return Optional.ofNullable(input)
-                .map(Contract::getTradableProduct)
-                .map(TradableProduct::getProduct)
-                .map(Product::getContractualProduct)
-                .map(ContractualProduct::getEconomicTerms)
-                .map(EconomicTerms::getPayout)
-                .map(Payout::getCashflow)
-                .map(cashflows -> cashflows.stream()
-                        .map(cashflow -> cashflowSettlementTerms.evaluate(cashflow, counterparties, relatedParties))
-                        .collect(Collectors.toList())
-                )
-                .orElse(Collections.emptyList());
+//        return Optional.ofNullable(input)
+//                .map(TradeState::getTrade)
+//                .map(Trade::getTradableProduct)
+//                .map(TradableProduct::getProduct)
+//                .map(Product::getContractualProduct)
+//                .map(ContractualProduct::getEconomicTerms)
+//                .map(EconomicTerms::getPayout)
+//                .map(Payout::getCashflow)
+//                .map(cashflows -> cashflows.stream()
+//                        .map(cashflow -> cashflowSettlementTerms.evaluate(cashflow, counterparties, ancillaryParties))
+//                        .collect(Collectors.toList())
+//                )
+//                .orElse(Collections.emptyList());
+        return Collections.emptyList();
     }
 
     @Override
-    public Class<Contract> getInputType() {
-        return Contract.class;
+    public Class<TradeState> getInputType() {
+        return TradeState.class;
     }
 
     @Override

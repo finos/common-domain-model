@@ -1,16 +1,21 @@
-# *New ExerciseInstruction and Create_Exercise Function*
+# *DSL Syntax: Disjoint Keyword*
 
 _What is being released_
 
-A data type and function pair that allow for the representation of an instruction to exercise an option and a subsequent function that constructs the contract changes.
+Added the new `disjoint` keyword which can be used to write an expression that compares two lists to determine if there are any common elements.  If there are no common elements, the lists are disjoint, and the expression will evaluate to true.
 
-- `ExerciseInstruction` is a new data type that specifies the information to communicate the intention to exercise, as expressed by the party holding the rights to an option.
-- `Create_Exercise` function constructs the business event that represents the exercise of an option according to the referenced `ExerciseInstruction`.
+Given two lists of floating rate indexes, e.g.
 
-The initial structure of the data type and function are designed to support a use case of a European style Swaption that is exercised for physical settlement. The initial validation of the data type and function have been limited to that use case.
- 
-The current structure may be valid for other cases, but these have not yet been validated. Over time, additional use cases will be validated or used as a reference to expand the structure as needed, for example, for cash settlement, other underlying asset types and for American style options.
+`before -> ... -> floatingRateIndex disjoint after -> ... -> floatingRateIndex`
+
+Then the expression will evaluate to true if every "after" floating rate index is different from every "before" floating rate index.
+
+# *Bug Fix: Data Rule Java Code Generation*
+
+_What is being released_
+
+Fix bug in the Java code generation to allow data rules to be invoked after each function invocation.
 
 _Review Directions_
 
-In the CDM portal, reviews the data type and function listed above, and load examples in the Visualisation function to see an illustration of the use of the function.
+In the CDM Portal, go to the Downloads page, and download the Java Examples. Review the example in Java class, `com.regnosys.cdm.example.template.Validation`.

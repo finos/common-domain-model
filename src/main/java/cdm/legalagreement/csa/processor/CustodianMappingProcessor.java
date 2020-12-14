@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
 /**
  * ISDA Create mapping processor.
@@ -38,7 +38,7 @@ public class CustodianMappingProcessor extends MappingProcessor {
 
 		String suffix = synonymPath.endsWith("collateral_manager") ? "_specify" : "_custodian_name";
 		setValueAndUpdateMappings(synonymPath.addElement(party + suffix),
-				(value) -> custodianElectionBuilder.setParty(toCounterpartyEnum(party))
+				(value) -> custodianElectionBuilder.setParty(toCounterpartyRoleEnum(party))
 						.setCustodianBuilder(LegalEntity.builder()
 								.setName(CdmMappingProcessorUtils.toFieldWithMetaString(value))));
 
