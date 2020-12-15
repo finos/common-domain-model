@@ -113,3 +113,7 @@ Committee members or any user of CDM within the community can propose amendments
 
 .. |Codefresh build status| image:: https://g.codefresh.io/api/badges/pipeline/regnosysops/REGnosys%2Frosetta-cdm%2Frosetta-cdm?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWE1N2EyYTlmM2JiOTMwMDAxNDRiODMz.ZDeqVUhB-oMlbZGj4tfEiOg0cy6azXaBvoxoeidyL0g&type=cf-1
    :target: https://g.codefresh.io/pipelines/rosetta-cdm/builds?repoOwner=REGnosys&repoName=rosetta-cdm&serviceName=REGnosys%2Frosetta-cdm&filter=trigger:build~Build;branch:master;pipeline:5a86c209eaf77d0001daacb6~rosetta-cdm
+   
+Using the CDM
+-------------
+The java implementation of the CDM is designed to be built and used with Maven. It depends on some open source java artifacts created by Regnosys. These are freely available from an artifactory repository. Maven can be configured to use this repository using the repository settings contained in the settings.xml file in the CDM jar. 
