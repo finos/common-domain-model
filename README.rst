@@ -116,4 +116,6 @@ Committee members or any user of CDM within the community can propose amendments
    
 Using the CDM
 -------------
-The java implementation of the CDM is designed to be built and used with Maven. It depends on some open source java artifacts created by Regnosys. These are freely available from an artifactory repository. Maven can be configured to use this repository using the repository settings contained in the settings.xml file in the CDM jar. 
+The java implementation of the CDM is designed to be built and used with Maven. It depends on some open source java artifacts created by Regnosys. These are freely available from an artifactory repository. Maven can be configured to use this repository using the repository settings contained in the settings.xml file in the CDM jar.
+
+For more details see the cdm-guidelines documentation page. 
