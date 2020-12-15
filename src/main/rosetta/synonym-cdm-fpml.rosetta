@@ -507,7 +507,9 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementAmount"]
 		*/
 		+ observable
-			// 'inheri'
+		    // For Swap Streams etc
+            [value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
+		/*
 			// For Swap Stream:
 			[value "notionalStepSchedule"]
 			// For Swap Streams, Equity Swaps and Bond Options:
@@ -536,6 +538,7 @@ synonym source FpML_5_10 extends FpML
 			[value "fixedAmount"]
 			// For FRA
 			[value "notional"]
+
 			// For floatingRate:
 			// For Swap Streams etc
 			[value "floatingRateCalculation" path "calculationPeriodAmount->calculation"
@@ -549,15 +552,17 @@ synonym source FpML_5_10 extends FpML
 			[value "floatingRateCalculation" set when "floatingRateCalculation->spreadSchedule" exists]
 			// For CD Index
 			[value "floatingAmountCalculation" set when "floatingAmountCalculation->floatingRate" exists]
-
+    */
 
 	MeasureBase:
 		+ amount
             // price
             [value "initialValue" path "fixedRateSchedule" maps 2]
+            [value "initialRate" path "floatingRateCalculation" maps 2]
+            [value "initialValue" path "floatingRateCalculation->spreadSchedule" maps 2]
             // quantity
             [value "initialValue" maps 2]
-            [value "initialValue" path "notionalStepSchedule"]
+            [value "initialValue" path "notionalStepSchedule" maps 2]
 		/*
 			[value "netPrice" path "rateOfReturn->initialPrice"]	
 			[value "rate" path "exchangeRate" ]			
@@ -1925,8 +1930,6 @@ synonym source FpML_5_10 extends FpML
 		[meta "id"]
 		[meta "id" path "notionalAmount"]
 		[meta "id" path "notionalStepSchedule"]
-		+ resolvedQuantity
-			[value "ignore"]
 		+ quantityReference
 			[value "relativeNotionalAmount" meta "href"]
 			[value "constantNotionalScheduleReference" meta "href"]
@@ -2106,6 +2109,9 @@ synonym source FpML_5_10 extends FpML
 
 	PayoutBase:
 		+ payoutQuantity
+		    [value "notionalSchedule" path "calculationPeriodAmount->calculation"]
+
+		/*
 			// For Equity Swap:
 			[value "notional"]
 			[value "rateOfReturn"]
@@ -2130,6 +2136,7 @@ synonym source FpML_5_10 extends FpML
 			// For FX Option
  	 	 	[value "putCurrencyAmount"]
  	 	 	[value "callCurrencyAmount"]
+ 	 	 	*/
 
 	Payout:
 		+ interestRatePayout
@@ -2241,6 +2248,8 @@ synonym source FpML_5_10 extends FpML
 			[value "notional"]
         */
 		+ floatingRate
+		    [value "floatingRateCalculation"]
+		/*
 			// For Swap Streams etc
 			[value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
 			// For Equity Swaps
@@ -2252,6 +2261,7 @@ synonym source FpML_5_10 extends FpML
 			// For FRA
 			[hint "floatingRateIndex"]
 			[hint "indexTenor"]
+			*/
 		+ inflationRate
 			[value "inflationRateCalculation" path "calculationPeriodAmount->calculation"]
 
@@ -3164,7 +3174,7 @@ synonym source FpML_5_10 extends FpML
 		+ financialUnit
 			[value "quantityUnit"]
 		+ currency
-			[value "currency" meta "currencyScheme"]
+			[value "currency" maps 2 meta "currencyScheme"]
 		+ frequency
 			[value "Frequency"]
 	enums
