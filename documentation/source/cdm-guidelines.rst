@@ -52,7 +52,7 @@ The first step is to initialise the injector. There are two options:
 Initialising the Injector, Option 1: Using provided CdmRuntimeModule
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-The CDM distribution comes with a pre-built CDM module that can be used to create an injector. It provides bindings two required classes (ModelObjectValidator and QualifyFunctionFactory) as well as binding in implementations for several CDM functions such as Abs, Sum
+The CDM distribution comes with a pre-built CDM module that can be used to create an injector. It provides bindings to required classes (ModelObjectValidator and QualifyFunctionFactory) as well as binding in implementations for several CDM functions such as Abs, Sum
 
 .. code-block:: Java
 
