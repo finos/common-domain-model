@@ -85,6 +85,7 @@ type UnitContractValuationModel: <" Unit contract model for security valuation, 
 	unitPrice Money (1..1) <"The price of each unit.">
 
 type Price extends MeasureBase: <"Specifies a price to be used for trade amounts and other purposes.">
+	
 	priceType PriceTypeEnum (1..1) <"Provides a value for a type of price in order to explain how to interpret the amount and use it in calculations.">
 	perUnitofAmount UnitType (0..1) <"Provides an optional attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
 
@@ -103,19 +104,19 @@ type Price extends MeasureBase: <"Specifies a price to be used for trade amounts
 
 type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
 	[metadata key]
+	
 	rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
 	commodity Commodity (0..1) <"Identifies a commodity by referencing a product identifier.">
 	productIdentifier ProductIdentifier (0..1) <"Comprises of an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	currencyPair QuotedCurrencyPair (0..1) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
-//security type optionall
-//asdfasdfas
-	condition: one-of // choice
+
+	condition: one-of
 
 type PriceQuantity: <"Specifies the price, quantity, and optionally the observable for use in a trade or other purposes.">
-	[metadata key]
-	price Price (1..1) <"Specifies a price to be used for trade amounts and other purposes.">
+	
+	price Price (0..1) <"Specifies a price to be used for trade amounts and other purposes.">
 	//[metadata location "price"] HUGO_TODO
-	quantity Quantity (1..1) <"Specifies a quantity to be associated with an event, for example a trade amount.">
+	quantity Quantity (0..1) <"Specifies a quantity to be associated with an event, for example a trade amount.">
 	//[metadata location "quantity"] HUGO_TODO
 	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
 	//[metadata location "observable"] HUGO_TODO
@@ -227,8 +228,7 @@ type InterestRateCurve:
 		[synonym Workflow_Event value "tenor"]
 
 type FixedRateSpecification extends RateSpecificationBase: <"Type defining the specification for a fixed rate.">
-	[metadata key]
-
+	
 	rateSchedule Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 
 type RateSpecificationBase:
