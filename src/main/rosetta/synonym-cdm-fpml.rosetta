@@ -426,10 +426,9 @@ synonym source FpML_5_10 extends FpML
 			[value "percentageOfNotional"]
 
 	PriceQuantity:
-
 		+ price
-		    // For Swap Streams:
-            [value "calculation" path "calculationPeriodAmount"]
+		    [value "calculation" path "calculationPeriodAmount"]
+		    [hint "paymentAmount"]
         /*
 			// For Swap Streams:
 			[value "swapStream" path "swap"]
@@ -460,8 +459,8 @@ synonym source FpML_5_10 extends FpML
 			[value "repo"]
 		*/
 		+ quantity
-		    // For Swap Stream, incl. Swaption and CapFloor:
 		    [value "notionalSchedule" path "calculationPeriodAmount->calculation"]
+		    [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
 		/*
 			// For Equity Swap:
 			[value "notional" path "returnSwap->returnLeg", "notional" path "equitySwapTransactionSupplement->returnLeg"]
@@ -560,6 +559,8 @@ synonym source FpML_5_10 extends FpML
             [value "initialValue" path "fixedRateSchedule" maps 2]
             [value "initialRate" path "floatingRateCalculation" maps 2]
             [value "initialValue" path "floatingRateCalculation->spreadSchedule" maps 2]
+            [value "amount" path "paymentAmount" maps 2]
+
             // quantity
             [value "initialValue" maps 2]
             [value "initialValue" path "notionalStepSchedule" maps 2]
@@ -593,7 +594,8 @@ synonym source FpML_5_10 extends FpML
 		*/
         + unitOfAmount
             [value "notionalStepSchedule"]
-            //[value "currency" maps 2 meta "currencyScheme"]
+            [value "paymentAmount"]
+            [hint "varyingNotionalCurrency"]
 
     Price:
 		+ priceType
@@ -2110,7 +2112,7 @@ synonym source FpML_5_10 extends FpML
 	PayoutBase:
 		+ payoutQuantity
 		    [value "notionalSchedule" path "calculationPeriodAmount->calculation"]
-
+            [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
 		/*
 			// For Equity Swap:
 			[value "notional"]
@@ -2222,8 +2224,8 @@ synonym source FpML_5_10 extends FpML
 
 	TradableProduct:
 	    + priceQuantity
-	        // For Swap Streams:
-            [value "swapStream" path "swap"]
+	        [value "swapStream" path "swap"]
+            [value "additionalPayment" path "swap"]
 		+ adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
@@ -3175,6 +3177,7 @@ synonym source FpML_5_10 extends FpML
 			[value "quantityUnit"]
 		+ currency
 			[value "currency" maps 2 meta "currencyScheme"]
+			[value "varyingNotionalCurrency" maps 2 meta "currencyScheme"]
 		+ frequency
 			[value "Frequency"]
 	enums
