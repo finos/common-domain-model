@@ -43,7 +43,7 @@ public class RecalculationOfValueMappingProcessor extends MappingProcessor {
         RecalculationOfValueElection.RecalculationOfValueElectionBuilder recalculationOfValueElectionBuilder = RecalculationOfValueElection.builder();
         setValueAndUpdateMappings(synonymPath.addElement(party + suffix),
                 (value) -> {
-                    recalculationOfValueElectionBuilder.setParty(toCounterpartyEnum(party));
+                    recalculationOfValueElectionBuilder.setParty(toCounterpartyRoleEnum(party));
                     if ("other".equals(value)) {
                         TERMS_SUFFIXES.forEach(termSuffix -> setValueAndUpdateMappings(synonymPath.addElement(party + termSuffix),
                                 (terms) -> recalculationOfValueElectionBuilder.setRecalculationOfValueTerms(value)));

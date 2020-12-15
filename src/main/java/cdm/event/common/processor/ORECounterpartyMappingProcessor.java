@@ -1,7 +1,7 @@
 package cdm.event.common.processor;
 
 import cdm.base.staticdata.party.Counterparty;
-import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.product.template.TradableProduct.TradableProductBuilder;
@@ -23,14 +23,14 @@ public class ORECounterpartyMappingProcessor extends MappingProcessor {
 	@Override
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		TradableProductBuilder tradable = (TradableProductBuilder) builder;
-		if (tradable.getCounterparties().size()==1) {
-			tradable.addCounterparties(Counterparty.builder().setPartyReference(
+		if (tradable.getCounterparty().size()==1) {
+			tradable.addCounterparty(Counterparty.builder().setPartyReference(
 					ReferenceWithMetaParty.builder().setValue(
 						Party.builder().setName(
 							FieldWithMetaString.builder().setValue("ME").build())
 						.build())
 					.build())
-					.setCounterparty(CounterpartyEnum.PARTY_2)
+					.setRole(CounterpartyRoleEnum.PARTY_2)
 				.build());
 		}
 	}

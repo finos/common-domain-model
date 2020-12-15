@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
 public class PostingObligationsMappingProcessor extends MappingProcessor {
 
@@ -32,7 +32,7 @@ public class PostingObligationsMappingProcessor extends MappingProcessor {
     private Optional<PostingObligationsElection> getPostingObligationsElectionBuilder(Path synonymPath, String party) {
         PostingObligationsElection.PostingObligationsElectionBuilder postingObligationsElectionBuilder = PostingObligationsElection.builder();
         // if we find partyX_type, then set partyX as the party
-        setValueAndUpdateMappings(synonymPath.addElement(party + "_type"), (value) -> postingObligationsElectionBuilder.setParty(toCounterpartyEnum(party)));
+        setValueAndUpdateMappings(synonymPath.addElement(party + "_type"), (value) -> postingObligationsElectionBuilder.setParty(toCounterpartyRoleEnum(party)));
 
         // if we find additional_language, then set additional_language as the additional party
         setValueAndUpdateMappings(synonymPath.addElement("additional_language"), postingObligationsElectionBuilder::setAdditionalLanguage);

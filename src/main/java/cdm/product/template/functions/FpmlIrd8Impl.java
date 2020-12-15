@@ -17,11 +17,11 @@ public class FpmlIrd8Impl extends FpmlIrd8 {
 
 	@Override
 	protected Boolean doEvaluate(TradableProduct tradableProduct, List<Account> accounts) {
-		if ( tradableProduct.getCounterparties() == null || tradableProduct.getCounterparties().size() != 2)
+		if ( tradableProduct.getCounterparty() == null || tradableProduct.getCounterparty().size() != 2)
 			return false;
 
-		Optional<ReferenceWithMetaParty> party1 = Optional.ofNullable(tradableProduct.getCounterparties().get(0)).map(Counterparty::getPartyReference);
-		Optional<ReferenceWithMetaParty> party2 = Optional.ofNullable(tradableProduct.getCounterparties().get(1)).map(Counterparty::getPartyReference);
+		Optional<ReferenceWithMetaParty> party1 = Optional.ofNullable(tradableProduct.getCounterparty().get(0)).map(Counterparty::getPartyReference);
+		Optional<ReferenceWithMetaParty> party2 = Optional.ofNullable(tradableProduct.getCounterparty().get(1)).map(Counterparty::getPartyReference);
 
 		if (!party1.isPresent() || !party2.isPresent())
 			return false;

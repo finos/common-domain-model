@@ -1,7 +1,7 @@
 package cdm.legalagreement.contract.processor;
 
 import cdm.base.staticdata.party.Counterparty;
-import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.PayerReceiver;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.product.template.TradableProduct;
@@ -57,9 +57,9 @@ class PartyMappingHelperTest {
 
 		PayerReceiverBuilder builder = PayerReceiver.builder();
 		Path synonymPath = PAYER_XML_PATH.getParent();
-		helper.setCounterpartyEnum(PAYER_MODEL_PATH, synonymPath, builder::setPayer);
+		helper.setCounterpartyRoleEnum(PAYER_MODEL_PATH, synonymPath, builder::setPayer);
 
-		assertEquals(CounterpartyEnum.PARTY_1, builder.getPayer());
+		assertEquals(CounterpartyRoleEnum.PARTY_1, builder.getPayer());
 		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
 
 		Mapping updatedMapping = context.getMappings().get(0);
@@ -77,9 +77,9 @@ class PartyMappingHelperTest {
 
 		PayerReceiverBuilder builder = PayerReceiver.builder();
 		Path synonymPath = RECEIVER_XML_PATH.getParent();
-		helper.setCounterpartyEnum(RECEIVER_MODEL_PATH, synonymPath, builder::setReceiver);
+		helper.setCounterpartyRoleEnum(RECEIVER_MODEL_PATH, synonymPath, builder::setReceiver);
 
-		assertEquals(CounterpartyEnum.PARTY_1, builder.getReceiver());
+		assertEquals(CounterpartyRoleEnum.PARTY_1, builder.getReceiver());
 		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
 
 		Mapping updatedMapping = context.getMappings().get(1);
@@ -99,22 +99,22 @@ class PartyMappingHelperTest {
 
 		// test
 		Path payerSynonymPath = PAYER_XML_PATH.getParent();
-		helper.setCounterpartyEnum(PAYER_MODEL_PATH, payerSynonymPath, builder::setPayer);
+		helper.setCounterpartyRoleEnum(PAYER_MODEL_PATH, payerSynonymPath, builder::setPayer);
 
 		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
 
 		// test
 		Path receiverSynonymPath = RECEIVER_XML_PATH.getParent();
-		helper.setCounterpartyEnum(RECEIVER_MODEL_PATH, receiverSynonymPath, builder::setReceiver);
+		helper.setCounterpartyRoleEnum(RECEIVER_MODEL_PATH, receiverSynonymPath, builder::setReceiver);
 
-		assertEquals(CounterpartyEnum.PARTY_1, builder.getPayer());
-		assertEquals(CounterpartyEnum.PARTY_2, builder.getReceiver());
+		assertEquals(CounterpartyRoleEnum.PARTY_1, builder.getPayer());
+		assertEquals(CounterpartyRoleEnum.PARTY_2, builder.getReceiver());
 
 		assertTrue(helper.getBothCounterpartiesCollectedFuture().isDone());
-		Map<String, CounterpartyEnum> partyExternalReferenceToCounterpartyEnumMap = helper.getBothCounterpartiesCollectedFuture().get();
-		assertNotNull(partyExternalReferenceToCounterpartyEnumMap);
-		assertEquals(CounterpartyEnum.PARTY_1, partyExternalReferenceToCounterpartyEnumMap.get(PAYER_PARTY_REF));
-		assertEquals(CounterpartyEnum.PARTY_2, partyExternalReferenceToCounterpartyEnumMap.get(RECEIVER_PARTY_REF));
+		Map<String, CounterpartyRoleEnum> partyExternalReferenceToCounterpartyRoleEnumMap = helper.getBothCounterpartiesCollectedFuture().get();
+		assertNotNull(partyExternalReferenceToCounterpartyRoleEnumMap);
+		assertEquals(CounterpartyRoleEnum.PARTY_1, partyExternalReferenceToCounterpartyRoleEnumMap.get(PAYER_PARTY_REF));
+		assertEquals(CounterpartyRoleEnum.PARTY_2, partyExternalReferenceToCounterpartyRoleEnumMap.get(RECEIVER_PARTY_REF));
 
 		 // test PartyMappingHelper.addCounterparties()
 		helper.addCounterparties();
@@ -123,23 +123,23 @@ class PartyMappingHelperTest {
 		assertEquals(1, context.getInvokedTasks().size());
 		context.getInvokedTasks().get(0).get(1000, TimeUnit.MILLISECONDS);
 
-		List<Counterparty.CounterpartyBuilder> counterparties = tradableProductBuilder.getCounterparties();
+		List<Counterparty.CounterpartyBuilder> counterparties = tradableProductBuilder.getCounterparty();
 		assertThat(counterparties, hasSize(2));
 		assertThat(counterparties,
 				hasItems(
 						Counterparty.builder()
-								.setCounterparty(CounterpartyEnum.PARTY_1)
+								.setRole(CounterpartyRoleEnum.PARTY_1)
 								.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(PAYER_PARTY_REF).build()),
 						Counterparty.builder()
-								.setCounterparty(CounterpartyEnum.PARTY_2)
+								.setRole(CounterpartyRoleEnum.PARTY_2)
 								.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(RECEIVER_PARTY_REF).build())));
 
 		Counterparty.CounterpartyBuilder counterparty1 = counterparties.get(0);
-		assertEquals(CounterpartyEnum.PARTY_1, counterparty1.getCounterparty());
+		assertEquals(CounterpartyRoleEnum.PARTY_1, counterparty1.getRole());
 		assertEquals(PAYER_PARTY_REF, counterparty1.getOrCreatePartyReference().getExternalReference());
 
 		Counterparty.CounterpartyBuilder counterparty2 = counterparties.get(1);
-		assertEquals(CounterpartyEnum.PARTY_2, counterparty2.getCounterparty());
+		assertEquals(CounterpartyRoleEnum.PARTY_2, counterparty2.getRole());
 		assertEquals(RECEIVER_PARTY_REF, counterparty2.getOrCreatePartyReference().getExternalReference());
 
 		// assert mappings
@@ -166,7 +166,7 @@ class PartyMappingHelperTest {
 
 		PayerReceiverBuilder builder = PayerReceiver.builder();
 		Path synonymPath = PAYER_XML_PATH.getParent();
-		helper.setCounterpartyEnum(RosettaPath.valueOf("Contract.collateral.independentAmount.payer"), synonymPath, builder::setPayer);
+		helper.setCounterpartyRoleEnum(RosettaPath.valueOf("Contract.collateral.independentAmount.payer"), synonymPath, builder::setPayer);
 
 		assertNull(builder.getPayer());
 		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());

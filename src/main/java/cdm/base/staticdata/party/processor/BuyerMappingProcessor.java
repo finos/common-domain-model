@@ -1,7 +1,7 @@
 package cdm.base.staticdata.party.processor;
 
 import cdm.base.staticdata.party.BuyerSeller;
-import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.observable.event.NotifyingParty;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -23,7 +23,7 @@ public class BuyerMappingProcessor extends BuyerSellerMappingProcessor {
 	}
 
 	@Override
-	protected Optional<Consumer<CounterpartyEnum>> getSetter(RosettaModelObjectBuilder builder) {
+	protected Optional<Consumer<CounterpartyRoleEnum>> getSetter(RosettaModelObjectBuilder builder) {
 		if (builder instanceof BuyerSeller.BuyerSellerBuilder) {
 			return Optional.of(((BuyerSeller.BuyerSellerBuilder) builder)::setBuyer);
 		} else if (builder instanceof NotifyingParty.NotifyingPartyBuilder) {
