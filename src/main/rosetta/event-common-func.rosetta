@@ -1012,19 +1012,19 @@ func ResolveCashSettlementDate: <"A product agnostic function that resolves the 
 	output: date date (1..1)
 
 func Create_Allocation: <"Defines the process of taking an initial transaction, sometimes referred to as a “Block”, and booking a new set of transactions, referred to as “Allocations”, where one of the parties is replaced by one or more other parties. The total quantity / notation of the Block is split across the new parties to the transaction.">
-	[creation BusinessEvent]
-	inputs:
+  	[creation BusinessEvent]
+  	inputs:
 		tradeState TradeState (1..1) <"Represents the block trade to be allocated.">
 		allocationInstruction AllocationInstruction (1..1) <"Represents the allocation instructions to be applied.">
 
-	output:
+  	output:
 		businessEvent BusinessEvent (1..1) <"Represents the Allocation Business Event containing both the original block trade (with it's status set to Allocated) and the set of breakdown trades.">
 
 	alias splitPrimitive: <"Create the Split Primitive.">
 		Create_SplitPrimitive(tradeState, allocationInstruction -> breakdowns, ClosedStateEnum -> Allocated, PositionStatusEnum -> Closed)
 
 	condition: <"Ensures total quantity/notional of allocation breakdowns must equal quantity on block.">
-		Sum(allocationInstruction -> breakdowns -> quantity -> quantity -> amount) = tradeState -> trade -> tradableProduct -> quantityNotation -> quantity -> amount
+		Sum(allocationInstruction -> breakdowns -> quantityNotation -> quantity -> amount) = tradeState -> trade -> tradableProduct -> quantityNotation -> quantity -> amount
 
 	assign-output businessEvent -> primitives -> split: <"Assign the Split Primitive to the Business Event.">
 		splitPrimitive
@@ -1037,12 +1037,12 @@ func Create_Allocation: <"Defines the process of taking an initial transaction, 
 
 	post-condition: <"Checks the number of ContractFormationPrimitives should equal the number of breakdowns in the instructions.">
 		businessEvent -> primitives -> contractFormation count = allocationInstruction -> breakdowns count
-
-func Create_ContractFormationPrimitives:
-	inputs:
-		tradeState TradeState (2..*)
-	output:
-		businessEvent BusinessEvent (1..1)
+		
+	func Create_ContractFormationPrimitives: // Implemented in Java - loops through each execution and calls Create_ContractFormationPrimitive
+		inputs:
+			tradeState TradeState (2..*)
+		output:
+			businessEvent BusinessEvent (1..1)
 
 func Create_SplitPrimitive: <"Defines how to create the Split Primitive according to a description of breakdowns.">
 	[creation PrimitiveEvent]
@@ -1052,8 +1052,8 @@ func Create_SplitPrimitive: <"Defines how to create the Split Primitive accordin
 		closedState ClosedStateEnum (0..1) <"Represents the reason for the trade's closure. The input is optional as not all splits will result in a trade closure, for example in the case of a partial allocation.">
 		positionStatus PositionStatusEnum (1..1) <"Represents the change to the position status.">
 
-	output:
-		primitive SplitPrimitive (1..1) <"Split primitive containing both the original block trade (with the status set to Split) and the set of split trades.">
+  	output:
+  		primitive SplitPrimitive (1..1) <"Split primitive containing both the original block trade (with the status set to Split) and the set of split trades.">
 
 	assign-output primitive -> before:
 		singleTrade
@@ -1062,6 +1062,12 @@ func Create_SplitPrimitive: <"Defines how to create the Split Primitive accordin
 	// post-condition: <"Ensure the number of splits equals the number of breakdowns plus the single trade.">
 	//  	splitBreakdowns count + 1 = primitive -> after count
 
+  	assign-output primitive -> after:
+   		Create_OriginalExecution(singleTrade)
+
+  	assign-output primitive -> after:
+  		Create_SplitExecutions(singleTrade, splitBreakdowns) -> tradeStates
+
 	post-condition: <"Checks the closed state has been set.">
 	if closedState exists then
 		primitive -> after -> state -> closedState -> state contains closedState
@@ -1069,26 +1075,105 @@ func Create_SplitPrimitive: <"Defines how to create the Split Primitive accordin
 	post-condition: <"Checks the position status has been set.">
 		primitive -> after -> state -> positionState contains positionStatus
 
-func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
-	// TODO Never referenced in CDM
+
+func Create_OriginalExecution:
 	inputs:
-		trade Trade (1..1) <"Execution to be settled.">
-		previousEvent WorkflowStep (1..1) <"Previous event for lineage purposes.">
+		trade TradeState (1..1)
 
 	output:
-		transferEvent WorkflowStep (1..1) <"Transfer event composed of cash and security components created from a security settled via delivery vs payment.">
+		originalTrade TradeState (1..1)
 
-	condition:
-		trade -> tradableProduct -> product -> security exists
+	assign-output originalTrade:
+		trade
 
-	assign-output transferEvent -> businessEvent -> primitives -> transfer:
-		Create_TransferPrimitive(trade)
+	assign-output originalTrade -> trade -> tradableProduct -> quantityNotation -> quantity -> amount: <"Set the quantity amount to 0">
+			0.0
 
-	assign-output transferEvent -> lineage -> eventReference:
-		previousEvent as-key
+	assign-output originalTrade -> state -> closedState -> state:
+		ClosedStateEnum -> Allocated
 
-	assign-output transferEvent -> lineage -> tradeReference:
-		trade as-key
+func Create_SplitExecutions: // Implemented in Java - loops through each execution and calls Create_SplitExecution
+	inputs:
+		trade TradeState (1..1) <"Block execution to be split.">
+		breakdowns AllocationBreakdown (1..*) <"Split instructions to be applied.">
+
+	output:
+		splitOutcome TradeStates (1..1)
+
+func Create_SplitExecution:
+	inputs:
+		tradeState TradeState (1..1) <"Block execution to be split.">
+		breakdown AllocationBreakdown (1..1) <"Split instructions to be applied.">
+
+	output:
+		splitExecution TradeState (1..1)
+
+	alias counterparty1:
+		if breakdown -> counterpartyEnum = CounterpartyRoleEnum -> Party1
+		then Create_Counterparty(breakdown -> party, breakdown -> counterpartyEnum)
+		// Missing function
+		else ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, CounterpartyRoleEnum -> Party1 )
+
+	alias counterparty2:
+		if breakdown -> counterpartyEnum = CounterpartyRoleEnum -> Party2
+		then Create_Counterparty(breakdown -> party, breakdown -> counterpartyEnum)
+		// Missing function
+		else ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, CounterpartyRoleEnum -> Party2 )
+
+	assign-output splitExecution -> trade -> executionDetails -> executionType:
+		tradeState -> trade -> executionDetails -> executionType
+
+	assign-output splitExecution -> trade -> tradeIdentifier:
+		breakdown -> allocationTradeId
+
+	assign-output splitExecution -> trade -> tradeDate:
+		tradeState -> trade -> tradeDate
+
+	assign-output splitExecution -> trade -> tradableProduct -> counterparty:
+			[counterparty1, counterparty2]
+
+	assign-output splitExecution -> trade -> tradableProduct -> product:
+		tradeState -> trade -> tradableProduct -> product
+
+	assign-output splitExecution -> trade -> tradableProduct -> priceNotation:
+		tradeState -> trade -> tradableProduct -> priceNotation
+
+	assign-output splitExecution -> trade -> tradableProduct -> quantityNotation:
+		breakdown -> quantityNotation
+
+	// TODO replace party
+	assign-output splitExecution -> trade -> party:
+		[ breakdown -> party ]
+
+	assign-output splitExecution -> trade -> partyRole:
+		tradeState -> trade -> partyRole
+
+	assign-output splitExecution -> state -> closedState:
+		tradeState -> state -> closedState
+
+	assign-output splitExecution -> trade -> settlementTerms:
+		tradeState -> trade -> settlementTerms
+
+func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
+// TODO Never referenced in CDM
+inputs:
+	trade Trade (1..1) <"Execution to be settled.">
+	previousEvent WorkflowStep (1..1) <"Previous event for lineage purposes.">
+
+output:
+	transferEvent WorkflowStep (1..1) <"Transfer event composed of cash and security components created from a security settled via delivery vs payment.">
+
+condition:
+	trade -> tradableProduct -> product -> security exists
+
+assign-output transferEvent -> businessEvent -> primitives -> transfer:
+	Create_TransferPrimitive(trade)
+
+assign-output transferEvent -> lineage -> eventReference:
+	previousEvent as-key
+
+assign-output transferEvent -> lineage -> tradeReference:
+	trade as-key
 
 func Create_TransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">
 	[creation PrimitiveEvent]
