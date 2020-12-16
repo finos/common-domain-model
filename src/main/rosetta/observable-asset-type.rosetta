@@ -90,17 +90,16 @@ type Price extends MeasureBase: <"Specifies a price to be used for trade amounts
 	perUnitofAmount UnitType (0..1) <"Provides an optional attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
 
 	condition PositiveFXRate: <"Requires that per FpML rules, the FX rate must be a positive value.">
-		if priceType=PriceTypeEnum->ExchangeRate 
+		if priceType = PriceTypeEnum -> ExchangeRate
 		then amount > 0
 
 	condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
-		if priceType=PriceTypeEnum->Spot
+		if priceType = PriceTypeEnum -> Spot
 		then amount > 0
 
 	condition CurrencyUnitForInterestRate: <"Requires that the unit of amount for an interest rate must be a currency.">
-		if priceType=PriceTypeEnum->InterestRate 
-		then unitOfAmount->currency exists 
-
+		if priceType = PriceTypeEnum -> InterestRate
+		then unitOfAmount -> currency exists
 
 type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
 	[metadata key]
@@ -123,11 +122,12 @@ type PriceQuantity: <"Specifies the price, quantity, and optionally the observab
 	//[metadata location "observable"] HUGO_TODO
 
 	condition NonNegativeQuantity:
-	quantity->amount >0
+	    if quantity -> amount exists
+	    then quantity -> amount > 0
 
 	condition:
-	if observable->rateOption exists then price->priceType=PriceTypeEnum->Spread
-
+	    if observable -> rateOption exists
+	    then price -> priceType = PriceTypeEnum -> Spread
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
