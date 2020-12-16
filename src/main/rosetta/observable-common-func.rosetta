@@ -6,6 +6,33 @@ import cdm.base.staticdata.asset.common.*
 
 import cdm.observable.asset.*
 
+func ExtractPriceNotation: <"Extracts PriceNotation with matching AssetIdentifier.">
+    inputs:
+        priceNotations PriceNotation (0..*)
+        assetIdentifier AssetIdentifier (1..1)
+
+    output:
+        priceNotation PriceNotation (0..1)
+
+func Create_AssetIdentifier: <"Creates AssetIdentifier with either productIdentifier, currency or rateOption.">
+    inputs:
+        productIdentifier ProductIdentifier (0..1)
+        currency string (0..1)
+            [metadata scheme]
+        rateOption FloatingRateOption (0..1)
+
+    output:
+        assetIdentifier AssetIdentifier (0..1)
+
+    assign-output assetIdentifier -> productIdentifier:
+        productIdentifier
+
+    assign-output assetIdentifier -> currency:
+        currency
+
+    assign-output assetIdentifier -> rateOption:
+        rateOption
+
 func ResolveTimeZoneFromTimeType: <"Function to resolve a TimeType into a TimeZone based on a determination method.">
 	inputs:
 		timeType TimeTypeEnum (1..1)

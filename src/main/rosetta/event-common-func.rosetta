@@ -13,6 +13,7 @@ import cdm.observable.event.*
 
 import cdm.product.template.*
 import cdm.product.asset.*
+import cdm.product.common.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 
@@ -1174,6 +1175,100 @@ assign-output transferEvent -> lineage -> eventReference:
 
 assign-output transferEvent -> lineage -> tradeReference:
 	trade as-key
+
+func Create_Transfer:
+	inputs:
+		tradeState TradeState (1..1) <"allocated trade to be settled.">
+		date date (1..1) <"date">
+
+	output:
+		transferEvent BusinessEvent (1..1)
+
+	assign-output transferEvent -> primitives -> transfer:
+ 		if tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityLendingPayout exists
+		then Create_SecLendingTransferPrimitive(tradeState)
+		else Create_TransferPrimitive(tradeState)
+
+func Create_SecLendingTransferPrimitive:
+	[creation PrimitiveEvent]
+	inputs:
+		tradeState TradeState (1..1)
+
+	output:
+		transferPrimitive TransferPrimitive (1..1) <"Transfer primitive generated from contract.">
+
+    alias resolvedContractualProduct:
+     	ResolveContractualProduct(tradeState -> trade -> tradableProduct -> product -> contractualProduct, tradeState -> trade -> tradableProduct -> quantityNotation)
+
+	alias secLendingPayout:
+		resolvedContractualProduct -> economicTerms -> payout -> securityLendingPayout only-element
+
+    alias securityLendingLeg:
+        secLendingPayout -> securityLendingLeg only-element
+
+    alias securityPriceNotation:
+        ExtractPriceNotation(tradeState -> trade -> tradableProduct -> priceNotation,
+                Create_AssetIdentifier(secLendingPayout -> securityInformation -> security -> productIdentifier only-element, empty, empty))
+
+    alias securityQuantity:
+        secLendingPayout -> payoutQuantity -> resolvedQuantity -> amount
+
+    alias securityPrice:
+        securityPriceNotation -> price -> cashPrice -> netPrice -> amount
+
+	alias valuationPercentage:
+	 	if secLendingPayout -> collateralProvisions -> marginPercentage -> valuationPercentage exists
+	 	then secLendingPayout -> collateralProvisions -> marginPercentage -> valuationPercentage
+	 	else 1.0
+
+	alias cashAmount:
+	    securityPrice * securityQuantity * valuationPercentage
+
+    alias payerParty:
+        ExtractCounterpartyByRole(tradeState -> trade -> tradableProduct -> counterparty, securityLendingLeg -> payerReceiver -> payer) -> partyReference
+
+    alias receiverParty:
+        ExtractCounterpartyByRole(tradeState -> trade -> tradableProduct -> counterparty, securityLendingLeg -> payerReceiver -> receiver) -> partyReference
+
+	assign-output transferPrimitive -> status:
+		TransferStatusEnum -> Instructed
+
+	assign-output transferPrimitive -> settlementType:
+		if securityLendingLeg -> deliveryMethod = DeliveryMethodEnum -> DeliveryVersusPayment
+		then TransferSettlementEnum -> DeliveryVersusPayment
+
+	assign-output transferPrimitive -> settlementDate:
+		ConvertToAdjustableOrAdjustedOrRelativeDate(ExtractFixedLeg( resolvedContractualProduct -> economicTerms -> payout -> interestRatePayout) -> calculationPeriodDates -> effectiveDate)
+
+	assign-output transferPrimitive -> securityTransfer -> quantity:
+		securityQuantity
+
+	assign-output transferPrimitive -> securityTransfer -> security:
+		secLendingPayout -> securityInformation -> security
+
+	assign-output transferPrimitive -> securityTransfer -> transferorTransferee -> transferorPartyReference:
+		payerParty
+
+	assign-output transferPrimitive -> securityTransfer -> transferorTransferee -> transfereePartyReference:
+		receiverParty
+
+	assign-output transferPrimitive -> cashTransfer -> amount -> amount:
+	 	cashAmount
+
+	assign-output transferPrimitive -> cashTransfer -> amount -> currency:
+		securityPriceNotation -> price -> cashPrice -> netPrice -> currency
+
+	assign-output transferPrimitive -> cashTransfer -> payerReceiver -> payerPartyReference:
+	 	receiverParty
+
+	assign-output transferPrimitive -> cashTransfer -> payerReceiver -> receiverPartyReference:
+	 	payerParty
+
+	post-condition:
+		transferPrimitive -> cashTransfer exists
+            and transferPrimitive -> securityTransfer exists
+            and transferPrimitive -> commodityTransfer is absent
+
 
 func Create_TransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">
 	[creation PrimitiveEvent]
