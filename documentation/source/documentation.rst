@@ -1977,6 +1977,8 @@ Namespaces are organised into a hierarchy, with layers going from in to out. The
 
 Example – the base namespace
 
+.. figure:: documentation/source/cdm-namespace.png
+
 In the example above the layers of the “base” namespace can be observed. There are four layers to the namespace. The outer layer “base” contains one file and three namespaces. The next layer contains three siblings, “datetime”, “math”, and “staticdata”. A third and fourth layer is contained within the “staticdata” namespace.
 
 Hierarchy Structure
