@@ -9,6 +9,7 @@ import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
 
 import cdm.observable.asset.*
+import cdm.observable.event.*
 import cdm.product.asset.*
 import cdm.product.template.*
 import cdm.product.common.settlement.*
@@ -59,13 +60,6 @@ type AllocationBreakdown:
 	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
 	account Account (0..1)<"The account to allocate the trade into">
 	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
-
-type SplitOutcome: <"A class to specify the allocated outcome as the combination of the previous Trade, which is either an execution or a contract and which state is specified as 'Allocated', and a set of Trade(s) of the same execution or contract type as before allocation. The allocation to one single trade is deemed appropriate: e.g. the trade could be effectively allocated from the fund manager doing the execution to a single fund entity.">
-
-	originalTrade TradeState (1..1)
-		[synonym Workflow_Event value "fpmlTrade" path "originalTrade"]
-	splitTrades TradeState (1..*)
-		[synonym Workflow_Event value "fpmlTrade" path "splitTrade"]
 
 type CashTransferBreakdown extends TransferBreakdown:
 
@@ -165,26 +159,10 @@ type EventTestBundle: <"A class which combines several events for testing purpos
 	computedAmount ComputedAmount (0..*)
 		[synonym Workflow_Event value "computedAmount"]
 
-type CashExercise: <"The cash exercise specifies the cashflow using the cashflow payout and a given quantity.">
-
-	cashflow Cashflow (1..1) <"Cashflow payout specification, excluding the quantity.">
-	quantity Quantity (1..1) <"Quantity of the cashflow payout.">
-
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 	
 	exerciseDate AdjustableOrAdjustedDate (0..1) <"Specifies the date on which an option contained within the financial product would be exercised. The date may be omitted if the contractual product allows for only a single date of exercise (European exercise).">
 	exerciseTime BusinessCenterTime (0..1) <"Specifies the time at which an option contained within the financial product woulld be exercised. The time may be omitted if the contractual product allows for only a single time of exercise (European exercise). ">
-
-type ExerciseOutcome: <"The exercise outcome combines the option contract (which states would be 'Exercised' in case of a full exercise and which would have a reduced notional in case of partial exercise) and either a physical or partial exercise.">
-
-	contract TradeState (1..1)
-		[synonym Workflow_Event value "fpmlContract"]
-	physicalExercise PhysicalExercise (0..1)
-		[synonym Workflow_Event value "physicalExercise"]
-	cashExercise CashExercise (0..1)
-		[synonym Workflow_Event value "cashExercise"]
-	condition Choice: <"A option exercise results in either a physical or a cash exercise.">
-		required choice physicalExercise, cashExercise
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
@@ -192,17 +170,29 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	trade Trade (1..1) <"Represents the Trade that has been effected by a business or life-cycle event.">
 	    [synonym Workflow_Event hint "trade"]
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
-	observationHistory TradeState (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
+	    [synonym Workflow_Event value "state"]
+	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
 
-type Observation: <"Defines an observed piece of market data, such as a rate fixing, which is applicable to the servicing of a position.">
-	observationDate date (1..1) <"Specifies the date on which the observation was made.">
-	observedValue number (1..1) <"Specifies the numerical value of the observation.">
-	informationSource ObservationSource (1..1) <"Represents the data source of the observed value.">
+type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definitioin details with observations to compute the reset value.">
+	resetValue number (1..1) <"Specifies the reset or fixing value. The fixing value could ">
+	resetDate date (1..1) <"Specifies the date on which the reset occurred.">
+	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
+		[metadata reference]
+	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value.">
+
+	condition: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
+		if observations count > 1 then aggregationMethodology exists
+
+type AggregationMethod: <"Defines the ways in which multiple values can be aggregated into a single value.">
+	averagingMethod AveragingMethodEnum (0..1) <"Identifies whether the average values will be weighted.">
+	averagingCalculationMethod AveragingCalculationMethodEnum (0..1) <"Identifies which of the Pythagorean means is being used to compute an average value.">
+	condition: one-of
 
 type State: <"Defines the state of a trade at a point in the Trade's life cycle. Trades have many state dimensions, all of which are represented here. For example, states useful for position keeping are represented alongside those needed for regulatory reporting.">
 	closedState ClosedState (0..1) <"Represents the qualification of what led to the trade's closure alongside the dates on which this closure took effect.">
-	    [synonym Workflow_Event value "closedState" path "trade"]
+	    [synonym Workflow_Event value "closedState"]
 	positionState PositionStatusEnum (0..1) <"Identifies the state of the position, to distinguish if just executed, formed, already settled, closed, etc.">
+	    [synonym Workflow_Event value "positionStatus"]
 
 	condition: <"When the position state is identified as closed, the closed state must also be specified.">
 	    if positionState = PositionStatusEnum -> Closed then
@@ -479,22 +469,6 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 	portfolioStateReference PortfolioState (0..*) <"The refence to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
 		[metadata reference]
 
-type PhysicalExercise: <"The physical exercise results into a financial product which is represented through the Product class, with an associated quantity and cashflow (e.g. a physical exercise of a bond option will result into a bond with a cash proceed which will be a function of the option strike price).">
-
-	product Product (1..1)
-		[synonym Workflow_Event value "product"]
-	quantitySettled Quantity (0..1) <"The quantity associated the asset that is physically settled. This quantity should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
-		[synonym Workflow_Event value "quantity"]
-	quantityExcercised Quantity (0..*) <"Complex attribute to specify the quantity of the contractual product that is being exercised. This temporarily makes uses of the 'ExecutionQuantity' class.">
-		// For Swap Stream:
-		[synonym Workflow_Event value "notionalSchedule" path "product->swap->swapStream->calculationPeriodAmount->calculation"]
-		[synonym Workflow_Event value "cashflow"]
-	cashflow Cashflow (0..1) <"The cashflow component of the physical exercise.">
-		[synonym Workflow_Event value "cashflow"]
-	condition PhysicalExerciseQuantity: <"The quantitySettled attribute should only be associated with non-contractual products, as it is then expressed as part of the contractual terms.">
-		if product -> contractualProduct exists
-		then quantitySettled is absent
-
 type PostContractFormationState extends ContractState:
 
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information.">
@@ -588,8 +562,6 @@ type PrimitiveEvent: <"A primitive event is defined by one and only one atomic c
 		[synonym Workflow_Event value "contractFormation" path "primitive"]
 	split SplitPrimitive (0..1)
 		[synonym Workflow_Event value "split" path "primitive"]
-	exercise ExercisePrimitive (0..1)
-		[synonym Workflow_Event value "exercise" path "primitive"]
 	observation ObservationPrimitive (0..1)
 		[synonym Workflow_Event value "observation" path "primitive"]
 	quantityChange QuantityChangePrimitive (0..1)
@@ -630,44 +602,44 @@ type ContractFormationPrimitive: <"Defines the primitive event that represents a
         if before exists
         then before -> trade -> tradableProduct -> priceQuantity = after -> trade -> tradableProduct -> priceQuantity
 
-type SplitPrimitive: <"Defines the primitive event to represent a split/allocation of a trade. Where executions are being split, each split execution can be transformed into a contract by additionally using the Contract Formation primitive.">
+type SplitPrimitive: <"Defines splitting of a single trade into one or more trades, where the quantity of the split trade(s) totals that of the single trade.">
 
-	before TradeState (1..1) <"Represents the trade before split, which is either an execution if the split happens before the contract is formed, or an already formed contract.">
+	before TradeState (1..1) <"Represents the single trade to be split.">
 		[metadata reference]
 		[synonym Workflow_Event value "fpmlTrade" path "before"]
-	after SplitOutcome (2..*) <"Outcome of the split as a list of Trades, which is either a split execution or a split contract, plus a pointer to the previous execution or contract marked as 'Split'.">
-		[synonym Workflow_Event value "after"]
+	after TradeState (2..*) <"Represents the outcome of the split. Includes the single trade (referenced in the 'before' attribute) with its Position State updated to closed, along with a reason.">
+		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
-	condition: <"If the pre-split trade is has execution details, then the post-split trade must also have execution details.">
+	condition: <"Ensure Execution Details are not lost in the split process.">
 		if before -> trade -> executionDetails exists
-		then after -> splitTrades -> trade -> executionDetails exists
-			and after -> splitTrades-> trade -> contractDetails is absent
+		then after -> trade -> executionDetails exists
+			and after -> trade -> executionDetails exists
+			and after-> trade -> contractDetails is absent
 
-	condition: <"If the pre-split trade is has contract details, then the post-split trade must also have contract details.">
+	condition: <"Ensure Contract Details are not list in the split process.">
 		if before -> trade -> contractDetails exists
-		then after -> splitTrades -> trade -> contractDetails exists
-			and after -> splitTrades -> trade -> executionDetails is absent
+		then after -> trade -> contractDetails exists
+			and after -> trade -> contractDetails exists
+			and after-> trade -> executionDetails is absent
 
-	condition: <"The product should be unchanged.">
-		after -> originalTrade -> trade -> tradableProduct -> product = before -> trade -> tradableProduct -> product
+	condition: <"Ensure the productremains unchanged.">
+		after -> trade -> tradableProduct -> product = before -> trade -> tradableProduct -> product
 
 	// TODO add syntax to handle comparison between list and single item.  https://github.com/REGnosys/rosetta-dsl/issues/167
-    condition: <"The price should be unchanged.">
-		after -> originalTrade -> trade -> tradableProduct -> priceQuantity -> price = before -> trade -> tradableProduct -> priceQuantity -> price
+    //condition: <"The price should be unchanged.">
+    //    after -> originalTrade -> trade -> tradableProduct -> priceQuantity -> price = before -> trade -> tradableProduct -> priceQuantity -> price
 
-type ExercisePrimitive: <"This primitive leverages the FpML OptionExercise construct, except for the exerciseTiming which is deemed as associated to a request for exercise that is meant to take place, as opposed to the actual exercise event.">
+	condition: <"Ensure the quantities of each split trade totals that of the single trade.">
+		Sum( FilterOpenTradeStates(after) -> tradeStates ->trade -> tradableProduct -> priceQuantity -> quantity -> amount) = before -> trade -> tradableProduct -> priceQuantity -> quantity -> amount
 
-	exerciseDate AdjustableOrAdjustedDate (0..1)
-		[synonym Workflow_Event value "exerciseDate"]
-	exerciseTime BusinessCenterTime (0..1)
-		[synonym Workflow_Event value "exerciseTime"]
-	fullExercise boolean (1..1)
-		[synonym Workflow_Event value "fullExercise"]
-	before ContractState (1..1)
-		[metadata reference]
-		[synonym Workflow_Event value "before"]
-	after ExerciseOutcome (1..1)
-		[synonym Workflow_Event value "after"]
+func FilterOpenTradeStates: <"Outlines inputs and outputs required to filter only 'open' Trade States.">
+	inputs:
+		tradeStates TradeState (2..*)
+	output:
+		filteredTradeStates TradeStates (1..1)
+
+type TradeStates: <"Defines a set of TradeState objects. This type is a work-around to a bug in the code generators which prevents the model from returning a set of elements in the function.">
+	tradeStates TradeState (0..*)
 
 type QuantityChangePrimitive: <"Defines the primitive event to represent a change in quantity, which includes notional. For details of how the TradeState is changed between the `before` and `after` TradeStates, see the corresponding Create_QuantityChangePrimitive function.">
 
