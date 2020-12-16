@@ -2,7 +2,7 @@
 
 _What is being released_
 
-The Namespace section has been added to the CDM user documenation, in line with recent changes to the model.
+The Namespace section has been added to the CDM user documentation, in line with recent changes to the model.
 
 Notable changes and updates introduced:
 
