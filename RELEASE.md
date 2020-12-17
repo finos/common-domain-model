@@ -1,21 +1,33 @@
-# *DSL Syntax: Disjoint Keyword*
+# *CDM Model: Primitive Harmonisation Phase 2 and part of Phase 3*
+ 
+_What is being released_ 
 
-_What is being released_
+Phase 2 and parts of Phase 3 work to harmonise Primitive events to make use of TradeState data type to represent before and after attributes.
+ 
+*Background*
 
-Added the new `disjoint` keyword which can be used to write an expression that compares two lists to determine if there are any common elements.  If there are no common elements, the lists are disjoint, and the expression will evaluate to true.
+Harmonisation will allow for easier combination of Primitives to form complex business events. Migrating before and after states to use the same data type eliminates the need for data translations when combining Primitives.
+ 
+Whilst data translation can be addressed in the Function Model, defining the applicable data types correctly in the Data Model removes the need for additional complexity.
+ 
+*Model Changes*
 
-Given two lists of floating rate indexes, e.g.
-
-`before -> ... -> floatingRateIndex disjoint after -> ... -> floatingRateIndex`
-
-Then the expression will evaluate to true if every "after" floating rate index is different from every "before" floating rate index.
-
-# *Bug Fix: Data Rule Java Code Generation*
-
-_What is being released_
-
-Fix bug in the Java code generation to allow data rules to be invoked after each function invocation.
-
+The following primitives and their corresponding business events have been updated:
+ 
+* `SplitPrimitive`
+* `ExercisePrimitive` (deleted, replaced with quantity change and contract formation/transfer)
+* `ResetPrimitive` (deleted, replaced with the ‘Reset’ data type
+* `ObservationPrimitive` (deleted, observation details now captured in newly created `Reset` data type)
+ 
+The corresponding business events for this set of primitives are Allocation, Exercise, and Reset. 
+ 
+The key changes made in relation to each of the primitive events are listed below: 
+ 
+* `SplitPrimitive` has been harmonised to use `TradeState`. However, the `SplitOutcome` data type has been deleted because, as a result of this change, it is no longer referenced by any other types or functions.  
+* `ExercisePrimitive` was deleted and replaced with a combination of `QuantityChangePrimitive`, `ContractFormationPrimitive`, and `TransferPrimitive`. In addition, the following data types have been deleted, as they were all referenced solely by `ExercisePrimitive`:  `ExerciseOutcome`, `PhysicalExercise`, and `CashExercise`.
+* `Reset` is a new data type replacing the ResetPrimitive. The Observation-Reset proposal from April 2020 was used as the baseline design for creating this new type and for  updating the Reset process.  The mechanism of recording reset values utilises the newly introduced `Reset` data type. Values that are observed in the market in order to fulfil contractual product obligations for resets and other events are now represented in the `Observation` data type, which is referenced by the `Reset` data type, removing the need for the `ObservationPrimitive`  data type, which has been deleted. `Observation` is a root type, meaning data instances can exist independently from others and are decoupled from the event model.  
+ 
 _Review Directions_
 
-In the CDM Portal, go to the Downloads page, and download the Java Examples. Review the example in Java class, `com.regnosys.cdm.example.template.Validation`.
+In the CDM Portal, use the Textual Browser or Graphical Navigator to review the types referenced in this note. 
+Use the Function icon to see the changes to the reset process in the context of an Equity Swap with single underlier.
