@@ -36,7 +36,7 @@ Use the Function icon to see the changes to the reset process in the context of 
  
 _What is being released_ 
 
-ISDA CDM logo added to the CDM section of the documentation site and the styling has been updated to be consistent with Rosetta.
+The visual styling of the CDM section of the documentation site has been updated to be consistent with Rosetta, which includes adding the ISDA CDM logo.
 
 _Review Directions_
 
