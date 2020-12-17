@@ -41,7 +41,7 @@ Use the Function icon to see the changes to the reset process in the context of 
  * Renaming Contract to Trade in documentation to match the previous change in CDM
  * Better explanation of functions and expressions in Rosetta including the precise semantics of various expression operators
  * Better documentation of how to create mappings
- * Details of how to obtain artifacts required to use the CDM java distribution
+ * Details of how to obtain artifacts required to use the CDM Java distribution
  
  _Review Directions_
  
