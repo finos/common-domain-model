@@ -432,9 +432,9 @@ synonym source FpML_5_10 extends FpML
 		    [hint "paymentAmount"]
 		    // For FRAs:
 		    [hint "fixedRate"]
-            // For Credit:
-            [value "periodicPayment" path "feeLeg"]
-            [value "protectionTerms"]
+            // For CDS:
+            [value "periodicPayment"]
+
 
         /*
 			// For Swap Streams:
@@ -472,9 +472,9 @@ synonym source FpML_5_10 extends FpML
 		    [hint "notionalAmount"]
             // For FRAs:
             [hint "notional"]
-
-            [value "fixedAmountCalculation" path "feeLeg->periodicPayment"]
-            [value "protectionTerms"]
+            // For CDS:
+            [value "fixedAmountCalculation" path "periodicPayment"]
+            [hint "calculationAmount"]
 		/*
 			// For Equity Swap:
 			[value "notional" path "returnSwap->returnLeg", "notional" path "equitySwapTransactionSupplement->returnLeg"]
@@ -578,7 +578,8 @@ synonym source FpML_5_10 extends FpML
             [value "initialValue" path "capRateSchedule" maps 2]
             [value "initialValue" path "floorRateSchedule" maps 2]
             [value "amount" path "paymentAmount" maps 2]
-            [value "strikePrice" maps 2]
+            [value "strikePrice"]
+            [value "referencePrice"]
             [value "fixedRate" maps 2]
             [value "fixedRate" path "fixedAmountCalculation" maps 2]
         + unitOfAmount
@@ -2249,7 +2250,8 @@ synonym source FpML_5_10 extends FpML
 		    [value "premium" path "swaption"]
 		    [value "premium" path "bondOption"]
 		    [value "bondOption"]
-		    [value "creditDefaultSwap"]
+		    [value "feeLeg" path "creditDefaultSwap"]
+		    [value "protectionTerms" path "creditDefaultSwap"]
         + adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 /*
@@ -2974,7 +2976,7 @@ synonym source FpML_5_10 extends FpML
 		+ allGuarantees
 			[value "allGuarantees"]
 		+ referencePrice
-			[value "referencePrice"]
+			[hint "referencePrice"]
 		+ referencePolicy
 			[value "referencePolicy"]
 		+ securedList
