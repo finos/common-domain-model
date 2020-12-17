@@ -5,11 +5,13 @@ _What is being released_
 Phase 2 and parts of Phase 3 work to harmonise Primitive events to make use of TradeState data type to represent before and after attributes.
  
 *Background*
+
 Harmonisation will allow for easier combination of Primitives to form complex business events. Migrating before and after states to use the same data type eliminates the need for data translations when combining Primitives.
  
 Whilst data translation can be addressed in the Function Model, defining the applicable data types correctly in the Data Model removes the need for additional complexity.
  
 *Model Changes*
+
 The following primitives and their corresponding business events have been updated:
  
 * `SplitPrimitive`
