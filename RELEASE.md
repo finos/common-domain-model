@@ -1,4 +1,4 @@
-# *CDM Model: Primitive Harmonisation Phase 2 and part of Phase 3*
+## *CDM Model: Primitive Harmonisation Phase 2 and part of Phase 3*
  
 _What is being released_ 
 
@@ -31,3 +31,13 @@ _Review Directions_
 
 In the CDM Portal, use the Textual Browser or Graphical Navigator to review the types referenced in this note. 
 Use the Function icon to see the changes to the reset process in the context of an Equity Swap with single underlier.
+
+## *Documentation: CDM Documentation site styling update*
+ 
+_What is being released_ 
+
+ISDA CDM logo added to the CDM section of the documentation site and the styling has been updated to be consistent with Rosetta.
+
+_Review Directions_
+
+See https://docs.rosetta-technology.io/cdm/index.html
