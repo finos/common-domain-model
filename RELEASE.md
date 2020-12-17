@@ -31,3 +31,13 @@ _Review Directions_
 
 In the CDM Portal, use the Textual Browser or Graphical Navigator to review the types referenced in this note. 
 Use the Function icon to see the changes to the reset process in the context of an Equity Swap with single underlier.
+
+# *Documentation: Update styling to the CDM Documentation site *
+ 
+_What is being released_ 
+
+Styling for the CDM Documentation site has been updated and ISDA CDM logo has been added.
+
+_Review Directions_
+
+See https://docs.rosetta-technology.io/cdm/index.html
