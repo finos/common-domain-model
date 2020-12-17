@@ -32,7 +32,7 @@ _Review Directions_
 In the CDM Portal, use the Textual Browser or Graphical Navigator to review the types referenced in this note. 
 Use the Function icon to see the changes to the reset process in the context of an Equity Swap with single underlier.
 
-# *CDM and Rosetta Documentaion*
+# *CDM and Rosetta Documentation*
  
  _What is being released_
  
