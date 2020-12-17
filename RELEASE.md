@@ -47,3 +47,12 @@ Use the Function icon to see the changes to the reset process in the context of 
  
  On the rosetta docs site https://docs.rosetta-technology.io/ there are new pages for expressions and mapping in the DSL section as well as changes to the existing pages.
  
+# *Documentation: CDM Documentation site styling update*
+ 
+_What is being released_ 
+
+The visual styling of the CDM section of the documentation site has been updated to be consistent with Rosetta, which includes adding the ISDA CDM logo.
+
+_Review Directions_
+
+See https://docs.rosetta-technology.io/cdm/index.html
