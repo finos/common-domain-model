@@ -1221,7 +1221,7 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
    sensitivityMethodologies SensitivityMethodologies (1..1)
    fxHaircutCurrency FxHaircutCurrency (0..1)
    postingObligations PostingObligations (1..1)
-   substitutedRegime SubstitutedRegime (1..1)
+   substitutedRegime SubstitutedRegime (1..*)
    baseAndEligibleCurrency BaseAndEligibleCurrency (1..1)
    additionalObligations string (0..1)
    coveredTransactions CoveredTransactions (1..1)
@@ -1333,9 +1333,8 @@ The following code snippets represent these three components of the eligible col
    maturityRange PeriodRange (0..1)
    productIdentifier ProductIdentifier (0..*)
    productTaxonomy ProductTaxonomy (0..*)
-   seasoned boolean (0..1)
-   sinkable boolean (0..1)
    domesticCurrencyIssued boolean (0..1)
+   listing ListingType (0..1)
 
 .. code-block:: Haskell
 
@@ -1382,7 +1381,7 @@ The ``creditSupportObligations`` attribute is contained within two of the agreem
    sensitivityMethodologies SensitivityMethodologies (1..1)
    fxHaircutCurrency FxHaircutCurrency (0..1)
    postingObligations PostingObligations (1..1)
-   substitutedRegime SubstitutedRegime (1..1)
+   substitutedRegime SubstitutedRegime (1..*)
    baseAndEligibleCurrency BaseAndEligibleCurrency (1..1)
    creditSupportObligations CreditSupportObligations (1..1)
    calculationAndTiming CalculationAndTiming (1..1)
