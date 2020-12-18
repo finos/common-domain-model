@@ -1,10 +1,10 @@
 package org.isda.cdm;
 
 import cdm.base.math.functions.*;
-import cdm.base.staticdata.party.functions.ExtractCounterpartyBySide;
-import cdm.base.staticdata.party.functions.ExtractCounterpartyBySideImpl;
-import cdm.base.staticdata.party.functions.ExtractRelatedParty;
-import cdm.base.staticdata.party.functions.ExtractRelatedPartyImpl;
+import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRole;
+import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRoleImpl;
+import cdm.base.staticdata.party.functions.ExtractCounterpartyByRole;
+import cdm.base.staticdata.party.functions.ExtractCounterpartyByRoleImpl;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.common.functions.CurrencyAmount;
@@ -25,6 +25,7 @@ import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
+import com.rosetta.model.lib.validation.ValidatorFactory;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -33,6 +34,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		// create bindings here
 		bind(ModelObjectValidator.class).to(bindModelObjectValidator());
 		bind(QualifyFunctionFactory.class).to(bindQualifyFunctionFactory());
+		bind(ValidatorFactory.class).to(bindValidatorFactory());
 
 		// functions
 		bind(Abs.class).to(bindAbs());
@@ -47,8 +49,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
-		bind(ExtractCounterpartyBySide.class).to(bindExtractCounterpartyBySide());
-		bind(ExtractRelatedParty.class).to(bindExtractRelatedParty());
+		bind(ExtractCounterpartyByRole.class).to(bindExtractCounterpartyByRole());
+		bind(ExtractAncillaryPartyByRole.class).to(bindExtractAncillaryPartyByRole());
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -61,6 +63,10 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends QualifyFunctionFactory> bindQualifyFunctionFactory() {
 		return QualifyFunctionFactory.Default.class;
+	}
+
+	protected Class<? extends ValidatorFactory> bindValidatorFactory() {
+		return ValidatorFactory.Default.class;
 	}
 
 	// Functions
@@ -109,11 +115,11 @@ public class CdmRuntimeModule extends AbstractModule {
 		return FpmlIrd8Impl.class;
 	}
 
-	protected Class<? extends ExtractCounterpartyBySide> bindExtractCounterpartyBySide() {
-		return ExtractCounterpartyBySideImpl.class;
+	protected Class<? extends ExtractCounterpartyByRole> bindExtractCounterpartyByRole() {
+		return ExtractCounterpartyByRoleImpl.class;
 	}
 
-	protected Class<? extends ExtractRelatedParty> bindExtractRelatedParty() {
-		return ExtractRelatedPartyImpl.class;
+	protected Class<? extends ExtractAncillaryPartyByRole> bindExtractAncillaryPartyByRole() {
+		return ExtractAncillaryPartyByRoleImpl.class;
 	}
 }

@@ -1,20 +1,22 @@
 package cdm.product.template.processor;
 
-import cdm.base.staticdata.party.RelatedPartyEnum;
-import cdm.product.template.ExerciseNotice;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.base.staticdata.party.AncillaryRoleEnum;
 import cdm.legalagreement.contract.processor.PartyMappingHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Optional;
-
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
+import cdm.product.template.ExerciseNotice;
 
 /**
  * FpML mapping processor.
@@ -37,12 +39,12 @@ public class ExerciseNoticeReceiverMappingProcessor extends MappingProcessor {
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		setValueAndOptionallyUpdateMappings(synonymPath,
 				partyExternalReference -> {
-					Optional<RelatedPartyEnum> relatedPartyEnum = getRelatedPartyEnum();
+					Optional<AncillaryRoleEnum> relatedPartyEnum = getAncillaryRoleEnum();
 					relatedPartyEnum.ifPresent(p -> {
 						// set related party enum (inside product)
 						((ExerciseNotice.ExerciseNoticeBuilder) parent).setExerciseNoticeReceiver(p);
 						// add to related parties list (outside product)
-						PartyMappingHelper.getInstanceOrThrow(getContext()).addRelatedParties(partyExternalReference, p);
+						PartyMappingHelper.getInstanceOrThrow(getContext()).addAncillaryParty(partyExternalReference, p);
 					});
 					return relatedPartyEnum.isPresent();
 				},
@@ -50,15 +52,15 @@ public class ExerciseNoticeReceiverMappingProcessor extends MappingProcessor {
 				getModelPath());
 	}
 
-	protected Optional<RelatedPartyEnum> getRelatedPartyEnum() {
+	protected Optional<AncillaryRoleEnum> getAncillaryRoleEnum() {
 		if (getModelPath().containsPath(CANCELABLE_PROVISION_SUB_PATH)) {
-			return Optional.of(RelatedPartyEnum.CANCELABLE_PROVISION_EXERCISE_NOTICE_RECEIVER_PARTY);
+			return Optional.of(AncillaryRoleEnum.EXERCISE_NOTICE_RECEIVER_PARTY_CANCELABLE_PROVISION);
 		} else if (getModelPath().containsPath(EXTENDIBLE_PROVISION_SUB_PATH)) {
-			return Optional.of(RelatedPartyEnum.EXTENDIBLE_PROVISION_EXERCISE_NOTICE_RECEIVER_PARTY);
+			return Optional.of(AncillaryRoleEnum.EXERCISE_NOTICE_RECEIVER_PARTY_EXTENDIBLE_PROVISION);
 		} else if (getModelPath().containsPath(OPTIONAL_EARLY_TERMINATION_SUB_PATH)) {
-			return Optional.of(RelatedPartyEnum.OPTIONAL_EARLY_TERMINATION_EXERCISE_NOTICE_RECEIVER_PARTY);
+			return Optional.of(AncillaryRoleEnum.EXERCISE_NOTICE_RECEIVER_PARTY_OPTIONAL_EARLY_TERMINATION);
 		} else if (getModelPath().containsPath(MANUAL_EXERCISE_SUB_PATH)) {
-			return Optional.of(RelatedPartyEnum.MANUAL_EXERCISE_NOTICE_RECEIVER_PARTY);
+			return Optional.of(AncillaryRoleEnum.EXERCISE_NOTICE_RECEIVER_PARTY_MANUAL);
 		} else {
 			return Optional.empty();
 		}

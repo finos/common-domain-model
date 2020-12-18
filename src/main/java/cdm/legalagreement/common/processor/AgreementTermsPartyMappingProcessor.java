@@ -13,12 +13,12 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.util.List;
 
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
 /**
  * ISDA Create mapping processor.
  * <p>
- * Sets AgreementTerms.counterparty.  Always maps "partyA" to CounterpartyEnum.Party1 and "partyB" to CounterpartyEnum.Party2.
+ * Sets AgreementTerms.counterparty.  Always maps "partyA" to CounterpartyRoleEnum.Party1 and "partyB" to CounterpartyRoleEnum.Party2.
  */
 @SuppressWarnings("unused")
 public class AgreementTermsPartyMappingProcessor extends MappingProcessor {
@@ -32,7 +32,7 @@ public class AgreementTermsPartyMappingProcessor extends MappingProcessor {
 		AgreementTerms.AgreementTermsBuilder agreementBuilder = (AgreementTerms.AgreementTermsBuilder) parent;
 		PARTIES.forEach(party -> agreementBuilder
 				.addCounterpartyBuilder(Counterparty.builder()
-						.setCounterparty(toCounterpartyEnum(party))
+						.setRole(toCounterpartyRoleEnum(party))
 						.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(party).build())));
 	}
 }

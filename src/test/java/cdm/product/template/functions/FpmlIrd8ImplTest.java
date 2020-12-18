@@ -2,7 +2,7 @@ package cdm.product.template.functions;
 
 import cdm.base.staticdata.party.Account;
 import cdm.base.staticdata.party.Counterparty;
-import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.product.template.TradableProduct;
@@ -69,14 +69,14 @@ class FpmlIrd8ImplTest extends AbstractFunctionTest {
 
 	private TradableProduct getTradableProduct(Party party1, Party party2) {
 		return TradableProduct.builder()
-				.addCounterparties(getCounterparty(party1, CounterpartyEnum.PARTY_1))
-				.addCounterparties(getCounterparty(party2, CounterpartyEnum.PARTY_2))
+				.addCounterparty(getCounterparty(party1, CounterpartyRoleEnum.PARTY_1))
+				.addCounterparty(getCounterparty(party2, CounterpartyRoleEnum.PARTY_2))
 				.build();
 	}
 
-	private Counterparty getCounterparty(Party party, CounterpartyEnum counterparty) {
+	private Counterparty getCounterparty(Party party, CounterpartyRoleEnum counterparty) {
 		return Counterparty.builder()
-				.setCounterparty(counterparty)
+				.setRole(counterparty)
 				.setPartyReference(getPartyReference(party))
 				.build();
 	}
