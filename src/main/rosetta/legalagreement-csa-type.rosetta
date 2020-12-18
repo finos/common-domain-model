@@ -27,23 +27,20 @@ type CreditSupportAgreement: <"The agreement executed between the parties and in
 	date date (1..1) <"The date of the agreement executed between the parties and intended to govern collateral arrangements for all OTC derivatives transactions between those parties.">
 	identifierValue string (0..1) <"An identifier used to uniquely identify the CSA. FpML specifies the type as creditSupportAgreementIdScheme, but without proposing any value.  As far as e understand, no scheme has yet been developed at this point.">
 
-type IndependentAmount extends PartyReferencePayerReceiver: <"A class specifying the Independent Amount as the combination of a payer/receiver, a payment amount, a payment date and an associated payment calculation rule.">
+type IndependentAmount extends PayerReceiver: <"A class specifying the Independent Amount as the combination of a payer/receiver, a payment amount, a payment date and an associated payment calculation rule.">
 
 	paymentDetail PaymentDetail (1..*) <"An attribute that specifies a payment as the combination of a payment amount, a payment date and an associated payment calculation rule.">
 
-
-// Note: All Eligible Collateral modelling/representation is still under development and discussion with ISDA Working groups
 type AgencyRatingCriteria: <"A class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
 
 	qualifier QuantifierEnum (1..1) <"Indicates whether all or any agency ratings apply.">
-	creditNotation CreditNotation (1..*)
+	creditNotation CreditNotation (1..*) <"Indicates the agency rating criteria specified for the asset or issuer.">
 	mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
 	referenceAgency CreditRatingAgencyEnum (0..1)
 
 	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
 		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
 		then AgencyRatingCriteria -> referenceAgency exists
-
 
 type CollateralValuationPercentage:
 
@@ -127,13 +124,6 @@ type AccessConditionsElections: <"A class to specify the Termination Events that
 		[synonym ISDA_Create_1_0 set to True when "partyA_credit_event_upon_merger" = "applicable", set to False when "partyA_credit_event_upon_merger" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_credit_event_upon_merger" = "applicable", set to False when "partyB_credit_event_upon_merger" = "not_applicable"]
 
-type AdditionalRegime: <"A class to specify the additional regulatory regime(s) that might be elected by the parties to a legal agreement where such provision exists, such as the ISDA 2016 and 2018 CSA for Initial Margin.">
-
-	regime string (1..1) <"The additional regulatory regime as specified by the parties.">
-	regimeTerms RegimeTerms (2..2) <"The party elections with respect to the additional regime(s).">
-	additionalType AdditionalTypeEnum (0..1) <"The Additional Type of transaction that can require the collection or delivery of initial margin under the specified regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(B).">
-	additionalTerms string (0..1) <"The bespoke Additional Type for the purposes of Covered Transactions (IM).">
-
 // TODO - Condition required that additionalType should exist for 2016 CSD and be absent for 2018 CSD
 // TODO - Condition required that additionalTerms should only exist when additionalType is Other
 
@@ -201,7 +191,7 @@ type AmendmentEffectiveDate: <"A class to specify the effective date of the Amen
 
 	date date (0..1) <"The effective date of the Amendment to Termination Currency when specified as an actual date.">
 		[synonym ISDA_Create_1_0 value "date_of_agreement"]
-	specificDate AmendmentEffectiveDateEnum (0..1) <"The effective date of the Amendment to Termination Currency when specified as a specific date (e.g. the annex date).">
+	specificDate AmendmentEffectiveDateEnum (0..1) <"The effective date of the Amendment to Termination Currency when specified as relative to another date (e.g. the annex date).">
 		[synonym ISDA_Create_1_0 value "annex_date"]
 		[synonym ISDA_Create_1_0 value "effectiveness_date"]
 		[synonym ISDA_Create_1_0 value "agreement_date"]
@@ -211,19 +201,26 @@ type AmendmentEffectiveDate: <"A class to specify the effective date of the Amen
 
 type ApplicableRegime: <"A class to specify the applicable regulatory regime(s) that parties to a legal agreement, such as the ISDA 2016 and 2018 CSA for Initial Margin, might be subject to.">
 
-	regime RegulatoryRegimeEnum (1..1) <"The applicable regulatory regime, as specified through an enumeration.">
+	regime RegulatoryRegimeEnum (0..1) <"The applicable regulatory regime, as specified through an enumeration.">
 		[synonym AcadiaSoft_AM_1_0 value "regime"]
+	additionalRegime string (0..1) <"The additional regulatory regime as specified by the parties.">
 	regimeTerms RegimeTerms (2..2) <"A class that is used by the ApplicableRegime and the AdditionalRegime classes to specify the terms that are specific to each party and regime which are referred to in the Regime Table as part of certain legal agreements, such as such as the ISDA 2016 and 2018 CSA for Initial Margin.">
 	additionalType AdditionalTypeEnum (0..1) <"The Additional Type of transaction that can require the collection or delivery of initial margin under the specified regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(B).">
 	additionalTerms string (0..1) <"The bespoke Additional Type for the purposes of Covered Transactions (IM).">
 	//TODO - Condition required that additionalTerms should only exist when additionalType is Other
 
+	condition Choice: <"The applicable regime should be specified either as an enumeration or as an additional regime specified by the parties.">
+		required choice regime, additionalRegime
+
 type AppropriatedCollateralValuation: <"A class to specify the Valuation of Appropriated Collateral that is applicable to the English Law ISDA CSA. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (u): Valuation of Appropriated Collateral.">
 
 	isSpecified boolean (1..1) <"The qualification of whether the Valuation of Appropriate Collateral provision is applicable (True) or not applicable (False).">
 		[synonym ISDA_Create_1_0 set to True when "specified" = "true", set to False when "specified" = "false"]
+		[synonym ISDA_Create_1_0 set to True when "valuation_of_appropriated_securities_is" = "other_specify", set to False when "valuation_of_appropriated_securities_is" = "not_specified"]
+		[synonym ISDA_Create_1_0 set to True when "valuation_of_appropriated_collateral_is" = "other_specify", set to False when "valuation_of_appropriated_collateral_is" = "not_specified"]
 	election string (0..1) <"The parties' election that qualify the Valuation of Appropriate Collateral in the case where it is deemed applicable.">
 		[synonym ISDA_Create_1_0 value "specify"]
+		[synonym ISDA_Create_1_0 value "other_specify_text"]
 
 	condition Specified: <"The Valuation of Appropriate Collateral election must be specified when it is applicable.">
 		if isSpecified = True
@@ -244,18 +241,18 @@ type BespokeCalculationDate: <"A class to specify bespoke Calculation Date terms
 
 type BespokeCalculationTime: <"A class to specify additional Calculation Time terms for the purposes of Initial Margin">
 
-	asCalculationAgentIm boolean (1..1) <"If set to True, the Calculation Time for Initial Margin is the time as of which the Calculation Agent (IM) computes its end of day valuations of derivatives transactions">
+	asCalculationAgent boolean (1..1) <"If set to True, the Calculation Time for Initial Margin is the time as of which the Calculation Agent (IM) computes its end of day valuations of derivatives transactions">
 		[synonym ISDA_Create_1_0 set to True when "calculation_time_IM_is" = "calculation_agent_IM_computation_time", set to False when "calculation_time_IM_is" = "specify"]
 		[synonym ISDA_Create_1_0 set to True when "is_applicable" = "applicable", set to False when "is_applicable" = "specify"]
 	bespokeCalculationTimeTerms string (0..1) <"Additional Terms applicable to Calculation Time for Initial Margin">
 		[synonym ISDA_Create_1_0 value "calculation_agent_IM_computation_time_specify"]
 
 	condition AsCalculationAgentIm: <"A data rule to enforce that the terms applicable to Calculation Time for Initial Margin should be specified when the computation time is not as per Calculation Agent">
-		if asCalculationAgentIm = True
+		if asCalculationAgent = True
 		then bespokeCalculationTimeTerms is absent
 
 	condition BespokeCalculationTimeTerms: <"A data rule to enforce that the Calculation Time for Initial Margin shouldn't be specified when the Control Agreement isn't deemed a Credit Support Document with respect to the party(ies).">
-		if asCalculationAgentIm = False
+		if asCalculationAgent = False
 		then bespokeCalculationTimeTerms exists
 
 type BespokeTransferTiming: <"A class to specify any bespoke Transfer Timing language by each party to the agreement.">
@@ -267,8 +264,6 @@ type BespokeTransferTiming: <"A class to specify any bespoke Transfer Timing lan
 
 type CalculationAgentTerms: <"A class to specify Calculation Agent for purposes of Initial or Variation Margin agreements">
 
-	// isApplicable boolean (0..1) <"The specification of whether bespoke calculation agent terms are applicable (True) or not (False)">
-	// 	[synonym ISDA_Create_1_0 set to True when "is_applicable" = "applicable", set to False when "is_applicable" = "not_applicable"]
 	party CounterpartyRoleEnum (0..2) <"The party which is specified as Calculation Agent for Initial Margin.">
 		[synonym ISDA_Create_1_0 set to CounterpartyRoleEnum -> Party1 when "calculation_agent" = "partyA"]
 		[synonym ISDA_Create_1_0 set to CounterpartyRoleEnum -> Party1 when "calculation_agent" = "party_A"]
@@ -282,14 +277,6 @@ type CalculationAgentTerms: <"A class to specify Calculation Agent for purposes 
 
 	condition: one-of
 	
-	// condition CalculationAgentParty: <"A data rule to enforce that party should not be specified when bespoke Calculation Agent Terms exist.">
-	// 	if bespokeCalculationAgentTerms exists then party is absent
-
-	// condition CalculationAgentTerms: <"A data rule to enforce that bespoke terms should only be specified when applicable.">
-	// 	if isApplicable = True then bespokeCalculationAgentTerms exists
-	// 	else if isApplicable = False then bespokeCalculationAgentTerms is absent
-
-
 type CalculationAndTiming: <"A class to specify the Calculation, Valuation and Timing terms specific to the agreement.">
 
 	calculationAgentTerms CalculationAgentTerms (0..1) <"The calculation agent terms applicable to the agreement.">
@@ -397,8 +384,8 @@ type CollateralTransferAgreementElections: <"The set of elections which specify 
 	postingObligations PostingObligations (1..1) <"The security providers posting obligations.">
 		[synonym ISDA_Create_1_0 value "security_provider_posting_obligations" mapper "PostingObligations"]
 	// [documentReference ISDA CtaInitialMargin 2019 paragraph "13" section "General Principles (ii)"]
-	substitutedRegime SubstitutedRegime (1..1) <"The specification of Additional regimes for purposes of determining whether a Regulatory Event has occurred.">
-		[synonym ISDA_Create_1_0 value "substituted_regimes"]
+	substitutedRegime SubstitutedRegime (1..*) <"The specification of Additional regimes for purposes of determining whether a Regulatory Event has occurred.">
+		[synonym ISDA_Create_1_0 value "substituted_regimes" mapper "CtaSubstitutedRegime"]
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "General Principles (k)"]
 	baseAndEligibleCurrency BaseAndEligibleCurrency (1..1) <"The base and eligible currency(ies) for the document as specified by the parties to the agreement.">
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "1"]
@@ -463,9 +450,9 @@ type CollateralValuationAgentElection: <"A class to specify Collateral Valuation
 
 type ConditionsPrecedent: <"A class to specify the two set of elections that may overwrite the default Condition Precedent provision as specified in Paragraph 4, (a) of the ISDA 2016 Credit Support Annex for Initial Margin and the ISDA 2016 Credit Support Annex for Variation Margin. | ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e): Conditions Precedent. | ISDA 2018 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e): Conditions Precedent. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f): Conditions Precedent. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e): Conditions Precedent. | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (e): Conditions Precedent and Secured Party’s Rights and Remedies.">
 
-	conditionsPrecedentElection boolean (0..1) <"The election to specify whether the standard Conditions Precedent apply">
-		[synonym ISDA_Create_1_0 set to True when "conditions_precedent->conditions_precedent" = "not specified", set to False when "conditions_precedent->conditions_precedent" = "paragraph_3_1_will_not_apply"]
-		[synonym ISDA_Create_1_0 set to True when "conditions_precedent->specified" = "false", set to False when "conditions_precedent->specified" = "true"]
+	conditionsPrecedentElection ExceptionEnum (0..1) <"The election to specify whether the standard Conditions Precedent apply">
+		[synonym ISDA_Create_1_0 value "specified" path "conditions_precedent"]
+		[synonym ISDA_Create_1_0 value "conditions_precedent" path "conditions_precedent"]
 	customProvision string (0..1) <"The custom provisions that might be specified by the parties to the agreement for the purpose of overwriting the default Condition Precedent provision as specified in ISDA 2016 Credit Support Annex for Initial Margin and the ISDA 2016 Credit Support Annex for Variation Margin, Paragraph 4, (a). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e)(i). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(i). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(i). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, : Conditions Precedent and Secured Party’s Rights and Remedies.">
 		[synonym ISDA_Create_1_0 value "specify" path "conditions_precedent"]
 	accessConditions AccessConditions (1..1) <"The parties' election with respect to the Termination Events that will be deemed an Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (e): Conditions Precedent and Secured Party’s Rights and Remedies.">
@@ -474,11 +461,11 @@ type ConditionsPrecedent: <"A class to specify the two set of elections that may
 
 	condition CustomProvision: <"When a Custom Provision is specified then the Conditions Precedent Election should be absent.">
 		if customProvision exists
-		then conditionsPrecedentElection = False
+		then conditionsPrecedentElection = ExceptionEnum->Other
 
 type ContactElection: <"A class to specify the parties' election to specify contact information, in relation to elections such as the Addresses for Transfer or the Demand and Notices as specified in the ISDA Credit Support Annex agreement.">
 
-	partyElection PartyContactInformation (2..2 ) <"The parties' contact information election.">
+	partyElection PartyContactInformation (2..2) <"The parties' contact information election.">
 
 type ControlAgreement: <"A class to specify the relationship between the Control Agreement and the Credit Support Agreement.">
 
@@ -531,8 +518,8 @@ type CreditSupportAgreementElections: <"The set of elections which specify a Cre
 		[synonym ISDA_Create_1_0 value "pledgor_posting_obligations" mapper "PostingObligations"]
 		[synonym ISDA_Create_1_0 value "obligor_posting_obligations" mapper "PostingObligations"]
 	// [documentReference ISDA CtaInitialMargin 2019 paragraph "13" section "General Principles (ii)"]
-	substitutedRegime SubstitutedRegime (1..1) <"The specification of Additional regimes for purposes of determining whether a Regulatory Event has occurred.">
-		[synonym ISDA_Create_1_0 value "substituted_regimes"]
+	substitutedRegime SubstitutedRegime (1..*) <"The specification of Additional regimes for purposes of determining whether a Regulatory Event has occurred.">
+		[synonym ISDA_Create_1_0 value "substituted_regimes" mapper "CsaSubstitutedRegime"]
 	// [documentReference Euroclear CtaInitialMargin 2019 paragraph "13" section "General Principles (k)"]
 	baseAndEligibleCurrency BaseAndEligibleCurrency (1..1) <"The base and eligible currency(ies) for the document as specified by the parties to the agreement.">
 	// [documentReference ISDA CsaVariationMargin 2016 paragraph "13" New York Law section "a"]
@@ -602,7 +589,6 @@ type CreditSupportAgreementElections: <"The set of elections which specify a Cre
 
 type CreditSupportObligationsVariationMargin: <"A class to specify the Credit Support Obligations applicable to the Variation Margin Credit Support Annex and which are common among the English, Japanese and New York governing laws. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c): Credit Support Obligations.">
 
-	eligibleCollateral EligibleCollateralVariationMargin (1..1) <"The eligible collateral elections by the parties to the Credit Support Annex for Variation Margin. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c)(ii): Eligible Collateral (VM).">
 	ineligibleCreditSupport IneligibleCreditSupport (0..1) <"The parties to which the provisions of Paragraph 11(g) of the ISDA 2016 Credit Support Annex for Variation Margin will apply to. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c)(iii): Legally Ineligible Credit Support (VM).">
 	majorCurrency string (0..*) <"The additional currencies that are specified as Major Currency for the purpose of applying the FX Haircut Percentage. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c)(v)(B): FX Haircut Percentage.">
 		[metadata scheme]
@@ -688,7 +674,7 @@ type CustodianTerms: <"A class to specify the requirements applicable to the cus
 	 * in the ISDA CSA 2016 for Variation Margin, Paragraph 13, (h)(i)(2).
 	 */
 	minimumAssets Money (0..1) <"The minimal level of assets requirement with respect to the custody agent.">
-	minimumRating CreditNotations (0..1) <"The minimal rating requirement with respect to the custody agent.">
+	minimumRating CreditNotation (0..1) <"The minimal rating requirement with respect to the custody agent.">
 	initialDesignation LegalEntity (0..1) <"The 2016 ISDA CSA for Variation Margin provides the ability for the parties to specify the initial custodian.">
 
 type CustodyArrangements: <"A class to specify the Custody Arrangements for the agreement.">
@@ -778,12 +764,13 @@ type DistributionAndInterestPayment: <"A class to specify the Distributions and 
 type ElectiveAmountElection: <"A class to specify the party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
 
 	party CounterpartyRoleEnum (1..1) <"The elective party.">
-	zeroAmount boolean (1..1) <"A boolean election to express that the elective amount is zero (True) or another value (False).">
+	// zeroAmount boolean (1..1) <"A boolean election to express that the elective amount is zero (True) or another value (False).">
+	electiveAmount ElectiveAmountEnum (0..1) <"Specifies an enumerated election to express the elective amount.">
 	amount Money (0..1) <"The elective amount when expressed as a currency amount. The associated PartyElectiveAmount_amount data rule enforces that the currency amount is actually greater than 0.">
 	customElection string (0..1) <"The elective amount when expressed as a custom election by the party.">
 
 	condition NonZeroAmount: <"When the elective amount is not zero either a currency amount or a custom election must exist.">
-		if zeroAmount = False then (amount or customElection) exists
+		if electiveAmount is absent then (amount or customElection) exists
 
 
 type EligibilityToHoldCollateral: <"A class to specify the conditions under which a party and its custodian(s) are entitled to hold collateral. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (h)(i): Eligibility to Hold Posted Collateral (VM) Custodians (VM).">
@@ -796,18 +783,6 @@ type EligibilityToHoldCollateral: <"A class to specify the conditions under whic
 	custodianTerms CustodianTerms (0..1) <"The restrictions that might be required by a party from the other party's custodian agent to hold its posted collateral.">
 	eligibleCountry string (0..*) <"The restrictions that might be required by a party from the other party in terms of country(ies) where collateral can be held.">
 		[metadata scheme]
-
-
-type EligibleCollateralVariationMarginElection: <"A class to specify the parties' elections with respect to the eligible collateral for each of the respective parties when acting as a pledgor/chargor/obligor. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c)(ii): Eligible Collateral (VM).">
-
-	party CounterpartyRoleEnum (1..1) <"The elective party.">
-	eligibleCollateral EligibleCollateral (1..*) <"The eligible collateral for the specified party (acting as the Pledgor in the New York Law agreement, as the Chargor in the English Law deed and as the Obligor in the Japanese Law agreement). ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c)(ii): Eligible Collateral (VM).">
-
-
-type EligibleCollateralVariationMargin: <"A class to specify the eligible collateral elections by the respective parties to the Credit Support Annex for Variation Margin. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c)(ii): Eligible Collateral (VM).">
-
-	// TODO: change cardinality to (2..2) when Ingestion process is able to support normalising external models (https://trello.com/c/TnJWvKes)
-	partyElection EligibleCollateralVariationMarginElection (1..1) <"The parties' eligible collateral elections.">
 
 type EligibleCurrencyInterestRate: <"A class to specify the interest rate associated with initial margin collateral. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Distributions and Interest Payment (IM).">
 
@@ -995,6 +970,7 @@ type JurisdictionRelatedTerms: <"A class to specify terms jurisdiction related t
 	japaneseSecuritiesProvisions JapaneseSecuritiesProvisions (0..1) <"The Japanese Securities Provisions election.">
 		// [documentReference ISDAEuroclear CtaInitialMargin 2019 paragraph "13" section "19 (c)"]
 		[synonym ISDA_Create_1_0 value "japanese_securities_provisions"]
+		[synonym ISDA_Create_1_0 value "japanese_security_provisions"]
 		[synonym ISDA_Create_1_0 value "japanese_collateral_provisions"]
 	exclusiveJurisdiction boolean (0..1) <"Classification of optional exclusive jurisdiction terms">
 		[synonym ISDA_Create_1_0 set to True when "jurisdiction->exclusive_jurisdiction" = "applicable", set to False when "jurisdiction->exclusive_jurisdiction" = "not_applicable"]
@@ -1024,10 +1000,6 @@ type MinimumTransferAmountAmendment: <" A class to specify whether Amendment to 
 	condition AmendmentNotApplicable: <"A data rule to enforce that the Effective Date and Party Elections should be absent when the Minimum Transfer Amount Amendment is stated as not specified for the 											agreement.">
 		if isApplicable = False
 		then effectiveDate is absent and partyElections is absent
-
-	condition AmendmentApplicable: <"A data rule to enforce that the Effective Date and Party Elections should be absent when the Minimum Transfer Amount Amendment is stated as not specified for the 											agreement.">
-		if isApplicable = True
-		then effectiveDate exists and partyElections exists
 
 type NotificationTime: <"A class to specify the time by which a demand for the Transfer of Eligible Credit Support (IM) or Posted Credit Support (IM) needs to be made in order for the transfer to take place in accordance with the Transfer Timing provisions. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (d)(iii): Notification Time. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(iii): Notification Time. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(iii): Notification Time.">
 
@@ -1137,16 +1109,15 @@ type ProcessAgentElection: <"A class to specify the parties' respective election
 	isApplicable boolean (1..1) <"The qualification of whether the Process Agent is applicable (True) or not applicable (False).">
 		[synonym ISDA_Create_1_0 set to True when "partyA_process_agent" = "other", set to False when "partyA_process_agent" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_process_agent" = "other", set to False when "partyB_process_agent" = "not_applicable"]
-	specification string (0..1) <"The Process Agent specification, when applicable.">
-		[synonym ISDA_Create_1_0 value "partyA_specify" maps 2] // TODO: remove "maps 2" once migration complete
-		[synonym ISDA_Create_1_0 value "partyB_specify" maps 2] // TODO: remove "maps 2" once migration complete
+	processAgent PartyContactInformation (0..1) <"The Process Agent specification, when applicable.">
+
 	condition Applicable: <"A data rule to enforce that the Process Agent must be specified when it is applicable.">
 		if isApplicable = True
-		then specification exists
+		then processAgent exists
 
 	condition NotApplicable: <"A data rule to enforce that the Process Agent cannot be specified if deemed not applicable.">
 		if isApplicable = False
-		then specification is absent
+		then processAgent is absent
 
 type RecalculationOfValue: <"A class to specify terms for Recalculation of the Market Value of Posted Collateral when a dispute has been failed to be resolved by Resolution Time.">
 
@@ -1166,12 +1137,9 @@ type Regime: <"A class to specify one or more regimes that may be specified as r
 	[synonym AcadiaSoft_AM_1_0 value "Regime"]
 
 	applicableRegime ApplicableRegime (1..*) <"A class to specify the regime(s) that parties to a legal agreement, such as the ISDA 2016 and 2018 CSA for Initial Margin, might agree to apply to one or both parties when acting as collateral taker, and specific terms associated with that application.">
-		[synonym ISDA_Create_1_0 value "australia", "canada", "cftc", "emir", "hong_kong", "japan", "prudential", "sec", "singapore", "switzerland" mapper "ApplicableRegime"]
+		[synonym ISDA_Create_1_0 value "australia", "canada", "cftc", "emir", "hong_kong", "japan", "prudential", "sec", "singapore", "switzerland", "additional_regimes" mapper "ApplicableRegime"]
 	fallbackToMandatoryMethodDays number (0..1) <"The specification of the number of days after effective delivery of notice that Mandatory method fallback applies. Specification is only required when one or more Regimes have Fall Back to Mandatory Method elected as a SIMM exception.">
 		[synonym ISDA_Create_1_0 value "fallback_to_mandatory_method_days" path "fallback_to_mandatory_method"]
-	additionalRegime AdditionalRegime (0..*) <"The additional regulatory regime(s) that might be specified by the parties to a legal agreement. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, General Principles, (ll): The parties may from time to time agree in writing that other regimes also comprise `Regimes` and that the General Principles be adopted and/or amended to accommodate such additional Regimes.">
-		[synonym ISDA_Create_1_0 value "additional_regimes"  mapper "AdditionalRegime"]
-
 
 // TODO - Data Rule required as per description below
 //	condition FallbackToMandatoryMethodDays: <"A data rule to enforce that the specification of Fallback to Mandatory Method Days should only exist when one or more Regimes have Fallback to Mandatory Method elected as a SIMM exception.">
@@ -1271,6 +1239,7 @@ type SecurityAgreementElections: <"The set of elections which specify a Security
 									set to False when "security_provider_full_discharge_condition->is_applicable" = "not_applicable"]
 	appropriatedCollateralValuation AppropriatedCollateralValuation (0..1) <"The election for the Valuation of Appropriate Collateral.">
 		[synonym ISDA_Create_1_0 value "valuation_of_appropriated_collateral"]
+		[synonym ISDA_Create_1_0 value "valuation_of_appropriated_securities"]
 	processAgent ProcessAgent (0..1) <"The Process Agent that might be appointed by the parties to the agreement.">
 		[synonym ISDA_Create_1_0 value "process_agent"]
 	jurisdictionRelatedTerms JurisdictionRelatedTerms (0..1) <"The jurisdiction specific terms">
@@ -1363,43 +1332,17 @@ type SimmVersion: <"A class to specify the ISDA SIMM version that applies to the
 
 type SubstitutedRegime: <"A class to specify each party's election with respect to the Substituted Regimes that will be applicable...">
 
-	partyElection SubstitutedRegimeElection (2..2) <"The parties' Substituted Regime election.">
+	regime RegulatoryRegimeEnum (0..1) <"The applicable regulatory regime, as specified through an enumeration.">
+    additionalRegime string (0..1) <"The additional regulatory regime as specified by the parties.">
+	regimeTerms SubstitutedRegimeTerms (2..2) <"Specifies the applicability of the Substituted Regime as denoted in the Substituted Regime Table as part of certain legal agreements, such as such as the ISDA 2016 and 2018 CSA for Initial Margin.">
 
-type SubstitutedRegimeElection: <"A class to specify the Substituted Regimes that will be deemed applicable...">
+	condition Choice: <"The applicable regime should be specified either as an enumeration or as an additional regime specified by the parties.">
+		required choice regime, additionalRegime
 
-	party CounterpartyRoleEnum (1..1) <"The elective party.">
-		[synonym ISDA_Create_1_0 set to CounterpartyRoleEnum -> Party1 when "partyA_emir" = "applicable", set to CounterpartyRoleEnum -> Party1 when "partyA_emir" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to CounterpartyRoleEnum -> Party2 when "partyB_emir" = "applicable", set to CounterpartyRoleEnum -> Party2 when "partyB_emir" = "not_applicable"]
-	emir boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "partyA_emir" = "applicable", set to False when "partyA_emir" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_emir" = "applicable", set to False when "partyB_emir" = "not_applicable"]
-	prudential boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "partyA_prudential" = "applicable", set to False when "partyA_prudential" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_prudential" = "applicable", set to False when "partyB_prudential" = "not_applicable"]
-	cftc boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "partyA_cftc" = "applicable", set to False when "partyA_cftc" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_cftc" = "applicable", set to False when "partyB_cftc" = "not_applicable"]
-	sec boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "partyA_sec" = "applicable", set to False when "partyA_sec" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_sec" = "applicable", set to False when "partyB_sec" = "not_applicable"]
-	canada boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "partyA_canada" = "applicable", set to False when "partyA_canada" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_canada" = "applicable", set to False when "partyB_canada" = "not_applicable"]
-	switzerland boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "partyA_switzerland" = "applicable", set to False when "partyA_switzerland" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_switzerland" = "applicable", set to False when "partyB_switzerland" = "not_applicable"]
-	japan boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "partyA_japan" = "applicable", set to False when "partyA_japan" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_japan" = "applicable", set to False when "partyB_japan" = "not_applicable"]
-	australia boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "partyA_australia" = "applicable", set to False when "partyA_australia" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_australia" = "applicable", set to False when "partyB_australia" = "not_applicable"]
-	hong_kong boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "partyA_hong_kong" = "applicable", set to False when "partyA_hong_kong" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_hong_kong" = "applicable", set to False when "partyB_hong_kong" = "not_applicable"]
-	singapore boolean (1..1)
-		[synonym ISDA_Create_1_0 set to True when "partyA_singapore" = "applicable", set to False when "partyA_singapore" = "not_applicable"]
-		[synonym ISDA_Create_1_0 set to True when "partyB_singapore" = "applicable", set to False when "partyB_singapore" = "not_applicable"]
+type SubstitutedRegimeTerms: <"Specifies the applicability of the Substituted Regime as denoted in the Substituted Regime Table as part of certain legal agreements, such as such as the ISDA 2016 and 2018 CSA for Initial Margin.">
+
+	party CounterpartyRoleEnum (1..1) <"The party for which the regime terms are being specified when acting as collateral taker.">
+	isApplicable boolean (1..1) <"The specification of whether the regime is elected as applicable to the party when acting as collateral taker.">
 
 type Substitution: <"A class to specify the conditions under which the Security Provider can substitute posted collateral.">
 
@@ -1499,12 +1442,17 @@ type AssetCriteria: <"Criteria used to specify eligible collateral assets.">
 	maturityRange PeriodRange (0..1) <"Filter based on the underlying asset maturity.">
 	productIdentifier ProductIdentifier (0..*) <"Filter based on specific instrument identifiers (e.g. specific ISINs, CUSIPs etc).">
 	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a product.">
-	seasoned boolean (0..1) <"Filter based on whether underlying security is seasoned."> // IS THIS REQUIRED - ISDA feedback is that this should be removed
-	sinkable boolean (0..1) <"Filter based on whether underlying security is sinkable."> // IS THIS REQUIRED - ISDA feedback is that this should be removed
-	domesticCurrencyIssued boolean (0..1) <"Security must be denominated in the domestic currency of the issuer.">
+	domesticCurrencyIssued boolean (0..1) <"Identifies that the Security must be denominated in the domestic currency of the issuer.">
+	listing ListingType (0..1) <"Specifies the exchange, index or sector specific to listing of a security.">
+	// seasoned boolean (0..1) <"Filter based on whether underlying security is seasoned."> // IS THIS REQUIRED - ISDA feedback is that this should be removed
+	// sinkable boolean (0..1) <"Filter based on whether underlying security is sinkable."> // IS THIS REQUIRED - ISDA feedback is that this should be removed
 
 	condition Choice: <"If any are specified, only one of AssetType, ProductTaxonomy or ProductIdentifer should exist.">
 		optional choice collateralAssetType, productTaxonomy, productIdentifier
 
-
-		
+type ListingType: <"Filter based on an underlying corporate financial official listing defined at a stock exchange.">
+	exchange string (0..1) <"Filter based on the Primary Stock Exchange facilitating the listing of companies, exchange of Stocks, Exchange traded Derivatives, Bonds, and other Securities expressed in ISO standard 10383.">
+		[metadata scheme]
+	sector string (0..1) <"Filter based on an industry sector defined under a system for classifying industry types such as ‘Global Industry Classification Standard (GICS)’ and ‘North American Industry Classification System (NAICS)’">
+		[metadata scheme]
+	index Index (0..1) <"Filter based on an index that measures a stock market, or a subset of a stock market.">

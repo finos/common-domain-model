@@ -377,12 +377,14 @@ type RateObservation: <"A class defining parameters associated with an individua
 type CreditNotation: <"A class to specify the credit notation as the combination of agency, notation, scale and debt type qualifications.">
 
 	agency CreditRatingAgencyEnum (1..1) <"The credit agency to which the other variables (notation, scale, debt type) refer to.">
-		[metadata scheme]
+		// [metadata scheme]
 	notation string (1..1) <"The credit rating notation. As it varies among credit rating agencies, FpML doesn't specify a default scheme.">
 		[metadata scheme]
 	scale string (0..1) <"The credit rating scale, with a typical distinction between short term, long term. FpML doesn't specify a default scheme, which is hence not specified as an enumeration as part of the CDM.">
 		[metadata scheme]
 	debt CreditRatingDebt (0..1) <"The credit rating debt type (e.g. long term, high yield, deposits, ...) associated with the credit rating notation and scale.">
+	outlook CreditRatingOutlookEnum (0..1) <"Assesses the potential direction of a long-term credit rating over the intermediate term, which is generally up to two years for investment grade and generally up to one year for speculative grade.">
+	creditWatch CreditRatingCreditWatchEnum (0..1)  <"Regarding the potential direction of a short-term or long-term rating. It focuses on identifiable events and short-term trends that cause ratings to be placed under special surveillance.">
 
 type CreditNotations: <"The credit rating notation higher level construct, which provides the ability to specify multiple rating notations.">
 
@@ -394,6 +396,7 @@ type CreditNotations: <"The credit rating notation higher level construct, which
 type CreditRatingDebt: <"The credit rating debt type(s) associated with the credit rating notation and scale. When several debt types are specified, they must be qualified through an 'any' or 'all'.">
 
 	debtType string (0..1) <"This attribute is to be specified when only one debt type is specified. FpML doesn't specify values in relation to the associated scheme, which is hence not specified as an enumeration as part of the CDM.">
+	// potential values: Long Term, Short Term, High Yield, Deposits.  Make cardinality (0..*) and remove multiple debt types
 		[metadata scheme]
 	debtTypes MultipleDebtTypes (0..1) <"This attribute provides the ability to specify several debt types, alongside an 'any' or 'all' or all condition. As an example, Baa1 rating is required for any long term debt and deposit.">
 
@@ -449,10 +452,3 @@ type CalculationAgent: <"A class defining the ISDA calculation agent responsible
 
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice calculationAgentParty, calculationAgentPartyEnum
-
-
-
-
-
-
-

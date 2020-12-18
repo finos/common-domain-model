@@ -2,6 +2,7 @@ package cdm.legalagreement.csa.processor;
 
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.legalagreement.csa.ElectiveAmountElection;
+import cdm.legalagreement.csa.ElectiveAmountEnum;
 import cdm.legalagreement.csa.Threshold;
 import cdm.legalagreement.csa.Threshold.ThresholdBuilder;
 import cdm.observable.asset.Money;
@@ -51,7 +52,7 @@ class ThresholdMappingProcessorTest {
 		ElectiveAmountElection partyB = getPartyElection(threshold, CounterpartyRoleEnum.PARTY_2);
 		assertNull(partyB.getCustomElection());
 		assertNull(partyB.getAmount());
-		assertTrue(partyB.getZeroAmount());
+		assertEquals(ElectiveAmountEnum.ZERO, partyB.getElectiveAmount());
 	}
 
 	private ElectiveAmountElection getPartyElection(Threshold threshold, CounterpartyRoleEnum party) {
