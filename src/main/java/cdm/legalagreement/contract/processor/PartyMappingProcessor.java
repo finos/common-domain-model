@@ -1,5 +1,6 @@
 package cdm.legalagreement.contract.processor;
 
+import cdm.event.common.Trade;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -33,7 +34,9 @@ public class PartyMappingProcessor extends MappingProcessor {
 
 	@Override
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		createHelper((TradableProductBuilder) builder).addCounterparties();
+		Optional.ofNullable(((Trade.TradeBuilder) builder).getTradableProduct())
+				.map(this::createHelper)
+				.ifPresent(PartyMappingHelper::addCounterparties);
 	}
 
 	@NotNull

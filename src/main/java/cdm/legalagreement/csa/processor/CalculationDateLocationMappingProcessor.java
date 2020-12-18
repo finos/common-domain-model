@@ -46,7 +46,7 @@ public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 				"_calculation_date_location" :
 				"_" + synonymPath.getLastElement().getPathName();
 		setValueAndUpdateMappings(synonymPath.addElement(party + selectLocationSynonymValue),
-				(value) -> calculationDateLocationElectionBuilder.setParty(toCounterpartyEnum(party)));
+				(value) -> calculationDateLocationElectionBuilder.setParty(toCounterpartyRoleEnum(party)));
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_location"),
 				(value) -> getEnumValue(synonymToBusinessCenterEnumMap, value, BusinessCenterEnum.class)

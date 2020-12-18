@@ -1,6 +1,6 @@
 package cdm.base.staticdata.party.processor;
 
-import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -26,8 +26,8 @@ public abstract class BuyerSellerMappingProcessor extends MappingProcessor {
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		PartyMappingHelper.getInstance(getContext())
 				.ifPresent(helper -> getSetter(parent)
-						.ifPresent(setter -> helper.setCounterpartyEnum(getModelPath(), synonymPath, setter)));
+						.ifPresent(setter -> helper.setCounterpartyRoleEnum(getModelPath(), synonymPath, setter)));
 	}
 
-	protected abstract Optional<Consumer<CounterpartyEnum>> getSetter(RosettaModelObjectBuilder builder);
+	protected abstract Optional<Consumer<CounterpartyRoleEnum>> getSetter(RosettaModelObjectBuilder builder);
 }

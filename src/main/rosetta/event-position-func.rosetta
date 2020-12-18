@@ -1,10 +1,11 @@
-namespace cdm.event.position
+namespace cdm.event.position : <"Position concepts: portfolio and portfolio aggregation.">
 version "${project.version}"
 
 import cdm.observable.common.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 import cdm.legalagreement.contract.*
+import cdm.event.common.*
 
 /*
  * Variation Margin Mark to Market Calculation 
@@ -23,18 +24,18 @@ import cdm.legalagreement.contract.*
  */
 func FxMarkToMarket: <"Representation of sample mark to market calculation provided by a member firm.">
 	// TODO Never referenced in CDM
-	inputs: contract Contract (1..1)
+	inputs: trade Trade (1..1)
 	output: value number (1..1)
 	
 	alias forwardPayout: <"Alias to the forward pay out.">
-		contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> forwardPayout only-element
+		trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> forwardPayout only-element
 	alias forwardExchangeRate: <"Alias for the forward price.">
-		contract -> tradableProduct -> priceNotation -> price -> exchangeRate	
+		trade -> tradableProduct -> priceNotation -> price -> exchangeRate	
 	alias currency1Quantity: <"Alias for the forward price.">
-		ExtractQuantityByCurrency(contract -> tradableProduct -> quantityNotation, forwardExchangeRate only-element -> quotedCurrencyPair -> currency1)
+		ExtractQuantityByCurrency(trade -> tradableProduct -> quantityNotation, forwardExchangeRate only-element -> quotedCurrencyPair -> currency1)
 	
 	alias currency2Quantity: <"Alias for the forward price.">
-		ExtractQuantityByCurrency(contract -> tradableProduct -> quantityNotation, forwardExchangeRate only-element -> quotedCurrencyPair -> currency2 )
+		ExtractQuantityByCurrency(trade -> tradableProduct -> quantityNotation, forwardExchangeRate only-element -> quotedCurrencyPair -> currency2 )
 	
 	alias quotedQuantity: <"The amount of the quoted currency.">
  		if forwardExchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
@@ -50,7 +51,7 @@ func FxMarkToMarket: <"Representation of sample mark to market calculation provi
 		InterpolateForwardRate(forwardPayout)
 	
 	condition: <"The forwardPayout on the contract must exist.">
-		contract -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> forwardPayout exists
+		trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> forwardPayout exists
 	
 	assign-output value:
 		(quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate

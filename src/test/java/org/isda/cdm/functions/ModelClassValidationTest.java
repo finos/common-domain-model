@@ -1,36 +1,34 @@
 package org.isda.cdm.functions;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
-
-import com.rosetta.model.lib.validation.ValidationResult;
-
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import cdm.legalagreement.contract.Contract;
-import cdm.legalagreement.contract.meta.ContractMeta;
+import cdm.event.common.Trade;
+import cdm.event.common.meta.TradeMeta;
+import com.rosetta.model.lib.validation.ValidationResult;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ModelClassValidationTest {
 
 	@Test
 	void checkErrorMessages() {
-		Contract contract = 
-				Contract.builder()
-					.addPartyRole(PartyRole.builder()
-							.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1").build())
-							.setRole(PartyRoleEnum.DETERMINING_PARTY)
-							.build())
-					.addPartyRole(PartyRole.builder()
-							.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1").build())
-							.setRole(PartyRoleEnum.DETERMINING_PARTY)
-							.build())
-					.build();
+		Trade tradeState =
+            Trade.builder()
+                    .addPartyRole(PartyRole.builder()
+                            .setPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1").build())
+                            .setRole(PartyRoleEnum.DETERMINING_PARTY)
+                            .build())
+                    .addPartyRole(PartyRole.builder()
+                            .setPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1").build())
+                            .setRole(PartyRoleEnum.DETERMINING_PARTY)
+                            .build())
+                .build();
 
-		ValidationResult<? super Contract> result = new ContractMeta().validator().validate(null, contract);
+		ValidationResult<? super Trade> result = new TradeMeta().validator().validate(null, tradeState);
 		assertEquals(
-				"contractIdentifier - Expected cardinality lower bound of [1] found [0]; tradeDate - Expected cardinality lower bound of [1] found [0]; tradableProduct - Expected cardinality lower bound of [1] found [0]",
+				"tradeIdentifier - Expected cardinality lower bound of [1] found [0]; tradeDate - Expected cardinality lower bound of [1] found [0]; tradableProduct - Expected cardinality lower bound of [1] found [0]",
 				result.getFailureReason().orElse("No error message"));
 	}
 

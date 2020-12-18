@@ -1,10 +1,10 @@
 package cdm.event.common.functions;
 
-import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.event.common.BusinessEvent;
 import cdm.event.common.ClearingInstruction;
-import cdm.legalagreement.contract.Contract;
+import cdm.event.common.TradeState;
 import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
@@ -30,10 +30,10 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 
 	@Test
 	void shouldCreateClearedTrade() throws IOException {
-		Contract alphaContract = getRosettaModelObject(Contract.class,"result-json-files/products/rates/EUR-Vanilla-account.json");
+		TradeState alphaContract = getRosettaModelObject(TradeState.class,"result-json-files/products/rates/EUR-Vanilla-account.json");
 
-		Party counterparty1 = ClearingUtils.getParty(alphaContract, CounterpartyEnum.PARTY_1);
-		Party counterparty2 = ClearingUtils.getParty(alphaContract, CounterpartyEnum.PARTY_2);
+		Party counterparty1 = ClearingUtils.getParty(alphaContract, CounterpartyRoleEnum.PARTY_1);
+		Party counterparty2 = ClearingUtils.getParty(alphaContract, CounterpartyRoleEnum.PARTY_2);
 		Party clearingParty = Party.builder()
 				.setName(FieldWithMetaString.builder()
 						.setValue("Clearing Party")

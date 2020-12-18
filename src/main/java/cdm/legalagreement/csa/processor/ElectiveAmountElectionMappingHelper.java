@@ -2,6 +2,7 @@ package cdm.legalagreement.csa.processor;
 
 import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import cdm.legalagreement.csa.ElectiveAmountElection;
+import cdm.legalagreement.csa.ElectiveAmountEnum;
 import cdm.observable.asset.Money;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
@@ -17,7 +18,7 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setV
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.setIsoCurrency;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyEnum;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
 class ElectiveAmountElectionMappingHelper {
 
@@ -49,9 +50,9 @@ class ElectiveAmountElectionMappingHelper {
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_" + synonymPath.getLastElement().getPathName()),
 				(value) -> {
-					electiveAmountElectionBuilder.setParty(toCounterpartyEnum(party));
+					electiveAmountElectionBuilder.setParty(toCounterpartyRoleEnum(party));
 					if (ZERO.equals(value)) {
-						electiveAmountElectionBuilder.setZeroAmount(true);
+						electiveAmountElectionBuilder.setElectiveAmount(ElectiveAmountEnum.ZERO);
 					}
 				}, mappings, path);
 

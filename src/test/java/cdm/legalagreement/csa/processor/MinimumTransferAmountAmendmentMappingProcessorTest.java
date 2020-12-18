@@ -1,6 +1,6 @@
 package cdm.legalagreement.csa.processor;
 
-import cdm.base.staticdata.party.CounterpartyEnum;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.legalagreement.csa.CollateralTransferAgreementElections;
 import cdm.legalagreement.csa.ElectiveAmountElection;
 import cdm.legalagreement.csa.MinimumTransferAmountAmendment;
@@ -48,19 +48,19 @@ class MinimumTransferAmountAmendmentMappingProcessorTest {
 
 		// assert
 
-		ElectiveAmountElection partyA = getPartyElection(minimumTransferAmountAmendment, CounterpartyEnum.PARTY_1);
+		ElectiveAmountElection partyA = getPartyElection(minimumTransferAmountAmendment, CounterpartyRoleEnum.PARTY_1);
 		assertNull(partyA.getCustomElection());
 		Money partyAAmount = partyA.getAmount();
 		assertEquals(1000, partyAAmount.getAmount().intValue());
 		assertEquals("JPY", partyAAmount.getCurrency().getValue());
 
-		ElectiveAmountElection partyB = getPartyElection(minimumTransferAmountAmendment, CounterpartyEnum.PARTY_2);
+		ElectiveAmountElection partyB = getPartyElection(minimumTransferAmountAmendment, CounterpartyRoleEnum.PARTY_2);
 		assertEquals("foo", partyB.getCustomElection());
 		assertNull(partyB.getAmount());
-		assertNull(partyB.getZeroAmount());
+		assertNull(partyB.getElectiveAmount());
 	}
 
-	private ElectiveAmountElection getPartyElection(MinimumTransferAmountAmendment minimumTransferAmountAmendment, CounterpartyEnum party) {
+	private ElectiveAmountElection getPartyElection(MinimumTransferAmountAmendment minimumTransferAmountAmendment, CounterpartyRoleEnum party) {
 		return minimumTransferAmountAmendment.getPartyElections().stream()
 				.filter(e -> party == e.getParty())
 				.findFirst()

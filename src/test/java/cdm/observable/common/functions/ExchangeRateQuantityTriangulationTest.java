@@ -1,27 +1,22 @@
 package cdm.observable.common.functions;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import cdm.event.common.TradeState;
+import cdm.observable.asset.PriceNotation;
+import cdm.observable.asset.QuantityNotation;
+import cdm.product.template.TradableProduct;
+import com.google.inject.Inject;
+import org.isda.cdm.functions.AbstractFunctionTest;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.List;
 
-import org.isda.cdm.functions.AbstractFunctionTest;
-import org.junit.jupiter.api.Test;
-
-import com.google.common.io.Resources;
-import com.google.inject.Inject;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-
-import cdm.legalagreement.contract.Contract;
-import cdm.observable.asset.PriceNotation;
-import cdm.observable.asset.QuantityNotation;
-import cdm.product.template.TradableProduct;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static util.ResourcesUtils.getObject;
 
 public class ExchangeRateQuantityTriangulationTest extends AbstractFunctionTest {
 
@@ -71,8 +66,8 @@ public class ExchangeRateQuantityTriangulationTest extends AbstractFunctionTest 
 	}
 
 	void shouldTriangulateFxRateAndNotionalAndReturnSuccess(String filename, int quantity1, int quantity2, double rate, int scale) throws IOException {
-		Contract contract = getContract(FX_DIR + filename);
-		TradableProduct tradableProduct = contract.getTradableProduct();
+		TradeState tradeState = getObject(TradeState.class, FX_DIR + filename);
+		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 		List<PriceNotation> priceNotation = tradableProduct.getPriceNotation();
 		List<QuantityNotation> quantityNotation = tradableProduct.getQuantityNotation();
 
@@ -82,11 +77,5 @@ public class ExchangeRateQuantityTriangulationTest extends AbstractFunctionTest 
 		assertThat(func.quantity1(priceNotation, quantityNotation).get(), is(BigDecimal.valueOf(quantity1)));
 		assertThat(func.quantity2(priceNotation, quantityNotation).get(), is(BigDecimal.valueOf(quantity2)));
 		assertThat(func.rate(priceNotation, quantityNotation).get().setScale(scale, RoundingMode.HALF_UP), is(BigDecimal.valueOf(rate).setScale(scale, RoundingMode.HALF_UP)));
-	}
-
-	private Contract getContract(String resourceName) throws IOException {
-		URL url = Resources.getResource(resourceName);
-		String json = Resources.toString(url, Charset.defaultCharset());
-		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, Contract.class);
 	}
 }
