@@ -1,10 +1,17 @@
-# *CDM Model: Minor update to regulatory rule logic and regulatory test pack*
- 
-_What is being released_ 
+# *User Documentation: Namespace section*
 
-Regulatory rule logic and regulatory test cases were updated to account for recent changes to Primitives.
- 
-_Review Directions_
+_What is being released_
 
-* See `reporting rule TradeForEvent`, which has re-enabled support for events using `QuantityChangePrimitive`.
-* For the updated regulatory test pack, please look out for the next release to Rosetta Core Community Edition. 
+The Namespace section has been added to the CDM user documentation, in line with recent changes to the model.
+
+Notable changes and updates introduced:
+
+- New Namespace section.
+- Detailed description of individual components within the Namespace concept.
+- Addition of relevant examples to demonstrate model content.
+
+_Review direction_
+
+In the CDM Portal, review the CDM Documentation, in particular the section:
+
+- [Namespace](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#namespace)
