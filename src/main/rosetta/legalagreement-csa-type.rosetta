@@ -37,11 +37,6 @@ type AgencyRatingCriteria: <"A class to specify multiple credit notations alongs
 	creditNotation CreditNotation (1..*) <"Indicates the agency rating criteria specified for the asset or issuer.">
 	mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
 	referenceAgency CreditRatingAgencyEnum (0..1)
-	// scale string (0..1) <"The credit rating scale, with a typical distinction between short term, long term. FpML doesn't specify a default scheme, which is hence not specified as an enumeration as part of the CDM.  Short Term, Long Term, Financial Strength, Outlook, Watch.">
-	// 	[metadata scheme]
-	// debt CreditRatingDebt (0..1) <"The credit rating debt type (e.g. long term, high yield, deposits, ...) associated with the credit rating notation and scale.">
-	// outlook CreditRatingOutlookEnum (0..1) <"Assesses the potential direction of a long-term credit rating over the intermediate term, which is generally up to two years for investment grade and generally up to one year for speculative grade.">
-	// creditWatch CreditRatingCreditWatchEnum (0..1)  <"Regarding the potential direction of a short-term or long-term rating. It focuses on identifiable events and short-term trends that cause ratings to be placed under special surveillance.">
 
 	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
 		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
@@ -128,13 +123,6 @@ type AccessConditionsElections: <"A class to specify the Termination Events that
 	creditEventUponMerger boolean (1..1)
 		[synonym ISDA_Create_1_0 set to True when "partyA_credit_event_upon_merger" = "applicable", set to False when "partyA_credit_event_upon_merger" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_credit_event_upon_merger" = "applicable", set to False when "partyB_credit_event_upon_merger" = "not_applicable"]
-
-// type AdditionalRegime: <"A class to specify the additional regulatory regime(s) that might be elected by the parties to a legal agreement where such provision exists, such as the ISDA 2016 and 2018 CSA for Initial Margin.">
-
-// 	regime string (1..1) <"The additional regulatory regime as specified by the parties.">
-// 	regimeTerms RegimeTerms (2..2) <"The party elections with respect to the additional regime(s).">
-// 	additionalType AdditionalTypeEnum (0..1) <"The Additional Type of transaction that can require the collection or delivery of initial margin under the specified regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(B).">
-// 	additionalTerms string (0..1) <"The bespoke Additional Type for the purposes of Covered Transactions (IM).">
 
 // TODO - Condition required that additionalType should exist for 2016 CSD and be absent for 2018 CSD
 // TODO - Condition required that additionalTerms should only exist when additionalType is Other
@@ -465,8 +453,6 @@ type ConditionsPrecedent: <"A class to specify the two set of elections that may
 	conditionsPrecedentElection ExceptionEnum (0..1) <"The election to specify whether the standard Conditions Precedent apply">
 		[synonym ISDA_Create_1_0 value "specified" path "conditions_precedent"]
 		[synonym ISDA_Create_1_0 value "conditions_precedent" path "conditions_precedent"]
-		// [synonym ISDA_Create_1_0 set to True when "conditions_precedent->conditions_precedent" = "not specified", set to False when "conditions_precedent->conditions_precedent" = "paragraph_3_1_will_not_apply"]
-		// [synonym ISDA_Create_1_0 set to True when "conditions_precedent->specified" = "false", set to False when "conditions_precedent->specified" = "true"]
 	customProvision string (0..1) <"The custom provisions that might be specified by the parties to the agreement for the purpose of overwriting the default Condition Precedent provision as specified in ISDA 2016 Credit Support Annex for Initial Margin and the ISDA 2016 Credit Support Annex for Variation Margin, Paragraph 4, (a). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e)(i). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(i). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(i). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, : Conditions Precedent and Secured Party’s Rights and Remedies.">
 		[synonym ISDA_Create_1_0 value "specify" path "conditions_precedent"]
 	accessConditions AccessConditions (1..1) <"The parties' election with respect to the Termination Events that will be deemed an Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (e): Conditions Precedent and Secured Party’s Rights and Remedies.">
@@ -1154,9 +1140,6 @@ type Regime: <"A class to specify one or more regimes that may be specified as r
 		[synonym ISDA_Create_1_0 value "australia", "canada", "cftc", "emir", "hong_kong", "japan", "prudential", "sec", "singapore", "switzerland", "additional_regimes" mapper "ApplicableRegime"]
 	fallbackToMandatoryMethodDays number (0..1) <"The specification of the number of days after effective delivery of notice that Mandatory method fallback applies. Specification is only required when one or more Regimes have Fall Back to Mandatory Method elected as a SIMM exception.">
 		[synonym ISDA_Create_1_0 value "fallback_to_mandatory_method_days" path "fallback_to_mandatory_method"]
-	// additionalRegime AdditionalRegime (0..*) <"The additional regulatory regime(s) that might be specified by the parties to a legal agreement. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, General Principles, (ll): The parties may from time to time agree in writing that other regimes also comprise `Regimes` and that the General Principles be adopted and/or amended to accommodate such additional Regimes.">
-	// 	[synonym ISDA_Create_1_0 value "additional_regimes"  mapper "AdditionalRegime"]
-
 
 // TODO - Data Rule required as per description below
 //	condition FallbackToMandatoryMethodDays: <"A data rule to enforce that the specification of Fallback to Mandatory Method Days should only exist when one or more Regimes have Fallback to Mandatory Method elected as a SIMM exception.">
@@ -1360,44 +1343,6 @@ type SubstitutedRegimeTerms: <"Specifies the applicability of the Substituted Re
 
 	party CounterpartyRoleEnum (1..1) <"The party for which the regime terms are being specified when acting as collateral taker.">
 	isApplicable boolean (1..1) <"The specification of whether the regime is elected as applicable to the party when acting as collateral taker.">
-
-	// partyElection SubstitutedRegimeElection (2..2) <"The parties' Substituted Regime election.">
-
-// type SubstitutedRegimeElection: <"A class to specify the Substituted Regimes that will be deemed applicable...">
-
-// 	party CounterpartyRoleEnum (1..1) <"The elective party.">
-// 		[synonym ISDA_Create_1_0 set to CounterpartyRoleEnum -> Party1 when "partyA_emir" = "applicable", set to CounterpartyRoleEnum -> Party1 when "partyA_emir" = "not_applicable"]
-// 		[synonym ISDA_Create_1_0 set to CounterpartyRoleEnum -> Party2 when "partyB_emir" = "applicable", set to CounterpartyRoleEnum -> Party2 when "partyB_emir" = "not_applicable"]
-// 	emir boolean (1..1)
-// 		[synonym ISDA_Create_1_0 set to True when "partyA_emir" = "applicable", set to False when "partyA_emir" = "not_applicable"]
-// 		[synonym ISDA_Create_1_0 set to True when "partyB_emir" = "applicable", set to False when "partyB_emir" = "not_applicable"]
-// 	prudential boolean (1..1)
-// 		[synonym ISDA_Create_1_0 set to True when "partyA_prudential" = "applicable", set to False when "partyA_prudential" = "not_applicable"]
-// 		[synonym ISDA_Create_1_0 set to True when "partyB_prudential" = "applicable", set to False when "partyB_prudential" = "not_applicable"]
-// 	cftc boolean (1..1)
-// 		[synonym ISDA_Create_1_0 set to True when "partyA_cftc" = "applicable", set to False when "partyA_cftc" = "not_applicable"]
-// 		[synonym ISDA_Create_1_0 set to True when "partyB_cftc" = "applicable", set to False when "partyB_cftc" = "not_applicable"]
-// 	sec boolean (1..1)
-// 		[synonym ISDA_Create_1_0 set to True when "partyA_sec" = "applicable", set to False when "partyA_sec" = "not_applicable"]
-// 		[synonym ISDA_Create_1_0 set to True when "partyB_sec" = "applicable", set to False when "partyB_sec" = "not_applicable"]
-// 	canada boolean (1..1)
-// 		[synonym ISDA_Create_1_0 set to True when "partyA_canada" = "applicable", set to False when "partyA_canada" = "not_applicable"]
-// 		[synonym ISDA_Create_1_0 set to True when "partyB_canada" = "applicable", set to False when "partyB_canada" = "not_applicable"]
-// 	switzerland boolean (1..1)
-// 		[synonym ISDA_Create_1_0 set to True when "partyA_switzerland" = "applicable", set to False when "partyA_switzerland" = "not_applicable"]
-// 		[synonym ISDA_Create_1_0 set to True when "partyB_switzerland" = "applicable", set to False when "partyB_switzerland" = "not_applicable"]
-// 	japan boolean (1..1)
-// 		[synonym ISDA_Create_1_0 set to True when "partyA_japan" = "applicable", set to False when "partyA_japan" = "not_applicable"]
-// 		[synonym ISDA_Create_1_0 set to True when "partyB_japan" = "applicable", set to False when "partyB_japan" = "not_applicable"]
-// 	australia boolean (1..1)
-// 		[synonym ISDA_Create_1_0 set to True when "partyA_australia" = "applicable", set to False when "partyA_australia" = "not_applicable"]
-// 		[synonym ISDA_Create_1_0 set to True when "partyB_australia" = "applicable", set to False when "partyB_australia" = "not_applicable"]
-// 	hong_kong boolean (1..1)
-// 		[synonym ISDA_Create_1_0 set to True when "partyA_hong_kong" = "applicable", set to False when "partyA_hong_kong" = "not_applicable"]
-// 		[synonym ISDA_Create_1_0 set to True when "partyB_hong_kong" = "applicable", set to False when "partyB_hong_kong" = "not_applicable"]
-// 	singapore boolean (1..1)
-// 		[synonym ISDA_Create_1_0 set to True when "partyA_singapore" = "applicable", set to False when "partyA_singapore" = "not_applicable"]
-// 		[synonym ISDA_Create_1_0 set to True when "partyB_singapore" = "applicable", set to False when "partyB_singapore" = "not_applicable"]
 
 type Substitution: <"A class to specify the conditions under which the Security Provider can substitute posted collateral.">
 
