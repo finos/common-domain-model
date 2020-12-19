@@ -172,6 +172,7 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
 	    [synonym Workflow_Event value "state"]
 	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
+	transferHistory Transfer (0..*)
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definitioin details with observations to compute the reset value.">
 	resetValue number (1..1) <"Specifies the reset or fixing value. The fixing value could ">
@@ -197,6 +198,31 @@ type State: <"Defines the state of a trade at a point in the Trade's life cycle.
 	condition: <"When the position state is identified as closed, the closed state must also be specified.">
 	    if positionState = PositionStatusEnum -> Closed then
 		    closedState exists
+
+type Transfer:
+	identifier Identifier (1..1)
+		[metadata scheme]
+	quantity QuantityNotation (1..1)
+	payerReceiver PayerReceiver (1..1)
+	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
+	settlementOrigin SettlementOrigin (1..1)	
+
+type SettlementOrigin:
+	interestRatePayout InterestRatePayout (0..1)
+		[metadata reference]
+	securityPayout SecurityPayout (0..1)
+		[metadata reference]
+	cashflow Cashflow (0..1)
+		[metadata reference]
+	settlementTerms SettlementTerms (0..1)
+		[metadata reference]
+	optionSettlement OptionSettlement (0..1)
+		[metadata reference]
+	physicalSettlementTerms PhysicalSettlementTerms (0..1)
+		[metadata reference]
+	cashSettlementTerms CashSettlementTerms (0..1)
+		[metadata reference]
+	condition: one-of
 
 type Trade: <"Defines the output of a financial transaction between parties - a Business Event. A Trade impacts the financial position (i.e. the balance sheet) of involved parties.">
 	[metadata key]
@@ -665,22 +691,8 @@ type TermsChangePrimitive: <"Defines the primitive event to represent changes to
 
 type TransferPrimitive: <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security). The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
-
-	identifier string (0..1) <"The identifier which might be associated with the transfer.">
-		[metadata scheme]
-	settlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
-		[synonym Workflow_Event value "transferType"]
-	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
-		[synonym Workflow_Event value "settlementDate"]
-	cashTransfer CashTransferComponent (0..*) <"The cash transfer component of the transfer. In the case where several currencies are involved in the transfer, several components should be used, as the component supports one single currency amount.">
-		[synonym Workflow_Event value "cashTransfer"]
-	securityTransfer SecurityTransferComponent (0..*) <"The security transfer component of the transfer. In the case where several securities are involved in the transfer, several components should be used, as the component supports one single security.">
-		[synonym Workflow_Event value "securityTransfer"]
-	commodityTransfer CommodityTransferComponent (0..*)
-	status TransferStatusEnum (0..1) <"The transfer status, e.g. Instructed, Settled, ...">
-		[synonym Workflow_Event value "status"]
-	settlementReference string (0..1) <"The settlement reference, when applicable.">
-		[synonym Workflow_Event value "settlementReference"]
+	before TradeState (1..1)
+	after TradeState (1..1)
 
 /*
  * Only some of the attributes have been incorporated at this point, as some seem questionable (e.g. executionDateTime, which should be associated to the relevant execution event).
