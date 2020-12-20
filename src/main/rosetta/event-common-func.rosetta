@@ -988,6 +988,12 @@ func Create_CashTransferPrimitive: <"Function specification to generate a transf
 	output:
 		transfer TransferPrimitive (1..1)
 
+	assign-output transfer -> before:
+		tradeState
+
+	assign-output transfer -> after:
+		tradeState
+
 	assign-output transfer -> after -> transferHistory:
 		Create_Transfer( tradeState, date )
 
@@ -1027,6 +1033,11 @@ func Create_Transfer:
 
 	assign-output transfer -> settlementDate:
 		cashflow -> cashflowDate
+
+	assign-output transfer -> settlementOrigin -> equityPayout:
+		if tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout exists
+		then tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element as-key
+
 
 func ResolveCashflow: <"A product agnostic function that calculates the amount due to be transfered after a Reset Event.">
 	inputs:

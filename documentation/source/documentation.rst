@@ -613,6 +613,7 @@ A ``TransferPrimitive`` is a multi-purpose primitive that can represent the tran
  type TransferPrimitive:
  	[metadata key]
  	before TradeState (1..1)
+	    [metadata reference]
  	after TradeState (1..1)
 
 By design, the CDM treats the reset and the transfer primitive events separately because there is no one-to-one relationship between reset and transfer.
