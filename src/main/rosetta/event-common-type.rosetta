@@ -173,6 +173,7 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	    [synonym Workflow_Event value "state"]
 	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
 	transferHistory Transfer (0..*)
+	    [synonym Workflow_Event value "transferHistory"]
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definitioin details with observations to compute the reset value.">
 	resetValue number (1..1) <"Specifies the reset or fixing value. The fixing value could ">
@@ -200,12 +201,14 @@ type State: <"Defines the state of a trade at a point in the Trade's life cycle.
 		    closedState exists
 
 type Transfer:
-	identifier Identifier (1..1)
+	identifier Identifier (0..*)
 		[metadata scheme]
+	    [synonym Workflow_Event value "transferIdentifier"]
 	quantity QuantityNotation (1..1)
+	    [synonym Workflow_Event value "quantity"]
 	payerReceiver PayerReceiver (1..1)
 	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
-	settlementOrigin SettlementOrigin (1..1)	
+	settlementOrigin SettlementOrigin (0..1)
 
 type SettlementOrigin:
 	interestRatePayout InterestRatePayout (0..1)
@@ -695,7 +698,9 @@ type TransferPrimitive: <"A class to specify the transfer of assets between part
 	[metadata key]
 	before TradeState (1..1)
 	    [metadata reference]
+	    [synonym Workflow_Event value "fpmlTrade" path "before"]
 	after TradeState (1..1)
+	    [synonym Workflow_Event value "fpmlTrade" path "after"]
 
 /*
  * Only some of the attributes have been incorporated at this point, as some seem questionable (e.g. executionDateTime, which should be associated to the relevant execution event).

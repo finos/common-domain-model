@@ -226,6 +226,7 @@ type AssetIdentifier: <"Generic object to specify an identifier for a quantifiab
 	productIdentifier ProductIdentifier (0..1) <"Product identifier, when the quantifiable asset is a product.">
 	currency string (0..1) <"Currency identifier, when the quantifiable asset is a currency.">
 		[metadata scheme]
+		[synonym Workflow_Event value "settlementCurrency"]
 	rateOption FloatingRateOption (0..1) <"Rate option identifier, when the quantifiable asset is a floating rate.">
 
 	condition: one-of
@@ -244,7 +245,9 @@ type RateSpecificationBase:
 type QuantityNotation: <"Specification of a product's quantity as a single, non-negative amount. The asset identifier qualifies the quantity being specified and can be used as a referencing mechanism in the underlying payout legs to 'resolve' the product, by fetching the actual amount from the appropriate quantity notation. For some product cases, several quantity notations can be associated with a single product: e.g. for an Equity Swap, both the notional and (optionally) the number of securities can be specified, with a validation to check that they are consistent in relation to the equity price. ">
 
 	quantity NonNegativeQuantity (1..1) <"The quantity as a non-negative amount.">
+	    [synonym Workflow_Event value "quantity"]
 	assetIdentifier AssetIdentifier (1..1) <"identifier for the asset being quantified, allowing it to be positioned in the product definition.">
+	    [synonym Workflow_Event value "settlementAssetIdentifier"]
 
 	condition CurrencyAmount: <"When quantity type is specified as a currency amount, the quantity must be specified without unit.">
 		if assetIdentifier -> currency exists then quantity -> unit is absent
