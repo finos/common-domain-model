@@ -846,7 +846,7 @@ func Create_ContractFormationPrimitive: <"Function specification to create the p
 		if legalAgreement exists
 		then Create_LegalAgreementWithPartyReference(legalAgreement -> agreementTerms, legalAgreement -> agreementDate, legalAgreement -> effectiveDate, legalAgreement -> identifier, /*legalAgreement -> lineage,*/ legalAgreement -> agreementType, legalAgreement -> contractualParty, legalAgreement -> otherParty)
 
-func Create_Exercise: <"Constructs the business event that represents the exercise of an option in a pre-existing contractual product.">
+func Create_Exercise: <"Defines the process of putting into effect the rights specified in an options contract, such as to buy or sell a security.  Once exercised the option contract is terminated.">
  	[creation BusinessEvent]
  	inputs:
  		tradeState TradeState (1..1) <"Specifies a previously formed contractual product with an option payout. It is required that the description of the contractual product be contained within the previous business event, i.e. its lineage must contain the formation of a contractual product.">
@@ -906,7 +906,7 @@ func Create_Exercise: <"Constructs the business event that represents the exerci
  		if exerciseTerms -> settlement -> cashSettlementTerms exists then
  			Create_TransferPrimitive( execution -> trade )
 
-func Create_Reset: <"Defines how a Reset business event should be constructed.">
+func Create_Reset: <"Defines the process of applying a reference rate (also known as fixing rate) to a transaction, usually in order to calculate the settlement value of a periodic payment schedule between two parties.">
 	[creation BusinessEvent]
 	inputs:
 		tradeState TradeState (1..1) <"Represents the trade to which the reset applies.">
@@ -920,10 +920,6 @@ func Create_Reset: <"Defines how a Reset business event should be constructed.">
 
 	assign-output resetEvent -> eventEffect -> effectedTrade: <"Assigns the effectedTrade value as the input TradeState using a reference.">
 		tradeState as-key
-
-	post-condition:
-		resetEvent -> eventEffect -> trade is absent
-		and resetEvent -> eventEffect -> productIdentifier is absent
 
 
 func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructed.">
