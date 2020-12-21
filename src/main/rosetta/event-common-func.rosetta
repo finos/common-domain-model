@@ -352,12 +352,11 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
-	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
+	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> PartialTermination)
-		and (businessEvent -> primitives count = 1
-			and businessEvent -> primitives -> quantityChange exists
-			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
+		and (businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
+			or (businessEvent -> primitives -> quantityChange exists and transfers exists))
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
 
