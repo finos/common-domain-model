@@ -437,36 +437,6 @@ synonym source FpML_5_10 extends FpML
             // For Equity Swaps:
             [value "rateOfReturn"]
             [value "floatingRateCalculation" path "interestCalculation"]
-
-        /*
-			// For Swap Streams:
-			[value "swapStream" path "swap"]
-			[value "additionalPayment" path "swap"]
-			[value "capFloorStream" path "capFloor"]
-			[value "otherPartyPayment"]
-			// For Equity Swaps
-			[value "returnLeg" path "returnSwap"]
-			[value "returnLeg" path "equitySwapTransactionSupplement"]
-			[value "interestLeg" path "returnSwap"]
-			// For Swaptions:
-			[value "premium" path "swaption"]
-			[value "swapStream" path "swaption->swap"]
-			// For CD Index and CDS
-			[value "initialPayment" path "creditDefaultSwap->feeLeg"]
-			[value "singlePayment" path "creditDefaultSwap->feeLeg"]
-			[value "periodicPayment" path "creditDefaultSwap->feeLeg"]
-			[value "periodicPayment" path "creditDefaultSwapOption->creditDefaultSwap->feeLeg"]
-			// For FRA:
-			[value "fra"]
-			// For CD Swaption:
-			[value "premium" path "creditDefaultSwapOption"]
-			// For Bond Options:
-			[value "premium" path "bondOption"]
-			// For FX
-			[value "fxSingleLeg"]
-			// For Repo:
-			[value "repo"]
-		*/
 		+ quantity
 		    [value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule"]
 		    [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
@@ -481,51 +451,6 @@ synonym source FpML_5_10 extends FpML
             // Equity Swaps:
             [value "singleUnderlyer" path "underlyer"]
             [value "notionalAmount" path "notional"]
-
-		/*
-			// For Equity Swap:
-			[value "notional" path "returnSwap->returnLeg", "notional" path "equitySwapTransactionSupplement->returnLeg"]
-			[value "underlyer" path "returnSwap->returnLeg", "underlyer" path "equitySwapTransactionSupplement->returnLeg"]
-				// For Swap Stream, incl. Swaption and CapFloor:
-			[value "notionalSchedule" path "swap->swapStream->calculationPeriodAmount->calculation"]
-			[value "notionalSchedule" path "capFloor->capFloorStream->calculationPeriodAmount->calculation"]
-			[value "notionalSchedule" path "swaption->swap->swapStream->calculationPeriodAmount->calculation"]
-				// For BRL CDI swaps
-			[value "futureValueNotional" path "swap->swapStream->calculationPeriodAmount->calculation"]
-				// For FRA:
-			[value "fra"]
-				// For CDS
-			[value "protectionTerms" path "creditDefaultSwap"]
-			[value "fixedAmountCalculation" path "creditDefaultSwap->feeLeg->periodicPayment"]
-			[value "floatingAmountCalculation" path "creditDefaultSwap->feeLeg->periodicPayment"]
-				// For CD Swaption
-			[value "protectionTerms" path "creditDefaultSwapOption->creditDefaultSwap"]
-			[value "fixedAmountCalculation" path "creditDefaultSwapOption->creditDefaultSwap->feeLeg->periodicPayment"]
-			[value "floatingAmountCalculation" path "creditDefaultSwapOption->creditDefaultSwap->feeLeg->periodicPayment"]
-				// For FX:
-			[value "exchangedCurrency1" path "fxSingleLeg"]
-			[value "exchangedCurrency2" path "fxSingleLeg"]
-				// For Repo:
-			[value "nearLeg" path "repo"]
-				// For Bond Option:
-			[value "notionalAmount" path "bondOption"]
-			// For Swap Streams:
-			[value "notionalStepSchedule"]
-				// For Swap Streams, Equity Swaps and Bond Options:
-			[value "notionalAmount"]
-				// For BRL CDI swaps:
-			[hint "amount"]
-				// For Equity Swaps:
-			[value "singleUnderlyer"]
-				// For FRA:
-			[value "notional"]
-				// For CDS:
-			[value "calculationAmount"]
-				// For FX:
-			[value "paymentAmount"]
-				// For Repo:
-			[value "settlementAmount"]
-		*/
 		+ observable
 		    // For Swap Streams etc
             [value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
@@ -536,65 +461,21 @@ synonym source FpML_5_10 extends FpML
             // For Equity:
             [value "singleUnderlyer" path "underlyer"]
             [value "floatingRateCalculation" path "interestCalculation"]
-		/*
-			// For Swap Stream:
-			[value "notionalStepSchedule"]
-			// For Swap Streams, Equity Swaps and Bond Options:
-			[value "notionalAmount"]
-			// For BRL CDI swaps:
-			[hint "currency"]
-			// For Equity Swaps
-			[value "singleUnderlyer" set when "singleUnderlyer->openUnits" exists]
-			// For FRA and CDS single fee:
-			[value "notional"]
-			// For CDS:
-			[value "calculationAmount"]
-			// For FX:
-			[value "paymentAmount"]
-			// For Repo:
-			[value "settlementAmount"]
-
-			// For fixedRate:
-			// For Swap Streams etc
-			[value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule" set when "calculationPeriodAmount->calculation->fixedRateSchedule" exists]
-			// For Equity Swaps
-			[value "singleUnderlyer" path "underlyer"]
-			// For CDS
-			[value "calculationAmount"]
-			[value "calculationAmount" path "fixedAmountCalculation"]
-			[value "fixedAmount"]
-			// For FRA
-			[value "notional"]
-
-			// For floatingRate:
-			// For Swap Streams etc
-			[value "floatingRateCalculation" path "calculationPeriodAmount->calculation"
-					set when "calculationPeriodAmount->calculation->floatingRateCalculation->initialRate" exists,
-					set when "calculationPeriodAmount->calculation->floatingRateCalculation->spreadSchedule" exists,
-					set when "calculationPeriodAmount->calculation->floatingRateCalculation->capRateSchedule" exists,
-					set when "calculationPeriodAmount->calculation->floatingRateCalculation->floorRateSchedule" exists]
-			// For Equity Swaps
-			[value "floatingRateCalculation" path "interestCalculation" set when "interestCalculation->floatingRateCalculation->spreadSchedule" exists]
-			// For Repo
-			[value "floatingRateCalculation" set when "floatingRateCalculation->spreadSchedule" exists]
-			// For CD Index
-			[value "floatingAmountCalculation" set when "floatingAmountCalculation->floatingRate" exists]
-    */
 
     Price:
         + amount
-            [value "initialValue" path "fixedRateSchedule" maps 2]
             [value "initialRate" maps 2]
+            [value "initialValue" path "fixedRateSchedule" maps 2]
             [value "initialValue" path "spreadSchedule" maps 2]
             [value "initialValue" path "capRateSchedule" maps 2]
             [value "initialValue" path "floorRateSchedule" maps 2]
             [value "amount" maps 2]
             [value "amount" path "initialPrice->netPrice" maps 2]
+            [value "fixedRate" maps 2]
+            [value "fixedRate" path "fixedAmountCalculation" maps 2]
             [value "strikePrice"]
             [value "spread"]
             [value "referencePrice"]
-            [value "fixedRate" maps 2]
-            [value "fixedRate" path "fixedAmountCalculation" maps 2]
         + unitOfAmount
             [hint "currency"]
             [value "netPrice" path "initialPrice"]
@@ -1936,23 +1817,28 @@ synonym source FpML_5_10 extends FpML
 			[value "fixedRateSchedule"]
 
 	ResolvablePayoutQuantity:
-		[meta "id"]
-		[meta "id" path "notional->notionalAmount"]
-		[meta "id" path "notionalStepSchedule"]
+		[meta "id" path "notionalSchedule"]
+		[meta "id" path "notionalSchedule->notionalStepSchedule"]
+        [meta "id" path "notional"]
+        [meta "id" path "notional->notionalAmount"]
 		[meta "id" path "calculationAmount"]
         + resolvedQuantity
-		    [value "notionalStepSchedule"]
+		    [value "notionalStepSchedule" path "notionalSchedule"]
 		    [value "notionalAmount"]
             [value "futureValueNotional"]
             [value "notional"]
             [value "fxLinkedNotionalSchedule"]
 		    [value "calculationAmount"]
 		    [value "notionalAmount" path "notional"]
+		+ quantityMultiplier
+		    [value "fxLinkedNotionalSchedule"]
         + quantityReference
 			[value "relativeNotionalAmount" path "notional" meta "href"]
-			[value "constantNotionalScheduleReference" meta "href"]
+			[value "constantNotionalScheduleReference" path "fxLinkedNotionalSchedule" meta "href"]
 			// For CDS Option, CDX Index Option, Bond Option, Swaption:
 			[value "notionalReference" meta "href"]
+		+ quantitySchedule
+		    [value "notionalSchedule"]
 		+ reset
 			[value "notionalReset"]
 		+ futureValueNotional
@@ -2134,10 +2020,7 @@ synonym source FpML_5_10 extends FpML
 	PayoutBase:
 		+ payoutQuantity
             // For Swap Stream:
-            [value "notionalSchedule" path "calculationPeriodAmount->calculation"]
-            [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
-            // For BRL CDI swaps:
-            [value "calculation" path "calculationPeriodAmount" set when "calculationPeriodAmount->calculation->futureValueNotional" exists]
+            [value "calculation" path "calculationPeriodAmount"]
             // For FRAs and Equity Swap:
             [hint "notional"]
             // For Bond Option:
@@ -2149,11 +2032,6 @@ synonym source FpML_5_10 extends FpML
             [value "floatingAmountCalculation" path "periodicPayment"]
             // For Equity Swap:
 			[value "rateOfReturn"]
-
-			//[value "calculationAmount"]
-			//[value "calculationAmount" path "periodicPayment->fixedAmountCalculation"]
-			//[value "calculationAmount" path "periodicPayment->floatingAmountCalculation"]
-			//[value "fixedAmount"]
 		/*
 
 			// For FX:
