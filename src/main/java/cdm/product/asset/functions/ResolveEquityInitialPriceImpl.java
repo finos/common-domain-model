@@ -18,18 +18,19 @@ public class ResolveEquityInitialPriceImpl extends ResolveEquityInitialPrice {
 
 	@Override
 	protected PriceBuilder doEvaluate(Underlier underlier, List<PriceQuantity> priceQuantity) {
-		List<ProductIdentifier> underlierProductIdentifiers = Optional.ofNullable(underlier)
-				.map(Underlier::getUnderlyingProduct)
-				.map(Product::getSecurity)
-				.map(Security::getProductIdentifier)
-				.orElseThrow(() -> new RuntimeException("No product identifier found for Equity underlier"));
-		
-		return priceQuantity.stream()
-				.filter(pq -> matches(pq, underlierProductIdentifiers))
-				.map(PriceQuantity::getPrice)
-				.map(Price::toBuilder)
-				.findFirst()
-				.orElseThrow(() -> new RuntimeException("No price found for product identifier " + underlierProductIdentifiers));
+//		List<ProductIdentifier> underlierProductIdentifiers = Optional.ofNullable(underlier)
+//				.map(Underlier::getUnderlyingProduct)
+//				.map(Product::getSecurity)
+//				.map(Security::getProductIdentifier)
+//				.orElseThrow(() -> new RuntimeException("No product identifier found for Equity underlier"));
+//
+//		return priceQuantity.stream()
+//				.filter(pq -> matches(pq, underlierProductIdentifiers))
+//				.map(PriceQuantity::getPrice)
+//				.map(Price::toBuilder)
+//				.findFirst()
+//				.orElseThrow(() -> new RuntimeException("No price found for product identifier " + underlierProductIdentifiers));
+		return null;
 	}
 
 	private boolean matches(PriceQuantity priceQuantity, List<ProductIdentifier> underlierProductIdentifier) {

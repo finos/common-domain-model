@@ -429,12 +429,14 @@ synonym source FpML_5_10 extends FpML
 		+ price
 		    [value "calculation" path "calculationPeriodAmount"]
 		    [value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
-		    [hint "paymentAmount"]
+		    [value "paymentAmount"]
 		    // For FRAs:
 		    [hint "fixedRate"]
             // For Credit:
             [value "periodicPayment"]
-
+            // For Equity Swaps:
+            [value "rateOfReturn"]
+            [value "floatingRateCalculation" path "interestCalculation"]
 
         /*
 			// For Swap Streams:
@@ -466,16 +468,18 @@ synonym source FpML_5_10 extends FpML
 			[value "repo"]
 		*/
 		+ quantity
-		    [value "notionalSchedule" path "calculationPeriodAmount->calculation"]
+		    [value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule"]
 		    [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
 		    [value "futureValueNotional" path "calculationPeriodAmount->calculation"]
-		    [hint "notionalAmount"]
+		    [value "notionalAmount"]
             // For FRAs:
             [hint "notional"]
             // For CDS, Swaption, Index:
             [value "fixedAmountCalculation" path "periodicPayment"]
             [hint "calculationAmount"]
             [value "floatingAmountCalculation" path "periodicPayment"]
+            // Equity Swaps:
+            [value "singleUnderlyer" path "underlyer"]
 
 		/*
 			// For Equity Swap:
@@ -528,6 +532,9 @@ synonym source FpML_5_10 extends FpML
             [hint "floatingRateIndex", "indexTenor"]
             // For Credit:
             [value "floatingAmountCalculation" path "periodicPayment"]
+            // For Equity:
+            [value "singleUnderlyer" path "underlyer"]
+            [value "floatingRateCalculation" path "interestCalculation"]
 		/*
 			// For Swap Stream:
 			[value "notionalStepSchedule"]
@@ -581,16 +588,19 @@ synonym source FpML_5_10 extends FpML
             [value "initialValue" path "capRateSchedule" maps 2]
             [value "initialValue" path "floorRateSchedule" maps 2]
             [value "amount" maps 2]
-            [value "amount" path "paymentAmount" maps 2]
+            [value "amount" path "initialPrice->netPrice" maps 2]
             [value "strikePrice"]
             [value "spread"]
             [value "referencePrice"]
             [value "fixedRate" maps 2]
             [value "fixedRate" path "fixedAmountCalculation" maps 2]
         + unitOfAmount
-            [value "paymentAmount"]
+            [hint "currency"]
+            [value "netPrice" path "initialPrice"]
+        + perUnitOfAmount
+            [value "ignore"]
         + priceType
-			[set to PriceTypeEnum->NetPrice when "rateOfReturn->initialPrice->netPrice" exists]
+			[set to PriceTypeEnum->NetPrice when "initialPrice->netPrice" exists]
 			[set to PriceTypeEnum->ExchangeRate when "exchangeRate->rate" exists]
 			[set to PriceTypeEnum->RatePrice when "calculationPeriodAmount->calculation->fixedRateSchedule" exists]
 			[set to PriceTypeEnum->RatePrice when "fixedAmountCalculation" exists]
@@ -1639,19 +1649,19 @@ synonym source FpML_5_10 extends FpML
 	Quantity:
 		+ amount
             [value "initialValue" maps 2]
-            [value "initialValue" path "notionalStepSchedule" maps 2]
-            [value "amount" path "futureValueNotional" maps 2]
-            [value "amount" path "notionalAmount" maps 2]
+            [value "amount" maps 2]
             [value "amount" path "notional" maps 2]
+            [value "amount" path "notional->notionalAmount" maps 2]
             [value "amount" path "calculationAmount" maps 2]
+            [value "openUnits" maps 2]
         + unitOfAmount
+            [hint "currency"]
             [value "notionalStepSchedule"]
             [hint "varyingNotionalCurrency"]
-            [value "notionalAmount"]
             [value "calculationAmount"]
             // For FRAs:
             [value "notional"]
-		+ multiplier
+        + multiplier
 		    [value "ignore"]
         + multiplierUnit
             [value "ignore"]
@@ -1871,9 +1881,12 @@ synonym source FpML_5_10 extends FpML
 			[value "notionalAmountReference" meta "href"]
 
 	Observable:
+	    + commodity
+	        [value "ignore"]
 		+ productIdentifier
 			// For QuantityNotation only set productIdentifier if openUnits exists
-			[value "equity" set when "openUnits" exists]
+			//[value "equity" set when "openUnits" exists]
+			[value "equity"]
 
 	Cashflow:
 		[meta "id"]
@@ -1930,19 +1943,19 @@ synonym source FpML_5_10 extends FpML
 
 	ResolvablePayoutQuantity:
 		[meta "id"]
-		[meta "id" path "notionalAmount"]
+		[meta "id" path "notional->notionalAmount"]
 		[meta "id" path "notionalStepSchedule"]
 		[meta "id" path "calculationAmount"]
         + resolvedQuantity
-		    [hint "notionalStepSchedule"]
-		    [hint "initialValue"]
+		    [value "notionalStepSchedule"]
+		    [value "notionalAmount"]
+            [value "futureValueNotional"]
+            [hint "initialValue"]
 		    [hint "varyingNotionalCurrency"]
-		    [hint "futureValueNotional"]
 		    [hint "notional"]
-		    [hint "notionalAmount"]
 		    [hint "calculationAmount"]
 		+ quantityReference
-			[value "relativeNotionalAmount" meta "href"]
+			[value "relativeNotionalAmount" path "notional" meta "href"]
 			[value "constantNotionalScheduleReference" meta "href"]
 			// For CDS Option, CDX Index Option, Bond Option, Swaption:
 			[value "notionalReference" meta "href"]
@@ -2044,6 +2057,8 @@ synonym source FpML_5_10 extends FpML
 		    [hint "fixedRate", "floatingRateIndex", "indexTenor"]
 		    // For CDS:
 		    [value "periodicPayment"]
+		    // For Equity:
+		    [value "interestCalculation"]
 
 	OptionExercise:
 		+ strike
@@ -2129,7 +2144,7 @@ synonym source FpML_5_10 extends FpML
             [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
             // For BRL CDI swaps:
             [value "calculation" path "calculationPeriodAmount" set when "calculationPeriodAmount->calculation->futureValueNotional" exists]
-            // For FRAs:
+            // For FRAs and Equity Swap:
             [hint "notional"]
             // For Bond Option:
             [hint "notionalAmount"]
@@ -2138,15 +2153,15 @@ synonym source FpML_5_10 extends FpML
             [hint "calculationAmount"]
             [hint "notionalReference"]
             [value "floatingAmountCalculation" path "periodicPayment"]
+            // For Equity Swap:
+			[value "rateOfReturn"]
 
 			//[value "calculationAmount"]
 			//[value "calculationAmount" path "periodicPayment->fixedAmountCalculation"]
 			//[value "calculationAmount" path "periodicPayment->floatingAmountCalculation"]
 			//[value "fixedAmount"]
 		/*
-			// For Equity Swap:
-			[value "notional"]
-			[value "rateOfReturn"]
+
 			// For FX:
 			[hint "paymentAmount"]
 			// For Repo:
@@ -2259,6 +2274,8 @@ synonym source FpML_5_10 extends FpML
             [value "protectionTerms" path "creditDefaultSwap"]
 		    [value "feeLeg" path "creditDefaultSwapOption->creditDefaultSwap"]
             [value "protectionTerms" path "creditDefaultSwapOption->creditDefaultSwap"]
+            [value "returnLeg" path "returnSwap"]
+            [value "interestLeg" path "returnSwap"]
         + adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
