@@ -1,17 +1,34 @@
 package cdm.event.common;
 
+import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
 import cdm.event.common.functions.TransfersForDate;
 import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.metafields.FieldWithMetaDate;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 public class TransfersForDateImpl extends TransfersForDate {
     @Override
     protected Transfers.TransfersBuilder doEvaluate(List<Transfer> transfers, Date date) {
-        List<Transfer> transfersOnDate = transfers.stream()
-                .filter(transfer -> transfer.getSettlementDate().getAdjustedDate().getValue().equals(date))
+        if (date == null) {
+            return null;
+        }
+
+        List<Transfer> transfersOnDate = emptyIfNull(transfers).stream()
+                .filter(transfer -> getDate(transfer).map(date::equals).orElse(false))
                 .collect(Collectors.toList());
         return !transfersOnDate.isEmpty() ? Transfers.builder().addTransfers(transfersOnDate) : null;
+    }
+
+    @NotNull
+    private Optional<Date> getDate(Transfer transfer) {
+        return Optional.ofNullable(transfer.getSettlementDate())
+                .map(AdjustableOrAdjustedOrRelativeDate::getAdjustedDate)
+                .map(FieldWithMetaDate::getValue);
     }
 }
