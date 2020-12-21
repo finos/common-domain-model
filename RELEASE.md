@@ -35,3 +35,19 @@ Regulatory rule logic and regulatory test cases were updated to account for rece
 _Review Directions_
 
 * See `reporting rule TradeForEvent`, which has re-enabled support for events using `QuantityChangePrimitive`.
+
+# *CDM Model: Update to Legal Agreement and Eligible Collateral model*
+
+_What is being released_
+
+The Legal Agreement and Eligible Collateral model has been updated to address deficiencies in the model identified following review with ISDA members.
+
+- Regime - rationalised data type to more efficiently reflect clause structure.
+- Substituted Regime - aligned structure of Substituted Regime data type with Regime data type to achieve consistency in modelling approach.
+- Asset Criteria - added Listing Criteria to filter eligibility based on Exchange, Sector and/or Index.
+- Various small fixes to model descriptions and ISDA Create synonyms.
+
+_Review Directions_
+
+- In the CDM portal textual browser review data types `Regime`, `SubstitutedRegime`, and `ListingType` within `AssetCriteria`.
+- In the CDM review ISDA Create ingestion samples.
