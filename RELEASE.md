@@ -1,37 +1,31 @@
-# *User Documentation: Namespace section*
+# *CDM Model: Primitive Harmonisation Phase 3 - Transfer Primitive*
 
-_What is being released_
+_What is Being Released_
 
-The Namespace section has been added to the CDM user documentation, in line with recent changes to the model.
+Primitive harmonisation for Transfer Primitive, which now completes the harmonisation process for all Primitives.
 
-Notable changes and updates introduced:
+*Background*
 
-- New Namespace section.
-- Detailed description of individual components within the Namespace concept.
-- Addition of relevant examples to demonstrate model content.
+Harmonisation will allow for easier combination of Primitives to form complex business events. Changing `before` and `after` attributes to use the same data type eliminates the need for data translations when combining Primitives.
 
-_Review direction_
+Whilst data translation can be addressed in the Function Model, defining the applicable data types correctly in the Data Model removes the need for additional complexity.
 
-In the CDM Portal, review the CDM Documentation, in particular the section:
+*Model Changes*
 
-- [Namespace](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#namespace)
+The `TransferPrimitive` data type has been updated to make use of `TradeState` data type for both `before` and `after` attributes.
 
-# *Updated Product Identification Type Enumeration*
+`TradeState` has been updated to additionally include the `transferHistory` attribute, which is represented by the `Transfer` data type.
 
-_What is being released_
+`Transfer` represents the movement of cash, security or commodities between two parties, which can be a result of negotiated events, for example partial terminations, or scheduled events, for example Interest Rate Swap coupon payments. In either case, the definition of terms relating to settlement can be referenced via the `settlementOrigin` attribute. Representation of the settlement status is done using the workflow model and as such uses `WorkflowStatusEnum` (encapsulated by `BusinessEvent`).
 
-The enumeration ProductIdSourceEnum has been changed to ProductIdTypeEnum to more accurately define a representation of an enumerated list of Product Identification Types.
+The `Create_CashTransfer` function defines how `Transfer`s should be created in any given cash transfer event. To support the existing Equity Swap coupon payment example, which focuses on cash transfers, functions such as `EquityCashSettlementAmount` were updated and referenced from `Create_CashTransfer`.
 
-_Review Directions_
+Further, descriptions and necessary data types for Allocation, Exercise and Reset business events have been upgraded to reflect the latest model changes.
 
-In the CDM portal, review the enumeration listed above.
+*Sample File Changes*
 
-# *CDM Model: Minor update to regulatory rule logic and regulatory test pack*
+A number of sample files relating to Transfers were removed as they are no longer valid in the new model. Applicable scenarios will be updated and reintroduced as part of subsequent releases.
 
-_What is being released_
+*Review Directions*
 
-Regulatory rule logic and regulatory test cases were updated to account for recent changes to Primitives.
-
-_Review Directions_
-
-* See `reporting rule TradeForEvent`, which has re-enabled support for events using `QuantityChangePrimitive`.
+In the CDM Portal, use the Textual Browser or Graphical Navigator to inspect changes to the model, referencing the data types and functions mentioned above. Navigate to Functions to inspect the Equity Swap reset example, which has a transfer component.
