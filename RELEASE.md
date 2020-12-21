@@ -1,21 +1,37 @@
-# *DSL Syntax: Disjoint Keyword*
+# *User Documentation: Namespace section*
 
 _What is being released_
 
-Added the new `disjoint` keyword which can be used to write an expression that compares two lists to determine if there are any common elements.  If there are no common elements, the lists are disjoint, and the expression will evaluate to true.
+The Namespace section has been added to the CDM user documentation, in line with recent changes to the model.
 
-Given two lists of floating rate indexes, e.g.
+Notable changes and updates introduced:
 
-`before -> ... -> floatingRateIndex disjoint after -> ... -> floatingRateIndex`
+- New Namespace section.
+- Detailed description of individual components within the Namespace concept.
+- Addition of relevant examples to demonstrate model content.
 
-Then the expression will evaluate to true if every "after" floating rate index is different from every "before" floating rate index.
+_Review direction_
 
-# *Bug Fix: Data Rule Java Code Generation*
+In the CDM Portal, review the CDM Documentation, in particular the section:
+
+- [Namespace](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#namespace)
+
+# *Updated Product Identification Type Enumeration*
 
 _What is being released_
 
-Fix bug in the Java code generation to allow data rules to be invoked after each function invocation.
+The enumeration ProductIdSourceEnum has been changed to ProductIdTypeEnum to more accurately define a representation of an enumerated list of Product Identification Types.
 
 _Review Directions_
 
-In the CDM Portal, go to the Downloads page, and download the Java Examples. Review the example in Java class, `com.regnosys.cdm.example.template.Validation`.
+In the CDM portal, review the enumeration listed above.
+
+# *CDM Model: Minor update to regulatory rule logic and regulatory test pack*
+
+_What is being released_
+
+Regulatory rule logic and regulatory test cases were updated to account for recent changes to Primitives.
+
+_Review Directions_
+
+* See `reporting rule TradeForEvent`, which has re-enabled support for events using `QuantityChangePrimitive`.

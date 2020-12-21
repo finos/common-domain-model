@@ -22,6 +22,7 @@ public class ContactElectionMappingProcessor extends MappingProcessor {
     @Override
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
         ContactElection.ContactElectionBuilder contactElectionBuilder = (ContactElection.ContactElectionBuilder) builder;
+        contactElectionBuilder.clearPartyElection();
         PARTIES.forEach(party -> getPartyContactInformation(synonymPath, party).ifPresent(contactElectionBuilder::addPartyElection));
     }
 

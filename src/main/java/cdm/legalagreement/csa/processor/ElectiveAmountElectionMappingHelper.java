@@ -2,6 +2,7 @@ package cdm.legalagreement.csa.processor;
 
 import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import cdm.legalagreement.csa.ElectiveAmountElection;
+import cdm.legalagreement.csa.ElectiveAmountEnum;
 import cdm.observable.asset.Money;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
@@ -51,7 +52,7 @@ class ElectiveAmountElectionMappingHelper {
 				(value) -> {
 					electiveAmountElectionBuilder.setParty(toCounterpartyRoleEnum(party));
 					if (ZERO.equals(value)) {
-						electiveAmountElectionBuilder.setZeroAmount(true);
+						electiveAmountElectionBuilder.setElectiveAmount(ElectiveAmountEnum.ZERO);
 					}
 				}, mappings, path);
 

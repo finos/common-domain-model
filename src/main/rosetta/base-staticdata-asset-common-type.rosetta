@@ -13,39 +13,20 @@ type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
 		if version is absent
 		then effectiveDate is absent
 
+//TODO: To be deprecated from model, now replaced by Debt as an attribute of Security which extends ProductBase.
 type Bond extends IdentifiedProduct: <"A class to specify a bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
-type BondType: <"Specification of the type of bond">
-
-	bondClass BondClassEnum (0..1) <"Specification of the characteristics of bond">
-	bondEconomics BondEconomics (0..*) <"Specification of the financial terms of the bond">
-
-
+//TODO: To be deprecated from model, now replaced by Debt as an attribute of Security which extends ProductBase.
 type ConvertibleBond extends IdentifiedProduct: <"A class to specify a convertible bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
+//TODO: To be deprecated from model, now replaced by Equity as an attribute of Security which extends ProductBase.
 type Equity extends IdentifiedProduct: <"A class to specify an equity as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
-
-type ExchangeTradedFund extends IdentifiedProduct: <"A class to specify an ETF as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
-
-/*deprecated as part of ProductId Refactoring
-type MortgageBackedSecurity extends ProductIdentifier:
-
-	pool AssetPool (0..1) <"The mortgage pool that is underneath the mortgage obligation.">
-	sector MortgageSectorEnum (0..1) <"The sector classification of the mortgage obligation.">
-		[metadata scheme]
-	tranche string (0..1) <"The mortgage obligation tranche that is subject to the derivative transaction.">
-
-*/
-
-type MutualFund extends IdentifiedProduct: <"A class to specify a mutual fund as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
-
-type Warrant extends IdentifiedProduct: <"A class to specify a warrant as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
 type ProductIdentifier: <"Comprises of an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	identifier string (1..1) <"Provides an identifier associated with a specific product.  The identifier is unique within the public source specified in the source attribute.">
 		[metadata scheme]
-	source ProductIdSourceEnum (1..1) <"Defines the source of the identifier.">
+	source ProductIdTypeEnum (1..1) <"Defines the source of the identifier.">
 
 //can this be deprecated?
 type IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
@@ -68,11 +49,9 @@ type Loan extends ProductBase: <"Identifies a loan by referencing a product iden
 	tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
 		[metadata scheme]
 
-
 type ProductTaxonomy: <"The product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 	taxonomyValue string (1..1) <"The taxonomy value.">
 	taxonomySource TaxonomySourceEnum (1..1) <"The taxonomy source.">
-
 
 type Security extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
 	securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
@@ -91,18 +70,7 @@ condition EquitySubType:
 condition FundSubType:
 		if securityType <> SecurityTypeEnum -> Fund
 		then fundType is absent
-/* Removed old Security data structure as part of ProductId refactoring
-	bond Bond (0..1)
-		[synonym Workflow_Event value "bond"]
-	convertibleBond ConvertibleBond (0..1)
-		[synonym Workflow_Event value "convertibleBond"]
-	equity Equity (0..1)
-	exchangeTradedFund ExchangeTradedFund (0..1)
-	mortgageBackedSecurity MortgageBackedSecurity (0..1)
-	mutualFund MutualFund (0..1)
-	warrant Warrant (0..1)
-	condition: one-of
-*/
+
 type DebtType: <"Specifies the type of debt instrument.">
 	debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
 	debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt instrument.">
@@ -136,7 +104,6 @@ type CollateralIssuerType: <"A class to allow specification of the type of entit
 		if issuerType <> IssuerTypeEnum -> SpecialPurposeVehicle
 		then specialPurposeVehicleType is absent
 
-
 type QuasiGovernmentIssuerType: <"A class to allow specification of different types of Quasi Government collateral.">
 
 	sovereignEntity boolean (1..1) <"True if sovereign entity (e.g. not separate legal personality from sovereign) or false if non-sovereign entity (e.g. separate legal personality from sovereign).">
@@ -144,7 +111,6 @@ type QuasiGovernmentIssuerType: <"A class to allow specification of different ty
 	// TODO: other (non-exhaustive) criteria e.g. GSEs with/without government support, EMIR public sector entities, US agencies
 	condition NonSovereignEntityRecourse:
 		if sovereignRecourse exists then sovereignEntity = False
-
 
 type RegionalGovernmentIssuerType: <"A class to allow specification of different type of Regional government collateral.">
 
@@ -154,12 +120,6 @@ type RegionalGovernmentIssuerType: <"A class to allow specification of different
 type SpecialPurposeVehicleIssuerType: <"A class to allow specification of different types of special purpose vehicle (SPV) collateral.">
 	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> // Not required?  If tranched credit risk then specified ProductCriteria.agencyRating.
 	// TODO: other (non-exhaustive) criteria e.g. by asset class (RMBS, CMBS, CLO, by regional risk focus, by guarantor (e.g. Ginnie Mae)). Can the existing FpML framework be leveraged.  See type MortgageBackedSecurity
-
-type BondEconomics: <"Specification of the economics of the bond">
-
-	bondSeniority BondSeniorityEnum (0..1) <"Security: Bond Economics: The order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
-	bondInterest BondInterestEnum (0..1) <"Security: Bond Economics: The terms of the reference rate for calculation of interest on the bond.">
-	bondPrincipal BondPrincipalEnum (0..1) <"Security: Bond Economics: The repayment terms for the principal on the bond.">
 
 type ExternalProductType: <"Provides a classification of the type of product that is external to the product qualifications used in the CDM. Product types mapped from external models are mapped to this data type.">
 	value string (1..1) <"Stores the product type value.">
@@ -193,6 +153,4 @@ type AssetType: <"A class to allow specification of the asset product type.">
 	// condition OtherSubType:
 	// 	if securityType <> SecurityTypeEnum -> Other
 	// 	then otherType is absent
-
-
 	

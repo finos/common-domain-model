@@ -1,7 +1,7 @@
 The Common Domain Model
 =======================
 
-**There are six modelling dimensions** to the CDM:
+**There are seven modelling dimensions** to the CDM:
 
 * Product
 * Event
@@ -9,6 +9,7 @@ The Common Domain Model
 * Process
 * Reference Data
 * Mapping (Synonym)
+* Namespace
 
 The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure. All the Rosetta DSL modelling components that are used to express the CDM are described in the `Rosetta DSL Documentation`_
 
@@ -1220,7 +1221,7 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
    sensitivityMethodologies SensitivityMethodologies (1..1)
    fxHaircutCurrency FxHaircutCurrency (0..1)
    postingObligations PostingObligations (1..1)
-   substitutedRegime SubstitutedRegime (1..1)
+   substitutedRegime SubstitutedRegime (1..*)
    baseAndEligibleCurrency BaseAndEligibleCurrency (1..1)
    additionalObligations string (0..1)
    coveredTransactions CoveredTransactions (1..1)
@@ -1332,9 +1333,8 @@ The following code snippets represent these three components of the eligible col
    maturityRange PeriodRange (0..1)
    productIdentifier ProductIdentifier (0..*)
    productTaxonomy ProductTaxonomy (0..*)
-   seasoned boolean (0..1)
-   sinkable boolean (0..1)
    domesticCurrencyIssued boolean (0..1)
+   listing ListingType (0..1)
 
 .. code-block:: Haskell
 
@@ -1381,7 +1381,7 @@ The ``creditSupportObligations`` attribute is contained within two of the agreem
    sensitivityMethodologies SensitivityMethodologies (1..1)
    fxHaircutCurrency FxHaircutCurrency (0..1)
    postingObligations PostingObligations (1..1)
-   substitutedRegime SubstitutedRegime (1..1)
+   substitutedRegime SubstitutedRegime (1..*)
    baseAndEligibleCurrency BaseAndEligibleCurrency (1..1)
    creditSupportObligations CreditSupportObligations (1..1)
    calculationAndTiming CalculationAndTiming (1..1)
@@ -1958,6 +1958,41 @@ The following set of synonym sources are currently in place for the CDM:
 * **ORE** (synonym source: ``ORE_1_0_39``): synonyms to version 1.0.39 of the ORE XML Model
 
 Those synonym sources are listed as part of a configuration file in the CDM using a special ``synonym source`` enumeration, so that the synonym source value can be controlled when editing synonyms.
+
+Namespace
+---------
+
+The CDM is partitioned into groups of name spaces. A namespace is an abstract container created to hold a logical grouping of model artefacts. The approach is designed to make it easier for users to understand the model structure and adopt selected components. It also aids the development cycle by insulating groups of components from unrelated model changes that may occur. The partitioning is visible to users in Rosetta Core by toggling the Namespace view in the left hand panel, and in the generated code files.
+
+Model Artifacts
+"""""""""""""""
+
+Model artifacts are organised into a directory hierarchy that is exposed in the model editor. In each directory there are 3 rosetta files: 1 for data types, 1 for enumerations and 1 for functions.
+
+Organising Principles
+"""""""""""""""""""""
+
+Namespaces are organised into a hierarchy, with layers going from in to out. The hierarchy contains an intrinsic inheritance structure where each layer has access to (“imports”) the layer outside, and is designed to be usable without any of its inner layers. Layers can contain several namespaces (“siblings”), which can also refer to each other. 
+
+Example – the base namespace
+
+.. figure:: documentation/source/cdm-namespace.png
+
+In the example above the layers of the “base” namespace can be observed. There are four layers to the namespace. The outer layer “base” contains one file and three namespaces. The next layer contains three siblings, “datetime”, “math”, and “staticdata”. A third and fourth layer is contained within the “staticdata” namespace.
+
+Hierarchy Structure
+"""""""""""""""""""
+
+The namespace hierarchy in the CDM contains 7 components
+
+•	Base – contains basic concepts used across the model: date, time, maths, static data
+•	Event – contains business event concepts: primitive, contract state, and associated state transition function specifications
+•	Legal Agreement – contains generic documentation concepts: legal agreement, contract, and credit support specifications
+•	Observable – contains observable concepts: market data, holiday calendars, asset class specific specifications
+•	Product – contains generic product concepts: quantity, price, economic terms and payout, that are built using template features
+•	Regulation – contains regulation concepts: regulatory bodies, corpus, report definitions and field rules
+•	Synonym – contains model to model synonym mappings
+
 
 .. _Portal: https://portal.cdm.rosetta-technology.io
 
