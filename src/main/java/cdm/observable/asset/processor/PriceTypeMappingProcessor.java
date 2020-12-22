@@ -21,6 +21,7 @@ public class PriceTypeMappingProcessor extends MappingProcessor {
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		map(parent, synonymPath, PriceTypeEnum.CASH_PRICE,"additionalPayment", "paymentAmount", "amount");
 		map(parent, synonymPath, PriceTypeEnum.CASH_PRICE,"otherPartyPayment", "paymentAmount", "amount");
+		map(parent, synonymPath, PriceTypeEnum.CASH_PRICE,"initialPayment", "paymentAmount", "amount");
 
 		map(parent, synonymPath, PriceTypeEnum.PREMIUM,"premium", "paymentAmount", "amount");
 
@@ -32,9 +33,10 @@ public class PriceTypeMappingProcessor extends MappingProcessor {
 		map(parent, synonymPath, PriceTypeEnum.RATE_PRICE,"fra", "fixedRate");
 		map(parent, synonymPath, PriceTypeEnum.RATE_PRICE,"fixedAmountCalculation", "fixedRate");
 
+		map(parent, synonymPath, PriceTypeEnum.SPREAD,"floatingRateCalculation", "initialRate"); // Check with Ted
+		map(parent, synonymPath, PriceTypeEnum.SPREAD,"fixedAmountCalculation", "floatingRate", "initialRate"); // Check with Ted
 		map(parent, synonymPath, PriceTypeEnum.SPREAD, "spreadSchedule", "initialValue");
 		map(parent, synonymPath, PriceTypeEnum.SPREAD,"strike", "spread");
-		map(parent, synonymPath, PriceTypeEnum.SPREAD,"floatingRateCalculation", "initialRate");
 
 		map(parent, synonymPath, PriceTypeEnum.CAP_RATE,"capRateSchedule", "initialValue");
 
