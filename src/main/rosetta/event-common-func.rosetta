@@ -144,19 +144,6 @@ func Qualify_Allocation: <"The qualification of allocation event from the fact t
 		and businessEvent -> primitives -> split -> after -> state -> closedState -> state contains ClosedStateEnum -> Allocated
 
 
-/*
- * Temporary event qualification until such time that we firm out the proper qualification and the way to infer it
- */
-// func Qualify_CashflowCalculationNotification:
-// 	[qualification BusinessEvent]
-// 	inputs:
-// 		businessEvent BusinessEvent(1..1)
-// 	output: is_event boolean (1..1)
-// 	assign-output is_event:
-// 		businessEvent -> primitives count = 1
-// 		and businessEvent -> primitives -> transfer -> cashTransfer -> transferCalculation exists
-// 		and businessEvent -> primitives -> transfer -> identifier -> scheme = "DTCCCashflowId"
-
 func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	[qualification BusinessEvent]
 	inputs:
@@ -586,7 +573,7 @@ func ResolveEquityReset: <"Defines how to resolve the reset value for an equity 
 		observation
 
 
-func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
+func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
 	inputs:
 		tradeState TradeState (1..1)
 		date date (1..1)
@@ -974,11 +961,11 @@ func Create_CashTransfer: <"Function specification to build a transfer event fol
 	post-condition: <"Event effect must include the contract generating the cashflow.">
 		transferEvent -> eventEffect -> productIdentifier is absent
 
-func Create_CashTransferPrimitive: <"Function specification to generate a transfer primitive following a reset. The cashflow is being passed as an input, as currently the cashflow is meant to be part of the reset. At a later stage, we should pass the reset value while the cashflow calculation should be executed as part of this spec.">
+func Create_CashTransferPrimitive: <"Defines how a transfer primitive should be constructed, when representing the exchange of cash between parties.">
 	[creation PrimitiveEvent]
 	inputs:
-		tradeState TradeState (1..1)
-		date date (1..1)
+		tradeState TradeState (1..1) <"Represents the trade and associated state on which to construct the Transfer data type.">
+		date date (1..1) <"Specifies the date the transfer is to take place.">
 
 	output:
 		transfer TransferPrimitive (1..1)
@@ -989,19 +976,19 @@ func Create_CashTransferPrimitive: <"Function specification to generate a transf
 	assign-output transfer -> after:
 		tradeState
 
-	assign-output transfer -> after -> transferHistory:
+	assign-output transfer -> after -> transferHistory: <"Assigns the result of the Create_Transfer function to the transferHistory attribute.">
 		Create_Transfer( tradeState, date )
 
 
-func Create_Transfer:
+func Create_Transfer: <"Defines how Transfer that represents an exchange of cash, should be constructed.">
 	inputs:
-		tradeState TradeState (1..1)
-		date date (1..1)
+		tradeState TradeState (1..1) <"Represents the trade and associated state on which to construct the Transfer data type.">
+		date date (1..1) <"Specifies the date the transfer is to take place.">
 
 	output:
 		transfer Transfer (1..1)
 
-	alias cashflow:
+	alias cashflow: <"Resolves the cashflow due to be transferred from the trade and associated state.">
 		ResolveCashflow(tradeState, date)
 
 	alias counterparties:
@@ -1034,10 +1021,10 @@ func Create_Transfer:
 		then tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element as-key
 
 
-func ResolveCashflow: <"A product agnostic function that calculates the amount due to be transfered after a Reset Event.">
+func ResolveCashflow: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
 	inputs:
-		tradeState TradeState (1..1)
-		date date (1..1)
+		tradeState TradeState (1..1) <"Represents the trade and associated state on which to construct the Transfer data type.">
+		date date (1..1) <"Specifies the date the cashflow is to take place.">
 
 	output:
 		cashflow Cashflow (1..1)
