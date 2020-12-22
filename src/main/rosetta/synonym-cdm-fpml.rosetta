@@ -464,26 +464,28 @@ synonym source FpML_5_10 extends FpML
 
     Price:
         + amount
-            [value "initialRate" maps 2]
-            [value "initialValue" path "fixedRateSchedule" maps 2]
-            [value "initialValue" path "spreadSchedule" maps 2]
-            [value "initialValue" path "capRateSchedule" maps 2]
-            [value "initialValue" path "floorRateSchedule" maps 2]
-            [value "amount" maps 2]
-            [value "amount" path "initialPrice->netPrice" maps 2]
-            [value "fixedRate" maps 2]
-            [value "fixedRate" path "fixedAmountCalculation" maps 2]
-            [value "strikePrice"]
-            [value "spread"]
-            [value "referencePrice"]
+            [value "initialRate" maps 2 mapper "PriceType"]
+            [value "initialValue" path "fixedRateSchedule" maps 2 mapper "PriceType"]
+            [value "initialValue" path "spreadSchedule" maps 2 mapper "PriceType"]
+            [value "initialValue" path "capRateSchedule" maps 2 mapper "PriceType"]
+            [value "initialValue" path "floorRateSchedule" maps 2 mapper "PriceType"]
+            [value "amount" maps 2 mapper "PriceType"]
+            [value "amount" path "initialPrice->netPrice" maps 2 mapper "PriceType"]
+            [value "fixedRate" maps 2 mapper "PriceType"]
+            [value "fixedRate" path "fixedAmountCalculation" maps 2 mapper "PriceType"]
+            [value "strikePrice" mapper "PriceType"]
+            [value "spread" mapper "PriceType"]
+            [value "referencePrice" mapper "PriceType"]
         + unitOfAmount
             [hint "currency"]
             [value "netPrice" path "initialPrice"]
         + perUnitOfAmount
             [value "ignore"]
+/*
         + priceType
-			[set to PriceTypeEnum->NetPrice when "initialPrice->netPrice" exists]
+            [set to PriceTypeEnum->NetPrice when "initialPrice->netPrice" exists]
 			[set to PriceTypeEnum->ExchangeRate when "exchangeRate->rate" exists]
+
 			[set to PriceTypeEnum->RatePrice when "calculationPeriodAmount->calculation->fixedRateSchedule" exists]
 			[set to PriceTypeEnum->RatePrice when "fixedAmountCalculation" exists]
 			[set to PriceTypeEnum->RatePrice when "fixedRateSchedule" exists]
@@ -502,12 +504,13 @@ synonym source FpML_5_10 extends FpML
 			[set to PriceTypeEnum->CleanNetPrice when "cleanNetPrice" exists]
 			[set to PriceTypeEnum->NetPrice when "netPrice" exists]
 			[set to PriceTypeEnum->AccruedInterest when "accruedInterestPrice" exists]
-			[set to PriceTypeEnum->CashPrice when "paymentAmount" exists]
+			[set to PriceTypeEnum->CashPrice when "price->strikePrice" exists]
+            [set to PriceTypeEnum->CashPrice when "premium->paymentAmount->amount" exists]
 			[set to PriceTypeEnum->CashPrice when "fixedAmount" exists]
 			//[set to PriceTypeEnum->CapRate when "capRateSchedule->initialValue" exists]
 			//[set to PriceTypeEnum->FloorRate when "floorRateSchedule->initialValue" exists]
 			[set to PriceTypeEnum->MultiplierOfIndexValue when "floatingRateMultiplierSchedule->initialValue" exists]
-
+*/
 	PrincipalExchanges:
 	 	[value "PrincipalExchanges" meta "id"]
 		+ initialExchange
@@ -2150,6 +2153,7 @@ synonym source FpML_5_10 extends FpML
             [value "returnLeg" path "equitySwapTransactionSupplement"]
             [value "interestLeg" path "returnSwap"]
             [value "interestLeg" path "equitySwapTransactionSupplement"]
+            [value "fxSingleLeg"]
         + adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
