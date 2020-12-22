@@ -144,19 +144,6 @@ func Qualify_Allocation: <"The qualification of allocation event from the fact t
 		and businessEvent -> primitives -> split -> after -> state -> closedState -> state contains ClosedStateEnum -> Allocated
 
 
-/*
- * Temporary event qualification until such time that we firm out the proper qualification and the way to infer it
- */
-func Qualify_CashflowCalculationNotification:
-	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent(1..1)
-	output: is_event boolean (1..1)
-	assign-output is_event:
-		businessEvent -> primitives count = 1
-		and businessEvent -> primitives -> transfer -> cashTransfer -> transferCalculation exists
-		and businessEvent -> primitives -> transfer -> identifier -> scheme = "DTCCCashflowId"
-
 func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	[qualification BusinessEvent]
 	inputs:
@@ -165,22 +152,47 @@ func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact 
 	assign-output is_event:
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> transfer exists
-		and businessEvent -> primitives -> transfer -> cashTransfer exists
-		and businessEvent -> primitives -> transfer -> securityTransfer is absent
-		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
-		and businessEvent -> primitives -> transfer -> identifier -> scheme <> "DTCCCashflowId"
+		// TODO check this logic
+		and businessEvent -> primitives -> transfer -> after -> transferHistory -> priceQuantity -> quantity -> unitOfAmount -> currency exists
+		and businessEvent -> primitives -> transfer -> after -> transferHistory -> priceQuantity -> observable -> productIdentifier is absent
+		and businessEvent -> primitives -> transfer -> after -> transferHistory -> priceQuantity -> observable -> rateOption is absent
+		and businessEvent -> primitives -> transfer -> after -> transferHistory -> identifier -> scheme <> "DTCCCashflowId"
 
 func Qualify_CashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
+	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers
 	assign-output is_event:
-		businessEvent -> primitives -> transfer -> cashTransfer exists
-		and businessEvent -> primitives -> transfer -> securityTransfer exists
-		and businessEvent -> primitives -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference
-		-> reference = businessEvent -> primitives -> transfer -> securityTransfer -> transferorTransferee -> transferorPartyReference -> reference
-		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
+		transfers -> priceQuantity -> quantity -> unitOfAmount -> currency exists
+		and transfers -> priceQuantity -> observable -> productIdentifier exists
+		and transfers count = 2
+		// new syntax required
+		// and transfers -> payerReceiver -> payer is unique
+		//and transfers -> quantity -> quantity -> unit is absent
+
+func LatestTransfers:
+	inputs: transfers Transfer (1..*)
+	output: transfer Transfers (1..1)
+
+func TransfersForDate:
+	inputs: 
+		transfers Transfer (1..*)
+		date date (1..1)
+	output:
+		transfersForDate Transfers (1..1)
+
+func FilterCashTransfers:
+	inputs: transfers Transfer (1..*)
+	output: cashTransfers Transfers (1..1)
+
+func FilterSecurityTransfers:
+	inputs: transfers Transfer (1..*)
+	output: cashTransfers Transfers (1..1)
+
+type Transfers:
+	transfers Transfer (1..*)
 
 // Simple Agency model for clearing
 func Qualify_ClearedTrade:
@@ -269,14 +281,12 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
+	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate) -> transfers only-element
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Increase)
 		and (
-			businessEvent -> primitives count = 1
-			and businessEvent -> primitives -> quantityChange exists
-			or (businessEvent -> primitives -> quantityChange exists
-				and businessEvent -> primitives -> transfer -> cashTransfer exists
-			))
+			businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
+			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
 		and QuantityIncreased(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
 
@@ -330,13 +340,11 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
+	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> PartialTermination)
-		and (businessEvent -> primitives count = 1
-		and businessEvent -> primitives -> quantityChange exists
-			or (businessEvent -> primitives -> quantityChange exists
-				and businessEvent -> primitives -> transfer -> cashTransfer exists
-			))
+		and (businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
+			or (businessEvent -> primitives -> quantityChange exists and transfers exists))
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
 
@@ -354,23 +362,25 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
+	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
 	assign-output is_event:
 		businessEvent -> primitives count = 1
-		and businessEvent -> primitives -> transfer exists
-		and businessEvent -> primitives -> transfer -> securityTransfer exists
-		and businessEvent -> primitives -> transfer -> cashTransfer is absent
-		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
+		and transfer -> priceQuantity -> observable -> productIdentifier exists
+		and transfer -> priceQuantity -> quantity -> unitOfAmount -> currency is absent
+		//and transfer -> priceQuantity -> quantity -> quantity -> unit is absent
 
 func Qualify_SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
+	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers
 	assign-output is_event:
-		businessEvent -> primitives -> transfer -> cashTransfer exists
-		and businessEvent -> primitives -> transfer -> securityTransfer exists
-		and businessEvent -> primitives -> transfer -> cashTransfer -> payerReceiver -> payerPartyReference -> reference = businessEvent -> primitives -> transfer -> securityTransfer -> transferorTransferee -> transfereePartyReference -> reference
-		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
+		transfers -> priceQuantity -> observable -> productIdentifier exists
+		and transfers -> priceQuantity -> quantity -> unitOfAmount -> currency exists
+		and FilterCashTransfers(transfers) -> transfers only-element -> payerReceiver -> payer = 
+			FilterSecurityTransfers(transfers) -> transfers only-element -> payerReceiver -> receiver
+		//and transfers -> quantity -> quantity -> unit is absent
 		and businessEvent -> primitives -> quantityChange is absent
 
 func Qualify_Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
@@ -378,13 +388,12 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
+	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
 		and (businessEvent -> primitives count = 1
-		and businessEvent -> primitives -> quantityChange exists
-			or (businessEvent -> primitives -> quantityChange exists
-				and businessEvent -> primitives -> transfer -> cashTransfer exists)
-			)
+			and businessEvent -> primitives -> quantityChange exists
+			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 
@@ -566,7 +575,7 @@ func ResolveEquityReset: <"Defines how to resolve the reset value for an equity 
 		observation
 
 
-func EquityCashSettlementAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
+func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount.">
 	inputs:
 		tradeState TradeState (1..1)
 		date date (1..1)
@@ -818,7 +827,7 @@ func Create_ContractFormationPrimitive: <"Function specification to create the p
 		if legalAgreement exists
 		then Create_LegalAgreementWithPartyReference(legalAgreement -> agreementTerms, legalAgreement -> agreementDate, legalAgreement -> effectiveDate, legalAgreement -> identifier, /*legalAgreement -> lineage,*/ legalAgreement -> agreementType, legalAgreement -> contractualParty, legalAgreement -> otherParty)
 
-func Create_Exercise: <"Constructs the business event that represents the exercise of an option in a pre-existing contractual product.">
+func Create_Exercise: <"Defines the process of putting into effect the rights specified in an options contract, such as to buy or sell a security.  Once exercised the option contract is terminated.">
  	[creation BusinessEvent]
  	inputs:
  		tradeState TradeState (1..1) <"Specifies a previously formed contractual product with an option payout. It is required that the description of the contractual product be contained within the previous business event, i.e. its lineage must contain the formation of a contractual product.">
@@ -877,7 +886,7 @@ func Create_Exercise: <"Constructs the business event that represents the exerci
  		if exerciseTerms -> settlement -> cashSettlementTerms exists then
  			Create_TransferPrimitive( execution -> trade )
 
-func Create_Reset: <"Defines how a Reset business event should be constructed.">
+func Create_Reset: <"Defines the process of applying a reference rate (also known as fixing rate) to a transaction, usually in order to calculate the settlement value of a periodic payment schedule between two parties.">
 	[creation BusinessEvent]
 	inputs:
 		tradeState TradeState (1..1) <"Represents the trade to which the reset applies.">
@@ -891,10 +900,6 @@ func Create_Reset: <"Defines how a Reset business event should be constructed.">
 
 	assign-output resetEvent -> eventEffect -> effectedTrade: <"Assigns the effectedTrade value as the input TradeState using a reference.">
 		tradeState as-key
-
-	post-condition:
-		resetEvent -> eventEffect -> trade is absent
-		and resetEvent -> eventEffect -> productIdentifier is absent
 
 
 func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructed.">
@@ -949,16 +954,34 @@ func Create_CashTransfer: <"Function specification to build a transfer event fol
 	post-condition: <"Event effect must include the contract generating the cashflow.">
 		transferEvent -> eventEffect -> productIdentifier is absent
 
-func Create_CashTransferPrimitive: <"Function specification to generate a transfer primitive following a reset. The cashflow is being passed as an input, as currently the cashflow is meant to be part of the reset. At a later stage, we should pass the reset value while the cashflow calculation should be executed as part of this spec.">
+func Create_CashTransferPrimitive: <"Defines how a transfer primitive should be constructed, when representing the exchange of cash between parties.">
 	[creation PrimitiveEvent]
 	inputs:
-		tradeState TradeState (1..1)
-		date date (1..1)
+		tradeState TradeState (1..1) <"Represents the trade and associated state on which to construct the Transfer data type.">
+		date date (1..1) <"Specifies the date the transfer is to take place.">
 
 	output:
 		transfer TransferPrimitive (1..1)
 
-	alias cashflow:
+	assign-output transfer -> before:
+		tradeState
+
+	assign-output transfer -> after:
+		tradeState
+
+	assign-output transfer -> after -> transferHistory: <"Assigns the result of the Create_Transfer function to the transferHistory attribute.">
+		Create_Transfer( tradeState, date )
+
+
+func Create_Transfer: <"Defines how Transfer that represents an exchange of cash, should be constructed.">
+	inputs:
+		tradeState TradeState (1..1) <"Represents the trade and associated state on which to construct the Transfer data type.">
+		date date (1..1) <"Specifies the date the transfer is to take place.">
+
+	output:
+		transfer Transfer (1..1)
+
+	alias cashflow: <"Resolves the cashflow due to be transferred from the trade and associated state.">
 		ResolveCashflow(tradeState, date)
 
 	alias counterparties:
@@ -967,18 +990,18 @@ func Create_CashTransferPrimitive: <"Function specification to generate a transf
 	alias ancillaryParties:
 		tradeState -> trade -> tradableProduct -> ancillaryParty
 
-	assign-output transfer -> status:
-		TransferStatusEnum -> Instructed
+	assign-output transfer -> priceQuantity -> quantity -> amount:
+		cashflow -> cashflowAmount -> amount
 
-	assign-output transfer -> cashTransfer -> amount:
-		cashflow -> cashflowAmount
+	assign-output transfer -> priceQuantity -> quantity -> unitOfAmount -> currency:
+		cashflow -> cashflowAmount -> currency
 
-	assign-output transfer -> cashTransfer -> payerReceiver -> payerPartyReference:
+	assign-output transfer -> payerReceiver -> payerPartyReference:
 		if cashflow -> payerReceiver -> payer exists
 		then ExtractCounterpartyByRole( counterparties, cashflow -> payerReceiver -> payer ) -> partyReference
 		else ExtractAncillaryPartyByRole( ancillaryParties, cashflow -> payerReceiver -> payerAncillaryRole ) -> partyReference only-element
 
-	assign-output transfer -> cashTransfer -> payerReceiver -> receiverPartyReference:
+	assign-output transfer -> payerReceiver -> receiverPartyReference:
 		if cashflow -> payerReceiver -> receiver exists
 		then ExtractCounterpartyByRole( counterparties, cashflow -> payerReceiver -> receiver ) -> partyReference
 		else ExtractAncillaryPartyByRole( ancillaryParties, cashflow -> payerReceiver -> receiverAncillaryRole ) -> partyReference only-element
@@ -986,10 +1009,15 @@ func Create_CashTransferPrimitive: <"Function specification to generate a transf
 	assign-output transfer -> settlementDate:
 		cashflow -> cashflowDate
 
-func ResolveCashflow: <"A product agnostic function that calculates the amount due to be transfered after a Reset Event.">
+	assign-output transfer -> settlementOrigin -> equityPayout:
+		if tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout exists
+		then tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element as-key
+
+
+func ResolveCashflow: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
 	inputs:
-		tradeState TradeState (1..1)
-		date date (1..1)
+		tradeState TradeState (1..1) <"Represents the trade and associated state on which to construct the Transfer data type.">
+		date date (1..1) <"Specifies the date the cashflow is to take place.">
 
 	output:
 		cashflow Cashflow (1..1)
@@ -1090,14 +1118,13 @@ func Create_TransferPrimitive: <"Function specification to create the Transfer p
 	output:
 		transferPrimitive TransferPrimitive (1..1) <"Transfer primitive generated from execution.">
 
-	assign-output transferPrimitive -> status:
-		TransferStatusEnum -> Instructed
-
 	post-condition:
-		if trade -> tradableProduct -> product -> security exists and trade -> settlementTerms -> transferSettlementType = TransferSettlementEnum -> DeliveryVersusPayment
-		then transferPrimitive -> cashTransfer exists
-			and transferPrimitive -> securityTransfer exists
-			and transferPrimitive -> commodityTransfer is absent
+		if trade -> tradableProduct -> product -> security exists
+		and trade -> settlementTerms -> transferSettlementType = TransferSettlementEnum -> DeliveryVersusPayment
+		then transferPrimitive -> after -> transferHistory -> priceQuantity -> quantity -> unitOfAmount -> currency exists
+			and transferPrimitive -> after -> transferHistory -> priceQuantity -> observable -> productIdentifier exists
+			//and transferPrimitive -> after -> transferHistory -> priceQuantity -> quantity -> quantity -> unit is absent
+
 
 func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs and constraints when calculating the after state of a Quantity Change Primitive Event">
 	[creation PrimitiveEvent]
