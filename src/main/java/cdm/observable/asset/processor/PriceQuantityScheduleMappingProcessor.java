@@ -30,6 +30,7 @@ public class PriceQuantityScheduleMappingProcessor extends MappingProcessor {
 					PriceQuantity.PriceQuantityBuilder priceQuantityBuilder = (PriceQuantity.PriceQuantityBuilder) parent;
 					Price.PriceBuilder priceBuilder = Price.builder().setAmountBuilder(new BigDecimal(xmlValue));
 					PriceTypeHelper.getPriceTypeEnum(synonymPath).ifPresent(priceBuilder::setPriceType);
+					//priceQuantityBuilder.addPriceBuilder(FieldWithMetaPrice.builder().setValueBuilder(priceBuilder));
 					priceQuantityBuilder.addPriceBuilder(priceBuilder);
 				});
 	}

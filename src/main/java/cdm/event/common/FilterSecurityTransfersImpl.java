@@ -16,9 +16,10 @@ public class FilterSecurityTransfersImpl extends FilterSecurityTransfers {
     }
 
     private boolean hasSecurity(Transfer transfer) {
-        return Optional.ofNullable(transfer).map(Transfer::getPriceQuantity)
-                .map(PriceQuantity::getObservable)
-                .map(Observable::getProductIdentifier)
-                .isPresent();
+//        return Optional.ofNullable(transfer).map(Transfer::getPriceQuantity)
+//                .map(PriceQuantity::getObservable)
+//                .map(Observable::getProductIdentifier)
+//                .isPresent();
+        return false;
     }
 }

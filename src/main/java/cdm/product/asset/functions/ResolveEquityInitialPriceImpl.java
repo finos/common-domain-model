@@ -34,10 +34,11 @@ public class ResolveEquityInitialPriceImpl extends ResolveEquityInitialPrice {
 	}
 
 	private boolean matches(PriceQuantity priceQuantity, List<ProductIdentifier> underlierProductIdentifier) {
-		return Optional.ofNullable(priceQuantity)
-				.map(PriceQuantity::getObservable)
-				.map(Observable::getProductIdentifier)
-				.map(underlierProductIdentifier::contains)
-				.orElse(false);
+//		return Optional.ofNullable(priceQuantity)
+//				.map(PriceQuantity::getObservable)
+//				.map(Observable::getProductIdentifier)
+//				.map(underlierProductIdentifier::contains)
+//				.orElse(false);
+		return false;
 	}
 }
