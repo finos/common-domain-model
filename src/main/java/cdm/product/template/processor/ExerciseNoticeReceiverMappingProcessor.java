@@ -37,7 +37,7 @@ public class ExerciseNoticeReceiverMappingProcessor extends MappingProcessor {
 
 	@Override
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
-		setValueAndOptionallyUpdateMappings(synonymPath,
+		setValueAndOptionallyUpdateMappings(synonymPath.addElement("href"),
 				partyExternalReference -> {
 					Optional<AncillaryRoleEnum> relatedPartyEnum = getAncillaryRoleEnum();
 					relatedPartyEnum.ifPresent(p -> {
