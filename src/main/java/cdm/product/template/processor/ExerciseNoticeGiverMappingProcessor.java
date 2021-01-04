@@ -34,7 +34,7 @@ public class ExerciseNoticeGiverMappingProcessor extends MappingProcessor {
 	@Override
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 			setValueAndOptionallyUpdateMappings(
-					synonymPath,
+					synonymPath.addElement("href"),
 					(noticeGiverParty) -> {
 						Optional<ExerciseNoticeGiverEnum> noticeGiverEnum = getExerciseNoticeGiverEnum(noticeGiverParty);
 						if (noticeGiverEnum.isPresent()) {
