@@ -440,8 +440,7 @@ synonym source FpML_5_10 extends FpML
             [value "rateOfReturn"]
             [value "floatingRateCalculation" path "interestCalculation"]
             // For FX:
-            [value "exchangeRate"]
-            //[hint "exchangeRate"]
+            [value "exchangeRate" mapper "FxPrice"]
 		+ quantity
 		    [value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule"]
 		    [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
@@ -456,6 +455,9 @@ synonym source FpML_5_10 extends FpML
             // Equity Swaps:
             [value "singleUnderlyer" path "underlyer"]
             [value "notionalAmount" path "notional"]
+            // For FX:
+            [value "paymentAmount" path "exchangedCurrency1"]
+            [value "paymentAmount" path "exchangedCurrency2"]
 		+ observable
 		    // For Swap Streams etc
             [value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
@@ -1772,7 +1774,12 @@ synonym source FpML_5_10 extends FpML
 
 	Cashflow:
 		[meta "id"]
-		+ cashflowAmount
+		+ payerReceiver
+		    [value "exchangedCurrency1"]
+		    [value "exchangedCurrency2"]
+		    [hint "payerPartyReference"]
+            [hint "receiverPartyReference"]
+        + cashflowAmount
 			[value "fixedAmount"]
 		+ cashflowType
 			[value "paymentType"]
@@ -1837,6 +1844,8 @@ synonym source FpML_5_10 extends FpML
             [value "fxLinkedNotionalSchedule"]
 		    [value "calculationAmount"]
 		    [value "notionalAmount" path "notional"]
+		    [value "paymentAmount" path "exchangedCurrency1"]
+		    [value "paymentAmount" path "exchangedCurrency2"]
 		+ quantityMultiplier
 		    [value "fxLinkedNotionalSchedule"]
         + quantityReference
@@ -2039,6 +2048,9 @@ synonym source FpML_5_10 extends FpML
             [value "floatingAmountCalculation" path "periodicPayment"]
             // For Equity Swap:
 			[value "rateOfReturn"]
+			// For FX:
+            [hint "exchangedCurrency1"]
+            [hint "exchangedCurrency2"]
 		/*
 
 			// For FX:
@@ -2157,7 +2169,7 @@ synonym source FpML_5_10 extends FpML
             [value "returnLeg" path "equitySwapTransactionSupplement" mapper "PriceQuantityEquitySwap"]
             [value "interestLeg" path "returnSwap" mapper "PriceQuantityEquitySwap"]
             [value "interestLeg" path "equitySwapTransactionSupplement" mapper "PriceQuantityEquitySwap"]
-            [value "fxSingleLeg"] // mapper "PriceQuantity"
+            [value "fxSingleLeg"]
         + adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
@@ -2972,15 +2984,15 @@ synonym source FpML_5_10 extends FpML
 
 	ForeignExchange:
 		+ exchangedCurrency1
-			[value "exchangedCurrency1"]
+			[hint "exchangedCurrency1"]
 			[hint "putCurrencyAmount"]
 		+ exchangedCurrency2
-			[value "exchangedCurrency2"]
+			[hint "exchangedCurrency2"]
 			[hint "callCurrencyAmount"]
 		+ tenorPeriod
 			[value "tenorPeriod"]
 		+ exchangeRate
-			[value "ignore"]
+			[value "exchangeRate"] // Deprecated - move to SettlementTerms
 
 	ExchangeRate:
 		+ quotedCurrencyPair
