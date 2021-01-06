@@ -443,6 +443,9 @@ synonym source FpML_5_10 extends FpML
             [value "exchangeRate" mapper "FxPrice"]
             [value "paymentAmount" path "fxOption->premium"]
             [hint "strike"]
+            // For Repo:
+            [hint "fixedRateSchedule"]
+            [value "floatingRateCalculation"]
 		+ quantity
 		    [value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule"]
 		    [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
@@ -462,6 +465,8 @@ synonym source FpML_5_10 extends FpML
             [value "paymentAmount" path "exchangedCurrency2"]
             [value "putCurrencyAmount"]
             [value "callCurrencyAmount"]
+            // For Repo:
+            [value "settlementAmount" path "nearLeg"]
 		+ observable
 		    // For Swap Streams etc
             [value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
@@ -474,6 +479,10 @@ synonym source FpML_5_10 extends FpML
             [value "floatingRateCalculation" path "interestCalculation"]
             // For FX:
             [value "exchangeRate"]
+            // For Repo:
+            [value "floatingRateCalculation"]
+            // For Repo / Bond Options:
+            [hint "bond"]
 
     Price:
         + amount
@@ -495,8 +504,10 @@ synonym source FpML_5_10 extends FpML
         + unitOfAmount
             [value "netPrice" path "initialPrice"]
             [value "quotedCurrencyPair"]
+            [value "settlementAmount" path "nearLeg"]
         + perUnitOfAmount
             [value "quotedCurrencyPair"]
+            [value "settlementAmount" path "nearLeg"]
         + priceType
             [set to PriceTypeEnum->InterestRate when "fixedRateSchedule->initialValue" exists]
             [set to PriceTypeEnum->InterestRate when "fixedRate" exists]
@@ -1776,9 +1787,8 @@ synonym source FpML_5_10 extends FpML
 	    + commodity
 	        [value "ignore"]
 		+ productIdentifier
-			// For QuantityNotation only set productIdentifier if openUnits exists
-			//[value "equity" set when "openUnits" exists]
 			[value "equity"]
+			[value "bond"]
         + currencyPair
             [value "quotedCurrencyPair"]
 
@@ -1860,6 +1870,7 @@ synonym source FpML_5_10 extends FpML
 		    [value "paymentAmount" path "exchangedCurrency2"]
 		    [value "putCurrencyAmount"]
             [value "callCurrencyAmount"]
+            [value "settlementAmount"]
 		+ quantityMultiplier
 		    [value "fxLinkedNotionalSchedule"]
         + quantityReference
@@ -1969,6 +1980,9 @@ synonym source FpML_5_10 extends FpML
 		    [value "periodicPayment"]
 		    // For Equity:
 		    [value "interestCalculation"]
+		    // For Repo:
+		    [hint "fixedRateSchedule"]
+		    [hint "floatingRateCalculation"]
 
 	OptionExercise:
 		+ strike
@@ -2069,6 +2083,8 @@ synonym source FpML_5_10 extends FpML
             // For FX Option
             [hint "putCurrencyAmount"]
             [hint "callCurrencyAmount"]
+            // For Repo:
+            [value "nearLeg"]
 
 	Payout:
 		+ interestRatePayout
@@ -2177,6 +2193,7 @@ synonym source FpML_5_10 extends FpML
             [value "nearLeg" path "fxSwap"]
             [value "farLeg" path "fxSwap"]
             [value "fxOption" mapper "PriceQuantityFxOption"]
+            [value "repo" mapper "PriceQuantityRepo"]
         + adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 

@@ -1,7 +1,6 @@
 package cdm.product.template.processor;
 
 import cdm.base.math.UnitType;
-import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -19,6 +18,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static cdm.base.math.UnitType.UnitTypeBuilder;
+import static cdm.observable.asset.Price.PriceBuilder;
 
 @SuppressWarnings("unused")
 public class PriceQuantityFxOptionMappingProcessor extends MappingProcessor {
@@ -47,7 +49,7 @@ public class PriceQuantityFxOptionMappingProcessor extends MappingProcessor {
 	}
 
 	@NotNull
-	private Optional<Price.PriceBuilder> getStrikeRatePriceBuilder(List<PriceQuantity.PriceQuantityBuilder> priceQuantityBuilders, String strikeRate) {
+	private Optional<PriceBuilder> getStrikeRatePriceBuilder(List<PriceQuantity.PriceQuantityBuilder> priceQuantityBuilders, String strikeRate) {
 		return priceQuantityBuilders.stream()
 				.map(PriceQuantity.PriceQuantityBuilder::getPrice)
 				.filter(Objects::nonNull)
@@ -57,26 +59,27 @@ public class PriceQuantityFxOptionMappingProcessor extends MappingProcessor {
 				.findFirst();
 	}
 
-	private void setUnitOfAmountAndPerUnitOfAmount(Price.PriceBuilder strikeRateBuilder, UnitType.UnitTypeBuilder callCurrency, UnitType.UnitTypeBuilder putCurrency) {
-		strikeRateBuilder
-				.setUnitOfAmountBuilder(callCurrency)
-				.setPerUnitOfAmountBuilder(putCurrency);
+	private void setUnitOfAmountAndPerUnitOfAmount(PriceBuilder priceBuilder, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount) {
+		priceBuilder
+				.setUnitOfAmountBuilder(unitOfAmount)
+				.setPerUnitOfAmountBuilder(perUnitOfAmount);
 	}
 
 	@NotNull
-	private UnitType.UnitTypeBuilder getCallCurrency(Path synonymPath) {
+	private UnitTypeBuilder getCallCurrency(Path synonymPath) {
 		return getUnitType(synonymPath.addElement("callCurrencyAmount"));
 	}
 
 	@NotNull
-	private UnitType.UnitTypeBuilder getPutCurrency(Path synonymPath) {
+	private UnitTypeBuilder getPutCurrency(Path synonymPath) {
 		return getUnitType(synonymPath.addElement("putCurrencyAmount"));
 	}
 
-	private UnitType.UnitTypeBuilder getUnitType(Path synonymPath) {
+	private UnitTypeBuilder getUnitType(Path synonymPath) {
+		Path currencyPath = synonymPath.addElement("currency");
 		FieldWithMetaString.FieldWithMetaStringBuilder currencyBuilder = FieldWithMetaString.builder();
-		setValueAndUpdateMappings(synonymPath.addElement("currency"), currencyBuilder::setValue);
-		setValueAndUpdateMappings(synonymPath.addElement("currency").addElement("currencyScheme"), scheme ->
+		setValueAndUpdateMappings(currencyPath, currencyBuilder::setValue);
+		setValueAndUpdateMappings(currencyPath.addElement("currencyScheme"), scheme ->
 				currencyBuilder.setMeta(MetaFields.builder().setScheme(scheme).build()));
 		return UnitType.builder().setCurrencyBuilder(currencyBuilder);
 	}
