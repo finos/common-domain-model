@@ -445,6 +445,7 @@ synonym source FpML_5_10 extends FpML
             // For Credit:
             [value "periodicPayment"]
             [value "floatingAmountCalculation" path "periodicPayment"]
+            [value "creditDefaultSwapOption"]
             // For Equity Swaps:
             [value "rateOfReturn"]
             [value "floatingRateCalculation" path "interestCalculation"]
@@ -509,8 +510,9 @@ synonym source FpML_5_10 extends FpML
             [value "amount" path "initialPrice->netPrice" maps 2]
             [value "fixedRate" maps 2]
             [value "fixedRate" path "fixedAmountCalculation" maps 2]
-            [value "strikePrice"]
+            [value "strikePrice" path "strike->price"]
             [value "spread"]
+            [value "spread" path "strike" maps 2]
             [value "referencePrice"]
         + unitOfAmount
             [value "netPrice" path "initialPrice"]
@@ -527,8 +529,10 @@ synonym source FpML_5_10 extends FpML
             [set to PriceTypeEnum->Spread when "fixedAmountCalculation->floatingRate->initialRate" exists]
             [set to PriceTypeEnum->Spread when "spreadSchedule->initialValue" exists]
             [set to PriceTypeEnum->Spread when "spread" exists]
+            [set to PriceTypeEnum->Spread when "strike->spread" exists]
             [set to PriceTypeEnum->ReferencePrice when "referencePrice" exists]
             [set to PriceTypeEnum->CleanPrice when "strikePrice" exists]
+            //[set to PriceTypeEnum->CleanPrice when "strike->price->strikePrice" exists] // TODO caused exception
             [set to PriceTypeEnum->NetPrice when "initialPrice->netPrice->amount" exists]
             [set to PriceTypeEnum->CapRate when "capRateSchedule->initialValue" exists]
             [set to PriceTypeEnum->FloorRate when "floorRateSchedule->initialValue" exists]
@@ -905,18 +909,20 @@ synonym source FpML_5_10 extends FpML
 
 	OptionStrike:
 		+ strikePrice
-			[hint "spread"]
-			[value "price"]
-            [value "rate"]
-			[value "currency" path "price" meta "currencyScheme"]
-			[value "strikePercentage" path "price"]
-			[hint "strike"]
+			[value "price" path "strike" meta "strikePrice"]
+        	[value "strike" meta "spread"]
+        	[value "strike" meta "rate"]
+            // TODO
+            //[hint "spread"]
+			//[value "rate"]
+			//[value "currency" path "price" meta "currencyScheme"]
+			//[value "strikePercentage" path "price"]
 		+ strikeReference
-			[value "strikeReference" meta "href"]
+			[value "strikeReference" path "strike" meta "href"]
 		+ referenceSwapCurve
-			[value "referenceSwapCurve"]
+			[value "referenceSwapCurve" path "strike"]
 		+ averagingStrikeFeature
-			[value "FxAverageStrike"]
+			[value "FxAverageStrike" path "strike"]
 
 	FxRateObservable:
 		+ quotedCurrencyPair
@@ -2028,8 +2034,7 @@ synonym source FpML_5_10 extends FpML
 
 	OptionExercise:
 		+ strike
-		    [value "strike"]
-			[hint "strike"]
+		    [hint "strike"]
 		+ exerciseProcedure
 			[value "exerciseProcedure"]
 
@@ -2223,7 +2228,8 @@ synonym source FpML_5_10 extends FpML
 		    [value "feeLeg" path "creditDefaultSwap" mapper "PriceQuantityCds"]
 		    [value "initialPayment" path "creditDefaultSwap->feeLeg"]
             [value "protectionTerms" path "creditDefaultSwap" mapper "PriceQuantityCds"]
-		    [value "feeLeg" path "creditDefaultSwapOption->creditDefaultSwap" mapper "PriceQuantityCds"]
+		    [hint "creditDefaultSwapOption"]
+            [value "feeLeg" path "creditDefaultSwapOption->creditDefaultSwap" mapper "PriceQuantityCds"]
             [value "protectionTerms" path "creditDefaultSwapOption->creditDefaultSwap" mapper "PriceQuantityCds"]
             [value "returnLeg" path "returnSwap" mapper "PriceQuantityEquitySwap"]
             [value "returnLeg" path "equitySwapTransactionSupplement" mapper "PriceQuantityEquitySwap"]
