@@ -450,6 +450,7 @@ synonym source FpML_5_10 extends FpML
             [value "rateOfReturn"]
             [value "floatingRateCalculation" path "interestCalculation"]
             // For FX:
+            [hint "spotRate"]
             [value "exchangeRate" mapper "FxPrice"]
             [value "paymentAmount" path "fxOption->premium"]
             [hint "strike"]
@@ -504,6 +505,7 @@ synonym source FpML_5_10 extends FpML
             [value "initialValue" path "capRateSchedule" maps 2]
             [value "initialValue" path "floorRateSchedule" maps 2]
             [value "initialValue" path "floatingRateMultiplierSchedule" maps 2]
+            [value "spotRate" maps 2]
             [value "rate" maps 2]
             [value "rate" path "strike" maps 2]
             [value "amount" maps 2]
@@ -530,6 +532,7 @@ synonym source FpML_5_10 extends FpML
             [set to PriceTypeEnum->Spread when "spreadSchedule->initialValue" exists]
             [set to PriceTypeEnum->Spread when "spread" exists]
             [set to PriceTypeEnum->Spread when "strike->spread" exists]
+            [set to PriceTypeEnum->MultiplierOfIndexValue when "floatingRateMultiplierSchedule->initialValue" exists]
             [set to PriceTypeEnum->ReferencePrice when "referencePrice" exists]
             [set to PriceTypeEnum->CleanPrice when "strikePrice" exists]
             //[set to PriceTypeEnum->CleanPrice when "strike->price->strikePrice" exists] // TODO caused exception
@@ -537,6 +540,7 @@ synonym source FpML_5_10 extends FpML
             [set to PriceTypeEnum->CapRate when "capRateSchedule->initialValue" exists]
             [set to PriceTypeEnum->FloorRate when "floorRateSchedule->initialValue" exists]
             [set to PriceTypeEnum->Spot when "rate" exists]
+            [set to PriceTypeEnum->Spot when "spotRate" exists]
             // TODO: PREMIUM vs CASH_PRICE
             [set to PriceTypeEnum->CashPrice when "amount" exists]
             // A
@@ -3046,6 +3050,8 @@ synonym source FpML_5_10 extends FpML
 			[hint "callCurrencyAmount"]
 		+ tenorPeriod
 			[value "tenorPeriod"]
+		+ exchangeRate
+		    [value "ignore"]
 
 	ExchangeRate:
 		+ quotedCurrencyPair
