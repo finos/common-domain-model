@@ -242,6 +242,7 @@ synonym source FpML_5_10 extends FpML
 		    [value "spreadSchedule"]
 			[hint "spreadSchedule"]
 			[hint "initialRate"]
+			[value "floatingRate"]
 		+ rateTreatment
 			[value "rateTreatment"]
 		+ capRateSchedule
@@ -252,6 +253,8 @@ synonym source FpML_5_10 extends FpML
         	[hint "floorRateSchedule"]
 
 	FloatingRateSpecification:
+	    + initialRate
+	        [value "floatingRate" meta "initialRate"]
 		+ finalRateRounding
 			[value "finalRateRounding", "finalRateRounding" path "floatingRate"]
 		+ averagingMethod
@@ -441,6 +444,7 @@ synonym source FpML_5_10 extends FpML
 		    [hint "fixedRate"]
             // For Credit:
             [value "periodicPayment"]
+            [value "floatingAmountCalculation" path "periodicPayment"]
             // For Equity Swaps:
             [value "rateOfReturn"]
             [value "floatingRateCalculation" path "interestCalculation"]
@@ -492,8 +496,10 @@ synonym source FpML_5_10 extends FpML
     Price:
         + amount
             [value "initialRate" maps 2]
+            [value "initialRate" path "floatingRate"]
             [value "initialValue" path "fixedRateSchedule" maps 2]
             [value "initialValue" path "spreadSchedule"]
+            [value "initialValue" path "floatingRate->spreadSchedule"]
             [value "initialValue" path "capRateSchedule" maps 2]
             [value "initialValue" path "floorRateSchedule" maps 2]
             [value "initialValue" path "floatingRateMultiplierSchedule" maps 2]
@@ -666,6 +672,8 @@ synonym source FpML_5_10 extends FpML
             // TODO
             // ird-ex27-inverse-floater.json
             [value "floatingRateMultiplierSchedule" meta "initialValue"]
+            // For CDS:
+            [value "fixedAmountCalculation" meta "fixedRate"]
         + step
             [value "step"]
 
@@ -1600,6 +1608,7 @@ synonym source FpML_5_10 extends FpML
 			[value "notionalStepSchedule" meta "initialValue"]
 			[value "notional" meta "amount"]
 			[value "notionalAmount" meta "amount"]
+			[value "calculationAmount" meta "amount"]
 		+ stepSchedule
 			[value "notionalStepSchedule"]
 
@@ -1881,6 +1890,7 @@ synonym source FpML_5_10 extends FpML
 			[value "fixedRateSchedule"]
 			[hint "fixedRateSchedule"]
 			[hint "fixedRate"]
+			[hint "fixedAmountCalculation"]
 
 	ResolvablePayoutQuantity:
 		[meta "id" path "notionalSchedule"]
@@ -1914,6 +1924,7 @@ synonym source FpML_5_10 extends FpML
 		    [value "notionalSchedule"]
 		    [hint "notional"]
 		    [hint "notionalAmount"]
+		    [hint "calculationAmount"]
 		+ reset
 			[value "notionalReset"]
 		+ futureValueNotional
