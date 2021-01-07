@@ -237,14 +237,19 @@ synonym source FpML_5_10 extends FpML
 	 	[value "FloatingRate" meta "id"]
 		+ floatingRateMultiplierSchedule
 			[value "floatingRateMultiplierSchedule"]
+			[hint "floatingRateMultiplierSchedule"]
 		+ spreadSchedule
-			[value "spreadSchedule"]
+		    [value "spreadSchedule"]
+			[hint "spreadSchedule"]
+			[hint "initialRate"]
 		+ rateTreatment
 			[value "rateTreatment"]
 		+ capRateSchedule
 			[value "capRateSchedule"]
-		+ floorRateSchedule
+			[hint "capRateSchedule"]
+        + floorRateSchedule
 			[value "floorRateSchedule"]
+        	[hint "floorRateSchedule"]
 
 	FloatingRateSpecification:
 		+ finalRateRounding
@@ -255,12 +260,14 @@ synonym source FpML_5_10 extends FpML
 			[value "negativeInterestRateTreatment", "negativeInterestRateTreatment" path "floatingRate"]
 
 	FutureValueAmount:
+	    + quantity
+	        [value "futureValueNotional" meta "amount"]
 		+ currency
-			[value "currency" maps 2 meta "currencyScheme"]
+			[value "currency" path "futureValueNotional" maps 2 meta "currencyScheme"]
 		+ calculationPeriodNumberOfDays
-			[value "calculationPeriodNumberOfDays"]
+			[value "calculationPeriodNumberOfDays" path "futureValueNotional"]
 		+ valueDate
-			[value "valueDate"]
+			[value "valueDate" path "futureValueNotional"]
 
 	FxRate:
 		+ quotedCurrencyPair
@@ -429,8 +436,6 @@ synonym source FpML_5_10 extends FpML
 		+ price
 		    [value "calculation" path "calculationPeriodAmount"]
 		    [value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
-		    [value "initialValue" path "calculationPeriodAmount->calculation->floatingRateCalculation->floatingRateMultiplierSchedule" maps 2 mapper "PriceMultiplier"]
-            [value "initialValue" path "calculationPeriodAmount->calculation->floatingRateCalculation->floorRateSchedule" maps 2 mapper "PriceCollar"]
             [value "paymentAmount"]
             // For FRAs:
 		    [hint "fixedRate"]
@@ -640,6 +645,30 @@ synonym source FpML_5_10 extends FpML
 		+ paymentDate
 			[value "paymentDate"]
 
+    RateSchedule:
+	    + initialValue
+	        [value "fixedRateSchedule" meta "initialValue"]
+	        // TODO
+            [hint "fixedRate"] // for FRAs (duplicate keys and synonym issue)
+            // for ird-ex29-non-deliverable-settlement-swap-uti.xml
+            // for ird-ex33-BRL-CDI-swap-versioned.xml
+            [hint "initialRate"]
+            // TODO
+	        // EUR-variable-notional-uti.xml (cardinality issue)
+	        // GBP-VNS-uti.xml
+            [value "spreadSchedule" meta "initialValue"]
+            // TODO
+            // ird-ex22-cap.xml
+            // ird-ex23-floor.xml
+            // ird-ex24-collar.xml
+            [value "capRateSchedule" meta "initialValue"]
+            [value "floorRateSchedule" meta "initialValue"]
+            // TODO
+            // ird-ex27-inverse-floater.json
+            [value "floatingRateMultiplierSchedule" meta "initialValue"]
+        + step
+            [value "step"]
+
 	SpreadSchedule:
 		+ spreadScheduleType
 			[value "SpreadScheduleType" meta "spreadScheduleTypeScheme"]
@@ -654,7 +683,7 @@ synonym source FpML_5_10 extends FpML
 			[value "seller"]
 
 	StrikeSchedule:
-		+ buyer
+	    + buyer
 			[value "buyer"]
 		+ seller
 			[value "seller"]
@@ -1267,15 +1296,15 @@ synonym source FpML_5_10 extends FpML
 
 	FxLinkedNotionalSchedule:
 		+ initialValue
-			[value "initialValue"]
+			[value "fxLinkedNotionalSchedule" meta "initialValue"]
 		+ varyingNotionalCurrency
-			[value "varyingNotionalCurrency" meta "currencyScheme"]
+			[value "varyingNotionalCurrency" path "fxLinkedNotionalSchedule" meta "currencyScheme"]
 		+ varyingNotionalFixingDates
-			[value "varyingNotionalFixingDates"]
+			[value "varyingNotionalFixingDates" path "fxLinkedNotionalSchedule"]
 		+ fxSpotRateSource
-			[value "fxSpotRateSource"]
+			[value "fxSpotRateSource" path "fxLinkedNotionalSchedule"]
 		+ varyingNotionalInterimExchangePaymentDates
-			[value "varyingNotionalInterimExchangePaymentDates"]
+			[value "varyingNotionalInterimExchangePaymentDates" path "fxLinkedNotionalSchedule"]
 
 	InflationRateSpecification:
 		+ inflationLag
@@ -1561,17 +1590,16 @@ synonym source FpML_5_10 extends FpML
             [value "initialValue" maps 2]
             [value "amount" maps 2]
             [value "openUnits" maps 2]
-        //+ unitOfAmount
-        //    [hint "currency"]
-        //    [hint "varyingNotionalCurrency"]
         + multiplier
-		    [value "ignore"]
+		    [value "ignore"] // mapper
         + multiplierUnit
-            [value "ignore"]
+            [value "ignore"] // mapper
 
 	NonNegativeQuantitySchedule:
 		+ initialQuantity
-			[value "notionalStepSchedule" set when "notionalStepSchedule->step" exists]
+			[value "notionalStepSchedule" meta "initialValue"]
+			[value "notional" meta "amount"]
+			[value "notionalAmount" meta "amount"]
 		+ stepSchedule
 			[value "notionalStepSchedule"]
 
@@ -1851,6 +1879,8 @@ synonym source FpML_5_10 extends FpML
 		[meta "id" path "fixedAmountCalculation->fixedRate"]
 		+ rateSchedule
 			[value "fixedRateSchedule"]
+			[hint "fixedRateSchedule"]
+			[hint "fixedRate"]
 
 	ResolvablePayoutQuantity:
 		[meta "id" path "notionalSchedule"]
@@ -1858,8 +1888,9 @@ synonym source FpML_5_10 extends FpML
         [meta "id" path "notional"]
         [meta "id" path "notional->notionalAmount"]
 		[meta "id" path "calculationAmount"]
+		/*
         + resolvedQuantity
-		    [value "notionalStepSchedule" path "notionalSchedule"]
+		    //[value "notionalStepSchedule" path "notionalSchedule"]
 		    [value "notionalAmount"]
             [value "futureValueNotional"]
             [value "notional"]
@@ -1871,8 +1902,9 @@ synonym source FpML_5_10 extends FpML
 		    [value "putCurrencyAmount"]
             [value "callCurrencyAmount"]
             [value "settlementAmount"]
+        */
 		+ quantityMultiplier
-		    [value "fxLinkedNotionalSchedule"]
+		    [hint "fxLinkedNotionalSchedule"]
         + quantityReference
 			[value "relativeNotionalAmount" path "notional" meta "href"]
 			[value "constantNotionalScheduleReference" path "fxLinkedNotionalSchedule" meta "href"]
@@ -1880,10 +1912,12 @@ synonym source FpML_5_10 extends FpML
 			[value "notionalReference" meta "href"]
 		+ quantitySchedule
 		    [value "notionalSchedule"]
+		    [hint "notional"]
+		    [hint "notionalAmount"]
 		+ reset
 			[value "notionalReset"]
 		+ futureValueNotional
-			[value "futureValueNotional"]
+			[hint "futureValueNotional"]
 
 	CrossCurrencyTerms:
 		+ principalExchanges
@@ -2171,7 +2205,8 @@ synonym source FpML_5_10 extends FpML
 	TradableProduct:
 	    + priceQuantity
 	        [value "swapStream" path "swap" mapper "PriceQuantitySwapStream"]
-	        [value "fra" mapper "PriceQuantityFra"]
+	        [value "swapStream" path "swaption->swap" mapper "PriceQuantitySwapStream"]
+            [value "fra" mapper "PriceQuantityFra"]
 	        [value "additionalPayment" path "swap"]
 	        [value "otherPartyPayment"]
 		    [value "capFloorStream" path "capFloor" mapper "PriceQuantitySwapStream"]
@@ -2198,13 +2233,19 @@ synonym source FpML_5_10 extends FpML
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
 	RateSpecificationBase:
+	    /*
 	    + resolvedPrice
-	        [hint "fixedRateSchedule"]
-            [hint "initialRate"]
-            [hint "spreadSchedule"]
-            [hint "capRateSchedule"]
+	        [value "fixedRateSchedule" meta "initialValue"]
+	        //[value "spreadSchedule" meta "initialValue"]
+	        //[value "capRateSchedule" meta "initialValue"]
+	        //[value "floorRateSchedule" meta "initialValue"]
+	        // TODO
+	        [hint "fixedRate"] // for FRAs (duplicate keys and synonym issue)
+	        // for ird-ex29-non-deliverable-settlement-swap-uti.xml
+	        // for ird-ex33-BRL-CDI-swap-versioned.xml
+	        [hint "initialRate"]
+
             [hint "floatingRateMultiplierSchedule"]
-            [hint "floorRateSchedule"]
             [hint "amount"]
             [hint "paymentAmount"]
             [hint "strikePrice"]
@@ -2213,6 +2254,7 @@ synonym source FpML_5_10 extends FpML
             [hint "fixedRate"]
             [hint "fixedAmountCalculation"]
             [value "floatingRate"]
+        */
 		+ observable
             [hint "floatingRateIndex", "indexTenor"]
             [hint "floatingRate"]

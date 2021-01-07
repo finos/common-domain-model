@@ -1,9 +1,7 @@
 package cdm.product.template.processor;
 
-import cdm.base.math.MeasureBase;
-import cdm.base.math.UnitType;
-import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
+import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -17,6 +15,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static cdm.base.math.MeasureBase.MeasureBaseBuilder;
+import static cdm.base.math.UnitType.UnitTypeBuilder;
+import static cdm.base.math.metafields.FieldWithMetaQuantity.FieldWithMetaQuantityBuilder;
+import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
 import static com.rosetta.model.metafields.FieldWithMetaString.FieldWithMetaStringBuilder;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
@@ -31,23 +33,25 @@ public class PriceQuantitySwapStreamMappingProcessor extends MappingProcessor {
 	@Override
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		LOGGER.info("SwapStream path {} builders {}", synonymPath, builders.size());
-		List<PriceQuantity.PriceQuantityBuilder> pqBuilders = (List<PriceQuantity.PriceQuantityBuilder>) builders;
+		List<PriceQuantityBuilder> pqBuilders = (List<PriceQuantityBuilder>) builders;
 		List<FieldWithMetaStringBuilder> notionalCurrencies = emptyIfNull(pqBuilders)
 				.stream()
-				.map(PriceQuantity.PriceQuantityBuilder::getQuantity)
+				.map(PriceQuantityBuilder::getQuantity)
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
-				.map(MeasureBase.MeasureBaseBuilder::getUnitOfAmount)
-				.map(UnitType.UnitTypeBuilder::getCurrency)
+				.map(FieldWithMetaQuantityBuilder::getValue)
+				.map(MeasureBaseBuilder::getUnitOfAmount)
+				.map(UnitTypeBuilder::getCurrency)
 				.distinct()
 				.collect(Collectors.toList());
 		if (notionalCurrencies.size() == 1) {
 			FieldWithMetaStringBuilder notionalCurrency = notionalCurrencies.get(0);
 			pqBuilders.stream()
-					.map(PriceQuantity.PriceQuantityBuilder::getPrice)
+					.map(PriceQuantityBuilder::getPrice)
 					.filter(Objects::nonNull)
 					.flatMap(Collection::stream)
 					.filter(RosettaModelObjectBuilder::hasData)
+					.map(FieldWithMetaPrice.FieldWithMetaPriceBuilder::getValue)
 					.forEach(priceBuilder -> {
 						PriceTypeEnum priceType = priceBuilder.getPriceType();
 						if (priceType == PriceTypeEnum.INTEREST_RATE

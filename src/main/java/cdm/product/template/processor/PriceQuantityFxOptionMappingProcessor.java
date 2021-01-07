@@ -3,6 +3,7 @@ package cdm.product.template.processor;
 import cdm.base.math.UnitType;
 import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
+import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.observable.asset.Price.PriceBuilder;
+import static cdm.observable.asset.metafields.FieldWithMetaPrice.*;
 
 @SuppressWarnings("unused")
 public class PriceQuantityFxOptionMappingProcessor extends MappingProcessor {
@@ -54,6 +56,7 @@ public class PriceQuantityFxOptionMappingProcessor extends MappingProcessor {
 				.map(PriceQuantity.PriceQuantityBuilder::getPrice)
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
+				.map(FieldWithMetaPriceBuilder::getValue)
 				.filter(p -> p.getPriceType() == null)
 				.filter(p -> strikeRate.equals(p.getAmount().toString()))
 				.findFirst();

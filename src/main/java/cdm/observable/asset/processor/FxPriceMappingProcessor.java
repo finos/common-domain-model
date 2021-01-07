@@ -4,6 +4,7 @@ import cdm.base.math.UnitType;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
+import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -32,19 +33,21 @@ public class FxPriceMappingProcessor extends MappingProcessor {
 
 		setValueAndUpdateMappings(synonymPath.addElement("spotRate"),
 				(xmlValue) ->
-					priceQuantityBuilder.addPriceBuilder(Price.builder()
-							.setAmount(new BigDecimal(xmlValue))
-							.setPriceType(PriceTypeEnum.SPOT)
-							.setUnitOfAmountBuilder(unitOfAmount)
-							.setPerUnitOfAmountBuilder(perUnitOfAmount)));
+					priceQuantityBuilder.addPriceBuilder(FieldWithMetaPrice.builder()
+							.setValueBuilder(Price.builder()
+									.setAmount(new BigDecimal(xmlValue))
+									.setPriceType(PriceTypeEnum.SPOT)
+									.setUnitOfAmountBuilder(unitOfAmount)
+									.setPerUnitOfAmountBuilder(perUnitOfAmount))));
 
 		setValueAndUpdateMappings(synonymPath.addElement("forwardPoints"),
 				(xmlValue) ->
-						priceQuantityBuilder.addPriceBuilder(Price.builder()
-								.setAmount(new BigDecimal(xmlValue))
-								.setPriceType(PriceTypeEnum.FORWARD_POINTS)
-								.setUnitOfAmountBuilder(unitOfAmount)
-								.setPerUnitOfAmountBuilder(perUnitOfAmount)));
+						priceQuantityBuilder.addPriceBuilder(FieldWithMetaPrice.builder()
+								.setValueBuilder(Price.builder()
+										.setAmount(new BigDecimal(xmlValue))
+										.setPriceType(PriceTypeEnum.FORWARD_POINTS)
+										.setUnitOfAmountBuilder(unitOfAmount)
+										.setPerUnitOfAmountBuilder(perUnitOfAmount))));
 	}
 
 	private UnitType.UnitTypeBuilder getUnitOfAmount(List<Price.PriceBuilder> priceBuilders) {

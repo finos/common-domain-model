@@ -2,6 +2,7 @@ package cdm.product.template.processor;
 
 import cdm.base.math.UnitType;
 import cdm.observable.asset.PriceTypeEnum;
+import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -53,6 +54,7 @@ public class PriceQuantityRepoMappingProcessor extends MappingProcessor {
 				.map(PriceQuantityBuilder::getPrice)
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
+				.map(FieldWithMetaPrice.FieldWithMetaPriceBuilder::getValue)
 				.filter(p -> p.getPriceType() == priceType)
 				.filter(p -> price.equals(p.getAmount().toString()))
 				.findFirst();
