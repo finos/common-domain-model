@@ -237,23 +237,19 @@ synonym source FpML_5_10 extends FpML
 	 	[value "FloatingRate" meta "id"]
 		+ floatingRateMultiplierSchedule
 			[value "floatingRateMultiplierSchedule"]
-			[hint "floatingRateMultiplierSchedule"]
 		+ spreadSchedule
 		    [value "spreadSchedule"]
-			[hint "spreadSchedule"]
-			[hint "initialRate"]
-			[value "floatingRate"]
+			[value "spreadSchedule" path "floatingRate"]
 		+ rateTreatment
 			[value "rateTreatment"]
 		+ capRateSchedule
 			[value "capRateSchedule"]
-			[hint "capRateSchedule"]
-        + floorRateSchedule
+		+ floorRateSchedule
 			[value "floorRateSchedule"]
-        	[hint "floorRateSchedule"]
 
 	FloatingRateSpecification:
 	    + initialRate
+	        [meta "initialRate"]
 	        [value "floatingRate" meta "initialRate"]
 		+ finalRateRounding
 			[value "finalRateRounding", "finalRateRounding" path "floatingRate"]
@@ -499,9 +495,10 @@ synonym source FpML_5_10 extends FpML
     Price:
         + amount
             [value "initialRate" maps 2]
-            [value "initialRate" path "floatingRate"]
+            [value "initialRate" path "floatingRate" maps 2]
             [value "initialValue" path "fixedRateSchedule" maps 2]
             [value "initialValue" path "spreadSchedule"]
+            // TODO cdindex-ex04-iBoxx-uti.xml
             [value "initialValue" path "floatingRate->spreadSchedule"]
             [value "initialValue" path "capRateSchedule" maps 2]
             [value "initialValue" path "floorRateSchedule" maps 2]
@@ -529,8 +526,9 @@ synonym source FpML_5_10 extends FpML
             [set to PriceTypeEnum->InterestRate when "fixedRateSchedule->initialValue" exists]
             [set to PriceTypeEnum->InterestRate when "fixedRate" exists]
             [set to PriceTypeEnum->InterestRate when "fixedAmountCalculation->fixedRate" exists]
-            [set to PriceTypeEnum->Spread when "floatingRateCalculation->initialRate" exists]
-            [set to PriceTypeEnum->Spread when "fixedAmountCalculation->floatingRate->initialRate" exists]
+            [set to PriceTypeEnum->InterestRate when "initialRate" exists]
+            [set to PriceTypeEnum->InterestRate when "floatingRate->initialRate" exists]
+            //[set to PriceTypeEnum->InterestRate when "floatingRateCalculation->initialRate" exists]
             [set to PriceTypeEnum->Spread when "spreadSchedule->initialValue" exists]
             [set to PriceTypeEnum->Spread when "spread" exists]
             [set to PriceTypeEnum->Spread when "strike->spread" exists]
@@ -656,27 +654,18 @@ synonym source FpML_5_10 extends FpML
 
     RateSchedule:
 	    + initialValue
-	        [value "fixedRateSchedule" meta "initialValue"]
+            // TODO
+            // ird-ex24-collar.xml (reference issue + mapper)
+            // cdindex-ex04-iBoxx-uti.xml (spreadSchedule.initialValue not reference)
+            [meta "initialValue"]
+            [value "floatingRateMultiplierSchedule" meta "initialValue"]
+            // for FRAs (duplicate keys)
+            [meta "fixedRate"]
+            [hint "fixedRate"]
 	        // TODO
-            [hint "fixedRate"] // for FRAs (duplicate keys and synonym issue)
             // for ird-ex29-non-deliverable-settlement-swap-uti.xml
             // for ird-ex33-BRL-CDI-swap-versioned.xml
-            [hint "initialRate"]
-            // TODO
-	        // EUR-variable-notional-uti.xml (cardinality issue)
-	        // GBP-VNS-uti.xml
-            [value "spreadSchedule" meta "initialValue"]
-            // TODO
-            // ird-ex22-cap.xml
-            // ird-ex23-floor.xml
-            // ird-ex24-collar.xml
-            [value "capRateSchedule" meta "initialValue"]
-            [value "floorRateSchedule" meta "initialValue"]
-            // TODO
-            // ird-ex27-inverse-floater.json
-            [value "floatingRateMultiplierSchedule" meta "initialValue"]
-            // For CDS:
-            [value "fixedAmountCalculation" meta "fixedRate"]
+            [value "floatingRateCalculation" meta "initialRate"]
         + step
             [value "step"]
 
@@ -1898,9 +1887,8 @@ synonym source FpML_5_10 extends FpML
 		[meta "id" path "fixedAmountCalculation->fixedRate"]
 		+ rateSchedule
 			[value "fixedRateSchedule"]
-			[hint "fixedRateSchedule"]
-			[hint "fixedRate"]
-			[hint "fixedAmountCalculation"]
+			[value "fixedAmountCalculation"]
+            [hint "fixedRate"]
 
 	ResolvablePayoutQuantity:
 		[meta "id" path "notionalSchedule"]
@@ -2243,29 +2231,7 @@ synonym source FpML_5_10 extends FpML
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
 	RateSpecificationBase:
-	    /*
-	    + resolvedPrice
-	        [value "fixedRateSchedule" meta "initialValue"]
-	        [value "spreadSchedule" meta "initialValue"]
-	        [value "capRateSchedule" meta "initialValue"]
-	        [value "floorRateSchedule" meta "initialValue"]
-	        // TODO
-	        [hint "fixedRate"] // for FRAs (duplicate keys and synonym issue)
-	        // for ird-ex29-non-deliverable-settlement-swap-uti.xml
-	        // for ird-ex33-BRL-CDI-swap-versioned.xml
-	        [hint "initialRate"]
-
-            [hint "floatingRateMultiplierSchedule"]
-            [hint "amount"]
-            [hint "paymentAmount"]
-            [hint "strikePrice"]
-            [hint "spread"]
-            [hint "referencePrice"]
-            [hint "fixedRate"]
-            [hint "fixedAmountCalculation"]
-            [value "floatingRate"]
-        */
-		+ observable
+	    + observable
             [hint "floatingRateIndex", "indexTenor"]
             [hint "floatingRate"]
 
