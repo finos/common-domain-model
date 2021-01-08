@@ -40,8 +40,11 @@ public class PriceQuantitySwapStreamMappingProcessor extends MappingProcessor {
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
 				.map(FieldWithMetaQuantityBuilder::getValue)
+				.filter(Objects::nonNull)
 				.map(MeasureBaseBuilder::getUnitOfAmount)
+				.filter(Objects::nonNull)
 				.map(UnitTypeBuilder::getCurrency)
+				.filter(Objects::nonNull)
 				.distinct()
 				.collect(Collectors.toList());
 		if (notionalCurrencies.size() == 1) {

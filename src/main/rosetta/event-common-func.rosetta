@@ -152,7 +152,7 @@ func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact 
 	assign-output is_event:
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> transfer exists
-		// TODO check this logic
+		// TODO PQ
 		and businessEvent -> primitives -> transfer -> after -> transferHistory -> priceQuantity -> quantity -> unitOfAmount -> currency exists
 		and businessEvent -> primitives -> transfer -> after -> transferHistory -> priceQuantity -> observable -> productIdentifier is absent
 		and businessEvent -> primitives -> transfer -> after -> transferHistory -> priceQuantity -> observable -> rateOption is absent
@@ -163,6 +163,7 @@ func Qualify_CashAndSecurityTransfer: <"The qualification of a security settleme
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
+	// TODO PQ
 	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers
 	assign-output is_event:
 		transfers -> priceQuantity -> quantity -> unitOfAmount -> currency exists
@@ -281,6 +282,7 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
+	// TODO PQ
 	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate) -> transfers only-element
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Increase)
@@ -340,6 +342,7 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
+	// TODO PQ
 	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> PartialTermination)
@@ -362,6 +365,7 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
+	// TODO PQ
 	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
 	assign-output is_event:
 		businessEvent -> primitives count = 1
@@ -374,6 +378,7 @@ func Qualify_SecuritySettlement: <"The qualification of a security settlement fr
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
+	// TODO PQ
 	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers
 	assign-output is_event:
 		transfers -> priceQuantity -> observable -> productIdentifier exists
@@ -388,6 +393,7 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
+	// TODO PQ
 	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
@@ -1121,6 +1127,7 @@ func Create_TransferPrimitive: <"Function specification to create the Transfer p
 	post-condition:
 		if trade -> tradableProduct -> product -> security exists
 		and trade -> settlementTerms -> transferSettlementType = TransferSettlementEnum -> DeliveryVersusPayment
+		// TODO PQ
 		then transferPrimitive -> after -> transferHistory -> priceQuantity -> quantity -> unitOfAmount -> currency exists
 			and transferPrimitive -> after -> transferHistory -> priceQuantity -> observable -> productIdentifier exists
 			//and transferPrimitive -> after -> transferHistory -> priceQuantity -> quantity -> quantity -> unit is absent
