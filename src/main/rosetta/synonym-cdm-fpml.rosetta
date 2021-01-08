@@ -439,6 +439,7 @@ synonym source FpML_5_10 extends FpML
 		+ price
 		    [value "calculation" path "calculationPeriodAmount"]
 		    [value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
+            [value "initialValue" path "calculationPeriodAmount->calculation->floatingRateCalculation->floorRateSchedule" mapper "PriceCollar"]
             [value "paymentAmount"]
             // For FRAs:
 		    [hint "fixedRate"]
@@ -451,7 +452,7 @@ synonym source FpML_5_10 extends FpML
             [value "floatingRateCalculation" path "interestCalculation"]
             // For FX:
             [hint "spotRate"]
-            [value "exchangeRate" mapper "FxPrice"]
+            [value "exchangeRate" mapper "ExchangeRate"]
             [value "paymentAmount" path "fxOption->premium"]
             [hint "strike"]
             // For Repo:
@@ -505,6 +506,7 @@ synonym source FpML_5_10 extends FpML
             [value "initialValue" path "capRateSchedule" maps 2]
             [value "initialValue" path "floorRateSchedule" maps 2]
             [value "initialValue" path "floatingRateMultiplierSchedule" maps 2]
+            //[value "forwardPoints" maps 2] // mapper
             [value "spotRate" maps 2]
             [value "rate" maps 2]
             [value "rate" path "strike" maps 2]
@@ -537,10 +539,11 @@ synonym source FpML_5_10 extends FpML
             [set to PriceTypeEnum->CleanPrice when "strikePrice" exists]
             //[set to PriceTypeEnum->CleanPrice when "strike->price->strikePrice" exists] // TODO caused exception
             [set to PriceTypeEnum->NetPrice when "initialPrice->netPrice->amount" exists]
-            [set to PriceTypeEnum->CapRate when "capRateSchedule->initialValue" exists]
-            [set to PriceTypeEnum->FloorRate when "floorRateSchedule->initialValue" exists]
+            [set to PriceTypeEnum->FloorRate when "floorRateSchedule" exists and "capRateSchedule" is absent]
+            [set to PriceTypeEnum->CapRate when "capRateSchedule" exists]
             [set to PriceTypeEnum->Spot when "rate" exists]
-            [set to PriceTypeEnum->Spot when "spotRate" exists]
+            //[set to PriceTypeEnum->Spot when "spotRate" exists] // mapper
+            //[set to PriceTypeEnum->ForwardPoints when "forwardPoints" exists] // mapper
             [set to PriceTypeEnum->CashPrice when path = "additionalPayment->paymentAmount"]
             [set to PriceTypeEnum->CashPrice when path = "otherPartyPayment->paymentAmount"]
             [set to PriceTypeEnum->CashPrice when path = "initialPayment->paymentAmount"]

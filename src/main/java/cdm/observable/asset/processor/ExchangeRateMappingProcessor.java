@@ -15,25 +15,26 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static cdm.observable.asset.metafields.FieldWithMetaPrice.*;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 @SuppressWarnings("unused")
-public class FxPriceMappingProcessor extends MappingProcessor {
+public class ExchangeRateMappingProcessor extends MappingProcessor {
 
-	public FxPriceMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
+	public ExchangeRateMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);
 	}
 
 	@Override
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		PriceQuantity.PriceQuantityBuilder priceQuantityBuilder = (PriceQuantity.PriceQuantityBuilder) parent;
-		List<Price.PriceBuilder> priceBuilders = emptyIfNull((List<Price.PriceBuilder>) builders);
+		List<FieldWithMetaPriceBuilder> priceBuilders = emptyIfNull((List<FieldWithMetaPriceBuilder>) builders);
 		UnitType.UnitTypeBuilder unitOfAmount = getUnitOfAmount(priceBuilders);
 		UnitType.UnitTypeBuilder perUnitOfAmount = getPerUnitOfAmount(priceBuilders);
 
 		setValueAndUpdateMappings(synonymPath.addElement("spotRate"),
 				(xmlValue) ->
-					priceQuantityBuilder.addPriceBuilder(FieldWithMetaPrice.builder()
+					priceQuantityBuilder.addPriceBuilder(builder()
 							.setValueBuilder(Price.builder()
 									.setAmount(new BigDecimal(xmlValue))
 									.setPriceType(PriceTypeEnum.SPOT)
@@ -42,7 +43,7 @@ public class FxPriceMappingProcessor extends MappingProcessor {
 
 		setValueAndUpdateMappings(synonymPath.addElement("forwardPoints"),
 				(xmlValue) ->
-						priceQuantityBuilder.addPriceBuilder(FieldWithMetaPrice.builder()
+						priceQuantityBuilder.addPriceBuilder(builder()
 								.setValueBuilder(Price.builder()
 										.setAmount(new BigDecimal(xmlValue))
 										.setPriceType(PriceTypeEnum.FORWARD_POINTS)
@@ -50,16 +51,18 @@ public class FxPriceMappingProcessor extends MappingProcessor {
 										.setPerUnitOfAmountBuilder(perUnitOfAmount))));
 	}
 
-	private UnitType.UnitTypeBuilder getUnitOfAmount(List<Price.PriceBuilder> priceBuilders) {
+	private UnitType.UnitTypeBuilder getUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
 		return priceBuilders.stream()
+				.map(FieldWithMetaPriceBuilder::getValue)
 				.filter(p -> p.getPriceType() == PriceTypeEnum.SPOT)
 				.findFirst()
 				.map(Price.PriceBuilder::getUnitOfAmount)
 				.orElse(null);
 	}
 
-	private UnitType.UnitTypeBuilder getPerUnitOfAmount(List<Price.PriceBuilder> priceBuilders) {
+	private UnitType.UnitTypeBuilder getPerUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
 		return priceBuilders.stream()
+				.map(FieldWithMetaPriceBuilder::getValue)
 				.filter(p -> p.getPriceType() == PriceTypeEnum.SPOT)
 				.findFirst()
 				.map(Price.PriceBuilder::getPerUnitOfAmount)
