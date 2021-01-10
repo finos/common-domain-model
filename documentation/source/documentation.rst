@@ -35,50 +35,6 @@ A tradable product represents a financial product that is ready to be traded, me
 
 Quantity and price are represented in the ``TradableProduct`` type because they are attributes shared by all products. All of the other attributes required to describe a product are defined in distinct product types.
 
-QuantityNotation
-""""""""""""""""
-The ``QuantityNotation`` type supports the quantity (or notional) for any product.
-
-.. code-block:: Haskell
-
- type QuantityNotation:
-   quantity NonNegativeQuantity (1..1)
-   assetIdentifier AssetIdentifier (1..1)
-
-The ``AssetIdentifier`` type requires the specification of either a product, currency or a floating rate option. This choice constraint is supported by specifying a ``one-of`` condition, as described in the `Special Syntax Section`_ of the Rosetta DSL documentation.
-
-.. code-block:: Haskell
-
- type AssetIdentifier:
-   productIdentifier ProductIdentifier (0..1)
-   currency string (0..1)
-     [metadata scheme]
-   rateOption FloatingRateOption (0..1)
-   condition: one-of
-
-PriceNotation
-"""""""""""""
-The ``PriceNotation`` type supports the price for any product.
-
-.. code-block:: Haskell
-
- type PriceNotation:
-   price Price (1..1)
-   assetIdentifier AssetIdentifier (0..1)
-
-The ``price`` attribute is of type ``Price``, which requires the selection of one of the attributes that describe different types of prices. The set of attributes collectively support all products in the CDM.
-
-.. code-block:: Haskell
-
- type Price:
-   cashPrice CashPrice (0..1)
-   exchangeRate ExchangeRate (0..1)
-   fixedInterestRate FixedInterestRate (0..1)
-   floatingInterestRate FloatingInterestRate (0..1)
-   condition: one-of
-
-For example, ``cashPrice`` would be used to represent the reference price in an Equity Swap and ``fixedInterestRate`` would be used to represent the fixed rate on an Interest Rate Swap. ``floatingInterestRate`` would be used to represent a cap or floor, or could be used to represent the known initial reset rate of a floating leg in an Interest Rate Swap, if it is agreed between the parties as part of the trade.
-
 Financial Product
 """""""""""""""""
 
@@ -1556,20 +1512,20 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
 .. code-block:: Haskell
 
  func FloatingAmount:
-   [calculation]
-   inputs:
-     interestRatePayout InterestRatePayout (1..1)
-     rate FloatingInterestRate (1..1)
-     quantity NonNegativeQuantity (1..1)
-     date date (1..1)
-   output: floatingAmount number (1..1)
+ 	[calculation]
+ 	inputs:
+ 		interestRatePayout InterestRatePayout (1..1)
+ 		rate FloatingInterestRate (1..1)
+ 		quantity NonNegativeQuantity (1..1)
+ 		date date (1..1)
+ 	output: floatingAmount number (1..1)
 
-   alias calculationAmount: quantity -> amount
-   alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> observable -> rateOption -> floatingRateIndex )
-   alias spreadRate: rate -> spread
-   alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+ 	alias calculationAmount: quantity -> amount
+ 	alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> observable -> rateOption -> floatingRateIndex )
+ 	alias spreadRate: rate -> spread
+ 	alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
 
-   assign-output floatingAmount: calculationAmount * (floatingRate + spreadRate) * dayCountFraction
+ 	assign-output floatingAmount: calculationAmount * (floatingRate + spreadRate) * dayCountFraction
 
 Day Count Fraction
 """"""""""""""""""
@@ -1637,14 +1593,14 @@ Some of those calculations are presented below:
  	alias equityPerformance:
  	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
 
- 	condition:
- 		tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
+     condition:
+         tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
 
  	assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
  		Abs(equityPerformance)
 
- 	assign-output equityCashSettlementAmount -> cashflowAmount -> currency:
- 		ResolveEquityInitialPrice( equityPayout only-element -> underlier, tradeState -> trade -> tradableProduct -> priceQuantity ) -> unitOfAmount -> currency
+ 	assign-output equityCashSettlementAmount -> cashflowAmount -> currency: 
+         ResolveEquityInitialPrice( tradeState -> trade -> tradableProduct -> priceQuantity ) -> unitOfAmount -> currency
 
  	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
  	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
