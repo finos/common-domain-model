@@ -433,29 +433,41 @@ synonym source FpML_5_10 extends FpML
 
 	PriceQuantity:
 		+ price
-		    [value "calculation" path "calculationPeriodAmount"]
+		    [value "fixedRateSchedule" path "calculationPeriodAmount->calculation"]
 		    [value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
+            [value "spreadSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
+            [value "capRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
+            [value "floorRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
+            [value "floatingRateMultiplierSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
             [value "initialValue" path "calculationPeriodAmount->calculation->floatingRateCalculation->floorRateSchedule" mapper "PriceCollar"]
+            [value "price" path "strike"]
             [value "paymentAmount"]
             // For FRAs:
 		    [hint "fixedRate"]
             // For Credit:
-            [value "periodicPayment"]
-            [value "floatingAmountCalculation" path "periodicPayment"]
-            [value "creditDefaultSwapOption"]
+            [value "fixedAmountCalculation" path "periodicPayment"]
+            [value "floatingRate" path "periodicPayment->floatingAmountCalculation"]
+            [value "spreadSchedule" path "periodicPayment->floatingAmountCalculation->floatingRate"]
+            [value "strike" path "creditDefaultSwapOption"]
             [value "fixedAmount"]
             // For Equity Swaps:
             [value "rateOfReturn"]
             [value "floatingRateCalculation" path "interestCalculation"]
+            [value "spreadSchedule" path "interestCalculation->floatingRateCalculation"]
+            [value "capRateSchedule" path "interestCalculation->floatingRateCalculation"]
+            [value "floorRateSchedule" path "interestCalculation->floatingRateCalculation"]
+            [value "floatingRateMultiplierSchedule" path "interestCalculation->floatingRateCalculation"]
             // For FX:
             [hint "spotRate"]
             [value "exchangeRate" mapper "ExchangeRate"]
             [value "paymentAmount" path "fxOption->premium"]
-            [hint "strike"]
+            [value "strike"]
             // For Repo:
-            [hint "fixedRateSchedule"]
+            [value "fixedRateSchedule"]
             [value "floatingRateCalculation"]
-		+ quantity
+            [value "spreadSchedule" path "floatingRateCalculation"]
+		    [value "floatingRateMultiplierSchedule" path "floatingRateCalculation"]
+        + quantity
 		    [value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule"]
 		    [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
 		    [value "futureValueNotional" path "calculationPeriodAmount->calculation"]
@@ -495,26 +507,17 @@ synonym source FpML_5_10 extends FpML
 
     Price:
         + amount
+            // TODO (PQ) mapper required for cdindex-ex04-iBoxx-uti.xml
             [value "initialRate" maps 2]
-            [value "initialRate" path "floatingRate" maps 2]
-            [value "initialValue" path "fixedRateSchedule" maps 2]
-            [value "initialValue" path "spreadSchedule"]
-            // TODO cdindex-ex04-iBoxx-uti.xml
-            [value "initialValue" path "floatingRate->spreadSchedule"]
-            [value "initialValue" path "capRateSchedule" maps 2]
-            [value "initialValue" path "floorRateSchedule" maps 2]
-            [value "initialValue" path "floatingRateMultiplierSchedule" maps 2]
-            //[value "forwardPoints" maps 2] // mapper
+            [value "initialValue" maps 2]
             [value "spotRate" maps 2]
             [value "rate" maps 2]
-            [value "rate" path "strike" maps 2]
+            //[value "forwardPoints" maps 2] // mapped with mapper
             [value "amount" maps 2]
             [value "amount" path "initialPrice->netPrice" maps 2]
             [value "fixedRate" maps 2]
-            [value "fixedRate" path "fixedAmountCalculation" maps 2]
-            [value "strikePrice" path "strike->price"]
+            [value "strikePrice"]
             [value "spread"]
-            [value "spread" path "strike" maps 2]
             [value "referencePrice"]
         + unitOfAmount
             [value "netPrice" path "initialPrice"]
@@ -525,25 +528,20 @@ synonym source FpML_5_10 extends FpML
             [value "settlementAmount" path "nearLeg"]
         + priceType
             // TODO (PQ) conditional mapping synonyms should allow "value" and "set to" as multiple paths can exist, e.g. rate/spotRate/forwardPoints
-            [set to PriceTypeEnum->InterestRate when "fixedRateSchedule->initialValue" exists]
+            [set to PriceTypeEnum->InterestRate when path = "fixedRateSchedule"]
             [set to PriceTypeEnum->InterestRate when "fixedRate" exists]
-            [set to PriceTypeEnum->InterestRate when "fixedAmountCalculation->fixedRate" exists]
             [set to PriceTypeEnum->InterestRate when "initialRate" exists]
-            [set to PriceTypeEnum->InterestRate when "floatingRate->initialRate" exists]
-            //[set to PriceTypeEnum->InterestRate when "floatingRateCalculation->initialRate" exists]
-            [set to PriceTypeEnum->Spread when "spreadSchedule->initialValue" exists]
             [set to PriceTypeEnum->Spread when "spread" exists]
-            [set to PriceTypeEnum->Spread when "strike->spread" exists]
-            [set to PriceTypeEnum->MultiplierOfIndexValue when "floatingRateMultiplierSchedule->initialValue" exists]
+            [set to PriceTypeEnum->Spread when path = "spreadSchedule"]
+            [set to PriceTypeEnum->FloorRate when path = "floorRateSchedule"]
+            [set to PriceTypeEnum->CapRate when path = "capRateSchedule"]
+            [set to PriceTypeEnum->MultiplierOfIndexValue when path = "floatingRateMultiplierSchedule"]
             [set to PriceTypeEnum->ReferencePrice when "referencePrice" exists]
             [set to PriceTypeEnum->CleanPrice when "strikePrice" exists]
-            //[set to PriceTypeEnum->CleanPrice when "strike->price->strikePrice" exists] // TODO (PQ) causes exception
             [set to PriceTypeEnum->NetPrice when "initialPrice->netPrice->amount" exists]
-            [set to PriceTypeEnum->FloorRate when "floorRateSchedule" exists and "capRateSchedule" is absent]
-            [set to PriceTypeEnum->CapRate when "capRateSchedule" exists]
-            [set to PriceTypeEnum->Spot when "rate" exists]
-            //[set to PriceTypeEnum->Spot when "spotRate" exists] // mapper
-            //[set to PriceTypeEnum->ForwardPoints when "forwardPoints" exists] // mapper
+            [set to PriceTypeEnum->Spot when path = "exchangeRate" and "rate" exists]
+            //[set to PriceTypeEnum->Spot when path = "exchangeRate" and "spotRate" exists] // mapper
+            //[set to PriceTypeEnum->ForwardPoints when path = "exchangeRate" and "forwardPoints" exists] // mapper
             [set to PriceTypeEnum->CashPrice when path = "additionalPayment->paymentAmount"]
             [set to PriceTypeEnum->CashPrice when path = "otherPartyPayment->paymentAmount"]
             [set to PriceTypeEnum->CashPrice when path = "initialPayment->paymentAmount"]
@@ -1590,9 +1588,9 @@ synonym source FpML_5_10 extends FpML
             [value "amount" maps 2]
             [value "openUnits" maps 2]
         + multiplier
-		    [value "ignore"] // mapper
+		    [value "ignore"] // mapped with mapper
         + multiplierUnit
-            [value "ignore"] // mapper
+            [value "ignore"] // mapped with mapper
 
 	NonNegativeQuantitySchedule:
 		+ initialQuantity

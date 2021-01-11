@@ -55,8 +55,9 @@ public class PriceQuantityRepoMappingProcessor extends MappingProcessor {
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
 				.map(FieldWithMetaPrice.FieldWithMetaPriceBuilder::getValue)
+				.filter(Objects::nonNull)
 				.filter(p -> p.getPriceType() == priceType)
-				.filter(p -> price.equals(p.getAmount().toString()))
+				.filter(p -> price.equals(String.valueOf(p.getAmount())))
 				.findFirst();
 	}
 
