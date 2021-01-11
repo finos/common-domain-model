@@ -656,18 +656,14 @@ synonym source FpML_5_10 extends FpML
 
     RateSchedule:
 	    + initialValue
-            // TODO
-            // ird-ex24-collar.xml (reference issue + mapper)
-            // cdindex-ex04-iBoxx-uti.xml (spreadSchedule.initialValue not reference)
+            // TODO key/reference generate after mappers for ird-ex24-collar.xml (FLOOR_RATE set by mapper), fx-ex03-fx-fwd.json (+ other FX)
+            // TODO incorrect key/reference generated - floor_rate ref points to cap_rate key for ird-ex24-collar.xml
+            // TODO spread and initial floating rate both reference same initial floating rate for cdindex-ex04-iBoxx-uti.json
             [meta "initialValue"]
-            [value "floatingRateMultiplierSchedule" meta "initialValue"]
-            // for FRAs (duplicate keys)
-            [meta "fixedRate"]
-            [hint "fixedRate"]
-	        // TODO
-            // for ird-ex29-non-deliverable-settlement-swap-uti.xml
-            // for ird-ex33-BRL-CDI-swap-versioned.xml
             [value "floatingRateCalculation" meta "initialRate"]
+            [value "floatingRateMultiplierSchedule" meta "initialValue"]
+            [meta "fixedRate"] // // TODO duplicate keys generated for ird-ex08-fra.json (+ 1 other FRAs), repo-ex01-repo-fixed-rate.json (+ 5 other Repos)
+            [hint "fixedRate"] // TODO removing this hint causes compilation issues
         + step
             [value "step"]
 
@@ -902,10 +898,8 @@ synonym source FpML_5_10 extends FpML
 			[value "price" path "strike" meta "strikePrice"]
         	[value "strike" meta "spread"]
         	[value "strike" meta "rate"]
-            // TODO
-            //[hint "spread"]
-			//[value "rate"]
-			//[value "currency" path "price" meta "currencyScheme"]
+            // TODO are these required?
+            //[value "currency" path "price" meta "currencyScheme"]
 			//[value "strikePercentage" path "price"]
 		+ strikeReference
 			[value "strikeReference" path "strike" meta "href"]
