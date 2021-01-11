@@ -2,6 +2,7 @@ package org.isda.cdm.processor;
 
 import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
+import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.annotations.RosettaSynonym;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
@@ -70,4 +71,14 @@ public class CdmMappingProcessorUtils {
 		}
 	}
 
+	public static Path startsWithPath(String pathElement, Path path) {
+		if (path.endsWith(pathElement)) {
+			return path;
+		}
+		Path parent = path.getParent();
+		if (parent != null) {
+			return startsWithPath(pathElement, parent);
+		}
+		throw new IllegalArgumentException(String.format("Path element %s not found in path %s", pathElement, path));
+	}
 }

@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappingSuccess;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.startsWithPath;
 
 /**
  * Mapper required due to mapping issues with multiple prices.
@@ -44,17 +45,6 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 					.addPriceBuilder(getPrice(floorRateMapping, unitType, unitType, PriceTypeEnum.FLOOR_RATE));
 			updateMappingSuccess(floorRateMapping.get(), getModelPath());
 		}
-	}
-
-	private Path startsWithPath(String pathElement, Path path) {
-		if (path.endsWith(pathElement)) {
-			return path;
-		}
-		Path parent = path.getParent();
-		if (parent != null) {
-			return startsWithPath(pathElement, parent);
-		}
-		throw new IllegalArgumentException(String.format("Path element %s not found in path %s", pathElement, path));
 	}
 
 	private FieldWithMetaPrice.FieldWithMetaPriceBuilder getPrice(Optional<Mapping> price, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount, PriceTypeEnum priceType) {
