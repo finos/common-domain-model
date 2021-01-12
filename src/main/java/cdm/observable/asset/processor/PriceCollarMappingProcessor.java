@@ -20,7 +20,7 @@ import java.util.Optional;
 
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappingSuccess;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.startsWithPath;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.subPath;
 
 /**
  * Mapper required due to mapping issues with multiple prices.
@@ -36,18 +36,20 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 
 	@Override
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-		Path startsWithPath = startsWithPath("capFloorStream", synonymPath);
-		Optional<Mapping> floorRateMapping = getNonNullMapping(startsWithPath, "floorRateSchedule", "initialValue");
-		Optional<Mapping> capRateMapping = getNonNullMapping(startsWithPath, "capRateSchedule", "initialValue");
-		if (floorRateMapping.isPresent() && capRateMapping.isPresent()) {
-			UnitTypeBuilder unitType = getUnitTypeNotionalCurrency(startsWithPath);
-			((PriceQuantity.PriceQuantityBuilder) parent)
-					.addPriceBuilder(getPrice(floorRateMapping, unitType, unitType, PriceTypeEnum.FLOOR_RATE));
-			updateMappingSuccess(floorRateMapping.get(), getModelPath());
-		}
+		subPath("capFloorStream", synonymPath).ifPresent(subPath -> {
+			Optional<Mapping> floorRateMapping = getNonNullMapping(subPath, "floorRateSchedule", "initialValue");
+			Optional<Mapping> capRateMapping = getNonNullMapping(subPath, "capRateSchedule", "initialValue");
+			if (floorRateMapping.isPresent() && capRateMapping.isPresent()) {
+				UnitTypeBuilder unitType = getUnitTypeNotionalCurrency(subPath);
+				((PriceQuantity.PriceQuantityBuilder) parent)
+						.addPriceBuilder(getPrice(floorRateMapping, unitType, unitType, PriceTypeEnum.FLOOR_RATE));
+				updateMappingSuccess(floorRateMapping.get(), getModelPath());
+			}
+		});
 	}
 
-	private FieldWithMetaPrice.FieldWithMetaPriceBuilder getPrice(Optional<Mapping> price, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount, PriceTypeEnum priceType) {
+	private FieldWithMetaPrice.FieldWithMetaPriceBuilder getPrice(Optional<Mapping> price, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount,
+			PriceTypeEnum priceType) {
 		return FieldWithMetaPrice.builder()
 				.setValueBuilder(Price.builder()
 						.setAmountBuilder(toBigDecimalValue(price))

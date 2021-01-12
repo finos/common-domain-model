@@ -14,7 +14,7 @@ import java.util.Objects;
 
 import static cdm.observable.asset.metafields.FieldWithMetaPrice.FieldWithMetaPriceBuilder;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.startsWithPath;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.subPath;
 
 @SuppressWarnings("unused")
 public class OrePriceMappingProcessor extends MappingProcessor {
@@ -25,7 +25,9 @@ public class OrePriceMappingProcessor extends MappingProcessor {
 
 	@Override
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
-		getValueAndUpdateMappings(startsWithPath("LegData", synonymPath).addElement("Currency"))
+		subPath("LegData", synonymPath)
+				.map(subPath -> subPath.addElement("Currency"))
+				.flatMap(this::getValueAndUpdateMappings)
 				.map(this::toUnitType)
 				.ifPresent(unitType -> emptyIfNull((List<FieldWithMetaPriceBuilder>) builders).stream()
 						.map(FieldWithMetaPriceBuilder::getValue)

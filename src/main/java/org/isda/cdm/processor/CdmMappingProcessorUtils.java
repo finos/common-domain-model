@@ -71,14 +71,13 @@ public class CdmMappingProcessorUtils {
 		}
 	}
 
-	public static Path startsWithPath(String pathElement, Path path) {
-		if (path.endsWith(pathElement)) {
-			return path;
+	public static Optional<Path> subPath(String lastElement, Path path) {
+		if (path.endsWith(lastElement)) {
+			return Optional.of(path);
 		}
-		Path parent = path.getParent();
-		if (parent != null) {
-			return startsWithPath(pathElement, parent);
+		if (path.getElements().size() > 0) {
+			return subPath(lastElement, path.getParent());
 		}
-		throw new IllegalArgumentException(String.format("Path element %s not found in path %s", pathElement, path));
+		return Optional.empty();
 	}
 }

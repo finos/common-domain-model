@@ -13,7 +13,7 @@ import java.util.Objects;
 
 import static cdm.base.math.metafields.FieldWithMetaQuantity.FieldWithMetaQuantityBuilder;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.startsWithPath;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.subPath;
 
 @SuppressWarnings("unused")
 public class OreQuantityMappingProcessor extends MappingProcessor {
@@ -24,7 +24,9 @@ public class OreQuantityMappingProcessor extends MappingProcessor {
 
 	@Override
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
-		getValueAndUpdateMappings(startsWithPath("LegData", synonymPath).addElement("Currency"))
+		subPath("LegData", synonymPath)
+				.map(subPath -> subPath.addElement("Currency"))
+				.flatMap(this::getValueAndUpdateMappings)
 				.ifPresent(currency -> emptyIfNull((List<FieldWithMetaQuantityBuilder>) builders).stream()
 						.map(FieldWithMetaQuantityBuilder::getValue)
 						.filter(Objects::nonNull)
