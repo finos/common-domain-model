@@ -5,11 +5,14 @@ import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.asset.metafields.FieldWithMetaPrice;
+import cdm.observable.asset.metafields.FieldWithMetaPrice.FieldWithMetaPriceBuilder;
+
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
@@ -50,12 +53,15 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 
 	private FieldWithMetaPrice.FieldWithMetaPriceBuilder getPrice(Optional<Mapping> price, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount,
 			PriceTypeEnum priceType) {
-		return FieldWithMetaPrice.builder()
-				.setValueBuilder(Price.builder()
-						.setAmountBuilder(toBigDecimalValue(price))
-						.setPriceType(priceType)
-						.setUnitOfAmountBuilder(unitOfAmount)
-						.setPerUnitOfAmountBuilder(perUnitOfAmount));
+		
+		FieldWithMetaPriceBuilder priceBuilder = FieldWithMetaPrice.builder()
+						.setValueBuilder(Price.builder()
+								.setAmountBuilder(toBigDecimalValue(price))
+								.setPriceType(priceType)
+								.setUnitOfAmountBuilder(unitOfAmount)
+								.setPerUnitOfAmountBuilder(perUnitOfAmount));
+		priceBuilder.getOrCreateMeta().getOrCreateKeys().addKey(new Key.KeyBuilder().setScope("DOCUMENT"));
+		return priceBuilder;
 	}
 
 	private UnitTypeBuilder getUnitTypeNotionalCurrency(Path startsWithPath) {
