@@ -506,7 +506,7 @@ synonym source FpML_5_10 extends FpML
             [value "initialRate" mapper "PriceUnitType"]
             [value "initialValue" mapper "PriceUnitType"]
             [value "spotRate" mapper "PriceUnitType"]
-            [value "rate" mapper "PriceUnitType"]
+            [value "rate" maps 2 mapper "PriceUnitType"]
             //[value "forwardPoints"] // mapped with mapper
             [value "amount" mapper "PriceUnitType"]
             [value "amount" path "initialPrice->netPrice" mapper "PriceUnitType"]
@@ -537,6 +537,7 @@ synonym source FpML_5_10 extends FpML
             [set to PriceTypeEnum->Spot when path = "exchangeRate" and "rate" exists]
             //[set to PriceTypeEnum->Spot when path = "exchangeRate" and "spotRate" exists] // mapper
             //[set to PriceTypeEnum->ForwardPoints when path = "exchangeRate" and "forwardPoints" exists] // mapper
+            [set to PriceTypeEnum->RatePrice when path = "fxOption->strike"]
             [set to PriceTypeEnum->CashPrice when path = "additionalPayment->paymentAmount"]
             [set to PriceTypeEnum->CashPrice when path = "otherPartyPayment->paymentAmount"]
             [set to PriceTypeEnum->CashPrice when path = "initialPayment->paymentAmount"]
@@ -888,15 +889,15 @@ synonym source FpML_5_10 extends FpML
 
 	OptionStrike:
 		+ strikePrice
-			[value "price" path "strike" meta "strikePrice"]
-        	[value "strike" meta "spread"]
-        	[value "strike" meta "rate"]
-		+ strikeReference
-			[value "strikeReference" path "strike" meta "href"]
+			[meta "rate"]
+            [meta "spread"]
+        	[value "price" meta "strikePrice"]
+        + strikeReference
+			[value "strikeReference" meta "href"]
 		+ referenceSwapCurve
-			[value "referenceSwapCurve" path "strike"]
+			[value "referenceSwapCurve"]
 		+ averagingStrikeFeature
-			[value "FxAverageStrike" path "strike"]
+			[value "FxAverageStrike"]
 
 	FxRateObservable:
 		+ quotedCurrencyPair
@@ -2005,7 +2006,7 @@ synonym source FpML_5_10 extends FpML
 
 	OptionExercise:
 		+ strike
-		    [hint "strike"]
+		    [value "strike"]
 		+ exerciseProcedure
 			[value "exerciseProcedure"]
 
@@ -2210,8 +2211,8 @@ synonym source FpML_5_10 extends FpML
             [value "fxSingleLeg"]
             [value "nearLeg" path "fxSwap"]
             [value "farLeg" path "fxSwap"]
-            [value "fxOption" mapper "PriceQuantityFxOption"]
-            [value "repo" mapper "PriceQuantityRepo"]
+            [value "fxOption"]
+            [value "repo"]
         + adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 

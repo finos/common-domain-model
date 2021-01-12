@@ -55,32 +55,32 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				// Equity
 				|| updateCurrencyUnitsFromNotionalReference(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
 				|| updateCurrencyUnitsFromNotional(priceBuilder, synonymPath, "returnLeg", "notional", "notionalAmount", "currency")
-
-		) {
+				// Fx
+				|| updateFxOption(priceBuilder, synonymPath)
+				// Repo
+				|| updateCurrencyUnitsFromNotional(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")) {
 			return;
 		}
 		LOGGER.info("no !!!! {} {}", synonymPath, priceBuilder.getPriceType());
 	}
 
 	@NotNull
-	private Boolean updateCurrencyUnitsFromNotional(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
+	private boolean updateCurrencyUnitsFromNotional(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
 		return subPath(basePathElement, synonymPath)
 				.flatMap(subPath -> getNonNullMapping(subPath, endsWith))
-				.map(currencyMapping -> setCurrencyUnits(builder, currencyMapping))
+				.map(currencyMapping -> setRateUnits(builder, currencyMapping))
 				.orElse(false);
 	}
 
-
-
 	@NotNull
-	private Boolean updateCurrencyUnitsFromNotionalReference(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
+	private boolean updateCurrencyUnitsFromNotionalReference(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
 		Optional<Path> subPath = subPath(basePathElement, synonymPath);
 		return subPath.flatMap(p -> getNonNullMapping(p, endsWith))
 				.map(Mapping::getXmlValue)
 				.map(String::valueOf)
 				.flatMap(notionalHef -> getReferencedPath(synonymPath, subPath.get(), notionalHef))
 				.flatMap(referencedPath -> getNonNullMapping(referencedPath, "currency"))
-				.map(m -> setCurrencyUnits(builder, m))
+				.map(m -> setRateUnits(builder, m))
 				.orElse(false);
 	}
 
@@ -93,13 +93,8 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	}
 
 	@NotNull
-	private Boolean setCurrencyUnits(PriceBuilder builder, Mapping currencyMapping) {
-		String currency = String.valueOf(currencyMapping.getXmlValue());
-		String currencyScheme = getNonNullMappedValue(currencyMapping.getXmlPath().addElement("currencyScheme"), getMappings()).orElse(null);
-		UnitTypeBuilder unitType = UnitType.builder().setCurrency(FieldWithMetaString.builder()
-				.setValue(currency)
-				.setMeta(MetaFields.builder().setScheme(currencyScheme).build())
-				.build());
+	private Boolean setRateUnits(PriceBuilder builder, Mapping currencyMapping) {
+		UnitTypeBuilder unitType = toUnitType(currencyMapping);
 		PriceTypeEnum priceType = builder.getPriceType();
 		// unit of amount
 		builder.setUnitOfAmountBuilder(unitType);
@@ -113,8 +108,18 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| priceType == PriceTypeEnum.REFERENCE_PRICE) {
 			builder.setPerUnitOfAmountBuilder(unitType);
 		}
-		LOGGER.info("yes! **** {} {} {}", currencyMapping.getXmlPath(), builder.getPriceType(), currency);
 		return true;
+	}
+
+	private UnitTypeBuilder toUnitType(Mapping currencyMapping) {
+		String currency = String.valueOf(currencyMapping.getXmlValue());
+		String currencyScheme = getNonNullMappedValue(currencyMapping.getXmlPath().addElement("currencyScheme"), getMappings()).orElse(null);
+		return UnitType.builder()
+				.setCurrency(FieldWithMetaString.builder()
+						.setValue(currency)
+						.setMeta(MetaFields.builder()
+								.setScheme(currencyScheme).build())
+						.build());
 	}
 
 	private Optional<Mapping> getNonNullMapping(Path startsWith, String... endsWith) {
@@ -131,5 +136,26 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				.filter(m -> m.getXmlPath().endsWith("id"))
 				.filter(m -> id.equals(m.getXmlValue()))
 				.findFirst();
+	}
+
+	private boolean updateFxOption(PriceBuilder builder, Path synonymPath) {
+		if (builder.getPriceType() != PriceTypeEnum.RATE_PRICE) {
+			return false;
+		}
+		Optional<Path> subPath = subPath("fxOption", synonymPath);
+		return subPath.flatMap(p -> getValueAndUpdateMappings(p.addElement("strike").addElement("strikeQuoteBasis")))
+				.map(quoteBasis -> setFxOptionRateUnits(builder, subPath.get(), quoteBasis))
+				.orElse(false);
+	}
+
+	private boolean setFxOptionRateUnits(PriceBuilder builder, Path subPath, String quoteBasis) {
+		UnitTypeBuilder callCurrency = getNonNullMapping(subPath, "callCurrencyAmount", "currency").map(this::toUnitType).orElse(null);
+		UnitTypeBuilder putCurrency = getNonNullMapping(subPath, "putCurrencyAmount", "currency").map(this::toUnitType).orElse(null);
+		if (quoteBasis.equals("CallCurrencyPerPutCurrency")) {
+			builder.setUnitOfAmountBuilder(callCurrency).setPerUnitOfAmountBuilder(putCurrency);
+		} else if (quoteBasis.equals("PutCurrencyPerCallCurrency")) {
+			builder.setUnitOfAmountBuilder(putCurrency).setPerUnitOfAmountBuilder(callCurrency);
+		}
+		return true;
 	}
 }
