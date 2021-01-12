@@ -229,17 +229,15 @@ synonym source FpML_5_10 extends FpML
 	FloatingRateOption:
 		+ floatingRateIndex
 			[value "floatingRateIndex" maps 2 meta "floatingRateIndexScheme"]
-			[value "floatingRateIndex" path "floatingRate" maps 2 meta "floatingRateIndexScheme"]
 		+ indexTenor
-			[value "indexTenor", "indexTenor" path "floatingRate" maps 2]
+			[value "indexTenor" maps 2]
 
 	FloatingRate:
-	 	[value "FloatingRate" meta "id"]
+	 	[meta "id"]
 		+ floatingRateMultiplierSchedule
 			[value "floatingRateMultiplierSchedule"]
 		+ spreadSchedule
 		    [value "spreadSchedule"]
-			[value "spreadSchedule" path "floatingRate"]
 		+ rateTreatment
 			[value "rateTreatment"]
 		+ capRateSchedule
@@ -250,13 +248,12 @@ synonym source FpML_5_10 extends FpML
 	FloatingRateSpecification:
 	    + initialRate
 	        [meta "initialRate"]
-	        [value "floatingRate" meta "initialRate"]
-		+ finalRateRounding
-			[value "finalRateRounding", "finalRateRounding" path "floatingRate"]
+        + finalRateRounding
+			[value "finalRateRounding"]
 		+ averagingMethod
-			[value "averagingMethod", "averagingMethod" path "floatingRate"]
+			[value "averagingMethod"]
 		+ negativeInterestRateTreatment
-			[value "negativeInterestRateTreatment", "negativeInterestRateTreatment" path "floatingRate"]
+			[value "negativeInterestRateTreatment"]
 
 	FutureValueAmount:
 	    + quantity
@@ -454,8 +451,6 @@ synonym source FpML_5_10 extends FpML
             [value "rateOfReturn"]
             [value "floatingRateCalculation" path "interestCalculation"]
             [value "spreadSchedule" path "interestCalculation->floatingRateCalculation"]
-            [value "capRateSchedule" path "interestCalculation->floatingRateCalculation"]
-            [value "floorRateSchedule" path "interestCalculation->floatingRateCalculation"]
             [value "floatingRateMultiplierSchedule" path "interestCalculation->floatingRateCalculation"]
             // For FX:
             [hint "spotRate"]
@@ -495,6 +490,7 @@ synonym source FpML_5_10 extends FpML
             [hint "floatingRateIndex", "indexTenor"]
             // For Credit:
             [value "floatingAmountCalculation" path "periodicPayment"]
+            [value "floatingRate" path "periodicPayment->floatingAmountCalculation"]
             // For Equity:
             [value "singleUnderlyer" path "underlyer"]
             [value "floatingRateCalculation" path "interestCalculation"]
@@ -655,13 +651,12 @@ synonym source FpML_5_10 extends FpML
 
     RateSchedule:
 	    + initialValue
-            // TODO (PQ) key/reference generate after mappers for ird-ex24-collar.xml (FLOOR_RATE set by mapper), fx-ex03-fx-fwd.json (+ other FX)
-            // TODO (PQ) incorrect key/reference generated - floor_rate ref points to cap_rate key for ird-ex24-collar.json
-            // TODO (PQ) spread and initial floating rate both reference same initial floating rate for cdindex-ex04-iBoxx-uti.json
+            // TODO (PQ) floor rate not mapped / reference ird-ex24-collar.xml
+            // TODO (PQ) mapper required cdindex-ex04-iBoxx-uti.json
             [meta "initialValue"]
-            [value "floatingRateCalculation" meta "initialRate"]
-            [value "floatingRateMultiplierSchedule" meta "initialValue"]
-            [meta "fixedRate"] // // TODO (PQ) duplicate keys generated for ird-ex08-fra.json (+ 1 other FRAs), repo-ex01-repo-fixed-rate.json (+ 5 other Repos)
+            // TODO (PQ) duplicate keys generated for ird-ex08-fra.json (+ 1 other FRAs)
+            // TODO (PQ) fix mapper for FRAs
+            [meta "fixedRate"]
             [hint "fixedRate"] // TODO (PQ) removing this hint causes compilation issues
         + step
             [value "step"]
@@ -897,9 +892,6 @@ synonym source FpML_5_10 extends FpML
 			[value "price" path "strike" meta "strikePrice"]
         	[value "strike" meta "spread"]
         	[value "strike" meta "rate"]
-            // TODO are these required?
-            //[value "currency" path "price" meta "currencyScheme"]
-			//[value "strikePercentage" path "price"]
 		+ strikeReference
 			[value "strikeReference" path "strike" meta "href"]
 		+ referenceSwapCurve
@@ -1325,10 +1317,8 @@ synonym source FpML_5_10 extends FpML
 	FloatingInterestRate:
 		+ initialRate
 			[value "initialRate" maps 2]
-			[value "initialRate" path "floatingRate" maps 2]
 		+ spread
 			[value "initialValue" path "spreadSchedule" maps 2]
-			[value "initialValue" path "floatingRate->spreadSchedule" maps 2]
 		+ capRate
 			[value "initialValue" path "capRateSchedule" maps 2]
 		+ floorRate
@@ -2242,6 +2232,7 @@ synonym source FpML_5_10 extends FpML
             [hint "floatingRateIndex", "indexTenor"]
             // For Credit:
             [value "floatingAmountCalculation"]
+            [value "floatingRate" path "floatingAmountCalculation"]
         + inflationRate
 			[value "inflationRateCalculation" path "calculationPeriodAmount->calculation"]
 

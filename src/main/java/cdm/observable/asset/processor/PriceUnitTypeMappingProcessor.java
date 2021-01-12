@@ -102,15 +102,14 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				.build());
 		PriceTypeEnum priceType = builder.getPriceType();
 		// unit of amount
-		if (priceType != PriceTypeEnum.MULTIPLIER_OF_INDEX_VALUE) {
-			builder.setUnitOfAmountBuilder(unitType);
-		}
+		builder.setUnitOfAmountBuilder(unitType);
 		// per unit of amount
 		if (priceType == PriceTypeEnum.INTEREST_RATE
 				|| priceType == PriceTypeEnum.SPREAD
 				|| priceType == PriceTypeEnum.CAP_RATE
 				|| priceType == PriceTypeEnum.FLOOR_RATE
 				|| priceType == PriceTypeEnum.CLEAN_PRICE
+				|| priceType == PriceTypeEnum.NET_PRICE
 				|| priceType == PriceTypeEnum.REFERENCE_PRICE) {
 			builder.setPerUnitOfAmountBuilder(unitType);
 		}
