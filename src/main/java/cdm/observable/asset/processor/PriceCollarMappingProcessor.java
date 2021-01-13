@@ -15,14 +15,15 @@ import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static cdm.base.math.UnitType.UnitTypeBuilder;
-import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.subPath;
 
 /**
@@ -53,23 +54,34 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 	}
 
 	private void updateMapping(Mapping mapping) {
-		// copy path (both floorRate and capRate mappings refer to the same instance)
-		Path mappedPricePath = new Path(
-				mapping.getRosettaPath().getElements().stream()
-						.map(el -> new Path.PathElement(el.getPathName(), el.getIndex(), el.getMetas()))
-						.collect(Collectors.toList()));
-		// update price index, e.g. floorRate and capRate were previously mapped to the same field so the price index must be incremented
-		subPath("price", mappedPricePath)
-				.map(Path::getLastElement)
-				.ifPresent(pricePathElement -> pricePathElement.setIndex(pricePathElement.forceGetIndex() + 1));
-		// update mapping
-		mapping.setRosettaPath(mappedPricePath);
+		// update price index, e.g. floorRate and capRate were previously mapped to the same field so the price index
+		// must be incremented otherwise any references will break
+		mapping.setRosettaPath(incrementPricePathElementIndex(mapping));
+		// clear errors
 		mapping.setError(null);
 		mapping.setCondition(true);
 	}
 
-	private FieldWithMetaPrice.FieldWithMetaPriceBuilder getPrice(BigDecimal price, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount,
-			PriceTypeEnum priceType) {
+	@NotNull
+	private Path incrementPricePathElementIndex(Mapping mapping) {
+		// find price path element that needs updating
+		Path.PathElement pricePathElement = subPath("price", mapping.getRosettaPath())
+				.map(Path::getLastElement)
+				.orElse(null);
+		// build new path
+		return new Path(mapping.getRosettaPath().getElements().stream()
+						.map(pathElement -> {
+							String pathName = pathElement.getPathName();
+							Optional<Integer> index = pathElement.equals(pricePathElement) ?
+									Optional.of(pathElement.forceGetIndex() + 1) :
+									pathElement.getIndex();
+							Map<String, String> metas = pathElement.getMetas();
+							return new Path.PathElement(pathName, index, metas);
+						})
+						.collect(Collectors.toList()));
+	}
+
+	private FieldWithMetaPrice.FieldWithMetaPriceBuilder getPrice(BigDecimal price, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount, PriceTypeEnum priceType) {
 		FieldWithMetaPrice.FieldWithMetaPriceBuilder priceBuilder = FieldWithMetaPrice.builder()
 				.setValueBuilder(Price.builder()
 						.setAmountBuilder(price)
