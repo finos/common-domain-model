@@ -71,12 +71,10 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 		// build new path
 		return new Path(mapping.getRosettaPath().getElements().stream()
 						.map(pathElement -> {
-							String pathName = pathElement.getPathName();
 							Optional<Integer> index = pathElement.equals(pricePathElement) ?
 									Optional.of(pathElement.forceGetIndex() + 1) :
 									pathElement.getIndex();
-							Map<String, String> metas = pathElement.getMetas();
-							return new Path.PathElement(pathName, index, metas);
+							return new Path.PathElement(pathElement.getPathName(), index, pathElement.getMetas());
 						})
 						.collect(Collectors.toList()));
 	}
