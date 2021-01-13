@@ -1,6 +1,5 @@
 package cdm.observable.asset.processor;
 
-import cdm.base.math.UnitType;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
@@ -16,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.observable.asset.metafields.FieldWithMetaPrice.FieldWithMetaPriceBuilder;
 import static cdm.observable.asset.processor.PriceHelper.toPriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
@@ -39,59 +39,45 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		PriceQuantity.PriceQuantityBuilder priceQuantityBuilder = (PriceQuantity.PriceQuantityBuilder) parent;
 		List<FieldWithMetaPriceBuilder> priceBuilders = emptyIfNull((List<FieldWithMetaPriceBuilder>) builders);
-		UnitType.UnitTypeBuilder unitOfAmount = getUnitOfAmount(priceBuilders);
-		UnitType.UnitTypeBuilder perUnitOfAmount = getPerUnitOfAmount(priceBuilders);
+		UnitTypeBuilder unitOfAmount = getUnitOfAmount(priceBuilders);
+		UnitTypeBuilder perUnitOfAmount = getPerUnitOfAmount(priceBuilders);
 
 		AtomicInteger priceIndex = new AtomicInteger(priceBuilders.size());
-		Path mappedModelPath = toPath(getModelPath()).addElement("amount");
 
-		Path spotRatePath = synonymPath.addElement("spotRate");
-		getNonNullMapping(getMappings(), spotRatePath).ifPresent(spotRateMapping -> {
-			String spotRateAmount = String.valueOf(spotRateMapping.getXmlValue());
-			priceQuantityBuilder.addPriceBuilder(
-					toPriceBuilder(new BigDecimal(spotRateAmount),
-							unitOfAmount,
-							perUnitOfAmount,
-							PriceTypeEnum.SPOT));
-			// update price index to ensure unique model path, otherwise any references will break
-			Path spotRateModelPath = PriceHelper.incrementPricePathElementIndex(mappedModelPath, priceIndex.getAndIncrement());
-			updateMappings(spotRatePath, spotRateModelPath, spotRateAmount);
-		});
+		getBuilder(synonymPath.addElement("spotRate"), priceIndex, unitOfAmount, perUnitOfAmount, PriceTypeEnum.SPOT)
+				.ifPresent(priceQuantityBuilder::addPriceBuilder);
+		getBuilder(synonymPath.addElement("forwardPoints"), priceIndex, unitOfAmount, perUnitOfAmount, PriceTypeEnum.FORWARD_POINTS)
+				.ifPresent(priceQuantityBuilder::addPriceBuilder);
+		getBuilder(synonymPath.addElement("pointValue"), priceIndex, unitOfAmount, perUnitOfAmount, null)
+				.ifPresent(priceQuantityBuilder::addPriceBuilder);
+	}
 
-		Path forwardPointsPath = synonymPath.addElement("forwardPoints");
-		getNonNullMapping(getMappings(), forwardPointsPath).ifPresent(forwardPointsMapping -> {
-			String forwardPointsAmount = String.valueOf(forwardPointsMapping.getXmlValue());
-			priceQuantityBuilder.addPriceBuilder(
-					toPriceBuilder(new BigDecimal(String.valueOf(forwardPointsAmount)),
-							unitOfAmount,
-							perUnitOfAmount,
-							PriceTypeEnum.FORWARD_POINTS));
+	@NotNull
+	private Optional<FieldWithMetaPriceBuilder> getBuilder(Path synonymPath,
+			AtomicInteger priceIndex,
+			UnitTypeBuilder unitOfAmount,
+			UnitTypeBuilder perUnitOfAmount,
+			PriceTypeEnum priceType) {
+		return getNonNullMapping(getMappings(), synonymPath).map(mapping -> {
 			// update price index to ensure unique model path, otherwise any references will break
-			Path forwardPointsModelPath = PriceHelper.incrementPricePathElementIndex(mappedModelPath, priceIndex.getAndIncrement());
-			updateMappings(forwardPointsPath, forwardPointsModelPath, forwardPointsAmount);
-		});
-
-		Path pointsValuePath = synonymPath.addElement("pointValue");
-		getNonNullMapping(getMappings(), pointsValuePath).ifPresent(pointsValueMapping -> {
-			String pointsValueAmount = String.valueOf(pointsValueMapping.getXmlValue());
-			priceQuantityBuilder.addPriceBuilder(
-					toPriceBuilder(new BigDecimal(String.valueOf(pointsValueAmount)),
-							unitOfAmount,
-							perUnitOfAmount,
-							null));
-			// update price index to ensure unique model path, otherwise any references will break
-			Path pointsValueModelPath = PriceHelper.incrementPricePathElementIndex(mappedModelPath, priceIndex.getAndIncrement());
-			updateMappings(pointsValuePath, pointsValueModelPath, pointsValueAmount);
+			Path baseModelPath = toPath(getModelPath()).addElement("amount");
+			Path mappedModelPath = PriceHelper.incrementPricePathElementIndex(baseModelPath, priceIndex.getAndIncrement());
+			String amount = String.valueOf(mapping.getXmlValue());
+			updateMappings(synonymPath, mappedModelPath, amount);
+			return toPriceBuilder(new BigDecimal(amount),
+					unitOfAmount,
+					perUnitOfAmount,
+					priceType);
 		});
 	}
 
-	private UnitType.UnitTypeBuilder getUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
+	private UnitTypeBuilder getUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
 		return getExchangeRatePrice(priceBuilders)
 				.map(Price.PriceBuilder::getUnitOfAmount)
 				.orElse(null);
 	}
 
-	private UnitType.UnitTypeBuilder getPerUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
+	private UnitTypeBuilder getPerUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
 		return getExchangeRatePrice(priceBuilders)
 				.map(Price.PriceBuilder::getPerUnitOfAmount)
 				.orElse(null);
