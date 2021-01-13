@@ -11,8 +11,6 @@ import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,11 +18,9 @@ import java.util.Optional;
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.observable.asset.Price.PriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.subPath;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.subPath;
 
 public class PriceUnitTypeMappingProcessor extends MappingProcessor {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(PriceUnitTypeMappingProcessor.class);
 
 	public PriceUnitTypeMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);
@@ -35,13 +31,10 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 		PriceBuilder priceBuilder = (PriceBuilder) parent;
 
 		if (priceBuilder.getPriceType() == null) {
-			LOGGER.info("!!!! No priceType found, cannot set unitOfAmount / perUnitOfAmount");
 			return;
 		}
 		UnitTypeBuilder unitOfAmount = priceBuilder.getUnitOfAmount();
 		if (unitOfAmount != null && unitOfAmount.hasData()) {
-			LOGGER.info("yes! already set **** {} {} {}", synonymPath, priceBuilder.getPriceType(), unitOfAmount.getCurrency());
-
 			return;
 		}
 		if (updateCurrencyUnitsFromNotional(priceBuilder, synonymPath, "swapStream", "notionalSchedule", "notionalStepSchedule", "currency")
@@ -61,7 +54,6 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updateCurrencyUnitsFromNotional(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")) {
 			return;
 		}
-		LOGGER.info("no !!!! {} {}", synonymPath, priceBuilder.getPriceType());
 	}
 
 	@NotNull

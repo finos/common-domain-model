@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static cdm.observable.asset.metafields.FieldWithMetaPrice.FieldWithMetaPriceBuilder;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.subPath;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.subPath;
 
 @SuppressWarnings("unused")
 public class OrePriceMappingProcessor extends MappingProcessor {

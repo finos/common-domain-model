@@ -2,7 +2,6 @@ package org.isda.cdm.processor;
 
 import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
-import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.annotations.RosettaSynonym;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
@@ -69,15 +68,5 @@ public class CdmMappingProcessorUtils {
 			LOGGER.error("Exception occurred getting synonym annotation from enum {}", enumValue, e);
 			return Collections.emptySet();
 		}
-	}
-
-	public static Optional<Path> subPath(String lastElement, Path path) {
-		if (path.endsWith(lastElement)) {
-			return Optional.of(path);
-		}
-		if (path.getElements().size() > 0) {
-			return subPath(lastElement, path.getParent());
-		}
-		return Optional.empty();
 	}
 }

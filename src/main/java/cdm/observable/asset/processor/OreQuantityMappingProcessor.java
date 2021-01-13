@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static cdm.base.math.metafields.FieldWithMetaQuantity.FieldWithMetaQuantityBuilder;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.subPath;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.subPath;
 
 @SuppressWarnings("unused")
 public class OreQuantityMappingProcessor extends MappingProcessor {
