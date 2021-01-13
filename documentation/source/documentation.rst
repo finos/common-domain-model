@@ -1565,7 +1565,7 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
    output: floatingAmount number (1..1)
 
    alias calculationAmount: quantity -> amount
-   alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex )
+   alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> observable -> rateOption -> floatingRateIndex )
    alias spreadRate: rate -> spread
    alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
 
@@ -1638,13 +1638,13 @@ Some of those calculations are presented below:
  	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
 
  	condition:
- 		tradeState -> trade -> tradableProduct -> quantityNotation -> assetIdentifier -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
+ 		tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
 
  	assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
  		Abs(equityPerformance)
 
  	assign-output equityCashSettlementAmount -> cashflowAmount -> currency:
- 		ResolveEquityInitialPrice( equityPayout -> underlier, tradeState -> trade -> tradableProduct -> priceNotation ) -> netPrice -> currency
+ 		ResolveEquityInitialPrice( equityPayout only-element -> underlier, tradeState -> trade -> tradableProduct -> priceQuantity ) -> unitOfAmount -> currency
 
  	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
  	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
