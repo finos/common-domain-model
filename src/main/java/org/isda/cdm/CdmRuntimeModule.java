@@ -15,6 +15,10 @@ import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.asset.functions.FilterPrice;
 import cdm.observable.asset.functions.FilterPriceImpl;
+import cdm.observable.common.functions.CurrencyAmount;
+import cdm.observable.common.functions.CurrencyAmountImpl;
+import cdm.observable.common.functions.NoOfUnits;
+import cdm.observable.common.functions.NoOfUnitsImpl;
 import cdm.product.asset.functions.ResolveEquityInitialPrice;
 import cdm.product.asset.functions.ResolveEquityInitialPriceImpl;
 import cdm.product.common.schedule.functions.CalculationPeriod;
@@ -42,6 +46,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Sum.class).to(bindSum());
 		bind(ListsCompare.class).to(bindListsCompare());
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
+		bind(NoOfUnits.class).to(bindNoOfUnits());
+		bind(CurrencyAmount.class).to(bindCurrencyAmount());
 		bind(TransfersForDate.class).to(bindTransfersForDate());
 		bind(FilterCashTransfers.class).to(bindFilterCashTransfers());
 		bind(FilterSecurityTransfers.class).to(bindFilterSecurityTransfers());
@@ -98,6 +104,14 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends ResolveEquityInitialPrice> bindResolveEquityInitialPrice() {
 		return ResolveEquityInitialPriceImpl.class;
+	}
+
+	protected Class<? extends NoOfUnits> bindNoOfUnits() {
+		return NoOfUnitsImpl.class;
+	}
+
+	protected Class<? extends CurrencyAmount> bindCurrencyAmount() {
+		return CurrencyAmountImpl.class;
 	}
 
 	protected Class<? extends SumPostedCreditSupportItemAmounts> bindSumPostedCreditSupportItemAmounts() {
