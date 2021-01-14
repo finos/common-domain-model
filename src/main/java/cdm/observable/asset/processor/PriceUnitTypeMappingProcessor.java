@@ -51,6 +51,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				// Equity
 				|| updateRateUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
 				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", "currency")
+				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", "notional", "notionalAmount", "currency")
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
 				// Repo
