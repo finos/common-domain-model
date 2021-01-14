@@ -85,14 +85,14 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
 	}
 
 	private BusinessEvent newBusinessEvent(TradeState tradeState) {
-//		List<PriceQuantity> incorrectPriceQuantity = tradeState.getTrade().getTradableProduct().getPriceQuantity().stream()
-//				.map(PriceQuantity::toBuilder)
-//				.map(x -> {
-//					x.getQuantity().setAmount(BigDecimal.valueOf(99999));
-//					return x;
-//				})
-//				.map(PriceQuantity.PriceQuantityBuilder::build)
-//				.collect(Collectors.toList());
+		List<PriceQuantity> incorrectPriceQuantity = tradeState.getTrade().getTradableProduct().getPriceQuantity().stream()
+				.map(PriceQuantity::toBuilder)
+				.map(x -> {
+					x.getOrCreateQuantity(0).getOrCreateValue().setAmount(BigDecimal.valueOf(99999));
+					return x;
+				})
+				.map(PriceQuantity.PriceQuantityBuilder::build)
+				.collect(Collectors.toList());
 
 		BusinessEvent newBusinessEvent = execute.evaluate(tradeState.getTrade().getTradableProduct().getProduct(),
                 null /*guard(incorrectPriceQuantity)*/,
