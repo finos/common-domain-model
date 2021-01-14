@@ -37,88 +37,67 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 		if (unitOfAmount != null && unitOfAmount.hasData()) {
 			return;
 		}
-		if (updateRateUnitsFromNotional(priceBuilder, synonymPath, "swapStream", "notionalSchedule", "notionalStepSchedule", "currency")
-				|| updateRateUnitsFromNotional(priceBuilder, synonymPath, "capFloorStream", "notionalSchedule", "notionalStepSchedule", "currency")
-				|| updateRateUnitsFromNotional(priceBuilder, synonymPath, "bondOption", "notionalAmount", "currency")
-				|| updateRateUnitsFromNotional(priceBuilder, synonymPath, "fra", "notional", "currency")
+		if (updateRateUnits(priceBuilder, synonymPath, "swapStream", "notionalSchedule", "notionalStepSchedule", "currency")
+				|| updateRateUnits(priceBuilder, synonymPath, "capFloorStream", "notionalSchedule", "notionalStepSchedule", "currency")
+				|| updateRateUnits(priceBuilder, synonymPath, "bondOption", "notionalAmount", "currency")
+				|| updateRateUnits(priceBuilder, synonymPath, "fra", "notional", "currency")
 				// Credit
-				|| updateRateUnitsFromNotional(priceBuilder, synonymPath, "fixedAmountCalculation", "calculationAmount", "currency")
-				|| updateRateUnitsFromNotional(priceBuilder, synonymPath, "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
-				|| updateRateUnitsFromNotionalReference(priceBuilder, synonymPath, "creditDefaultSwapOption", "notionalReference", "href")
+				|| updateRateUnits(priceBuilder, synonymPath, "fixedAmountCalculation", "calculationAmount", "currency")
+				|| updateRateUnits(priceBuilder, synonymPath, "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
+				|| updateRateUnits(priceBuilder, synonymPath, "creditDefaultSwapOption", "notionalReference", "href")
 				// Equity
-				|| updateRateUnitsFromNotionalReference(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
-				|| updatePriceUnitsFromNotional(priceBuilder, synonymPath, "returnLeg", "notional", "notionalAmount", "currency")
+				|| updateRateUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
+				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", "currency")
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
 				// Repo
-				|| updateRateUnitsFromNotional(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")) {
+				|| updateRateUnits(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")) {
 			return;
 		}
 	}
 
 	@NotNull
-	private boolean updateRateUnitsFromNotional(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
+	private boolean updateRateUnits(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
 		return subPath(basePathElement, synonymPath)
 				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, endsWith))
-				.map(currencyMapping -> setRateUnits(builder, currencyMapping))
+				.map(m -> m.getXmlPath().endsWith("href") ? findReference(synonymPath, m) : m)
+				.map(this::toCurrencyUnitType)
+				.map(u -> updateBuilder(builder, u, u))
 				.orElse(false);
 	}
 
-	@NotNull
-	private boolean updateRateUnitsFromNotionalReference(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
-		Optional<Path> subPath = subPath(basePathElement, synonymPath);
-		return subPath.flatMap(p -> getNonNullMapping(getMappings(), p, endsWith))
+	private Mapping findReference(Path synonymPath, Mapping referenceMapping) {
+		return Optional.ofNullable(referenceMapping)
 				.map(Mapping::getXmlValue)
 				.map(String::valueOf)
-				.flatMap(notionalHef -> getReferencedPath(synonymPath, subPath.get(), notionalHef))
+				.flatMap(notionalHef -> getNonNullMappingId(getBasePath(synonymPath), notionalHef))
+				.map(m -> m.getXmlPath())
+				.map(p -> p.getParent())
 				.flatMap(referencedPath -> getNonNullMapping(getMappings(), referencedPath, "currency"))
-				.map(m -> setRateUnits(builder, m))
+				.orElse(null);
+	}
+
+	private boolean updatePriceUnits(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
+		return subPath(basePathElement, synonymPath)
+				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, endsWith))
+				.map(currencyMapping -> updateBuilder(builder,
+						toCurrencyUnitType(currencyMapping),
+						UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARES)))
 				.orElse(false);
 	}
 
 	@NotNull
-	private Optional<Path> getReferencedPath(Path synonymPath, Path subPath, String notionalHef) {
-		return subPath(subPath.getParent().getLastElement().getPathName(), synonymPath)
-				.flatMap(p -> getNonNullMappingId(p, notionalHef))
-				.map(m -> m.getXmlPath())
-				.map(p -> p.getParent());
-	}
-
-	@NotNull
-	private Boolean setRateUnits(PriceBuilder builder, Mapping currencyMapping) {
-		UnitTypeBuilder unitType = toUnitType(currencyMapping);
-		PriceTypeEnum priceType = builder.getPriceType();
+	private Boolean updateBuilder(PriceBuilder builder, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount) {
 		// unit of amount
-		builder.setUnitOfAmountBuilder(unitType);
+		builder.setUnitOfAmountBuilder(unitOfAmount);
 		// per unit of amount
-		if (priceType == PriceTypeEnum.INTEREST_RATE
-				|| priceType == PriceTypeEnum.SPREAD
-				|| priceType == PriceTypeEnum.CAP_RATE
-				|| priceType == PriceTypeEnum.FLOOR_RATE
-				|| priceType == PriceTypeEnum.CLEAN_PRICE
-				|| priceType == PriceTypeEnum.NET_PRICE
-				|| priceType == PriceTypeEnum.REFERENCE_PRICE) {
-			builder.setPerUnitOfAmountBuilder(unitType);
+		if (builder.getPriceType() != PriceTypeEnum.MULTIPLIER_OF_INDEX_VALUE) {
+			builder.setPerUnitOfAmountBuilder(perUnitOfAmount);
 		}
 		return true;
 	}
 
-	private boolean updatePriceUnitsFromNotional(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
-		return subPath(basePathElement, synonymPath)
-				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, endsWith))
-				.map(currencyMapping -> setPriceUnits(builder, currencyMapping, FinancialUnitEnum.SHARES))
-				.orElse(false);
-	}
-
-	@NotNull
-	private Boolean setPriceUnits(PriceBuilder builder, Mapping currencyMapping, FinancialUnitEnum financialUnit) {
-		builder
-				.setUnitOfAmountBuilder(toUnitType(currencyMapping))
-				.setPerUnitOfAmountBuilder(UnitType.builder().setFinancialUnit(financialUnit));
-		return true;
-	}
-
-	private UnitTypeBuilder toUnitType(Mapping currencyMapping) {
+	private UnitTypeBuilder toCurrencyUnitType(Mapping currencyMapping) {
 		String currency = String.valueOf(currencyMapping.getXmlValue());
 		String currencyScheme = getNonNullMappedValue(currencyMapping.getXmlPath().addElement("currencyScheme"), getMappings()).orElse(null);
 		return UnitType.builder()
@@ -148,13 +127,18 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	}
 
 	private boolean setFxOptionRateUnits(PriceBuilder builder, Path subPath, String quoteBasis) {
-		UnitTypeBuilder callCurrency = getNonNullMapping(getMappings(), subPath, "callCurrencyAmount", "currency").map(this::toUnitType).orElse(null);
-		UnitTypeBuilder putCurrency = getNonNullMapping(getMappings(), subPath, "putCurrencyAmount", "currency").map(this::toUnitType).orElse(null);
+		UnitTypeBuilder callCurrency = getNonNullMapping(getMappings(), subPath, "callCurrencyAmount", "currency").map(this::toCurrencyUnitType).orElse(null);
+		UnitTypeBuilder putCurrency = getNonNullMapping(getMappings(), subPath, "putCurrencyAmount", "currency").map(this::toCurrencyUnitType).orElse(null);
 		if (quoteBasis.equals("CallCurrencyPerPutCurrency")) {
 			builder.setUnitOfAmountBuilder(callCurrency).setPerUnitOfAmountBuilder(putCurrency);
 		} else if (quoteBasis.equals("PutCurrencyPerCallCurrency")) {
 			builder.setUnitOfAmountBuilder(putCurrency).setPerUnitOfAmountBuilder(callCurrency);
 		}
 		return true;
+	}
+
+	private Path getBasePath(Path synonymPath) {
+		Path.PathElement basePathElement = synonymPath.getElements().get(0);
+		return new Path().addElement(basePathElement);
 	}
 }
