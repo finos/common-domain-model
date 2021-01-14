@@ -15,6 +15,9 @@ import static cdm.base.math.metafields.FieldWithMetaQuantity.FieldWithMetaQuanti
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.subPath;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
+/**
+ * ORE mapper to enrich the mapped quantity with currency unitOfAmount.
+ */
 @SuppressWarnings("unused")
 public class OreQuantityMappingProcessor extends MappingProcessor {
 

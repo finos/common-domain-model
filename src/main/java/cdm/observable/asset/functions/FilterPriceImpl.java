@@ -7,6 +7,9 @@ import java.util.List;
 
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
+/**
+ * Filters list of prices by price type.
+ */
 public class FilterPriceImpl extends FilterPrice {
 
 	@Override

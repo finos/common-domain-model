@@ -15,13 +15,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static cdm.base.math.UnitType.UnitTypeBuilder;
-import static cdm.observable.asset.processor.PriceHelper.toPriceBuilder;
+import static cdm.observable.asset.processor.PriceHelper.toReferencablePriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 
 /**
- * Mapper required due to mapping issues with multiple prices.
+ * FpML mapper required due to issues with multiple rates (e.g. capRate and floor) to the same PriceQuantity.price.
  * <p>
- * Fix synonym mapping logic and remove these mappers.
+ * Both rates are mapped to the same price instance.  Add floorRate as a new Price instance (on the same PriceQuantity), and update mapping stats.
  */
 @SuppressWarnings("unused")
 public class PriceCollarMappingProcessor extends MappingProcessor {
@@ -39,7 +39,7 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 					UnitTypeBuilder unitType = toCurrencyUnitType(subPath);
 					BigDecimal floorRate = new BigDecimal(String.valueOf(frm.getXmlValue()));
 					((PriceQuantity.PriceQuantityBuilder) parent)
-							.addPriceBuilder(toPriceBuilder(floorRate, unitType, unitType, PriceTypeEnum.FLOOR_RATE));
+							.addPriceBuilder(toReferencablePriceBuilder(floorRate, unitType, unitType, PriceTypeEnum.FLOOR_RATE));
 					// update price index, e.g. floorRate and capRate were previously mapped to the same field so the price index
 					// must be incremented otherwise any references will break
 					frm.setRosettaPath(PriceHelper.incrementPricePathElementIndex(frm.getRosettaPath(), 1));

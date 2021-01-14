@@ -20,6 +20,9 @@ import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.observable.asset.Price.PriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 
+/**
+ * FpML mapper to enrich the mapped price with unitOfAmount and perUnitOfAmount.
+ */
 public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 
 	public PriceUnitTypeMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {

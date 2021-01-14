@@ -16,6 +16,9 @@ import static cdm.observable.asset.metafields.FieldWithMetaPrice.FieldWithMetaPr
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.subPath;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
+/**
+ * ORE mapper to enrich the mapped price with unitOfAmount and perUnitOfAmount.
+ */
 @SuppressWarnings("unused")
 public class OrePriceMappingProcessor extends MappingProcessor {
 
@@ -32,6 +35,7 @@ public class OrePriceMappingProcessor extends MappingProcessor {
 				.ifPresent(unitType -> emptyIfNull((List<FieldWithMetaPriceBuilder>) builders).stream()
 						.map(FieldWithMetaPriceBuilder::getValue)
 						.filter(Objects::nonNull)
+						// if mapped price has priceType interestRate or Spread then update the unitOfAmount and perUnitOfAmount with currency.
 						.filter(p -> p.getPriceType() == PriceTypeEnum.INTEREST_RATE || p.getPriceType() == PriceTypeEnum.SPREAD)
 						.forEach(priceBuilder -> priceBuilder
 								.setUnitOfAmountBuilder(unitType)

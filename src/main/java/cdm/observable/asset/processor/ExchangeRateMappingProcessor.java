@@ -17,16 +17,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.observable.asset.metafields.FieldWithMetaPrice.FieldWithMetaPriceBuilder;
-import static cdm.observable.asset.processor.PriceHelper.toPriceBuilder;
+import static cdm.observable.asset.processor.PriceHelper.toReferencablePriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMapping;
 import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 /**
- * Mapper required due to mapping issues with multiple prices.
- * <p>
- * Fix synonym mapping logic and remove these mappers.
+ * FpML mapper required due to issues with multiple FX rates (e.g. rate, spotRate, forwardPoints, pointValue) to the same PriceQuantity.price.
  */
 @SuppressWarnings("unused")
 public class ExchangeRateMappingProcessor extends MappingProcessor {
@@ -64,7 +62,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 			Path mappedModelPath = PriceHelper.incrementPricePathElementIndex(baseModelPath, priceIndex.getAndIncrement());
 			String amount = String.valueOf(mapping.getXmlValue());
 			updateMappings(synonymPath, mappedModelPath, amount);
-			return toPriceBuilder(new BigDecimal(amount),
+			return toReferencablePriceBuilder(new BigDecimal(amount),
 					unitOfAmount,
 					perUnitOfAmount,
 					priceType);
