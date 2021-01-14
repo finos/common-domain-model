@@ -41,8 +41,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(CalculationPeriod.class).to(bindCalculationPeriod());
 		bind(Sum.class).to(bindSum());
 		bind(ListsCompare.class).to(bindListsCompare());
-//		bind(ResolvePayoutQuantity.class).to(bindResolvePayoutQuantity());
-//		bind(ResolveContractualProduct.class).to(bindResolveContractualProduct());
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
 		bind(TransfersForDate.class).to(bindTransfersForDate());
 		bind(FilterCashTransfers.class).to(bindFilterCashTransfers());
@@ -97,14 +95,6 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends Sum> bindSum() {
 		return SumImpl.class;
 	}
-
-//	protected Class<? extends ResolvePayoutQuantity> bindResolvePayoutQuantity() {
-//		return ResolvePayoutQuantityImpl.class;
-//	}
-//
-//	protected Class<? extends ResolveContractualProduct> bindResolveContractualProduct() {
-//		return ResolveContractualProductImpl.class;
-//	}
 
 	protected Class<? extends ResolveEquityInitialPrice> bindResolveEquityInitialPrice() {
 		return ResolveEquityInitialPriceImpl.class;
