@@ -160,6 +160,21 @@ func Qualify_InterestRate_IRSwap_FixedFloat_PlainVanilla: <"This product qualifi
 //		and payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
 //	then payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
 //		and payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
+func Qualify_Commodity_Swap_FixedFloat:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+		economicTerms -> payout -> commodityPayout exists
+		and economicTerms -> payout -> fixedForwardPayout exists
+		
+func Qualify_Commodity_Swap_Basis:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+		economicTerms -> payout -> commodityPayout count = 2
+
 func Qualify_InterestRate_IRSwap_FixedFloat:
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
