@@ -5,6 +5,12 @@ import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRole;
 import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRoleImpl;
 import cdm.base.staticdata.party.functions.ExtractCounterpartyByRole;
 import cdm.base.staticdata.party.functions.ExtractCounterpartyByRoleImpl;
+import cdm.event.common.FilterCashTransfersImpl;
+import cdm.event.common.FilterSecurityTransfersImpl;
+import cdm.event.common.TransfersForDateImpl;
+import cdm.event.common.functions.FilterCashTransfers;
+import cdm.event.common.functions.FilterSecurityTransfers;
+import cdm.event.common.functions.TransfersForDate;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.common.functions.CurrencyAmount;
@@ -46,11 +52,26 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
 		bind(NoOfUnits.class).to(bindNoOfUnits());
 		bind(CurrencyAmount.class).to(bindCurrencyAmount());
+		bind(TransfersForDate.class).to(bindTransfersForDate());
+		bind(FilterCashTransfers.class).to(bindFilterCashTransfers());
+		bind(FilterSecurityTransfers.class).to(bindFilterSecurityTransfers());
 		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
 		bind(ExtractCounterpartyByRole.class).to(bindExtractCounterpartyByRole());
 		bind(ExtractAncillaryPartyByRole.class).to(bindExtractAncillaryPartyByRole());
+	}
+
+	protected Class<? extends FilterSecurityTransfers> bindFilterSecurityTransfers() {
+		return FilterSecurityTransfersImpl.class;
+	}
+
+	protected Class<? extends FilterCashTransfers> bindFilterCashTransfers() {
+		return FilterCashTransfersImpl.class;
+	}
+
+	protected Class<? extends TransfersForDate> bindTransfersForDate() {
+		return TransfersForDateImpl.class;
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
