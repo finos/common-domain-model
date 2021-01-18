@@ -48,14 +48,14 @@ type Affirmation: <"A class to specify a trade affirmation.">
 		if lineage -> tradeReference -> tradableProduct -> product -> security exists
 		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
 
-type AllocationInstruction:
+type AllocationInstruction: <"Specifies instructions for allocation of a transaction consisting of breakdowns for each allocation detailing parties and quantities for each new trade.">
 	// TODO: add other allocation context
 	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
+	tradeState TradeState (1..1) <"Represents the block trade to be allocated.">
 
 type AllocationBreakdown:
 
-	partyReference Party (1..1) <"Reference to the party to specify the account.">
-		[metadata reference]
+	newParty Counterparty (1..1) <"Reference to the party to specify the account.">
 	quantity QuantityNotation (1..1) <"The quantity to be allocated to the party.">
 	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
 	account Account (0..1)<"The account to allocate the trade into">
