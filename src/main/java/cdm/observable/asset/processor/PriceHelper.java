@@ -49,7 +49,7 @@ public class PriceHelper {
 						.setPriceType(priceType)
 						.setUnitOfAmountBuilder(unitOfAmount)
 						.setPerUnitOfAmountBuilder(perUnitOfAmount));
-		priceBuilder.getOrCreateMeta().getOrCreateKeys().addKey(new Key.KeyBuilder().setScope("DOCUMENT"));
+		priceBuilder.getOrCreateMeta().addKeyBuilder(new Key.KeyBuilder().setScope("DOCUMENT"));
 		return priceBuilder;
 	}
 }
