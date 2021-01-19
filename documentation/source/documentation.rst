@@ -420,13 +420,14 @@ The trade state is defined in CDM by the ``TradeState`` data type and represents
 .. code-block:: Haskell
 
  type TradeState:
-	[metadata key]
-	[rootType]
-	trade Trade (1..1)
-	state State (0..1)
-	observationHistory TradeState (0..*)
+ 	[metadata key]
+ 	[rootType]
+ 	trade Trade (1..1)
+ 	state State (0..1)
+ 	resetHistory Reset (0..*)
+ 	transferHistory Transfer (0..*)
 
-While many different types of events may occur through the trade lifecycle, the ``Trade``, ``State`` and ``Observationhistory`` data types are deemed sufficient to describe all of the possible (post-trade) states which may result from lifecycle events. The ``Trade`` data type contains the tradable product, which defines all of the economic terms of the transaction as agreed between the parties.
+While many different types of events may occur through the trade lifecycle, the ``Trade``, ``State`` and ``ObservationHistory`` data types are deemed sufficient to describe all of the possible (post-trade) states which may result from lifecycle events. The ``Trade`` data type contains the tradable product, which defines all of the economic terms of the transaction as agreed between the parties.
 
 .. note:: A tradable product is represented by the ``TradableProduct`` type, which is further detailed in the `Tradable Product Section`_ of the documentation.
 
@@ -537,7 +538,6 @@ A ``PrimitiveEvent`` object consists of one of the primitive components, as capt
    execution ExecutionPrimitive (0..1)
    contractFormation ContractFormationPrimitive (0..1)
    split SplitPrimitive (0..1)
-   observation ObservationPrimitive (0..1)
    quantityChange QuantityChangePrimitive (0..1)
    reset ResetPrimitive (0..1)
    termsChange TermsChangePrimitive (0..1)
