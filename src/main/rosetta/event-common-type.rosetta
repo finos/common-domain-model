@@ -48,17 +48,17 @@ type Affirmation: <"A class to specify a trade affirmation.">
 		if lineage -> tradeReference -> tradableProduct -> product -> security exists
 		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
 
-type AllocationInstruction: <"Specifies instructions for allocation of a transaction consisting of breakdowns for each allocation detailing parties and quantities for each new trade.">
+type AllocationInstruction: <"Specifies instructions for allocation of a transaction consisting of breakdowns for each allocation detailing parties and quantities for each new trade, and the allocation date.">
 	// TODO: add other allocation context
 	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
 	tradeState TradeState (1..1) <"Represents the block trade to be allocated.">
+	allocationDate date (1..1) <"Specifies the allocation date.">
 
 type AllocationBreakdown:
 
 	newParty Counterparty (1..1) <"Reference to the party to specify the account.">
 	quantity QuantityNotation (1..1) <"The quantity to be allocated to the party.">
 	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
-	account Account (0..1)<"The account to allocate the trade into">
 	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
 
 type CashTransferBreakdown extends TransferBreakdown:
@@ -115,7 +115,7 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 
 	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
 	instructionFunction string (1..1) <"Name of the function that will be called">
-	allocation AllocationInstruction (0..1) <"Instruction to allocate">
+	allocation AllocationInstruction (0..1) <"Specifies instructions for allocation of a transaction consisting of breakdowns for each allocation detailing parties and quantities for each new trade, and the allocation date.">
 	clearing ClearingInstruction (0..1) <"Instruction to clear">
 
 	condition OneOfInstruction: required choice allocation, clearing

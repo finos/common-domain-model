@@ -1015,7 +1015,6 @@ func Create_Allocation: <"Creates the fully formed business event of allocating 
 	[creation BusinessEvent]
 	inputs:
 		allocationInstruction AllocationInstruction (1..1) <"Specifies the allocation instructions to be applied.">
-		allocationDate date (1..1) <"Specifies the allocation date.">
 
 	output:
 		businessEvent BusinessEvent (1..1) <"Represents the Allocation Business Event containing both the original block trade (with it's status set to Allocated) and the set of breakdown trades.">
@@ -1033,7 +1032,7 @@ func Create_Allocation: <"Creates the fully formed business event of allocating 
 		Create_ContractFormationPrimitives(FilterOpenTradeStates(splitPrimitive -> after) -> tradeStates) -> primitives
 
 	assign-output businessEvent -> eventDate: <"Assigns the Allocation Date to the Business Event.">
-		allocationDate
+		allocationInstruction -> allocationDate
 
 	post-condition: <"Checks the number of SplitPrimitives is equal to one">
 		businessEvent -> primitives -> split -> after count = 1
