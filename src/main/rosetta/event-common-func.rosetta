@@ -256,15 +256,6 @@ func Qualify_Compression: <"The qualification of a compression event from the fa
 		businessEvent -> primitives -> quantityChange exists
 		and businessEvent -> primitives -> quantityChange -> before -> trade multiple exists
 
-func Qualify_DerivedObservation: <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, (ii) there are multiple instances of such observations, and (iii) there is an associated call function to compute, say, an interpolation.">
-	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent(1..1)
-	output: is_event boolean (1..1)
-	assign-output is_event:
-		businessEvent -> primitives -> observation only multiple exists
-		and businessEvent -> functionCall exists
-
 func Qualify_Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
 	[qualification BusinessEvent]
 	inputs:
@@ -311,14 +302,6 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 		and businessEvent -> eventDate = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates only-element
 		//and originalContractParties <> newContractParties
-
-func Qualify_Observation: <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
-	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent(1..1)
-	output: is_event boolean (1..1)
-	assign-output is_event:
-		businessEvent -> primitives -> observation only single exists
 
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
