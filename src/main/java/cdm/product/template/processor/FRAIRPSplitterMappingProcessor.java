@@ -39,8 +39,9 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 			result.add(irp);
 			RateSpecificationBuilder rateSpec = irp.getRateSpecification();
 			if (rateSpec != null) {
-				if (rateSpec.getFixedRate() != null && rateSpec.getFixedRate().hasData() &&
-						rateSpec.getFloatingRate() != null && rateSpec.getFloatingRate().hasData()) {
+				if (rateSpec.getFixedRate() != null && // fixedRate.hasData() doesn't work due to references
+						rateSpec.getFloatingRate() != null &&  // floatingRate.hasData() does work (the rate option is populated)
+						rateSpec.getFloatingRate().hasData()) {
 					//this IRP has both fixed and floating - it needs to be split
 
 					InterestRatePayoutBuilder newIrp = irp.build().toBuilder();
