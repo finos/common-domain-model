@@ -112,13 +112,13 @@ type ContractState: <"A class to specify a contract state instantiation with res
 	updatedTrade Trade (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
 
 type Instruction: <"Instruction to a function that will be used to perform a business event">
-
-	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
-	instructionFunction string (1..1) <"Name of the function that will be called">
-	allocation AllocationInstruction (0..1) <"Instruction to allocate">
-	clearing ClearingInstruction (0..1) <"Instruction to clear">
-
-	condition OneOfInstruction: required choice allocation, clearing
+  	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
+  	instructionFunction string (1..1) <"Specifies the function that will be called">
+  	allocation AllocationInstruction (0..1) <"Instruction to allocate">
+  	clearing ClearingInstruction (0..1) <"Instruction to clear">
+  	execution ExecutionInstruction (0..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, and a trade date.">
+  	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
+  	condition OneOfInstruction: required choice allocation, clearing, execution, exercise
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -158,6 +158,19 @@ type EventTestBundle: <"A class which combines several events for testing purpos
 		[synonym Workflow_Event value "event"]
 	computedAmount ComputedAmount (0..*)
 		[synonym Workflow_Event value "computedAmount"]
+
+type ExecutionInstruction: <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, execution details, and settlement terms.">
+	product Product (1..1) <"Defines the financial product to be executed and contract formed.">
+	priceNotation PriceNotation (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
+	quantityNotation QuantityNotation (1..*) <"Defines the quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
+	counterparty  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
+	ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
+	parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
+	partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
+	settlementTerms SettlementTerms (0..*) <"Specifies the settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
+	executionDetails ExecutionDetails (1..1) <"Specifies the type and venue of execution, e.g. via voice, or electronically.">
+	tradeDate date (1..1) <"Denotes the trade/execution date.">
+	tradeIdentifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
 
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 	
