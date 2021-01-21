@@ -457,7 +457,7 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
 	account Account (0..*)
         [deprecated]
 
-The ``settlementTerms`` attribute define how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
+The ``settlementTerms`` attribute defines how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
 .. code-block:: Haskell
 
@@ -468,12 +468,12 @@ The ``settlementTerms`` attribute define how the transaction should be settled (
    settlementAmount Money (0..1)
    transferSettlementType TransferSettlementEnum (0..1)
 
-Additionally, ``Trade`` supports representation of specific execution or contractual trade details via the ``executionTradeDetails`` and ``contractDetails`` attributes.
+Additionally, ``Trade`` supports representation of specific execution or contractual trade details via the ``executionDetails`` and ``contractDetails`` attributes.
 
-ExecutionTradeDetails
+ExecutionDetails
 """""""""""""""""""""
 
-The ExecutionTradeDetails data type represents field that are applicable only to trade executions and includes attributes that descirbe the execution venue and execution type.
+The ExecutionDetails data type represents field that are applicable only to trade executions and includes attributes that describe the execution venue and execution type.
 
 ContractTradeDetails
 """"""""""""""""""""
