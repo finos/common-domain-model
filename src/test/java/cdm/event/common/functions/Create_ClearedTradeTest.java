@@ -24,7 +24,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Create_ClearedTradeTest extends AbstractFunctionTest {
 
@@ -60,8 +59,7 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 		BusinessEvent businessEvent = func.evaluate(clearingInstruction, tradeDate, null);
 
 		String businessEventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
-//		assertThat(getJson("expected-cleared-trade-business-event.json"), new IsEqualIgnoringWhiteSpace(businessEventJson));
-		assertEquals(getJson("expected-cleared-trade-business-event.json"), businessEventJson);
+		assertThat(getJson("expected-cleared-trade-business-event.json"), new IsEqualIgnoringWhiteSpace(businessEventJson));
 	}
 
 	private <T extends RosettaModelObject> T getRosettaModelObject(Class<T> clazz, String pathToJson) throws IOException {

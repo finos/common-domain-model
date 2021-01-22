@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static util.ResourcesUtils.getJson;
 import static util.ResourcesUtils.getObject;
 
@@ -27,8 +26,8 @@ public class Create_ExerciseTest extends AbstractFunctionTest {
 
 		BusinessEvent businessEvent = func.evaluate(swaption, ExerciseInstruction.builder().build());
 
-//		assertThat(getJson("expected-physical-exercise-business-event.json"), new IsEqualIgnoringWhiteSpace(toJson(businessEvent)));
-		assertEquals(getJson("expected-physical-exercise-business-event.json"), toJson(businessEvent))/**/;
+		assertThat(getJson("expected-physical-exercise-business-event.json"), new IsEqualIgnoringWhiteSpace(toJson(businessEvent)));
+
 	}
 
 	private String toJson(BusinessEvent businessEvent) throws JsonProcessingException {
