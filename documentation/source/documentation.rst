@@ -427,11 +427,11 @@ The trade state is defined in CDM by the ``TradeState`` data type and represents
  	resetHistory Reset (0..*)
  	transferHistory Transfer (0..*)
 
-While many different types of events may occur through the trade lifecycle, the ``Trade``, ``State`` and ``ObservationHistory`` data types are deemed sufficient to describe all of the possible (post-trade) states which may result from lifecycle events. The ``Trade`` data type contains the tradable product, which defines all of the economic terms of the transaction as agreed between the parties.
+While many different types of events may occur through the trade lifecycle, the ``trade``, ``state``, ``resetHistory`` and ``transferHistory`` attributes are deemed sufficient to describe all of the possible (post-trade) states which may result from lifecycle events. The ``Trade`` data type contains the tradable product, which defines all of the economic terms of the transaction as agreed between the parties.
 
-.. note:: A tradable product is represented by the ``TradableProduct`` type, which is further detailed in the `Tradable Product Section`_ of the documentation.
+.. note:: A tradable product is represented by the ``TradableProduct`` data type, which is further detailed in the `Tradable Product Section`_ of the documentation.
 
-The ``Trade``, ``State`` and ``ObservationHistory`` data types are detailed in the sections below.
+The ``Trade``, ``State``, ``Reset``, and ``Transfer`` data types that are utilised within ``TradeState``, are detailed in the sections below.
 
 Trade
 """""
@@ -457,6 +457,8 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
 	account Account (0..*)
         [deprecated]
 
+.. note:: Attributes within ``Trade`` and ``ContractDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view.
+
 The ``settlementTerms`` attribute defines how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
 .. code-block:: Haskell
@@ -468,17 +470,14 @@ The ``settlementTerms`` attribute defines how the transaction should be settled 
    settlementAmount Money (0..1)
    transferSettlementType TransferSettlementEnum (0..1)
 
-Additionally, ``Trade`` supports representation of specific execution or contractual trade details via the ``executionDetails`` and ``contractDetails`` attributes.
+Additionally, ``Trade`` supports representation of specific execution or contractual details via the ``executionDetails`` and ``contractDetails`` attributes.
 
-ExecutionDetails
-"""""""""""""""""""""
+ExecutionDetails and ContractDetails
+""""""""""""""""""""""""""""""""""""
 
-The ExecutionDetails data type represents field that are applicable only to trade executions and includes attributes that describe the execution venue and execution type.
+The ``ExecutionDetails`` data type represents details applicable to trade executions and includes attributes that describe the execution venue and execution type. Not all trades will have been 'executed', such as those created from a Swaption Exercise event. In those cases, the ``executionDetails`` attributes on ``Trade`` is expected to be empty.
 
-ContractTradeDetails
-""""""""""""""""""""
-
-ContractTradeDetails are only applicable to contractual products.  It represents details of the trade after the trade execution has been confirmed.
+``ContractDetails`` are only applicable to trades on contractual products and are typically provided at or prior to trade confirmation.
 
 .. code-block:: Haskell
 
@@ -488,8 +487,6 @@ ContractTradeDetails are only applicable to contractual products.  It represents
  	governingLaw GoverningLawEnum (0..1)
  		[metadata scheme]
  	partyContractInformation PartyContractInformation (0..*)
-
-.. note:: Attributes within ``Trade`` and ``ContractTradeDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view.
 
 State
 """""
@@ -524,11 +521,11 @@ The ``ClosedState`` data type (enclosed within ``State``) captures this closed s
 Primitive Event
 ^^^^^^^^^^^^^^^
 
-**Primitive events are the building block components used to specify business events in the CDM**. They describe the fundamental state-transition components that impact the trade state during its lifecycle. The trade state always transitions to and from one a ``TradeState`` data type.
+**Primitive events are the building block components used to specify business events in the CDM**. They describe the fundamental state-transition components that impact the trade state during its lifecycle. The trade state always transitions from and to a ``TradeState`` data type.
 
-Most of the primitive events include ``before`` and ``after`` trade state attributes that define the state transition in terms of evolution in the trade state.  The exceptions are ``ObservationPrimitive`` and ``TransferPrimitive``.
+The primitive events include ``before`` and ``after`` attributes can then define the evolution of the trade state by taking the differences between ``before`` and ``after`` trade states.
 
-The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a state that *already* exists. By contrast, the ``after`` state provides a full definition of that object, because that state is occurring for the first time and it is the occurrence of the primitive event that triggers a transition to that new state. By tying each state in the lifecycle to a previous state, primitive events are one of the mechanisms by which *lineage* is implemented in the CDM.
+The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a trade state that *already* existed. By contrast, the ``after`` trade state provides a full definition of that object, because that trade state is occurring for the first time and it is the occurrence of the primitive event that triggered a transition to that new trade state. By tying each trade state in the lifecycle to a previous trade state, primitive events are one of the mechanisms by which *lineage* is implemented in the CDM.
 
 A ``PrimitiveEvent`` object consists of one of the primitive components, as captured by the ``one-of`` condition.  The list of primitive events can be seen in the ``PrimitiveEvent`` type definition:
 
@@ -581,18 +578,17 @@ Example 2: Reset
 
 In many cases, a trade relies on observable values which will become known in the future: for instance, a floating rate observation at the beginning of each period in the case of a Interest Rate Swap, or the equity price at the end of each period in an Equity Swap. That primitive event is known as a *reset*.
 
-The predecessor to a reset is an *observation* which occurs when that observable value becomes known (as provided by the relevant market data provider), independently from any specific transaction. This primitive event is captured by the ``ObservationPrimitive`` type.
+When a observable value becomes known (as provided by the relevant market data provider), independently from any specific transaction, this information is captured by the ``Observation`` data type.
 
 .. code-block:: Haskell
 
- type ObservationPrimitive:
-   source ObservationSource (1..1)
-   observation number (1..1)
-   date date (1..1)
-   time TimeZone (0..1)
-   side QuotationSideEnum (0..1)
+ type Observation:
+ 	[rootType]
+ 	[metadata key]
+ 	observedValue number (1..1)
+ 	observationIdentifier ObservationIdentifier (1..1)
 
-From that observation, a *reset* can be built which does affect the specific transaction. A reset is represented by the ``ResetPrimitive`` type.
+From that ``Observation``, a *reset* can be built which does not affect the specific trade. A reset is represented by the ``ResetPrimitive`` type.
 
 .. code-block:: Haskell
 
@@ -602,6 +598,19 @@ From that observation, a *reset* can be built which does affect the specific tra
    after TradeState (1..1)
    condition Trade:
      before -> trade = after -> trade
+
+The role of the *reset* is to create instances of the ``Reset`` data type and include that in the ``resetHistory`` of a given ``TradeState``.
+
+.. code-block:: Haskell
+
+ type Reset:
+ 	resetValue number (1..1)
+ 	resetDate date (1..1)
+ 	observations Observation (1..*)
+ 		[metadata reference]
+ 	aggregationMethodology AggregationMethod (0..1)
+
+The ``Reset`` represents the ultimate value of the reset, the number used to compute cash flows, along with a set of observations that were used. The set of observations can be many, in which case `aggregationMethod` attribute is used to describe how the many observations transformed into the single value.
 
 Example 3: Transfer
 """""""""""""""""""
@@ -615,6 +624,18 @@ A ``TransferPrimitive`` is a multi-purpose primitive that can represent the tran
  	before TradeState (1..1)
 	    [metadata reference]
  	after TradeState (1..1)
+
+The roles of *transfer* is to create instances of the ``Transfer`` data type and include that in the ``transferHistory`` of a given ``TradeState``.
+
+.. code-block:: Haskell
+
+ type Transfer:
+ 	identifier Identifier (0..*)
+ 		[metadata scheme]
+ 	quantity QuantityNotation (1..1)
+ 	payerReceiver PartyReferencePayerReceiver (1..1)
+ 	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
+ 	settlementOrigin SettlementOrigin (0..1)
 
 By design, the CDM treats the reset and the transfer primitive events separately because there is no one-to-one relationship between reset and transfer.
 
