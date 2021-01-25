@@ -712,20 +712,14 @@ The JSON snippet below for a quantity change event on a trade illustrates the us
   "effectiveDate": "2018-03-15",
   "eventDate": "2018-03-14",
   "eventEffect": {
-    "contract": [
+    "trade": [
       {
         "globalReference": "600e4873"
       }
     ],
-    "effectedContract": [
+    "effectedTrade": [
       {
         "globalReference": "d36e1d72"
-      }
-    ],
-    (...)
-    "transfer": [
-      {
-        "globalReference": "ee4f7520"
       }
     ]
   },
@@ -734,11 +728,12 @@ The JSON snippet below for a quantity change event on a trade illustrates the us
     "quantityChange": [
       {
         "after": {
+          (...)
+          "meta": {
+            "globalKey": "600e4873"
+          }
           "trade": {
             (...)
-            "meta": {
-              "globalKey": "600e4873"
-            }
             "tradeDate": {
               "date": "2002-12-04",
               "meta": {
@@ -748,11 +743,12 @@ The JSON snippet below for a quantity change event on a trade illustrates the us
           }
         },
         "before": {
+          (...)
+          "meta": {
+            "globalKey": "d36e1d72"
+          },
           "trade": {
             (...)
-            "meta": {
-              "globalKey": "d36e1d72"
-            },
             "tradeDate": {
               "date": "2002-12-04",
               "meta": {
@@ -762,38 +758,11 @@ The JSON snippet below for a quantity change event on a trade illustrates the us
           }
         }
       }
-    ],
-    "transfer": [
-      {
-        "cashTransfer": [
-          {
-            "amount": {
-              "amount": 45860.23,
-              "currency": {
-                "value": "JPY"
-              },
-              "meta": {
-                "globalKey": "66c5234f"
-              }
-            },
-            (...)
-          }
-        ],
-        "meta": {
-          "globalKey": "ee4f7520"
-        },
-        "settlementDate": {
-          "adjustedDate": {
-            "value": "2018-03-17"
-          }
-        }
-      }
     ]
   }
 
-* For the ``effectedTrade`` effect: ``d36e1d72`` points to the original trade in the ``before`` state of the ``quantityChange`` primitive event.
-* For the ``trade`` effect: ``600e4873`` points to the new trade in the ``after`` state of the ``quantityChange`` primitive event. Note how the new contract retains the initial ``tradeDate`` attribute of the original trade even after a quantity change.
-* For the ``transfer`` effect: ``ee4f7520`` points to the ``transfer`` primitive event.
+* For the ``effectedTrade``: ``d36e1d72`` points to the original trade in the ``before`` state of the ``quantityChange`` primitive event.
+* For the ``trade``: ``600e4873`` points to the new trade in the ``after`` state of the ``quantityChange`` primitive event. Note how the new contract retains the initial ``tradeDate`` attribute of the original trade even after a quantity change.
 
 Other Misc. Information
 """""""""""""""""""""""
