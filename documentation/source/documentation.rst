@@ -523,11 +523,11 @@ Primitive Event
 
 **Primitive events are the building block components used to specify business events in the CDM**. They describe the fundamental state-transition components that impact the trade state during its lifecycle. The trade state always transitions from and to a ``TradeState`` data type.
 
-The primitive events include ``before`` and ``after`` attributes can then define the evolution of the trade state by taking the differences between ``before`` and ``after`` trade states.
+The primitive events include ``before`` and ``after`` attributes, which can define the evolution of the trade state by taking the differences between ``before`` and ``after`` trade states.
 
 The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a trade state that *already* existed. By contrast, the ``after`` trade state provides a full definition of that object, because that trade state is occurring for the first time and it is the occurrence of the primitive event that triggered a transition to that new trade state. By tying each trade state in the lifecycle to a previous trade state, primitive events are one of the mechanisms by which *lineage* is implemented in the CDM.
 
-A ``PrimitiveEvent`` object consists of one of the primitive components, as captured by the ``one-of`` condition.  The list of primitive events can be seen in the ``PrimitiveEvent`` type definition:
+A ``PrimitiveEvent`` can only include one of the primitive components, which is captured by the ``one-of`` condition. The list of primitive events can be seen in the ``PrimitiveEvent`` type definition:
 
 .. code-block:: Haskell
 
@@ -542,7 +542,7 @@ A ``PrimitiveEvent`` object consists of one of the primitive components, as capt
 
    condition PrimitiveEvent: one-of
 
-A number of examples are illustrated below.
+Examples of how primitive components can be used are illustrated below.
 
 Example 1: Execution and Contract Formation
 """""""""""""""""""""""""""""""""""""""""""
@@ -560,7 +560,7 @@ The transition to an executed state prior to confirmation is represented by the 
 
 The execution primitive does not allow any before state (as marked by the 0 cardinality of the ``before`` attribute) because the current CDM event model only covers post-trade lifecycle events. In practice, this execution state represents the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client.
 
-Following that execution, the trade gets confirmed and a legally binding contract is signed between the two executing parties. In an allocation scenario, the trade would first get split into sub-accounts as designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts.
+Following that execution, the trade is confirmed and a legally binding contract is signed between the two executing parties. In an allocation scenario, the trade would first get split into sub-accounts as designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts.
 
 The ``ContractFormationPrimitive`` represents that transition to the trade state after the trade is confirmed, which results in a ``TradeState`` containing a Trade object that can optionally reference legal documentation.
 
@@ -588,7 +588,7 @@ When a observable value becomes known (as provided by the relevant market data p
  	observedValue number (1..1)
  	observationIdentifier ObservationIdentifier (1..1)
 
-From that ``Observation``, a *reset* can be built which does not affect the specific trade. A reset is represented by the ``ResetPrimitive`` type.
+From that ``Observation``, a ``Reset`` can be built and included in ``TradeState`` without changing the ``Trade``. A reset is represented by the ``ResetPrimitive`` data type.
 
 .. code-block:: Haskell
 
@@ -599,7 +599,7 @@ From that ``Observation``, a *reset* can be built which does not affect the spec
    condition Trade:
      before -> trade = after -> trade
 
-The role of the *reset* is to create instances of the ``Reset`` data type and include that in the ``resetHistory`` of a given ``TradeState``.
+The *reset* process creates instances of the ``Reset`` data type, which are added to ``resetHistory`` of a given ``TradeState``.
 
 .. code-block:: Haskell
 
@@ -610,7 +610,7 @@ The role of the *reset* is to create instances of the ``Reset`` data type and in
  		[metadata reference]
  	aggregationMethodology AggregationMethod (0..1)
 
-The ``Reset`` represents the ultimate value of the reset, the number used to compute cash flows, along with a set of observations that were used. The set of observations can be many, in which case `aggregationMethod` attribute is used to describe how the many observations transformed into the single value.
+The ``resetValue`` attribute represents the ultimate value of the reset as a number and is the number used to compute corresponding cash flows. If multiple ``observations`` were used to derive the ``resetValue``,  ``aggregationMethod`` should be used to describe how the many observations where aggregated into the single value.
 
 Example 3: Transfer
 """""""""""""""""""
@@ -625,7 +625,7 @@ A ``TransferPrimitive`` is a multi-purpose primitive that can represent the tran
 	    [metadata reference]
  	after TradeState (1..1)
 
-The roles of *transfer* is to create instances of the ``Transfer`` data type and include that in the ``transferHistory`` of a given ``TradeState``.
+The *transfer* process creates instances of the ``Transfer`` data type, which are added to ``transferHistory`` of a given ``TradeState``.
 
 .. code-block:: Haskell
 
