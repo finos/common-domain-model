@@ -611,16 +611,10 @@ A ``TransferPrimitive`` is a multi-purpose primitive that can represent the tran
 .. code-block:: Haskell
 
  type TransferPrimitive:
-   [metadata key]
-   identifier string (0..1)
-     [metadata scheme]
-   settlementType TransferSettlementEnum (0..1)
-   settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
-   cashTransfer CashTransferComponent (0..*)
-   securityTransfer SecurityTransferComponent (0..*)
-   commodityTransfer CommodityTransferComponent (0..*)
-   status TransferStatusEnum (0..1)
-   settlementReference string (0..1)
+ 	[metadata key]
+ 	before TradeState (1..1)
+	    [metadata reference]
+ 	after TradeState (1..1)
 
 By design, the CDM treats the reset and the transfer primitive events separately because there is no one-to-one relationship between reset and transfer.
 
@@ -932,13 +926,12 @@ One distinction with the product approach is that the ``intent`` qualification i
  	inputs:
  		businessEvent BusinessEvent(1..1)
  	output: is_event boolean (1..1)
+ 	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
  	assign-output is_event:
  		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
- 		and (businessEvent -> primitives count = 1
- 		and businessEvent -> primitives -> quantityChange exists
- 			or (businessEvent -> primitives -> quantityChange exists
- 				and businessEvent -> primitives -> transfer -> cashTransfer exists)
- 			)
+ 		and (businessEvent  -> primitives count = 1
+ 			and businessEvent -> primitives -> quantityChange exists
+ 			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
  		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
  		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 
