@@ -420,12 +420,12 @@ The trade state is defined in CDM by the ``TradeState`` data type and represents
 .. code-block:: Haskell
 
  type TradeState:
- 	[metadata key]
- 	[rootType]
- 	trade Trade (1..1)
- 	state State (0..1)
- 	resetHistory Reset (0..*)
- 	transferHistory Transfer (0..*)
+   [metadata key]
+   [rootType]
+   trade Trade (1..1)
+   state State (0..1)
+   resetHistory Reset (0..*)
+   transferHistory Transfer (0..*)
 
 While many different types of events may occur through the trade lifecycle, the ``trade``, ``state``, ``resetHistory`` and ``transferHistory`` attributes are deemed sufficient to describe all of the possible (post-trade) states which may result from lifecycle events. The ``Trade`` data type contains the tradable product, which defines all of the economic terms of the transaction as agreed between the parties.
 
@@ -441,21 +441,21 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
 .. code-block:: Haskell
 
  type Trade:
- 	[metadata key]
- 	tradeIdentifier Identifier (1..*)
- 	tradeDate date (1..1)
-         [metadata id]
- 	tradableProduct TradableProduct (1..1)
- 	party Party (0..*)
- 	partyRole PartyRole (0..*)
- 	settlementTerms SettlementTerms (0..*)
- 	executionDetails ExecutionDetails (0..1)
- 	contractDetails ContractDetails (0..1)
-    clearedDate date (0..1)
-        [deprecated]
-    collateral Collateral (0..1)
-	account Account (0..*)
-        [deprecated]
+   [metadata key]
+   tradeIdentifier Identifier (1..*)
+   tradeDate date (1..1)
+     [metadata id]
+   tradableProduct TradableProduct (1..1)
+   party Party (0..*)
+   partyRole PartyRole (0..*)
+   settlementTerms SettlementTerms (0..*)
+   executionDetails ExecutionDetails (0..1)
+   contractDetails ContractDetails (0..1)
+   clearedDate date (0..1)
+     [deprecated]
+   collateral Collateral (0..1)
+   account Account (0..*)
+     [deprecated]
 
 .. note:: Attributes within ``Trade`` and ``ContractDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view.
 
@@ -482,11 +482,11 @@ The ``ExecutionDetails`` data type represents details applicable to trade execut
 .. code-block:: Haskell
 
  type ContractDetails:
- 	[metadata key]
- 	documentation RelatedAgreement (0..1)
- 	governingLaw GoverningLawEnum (0..1)
- 		[metadata scheme]
- 	partyContractInformation PartyContractInformation (0..*)
+   [metadata key]
+   documentation RelatedAgreement (0..1)
+   governingLaw GoverningLawEnum (0..1)
+     [metadata scheme]
+   partyContractInformation PartyContractInformation (0..*)
 
 State
 """""
@@ -496,14 +496,14 @@ The ``State`` data type defines the state of a trade at a point in the Trade's l
 .. code-block:: Haskell
 
  type State:
- 	closedState ClosedState (0..1)
- 	positionState PositionStatusEnum (0..1)
+   closedState ClosedState (0..1)
+   positionState PositionStatusEnum (0..1)
 
 *ClosedState*.
 
 In the case when a trade is closed, it is necessary to record that closure as part of the trade state.
 
-For instance in a full novation scenario, the initial state is a single ``TradeState`` and the resulting state is two ``TradeState``s. The first resulting ``TradeState`` represents a new contract, which is the same as the original but where one of the parties has been changed, and the second resulting ``TradeState`` is the original contract, now marked as *closed*.
+For instance in a full novation scenario, the initial state is a single ``TradeState`` and the resulting state is two ``TradeState``. The first resulting ``TradeState`` represents a new contract, which is the same as the original but where one of the parties has been changed, and the second resulting ``TradeState`` is the original contract, now marked as *closed*.
 
 The ``ClosedState`` data type (enclosed within ``State``) captures this closed state and defines the reason for closure.
 
@@ -583,10 +583,10 @@ When a observable value becomes known (as provided by the relevant market data p
 .. code-block:: Haskell
 
  type Observation:
- 	[rootType]
- 	[metadata key]
- 	observedValue number (1..1)
- 	observationIdentifier ObservationIdentifier (1..1)
+   [rootType]
+   [metadata key]
+   observedValue number (1..1)
+   observationIdentifier ObservationIdentifier (1..1)
 
 From that ``Observation``, a ``Reset`` can be built and included in ``TradeState`` without changing the ``Trade``. A reset is represented by the ``ResetPrimitive`` data type.
 
@@ -604,11 +604,11 @@ The *reset* process creates instances of the ``Reset`` data type, which are adde
 .. code-block:: Haskell
 
  type Reset:
- 	resetValue number (1..1)
- 	resetDate date (1..1)
- 	observations Observation (1..*)
- 		[metadata reference]
- 	aggregationMethodology AggregationMethod (0..1)
+   resetValue number (1..1)
+   resetDate date (1..1)
+   observations Observation (1..*)
+     [metadata reference]
+   aggregationMethodology AggregationMethod (0..1)
 
 The ``resetValue`` attribute represents the ultimate value of the reset as a number and is the number used to compute corresponding cash flows. If multiple ``observations`` were used to derive the ``resetValue``,  ``aggregationMethod`` should be used to describe how the many observations where aggregated into the single value.
 
@@ -620,22 +620,22 @@ A ``TransferPrimitive`` is a multi-purpose primitive that can represent the tran
 .. code-block:: Haskell
 
  type TransferPrimitive:
- 	[metadata key]
- 	before TradeState (1..1)
-	    [metadata reference]
- 	after TradeState (1..1)
+   [metadata key]
+   before TradeState (1..1)
+     [metadata reference]
+   after TradeState (1..1)
 
 The *transfer* process creates instances of the ``Transfer`` data type, which are added to ``transferHistory`` of a given ``TradeState``.
 
 .. code-block:: Haskell
 
  type Transfer:
- 	identifier Identifier (0..*)
- 		[metadata scheme]
- 	quantity QuantityNotation (1..1)
- 	payerReceiver PartyReferencePayerReceiver (1..1)
- 	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
- 	settlementOrigin SettlementOrigin (0..1)
+   identifier Identifier (0..*)
+     [metadata scheme]
+   quantity QuantityNotation (1..1)
+   payerReceiver PartyReferencePayerReceiver (1..1)
+   settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
+   settlementOrigin SettlementOrigin (0..1)
 
 By design, the CDM treats the reset and the transfer primitive events separately because there is no one-to-one relationship between reset and transfer.
 
