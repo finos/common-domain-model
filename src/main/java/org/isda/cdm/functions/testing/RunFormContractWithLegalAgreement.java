@@ -38,7 +38,7 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Tra
                 guard(tradeState.getTrade().getTradeIdentifier()));
 
         LegalAgreement legalAgreement = LegalAgreement.builder()
-                .addContractualPartyRef(guard(tradeState.getTrade().getParty()))
+                .addContractualPartyValue(guard(tradeState.getTrade().getParty()))
                 .setAgreementDate(DateImpl.of(1994, 12, 01))
                 .setAgreementType(LegalAgreementType.builder()
                         .setName(LegalAgreementNameEnum.MASTER_AGREEMENT)

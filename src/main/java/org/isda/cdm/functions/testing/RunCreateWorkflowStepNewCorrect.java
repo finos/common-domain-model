@@ -62,12 +62,12 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
 	}
 
 	private Identifier identifier(String id) {
-		Identifier identifier = Identifier.builder().addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierRef(id).build()).build();
+		Identifier identifier = Identifier.builder().addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierValue(id).build()).build();
 		return identifier;
 	}
 
 	private MessageInformation messageInformation(String messageId) {
-		return MessageInformation.builder().setMessageIdRef(messageId).build();
+		return MessageInformation.builder().setMessageIdValue(messageId).build();
 	}
 
 	private BusinessEvent correctedBusinessEvent(TradeState tradeState) {

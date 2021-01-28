@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import static cdm.product.template.TradableProduct.TradableProductBuilder;
@@ -123,7 +124,8 @@ class PartyMappingHelperTest {
 		assertEquals(1, context.getInvokedTasks().size());
 		context.getInvokedTasks().get(0).get(1000, TimeUnit.MILLISECONDS);
 
-		List<Counterparty.CounterpartyBuilder> counterparties = tradableProductBuilder.getCounterparty();
+		List<? extends Counterparty.CounterpartyBuilder> counterpartiesRaw = tradableProductBuilder.getCounterparty();
+		List<Counterparty.CounterpartyBuilder> counterparties = counterpartiesRaw.stream().map(Counterparty.CounterpartyBuilder.class::cast).collect(Collectors.toList());
 		assertThat(counterparties, hasSize(2));
 		assertThat(counterparties,
 				hasItems(

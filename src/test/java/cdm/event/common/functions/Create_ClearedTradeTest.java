@@ -1,5 +1,6 @@
 package cdm.event.common.functions;
 
+import cdm.base.datetime.RelativeDateOffset;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.event.common.BusinessEvent;
@@ -24,6 +25,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Create_ClearedTradeTest extends AbstractFunctionTest {
 
@@ -56,10 +58,11 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 				.build();
 		Date tradeDate = DateImpl.of(2020, 8, 28);
 
-		BusinessEvent businessEvent = func.evaluate(clearingInstruction, tradeDate, null);
+		BusinessEvent businessEvent = func.evaluate(clearingInstruction, tradeDate, null).build();
 
 		String businessEventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
-		assertThat(getJson("expected-cleared-trade-business-event.json"), new IsEqualIgnoringWhiteSpace(businessEventJson));
+		businessEventJson = businessEventJson.replace("\r", "");
+		assertEquals(getJson("expected-cleared-trade-business-event.json"), businessEventJson);
 	}
 
 	private <T extends RosettaModelObject> T getRosettaModelObject(Class<T> clazz, String pathToJson) throws IOException {
@@ -69,6 +72,6 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 
 	private String getJson(String pathToJson) throws IOException {
 		URL url = Resources.getResource(pathToJson);
-		return Resources.toString(url, Charset.defaultCharset());
+		return Resources.toString(url, Charset.defaultCharset()).replace("\r", "");
 	}
 }

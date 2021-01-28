@@ -46,8 +46,8 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 
 					InterestRatePayoutBuilder newIrp = irp.build().toBuilder();
 
-					rateSpec.setFloatingRateBuilder(null);
-					newIrp.getRateSpecification().setFixedRateBuilder(null);
+					rateSpec.setFloatingRate(null);
+					newIrp.getRateSpecification().setFixedRate(null);
 
 					PartyMappingHelper helper = PartyMappingHelper.getInstanceOrThrow(getContext());
 

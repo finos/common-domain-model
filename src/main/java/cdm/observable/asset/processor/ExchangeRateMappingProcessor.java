@@ -1,5 +1,6 @@
 package cdm.observable.asset.processor;
 
+import cdm.base.math.UnitType;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
@@ -37,23 +38,23 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		PriceQuantity.PriceQuantityBuilder priceQuantityBuilder = (PriceQuantity.PriceQuantityBuilder) parent;
 		List<FieldWithMetaPriceBuilder> priceBuilders = emptyIfNull((List<FieldWithMetaPriceBuilder>) builders);
-		UnitTypeBuilder unitOfAmount = getUnitOfAmount(priceBuilders);
+		UnitType unitOfAmount = getUnitOfAmount(priceBuilders);
 		UnitTypeBuilder perUnitOfAmount = getPerUnitOfAmount(priceBuilders);
 
 		AtomicInteger priceIndex = new AtomicInteger(priceBuilders.size());
 
 		getBuilder(synonymPath.addElement("spotRate"), priceIndex, unitOfAmount, perUnitOfAmount, PriceTypeEnum.SPOT)
-				.ifPresent(priceQuantityBuilder::addPriceBuilder);
+				.ifPresent(priceQuantityBuilder::addPrice);
 		getBuilder(synonymPath.addElement("forwardPoints"), priceIndex, unitOfAmount, perUnitOfAmount, PriceTypeEnum.FORWARD_POINTS)
-				.ifPresent(priceQuantityBuilder::addPriceBuilder);
+				.ifPresent(priceQuantityBuilder::addPrice);
 		getBuilder(synonymPath.addElement("pointValue"), priceIndex, unitOfAmount, perUnitOfAmount, null)
-				.ifPresent(priceQuantityBuilder::addPriceBuilder);
+				.ifPresent(priceQuantityBuilder::addPrice);
 	}
 
 	@NotNull
 	private Optional<FieldWithMetaPriceBuilder> getBuilder(Path synonymPath,
 			AtomicInteger priceIndex,
-			UnitTypeBuilder unitOfAmount,
+			UnitType unitOfAmount,
 			UnitTypeBuilder perUnitOfAmount,
 			PriceTypeEnum priceType) {
 		return getNonNullMapping(getMappings(), synonymPath).map(mapping -> {
@@ -69,7 +70,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 		});
 	}
 
-	private UnitTypeBuilder getUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
+	private UnitType getUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
 		return getExchangeRatePrice(priceBuilders)
 				.map(Price.PriceBuilder::getUnitOfAmount)
 				.orElse(null);
