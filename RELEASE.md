@@ -12,5 +12,4 @@ Consistent design of Business Event Functions will allow for easier adoption of 
 The `ExecutionInstruction` data type has been added to the model, containing mandatory data attributes required on an Execution Business Event.  `ExecutionDetails` data type added as an attribute within `ExecutionInstruction` to specify type and venue of Execution.  `Create_Execution` function updated to contain `ExecutionInstruction` as input object.  Descriptions on `Create_Execution` and `Qualify_Execution` updated.
 
 *Review Directions*
-In the CDM Portal, use the Textual Browser or Graphical Navigator to inspect the data types referenced above.
-In Rosetta Core, use the Editor or Graphical view to inspect the functions referenced above.
+In the CDM Portal, use the Textual Browser or Graphical Navigator to inspect the data types and functions referenced above.
