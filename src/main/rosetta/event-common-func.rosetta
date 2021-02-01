@@ -759,33 +759,38 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
 		executionPrimitive -> before is absent
 
-func Create_ContractFormation: <"Creates the fully formed business event of affirming (confirming) a transaction based on contract formation instructions. The formed contract can reference a legal agreement for instance a master agreement, by using the optional legalAgreement input.">
+func Create_ContractFormation: <"Creates the fully formed business event of affirming (confirming) a transaction based on contract formation instructions. The formed contract can reference a legal agreement, for instance a master agreement, by using the optional legalAgreement input.">
 	[creation BusinessEvent]
 	inputs:
-		executionEvent BusinessEvent (1..1) <"Qualified execution business event containing a execution primitive.">
-		legalAgreement LegalAgreement (0..1) <"Optional legal agreement associated to the contract being formed, for instance a master agreement.">
+		contractFormationInstruction ContractFormationInstruction (1..1) <"Specifies the Contract Formation instructions to be applied.">
+		contractFormationDate date (1..1) <"Specifies the event date of the contract formation.">
 
 	output:
 		contractFormationEvent BusinessEvent (1..1) <"Qualified contract formation business event.">
 
-	alias trade:
-		executionEvent -> primitives -> execution -> after -> trade
+	alias execution:
+		contractFormationInstruction -> execution
 
 	condition : <"Input event must be an execution must be on a contractual product.">
-		trade exists and
-		trade -> tradableProduct -> product -> contractualProduct exists
+		execution exists and
+		execution -> trade -> tradableProduct -> product -> contractualProduct exists and
+		execution -> trade -> contractDetails is absent and
+		execution -> state -> positionState = PositionStatusEnum -> Executed
 
 	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided.">
-		if legalAgreement exists then legalAgreement -> contractualParty contains trade -> party
+		if contractFormationInstruction -> legalAgreement exists then contractFormationInstruction -> legalAgreement -> contractualParty contains execution -> trade -> party
 
 	assign-output contractFormationEvent -> primitives -> contractFormation: <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
-		Create_ContractFormationPrimitive(executionEvent -> primitives only-element -> execution -> after -> trade, legalAgreement)
+		Create_ContractFormationPrimitive(contractFormationInstruction -> execution -> trade, contractFormationInstruction -> legalAgreement)
 
 	assign-output contractFormationEvent -> eventEffect -> trade: <"The event effect of the business event points to the contract object, i.e. the after state of the contract formation primitive event.">
 		contractFormationEvent -> primitives -> contractFormation -> after
 
 	assign-output contractFormationEvent -> eventEffect -> effectedTrade: <"The event effect of the business event points to the execution object, i.e. the before state of the contract formation primitive event.">
 		contractFormationEvent -> primitives -> contractFormation -> before
+
+	assign-output contractFormationEvent -> eventDate: <"The event date of the contract formation points to the contractFormationDate.">
+		contractFormationDate
 
 	post-condition : <"Event effect must point to the new execution and contract, and exclude other effects.">
 		contractFormationEvent -> eventEffect -> productIdentifier is absent
@@ -1020,10 +1025,10 @@ func Create_Allocation: <"Creates the fully formed business event of allocating 
 		businessEvent BusinessEvent (1..1) <"Represents the Allocation Business Event containing both the original block trade (with it's status set to Allocated) and the set of breakdown trades.">
 
 	alias splitPrimitive: <"Create the Split Primitive.">
-		Create_SplitPrimitive(allocationInstruction -> tradeState, allocationInstruction -> breakdowns, ClosedStateEnum -> Allocated, PositionStatusEnum -> Closed)
+		Create_SplitPrimitive(allocationInstruction -> blockTrade, allocationInstruction -> breakdowns, ClosedStateEnum -> Allocated, PositionStatusEnum -> Closed)
 
 	condition: <"Ensures total quantity/notional of allocation breakdowns must equal quantity on block.">
-		Sum(allocationInstruction -> breakdowns -> quantity -> quantity -> amount) = allocationInstruction -> tradeState -> trade -> tradableProduct -> quantityNotation -> quantity -> amount
+		Sum(allocationInstruction -> breakdowns -> quantity -> quantity -> amount) = allocationInstruction -> blockTrade -> trade -> tradableProduct -> quantityNotation -> quantity -> amount
 
 	assign-output businessEvent -> primitives -> split: <"Assign the Split Primitive to the Business Event.">
 		splitPrimitive
@@ -1050,7 +1055,7 @@ func Create_SplitPrimitive: <"Defines how to create the Split Primitive accordin
 	[creation PrimitiveEvent]
 	inputs:
 		singleTrade TradeState (1..1) <"Represents the single trade, to be split.">
-		splitBreakdowns AllocationBreakdown (1..*) <"Represents how the single trade is to be split.">
+		splitBreakdowns SplitInstruction (1..*) <"Represents how the single trade is to be split.">
 		closedState ClosedStateEnum (0..1) <"Represents the reason for the trade's closure. The input is optional as not all splits will result in a trade closure, for example in the case of a partial allocation.">
 		positionStatus PositionStatusEnum (1..1) <"Represents the change to the position status.">
 
@@ -1092,14 +1097,14 @@ func Create_OriginalExecution:
 func Create_SplitExecutions: // Implemented in Java - loops through each execution and calls Create_SplitExecution
 	inputs:
 		trade TradeState (1..1) <"Block execution to be split.">
-		breakdowns AllocationBreakdown (1..*) <"Split instructions to be applied.">
+		breakdowns SplitInstruction (1..*) <"Split instructions to be applied.">
 	output:
 		splitOutcome TradeStates (1..1)
 
 func Create_SplitExecution:
 	inputs:
 		tradeState TradeState (1..1) <"Block execution to be split.">
-		breakdown AllocationBreakdown (1..1) <"Split instructions to be applied.">
+		breakdown SplitInstruction (1..1) <"Split instructions to be applied.">
 	output:
 		splitExecution TradeState (1..1)
 	alias counterparty1:
@@ -1115,7 +1120,7 @@ func Create_SplitExecution:
 	assign-output splitExecution -> trade -> executionDetails -> executionType:
 		tradeState -> trade -> executionDetails -> executionType
 	assign-output splitExecution -> trade -> tradeIdentifier:
-		breakdown -> allocationTradeId
+		breakdown -> tradeIdentifier
 	assign-output splitExecution -> trade -> tradeDate:
 		tradeState -> trade -> tradeDate
 	assign-output splitExecution -> trade -> tradableProduct -> counterparty:
