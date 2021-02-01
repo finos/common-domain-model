@@ -185,12 +185,15 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
 	    [synonym Workflow_Event value "state"]
 	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
+	    [synonym Workflow_Event value "resetHistory"]
 	transferHistory Transfer (0..*)
 	    [synonym Workflow_Event value "transferHistory"]
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definitioin details with observations to compute the reset value.">
 	resetValue number (1..1) <"Specifies the reset or fixing value. The fixing value could ">
+	    [synonym Workflow_Event value "resetValue"]
 	resetDate date (1..1) <"Specifies the date on which the reset occurred.">
+	    [synonym Workflow_Event value "resetDate"]
 	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
 		[metadata reference]
 	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value.">
@@ -606,8 +609,6 @@ type PrimitiveEvent: <"A primitive event is defined by one and only one atomic c
 		[synonym Workflow_Event value "contractFormation" path "primitive"]
 	split SplitPrimitive (0..1)
 		[synonym Workflow_Event value "split" path "primitive"]
-	observation ObservationPrimitive (0..1)
-		[synonym Workflow_Event value "observation" path "primitive"]
 	quantityChange QuantityChangePrimitive (0..1)
 		[synonym Workflow_Event value "quantityChange" path "primitive"]
 	reset ResetPrimitive (0..1)
@@ -693,9 +694,9 @@ type ResetPrimitive: <"Defines the primitive event to represent a reset. For det
 
 	before TradeState (1..1) <"Represents the TradeState prior applying the Reset primitive.">
 		[metadata reference]
-		[synonym Workflow_Event value "ignore"]
+		[synonym Workflow_Event value "fpmlTrade" path "before"]
 	after TradeState (1..1) <"Represents the TradeState after to applying the Reset primitive.">
-		[synonym Workflow_Event value "ignore"]
+		[synonym Workflow_Event value "fpmlTrade" path "after"]
 	condition Trade: <"The original trade in the before/after state of a reset should match.">
 		before -> trade = after -> trade
 

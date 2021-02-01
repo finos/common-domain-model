@@ -256,15 +256,6 @@ func Qualify_Compression: <"The qualification of a compression event from the fa
 		businessEvent -> primitives -> quantityChange exists
 		and businessEvent -> primitives -> quantityChange -> before -> trade multiple exists
 
-func Qualify_DerivedObservation: <"The qualification of a derived observation event from the fact that (i) the only primitive is the observation, (ii) there are multiple instances of such observations, and (iii) there is an associated call function to compute, say, an interpolation.">
-	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent(1..1)
-	output: is_event boolean (1..1)
-	assign-output is_event:
-		businessEvent -> primitives -> observation only multiple exists
-		and businessEvent -> functionCall exists
-
 func Qualify_Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
 	[qualification BusinessEvent]
 	inputs:
@@ -311,14 +302,6 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 		and businessEvent -> eventDate = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates only-element
 		//and originalContractParties <> newContractParties
-
-func Qualify_Observation: <"The qualification of an observation event from the fact that (i) the only primitive is the observation, and (ii) that there is only a single instance of such observation.">
-	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent(1..1)
-	output: is_event boolean (1..1)
-	assign-output is_event:
-		businessEvent -> primitives -> observation only single exists
 
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
@@ -511,28 +494,27 @@ func ResolveEquityObservationIdentifiers: <"Defines which attributes on the Equi
 		payout -> underlier -> underlyingProduct -> security -> productIdentifier only-element
 
 	assign-output identifiers -> observationDate: <"Specifies the date for which to retireve the market data value(s).">
-		ResolveEquityValuationDate(equityValuation)
+		ResolveEquityValuationDate(equityValuation, date)
 
 	assign-output identifiers -> observationTime: <"Specifies the time for which to retireve the market data value(s).">
-		ResolveEquityValuationTime(equityValuation)
+		ResolveEquityValuationTime(equityValuation, identifiers -> observable -> productIdentifier)
 
 	assign-output identifiers -> determinationMethodology -> determinationMethod: <"Identifies a more specific price should multiple prices for the underlier be available at the given date time, for example bid or ask prices.">
 		equityValuation -> determinationMethod
 
 
-func ResolveEquityValuationDate: <"Defines how to resolve the observation date and time from those specified in the Equity Valuation type.">
+func ResolveEquityValuationDate: <"Specifies how an adjusted data is derived from an EquityValuation data type, which contains a series of adjustable dates.">
 	inputs:
-		equityValuation EquityValuation (1..1)
+		equityValuation EquityValuation (1..1) <"Represents the Equity Valuation terms from the Equity product definition.">
+		date date (1..1) <"Specifies the date, which is a proxy for the period, for which the valuation date should be resolved.">
 	output:
-		date date (1..1)
-
-	assign-output date: <"The date and time must be properly resolved as attributes on the output.">
-		ResolveAdjustableDate(equityValuation -> valuationDate)
+		valuationDate date (1..1)
 
 
 func ResolveEquityValuationTime: <"Defines how to resolve the observation time from those specified in the Equity Valuation type.">
 	inputs: 
-		equityValuation EquityValuation (1..1)
+		equityValuation EquityValuation (1..1) <"Represents the Equity Valuation terms from the Equity product definition.">
+		productIdentifier ProductIdentifier (1..1) <"Specifies the product identifier, along with the source, which should be used to determine the correct valuation time i.e. close times are different across exchanges.">
 	output:
 		time TimeZone (1..1)
 
@@ -552,7 +534,7 @@ func ResolveEquityValuationTime: <"Defines how to resolve the observation time f
 		if valuationTime exists then TimeZoneFromBusinessCenterTime(valuationTime)
 
 	assign-output time:
-		if timeType exists then ResolveTimeZoneFromTimeType(timeType, equityValuation -> determinationMethod)
+		if timeType exists then ResolveTimeZoneFromTimeType(productIdentifier, timeType, equityValuation -> determinationMethod)
 
 
 func ResolveEquityReset: <"Defines how to resolve the reset value for an equity payout.">
