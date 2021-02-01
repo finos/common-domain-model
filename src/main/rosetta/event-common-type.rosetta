@@ -48,18 +48,17 @@ type Affirmation: <"A class to specify a trade affirmation.">
 		if lineage -> tradeReference -> tradableProduct -> product -> security exists
 		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
 
-type AllocationInstruction:
-	// TODO: add other allocation context
-	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
+type AllocationInstruction: <"Specifies instructions for allocation of a transaction consisting of the trade to be allocated, breakdowns for each allocation detailing parties and quantities for each new trade, and the allocation date.">
+	breakdowns SplitInstruction (1..*) <"Specifies the set of allocation breakdowns to be applied to a block trade">
+	blockTrade TradeState (1..1) <"Represents the block trade to be allocated.">
+	allocationDate date (1..1) <"Specifies the date on which the allocation is taking place.">
 
-type AllocationBreakdown:
+type SplitInstruction: <"Specifies instructions defining the outcome from splitting a transaction consisting of the new party, the quantity and the trade identifier.">
 
-	partyReference Party (1..1) <"Reference to the party to specify the account.">
-		[metadata reference]
-	quantity QuantityNotation (1..1) <"The quantity to be allocated to the party.">
-	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
-	account Account (0..1)<"The account to allocate the trade into">
-	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
+	newParty Counterparty (1..1) <"Specifies the party that the split will be allocated to, and the side of the trade that the party will be replacing.">
+	quantity QuantityNotation (1..1) <"Specifies the quantity to be allocated to the party.">
+	tradeIdentifier Identifier (1..*) <"Specifies the identifier to be assigned to the new trade post allocation">
+	collateral Collateral (0..1) <"The sum that must be posted upfront to collateralize against counterparty credit risk.">
 
 type CashTransferBreakdown extends TransferBreakdown:
 
@@ -104,6 +103,10 @@ type CommodityTransferComponent extends TransferBase:
 	breakdown CommodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
 		[synonym Workflow_Event value "breakdown"]
 
+type ContractFormationInstruction: <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
+	execution TradeState (1..1) <"Execution consisting of the economic terms which are agreed between the parties.">
+	legalAgreement LegalAgreement (0..1) <"Optional legal agreement associated to the contract being formed, for instance a master agreement.">
+
 type ContractState: <"A class to specify a contract state instantiation with respect to the before and/or after state of lifecycle events.">
 	[metadata key]
 
@@ -115,8 +118,9 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 
 	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
 	instructionFunction string (1..1) <"Name of the function that will be called">
-	allocation AllocationInstruction (0..1) <"Instruction to allocate">
+	allocation AllocationInstruction (0..1) <"Specifies instructions for allocation of a transaction consisting of breakdowns for each allocation detailing parties and quantities for each new trade, and the allocation date.">
 	clearing ClearingInstruction (0..1) <"Instruction to clear">
+	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
 
 	condition OneOfInstruction: required choice allocation, clearing
 
