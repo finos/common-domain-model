@@ -16,9 +16,11 @@ _Review Directions_
 
 In the CDM Portal, use the Textual Browser or Graphical Navigator to inspect the data types and functions referenced above.
 
-# *CDM Model: Primitive Harmonisation - Remove Observation Event*
+# *CDM Model: Primitive Harmonisation - Follow Ups*
 
 _What is Being Released_
+
+**Observation Event**
 
 As part of the Primitive Harmonisation design, the Observation event should be removed as these events no longer relate specificaly to a Trade. Instead `Observation` instances can be created independently from other data types and is decoupled from the Trade event model.
 
@@ -28,9 +30,7 @@ _Review Directions_
 
 In the CDM Portal, use the Textual Browser or Graphical Navigator to inspect the data types and functions referenced above. The Equity Swap example within the Functions app now exemplifies how the reset process works after Primitive Harmonisation. 
 
-# *CDM Model: Primitive Harmonisation - Documentation Update*
-
-_What is Being Released_
+**Documentation Update**
 
 User documentation for CDM has been updated to reflect the changed brought about as part of Primitive Harmonisation. Additionally, code-snippets were checked and updated to reflect the current model syntax. Unit tests to check validity of code-snippets were also updated to catch instances where code-snippets do not match model syntax. 
 
@@ -38,5 +38,10 @@ _Review Directions_
 
 In the CDM Portal, use the Documentation app to inspect the user documentation. 
 
+**Position data type**
 
+The `Position` data type was updated such that it now mandates a reference to `Trade`. This change accounts for the normalisation of `Contract` and `Execution` data types, which have now been consolidated into the `Trade` data type. 
 
+_Review Directions_
+
+In the CDM Portal, use the Documentation app to inspect the user documentation. 
