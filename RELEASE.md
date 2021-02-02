@@ -22,9 +22,11 @@ _What is Being Released_
 
 **Observation Event**
 
-As part of the Primitive Harmonisation design, the Observation event should be removed as these events no longer relate specificaly to a Trade. Instead `Observation` instances can be created independently from other data types and is decoupled from the Trade event model.
+As part of the Primitive Harmonisation design, the creation of `Observation` data object instances should be handled independently and outside the trade life-cycle, the observation is not an event but a piece of data used in a process.  Now, `Observation` object instances will be linked to a trade (via the `TradeState` data type), which is now done via the reset process.
 
-To reflect this, the `ObservationPrimitive` data type and its associated functions have been removed from the model. Ingestion examples have also been updated to reflect this change in structure. 
+As such, the `ObservationPrimitive` and its associated functions are no longer needed in the model and have been removed.
+
+Ingestion examples have also been updated to reflect this change in structure.
 
 _Review Directions_
 
