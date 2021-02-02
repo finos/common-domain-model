@@ -16,7 +16,7 @@ _Review Directions_
 
 In the CDM Portal, use the Textual Browser or Graphical Navigator to inspect the data types and functions referenced above.
 
-# *CDM Model: Primitive Harmonisation - Remove Observation event*
+# *CDM Model: Primitive Harmonisation - Remove Observation Event*
 
 _What is Being Released_
 
