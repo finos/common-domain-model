@@ -1,6 +1,7 @@
 # *CDM Model: Function Development - Create_Execution*
 
 _What is Being Released_
+
 The Create_Execution function has been updated to use an instructions object and ensure consistent design of Business Event functions in the CDM.
 
 **Background**
@@ -11,5 +12,6 @@ Consistent design of Business Event Functions will allow for easier adoption of 
 
 The `ExecutionInstruction` data type has been added to the model, containing mandatory data attributes required on an Execution Business Event.  `ExecutionDetails` data type added as an attribute within `ExecutionInstruction` to specify type and venue of Execution.  `Create_Execution` function updated to contain `ExecutionInstruction` as input object.  Descriptions on `Create_Execution` and `Qualify_Execution` updated.
 
-*Review Directions*
+_Review Directions_
+
 In the CDM Portal, use the Textual Browser or Graphical Navigator to inspect the data types and functions referenced above.
