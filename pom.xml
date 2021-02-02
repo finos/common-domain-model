@@ -739,6 +739,92 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>docs</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>copy-documentation</id>
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/documentation/source</directory>
+											<excludes>
+												<exclude>conf.py</exclude>
+											</excludes>
+											<filtering>false</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
+								<id>amend-documentation-version</id>
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/documentation/source</directory>
+											<includes>
+												<include>conf.py</include>
+											</includes>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-release-notes</id>
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/classes/release</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}</directory>
+											<includes>
+												<include>RELEASE.md</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>kr.motd.maven</groupId>
+						<artifactId>sphinx-maven-plugin</artifactId>
+						<version>2.2.2</version>
+						<configuration>
+							<sourceDirectory>${project.build.directory}/documentation-build</sourceDirectory>
+							<outputDirectory>${project.build.directory}/classes/cdm/modeldoc</outputDirectory>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 
 	<build>
@@ -944,7 +1030,7 @@
                 </executions>
                 <configuration>
                     <jvmTarget>1.8</jvmTarget>
-                </configuration>
+				</configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

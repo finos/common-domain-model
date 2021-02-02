@@ -27,6 +27,7 @@ public class Create_ExerciseTest extends AbstractFunctionTest {
 		BusinessEvent businessEvent = func.evaluate(swaption, ExerciseInstruction.builder().build());
 
 		assertThat(getJson("expected-physical-exercise-business-event.json"), new IsEqualIgnoringWhiteSpace(toJson(businessEvent)));
+
 	}
 
 	private String toJson(BusinessEvent businessEvent) throws JsonProcessingException {

@@ -46,4 +46,16 @@ The `Position` data type was updated such that it now mandates a reference to `T
 
 _Review Directions_
 
-In the CDM Portal, use the Documentation app to inspect the user documentation. 
+In the CDM Portal, use the Textual Browser or Graphical Navigator to inspect the data type.
+
+# *CDM Model: Ancillary Roles - Validation Rules*
+
+_What is Being Released_
+
+**Ancillary Roles**
+
+Additional validation rules have been included in the specification of `TradableProduct` to ensure integrity of the relationship between each ancillary role included in the definition of a product and the ancillary parties included in the definition of the tradable product.
+
+_Review Directions_
+
+In the CDM Portal, use the Textual Browser or Graphical Navigator to inspect the `TradableProduct` data type and the conditions related to `ancillaryParty`
