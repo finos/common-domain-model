@@ -341,14 +341,15 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 	condition OptionPayout_PredeterminedClearingOrganizationParty:
 		if product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> settlement -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
-		and if ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
-		then product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> settlement -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
 	
 	condition ForwardPayout_PredeterminedClearingOrganizationParty:
 		if product -> contractualProduct -> economicTerms -> payout -> forwardPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
-		and if ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
-		then product -> contractualProduct -> economicTerms -> payout -> forwardPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
+
+	condition PredeterminedClearingOrganizationParty:
+		if ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty then
+		product -> contractualProduct -> economicTerms -> payout -> forwardPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists or
+		product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> settlement -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
 	
 	condition ExerciseNoticeReceiverPartyManual:
 		if product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> exerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticeReceiver exists
