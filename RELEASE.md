@@ -1,5 +1,5 @@
-# *Infrastructure: Registered User Information*
+# *CDM Portal: Infrastructure - Registered User Information*
 
 _What is Being Released_
 
-Capturing additional fields for the registered users, to be used in determining what application access they can have.
+A technical change to capture additional user information regarding acceptance of usage terms (including CDM licence terms) to ensure necessary legal documents have been accepted.
