@@ -1,5 +1,5 @@
-# *CDM Portal: Infrastructure - Registered User Information*
+# *CDM Portal: Infrastructure - Granular User Roles*
 
 _What is Being Released_
 
-This is a technical change which replaces the super_user role with cdm_owner role. The reasoning behind this is that super_user is to vague and often implies global allow permissions to everthing. The cdm_owner role is purely for people tasked with admistering the ISDA CDM.
+This is a technical change which registers more granular user roles so that user permissions can be more finely controlled. The new roles are transparent to all users and access to the CDM and CDM Portal features are unaffected.
