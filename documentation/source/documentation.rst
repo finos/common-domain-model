@@ -52,9 +52,9 @@ The ``priceQuantity`` attribute is an array of the ``PriceQuantity`` data type w
 
  type PriceQuantity: 
 	[metadata key]
-	price Price (0..*) 
+	price Price (1..*)
 	    [metadata location]
-	quantity Quantity (0..*) 
+	quantity Quantity (1..*)
 	    [metadata location]
 	observable Observable (0..1) 
 	
@@ -329,7 +329,7 @@ Note that the ``resolvedQuantity`` attribute has a metadata address that points 
 
 .. code-block:: Haskell
 
- type InterestRatePayout: 
+ type InterestRatePayout extends PayoutBase:
 	[metadata key]
 	payerReceiver PayerReceiver (0..1) 
 	rateSpecification RateSpecification (1..1) 
