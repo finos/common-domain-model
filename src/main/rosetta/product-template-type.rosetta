@@ -300,10 +300,14 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 	condition DisruptionEventsDeterminingParty:
 		if product -> contractualProduct -> economicTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> DisruptionEventsDeterminingParty
+		and if ancillaryParty -> role contains AncillaryRoleEnum -> DisruptionEventsDeterminingParty
+		then product -> contractualProduct -> economicTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
 
 	condition ExtraordinaryDividendsParty:
 		if product -> contractualProduct -> economicTerms -> payout -> equityPayout -> dividendReturnTerms -> extraordinaryDividendsParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> ExtraordinaryDividendsParty
+		and if ancillaryParty -> role contains AncillaryRoleEnum -> ExtraordinaryDividendsParty
+		then product -> contractualProduct -> economicTerms -> payout -> equityPayout -> dividendReturnTerms -> extraordinaryDividendsParty exists
 
 	condition OptionPayout_PredeterminedClearingOrganizationParty:
 		if product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> settlement -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
@@ -313,37 +317,58 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		if product -> contractualProduct -> economicTerms -> payout -> forwardPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
 
+	condition PredeterminedClearingOrganizationParty:
+		if ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty then
+		product -> contractualProduct -> economicTerms -> payout -> forwardPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists or
+		product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> settlement -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
+
 	condition ExerciseNoticeReceiverPartyManual:
 		if product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> exerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticeReceiver exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyManual
+		and if ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyManual
+		then product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> exerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticeReceiver exists
 
 	condition ExerciseNoticeReceiverPartyOptionalEarlyTermination:
 		if product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseNotice -> exerciseNoticeReceiver  exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyOptionalEarlyTermination
+		and if ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyOptionalEarlyTermination
+		then product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseNotice -> exerciseNoticeReceiver  exists
 
 	condition ExerciseNoticeReceiverPartyCancelableProvision:
 		if product -> contractualProduct -> economicTerms -> optionProvision -> cancelableProvision  -> exerciseNotice -> exerciseNoticeReceiver exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyCancelableProvision
+		and if ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyCancelableProvision
+		then product -> contractualProduct -> economicTerms -> optionProvision -> cancelableProvision  -> exerciseNotice -> exerciseNoticeReceiver exists
 
 	condition ExerciseNoticeReceiverPartyExtendibleProvision:
 		if product -> contractualProduct -> economicTerms -> optionProvision -> extendibleProvision  -> exerciseNotice -> exerciseNoticeReceiver exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyExtendibleProvision
+		and if ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyExtendibleProvision
+		then product -> contractualProduct -> economicTerms -> optionProvision -> extendibleProvision  -> exerciseNotice -> exerciseNoticeReceiver exists
 
 	condition CalculationAgentIndependent:
 		if product -> contractualProduct -> economicTerms -> calculationAgent -> calculationAgentParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentIndependent
+		and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentIndependent
+		then product -> contractualProduct -> economicTerms -> calculationAgent -> calculationAgentParty exists
 
 	condition CalculationAgentOptionalEarlyTermination:
 		if product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> optionalEarlyTermination -> calculationAgent -> calculationAgentParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentOptionalEarlyTermination
+		and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentOptionalEarlyTermination
+		then product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> optionalEarlyTermination -> calculationAgent -> calculationAgentParty exists
 
 	condition CalculationAgentMandatoryEarlyTermination:
 		if product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentMandatoryEarlyTermination
+		and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentMandatoryEarlyTermination
+		then product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
 
 	condition CalculationAgentFallback:
 		if product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement -> priceSourceDisruption -> fallbackReferencePrice -> calculationAgentDetermination -> calculationAgentParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentFallback
+		and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentFallback
+		then product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement -> priceSourceDisruption -> fallbackReferencePrice -> calculationAgentDetermination -> calculationAgentParty exists
 
 type ConstituentWeight: <"A class describing the weight of each of the underlier constituent within the basket, either in absolute or relative terms.">
 

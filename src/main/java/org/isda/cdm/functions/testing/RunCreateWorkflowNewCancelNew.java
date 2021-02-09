@@ -18,13 +18,10 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Collection;
 
 import static java.util.Collections.emptyList;
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+import static org.isda.cdm.functions.testing.FunctionUtils.createExecutionInstructionFromTradeState;
 
 public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<TradeState, Workflow> {
 
@@ -52,10 +49,9 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<TradeSt
         		workflowStep.evaluate(messageInformation("msg-3"), eventDate(tradeState.getTrade().getTradeDate(), LocalTime.of(19, 13)), identifier("id-3"), emptyList(), emptyList(),
         				null, ActionEnum.NEW, correctedBusinessEvent(tradeState)));
 
-        Workflow workflow = Workflow.builder()
-                .addSteps(Lists.newArrayList(newExecutionWorkflowStep, cancelledExecutionWorkflowStep, correctedExecutionWorkflowStep))
+		return Workflow.builder()
+				.addSteps(Lists.newArrayList(newExecutionWorkflowStep, cancelledExecutionWorkflowStep, correctedExecutionWorkflowStep))
 			 .build();
-        return workflow;
     }
 
 	private EventTimestamp eventDate(FieldWithMetaDate tradeDate, LocalTime time) {
@@ -66,49 +62,30 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<TradeSt
 	}
 
 	private Identifier identifier(String id) {
-		Identifier identifier = Identifier.builder().addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierRef(id).build()).build();
-		return identifier;
+		return Identifier.builder().addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierRef(id).build()).build();
 	}
 
 	private MessageInformation messageInformation(String messageId) {
 		return MessageInformation.builder().setMessageIdRef(messageId).build();
 	}
 
-	private BusinessEvent correctedBusinessEvent(TradeState contract) {
-		BusinessEvent corrected = execute.evaluate(contract.getTrade().getTradableProduct().getProduct(),
-                guard(contract.getTrade().getTradableProduct().getPriceQuantity()),
-                guard(contract.getTrade().getTradableProduct().getCounterparty()),
-                guard(contract.getTrade().getTradableProduct().getAncillaryParty()),
-                guard(contract.getTrade().getParty()),
-                guard(contract.getTrade().getPartyRole()),
-                Collections.emptyList(),
-				null,
-				Optional.ofNullable(contract.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-				guard(contract.getTrade().getTradeIdentifier()));
-		return corrected;
+	private BusinessEvent correctedBusinessEvent(TradeState tradeState) {
+		return execute.evaluate(createExecutionInstructionFromTradeState(tradeState));
 	}
 
 	private BusinessEvent newBusinessEvent(TradeState tradeState) {
-        List<PriceQuantity> incorrectPriceQuantity = tradeState.getTrade().getTradableProduct().getPriceQuantity().stream()
-                .map(PriceQuantity::toBuilder)
-                .map(x -> {
-                	x.getOrCreateQuantity(0).getOrCreateValue().setAmount(BigDecimal.valueOf(99999));
-                	return x;
-                })
-                .map(PriceQuantity.PriceQuantityBuilder::build)
-                .collect(Collectors.toList());
+		TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
+		tradeStateBuilder
+				.getTrade()
+				.getTradableProduct()
+				.getPriceQuantity()
+				.stream()
+				.map(PriceQuantity.PriceQuantityBuilder::getQuantity)
+				.flatMap(Collection::stream)
+				.forEach(q -> q.getOrCreateValue().setAmount(BigDecimal.valueOf(99_999)));
+		TradeState withIncorrectQuantity = tradeStateBuilder.build();
 
-        BusinessEvent newBusinessEvent = execute.evaluate(tradeState.getTrade().getTradableProduct().getProduct(),
-                guard(incorrectPriceQuantity),
-                guard(tradeState.getTrade().getTradableProduct().getCounterparty()),
-                guard(tradeState.getTrade().getTradableProduct().getAncillaryParty()),
-                guard(tradeState.getTrade().getParty()),
-                guard(tradeState.getTrade().getPartyRole()),
-                Collections.emptyList(),
-				null,
-				Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
-				guard(tradeState.getTrade().getTradeIdentifier()));
-		return newBusinessEvent;
+		return execute.evaluate(createExecutionInstructionFromTradeState(withIncorrectQuantity));
 	}
 
     @Override

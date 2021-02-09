@@ -112,13 +112,13 @@ type ContractState: <"A class to specify a contract state instantiation with res
 	updatedTrade Trade (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
 
 type Instruction: <"Instruction to a function that will be used to perform a business event">
-
-	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
-	instructionFunction string (1..1) <"Name of the function that will be called">
-	allocation AllocationInstruction (0..1) <"Instruction to allocate">
-	clearing ClearingInstruction (0..1) <"Instruction to clear">
-
-	condition OneOfInstruction: required choice allocation, clearing
+  	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
+  	instructionFunction string (1..1) <"Specifies the function that will be called">
+  	allocation AllocationInstruction (0..1) <"Instruction to allocate">
+  	clearing ClearingInstruction (0..1) <"Instruction to clear">
+  	execution ExecutionInstruction (0..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, and a trade date.">
+  	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
+  	condition OneOfInstruction: required choice allocation, clearing, execution, exercise
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -151,13 +151,25 @@ type EventEffect: <"The set of operational and positional effects associated wit
 	transfer TransferPrimitive (0..*) <"A pointer to the transfer effect(s), either a cash, security or other asset.">
 		[metadata reference]
 
-/* USED in downstrem */
+/* USED in downstream */
 type EventTestBundle: <"A class which combines several events for testing purposes.">
 
 	event WorkflowStep (2..*)
 		[synonym Workflow_Event value "event"]
 	computedAmount ComputedAmount (0..*)
 		[synonym Workflow_Event value "computedAmount"]
+
+type ExecutionInstruction: <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, execution details, and settlement terms.">
+	product Product (1..1) <"Defines the financial product to be executed and contract formed.">
+	priceQuantity PriceQuantity (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) and quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
+	counterparty  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
+	ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
+	parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
+	partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
+	settlementTerms SettlementTerms (0..*) <"Specifies the settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
+	executionDetails ExecutionDetails (1..1) <"Specifies the type and venue of execution, e.g. via voice, or electronically.">
+	tradeDate date (1..1) <"Denotes the trade/execution date.">
+	tradeIdentifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
 
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 	
@@ -172,12 +184,15 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
 	    [synonym Workflow_Event value "state"]
 	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
+	    [synonym Workflow_Event value "resetHistory"]
 	transferHistory Transfer (0..*)
 	    [synonym Workflow_Event value "transferHistory"]
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definitioin details with observations to compute the reset value.">
 	resetValue number (1..1) <"Specifies the reset or fixing value. The fixing value could ">
+	    [synonym Workflow_Event value "resetValue"]
 	resetDate date (1..1) <"Specifies the date on which the reset occurred.">
+	    [synonym Workflow_Event value "resetDate"]
 	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
 		[metadata reference]
 	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value.">
@@ -593,8 +608,6 @@ type PrimitiveEvent: <"A primitive event is defined by one and only one atomic c
 		[synonym Workflow_Event value "contractFormation" path "primitive"]
 	split SplitPrimitive (0..1)
 		[synonym Workflow_Event value "split" path "primitive"]
-	observation ObservationPrimitive (0..1)
-		[synonym Workflow_Event value "observation" path "primitive"]
 	quantityChange QuantityChangePrimitive (0..1)
 		[synonym Workflow_Event value "quantityChange" path "primitive"]
 	reset ResetPrimitive (0..1)
@@ -684,9 +697,9 @@ type ResetPrimitive: <"Defines the primitive event to represent a reset. For det
 
 	before TradeState (1..1) <"Represents the TradeState prior applying the Reset primitive.">
 		[metadata reference]
-		[synonym Workflow_Event value "ignore"]
+		[synonym Workflow_Event value "fpmlTrade" path "before"]
 	after TradeState (1..1) <"Represents the TradeState after to applying the Reset primitive.">
-		[synonym Workflow_Event value "ignore"]
+		[synonym Workflow_Event value "fpmlTrade" path "after"]
 	condition Trade: <"The original trade in the before/after state of a reset should match.">
 		before -> trade = after -> trade
 
