@@ -33,7 +33,7 @@ A tradable product represents a financial product that is ready to be traded, me
 .. code-block:: Haskell
 
  type TradableProduct:
-    product Product (0..1) 
+    product Product (1..1) 
     priceQuantity PriceQuantity (1..*) 
     counterparty Counterparty (2..2) 
     ancillaryParty AncillaryParty (0..*) 
