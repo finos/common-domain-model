@@ -33,7 +33,7 @@ A tradable product represents a financial product that is ready to be traded, me
 .. code-block:: Haskell
 
  type TradableProduct:
-    product Product (0..1) 
+    product Product (1..1) 
     priceQuantity PriceQuantity (1..*) 
     counterparty Counterparty (2..2) 
     ancillaryParty AncillaryParty (0..*) 
@@ -1256,7 +1256,7 @@ Through the ``legalAgreement`` attribute the CDM provides support for implemento
 .. note:: The ``DocumentationIdentification`` attribute is used to map related agreement terms that are embedded as part of a transaction message converted from another model structure, such as FpML.  For example, this attribute may reference an ISDA Master Agreement, which is not modelled or mapped in the CDM ``LegalAgreement`` data type.
 
 Umbrella Agreement
-"""""""""""""""""
+""""""""""""""""""
 
 ``UmbrellaAgreement`` is a data type used to specify the applicability of Umbrella Agreement terms, relevant specific language, and underlying entities associated with the umbrella agreement.
 
