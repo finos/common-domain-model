@@ -28,46 +28,83 @@ Regardless of whether the data structure is the same or different from FpML, the
 TradableProduct
 ^^^^^^^^^^^^^^^
 
-A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract.  Tradable products are represented by the ``TradableProduct`` type.
+A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract between two counterparties. Tradable products are represented by the ``TradableProduct`` type.
 
-.. literalinclude:: code-snippets/TradableProduct.snippet
-  :language: haskell
+.. code-block:: Haskell
+
+ type TradableProduct:
+    product Product (0..1) 
+    priceQuantity PriceQuantity (1..*) 
+    counterparty Counterparty (2..2) 
+    ancillaryParty AncillaryParty (0..*) 
+    settlementTerms SettlementTerms (0..1) 
+    adjustment NotionalAdjustmentEnum (0..1) 
+
+Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
 
 The primary set of attributes represented in the ``TradableProduct`` data type are ones that are shared by all products.  For example, every trade has a price, a quantity, and a pair of counterparties.  In some cases, there are related parties, settlement terms, and an allowable adjustment to the notional quantity.  All of the other attributes required to describe a product are defined in distinct product types.
 
 PriceQuantity
 """""""""""""
-The ``priceQuantity`` attribute is an array of the ``PriceQuantity`` data type to allow for multiple sets of price, quantity, and optionally an observable, which is an asset or a reference associated with the price and quantity. 
+The ``priceQuantity`` attribute is an array of the ``PriceQuantity`` data type which allows for multiple sets of price, quantity, and optionally an observable, which is an asset or a reference associated with the price and quantity. 
 
-.. literalinclude:: code-snippets/PriceQuantity.snippet
-  :language: haskell
-  
-Each representation of a ``PriceQuantity`` data type can identify the relevant information for the leg of a trade or a complete trade.  For example, for an Interest Rate Swap, the ``TradableProduct`` would have multipl instances of the ``PriceQuantity`` data type, one for each leg, and potentially a third one for an upfront fee.  By comparison, the purchase or sale of a security or listed derivative would typically have a single instance.
+.. code-block:: Haskell
 
-The ``price`` and ``quantity`` attributes in the ``PriceQuantity`` data type each have a metadata location which can reference a metadata address in a payout data type.  The metadata address-location pair allows for a reference to link objects without populating the address object in persistence.  This capability helps to support an agnostic definition of the product in a trade (i.e. a product definition without a price and quantity). However, the reference can be used to populate values for an input into a function or for other purposes.
+ type PriceQuantity: 
+	[metadata key]
+	price Price (0..*) 
+	    [metadata location]
+	quantity Quantity (0..*) 
+	    [metadata location]
+	observable Observable (0..1) 
+	
+Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
+	     
+Each representation of a ``PriceQuantity`` data type can identify the relevant information for the leg of a trade or a complete trade.  For example, for an Interest Rate Swap, the ``TradableProduct`` would have multiple instances of the ``PriceQuantity`` data type, one for each leg, and potentially a third one for an upfront fee.  By comparison, the purchase or sale of a security or listed derivative would typically have a single instance.
+
+The ``price`` and ``quantity`` attributes in the ``PriceQuantity`` data type each have a metadata location which can reference a metadata address in one of the  ``Payout`` data types.  The metadata address-location pair allows for a reference to link objects without populating the address object in persistence.  This capability helps to support an agnostic definition of the product in a trade (i.e. a product definition without a price and quantity). However, the reference can be used to populate values for an input into a function or for other purposes.
 
 MeasureBase
 """""""""""
 The ``MeasureBase`` is a base data type that provides a common component that is useful in the definition of prices and quantities, as defined below:
 
-.. literalinclude:: code-snippets/MeasureBase.snippet
-  :language: haskell
-  
-The ``MeasureBase`` data type consists of two mandatory attributes.  The first is ``amount``, which could be a price or a quantity, as defined by other attributes.  The second attribute is ``unitOfAmount``, which uses the ``UnitType``data type. This data type requires the definition of units using one of five defined types:
+.. code-block:: Haskell
 
-.. literalinclude:: code-snippets/UnitType.snippet
-  :language: haskell
+ type MeasureBase: 
+	amount number (1..1) 
+	unitOfAmount UnitType (1..1)  
   
-The ``Price" and ``Quantity`` data types are both extensions of the ``MeasureBase`` data type shown below:
+The ``MeasureBase`` data type consists of two mandatory attributes.  The first is ``amount``, which could be a price or a quantity, as defined by other attributes.  The second attribute is ``unitOfAmount``, which uses the ``UnitType`` data type. This data type requires the definition of units using one of five defined types:
+
+.. code-block:: Haskell
+
+ type UnitType: 
+	capacityUnit CapacityUnitEnum (0..1) 
+	weatherUnit WeatherUnitEnum (0..1) 
+	financialUnit FinancialUnitEnum (0..1) 
+	currency string (0..1) 
+		[metadata scheme]
+        frequency cdm.base.datetime.Frequency (0..1) 
+	
+	condition:one-of
+  
+The ``Price`` and ``Quantity`` data types are both extensions of the ``MeasureBase`` data type, as shown below:
 
 Price
 """""
-The ``Price`` data type extends the ``MeasureBase`` data type with the addition of the ``priceType`` and ``perUnitOfAmount`` attributes, which together further qualify the price.  
+The ``Price`` data type extends the ``MeasureBase`` data type with the addition of the ``priceType`` and ``perUnitOfAmount`` attributes, which together further qualify the price. 
 
-.. literalinclude:: code-snippets/Price.snippet
-  :language: haskell
+.. code-block:: Haskell
 
-Consider the exmample below for the initial price of the underlying equity in a single-name Equity Swap, which is a net price of 37.44 USD per Share
+ type Price extends MeasureBase:  
+	priceType PriceTypeEnum (1..1) 
+	perUnitOfAmount UnitType (0..1)
+
+Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
+
+Consider the example below for the initial price of the underlying equity in a single-name Equity Swap, which is a net price of 37.44 USD per Share:
+
+.. code-block:: Javascript
 
  "price": [
             {
@@ -92,13 +129,27 @@ Consider the exmample below for the initial price of the underlying equity in a 
                 ]
               }
             }
-          ],
+          ]
 	  
-The full form of this example can be seen in the CDM Portal Ingestion panel, products->equity->eqs-ex01-single-underlyer-execution-long-form-other-party.xml.  As can be seen in the full example, for an inteest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency, (e.g. 0.002 USD per USD) and the priceType would be a Spread (in the case of a floating leg, as in this example) or an InterestRate (in the case of a fixed leg).
+The full form of this example can be seen in the CDM Portal Ingestion panel, products->equity->eqs-ex01-single-underlyer-execution-long-form-other-party.xml.  As can be seen in the full example, for an interest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency, (e.g. 0.002 USD per USD) and the priceType would be a Spread (in the case of a floating leg, as in this example) or an InterestRate (in the case of a fixed leg).
 
 Quantity
 """"""""
-The ``Quantity`` data type extends the ``MeasureBase`` data type with the addition of the optonal attributes ``multiplier`` and ``multiplierUnit`` attributes.  The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient to define quantity, in most cases.  The two attributes that are distinct for the ``Quantity`` data type   further qualify the ``amount``, with a multiplier, as needed for listed contracts or other purposes, as shown in the example below
+The ``Quantity`` data type extends the ``MeasureBase`` data type with the addition of the optonal attributes ``multiplier`` and ``multiplierUnit`` attributes.  
+
+.. code-block:: Haskell
+
+ type Quantity extends MeasureBase: 
+	multiplier number (0..1) 
+	multiplierUnit UnitType (0..1) 
+
+	condition Quantity_multiplier: 
+	    if multiplier exists
+		then multiplier >= 0.0
+
+The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient to define quantity, in most cases.  The two attributes that are distinct for the ``Quantity`` data type   further qualify the ``amount``, with a multiplier, as needed for listed contracts or other purposes, as shown in the example below:
+
+.. code-block:: Javascript
 
  "quantity": [
             {
@@ -127,11 +178,18 @@ Observable
 """"""""""
 The ``Observable`` data type specifies the object to be observed for a price, which could be an asset or a reference. 
 
+he Observable data type requires the specification of either a ``rateOption`` (i.e. a floating rate index), ``commodity``, ``productIdentifier``, or ``currencypair``. This choice constraint is supported by specifying a one-of condition, as shown below:
 
-The Observable data type requires the specification of either a floatingRateOption, commodity, productIdentifier, or currencypair. This choice constraint is supported by specifying a one-of condition, as described in the Special Syntax Section of the Rosetta DSL documentation.
+.. code-block:: Haskell
 
-.. literalinclude:: code-snippets/Observable.snippet
-  :language: haskell
+ type Observable: 
+	[metadata key]
+	rateOption FloatingRateOption (0..1) 
+	commodity Commodity (0..1) 
+	productIdentifier ProductIdentifier (0..1) 
+	currencyPair QuotedCurrencyPair (0..1) 
+
+	condition: one-of 
 
 Financial Product
 """""""""""""""""
@@ -148,6 +206,7 @@ A financial product is an instrument that is used to transfer financial risk bet
    foreignExchange ForeignExchange (0..1)
    commodity Commodity (0..1)
    security Security (0..1)
+   
    condition: one-of
 
 The CDM allows any one of these products to included in a trade or used as an underlier for another product (see the *Underlier* section). One unlikely case for a direct trade is Index, which is primarily used as an underlier.
@@ -246,26 +305,72 @@ The ``Payout`` type defines the composable payout types, each of which describes
    
 The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``Cashflow``, and the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout`` are all extensions of the base type called ``PayoutBase``, which provides a common location for referencing payout quantities, as illustrated below:
 
-.. literalinclude:: code-snippets/PayoutBase.snippet
-  :language: haskell
-  
-.. literalinclude:: code-snippets/ResolvablePayoutQuantity.snippet
-  :language: haskell
-  
 .. code-block:: Haskell
+
+ type PayoutBase: 
+	payoutQuantity ResolvablePayoutQuantity (1..1) 
+
+.. code-block:: Haskell
+
+ type ResolvablePayoutQuantity: 
+	[metadata key]
+	resolvedQuantity Quantity (0..1) 
+		[metadata address "pointsTo"=PriceQuantity->quantity]
+	quantitySchedule NonNegativeQuantitySchedule (0..1) 
+	quantityReference ResolvablePayoutQuantity (0..1) 
+		[metadata reference]
+	quantityMultiplier QuantityMultiplier (0..1) 
+	reset boolean (0..1) 
+	futureValueNotional FutureValueAmount (0..1) 
+
+Note that the code snippet above excludes the conditions in this data type for purposes of brevity.
 
 Note that the ``resolvedQuantity`` attribute has a metadata address that points to the quantity attribute in the ``PriceQuantity`` data type.  This metadata address allows for referencing a value without requiring the population of the value in the persistent object.  The other attributes in this data type support the definition of additional information such as a schedule, a reference, or the indication that the quantity is resettable.  One of the data types that extends ``PayoutBase`` is ``InterestRatePayout``, as shown below:
 
-.. literalinclude:: code-snippets/InterestRatePayout.snippet
-  :language: haskell
+.. code-block:: Haskell
 
-There are other addresses in the model that use the metadata address to point to ``Price`` in ``PriceQuantity``.  Examples include the ``initialValue`` attribute in the ``SpreadSchedule`` data type and the ``strikePrice`` attribute in the ``OptionStrike``data type, which are illustrated below:
+ type InterestRatePayout: 
+	[metadata key]
+	payerReceiver PayerReceiver (0..1) 
+	rateSpecification RateSpecification (1..1) 
+	dayCountFraction DayCountFractionEnum (0..1) 
+		[metadata scheme]
+	calculationPeriodDates CalculationPeriodDates (0..1) 
+	paymentDates PaymentDates (0..1) 
+	paymentDate AdjustableDate (0..1) 
+	paymentDelay boolean (0..1) 
+	resetDates ResetDates (0..1) 
+	discountingMethod DiscountingMethod (0..1) 
+	compoundingMethod CompoundingMethodEnum (0..1) 
+	cashflowRepresentation CashflowRepresentation (0..1) 
+	crossCurrencyTerms CrossCurrencyTerms (0..1) 
+	stubPeriod StubPeriod (0..1) 
+	bondReference BondReference (0..1) 
+	fixedAmount calculation (0..1) 
+	floatingAmount calculation (0..1) 
+	
+Note that the code snippet above excludes the conditions in this data type for purposes of brevity.
 
-.. literalinclude:: code-snippets/SpreadSchedule.snippet
-  :language: haskell
-  
-.. literalinclude:: code-snippets/OptionStrike.snippet
-  :language: haskell
+There are other addresses in the model that use the metadata address to point to ``Price`` in ``PriceQuantity``.  Examples include the ``initialValue`` attribute in the ``RateSchedule`` data type and the ``strikePrice`` attribute in the ``OptionStrike`` data type, which are illustrated below:
+
+.. code-block:: Haskell
+
+ type RateSchedule:
+	initialValue Price (0..1) 
+		[metadata address "pointsTo"=PriceQuantity->price]
+	step Step (0..*) 
+
+.. code-block:: Haskell
+
+ type OptionStrike:
+	strikePrice Price (0..1) 
+	    [metadata address "pointsTo"=PriceQuantity->price]
+	strikeReference FixedRateSpecification (0..1) 
+		[metadata reference]
+	referenceSwapCurve ReferenceSwapCurve (0..1) 
+	averagingStrikeFeature AveragingObservation (0..1) 			
+	condition Choice:
+        required choice strikePrice, strikeReference, referenceSwapCurve, averagingStrikeFeature
 
 Reusable Components
 """""""""""""""""""
