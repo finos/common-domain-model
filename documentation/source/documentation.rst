@@ -28,12 +28,168 @@ Regardless of whether the data structure is the same or different from FpML, the
 TradableProduct
 ^^^^^^^^^^^^^^^
 
-A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract.  Tradable products are represented by the ``TradableProduct`` type.
+A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract between two counterparties. Tradable products are represented by the ``TradableProduct`` type.
 
-.. literalinclude:: code-snippets/TradableProduct.snippet
-  :language: haskell
+.. code-block:: Haskell
 
-Quantity and price are represented in the ``TradableProduct`` type because they are attributes shared by all products. All of the other attributes required to describe a product are defined in distinct product types.
+ type TradableProduct:
+    product Product (1..1) 
+    priceQuantity PriceQuantity (1..*) 
+    counterparty Counterparty (2..2) 
+    ancillaryParty AncillaryParty (0..*) 
+    settlementTerms SettlementTerms (0..1) 
+    adjustment NotionalAdjustmentEnum (0..1) 
+
+Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
+
+The primary set of attributes represented in the ``TradableProduct`` data type are ones that are shared by all products.  For example, every trade has a price, a quantity, and a pair of counterparties.  In some cases, there are related parties, settlement terms, and an allowable adjustment to the notional quantity.  All of the other attributes required to describe a product are defined in distinct product types.
+
+PriceQuantity
+"""""""""""""
+The ``priceQuantity`` attribute is an array of the ``PriceQuantity`` data type which allows for multiple sets of price, quantity, and optionally an observable, which is an asset or a reference associated with the price and quantity. 
+
+.. code-block:: Haskell
+
+ type PriceQuantity: 
+	[metadata key]
+	price Price (1..*)
+	    [metadata location]
+	quantity Quantity (1..*)
+	    [metadata location]
+	observable Observable (0..1) 
+	
+Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
+	     
+Each representation of a ``PriceQuantity`` data type can identify the relevant information for the leg of a trade or a complete trade.  For example, for an Interest Rate Swap, the ``TradableProduct`` would have multiple instances of the ``PriceQuantity`` data type, one for each leg, and potentially a third one for an upfront fee.  By comparison, the purchase or sale of a security or listed derivative would typically have a single instance.
+
+The ``price`` and ``quantity`` attributes in the ``PriceQuantity`` data type each have a metadata location which can reference a metadata address in one of the  ``Payout`` data types.  The metadata address-location pair allows for a reference to link objects without populating the address object in persistence.  This capability helps to support an agnostic definition of the product in a trade (i.e. a product definition without a price and quantity). However, the reference can be used to populate values for an input into a function or for other purposes.
+
+MeasureBase
+"""""""""""
+The ``MeasureBase`` is a base data type that provides a common component that is useful in the definition of prices and quantities, as defined below:
+
+.. code-block:: Haskell
+
+ type MeasureBase: 
+	amount number (1..1) 
+	unitOfAmount UnitType (1..1)  
+  
+The ``MeasureBase`` data type consists of two mandatory attributes.  The first is ``amount``, which could be a price or a quantity, as defined by other attributes.  The second attribute is ``unitOfAmount``, which uses the ``UnitType`` data type. This data type requires the definition of units using one of five defined types:
+
+.. code-block:: Haskell
+
+ type UnitType: 
+	capacityUnit CapacityUnitEnum (0..1) 
+	weatherUnit WeatherUnitEnum (0..1) 
+	financialUnit FinancialUnitEnum (0..1) 
+	currency string (0..1) 
+		[metadata scheme]
+        frequency cdm.base.datetime.Frequency (0..1) 
+	
+	condition:one-of
+  
+The ``Price`` and ``Quantity`` data types are both extensions of the ``MeasureBase`` data type, as shown below:
+
+Price
+"""""
+The ``Price`` data type extends the ``MeasureBase`` data type with the addition of the ``priceType`` and ``perUnitOfAmount`` attributes, which together further qualify the price. 
+
+.. code-block:: Haskell
+
+ type Price extends MeasureBase:  
+	priceType PriceTypeEnum (1..1) 
+	perUnitOfAmount UnitType (0..1)
+
+Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
+
+Consider the example below for the initial price of the underlying equity in a single-name Equity Swap, which is a net price of 37.44 USD per Share:
+
+.. code-block:: Javascript
+
+ "price": [
+            {
+              "value": {
+                "amount": 37.44,
+                "unitOfAmount": {
+                  "currency": {
+                    "value": "USD"
+                  }
+                },
+                "perUnitOfAmount": {
+                  "financialUnit": "SHARE"
+                },
+                "priceType": "NET_PRICE"
+              },
+              "meta": {
+                "location": [
+                  {
+                    "scope": "DOCUMENT",
+                    "value": "price-1"
+                  }
+                ]
+              }
+            }
+          ]
+	  
+The full form of this example can be seen in the CDM Portal Ingestion panel, products->equity->eqs-ex01-single-underlyer-execution-long-form-other-party.xml.  As can be seen in the full example, for an interest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency, (e.g. 0.002 USD per USD) and the priceType would be a Spread (in the case of a floating leg, as in this example) or an InterestRate (in the case of a fixed leg).
+
+Quantity
+""""""""
+The ``Quantity`` data type extends the ``MeasureBase`` data type with the addition of the optonal attributes ``multiplier`` and ``multiplierUnit`` attributes.  
+
+.. code-block:: Haskell
+
+ type Quantity extends MeasureBase: 
+	multiplier number (0..1) 
+	multiplierUnit UnitType (0..1) 
+
+	condition Quantity_multiplier: 
+	    if multiplier exists
+		then multiplier >= 0.0
+
+The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient to define quantity, in most cases.  The two attributes that are distinct for the ``Quantity`` data type   further qualify the ``amount``, with a multiplier, as needed for listed contracts or other purposes, as shown in the example below:
+
+.. code-block:: Javascript
+
+ "quantity": [
+            {
+              "value": {
+                "amount": 200,
+                "unitOfAmount": {
+                  "financialUnit": "CONTRACT"
+                },
+		"multiplier": 1000,
+		"multiplierUnit": "BBL"
+              },
+              "meta": {
+                "location": [
+                  {
+                    "scope": "DOCUMENT",
+                    "value": "quantity-1"
+                  }
+                ]
+              }
+            }
+           ]
+	   
+In this case, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME.  Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
+
+Observable
+""""""""""
+The ``Observable`` data type specifies the object to be observed for a price, which could be an asset or a reference. 
+
+he Observable data type requires the specification of either a ``rateOption`` (i.e. a floating rate index), ``commodity``, ``productIdentifier``, or ``currencypair``. This choice constraint is supported by specifying a one-of condition, as shown below:
+
+.. code-block:: Haskell
+
+ type Observable: 
+	[metadata key]
+	rateOption FloatingRateOption (0..1) 
+	commodity Commodity (0..1) 
+	productIdentifier ProductIdentifier (0..1) 
+	currencyPair QuotedCurrencyPair (0..1) 
+
+	condition: one-of 
 
 Financial Product
 """""""""""""""""
@@ -50,6 +206,7 @@ A financial product is an instrument that is used to transfer financial risk bet
    foreignExchange ForeignExchange (0..1)
    commodity Commodity (0..1)
    security Security (0..1)
+   
    condition: one-of
 
 The CDM allows any one of these products to included in a trade or used as an underlier for another product (see the *Underlier* section). One unlikely case for a direct trade is Index, which is primarily used as an underlier.
@@ -145,32 +302,75 @@ The ``Payout`` type defines the composable payout types, each of which describes
    forwardPayout ForwardPayout (0..*)
    securityPayout SecurityPayout (0..*)
    cashflow Cashflow (0..*)
+   
+The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``Cashflow``, and the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout`` are all extensions of the base type called ``PayoutBase``, which provides a common location for referencing payout quantities, as illustrated below:
 
-The relationship between one of the payout classes and a similar structure in FpML can be identified through the defined Synonyms, as explained in an earlier section.  For example, the ``InterestRatePayout`` is equivalent to the following complex types in FpML: *swapStream*, *feeLeg* *capFloorStream*, *fra*, and *interestLeg*.
+.. code-block:: Haskell
+
+ type PayoutBase: 
+	payoutQuantity ResolvablePayoutQuantity (1..1) 
+
+.. code-block:: Haskell
+
+ type ResolvablePayoutQuantity: 
+	[metadata key]
+	resolvedQuantity Quantity (0..1) 
+		[metadata address "pointsTo"=PriceQuantity->quantity]
+	quantitySchedule NonNegativeQuantitySchedule (0..1) 
+	quantityReference ResolvablePayoutQuantity (0..1) 
+		[metadata reference]
+	quantityMultiplier QuantityMultiplier (0..1) 
+	reset boolean (0..1) 
+	futureValueNotional FutureValueAmount (0..1) 
+
+Note that the code snippet above excludes the conditions in this data type for purposes of brevity.
+
+Note that the ``resolvedQuantity`` attribute has a metadata address that points to the quantity attribute in the ``PriceQuantity`` data type.  This metadata address allows for referencing a value without requiring the population of the value in the persistent object.  The other attributes in this data type support the definition of additional information such as a schedule, a reference, or the indication that the quantity is resettable.  One of the data types that extends ``PayoutBase`` is ``InterestRatePayout``, as shown below:
 
 .. code-block:: Haskell
 
  type InterestRatePayout extends PayoutBase:
-   [metadata key]
-   payerReceiver PayerReceiver (0..1)
-   rateSpecification RateSpecification (1..1)
-   dayCountFraction DayCountFractionEnum (0..1)
-   [metadata scheme]
-   calculationPeriodDates CalculationPeriodDates (0..1)
-   paymentDates PaymentDates (0..1)
-   paymentDate AdjustableDate (0..1)
-   paymentDelay boolean (0..1)
-   resetDates ResetDates (0..1)
-   discountingMethod DiscountingMethod (0..1)
-   compoundingMethod CompoundingMethodEnum (0..1)
-   cashflowRepresentation CashflowRepresentation (0..1)
-   crossCurrencyTerms CrossCurrencyTerms (0..1)
-   stubPeriod StubPeriod (0..1)
-   bondReference BondReference (0..1)
-   fixedAmount calculation (0..1)
-   floatingAmount calculation (0..1)
+	[metadata key]
+	payerReceiver PayerReceiver (0..1) 
+	rateSpecification RateSpecification (1..1) 
+	dayCountFraction DayCountFractionEnum (0..1) 
+		[metadata scheme]
+	calculationPeriodDates CalculationPeriodDates (0..1) 
+	paymentDates PaymentDates (0..1) 
+	paymentDate AdjustableDate (0..1) 
+	paymentDelay boolean (0..1) 
+	resetDates ResetDates (0..1) 
+	discountingMethod DiscountingMethod (0..1) 
+	compoundingMethod CompoundingMethodEnum (0..1) 
+	cashflowRepresentation CashflowRepresentation (0..1) 
+	crossCurrencyTerms CrossCurrencyTerms (0..1) 
+	stubPeriod StubPeriod (0..1) 
+	bondReference BondReference (0..1) 
+	fixedAmount calculation (0..1) 
+	floatingAmount calculation (0..1) 
+	
+Note that the code snippet above excludes the conditions in this data type for purposes of brevity.
 
-There are as set of conditions associated with this type which are not shown here in the interests of brevity.
+There are other addresses in the model that use the metadata address to point to ``Price`` in ``PriceQuantity``.  Examples include the ``initialValue`` attribute in the ``RateSchedule`` data type and the ``strikePrice`` attribute in the ``OptionStrike`` data type, which are illustrated below:
+
+.. code-block:: Haskell
+
+ type RateSchedule:
+	initialValue Price (0..1) 
+		[metadata address "pointsTo"=PriceQuantity->price]
+	step Step (0..*) 
+
+.. code-block:: Haskell
+
+ type OptionStrike:
+	strikePrice Price (0..1) 
+	    [metadata address "pointsTo"=PriceQuantity->price]
+	strikeReference FixedRateSpecification (0..1) 
+		[metadata reference]
+	referenceSwapCurve ReferenceSwapCurve (0..1) 
+	averagingStrikeFeature AveragingObservation (0..1) 			
+	condition Choice:
+        required choice strikePrice, strikeReference, referenceSwapCurve, averagingStrikeFeature
 
 Reusable Components
 """""""""""""""""""
@@ -376,17 +576,18 @@ The trade state is defined in CDM by the ``TradeState`` data type and represents
 .. code-block:: Haskell
 
  type TradeState:
-	[metadata key]
-	[rootType]
-	trade Trade (1..1)
-	state State (0..1)
-	observationHistory TradeState (0..*)
+   [metadata key]
+   [rootType]
+   trade Trade (1..1)
+   state State (0..1)
+   resetHistory Reset (0..*)
+   transferHistory Transfer (0..*)
 
-While many different types of events may occur through the trade lifecycle, the ``Trade``, ``State`` and ``Observationhistory`` data types are deemed sufficient to describe all of the possible (post-trade) states which may result from lifecycle events. The ``Trade`` data type contains the tradable product, which defines all of the economic terms of the transaction as agreed between the parties.
+While many different types of events may occur through the trade lifecycle, the ``trade``, ``state``, ``resetHistory`` and ``transferHistory`` attributes are deemed sufficient to describe all of the possible (post-trade) states which may result from lifecycle events. The ``Trade`` data type contains the tradable product, which defines all of the economic terms of the transaction as agreed between the parties.
 
-.. note:: A tradable product is represented by the ``TradableProduct`` type, which is further detailed in the `Tradable Product Section`_ of the documentation.
+.. note:: A tradable product is represented by the ``TradableProduct`` data type, which is further detailed in the `Tradable Product Section`_ of the documentation.
 
-The ``Trade``, ``State`` and ``ObservationHistory`` data types are detailed in the sections below.
+The ``Trade``, ``State``, ``Reset``, and ``Transfer`` data types that are utilised within ``TradeState``, are detailed in the sections below.
 
 Trade
 """""
@@ -396,23 +597,25 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
 .. code-block:: Haskell
 
  type Trade:
- 	[metadata key]
- 	tradeIdentifier Identifier (1..*)
- 	tradeDate date (1..1)
-         [metadata id]
- 	tradableProduct TradableProduct (1..1)
- 	party Party (0..*)
- 	partyRole PartyRole (0..*)
- 	settlementTerms SettlementTerms (0..*)
- 	executionDetails ExecutionDetails (0..1)
- 	contractDetails ContractDetails (0..1)
-    clearedDate date (0..1)
-        [deprecated]
-    collateral Collateral (0..1)
-	account Account (0..*)
-        [deprecated]
+   [metadata key]
+   tradeIdentifier Identifier (1..*)
+   tradeDate date (1..1)
+     [metadata id]
+   tradableProduct TradableProduct (1..1)
+   party Party (0..*)
+   partyRole PartyRole (0..*)
+   settlementTerms SettlementTerms (0..*)
+   executionDetails ExecutionDetails (0..1)
+   contractDetails ContractDetails (0..1)
+   clearedDate date (0..1)
+     [deprecated]
+   collateral Collateral (0..1)
+   account Account (0..*)
+     [deprecated]
 
-The ``settlementTerms`` attribute define how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
+.. note:: Attributes within ``Trade`` and ``ContractDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view.
+
+The ``settlementTerms`` attribute defines how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
 .. code-block:: Haskell
 
@@ -423,28 +626,23 @@ The ``settlementTerms`` attribute define how the transaction should be settled (
    settlementAmount Money (0..1)
    transferSettlementType TransferSettlementEnum (0..1)
 
-Additionally, ``Trade`` supports representation of specific execution or contractual trade details via the ``executionTradeDetails`` and ``contractDetails`` attributes.
+Additionally, ``Trade`` supports representation of specific execution or contractual details via the ``executionDetails`` and ``contractDetails`` attributes.
 
-ExecutionTradeDetails
-"""""""""""""""""""""
+ExecutionDetails and ContractDetails
+""""""""""""""""""""""""""""""""""""
 
-The ExecutionTradeDetails data type represents field that are applicable only to trade executions and includes attributes that descirbe the execution venue and execution type.
+The ``ExecutionDetails`` data type represents details applicable to trade executions and includes attributes that describe the execution venue and execution type. Not all trades will have been 'executed', such as those created from a Swaption Exercise event. In those cases, the ``executionDetails`` attributes on ``Trade`` is expected to be empty.
 
-ContractTradeDetails
-""""""""""""""""""""
-
-ContractTradeDetails are only applicable to contractual products.  It represents details of the trade after the trade execution has been confirmed.
+``ContractDetails`` are only applicable to trades on contractual products and are typically provided at or prior to trade confirmation.
 
 .. code-block:: Haskell
 
  type ContractDetails:
- 	[metadata key]
- 	documentation RelatedAgreement (0..1)
- 	governingLaw GoverningLawEnum (0..1)
- 		[metadata scheme]
- 	partyContractInformation PartyContractInformation (0..*)
-
-.. note:: Attributes within ``Trade`` and ``ContractTradeDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view.
+   [metadata key]
+   documentation RelatedAgreement (0..1)
+   governingLaw GoverningLawEnum (0..1)
+     [metadata scheme]
+   partyContractInformation PartyContractInformation (0..*)
 
 State
 """""
@@ -454,14 +652,14 @@ The ``State`` data type defines the state of a trade at a point in the Trade's l
 .. code-block:: Haskell
 
  type State:
- 	closedState ClosedState (0..1)
- 	positionState PositionStatusEnum (0..1)
+   closedState ClosedState (0..1)
+   positionState PositionStatusEnum (0..1)
 
 *ClosedState*.
 
 In the case when a trade is closed, it is necessary to record that closure as part of the trade state.
 
-For instance in a full novation scenario, the initial state is a single ``TradeState`` and the resulting state is two ``TradeState``s. The first resulting ``TradeState`` represents a new contract, which is the same as the original but where one of the parties has been changed, and the second resulting ``TradeState`` is the original contract, now marked as *closed*.
+For instance in a full novation scenario, the initial state is a single ``TradeState`` and the resulting state is two ``TradeState``. The first resulting ``TradeState`` represents a new contract, which is the same as the original but where one of the parties has been changed, and the second resulting ``TradeState`` is the original contract, now marked as *closed*.
 
 The ``ClosedState`` data type (enclosed within ``State``) captures this closed state and defines the reason for closure.
 
@@ -479,13 +677,13 @@ The ``ClosedState`` data type (enclosed within ``State``) captures this closed s
 Primitive Event
 ^^^^^^^^^^^^^^^
 
-**Primitive events are the building block components used to specify business events in the CDM**. They describe the fundamental state-transition components that impact the trade state during its lifecycle. The trade state always transitions to and from one a ``TradeState`` data type.
+**Primitive events are the building block components used to specify business events in the CDM**. They describe the fundamental state-transition components that impact the trade state during its lifecycle. The trade state always transitions from and to a ``TradeState`` data type.
 
-Most of the primitive events include ``before`` and ``after`` trade state attributes that define the state transition in terms of evolution in the trade state.  The exceptions are ``ObservationPrimitive`` and ``TransferPrimitive``.
+The primitive events include ``before`` and ``after`` attributes, which can define the evolution of the trade state by taking the differences between ``before`` and ``after`` trade states.
 
-The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a state that *already* exists. By contrast, the ``after`` state provides a full definition of that object, because that state is occurring for the first time and it is the occurrence of the primitive event that triggers a transition to that new state. By tying each state in the lifecycle to a previous state, primitive events are one of the mechanisms by which *lineage* is implemented in the CDM.
+The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a trade state that *already* existed. By contrast, the ``after`` trade state provides a full definition of that object, because that trade state is occurring for the first time and it is the occurrence of the primitive event that triggered a transition to that new trade state. By tying each trade state in the lifecycle to a previous trade state, primitive events are one of the mechanisms by which *lineage* is implemented in the CDM.
 
-A ``PrimitiveEvent`` object consists of one of the primitive components, as captured by the ``one-of`` condition.  The list of primitive events can be seen in the ``PrimitiveEvent`` type definition:
+A ``PrimitiveEvent`` can only include one of the primitive components, which is captured by the ``one-of`` condition. The list of primitive events can be seen in the ``PrimitiveEvent`` type definition:
 
 .. code-block:: Haskell
 
@@ -493,7 +691,6 @@ A ``PrimitiveEvent`` object consists of one of the primitive components, as capt
    execution ExecutionPrimitive (0..1)
    contractFormation ContractFormationPrimitive (0..1)
    split SplitPrimitive (0..1)
-   observation ObservationPrimitive (0..1)
    quantityChange QuantityChangePrimitive (0..1)
    reset ResetPrimitive (0..1)
    termsChange TermsChangePrimitive (0..1)
@@ -501,7 +698,7 @@ A ``PrimitiveEvent`` object consists of one of the primitive components, as capt
 
    condition PrimitiveEvent: one-of
 
-A number of examples are illustrated below.
+Examples of how primitive components can be used are illustrated below.
 
 Example 1: Execution and Contract Formation
 """""""""""""""""""""""""""""""""""""""""""
@@ -519,7 +716,7 @@ The transition to an executed state prior to confirmation is represented by the 
 
 The execution primitive does not allow any before state (as marked by the 0 cardinality of the ``before`` attribute) because the current CDM event model only covers post-trade lifecycle events. In practice, this execution state represents the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client.
 
-Following that execution, the trade gets confirmed and a legally binding contract is signed between the two executing parties. In an allocation scenario, the trade would first get split into sub-accounts as designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts.
+Following that execution, the trade is confirmed and a legally binding contract is signed between the two executing parties. In an allocation scenario, the trade would first get split into sub-accounts as designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts.
 
 The ``ContractFormationPrimitive`` represents that transition to the trade state after the trade is confirmed, which results in a ``TradeState`` containing a Trade object that can optionally reference legal documentation.
 
@@ -537,18 +734,17 @@ Example 2: Reset
 
 In many cases, a trade relies on observable values which will become known in the future: for instance, a floating rate observation at the beginning of each period in the case of a Interest Rate Swap, or the equity price at the end of each period in an Equity Swap. That primitive event is known as a *reset*.
 
-The predecessor to a reset is an *observation* which occurs when that observable value becomes known (as provided by the relevant market data provider), independently from any specific transaction. This primitive event is captured by the ``ObservationPrimitive`` type.
+When a observable value becomes known (as provided by the relevant market data provider), independently from any specific transaction, this information is captured by the ``Observation`` data type.
 
 .. code-block:: Haskell
 
- type ObservationPrimitive:
-   source ObservationSource (1..1)
-   observation number (1..1)
-   date date (1..1)
-   time TimeZone (0..1)
-   side QuotationSideEnum (0..1)
+ type Observation:
+   [rootType]
+   [metadata key]
+   observedValue number (1..1)
+   observationIdentifier ObservationIdentifier (1..1)
 
-From that observation, a *reset* can be built which does affect the specific transaction. A reset is represented by the ``ResetPrimitive`` type.
+From that ``Observation``, a ``Reset`` can be built and included in ``TradeState`` without changing the ``Trade``. A reset is represented by the ``ResetPrimitive`` data type.
 
 .. code-block:: Haskell
 
@@ -559,6 +755,19 @@ From that observation, a *reset* can be built which does affect the specific tra
    condition Trade:
      before -> trade = after -> trade
 
+The *reset* process creates instances of the ``Reset`` data type, which are added to ``resetHistory`` of a given ``TradeState``.
+
+.. code-block:: Haskell
+
+ type Reset:
+   resetValue number (1..1)
+   resetDate date (1..1)
+   observations Observation (1..*)
+     [metadata reference]
+   aggregationMethodology AggregationMethod (0..1)
+
+The ``resetValue`` attribute represents the ultimate value of the reset as a number and is the number used to compute corresponding cash flows. If multiple ``observations`` were used to derive the ``resetValue``,  ``aggregationMethod`` should be used to describe how the many observations where aggregated into the single value.
+
 Example 3: Transfer
 """""""""""""""""""
 
@@ -567,10 +776,22 @@ A ``TransferPrimitive`` is a multi-purpose primitive that can represent the tran
 .. code-block:: Haskell
 
  type TransferPrimitive:
- 	[metadata key]
- 	before TradeState (1..1)
-	    [metadata reference]
- 	after TradeState (1..1)
+   [metadata key]
+   before TradeState (1..1)
+     [metadata reference]
+   after TradeState (1..1)
+
+The *transfer* process creates instances of the ``Transfer`` data type, which are added to ``transferHistory`` of a given ``TradeState``.
+
+.. code-block:: Haskell
+
+ type Transfer:
+   identifier Identifier (0..*)
+     [metadata scheme]
+   priceQuantity PriceQuantity (1..1)
+   payerReceiver PartyReferencePayerReceiver (1..1)
+   settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
+   settlementOrigin SettlementOrigin (0..1)
 
 By design, the CDM treats the reset and the transfer primitive events separately because there is no one-to-one relationship between reset and transfer.
 
@@ -624,9 +845,9 @@ Event Effect
 
 The event effect attribute corresponds to the set of operational and positional effects associated with a lifecycle event. This information is generated by a post-processor associated to the CDM. Certain events such as observations do not have any event effect, hence the optional cardinality.
 
-The ``eventEffect`` contains a set of pointers to the relevant objects that are affected by the event and annotated with ``[metadata reference]``. The candidate objects are types that are marked as referenceable via an associated ``metadata key`` annotation.
+The ``eventEffect`` contains a set of pointers to the relevant objects that are affected by the event and annotated with ``[metadata reference]``. The candidate objects are types that are marked as referenceable via an associated ``[metadata key]`` annotation.
 
-.. note:: The use of the key/reference mechanism is further decribed in the `Meta-Data Section`_ of the Rosetta DSL documentation.
+.. note:: The use of the key/reference mechanism is further described in the `Meta-Data Section`_ of the Rosetta DSL documentation.
 
 .. code-block:: Haskell
 
@@ -647,20 +868,14 @@ The JSON snippet below for a quantity change event on a trade illustrates the us
   "effectiveDate": "2018-03-15",
   "eventDate": "2018-03-14",
   "eventEffect": {
-    "contract": [
+    "trade": [
       {
         "globalReference": "600e4873"
       }
     ],
-    "effectedContract": [
+    "effectedTrade": [
       {
         "globalReference": "d36e1d72"
-      }
-    ],
-    (...)
-    "transfer": [
-      {
-        "globalReference": "ee4f7520"
       }
     ]
   },
@@ -669,11 +884,12 @@ The JSON snippet below for a quantity change event on a trade illustrates the us
     "quantityChange": [
       {
         "after": {
+          (...)
+          "meta": {
+            "globalKey": "600e4873"
+          }
           "trade": {
             (...)
-            "meta": {
-              "globalKey": "600e4873"
-            }
             "tradeDate": {
               "date": "2002-12-04",
               "meta": {
@@ -683,11 +899,12 @@ The JSON snippet below for a quantity change event on a trade illustrates the us
           }
         },
         "before": {
+          (...)
+          "meta": {
+            "globalKey": "d36e1d72"
+          },
           "trade": {
             (...)
-            "meta": {
-              "globalKey": "d36e1d72"
-            },
             "tradeDate": {
               "date": "2002-12-04",
               "meta": {
@@ -697,38 +914,11 @@ The JSON snippet below for a quantity change event on a trade illustrates the us
           }
         }
       }
-    ],
-    "transfer": [
-      {
-        "cashTransfer": [
-          {
-            "amount": {
-              "amount": 45860.23,
-              "currency": {
-                "value": "JPY"
-              },
-              "meta": {
-                "globalKey": "66c5234f"
-              }
-            },
-            (...)
-          }
-        ],
-        "meta": {
-          "globalKey": "ee4f7520"
-        },
-        "settlementDate": {
-          "adjustedDate": {
-            "value": "2018-03-17"
-          }
-        }
-      }
     ]
   }
 
-* For the ``effectedTrade`` effect: ``d36e1d72`` points to the original trade in the ``before`` state of the ``quantityChange`` primitive event.
-* For the ``trade`` effect: ``600e4873`` points to the new trade in the ``after`` state of the ``quantityChange`` primitive event. Note how the new contract retains the initial ``tradeDate`` attribute of the original trade even after a quantity change.
-* For the ``transfer`` effect: ``ee4f7520`` points to the ``transfer`` primitive event.
+* For the ``effectedTrade``: ``d36e1d72`` points to the original trade in the ``before`` state of the ``quantityChange`` primitive event.
+* For the ``trade``: ``600e4873`` points to the new trade in the ``after`` state of the ``quantityChange`` primitive event. Note how the new contract retains the initial ``tradeDate`` attribute of the original trade even after a quantity change.
 
 Other Misc. Information
 """""""""""""""""""""""
@@ -1066,7 +1256,7 @@ Through the ``legalAgreement`` attribute the CDM provides support for implemento
 .. note:: The ``DocumentationIdentification`` attribute is used to map related agreement terms that are embedded as part of a transaction message converted from another model structure, such as FpML.  For example, this attribute may reference an ISDA Master Agreement, which is not modelled or mapped in the CDM ``LegalAgreement`` data type.
 
 Umbrella Agreement
-"""""""""""""""""
+""""""""""""""""""
 
 ``UmbrellaAgreement`` is a data type used to specify the applicability of Umbrella Agreement terms, relevant specific language, and underlying entities associated with the umbrella agreement.
 
@@ -1800,10 +1990,10 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
  		payout -> underlier -> underlyingProduct -> security -> productIdentifier only-element
 
  	assign-output identifiers -> observationDate:
- 		ResolveEquityValuationDate(equityValuation)
+ 		ResolveEquityValuationDate(equityValuation, date)
 
  	assign-output identifiers -> observationTime:
- 		ResolveEquityValuationTime(equityValuation)
+ 		ResolveEquityValuationTime(equityValuation, identifiers -> observable -> productIdentifier)
 
  	assign-output identifiers -> determinationMethodology -> determinationMethod:
  		equityValuation -> determinationMethod
@@ -1911,12 +2101,12 @@ Those synonym sources are listed as part of a configuration file in the CDM usin
 Namespace
 ---------
 
-The CDM is partitioned into groups of name spaces. A namespace is an abstract container created to hold a logical grouping of model artefacts. The approach is designed to make it easier for users to understand the model structure and adopt selected components. It also aids the development cycle by insulating groups of components from unrelated model changes that may occur. The partitioning is visible to users in Rosetta Core by toggling the Namespace view in the left hand panel, and in the generated code files.
+The CDM is partitioned into groups of namespaces. A namespace is an abstract container created to hold a logical grouping of model artefacts. The approach is designed to make it easier for users to understand the model structure and adopt selected components. It also aids the development cycle by insulating groups of components from unrelated model changes that may occur. The partitioning is visible to users in Rosetta Core by toggling the Namespace view in the left hand panel, and in the generated code files.
 
 Model Artifacts
 """""""""""""""
 
-Model artifacts are organised into a directory hierarchy that is exposed in the model editor. In each directory there are 3 rosetta files: 1 for data types, 1 for enumerations and 1 for functions.
+Model artifacts are organised into a directory hierarchy that is exposed in the model editor.
 
 Organising Principles
 """""""""""""""""""""
@@ -1925,7 +2115,7 @@ Namespaces are organised into a hierarchy, with layers going from in to out. The
 
 Example – the base namespace
 
-.. figure:: documentation/source/cdm-namespace.png
+.. figure:: cdm-namespace.png
 
 In the example above the layers of the “base” namespace can be observed. There are four layers to the namespace. The outer layer “base” contains one file and three namespaces. The next layer contains three siblings, “datetime”, “math”, and “staticdata”. A third and fourth layer is contained within the “staticdata” namespace.
 
