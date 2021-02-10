@@ -1521,7 +1521,7 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
  	output: floatingAmount number (1..1)
 
  	alias calculationAmount: quantity -> amount
- 	alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> observable -> rateOption -> floatingRateIndex )
+ 	alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> rateOption -> floatingRateIndex )
  	alias spreadRate: rate -> spread
  	alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
 

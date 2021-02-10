@@ -5,9 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 
-import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
+import util.IsEqualIgnoringAllWhiteSpace;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ public class Create_ExerciseTest extends AbstractFunctionTest {
 
 		BusinessEvent businessEvent = func.evaluate(swaption, ExerciseInstruction.builder().build());
 
-		assertThat(getJson("expected-physical-exercise-business-event.json"), new IsEqualIgnoringWhiteSpace(toJson(businessEvent)));
+		assertThat(getJson("expected-physical-exercise-business-event.json"), new IsEqualIgnoringAllWhiteSpace(toJson(businessEvent)));
 	}
 
 	private String toJson(BusinessEvent businessEvent) throws JsonProcessingException {

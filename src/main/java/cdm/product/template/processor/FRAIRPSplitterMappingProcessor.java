@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
+
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 
 @SuppressWarnings("unused")
 public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
@@ -40,14 +44,36 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 			RateSpecificationBuilder rateSpec = irp.getRateSpecification();
 			if (rateSpec != null) {
 				if (rateSpec.getFixedRate() != null && // fixedRate.hasData() doesn't work due to references
-						rateSpec.getFloatingRate() != null &&  // floatingRate.hasData() does work (the rate option is populated)
-						rateSpec.getFloatingRate().hasData()) {
+						rateSpec.getFloatingRate() != null //&&  // floatingRate.hasData() does work (the rate option is populated)
+				//		(rateSpec.getFloatingRate().hasData())
+				) {
 					//this IRP has both fixed and floating - it needs to be split
 
 					InterestRatePayoutBuilder newIrp = irp.build().toBuilder();
 
 					rateSpec.setFloatingRateBuilder(null);
 					newIrp.getRateSpecification().setFixedRateBuilder(null);
+
+					List<Mapping> mappings = filterMappings(getContext().getMappings(), synonymPath.addElement("floatingRateIndex"));
+					mappings.stream().filter(mapping -> toPath(getModelPath()).fullStartMatches(mapping.getRosettaPath())).findFirst().ifPresent(
+							mapping -> {
+								System.out.println(mapping);
+
+								Path.PathElement interestRatePayoutPathElement = subPath("interestRatePayout", mapping.getRosettaPath())
+										.map(Path::getLastElement)
+										.orElse(null);
+								Path path = new Path(mapping.getRosettaPath().getElements().stream()
+										.map(pathElement -> {
+											Optional<Integer> index = pathElement.equals(interestRatePayoutPathElement) ?
+													Optional.of(pathElement.forceGetIndex() + 1) :
+													pathElement.getIndex();
+											return new Path.PathElement(pathElement.getPathName(), index, pathElement.getMetas());
+										})
+										.collect(Collectors.toList()));
+
+								mapping.setRosettaPath(path);
+								mapping.setRosettaValue(newIrp.getRateSpecification().getFloatingRate().getRateOption().getReference());
+							});
 
 					PartyMappingHelper helper = PartyMappingHelper.getInstanceOrThrow(getContext());
 

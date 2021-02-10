@@ -266,7 +266,7 @@ type Product: <"Defines the product that is the subject of a tradable product de
 // TBD: positioning of future DateNotation (Effective Date, Termination Date) - only applicable to contractual products. In EconomicTerms?
 type TradableProduct: <"Definition of a product as ready to be traded, i.e. included in an execution or contract, by associating a specific price and quantity to this product plus an (optional) mechanism for any potential future quantity adjustment.">
 
-	product Product (0..1) <"The underlying product to be included in a contract or execution.">
+	product Product (1..1) <"The underlying product to be included in a contract or execution.">
 	priceQuantity PriceQuantity (1..*) <"Specifies the price, quantity, and optionally the observable for use in a trade or other purposes.">
 	counterparty Counterparty (2..2) <"Specifies the parties which are the two counterparties to the transaction.  The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the counterparty enum (e.g. CounterpartyEnum values Party1 or Party2). The counterparty enum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this counterparties attribute, which is positioned outside of the product definition, allows the counterparty enum to be associated with an actual party reference.">
     ancillaryParty AncillaryParty (0..*) <"Specifies the parties with ancillary roles in the transaction. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this AncillaryParty type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
@@ -274,24 +274,11 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 	adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
 
 	condition PriceQuantityTriangulation:
-		// TODO (HUGO) is this still applicable?  See CashPriceQuantityNoOfUnitsTriangulation
 		PriceQuantityTriangulation(priceQuantity) = True
 
 	condition NotionalAdjustment: <"As the adjustment attribute applies to return swaps, the equity payout needs to be present alongside it.">
 		if adjustment exists
 		then product -> contractualProduct -> economicTerms -> payout -> equityPayout exists
-
-	condition: <"Requires that product must be populated unless the productIdentifier in observable is populated.">
-		if priceQuantity -> observable -> productIdentifier is absent
-		then product exists
-
-	condition: <"Requires that if product is not populated that the productIdentifier in observable must be populated, e.g. for a securities trade.">
-		if product is absent
-		then priceQuantity -> observable -> productIdentifier exists
-
-	condition SecurityIdentifierResolvable: <"Requires that if security in product is populated that the productIdentifier in security matches the one in observable.">
-		if product -> security exists
-		then  priceQuantity -> observable -> productIdentifier contains product -> security -> productIdentifier
 
 	condition EquityUnderlierResolvable:
 		if product->contractualProduct->economicTerms->payout->equityPayout->underlier->underlyingProduct->security->productIdentifier exists

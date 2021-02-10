@@ -105,7 +105,7 @@ eligibility rule ReportableProduct <"When eligible for rts 22">
 eligibility rule HasContract <"When eligible for rts 22">
 	[regulatoryReference ESMA MiFIR RTS_22 article "2"
    		provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
-		TradeForEvent then // TODO (HUGO) - not sure what the issue is here - there is no error on the reporting rule ContractForEvent
+		TradeForEvent then
 		extract Trade -> tradableProduct -> product -> contractualProduct exists
 
 eligibility rule ReportableTransaction <"When eligible for rts 22">
@@ -566,7 +566,7 @@ reporting rule SingleCurrencyBasisSwap
             structured_provision "The Seller of a [Single-Currency] Basis Swap is by definition the Receiver of the  Spread"
             provision ""]
 	filter when rule IsIRSwapBasis then
-	filter when Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> observable -> rateOption = Trade -> tradableProduct -> priceQuantity -> observable -> rateOption then
+	filter when Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> rateOption = Trade -> tradableProduct -> priceQuantity -> observable -> rateOption then
 	(
 		InterestRatePayoutPayer then PartyToBuyer,
 		InterestRatePayoutReceiver then PartyToSeller
