@@ -33,7 +33,7 @@ A tradable product represents a financial product that is ready to be traded, me
 .. code-block:: Haskell
 
  type TradableProduct:
-    product Product (0..1)
+    product Product (1..1)
     priceQuantity PriceQuantity (1..*) 
     counterparty Counterparty (2..2) 
     ancillaryParty AncillaryParty (0..*) 
@@ -184,9 +184,10 @@ he Observable data type requires the specification of either a ``rateOption`` (i
 
  type Observable: 
 	[metadata key]
-	rateOption FloatingRateOption (0..1) 
+	rateOption FloatingRateOption (0..1)
+        [metadata location]
 	commodity Commodity (0..1) 
-	productIdentifier ProductIdentifier (0..1) 
+	productIdentifier ProductIdentifier (0..*)
 	currencyPair QuotedCurrencyPair (0..1) 
 
 	condition: one-of 
@@ -1993,7 +1994,7 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
  		ResolveEquityValuationDate(equityValuation, date)
 
  	assign-output identifiers -> observationTime:
- 		ResolveEquityValuationTime(equityValuation, identifiers -> observable -> productIdentifier)
+ 		ResolveEquityValuationTime(equityValuation, identifiers -> observable -> productIdentifier only-element)
 
  	assign-output identifiers -> determinationMethodology -> determinationMethod:
  		equityValuation -> determinationMethod
