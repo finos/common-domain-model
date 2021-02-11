@@ -29,7 +29,7 @@ TradableProduct
 ^^^^^^^^^^^^^^^
 
 
-A tradable product represents a financial product that be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract between two counterparties. Tradable products are represented by the ``TradableProduct`` type.
+A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract between two counterparties. Tradable products are represented by the ``TradableProduct`` type.
 
 .. code-block:: Haskell
 
