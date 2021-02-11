@@ -28,7 +28,8 @@ Regardless of whether the data structure is the same or different from FpML, the
 TradableProduct
 ^^^^^^^^^^^^^^^
 
-A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract between two counterparties. Tradable products are represented by the ``TradableProduct`` type.
+
+A tradable product represents a financial product that be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract between two counterparties. Tradable products are represented by the ``TradableProduct`` type.
 
 .. code-block:: Haskell
 
@@ -42,11 +43,11 @@ A tradable product represents a financial product that is ready to be traded, me
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
 
-The primary set of attributes represented in the ``TradableProduct`` data type are ones that are shared by all products.  For example, every trade has a price, a quantity, and a pair of counterparties.  In some cases, there are related parties, settlement terms, and an allowable adjustment to the notional quantity.  All of the other attributes required to describe a product are defined in distinct product types.
+The primary set of attributes represented in the ``TradableProduct`` data type are ones that are shared by all trades and transactions.  For example, every trade has a price, a quantity, and a pair of counterparties.  In some cases, there are ancillary parties, settlement terms, and an allowable adjustment to the notional quantity.  All of the other attributes required to describe a product are defined in distinct product data types.
 
 PriceQuantity
 """""""""""""
-The ``priceQuantity`` attribute is an array of the ``PriceQuantity`` data type which allows for multiple sets of price, quantity, and optionally an observable, which is an asset or a reference associated with the price and quantity. 
+The ``priceQuantity`` attribute is an array of the ``PriceQuantity`` data type which allows for multiple sets of price, quantity, and optionally an observable, which describes an asset or a reference to which the price and quantity are related.
 
 .. code-block:: Haskell
 
@@ -176,7 +177,7 @@ In this case, the trade involves the purchase or sale of 200 contracts of the WT
 
 Observable
 """"""""""
-The ``Observable`` data type specifies the object to be observed for a price, which could be an asset or a reference. 
+The ``Observable`` data type specifies the reference object to be observed for a price, which could be an underlying asset or a reference such as an index.
 
 he Observable data type requires the specification of either a ``rateOption`` (i.e. a floating rate index), ``commodity``, ``productIdentifier``, or ``currencypair``. This choice constraint is supported by specifying a one-of condition, as shown below:
 
