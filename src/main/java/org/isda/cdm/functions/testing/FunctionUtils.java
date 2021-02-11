@@ -17,8 +17,7 @@ public class FunctionUtils {
     public static ExecutionInstruction createExecutionInstructionFromTradeState(TradeState tradeState) {
         return ExecutionInstruction.builder()
                 .setProduct(tradeState.getTrade().getTradableProduct().getProduct())
-                .addQuantityNotation(guard(tradeState.getTrade().getTradableProduct().getQuantityNotation()))
-                .addPriceNotation(guard(tradeState.getTrade().getTradableProduct().getPriceNotation()))
+                .addPriceQuantity(guard(tradeState.getTrade().getTradableProduct().getPriceQuantity()))
                 .addCounterparty(guard(tradeState.getTrade().getTradableProduct().getCounterparty()))
                 .addAncillaryParty(guard(tradeState.getTrade().getTradableProduct().getAncillaryParty()))
                 .addParties(guard(tradeState.getTrade().getParty()))
