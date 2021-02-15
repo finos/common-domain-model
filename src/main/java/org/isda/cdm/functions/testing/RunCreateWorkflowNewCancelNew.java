@@ -8,6 +8,7 @@ import cdm.event.common.TradeState;
 import cdm.event.common.functions.Create_Execution;
 import cdm.event.workflow.*;
 import cdm.event.workflow.functions.Create_WorkflowStep;
+import cdm.observable.asset.PriceQuantity;
 import com.google.common.collect.Lists;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
@@ -17,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collection;
 
 import static java.util.Collections.emptyList;
 import static org.isda.cdm.functions.testing.FunctionUtils.createExecutionInstructionFromTradeState;
@@ -74,7 +76,13 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<TradeSt
 	private BusinessEvent newBusinessEvent(TradeState tradeState) {
 		TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
 		tradeStateBuilder
-				.getTrade().getTradableProduct().getQuantityNotation().forEach(qn -> qn.getQuantity().setAmount(BigDecimal.valueOf(99_999)));
+				.getTrade()
+				.getTradableProduct()
+				.getPriceQuantity()
+				.stream()
+				.map(PriceQuantity.PriceQuantityBuilder::getQuantity)
+				.flatMap(Collection::stream)
+				.forEach(q -> q.getOrCreateValue().setAmount(BigDecimal.valueOf(99_999)));
 		TradeState withIncorrectQuantity = tradeStateBuilder.build();
 
 		return execute.evaluate(createExecutionInstructionFromTradeState(withIncorrectQuantity));
