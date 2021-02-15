@@ -5,9 +5,9 @@ import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.NonNegativeQuantity;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
-import cdm.observable.asset.AssetIdentifier;
 import cdm.observable.asset.FloatingInterestRate;
 import cdm.observable.asset.FloatingRateOption;
+import cdm.observable.asset.Observable;
 import cdm.product.asset.DayCountFractionEnum;
 import cdm.product.asset.FloatingRateSpecification;
 import cdm.product.asset.InterestRatePayout;
@@ -37,13 +37,8 @@ class FloatingAmountTest extends AbstractFunctionTest{
 	private static final InterestRatePayout INTEREST_RATE_PAYOUT = InterestRatePayout.builder()
             .setRateSpecification(RateSpecification.builder()
                     .setFloatingRate(FloatingRateSpecification.builder()
-                    		.setAssetIdentifier(AssetIdentifier.builder()
-                    				.setRateOption(FloatingRateOption.builder()
-                                          .setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
-                                        		  .setValue(FloatingRateIndexEnum.GBP_LIBOR_BBA)
-                                        		  .build())
-                                          .build())
-                    				.build())
+                    				.setRateOptionRef(FloatingRateOption.builder()
+                                          .setFloatingRateIndexRef(FloatingRateIndexEnum.GBP_LIBOR_BBA))
                     		.build())
                     .build())
             .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build())

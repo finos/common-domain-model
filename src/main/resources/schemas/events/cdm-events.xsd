@@ -613,7 +613,12 @@
     <xsd:complexType name="Quantity">
         <xsd:sequence>
             <xsd:element name="amount" type="xsd:decimal"/>
-            <xsd:element name="unit" type="UnitEnum" minOccurs="0"/>
+            <xsd:element name="unitOfAmount" type="UnitType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="UnitType">
+        <xsd:sequence>
+            <xsd:element name="currency" type="xsd:string"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="QuantityChange">
@@ -728,26 +733,23 @@
     <xsd:complexType name="Transfer">
         <xsd:sequence>
             <xsd:element name="transferIdentifier" type="Identifier" minOccurs="0"/>
-            <xsd:element name="quantity" type="QuantityNotation"/>
+            <xsd:element name="priceQuantity" type="PriceQuantity"/>
             <xsd:group ref="fpml:PayerReceiver.model"/>
             <xsd:element name="settlementDate" type="xsd:date"/>
 <!--            <xsd:element name="settlementOrigin" type="SettlementOrigin" minOccurs="0"/>-->
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="QuantityNotation">
+    <xsd:complexType name="PriceQuantity">
         <xsd:sequence>
             <xsd:element name="quantity" type="Quantity"/>
-            <xsd:element name="settlementAssetIdentifier" type="AssetIdentifier"/>
+            <xsd:element name="observable" type="Observable" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="AssetIdentifier">
-        <xsd:sequence>
-            <xsd:choice>
-                <xsd:element name="productIdentifier" type="ProductIdentifier"/>
-                <xsd:element name="settlementCurrency" type="xsd:string"/>
-                <xsd:element name="rateOption" type="fpml:FloatingRateOption"/>
-            </xsd:choice>
-        </xsd:sequence>
+    <xsd:complexType name="Observable">
+        <xsd:choice>
+            <xsd:element name="productIdentifier" type="ProductIdentifier"/>
+            <xsd:element name="rateOption" type="fpml:FloatingRateOption"/>
+        </xsd:choice>
     </xsd:complexType>
     <xsd:complexType name="ProductIdentifier">
         <xsd:sequence>
