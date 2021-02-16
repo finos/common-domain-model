@@ -2,7 +2,7 @@
 
 _What is Being Released_
 
-Updates to the logical expressions of the regulatory reporting logic already present in the model, where the new `PriceQuantity` data structure ought to be used. The corresponding test cases have also been adjsuted.
+Updates to the logical expressions of the regulatory reporting logic already present in the model, where the new `PriceQuantity` data structure ought to be used.
 
 _Review Directions_
 
