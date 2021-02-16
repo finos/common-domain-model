@@ -1,9 +1,8 @@
 package org.isda.cdm.functions.testing;
 
-import cdm.event.common.BusinessEvent;
-import cdm.event.common.ContractFormationInstruction;
-import cdm.event.common.TradeState;
+import cdm.event.common.*;
 import cdm.event.common.functions.Create_ContractFormation;
+import cdm.event.position.PositionStatusEnum;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.lib.records.DateImpl;
 
@@ -11,16 +10,20 @@ import javax.inject.Inject;
 
 public class RunFormContract implements ExecutableFunction<TradeState, BusinessEvent> {
 
-
     @Inject
     Create_ContractFormation formContract;
 
-
     @Override
     public BusinessEvent execute(TradeState tradeState) {
+        TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
+        tradeStateBuilder.getOrCreateState().setPositionState(PositionStatusEnum.EXECUTED);
+        tradeStateBuilder.getTrade().setContractDetailsBuilder(ContractDetails.builder());
+        tradeStateBuilder.prune();
+
         ContractFormationInstruction contractFormationInstruction = ContractFormationInstruction.builder()
-                .setExecution(tradeState)
+                .setExecutionBuilder(tradeStateBuilder)
                 .build();
+
         return formContract.evaluate(contractFormationInstruction, new DateImpl(15, 3, 2021));
     }
 

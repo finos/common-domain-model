@@ -4,7 +4,7 @@ import cdm.event.common.BusinessEvent;
 import cdm.event.common.ContractFormationInstruction;
 import cdm.event.common.TradeState;
 import cdm.event.common.functions.Create_ContractFormation;
-import cdm.event.common.functions.Create_Execution;
+import cdm.event.position.PositionStatusEnum;
 import cdm.legalagreement.common.*;
 import cdm.legalagreement.common.LegalAgreement.LegalAgreementBuilder;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
@@ -12,13 +12,9 @@ import com.rosetta.model.lib.records.DateImpl;
 
 import javax.inject.Inject;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.createExecutionInstructionFromTradeState;
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 public class RunFormContractWithLegalAgreement implements ExecutableFunction<TradeState, BusinessEvent> {
-
-    @Inject
-    Create_Execution execute;
 
     @Inject
     Create_ContractFormation formContract;
@@ -26,8 +22,6 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Tra
 
     @Override
     public BusinessEvent execute(TradeState tradeState) {
-        BusinessEvent executeBusinessEvent = execute.evaluate(createExecutionInstructionFromTradeState(tradeState));
-
         LegalAgreementBuilder legalAgreement = LegalAgreement.builder()
                 .addContractualPartyRef(guard(tradeState.getTrade().getParty()))
                 .setAgreementDate(DateImpl.of(1994, 12, 01))
@@ -37,8 +31,11 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Tra
                         .setGoverningLaw(GoverningLawEnum.AS_SPECIFIED_IN_MASTER_AGREEMENT)
                         .build());
 
+        TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
+        tradeStateBuilder.getOrCreateState().setPositionState(PositionStatusEnum.EXECUTED);
+
         ContractFormationInstruction contractFormationInstruction = ContractFormationInstruction.builder()
-                .setExecution(tradeState)
+                .setExecutionBuilder(tradeStateBuilder)
                 .setLegalAgreementBuilder(legalAgreement)
                 .build();
 
