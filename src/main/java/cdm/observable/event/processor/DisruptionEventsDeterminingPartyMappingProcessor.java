@@ -26,7 +26,7 @@ public class DisruptionEventsDeterminingPartyMappingProcessor extends MappingPro
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		PartyMappingHelper.getInstanceOrThrow(getContext())
 				.setAncillaryRoleEnum(getModelPath(),
-						synonymPath.addElement("href"),
+						synonymPath,
 						((AdditionalDisruptionEvents.AdditionalDisruptionEventsBuilder) parent)::setDeterminingParty,
 						AncillaryRoleEnum.DISRUPTION_EVENTS_DETERMINING_PARTY);
 	}

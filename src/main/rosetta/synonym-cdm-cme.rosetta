@@ -61,6 +61,8 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 			[value "account" path "clearingConfirmed"]
 		+ creditLimitInformation
 		    [value "creditLimitInformation" path "clearingConfirmed->trade->tradeHeader"]
+		+ proposedInstruction
+		    [value "ignore"]
 
 	BusinessEvent:
 		+ eventDate
@@ -87,31 +89,6 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 			[value "limitAmount"]
 		+ limitImpactDueToTrade
 			[value "limitImpactDueToTrade"]
-
-	PayoutBase:
-		- payoutQuantity
-		+ payoutQuantity
-			// For Equity Swap:
-			[value "notional"]
-				// [value "rateOfReturn"]
-				// For Swap Stream:
-			[value "notionalSchedule" path "calculationPeriodAmount->calculation"]
-			[value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
-				// For CDS:
-			[value "calculationAmount"]
-			[value "calculationAmount" path "periodicPayment->fixedAmountCalculation"]
-			[value "calculationAmount" path "periodicPayment->floatingAmountCalculation"]
-			[value "fixedAmount"]
-				// For FX:
-				// [hint "paymentAmount"]
-				// For Repo:
-			[value "settlementAmount" path "nearLeg"]
-				// For BRL CDI swaps:
-			[value "calculation" path "calculationPeriodAmount"]
-				// For CDS Option:
-			[hint "notionalReference"]
-				// For Bond Option:
-			[value "notionalAmount"]
 
 	MessageInformation:
 		+ messageId
@@ -299,17 +276,11 @@ synonym source CME_BASE extends FpML_5_10
 	PrimitiveEvent:
 		+ split
 			[value "ignore"]
-		+ observation
-			[value "ignore"]
 		+ quantityChange
 			[value "ignore"]
 		+ reset
 			[value "ignore"]
 		+ transfer
-			[value "ignore"]
-
-	AssetIdentifier:
-		+ productIdentifier
 			[value "ignore"]
 
 	Payout:

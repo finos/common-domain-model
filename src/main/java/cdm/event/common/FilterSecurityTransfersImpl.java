@@ -1,8 +1,8 @@
 package cdm.event.common;
 
 import cdm.event.common.functions.FilterSecurityTransfers;
-import cdm.observable.asset.AssetIdentifier;
-import cdm.observable.asset.QuantityNotation;
+import cdm.observable.asset.Observable;
+import cdm.observable.asset.PriceQuantity;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +16,9 @@ public class FilterSecurityTransfersImpl extends FilterSecurityTransfers {
     }
 
     private boolean hasSecurity(Transfer transfer) {
-        return Optional.ofNullable(transfer).map(Transfer::getQuantity).map(QuantityNotation::getAssetIdentifier)
-                .map(AssetIdentifier::getProductIdentifier).isPresent();
+        return Optional.ofNullable(transfer).map(Transfer::getPriceQuantity)
+                .map(PriceQuantity::getObservable)
+                .map(Observable::getProductIdentifier)
+                .isPresent();
     }
 }

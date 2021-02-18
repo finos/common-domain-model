@@ -237,7 +237,7 @@
                 <xsd:element name="trade" type="TradeState"/>
             </xsd:choice>
             <xsd:element name="state" type="State" minOccurs="0"/>
-            <xsd:element name="resetHistory" type="ResetHistory" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="resetHistory" type="Reset" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="transferHistory" type="Transfer" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
@@ -613,7 +613,12 @@
     <xsd:complexType name="Quantity">
         <xsd:sequence>
             <xsd:element name="amount" type="xsd:decimal"/>
-            <xsd:element name="unit" type="UnitEnum" minOccurs="0"/>
+            <xsd:element name="unitOfAmount" type="UnitType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="UnitType">
+        <xsd:sequence>
+            <xsd:element name="currency" type="xsd:string"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="QuantityChange">
@@ -624,9 +629,8 @@
     </xsd:complexType>
     <xsd:complexType name="ResetPrimitive">
         <xsd:sequence>
-            <xsd:element name="date" type="xsd:date"/>
-            <xsd:element name="resetValue" type="xsd:decimal"/>
-            <xsd:element name="cashflow" type="Cashflow" minOccurs="0"/>
+            <xsd:element name="before" type="ContractState"/>
+            <xsd:element name="after" type="ContractState"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:simpleType name="Scheme">
@@ -691,18 +695,12 @@
             <xsd:element name="positionStatus" type="PositionStatusEnum" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="ResetHistory">
-        <xsd:sequence>
-            <xsd:element name="resetDate" type="xsd:date"/>
-            <xsd:element name="reset" type="Reset"/>
-        </xsd:sequence>
-    </xsd:complexType>
     <xsd:complexType name="Reset">
         <xsd:sequence>
-            <xsd:element name="resetValue" type="xsd:dateTime"/>
+            <xsd:element name="resetValue" type="xsd:decimal"/>
             <xsd:element name="resetDate" type="xsd:date"/>
             <xsd:element name="observation" type="xsd:string"/>
-            <xsd:element name="aggregationMethodology" type="AggregationMethod"/>
+            <xsd:element name="aggregationMethodology" type="AggregationMethod" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="AggregationMethod">
@@ -735,26 +733,23 @@
     <xsd:complexType name="Transfer">
         <xsd:sequence>
             <xsd:element name="transferIdentifier" type="Identifier" minOccurs="0"/>
-            <xsd:element name="quantity" type="QuantityNotation"/>
+            <xsd:element name="priceQuantity" type="PriceQuantity"/>
             <xsd:group ref="fpml:PayerReceiver.model"/>
             <xsd:element name="settlementDate" type="xsd:date"/>
 <!--            <xsd:element name="settlementOrigin" type="SettlementOrigin" minOccurs="0"/>-->
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="QuantityNotation">
+    <xsd:complexType name="PriceQuantity">
         <xsd:sequence>
             <xsd:element name="quantity" type="Quantity"/>
-            <xsd:element name="settlementAssetIdentifier" type="AssetIdentifier"/>
+            <xsd:element name="observable" type="Observable" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="AssetIdentifier">
-        <xsd:sequence>
-            <xsd:choice>
-                <xsd:element name="productIdentifier" type="ProductIdentifier"/>
-                <xsd:element name="settlementCurrency" type="xsd:string"/>
-                <xsd:element name="rateOption" type="fpml:FloatingRateOption"/>
-            </xsd:choice>
-        </xsd:sequence>
+    <xsd:complexType name="Observable">
+        <xsd:choice>
+            <xsd:element name="productIdentifier" type="ProductIdentifier"/>
+            <xsd:element name="rateOption" type="fpml:FloatingRateOption"/>
+        </xsd:choice>
     </xsd:complexType>
     <xsd:complexType name="ProductIdentifier">
         <xsd:sequence>
