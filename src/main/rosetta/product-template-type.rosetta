@@ -70,11 +70,6 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 		if calculationAgent -> calculationAgentParty exists
 		then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> CalculationAgentIndependent
 
-    // FIXME Object compare: effectiveDate > terminationDate
-    // condition CalculationPeriodDates_effectiveDate_terminationDate: <"If the effective date and the termination date are specified, then the termination date must be after the effective date. This data rule extends the FpML validation rules ird-14 & cd-5, which scope is limited to the unadjusted date, to the adjusted date.">
-    //  if effectiveDate exists and terminationDate exists
-    //  then effectiveDate > terminationDate
-
 type EquityPayout extends PayoutBase: <" The equity payout specification terms. The associated globalKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 
@@ -151,7 +146,7 @@ type SecurityPayout: <" Security payout specification in case the product payout
 	[metadata key]
 
 	securityLeg SecurityLeg (1..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
-	// TO DO: triParty, collateral substitutions, callDate and callingParty for an evergreen transaction (or should this be part of an Option Payout?)
+	
 	initialMargin InitialMargin (0..1) <"RepoDurationEnum.">
 	repoDuration RepoDurationEnum (0..1) <"A duration code for the repo transaction. This defines a type of a repo transaction with fixed duration.">
 	securityValuation SecurityValuation (1..*) <"The underlying securities and their valuation for the security leg.">
@@ -197,14 +192,6 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		if interestRatePayout -> paymentDates -> lastRegularPaymentDate exists
 			and interestRatePayout -> stubPeriod -> finalStub exists
 		then interestRatePayout count = 2
-
-//	condition Payout_quantity: <"There must be at least 1 anchor quantity defined in absolute across all payout legs, that other legs can reference. Currently only implemented for interest rate or equity payout. As an additional constraint the (initial) value should be 1.0, which means payout is defined for a single unit. This constraint may be relaxed in future where the initial value could be used as a unit divider, to facilitate the step notional case where using large numbers is more readable.">
-//	 	if equityPayout exists
-//	 		or interestRatePayout exists
-//	 	then ( equityPayout -> payoutQuantity -> quantitySchedule exists
-//	 			and equityPayout -> payoutQuantity -> quantitySchedule -> amount = 1.0 )
-//	  		or ( interestRatePayout -> payoutQuantity -> quantitySchedule exists
-//	 and interestRatePayout -> payoutQuantity -> quantitySchedule -> amount = 1.0 )
 
 	condition PayRelativeTo: <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardized CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 		if interestRatePayout count = 2
@@ -262,8 +249,6 @@ type Product: <"Defines the product that is the subject of a tradable product de
 
 	condition: one-of
 
-
-// TBD: positioning of future DateNotation (Effective Date, Termination Date) - only applicable to contractual products. In EconomicTerms?
 type TradableProduct: <"Definition of a product as ready to be traded, i.e. included in an execution or contract, by associating a specific price and quantity to this product plus an (optional) mechanism for any potential future quantity adjustment.">
 
 	product Product (1..1) <"The underlying product to be included in a contract or execution.">
@@ -613,9 +598,6 @@ type FxFeature: <"A type for defining FX Features.">
 		[metadata id]
 		[metadata scheme]
 	composite Composite (0..1) <"If 'Composite' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price – Strike Price) / (Strike Price – Settlement Price) x Multiplier provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">
-	/*
-	 * The below quanto associated definition makes reference to the Equity definitions.  Is that right, considering the cross-assets use of this construct?
-	 */
 	quanto Quanto (0..1) <"If 'Quanto' is specified as the Settlement Type in the relevant Transaction Supplement, an amount, as determined by the Calculation Agent in accordance with the Section 8.2 of the Equity Definitions.">
 	crossCurrency Composite (0..1) <"If 'Cross-Currency' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price – Strike Price) / (Strike Price – Settlement Price) x Multiplier x one unit of the Reference Currency converted into an amount in the Settlement Currency using the rate of exchange of the Settlement Currency as quoted on the Reference Price Source on the Valuation Date, provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">
 	condition Choice: <" Choice rule to represent an FpML choice construct.">
@@ -645,7 +627,6 @@ type OptionFeature: <"Defines additional optional features that can be included 
 	fxFeature FxFeature (0..1) <"Describes a quanto or composite FX feature.">
 	strategyFeature StrategyFeature (0..1) <"Defines a simple strategy feature.">
 	averagingRateFeature AveragingObservation (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
-	//asian Asian (0..1) <"An option where and average price is taken on valuation.">
 	barrier Barrier (0..1) <"Specifies a barrier feature.">
 	knock Knock (0..1) <"Specifies a knock in or knock out feature.">
 	passThrough PassThrough (0..1) <"Specifies the rules for pass-through payments from the underlier, such as dividends.">
@@ -685,14 +666,8 @@ type PassThrough: <"Type which contains pass through payments.">
 type PassThroughItem: <"Class to represent a single pass through payment.">
 
 	payerReceiver PayerReceiver (1..1) <"This attribute doesn't exists in the FpML construct, which makes use of the PayerReceiver.model group.">
-// TODO - To be developed	
-//	underlier Underlier (1..1) reference <"This attribute is specified in FpML as a reference to the underlier whose payments are being passed through. In the CDM, it is specified as this actual underlier.">
-//
 	passThroughPercentage number (1..1) <"Percentage of payments from the underlier which are passed through.">
 
-/*
- * The below definition originating from FpML probably needs to be updated, as it is very equity-specific.
- */
 type Quanto: <"Determines the currency rate that the seller of the equity amounts will apply at each valuation date for converting the respective amounts into a currency that is different from the currency denomination of the underlier.">
 
 	fxRate FxRate (0..*) <"Specifies a currency conversion rate.">
@@ -745,9 +720,6 @@ type EuropeanExercise: <"A class defining the exercise period for a European sty
 	partialExercise PartialExercise (0..1) <"As defined in the 2000 ISDA Definitions, Section 12.3. Partial Exercise, the buyer of the option has the right to exercise all or less than all the notional amount of the underlying swap on the expiration date, but may not exercise less than the minimum notional amount, and if an integral multiple amount is specified, the notional amount exercised must be equal to, or be an integral multiple of, the integral multiple amount.">
 	exerciseFee ExerciseFee (0..1) <"A fee to be paid on exercise. This could be represented as an amount or a rate and notional reference on which to apply the rate.">
 
-/*
- * In the below notional has been changed to be of type NotionalSchedule
- */
 type ExerciseFee extends BuyerSeller: <"A class defining the fee payable on exercise of an option. This fee may be defined as an amount or a percentage of the notional exercised. As a difference with FpML, it extends the BuyerSeller class.">
 
 	notionalReference Money (1..1) <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">
@@ -758,9 +730,6 @@ type ExerciseFee extends BuyerSeller: <"A class defining the fee payable on exer
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		required choice feeAmount, feeRate
 
-/*
- * In the below notional has been changed to be of type NotionalSchedule
- */
 type ExerciseFeeSchedule extends PayerReceiver: <"A class to define a fee or schedule of fees to be payable on the exercise of an option. This fee may be defined as an amount or a percentage of the notional exercised. As a difference with FpML, it extends the BuyerSeller class.">
 
 	notionalReference Money (1..1) <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">
@@ -838,10 +807,7 @@ type PartialExercise: <"A class defining partial exercise. As defined in the 200
 type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
 
 	premiumType PremiumTypeEnum (0..1) <"Forward start premium type">
-	/*
-	 * Is the premiumType usage intended to be limited to forward start options?  
-	 * See some further comments/questions associated with the PremiumTypeEnum
-	 */
+
 	pricePerOption Money (0..1) <"The amount of premium to be paid expressed as a function of the number of options.">
 	percentageOfNotional number (0..1) <"The amount of premium to be paid expressed as a percentage of the notional value of the transaction. A percentage of 5% would be expressed as 0.05.">
 
@@ -860,7 +826,7 @@ type StrikeSchedule extends Schedule: <"A class describing a schedule of cap or 
 
 type CalculationAgentModel: <"This class corresponds to the FpML CalculationAgent.model.">
 	[deprecated]
-	// TODO Never referenced in CDM
+	
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 		[synonym Workflow_Event value "calculationAgent"]
 	calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located. The short-form confirm for a trade that is executed under a Sovereign or Asia-Pacific Master Confirmation Agreement (MCA), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent city. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent city.">
