@@ -27,19 +27,12 @@ func EffectiveDateContainsPaymentDate:
 	assign-output result:
 		effectiveDates exists and effectiveDates contains paymentDate
 
-func PaymentDate: // Scope limited to interestPayout until such time that we position it to the economicTerms level
+func PaymentDate: 
 	inputs: economicTerms EconomicTerms(1..1)
 	output: result date(0..1)
 	assign-output result: economicTerms -> payout -> interestRatePayout only-element -> paymentDate -> adjustedDate
 
-//alias quantityAfterQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) after a quantity change primitive.">
-//
-//
-//alias quantityBeforeQuantityChange <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
-//	( WorkflowEvent -> businessEvent -> primitives -> quantityChange -> before -> contract -> contractualQuantity -> quantityNotation group by assetIdentifier -> currency ) -> quantity -> amount
-
-
-func TerminationDate: // Scope limited to interestPayout until such time that we position it to the economicTerms level
+func TerminationDate:
 	inputs: economicTerms EconomicTerms(1..1)
 	output: result DateGroup(1..1)
 	alias interestRateTerminationDate: economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> terminationDate

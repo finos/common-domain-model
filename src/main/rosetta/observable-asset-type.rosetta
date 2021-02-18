@@ -94,8 +94,6 @@ type ActualPrice:
 		if priceExpression = PriceExpressionEnum -> PercentageOfNotional
 		then currency is absent
 
-
-// TODO - #1 Look for further synergies with the option strike
 type Price: <"Generic description of the price concept applicable across product types, which can be expressed in a number of ways other than simply cash price">
 
 	cashPrice CashPrice (0..1) <"Price specified in cash terms, e.g. for securities proceeds or fee payment in a contractual product.">
@@ -105,7 +103,6 @@ type Price: <"Generic description of the price concept applicable across product
 
 	condition: one-of
 
-// TODO - Look for further synergies with the SecurityValuation class
 type CashPrice: <"Describes a price component as a cash amount, which can either represent cash proceeds for a security purchase or a cashflow that is embedded as part of a contractual product: for instance an upfront fee.">
 
 	grossPrice ActualPrice (0..1) <"Specifies the price of the underlier, before commissions.">
@@ -114,9 +111,6 @@ type CashPrice: <"Describes a price component as a cash amount, which can either
 	accruedInterest number (0..1) <"Specifies the accrued interest that are part of the dirty price in the case of a fixed income security or a convertible bond. Expressed in percentage of the notional.">
 	cashflowAmount Money (0..1) <"Specifies the price as a cashflow amount embedded as part of a a contractual product.">
 
-	/*
-	 * FpML construct also includes other elements, such as the fxConversion
-	 */
 	condition NetPrice: <" The netPrice and/or cleanNetPrice must be specified.">
 		if CashPrice exists
 		then netPrice exists or cleanNetPrice exists or cashflowAmount exists
@@ -191,8 +185,6 @@ type QuotedCurrencyPair: <"A class that describes the composition of a rate that
 		[metadata scheme]
 	quoteBasis QuoteBasisEnum (1..1) <"The method by which the exchange rate is quoted.">
 
-
-// TODO: Duplicates large part of ExchangeRate, consider removing redundancy
 type CrossRate extends QuotedCurrencyPair: <"A class that is used for including the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
 
 	rate number (1..1) <"The exchange rate used to cross between the traded currencies.">
@@ -207,7 +199,7 @@ type Curve:
 
 	interestRateCurve InterestRateCurve (0..1)
 		[synonym Workflow_Event value "interestRateCurve"]
-	commodityCurve CommodityReferencePriceEnum (0..1) // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
+	commodityCurve CommodityReferencePriceEnum (0..1) 
 		[metadata scheme]
 		[synonym Workflow_Event value "commodityCurve" meta "commodityReferencePriceScheme"]
 
@@ -266,12 +258,6 @@ type PriceNotation: <"Object to specify the price of a product as a single numbe
 		if price -> floatingInterestRate exists
 		then assetIdentifier -> rateOption only exists
 
-/*
- * QUESTION TO CDM GROUP
- * TODO - FpML sample credit trades don't include examples that specify those attributes
- * Would be great if we could confirm the actual usage though sample transactions
- * See Trello card https://trello.com/c/VLtPwoek
- */
 type TransactedPrice: <" A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
 
 	marketFixedRate number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">
@@ -381,7 +367,7 @@ type RateObservation: <"A class defining parameters associated with an individua
 type CreditNotation: <"A class to specify the credit notation as the combination of agency, notation, scale and debt type qualifications.">
 
 	agency CreditRatingAgencyEnum (1..1) <"The credit agency to which the other variables (notation, scale, debt type) refer to.">
-		// [metadata scheme]
+		
 	notation string (1..1) <"The credit rating notation. As it varies among credit rating agencies, FpML doesn't specify a default scheme.">
 		[metadata scheme]
 	scale string (0..1) <"The credit rating scale, with a typical distinction between short term, long term. FpML doesn't specify a default scheme, which is hence not specified as an enumeration as part of the CDM.">
@@ -400,8 +386,7 @@ type CreditNotations: <"The credit rating notation higher level construct, which
 type CreditRatingDebt: <"The credit rating debt type(s) associated with the credit rating notation and scale. When several debt types are specified, they must be qualified through an 'any' or 'all'.">
 
 	debtType string (0..1) <"This attribute is to be specified when only one debt type is specified. FpML doesn't specify values in relation to the associated scheme, which is hence not specified as an enumeration as part of the CDM.">
-	// potential values: Long Term, Short Term, High Yield, Deposits.  Make cardinality (0..*) and remove multiple debt types
-		[metadata scheme]
+			[metadata scheme]
 	debtTypes MultipleDebtTypes (0..1) <"This attribute provides the ability to specify several debt types, alongside an 'any' or 'all' or all condition. As an example, Baa1 rating is required for any long term debt and deposit.">
 
 	condition: one-of
