@@ -56,7 +56,7 @@ type AllocationBreakdown:
 
 	partyReference Party (1..1) <"Reference to the party to specify the account.">
 		[metadata reference]
-	quantity QuantityNotation (1..1) <"The quantity to be allocated to the party.">
+	quantity Quantity (1..1) <"The quantity to be allocated to the party.">
 	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
 	account Account (0..1)<"The account to allocate the trade into">
 	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
@@ -89,7 +89,7 @@ type CommodityTransferBreakdown extends TransferBreakdown:
 	commodity Commodity (1..1)
 	quantity number (1..1)
 		[synonym Workflow_Event value "quantity"]
-	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
+	unit CapacityUnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
 	timeUnit TimeUnitEnum (0..1)
 
 type CommodityTransferComponent extends TransferBase:
@@ -98,7 +98,7 @@ type CommodityTransferComponent extends TransferBase:
 	commodity Commodity (1..1)
 	quantity number (1..1)
 		[synonym Workflow_Event value "quantity"]
-	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
+	unit CapacityUnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
 	timeUnit TimeUnitEnum (0..1)
 	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">
 	breakdown CommodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
@@ -151,7 +151,7 @@ type EventEffect: <"The set of operational and positional effects associated wit
 	transfer TransferPrimitive (0..*) <"A pointer to the transfer effect(s), either a cash, security or other asset.">
 		[metadata reference]
 
-/* USED in downstrem */
+/* USED in downstream */
 type EventTestBundle: <"A class which combines several events for testing purposes.">
 
 	event WorkflowStep (2..*)
@@ -161,8 +161,7 @@ type EventTestBundle: <"A class which combines several events for testing purpos
 
 type ExecutionInstruction: <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, execution details, and settlement terms.">
 	product Product (1..1) <"Defines the financial product to be executed and contract formed.">
-	priceNotation PriceNotation (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) associated with the constituents of the transacted product.">
-	quantityNotation QuantityNotation (1..*) <"Defines the quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
+	priceQuantity PriceQuantity (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) and quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
 	counterparty  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
 	ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
 	parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
@@ -197,7 +196,7 @@ type Reset: <"Defines the reset value or fixing value produced in cashflow calcu
 	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
 		[metadata reference]
 	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value.">
-	
+
 	condition: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
 		if observations count > 1 then aggregationMethodology exists
 
@@ -220,8 +219,8 @@ type Transfer: <"Defines the movement of cash, securities or commodities between
 	identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
 		[metadata scheme]
 	    [synonym Workflow_Event value "transferIdentifier"]
-	quantity QuantityNotation (1..1) <"Represents the amount of the asset to tbe transferred.">
-	    [synonym Workflow_Event value "quantity"]
+	priceQuantity PriceQuantity (1..1) <"Represents the amount of the asset to tbe transferred.">
+	    [synonym Workflow_Event value "priceQuantity"]
 	payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
 	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
 	settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
@@ -273,11 +272,11 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 
 	condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
 		if tradableProduct -> product -> security exists
-		then tradableProduct -> priceNotation -> price exists
+		then tradableProduct -> priceQuantity -> price exists
 
 	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
 		if tradableProduct -> product -> security exists
-		then settlementTerms exists
+		then tradableProduct -> settlementTerms exists
 
 	condition DeliverableObligationsPhysicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
 		if (contractDetails -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
@@ -453,8 +452,8 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 	condition FpML_cd_32: <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
 		if ( contractDetails -> documentation -> documentationIdentification -> masterConfirmation and contractDetails -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier -> currency exists
-			and tradableProduct -> quantityNotation -> quantity -> amount exists
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity exists
+			and tradableProduct -> priceQuantity -> quantity -> amount exists
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
 
 	condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
@@ -636,12 +635,16 @@ type ContractFormationPrimitive: <"Defines the primitive event that represents a
 		[metadata reference]
 		[synonym Workflow_Event value "fpmlTrade" path "before"]
 		[synonym Workflow_Event value "fpmlExecution" path "before"]
-	after TradeState (1..1) <"Represents the new contract being formed between the parties.">
+	after TradeState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
 		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
 	condition: <"The quantity should be unchanged.">
 		if before exists then
 		before -> trade -> tradableProduct = after -> trade -> tradableProduct
+
+	condition: <"The price, quantity, and observable should be unchanged.">
+        if before exists
+        then before -> trade -> tradableProduct -> priceQuantity = after -> trade -> tradableProduct -> priceQuantity
 
 type SplitPrimitive: <"Defines splitting of a single trade into one or more trades, where the quantity of the split trade(s) totals that of the single trade.">
 
@@ -666,11 +669,12 @@ type SplitPrimitive: <"Defines splitting of a single trade into one or more trad
 	condition: <"Ensure the productremains unchanged.">
 		after -> trade -> tradableProduct -> product = before -> trade -> tradableProduct -> product
 
-	condition: <"Ensure the price is unchanged.">
-		after -> trade -> tradableProduct -> priceNotation = before -> trade -> tradableProduct -> priceNotation
+	// TODO add syntax to handle comparison between list and single item.  https://github.com/REGnosys/rosetta-dsl/issues/167
+    //condition: <"The price should be unchanged.">
+    //    after -> originalTrade -> trade -> tradableProduct -> priceQuantity -> price = before -> trade -> tradableProduct -> priceQuantity -> price
 
 	condition: <"Ensure the quantities of each split trade totals that of the single trade.">
-		Sum( FilterOpenTradeStates(after) -> tradeStates ->trade -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> trade -> tradableProduct -> quantityNotation -> quantity -> amount
+		Sum( FilterOpenTradeStates(after) -> tradeStates ->trade -> tradableProduct -> priceQuantity -> quantity -> amount) = before -> trade -> tradableProduct -> priceQuantity -> quantity -> amount
 
 func FilterOpenTradeStates: <"Outlines inputs and outputs required to filter only 'open' Trade States.">
 	inputs:
@@ -680,7 +684,6 @@ func FilterOpenTradeStates: <"Outlines inputs and outputs required to filter onl
 
 type TradeStates: <"Defines a set of TradeState objects. This type is a work-around to a bug in the code generators which prevents the model from returning a set of elements in the function.">
 	tradeStates TradeState (0..*)
-
 
 type QuantityChangePrimitive: <"Defines the primitive event to represent a change in quantity, which includes notional. For details of how the TradeState is changed between the `before` and `after` TradeStates, see the corresponding Create_QuantityChangePrimitive function.">
 

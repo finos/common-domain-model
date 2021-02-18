@@ -1,5 +1,10 @@
-# *CDM Portal: Infrastructure - Registered User Information*
+# *CDM Model: Update to regulatory reporting logic to account for Price Quantity Phase 2 release*
 
 _What is Being Released_
 
-A technical change to also capture which versions of the CDM license, and the Privacy Policy will have been accepted by the user of the CDM portal. This will also record when acceptance is again requested from the user due to updates to the terms of these licenses or policy artefacts.
+Updates to the logical expressions of the regulatory reporting logic already present in the model, where the new `PriceQuantity` data structure ought to be used.
+
+_Review Directions_
+
+In the CDM Portal and Textual Browser, see updates to `reporting rule FixedFixedPrice`, `reporting rule FixedFloatPrice`, `reporting rule BasisSwapPrice`, `reporting rule CDSPrice` and `reporting rule Quantity`.
+

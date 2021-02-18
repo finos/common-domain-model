@@ -14,7 +14,6 @@ import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 
-import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.workflows.ClearingUtils;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Create_ClearedTradeTest extends AbstractFunctionTest {
 
@@ -59,7 +58,9 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 		BusinessEvent businessEvent = func.evaluate(clearingInstruction, tradeDate, null);
 
 		String businessEventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
-		assertThat(getJson("expected-cleared-trade-business-event.json"), new IsEqualIgnoringWhiteSpace(businessEventJson));
+		businessEventJson = businessEventJson.replace("\r", "");
+//		assertThat(getJson("expected-cleared-trade-business-event.json"), new IsEqualIgnoringWhiteSpace(businessEventJson));
+		assertEquals(getJson("expected-cleared-trade-business-event.json"), businessEventJson);
 	}
 
 	private <T extends RosettaModelObject> T getRosettaModelObject(Class<T> clazz, String pathToJson) throws IOException {
