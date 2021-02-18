@@ -27,7 +27,7 @@ public class PredeterminedClearingOrganizationPartyMappingProcessor extends Mapp
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		PartyMappingHelper.getInstanceOrThrow(getContext())
 				.setAncillaryRoleEnum(getModelPath(),
-						synonymPath,
+						synonymPath.addElement("href"),
 						((OptionPhysicalSettlement.OptionPhysicalSettlementBuilder) parent)::setPredeterminedClearingOrganizationParty,
 						AncillaryRoleEnum.PREDETERMINED_CLEARING_ORGANIZATION_PARTY);
 	}

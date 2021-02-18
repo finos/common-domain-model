@@ -30,7 +30,7 @@ public class ExtraordinaryDividendsPartyMappingProcessor extends MappingProcesso
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		PartyMappingHelper.getInstanceOrThrow(getContext())
 				.setAncillaryRoleEnum(getModelPath(),
-						synonymPath,
+						synonymPath.addElement("href"),
 						((DividendReturnTerms.DividendReturnTermsBuilder) parent)::setExtraordinaryDividendsParty,
 						AncillaryRoleEnum.EXTRAORDINARY_DIVIDENDS_PARTY);
 	}

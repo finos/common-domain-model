@@ -38,7 +38,7 @@ public class TradeSideToPartyMappingHelper implements Function<String, Optional<
 
 	private Optional<String> extractXmlValueFromMappings(Path partyPath) {
 		return mappings.stream()
-				.filter(p -> partyPath.nameIndexMatches(p.getXmlPath()))
+				.filter(p -> partyPath.fullStartMatches(p.getXmlPath()))
 				.map(Mapping::getXmlValue)
 				.map(String::valueOf)
 				.collect(MoreCollectors.toOptional());

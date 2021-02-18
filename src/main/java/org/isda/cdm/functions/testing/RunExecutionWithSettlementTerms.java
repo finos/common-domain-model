@@ -1,24 +1,30 @@
 package org.isda.cdm.functions.testing;
 
-import cdm.base.staticdata.party.AncillaryParty;
-import cdm.base.staticdata.party.Counterparty;
-import cdm.event.common.BusinessEvent;
-import cdm.event.common.ExecutionInstruction;
-import cdm.event.common.Trade;
-import cdm.event.common.TradeState;
-import cdm.event.common.functions.Create_Execution;
-import cdm.product.common.settlement.SettlementTerms;
-import cdm.product.common.settlement.functions.CashflowSettlementTerms;
-import cdm.product.template.*;
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
-import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.createExecutionInstructionFromTradeState;
+import javax.inject.Inject;
+
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.metafields.FieldWithMetaDate;
+
+import cdm.base.staticdata.party.AncillaryParty;
+import cdm.base.staticdata.party.Counterparty;
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.Trade;
+import cdm.event.common.TradeState;
+import cdm.event.common.functions.Create_Execution;
+import cdm.product.common.settlement.SettlementTerms;
+import cdm.product.common.settlement.functions.CashflowSettlementTerms;
+import cdm.product.template.ContractualProduct;
+import cdm.product.template.EconomicTerms;
+import cdm.product.template.Payout;
+import cdm.product.template.Product;
+import cdm.product.template.TradableProduct;
 
 public class RunExecutionWithSettlementTerms implements ExecutableFunction<TradeState, BusinessEvent> {
 
@@ -36,12 +42,17 @@ public class RunExecutionWithSettlementTerms implements ExecutableFunction<Trade
             input = clearCashPayout(input);
         }
 
-        ExecutionInstruction executionInstruction = createExecutionInstructionFromTradeState(input);
-        ExecutionInstruction.ExecutionInstructionBuilder executionInstructionBuilder = executionInstruction.toBuilder();
-        executionInstructionBuilder.clearSettlementTerms();
-        executionInstructionBuilder.addSettlementTerms(settlementTerm);
-
-        return execute.evaluate(executionInstructionBuilder.build());
+        return execute.evaluate(input.getTrade().getTradableProduct().getProduct(),
+                guard(input.getTrade().getTradableProduct().getQuantityNotation()),
+                guard(input.getTrade().getTradableProduct().getPriceNotation()),
+                guard(input.getTrade().getTradableProduct().getCounterparty()),
+                guard(input.getTrade().getTradableProduct().getAncillaryParty()),
+                guard(input.getTrade().getParty()),
+                guard(input.getTrade().getPartyRole()),
+                settlementTerm,
+                null,
+                Optional.ofNullable(input.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
+                guard(input.getTrade().getTradeIdentifier()));
     }
 
     private TradeState clearCashPayout(TradeState input) {

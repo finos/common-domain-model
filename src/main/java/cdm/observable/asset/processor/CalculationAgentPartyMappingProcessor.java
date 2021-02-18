@@ -36,7 +36,7 @@ public class CalculationAgentPartyMappingProcessor extends MappingProcessor {
 		getAncillaryRoleEnum().ifPresent(role ->
 				PartyMappingHelper.getInstanceOrThrow(getContext())
 						.setAncillaryRoleEnum(getModelPath(),
-								synonymPath,
+								synonymPath.addElement("href"),
 								((CalculationAgent.CalculationAgentBuilder) parent)::setCalculationAgentParty, 
 								role));
 	}

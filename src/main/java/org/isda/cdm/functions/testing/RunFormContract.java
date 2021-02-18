@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.createExecutionInstructionFromTradeState;
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 public class RunFormContract implements ExecutableFunction<TradeState, BusinessEvent> {
@@ -25,7 +24,18 @@ public class RunFormContract implements ExecutableFunction<TradeState, BusinessE
 
     @Override
     public BusinessEvent execute(TradeState tradeState) {
-        BusinessEvent executeBusinessEvent = execute.evaluate(createExecutionInstructionFromTradeState(tradeState));
+        BusinessEvent executeBusinessEvent = execute.evaluate(tradeState.getTrade().getTradableProduct().getProduct(),
+                guard(tradeState.getTrade().getTradableProduct().getQuantityNotation()),
+                guard(tradeState.getTrade().getTradableProduct().getPriceNotation()),
+                guard(tradeState.getTrade().getTradableProduct().getCounterparty()),
+                guard(tradeState.getTrade().getTradableProduct().getAncillaryParty()),
+                guard(tradeState.getTrade().getParty()),
+                guard(tradeState.getTrade().getPartyRole()),
+                Collections.emptyList(),
+                null,
+                Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null),
+                guard(tradeState.getTrade().getTradeIdentifier()));
+
         return formContract.evaluate(executeBusinessEvent, null);
     }
 

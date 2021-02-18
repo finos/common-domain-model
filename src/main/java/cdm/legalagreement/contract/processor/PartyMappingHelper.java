@@ -163,7 +163,7 @@ public class PartyMappingHelper {
 			AncillaryRoleEnum ancillaryRole) {
 
 		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
-			setValueAndUpdateMappings(synonymPath.addElement("href"),
+			setValueAndUpdateMappings(synonymPath,
 					partyExternalReference -> {
 						String translatedPartyRef = translatePartyExternalReference(partyExternalReference);
 						Optional<CounterpartyRoleEnum> counterpartyRole = getOrCreateCounterpartyRoleEnum(translatedPartyRef);
@@ -187,7 +187,7 @@ public class PartyMappingHelper {
 	public void setAncillaryRoleEnum(RosettaPath modelPath, Path synonymPath, Consumer<AncillaryRoleEnum> setter, AncillaryRoleEnum role) {
 
 		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
-			setValueAndUpdateMappings(synonymPath.addElement("href"),
+			setValueAndUpdateMappings(synonymPath,
 					partyExternalReference -> {
 						String translatedPartyRef = translatePartyExternalReference(partyExternalReference);
 						LOGGER.info("Adding {} for {}", role, translatedPartyRef);
