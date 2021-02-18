@@ -1,10 +1,11 @@
-# *CDM Model: Update to regulatory reporting logic to account for Price Quantity Phase 2 release*
+# *Technical change: Compile for java 11*
 
 _What is Being Released_
 
-Updates to the logical expressions of the regulatory reporting logic already present in the model, where the new `PriceQuantity` data structure ought to be used.
+The generated Java code in the CDM distribution has been upgraded to use Java version 11. 
+The previous version (Java version 1.8) is no longer supported by Oracle. 
+Users of the CDM Java distribution 2.95.6 (or higher) will need to use Java with a version 11 or higher.
 
 _Review Directions_
 
-In the CDM Portal and Textual Browser, see updates to `reporting rule FixedFixedPrice`, `reporting rule FixedFloatPrice`, `reporting rule BasisSwapPrice`, `reporting rule CDSPrice` and `reporting rule Quantity`.
-
+In the CDM Portal, download the CDM distribution pack to inspect and make use of the generated Java code.
