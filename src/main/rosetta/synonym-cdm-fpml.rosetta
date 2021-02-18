@@ -1,6 +1,5 @@
 namespace cdm.synonyms.fpml
 version "${project.version}"
-
 import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
@@ -431,7 +430,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "paymentAmount"]
 			[hint "fixedAmount"]
 			// For FX Option
-			[hint "quote"] //path "premium"]
+			[hint "quote"] 
 		+ exchangeRate
 			[value "exchangeRate"]
 		+ fixedInterestRate
@@ -597,11 +596,6 @@ synonym source FpML_5_10 extends FpML
 			[value "stubRate"]
 		+ stubAmount
 			[value "stubAmount"]
-
-//	TradeDate:
-//		[meta "id" path "tradeDate"]
-//		+ date
-//			[value "tradeDate"]
 
 	Asian:
 		+ averagingInOut
@@ -943,8 +937,6 @@ synonym source FpML_5_10 extends FpML
 		[meta "id" path "interestLegCalculationPeriodDates"]
 		+ effectiveDate
 			[value "effectiveDate" set when "effectiveDate->relativeDate" exists]
-			// TODO - The above mapping logic doesn't handle the case of an equity swap payout with an effective date specified as an adjustable date, such as in the eqs-ex01-single-underlyer-execution-long-form.xml
-			// This use case should be tackled as part of this Trello card https://trello.com/c/tGA9hPQi
 			[value "effectiveDate" path "calculationPeriodDates"]
 			[value "relativeEffectiveDate" path "calculationPeriodDates"]
 			[hint "adjustedEffectiveDate"]
@@ -1080,7 +1072,6 @@ synonym source FpML_5_10 extends FpML
 			[value "optionalEarlyTerminationParameters"]
 
 	ExerciseEvent:
-		// TODO Never referenced in CDM
 		[meta "id"]
 		+ adjustedExerciseDate
 			[value "adjustedExerciseDate"]
@@ -1386,8 +1377,8 @@ synonym source FpML_5_10 extends FpML
 	AssetPool:
 		+ version
 			[value "version"]
-		+ effectiveDate
-			[value "effectiveDate"]
+		+ effectiveDate			
+		[value "effectiveDate"]
 		+ initialFactor
 			[value "initialFactor"]
 		+ currentFactor
@@ -1405,17 +1396,8 @@ synonym source FpML_5_10 extends FpML
 		+ tranche
 			[value "tranche" meta "loanTrancheScheme"]
 
-/*
-	MortgageBackedSecurity:
-		+ pool
-			[value "pool"]
-		+ sector
-			[value "sector" meta "mortgageSectorScheme"]
-		+ tranche
-			[value "tranche"]
-*/
 	ProductIdentifier:
-		// [meta "id"]
+
 		+ identifier
 			[value "instrumentId" maps 2 meta "instrumentIdScheme"]
             [value "instrumentId" path "bond" meta "instrumentIdScheme"]
@@ -1636,7 +1618,7 @@ synonym source FpML_5_10 extends FpML
 		+ netPrice
 			[value "netPrice"]
 			// FX Options
-			[value "quote"] //set when rosettaPath = Price->cashPrice->netPrice->amount]
+			[value "quote"] 
 		+ accruedInterest
 			[value "accruedInterestPrice"]
 		+ cashflowAmount
@@ -1710,7 +1692,6 @@ synonym source FpML_5_10 extends FpML
 
 	AssetIdentifier:
 		+ productIdentifier
-			// For QuantityNotation only set productIdentifier if openUnits exists
 			[value "equity" set when "openUnits" exists]
 		+ currency
 			[value "currency" maps 2 meta "currencyScheme"]
@@ -1813,7 +1794,7 @@ synonym source FpML_5_10 extends FpML
 	EconomicTerms:
 		+ effectiveDate
 			[value "effectiveDate" path "generalTerms"]
-			[value "effectiveDate" path "fxOption"]// did not work
+			[value "effectiveDate" path "fxOption"]
 		+ terminationDate
 			[value "scheduledTerminationDate" path "generalTerms"]
 		+ dateAdjustments
@@ -2018,7 +1999,7 @@ synonym source FpML_5_10 extends FpML
 			[value "initialPayment" path "feeLeg"]
 			[value "singlePayment" path "feeLeg"]
 			[value "singlePayment"]
-			// TODO - The below 2 attributes are not properly mapped.  This needs to be addressed as part of this Trello card https://trello.com/c/488uoZcS
+			
 			[hint "paymentDelay"]
 			[hint "payerReceiver"]
 			[value "premium" path "swaption"]
@@ -2055,7 +2036,6 @@ synonym source FpML_5_10 extends FpML
 			[value "fxSwap"]
 			// For Repo:
 			[hint "repo"]
-			// To handle the case when addition payments are part of the trade - TODO: should be part of the event,  not the contract
 			[hint "otherPartyPayment"]
 			[hint "calculationAgent", "calculationAgentBusinessCenter"]
 		+ index
