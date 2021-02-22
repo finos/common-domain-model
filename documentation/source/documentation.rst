@@ -1579,8 +1579,8 @@ Similarly, the ``ContractFormation`` business event that creates the legally bin
  func Create_ContractFormation:
    [creation BusinessEvent]
    inputs:
-     executionEvent BusinessEvent (1..1)
-     legalAgreement LegalAgreement (0..1)
+     contractFormationInstruction ContractFormationInstruction (1..1)
+     contractFormationDate date (1..1)
 
 .. note:: The functions to create such business events are further detailed in the `Lifecycle Event Process Section`_ of the documentation.
 
