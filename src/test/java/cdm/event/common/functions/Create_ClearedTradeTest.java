@@ -1,6 +1,5 @@
 package cdm.event.common.functions;
 
-import cdm.base.datetime.RelativeDateOffset;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.event.common.BusinessEvent;
@@ -15,7 +14,6 @@ import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 
-import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.workflows.ClearingUtils;
 import org.junit.jupiter.api.Test;
@@ -24,7 +22,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Create_ClearedTradeTest extends AbstractFunctionTest {
@@ -58,7 +55,7 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 				.build();
 		Date tradeDate = DateImpl.of(2020, 8, 28);
 
-		BusinessEvent businessEvent = func.evaluate(clearingInstruction, tradeDate, null).build();
+		BusinessEvent businessEvent = func.evaluate(clearingInstruction, tradeDate, null);
 
 		String businessEventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
 		businessEventJson = businessEventJson.replace("\r", "");

@@ -1,7 +1,6 @@
 package cdm.event.common;
 
 import cdm.base.math.MeasureBase;
-import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.event.common.functions.FilterCashTransfers;
@@ -18,7 +17,7 @@ import java.util.stream.Stream;
 public class FilterCashTransfersImpl extends FilterCashTransfers {
 
     @Override
-    protected Transfers.TransfersBuilder doEvaluate(List<Transfer> transfers) {
+    protected Transfers.TransfersBuilder doEvaluate(List<? extends Transfer> transfers) {
         List<Transfer> cashTransfers = transfers.stream().filter(this::hasCurrency).collect(Collectors.toList());
         return !cashTransfers.isEmpty() ? Transfers.builder().addTransfers(cashTransfers) : null;
     }
@@ -31,7 +30,7 @@ public class FilterCashTransfersImpl extends FilterCashTransfers {
     }
 
     @NotNull
-    private Stream<FieldWithMetaString> getCurrency(Stream<FieldWithMetaQuantity> s) {
+    private Stream<FieldWithMetaString> getCurrency(Stream<? extends FieldWithMetaQuantity> s) {
         return s.map(FieldWithMetaQuantity::getValue).map(MeasureBase::getUnitOfAmount).map(UnitType::getCurrency);
     }
 }
