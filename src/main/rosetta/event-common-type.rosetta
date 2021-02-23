@@ -643,13 +643,11 @@ type ContractFormationPrimitive: <"Defines the primitive event that represents a
 	after TradeState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
 		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
-	condition: <"The quantity should be unchanged.">
+	condition: <"The trade details should be unchanged by the formation of the contract from an execution event or existing trade data. Such details are found in the tradableProduct object.">
 		if before exists then
 		before -> trade -> tradableProduct = after -> trade -> tradableProduct
 
-	condition: <"The price, quantity, and observable should be unchanged.">
-        if before exists
-        then before -> trade -> tradableProduct -> priceQuantity = after -> trade -> tradableProduct -> priceQuantity
+
 
 type SplitPrimitive: <"Defines splitting of a single trade into one or more trades, where the quantity of the split trade(s) totals that of the single trade.">
 
