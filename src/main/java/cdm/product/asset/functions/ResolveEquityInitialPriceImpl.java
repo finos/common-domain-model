@@ -30,7 +30,7 @@ public class ResolveEquityInitialPriceImpl extends ResolveEquityInitialPrice {
 				.filter(p -> Optional.ofNullable(p)
 						.map(Price::getPerUnitOfAmount)
 						.map(UnitType::getFinancialUnit)
-						.map(FinancialUnitEnum.SHARES::equals)
+						.map(FinancialUnitEnum.SHARE::equals)
 						.orElse(false))
 				.map(Price::toBuilder)
 				.findFirst()

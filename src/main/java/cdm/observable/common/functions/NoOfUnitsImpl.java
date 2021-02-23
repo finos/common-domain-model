@@ -27,7 +27,7 @@ public class NoOfUnitsImpl extends NoOfUnits {
 				.filter(q -> Optional.ofNullable(q)
 						.map(Quantity::getUnitOfAmount)
 						.map(UnitType::getFinancialUnit)
-						.map(FinancialUnitEnum.SHARES::equals)
+						.map(FinancialUnitEnum.SHARE::equals)
 						.orElse(false))
 				.map(Quantity::getAmount)
 				.collect(Collectors.toSet());
