@@ -1,16 +1,13 @@
-# *CDM Model: Function Development - Create_ContractFormation*
+# *CDM Model: Event Model - ContractFormationPrimitive*
 
 _What is Being Released_
 
-The `Create_ContractFormation` function has been updated to use an instructions object and ensure consistent design of Business Event functions in the CDM.
-
-**Background**
-Consistent design of Business Event Functions will allow for easier adoption of the CDM Event Model.  Each Business Event creation function should result in a valid CDM output object based on input instructions.  All Business Event creation functions, and Business Event qualification functions should include a description.
+Bug Fix - The `ContractFormationPrimitive` event has been updated to remove a redundant condition and correct commentary for the remaining condition to be applied to the event object.
 
 **Model Changes**
-The `ContractFormationInstruction` data type has been added to the model, containing mandatory data attributes required on a Contract Formation Business Event.  `Create_ContractFormation` function updated to contain `ContractFormationInstruction` as input object.  Descriptions on `Create_ContractFormation` and `Qualify_ContractFormation` updated.
+The conditions on`ContractFormationPrimitive` have been rationalised to one condition which continues to ensure that trade details are persisted when a contract is formed from an input trade (i.e. _Before_ contains `TradeState`) from an execution object (or otherwise).
 
 _Review Directions_
 
-In the CDM Portal, use the Textual Browser or Graphical Navigator to inspect the data types and functions referenced above.
+In the CDM Portal, use the Textual Browser to inspect the data type `ContractFormationPrimitive'.
 
