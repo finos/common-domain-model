@@ -23,7 +23,7 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Tra
     @Override
     public BusinessEvent execute(TradeState tradeState) {
         LegalAgreementBuilder legalAgreement = LegalAgreement.builder()
-                .addContractualPartyRef(guard(tradeState.getTrade().getParty()))
+                .addContractualPartyValue(guard(tradeState.getTrade().getParty()))
                 .setAgreementDate(DateImpl.of(1994, 12, 01))
                 .setAgreementType(LegalAgreementType.builder()
                         .setName(LegalAgreementNameEnum.MASTER_AGREEMENT)
@@ -35,8 +35,8 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Tra
         tradeStateBuilder.getOrCreateState().setPositionState(PositionStatusEnum.EXECUTED);
 
         ContractFormationInstruction contractFormationInstruction = ContractFormationInstruction.builder()
-                .setExecutionBuilder(tradeStateBuilder)
-                .setLegalAgreementBuilder(legalAgreement)
+                .setExecution(tradeStateBuilder)
+                .setLegalAgreement(legalAgreement)
                 .build();
 
         return formContract.evaluate(contractFormationInstruction, new DateImpl(1, 12, 1994));

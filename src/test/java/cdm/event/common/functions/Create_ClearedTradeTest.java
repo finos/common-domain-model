@@ -59,7 +59,6 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 
 		String businessEventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
 		businessEventJson = businessEventJson.replace("\r", "");
-//		assertThat(getJson("expected-cleared-trade-business-event.json"), new IsEqualIgnoringWhiteSpace(businessEventJson));
 		assertEquals(getJson("expected-cleared-trade-business-event.json"), businessEventJson);
 	}
 
@@ -70,6 +69,6 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 
 	private String getJson(String pathToJson) throws IOException {
 		URL url = Resources.getResource(pathToJson);
-		return Resources.toString(url, Charset.defaultCharset());
+		return Resources.toString(url, Charset.defaultCharset()).replace("\r", "");
 	}
 }
