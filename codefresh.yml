@@ -123,7 +123,7 @@ steps:
         commands:
           - mvn -s /settings.xml javadoc:jar
           - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-          - mvn -s /settings.xml deploy:deploy-file -Dfile=/codefresh/volume/rosetta-cdm/target/cdm-${{RELEASE_NAME}}-javadoc.jar -DpomFile=pom.xml -DrepositoryId=snapshots -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dclassifier=javadoc -Dpackaging=jar
+          - curl -X PUT -u ${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}} -T target/cdm-${{RELEASE_NAME}}-javadoc.jar "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm/0.0.0.master/cdm-${{RELEASE_NAME}}-javadoc.jar"
 
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
