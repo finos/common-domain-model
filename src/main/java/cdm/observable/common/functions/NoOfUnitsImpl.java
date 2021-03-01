@@ -18,7 +18,7 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
 public class NoOfUnitsImpl extends NoOfUnits {
 
 	@Override
-	protected BigDecimal doEvaluate(List<PriceQuantity> priceQuantity) {
+	protected BigDecimal doEvaluate(List<? extends PriceQuantity> priceQuantity) {
 		Set<BigDecimal> noOfUnits = emptyIfNull(priceQuantity).stream()
 				.map(PriceQuantity::getQuantity)
 				.filter(Objects::nonNull)

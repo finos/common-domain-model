@@ -9,6 +9,7 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ public class ContactElectionMappingProcessor extends MappingProcessor {
     @Override
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
         ContactElection.ContactElectionBuilder contactElectionBuilder = (ContactElection.ContactElectionBuilder) builder;
-        contactElectionBuilder.clearPartyElection();
+        contactElectionBuilder.setPartyElection(new ArrayList<>());
         PARTIES.forEach(party -> getPartyContactInformation(synonymPath, party).ifPresent(contactElectionBuilder::addPartyElection));
     }
 

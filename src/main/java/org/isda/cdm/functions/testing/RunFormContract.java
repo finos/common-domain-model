@@ -17,11 +17,11 @@ public class RunFormContract implements ExecutableFunction<TradeState, BusinessE
     public BusinessEvent execute(TradeState tradeState) {
         TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
         tradeStateBuilder.getOrCreateState().setPositionState(PositionStatusEnum.EXECUTED);
-        tradeStateBuilder.getTrade().setContractDetailsBuilder(ContractDetails.builder());
+        tradeStateBuilder.getTrade().setContractDetails(ContractDetails.builder());
         tradeStateBuilder.prune();
 
         ContractFormationInstruction contractFormationInstruction = ContractFormationInstruction.builder()
-                .setExecutionBuilder(tradeStateBuilder)
+                .setExecution(tradeStateBuilder)
                 .build();
 
         return formContract.evaluate(contractFormationInstruction, new DateImpl(15, 3, 2021));
