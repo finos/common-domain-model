@@ -53,9 +53,30 @@ type Loan extends ProductBase: <"Identifies a loan by referencing a product iden
 	tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
 		[metadata scheme]
 
-type ProductTaxonomy: <"The product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+type ProductTaxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 	taxonomyValue string (1..1) <"The taxonomy value.">
 	taxonomySource TaxonomySourceEnum (1..1) <"The taxonomy source.">
+
+type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+	taxonomyValue CollateralTaxonomyValue (1..1) <"The taxonomy value.">
+	taxonomySource TaxonomySourceEnum (1..1) <"The taxonomy source.">
+
+	condition EmirCollateral: <"If the Taxonomy Source is specified as EMIR Collateral then the enumeration must be EMIR Collateral.">
+		if taxonomySource <> TaxonomySourceEnum -> EmirEligibleCollateral
+		then taxonomyValue -> emirEligibleCollateral is absent
+
+	condition usCollateral: <"If the Taxonomy Source is specified as US Collateral then the enumeration must be US Collateral.">
+		if taxonomySource <> TaxonomySourceEnum -> UsEligibleCollateral
+		then taxonomyValue -> usEligibleCollateral is absent
+
+	condition taxonomyValue: <"If the Taxonomy Value is specified as a string then the taxonomy Source cannot be either EMIR Collateral or US Collateral.">
+		if taxonomyValue -> taxonomyValue exists
+		then taxonomySource <> TaxonomySourceEnum -> EmirEligibleCollateral and	taxonomySource <> TaxonomySourceEnum -> UsEligibleCollateral
+
+type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either as a specified enumeration or as a string.">
+	emirEligibleCollateral EmirEligibleCollateralEnum (0..*) <"Official Journal of the European Union COMMISSION DELEGATED REGULATION (EU) 2016/2251 of 4 October 2016 - Eligible Collateral asset classes as listed under Chapter1/General Provisions on Risk Management Procedures/ SECTION2 Eligibility Article 4 Eligible Collateral">
+	usEligibleCollateral UsCollateralEnum (0..*) <"US Federal Regulations 1221.6 Eligible Collateral (a) Non-cleared swaps and non-cleared security-based swaps with a swap entity For a non-cleared swap or non-cleared security-based swap with a swap entity, a covered swap entity shall collect initial margin only required pursuant to this part solely in the form of the following types of collateral">
+	taxonomyValue string (0..1) <"The taxonomy value when not specified as an enumeration.">
 
 type Security extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
 	securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
