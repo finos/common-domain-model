@@ -53,9 +53,9 @@ The ``priceQuantity`` attribute is an array of the ``PriceQuantity`` data type w
 
  type PriceQuantity: 
 	[metadata key]
-	price Price (1..*)
+	price Price (0..*)
 	    [metadata location]
-	quantity Quantity (1..*)
+	quantity Quantity (0..*)
 	    [metadata location]
 	observable Observable (0..1) 
 	
