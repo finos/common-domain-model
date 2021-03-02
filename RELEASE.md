@@ -17,7 +17,7 @@ The benefit of this change is that an AdjustableDateBuilder is a AdjustableDate,
 
 _Using the new structure_
 
-If you are only using CDM objects and functions that have been generated elsewhere you shouldn't need to make any changes.
+If you are only using CDM objects and functions that have been generated elsewhere you should not need to make any changes.
 If you have code that changes CDM objects in Java or instantiates them using the builder classes there are some changes you will need to make. In all these examples XXX stands for the name of a CDM type.
  - The setXXXBuilder(XXXBuilder xxxBuilder) methods have been removed. The setXXX(XXX xxx) methods should be used instead as they will now accept XXXBuilders as they now implement XXX
  - Similarly the addXXXBuilder methods have also been removed and addXXX methods should be used
@@ -27,7 +27,9 @@ If you have code that changes CDM objects in Java or instantiates them using the
 # *Model Change - Update cardinality constraints for `PriceQuantity` data type*
 
 _What is being released?_
+
 Update for the cardinality of `price` and `quantity` attributes on the `PriceQuantity` data type to optional. The optionality of price and quantity will allows for these attributes to be used independently when use cases require so, for example the denomination of the notional for the protection leg does not require the price component and the description of an upfront fee  to denote a cash price will not require the quantity component.
 
 _Review directions_
+
 Make use of the CDM Portal and its Ingestion panel to inspect how existing sample documents are represented using the. New `PriceQuantity` structure.
