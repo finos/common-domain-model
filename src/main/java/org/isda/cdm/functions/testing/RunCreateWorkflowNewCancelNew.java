@@ -62,11 +62,11 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<TradeSt
 	}
 
 	private Identifier identifier(String id) {
-		return Identifier.builder().addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierRef(id).build()).build();
+		return Identifier.builder().addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierValue(id).build()).build();
 	}
 
 	private MessageInformation messageInformation(String messageId) {
-		return MessageInformation.builder().setMessageIdRef(messageId).build();
+		return MessageInformation.builder().setMessageIdValue(messageId).build();
 	}
 
 	private BusinessEvent correctedBusinessEvent(TradeState tradeState) {
