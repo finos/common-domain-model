@@ -4,7 +4,6 @@ import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.event.common.ActionEnum;
 import cdm.event.common.BusinessEvent;
-import cdm.event.common.ExecutionInstruction;
 import cdm.event.common.TradeState;
 import cdm.event.common.functions.Create_Execution;
 import cdm.event.workflow.*;
@@ -61,11 +60,11 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
 	}
 
 	private Identifier identifier(String id) {
-		return Identifier.builder().addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierRef(id).build()).build();
+		return Identifier.builder().addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierValue(id).build()).build();
 	}
 
 	private MessageInformation messageInformation(String messageId) {
-		return MessageInformation.builder().setMessageIdRef(messageId).build();
+		return MessageInformation.builder().setMessageIdValue(messageId).build();
 	}
 
 	private BusinessEvent correctedBusinessEvent(TradeState tradeState) {

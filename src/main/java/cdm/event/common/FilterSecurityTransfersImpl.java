@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class FilterSecurityTransfersImpl extends FilterSecurityTransfers {
     @Override
-    protected Transfers.TransfersBuilder doEvaluate(List<Transfer> transfers) {
+    protected Transfers.TransfersBuilder doEvaluate(List<? extends Transfer> transfers) {
         List<Transfer> cashTransfers = transfers.stream().filter(this::hasSecurity).collect(Collectors.toList());
         return !cashTransfers.isEmpty() ? Transfers.builder().addTransfers(cashTransfers) : null;
     }
