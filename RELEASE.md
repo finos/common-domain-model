@@ -6,4 +6,4 @@ Bugfix. The Graphical Navigator in the CDM Portal was broken such that it failed
 
 _Review directions_
 
-In the CDM Portal, use the Graphical Navigator to inspect the model, clicking on data attributes displays data type details in the right-hand panel. Use the search functionality to search for a data type.
+In the CDM Portal, select the Graphical Navigator, search for a data type, e.g. TradableProduct, observe the graphical display of this data type and the type details in the right panel.
