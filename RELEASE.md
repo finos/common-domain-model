@@ -1,9 +1,9 @@
-# *Technical Change - Bugfix to portal graphical navigator and search*
+# *Technical Change - Bugfix to CDM Portal’s Graphical Navigator*
 
 _What is being released?_
 
-Bugfix. The graphical navigator in portal was broken such that it failed to show type details in the right panel. The same bug also broke the search functionality.
+Bugfix. The Graphical Navigator in the CDM Portal was broken such that it failed to show type details in the right panel. The same bug also broke the search functionality.
 
 _Review directions_
 
-In the CDM Portal, use the graphical navigator and verify that type details are displayed in the details panel. Use the search functionality to search for a type.
+In the CDM Portal, use the Graphical Navigator to inspect the model, clicking on data attributes displays data type details in the right-hand panel. Use the search functionality to search for a data type.
