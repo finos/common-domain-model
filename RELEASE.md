@@ -1,4 +1,4 @@
-# *Technical Change - Bugfix to CDM Portal’s Graphical Navigator*
+# *Technical Change - Bugfix to Graphical Navigator in CDM Portal*
 
 _What is being released?_
 
