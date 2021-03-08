@@ -6,4 +6,4 @@ Bugfix. The graphical navigator in portal was broken such that it failed to show
 
 _Review directions_
 
-In the CDM Portal, use the graphical navigator and verify that type details are displayed in the details panel. Use the search funtionality to search for a type.
+In the CDM Portal, use the graphical navigator and verify that type details are displayed in the details panel. Use the search functionality to search for a type.
