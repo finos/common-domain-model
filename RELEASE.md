@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-Bugfix. The graphical navigator in portal was broken such that it failed to show type details in the right panel. The Same bug also broke the search functionality.
+Bugfix. The graphical navigator in portal was broken such that it failed to show type details in the right panel. The same bug also broke the search functionality.
 
 _Review directions_
 
