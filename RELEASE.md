@@ -1,5 +1,9 @@
-# *CDM Portal: Infrastructure - Registered User Information*
+# *Technical Change - Bugfix to Graphical Navigator in CDM Portal*
 
-_What is Being Released_
+_What is being released?_
 
-A technical change to also capture which versions of the CDM license, and the Privacy Policy will have been accepted by the user of the CDM portal. This will also record when acceptance is again requested from the user due to updates to the terms of these licenses or policy artefacts.
+Bugfix. The Graphical Navigator in the CDM Portal was broken such that it failed to show type details in the right panel. The same bug also broke the search functionality.
+
+_Review directions_
+
+In the CDM Portal, select the Graphical Navigator, search for a data type, e.g. TradableProduct, observe the graphical display of this data type and the type details in the right panel.

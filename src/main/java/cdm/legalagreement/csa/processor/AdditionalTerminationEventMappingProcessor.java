@@ -8,6 +8,7 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -33,7 +34,7 @@ public class AdditionalTerminationEventMappingProcessor extends MappingProcessor
 	@Override
 	public void map(Path accessConditionsPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		AccessConditions.AccessConditionsBuilder accessConditionsBuilder = (AccessConditions.AccessConditionsBuilder) builder;
-		accessConditionsBuilder.clearAdditionalTerminationEvent();
+		accessConditionsBuilder.setAdditionalTerminationEvent(new ArrayList<>());
 
 		Path eventsPath = accessConditionsPath.addElement("additional_termination_event");
 		int index = 0;
