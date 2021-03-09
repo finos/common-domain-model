@@ -17,7 +17,7 @@ public class SumPostedCreditSupportItemAmountsImpl extends SumPostedCreditSuppor
 	@Inject private PostedCreditSupportItemAmount postedCreditSupportItemAmount;
 
 	@Override
-	protected MoneyBuilder doEvaluate(List<PostedCreditSupportItem> postedCreditSupportItems, String baseCurrency) {
+	protected MoneyBuilder doEvaluate(List<? extends PostedCreditSupportItem> postedCreditSupportItems, String baseCurrency) {
 		BigDecimal sum = BigDecimal.valueOf(0.0);
 		for (PostedCreditSupportItem item : postedCreditSupportItems) {
 			sum = sum.add(postedCreditSupportItemAmount.evaluate(item, baseCurrency).getAmount());

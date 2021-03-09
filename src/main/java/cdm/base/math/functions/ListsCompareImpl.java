@@ -9,7 +9,7 @@ import java.util.function.BiFunction;
 public class ListsCompareImpl extends ListsCompare {
 
 	@Override
-	protected Boolean doEvaluate(CompareOp compareOp, List<BigDecimal> left, List<BigDecimal> right, BigDecimal rightNumber) {
+	protected Boolean doEvaluate(CompareOp compareOp, List<? extends BigDecimal> left, List<? extends BigDecimal> right, BigDecimal rightNumber) {
 		if (left == null)
 			return false;
 		if (rightNumber != null) {

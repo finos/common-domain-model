@@ -21,7 +21,7 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
 public class ResolveEquityInitialPriceImpl extends ResolveEquityInitialPrice {
 
 	@Override
-	protected PriceBuilder doEvaluate(List<PriceQuantity> priceQuantity) {
+	protected PriceBuilder doEvaluate(List<? extends PriceQuantity> priceQuantity) {
 		return emptyIfNull(priceQuantity).stream()
 				.map(PriceQuantity::getPrice)
 				.filter(Objects::nonNull)

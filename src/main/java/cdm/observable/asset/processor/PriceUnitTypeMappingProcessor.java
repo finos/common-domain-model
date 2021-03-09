@@ -93,10 +93,10 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	@NotNull
 	private Boolean updateBuilder(PriceBuilder builder, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount) {
 		// unit of amount
-		builder.setUnitOfAmountBuilder(unitOfAmount);
+		builder.setUnitOfAmount(unitOfAmount);
 		// per unit of amount
 		if (builder.getPriceType() != PriceTypeEnum.MULTIPLIER_OF_INDEX_VALUE) {
-			builder.setPerUnitOfAmountBuilder(perUnitOfAmount);
+			builder.setPerUnitOfAmount(perUnitOfAmount);
 		}
 		return true;
 	}
@@ -134,9 +134,9 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 		UnitTypeBuilder callCurrency = getNonNullMapping(getMappings(), subPath, "callCurrencyAmount", "currency").map(this::toCurrencyUnitType).orElse(null);
 		UnitTypeBuilder putCurrency = getNonNullMapping(getMappings(), subPath, "putCurrencyAmount", "currency").map(this::toCurrencyUnitType).orElse(null);
 		if (quoteBasis.equals("CallCurrencyPerPutCurrency")) {
-			builder.setUnitOfAmountBuilder(callCurrency).setPerUnitOfAmountBuilder(putCurrency);
+			builder.setUnitOfAmount(callCurrency).setPerUnitOfAmount(putCurrency);
 		} else if (quoteBasis.equals("PutCurrencyPerCallCurrency")) {
-			builder.setUnitOfAmountBuilder(putCurrency).setPerUnitOfAmountBuilder(callCurrency);
+			builder.setUnitOfAmount(putCurrency).setPerUnitOfAmount(callCurrency);
 		}
 		return true;
 	}
