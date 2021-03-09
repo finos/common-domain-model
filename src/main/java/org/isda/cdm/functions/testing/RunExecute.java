@@ -1,34 +1,31 @@
 package org.isda.cdm.functions.testing;
 
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.TradeState;
+import cdm.event.common.functions.Create_Execution;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
-import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.Contract;
-import org.isda.cdm.functions.Create_Execution;
+import com.rosetta.model.metafields.FieldWithMetaDate;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.Optional;
 
+import static org.isda.cdm.functions.testing.FunctionUtils.createExecutionInstructionFromTradeState;
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
-public class RunExecute implements ExecutableFunction<Contract, BusinessEvent> {
+public class RunExecute implements ExecutableFunction<TradeState, BusinessEvent> {
 
     @Inject
     Create_Execution execute;
 
     @Override
-    public BusinessEvent execute(Contract contract) {
-        return execute.evaluate(contract.getTradableProduct().getProduct(),
-                guard(contract.getTradableProduct().getQuantityNotation()),
-                guard(contract.getTradableProduct().getPriceNotation()),
-                guard(contract.getTradableProduct().getCounterparties()),
-                guard(contract.getParty()),
-                guard(contract.getPartyRole()),
-                Collections.emptyList());
+    public BusinessEvent execute(TradeState tradeState) {
+        return execute.evaluate(createExecutionInstructionFromTradeState(tradeState));
     }
 
     @Override
-    public Class<Contract> getInputType() {
-        return Contract.class;
+    public Class<TradeState> getInputType() {
+        return TradeState.class;
     }
 
     @Override

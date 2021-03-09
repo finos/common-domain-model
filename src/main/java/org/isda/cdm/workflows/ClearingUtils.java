@@ -1,13 +1,22 @@
 package org.isda.cdm.workflows;
 
-import cdm.base.staticdata.identifier.Identifier;
-import cdm.base.staticdata.party.Party;
-import com.rosetta.model.lib.process.PostProcessor;
-import com.rosetta.model.metafields.FieldWithMetaString;
-import org.isda.cdm.*;
-import org.isda.cdm.functions.Create_ClearedTrade;
+import java.util.Objects;
+
+import cdm.event.common.*;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
-import org.isda.cdm.metafields.ReferenceWithMetaWorkflowStep;
+
+import com.rosetta.model.lib.process.PostProcessor;
+import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.metafields.FieldWithMetaString;
+
+import cdm.base.staticdata.identifier.Identifier;
+import cdm.base.staticdata.party.Counterparty;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
+import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.event.common.functions.Create_ClearedTrade;
+import cdm.event.workflow.WorkflowStep;
+import cdm.event.workflow.metafields.ReferenceWithMetaWorkflowStep;
 
 public class ClearingUtils {
 
@@ -28,7 +37,7 @@ public class ClearingUtils {
 		return stepBuilder.build();
 	}
 
-	static WorkflowStep buildProposeStep(PostProcessor runner, WorkflowStep previous, Contract alphaContract, Party party1, Party party2, String externalReference, IdentifierService identifierService) {
+	static WorkflowStep buildProposeStep(PostProcessor runner, WorkflowStep previous, TradeState alphaContract, Party party1, Party party2, String externalReference, IdentifierService identifierService) {
 		WorkflowStep.WorkflowStepBuilder stepBuilder = WorkflowStep.builder();
 		stepBuilder
 			.setPreviousWorkflowStep(ReferenceWithMetaWorkflowStep.builder()
@@ -53,11 +62,12 @@ public class ClearingUtils {
 		return stepBuilder.build();
 	}
 
-	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction, Create_ClearedTrade clear, IdentifierService identifierService) {
+	static WorkflowStep buildClear(PostProcessor runner, String externalReference, WorkflowStep previous, ClearingInstruction clearingInstruction,
+			Create_ClearedTrade          clear, IdentifierService identifierService, Date tradeDate, Identifier identifier) {
 
-		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction).toBuilder();
+		BusinessEvent.BusinessEventBuilder businessEventBuilder = clear.evaluate(clearingInstruction, tradeDate, identifier).toBuilder();
 
-		WorkflowStep.WorkflowStepBuilder clearedTradeWorkflowEventBuilder = WorkflowStep.builder().setBusinessEventBuilder(businessEventBuilder);
+		WorkflowStep.WorkflowStepBuilder clearedTradeWorkflowEventBuilder = WorkflowStep.builder().setBusinessEvent(businessEventBuilder);
 
 		clearedTradeWorkflowEventBuilder.addEventIdentifier(identifierService.nextType(externalReference, Create_ClearedTrade.class.getSimpleName()));
 
@@ -74,14 +84,12 @@ public class ClearingUtils {
 		return clearedTradeWorkflowEvent;
 	}
 
-	static WorkflowStep buildContractFormationStep(PostProcessor runner, Contract contract, String externalReference, IdentifierService identifierService) {
+	static WorkflowStep buildContractFormationStep(PostProcessor runner, TradeState tradeState, String externalReference, IdentifierService identifierService) {
 		WorkflowStep.WorkflowStepBuilder stepBuilder = WorkflowStep.builder();
 		stepBuilder.getOrCreateBusinessEvent()
 			.addPrimitives(PrimitiveEvent.builder()
 				.setContractFormation(ContractFormationPrimitive.builder()
-					.setAfter(PostContractFormationState.builder()
-						.setContract(contract)
-						.build())
+					.setAfter(tradeState)
 					.build())
 				.build());
 
@@ -97,6 +105,20 @@ public class ClearingUtils {
 			.addPartyId(FieldWithMetaString.builder().setValue("Party").build())
 			.setName(FieldWithMetaString.builder().setValue("CCP").build())
 			.build();
+	}
+
+	/**
+	 * Extract the party related to the given counterparty enum.
+	 */
+	public static Party getParty(TradeState tradeState, CounterpartyRoleEnum counterparty) {
+		return tradeState.getTrade().getTradableProduct().getCounterparty().stream()
+				.filter(c -> c.getRole() == counterparty)
+				.map(Counterparty::getPartyReference)
+				.filter(Objects::nonNull)
+				.map(ReferenceWithMetaParty::getGlobalReference)
+				.flatMap(partyReference -> tradeState.getTrade().getParty().stream().filter(p -> partyReference.equals(p.getMeta().getGlobalKey())))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Party not found for counterparty " + counterparty));
 	}
 }
 

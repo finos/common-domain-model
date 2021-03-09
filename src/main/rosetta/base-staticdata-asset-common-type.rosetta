@@ -1,10 +1,9 @@
-namespace cdm.base.staticdata.asset.common
+namespace cdm.base.staticdata.asset.common : <"Basic static asset concepts that apply across asset classes: taxonomy etc.">
 version "${project.version}"
 
-import cdm.base.*
 import cdm.base.staticdata.party.*
+
 import cdm.synonyms.config.*
-import org.isda.cdm.*
 
 type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
 
@@ -16,11 +15,15 @@ type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
 		if version is absent
 		then effectiveDate is absent
 
+//TODO: To be deprecated from model, now replaced by Debt as an attribute of Security which extends ProductBase.
 type Bond extends IdentifiedProduct: <"A class to specify a bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
+//TODO: To be deprecated from model, now replaced by Debt as an attribute of Security which extends ProductBase.
 type ConvertibleBond extends IdentifiedProduct: <"A class to specify a convertible bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
+//TODO: To be deprecated from model, now replaced by Equity as an attribute of Security which extends ProductBase.
 type Equity extends IdentifiedProduct: <"A class to specify an equity as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+
 
 type ExchangeTradedFund extends IdentifiedProduct: <"A class to specify an ETF as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
@@ -42,7 +45,9 @@ type ProductIdentifier: <"Comprises an identifier and a source. The associated m
 	[metadata key]
 	identifier string (1..1) <"Provides an identifier associated with a specific product.  The identifier is unique within the public source specified in the source attribute.">
 		[metadata scheme]
-	source ProductIdSourceEnum (1..1) <"Defines the source of the identifier.">
+		[synonym Workflow_Event value "identifier"]
+	source ProductIdTypeEnum (1..1) <"Defines the source of the identifier.">
+	    [synonym Workflow_Event value "source"]
 
 //can this be deprecated?
 type IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
@@ -65,11 +70,9 @@ type Loan extends ProductBase: <"Identifies a loan by referencing a product iden
 	tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
 		[metadata scheme]
 
-
 type ProductTaxonomy: <"The product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 	taxonomyValue string (1..1) <"The taxonomy value.">
 	taxonomySource TaxonomySourceEnum (1..1) <"The taxonomy source.">
-
 
 type Security extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
 	securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
@@ -89,11 +92,81 @@ condition FundSubType:
 		if securityType <> SecurityTypeEnum -> Fund
 		then fundType is absent
 
- type ExternalProductType: <"Provides a classification of the type of product that is external to the product qualifications used in the CDM. Product types mapped from external models are mapped to this data type.">
-	externalproductType string (1..1) <"Stores the product type value.">
+type DebtType: <"Specifies the type of debt instrument.">
+	debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
+	debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt instrument.">
+
+type DebtEconomics: <"Specifies selected economics of a debt instrument.">
+	debtSeniority DebtSeniorityEnum (0..1) <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
+	debtInterest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
+	debtPrincipal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
+
+type CollateralIssuerType: <"A class to allow specification of the type of entity issuing the collateral.">
+
+	issuerType IssuerTypeEnum (1..1) <"Origin of entity issuing the collateral.">
+	supraNationalType SupraNationalIssuerTypeEnum (0..1) <"Debt issued by international organisations and multilateral banks.">
+	quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government">
+	regionalGovernmentType RegionalGovernmentIssuerType (0..1) <"Regional government, local authority or municipal.">
+	specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1)
+
+	condition SupraNationalSubType:
+		if issuerType <> IssuerTypeEnum -> SupraNational
+		then supraNationalType is absent
+
+	condition QuasiGovernmentSubType:
+		if issuerType <> IssuerTypeEnum -> QuasiGovernment
+		then quasiGovernmentType is absent
+
+	condition RegionalGovernmentSubType:
+		if issuerType <> IssuerTypeEnum -> RegionalGovernment
+		then regionalGovernmentType is absent
+
+	condition SpecialPurposeVehicleSubType:
+		if issuerType <> IssuerTypeEnum -> SpecialPurposeVehicle
+		then specialPurposeVehicleType is absent
+
+type QuasiGovernmentIssuerType: <"A class to allow specification of different types of Quasi Government collateral.">
+
+	sovereignEntity boolean (1..1) <"True if sovereign entity (e.g. not separate legal personality from sovereign) or false if non-sovereign entity (e.g. separate legal personality from sovereign).">
+	sovereignRecourse boolean (0..1) <"Applies to non-sovereign entity (e.g. separate legal personality from sovereign).  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
+	// TODO: other (non-exhaustive) criteria e.g. GSEs with/without government support, EMIR public sector entities, US agencies
+	condition NonSovereignEntityRecourse:
+		if sovereignRecourse exists then sovereignEntity = False
+
+type RegionalGovernmentIssuerType: <"A class to allow specification of different type of Regional government collateral.">
+
+	sovereignRecourse boolean (1..1) <"Applies to regional governments, local authorities or municipals.  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
+	// TODO: other (non-exhaustive) criteria e.g. US municipals, Canadian provinces, German Lander
+
+type SpecialPurposeVehicleIssuerType: <"A class to allow specification of different types of special purpose vehicle (SPV) collateral.">
+	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> // Not required?  If tranched credit risk then specified ProductCriteria.agencyRating.
+	// TODO: other (non-exhaustive) criteria e.g. by asset class (RMBS, CMBS, CLO, by regional risk focus, by guarantor (e.g. Ginnie Mae)). Can the existing FpML framework be leveraged.  See type MortgageBackedSecurity
+
+type ExternalProductType: <"Provides a classification of the type of product that is external to the product qualifications used in the CDM. Product types mapped from external models are mapped to this data type.">
+	value string (1..1) <"Stores the product type value.">
 	    [metadata scheme]
 	externalProductTypeSource ExternalProductTypeSourceEnum (1..1) <"Denotes the enumerated value to identify the source for the specified product type.">
 
+type AssetType: <"A class to allow specification of the asset product type.">
+	assetType AssetTypeEnum (1..1) <"The type of collateral asset.">
+	securityType SecurityTypeEnum (0..1) <"Filter based on the type of security.">
+	debtType DebtType (0..1) <"Filter based on the type of bond.">
+	equityType EquityTypeEnum (0..1) <"Filter based on the type of equity.">
+	fundType FundProductTypeEnum (0..1) <"Filter based on the type of fund.">
+	// otherType string (0..1) <"Description of collateral when specified as Product Type - Other">
 
+	condition SecuritySubType:
+		if assetType <> AssetTypeEnum -> Security
+		then ( securityType and debtType and equityType ) is absent
+	
+	condition BondSubType:
+		if securityType <> SecurityTypeEnum -> Debt
+		then debtType is absent
 
- 
+	condition EquitySubType:
+		if securityType <> SecurityTypeEnum -> Equity
+		then equityType is absent
+
+	condition FundSubType:
+		if securityType <> SecurityTypeEnum -> Fund
+		then fundType is absent

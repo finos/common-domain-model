@@ -1,4 +1,4 @@
-namespace cdm.base.datetime
+namespace cdm.base.datetime : <"Basic date and time concepts: relative date, date range, offset, business centre etc.">
 version "${project.version}"
 
 func TimeZoneFromBusinessCenterTime: <"Function to resolve a time passed as BusinessCenterTime into a TimeZone time.">
@@ -12,3 +12,45 @@ func ResolveAdjustableDate:
 func ToDateTime:
 	inputs: date date (1..1)
 	output: datetime zonedDateTime (1..1)
+
+func ConvertToAdjustableOrRelativeDate: <"Utility function to convert from AdjustableOrAdjustedOrRelativeDate to AdjustableOrRelativeDate">
+	inputs:
+		adjustableOrAdjustedOrRelativeDate AdjustableOrAdjustedOrRelativeDate (0..1)
+
+	output:
+		adjustableOrRelativeDate AdjustableOrRelativeDate (0..1)
+
+	alias relativeDate:
+		adjustableOrAdjustedOrRelativeDate -> relativeDate
+
+	assign-output adjustableOrRelativeDate -> adjustableDate -> adjustedDate:
+		adjustableOrAdjustedOrRelativeDate -> adjustedDate
+
+	assign-output adjustableOrRelativeDate -> adjustableDate -> unadjustedDate:
+		adjustableOrAdjustedOrRelativeDate -> unadjustedDate
+
+	assign-output adjustableOrRelativeDate -> adjustableDate -> dateAdjustments:
+		adjustableOrAdjustedOrRelativeDate -> dateAdjustments
+
+	assign-output adjustableOrRelativeDate -> relativeDate -> adjustedDate:
+		if relativeDate exists then relativeDate -> adjustedDate
+
+	assign-output adjustableOrRelativeDate -> relativeDate -> businessCenters:
+		if relativeDate exists then relativeDate -> businessCenters
+
+	assign-output adjustableOrRelativeDate -> relativeDate -> businessDayConvention:
+		if relativeDate exists then relativeDate -> businessDayConvention
+
+	assign-output adjustableOrRelativeDate -> relativeDate -> dateRelativeTo:
+		if relativeDate exists then relativeDate -> dateRelativeTo
+
+	assign-output adjustableOrRelativeDate -> relativeDate -> dayType:
+		if relativeDate exists then relativeDate -> dayType
+
+	assign-output adjustableOrRelativeDate -> relativeDate -> period:
+		if relativeDate exists then relativeDate -> period
+
+	assign-output adjustableOrRelativeDate -> relativeDate -> periodMultiplier:
+		if relativeDate exists then relativeDate -> periodMultiplier
+
+	

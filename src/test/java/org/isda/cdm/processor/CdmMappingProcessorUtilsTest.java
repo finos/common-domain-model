@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CdmMappingProcessorUtilsTest {

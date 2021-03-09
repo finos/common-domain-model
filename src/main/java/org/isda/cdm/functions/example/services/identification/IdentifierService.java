@@ -1,14 +1,14 @@
 package org.isda.cdm.functions.example.services.identification;
 
 
+import java.util.TreeSet;
+
 import com.google.inject.Singleton;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-
-import java.util.TreeSet;
 
 /**
  * An example id service that helps get and increment identifiers
@@ -65,9 +65,9 @@ public class IdentifierService {
                     .setIssuer(FieldWithMetaString.builder()
                             .setValue(issuer)
                             .build())
-                    .setIssuerReferenceBuilder(ReferenceWithMetaParty.builder()
+                    .setIssuerReference(ReferenceWithMetaParty.builder()
                             .setExternalReference(issuer))
-                    .addAssignedIdentifierBuilder(AssignedIdentifier.builder()
+                    .addAssignedIdentifier(AssignedIdentifier.builder()
                             .setIdentifier(FieldWithMetaString.builder()
                                     .setValue(type + "-" + typeIndex).build())
                             .setVersion(version))

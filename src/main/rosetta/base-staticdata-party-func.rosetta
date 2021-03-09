@@ -1,7 +1,18 @@
-namespace cdm.base.staticdata.party
+namespace cdm.base.staticdata.party : <"Basic party concepts: legal entity, natural person, contact details, buyer / payer and all related enums.">
 version "${project.version}"
 
-import cdm.base.*
+func Create_Counterparty: <"Constructs a Counterparty given a party and a counterparty enum value.">
+	inputs:
+		party Party (1..1)
+		role CounterpartyRoleEnum (1..1)
+	output:
+		counterparty Counterparty (1..1)
+
+	assign-output counterparty -> partyReference:
+		party // as-key
+
+	assign-output counterparty -> role:
+		role
 
 func Create_PartyRole: <"Constructs a PartyRole given a party and party role enumeration value.">
 	inputs:
@@ -15,3 +26,17 @@ func Create_PartyRole: <"Constructs a PartyRole given a party and party role enu
 
 	assign-output partyRole -> role:
 		role
+
+func ExtractCounterpartyByRole: <"Extracts from a list of Counterparty data types, the Counterparty that corresponds to the role i.e. Party1 or Party2.">
+	inputs:
+		counterparties Counterparty (1..*)
+		roleEnumToExtract CounterpartyRoleEnum (1..1)
+	output:
+		counterparty Counterparty (1..1)
+
+func ExtractAncillaryPartyByRole: <"Extracts from a list of AncillaryParty data types, the AncillaryParty that corresponds to the AncillaryRoleEnum.">
+	inputs:
+		ancillaryParties AncillaryParty (1..*)
+		roleEnumToExtract AncillaryRoleEnum (1..1)
+	output:
+		ancillaryParty AncillaryParty (1..1)

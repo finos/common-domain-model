@@ -1,0 +1,89 @@
+namespace cdm.synonyms.fpml.recordkeeping
+version "${project.version}"
+
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.party.*
+import cdm.base.staticdata.identifier.*
+
+import cdm.observable.asset.*
+
+import cdm.product.template.*
+import cdm.product.asset.*
+import cdm.product.common.settlement.*
+import cdm.legalagreement.contract.*
+import cdm.legalagreement.common.*
+
+import cdm.synonyms.fpml.*
+import org.isda.cdm.*
+
+import cdm.event.workflow.*
+import cdm.event.common.*
+
+synonym source FpML_5_10_RecordKeeping extends FpML_5_10
+{
+    WorkflowStep:
+        + messageInformation
+            [value "messageHeader"]
+        + party
+            [value "party"]
+        + eventIdentifier
+            [value "messageHeader"]
+        + action
+            [set to ActionEnum -> New]
+        + proposedInstruction
+            [value "ignore"]
+
+    EventTimestamp:
+        + dateTime
+            [value "creationTimestamp" path "messageHeader"]
+            [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation"]
+            [value "executionDateTime" path "termination"]
+        + qualification
+            [set to EventTimestampQualificationEnum -> eventCreationDateTime when path = "messageHeader->creationTimestamp"]
+            [set to EventTimestampQualificationEnum -> executionDateTime when path = "trade->tradeHeader->partyTradeInformation"]
+            [set to EventTimestampQualificationEnum -> executionDateTime when path = "termination"]
+
+    MessageInformation:
+        + messageId
+            [value "messageId" maps 2]
+        + sentBy
+            [value "systemId" path "sentBy"]
+        + sentTo
+            [value "systemId" path "sendTo"]
+        + copyTo
+            [value "copyTo"]
+
+    PrimitiveEvent:
+            + split
+                [value "ignore"]
+            + execution
+                [value "ignore"]
+            + quantityChange
+                [value "termination"]
+                [value "novation"]
+            + reset
+                [value "ignore"]
+            + termsChange
+                [value "ignore"]
+            + transfer
+                [value "ignore"]
+
+    QuantityChangePrimitive:
+        + before
+            [hint "originalTrade"]
+            [hint "newTrade"]
+        + after
+        	[hint "originalTrade"]
+
+    TradeState:
+            [meta "id" path "trade"]
+            [meta "id" path "originalTrade"]
+            [meta "id" path "newTrade"]
+            - trade
+            + trade
+                [value "trade" mapper "Party"]
+                [value "originalTrade" mapper "Party"]
+                [value "newTrade" mapper "Party"]
+}
+

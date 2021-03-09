@@ -1,25 +1,25 @@
 package cdm.base.staticdata.party.processor;
 
-import com.google.common.collect.MoreCollectors;
-import com.regnosys.rosetta.common.translation.Mapping;
-import com.regnosys.rosetta.common.translation.Path;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import com.google.common.collect.MoreCollectors;
+import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.Path;
+
 /**
  * Helper class to translate TradeSide.id to TradeSide.orderer.party.id for CME Submission mapping processors.
  */
-class TradeSideToPartyMappingHelper implements Function<String, Optional<String>> {
+public class TradeSideToPartyMappingHelper implements Function<String, Optional<String>> {
 
 	// Relative path between tradeSide and party.  E.g. <trade-side>.orderer.party.href
 	private static final Path RELATIVE_PATH = Path.parse("orderer.party.href");
 
 	private final List<Mapping> mappings;
 
-	TradeSideToPartyMappingHelper(List<Mapping> mappings) {
+	public TradeSideToPartyMappingHelper(List<Mapping> mappings) {
 		this.mappings = mappings;
 	}
 
@@ -38,7 +38,7 @@ class TradeSideToPartyMappingHelper implements Function<String, Optional<String>
 
 	private Optional<String> extractXmlValueFromMappings(Path partyPath) {
 		return mappings.stream()
-				.filter(p -> partyPath.fullStartMatches(p.getXmlPath()))
+				.filter(p -> partyPath.nameIndexMatches(p.getXmlPath()))
 				.map(Mapping::getXmlValue)
 				.map(String::valueOf)
 				.collect(MoreCollectors.toOptional());

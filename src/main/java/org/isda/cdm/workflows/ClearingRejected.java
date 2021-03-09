@@ -1,39 +1,37 @@
 package org.isda.cdm.workflows;
 
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
+import cdm.event.common.TradeState;
+import cdm.event.workflow.Workflow;
+import cdm.event.workflow.WorkflowStep;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.process.PostProcessor;
-import org.isda.cdm.Contract;
-import org.isda.cdm.Workflow;
-import org.isda.cdm.WorkflowStep;
 import org.isda.cdm.functions.example.services.identification.IdentifierService;
 
 import java.util.function.Function;
 
-public class ClearingRejected implements Function<Contract, Workflow> {
+import static org.isda.cdm.workflows.ClearingUtils.getParty;
+
+public class ClearingRejected implements Function<TradeState, Workflow> {
 	@Inject
 	private IdentifierService identifierService;
 	@Inject
 	private PostProcessor runner;
 
 	@Override
-	public Workflow apply(Contract contract) {
+	public Workflow apply(TradeState tradeState) {
 
-		String externalReference = contract.getMeta().getGlobalKey();
-		Party party1 = contract.getParty().stream()
-				.filter(party -> "party1".equals(party.getMeta().getExternalKey()))
-				.findFirst().orElseThrow(() -> new IllegalArgumentException("Expected party with external key party1 on alpha"));
-
-		Party party2 = contract.getParty().stream()
-				.filter(party -> "party2".equals(party.getMeta().getExternalKey()))
-				.findFirst().orElseThrow(() -> new IllegalArgumentException("Expected party with external key party2 on alpha"));
+		String externalReference = tradeState.getMeta().getGlobalKey();
+		Party party1 = getParty(tradeState, CounterpartyRoleEnum.PARTY_1);
+		Party party2 = getParty(tradeState, CounterpartyRoleEnum.PARTY_2);
 
 		// Contract Formation
-		WorkflowStep contractFormationStep = ClearingUtils.buildContractFormationStep(runner, contract, externalReference, identifierService);
+		WorkflowStep contractFormationStep = ClearingUtils.buildContractFormationStep(runner, tradeState, externalReference, identifierService);
 
 		// propose clear step
-		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, contract, party1, party2, externalReference, identifierService);
+		WorkflowStep proposeStep = ClearingUtils.buildProposeStep(runner, contractFormationStep, tradeState, party1, party2, externalReference, identifierService);
 
 		WorkflowStep rejectStep = ClearingUtils.buildRejectStep(runner, proposeStep, externalReference, identifierService);
 

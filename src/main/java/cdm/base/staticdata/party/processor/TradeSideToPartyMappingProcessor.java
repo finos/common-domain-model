@@ -1,19 +1,21 @@
 package cdm.base.staticdata.party.processor;
 
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.Path;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.path.RosettaPath;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static cdm.legalagreement.contract.processor.PartyMappingHelper.PRODUCT_SUB_PATH;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static org.isda.cdm.processor.CounterpartyMappingHelper.PRODUCT_SUB_PATH;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.path.RosettaPath;
+
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
 
 /**
  * TradeSide.id to TradeSide.orderer.party.id CME Submission mapping processor.

@@ -34,7 +34,7 @@ steps:
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -U -s /settings.xml clean deploy -P daml,scala,typescript,golang
+      - mvn -U -s /settings.xml clean deploy -P daml,scala,typescript,golang,csharp8,csharp9
 
   BuildRelease:
     title: Maven build for release
@@ -50,51 +50,80 @@ steps:
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml clean deploy -P daml,scala,typescript,golang,full
+      - mvn -s /settings.xml clean deploy -P daml,scala,typescript,golang,csharp8,csharp9,full
 
-  BuildDaml:
-    title: DAML build and deploy
-    fail_fast: false
-    image: digitalasset/daml-sdk:1.3.0
-    working_directory: ./codefresh/volume/rosetta-cdm/
-    shell: bash
-    commands:
-      - daml build -o target/cdm-daml-${{RELEASE_NAME}}.dar
-      - cd /codefresh/volume/rosetta-cdm/target
-      - tar -cvzf cdm-daml.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
-      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.tar.gz" -T cdm-daml.tar.gz
-
-  BuildScala:
-    title: Scala build and deploy
-    fail_fast: false
-    image: mozilla/sbt
-    working_directory: ./target/classes/cdm/scala
-    shell: bash
-    commands:
-      - sbt compile
-      - sbt package
-      - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/scala/target/scala-2.12
-      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-scala/${{RELEASE_NAME}}/cdm-scala-${{RELEASE_NAME}}.jar" -T cdm-scala_2.12-0.0.0.snapshot.jar
-
-  BuildTypeScript:
-    title: TypeScript build and deploy
-    fail_fast: false
-    image: spotify/alpine
-    working_directory: ./target/classes/cdm
-    shell: bash
-    commands:
-      - tar -cvzf cdm-typescript.zip typescript
-      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-typescript/${{RELEASE_NAME}}/cdm-typescript-${{RELEASE_NAME}}.zip" -T cdm-typescript.zip
-
-  BuildGo:
-    title: Go build and deploy
-    fail_fast: false
-    image: spotify/alpine
-    working_directory: ./target/classes/cdm
-    shell: bash
-    commands:
-      - tar -cvzf cdm-golang.tar.gz golang
-      - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-golang/${{RELEASE_NAME}}/cdm-golang-${{RELEASE_NAME}}.zip" -T cdm-golang.tar.gz
+  ParallelTasks:
+    type: parallel
+    steps:
+      BuildDaml:
+        title: DAML build and deploy
+        fail_fast: false
+        image: digitalasset/daml-sdk:1.3.0
+        working_directory: ./codefresh/volume/rosetta-cdm/
+        shell: bash
+        commands:
+          - daml build -o target/cdm-daml-${{RELEASE_NAME}}.dar
+          - cd /codefresh/volume/rosetta-cdm/target
+          - tar -cvzf cdm-daml.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
+          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.tar.gz" -T cdm-daml.tar.gz
+      BuildScala:
+        title: Scala build and deploy
+        fail_fast: false
+        image: mozilla/sbt
+        working_directory: ./target/classes/cdm/scala
+        shell: bash
+        commands:
+          - sbt compile
+          - sbt package
+          - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/scala/target/scala-2.12
+          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-scala/${{RELEASE_NAME}}/cdm-scala-${{RELEASE_NAME}}.jar" -T cdm-scala_2.12-0.0.0.snapshot.jar
+      BuildCSharp8:
+        title: CSharp8 build and deploy
+        fail_fast: false
+        image: mcr.microsoft.com/dotnet/core/sdk:3.1
+        working_directory: ./target/classes/cdm/csharp8
+        shell: bash
+        commands:
+          - dotnet publish -c release -o ./app
+          - tar -cvzf cdm-csharp8.tar.gz app
+          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp8/${{RELEASE_NAME}}/cdm-csharp8-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp8.tar.gz
+      BuildCSharp9:
+        title: CSharp9 build and deploy
+        fail_fast: false
+        image: mcr.microsoft.com/dotnet/sdk:5.0
+        working_directory: ./target/classes/cdm/csharp9
+        shell: bash
+        commands:
+          - dotnet publish -c release -o ./app
+          - tar -cvzf cdm-csharp9.tar.gz app
+          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp9/${{RELEASE_NAME}}/cdm-csharp9-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp9.tar.gz
+      BuildTypeScript:
+        title: TypeScript build and deploy
+        fail_fast: false
+        image: spotify/alpine
+        working_directory: ./target/classes/cdm
+        shell: bash
+        commands:
+          - tar -cvzf cdm-typescript.zip typescript
+          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-typescript/${{RELEASE_NAME}}/cdm-typescript-${{RELEASE_NAME}}.zip" -T cdm-typescript.zip
+      BuildGo:
+        title: Go build and deploy
+        fail_fast: false
+        image: spotify/alpine
+        working_directory: ./target/classes/cdm
+        shell: bash
+        commands:
+          - tar -cvzf cdm-golang.tar.gz golang
+          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-golang/${{RELEASE_NAME}}/cdm-golang-${{RELEASE_NAME}}.zip" -T cdm-golang.tar.gz
+      BuildJavaDocs:
+        title: Javadocs build and deploy
+        fail_fast: false
+        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        working_directory: ./
+        commands:
+          - mvn -s /settings.xml javadoc:jar
+          - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+          - curl -X PUT -u ${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}} -T target/cdm-${{RELEASE_NAME}}-javadoc.jar "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar"
 
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
@@ -110,6 +139,8 @@ steps:
           buildDamlFailed: steps.BuildDaml.result == 'error'
           buildScalaFailed: steps.BuildScala.result == 'error'
           buildTypeScriptFailed: steps.BuildTypeScript.result == 'error'
+          buildCSharp8Failed: steps.BuildCSharp8.result == 'error'
+          buildCSharp9Failed: steps.BuildCSharp9.result == 'error'
           buildGoFailed: steps.BuildGo.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
@@ -133,6 +164,8 @@ steps:
           damlBuildFailure: steps.BuildDaml.result == 'failure'
           scalaBuildFailure: steps.BuildScala.result == 'failure'
           typeScriptBuildFailure: steps.BuildTypeScript.result == 'failure'
+          cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
+          cSharp9BuildFailure: steps.BuildCSharp9.result == 'failure'
           goBuildFailure: steps.BuildGo.result == 'failure'
     commands:
       - exit 1
@@ -151,7 +184,6 @@ steps:
       - git tag ${{RELEASE_NAME}}
       - git push https://${{REGNOSYS_OPS}}:${{REGNOSYS_OPS_PWD}}@github.com/REGnosys/${{CF_REPO_NAME}}.git ${{RELEASE_NAME}}
 
-
   StartNextBuild:
     title: Build rosetta-ingest if on master
     image: codefresh/cli
@@ -165,4 +197,4 @@ steps:
           variableDefined: "${{TAG_REPO}} == false"
           skipNextBuild: "${{SKIP_NEXT_BUILD}} == false"
     commands:
-      - codefresh run REGnosys/rosetta-cdm-extensions/rosetta-cdm-extensions --trigger REGnosys/rosetta-cdm-extensions --branch master --detach
+      - codefresh run REGnosys/rosetta-ingest/rosetta-ingest --branch master --detach

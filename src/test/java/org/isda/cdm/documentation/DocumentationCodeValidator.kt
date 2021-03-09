@@ -21,12 +21,13 @@ class DocumentationCodeValidator(
     private val lineCommentRegex = "[^:]\\/\\/.*\$"
     private val whitespaceRegex = "\\s+"
     private val illegalSyntaxRegex = "$synonymRegex|$definitionRegex|$lineCommentRegex"
-    private val codeBlockRegex = Regex("(\\.\\. code-block:: .*\\s+$)((\\n +.*|\\s)+)", RegexOption.MULTILINE)
+    private val codeBlockRegex = Regex("(\\.\\. code-block:: .*\\s+$)((\\n[ \\t]+.*|\\s)+)", RegexOption.MULTILINE)
 
     fun validate() {
         fun validate(code: Sequence<String>, model: String): Int {
             val invalidCode = code
                     .filter { _code -> !_code.contains(".. code-block:: Javascript") }
+                    .filter { _code -> !_code.contains(".. code-block:: Java") }
                     .filter { _code ->
                         val cleaned = _code
                                 .replace(Regex(".*\\.\\. code-block.*"), "")
@@ -70,9 +71,11 @@ class DocumentationCodeValidator(
     private fun getCodeBlocks(): Sequence<String> {
         val docs = loadFiles(docPath, ".rst").map(File::content).asSequence()
 
-        return docs.flatMap { doc -> codeBlockRegex.findAll(doc) }
+        val codeBlocks = docs.flatMap { doc -> codeBlockRegex.findAll(doc) }
                 .map(MatchResult::value)
                 .ifEmpty { throw IllegalStateException("No code blocks found in documentation file [$docPath]. Doesn't sound right! Go check.") }
+
+        return codeBlocks;
     }
 
     private fun getSnippets(): Sequence<String> {

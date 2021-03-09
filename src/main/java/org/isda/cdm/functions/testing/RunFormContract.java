@@ -1,43 +1,35 @@
 package org.isda.cdm.functions.testing;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
-
-import java.util.Collections;
+import cdm.event.common.*;
+import cdm.event.common.functions.Create_ContractFormation;
+import cdm.event.position.PositionStatusEnum;
+import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.lib.records.DateImpl;
 
 import javax.inject.Inject;
 
-import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.Contract;
-import org.isda.cdm.functions.Create_ContractFormation;
-import org.isda.cdm.functions.Create_Execution;
-
-import com.regnosys.rosetta.common.testing.ExecutableFunction;
-
-public class RunFormContract implements ExecutableFunction<Contract, BusinessEvent> {
-
-    @Inject
-    Create_Execution execute;
+public class RunFormContract implements ExecutableFunction<TradeState, BusinessEvent> {
 
     @Inject
     Create_ContractFormation formContract;
 
-
     @Override
-    public BusinessEvent execute(Contract contract) {
-        BusinessEvent executeBusinessEvent = execute.evaluate(contract.getTradableProduct().getProduct(),
-                guard(contract.getTradableProduct().getQuantityNotation()),
-                guard(contract.getTradableProduct().getPriceNotation()),
-                guard(contract.getTradableProduct().getCounterparties()),
-                guard(contract.getParty()),
-                guard(contract.getPartyRole()),
-                Collections.emptyList());
+    public BusinessEvent execute(TradeState tradeState) {
+        TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
+        tradeStateBuilder.getOrCreateState().setPositionState(PositionStatusEnum.EXECUTED);
+        tradeStateBuilder.getTrade().setContractDetails(ContractDetails.builder());
+        tradeStateBuilder.prune();
 
-        return formContract.evaluate(executeBusinessEvent, null);
+        ContractFormationInstruction contractFormationInstruction = ContractFormationInstruction.builder()
+                .setExecution(tradeStateBuilder)
+                .build();
+
+        return formContract.evaluate(contractFormationInstruction, new DateImpl(15, 3, 2021));
     }
 
     @Override
-    public Class<Contract> getInputType() {
-        return Contract.class;
+    public Class<TradeState> getInputType() {
+        return TradeState.class;
     }
 
     @Override

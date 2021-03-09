@@ -1,60 +1,51 @@
 package org.isda.cdm.functions.testing;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
-
-import java.util.Collections;
-
-import javax.inject.Inject;
-
-import org.isda.cdm.BusinessEvent;
-import org.isda.cdm.Contract;
-import org.isda.cdm.GoverningLawEnum;
-import org.isda.cdm.LegalAgreement;
-import org.isda.cdm.LegalAgreementNameEnum;
-import org.isda.cdm.LegalAgreementPublisherEnum;
-import org.isda.cdm.LegalAgreementType;
-import org.isda.cdm.functions.Create_ContractFormation;
-import org.isda.cdm.functions.Create_Execution;
-
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.ContractFormationInstruction;
+import cdm.event.common.TradeState;
+import cdm.event.common.functions.Create_ContractFormation;
+import cdm.event.position.PositionStatusEnum;
+import cdm.legalagreement.common.*;
+import cdm.legalagreement.common.LegalAgreement.LegalAgreementBuilder;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.lib.records.DateImpl;
 
-public class RunFormContractWithLegalAgreement implements ExecutableFunction<Contract, BusinessEvent> {
+import javax.inject.Inject;
 
-    @Inject
-    Create_Execution execute;
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+
+public class RunFormContractWithLegalAgreement implements ExecutableFunction<TradeState, BusinessEvent> {
 
     @Inject
     Create_ContractFormation formContract;
 
 
     @Override
-    public BusinessEvent execute(Contract contract) {
-        BusinessEvent executeBusinessEvent = execute.evaluate(contract.getTradableProduct().getProduct(),
-                guard(contract.getTradableProduct().getQuantityNotation()),
-                guard(contract.getTradableProduct().getPriceNotation()),
-                guard(contract.getTradableProduct().getCounterparties()),
-                guard(contract.getParty()),
-                guard(contract.getPartyRole()),
-                Collections.emptyList());
-
-        LegalAgreement legalAgreement = LegalAgreement.builder()
-                .addContractualPartyRef(guard(contract.getParty()))
+    public BusinessEvent execute(TradeState tradeState) {
+        LegalAgreementBuilder legalAgreement = LegalAgreement.builder()
+                .addContractualPartyValue(guard(tradeState.getTrade().getParty()))
                 .setAgreementDate(DateImpl.of(1994, 12, 01))
                 .setAgreementType(LegalAgreementType.builder()
                         .setName(LegalAgreementNameEnum.MASTER_AGREEMENT)
                         .setPublisher(LegalAgreementPublisherEnum.ISDA)
                         .setGoverningLaw(GoverningLawEnum.AS_SPECIFIED_IN_MASTER_AGREEMENT)
-                        .build())
+                        .build());
+
+        TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
+        tradeStateBuilder.getOrCreateState().setPositionState(PositionStatusEnum.EXECUTED);
+
+        ContractFormationInstruction contractFormationInstruction = ContractFormationInstruction.builder()
+                .setExecution(tradeStateBuilder)
+                .setLegalAgreement(legalAgreement)
                 .build();
 
-        return formContract.evaluate(executeBusinessEvent, legalAgreement);
+        return formContract.evaluate(contractFormationInstruction, new DateImpl(1, 12, 1994));
     }
 
 
     @Override
-    public Class<Contract> getInputType() {
-        return Contract.class;
+    public Class<TradeState> getInputType() {
+        return TradeState.class;
     }
 
     @Override
