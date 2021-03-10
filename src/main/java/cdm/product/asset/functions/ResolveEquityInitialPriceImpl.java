@@ -1,17 +1,19 @@
 package cdm.product.asset.functions;
 
-import cdm.base.staticdata.asset.common.ProductIdentifier;
-import cdm.base.staticdata.asset.common.Security;
-import cdm.observable.asset.AssetIdentifier;
-import cdm.observable.asset.CashPrice;
-import cdm.observable.asset.CashPrice.CashPriceBuilder;
+import cdm.base.math.FinancialUnitEnum;
+import cdm.base.math.UnitType;
 import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceNotation;
-import cdm.product.template.Product;
+import cdm.observable.asset.PriceQuantity;
+import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import cdm.product.template.Underlier;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+
+import static cdm.observable.asset.Price.PriceBuilder;
+import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 /**
  * To be replaced by full resolve price function implementation.
@@ -19,27 +21,19 @@ import java.util.Optional;
 public class ResolveEquityInitialPriceImpl extends ResolveEquityInitialPrice {
 
 	@Override
-	protected CashPriceBuilder doEvaluate(Underlier underlier, List<PriceNotation> priceNotations) {
-		List<ProductIdentifier> underlierProductIdentifiers = Optional.ofNullable(underlier)
-				.map(Underlier::getUnderlyingProduct)
-				.map(Product::getSecurity)
-				.map(Security::getProductIdentifier)
-				.orElseThrow(() -> new RuntimeException("No product identifier found for Equity underlier"));
-		
-		return priceNotations.stream()
-				.filter(n -> matches(n, underlierProductIdentifiers))
-				.map(PriceNotation::getPrice)
-				.map(Price::getCashPrice)
-				.map(CashPrice::toBuilder)
+	protected PriceBuilder doEvaluate(List<? extends PriceQuantity> priceQuantity) {
+		return emptyIfNull(priceQuantity).stream()
+				.map(PriceQuantity::getPrice)
+				.filter(Objects::nonNull)
+				.flatMap(Collection::stream)
+				.map(FieldWithMetaPrice::getValue)
+				.filter(p -> Optional.ofNullable(p)
+						.map(Price::getPerUnitOfAmount)
+						.map(UnitType::getFinancialUnit)
+						.map(FinancialUnitEnum.SHARES::equals)
+						.orElse(false))
+				.map(Price::toBuilder)
 				.findFirst()
-				.orElseThrow(() -> new RuntimeException("No price found for product identifier " + underlierProductIdentifiers));
-	}
-
-	private boolean matches(PriceNotation priceNotation, List<ProductIdentifier> underlierProductIdentifier) {
-		return Optional.ofNullable(priceNotation)
-				.map(PriceNotation::getAssetIdentifier)
-				.map(AssetIdentifier::getProductIdentifier)
-				.map(underlierProductIdentifier::contains)
-				.orElse(false);
+				.orElse(null);
 	}
 }

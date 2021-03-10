@@ -11,6 +11,8 @@ import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -82,6 +84,12 @@ public class DayCountFractionEnumTest extends AbstractFunctionTest {
 		this.calculationPeriod.setDelegate(calculationPeriod);
 
         InterestRatePayout interestRatePayout = Mockito.mock(InterestRatePayout.class);
+        when(interestRatePayout.getType()).thenAnswer(new Answer() {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				return InterestRatePayout.class;
+			}
+		});
 
 		return dayCountFraction.evaluate(interestRatePayout, dcf, DateImpl.of(2017, 10, 20));
 	}

@@ -274,7 +274,7 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 				.setAmount(BigDecimal.valueOf(amount))
 				.setCurrency(FieldWithMetaString.builder()
 						.setValue(BASE_CURRENCY_USD)
-						.setMetaBuilder(MetaFields.builder()
+						.setMeta(MetaFields.builder()
 								.setScheme(CURRENCY_SCHEME))
 						.build())
 				.build();

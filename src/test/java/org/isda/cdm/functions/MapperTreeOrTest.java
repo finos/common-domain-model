@@ -80,6 +80,6 @@ class MapperTreeOrTest extends AbstractFunctionTest {
 		primBuilder.getOrCreateContractFormation().getOrCreateAfter().getOrCreateTrade()
 				.getOrCreateTradableProduct().getOrCreateProduct().getOrCreateContractualProduct()
 				.getOrCreateEconomicTerms().getOrCreateEffectiveDate().getOrCreateAdjustableDate()
-				.setAdjustedDateRef(date);
+				.setAdjustedDateValue(date);
 	}
 }
