@@ -45,7 +45,7 @@ class ElectiveAmountElectionMappingHelper {
 				(value) -> setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, moneyBuilder::setCurrency, value), mappings, path);
 
 		if (moneyBuilder.hasData()) {
-			electiveAmountElectionBuilder.setAmountBuilder(moneyBuilder);
+			electiveAmountElectionBuilder.setAmount(moneyBuilder);
 		}
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_" + synonymPath.getLastElement().getPathName()),

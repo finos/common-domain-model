@@ -1,9 +1,13 @@
 package cdm.event.position.functions;
 
-import cdm.base.math.NonNegativeQuantity;
+import cdm.base.math.Quantity;
+import cdm.base.math.UnitType;
+import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.event.common.Trade;
-import cdm.observable.asset.*;
-import cdm.observable.common.functions.ExtractQuantityByCurrency;
+import cdm.observable.asset.Observable;
+import cdm.observable.asset.PriceQuantity;
+import cdm.observable.asset.QuoteBasisEnum;
+import cdm.observable.asset.QuotedCurrencyPair;
 import cdm.product.template.*;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -12,7 +16,6 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
@@ -20,7 +23,7 @@ import static org.hamcrest.Matchers.closeTo;
 class FxMarkToMarketTest extends AbstractFunctionTest {
 
     @Inject
-    FxMarkToMarket markToMarket;
+    private FxMarkToMarket markToMarket;
 
     @Override
     protected void bindTestingMocks(Binder binder) {
@@ -29,18 +32,6 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
             @Override
             protected BigDecimal doEvaluate(ForwardPayout forward) {
                 return BigDecimal.valueOf(1.5);
-            }
-        });
-
-        binder.bind(ExtractQuantityByCurrency.class).toInstance(new ExtractQuantityByCurrency() {
-            @Override
-            protected QuantityNotation.QuantityNotationBuilder doEvaluate(List<QuantityNotation> quantities, String currency) {
-                for (QuantityNotation quantity : quantities) {
-                    if (quantity.getAssetIdentifier().getCurrency().getValue().equals(currency)) {
-                        return quantity.toBuilder();
-                    }
-                }
-                return QuantityNotation.builder();
             }
         });
     }
@@ -67,31 +58,34 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
         assertThat(result, closeTo(BigDecimal.valueOf(-8_750_000), BigDecimal.valueOf(0.000001)));
     }
 
-    private static Trade createFxContract(String curr1, String curr2, int price1, int price2, QuoteBasisEnum basisEnum) {
+    private static Trade createFxContract(String curr1, String curr2, int quantityAmount1, int quantityAmount2, QuoteBasisEnum basisEnum) {
+        Quantity.QuantityBuilder quantity1 = Quantity.builder()
+                .setAmount(BigDecimal.valueOf(quantityAmount1))
+                .setUnitOfAmount(UnitType.builder()
+                        .setCurrency(FieldWithMetaString.builder()
+                                .setValue(curr1)));
+        Quantity.QuantityBuilder quantity2 = Quantity.builder()
+                .setAmount(BigDecimal.valueOf(quantityAmount2))
+                .setUnitOfAmount(UnitType.builder()
+                        .setCurrency(FieldWithMetaString.builder()
+                                .setValue(curr2)));
         return Trade.builder()
-                .setTradableProductBuilder(TradableProduct.builder()
-                	.setProductBuilder(Product.builder()
-		                .setContractualProductBuilder(ContractualProduct.builder()
-		                        .setEconomicTermsBuilder(EconomicTerms.builder()
-		                                .setPayoutBuilder(Payout.builder()
-		                                        .addForwardPayoutBuilder(ForwardPayout.builder())))))
-                	.addQuantityNotationBuilder(QuantityNotation.builder()
-                    		.setAssetIdentifierBuilder(AssetIdentifier.builder()
-                    				.setCurrency(FieldWithMetaString.builder().setValue(curr1).build()))
-                            .setQuantityBuilder(NonNegativeQuantity.builder()
-                                    .setAmount(BigDecimal.valueOf(price1))))
-                    .addQuantityNotationBuilder(QuantityNotation.builder()
-                    		.setAssetIdentifierBuilder(AssetIdentifier.builder()
-                    				.setCurrency(FieldWithMetaString.builder().setValue(curr2).build()))
-                            .setQuantityBuilder(NonNegativeQuantity.builder()
-                                    .setAmount(BigDecimal.valueOf(price2))))
-	                .addPriceNotationBuilder(PriceNotation.builder()
-	                        .setPriceBuilder(Price.builder()
-	                                .setExchangeRateBuilder(ExchangeRate.builder()
-	                                        .setQuotedCurrencyPairBuilder(QuotedCurrencyPair.builder()
-	                                                .setCurrency1(FieldWithMetaString.builder().setValue(curr1).build())
-	                                                .setCurrency2(FieldWithMetaString.builder().setValue(curr2).build())
-	                                                .setQuoteBasis(basisEnum))))))
+                .setTradableProduct(TradableProduct.builder()
+                	.setProduct(Product.builder()
+		                .setContractualProduct(ContractualProduct.builder()
+		                        .setEconomicTerms(EconomicTerms.builder()
+		                                .setPayout(Payout.builder()
+		                                        .addForwardPayout(ForwardPayout.builder())))))
+                	.addPriceQuantity(PriceQuantity.builder()
+                            .addQuantity(FieldWithMetaQuantity.builder()
+                                .setValue(quantity1))
+                            .addQuantity(FieldWithMetaQuantity.builder()
+                                    .setValue(quantity2))
+                            .setObservable(Observable.builder()
+                                .setCurrencyPair(QuotedCurrencyPair.builder()
+                                        .setCurrency1(FieldWithMetaString.builder().setValue(curr1).build())
+                                        .setCurrency2(FieldWithMetaString.builder().setValue(curr2).build())
+                                        .setQuoteBasis(basisEnum)))))
                 .build();
     }
 
