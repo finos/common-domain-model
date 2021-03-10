@@ -56,7 +56,7 @@ public class ApplicableRegimeMappingProcessor extends MappingProcessor {
 			RegimeBuilder regimeBuilder = parent;
 
 			ApplicableRegimeBuilder applicableRegimeBuilder = ApplicableRegime.builder();
-			regimeBuilder.addApplicableRegimeBuilder(applicableRegimeBuilder);
+			regimeBuilder.addApplicableRegime(applicableRegimeBuilder);
 
 			Optional.ofNullable(synonymToRegulatoryRegimeEnumMap.get(synonymPath.getLastElement().getPathName()))
 					.ifPresent(applicableRegimeBuilder::setRegime);
@@ -94,7 +94,7 @@ public class ApplicableRegimeMappingProcessor extends MappingProcessor {
 		while (true) {
 			Optional<ApplicableRegimeBuilder> additionalRegime = getAdditionalRegime(regimesPath, index++);
 			if (additionalRegime.isPresent()) {
-				regimeBuilder.addApplicableRegimeBuilder(additionalRegime.get());
+				regimeBuilder.addApplicableRegime(additionalRegime.get());
 			} else {
 				break;
 			}

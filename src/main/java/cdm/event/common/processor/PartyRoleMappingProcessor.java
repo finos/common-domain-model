@@ -22,9 +22,9 @@ public class PartyRoleMappingProcessor extends MappingProcessor {
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		setValueAndUpdateMappings(synonymPath.addElement("href"),
 				(partyReference) ->
-						((Trade.TradeBuilder) parent).addPartyRoleBuilder(PartyRole.builder()
-								.setPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyReference))
-								.setRoleBuilder(getPartyRoleEnum(synonymPath))));
+						((Trade.TradeBuilder) parent).addPartyRole(PartyRole.builder()
+								.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyReference))
+								.setRole(getPartyRoleEnum(synonymPath))));
 	}
 
 	private PartyRoleEnum getPartyRoleEnum(Path synonymPath) {

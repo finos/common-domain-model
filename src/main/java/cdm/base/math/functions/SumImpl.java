@@ -11,7 +11,7 @@ import java.util.List;
 public class SumImpl extends Sum {
 
 	@Override
-	protected BigDecimal doEvaluate(List<BigDecimal> x) {
-		return x.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+	protected BigDecimal doEvaluate(List<? extends BigDecimal> x) {
+		return x.stream().map(BigDecimal.class::cast).reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 }
