@@ -587,11 +587,16 @@ reporting rule CrossCurrencySwapBuyerSeller
 			structured_provision "The Seller of a Cross-Currency Swap is by definition the Payer of the ISO 4217 currency which is first when sorted ascending irrespective of the interest type or spread"
 			provision "The seller shall be the counterparty delivering this currency which is first when sorted alphabetically by ISO 4217 standard."]
 	filter when rule IsXCCYSwap then
-	minBy Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency then
+	minBy rule MinCCYForTrade then
 	(
 		InterestRatePayoutPayer then PartyToBuyer,
 		InterestRatePayoutReceiver then PartyToSeller
 	)
+	
+reporting rule MinCCYForTrade
+	extract Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency then
+	minBy itself
+	
 
 reporting rule IsXCCYSwap
 	extract multiple Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
@@ -675,14 +680,16 @@ reporting rule CDSPrice
 	 	   	provision "For credit default swaps (CDS) it shall be the coupon in basis points. "]
 	filter when rule IsCreditDefaultSwap then
 	extract multiple Trade -> tradableProduct -> priceQuantity then
-	if (
+	if 
 		filter when PriceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate
 			and PriceQuantity -> price -> amount <> 0
-			=> extract PriceQuantity -> price -> amount as "Price",
+			do extract PriceQuantity -> price -> amount as "Price"
+		else if
 		 filter when PriceQuantity -> price -> priceType = PriceTypeEnum -> Spread
-			=> extract PriceQuantity -> price -> amount as "Price",
-		=> return 0 as "Price"
-		)
+			do extract PriceQuantity -> price -> amount as "Price"
+		else do
+		 return 0 as "Price"
+	endif
 /*
 extract multiple Trade -> tradableProduct -> priceQuantity -> price then
 		filter when Price -> priceType = PriceTypeEnum -> InterestRate then
