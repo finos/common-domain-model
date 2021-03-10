@@ -118,7 +118,9 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
   	clearing ClearingInstruction (0..1) <"Instruction to clear">
   	execution ExecutionInstruction (0..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, and a trade date.">
   	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
-  	condition OneOfInstruction: required choice allocation, clearing, execution, exercise
+	reset ResetInstruction (0..1)
+	transfer TransferInstruction (0..1)
+  	condition OneOfInstruction: required choice allocation, clearing, execution, exercise, reset, transfer
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -170,6 +172,15 @@ type ExecutionInstruction: <"Specifies instructions for execution of a transacti
 	executionDetails ExecutionDetails (1..1) <"Specifies the type and venue of execution, e.g. via voice, or electronically.">
 	tradeDate date (1..1) <"Denotes the trade/execution date.">
 	tradeIdentifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
+
+type ResetInstruction:
+	payout Payout (1..1)
+		[metadata reference]
+
+type TransferInstruction:
+	payout Payout (1..1)
+		[metadata reference]
+	resets Reset (1..*)
 
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 	
