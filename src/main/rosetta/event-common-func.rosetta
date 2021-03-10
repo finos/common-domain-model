@@ -872,6 +872,9 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
  			tradeState -> trade -> tradeDate,
  			tradeState -> trade -> tradeIdentifier ) -> after
 
+	alias transferInstruction:
+		SecurityTransferInstruction(tradeState)
+
   	condition: <"Requires that the original contract must contain a state corresponding to a contractual product.">
  		tradableProduct -> product -> contractualProduct exists
 
@@ -896,7 +899,13 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
 
   	assign-output exerciseEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the underlying financial product to the exercising party if cash settlement was mandated by the contract.">
  		if exerciseTerms -> settlement -> cashSettlementTerms exists then
- 			Create_TransferPrimitive( execution -> trade )
+ 			Create_TransferPrimitive( execution, transferInstruction, exerciseInstruction -> exerciseDate -> adjustedDate)
+
+func SecurityTransferInstruction:
+	inputs:
+		tradeState TradeState (1..1)
+	output:
+		instruction TransferInstruction (1..1)
 
 func Create_Reset: <"Defines the process of applying a reference rate (also known as fixing rate) to a transaction, usually in order to calculate the settlement value of a periodic payment schedule between two parties.">
 	[creation BusinessEvent]
@@ -926,7 +935,7 @@ func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructe
 
 	alias observationIdentifiers: <"Resolves the ObservationIdentifier to be used to derive the single observation to be used in the reset calculation. Resolving the ObservationIdentifier is dependent on the type of payout in use.">
 		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, date) else
-		if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout, date)
+		if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, date)
 
 	alias observation: <"Represents the single observation that will be used to compute the reset value.">
 		ResolveObservation([observationIdentifiers], empty)
@@ -952,7 +961,7 @@ func Create_Transfer: <"Function specification to build a transfer event followi
 		transferEvent BusinessEvent (1..1)
 
 	assign-output transferEvent -> primitives -> transfer: 
-		Create_TransferPrimitive(tradeState only-element, instruction)
+		Create_TransferPrimitive(tradeState only-element, instruction, date)
 
 	assign-output transferEvent -> eventEffect -> effectedTrade:
 	    tradeState
@@ -1120,23 +1129,27 @@ func Create_SplitPrimitive: <"Defines how to create the Split Primitive accordin
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
 	// TODO Never referenced in CDM
 	inputs:
-		trade Trade (1..1) <"Execution to be settled.">
+		tradeState TradeState (1..1) <"Execution to be settled.">
 		previousEvent WorkflowStep (1..1) <"Previous event for lineage purposes.">
+		date date (1..1)
 
 	output:
 		transferEvent WorkflowStep (1..1) <"Transfer event composed of cash and security components created from a security settled via delivery vs payment.">
 
+	alias transferInstruction: 
+		SecurityTransferInstruction(tradeState)
+
 	condition:
-		trade -> tradableProduct -> product -> security exists
+		tradeState -> trade -> tradableProduct -> product -> security exists
 
 	assign-output transferEvent -> businessEvent -> primitives -> transfer:
-		Create_TransferPrimitive(trade)
+		Create_TransferPrimitive(tradeState, transferInstruction, date)
 
 	assign-output transferEvent -> lineage -> eventReference:
 		previousEvent as-key
 
 	assign-output transferEvent -> lineage -> tradeReference:
-		trade as-key
+		tradeState -> trade as-key
 
 // func Create_TransferPrimitive: <"Function specification to create the Transfer primitive based on an execution's settlement terms and instructions. Initial implementation only supports creating transfer primitives from securities settled via delivery vs payment.">
 // 	[creation PrimitiveEvent]
