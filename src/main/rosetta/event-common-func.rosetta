@@ -497,7 +497,8 @@ func ResolveEquityValuationDate: <"Defines how to resolve the observation date a
 
 func ResolveEquityValuationTime: <"Defines how to resolve the observation time from those specified in the Equity Valuation type.">
 	inputs: 
-		equityValuation EquityValuation (1..1)
+		equityValuation EquityValuation (1..1) <"Represents the Equity Valuation terms from the Equity product definition.">
+		productIdentifier ProductIdentifier (1..1) <"Specifies the product identifier, along with the source, which should be used to determine the correct valuation time i.e. close times are different across exchanges.">
 	output:
 		time TimeZone (1..1)
 
@@ -511,7 +512,7 @@ func ResolveEquityValuationTime: <"Defines how to resolve the observation time f
 		if valuationTime exists then TimeZoneFromBusinessCenterTime(valuationTime)
 
 	assign-output time:
-		if timeType exists then ResolveTimeZoneFromTimeType(timeType, equityValuation -> determinationMethod)
+		if timeType exists then ResolveTimeZoneFromTimeType(productIdentifier, timeType, equityValuation -> determinationMethod)
 
 
 func ResolveEquityReset: <"Defines how to resolve the reset value for an equity payout.">
