@@ -14,7 +14,7 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
 public class FilterQuantityImpl extends FilterQuantity {
 
 	@Override
-	protected Quantity.QuantityBuilder doEvaluate(List<? extends Quantity> quantities, String currency) {
+	protected Quantity.QuantityBuilder doEvaluate(List<Quantity> quantities, String currency) {
 		return emptyIfNull(quantities).stream()
 				.filter(q -> matches(q, currency))
 				.map(Quantity::toBuilder)

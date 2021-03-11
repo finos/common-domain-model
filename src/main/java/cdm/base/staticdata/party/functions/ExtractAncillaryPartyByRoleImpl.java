@@ -11,7 +11,7 @@ import cdm.base.staticdata.party.AncillaryRoleEnum;
 public class ExtractAncillaryPartyByRoleImpl extends ExtractAncillaryPartyByRole {
 
 	@Override
-	protected AncillaryParty.AncillaryPartyBuilder doEvaluate(List<? extends AncillaryParty> parties, AncillaryRoleEnum roleToExtract) {
+	protected AncillaryParty.AncillaryPartyBuilder doEvaluate(List<AncillaryParty> parties, AncillaryRoleEnum roleToExtract) {
 		return emptyIfNull(parties).stream()
 				.filter(p -> p.getRole() == roleToExtract)
 				.map(AncillaryParty::toBuilder)

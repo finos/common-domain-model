@@ -16,7 +16,7 @@ import java.util.Optional;
 public class FpmlIrd8Impl extends FpmlIrd8 {
 
 	@Override
-	protected Boolean doEvaluate(TradableProduct tradableProduct, List<? extends Account> accounts) {
+	protected Boolean doEvaluate(TradableProduct tradableProduct, List<Account> accounts) {
 		if ( tradableProduct.getCounterparty() == null || tradableProduct.getCounterparty().size() != 2)
 			return false;
 

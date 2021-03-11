@@ -10,7 +10,6 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +28,7 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 	@Override
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		UmbrellaAgreementBuilder umbrellaAgreementBuilder = (UmbrellaAgreementBuilder) parent;
-		umbrellaAgreementBuilder.setParties(new ArrayList<>());
+		umbrellaAgreementBuilder.clearParties();
 
 		int index = 0;
 		while (true) {
@@ -47,7 +46,7 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 		UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder = UmbrellaAgreementEntity.builder();
 
 		setValueAndUpdateMappings(synonymPath.addElement("principal_name", index),
-				umbrellaAgreementEntityBuilder::setNameValue);
+				umbrellaAgreementEntityBuilder::setNameRef);
 
 		setValueAndUpdateMappings(synonymPath.addElement("lei", index),
 				(value) -> umbrellaAgreementEntityBuilder.addEntityId(toFieldWithMetaString(value)));

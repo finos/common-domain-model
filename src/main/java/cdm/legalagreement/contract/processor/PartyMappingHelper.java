@@ -107,11 +107,11 @@ public class PartyMappingHelper {
 		invokedTasks.add(bothCounterpartiesCollected
 				.thenAcceptAsync(map -> {
 							LOGGER.info("Setting TradableProduct.counterparty");
-							tradableProductBuilder
-									.setCounterparty(map.entrySet().stream()
+							tradableProductBuilder.clearCounterparty()
+									.addCounterparty(map.entrySet().stream()
 											.map(extRefCounterpartyEntry -> Counterparty.builder()
 													.setRole(extRefCounterpartyEntry.getValue())
-													.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
+													.setPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
 													.build())
 											.collect(Collectors.toList()));
 						}, executor));
@@ -206,8 +206,7 @@ public class PartyMappingHelper {
 	public void addAncillaryParty(String partyExternalReference, AncillaryRoleEnum role) {
 		synchronized (tradableProductBuilder) {
 			LOGGER.info("Adding {} as {} to TradableProduct.ancillaryParty", partyExternalReference, role);
-			@SuppressWarnings("unchecked")
-			List<AncillaryPartyBuilder> ancillaryParties = (List<AncillaryPartyBuilder>)emptyIfNull(tradableProductBuilder.getAncillaryParty());
+			List<AncillaryPartyBuilder> ancillaryParties = emptyIfNull(tradableProductBuilder.getAncillaryParty());
 			Optional<AncillaryPartyBuilder> ancillaryPartyReference = ancillaryParties.stream()
 					.filter(r -> role == r.getRole())
 					.findFirst();
@@ -219,11 +218,12 @@ public class PartyMappingHelper {
 				// Add new entry
 				ancillaryParties.add(AncillaryParty.builder()
 						.setRole(role)
-						.addPartyReference(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)));
+						.addPartyReferenceBuilder(ReferenceWithMetaParty.builder().setExternalReference(partyExternalReference)));
 			}
 			// Clear ancillary parties, and re-add sorted list so we don't get diffs on the list order on each ingestion
 			tradableProductBuilder
-					.setAncillaryParty(ancillaryParties.stream()
+					.clearAncillaryParty()
+					.addAncillaryParty(ancillaryParties.stream()
 							.map(AncillaryPartyBuilder::build)
 							.sorted(Comparator.comparing(AncillaryParty::getRole))
 							.collect(Collectors.toList()));
