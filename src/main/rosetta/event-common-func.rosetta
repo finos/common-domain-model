@@ -519,7 +519,11 @@ func InterestCashSettlementAmount:
 			interestRatePayout -> payoutQuantity -> resolvedQuantity,
 			date)
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
-		then FloatingAmount()
+		then FloatingAmount(
+			interestRatePayout, 
+			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> initialValue -> amount,
+			interestRatePayout -> payoutQuantity -> resolvedQuantity,
+			date)
 
 	assign-output cashflow -> cashflowAmount -> amount:
 		performance
@@ -1099,7 +1103,7 @@ func ResolveCashflow: <"Defines how to calculate the amount due to be transferre
 		if payout -> equityPayout exists
 			then EquityCashSettlementAmount(tradeState, date)
 		else if payout -> interestRatePayout -> rateSpecification -> floatingRate exists	
-			then InterestCashSettlementAmount(tradeState, payout -> interestRatePayout, date)
+			then InterestCashSettlementAmount(tradeState, payout -> interestRatePayout only-element, date)
 
 
 func ResolveCashSettlementDate: <"A product agnostic function that resolves the settlement date of the payout for the period in question">
