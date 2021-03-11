@@ -76,24 +76,9 @@ type CrossCurrencyTerms:
 	principalExchanges PrincipalExchanges (0..1)
 	settlementProvision SettlementProvision (0..1)
 
-/*
- * TO DO ON SECURITY PAYOUT:
-
- * Move all implementation of SecurityPayout to a dedicated file
-
- * type rules to add for security payout:
- * - underliers are the same in each collateral leg
- * - number of collateral legs (2)?
- * - one leg is a buyer and the other is a seller
- * - the underlying security reference in SecurityValuation matches either the Bond or Equity reference in the further SecurityValuationModel
-
- * Have appropriate synonyms vs the repo model in FpML
- */
 type PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
 
 	payoutQuantity ResolvablePayoutQuantity (1..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
-
-
 
 type CashSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms. In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
 
@@ -325,7 +310,7 @@ type YieldCurveMethod: <"A data defining:  the parameters required for each of t
 	quotationRateType QuotationRateTypeEnum (1..1) <"Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j).">
 
 type OptionSettlement extends SettlementTerms: <"The option settlement terms, which can either be cash, physical, or fx-based cash-settlement. This class can be used for both the settlement of options or forwards.">
-	// TBD: refactor OptionCashSettlement and FxCashSettlement to be a unique class, where cash settlement can be specified in a given currency?
+	
 	cashSettlementTerms OptionCashSettlement (0..1) <"Specifies the parameters associated with the cash settlement procedure.">
 	physicalSettlementTerms OptionPhysicalSettlement (0..1) <"Specifies the physical settlement terms which apply to the transaction.">
 	fxSettlementTerms FxCashSettlement (0..1) <"Specifies the cash settlement of a non deliverable fx option / forward. It includes the currency to settle into together with the fixings required to calculate the currency amount">
