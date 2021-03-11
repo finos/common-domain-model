@@ -38,12 +38,12 @@ public class OrePriceMappingProcessor extends MappingProcessor {
 						// if mapped price has priceType interestRate or Spread then update the unitOfAmount and perUnitOfAmount with currency.
 						.filter(p -> p.getPriceType() == PriceTypeEnum.INTEREST_RATE || p.getPriceType() == PriceTypeEnum.SPREAD)
 						.forEach(priceBuilder -> priceBuilder
-								.setUnitOfAmount(unitType)
-								.setPerUnitOfAmount(unitType)));
+								.setUnitOfAmountBuilder(unitType)
+								.setPerUnitOfAmountBuilder(unitType)));
 	}
 
 	private UnitType.UnitTypeBuilder toUnitType(String currency) {
 		return UnitType.builder()
-				.setCurrency(FieldWithMetaString.builder().setValue(currency));
+				.setCurrencyBuilder(FieldWithMetaString.builder().setValue(currency));
 	}
 }

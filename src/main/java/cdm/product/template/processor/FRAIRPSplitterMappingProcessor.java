@@ -51,8 +51,8 @@ public class FRAIRPSplitterMappingProcessor extends MappingProcessor {
 
 					InterestRatePayoutBuilder newIrp = irp.build().toBuilder();
 
-					rateSpec.setFloatingRate(null);
-					newIrp.getRateSpecification().setFixedRate(null);
+					rateSpec.setFloatingRateBuilder(null);
+					newIrp.getRateSpecification().setFixedRateBuilder(null);
 
 					List<Mapping> mappings = filterMappings(getContext().getMappings(), synonymPath.addElement("floatingRateIndex"));
 					mappings.stream().filter(mapping -> toPath(getModelPath()).fullStartMatches(mapping.getRosettaPath())).findFirst().ifPresent(

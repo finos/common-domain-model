@@ -13,7 +13,7 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
 public class FilterPriceImpl extends FilterPrice {
 
 	@Override
-	protected Price.PriceBuilder doEvaluate(List<? extends Price> prices, PriceTypeEnum priceType) {
+	protected Price.PriceBuilder doEvaluate(List<Price> prices, PriceTypeEnum priceType) {
 		return emptyIfNull(prices).stream()
 				.filter(p -> p.getPriceType() == priceType)
 				.map(Price::toBuilder)

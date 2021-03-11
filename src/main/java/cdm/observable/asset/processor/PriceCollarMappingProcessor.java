@@ -39,7 +39,7 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 					UnitTypeBuilder unitType = toCurrencyUnitType(subPath);
 					BigDecimal floorRate = new BigDecimal(String.valueOf(frm.getXmlValue()));
 					((PriceQuantity.PriceQuantityBuilder) parent)
-							.addPrice(toReferencablePriceBuilder(floorRate, unitType, unitType, PriceTypeEnum.FLOOR_RATE));
+							.addPriceBuilder(toReferencablePriceBuilder(floorRate, unitType, unitType, PriceTypeEnum.FLOOR_RATE));
 					// update price index, e.g. floorRate and capRate were previously mapped to the same field so the price index
 					// must be incremented otherwise any references will break
 					frm.setRosettaPath(PriceHelper.incrementPricePathElementIndex(frm.getRosettaPath(), 1));
@@ -55,7 +55,7 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 		String currency = getNonNullMappedValue(getMappings(), startsWithPath, "notionalStepSchedule", "currency").orElse(null);
 		String currencyScheme = getNonNullMappedValue(getMappings(), startsWithPath, "notionalStepSchedule", "currency", "currencyScheme").orElse(null);
 		return UnitType.builder()
-				.setCurrency(FieldWithMetaString.builder()
+				.setCurrencyBuilder(FieldWithMetaString.builder()
 						.setValue(currency)
 						.setMeta(MetaFields.builder()
 								.setScheme(currencyScheme)

@@ -11,7 +11,7 @@ import cdm.base.staticdata.party.CounterpartyRoleEnum;
 public class ExtractCounterpartyByRoleImpl extends ExtractCounterpartyByRole {
 
 	@Override
-	protected Counterparty.CounterpartyBuilder doEvaluate(List<? extends Counterparty> parties, CounterpartyRoleEnum roleToExtract) {
+	protected Counterparty.CounterpartyBuilder doEvaluate(List<Counterparty> parties, CounterpartyRoleEnum roleToExtract) {
 		List<Counterparty> counterpartiesForRole = emptyIfNull(parties).stream()
 				.filter(cp -> cp.getRole() == roleToExtract)
 				.collect(Collectors.toList());
