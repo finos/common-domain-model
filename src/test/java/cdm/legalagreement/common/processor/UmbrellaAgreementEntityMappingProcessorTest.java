@@ -51,7 +51,7 @@ class UmbrellaAgreementEntityMappingProcessorTest {
 
 		// assert
 
-		List<UmbrellaAgreementEntity> parties = umbrellaAgreement.getParties();
+		List<? extends UmbrellaAgreementEntity> parties = umbrellaAgreement.getParties();
 		assertNotNull(parties);
 		assertEquals(2, parties.size());
 
@@ -89,7 +89,7 @@ class UmbrellaAgreementEntityMappingProcessorTest {
 
 		// assert
 
-		List<UmbrellaAgreementEntity> parties = umbrellaAgreement.getParties();
+		List<? extends UmbrellaAgreementEntity> parties = umbrellaAgreement.getParties();
 		assertNotNull(parties);
 		assertEquals(1, parties.size());
 

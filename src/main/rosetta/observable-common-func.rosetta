@@ -15,37 +15,33 @@ func ResolveTimeZoneFromTimeType: <"Defines inputs and outputs needed to derive 
 	output:
 		time TimeZone (1..1)
 
-func PriceQuantityTriangulation:
+func PriceQuantityTriangulation: <"Defines all the scenarios which triangulation can be helpful validation between Prices and Quantities.">
 	inputs:
-		priceNotation PriceNotation (0..*)
-		quantityNotation QuantityNotation (0..*)
-
+		priceQuantity PriceQuantity (0..*)
+		
 	output:
 		success boolean (1..1)
 
 	assign-output success:
-		if priceNotation -> price -> cashPrice exists
-		then CashPriceQuantityNoOfUnitsTriangulation(priceNotation, quantityNotation)
-		else if priceNotation -> price -> exchangeRate exists
-			then ExchangeRateQuantityTriangulation(priceNotation, quantityNotation)
-			else True
+		if priceQuantity -> price -> priceType = PriceTypeEnum -> CashPrice
+		then CashPriceQuantityNoOfUnitsTriangulation(priceQuantity)
+        else True
 
 func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
 	inputs:
-		priceNotation PriceNotation (0..*)
-		quantityNotation QuantityNotation (0..*)
+		priceQuantity PriceQuantity (0..*)
 
 	output:
 		success boolean (1..1)
 
 	alias notional:
-		CurrencyAmount(quantityNotation, empty)
+		CurrencyAmount(priceQuantity, empty)
 
 	alias noOfUnits:
-		NoOfUnits(quantityNotation)
+		NoOfUnits(priceQuantity)
 
 	alias cashPrices:
-		priceNotation -> price -> cashPrice -> netPrice -> amount
+		priceQuantity -> price -> amount
 
 	alias cashPrice:
 		cashPrices only-element
@@ -54,45 +50,9 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 		if (cashPrice and noOfUnits and notional) exists
 		then cashPrice * noOfUnits = notional
 
-func ExchangeRateQuantityTriangulation:
-	inputs:
-		priceNotation PriceNotation (0..*)
-		quantityNotation QuantityNotation (0..*)
-
-	output:
-		success boolean (1..1)
-
-	alias exchangeRates:
-		priceNotation -> price -> exchangeRate
-
-	alias exchangeRate:
-		exchangeRates only-element
-
-	alias rate:
-		if exchangeRate -> rate exists
-		then exchangeRate -> rate
-		else exchangeRate -> spotRate
-
-	alias quotedCurrency:
-		exchangeRate -> quotedCurrencyPair
-
-	alias quantity1:
-		CurrencyAmount(quantityNotation, quotedCurrency -> currency1)
-
-	alias quantity2:
-		CurrencyAmount(quantityNotation, quotedCurrency -> currency2)
-
-	assign-output success:
-		if (quantity1 and quantity2 and rate) exists
-		then
-		if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
-			then quantity1 / quantity2 = rate
-			else if quotedCurrency -> quoteBasis = QuoteBasisEnum -> Currency2PerCurrency1
-				then quantity2 / quantity1 = rate
-
 func NoOfUnits: <"Get quantity associated with product identifier.">
 	inputs:
-		quantityNotations QuantityNotation (0..*)
+		priceQuantity PriceQuantity (0..*)
 
 	output:
 		noOfUnits number (1..1)
@@ -100,58 +60,52 @@ func NoOfUnits: <"Get quantity associated with product identifier.">
 
 func CurrencyAmount: <"Get quantity associated with currency.">
 	inputs:
-		quantityNotations QuantityNotation (0..*)
+		priceQuantity PriceQuantity (0..*)
 		currency string (0..1)
 
 	output:
 		currencyAmount number (1..1)
 
-// TODO: turn these functions into language level operators i.e. '+'
 func Plus:
 	inputs:
-		q1 QuantityNotation (1..1)
-		q2 QuantityNotation (1..1)
+		q1 cdm.base.math.Quantity (1..1)
+		q2 cdm.base.math.Quantity (1..1)
 	output:
-		result QuantityNotation (1..1)
+		result cdm.base.math.Quantity (1..1)
 
-// TODO: turn these functions into language level operators i.e. '='
 func Equals:
-	// TODO Never referenced in CDM
 	inputs:
-		quantity QuantityNotation (1..*)
+		quantity cdm.base.math.Quantity (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
 
-// TODO: turn these functions into language level operators i.e. '>'
 func GreaterThan:
 	inputs:
-		quantity QuantityNotation (1..*)
+		quantity cdm.base.math.Quantity (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
 
-// TODO: turn these functions into language level operators i.e. '>='
 func GreaterThanEquals:
-	// TODO Never referenced in CDM
 	inputs:
-		quantity QuantityNotation (1..*)
+		quantity cdm.base.math.Quantity (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
 
 func ExtractQuantityByAsset:
 	inputs:
-		quantities QuantityNotation (1..*)
-		asset AssetIdentifier (1..1)
+		priceQuantities PriceQuantity (1..*)
+		observable Observable (1..1)
 	output:
-		quantity QuantityNotation (1..1)
+		priceQuantity PriceQuantity (1..1)
 
 func ExtractQuantityByCurrency:
 	inputs:
-		quantities QuantityNotation (1..*)
+		priceQuantities PriceQuantity (1..*)
 		currency string (1..1)
 	output:
-		quantity QuantityNotation (1..1)
+		priceQuantity PriceQuantity (1..1)
 
 

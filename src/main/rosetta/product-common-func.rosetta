@@ -15,26 +15,7 @@ import cdm.product.common.schedule.*
 
 import cdm.synonyms.config.*
 
-//***********************
-// Product Qualification
-
 isProduct root EconomicTerms;
-
-func ResolveContractualProduct: <"For a given ContractualProduct, the function finds all ResolvablePayoutQuantity instances, then for each instance, resolves the quantity, populates the quantity attribute on ResolvablePayoutQuantity, and finally returns the updated ContractualProduct.">
-	inputs:
-		contractualProduct ContractualProduct (1..1) <"The ContractualProduct to be resolved.">
-		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
-	output:
-		resolvedContractualProduct ContractualProduct (1..1) <"The updated ContractualProduct with all ResolvablePayoutQuantity instances resolved and updated with the corresponding quantity.">
-
-func ResolvePayoutQuantity: <"For a given ResolvablePayoutQuantity, the function resolves and returns the corresponding quantity from the QuantityNotations by matching on AssetIdentifier.">
-	inputs:
-		resolvableQuantity ResolvablePayoutQuantity (1..1) <"The ResolvablePayoutQuantity to resolve.">
-		quantityNotations QuantityNotation (1..*) <"All QuantityNotations associated with the given ContractualProduct, that will be resolved based on their AssetIdentifier.">
-		contractualProduct ContractualProduct (1..1) <"Provided to allow any references to be resolved.">
-
-	output:
-		resolvedQuantity NonNegativeQuantity (1..1) <"The resolved NonNegativeQuantity.">
 
 func Qualify_CreditDefaultSwap: <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
 	[qualification Product]
@@ -200,7 +181,6 @@ func Qualify_InterestRate_IRSwap_FixedFixed: <"Qualifies a product as a Fixed-Fi
 
 		
 func Qualify_InterestRate_IRSwap_Basis: <"Qualifies a product as a Basis (Float-Float) Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with two floating legs and more than one payment, 2) without inflation features or cross-currency features but could have 'zero coupon' features, and 3) where neither floating leg is  based on an OIS index.">
-
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
@@ -274,7 +254,6 @@ func Qualify_InterestRate_IRSwap_Basis: <"Qualifies a product as a Basis (Float-
 	and floatingRateIndex <> FloatingRateIndexEnum-> USD_OIS_4_00_TRADITION
 
 func Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon: <"Qualifies a product as a Fixed-Float Zero Coupon Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one floating leg and more than one payment, 2) without inflation features or cross-currency features, and 3) where the floating leg is not based on an OIS index.">
-
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)

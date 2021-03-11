@@ -31,7 +31,7 @@ public class AgreementTermsPartyMappingProcessor extends MappingProcessor {
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		AgreementTerms.AgreementTermsBuilder agreementBuilder = (AgreementTerms.AgreementTermsBuilder) parent;
 		PARTIES.forEach(party -> agreementBuilder
-				.addCounterpartyBuilder(Counterparty.builder()
+				.addCounterparty(Counterparty.builder()
 						.setRole(toCounterpartyRoleEnum(party))
 						.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(party).build())));
 	}

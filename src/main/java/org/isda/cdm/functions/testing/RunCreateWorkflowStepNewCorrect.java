@@ -4,11 +4,11 @@ import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.event.common.ActionEnum;
 import cdm.event.common.BusinessEvent;
-import cdm.event.common.ExecutionInstruction;
 import cdm.event.common.TradeState;
 import cdm.event.common.functions.Create_Execution;
 import cdm.event.workflow.*;
 import cdm.event.workflow.functions.Create_WorkflowStep;
+import cdm.observable.asset.PriceQuantity;
 import com.google.common.collect.Lists;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
@@ -59,11 +60,11 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
 	}
 
 	private Identifier identifier(String id) {
-		return Identifier.builder().addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierRef(id).build()).build();
+		return Identifier.builder().addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierValue(id).build()).build();
 	}
 
 	private MessageInformation messageInformation(String messageId) {
-		return MessageInformation.builder().setMessageIdRef(messageId).build();
+		return MessageInformation.builder().setMessageIdValue(messageId).build();
 	}
 
 	private BusinessEvent correctedBusinessEvent(TradeState tradeState) {
@@ -73,7 +74,13 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
 	private BusinessEvent newBusinessEvent(TradeState tradeState) {
 		TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
 		tradeStateBuilder
-				.getTrade().getTradableProduct().getQuantityNotation().forEach(qn -> qn.getQuantity().setAmount(BigDecimal.valueOf(99_999)));
+				.getTrade()
+				.getTradableProduct()
+				.getPriceQuantity()
+				.stream()
+				.map(PriceQuantity.PriceQuantityBuilder::getQuantity)
+				.flatMap(Collection::stream)
+				.forEach(q -> q.getOrCreateValue().setAmount(BigDecimal.valueOf(99_999)));
 		TradeState incorrectQuantity = tradeStateBuilder.build();
 
 		return execute.evaluate(createExecutionInstructionFromTradeState(incorrectQuantity));

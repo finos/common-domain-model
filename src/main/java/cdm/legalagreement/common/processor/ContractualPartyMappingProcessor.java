@@ -46,8 +46,8 @@ public class ContractualPartyMappingProcessor extends MappingProcessor {
 
 		setValueAndUpdateMappings(String.format("answers.partyA.parties.%s_name", party),
 				(value) -> {
-					partyBuilder.setNameRef(value);
-					partyBuilder.setMetaBuilder(MetaFields.builder().setExternalKey(party));
+					partyBuilder.setNameValue(value);
+					partyBuilder.setMeta(MetaFields.builder().setExternalKey(party));
 				});
 
 		setValueAndUpdateMappings(String.format("%s.entity.id", party),
