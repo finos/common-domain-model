@@ -1945,15 +1945,14 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
  	[creation PrimitiveEvent]
  	inputs:
  		tradeState TradeState (1..1)
+ 		payout Payout (1..1)
  		date date (1..1)
  	output:
  		resetPrimitive ResetPrimitive (1..1)
 
- 	alias payout:
- 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout
-
  	alias observationIdentifiers:
- 		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, date)
+ 		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, date) else
+ 		if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, date)
 
  	alias observation:
  		ResolveObservation([observationIdentifiers], empty)
@@ -1965,7 +1964,8 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
  		tradeState
 
  	assign-output resetPrimitive -> after -> resetHistory:
- 		if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date)
+ 		if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date) else
+ 		if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, date)
 
 First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
 
