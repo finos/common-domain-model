@@ -128,9 +128,6 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 		then crossCurrencyTerms -> settlementProvision -> settlementCurrency <> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
 			or crossCurrencyTerms -> settlementProvision -> settlementCurrency <> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
 
-	/*
-	 * TODO - Need for an associated logic that will parse the respective legs of the swap, as this is not made explicit at present as part of the syntax
-	 */
 	condition FpML_ird_7_1: <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
 		if paymentDates -> paymentFrequency -> period = calculationPeriodDates -> calculationPeriodFrequency -> period
 			and paymentDates -> paymentFrequency -> periodMultiplier = calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
@@ -171,12 +168,6 @@ type DividendPayout: <"A class describing the dividend payout ratio associated w
 	dividendPayoutRatioCash number (0..1) <"Specifies the cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
 	dividendPayoutRatioNonCash number (0..1) <"Specifies the non cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
 
-	/*
-	 * The FpML dividendPayoutConditions specified as a string has not be incorporated at this time, as such string approach is deemed not
-	 * effective.  We should confirm whether it is effectively used and, if yes, how it is used.
-	 * The FpML dividendPayment has also not been incorporated, as it seem strange to represent the next dividend payment as part of the contractual
-	 * terms.  Here also, let's confirm usage.
-	 */
 	condition DividendPayoutRatio: <"The dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
 		if dividendPayoutRatio exists
 		then dividendPayoutRatio >= 0
@@ -192,13 +183,6 @@ type DividendPayout: <"A class describing the dividend payout ratio associated w
 		then dividendPayoutRatioNonCash >= 0
 			and dividendPayoutRatio <= 1
 
-/*
- * FpML cd validation rules perceived as needing extensions to the data rule syntax or calls to java functions:
- * - cd-15, cd-16, cd-17, cd-18 as they require to test the number of referenceObligation nodes
- * - cd-21, cd-21.0, cd-22 as in order to test the condition that a trade is a short form, we need to have a like-type function to represent that an enumeration value that begins with string "iTraxx" or "CDX".
- * - cd-33 as there is a need for date computation by 'adding an integer multiple of the period in paymentFrequency to firstPaymentDate'
- * - cd-38 as there is a need to sum-up a set of values and check that their total = 1
- */
 type AdditionalFixedPayments: <"A class to specify the events that will give rise to the payment additional fixed payments.">
 
 	interestShortfallReimbursement boolean (0..1) <"An additional Fixed Payment Event. Corresponds to the payment by or on behalf of the Issuer of an actual interest amount in respect to the reference obligation that is greater than the expected interest amount. ISDA 2003 Term: Interest Shortfall Reimbursement.">
@@ -338,7 +322,7 @@ type ReferencePoolItem: <"This type contains all the constituent weight and refe
 	referencePair ReferencePair (1..1)
 	protectionTermsReference ProtectionTerms (0..1) <"Reference to the documentation terms applicable to this item.">
 		[metadata reference]
-	// TODO the two fields below should be merged into one using an abstract type see https://trello.com/c/zb5A88cZ
+	
 	cashSettlementTermsReference CashSettlementTerms (0..1) <"Reference to the cash settlement terms applicable to this item.">
 		[metadata reference]
 	physicalSettlementTermsReference PhysicalSettlementTerms (0..1) <"Reference to the physical settlement terms applicable to this item.">
@@ -415,9 +399,6 @@ type DividendReturnTerms: <"A class describing the conditions governing the paym
 	excessDividendAmount DividendAmountTypeEnum (0..1) <"Determination of Gross Cash Dividend per Share.">
 	dividendCurrency DividendCurrency (0..1) <"Specifies the currency in which the dividend will be denominated, e.g. the dividend currency, or a specified currency. This class is not specified as such in FpML, which makes use of the CurrencyAndDeterminationMethod.model to specify such terms.">
 
-	/*
-	 * More FpML provisions to be confirmed & specified
-	 */
 	condition DividendPeriod: <"  FpML specifies a choice between dividendPeriod one one end, and dividendPeriodEffectiveDate and dividendPeriodEndDate on the other end.">
 		if dividendPeriod exists
 		then dividendPeriodEffectiveDate is absent
@@ -432,10 +413,6 @@ type PriceReturnTerms:
 	valuationPriceInterim EquityValuation (0..1) <"Specifies the interim valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
 	valuationPriceFinal EquityValuation (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
 
-// NOW SUPERSEDED By THE USE OF GENERIC 'PRODUCT' UNDERLIER, WHICH ALREADY HAS A 'ONE OF' RULE:
-// choice rule ForwardPayout_choice <"The forward payout must have an underlying asset that is either a security or a foreign exchange contract.">
-// 	for ForwardPayout required choice between 
-// 	settlementTerms and underlier
 type ForeignExchange: <"From FpML: A type defining either a spot or forward FX transactions.">
 
 	exchangedCurrency1 Cashflow (1..1) <"This is the first of the two currency flows that define a single leg of a standard foreign exchange transaction.">
@@ -443,18 +420,6 @@ type ForeignExchange: <"From FpML: A type defining either a spot or forward FX t
 	tenorPeriod Period (0..1) <"A tenor expressed as a period type and multiplier (e.g. 1D, 1Y, etc.)">
 	exchangeRate ExchangeRate (0..1) <"ATTRIBUTE SCHEDULED FOR DEPRECATION. The rate of exchange between the two currencies.">
 
-/*
- * FpML ird validation rules perceived as needing extensions to the data rule syntax or calls to java functions:
- * http://www.fpml.org/spec/fpml-5-9-7-rec-2/html/confirmation/index.html
- * Total number of rules = 50, 35 implemented -> 70%
- * ird-2, ird-5, ird-36 -> x is is equal to an integer multiple of y
- * ird-3, ird-4 -> a date is equal to one of an array of dates
- * ird-10, ird-11 -> min operator among a set of dates + need further levels of evaluation
- * ird-12 -> calendar evaluation
- * ird-43 -> states that at least one attribute among 4 must exist, which is quite involved to state with current grammar (15 combinations)
- * ird-47 -> the rule suggest to have a dateRelativeTo which is equal to an Id associated with the type of option exercise, which contains a set of dates (and other attributes)
- * ird-50, ird-51, ird-52, ird-53, ird-54 -> vagueness as to how to ensure that the dates in the notionalStepSchedule, the fixedRateSchedule, etc. are unadjusted in the schedule implied by the calculationPeriodDates
- */
 type BondReference: <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
 
 	bond ProductIdentifier (1..1) <"Reference to a bond underlier.">
