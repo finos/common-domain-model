@@ -317,7 +317,7 @@ func Qualify_PartialNovation: <"The qualification of a novation event from the f
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
 		//and originalContractParties <> newContractParties
 
-func Qualify_PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
+func Qualify_PartialTermination: <"Qualifies a business event as a partial termination from the fact that i) a QuantityChange Primitive exists, or a QuantityChange Primitive and a TransferPrimitive exists, and ii) the closed State on the QuantityChange Primitive is absent.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -365,7 +365,7 @@ func Qualify_SecuritySettlement: <"The qualification of a security settlement fr
 		and transfers -> quantity -> quantity -> unit is absent
 		and businessEvent -> primitives -> quantityChange is absent
 
-func Qualify_Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
+func Qualify_Termination: <"Qualifies a business event as a full termination from the fact that i) a QuantityChange Primitive exists, or a QuantityChange Primitive and a TransferPrimitive exists, and ii) the closed State on the Quantity Change Primitive is Terminated.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -474,6 +474,12 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 /**
  * Function specifications that are used in the Equity Reset process
  */
+
+func FilterOpenTradeStates: <"Outlines inputs and outputs required to filter only 'open' Trade States.">
+	inputs:
+		tradeStates TradeState (2..*)
+	output:
+		filteredTradeStates TradeStates (1..1)
 
 func ResolveEquityObservationIdentifiers: <"Defines which attributes on the EquityPayout should be used to locate and resolve the underlier's price, for example for the reset process.">
 	inputs:
@@ -669,6 +675,26 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 
 	assign-output businessEvent -> primitives -> termsChange: <"Build TermsChangePrimitive (for price) and add to WorkflowStep.">
 		Create_PriceChangePrimitive(instruction -> tradeState, postSplitPrice)
+
+func Create_Decrease: <"Creates the fully-formed business event of decreasing notional on a transaction based on decrease instructions.">
+	[creation BusinessEvent]
+	inputs:
+		instruction DecreaseInstruction (1..1) <"Specifies instructions for decreasing a transaction consisting of the notional, or quantity, to be terminated, and the decrease fee.">
+
+	output:
+		decreaseEvent BusinessEvent (1..1) <"Qualified decrease business event containing a single quantity change primitive event, and no other primitive event.">
+
+	assign-output decreaseEvent -> primitives -> quantityChange: <"Event must contain a quantity change primitive based on the input trade.">
+		Create_QuantityChangePrimitive(instruction -> trade, instruction -> decreaseAmount -> quantity -> amount, empty)
+
+	assign-output decreaseEvent -> eventEffect -> trade: <"The event effect of the business event points to the decreased trade, i.e. the after state of the quantity change primitive event.">
+		decreaseEvent -> primitives -> quantityChange -> after
+
+	assign-output decreaseEvent -> eventEffect -> effectedTrade: <"The event effect of the business event points to the input trade, i.e. the before state of the quantity change primitive event.">
+		decreaseEvent -> primitives -> quantityChange -> before
+
+	assign-output decreaseEvent -> eventDate: <"The event date of the business event points to the decrease date on the instructions.">
+		instruction -> decreaseDate
 
 func Create_Execution: <"Creates the fully formed business event of executing a transaction based on execution instructions, representing the instantiation of a transaction between two parties on a financial product for a given price, quantity and settlement terms. The business event is constructed to contain a single execution primitive event, and no other primitive event.">
     [creation BusinessEvent]
@@ -1121,6 +1147,9 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 		tradeState TradeState (1..1)
 		currencyAmount number (0..1)
 		noOfUnits number (0..1)
+		closedState ClosedStateEnum (0..1) <"Represents the reason for the trade's closure. The input is optional as not all splits will result in a trade closure, for example in the case of a partial allocation.">
+		positionStatus PositionStatusEnum (1..1) <"Represents the change to the position status.">
+		
 	output:
 		quantityChangePrimitive QuantityChangePrimitive (1..1)
 

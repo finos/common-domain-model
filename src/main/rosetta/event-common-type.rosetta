@@ -111,11 +111,19 @@ type ContractState: <"A class to specify a contract state instantiation with res
 		[synonym Workflow_Event value "trade" path "fpmlTrade" mapper "Party"]
 	updatedTrade Trade (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
 
+type DecreaseInstruction: <"Specifies instructions for decreasing a transaction consisting of the notional, or quantity, to be terminated, and the decrease fee.">
+	trade TradeState (1..1) <"Specifies the trade to be decreased.">
+	decreaseDate date (1..1) <"Specifies the trade date of the decrease.">
+	decreaseAmount QuantityNotation (1..1) <"Specifies the amount of notional, or quantity, of the trade to be decreased.">
+	decreasePrice PriceNotation (0..1) <"Specifies the decrease price.">
+	decreaseFee SettlementTerms (0..1) <"Specifies the decrease fee.">
+
 type Instruction: <"Instruction to a function that will be used to perform a business event">
   	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
   	instructionFunction string (1..1) <"Specifies the function that will be called">
   	allocation AllocationInstruction (0..1) <"Instruction to allocate">
   	clearing ClearingInstruction (0..1) <"Instruction to clear">
+	decrease DecreaseInstruction (0..1) <"Specifies instructions for decreasing a transaction consisting of the notional, or quantity, to be terminated, and the decrease fee.">
   	execution ExecutionInstruction (0..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, and a trade date.">
   	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
   	condition OneOfInstruction: required choice allocation, clearing, execution, exercise
@@ -671,12 +679,6 @@ type SplitPrimitive: <"Defines splitting of a single trade into one or more trad
 
 	condition: <"Ensure the quantities of each split trade totals that of the single trade.">
 		Sum( FilterOpenTradeStates(after) -> tradeStates ->trade -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> trade -> tradableProduct -> quantityNotation -> quantity -> amount
-
-func FilterOpenTradeStates: <"Outlines inputs and outputs required to filter only 'open' Trade States.">
-	inputs:
-		tradeStates TradeState (2..*)
-	output:
-		filteredTradeStates TradeStates (1..1)
 
 type TradeStates: <"Defines a set of TradeState objects. This type is a work-around to a bug in the code generators which prevents the model from returning a set of elements in the function.">
 	tradeStates TradeState (0..*)
