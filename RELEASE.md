@@ -1,4 +1,4 @@
-# *Model Change - Removed unnecessary comments from the logical model
+# *Model Change - Removed unnecessary comments from the logical model*
 
 _What is being released?_
 
@@ -9,3 +9,29 @@ The only type of comments that have not been removed are those that provide usef
 _Review directions_
 
 In the CDM Portal, select the Textual Browser, search for the symbol //.  The only cases that should be found are examples of guidance comments or the use of // in a URL.  Also, search for /* , there should not be any cases of this notation.
+
+# *Model Change and Technical Change - DSL upgrades for regulatory rules*
+
+_What is being released?_
+
+**Technical Change**
+* Removal of redundant ``multiple`` keyword from ``extract`` rule.
+* New syntax to allow ``maxBy`` and ``minBy`` to call rules and find ``minimum``/``maximum`` of things that are comparable directly.
+
+**Model Change**
+* Rewrite of reporting rule CrossCurrencySwapBuyerSeller as DSL changes show it to be invalid
+* Update of all reporting rules currently using ``extract multiple`` syntax
+
+_Review directions_
+
+In the CDM Portal use the Textual Browser to inspect the reporting rules. 
+
+See `reporting rule CrossCurrencySwapBuyerSeller`, which failed the new validation checks meaning it would have been broken in the generated Java code. This rule has been updated to be correct using new syntax.
+
+See `reporting rule TradingDateTime`, which has had the redundant ``multiple`` keyword removed.
+
+# *Technical Change - Bugfix to Java code*
+
+_What is being released?_
+
+The setXXX methods in RosettaModelObjectBuilders now accept null as an argument. Setting a value to null has the effect of clearing out the value for that attribute.
