@@ -17,9 +17,6 @@ New data types to support the `CommodityPayout`data type
 - `ParametricDates`: Defines rules for the dates on which the price will be determined
 - `Lag`: The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period
 
-New data type to support the `FixedForwardPayout` data type
-- `FixedPrice`: Specifies the fixed price on which fixed forward payments are based
-
 Modified and new data types to support Commodity Reference Prices as underliers
 - `Commodity` : Expanded with additional attributes to define the Commodity Reference Prices
 - `CommodityProductDefinition` : Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists
@@ -35,6 +32,7 @@ Changes in enums to support Commodity Swaps
 - Added `RollSourceCalendar` : Identifies a date source calendar from which the pricing dates and the roll to the next contract will be based
 - Added `DayDistributionEnum` : Denotes the method by which the pricing days are distributed across the pricing period
 - Combined the values from `CommodityBusiness` with the values in `BusinessCenterEnum`
+- Modified `PeriodExtendedEnum` by adding a new enumerated value, C (CalculationPeriod), which is used when the defined the period corresponds to the calculation period, for example, it is used in the Commodity Markets to indicate that a reference contract is the one that corresponds to the period of the calculation period
 
 _Review directions_
 
