@@ -24,6 +24,17 @@ import cdm.event.position.*
 
 import cdm.synonyms.config.*
 
+
+type Confirmationw: <"A class to specify a trade confirmation.">
+	identifier Identifier (1..*) <"The identifier(s) associated with the trade and resulting confirmation.">
+	party Party (1..*) <"The parties associated with the trade.">
+	partyRole PartyRole (1..*) <"The role(s) that party(ies) may have in relation to the trade">
+	lineage Lineage (0..1) <"The lineage attribute provides a linkage to previous lifecycle events and associated data.">
+	status ConfirmationStatusEnum (1..1)
+	condition BothBuyerAndSellerPartyRolesMustExist: <"For an security confirmation, both buyer and seller party roles must exist.">
+		if lineage -> tradeReference -> tradableProduct -> product -> security exists
+		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
+
 type Confirmation: <"A class to specify a trade confirmation.">
 
 	identifier Identifier (1..*) <"The identifier(s) associated with the trade and resulting confirmation.">
