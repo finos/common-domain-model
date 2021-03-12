@@ -392,7 +392,7 @@ func Qualify_Execution: <"The qualification of an execution event from the fact 
 	assign-output is_event:
 		businessEvent -> primitives count = 1 and businessEvent -> primitives -> execution exists
 
-func Qualify_ContractFormation: <"The qualification of a contractFormation event from the fact that the only component is a contractFormation.">
+func Qualify_ContractFormation: <"Qualifies a business event as a contract formation from the fact that the only component is a single Contract Formation Primitive.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -738,17 +738,6 @@ func Create_Execution: <"Creates the fully formed business event of executing a 
     [creation BusinessEvent]
 	inputs:
         executionInstruction ExecutionInstruction (1..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, execution details, and settlement terms.">
-        // product Product (1..1) <"Defines the financial product to be executed and contract formed.">
-        // priceQuantity PriceQuantity (1..*) <"Specifies the price, quantity, and optionally the observable for use in a trade or other purposes.">
-        // counterparty  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
-        // ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
-        // parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
-        // partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
-        // settlementTerms SettlementTerms (0..*) <"Specifies the settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
-        // executionType ExecutionTypeEnum (1..1) <"Specifies the type of execution, e.g. via voice, or electronically.">
-        // tradeDate date (1..1) <"Denotes the trade/execution date.">
-        // identifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
-
 	output:
 		executionEvent BusinessEvent (1..1) <"Qualified execution business event containing a single execution primitive event, and no other primitive event.">
 
@@ -811,33 +800,38 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
 		executionPrimitive -> before is absent
 
-func Create_ContractFormation: <"Function specification to create the business event, representing the affirmation (or confirmation) of an executed transaction between two parties. The formed contract can reference a legal agreement for instance a master agreement, by using the optional legalAgreement input.">
+func Create_ContractFormation: <"Creates the fully formed business event of affirming (confirming) a transaction based on contract formation instructions. The formed contract can reference a legal agreement, for instance a master agreement, by using the optional legalAgreement input.">
 	[creation BusinessEvent]
 	inputs:
-		executionEvent BusinessEvent (1..1) <"Qualified execution business event containing a execution primitive.">
-		legalAgreement LegalAgreement (0..1) <"Optional legal agreement associated to the contract being formed, for instance a master agreement.">
+      		contractFormationInstruction ContractFormationInstruction (1..1) <"Specifies the Contract Formation instructions to be applied.">
+      		contractFormationDate date (1..1) <"Specifies the event date of the contract formation.">
 
 	output:
 		contractFormationEvent BusinessEvent (1..1) <"Qualified contract formation business event.">
 
-	alias trade:
-		executionEvent -> primitives -> execution -> after -> trade
+      	alias execution:
+      		contractFormationInstruction -> execution
 
 	condition : <"Input event must be an execution must be on a contractual product.">
-		trade exists and
-		trade -> tradableProduct -> product -> contractualProduct exists
+      		execution exists and
+      		execution -> trade -> tradableProduct -> product -> contractualProduct exists and
+      		execution -> trade -> contractDetails is absent and
+      		execution -> state -> positionState = PositionStatusEnum -> Executed
 
 	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided.">
-		if legalAgreement exists then legalAgreement -> contractualParty contains trade -> party
+      		if contractFormationInstruction -> legalAgreement exists then contractFormationInstruction -> legalAgreement -> contractualParty contains execution -> trade -> party
 
 	assign-output contractFormationEvent -> primitives -> contractFormation: <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
-		Create_ContractFormationPrimitive(executionEvent -> primitives only-element -> execution -> after -> trade, legalAgreement)
+      		Create_ContractFormationPrimitive(contractFormationInstruction -> execution -> trade, contractFormationInstruction -> legalAgreement)
 
 	assign-output contractFormationEvent -> eventEffect -> trade: <"The event effect of the business event points to the contract object, i.e. the after state of the contract formation primitive event.">
 		contractFormationEvent -> primitives -> contractFormation -> after
 
 	assign-output contractFormationEvent -> eventEffect -> effectedTrade: <"The event effect of the business event points to the execution object, i.e. the before state of the contract formation primitive event.">
 		contractFormationEvent -> primitives -> contractFormation -> before
+
+      	assign-output contractFormationEvent -> eventDate: <"The event date of the contract formation points to the contractFormationDate.">
+      		contractFormationDate
 
 	post-condition : <"Event effect must point to the new execution and contract, and exclude other effects.">
 		contractFormationEvent -> eventEffect -> productIdentifier is absent

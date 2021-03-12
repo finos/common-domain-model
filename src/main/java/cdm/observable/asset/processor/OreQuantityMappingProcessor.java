@@ -34,8 +34,8 @@ public class OreQuantityMappingProcessor extends MappingProcessor {
 						.map(FieldWithMetaQuantityBuilder::getValue)
 						.filter(Objects::nonNull)
 						.forEach(quantityBuilder ->
-								quantityBuilder.setUnitOfAmountBuilder(UnitType.builder()
-										.setCurrencyBuilder(FieldWithMetaString.builder()
+								quantityBuilder.setUnitOfAmount(UnitType.builder()
+										.setCurrency(FieldWithMetaString.builder()
 												.setValue(currency)))));
 	}
 }

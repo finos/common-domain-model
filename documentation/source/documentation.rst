@@ -297,15 +297,14 @@ The ``Payout`` type defines the composable payout types, each of which describes
 .. code-block:: Haskell
 
  type Payout:
-   interestRatePayout InterestRatePayout (0..*)
-   creditDefaultPayout CreditDefaultPayout (0..1)
-   equityPayout EquityPayout (0..*)
-   optionPayout OptionPayout (0..*)
-   forwardPayout ForwardPayout (0..*)
-   securityPayout SecurityPayout (0..*)
-   cashflow Cashflow (0..*)
-   
-The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``Cashflow``, and the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout`` are all extensions of the base type called ``PayoutBase``, which provides a common location for referencing payout quantities, as illustrated below:
+ 	[metadata key]
+ 	interestRatePayout InterestRatePayout (0..*)
+ 	creditDefaultPayout CreditDefaultPayout (0..1)
+ 	equityPayout EquityPayout (0..*)
+ 	optionPayout OptionPayout (0..*)
+ 	forwardPayout ForwardPayout (0..*)
+ 	securityPayout SecurityPayout (0..*)
+	cashflow Cashflow (0..*)
 
 .. code-block:: Haskell
 
@@ -1704,20 +1703,20 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
 .. code-block:: Haskell
 
  func FloatingAmount:
+
  	[calculation]
  	inputs:
  		interestRatePayout InterestRatePayout (1..1)
- 		rate FloatingInterestRate (1..1)
- 		quantity NonNegativeQuantity (1..1)
+ 		spread number (1..1)
+ 		quantity Quantity (1..1)
  		date date (1..1)
  	output: floatingAmount number (1..1)
 
  	alias calculationAmount: quantity -> amount
  	alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> rateOption -> floatingRateIndex )
- 	alias spreadRate: rate -> spread
  	alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
 
- 	assign-output floatingAmount: calculationAmount * (floatingRate + spreadRate) * dayCountFraction
+ 	assign-output floatingAmount: calculationAmount * (floatingRate + spread) * dayCountFraction
 
 Day Count Fraction
 """"""""""""""""""

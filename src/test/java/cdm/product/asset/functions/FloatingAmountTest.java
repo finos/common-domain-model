@@ -4,7 +4,6 @@ import cdm.base.datetime.*;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.NonNegativeQuantity;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
-import cdm.observable.asset.FloatingInterestRate;
 import cdm.observable.asset.FloatingRateOption;
 import cdm.product.asset.DayCountFractionEnum;
 import cdm.product.asset.FloatingRateSpecification;
@@ -28,7 +27,7 @@ class FloatingAmountTest extends AbstractFunctionTest{
 	@Inject Provider<FloatingAmount> floatingAmount;
     
 	
-	private static final FloatingInterestRate SPREAD = FloatingInterestRate.builder().setSpread(BigDecimal.valueOf(0)).build();
+	private static final BigDecimal SPREAD = BigDecimal.ZERO;
 	
 	private static final NonNegativeQuantity QUANTITY = NonNegativeQuantity.builder().setAmount(BigDecimal.valueOf(50_000_000)).build();
 	

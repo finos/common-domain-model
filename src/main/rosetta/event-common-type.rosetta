@@ -104,6 +104,10 @@ type CommodityTransferComponent extends TransferBase:
 	breakdown CommodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
 		[synonym Workflow_Event value "breakdown"]
 
+type ContractFormationInstruction: <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
+	execution TradeState (1..1) <"Execution consisting of the economic terms which are agreed between the parties.">
+	legalAgreement LegalAgreement (0..1) <"Optional legal agreement associated to the contract being formed, for instance a master agreement.">
+
 type ContractState: <"A class to specify a contract state instantiation with respect to the before and/or after state of lifecycle events.">
 	[metadata key]
 
@@ -116,11 +120,12 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
   	instructionFunction string (1..1) <"Specifies the function that will be called">
   	allocation AllocationInstruction (0..1) <"Instruction to allocate">
   	clearing ClearingInstruction (0..1) <"Instruction to clear">
+	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
   	execution ExecutionInstruction (0..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, and a trade date.">
   	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 	reset ResetInstruction (0..1)
 	transfer TransferInstruction (0..1)
-  	condition OneOfInstruction: required choice allocation, clearing, execution, exercise, reset, transfer
+  	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -649,13 +654,11 @@ type ContractFormationPrimitive: <"Defines the primitive event that represents a
 	after TradeState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
 		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
-	condition: <"The quantity should be unchanged.">
+	condition: <"The trade details should be unchanged by the formation of the contract from an execution event or existing trade data. Such details are found in the tradableProduct object.">
 		if before exists then
 		before -> trade -> tradableProduct = after -> trade -> tradableProduct
 
-	condition: <"The price, quantity, and observable should be unchanged.">
-        if before exists
-        then before -> trade -> tradableProduct -> priceQuantity = after -> trade -> tradableProduct -> priceQuantity
+
 
 type SplitPrimitive: <"Defines splitting of a single trade into one or more trades, where the quantity of the split trade(s) totals that of the single trade.">
 
