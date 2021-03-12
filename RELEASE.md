@@ -14,15 +14,15 @@ In the CDM Portal, select the Textual Browser, search for the symbol //.  The on
 
 _What is being released?_
 
-* Improved validation of Reporting Rules to ensure rules that wont generate functioning Java code are flagged as syntax errors in the Textual View. 
 * Removal of redundant ``multiple`` keyword from ``extract`` rule.
-* New syntax to allow ``maxBy`` and ``minBy`` to call rules.
+* New syntax to allow ``maxBy`` and ``minBy`` to call rules and find ``minimum``/``maximum`` of things that are comparable directly.
+* Rewrite of reporting rule CrossCurrencySwapBuyerSeller as DSL changes show it to be invalid
 
 _Review directions_
 
 In CDM Portal us the Textual Browser to inspect the reporting rules. 
 
-See `reporting rule CrossCurrencySwapBuyerSeller`, which failed the new validation checks meaning it would have been broken in the generated Java code. This rule has been updated to use the correct syntax.
+See `reporting rule CrossCurrencySwapBuyerSeller`, which failed the new validation checks meaning it would have been broken in the generated Java code. This rule has been updated to be correct using new syntax.
 
 # *Technical Change - Bugfix to Java code*
 
