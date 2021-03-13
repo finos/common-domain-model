@@ -1,54 +1,35 @@
 namespace cdm.event.position : <"Position concepts: portfolio and portfolio aggregation.">
 version "${project.version}"
 
-import cdm.base.math.*
 import cdm.observable.common.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 import cdm.legalagreement.contract.*
 import cdm.event.common.*
 
-/*
- * Variation Margin Mark to Market Calculation 
- * 
- * Goals:
- *   1. Describe a product agnostic mark-to-market calculation such that it can be used for Variation Margin valuation process;
- *   2. To be as transparent as possible in capturing which CDM elements are being used for the calculations.
- */
-/*
- * Option 1 - A mark to market calculation for an FX Forward as provided by a member firm
- * 
- *   1. + requires minimal infrastructure work to support VG thread
- *   2. - delegates more work to the InterpolateForwardRate function, opaque usage of ForwardPayout
- *   3. - will not support other products
- */
- // TODO Referenced downstream
 func FxMarkToMarket: <"Representation of sample mark to market calculation provided by a member firm.">
-
 	inputs: trade Trade (1..1)
 	output: value number (1..1)
 	
 	alias forwardPayout: <"Alias to the forward pay out.">
 		trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> forwardPayout only-element
-
-    alias currencyPair: <"The quoted currency pair.">
-        trade -> tradableProduct -> priceQuantity only-element -> observable -> currencyPair
-
-	alias currency1Quantity: <"Quantity amount for currency 1.">
-		FilterQuantity( trade -> tradableProduct -> priceQuantity -> quantity, currencyPair -> currency1 ) -> amount
-
-	alias currency2Quantity: <"Quantity amount for currency 2.">
-		FilterQuantity( trade -> tradableProduct -> priceQuantity -> quantity, currencyPair -> currency2 ) -> amount
-
-	 alias quotedQuantity: <"The quoted currency amount.">
-		if currencyPair -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
-		then currency1Quantity
-		else currency2Quantity
+	alias forwardExchangeRate: <"Alias for the forward price.">
+		trade -> tradableProduct -> priceNotation -> price -> exchangeRate	
+	alias currency1Quantity: <"Alias for the forward price.">
+		ExtractQuantityByCurrency(trade -> tradableProduct -> quantityNotation, forwardExchangeRate only-element -> quotedCurrencyPair -> currency1)
 	
-	alias baseQuantity: <"The base currency amount.">
-		if currencyPair -> quoteBasis = QuoteBasisEnum -> Currency2PerCurrency1
- 		then currency1Quantity
-		else currency2Quantity
+	alias currency2Quantity: <"Alias for the forward price.">
+		ExtractQuantityByCurrency(trade -> tradableProduct -> quantityNotation, forwardExchangeRate only-element -> quotedCurrencyPair -> currency2 )
+	
+	alias quotedQuantity: <"The amount of the quoted currency.">
+ 		if forwardExchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
+		then currency1Quantity -> quantity -> amount
+		else currency2Quantity -> quantity -> amount
+	
+	alias baseQuantity: <"The amount of the quoted currency.">
+ 		if forwardExchangeRate -> quotedCurrencyPair -> quoteBasis = QuoteBasisEnum -> Currency2PerCurrency1
+		then currency1Quantity -> quantity -> amount
+		else currency2Quantity -> quantity -> amount
 	
 	alias interpolatedRate:
 		InterpolateForwardRate(forwardPayout)
@@ -64,7 +45,6 @@ func InterpolateForwardRate:
 	output: result number(1..1)
 
 func EvaluatePortfolioState: <"Function specification to evaluate a portfolio's aggregation parameters and return a new portfolio state containing aggregated positions.">
-	// TODO Never referenced in CDM
 	inputs:
 		portfolio Portfolio (1..1) <"Portfolio containing the aggregation parameters to be used to calculate the new portfolio state.">
 

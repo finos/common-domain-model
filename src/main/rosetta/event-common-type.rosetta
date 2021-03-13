@@ -49,14 +49,13 @@ type Affirmation: <"A class to specify a trade affirmation.">
 		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
 
 type AllocationInstruction:
-	// TODO: add other allocation context
 	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
 
 type AllocationBreakdown:
 
 	partyReference Party (1..1) <"Reference to the party to specify the account.">
 		[metadata reference]
-	quantity Quantity (1..1) <"The quantity to be allocated to the party.">
+	quantity QuantityNotation (1..1) <"The quantity to be allocated to the party.">
 	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
 	account Account (0..1)<"The account to allocate the trade into">
 	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
@@ -79,17 +78,13 @@ type CashTransferComponent extends TransferBase:
 	breakdown CashTransferBreakdown (0..*) <"The cash transfer breakdown, when the transfer corresponds to a net amount across several components which breakdown is deemed relevant (e.g. the net cash transfer related to several contracts, or to the net proceeds across several payout components).">
 		[synonym Workflow_Event value "breakdown"]
 
-/*
- * TODO - The commodity transfer component and its associated breakdown should be deemed as sample implementations,
- * which need to be confirmed through relevant user stories and use cases
- */
 type CommodityTransferBreakdown extends TransferBreakdown:
 
 	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
 	commodity Commodity (1..1)
 	quantity number (1..1)
 		[synonym Workflow_Event value "quantity"]
-	unit CapacityUnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
+	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
 	timeUnit TimeUnitEnum (0..1)
 
 type CommodityTransferComponent extends TransferBase:
@@ -98,16 +93,12 @@ type CommodityTransferComponent extends TransferBase:
 	commodity Commodity (1..1)
 	quantity number (1..1)
 		[synonym Workflow_Event value "quantity"]
-	unit CapacityUnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
+	unit UnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
 	timeUnit TimeUnitEnum (0..1)
 	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">
 	breakdown CommodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
 		[synonym Workflow_Event value "breakdown"]
 
-type ContractFormationInstruction: <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
-	execution TradeState (1..1) <"Execution consisting of the economic terms which are agreed between the parties.">
-	legalAgreement LegalAgreement (0..1) <"Optional legal agreement associated to the contract being formed, for instance a master agreement.">
-	
 type ContractState: <"A class to specify a contract state instantiation with respect to the before and/or after state of lifecycle events.">
 	[metadata key]
 
@@ -116,14 +107,12 @@ type ContractState: <"A class to specify a contract state instantiation with res
 	updatedTrade Trade (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
 
 type Instruction: <"Instruction to a function that will be used to perform a business event">
-  	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
-  	instructionFunction string (1..1) <"Specifies the function that will be called">
-  	allocation AllocationInstruction (0..1) <"Instruction to allocate">
-  	clearing ClearingInstruction (0..1) <"Instruction to clear">
-	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
-  	execution ExecutionInstruction (0..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, and a trade date.">
-  	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
-  	condition OneOfInstruction: required choice allocation, clearing, execution, exercise
+
+	instructionFunction string (1..1) <"Name of the function that will be called">
+	allocation AllocationInstruction (0..1) <"Instruction to allocate">
+	clearing ClearingInstruction (0..1) <"Instruction to clear">
+
+	condition OneOfInstruction: required choice allocation, clearing
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -140,7 +129,6 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 		[synonym Workflow_Event value "effectiveDate"]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of globalKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
-	// TODO - this needs to be moved/merged into the WorkflowStep
 	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 		[deprecated]
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
@@ -156,25 +144,12 @@ type EventEffect: <"The set of operational and positional effects associated wit
 	transfer TransferPrimitive (0..*) <"A pointer to the transfer effect(s), either a cash, security or other asset.">
 		[metadata reference]
 
-/* USED in downstream */
-type EventTestBundle: <"A class which combines several events for testing purposes.">
+type EventTestBundle: <"Combines several events for testing purposes, intended to be used in downstream processes.">
 
 	event WorkflowStep (2..*)
 		[synonym Workflow_Event value "event"]
 	computedAmount ComputedAmount (0..*)
 		[synonym Workflow_Event value "computedAmount"]
-
-type ExecutionInstruction: <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, execution details, and settlement terms.">
-	product Product (1..1) <"Defines the financial product to be executed and contract formed.">
-	priceQuantity PriceQuantity (1..*) <"Defines the prices (e.g. spread, equity price, FX rate) and quantities (e.g. currency amount, no. shares) associated with the constituents of the transacted product.">
-	counterparty  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
-	ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
-	parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
-	partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
-	settlementTerms SettlementTerms (0..*) <"Specifies the settlement terms for the execution e.g. initial fee, broker fee, up-front cds payment or option premium settlement">
-	executionDetails ExecutionDetails (1..1) <"Specifies the type and venue of execution, e.g. via voice, or electronically.">
-	tradeDate date (1..1) <"Denotes the trade/execution date.">
-	tradeIdentifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
 
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 	
@@ -189,19 +164,16 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
 	    [synonym Workflow_Event value "state"]
 	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
-	    [synonym Workflow_Event value "resetHistory"]
 	transferHistory Transfer (0..*)
 	    [synonym Workflow_Event value "transferHistory"]
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definitioin details with observations to compute the reset value.">
 	resetValue number (1..1) <"Specifies the reset or fixing value. The fixing value could ">
-	    [synonym Workflow_Event value "resetValue"]
 	resetDate date (1..1) <"Specifies the date on which the reset occurred.">
-	    [synonym Workflow_Event value "resetDate"]
 	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
 		[metadata reference]
 	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value.">
-
+	
 	condition: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
 		if observations count > 1 then aggregationMethodology exists
 
@@ -224,9 +196,9 @@ type Transfer: <"Defines the movement of cash, securities or commodities between
 	identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
 		[metadata scheme]
 	    [synonym Workflow_Event value "transferIdentifier"]
-	priceQuantity PriceQuantity (1..1) <"Represents the amount of the asset to tbe transferred.">
-	    [synonym Workflow_Event value "priceQuantity"]
-	payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
+	quantity QuantityNotation (1..1) <"Represents the amount of the asset to tbe transferred.">
+	    [synonym Workflow_Event value "quantity"]
+	payerReceiver PayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
 	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
 	settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
 
@@ -277,11 +249,11 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 
 	condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
 		if tradableProduct -> product -> security exists
-		then tradableProduct -> priceQuantity -> price exists
+		then tradableProduct -> priceNotation -> price exists
 
 	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
 		if tradableProduct -> product -> security exists
-		then tradableProduct -> settlementTerms exists
+		then settlementTerms exists
 
 	condition DeliverableObligationsPhysicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
 		if (contractDetails -> documentation -> documentationIdentification -> contractualMatrix -> matrixType <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
@@ -337,9 +309,6 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
 
-	/*
-	 * TODO - Confirm the set of Contractual Terms Supplements that qualify mortgage products
-	 */
 	condition AdditionalFixedPaymentsMortgages: <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
 		if ( (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType = SecurityTypeEnum -> Debt
 				and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security-> debtType ->debtClass = DebtClassEnum -> AssetBacked)
@@ -457,8 +426,8 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 	condition FpML_cd_32: <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
 		if ( contractDetails -> documentation -> documentationIdentification -> masterConfirmation and contractDetails -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity exists
-			and tradableProduct -> priceQuantity -> quantity -> amount exists
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> assetIdentifier -> currency exists
+			and tradableProduct -> quantityNotation -> quantity -> amount exists
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
 
 	condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
@@ -488,15 +457,10 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
         [metadata reference]
         [synonym Workflow_Event value "contractReference" meta "href"]
         [synonym Workflow_Event value "executionReference" meta "href"]
-	//contractReference Contract (0..*) <"The reference to the instantiation of a Contract object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
-	//	[metadata reference]
-	//	[synonym Workflow_Event value "contractReference" meta "href"]
+	
 	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a globalKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "eventReference" meta "href"]
-	//executionReference Trade (0..*) <"The reference to the instantiation of a Execution object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
-	//	[metadata reference]
-	//	[synonym Workflow_Event value "executionReference" meta "href"]
 	cashflowReference Cashflow (0..*) <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "cashflowReference" meta "href"]
@@ -540,7 +504,7 @@ type SecurityTransferComponent extends TransferBase:
 		[synonym Workflow_Event value "security"]
 	quantity number (1..1)
 		[synonym Workflow_Event value "quantity"]
-	assetTransferType AssetTransferTypeEnum (0..1) // The relevance of this attribute and the associated values need to be confirmed"
+	assetTransferType AssetTransferTypeEnum (0..1) 
 		[synonym Workflow_Event value "assetTransferType"]
 	breakdown SecurityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
 		[synonym Workflow_Event value "breakdown"]
@@ -550,19 +514,6 @@ type StockSplitInstruction: <"Data required to perform a stock split business ev
 	tradeState TradeState (1..1) <"Contract to be split.">
 	adjustmentRatio number (1..1) <"The number that denotes the cumulative quantity of post-split shares issued to shareholders versus the quantity of pre-split shares previously issued to shareholders.  This number will be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.  With regard to any reference to price, the pre-split reference price will be divided by this number to determine the post-split reference price.">
 	date date (1..1) <"The effective date of the stock split, also known as the ex-date. This is the date on which the additional shares are paid to the shareholders, or in the case of a reverse stock split, the number shares held by each shareholder is proportionally reduced.  Equity derivative transactions can be amended in firms' internal systems on such date.   In most markets, the listed stock price is reduced (or increased for a reverse stock split) to account for the split on the same date, but in some markets the price adjustment occurs on a later date.  In either case, equity derivative transactions should be amended on the date that the stocks are paid to the shareholders (or consolidated).">
-
-// TODO: to be removed completely by the end of Primitive Harmonisation work
-//type Trade_Deprecated: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
-//	[metadata key]
-//	[deprecated]
-//
-//	execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">
-//		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" exists]
-//		[synonym Workflow_Event value "fpmlExecution"]
-//	contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
-//		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" is absent]
-//		[synonym Workflow_Event value "fpmlContract"]
-//	condition Trade: one-of
 
 type TransferBase:
 
@@ -613,6 +564,8 @@ type PrimitiveEvent: <"A primitive event is defined by one and only one atomic c
 		[synonym Workflow_Event value "contractFormation" path "primitive"]
 	split SplitPrimitive (0..1)
 		[synonym Workflow_Event value "split" path "primitive"]
+	observation ObservationPrimitive (0..1)
+		[synonym Workflow_Event value "observation" path "primitive"]
 	quantityChange QuantityChangePrimitive (0..1)
 		[synonym Workflow_Event value "quantityChange" path "primitive"]
 	reset ResetPrimitive (0..1)
@@ -640,14 +593,12 @@ type ContractFormationPrimitive: <"Defines the primitive event that represents a
 		[metadata reference]
 		[synonym Workflow_Event value "fpmlTrade" path "before"]
 		[synonym Workflow_Event value "fpmlExecution" path "before"]
-	after TradeState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
+	after TradeState (1..1) <"Represents the new contract being formed between the parties.">
 		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
-	condition: <"The trade details should be unchanged by the formation of the contract from an execution event or existing trade data. Such details are found in the tradableProduct object.">
+	condition: <"The quantity should be unchanged.">
 		if before exists then
 		before -> trade -> tradableProduct = after -> trade -> tradableProduct
-
-
 
 type SplitPrimitive: <"Defines splitting of a single trade into one or more trades, where the quantity of the split trade(s) totals that of the single trade.">
 
@@ -672,12 +623,11 @@ type SplitPrimitive: <"Defines splitting of a single trade into one or more trad
 	condition: <"Ensure the productremains unchanged.">
 		after -> trade -> tradableProduct -> product = before -> trade -> tradableProduct -> product
 
-	// TODO add syntax to handle comparison between list and single item.  https://github.com/REGnosys/rosetta-dsl/issues/167
-    //condition: <"The price should be unchanged.">
-    //    after -> originalTrade -> trade -> tradableProduct -> priceQuantity -> price = before -> trade -> tradableProduct -> priceQuantity -> price
+	condition: <"Ensure the price is unchanged.">
+		after -> trade -> tradableProduct -> priceNotation = before -> trade -> tradableProduct -> priceNotation
 
 	condition: <"Ensure the quantities of each split trade totals that of the single trade.">
-		Sum( FilterOpenTradeStates(after) -> tradeStates ->trade -> tradableProduct -> priceQuantity -> quantity -> amount) = before -> trade -> tradableProduct -> priceQuantity -> quantity -> amount
+		Sum( FilterOpenTradeStates(after) -> tradeStates ->trade -> tradableProduct -> quantityNotation -> quantity -> amount) = before -> trade -> tradableProduct -> quantityNotation -> quantity -> amount
 
 func FilterOpenTradeStates: <"Outlines inputs and outputs required to filter only 'open' Trade States.">
 	inputs:
@@ -687,6 +637,7 @@ func FilterOpenTradeStates: <"Outlines inputs and outputs required to filter onl
 
 type TradeStates: <"Defines a set of TradeState objects. This type is a work-around to a bug in the code generators which prevents the model from returning a set of elements in the function.">
 	tradeStates TradeState (0..*)
+
 
 type QuantityChangePrimitive: <"Defines the primitive event to represent a change in quantity, which includes notional. For details of how the TradeState is changed between the `before` and `after` TradeStates, see the corresponding Create_QuantityChangePrimitive function.">
 
@@ -700,9 +651,9 @@ type ResetPrimitive: <"Defines the primitive event to represent a reset. For det
 
 	before TradeState (1..1) <"Represents the TradeState prior applying the Reset primitive.">
 		[metadata reference]
-		[synonym Workflow_Event value "fpmlTrade" path "before"]
+		[synonym Workflow_Event value "ignore"]
 	after TradeState (1..1) <"Represents the TradeState after to applying the Reset primitive.">
-		[synonym Workflow_Event value "fpmlTrade" path "after"]
+		[synonym Workflow_Event value "ignore"]
 	condition Trade: <"The original trade in the before/after state of a reset should match.">
 		before -> trade = after -> trade
 
@@ -722,18 +673,11 @@ type TransferPrimitive: <"A class to specify the transfer of assets between part
 	after TradeState (1..1)
 	    [synonym Workflow_Event value "fpmlTrade" path "after"]
 
-/*
- * Only some of the attributes have been incorporated at this point, as some seem questionable (e.g. executionDateTime, which should be associated to the relevant execution event).
- */
 type PackageInformation: <"A class defining additional information that may be recorded alongside a transaction package.">
 	[deprecated]
-	// TODO Never referenced in CDM
 	relatedParty RelatedParty (0..*) <"This may be used to identify one or more parties that perform a role as part of the transaction.">
 	category CategoryEnum (0..*)
-	/*
-	 * Why should the below be specifically associated with package transactions?
-	 * It seems to also be relevant in the context of single trades
-	 */
+
 	intentToAllocate boolean (0..1) <"specifies whether the transaction package is anticipated to be allocated.">
 
 type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">

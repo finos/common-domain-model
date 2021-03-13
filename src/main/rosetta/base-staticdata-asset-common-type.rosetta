@@ -15,13 +15,10 @@ type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
 		if version is absent
 		then effectiveDate is absent
 
-//TODO: To be deprecated from model, now replaced by Debt as an attribute of Security which extends ProductBase.
 type Bond extends IdentifiedProduct: <"A class to specify a bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
-//TODO: To be deprecated from model, now replaced by Debt as an attribute of Security which extends ProductBase.
 type ConvertibleBond extends IdentifiedProduct: <"A class to specify a convertible bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
-//TODO: To be deprecated from model, now replaced by Equity as an attribute of Security which extends ProductBase.
 type Equity extends IdentifiedProduct: <"A class to specify an equity as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
 type ProductIdentifier: <"Comprises of an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
@@ -32,10 +29,8 @@ type ProductIdentifier: <"Comprises of an identifier and a source. The associate
 	source ProductIdTypeEnum (1..1) <"Defines the source of the identifier.">
 	    [synonym Workflow_Event value "source"]
 
-//can this be deprecated?
 type IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
 	productIdentifier ProductIdentifier (1..1)
-
 type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
 	productIdentifier ProductIdentifier (1..*)
 
@@ -112,19 +107,17 @@ type QuasiGovernmentIssuerType: <"A class to allow specification of different ty
 
 	sovereignEntity boolean (1..1) <"True if sovereign entity (e.g. not separate legal personality from sovereign) or false if non-sovereign entity (e.g. separate legal personality from sovereign).">
 	sovereignRecourse boolean (0..1) <"Applies to non-sovereign entity (e.g. separate legal personality from sovereign).  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
-	// TODO: other (non-exhaustive) criteria e.g. GSEs with/without government support, EMIR public sector entities, US agencies
+	
 	condition NonSovereignEntityRecourse:
 		if sovereignRecourse exists then sovereignEntity = False
 
 type RegionalGovernmentIssuerType: <"A class to allow specification of different type of Regional government collateral.">
 
 	sovereignRecourse boolean (1..1) <"Applies to regional governments, local authorities or municipals.  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
-	// TODO: other (non-exhaustive) criteria e.g. US municipals, Canadian provinces, German Lander
-
+	
 type SpecialPurposeVehicleIssuerType: <"A class to allow specification of different types of special purpose vehicle (SPV) collateral.">
-	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> // Not required?  If tranched credit risk then specified ProductCriteria.agencyRating.
-	// TODO: other (non-exhaustive) criteria e.g. by asset class (RMBS, CMBS, CLO, by regional risk focus, by guarantor (e.g. Ginnie Mae)). Can the existing FpML framework be leveraged.  See type MortgageBackedSecurity
-
+	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> 
+	
 type ExternalProductType: <"Provides a classification of the type of product that is external to the product qualifications used in the CDM. Product types mapped from external models are mapped to this data type.">
 	value string (1..1) <"Stores the product type value.">
 	    [metadata scheme]
@@ -136,8 +129,7 @@ type AssetType: <"A class to allow specification of the asset product type.">
 	debtType DebtType (0..1) <"Filter based on the type of bond.">
 	equityType EquityTypeEnum (0..1) <"Filter based on the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Filter based on the type of fund.">
-	// otherType string (0..1) <"Description of collateral when specified as Product Type - Other">
-
+	
 	condition SecuritySubType:
 		if assetType <> AssetTypeEnum -> Security
 		then ( securityType and debtType and equityType ) is absent
@@ -154,7 +146,4 @@ type AssetType: <"A class to allow specification of the asset product type.">
 		if securityType <> SecurityTypeEnum -> Fund
 		then fundType is absent
 
-	// condition OtherSubType:
-	// 	if securityType <> SecurityTypeEnum -> Other
-	// 	then otherType is absent
 	

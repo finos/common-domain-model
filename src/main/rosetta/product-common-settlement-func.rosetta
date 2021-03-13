@@ -3,3 +3,38 @@ version "${project.version}"
 
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
+
+func CashflowSettlementTerms: <"The Payout type contains a cashflow to replicate the FpML structure. This function creates SettlementTerms from the Cashflow that can be used in the Execution -> settlementTerm.">
+	inputs:
+		cashflow Cashflow (0..1)
+		counterparty Counterparty (2..2)
+		ancillaryParty AncillaryParty (0..*)
+
+	output:
+		settlementTerms SettlementTerms (0..1)
+
+	alias settlementDate:
+		ConvertToAdjustableOrRelativeDate(cashflow -> cashflowDate)
+	
+	assign-output settlementTerms -> payerReceiver -> payerPartyReference:
+		if cashflow -> payerReceiver -> payer exists
+		then ExtractCounterpartyByRole( counterparty, cashflow -> payerReceiver -> payer ) -> partyReference
+		else ExtractAncillaryPartyByRole( ancillaryParty, cashflow -> payerReceiver -> payerAncillaryRole ) -> partyReference only-element
+		
+	assign-output settlementTerms -> payerReceiver -> receiverPartyReference:
+		if cashflow -> payerReceiver -> receiver exists
+		then ExtractCounterpartyByRole( counterparty, cashflow -> payerReceiver -> receiver ) -> partyReference
+		else ExtractAncillaryPartyByRole( ancillaryParty, cashflow -> payerReceiver -> receiverAncillaryRole ) -> partyReference only-element
+	
+	assign-output settlementTerms -> assetIdentifier:
+		cashflow -> payoutQuantity -> assetIdentifier
+
+	assign-output settlementTerms -> settlementType:
+		SettlementTypeEnum -> Cash
+
+	assign-output settlementTerms -> settlementDate:
+		settlementDate
+
+
+
+

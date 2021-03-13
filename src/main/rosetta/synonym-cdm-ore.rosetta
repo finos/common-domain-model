@@ -34,7 +34,9 @@ synonym source ORE_1_0_39 extends ORE
             [value "Envelope" path "Trade"]
 
 	TradableProduct:
-		+ priceQuantity
+		+ quantityNotation
+			[value "LegData" path "SwapData"]
+		+ priceNotation
 			[value "LegData" path "SwapData"]
 
 	Counterparty:
@@ -43,33 +45,30 @@ synonym source ORE_1_0_39 extends ORE
 		+ role
 			[set to CounterpartyRoleEnum -> Party2 when rosettaPath = TradeState -> trade -> tradableProduct]
 
-	 Price:
-        + amount
-            [value "Rate"]
-            [value "Spread"]
-        + priceType
-			[set to PriceTypeEnum->InterestRate when path = "Rates"]
-			[set to PriceTypeEnum->Spread when path = "Spreads"]
-
-	 PriceQuantity:
+	PriceNotation:
         + price
-            [value "Rates" path "FixedLegData" mapper "OrePrice"]
-            [value "Spreads" path "FloatingLegData" mapper "OrePrice"]
-		+ observable
-            [value "FloatingLegData"]
-        + quantity
-            [value "Notionals" mapper "OreQuantity"]
+        + assetIdentifier
+            [hint "FloatingLegData"]
+            [value "ignore"]
+
+	FixedInterestRate:
+		+ rate
+			[value "Rate" path "FixedLegData->Rates"]
 
 	Party:
 		+ partyId
 			[value "CounterParty" maps 2]
 			[value "party_id" path "AdditionalFields"]
 
+	QuantityNotation:
+		+ assetIdentifier
+			// [value "LegData" path "SwapData"]
+		+ quantity
+			[value "Notionals"]
+
 	Quantity:
 		+ amount
 			[value "Notional"]
-		+ multiplierUnit
-		    [value "ignore"]
 
 	Product:
 		+ contractualProduct
@@ -78,13 +77,11 @@ synonym source ORE_1_0_39 extends ORE
 	Payout:
 		+ interestRatePayout
 			[value "LegData"]
-			[value "LegData"]
 
 	InterestRatePayout:
-	    + payoutQuantity
-	        [value "Notionals"]
 		+ calculationPeriodDates
 			[value "Rules" path "ScheduleData"]
+		+ rateSpecification
 		+ paymentDates
 			[value "Rules" path "ScheduleData"]
 
@@ -105,36 +102,21 @@ synonym source ORE_1_0_39 extends ORE
 		+ unadjustedDate
 			[value "StartDate"]
 
+	ResolvablePayoutQuantity:
+		+ assetIdentifier
+			[hint "Currency"]
+
 	FloatingRateOption:
 		+ floatingRateIndex
-			[value "Index" maps 2]
+			[value "Index"]
 
 	RateSpecification:
 		+ fixedRate
 			[value "FixedLegData"]
 		+ floatingRate
 			[value "FloatingLegData"]
-		+ inflationRate
-		    [value "ignore"]
 
-    FixedRateSpecification:
-        + rateSchedule
-            [value "Rates"]
-
-    FloatingRate:
-        + spreadSchedule
-            [value "Spreads"]
-
-    RateSchedule:
-        + initialValue
-            [meta "Rate"]
-            [meta "Spread"]
-
-    NonNegativeQuantitySchedule:
-        + initialQuantity
-            [meta "Notional"]
-
-	UnitType:
+	AssetIdentifier:
 		+ currency
 			[value "Currency"]
 
