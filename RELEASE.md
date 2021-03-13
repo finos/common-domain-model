@@ -2,9 +2,9 @@
 
 _What is being released?_
 
-A change to the cardinality in the `Price` data type and minor changes to the `FinancialUnitEnum` as described below:
+A change to the cardinality of one attribute of the `Price` data type and minor changes to the `FinancialUnitEnum` as described below:
 
- - The cardinality on the `perUnitOfAmount` attribute in the `Price` data type has been changed to mandatory singular (1..1) from optional singular (0..1) so that this value will always be populated
+ - The cardinality of the `perUnitOfAmount` attribute in the `Price` data type has been changed to mandatory singular (1..1) from optional singular (0..1) so that this value will always be populated
  - The following changes have been made in the enumerated values set in `FinancialUnitEnum`:
     - Contracts has been changed to Contract
     - IndexUnits has been chagned to IndexUnit
