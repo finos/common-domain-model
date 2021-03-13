@@ -1,4 +1,4 @@
-# *Model Change - Removed unnecessary comments from the logical model*
+# *CDM Model - Removed unnecessary comments from the logical model*
 
 _What is being released?_
 
@@ -10,23 +10,24 @@ _Review directions_
 
 In the CDM Portal, select the Textual Browser, search for the symbol //.  The only cases that should be found are examples of guidance comments or the use of // in a URL.  Also, search for /* , there should not be any cases of this notation.
 
-# *Model Change and Technical Change - DSL upgrades for regulatory rules*
+# *DSL Syntax - Syntax upgrades for regulatory rules*
 
 _What is being released?_
 
-**Technical Change**
-* Removal of redundant ``multiple`` keyword from ``extract`` rule.
-* New syntax to allow ``maxBy`` and ``minBy`` to call rules and find ``minimum``/``maximum`` of things that are comparable directly.
+* A new syntax to allow ``maxBy`` and ``minBy`` to call rules and find ``minimum``/``maximum`` of things that are comparable directly. User should follow the following patterns to use these operators: ``maxBy rule`` [rulename] and ``minBy rule`` [rulename]
+
+# *CDM Model - Simplification of ``extract`` regulatory rule*
+
+_What is being released?_
+
+An update for all reporting rules currently using ``extract multiple`` syntax. The use of the `` multiple`` operator is not necessary.
 
 **Model Change**
-* Rewrite of reporting rule CrossCurrencySwapBuyerSeller as DSL changes show it to be invalid
-* Update of all reporting rules currently using ``extract multiple`` syntax
+* Removal of redundant ``multiple`` keyword from ``extract`` rule.
 
 _Review directions_
 
 In the CDM Portal use the Textual Browser to inspect the reporting rules. 
-
-See `reporting rule CrossCurrencySwapBuyerSeller`, which failed the new validation checks meaning it would have been broken in the generated Java code. This rule has been updated to be correct using new syntax.
 
 See `reporting rule TradingDateTime`, which has had the redundant ``multiple`` keyword removed.
 
