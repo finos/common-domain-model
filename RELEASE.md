@@ -19,3 +19,13 @@ The setXXX methods in RosettaModelObjectBuilders now accept null as an argument.
 _Review directions_
 
 In CDM Portal, use the Downloads icon to access the generated Java code. 
+
+# *Technical Change - Upgrade to c-sharp code generators to support data validations*
+
+_What is being released?_
+
+The c-sharp code generators have been upgraded to generate necessary c-sharp code to evaluate CDM data validation functions. 
+
+_Review directions_
+
+In CDM Portal, use the Downloads icon to access the generated c-sharp code.
