@@ -50,7 +50,7 @@ func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation o
 	output: floatingAmount number (1..1)
 
 	alias calculationAmount: quantity -> amount
-	alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex )
+	alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> rateOption -> floatingRateIndex )
 	alias spreadRate: rate -> spread
 	alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
 
@@ -219,7 +219,7 @@ func ResolveRateIndex: <"The function to specify that the floating rate index en
 func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
 	inputs:
 		equityPayout EquityPayout (1..1)
-		priceNotations PriceNotation (0..*)
+		priceQuantity PriceQuantity (0..*)
 		date date (1..1)
 	output:
 		price number (1..1)
@@ -232,8 +232,8 @@ func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the pre
 
 	assign-output price: <"The initial price is taken from the original contract if we are Resetting for the first time i.e. when the number of updated contracts is one.">
 		if calculationPeriod -> isFirstPeriod
-		then ResolveEquityInitialPrice( equityPayout -> underlier, priceNotations ) -> netPrice -> amount
-		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount
+		then ResolveEquityInitialPrice( priceQuantity ) -> amount
+		else priceReturnTerms -> valuationPriceInterim -> price -> amount
 
 func ResolveEquityPeriodEndPrice:
 	inputs:
@@ -250,16 +250,15 @@ func ResolveEquityPeriodEndPrice:
 
 	assign-output price: <"If the last period, take the price from the Valuation Price Final, otherwise from Valuation Price Interim.">
 		if calculationPeriod -> isLastPeriod
-		then priceReturnTerms -> valuationPriceFinal -> netPrice -> amount
-		else priceReturnTerms -> valuationPriceInterim -> netPrice -> amount
+		then priceReturnTerms -> valuationPriceFinal -> price -> amount
+		else priceReturnTerms -> valuationPriceInterim -> price -> amount
 
 func ResolveEquityInitialPrice:
 	inputs:
-		underlier Underlier (1..1)
-		priceNotations PriceNotation (0..*)
+		priceQuantity PriceQuantity (0..*)
 
 	output:
-		initialPrice CashPrice (1..1)
+		initialPrice Price (1..1)
 
 func DividendCashSettlementAmount: <"Based on the following legal text: means, in respect of a Dividend Period and the related Dividend Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent for such Dividend Period to which the Dividend Cash Settlement Amount relates, pursuant to the following formula: Dividend Cash Settlement Amount = Record Amount × Number Of Securities.">
 

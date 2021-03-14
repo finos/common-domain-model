@@ -29,7 +29,7 @@ type CreditDefaultPayout: <" The credit default payout specification provides th
 
 	condition FpML_cd_12: <"FpML validation rule cd-12 - If referencePrice exists, referencePrice must be greater or equal to 0">
 		if generalTerms -> referenceInformation -> referencePrice exists
-		then generalTerms -> referenceInformation -> referencePrice >= 0
+		then generalTerms -> referenceInformation -> referencePrice ->amount >= 0
 
 	condition FpML_cd_13: <"FpML validation rule cd-13 - If protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyer exists, then the protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyer is equal to the generalTerms/buyer.">
 		if protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyer exists
@@ -125,7 +125,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 	condition SettlementProvisionSettlementCurrency: <"FpML specifies that the SettlementProvision exists when the settlement currency is different to the notional currency of the trade.">
 		if crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement exists
-		then crossCurrencyTerms -> settlementProvision -> settlementCurrency <> payoutQuantity -> assetIdentifier -> currency
+		then crossCurrencyTerms -> settlementProvision -> settlementCurrency <> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
 			or crossCurrencyTerms -> settlementProvision -> settlementCurrency <> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
 
 	condition FpML_ird_7_1: <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
@@ -270,7 +270,7 @@ type ReferenceInformation: <"A class specifying the Credit Default Swap Referenc
 	noReferenceObligation boolean (0..1) <"Used to indicate that there is no Reference Obligation associated with this Credit Default Swap and that there will never be one.">
 	unknownReferenceObligation boolean (0..1) <"Used to indicate that the Reference obligation associated with the Credit Default Swap is currently not known. This is not valid for Legal Confirmation purposes, but is valid for earlier stages in the trade life cycle (e.g. Broker Confirmation).">
 	allGuarantees boolean (0..1) <"Indicates whether an obligation of the Reference Entity, guaranteed by the Reference Entity on behalf of a non-Affiliate, is to be considered an Obligation for the purpose of the transaction. It will be considered an obligation if allGuarantees is applicable (true) and not if allGuarantees is inapplicable (false). ISDA 2003 Term: All Guarantees.">
-	referencePrice number (0..1) <"Used to determine (a) for physically settled trades, the Physical Settlement Amount, which equals the Floating Rate Payer Calculation Amount times the Reference Price and (b) for cash settled trades, the Cash Settlement Amount, which equals the greater of (i) the difference between the Reference Price and the Final Price and (ii) zero. ISDA 2003 Term: Reference Price.">
+	referencePrice Price (0..1) <"Used to determine (a) for physically settled trades, the Physical Settlement Amount, which equals the Floating Rate Payer Calculation Amount times the Reference Price and (b) for cash settled trades, the Cash Settlement Amount, which equals the greater of (i) the difference between the Reference Price and the Final Price and (ii) zero. ISDA 2003 Term: Reference Price.">
 	referencePolicy boolean (0..1) <"Applicable to the transactions on mortgage-backed security, which can make use of a reference policy. Presence of the element with value set to 'true' indicates that the reference policy is applicable; absence implies that it is not.">
 	securedList boolean (0..1) <"With respect to any day, the list of Syndicated Secured Obligations of the Designated Priority of the Reference Entity published by Markit Group Limited or any successor thereto appointed by the Specified Dealers (the 'Secured List Publisher') on or most recently before such day, which list is currently available at [http://www.markit.com]. ISDA 2003 Term: Relevant Secured List.">
 
@@ -471,14 +471,13 @@ type InflationRateSpecification extends FloatingRateSpecification: <"A data to: 
 	initialIndexLevel number (0..1) <"Initial known index level for the first calculation period.">
 	fallbackBondApplicable boolean (1..1) <"The applicability of a fallback bond as defined in the 2006 ISDA Inflation Derivatives Definitions, sections 1.3 and 1.8.">
 
-	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
-		assetIdentifier -> rateOption only exists
 
-
-type FloatingRate extends RateSpecificationBase: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
+type FloatingRate: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
 	[metadata key]
 
-	floatingRateMultiplierSchedule Schedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
+    rateOption FloatingRateOption (0..1)
+        [metadata address "pointsTo"=Observable->rateOption]
+	floatingRateMultiplierSchedule RateSchedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
 	spreadSchedule SpreadSchedule (0..*) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
 	rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
 	capRateSchedule StrikeSchedule (0..*) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
@@ -486,17 +485,15 @@ type FloatingRate extends RateSpecificationBase: <"A class defining a floating i
 
 type FloatingRateSpecification extends FloatingRate: <"A class to specify the floating interest rate by extending the floating rate definition with a set of attributes that specify such rate: the initial value specified as part of the trade, the rounding convention, the averaging method and the negative interest rate treatment.">
 
-	initialRate number (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
-		[deprecated]
+	initialRate Price (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
 	finalRateRounding Rounding (0..1) <"The rounding convention to apply to the final rate used in determination of a calculation period amount.">
 	averagingMethod AveragingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
 	negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
 
-	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
-		assetIdentifier -> rateOption only exists
 
 type FutureValueAmount: <"A class defining a currency and a future value date.">
-
+    quantity Quantity (0..1)
+        [metadata address "pointsTo"=PriceQuantity->quantity]
 	currency string (1..1) <"The currency in which the an amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
 	calculationPeriodNumberOfDays int (1..1) <"The number of days from the adjusted calculation period start date to the adjusted value date, calculated in accordance with the applicable day count fraction.">
@@ -506,7 +503,7 @@ type FutureValueAmount: <"A class defining a currency and a future value date.">
 		if FutureValueAmount exists
 		then calculationPeriodNumberOfDays >= 0
 
-type SpreadSchedule extends Schedule: <"Adds an optional spread type element to the Schedule to identify a long or short spread value.">
+type SpreadSchedule extends RateSchedule: <"Adds an optional spread type element to the Schedule to identify a long or short spread value.">
 
 	spreadScheduleType SpreadScheduleTypeEnum (0..1) <"An element which purpose is to identify a long or short spread value.">
 		[metadata scheme]
