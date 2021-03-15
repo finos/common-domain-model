@@ -1983,10 +1983,10 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
  		identifiers ObservationIdentifier (1..1)
 
  	alias periodEndDate:
-		CalculationPeriod( payout -> calculationPeriodDates only-element, date ) -> endDate
+ 		CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
 
  	alias equityValuation:
-		if CalculationPeriod( payout -> calculationPeriodDates only-element, periodEndDate ) -> isLastPeriod then
+ 		if CalculationPeriod( payout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then
  			payout -> priceReturnTerms -> valuationPriceFinal
  			else payout -> priceReturnTerms -> valuationPriceInterim
 
