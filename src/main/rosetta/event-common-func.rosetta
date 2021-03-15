@@ -449,10 +449,10 @@ func ResolveEquityObservationIdentifiers: <"Defines which attributes on the Equi
 	output:
 		identifiers ObservationIdentifier (1..1) 
 	alias periodEndDate:
-		CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
+		CalculationPeriod( payout -> calculationPeriodDates only-element, date ) -> endDate
 
 	alias equityValuation: <"Represents the appropriate equity valuation representation, depending on which period the date falls in.">
-		if CalculationPeriod( payout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then
+		if CalculationPeriod( payout -> calculationPeriodDates only-element, periodEndDate ) -> isLastPeriod then
 			payout -> priceReturnTerms -> valuationPriceFinal
 			else payout -> priceReturnTerms -> valuationPriceInterim
 

@@ -301,7 +301,9 @@ The ``Payout`` type defines the composable payout types, each of which describes
    creditDefaultPayout CreditDefaultPayout (0..1)
    equityPayout EquityPayout (0..*)
    optionPayout OptionPayout (0..*)
+   commodityPayout CommodityPayout (0..*)
    forwardPayout ForwardPayout (0..*)
+   fixedForwardPayout FixedForwardPayout (0..*)
    securityPayout SecurityPayout (0..*)
    cashflow Cashflow (0..*)
    
@@ -1981,10 +1983,10 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
  		identifiers ObservationIdentifier (1..1)
 
  	alias periodEndDate:
- 		CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
+		CalculationPeriod( payout -> calculationPeriodDates only-element, date ) -> endDate
 
  	alias equityValuation:
- 		if CalculationPeriod( payout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then
+		if CalculationPeriod( payout -> calculationPeriodDates only-element, periodEndDate ) -> isLastPeriod then
  			payout -> priceReturnTerms -> valuationPriceFinal
  			else payout -> priceReturnTerms -> valuationPriceInterim
 
