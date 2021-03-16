@@ -53,7 +53,33 @@ type Loan extends ProductBase: <"Identifies a loan by referencing a product iden
 	tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
 		[metadata scheme]
 
-type ProductTaxonomy: <"The product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+	taxonomyValue CollateralTaxonomyValue (1..1) <"The taxonomy value.">
+	taxonomySource TaxonomySourceEnum (1..1) <"The taxonomy source.">
+	
+	condition EuEligibleCollateral: <"If the Taxonomy Source is specified as EU Eligible Collateral then the enumeration must be EU Eligible Collateral.">
+		if taxonomySource <> TaxonomySourceEnum -> EuEligibleCollateral
+		then taxonomyValue -> euEligibleCollateral is absent
+
+	condition UkEligibleCollateral: <"If the Taxonomy Source is specified as UK Eligible Collateral then the enumeration must be UK Eligible Collateral.">
+		if taxonomySource <> TaxonomySourceEnum -> UkEligibleCollateral
+		then taxonomyValue -> ukEligibleCollateral is absent
+	
+	condition UsEligibleCollateral: <"If the Taxonomy Source is specified as US Eligbile Collateral then the enumeration must be US Eligible Collateral.">
+		if taxonomySource <> TaxonomySourceEnum -> UsEligibleCollateral
+		then taxonomyValue -> usEligibleCollateral is absent
+	
+	condition taxonomyValue: <"If the Taxonomy Value is specified as a string then the taxonomy Source cannot be either EU Eligible Collateral or Uk Eligible Collateral or US Eligible Collateral.">
+		if taxonomyValue -> taxonomyValue exists
+		then taxonomySource <> TaxonomySourceEnum -> EuEligibleCollateral and taxonomySource <> TaxonomySourceEnum -> UKEligibleCollateral and taxonomySource <> TaxonomySourceEnum -> UsEligibleCollateral
+
+type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either as a specified enumeration or as a string.">
+	euEligibleCollateral EuEligibleCollateralEnum (0..*) <"European Union Eligible Collateral Assets classification categories based on EMIR Uncleared Margin Rules, which are largely consistent with BCBS/IOSCO framework. Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM.">
+	ukEligibleCollateral UkEligibleCollateralEnum (0..*) <"United Kingdom Eligible Collateral Assets classification categories based on UK Onshored EMIR Uncleared Margin Rules, which are largely consistent with BCBS/IOSCO framework. Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: UK Onshored EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM.">
+	usEligibleCollateral UsEligibleCollateralEnum (0..*) <"US Eligible Collateral Assets classification categories based on Prudential Regulator, CFTC and SEC Uncleared Margin Rules, which are largely consistent with BCBS/IOSCO framework. Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities detailed under each respective regulation Please note: Each regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM.">
+	taxonomyValue string (0..1) <"The taxonomy value when not specified as an enumeration.">
+
+type ProductTaxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 	taxonomyValue string (1..1) <"The taxonomy value.">
 	taxonomySource TaxonomySourceEnum (1..1) <"The taxonomy source.">
 
