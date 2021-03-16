@@ -2,19 +2,24 @@
 
 _What is being released?_
 
-* A new syntax to allow ``maxBy`` and ``minBy`` to call rules and find ``minimum``/``maximum`` of things that are comparable directly. User should follow the following patterns to use these operators: ``maxBy rule`` [rulename] and ``minBy rule`` [rulename]
+* Additional validation rules have been added to identify incorrect syntax when using the minBy or maxBy operator.
 
-# *CDM Model - Simplification of ``extract`` regulatory rule*
+* A simplification of the syntax for extracting information from a CDM object. The word `multiple` is no longer required after `extract`.
+
+# *CDM Model - Simplification of regulatory rules*
 
 _What is being released?_
 
-An update for all reporting rules currently using ``extract multiple`` syntax. The use of the `` multiple`` operator is not necessary.
+An update for all reporting rules currently using ``extract multiple`` syntax. The use of the `` multiple`` operator is no longer necessary.
+An update of regulatory rule ``CrossCurrencySwapBuyerSeller`` which had invalid syntax.
 
 **Model Change**
 * Removal of redundant ``multiple`` keyword from ``extract`` rule.
+* Update of regulatory rule ``CrossCurrencySwapBuyerSeller``
 
 _Review directions_
 
-In the CDM Portal use the Textual Browser to inspect the reporting rules. 
+In Rosetta Core use the Textual View to inspect the reporting rules. 
 
 See `reporting rule TradingDateTime`, which has had the redundant ``multiple`` keyword removed.
+See `reporting rule CrossCurrencySwapBuyerSeller`, which has had the invalid syntax removed.
