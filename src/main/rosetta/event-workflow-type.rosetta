@@ -39,7 +39,6 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedInstruction or rejection are present.">
 	proposedInstruction Instruction (0..1) <"The proposed instruction for the next workflow step. The proposedInstruction is optional when the businessEvent or rejection are present">
 		[synonym Workflow_Event value "proposedInstruction"]
-	// TODO - This will be replaced with a list of signatories that must sign off the 'previousWorkflowStep' and any operational reasons why it may be rejected.
 	rejected boolean (0..1) <"Flags this step as rejected.">
 		[synonym Workflow_Event value "rejected"]
 	previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
@@ -164,52 +163,3 @@ type Velocity:
 	periodMultiplier int (0..1)
 	period PeriodTimeEnum (0..1)
 
-/****************
- * Workflow rules
- */
-/*
- * workflow rule ClearedContractAgency_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
- *
- *    Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
- *
- *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
- *    and <alpha> contract/execution is terminated  *Difference*
- *    and event date of <alpha> submission = trade date of <beta>
- *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta>
- */
-/*
- * workflow rule ClearedContractAgency_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the agency model from the perspective of the involved clearing member or client.">
- *
- *    Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
- * 	and relatedTo <gamma> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
- *
- *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
- *    and event date of <alpha> submission = trade date of <beta>
- *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
- */
-/*
- * workflow rule ClearedContractPrincipal_Participant <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
- *
- *   Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
- * 	relatedTo <theta> where lineage -> @globalKey -> eventQualifier = eventQualifier.NewTrade or eventQualifier.ClearedTrade???? *Difference*
-
- *   constraint is economicTerms are the same except for payerReceiver or buyerSeller
- *   and <alpha> contract/execution is terminated  *Difference*
- *   and event date of <alpha> submission = trade date of <beta>
- *   and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta>
- */
-/*
- * workflow rule ClearedContractPrincipal_CCP <"The cross-events validity constraints to specify that a contract has been cleared according to the principal model from the perspective of the involved clearing member or client.">
- *
- *    Event <beta> is ClearingSubmission
- * 	relatedTo <alpha> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearingSubmission
- * 	and relatedTo <gamma> where lineage -> @globalKey -> eventQualifier = eventQualifier.ClearedTrade *Difference*
- *
- *    constraint is economicTerms are the same except for payerReceiver or buyerSeller
- *    and event date of <alpha> submission = trade date of <beta>
- *    and CCP which is in the party role in after state of <alpha> submission is the same as the CCP which is counterparty to <beta> and <gamma> *Difference*
- */
-		
