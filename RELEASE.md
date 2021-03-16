@@ -29,7 +29,7 @@ New functions to support Commodity Swaps
 - `Qualify_Commodity_Swap_Basis` : Identifies a product as a Commodity Basis swap (FloatFloat)
 
 Changes in enums to support Commodity Swaps
-- Added `RollSourceCalendar` : Identifies a date source calendar from which the pricing dates and the roll to the next contract will be based
+- Added `RollSourceCalendarEnum` : Identifies a date source calendar from which the pricing dates and the roll to the next contract will be based
 - Added `DayDistributionEnum` : Denotes the method by which the pricing days are distributed across the pricing period
 - Combined the values from `CommodityBusiness` with the values in `BusinessCenterEnum`
 - Modified `PeriodExtendedEnum` by adding a new enumerated value, C (CalculationPeriod), which is used when the defined the period corresponds to the calculation period, for example, it is used in the Commodity Markets to indicate that a reference contract is the one that corresponds to the period of the calculation period
