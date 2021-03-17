@@ -77,16 +77,6 @@ steps:
           - sbt package
           - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/scala/target/scala-2.12
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-scala/${{RELEASE_NAME}}/cdm-scala-${{RELEASE_NAME}}.jar" -T cdm-scala_2.12-0.0.0.snapshot.jar
-      BuildCSharp8:
-        title: CSharp8 build and deploy
-        fail_fast: false
-        image: mcr.microsoft.com/dotnet/core/sdk:3.1
-        working_directory: ./target/classes/cdm/csharp8
-        shell: bash
-        commands:
-          - dotnet publish Cdm/NetStandard.2.1/NetStandard.2.1.csproj -c release -o ./app
-          - tar -cvzf cdm-csharp8.tar.gz app
-          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp8/${{RELEASE_NAME}}/cdm-csharp8-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp8.tar.gz
       BuildCSharp9:
         title: CSharp9 build and deploy
         fail_fast: false
@@ -97,6 +87,16 @@ steps:
           - dotnet publish Cdm/Net.5.0/Net.5.0.csproj -c release -o ./app
           - tar -cvzf cdm-csharp9.tar.gz app
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp9/${{RELEASE_NAME}}/cdm-csharp9-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp9.tar.gz
+      BuildCSharp8:
+        title: CSharp8 build and deploy
+        fail_fast: false
+        image: mcr.microsoft.com/dotnet/core/sdk:3.1
+        working_directory: ./target/classes/cdm/csharp8
+        shell: bash
+        commands:
+          - dotnet publish Cdm/NetStandard.2.1/NetStandard.2.1.csproj -c release -o ./app
+          - tar -cvzf cdm-csharp8.tar.gz app
+          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp8/${{RELEASE_NAME}}/cdm-csharp8-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp8.tar.gz
       BuildTypeScript:
         title: TypeScript build and deploy
         fail_fast: false
