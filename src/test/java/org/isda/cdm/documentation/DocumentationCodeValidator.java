@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class DocumentationCodeValidator {
 	
@@ -43,11 +44,11 @@ public class DocumentationCodeValidator {
 	void validate() throws IOException {
 		String model = getModel();
 
-        Stream<String> codeBlocks = getCodeBlocks();
+        List<String> codeBlocks = getCodeBlocks().collect(Collectors.toList());
         Stream<String> illegalCodeBlocks = extractInvalidCode(codeBlocks, "code-block")
                 .peek(System.out::println);
 
-        Stream<String> snippets = getSnippets();
+        List<String> snippets = getSnippets().collect(Collectors.toList());
         Stream<String> illegalSnippets = extractInvalidCode(snippets, "code-snippets")
                 .peek(System.out::println);
 
@@ -60,24 +61,24 @@ public class DocumentationCodeValidator {
         long invalidSnippets = validate(snippets, model);
 
         if (invalidCodeBlocks > 0) {
-            System.err.println("Found [$invalidCodeBlocks] code-blocks that don't match model text.");
+            System.err.println("Found "+invalidCodeBlocks+" code-blocks that don't match model text.");
         }
         if (invalidSnippets > 0) {
-            System.err.println("Found [$invalidSnippets] code-snippets that don't match model text.");
+            System.err.println("Found ["+invalidSnippets+"] code-snippets that don't match model text.");
         }
         if (invalidCodeBlocks + invalidSnippets != 0) {
         	System.exit(1);
         }
 	}
 	
-	long validate(Stream<String> code, String model) {
-		 Stream<String> invalidCode = code
+	long validate(List<String> code, String model) {
+		 Stream<String> invalidCode = code.stream()
 	                .filter ( _code -> !_code.contains(".. code-block:: Javascript") )
 	                .filter ( _code -> !_code.contains(".. code-block:: Java") )
 	                .filter ( _code -> {
 	                    String cleaned = _code
-	                            .replace(".*\\.\\. code-block.*", "")
-	                            .replace(whitespaceRegex, "");
+	                            .replaceAll(".*\\.\\. code-block.*", "")
+	                            .replaceAll(whitespaceRegex, "");
 	                    return !model.contains(cleaned);
 	                })
 	                .peek(System.out::println);
@@ -97,7 +98,7 @@ public class DocumentationCodeValidator {
 	
 	private Stream<String> getSnippets() throws IOException {
         Stream<String> snippets = loadFiles(snippetPath, ".snippet").stream().map(f->f.content);
-        return extractInvalidCode(snippets, "code-snippet");
+        return extractInvalidCode(snippets.collect(Collectors.toList()), "code-snippet");
     }
 	
 	private String getModel() throws IOException {
@@ -114,8 +115,8 @@ public class DocumentationCodeValidator {
 		}
     }
 	
-	private Stream<String> extractInvalidCode(Stream<String> code, String type) {
-        return code.filter(s->illegalSyntaxRegex.matcher(s).matches());
+	private Stream<String> extractInvalidCode(List<String> code, String type) {
+        return code.stream().filter(s->illegalSyntaxRegex.matcher(s).matches());
     }
 	
 	private String readString(Path p) {
