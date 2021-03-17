@@ -72,13 +72,13 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 
 type EquityPayout extends PayoutBase: <" The equity payout specification terms. The associated globalKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
-
+	
 	payerReceiver PayerReceiver (0..1)
 	underlier Underlier (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">
 	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">
 	dividendReturnTerms DividendReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Dividend Obligations">
 	priceReturnTerms PriceReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing">
-	fxFeature FxFeature (0..1) <"A quanto or composite FX feature.">
+    fxFeature FxFeature (0..1) <"A quanto or composite FX feature.">
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">
 	paymentDates PaymentDates (1..1) <"The payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
 	settlementTerms SettlementTerms (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Settlement.">
@@ -184,7 +184,9 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 	creditDefaultPayout CreditDefaultPayout (0..1) <"The credit default payout, which provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms.">
 	equityPayout EquityPayout (0..*) <"The equity payout, which encompasses the equity price returns, dividend returns, volatility and variance return provisions.">
 	optionPayout OptionPayout (0..*) <"The option payout.">
-	forwardPayout ForwardPayout (0..*)
+	commodityPayout CommodityPayout (0..*) <"Defines the payout for the floating leg of a Commodity Swap.">
+	forwardPayout ForwardPayout (0..*) <"Represents a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this component.">
+	fixedForwardPayout FixedForwardPayout (0..*)<"Defines a payout in which one or more forward payouts are defined as a fixed price.">
 	securityPayout SecurityPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
 	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
 
@@ -355,7 +357,7 @@ type Underlier: <"A class describing the whole set of possible underliers: singl
 
 	underlyingProduct Product (1..1) <"Specifies the underlying product. As a difference with FpML, and for the purpose of also supporting swaption and options on CDS through a generic construct, its scope also includes the contract and contractualProduct.">
 
-type ForwardPayout: <"Representation of a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this componen, while distinction between the two will be handled via product qualification.">
+type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this component.">
 
 	underlier Underlier (1..1) <"Underlying product that the forward is written on, which can be of any type: FX, a contractual product, a security, etc.">
 	settlementTerms OptionSettlement (1..1) <"Settlement terms for the underlier that include the settlement date, settlement method etc.">
@@ -372,6 +374,11 @@ type ForwardPayout: <"Representation of a forward settling payout. The 'Underlie
 		if ForwardFX() exists
 		then (settlementTerms -> cashSettlementTerms is absent
 			and settlementTerms -> physicalSettlementTerms is absent)
+
+type FixedForwardPayout extends PayoutBase: <"Represents a forward settling, fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
+	payerReceiver PayerReceiver (1..1) <"Specifies the parties responsible for making and receiving payments defined by this structure.">
+	paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
+    fixedPrice Price (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
 
 type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
 
