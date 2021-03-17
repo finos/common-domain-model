@@ -5,7 +5,7 @@ _What is being released?_
 This release introduces support for basic Commodity Swaps, featuring new payout data types and an expanded data structure to support the definition of the underlying commodity reference price.  Specific changes listed below:
 
 New and revised `Payout` data types
-- `ObservationPayout`: Added to represent common attributes for `EquityPayout` and `CommodityPayout'
+- `ObservationPayout`: Added to represent common attributes for `EquityPayout` and `CommodityPayout`
 - `CommodityPayout`: Added to support the floating leg of a Commodity Swap with data structures that can represent the unique needs of Commodity Swaps
 - `FixedForwardPayout`: Added to support the fixed leg of a Commodity Swap and may be re-used in other product contexts
 - `EquityPayout` : Modified as an extension of `ObservationPayout` and removed the attributes that are now represented in `ObservationPayout`
