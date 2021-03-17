@@ -51,13 +51,13 @@ func PostedCreditSupportItemAmount: <"Calculates the Value for the given Posted 
 		cashOrSecurityValue * (valuationPercentage - fxHaircutPercentage) / 100.0
 
 	condition:
-		(baseCurrency = item -> cashOrSecurityValue -> currency)
-		and (baseCurrency = item -> disputedCashOrSecurityValue -> currency)
+		(baseCurrency = item -> cashOrSecurityValue -> unitOfAmount-> currency)
+		and (baseCurrency = item -> disputedCashOrSecurityValue -> unitOfAmount-> currency)
 
 	assign-output result -> amount:
 		postedCreditSupportAmount - item -> disputedCashOrSecurityValue -> amount
 
-	assign-output result -> currency:
+	assign-output result -> unitOfAmount-> currency:
 	baseCurrency
 
 func SumPostedCreditSupportItemAmounts: <"Loops through each PostedCreditSupportItem, calculating the PostedCreditSupportItemAmount (by executing func PostedCreditSupportItemAmount), and summing the result.  Currently loops are not supported in the syntax so the loop must be implemented in code.">
@@ -90,14 +90,14 @@ func UndisputedAdjustedPostedCreditSupportAmount:
 		totalPostedCreditSupportAmount -> amount + priorDeliveryAmountAdjustment -> amount - priorReturnAmountAdjustment -> amount
 
 	condition:
-		(baseCurrency = priorDeliveryAmountAdjustment -> currency)
-		and (baseCurrency = priorReturnAmountAdjustment -> currency)
-		and (baseCurrency = disputedTransferredPostedCreditSupportAmount -> currency)
+		(baseCurrency = priorDeliveryAmountAdjustment -> unitOfAmount-> currency)
+		and (baseCurrency = priorReturnAmountAdjustment -> unitOfAmount-> currency)
+		and (baseCurrency = disputedTransferredPostedCreditSupportAmount -> unitOfAmount-> currency)
 
 	assign-output result -> amount:
 		adjustedPostedCreditSupportAmount - disputedTransferredPostedCreditSupportAmount -> amount
 
-	assign-output result -> currency:
+	assign-output result -> unitOfAmount-> currency:
 	baseCurrency
 
 func CreditSupportAmount:
@@ -117,9 +117,9 @@ func CreditSupportAmount:
 		Max(marginAmount -> amount - threshold -> amount, 0.0)
 
 	condition:
-		(baseCurrency = marginAmount -> currency)
-		and (baseCurrency = threshold -> currency)
-		and (if marginAmountIA exists then baseCurrency = marginAmountIA -> currency else True)
+		(baseCurrency = marginAmount -> unitOfAmount-> currency)
+		and (baseCurrency = threshold -> unitOfAmount-> currency)
+		and (if marginAmountIA exists then baseCurrency = marginAmountIA -> unitOfAmount-> currency else True)
 
 	condition:
 		if marginApproach = MarginApproachEnum -> Distinct or marginApproach = MarginApproachEnum -> Allocated
@@ -134,7 +134,7 @@ func CreditSupportAmount:
 		else if marginApproach = MarginApproachEnum -> GreaterOf
 			then Max(creditSupportAmountCalc, marginAmountIA -> amount)
 
-	assign-output result -> currency:
+	assign-output result -> unitOfAmount-> currency:
 	baseCurrency
 
 func ReturnAmount: <"2018 Credit Support Annex For Initial Margin, Paragraph 3 (b) Return Amount (IM).  Subject to Paragraphs 4 and 5, upon a demand made by the Pledgor on or promptly following a Calculation Date (IM), if the Return Amount (IM) applicable to the Secured Party for that Calculation Date (IM) equals or exceeds the Secured Party’s Minimum Transfer Amount (IM), then the Secured Party will Transfer to the Pledgor Posted Credit Support (IM) specified by the Pledgor in that demand having a Value as of the date of Transfer as close as practicable to (but not more than) the applicable Return Amount (IM) (rounded pursuant to Paragraph 13).  Unless otherwise specified in Paragraph 13, the Return Amount (IM) applicable to the Secured Party for any Calculation Date (IM) will equal the amount by which: (i) the Value as of that Calculation Date (IM) of all Posted Credit Support (IM) held by the Secured Party (as adjusted to include any prior Delivery Amount (IM) and to exclude any prior Return Amount (IM), the transfer of which, in either case, has not yet been completed and for which the relevant Regular Settlement Day falls on or prior to such Calculation Date (IM)) exceeds (ii) the Credit Support Amount (IM) applicable to the Pledgor.">
@@ -170,15 +170,15 @@ func ReturnAmount: <"2018 Credit Support Annex For Initial Margin, Paragraph 3 (
 		Max(returnAmount - disputedReturnAmount -> amount, 0.0)
 
 	condition:
-		(baseCurrency = minimumTransferAmount -> currency)
-		and (baseCurrency = disputedReturnAmount -> currency)
+		(baseCurrency = minimumTransferAmount -> unitOfAmount->currency)
+		and (baseCurrency = disputedReturnAmount -> unitOfAmount->currency)
 
 	assign-output result -> amount:
 		if undisputedReturnAmount >= minimumTransferAmount -> amount
 		then RoundToNearest(undisputedReturnAmount, rounding -> returnAmount, RoundingModeEnum -> Down)
 		else 0.0
 
-	assign-output result -> currency:
+	assign-output result -> unitOfAmount->currency:
 	baseCurrency
 
 // TODO: paragraph 2
@@ -217,15 +217,14 @@ func DeliveryAmount: <"2018 Credit Support Annex For Initial Margin, Paragraph 3
 		Max(deliveryAmount - disputedDeliveryAmount -> amount, 0.0)
 
 	condition:
-		(baseCurrency = minimumTransferAmount -> currency)
-		and (baseCurrency = disputedDeliveryAmount -> currency)
+		(baseCurrency = minimumTransferAmount -> unitOfAmount->currency		and (baseCurrency = disputedDeliveryAmount -> unitOfAmount->currency))
 
 	assign-output result -> amount:
 		if undisputedDeliveryAmount >= minimumTransferAmount -> amount
 		then RoundToNearest(undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up)
 		else 0.0
 
-	assign-output result -> currency:
+	assign-output result -> unitOfAmount->currency:
 	baseCurrency
 
 		
