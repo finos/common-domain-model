@@ -671,15 +671,17 @@ reporting rule CDSPrice
 	 	   	structured_provision "Of a Credit Default Swap is by definition the Fixed Rate unless the Fixed Rate is Zero and there is a Spread then the regulatoryPrice is by definition the Spread"
 	 	   	provision "For credit default swaps (CDS) it shall be the coupon in basis points. "]
 	filter when rule IsCreditDefaultSwap then
-	extract Trade -> tradableProduct -> priceQuantity then
-	if 
-		filter when PriceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate
-			and PriceQuantity -> price -> amount <> 0
-			do extract PriceQuantity -> price -> amount as "Price"
-		else if filter when PriceQuantity -> price -> priceType = PriceTypeEnum -> Spread
-			do extract PriceQuantity -> price -> amount as "Price"
-		else do return 0 as "Price"
-	endif
+	extract Trade -> tradableProduct then
+	extract if (TradableProduct -> priceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate and
+				TradableProduct -> priceQuantity -> observable -> rateOption is absent and
+					TradableProduct -> priceQuantity -> price -> amount <> 0)
+				then TradableProduct -> priceQuantity -> price -> amount
+			else
+			if (TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> initialRate -> amount exists)
+				then TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> initialRate -> amount
+			else
+				0.0
+			as "Price"
 
 type ExecutingEntity:
 	isInvestmentFirm boolean (1..1)
