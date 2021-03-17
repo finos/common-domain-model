@@ -17,7 +17,7 @@ An update of regulatory rule ``CDSPrice`` to use syntax which is more human read
 **Model Change**
 * Removal of redundant ``multiple`` keyword from ``extract`` rule.
 * Update of regulatory rule ``CrossCurrencySwapBuyerSeller``
-* Update of regulatory rule ``CDPrice``
+* Update of regulatory rule ``CDSPrice``
 
 _Review directions_
 
