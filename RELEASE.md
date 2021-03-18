@@ -1,9 +1,9 @@
 # *Model Change - Modified Money data type to use the new standard Quantity data type*
 _What is being released?_
 
-This release modifies the `Money` type by making it an extension of `Quantity`, removing the existing attributes, and adding a condition that requires the `unitOfAmount` to be a `currency`.
+This release modifies the `Money` type by making it an extension of `Quantity`, removing the existing attributes in 'Money', and adding a condition that requires the `unitOfAmount` to be a `currency`.
 
-The following functions required minor modifications to use unitOfAmount->currency in place of currency:
+The following functions required minor modifications to point-to/use the new location of currency in the 'Money' data type:
 - `Create_Transfer`
 - `CreditSupportAmount`
 - `DeliveryAmount`
@@ -18,7 +18,7 @@ The following function required no change after the `Money` data type was change
 The data type for the following attribute was changed from `Money` to `Price`:
 - `UnitContractValuationModel`->`unitPrice`
 
-The following data types required no change afr the  the `Money` data type was changed
+The following data types required no change after the `Money` data type was changed
 - `BondPriceAndYieldModel`
 - `CalculationPeriod`
 - `Cashflow`
