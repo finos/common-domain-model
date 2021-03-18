@@ -24,7 +24,7 @@ type ConvertibleBond extends IdentifiedProduct: <"A class to specify a convertib
 //TODO: To be deprecated from model, now replaced by Equity as an attribute of Security which extends ProductBase.
 type Equity extends IdentifiedProduct: <"A class to specify an equity as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
-type ProductIdentifier: <"Comprises of an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type ProductIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	identifier string (1..1) <"Provides an identifier associated with a specific product.  The identifier is unique within the public source specified in the source attribute.">
 		[metadata scheme]
@@ -40,6 +40,13 @@ type ProductBase: <"Serves as an abstract class to specify a product using a pro
 	productIdentifier ProductIdentifier (1..*)
 
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
+	indexType IndexTypeEnum (1..1)
+
+enum IndexTypeEnum:
+	Debt
+	Equity
+	Commodity
+	
 
 type Commodity extends ProductBase: <"Identifies a commodity by referencing a product identifier.">
 

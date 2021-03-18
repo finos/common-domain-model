@@ -19,10 +19,9 @@ import cdm.synonyms.config.*
 // Product Qualification
 
 isProduct root EconomicTerms;
-
 func Qualify_CreditDefaultSwap: <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
 	[qualification Product]
-	inputs: economicTerms EconomicTerms (1..1)
+	inputs: economicTerms EconomicTerms (1..1)	
 	output: is_product boolean (1..1)
 	assign-output is_product:
 		economicTerms -> payout -> creditDefaultPayout exists
@@ -30,7 +29,7 @@ func Qualify_CreditDefaultSwap: <"This product qualification is temporary until 
 		or economicTerms -> payout -> cashflow) exists
 		and economicTerms -> payout -> equityPayout is absent
 		and economicTerms -> payout -> optionPayout is absent
-
+	
 func Qualify_CreditDefaultSwaption: <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
@@ -43,39 +42,149 @@ func Qualify_CreditDefaultSwaption: <"This product qualification is temporary un
 		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
 		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
 
-func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"The Price Return Basic Performance equity swap specified in the ISDA taxonomy V2.0 corresponds to the price and total return swaps.">
+func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg, 2) the returnType is Price, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features.">
+
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 			[synonym ISDA_Taxonomy_v1 value "EquitySwap_PriceReturnBasicPerformance_SingleName"]
+			[synonym ISDA_Taxonomy_v2 value "EquitySwap_PriceReturnBasicPerformance_SingleName"]
 	assign-output is_product:
-        economicTerms -> payout -> interestRatePayout exists
-        and ( economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Price
-            or economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Total )
+    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
+ 	(economicTerms -> payout -> interestRatePayout exists
+	 	and economicTerms -> payout -> equityPayout exists
+		and economicTerms -> payout -> cashflow is absent
+		and economicTerms -> payout -> creditDefaultPayout is absent
+		and economicTerms -> payout -> forwardPayout is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> securityPayout is absent)
+
+	// qualifies that the returnType is price and the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant
+        and  economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Price
         and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
             or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
 				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
 			or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
 				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
 			or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
-            )
+          )
 
-func Qualify_EquitySwap_ParameterReturnDividend_SingleName: <"The Parameter Return Dividend equity swap specified in the ISDA taxonomy V2.0 corresponds to the dividend return swap.">
+func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg, 2) the returnType is Total, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-			[synonym ISDA_Taxonomy_v1 value "EquitySwap_ParameterReturnDividend_SingleName"]
 	assign-output is_product:
-        economicTerms -> payout -> interestRatePayout exists
-        and economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Dividend
-		and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
+    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
+ 	(economicTerms -> payout -> interestRatePayout exists
+	 	and economicTerms -> payout -> equityPayout exists
+		and economicTerms -> payout -> cashflow is absent
+		and economicTerms -> payout -> creditDefaultPayout is absent
+		and economicTerms -> payout -> forwardPayout is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> securityPayout is absent)
+	// qualifies that the returnType is total and the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant
+ 		and  economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Total
+        and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
             or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
 				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
 			or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
 				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
 			or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
-            )
+          )
+			
 
+func Qualify_EquitySwap_PriceReturnBasicPerformance_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg 2) the returnType is Price 3) the underlier is an index, and 4) there are no option features.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "EquitySwap_PriceReturnBasicPerformance_Index"]
+			[synonym ISDA_Taxonomy_v2 value "EquitySwap_PriceReturnBasicPerformance_Index"]
+	assign-output is_product:
+    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
+ 	(economicTerms -> payout -> interestRatePayout exists
+	 	and economicTerms -> payout -> equityPayout exists
+		and economicTerms -> payout -> cashflow is absent
+		and economicTerms -> payout -> creditDefaultPayout is absent
+		and economicTerms -> payout -> forwardPayout is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> securityPayout is absent)
+	// qualifies that the returnType is price or total and the underlier is an index
+	and economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Price
+    and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> index exists
+      
+
+
+func Qualify_EquitySwap_TotalReturnBasicPerformance_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg 2) the returnType is Total 3) the underlier is an index, and 4) there are no option features.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
+ 	(economicTerms -> payout -> interestRatePayout exists
+	 	and economicTerms -> payout -> equityPayout exists
+		and economicTerms -> payout -> cashflow is absent
+		and economicTerms -> payout -> creditDefaultPayout is absent
+		and economicTerms -> payout -> forwardPayout is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> securityPayout is absent)
+	// qualifies that the returnType is price or total and the underlier is an index
+	and economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Total
+    and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> index exists
+
+
+func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as a plain vanilla Equity Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is a single stock and 2) No special option feature exists other than option averaging.">// 
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	[synonym ISDA_Taxonomy_v1 value "EquityOption_PriceReturnBasicPerformance_SingleName"]
+	[synonym ISDA_Taxonomy_v2 value "EquityOption_PriceReturnBasicPerformance_SingleName"]
+	assign-output is_product:
+    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+ 	(economicTerms -> payout -> optionPayout exists 
+	 	and economicTerms -> payout -> equityPayout is absent
+		and economicTerms -> payout -> creditDefaultPayout is absent
+		and economicTerms -> payout -> forwardPayout is absent
+		and economicTerms -> payout -> interestRatePayout is absent
+		and economicTerms -> payout -> securityPayout is absent)
+	// qualifies that the underlier is an equity security 
+     and ( economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
+            or (economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
+				and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+			or (economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
+				and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
+			or economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
+          )
+	//qualifies that an option style is defined and that no feature other than averaging exists
+		and	(economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
+			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists
+			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> bermudaExercise exists)
+		and (economicTerms -> payout -> optionPayout -> feature is absent
+			or economicTerms -> payout -> optionPayout -> feature -> averagingRateFeature only exists)
+
+func Qualify_IndexVanillaOption: <"Qualifies a product as a plain vanilla Index Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product for which the underlier is an index, which could be an index with any underlying type 2) No special option feature exists other than option averaging.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	[synonym ISDA_Taxonomy_v1 value "EquityOption_PriceReturnBasicPerformance_Index"]
+	[synonym ISDA_Taxonomy_v2 value "EquityOption_PriceReturnBasicPerformance_Index"]
+	assign-output is_product:
+    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+ 	(economicTerms -> payout -> optionPayout exists 
+	 	and economicTerms -> payout -> equityPayout is absent
+		and economicTerms -> payout -> creditDefaultPayout is absent
+		and economicTerms -> payout -> forwardPayout is absent
+		and economicTerms -> payout -> interestRatePayout is absent
+		and economicTerms -> payout -> securityPayout is absent)
+
+	// qualifies that the the underlier is an index
+	 and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> index exists
+
+	//qualifies that an option style is defined and that no feature other than averaging exists
+		and	(economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
+			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists
+			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> bermudaExercise exists)
+		and (economicTerms -> payout -> optionPayout -> feature is absent
+			or economicTerms -> payout -> optionPayout -> feature -> averagingRateFeature only exists)
 
 func Qualify_InterestRate_IRSwap_Basis:
 	[qualification Product]
