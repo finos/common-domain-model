@@ -6,7 +6,7 @@ This release introduces support for data validation in the C# distribution, enab
 
 *Cardinality*
 
-The C# code generators now generate a validation rule for each attribute’s cardinality constraint, so if the cardinality of the attribute does not match the requirement an error will be associated with that attribute by the validation process.
+The C# code generators now generate a validation rule for each attribute's cardinality constraint, so if the cardinality of the attribute does not match the requirement an error will be associated with that attribute by the validation process.
 
 *Condition Statement*
 
