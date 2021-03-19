@@ -301,7 +301,9 @@ The ``Payout`` type defines the composable payout types, each of which describes
    creditDefaultPayout CreditDefaultPayout (0..1)
    equityPayout EquityPayout (0..*)
    optionPayout OptionPayout (0..*)
+   commodityPayout CommodityPayout (0..*)
    forwardPayout ForwardPayout (0..*)
+   fixedForwardPayout FixedForwardPayout (0..*)
    securityPayout SecurityPayout (0..*)
    cashflow Cashflow (0..*)
    

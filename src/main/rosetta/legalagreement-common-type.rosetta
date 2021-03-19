@@ -31,15 +31,12 @@ type ContractualTermsSupplement: <"A contractual supplement (such as those publi
 type RelatedAgreement: <"A class for specifying the legal agreements that govern the contract, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
 
 	legalAgreement LegalAgreement (0..1) <"The legal agreement(s) that govern the contract, when such agreement is specified as a reference part of the CDM.">
-		// [metadata reference] // TODO fix bug related to setting null references in func assign-output
-		[synonym Workflow_Event value "legalAgreement"]
-	// TODO remove when migrating from documentationIdentification to legalAgreement (and update cardinality to 1..1)
+			[synonym Workflow_Event value "legalAgreement"]
 	documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">
 		[synonym ISDA_Create_1_0 value "ignore"]
 
 type DocumentationIdentification: <"A class for defining the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">
 
-	// TODO - type will be deprecated when all information has been mapped to LegalAgreementBase and synonyms moved.
 	masterAgreement MasterAgreement (0..1) <"The agreement executed between the parties and intended to govern all OTC derivatives transactions between those parties.">
 	masterConfirmation MasterConfirmation (0..1)
 	brokerConfirmation BrokerConfirmation (0..1) <"Specifies the details for a broker confirm.">
@@ -53,12 +50,6 @@ type DocumentationIdentification: <"A class for defining the definitions that go
 
 	condition ConfirmationChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice masterConfirmation, brokerConfirmation
-
-// type LastRegularPaymentDate: <"A class which purpose is to provide the ability into the seemingly incompatible representations of the interest rate and equity last payment date.">
-// 	lastRegularPaymentDate date (0..1) <"The last regular payment date when specified as a date, as in the FpML interest rate construct. FpML specifies that this date may be subject to adjustment in accordance with any business day convention specified in the paymentDatesAdjustments attribute.">
-// 	finalPaymentDate AdjustableOrRelativeDate (0..1) <"The last payment when specified as an adjustable or relative date, as in the FpML total return construct.">
-//
-// 	condition: one-of
 
 type OtherAgreement: <"A class for defining an agreement executed between parties.">
 
@@ -107,8 +98,7 @@ type Agreement: <"Specification of the standard set of terms that define a legal
 		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->documentType" = "Security Agreement"]
 	masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
 		[synonym ISDA_Create_1_0 value "ignore"]
-	// transactionConfirmation TransactionConfirmation (0..1) <"A transaction confirmation"> //TODO: Rename Contract and move to here
-	
+		
 	condition: one-of
 
 type AgreementTerms: <"Specification of the content of a legal agreement.">
@@ -151,7 +141,6 @@ type LegalAgreementBase: <"A class describing the legal agreement baseline infor
 		[synonym ISDA_Create_1_0 value "executionDate" path "answers->partyA->execution_date"]
 	effectiveDate date (0..1) <"The date on which, or as of which, the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">
 	identifier Identifier (0..*) <"The legal agreement identifier. Several identifiers can be specified.">
-//	lineage Lineage (0..1) <"The lineage into prior versions of this legal agreement or into other legal agreements that might be referenced by it.">
 	agreementType LegalAgreementType (1..1) <"The type of legal agreement, identified via a set of distinct attributes: name, publisher, governing law and version, e.g. ISDA 2013 Standard Credit Support Annex English Law.">
 	contractualParty Party (2..2)  <"The two contractual parties to the legal agreement, which reference information is positioned as part of the partyInformation attribute.">
 		[metadata reference]
@@ -173,13 +162,12 @@ type LegalAgreementType: <"A class to specify the type of legal agreement, which
 		[synonym AcadiaSoft_AM_1_0 value "csaVersion"]
 		[synonym ISDA_Create_1_0 value "year" path "document"]
 
-// TODO - Next step to move Contract from Contractual Product to here.  Will require significant refactoring of model.
 type UmbrellaAgreement: <"A class to specify a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement. This data representation reflects the ISDA Create representation.">
 
 	isApplicable boolean (1..1) <"The determination of whether Umbrella Agreement terms are Applicable (True), or Not Applicable (False)">
 		[synonym ISDA_Create_1_0 set to True when "is_applicable" = "applicable", set to False when "is_applicable" = "not_applicable"]
 	language string (0..1) <"The language associated with the umbrella agreement, and which applies to all the parties to the umbrella agreement.">
-		[synonym ISDA_Create_1_0 value "language" maps 2] // TODO: remove "maps 2" once migration complete
+		[synonym ISDA_Create_1_0 value "language" maps 2]
 	parties UmbrellaAgreementEntity (0..*) <"Underlying principals to the umbrella agreement.">
 		[synonym ISDA_Create_1_0 value "principal_identification_schedule" mapper "UmbrellaAgreementEntity"]
 
@@ -211,10 +199,6 @@ type OtherAgreementTerms: <"A class to specify a related legal agreement. For ex
 		if isSpecified = True
 		then legalDocument exists
 
-/*
- * TODO - Follow-up to evaluate an alternative approach consisting in referencing those data points rather than specifying them.
- * Trello card: https://trello.com/c/4D6zubCG
- */
 type ClosedState: <" A class to qualify the closed state of an execution or a contract through the combination or a state (e.g. terminated, novated) and a set of dates: activity date, effective date and, when relevant, last payment date.">
 
 	state ClosedStateEnum (1..1) <"The qualification of what gave way to the contract or execution closure, e.g. allocation, termination, ...">
