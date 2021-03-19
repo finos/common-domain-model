@@ -49,7 +49,6 @@ type Affirmation: <"A class to specify a trade affirmation.">
 		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
 
 type AllocationInstruction:
-	// TODO: add other allocation context
 	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
 
 type AllocationBreakdown:
@@ -79,10 +78,6 @@ type CashTransferComponent extends TransferBase:
 	breakdown CashTransferBreakdown (0..*) <"The cash transfer breakdown, when the transfer corresponds to a net amount across several components which breakdown is deemed relevant (e.g. the net cash transfer related to several contracts, or to the net proceeds across several payout components).">
 		[synonym Workflow_Event value "breakdown"]
 
-/*
- * TODO - The commodity transfer component and its associated breakdown should be deemed as sample implementations,
- * which need to be confirmed through relevant user stories and use cases
- */
 type CommodityTransferBreakdown extends TransferBreakdown:
 
 	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
@@ -107,7 +102,7 @@ type CommodityTransferComponent extends TransferBase:
 type ContractFormationInstruction: <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
 	execution TradeState (1..1) <"Execution consisting of the economic terms which are agreed between the parties.">
 	legalAgreement LegalAgreement (0..1) <"Optional legal agreement associated to the contract being formed, for instance a master agreement.">
-	
+
 type ContractState: <"A class to specify a contract state instantiation with respect to the before and/or after state of lifecycle events.">
 	[metadata key]
 
@@ -118,8 +113,8 @@ type ContractState: <"A class to specify a contract state instantiation with res
 type Instruction: <"Instruction to a function that will be used to perform a business event">
   	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
   	instructionFunction string (1..1) <"Specifies the function that will be called">
-  	allocation AllocationInstruction (0..1) <"Instruction to allocate">
-  	clearing ClearingInstruction (0..1) <"Instruction to clear">
+	allocation AllocationInstruction (0..1) <"Instruction to allocate">
+	clearing ClearingInstruction (0..1) <"Instruction to clear">
 	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
   	execution ExecutionInstruction (0..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, and a trade date.">
   	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
@@ -140,7 +135,6 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 		[synonym Workflow_Event value "effectiveDate"]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of globalKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
-	// TODO - this needs to be moved/merged into the WorkflowStep
 	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 		[deprecated]
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
@@ -156,8 +150,7 @@ type EventEffect: <"The set of operational and positional effects associated wit
 	transfer TransferPrimitive (0..*) <"A pointer to the transfer effect(s), either a cash, security or other asset.">
 		[metadata reference]
 
-/* USED in downstream */
-type EventTestBundle: <"A class which combines several events for testing purposes.">
+type EventTestBundle: <"Combines several events for testing purposes, intended to be used in downstream processes.">
 
 	event WorkflowStep (2..*)
 		[synonym Workflow_Event value "event"]
@@ -201,7 +194,7 @@ type Reset: <"Defines the reset value or fixing value produced in cashflow calcu
 	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
 		[metadata reference]
 	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value.">
-
+	
 	condition: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
 		if observations count > 1 then aggregationMethodology exists
 
@@ -337,9 +330,6 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
 
-	/*
-	 * TODO - Confirm the set of Contractual Terms Supplements that qualify mortgage products
-	 */
 	condition AdditionalFixedPaymentsMortgages: <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
 		if ( (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType = SecurityTypeEnum -> Debt
 				and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security-> debtType ->debtClass = DebtClassEnum -> AssetBacked)
@@ -488,15 +478,10 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
         [metadata reference]
         [synonym Workflow_Event value "contractReference" meta "href"]
         [synonym Workflow_Event value "executionReference" meta "href"]
-	//contractReference Contract (0..*) <"The reference to the instantiation of a Contract object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
-	//	[metadata reference]
-	//	[synonym Workflow_Event value "contractReference" meta "href"]
+	
 	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a globalKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "eventReference" meta "href"]
-	//executionReference Trade (0..*) <"The reference to the instantiation of a Execution object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
-	//	[metadata reference]
-	//	[synonym Workflow_Event value "executionReference" meta "href"]
 	cashflowReference Cashflow (0..*) <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "cashflowReference" meta "href"]
@@ -540,7 +525,7 @@ type SecurityTransferComponent extends TransferBase:
 		[synonym Workflow_Event value "security"]
 	quantity number (1..1)
 		[synonym Workflow_Event value "quantity"]
-	assetTransferType AssetTransferTypeEnum (0..1) // The relevance of this attribute and the associated values need to be confirmed"
+	assetTransferType AssetTransferTypeEnum (0..1) 
 		[synonym Workflow_Event value "assetTransferType"]
 	breakdown SecurityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
 		[synonym Workflow_Event value "breakdown"]
@@ -550,19 +535,6 @@ type StockSplitInstruction: <"Data required to perform a stock split business ev
 	tradeState TradeState (1..1) <"Contract to be split.">
 	adjustmentRatio number (1..1) <"The number that denotes the cumulative quantity of post-split shares issued to shareholders versus the quantity of pre-split shares previously issued to shareholders.  This number will be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.  With regard to any reference to price, the pre-split reference price will be divided by this number to determine the post-split reference price.">
 	date date (1..1) <"The effective date of the stock split, also known as the ex-date. This is the date on which the additional shares are paid to the shareholders, or in the case of a reverse stock split, the number shares held by each shareholder is proportionally reduced.  Equity derivative transactions can be amended in firms' internal systems on such date.   In most markets, the listed stock price is reduced (or increased for a reverse stock split) to account for the split on the same date, but in some markets the price adjustment occurs on a later date.  In either case, equity derivative transactions should be amended on the date that the stocks are paid to the shareholders (or consolidated).">
-
-// TODO: to be removed completely by the end of Primitive Harmonisation work
-//type Trade_Deprecated: <"A class to represent the general trade concept, which can either be an execution or a contract. The execution consists essentially in the economic terms which are agreed between the parties. The contract will further qualify those with the legal entities (think of the allocation case, which execution state can involve the investment adviser rather not the actual funds) while not specify the master agreement or collateral terms which might be associated with the subsequent contract.">
-//	[metadata key]
-//	[deprecated]
-//
-//	execution Execution (0..1) <"The execution corresponds to economic terms that are agreed between parties, but which legal terms are not yet specified. The execution attribute applies to the post-execution scenario of a product that is subject to the clearing mandate and is then routed to the CCP as an execution.">
-//		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" exists]
-//		[synonym Workflow_Event value "fpmlExecution"]
-//	contract Contract (0..1) <"The contract differs from the execution by the fact that its legal terms are fully specified. This includes the legal entities that are associated to it as well as any associated legal agreement, e.g. master agreement, credit and collateral terms, ... ">
-//		[synonym Workflow_Event value "fpmlTrade" set when "fpmlTrade->trade->executionType" is absent]
-//		[synonym Workflow_Event value "fpmlContract"]
-//	condition Trade: one-of
 
 type TransferBase:
 
@@ -640,14 +612,12 @@ type ContractFormationPrimitive: <"Defines the primitive event that represents a
 		[metadata reference]
 		[synonym Workflow_Event value "fpmlTrade" path "before"]
 		[synonym Workflow_Event value "fpmlExecution" path "before"]
-	after TradeState (1..1) <"The after state corresponds to the new contract being formed between the parties, plus some additional trade workflow information.">
+	after TradeState (1..1) <"Represents the new contract being formed between the parties.">
 		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
-	condition: <"The trade details should be unchanged by the formation of the contract from an execution event or existing trade data. Such details are found in the tradableProduct object.">
+	condition: <"The quantity should be unchanged.">
 		if before exists then
 		before -> trade -> tradableProduct = after -> trade -> tradableProduct
-
-
 
 type SplitPrimitive: <"Defines splitting of a single trade into one or more trades, where the quantity of the split trade(s) totals that of the single trade.">
 
@@ -688,6 +658,7 @@ func FilterOpenTradeStates: <"Outlines inputs and outputs required to filter onl
 type TradeStates: <"Defines a set of TradeState objects. This type is a work-around to a bug in the code generators which prevents the model from returning a set of elements in the function.">
 	tradeStates TradeState (0..*)
 
+
 type QuantityChangePrimitive: <"Defines the primitive event to represent a change in quantity, which includes notional. For details of how the TradeState is changed between the `before` and `after` TradeStates, see the corresponding Create_QuantityChangePrimitive function.">
 
 	before TradeState (1..1) <"Represents the state of the trade before the event.">
@@ -722,18 +693,11 @@ type TransferPrimitive: <"A class to specify the transfer of assets between part
 	after TradeState (1..1)
 	    [synonym Workflow_Event value "fpmlTrade" path "after"]
 
-/*
- * Only some of the attributes have been incorporated at this point, as some seem questionable (e.g. executionDateTime, which should be associated to the relevant execution event).
- */
 type PackageInformation: <"A class defining additional information that may be recorded alongside a transaction package.">
 	[deprecated]
-	// TODO Never referenced in CDM
 	relatedParty RelatedParty (0..*) <"This may be used to identify one or more parties that perform a role as part of the transaction.">
 	category CategoryEnum (0..*)
-	/*
-	 * Why should the below be specifically associated with package transactions?
-	 * It seems to also be relevant in the context of single trades
-	 */
+
 	intentToAllocate boolean (0..1) <"specifies whether the transaction package is anticipated to be allocated.">
 
 type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
