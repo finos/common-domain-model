@@ -10,7 +10,7 @@ The C# code generators now generate a validation rule for each attribute’s car
 
 *Condition Statement*
 
-Data type condition definitions are comprised of a boolean expression that applies to the type's attributes.  The C# code generators now support the following language features:
+Data type condition definitions comprises a boolean expression that applies to the type's attributes.  The C# code generators now support the following language features:
 
 - conditional statements: `if`, `then`, `else` 
 - boolean operators: `and`, `or`
