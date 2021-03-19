@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-Here's how to write a release note.  Explain what the change is.
+Here's how to write a release note.  Explain what the change is.  Forgot about this bit.
 
 _How to review the change_
 
