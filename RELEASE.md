@@ -6,11 +6,11 @@ This release introduces support for data validation in the C# distribution, enab
 
 *Cardinality*
 
-The C# code generators now generate a validation rule for each attribute's cardinality constraint, so if the cardinality of the attribute does not match the requirement an error will be associated with that attribute by the validation process.
+The C# code generators now generate a validation rule for each attribute cardinality constraint, so if the cardinality of the attribute does not match the requirement an error will be associated with that attribute by the validation process.
 
 *Condition Statement*
 
-Data type condition definitions comprises a boolean expression that applies to the type's attributes.  The C# code generators now support the following language features:
+Data type condition definitions comprises a boolean expression that applies to the type attributes.  The C# code generators now support the following language features:
 
 - conditional statements: `if`, `then`, `else` 
 - boolean operators: `and`, `or`
