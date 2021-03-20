@@ -1,4 +1,4 @@
-# *Product/Event Model: Update to Interest Rate Product Qualifications*
+# *Product Model: Update to Interest Rate Product Qualifications*
 
 _What is being released?_
 
