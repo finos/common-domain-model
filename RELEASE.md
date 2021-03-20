@@ -28,6 +28,6 @@ The `Qualify_InterestRate_IRSwap_FixedFloat_PlainVanilla` function was removed f
 
 _Review directions_
 
-In the CDM Portal, select the `TextualBrowser`, click inside the page, select CTRL+F to see the text search bar and search for any of the functions listed above.
+In the CDM Portal, select the `TextualBrowser`, click inside the page, search in the text any of the functions listed above.
 Also in the CDM Portal, select the Ingestion function, then select Products, then Rates, and review any of the examples, noting the `ProductQualifier`.  For example, select CAD-Long-Initial-Stub-versioned.xml and note that the `ProductQualifier` is `InterestRate_IRSwap_Basis`.
 
