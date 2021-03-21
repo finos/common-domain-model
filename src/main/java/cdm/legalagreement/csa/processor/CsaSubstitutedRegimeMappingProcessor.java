@@ -23,6 +23,7 @@ public class CsaSubstitutedRegimeMappingProcessor extends MappingProcessor {
 	@Override
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		((CreditSupportAgreementElectionsBuilder) parent)
-				.setSubstitutedRegime(helper.getSubstitutedRegimes(synonymPath));
+				.clearSubstitutedRegime()
+				.addSubstitutedRegime(helper.getSubstitutedRegimes(synonymPath));
 	}
 }

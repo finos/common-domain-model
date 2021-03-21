@@ -15,6 +15,9 @@ import cdm.product.common.schedule.*
 
 import cdm.synonyms.config.*
 
+//***********************
+// Product Qualification
+
 isProduct root EconomicTerms;
 
 func Qualify_CreditDefaultSwap: <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
@@ -104,11 +107,43 @@ func Qualify_InterestRate_IRSwap_FixedFloat_PlainVanilla: <"This product qualifi
 		and economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> stepSchedule -> step is absent
 		and economicTerms -> payout -> interestRatePayout -> stubPeriod is absent
 		and economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> stubPeriodType is absent
+		/*
+		 * TODO - Cannot compare the below because in FpML the period associated with the reset frequency is of type PeriodExtendedEnum, which includes 'T'
+		 * Need to adjust the implementation once a proper implementation approach has been firmed out
+		 */
+//	and economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> period =
+//		economicTerms -> payout -> interestRatePayout -> interestRate -> floatingRate -> indexTenor -> period
 		and economicTerms -> payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier =
 		economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> rateOption -> indexTenor -> periodMultiplier
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period <> PeriodExtendedEnum -> T
 		and economicTerms -> payout -> interestRatePayout -> compoundingMethod is absent
 
+// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
+//	and Vanilla_AnnualPaymentDifferentResetFrequency, Vanilla_SemiAnnualPayment_QuarterlyReset, Vanilla_QuarterlyPayment_MonthlyReset apply
+/*
+ * TODO Address the below data rule
+ */
+//data rule Vanilla_SamePaymentResetFrequency
+//	when payout -> interestRatePayout -> resetDates exists
+//	then payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier
+// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
+//condition Vanilla_AnnualPaymentDifferentResetFrequency: <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is annual, the reset frequency is semi-annual or quarterly.">
+//	when payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> Y
+//	then payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
+//	and ( payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 6
+//		or payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3 )
+// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
+//condition Vanilla_SemiAnnualPayment_QuarterlyReset: <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is semi-annual, the reset frequency is quarterly.">
+//	when payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> M
+//		and payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
+//	then payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
+//		and payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
+// TODO comment out data rules that should only apply to qualification (and not be applied as part of general validation)
+//condition Vanilla_QuarterlyPayment_MonthlyReset: <"One of the provision to qualify a plain vanilla swap according to the ISDA Taxonomy V2.0 is that when the payment frequency is quarterly, the reset frequency is monthly.">
+//	when payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> M
+//		and payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 6
+//	then payout -> interestRatePayout -> resetDates -> resetFrequency -> period = PeriodExtendedEnum -> M
+//		and payout -> interestRatePayout -> resetDates -> resetFrequency -> periodMultiplier = 3
 func Qualify_InterestRate_IRSwap_FixedFloat:
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
@@ -195,6 +230,9 @@ func Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon:
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
 
+/*
+ * TODO Adjust the Xtext grammar to support enumeration styles
+ */
 func Qualify_InterestRate_IRSwap_FixedFloat_OIS:
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)

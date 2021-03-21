@@ -11,9 +11,9 @@ import cdm.event.common.metafields.ReferenceWithMetaTradeState.ReferenceWithMeta
 import com.google.common.collect.ImmutableMap;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep.KeyPostProcessReport;
-import com.regnosys.rosetta.common.util.SimpleBuilderProcessor;
+import com.regnosys.rosetta.common.hashing.SimpleBuilderProcessor;
 import com.rosetta.lib.postprocess.PostProcessorReport;
-import com.rosetta.model.lib.GlobalKey;
+import com.rosetta.model.lib.GlobalKeyBuilder;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -41,10 +41,10 @@ public class EventEffectProcessStep implements PostProcessStep{
 	
 	private static Map<BiPredicate<RosettaPath, Class<?>>, BiConsumer<EventEffectBuilder,String>> effectSetters  = 
 			ImmutableMap.<BiPredicate<RosettaPath, Class<?>>, BiConsumer<EventEffectBuilder,String>>builder()
-			.put(matches(BEFORE, TradeStateBuilder.class), (EventEffectBuilder e, String s) -> e.addEffectedTrade(tradeStateRef(s)))
-			.put(matches(AFTER, TradeStateBuilder.class), (EventEffectBuilder e,String s) -> e.addTrade(tradeStateRef(s)))
-			.put(matches(ANY, ProductIdentifierBuilder.class), (EventEffectBuilder e,String s) -> e.addProductIdentifier(productRef(s)))
-			.put(matches(ANY, TransferPrimitiveBuilder.class), (EventEffectBuilder e,String s) -> e.addTransfer(transferRef(s)))
+			.put(matches(BEFORE, TradeStateBuilder.class), (EventEffectBuilder e, String s) -> e.addEffectedTradeBuilder(tradeStateRef(s)))
+			.put(matches(AFTER, TradeStateBuilder.class), (EventEffectBuilder e,String s) -> e.addTradeBuilder(tradeStateRef(s)))
+			.put(matches(ANY, ProductIdentifierBuilder.class), (EventEffectBuilder e,String s) -> e.addProductIdentifierBuilder(productRef(s)))
+			.put(matches(ANY, TransferPrimitiveBuilder.class), (EventEffectBuilder e,String s) -> e.addTransferBuilder(transferRef(s)))
 			.build();
 	
 	private static BiPredicate<RosettaPath, Class<?>> matches(RosettaPath matchPath, Class<?> matchClass) {
@@ -71,12 +71,11 @@ public class EventEffectProcessStep implements PostProcessStep{
 	}
 
 	@Override
-	public <T extends RosettaModelObject> PostProcessorReport runProcessStep(Class<? extends T> topClass,
-			T instance) {
+	public <T extends RosettaModelObject> PostProcessorReport runProcessStep(Class<T> topClass,
+			RosettaModelObjectBuilder builder) {
 		RosettaPath path = RosettaPath.valueOf(topClass.getSimpleName());
 		EventEffectPostProcessReport report = new EventEffectPostProcessReport();
-		EventEffectProcessor processor = new EventEffectProcessor(report,  keyProcessor.runProcessStep(topClass, instance));
-		RosettaModelObjectBuilder builder = instance.toBuilder();
+		EventEffectProcessor processor = new EventEffectProcessor(report,  keyProcessor.runProcessStep(topClass, builder));
 		processor.processRosetta(path, topClass, builder, null);
 		builder.process(path, processor);
 		return report;
@@ -100,7 +99,7 @@ public class EventEffectProcessStep implements PostProcessStep{
 	private class EventEffectProcessor extends SimpleBuilderProcessor {
 
 		private final EventEffectPostProcessReport report;
-		private final Map<RosettaPath, GlobalKey> globalKeyMap;
+		private final Map<RosettaPath, GlobalKeyBuilder> globalKeyMap;
 
 		public EventEffectProcessor(EventEffectPostProcessReport report, KeyPostProcessReport keyPostProcessReport) {
 			this.report = report;
@@ -115,7 +114,7 @@ public class EventEffectProcessStep implements PostProcessStep{
 			}
 			if (builder instanceof EventEffectBuilder) {
 				EventEffectBuilder eventEffect = (EventEffectBuilder) builder;
-				for (Entry<RosettaPath, GlobalKey> entry : globalKeyMap.entrySet()) {
+				for (Entry<RosettaPath, GlobalKeyBuilder> entry : globalKeyMap.entrySet()) {
 					for (Entry<BiPredicate<RosettaPath, Class<?>>, BiConsumer<EventEffectBuilder, String>> test : effectSetters.entrySet()) {
 						if (test.getKey().test(entry.getKey(), entry.getValue().getClass())) {
 							test.getValue().accept(eventEffect, entry.getValue().getMeta().getGlobalKey());

@@ -1,5 +1,6 @@
 namespace cdm.synonyms.fpml
 version "${project.version}"
+
 import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
@@ -505,10 +506,12 @@ synonym source FpML_5_10 extends FpML
 
     Price:
         + amount
+            // TODO (PQ) mapper required for cdindex-ex04-iBoxx-uti.xml
             [value "initialRate" mapper "PriceUnitType"]
             [value "initialValue" mapper "PriceUnitType"]
             [value "rate" maps 2 mapper "PriceUnitType"]
             [value "spotRate" mapper "PriceUnitType"]
+            //[value "forwardPoints"] // mapped with mapper
             [value "amount" mapper "PriceUnitType"]
             [value "amount" path "initialPrice->netPrice" mapper "PriceUnitType"]
             [value "fixedRate" mapper "PriceUnitType"]
@@ -535,6 +538,9 @@ synonym source FpML_5_10 extends FpML
             [set to PriceTypeEnum->CleanPrice when "strikePrice" exists]
             [set to PriceTypeEnum->NetPrice when "initialPrice->netPrice->amount" exists]
             [set to PriceTypeEnum->ExchangeRate when path = "exchangeRate" and "rate" exists]
+            //[set to PriceTypeEnum->Spot when path = "exchangeRate" and "spotRate" exists] // mapper
+            //[set to PriceTypeEnum->ForwardPoints when path = "exchangeRate" and "forwardPoints" exists] // mapper
+            //[set to PriceTypeEnum->Spot when path = "fxOption" and "spotRate" exists] // TODO (PQ) uncommenting this conditional mapping causing duplicate keys
             [set to PriceTypeEnum->RatePrice when path = "fxOption->strike"]
             [set to PriceTypeEnum->CashPrice when path = "additionalPayment->paymentAmount"]
             [set to PriceTypeEnum->CashPrice when path = "otherPartyPayment->paymentAmount"]
@@ -700,6 +706,11 @@ synonym source FpML_5_10 extends FpML
 			[value "stubRate"]
 		+ stubAmount
 			[value "stubAmount"]
+
+//	TradeDate:
+//		[meta "id" path "tradeDate"]
+//		+ date
+//			[value "tradeDate"]
 
 	Asian:
 		+ averagingInOut
@@ -1036,6 +1047,8 @@ synonym source FpML_5_10 extends FpML
 		[meta "id" path "interestLegCalculationPeriodDates"]
 		+ effectiveDate
 			[value "effectiveDate" set when "effectiveDate->relativeDate" exists]
+			// TODO - The above mapping logic doesn't handle the case of an equity swap payout with an effective date specified as an adjustable date, such as in the eqs-ex01-single-underlyer-execution-long-form.xml
+			// This use case should be tackled as part of this Trello card https://trello.com/c/tGA9hPQi
 			[value "effectiveDate" path "calculationPeriodDates"]
 			[value "relativeEffectiveDate" path "calculationPeriodDates"]
 			[hint "adjustedEffectiveDate"]
@@ -1171,6 +1184,7 @@ synonym source FpML_5_10 extends FpML
 			[value "optionalEarlyTerminationParameters"]
 
 	ExerciseEvent:
+		// TODO Never referenced in CDM
 		[meta "id"]
 		+ adjustedExerciseDate
 			[value "adjustedExerciseDate"]
@@ -1457,8 +1471,8 @@ synonym source FpML_5_10 extends FpML
 	AssetPool:
 		+ version
 			[value "version"]
-		+ effectiveDate			
-		[value "effectiveDate"]
+		+ effectiveDate
+			[value "effectiveDate"]
 		+ initialFactor
 			[value "initialFactor"]
 		+ currentFactor
@@ -1476,8 +1490,17 @@ synonym source FpML_5_10 extends FpML
 		+ tranche
 			[value "tranche" meta "loanTrancheScheme"]
 
+/*
+	MortgageBackedSecurity:
+		+ pool
+			[value "pool"]
+		+ sector
+			[value "sector" meta "mortgageSectorScheme"]
+		+ tranche
+			[value "tranche"]
+*/
 	ProductIdentifier:
-
+		// [meta "id"]
 		+ identifier
 			[value "instrumentId" maps 2 meta "instrumentIdScheme"]
  	 	 	[value "instrumentId" path "bond" maps 2 meta "instrumentIdScheme"]
@@ -1690,8 +1713,6 @@ synonym source FpML_5_10 extends FpML
 		+ indexDisruption
 			[value "indexDisruption"]
 
-
-
 	PriceReturnTerms:
 		+ valuationPriceInterim
 			[value "valuationPriceInterim" path "rateOfReturn"]
@@ -1884,7 +1905,7 @@ synonym source FpML_5_10 extends FpML
 	EconomicTerms:
 		+ effectiveDate
 			[value "effectiveDate" path "generalTerms"]
-			[value "effectiveDate" path "fxOption"]
+			[value "effectiveDate" path "fxOption"]// did not work
 		+ terminationDate
 			[value "scheduledTerminationDate" path "generalTerms"]
 		+ dateAdjustments
@@ -2094,7 +2115,7 @@ synonym source FpML_5_10 extends FpML
 			[value "initialPayment" path "feeLeg"]
 			[value "singlePayment" path "feeLeg"]
 			[value "singlePayment"]
-			
+			// TODO - The below 2 attributes are not properly mapped.  This needs to be addressed as part of this Trello card https://trello.com/c/488uoZcS
 			[hint "paymentDelay"]
 			[hint "payerReceiver"]
 			[value "premium" path "swaption"]
@@ -2131,6 +2152,7 @@ synonym source FpML_5_10 extends FpML
 			[value "fxSwap"]
 			// For Repo:
 			[hint "repo"]
+			// To handle the case when addition payments are part of the trade - TODO: should be part of the event,  not the contract
 			[hint "otherPartyPayment"]
 			[hint "calculationAgent", "calculationAgentBusinessCenter"]
 		+ index

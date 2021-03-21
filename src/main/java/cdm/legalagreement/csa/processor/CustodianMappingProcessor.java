@@ -39,7 +39,7 @@ public class CustodianMappingProcessor extends MappingProcessor {
 		String suffix = synonymPath.endsWith("collateral_manager") ? "_specify" : "_custodian_name";
 		setValueAndUpdateMappings(synonymPath.addElement(party + suffix),
 				(value) -> custodianElectionBuilder.setParty(toCounterpartyRoleEnum(party))
-						.setCustodian(LegalEntity.builder()
+						.setCustodianBuilder(LegalEntity.builder()
 								.setName(CdmMappingProcessorUtils.toFieldWithMetaString(value))));
 
 		if (synonymPath.endsWith("custodian_and_segregated_account_details")) {

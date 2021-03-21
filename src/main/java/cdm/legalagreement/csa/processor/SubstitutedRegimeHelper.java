@@ -50,7 +50,7 @@ public class SubstitutedRegimeHelper {
 
 		String regulatoryRegime = removePartyPrefix(synonymPath.getLastElement().getPathName());
 		PARTIES.forEach(party -> getSubstitutedRegimeTerms(synonymPath.getParent(), party, regulatoryRegime)
-				.ifPresent(substitutedRegimeBuilder::addRegimeTerms));
+				.ifPresent(substitutedRegimeBuilder::addRegimeTermsBuilder));
 
 		if (substitutedRegimeBuilder.hasData()) {
 			RegulatoryRegimeEnum regulatoryRegimeEnum = synonymToRegulatoryRegimeEnumMap.get(regulatoryRegime);

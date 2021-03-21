@@ -1,20 +1,25 @@
 package org.isda.cdm.functions.testing;
 
 import cdm.event.common.BusinessEvent;
-import cdm.event.common.ContractFormationInstruction;
 import cdm.event.common.TradeState;
 import cdm.event.common.functions.Create_ContractFormation;
-import cdm.event.position.PositionStatusEnum;
+import cdm.event.common.functions.Create_Execution;
 import cdm.legalagreement.common.*;
-import cdm.legalagreement.common.LegalAgreement.LegalAgreementBuilder;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.metafields.FieldWithMetaDate;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.Optional;
 
+import static org.isda.cdm.functions.testing.FunctionUtils.createExecutionInstructionFromTradeState;
 import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 public class RunFormContractWithLegalAgreement implements ExecutableFunction<TradeState, BusinessEvent> {
+
+    @Inject
+    Create_Execution execute;
 
     @Inject
     Create_ContractFormation formContract;
@@ -22,24 +27,19 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Tra
 
     @Override
     public BusinessEvent execute(TradeState tradeState) {
-        LegalAgreementBuilder legalAgreement = LegalAgreement.builder()
-                .addContractualPartyValue(guard(tradeState.getTrade().getParty()))
+        BusinessEvent executeBusinessEvent = execute.evaluate(createExecutionInstructionFromTradeState(tradeState));
+
+        LegalAgreement legalAgreement = LegalAgreement.builder()
+                .addContractualPartyRef(guard(tradeState.getTrade().getParty()))
                 .setAgreementDate(DateImpl.of(1994, 12, 01))
                 .setAgreementType(LegalAgreementType.builder()
                         .setName(LegalAgreementNameEnum.MASTER_AGREEMENT)
                         .setPublisher(LegalAgreementPublisherEnum.ISDA)
                         .setGoverningLaw(GoverningLawEnum.AS_SPECIFIED_IN_MASTER_AGREEMENT)
-                        .build());
-
-        TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
-        tradeStateBuilder.getOrCreateState().setPositionState(PositionStatusEnum.EXECUTED);
-
-        ContractFormationInstruction contractFormationInstruction = ContractFormationInstruction.builder()
-                .setExecution(tradeStateBuilder)
-                .setLegalAgreement(legalAgreement)
+                        .build())
                 .build();
 
-        return formContract.evaluate(contractFormationInstruction, new DateImpl(1, 12, 1994));
+        return formContract.evaluate(executeBusinessEvent, legalAgreement);
     }
 
 

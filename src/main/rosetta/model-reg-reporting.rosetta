@@ -88,10 +88,13 @@ report ESMA MiFIR RTS_22 in T+1
 report ESMA EMIR ITS_9 in T+1
 	when EmirInvestmentFirm
 	using standard ISO_20022 with fields
-		
+		// ReportingTimestamp
 		ReportingCounterpartyID
-		BuyerSeller 
-  		MaturityDate 
+		// TypeOfIdOfTheOtherCounterparty
+		// IdOfTheOtherCounterparty
+		// CountryOfTheOtherCounterparty
+		BuyerSeller //NOT CORRECT
+  		MaturityDate //Needs to be rewritten to cover FX products
 		Price
 
 eligibility rule ReportableProduct <"When eligible for rts 22">
@@ -377,7 +380,7 @@ reporting rule UnderlyingIndexName
  		extract
  			if Underlier exists
 			then Underlier -> underlyingProduct -> contractualProduct -> productIdentification -> productIdentifier->identifier
-			else "NOAP" 
+			else "NOAP" // TODO NOAP isn't a basket
 			as "Underlying Index Name"
 
 reporting rule UnderlyingIndexTermPeriod <"Term of the underlying index period (DAYS, WEEK, MNTH, YEAR)">
@@ -516,7 +519,7 @@ reporting rule InterestRatePayoutReceiver
 
 reporting rule FixedFixedBuyerSeller
 	filter when rule IsFixedFixed then
-	filter when Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity exists then 
+	filter when Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity exists then //this is my interpretation of "Filter Fixed Rate amount exists"
 	(
 		InterestRatePayoutPayer then PartyToBuyer,
 		InterestRatePayoutReceiver then PartyToSeller
