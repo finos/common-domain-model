@@ -3,7 +3,6 @@ package cdm.product.asset.functions;
 import cdm.base.datetime.*;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.NonNegativeQuantity;
-import cdm.observable.asset.FixedInterestRate;
 import cdm.product.asset.DayCountFractionEnum;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.metafields.FieldWithMetaDayCountFractionEnum;
@@ -24,9 +23,7 @@ class FixedAmountTest extends AbstractFunctionTest {
     
     @Test
     void shouldCalculate() {
-    	FixedInterestRate price = FixedInterestRate.builder()
-        		.setRate(BigDecimal.valueOf(0.06))
-        		.build();
+		BigDecimal price = BigDecimal.valueOf(0.06);
         
 		NonNegativeQuantity quantity = NonNegativeQuantity.builder()
         		.setAmount(BigDecimal.valueOf(50_000_000))
