@@ -1,25 +1,10 @@
-# *CDM Distribution - C# Data Validation*
+# *Model Change - Upgrade Reset and Transfer Function Model to support Interest Rate Payout*
 
 _What is being released?_
 
-This release introduces support for data validation in the C# distribution, enabling validation based on both cardinality and conditional statements.
+This release introduces support for `InterestRatePayout`s in the Reset and Transfer business event functions. 
 
-*Cardinality*
-
-The C# code generators now generate a validation rule for each attribute cardinality constraint, so if the cardinality of the attribute does not match the requirement an error will be associated with that attribute by the validation process.
-
-*Condition Statement*
-
-Data type condition definitions comprises a boolean expression that applies to the type attributes.  The C# code generators now support the following language features:
-
-- conditional statements: `if`, `then`, `else` 
-- boolean operators: `and`, `or`
-- list statements: `exists`, `is absent`, `contains`, `count`
-- comparison operators: `=`, `<>`, `<`, `<=`, `>=`, `>`
-
-*Choice*
-
-Choice rules define a choice constraint between the set of attributes of a type.  The C# code generators now support the `one-of` condition.
+Expanding on existing functionality which supports the `EquityPayout`, this upgrade follows the existing Reset and Transfer mechanism. 
 
 _Review directions_
 
