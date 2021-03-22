@@ -18,10 +18,10 @@ body Authority ESMA <"ESMA is an independent EU Authority that contributes to sa
 body Authority FCA <"The Financial Conduct Authority is the conduct regulator for 58,000 financial services firms and financial markets in the UK and the prudential regulator for over 18,000 of those firms. ">
 body Organisation ISDA <"Since 1985, the International Swaps and Derivatives Association has worked to make the global derivatives markets safer and more efficient">
 
-corpus Regulation "600/2014" MiFIR
+corpus Regulation "600/2014" MiFIR 
 	<"Regulation (EU) No 600/2014 of the European Parliament and of the Council of 15 May 2014 on markets in financial instruments and amending Regulation (EU) No 648/2012 Text with EEA relevance">
 
-corpus Regulation "648/2012" EMIR
+corpus Regulation "648/2012" EMIR 
 	<"Regulation (EU) No 648/2012 of the European Parliament and of the Council of 4 July 2012 on OTC derivatives, central counterparties and trade repositories Text with EEA relevance">
 
 corpus CommissionDelegatedRegulation "2017/590" RTS_22
@@ -286,20 +286,20 @@ reporting rule Quantity <"The number of units of the financial instrument, or th
 		[regulatoryReference ESMA EMIR ITS_9 field "2.22"
 			provision "Number of contracts included in the report. For spread bets, the quantity shall be the monetary value wagered per point movement in the direct underlying financial instrument."]
  	TradeForEvent then
- 	extract multiple Trade -> tradableProduct -> priceQuantity -> quantity -> amount
+ 	extract Trade -> tradableProduct -> priceQuantity -> quantity -> amount
 		as "Quantity"
 
-reporting rule FixedRatePrice
+ reporting rule FixedRatePrice
  	TradeForEvent then
 		 filter when Trade -> tradableProduct -> priceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate then
 		 	extract Trade -> tradableProduct -> priceQuantity -> price -> amount
-		   as "Price"
+	 		as "Price"
 
-reporting rule FloatingRatePrice
+  reporting rule FloatingRatePrice
  	TradeForEvent then
 	 	filter when Trade -> tradableProduct -> priceQuantity -> observable -> rateOption exists then
 	 		extract Trade -> tradableProduct -> priceQuantity -> price -> amount
-			as "Price"
+	 		as "Price"
 
 reporting rule VenueOfExecution <"Venue of Execution">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "36"
@@ -499,8 +499,8 @@ reporting rule FixedFloatBuyerSeller
 reporting rule InterestRatePayoutPayer
 	extract Trade -> tradableProduct then
 	(
-		extract multiple TradableProduct -> counterparty,
-		extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver
+		extract TradableProduct -> counterparty,
+		extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver
 	) then
 	join key Counterparty -> role foreignKey PayerReceiver -> payer then
 	extract Counterparty -> partyReference
@@ -508,8 +508,8 @@ reporting rule InterestRatePayoutPayer
 reporting rule InterestRatePayoutReceiver
 	extract Trade -> tradableProduct then
 	(
-		extract multiple TradableProduct -> counterparty,
-		extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver
+		extract TradableProduct -> counterparty,
+		extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payerReceiver
 	) then
 	join key Counterparty -> role foreignKey PayerReceiver -> receiver then
 	extract Counterparty -> partyReference
@@ -584,14 +584,14 @@ reporting rule CrossCurrencySwapBuyerSeller
 			structured_provision "The Seller of a Cross-Currency Swap is by definition the Payer of the ISO 4217 currency which is first when sorted ascending irrespective of the interest type or spread"
 			provision "The seller shall be the counterparty delivering this currency which is first when sorted alphabetically by ISO 4217 standard."]
 	filter when rule IsXCCYSwap then
-	minBy Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency then
+	//minBy Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency then
 	(
 		InterestRatePayoutPayer then PartyToBuyer,
 		InterestRatePayoutReceiver then PartyToSeller
 	)
 
 reporting rule IsXCCYSwap
-	extract multiple Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
+	extract Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges exists
 
 reporting rule CreditDefaultSwapBuyerSeller
 	filter when rule IsCreditDefaultSwap then
@@ -606,8 +606,8 @@ reporting rule IsCreditDefaultSwap
 reporting rule CreditDefaultPayoutBuyer
 	extract Trade -> tradableProduct then
 	(
-		extract multiple TradableProduct -> counterparty,
-		extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller
+		extract TradableProduct -> counterparty,
+		extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller
 	) then
 	join key Counterparty -> role foreignKey BuyerSeller -> buyer then
 	extract Counterparty -> partyReference
@@ -615,8 +615,8 @@ reporting rule CreditDefaultPayoutBuyer
 reporting rule CreditDefaultPayoutSeller
 	extract Trade -> tradableProduct then
 	(
-		extract multiple TradableProduct -> counterparty,
-		extract multiple TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller
+		extract TradableProduct -> counterparty,
+		extract TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> buyerSeller
 	) then
 	join key Counterparty -> role foreignKey BuyerSeller -> seller then
 	extract Counterparty -> partyReference
@@ -642,7 +642,7 @@ reporting rule FixedFloatPrice
 	 	   	provision "Questions and Answers On MiFIR data reporting. Section 14 Financial instruments’ volatile attributes [Last update: 05/10/2017]. Question 1; Answer 1 (a) Where a swap rate or forward rate financial contract is quoted as the fixed rate and it is considered to be an attribute of the transaction rather than an attribute of the financial instrument, the respective reports should be completed as follows: Transaction report - the price (field 33) of the transaction should be populated with the fixed rate value. Question 2; Example 1: CFI code SRC*S* fixed-floating with single currency"]
 	filter when rule IsFixedFloat then
 
-		extract multiple Trade -> tradableProduct -> priceQuantity -> price then
+		extract Trade -> tradableProduct -> priceQuantity -> price then
 		filter when Price -> priceType = PriceTypeEnum -> InterestRate then
 		maxBy Price -> amount then
 		extract Price -> amount as "Price"
@@ -671,21 +671,18 @@ reporting rule CDSPrice
 	 	   	structured_provision "Of a Credit Default Swap is by definition the Fixed Rate unless the Fixed Rate is Zero and there is a Spread then the regulatoryPrice is by definition the Spread"
 	 	   	provision "For credit default swaps (CDS) it shall be the coupon in basis points. "]
 	filter when rule IsCreditDefaultSwap then
-	extract multiple Trade -> tradableProduct -> priceQuantity then
-	if (
-		filter when PriceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate
-			and PriceQuantity -> price -> amount <> 0
-			=> extract PriceQuantity -> price -> amount as "Price",
-		 filter when PriceQuantity -> price -> priceType = PriceTypeEnum -> Spread
-			=> extract PriceQuantity -> price -> amount as "Price",
-		=> return 0 as "Price"
-		)
-/*
-extract multiple Trade -> tradableProduct -> priceQuantity -> price then
-		filter when Price -> priceType = PriceTypeEnum -> InterestRate then
-		maxBy Price -> amount then
-		extract Price -> amount as "Price"
-*/
+	extract Trade -> tradableProduct then
+	extract if (TradableProduct -> priceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate and
+				TradableProduct -> priceQuantity -> observable -> rateOption is absent and
+					TradableProduct -> priceQuantity -> price -> amount <> 0)
+				then TradableProduct -> priceQuantity -> price -> amount
+			else
+			if (TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> initialRate -> amount exists)
+				then TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> initialRate -> amount
+			else
+				0.0
+			as "Price"
+
 type ExecutingEntity:
 	isInvestmentFirm boolean (1..1)
 	addressOfBranch Address (1..1)
@@ -1056,4 +1053,3 @@ reporting rule Level <"Level">
 		provision "Indication whether the report is done at trade or position level. Position level report can be used only as a supplement to trade level reporting to report post-trade events and only if individual trades in fungible products have been replaced by the position."]
 	return "Not Modelled"
 			as "Level"
-
