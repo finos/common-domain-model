@@ -20,8 +20,8 @@ func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a
 	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
-		fixedRate FixedInterestRate (1..1)
-		quantity NonNegativeQuantity (1..1)
+		fixedRate number (1..1)
+		quantity Quantity (1..1)
 		date date (1..1)
 
 	output:
@@ -30,31 +30,32 @@ func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a
 	alias calculationAmount:
 		quantity -> amount
 
-	alias fixedRateAmount:
-		fixedRate -> rate
-
 	alias dayCountFraction:
 		DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
 
 	assign-output fixedAmount:
-		calculationAmount * fixedRateAmount * dayCountFraction
+		calculationAmount * fixedRate * dayCountFraction
 
 func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if 'Compounding' is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
-	
 	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
-		rate FloatingInterestRate (1..1)
-		quantity NonNegativeQuantity (1..1)
+		spread number (1..1)
+		rate number (1..1)
+		quantity Quantity (1..1)
 		date date (1..1)
-	output: floatingAmount number (1..1)
 
-	alias calculationAmount: quantity -> amount
-	alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> rateOption -> floatingRateIndex )
-	alias spreadRate: rate -> spread
-	alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+	output:
+	    floatingAmount number (1..1)
 
-	assign-output floatingAmount: calculationAmount * (floatingRate + spreadRate) * dayCountFraction
+	alias calculationAmount:
+	    quantity -> amount
+
+	alias dayCountFraction:
+	    DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+
+	assign-output floatingAmount:
+	    calculationAmount * (rate + spread) * dayCountFraction
 
 func DayCountFraction: <"A description of inputs and outputs for all day count fraction calculations">
 	[calculation]

@@ -297,6 +297,7 @@ The ``Payout`` type defines the composable payout types, each of which describes
 .. code-block:: Haskell
 
  type Payout:
+   [metadata key]
    interestRatePayout InterestRatePayout (0..*)
    creditDefaultPayout CreditDefaultPayout (0..1)
    equityPayout EquityPayout (0..*)
@@ -1714,17 +1715,22 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
  	[calculation]
  	inputs:
  		interestRatePayout InterestRatePayout (1..1)
- 		rate FloatingInterestRate (1..1)
- 		quantity NonNegativeQuantity (1..1)
+ 		spread number (1..1)
+ 		rate number (1..1)
+ 		quantity Quantity (1..1)
  		date date (1..1)
- 	output: floatingAmount number (1..1)
 
- 	alias calculationAmount: quantity -> amount
- 	alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> rateOption -> floatingRateIndex )
- 	alias spreadRate: rate -> spread
- 	alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+ 	output:
+ 	    floatingAmount number (1..1)
 
- 	assign-output floatingAmount: calculationAmount * (floatingRate + spreadRate) * dayCountFraction
+ 	alias calculationAmount:
+ 	    quantity -> amount
+
+ 	alias dayCountFraction:
+ 	    DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+
+ 	assign-output floatingAmount:
+ 	    calculationAmount * (rate + spread) * dayCountFraction
 
 Day Count Fraction
 """"""""""""""""""
@@ -1952,15 +1958,14 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
  	[creation PrimitiveEvent]
  	inputs:
  		tradeState TradeState (1..1)
+ 		payout Payout (1..1)
  		date date (1..1)
  	output:
  		resetPrimitive ResetPrimitive (1..1)
 
- 	alias payout:
- 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout
-
  	alias observationIdentifiers:
- 		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, date)
+ 		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, date) else
+         if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, date)
 
  	alias observation:
  		ResolveObservation([observationIdentifiers], empty)
@@ -1972,7 +1977,9 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
  		tradeState
 
  	assign-output resetPrimitive -> after -> resetHistory:
- 		if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date)
+     	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date) else
+     	if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, date)
+
 
 First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
 
