@@ -15,4 +15,4 @@ Further, functions relating to the Transfer business event were renamed and refa
 
 _Review directions_
 
-In the CDM Portal, go to the Downloads section, and download either C# 9 (.NET 5.0) or C# 8 (.NET Standard 2.1).
+In the CDM Portal, use the Textual Browser to inspect the changes to the function model. Note that no visual examples have yet been created for the Interest Rate Reset and Transfer events.
