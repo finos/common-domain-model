@@ -118,7 +118,9 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
   	execution ExecutionInstruction (0..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, and a trade date.">
   	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
-  	condition OneOfInstruction: required choice allocation, clearing, execution, exercise
+  	reset ResetInstruction (0..1) <"Specifies inputs needed to process a Reset business event.">
+    transfer TransferInstruction (0..1) <"Specifies inputs needed to process a Transfer business event.">
+    condition OneOfInstruction: required choice allocation, clearing, execution, exercise, reset, transfer
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -173,6 +175,15 @@ type ExerciseInstruction: <"Specifies the information required to communicate th
 	
 	exerciseDate AdjustableOrAdjustedDate (0..1) <"Specifies the date on which an option contained within the financial product would be exercised. The date may be omitted if the contractual product allows for only a single date of exercise (European exercise).">
 	exerciseTime BusinessCenterTime (0..1) <"Specifies the time at which an option contained within the financial product woulld be exercised. The time may be omitted if the contractual product allows for only a single time of exercise (European exercise). ">
+
+type ResetInstruction: <"Defines the information needed to create a Reset Business Event. ">
+ 	payout Payout (1..1)
+ 		[metadata reference]
+
+ type TransferInstruction: <"Defines the payout on which to create a Transfer along with all necessary resets.">
+ 	payout Payout (1..1)
+ 		[metadata reference]
+ 	resets Reset (1..*)
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
