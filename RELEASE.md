@@ -2,9 +2,9 @@
 
 _What is being released?_
 
-This release introduces upgrades the Reset and Transfer business event functions by adding support for `InterestRatePayout`s. 
+This release introduces upgrades to the Reset and Transfer business event functions by adding support for the `InterestRatePayout` data type. 
 
-Expanding on existing functionality which supports `EquityPayout`, this upgrade to support `InterestRatePayout` follows the existing Reset and Transfer mechanism. Namely, the Reset business event identifies the relevant market data `Observation`(s) and associates those with the Trade, and the Transfer business event calculates the quantity of the transfer via a performance calculation, which for `InterestRatePayout`s uses the existing `FixedAmount` and `FloatingAmount` calculation functions.
+Expanding on existing functionality which supports `EquityPayout`, this upgrade to support `InterestRatePayout` follows the existing Reset and Transfer mechanism. Namely, the Reset business event function receives as an input the relevant market data `Observation` values and the relevant `Trade` object. The `Transfer` business event function receives the resulting `Reset` business event values as an input to calculate the quantity of the transfer via a performance calculation, which for an `InterestRatePayout` would use the existing `FixedAmount` and `FloatingAmount` calculation functions.
 
 Further, functions relating to the Transfer business event were renamed and refactored to harmonise cash and security transfers. The below functions were change:
 
