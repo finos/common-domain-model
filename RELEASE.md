@@ -1,18 +1,27 @@
-# *Model Change - Upgrade Reset and Transfer Function Model to support Interest Rate Payout*
+# *Model Change - Update to Equity Product Qualifications and addition of a generic Index Option Product Qualification*
 
 _What is being released?_
 
-This release introduces upgrades to the Reset and Transfer business event functions by adding support for the `InterestRatePayout` data type. 
+This release provides an updated set of Equity Product Qualification functions, introducing four new functions, revising one, and dropping one to bring the new total to five. The release also adds a generic Index Option Product Qualification function. All of the new and revised functions account for currently supported products in a consistent manner. The revised functions align with the ISDA v1 and/or v2 Taxonomy where applicable, are mutually exclusive, and fill gaps from the previous version, e.g. to separately identify price return products.  The descriptions for each of these functions are compliant with the CDM style guide.  In addition, inline guidance comments have been added to explain each section of code in each of the IR Product Qualification functions so that implementers can more easily understand the purpose of each group of lines of code.  
 
-Expanding on existing functionality which supports `EquityPayout`, this upgrade to support `InterestRatePayout` follows the existing Reset and Transfer mechanism. Namely, the Reset business event function receives as an input the relevant market data `Observation` values and the relevant `Trade` object. The `Transfer` business event function receives the resulting `Reset` business event values as an input to calculate the quantity of the transfer via a performance calculation, which for an `InterestRatePayout` would use the existing `FixedAmount` and `FloatingAmount` calculation functions.
+This release also adds two new Equity Product FpML Ingestion Examples, one for `Qualify_EquityOption_PriceReturnBasicPerformance_SingleName` and one for `Qualify_IndexVanillaOption`, which appears in the Equity group, bringing the total to eleven.
 
-Further, functions relating to the Transfer business event were renamed and refactored to harmonise cash and security transfers. The below functions were change:
+This expanded set of function are listed below, with the count of CDM ingestion examples shown in parentheses:
 
-* `func Create_CashTransfer` renamed to `Create_Transfer`, which is now the business event function to associate both cash and security transfers to Trades.
-* `func Create_CashTransferPrimitive` renamed to `Create_TransferPrimitive`, which now supports creation of transfers of cash and securities.
-* `func Create_Transfer` renamed to `Create_CashTransfer`, which creates instances of the `Transfer` data type for cash transfers. The corresponding function to create instances of `Transfer` for security transfers is `Create_SecurityTransfer`. These two functions are referenced in `Create_TransferPrimitive` to associate the newly created `Transfer` to `TradeState`s.
+New Product Qualification Functions:
+- `Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName` (5)
+- `Qualify_EquitySwap_PriceReturnBasicPerformance_Index` (2)
+- `Qualify_EquitySwap_TotalReturnBasicPerformance_Index' (1)
+- `Qualify_EquityOption_PriceReturnBasicPerformance_SingleName` (1)
+- `Qualify_IndexVanillaOption`(1)
+
+Revised Product Qualification Function:
+- `Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName`(1)
+
+Dropped Product Qualification Function:
+- `Qualify_EquitySwap_ParameterReturnDividend_Basket`: Deferred until fully supported in the CDM
 
 
 _Review directions_
 
-In the CDM Portal, use the Textual Browser to inspect the changes to the function model. Note that no visual examples have yet been created for the Interest Rate Reset and Transfer events.
+In the CDM Portal, select the Textual Browser to inspect the changes to the functions specified above.  Also, select the Ingestion feature Products->Equity, and choose one or more examples to view, such as `eqs-ex01-single-underlyer-execution-long-form-other-party.xml` and note the `productQualifier` for each in the CDM panel on the right side.
