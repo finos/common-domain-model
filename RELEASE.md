@@ -2,25 +2,26 @@
 
 _What is being released?_
 
-Upgraded the CDM code generators to ease future community contributions. This further simplifies the creation of Java function implementations by the CDM project team and the wider community.
-Note: this change will not be backwards compatible with current CDM Java implementations.
+Collateral Taxonomy Enum lists to support the identification of eligible collateral asset classes (collateral types) identified and categorised under global regime regulations. The enum lists added to the model in this first tranche are those published and supported under the following jurisdictional regulatory bodies as part of global uncleared derivatives margin rules for posting initial and variation margin.
+
+European Union Eligible Collateral Assets classification categories based on EMIR Uncleared Margin Rules
+United Kingdom Eligible Collateral Assets classification categories based on UK Onshored EMIR Uncleared Margin Rules
+US Eligible Collateral Assets classification categories based on Prudential Regulator, CFTC and SEC Uncleared Margin Rules
+
+Each of these enumerated values has a complete description of the relevant regulatory rules they represent.
 
 _How to review the change_
 
-In the CDM Portal, use the Download icon to inspect the generated Java code. Please note that the structure of the generated Java objects, those that represent CDM data types, have changed.
+Under `base-staticdata-asset-common-enum`, go to `enum TaxonomySourceEnum`the new enumerations are listed here, names as follows `EuEligibleCollateral``UkEligibleCollateral``UsEligibleCollateral` these are followed by each enum list please observe the list under each respective regulation representation. `EuEligibleCollateral` contains 18 types A to R, `UkEligibleCollateral` contains 18 types A to R, `UsEligibleCollateral` contains 13 types. Each of the types has its own complete description using text provided from the respective regulations.
 
-_Technical details of the change_
+Under `base-staticdata-asset-common-type`, go to `type ProductTaxonomy` this has been removed and replaced with `type CollateralTaxonomy` which has conditions added for `EuEligibleCollateral``UkEligibleCollateral``UsEligibleCollateral` and an additional `type CollateralTaxonomyValue`.
 
-All the CDM types are now being generated in Java as interfaces instead of classes with implementation provided separately e.g. AdjustableDate is now a Java interface with an implementation called AdjustableDateImpl.
-CDM Java objects are instantiated using the builder pattern with builder classes like AdjustableDateBuilder. These classes again have been made into interfaces that extends the POJO interfaces. These also have implementation provided e.g. AdjustableDateBuilder is an interface implemented by AdjustableDateBuilder.
-The benefit of this change is that an AdjustableDateBuilder is a AdjustableDate, which makes the implementations of the code generators and functions much easier and more maintainable.
+Under `legalagreement-csa-type`, go to `productTaxonomy`, this has been removed and replaced with `collateralTaxonomy` with supporting descriptions and related optional choice.
 
-_Using the new structure_
 
-If you are only using CDM objects and functions that have been generated elsewhere you shouldn't need to make any changes.
-If you have code that changes CDM objects in Java or instantiates them using the builder classes there are some changes you will need to make. In all these examples XXX stands for the name of a CDM type.
- - The setXXXBuilder(XXXBuilder xxxBuilder) methods have been removed. The setXXX(XXX xxx) methods should be used instead as they will now accept XXXBuilders as they now implement XXX
- - Similarly the addXXXBuilder methods have also been removed and addXXX methods should be used
- - The setXXXRef methods have been renamed to setXXXValue becuase they have always set the value and not the ref
- - Function implementations - Any parameter of a function that was previously of type List<XXX> should now be List<? extends XXX>
+
+
+
+
+
 
