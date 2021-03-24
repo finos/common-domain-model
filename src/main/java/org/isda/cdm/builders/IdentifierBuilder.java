@@ -11,9 +11,9 @@ public class IdentifierBuilder {
     public static Identifier.IdentifierBuilder get(String issuer, String id, int version) {
         return Identifier.builder()
         		
-                .setIssuerReferenceBuilder(ReferenceWithMetaParty.builder()
+                .setIssuerReference(ReferenceWithMetaParty.builder()
                         .setExternalReference(issuer))
-                .addAssignedIdentifierBuilder(AssignedIdentifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
                         .setVersion(version)
                         .setIdentifier(FieldWithMetaString.builder().setValue(id).build()));
     }

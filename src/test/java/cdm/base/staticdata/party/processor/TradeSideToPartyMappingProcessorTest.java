@@ -1,5 +1,6 @@
 package cdm.base.staticdata.party.processor;
 
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -47,7 +48,7 @@ class TradeSideToPartyMappingProcessorTest {
 
     @Test
     void shouldMapTradeSide1ToPartyA() {
-        ReferenceWithMetaPartyBuilder parent = new ReferenceWithMetaPartyBuilder();
+        ReferenceWithMetaPartyBuilder parent = ReferenceWithMetaParty.builder();
 
         Path synonymPath = Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].payerPartyReference");
         TradeSideToPartyMappingProcessor processor =
@@ -59,7 +60,7 @@ class TradeSideToPartyMappingProcessorTest {
 
     @Test
     void shouldMapTradeSide2ToPartyB() {
-        ReferenceWithMetaPartyBuilder parent = new ReferenceWithMetaPartyBuilder();
+        ReferenceWithMetaPartyBuilder parent =  ReferenceWithMetaParty.builder();
 
         Path synonymPath = Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].receiverPartyReference");
         TradeSideToPartyMappingProcessor processor =
@@ -71,7 +72,7 @@ class TradeSideToPartyMappingProcessorTest {
 
     @Test
     void shouldNotMapTradeSideForPathOutsideProductPath() {
-        ReferenceWithMetaPartyBuilder parent = new ReferenceWithMetaPartyBuilder();
+        ReferenceWithMetaPartyBuilder parent =  ReferenceWithMetaParty.builder();
 
         Path synonymPath = Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].payerPartyReference");
         TradeSideToPartyMappingProcessor processor =

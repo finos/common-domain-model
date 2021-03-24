@@ -53,9 +53,9 @@ The ``priceQuantity`` attribute is an array of the ``PriceQuantity`` data type w
 
  type PriceQuantity: 
 	[metadata key]
-	price Price (1..*)
+	price Price (0..*)
 	    [metadata location]
-	quantity Quantity (1..*)
+	quantity Quantity (0..*)
 	    [metadata location]
 	observable Observable (0..1) 
 	
@@ -99,7 +99,7 @@ The ``Price`` data type extends the ``MeasureBase`` data type with the addition 
 
  type Price extends MeasureBase:  
 	priceType PriceTypeEnum (1..1) 
-	perUnitOfAmount UnitType (0..1)
+	perUnitOfAmount UnitType (1..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
 
@@ -297,11 +297,14 @@ The ``Payout`` type defines the composable payout types, each of which describes
 .. code-block:: Haskell
 
  type Payout:
+   [metadata key]
    interestRatePayout InterestRatePayout (0..*)
    creditDefaultPayout CreditDefaultPayout (0..1)
    equityPayout EquityPayout (0..*)
    optionPayout OptionPayout (0..*)
+   commodityPayout CommodityPayout (0..*)
    forwardPayout ForwardPayout (0..*)
+   fixedForwardPayout FixedForwardPayout (0..*)
    securityPayout SecurityPayout (0..*)
    cashflow Cashflow (0..*)
    
@@ -366,13 +369,11 @@ There are other addresses in the model that use the metadata address to point to
 
  type OptionStrike:
 	strikePrice Price (0..1) 
-	    [metadata address "pointsTo"=PriceQuantity->price]
-	strikeReference FixedRateSpecification (0..1) 
+	strikeReference FixedRateSpecification (0..1)
 		[metadata reference]
 	referenceSwapCurve ReferenceSwapCurve (0..1) 
 	averagingStrikeFeature AveragingObservation (0..1) 			
-	condition Choice:
-        required choice strikePrice, strikeReference, referenceSwapCurve, averagingStrikeFeature
+	condition: one-of
 
 Reusable Components
 """""""""""""""""""
@@ -462,18 +463,23 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
 .. code-block:: Haskell
 
  func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
-   [qualification Product]
-   inputs: economicTerms EconomicTerms (1..1)
-   output: is_product boolean (1..1)
-
-   assign-output is_product:
-     economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-     and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
-     and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate is absent
-     and economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> principalExchanges is absent
-     and economicTerms -> payout -> optionPayout is absent
-     and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
-     and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
+ 	[qualification Product]
+ 	inputs: economicTerms EconomicTerms (1..1)
+ 	output: is_product boolean (1..1)
+ 	assign-output is_product:
+  	(economicTerms -> payout -> interestRatePayout only exists
+ 		or (economicTerms -> payout -> interestRatePayout exists
+ 		and economicTerms -> payout -> cashflow exists
+ 		and economicTerms -> payout -> creditDefaultPayout is absent
+ 		and economicTerms -> payout -> equityPayout is absent
+ 		and economicTerms -> payout -> forwardPayout is absent
+ 		and economicTerms -> payout -> optionPayout is absent
+ 		and economicTerms -> payout -> securityPayout is absent))
+ 		and economicTerms -> payout -> interestRatePayout count =2
+ 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+ 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+ 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
+ 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
 
 If all the statements above are true, then the function evaluates to True, and the product is determined to be qualified as the product type referenced by the function name.
 
@@ -743,7 +749,7 @@ When a observable value becomes known (as provided by the relevant market data p
  type Observation:
    [rootType]
    [metadata key]
-   observedValue number (1..1)
+   observedValue Price (1..1)
    observationIdentifier ObservationIdentifier (1..1)
 
 From that ``Observation``, a ``Reset`` can be built and included in ``TradeState`` without changing the ``Trade``. A reset is represented by the ``ResetPrimitive`` data type.
@@ -762,7 +768,7 @@ The *reset* process creates instances of the ``Reset`` data type, which are adde
 .. code-block:: Haskell
 
  type Reset:
-   resetValue number (1..1)
+   resetValue Price (1..1)
    resetDate date (1..1)
    observations Observation (1..*)
      [metadata reference]
@@ -1579,8 +1585,8 @@ Similarly, the ``ContractFormation`` business event that creates the legally bin
  func Create_ContractFormation:
    [creation BusinessEvent]
    inputs:
-     executionEvent BusinessEvent (1..1)
-     legalAgreement LegalAgreement (0..1)
+     contractFormationInstruction ContractFormationInstruction (1..1)
+     contractFormationDate date (1..1)
 
 .. note:: The functions to create such business events are further detailed in the `Lifecycle Event Process Section`_ of the documentation.
 
@@ -1707,17 +1713,22 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
  	[calculation]
  	inputs:
  		interestRatePayout InterestRatePayout (1..1)
- 		rate FloatingInterestRate (1..1)
- 		quantity NonNegativeQuantity (1..1)
+ 		spread number (1..1)
+ 		rate number (1..1)
+ 		quantity Quantity (1..1)
  		date date (1..1)
- 	output: floatingAmount number (1..1)
 
- 	alias calculationAmount: quantity -> amount
- 	alias floatingRate: ResolveRateIndex( interestRatePayout -> rateSpecification -> floatingRate -> rateOption -> floatingRateIndex )
- 	alias spreadRate: rate -> spread
- 	alias dayCountFraction: DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+ 	output:
+ 	    floatingAmount number (1..1)
 
- 	assign-output floatingAmount: calculationAmount * (floatingRate + spreadRate) * dayCountFraction
+ 	alias calculationAmount:
+ 	    quantity -> amount
+
+ 	alias dayCountFraction:
+ 	    DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+
+ 	assign-output floatingAmount:
+ 	    calculationAmount * (rate + spread) * dayCountFraction
 
 Day Count Fraction
 """"""""""""""""""
@@ -1806,14 +1817,18 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
  func RateOfReturn:
-   inputs:
-     initialPrice number (1..1)
-     finalPrice number (1..1)
-   output:
-     rateOfReturn number (1..1)
+	inputs:
+		initialPrice Price (1..1)
+		finalPrice Price (1..1)
+	output:
+		rateOfReturn number (1..1)
 
-   assign-output rateOfReturn:
-     (finalPrice - initialPrice) / initialPrice
+	alias initialPriceValue:
+		initialPrice->amount
+	alias finalPriceValue:
+		finalPrice->amount
+	assign-output rateOfReturn:
+		(finalPriceValue - initialPriceValue) / initialPriceValue
 
 Initial Margin
 """"""""""""""""""
@@ -1945,15 +1960,14 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
  	[creation PrimitiveEvent]
  	inputs:
  		tradeState TradeState (1..1)
+ 		payout Payout (1..1)
  		date date (1..1)
  	output:
  		resetPrimitive ResetPrimitive (1..1)
 
- 	alias payout:
- 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout
-
  	alias observationIdentifiers:
- 		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, date)
+ 		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, date) else
+         if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, date)
 
  	alias observation:
  		ResolveObservation([observationIdentifiers], empty)
@@ -1965,7 +1979,9 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
  		tradeState
 
  	assign-output resetPrimitive -> after -> resetHistory:
- 		if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date)
+     	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date) else
+     	if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, date)
+
 
 First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
 

@@ -3,15 +3,11 @@ package cdm.event.position.functions;
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
-import cdm.base.math.metafields.ReferenceWithMetaQuantity;
 import cdm.event.common.Trade;
 import cdm.observable.asset.Observable;
 import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.QuoteBasisEnum;
 import cdm.observable.asset.QuotedCurrencyPair;
-import cdm.product.asset.ForeignExchange;
-import cdm.product.common.settlement.Cashflow;
-import cdm.product.common.settlement.ResolvablePayoutQuantity;
 import cdm.product.template.*;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -65,28 +61,28 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
     private static Trade createFxContract(String curr1, String curr2, int quantityAmount1, int quantityAmount2, QuoteBasisEnum basisEnum) {
         Quantity.QuantityBuilder quantity1 = Quantity.builder()
                 .setAmount(BigDecimal.valueOf(quantityAmount1))
-                .setUnitOfAmountBuilder(UnitType.builder()
-                        .setCurrencyBuilder(FieldWithMetaString.builder()
+                .setUnitOfAmount(UnitType.builder()
+                        .setCurrency(FieldWithMetaString.builder()
                                 .setValue(curr1)));
         Quantity.QuantityBuilder quantity2 = Quantity.builder()
                 .setAmount(BigDecimal.valueOf(quantityAmount2))
-                .setUnitOfAmountBuilder(UnitType.builder()
-                        .setCurrencyBuilder(FieldWithMetaString.builder()
+                .setUnitOfAmount(UnitType.builder()
+                        .setCurrency(FieldWithMetaString.builder()
                                 .setValue(curr2)));
         return Trade.builder()
-                .setTradableProductBuilder(TradableProduct.builder()
-                	.setProductBuilder(Product.builder()
-		                .setContractualProductBuilder(ContractualProduct.builder()
-		                        .setEconomicTermsBuilder(EconomicTerms.builder()
-		                                .setPayoutBuilder(Payout.builder()
-		                                        .addForwardPayoutBuilder(ForwardPayout.builder())))))
-                	.addPriceQuantityBuilder(PriceQuantity.builder()
-                            .addQuantityBuilder(FieldWithMetaQuantity.builder()
-                                .setValueBuilder(quantity1))
-                            .addQuantityBuilder(FieldWithMetaQuantity.builder()
-                                    .setValueBuilder(quantity2))
-                            .setObservableBuilder(Observable.builder()
-                                .setCurrencyPairBuilder(QuotedCurrencyPair.builder()
+                .setTradableProduct(TradableProduct.builder()
+                	.setProduct(Product.builder()
+		                .setContractualProduct(ContractualProduct.builder()
+		                        .setEconomicTerms(EconomicTerms.builder()
+		                                .setPayout(Payout.builder()
+		                                        .addForwardPayout(ForwardPayout.builder())))))
+                	.addPriceQuantity(PriceQuantity.builder()
+                            .addQuantity(FieldWithMetaQuantity.builder()
+                                .setValue(quantity1))
+                            .addQuantity(FieldWithMetaQuantity.builder()
+                                    .setValue(quantity2))
+                            .setObservable(Observable.builder()
+                                .setCurrencyPair(QuotedCurrencyPair.builder()
                                         .setCurrency1(FieldWithMetaString.builder().setValue(curr1).build())
                                         .setCurrency2(FieldWithMetaString.builder().setValue(curr2).build())
                                         .setQuoteBasis(basisEnum)))))

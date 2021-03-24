@@ -14,7 +14,7 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 public class TransfersForDateImpl extends TransfersForDate {
     @Override
-    protected Transfers.TransfersBuilder doEvaluate(List<Transfer> transfers, Date date) {
+    protected Transfers.TransfersBuilder doEvaluate(List<? extends Transfer> transfers, Date date) {
         if (date == null) {
             return null;
         }

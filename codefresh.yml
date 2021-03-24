@@ -81,20 +81,24 @@ steps:
         title: CSharp8 build and deploy
         fail_fast: false
         image: mcr.microsoft.com/dotnet/core/sdk:3.1
-        working_directory: ./target/classes/cdm/csharp8
+        working_directory: ./target/classes/cdm/csharp8/NetStandard.2.1
         shell: bash
         commands:
-          - dotnet publish -c release -o ./app
+          - dotnet build Cdm/Cdm.csproj
+          - dotnet test Test/Test.csproj
+          - dotnet publish Cdm/Cdm.csproj -c release -o ./app
           - tar -cvzf cdm-csharp8.tar.gz app
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp8/${{RELEASE_NAME}}/cdm-csharp8-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp8.tar.gz
       BuildCSharp9:
         title: CSharp9 build and deploy
         fail_fast: false
         image: mcr.microsoft.com/dotnet/sdk:5.0
-        working_directory: ./target/classes/cdm/csharp9
+        working_directory: ./target/classes/cdm/csharp9/Net.5.0
         shell: bash
         commands:
-          - dotnet publish -c release -o ./app
+          - dotnet build Cdm/Cdm.csproj
+          - dotnet test Test/Test.csproj
+          - dotnet publish Cdm/Cdm.csproj -c release -o ./app
           - tar -cvzf cdm-csharp9.tar.gz app
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp9/${{RELEASE_NAME}}/cdm-csharp9-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp9.tar.gz
       BuildTypeScript:
@@ -123,7 +127,7 @@ steps:
         commands:
           - mvn -s /settings.xml javadoc:jar
           - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-          - mvn -s /settings.xml deploy:deploy-file -Dfile=/codefresh/volume/rosetta-cdm/target/cdm-${RELEASE_NAME}-javadoc.jar -DpomFile=pom.xml -DrepositoryId=snapshots -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dclassifier=javadoc -Dpackaging=jar
+          - curl -X PUT -u ${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}} -T target/cdm-${{RELEASE_NAME}}-javadoc.jar "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar"
 
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
