@@ -1,4 +1,4 @@
-# *Product Model - PriceQuanityt: CDM Cardinality change in Price and minor changes to enumerations in the FinancialUnitEnum*
+# *Product Model - PriceQuantity: CDM Cardinality change in Price and minor changes to enumerations in the FinancialUnitEnum*
 
 _What is being released?_
 
