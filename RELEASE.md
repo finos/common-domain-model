@@ -1,4 +1,4 @@
-# *Product Model - Equity - Update to Equity Product Qualifications and addition of a generic Index Option Product Qualification*
+# *Product Model - Equity: Update to Equity Product Qualifications and addition of a generic Index Option Product Qualification*
 
 _What is being released?_
 
