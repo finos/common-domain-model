@@ -1,4 +1,4 @@
-# *CDM Model: PriceQuantity refactoring follow up tasks - minor changes for Reset, OptionStrike, and FloatingRate*
+# *Product Model - PriceQuantity: PriceQuantity refactoring follow up tasks - minor changes for Reset, OptionStrike, and FloatingRate*
 
 _What is being released_
 
