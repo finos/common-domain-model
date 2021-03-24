@@ -87,7 +87,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, endsWith))
 				.map(currencyMapping -> updateBuilder(builder,
 						toCurrencyUnitType(currencyMapping),
-						UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARES)))
+						UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))
 				.orElse(false);
 	}
 

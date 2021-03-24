@@ -99,7 +99,7 @@ The ``Price`` data type extends the ``MeasureBase`` data type with the addition 
 
  type Price extends MeasureBase:  
 	priceType PriceTypeEnum (1..1)
-	perUnitOfAmount UnitType (0..1)
+	perUnitOfAmount UnitType (1..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
 
