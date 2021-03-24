@@ -17,7 +17,7 @@ class NoOpValidator implements ModelObjectValidator {
 	}
 
 	@Override
-	public <T extends RosettaModelObject> void validateAndFailOnErorr(Class<T> topClass, List<T> modelObjects) {
+	public <T extends RosettaModelObject> void validateAndFailOnErorr(Class<T> topClass, List<? extends T> modelObjects) {
 	}
 
 }

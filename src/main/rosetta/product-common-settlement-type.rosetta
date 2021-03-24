@@ -47,7 +47,6 @@ type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be se
 
 	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
 	multiplierValue number (0..1)
-	    //[metadata address "pointsTo"=PriceQuantity->quantity]
 
 	condition: one-of
 
@@ -76,23 +75,54 @@ type CrossCurrencyTerms:
 	principalExchanges PrincipalExchanges (0..1)
 	settlementProvision SettlementProvision (0..1)
 
-/*
- * TO DO ON SECURITY PAYOUT:
-
- * Move all implementation of SecurityPayout to a dedicated file
-
- * type rules to add for security payout:
- * - underliers are the same in each collateral leg
- * - number of collateral legs (2)?
- * - one leg is a buyer and the other is a seller
- * - the underlying security reference in SecurityValuation matches either the Bond or Equity reference in the further SecurityValuationModel
-
- * Have appropriate synonyms vs the repo model in FpML
- */
 type PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
 
 	payoutQuantity ResolvablePayoutQuantity (1..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
 
+type ObservationPayout extends PayoutBase: <"Defines payout terms relevent where the underlier is an asset (e.g. equities, commodities) or a referenced benchmark that is observed to obtain a price">
+    payerReceiver PayerReceiver (1..1) <"Identifies the enumerated values to specify an observation payout payer and receiver parties.">
+    calculationPeriodDates CalculationPeriodDates (1..*) <"Defines the calculation period dates schedule.">
+    paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
+    underlier Underlier (1..1)<"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
+    fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
+
+type CommodityPayout extends ObservationPayout: <"Payout based on the averaged price of a referenced underlier. (e.g. Commodities). Can represent both average (average of many) & bullet (average of 1) pricing">
+   settlementCurrency string (0..1) <"Defines the currency in which the payment will be made.">
+   	[metadata scheme]
+   averagingMethod AveragingMethodEnum (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted.">
+   commodityPriceReturnTerms CommodityPriceReturnTerms (0..1) <"Defines parameters in which the commodity price is assessed.">
+   pricingDates PricingDates (1..1) <"Specifies specific dates or parametric rules for the dates on which the price will be determined.">
+
+type CommodityPriceReturnTerms: <"Defines parameters in which the commodity price is assessed.">
+   rounding Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of a number.">
+   spread SpreadSchedule (0..1) <"Defines a spread value for one or more defined dates.">
+   rollFeature RollFeature (0..1) <"Used in conjunction with an exchange-based pricing source. Identifies a way in which the futures contracts referenced will roll between periods. ">
+   conversionFactor number (0..1) <"Defines the conversion applied if the quantity unit on contract is different from unit on referenced underlier.">
+
+type RollFeature: <"Used in conjunction with an exchange-based pricing source. Identifies a way in which the futures contracts referenced will roll between periods. ">
+   rollSourceCalendar RollSourceCalendarEnum (0..1) <"Used in conjunction with an exchange-based pricing source. Identifies a date source calendar from which the pricing dates and thus roll to the next contract will be based off (e.g. pricing is based on the NYMEX WTI First Nearby Futures Contract, if Future is chosen, the pricing will roll to the next futures contract on expiration, if ListedOption is chosen, the pricing will roll to the next futures contract on the Option expiration date which is three business days before the expiration of the NYMEX WTI futures contract.) Omitting this element will result in the default behavior expected with the pricing source described within the commodity element.">
+   deliveryDateRollConvention Offset (0..1) <"Specifies, for a Commodity Transaction that references a delivery date for a listed future, the day on which the specified future will roll to the next nearby month prior to the expiration of the referenced future. If the future will not roll at all - i.e. the price will be taken from the expiring contract, 0 should be specified here. If the future will roll to the next nearby on the last trading day - i.e. the price will be taken from the next nearby on the last trading day, then 1 should be specified and so on.">
+
+type PricingDates: <"Specifies specific dates or parametric rules for the dates on which the price will be determined">
+	specifiedDates AdjustableDates (0..*)  <"Defines specified dates on which the price will be determined.">
+	parametricDates ParametricDates (0..1) <"Defines rules for the dates on which the price will be determined.">
+	condition: one-of
+
+type ParametricDates: <"Defines rules for the dates on which the price will be determined.">
+	dayType DayTypeEnum (1..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">
+	dayDistribution DayDistributionEnum (0..1) <"Denotes the method by which the pricing days are distributed across the pricing period.">
+	dayOfWeek DayOfWeekEnum (0..7) <"Indicates the days of the week on which the price will be determined.">
+	dayFrequency number (0..1) <"Defines the occurrence of the dayOfWeek within the pricing period on which pricing will take place, e.g. the 3rd Friday within each Calculation Period. If omitted, every dayOfWeek will be a pricing day.">
+	lag Lag (0..1) <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
+	businessCalendar BusinessCenterEnum (1..1) <"The enumerated values to specify the business centers.">
+	condition Choice:
+		required choice dayDistribution, dayOfWeek
+	condition DayOfWeekMethod:
+		if dayOfWeek exists
+		then dayFrequency exists
+type Lag: <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
+   lagDuration Offset (1..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
+   firstObservationDateOffset Offset (0..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
 
 
 type CashSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms. In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
@@ -325,7 +355,7 @@ type YieldCurveMethod: <"A data defining:  the parameters required for each of t
 	quotationRateType QuotationRateTypeEnum (1..1) <"Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j).">
 
 type OptionSettlement extends SettlementTerms: <"The option settlement terms, which can either be cash, physical, or fx-based cash-settlement. This class can be used for both the settlement of options or forwards.">
-	// TBD: refactor OptionCashSettlement and FxCashSettlement to be a unique class, where cash settlement can be specified in a given currency?
+
 	cashSettlementTerms OptionCashSettlement (0..1) <"Specifies the parameters associated with the cash settlement procedure.">
 	physicalSettlementTerms OptionPhysicalSettlement (0..1) <"Specifies the physical settlement terms which apply to the transaction.">
 	fxSettlementTerms FxCashSettlement (0..1) <"Specifies the cash settlement of a non deliverable fx option / forward. It includes the currency to settle into together with the fixings required to calculate the currency amount">

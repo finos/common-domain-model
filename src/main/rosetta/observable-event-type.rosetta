@@ -37,10 +37,6 @@ type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption
 		if determiningParty exists
 		then determiningParty = AncillaryRoleEnum -> DisruptionEventsDeterminingParty
 
-/*
- * The FpML construct has a a number of other attributes: dividend valuation dates, fall-back provision, ...
- * Also, FpML extends Price while the current CDM approach is just to share the determinationMethod.  To be confirmed as a function of the use cases.
- */
 type ExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
 
 	mergerEvents EquityCorporateEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event shall occur if a Merger occurs and the Merger Date is on or before the final Equity Valuation Date | Occurs when the underlying ceases to exist following a merger between the Issuer and another company.">
@@ -77,9 +73,6 @@ type Trigger: <"Trigger point at which feature is effective.">
 	condition Choice1: <" Choice rule to represent an FpML choice construct.">
 		required choice level, levelPercentage , creditEvents , creditEventsReference
 
-	// condition Choice2: <" Choice rule to represent an FpML choice construct.">
-	// 	required choice creditEvents, creditEventsReference
-
 type TriggerEvent: <"Observation point for trigger.">
 
 	schedule AveragingSchedule (0..*) <"A derivative schedule.">
@@ -94,8 +87,6 @@ type EquityCorporateEvents: <"A class for defining the merger events and their t
 	shareForOther ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-O) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Other Consideration. | The consideration paid for the original shares following the Merger Event consists wholly of cash/securities other than new shares.">
 	shareForCombined ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-C) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists of both cash/securities and new shares.">
 
-
-// In a subsequent phase of work, a single price should be stored and "reset" after each period. Lineage should then be used to resolve the period start and end prices for the Equity Cash Settlement Amount calculation
 type Representations:
 
 	nonReliance boolean (1..1) <"If true, then non reliance is applicable.">
@@ -103,7 +94,6 @@ type Representations:
 	indexDisclaimer boolean (1..1) <"If present and true, then index disclaimer is applicable.">
 	additionalAcknowledgements boolean (0..1) <"If true, then additional acknowledgements are applicable.">
 
-// asset tag types
 type CreditEvents: <"A class to specify the applicable Credit Events that would trigger a settlement, as specified in the related Confirmation and defined in the ISDA 2014 Credit Definition article IV section 4.1.">
 	[metadata key]
 
@@ -191,7 +181,7 @@ type FeaturePayment: <"Payment made following trigger occurrence.">
 type Observation: <"Defines a single, numerical value that was observed in the marketplace. Observations of market data are made independently to business events or trade life-cycle events, so data instances of Observation can be created independently of any other model type, hence it is annotated as a root type. Observations will be broadly reused in many situations, so references to Observation are supported via the 'key' annotation.">
 	[rootType]
 	[metadata key]
-	observedValue number (1..1) <"Specifies the observed value as a number.">
+	observedValue Price (1..1) <"Specifies the observed value as a number.">
 	observationIdentifier ObservationIdentifier (1..1) <"Represents the observation was made i.e. how to uniquely identify the observed value among the population of all available market data.">
 
 type ObservationIdentifier:	<"Defines the parameters needed to uniquely identify a piece of data among the population of all available market data.">
