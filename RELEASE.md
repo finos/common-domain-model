@@ -1,4 +1,4 @@
-# Technical Change - Builder Refactor*
+# EU UK and US - Eligible Collateral Enums*
 
 _What is being released?_
 
@@ -12,9 +12,9 @@ Each of these enumerated values has a complete description of the relevant regul
 
 _How to review the change_
 
-Under `base-staticdata-asset-common-enum`, go to `enum TaxonomySourceEnum`the new enumerations are listed here, names as follows `EuEligibleCollateral``UkEligibleCollateral``UsEligibleCollateral` these are followed by each enum list please observe the list under each respective regulation representation. `EuEligibleCollateral` contains 18 types A to R, `UkEligibleCollateral` contains 18 types A to R, `UsEligibleCollateral` contains 13 types. Each of the types has its own complete description using text provided from the respective regulations.
+Under `base-staticdata-asset-common-enum`, go to `enum TaxonomySourceEnum`the new enumerations are listed here, names as follows `EuEligibleCollateral`,`UkEligibleCollateral`,`UsEligibleCollateral` these are followed by each enum list please observe the list under each respective regulation representation. `EuEligibleCollateral`, contains 18 types A to R, `UkEligibleCollateral`, contains 18 types A to R, `UsEligibleCollateral`, contains 13 types. Each of the types has its own complete description using text provided from the respective regulations.
 
-Under `base-staticdata-asset-common-type`, go to `type ProductTaxonomy` this has been removed and replaced with `type CollateralTaxonomy` which has conditions added for `EuEligibleCollateral``UkEligibleCollateral``UsEligibleCollateral` and an additional `type CollateralTaxonomyValue`.
+Under `base-staticdata-asset-common-type`, go to `type ProductTaxonomy` this has been removed and replaced with `type CollateralTaxonomy`, which has conditions added for `EuEligibleCollateral`,`UkEligibleCollateral`,`UsEligibleCollateral` and an additional `type CollateralTaxonomyValue`.
 
 Under `legalagreement-csa-type`, go to `productTaxonomy`, this has been removed and replaced with `collateralTaxonomy` with supporting descriptions and related optional choice.
 
