@@ -1,6 +1,6 @@
 # *CDM Model: PriceQuantity refactoring follow up tasks - minor changes for Reset, OptionStrike, and FloatingRate*
 
-_What is Being Released_
+_What is being released_
 
 The recent `PriceQuantity` refactoring introduced a new standard set of data types for `Price` and `Quantity` and also propagated the related changes throughout most of the model.  This release continues that propagation in specific areas and includes other minor clean up tasks:
 
