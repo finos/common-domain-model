@@ -1009,6 +1009,9 @@ func Create_SplitPrimitive: <"Defines how to create the Split Primitive accordin
 	output:
 		primitive SplitPrimitive (1..1) <"Split primitive containing both the original block trade (with the status set to Split) and the set of split trades.">
 
+    condition: <"Allocation instructions must specify allocation for the full quantity of the original execution.">
+	    Sum( splitBreakdowns -> quantity -> amount ) = singleTrade -> trade -> tradableProduct -> priceQuantity -> quantity -> amount
+		
 	assign-output primitive -> before:
 		singleTrade
 
@@ -1017,7 +1020,7 @@ func Create_SplitPrimitive: <"Defines how to create the Split Primitive accordin
 		primitive -> after -> state -> closedState -> state contains closedState
 
 	post-condition: <"Checks the position status has been set.">
-		primitive -> after -> state -> positionState contains positionStatus
+		primitive -> after -> state -> positionState contains positionStatus  
 
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
 	inputs:
