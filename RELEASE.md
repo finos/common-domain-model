@@ -11,7 +11,7 @@ This expanded set of function are listed below, with the count of CDM ingestion 
 New Product Qualification Functions:
 - `Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName` (5)
 - `Qualify_EquitySwap_PriceReturnBasicPerformance_Index` (2)
-- `Qualify_EquitySwap_TotalReturnBasicPerformance_Index' (1)
+- `Qualify_EquitySwap_TotalReturnBasicPerformance_Index` (1)
 - `Qualify_EquityOption_PriceReturnBasicPerformance_SingleName` (1)
 - `Qualify_IndexVanillaOption`(1)
 
