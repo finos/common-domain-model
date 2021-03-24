@@ -157,6 +157,11 @@
             <xsd:enumeration value="Wertpapier"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:simpleType name="PriceTypeEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="InterestRate"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <!-- Complex Types -->
     <xsd:complexType name="SplitOutcome">
         <xsd:sequence>
@@ -616,6 +621,14 @@
             <xsd:element name="unitOfAmount" type="UnitType"/>
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:complexType name="Price">
+        <xsd:sequence>
+            <xsd:element name="amount" type="xsd:decimal"/>
+            <xsd:element name="unitOfAmount" type="UnitType"/>
+            <xsd:element name="perUnitOfAmount" type="UnitType"/>
+            <xsd:element name="priceType" type="PriceTypeEnum"/>
+        </xsd:sequence>
+    </xsd:complexType>
     <xsd:complexType name="UnitType">
         <xsd:sequence>
             <xsd:element name="currency" type="xsd:string"/>
@@ -697,7 +710,7 @@
     </xsd:complexType>
     <xsd:complexType name="Reset">
         <xsd:sequence>
-            <xsd:element name="resetValue" type="xsd:decimal"/>
+            <xsd:element name="resetValue" type="Price"/>
             <xsd:element name="resetDate" type="xsd:date"/>
             <xsd:element name="observation" type="xsd:string"/>
             <xsd:element name="aggregationMethodology" type="AggregationMethod" minOccurs="0"/>
