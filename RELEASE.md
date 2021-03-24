@@ -1,4 +1,4 @@
-# *CDM Model: PriceQuantity refactoring follow up tasks - minor changes for Reset, OptionStrike, and Floating Rate*
+# *CDM Model: PriceQuantity refactoring follow up tasks - minor changes for Reset, OptionStrike, and FloatingRate*
 
 _What is Being Released_
 
