@@ -8,10 +8,13 @@ The recent `PriceQuantity` refactoring introduced a new standard set of data typ
 
 2.  In `OptionStrike`
   - Removed metadata address from `StrikePrice`:  This attribute uses the new standard `Price` data type, but does not require the new metadata address pointing to `PriceQuantity` because the strike price is not represented there.  This change corrects an unintended change from the `PriceQuantity` refactoring release.
+  - For the FpML synonyms, changed the mapping for the FpML `StrikePrice` to point to the `OptionPayout` instead of the `TradableProduct->PriceQuantity`.
   - Changed the condition `choice` to `one of`, which is a more streamlined expression that can be used in this case.
 
 3. Tangentially related to `PriceQuantity`: Expanded the description for `BusinessEvent`->`EventDate`.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and search for the data types and attributes listed above.
+In the CDM Portal, select the Textual Browser and search for the data types and attributes listed above. Also, see one or more ingestion examples, e.g. 
+`fx ex09 euro op`.
+
