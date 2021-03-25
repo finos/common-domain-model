@@ -453,6 +453,8 @@ synonym source FpML_5_10 extends FpML
             [value "floatingRateCalculation" path "interestCalculation"]
             [value "spreadSchedule" path "interestCalculation->floatingRateCalculation"]
             [value "floatingRateMultiplierSchedule" path "interestCalculation->floatingRateCalculation"]
+            // For Equity Option:
+            [value "paymentAmount" path "equityPremium"]
             // For FX:
             [hint "spotRate"]
             [value "exchangeRate" mapper "ExchangeRate"]
@@ -540,6 +542,7 @@ synonym source FpML_5_10 extends FpML
             [set to PriceTypeEnum->CashPrice when path = "initialPayment->paymentAmount"]
             [set to PriceTypeEnum->CashPrice when path = "singlePayment->fixedAmount"]
             [set to PriceTypeEnum->Premium when path = "premium->paymentAmount"]
+            [set to PriceTypeEnum->Premium when path = "equityPremium->paymentAmount"]
 
 	PrincipalExchanges:
 	 	[value "PrincipalExchanges" meta "id"]
@@ -876,7 +879,8 @@ synonym source FpML_5_10 extends FpML
 
 	OptionStrike:
 		+ strikePrice
-			[value "price" meta "strikePrice"]
+			[value "price"]
+			[hint "strikePrice"]
             [hint "rate"]
             [hint "spread"]
         + strikeReference
@@ -1766,6 +1770,7 @@ synonym source FpML_5_10 extends FpML
 			[value "equity"]
 			[value "bond"]
 			[value "convertibleBond"]
+			[value "index"]
         + currencyPair
             [value "quotedCurrencyPair"]
 
@@ -2224,6 +2229,7 @@ synonym source FpML_5_10 extends FpML
 		    [value "premium" path "swaption"]
 		    [value "premium" path "bondOption"]
 		    [value "premium" path "creditDefaultSwapOption"]
+		    [value "equityOption"]
 		    [hint "fxOption"] // for fxOption.premium
 		    [value "bondOption"]
 		    [value "feeLeg" path "creditDefaultSwap"]

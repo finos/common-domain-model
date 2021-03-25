@@ -44,6 +44,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updateRateUnits(priceBuilder, synonymPath, "capFloorStream", "notionalSchedule", "notionalStepSchedule", "currency")
 				|| updateRateUnits(priceBuilder, synonymPath, "bondOption", "notionalAmount", "currency")
 				|| updateRateUnits(priceBuilder, synonymPath, "fra", "notional", "currency")
+				|| updateRateUnits(priceBuilder, synonymPath, "equityOption", "equityExercise", "settlementCurrency")
 				// Credit
 				|| updateRateUnits(priceBuilder, synonymPath, "fixedAmountCalculation", "calculationAmount", "currency")
 				|| updateRateUnits(priceBuilder, synonymPath, "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
