@@ -44,10 +44,12 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updateRateUnits(priceBuilder, synonymPath, "capFloorStream", "notionalSchedule", "notionalStepSchedule", "currency")
 				|| updateRateUnits(priceBuilder, synonymPath, "bondOption", "notionalAmount", "currency")
 				|| updateRateUnits(priceBuilder, synonymPath, "fra", "notional", "currency")
+				|| updateRateUnits(priceBuilder, synonymPath, "equityOption", "equityExercise", "settlementCurrency")
 				// Credit
 				|| updateRateUnits(priceBuilder, synonymPath, "fixedAmountCalculation", "calculationAmount", "currency")
 				|| updateRateUnits(priceBuilder, synonymPath, "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
 				|| updateRateUnits(priceBuilder, synonymPath, "creditDefaultSwapOption", "notionalReference", "href")
+				|| updateRateUnits(priceBuilder, synonymPath, "creditDefaultSwapOption", "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
 				// Equity
 				|| updateRateUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
 				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", "currency")
@@ -121,7 +123,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	}
 
 	private boolean updateFxOption(PriceBuilder builder, Path synonymPath) {
-		if (builder.getPriceType() != PriceTypeEnum.RATE_PRICE) {
+		if (builder.getPriceType() != PriceTypeEnum.EXCHANGE_RATE) {
 			return false;
 		}
 		Optional<Path> subPath = subPath("fxOption", synonymPath);

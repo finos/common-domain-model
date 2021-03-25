@@ -98,7 +98,7 @@ The ``Price`` data type extends the ``MeasureBase`` data type with the addition 
 .. code-block:: Haskell
 
  type Price extends MeasureBase:  
-	priceType PriceTypeEnum (1..1) 
+	priceType PriceTypeEnum (1..1)
 	perUnitOfAmount UnitType (0..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
@@ -369,13 +369,11 @@ There are other addresses in the model that use the metadata address to point to
 
  type OptionStrike:
 	strikePrice Price (0..1) 
-	    [metadata address "pointsTo"=PriceQuantity->price]
-	strikeReference FixedRateSpecification (0..1) 
+	strikeReference FixedRateSpecification (0..1)
 		[metadata reference]
 	referenceSwapCurve ReferenceSwapCurve (0..1) 
 	averagingStrikeFeature AveragingObservation (0..1) 			
-	condition Choice:
-        required choice strikePrice, strikeReference, referenceSwapCurve, averagingStrikeFeature
+	condition: one-of
 
 Reusable Components
 """""""""""""""""""
@@ -751,7 +749,7 @@ When a observable value becomes known (as provided by the relevant market data p
  type Observation:
    [rootType]
    [metadata key]
-   observedValue number (1..1)
+   observedValue Price (1..1)
    observationIdentifier ObservationIdentifier (1..1)
 
 From that ``Observation``, a ``Reset`` can be built and included in ``TradeState`` without changing the ``Trade``. A reset is represented by the ``ResetPrimitive`` data type.
@@ -770,7 +768,7 @@ The *reset* process creates instances of the ``Reset`` data type, which are adde
 .. code-block:: Haskell
 
  type Reset:
-   resetValue number (1..1)
+   resetValue Price (1..1)
    resetDate date (1..1)
    observations Observation (1..*)
      [metadata reference]
@@ -1819,14 +1817,18 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
  func RateOfReturn:
-   inputs:
-     initialPrice number (1..1)
-     finalPrice number (1..1)
-   output:
-     rateOfReturn number (1..1)
+	inputs:
+		initialPrice Price (1..1)
+		finalPrice Price (1..1)
+	output:
+		rateOfReturn number (1..1)
 
-   assign-output rateOfReturn:
-     (finalPrice - initialPrice) / initialPrice
+	alias initialPriceValue:
+		initialPrice->amount
+	alias finalPriceValue:
+		finalPrice->amount
+	assign-output rateOfReturn:
+		(finalPriceValue - initialPriceValue) / initialPriceValue
 
 Initial Margin
 """"""""""""""""""

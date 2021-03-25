@@ -494,7 +494,7 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 		then FloatingAmount(
 			interestRatePayout,
 			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule only-element -> initialValue -> amount,
-			resets only-element -> resetValue,
+			resets only-element -> resetValue -> amount,
 			interestRatePayout -> payoutQuantity -> resolvedQuantity,
 			date)
 
@@ -626,7 +626,7 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return) × Equity Notional Amount.">
 	inputs:
 		trade Trade (1..1)
-		observation number (1..1)
+		observation Price (1..1)
 		date date (1..1)
 
 	output:
@@ -642,7 +642,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 		observation
 
 	alias numberOfSecurities:
-		equityPayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> amount / periodStartPrice
+		equityPayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> amount / periodStartPrice->amount
 
 	alias rateOfReturn:
 		RateOfReturn(periodStartPrice, periodEndPrice)
@@ -655,25 +655,33 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 
 func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
 	inputs:
-		initialPrice number (1..1)
-		finalPrice number (1..1)
+		initialPrice Price (1..1)
+		finalPrice Price (1..1)
 
 	output:
 		rateOfReturn number (1..1)
 
+	alias initialPriceValue:
+		initialPrice->amount
+
+	alias finalPriceValue:
+		finalPrice->amount
+
 	assign-output rateOfReturn:
-		(finalPrice - initialPrice) / initialPrice
+		(finalPriceValue - initialPriceValue) / initialPriceValue
 
 func EquityNotionalAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 74. 'Equity Notional Amount' means the Number Of Securities times the Initial Price, adjusted, if applicable, as provided in Part 1 Section 2.2, 'Equity Notional Reset'. If 'With Reset' is the Equity Notional Reset Election, then in respect of each Equity Cash Settlement Date: (i) the Equity Notional Amount applicable in respect of the first Equity Cash Settlement Date will be the amount specified as such in the definition of Equity Notional Amount; (ii) the Equity Notional Amount applicable in respect of each subsequent Equity Cash Settlement Date will be the sum of (a) the Equity Notional Amount in respect of the prior Equity Cash Settlement Date and (b) the Equity Performance, whether positive or negative, in respect of the prior Equity Cash Settlement Date; and (iii)	the Floating Notional Amount will be adjusted as provided in sub-clauses (i) and (ii) above as though it were an Equity Notional Amount.">
 	inputs:
 		numberOfSecurities number (1..1)
-		price number (1..1)
+		price Price (1..1)
 
 	output:
 		equityNotionalAmount number (1..1)
 
+	alias priceValue:
+		price->amount
 	assign-output equityNotionalAmount:
-		numberOfSecurities * price
+		numberOfSecurities * priceValue
 
 func StockSplit: <"Function specification to create the fully-formed business event which represents the impact of a stock split (or a reverse stock split) on an Equity Derivatives contract on a certain date.  The function uses the defined adjustmentRatio to adjust the quantity and price as represented in two business events: QuantityChange and termsChange. ">
 	inputs:
