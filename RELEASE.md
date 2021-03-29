@@ -1,20 +1,18 @@
-# *Product Model - PriceQuantity: PriceQuantity refactoring follow up tasks - minor changes for Reset, OptionStrike, and FloatingRate*
+# *Product Model - PriceQuantity: CDM Cardinality change in Price and minor changes to enumerations in the FinancialUnitEnum*
 
-_What is being released_
+_What is being released?_
 
-The recent `PriceQuantity` refactoring introduced a new standard set of data types for `Price` and `Quantity` and also propagated the related changes throughout most of the model.  This release continues that propagation in specific areas and includes other minor clean up tasks:
+A change to the cardinality of one attribute of the `Price` data type and minor changes to the `FinancialUnitEnum` as described below:
 
-1. Updated `Reset`->`resetValue` and `Observation`->`observationValue`type to use the `Price` data type. 
-
-2.  In `OptionStrike`
-  - Removed metadata address from `StrikePrice`:  This attribute uses the new standard `Price` data type, but does not require the new metadata address pointing to `PriceQuantity` because the strike price is not represented there.  This change corrects an unintended change from the `PriceQuantity` refactoring release.
-  - For the FpML synonyms, changed the mapping for the FpML `StrikePrice` to point to the `OptionPayout` instead of the `TradableProduct->PriceQuantity`.
-  - Changed the condition `choice` to `one of`, which is a more streamlined expression that can be used in this case.
-
-3. Tangentially related to `PriceQuantity`: Expanded the description for `BusinessEvent`->`EventDate`.
+ - The cardinality of the `perUnitOfAmount` attribute in the `Price` data type has been changed to mandatory singular (1..1) from optional singular (0..1) so that this value will always be populated
+ - The enumerated values set in `FinancialUnitEnum`have been made singular and a new value ContractualProduct has been added:
+    - Contracts has been changed to Contract
+    - IndexUnits has been chagned to IndexUnit
+    - Shares has been changed to Share
+    - ContractualProduct has been added to qualify a price that applies to the complete contractual product, such as a cash premium on an OTC Option
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and search for the data types and attributes listed above. Also, see one or more ingestion examples, e.g. 
-`fx ex09 euro op`.
+In the CDM Portal, select the Graphical Navigator, search any of the data types listed above. Alternatively, select the Textual Browser and search for the data types and attributes listed above.
+
 

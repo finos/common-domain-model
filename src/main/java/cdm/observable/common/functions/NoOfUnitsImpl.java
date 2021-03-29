@@ -27,12 +27,12 @@ public class NoOfUnitsImpl extends NoOfUnits {
 				.filter(q -> Optional.ofNullable(q)
 						.map(Quantity::getUnitOfAmount)
 						.map(UnitType::getFinancialUnit)
-						.map(FinancialUnitEnum.SHARES::equals)
+						.map(FinancialUnitEnum.SHARE::equals)
 						.orElse(false))
 				.map(Quantity::getAmount)
 				.collect(Collectors.toSet());
 		if (noOfUnits.size() > 1) {
-			throw new IllegalArgumentException("Multiple Quantity instances found with unitOfAmount FinancialUnitEnum.Shares, expected only one.");
+			throw new IllegalArgumentException("Multiple Quantity instances found with unitOfAmount FinancialUnitEnum.Share, expected only one.");
 		}
 		return noOfUnits.stream().findFirst().orElse(null);
 	}
