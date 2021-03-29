@@ -1,18 +1,10 @@
-# *Product Model - PriceQuantity: CDM Cardinality change in Price and minor changes to enumerations in the FinancialUnitEnum*
+# *Model Change - Removed New Inline Comments*
 
 _What is being released?_
 
-A change to the cardinality of one attribute of the `Price` data type and minor changes to the `FinancialUnitEnum` as described below:
-
- - The cardinality of the `perUnitOfAmount` attribute in the `Price` data type has been changed to mandatory singular (1..1) from optional singular (0..1) so that this value will always be populated
- - The enumerated values set in `FinancialUnitEnum`have been made singular and a new value ContractualProduct has been added:
-    - Contracts has been changed to Contract
-    - IndexUnits has been chagned to IndexUnit
-    - Shares has been changed to Share
-    - ContractualProduct has been added to qualify a price that applies to the complete contractual product, such as a cash premium on an OTC Option
+This release removes inline comments (e.g. ones preceeded by TODO) that were introduced after the last clean up of inline comments.  There were eleven rows in the logical model from which these comments were removed.
 
 _Review directions_
 
-In the CDM Portal, select the Graphical Navigator, search any of the data types listed above. Alternatively, select the Textual Browser and search for the data types and attributes listed above.
-
+In the CDM Portal, select the Textual Browser, search for any instances of //.  The only remaining ones should be as part of a URL or as a guidance comment in a function or synonyum.  Also there should not be any instances of /*.
 
