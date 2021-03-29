@@ -87,7 +87,9 @@ type UnitContractValuationModel: <" Unit contract model for security valuation, 
 type Price extends MeasureBase: <"Specifies a price to be used for trade amounts and other purposes.">
 
 	priceType PriceTypeEnum (1..1) <"Provides a value for a type of price in order to explain how to interpret the amount and use it in calculations.">
-	perUnitOfAmount UnitType (0..1) <"Provides an optional attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
+	    [synonym Workflow_Event value "priceType"]
+	perUnitOfAmount UnitType (1..1) <"Provides an attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
+        [synonym Workflow_Event value "perUnitOfAmount"]
 
 	condition PositiveFXRate: <"Requires that per FpML rules, the FX rate must be a positive value.">
 		if priceType = PriceTypeEnum -> ExchangeRate
@@ -115,6 +117,7 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
 
 type PriceQuantity: <"Specifies the price, quantity, and optionally the observable for use in a trade or other purposes.">
 	[metadata key]
+
 	price Price (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
 	    [metadata location]
 	quantity Quantity (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
@@ -150,25 +153,6 @@ type Money: <"A class defining a currency amount.">
 	currency string (1..1) <"The currency in which the associated amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
 	amount number (1..1) <"The monetary quantity in currency units.">
-
-type FixedInterestRate: <"Data to specify a fixed interest rate price.">
-
-	rate number (1..1)
-
-type FloatingInterestRate: <"Data to specify a floating interest rate price.">
-
-	initialRate number (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
-	spread number (0..1)
-	capRate number (0..1)
-	floorRate number (0..1)
-	multiplier number (0..1)
-
-	condition AtLeastOneOf:
-		(initialRate or spread or capRate or floorRate) exists
-
-	condition FloatingRateMultiplierSchedule: <"FpML specifies that the floatingRateMultiplierSchedule should only be included if the multiplier is not equal to 1 for the term of the stream.">
-		if multiplier exists
-		then multiplier <> 1.0
 
 type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
 
@@ -217,7 +201,7 @@ type Curve:
 
 	interestRateCurve InterestRateCurve (0..1)
 		[synonym Workflow_Event value "interestRateCurve"]
-	commodityCurve CommodityReferencePriceEnum (0..1) 
+	commodityCurve CommodityReferencePriceEnum (0..1)
 		[metadata scheme]
 		[synonym Workflow_Event value "commodityCurve" meta "commodityReferencePriceScheme"]
 
@@ -346,7 +330,7 @@ type RateObservation: <"A class defining parameters associated with an individua
 type CreditNotation: <"A class to specify the credit notation as the combination of agency, notation, scale and debt type qualifications.">
 
 	agency CreditRatingAgencyEnum (1..1) <"The credit agency to which the other variables (notation, scale, debt type) refer to.">
-		
+
 	notation string (1..1) <"The credit rating notation. As it varies among credit rating agencies, FpML doesn't specify a default scheme.">
 		[metadata scheme]
 	scale string (0..1) <"The credit rating scale, with a typical distinction between short term, long term. FpML doesn't specify a default scheme, which is hence not specified as an enumeration as part of the CDM.">
