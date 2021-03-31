@@ -6,25 +6,27 @@ import cdm.observable.asset.*
 
 import cdm.legalagreement.common.*
 
+// Agreement Validation
 func SaIsdaBankCustodian2019NewYorkLaw:
+	// [validation agreement]
 	inputs: legalAgreement LegalAgreement (1..1)
 	output: is_agreement boolean (1..1)
 
 	assign-output is_agreement:
-		legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement
-		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> publisher = LegalAgreementPublisherEnum->ISDA 
-		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> governingLaw = GoverningLawEnum->USNY 
-		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> vintage = "2019" 
-		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementDate exists 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> pledgedAccount is absent 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> enforcementEvent is absent
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> deliveryInLieuRight is absent 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> fullDischarge is absent
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> appropriatedCollateralValuation is absent 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> processAgent exists 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> japaneseSecuritiesProvisions exists 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> exclusiveJurisdiction exists 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> juryWaiver exists 
+		legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement // The agreement is a CTA
+		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> publisher = LegalAgreementPublisherEnum->ISDA // published by ISDA
+		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> governingLaw = GoverningLawEnum->USNY // under New York Law
+		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> vintage = "2019" // with vintage 2019
+		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementDate exists // then the CTA should have an agreement date specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> pledgedAccount is absent // there should not be a PledgedAccount
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> enforcementEvent is absent // there should not be EnforcementEvent terms specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> deliveryInLieuRight is absent // there should not be Delivery in Lieu Right terms specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> fullDischarge is absent // there should not be Full Discharge terms specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> appropriatedCollateralValuation is absent // there should not be any Valuation of Appropriated Collateral terms specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> processAgent exists // there should be Process Agent terms specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> japaneseSecuritiesProvisions exists // there should be Japanese Securities Provisions specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> exclusiveJurisdiction exists // there should be Exclusive Jurisdiction terms specified
+		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> juryWaiver exists // there should be Jury Waiver terms specified
 
 func PostedCreditSupportItemAmount: <"Calculates the Value for the given Posted Credit Support item. Value means, unless otherwise specified in Paragraph 13, for any Calculation Date (IM) or other date for which Value is calculated and subject to Paragraph 5 in the case of a dispute, with respect to: (i) save as provided in clause (ii) below, Eligible Collateral (IM) or Posted Collateral (IM) that is: (A) an amount of Cash, the Base Currency Equivalent of such amount multiplied by (VP – HFX); and (B) a security, the Base Currency Equivalent of the bid price obtained by the Calculation Agent (IM) multiplied by (VP – HFX); where: VP equals the applicable Valuation Percentage; and HFX equals the applicable FX Haircut Percentage, provided that, for the purposes of calculating Value under Paragraph 8(b)(iv)(B) or Paragraph 11(a), the VP will be 100% and HFX will be zero; (ii) Posted Collateral (IM) that consists of items that are, in respect of the relevant posting obligation, deemed as of such date to have a Value of zero pursuant to Paragraph 13, zero; and (iii) Other Eligible Support (IM) and Other Posted Support. (IM), as specified in Paragraph 13.">
 	[calculation]
@@ -127,6 +129,7 @@ func CreditSupportAmount:
 
 	assign-output result -> amount: <"Paragraph 3 (c) (iii) Margin Approach. (A) If the Distinct Margin Flow (IM) Approach is specified as applicable in Paragraph 13, the following provisions will apply: (1) Credit Support Amount (IM) means, with respect to a party as the Pledgor, for any Calculation Date (IM), (i) the Margin Amount (IM) applicable to the Pledgor, if any, minus (ii) the Pledgor’s Threshold (IM); provided, however, that the Credit Support Amount (IM) will be deemed to be zero whenever the calculation of the Credit Support Amount (IM) yields a number less than zero. (2) No Amendment to Obligations in respect of Margin Amount (IA). The posting obligation of a Pledgor in respect of any amount that constitutes a Margin Amount (IA) under any Other CSA shall not be affected or amended in any way by the provisions of this Annex. (B) If the Allocated Margin Flow (IM/IA) Approach is specified as applicable in Paragraph 13, the following provisions will apply: (1) Credit Support Amount (IM) means, with respect to a party as the Pledgor, for any Calculation Date (IM), (i) the Margin Amount (IM) applicable to the Pledgor, if any, minus (ii) the Pledgor’s Threshold (IM); provided, however, that the Credit Support Amount (IM) will be deemed to be zero whenever the calculation of the Credit Support Amount (IM) yields a number less than zero. (2) Amendment to Obligations in respect of Margin Amount (IA). The posting obligation of a Pledgor in respect of any amount that constitutes a Margin Amount (IA) under any Other CSA shall be reduced on an aggregate basis by the amount of the Pledgor’s Credit Support Amount (IM); provided, however, that if, after such reduction, any such Margin Amount (IA) would be a negative amount, such Margin Amount (IA) will be deemed to be zero. (C) If the Greater of Margin Flow (IM/IA) Approach is specified as applicable in Paragraph 13, the following provisions will apply: (1) Credit Support Amount (IM) means, with respect to a party as the Pledgor, for any Calculation Date (IM), the greater of (i)(A) the Margin Amount (IM) applicable to the Pledgor, if any, minus (B) the Pledgor’s Threshold (IM) and (ii) the Margin Amount (IA); provided, however, that the Credit Support Amount (IM) will be deemed to be zero whenever the calculation of the Credit Support Amount (IM) yields a number less than zero. (2) Amendment to Obligations in respect of Margin Amount (IA).  The posting obligation of a Pledgor in respect of any amount that constitutes a Margin Amount (IA) under any Other CSA, other than such obligations of a Pledgor under this Annex, shall be reduced to zero.">
 		if marginApproach = MarginApproachEnum -> Distinct or marginApproach = MarginApproachEnum -> Allocated
+		// TODO if allocated the CreditSupportAmount is used in further calculations for the marginAmountIA
 		then creditSupportAmountCalc
 		else if marginApproach = MarginApproachEnum -> GreaterOf
 			then Max(creditSupportAmountCalc, marginAmountIA -> amount)
@@ -178,6 +181,9 @@ func ReturnAmount: <"2018 Credit Support Annex For Initial Margin, Paragraph 3 (
 	assign-output result -> currency:
 	baseCurrency
 
+// TODO: paragraph 2
+// Scenario A: trading relationship ceases, security interest released all collateral return (even if under MTA)
+// Scenario B: trading relationship falls below 50M IM threshold, security interest released all collateral return (even if under MTA)
 func DeliveryAmount: <"2018 Credit Support Annex For Initial Margin, Paragraph 3 (a) Delivery Amount (IM).  Subject to Paragraphs 4 and 5, upon a demand made by the Secured Party on or promptly following a Calculation Date (IM), if the Delivery Amount (IM) applicable to the Pledgor for that Calculation Date (IM) equals or exceeds the Pledgor’s Minimum Transfer Amount (IM), then the Pledgor will Transfer to the Secured Party Eligible Credit Support (IM) having a Value as of the date of Transfer at least equal to the applicable Delivery Amount (IM) (rounded pursuant to Paragraph 13).  Unless otherwise specified in Paragraph 13, the Delivery Amount (IM) applicable to the Pledgor for any Calculation Date (IM) will equal the amount by which: (i) the Credit Support Amount (IM) applicable to the Pledgor exceeds (ii) the Value as of that Calculation Date (IM) of all Posted Credit Support (IM) held by the Secured Party (as adjusted to include any prior Delivery Amount (IM) and to exclude any prior Return Amount (IM), the transfer of which, in either case, has not yet been completed and for which the relevant Regular Settlement Day falls on or prior to such Calculation Date (IM)).">
 	[calculation]
 

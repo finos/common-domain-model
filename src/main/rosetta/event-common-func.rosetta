@@ -25,7 +25,8 @@ import cdm.event.workflow.*
 import cdm.event.position.*
 
 isEvent root BusinessEvent;
-
+// TODO - Providing the ability to embed aliases would provide the ability to ensure consistency between this alias and the effectiveDate one, while also simplify the syntax
+// See Trello card https://trello.com/c/89Lv8rAn
 func NovatedContractEffectiveDate:
 	inputs:
 		businessEvent BusinessEvent(1..1)
@@ -53,8 +54,9 @@ func QuantityChange: <"The alias to represent the quantity or notional amount in
 	inputs:
 		trade Trade (1..*)
 	output:
-		quantityChange QuantityGroups(1..1)
+		quantityChange QuantityGroups (1..1)
 
+	// TODO - Support group by structures.
 	assign-output quantityChange -> quantityGroups -> amount: [
 		 ( trade -> tradableProduct -> priceQuantity -> quantity  group by unitOfAmount -> currency ) -> amount
 	]
@@ -72,6 +74,10 @@ func QuantityIncreased:
 	assign-output result:
 		ListsCompare(CompareOp -> Greater, afterQuantity -> quantityGroups -> amount, beforeQuantity -> quantityGroups -> amount, empty)
 
+	// TODO - Support operators for groupings.
+	//	assign-output result:
+	//		afterQuantity > beforeQuantity
+
 func QuantityDecreased:
 	inputs:
 		quantityChangePrimitive QuantityChangePrimitive(1..*)
@@ -85,6 +91,10 @@ func QuantityDecreased:
 	assign-output result:
 		ListsCompare(CompareOp -> Greater, beforeQuantity -> quantityGroups -> amount, afterQuantity -> quantityGroups -> amount, empty) = True
 		and ListsCompare(CompareOp -> Greater, afterQuantity -> quantityGroups -> amount, empty, 0.0) = True
+
+	// TODO - Support operators for groupings.
+	//	assign-output result:
+	//		afterQuantity < beforeQuantity and afterQuantity > 0
 
 func QuantityDecreasedToZero:
 	inputs:
@@ -100,6 +110,10 @@ func QuantityDecreasedToZero:
 		ListsCompare(CompareOp -> Greater, beforeQuantity -> quantityGroups -> amount, empty, 0.0) = True
 		and ListsCompare(CompareOp -> Equal, afterQuantity -> quantityGroups -> amount, empty, 0.0) = True
 
+	// TODO - Support operators for groupings.
+	//	assign-output result:
+	//		beforeQuantity > 0 and afterQuantity = 0
+
 func NoQuantityChange:
 	inputs:
 		quantityChangePrimitive QuantityChangePrimitive(1..*)
@@ -114,6 +128,10 @@ func NoQuantityChange:
 	assign-output result:
 		ListsCompare(CompareOp -> Equal, beforeQuantity -> quantityGroups -> amount, beforeQuantity -> quantityGroups -> amount, empty) = True
 
+	// TODO - Support operators for groupings.
+	//	assign-output result:
+	//		beforeQuantity = afterQuantity
+
 func Qualify_Allocation: <"The qualification of allocation event from the fact that (i) the only primitives are split and contract formation (ii) the number of split executions and the number of contract formations are equal.  Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.  Also note that it is expected that an allocation can result in a single contract.">
 	[qualification BusinessEvent]
 	inputs:
@@ -124,6 +142,7 @@ func Qualify_Allocation: <"The qualification of allocation event from the fact t
 		and businessEvent -> primitives -> split -> after count >= 2
 		and businessEvent -> primitives -> contractFormation exists
 		and businessEvent -> primitives -> split -> after -> state -> closedState -> state contains ClosedStateEnum -> Allocated
+
 
 func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	[qualification BusinessEvent]
@@ -146,13 +165,15 @@ func Qualify_CashAndSecurityTransfer: <"The qualification of a security settleme
 		transfers -> priceQuantity -> quantity -> unitOfAmount -> currency exists
 		and transfers -> priceQuantity -> quantity -> unitOfAmount -> financialUnit exists
 		and transfers count = 2
+		// new syntax required
+		// and transfers -> payerReceiver -> payer is unique
 
 func LatestTransfers:
 	inputs: transfers Transfer (1..*)
 	output: transfer Transfers (1..1)
 
 func TransfersForDate:
-	inputs: 
+	inputs:
 		transfers Transfer (1..*)
 		date date (1..1)
 	output:
@@ -169,6 +190,7 @@ func FilterSecurityTransfers:
 type Transfers:
 	transfers Transfer (1..*)
 
+// Simple Agency model for clearing
 func Qualify_ClearedTrade:
 	[qualification BusinessEvent]
 	inputs:
@@ -181,6 +203,7 @@ func Qualify_ClearedTrade:
 		and businessEvent -> primitives -> execution count = 2
 		and businessEvent -> primitives -> contractFormation count = 2
 		and businessEvent -> primitives -> execution -> after = businessEvent -> primitives -> contractFormation -> before
+		// TODO - Add this back in when we correctly map the ClearingOrganization
 		and businessEvent -> primitives -> contractFormation -> after -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
 
 func Qualify_ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
@@ -289,6 +312,7 @@ func Qualify_PartialNovation: <"The qualification of a novation event from the f
 		and businessEvent -> eventDate = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
+		//and originalContractParties <> newContractParties
 
 func Qualify_PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	[qualification BusinessEvent]
@@ -369,13 +393,13 @@ func Qualify_Execution: <"The qualification of an execution event from the fact 
 		businessEvent -> primitives count = 1 and businessEvent -> primitives -> execution exists
 
 func Qualify_ContractFormation: <"Qualifies a business event as a contract formation from the fact that the only component is a single Contract Formation Primitive.">
-	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent(1..1)
-	output: is_event boolean (1..1)
-	assign-output is_event:
-		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists
-		and businessEvent -> tradeWarehouseWorkflow is absent
+  	[qualification BusinessEvent]
+  	inputs:
+  		businessEvent BusinessEvent(1..1)
+  	output: is_event boolean (1..1)
+  	assign-output is_event:
+  		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists
+  		and businessEvent -> tradeWarehouseWorkflow is absent
 
 func Qualify_StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
 	[qualification BusinessEvent]
@@ -385,69 +409,75 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 
 	alias beforePriceQuantity:
 		businessEvent -> primitives -> quantityChange -> before -> trade -> tradableProduct -> priceQuantity
-	
+
 	alias beforeNoOfUnits:
 		if beforePriceQuantity exists
 		then NoOfUnits( beforePriceQuantity )
-	
+
 	alias afterPriceQuantity:
 		businessEvent -> primitives -> quantityChange -> after -> trade -> tradableProduct -> priceQuantity
-	
+
 	alias afterNoOfUnits:
 		if afterPriceQuantity exists
 		then NoOfUnits( afterPriceQuantity )
-	
-	alias beforeCurrencyAmount: 
+
+	alias beforeCurrencyAmount:
 		if beforePriceQuantity exists
 		then CurrencyAmount( beforePriceQuantity, empty )
-	
+
 	alias afterCurrencyAmount:
 		if afterPriceQuantity exists
 		then CurrencyAmount( afterPriceQuantity, empty )
-	
+
 	alias beforeCashPrices:
 		businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct -> priceQuantity-> price -> amount
-	
+
 	alias beforeCashPrice:
-		beforeCashPrices only-element 
+		beforeCashPrices only-element
 	alias afterCashPrices:
 		businessEvent -> primitives -> termsChange -> after -> trade -> tradableProduct -> priceQuantity-> price -> amount
-	
+
 	alias afterCashPrice:
 		afterCashPrices only-element
 	alias currencyAmountUnchanged:
 		if ( beforeCurrencyAmount and afterCurrencyAmount ) exists
 		then beforeCurrencyAmount = afterCurrencyAmount
 		else False
-	
+
 	alias noOfUnitsChanged:
 		if ( beforeNoOfUnits and afterNoOfUnits ) exists
 		then afterNoOfUnits <> beforeNoOfUnits
 		else False
-	
+
 	alias cashPriceChanged:
 		if ( beforeCashPrice and afterCashPrice ) exists
 		then beforeCashPrice <> afterCashPrice
 		else False
-	
+
 	alias adjustmentRatioMatches:
 		if ( beforeNoOfUnits and afterNoOfUnits and beforeCashPrice and afterCashPrice ) exists
 		then afterNoOfUnits / beforeNoOfUnits = beforeCashPrice / afterCashPrice
 		else False
-	
+
 	assign-output is_event:
+		// TODO: check product type is equity?
 		businessEvent -> primitives count = 2
 		and currencyAmountUnchanged = True
 		and noOfUnitsChanged = True
-		and cashPriceChanged = True 
+		and cashPriceChanged = True
 		and adjustmentRatioMatches = True
+
+/**
+ * Function specifications that are used in the Equity Reset process
+ */
 
 func ResolveEquityObservationIdentifiers: <"Defines which attributes on the EquityPayout should be used to locate and resolve the underlier's price, for example for the reset process.">
 	inputs:
 		payout EquityPayout (1..1)
 		date date (1..1)
 	output:
-		identifiers ObservationIdentifier (1..1) 
+		identifiers ObservationIdentifier (1..1)  // Will return multiple ObservationIdentifiers once code generators are fixed to support this use case
+
 	alias periodEndDate:
 		CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
 
@@ -490,6 +520,12 @@ func ResolveEquityValuationTime: <"Defines how to resolve the observation time f
 	alias timeType:
 	    equityValuation -> valuationTimeType
 
+	//condition: <"Optional choice between directly passing a time or a timeType, which has to be resolved into a time based on the determination method.">
+	//	if valuationTime exists then timeType is absent
+
+	//condition:
+	//	if timeType exists then valuationTime is absent
+
 	assign-output time:
 		if valuationTime exists then TimeZoneFromBusinessCenterTime(valuationTime)
 
@@ -529,7 +565,7 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
 	alias equityPerformance:
 	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
 
-	condition:
+    condition:
         tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
 
 	assign-output equityCashSettlementAmount -> cashflowAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
@@ -628,7 +664,7 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 		Create_PriceChangePrimitive(instruction -> tradeState, postSplitPrice)
 
 func Create_Execution: <"Creates the fully formed business event of executing a transaction based on execution instructions, representing the instantiation of a transaction between two parties on a financial product for a given price, quantity and settlement terms. The business event is constructed to contain a single execution primitive event, and no other primitive event.">
-	[creation BusinessEvent]
+    [creation BusinessEvent]
 	inputs:
 	  executionInstruction ExecutionInstruction (1..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, execution details, and settlement terms.">
 	output:
@@ -645,7 +681,7 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 	inputs:
 		product Product (1..1) <"Defines the financial product to be executed and contract formed.">
 		priceQuantity PriceQuantity (1..*) <"Specifies the price, quantity, and optionally the observable for use in a trade or other purposes.">
-		counterparty Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
+        counterparty Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
 		ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
 		parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
 		partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
@@ -683,7 +719,7 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 
 	assign-output executionPrimitive -> after -> trade -> tradeDate: <"Assign the tradeDate input to the execution object.">
 		tradeDate
-	
+
 	assign-output executionPrimitive -> after -> trade -> tradeIdentifier: <"Assign the identifier input to the execution object.">
 		tradeIdentifier
 
@@ -691,41 +727,41 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 		executionPrimitive -> before is absent
 
 func Create_ContractFormation: <"Creates the fully formed business event of affirming (confirming) a transaction based on contract formation instructions. The formed contract can reference a legal agreement, for instance a master agreement, by using the optional legalAgreement input.">
-	[creation BusinessEvent]
-	inputs:
+      	[creation BusinessEvent]
+      	inputs:
       		contractFormationInstruction ContractFormationInstruction (1..1) <"Specifies the Contract Formation instructions to be applied.">
       		contractFormationDate date (1..1) <"Specifies the event date of the contract formation.">
 
-	output:
-		contractFormationEvent BusinessEvent (1..1) <"Qualified contract formation business event.">
+      	output:
+      		contractFormationEvent BusinessEvent (1..1) <"Qualified contract formation business event.">
 
       	alias execution:
       		contractFormationInstruction -> execution
 
-	condition : <"Input event must be an execution must be on a contractual product.">
+      	condition : <"Input event must be an execution must be on a contractual product.">
       		execution exists and
       		execution -> trade -> tradableProduct -> product -> contractualProduct exists and
       		execution -> trade -> contractDetails is absent and
       		execution -> state -> positionState = PositionStatusEnum -> Executed
 
-	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided.">
+      	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided.">
       		if contractFormationInstruction -> legalAgreement exists then contractFormationInstruction -> legalAgreement -> contractualParty contains execution -> trade -> party
 
-	assign-output contractFormationEvent -> primitives -> contractFormation: <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
+      	assign-output contractFormationEvent -> primitives -> contractFormation: <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
       		Create_ContractFormationPrimitive(contractFormationInstruction -> execution -> trade, contractFormationInstruction -> legalAgreement)
 
-	assign-output contractFormationEvent -> eventEffect -> trade: <"The event effect of the business event points to the contract object, i.e. the after state of the contract formation primitive event.">
-		contractFormationEvent -> primitives -> contractFormation -> after
+      	assign-output contractFormationEvent -> eventEffect -> trade: <"The event effect of the business event points to the contract object, i.e. the after state of the contract formation primitive event.">
+      		contractFormationEvent -> primitives -> contractFormation -> after
 
-	assign-output contractFormationEvent -> eventEffect -> effectedTrade: <"The event effect of the business event points to the execution object, i.e. the before state of the contract formation primitive event.">
-		contractFormationEvent -> primitives -> contractFormation -> before
+      	assign-output contractFormationEvent -> eventEffect -> effectedTrade: <"The event effect of the business event points to the execution object, i.e. the before state of the contract formation primitive event.">
+      		contractFormationEvent -> primitives -> contractFormation -> before
 
       	assign-output contractFormationEvent -> eventDate: <"The event date of the contract formation points to the contractFormationDate.">
       		contractFormationDate
 
-	post-condition : <"Event effect must point to the new execution and contract, and exclude other effects.">
-		contractFormationEvent -> eventEffect -> productIdentifier is absent
-		and contractFormationEvent -> eventEffect -> transfer is absent
+      	post-condition : <"Event effect must point to the new execution and contract, and exclude other effects.">
+      		contractFormationEvent -> eventEffect -> productIdentifier is absent
+      		and contractFormationEvent -> eventEffect -> transfer is absent
 
 func Create_ContractFormationPrimitive: <"Function specification to create the primitive event that represents an executed trade for a contractual product that has been affirmed (or confirmed) by the two parties. The formed contract can reference a legal agreement for instance a master agreement, by using the optional legalAgreement input.">
 	[creation PrimitiveEvent]
@@ -785,12 +821,12 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
   	alias execution: <"Creates the execution primitive describing the exchange of the underlying product, either as a cash transfer or as the formation of a new contractual product between parties.">
  		Create_ExecutionPrimitive( underlier,
  			tradableProduct -> priceQuantity,
- 			tradableProduct -> counterparty,
+            tradableProduct -> counterparty,
  			tradableProduct -> ancillaryParty,
  			tradeState -> trade -> party,
  			tradeState -> trade -> partyRole,
- 			empty, 
- 			empty, 	
+ 			empty, /*settlementTerms*/
+ 			empty, /*executionType*/
  			tradeState -> trade -> tradeDate,
  			tradeState -> trade -> tradeIdentifier ) -> after
 
@@ -814,7 +850,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
 
   	assign-output exerciseEvent -> primitives -> contractFormation: <"Creates a new contract formation primitive delivering the underlying financial product to the exercising party if physical settlement was mandated by the contract.">
  		if exerciseTerms -> settlement -> physicalSettlementTerms exists then
- 			Create_ContractFormationPrimitive( execution -> trade, empty  )
+ 			Create_ContractFormationPrimitive( execution -> trade, empty  /*legalAgreement*/ )
 
   	assign-output exerciseEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the underlying financial product to the exercising party if cash settlement was mandated by the contract.">
  		if exerciseTerms -> settlement -> cashSettlementTerms exists then
@@ -1012,6 +1048,10 @@ func Create_SplitPrimitive: <"Defines how to create the Split Primitive accordin
 	assign-output primitive -> before:
 		singleTrade
 
+	// The below post-condition should be re-enabled once code generators have been fixed to support it.
+	// post-condition: <"Ensure the number of splits equals the number of breakdowns plus the single trade.">
+	//  	splitBreakdowns count + 1 = primitive -> after count
+
 	post-condition: <"Checks the closed state has been set.">
 	if closedState exists then
 		primitive -> after -> state -> closedState -> state contains closedState
@@ -1020,6 +1060,7 @@ func Create_SplitPrimitive: <"Defines how to create the Split Primitive accordin
 		primitive -> after -> state -> positionState contains positionStatus
 
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
+	// TODO Never referenced in CDM
 	inputs:
 		trade Trade (1..1) <"Execution to be settled.">
 		previousEvent WorkflowStep (1..1) <"Previous event for lineage purposes.">
@@ -1220,7 +1261,7 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 		    [clearerRole],
 		    empty,
             clearingInstruction -> alphaContract -> trade -> executionDetails,
-            tradeDate,
+			tradeDate,
             [identifier])
 	alias gammaExecutionPrimitives: NewExecutionPrimitiveEvent(gammaExecution)
 
@@ -1270,6 +1311,13 @@ func TradeStateFromContractState:
 	output:
 		tradeState TradeState (1..1)
 
+/*
+ * Function Specifications for Equity Swap product creation
+ *
+ * These should be implementation-specific, and exist in implementors' "private" extensions of the CDM rather than the public CDM
+ * They are positioned here for illustration of the equity workflow as part of the CDM, until such time when they could be deemed to be moved
+ *
+ */
 func NewEquitySwapProduct: <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">
 	inputs:
 		security Security (1..1) <"The underlying Equity asset for the swap.">
@@ -1296,7 +1344,6 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 			and payout -> cashflow is absent
 			and payout -> creditDefaultPayout is absent
 			and payout -> forwardPayout is absent
-			and payout -> fixedForwardPayout is absent
 			and payout -> optionPayout is absent
 
 	post-condition: <"Non-contractual product types must be absent.">

@@ -21,7 +21,7 @@ type MasterAgreement: <"A class for defining the agreement executed between the 
 	masterAgreementVersion string (0..1) <"The version of the master agreement.">
 		[metadata scheme]
 	masterAgreementDate date (0..1) <"The date on which the master agreement was signed.">
-		[synonym ISDA_Create_1_0 value "master_agreement_date" path "date_of_isda_master_agreement" maps 2] 
+		[synonym ISDA_Create_1_0 value "master_agreement_date" path "date_of_isda_master_agreement" maps 2] // TODO: remove "maps 2" once migration complete
 
 type MasterConfirmation: <"A class for defining the master confirmation agreement executed between the parties.">
 
@@ -32,17 +32,22 @@ type MasterConfirmation: <"A class for defining the master confirmation agreemen
 	masterConfirmationAnnexType MasterConfirmationAnnexTypeEnum (0..1) <"The type of master confirmation annex executed between the parties.">
 		[metadata scheme]
 
+//TODO - Deprecate: Still used by Equity Master Confirmation doc which hasn't been refactored.
 type EquitySwapMasterConfirmation2018 extends EquityMasterConfirmation: <"Specification for the General Terms and Relationship Supplement Elections as provided in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
 
 	typeOfSwapElection ReturnTypeEnum (1..1) <"Part 1 Section 4, 'Dividend Obligations', of the 2018 ISDA CDM Equity Confirmation, Para 4.2 'Dividend Returns': The Type Of Swap Election shall be 'Total Return', unless otherwise specified (as alternative 'Price Return') in the Transaction Supplement.">
 	pricingMethodElection PriceReturnTerms (1..1) <"Part 1 Section 5, 'Pricing', of the 2018 ISDA CDM Equity Confirmation, Para 5.1, 'Determining Prices': Each price in relation to a Pricing Date shall be determined pursuant to the specified Pricing Method. The relevant price specified under the column header 'Price' for a corresponding Pricing Date specified under the column header 'Pricing Date' shall be determined using the corresponding method specified under the column header 'Pricing Method'. Pricing Method for the final Equity Valuation Date shall be specified by the Final EVD Pricing Election and Pricing Method for any other Equity Valaution Date shall be 'Securities Close Pricing (Official)'">
+	// TODO: the initialPrice attribute should be optional in PriceReturnTerms, only the valuationPriceInterim and valuationPriceFinal methods should be specified at the Swap level
 	linearInterpolationElection InterpolationMethodEnum (1..1) <"Part 1 Section 3, 'Floating Obligations', of the 2018 ISDA CDM Equity Confirmation. Para 3.3, 'Linear Interpolation': If the initial Calculation Period is not equal to the Designated Maturity, then the Linear Interpolation Election shall be as specified in the Relationship Supplement, unless otherwise specified in the Transaction Supplement.">
 	settlementTerms SettlementTerms (1..1) <"Part 1 Section 8, 'Settlement', of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap. All Settlements are in Cash.">
 	equityCalculationPeriod CalculationPeriodDates (1..1) <"The parameters used to generate the 'Equity Valuation Dates' schedule, including the Effective Date and Termination Date for the Swap.">
 	equityCashSettlementDates PaymentDates (1..1) <"The parameters used to generate the payment date schedule, relative to the equityCalculationPeriod. Part 1 Section 12, 'Definitions', of the 2018 ISDA CDM Equity Confirmation. Para 73: 'Equity Cash Settlement Date' means each date falling one Settlement Cycle after an Equity Valuation Date; provided that if any such date is not a Settlement Currency Business Day, then such date shall be adjusted per Following Day Adjustment.">
 
+// TODO: Averaging Election, Dividend Payment Date Election, Break Funding Election
+// TODO - Deprecate: Still used by Equity Master Confirmation doc which hasn't been refactored.
 type EquityMasterConfirmation extends MasterConfirmationBase: <"Specification for General Terms and Elections of an Equity Master Confirmation that is applicable across multiple Equity confirmations and is referenced by each of these confirmations, an example of which being the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
 
+//TODO - Deprecate: Still used by Equity Master Confirmation doc which hasn't been refactored.
 type MasterConfirmationBase: <"Legal agreement specification for General Terms and Elections that are applicable across multiple confirmations and are referenced by these confirmations.">
 
 type AutomaticEarlyTermination: <"A class to specify the Automatic Early Termination provision applicable to a Master Agreement.">
@@ -101,6 +106,10 @@ type CreditSupportProviderElection: <"The party election of Credit Support Provi
 	condition CreditSupportProvider: <"A validation rule to ensure that a Credit Support Provider is specified when required.">
 		if creditSupportProviderTerms = CreditSupportProviderTermsEnum->Specified
 		then creditSupportProvider exists
+
+	// condition CreditSupportProvider: <"A validation rule to ensure that a Credit Support Provider is specified when required.">
+	// if creditSupportProviderTerms = CreditSupportProviderTermsEnum->Any
+	// then creditSupportProvider is absent
 
 type SpecifiedEntities: <"A provision that allows each party to specify its Specified Entities for certain Events of Default and Termination Events">
 
