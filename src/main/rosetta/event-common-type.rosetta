@@ -111,14 +111,15 @@ type ContractState: <"A class to specify a contract state instantiation with res
 	updatedTrade Trade (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
 
 type Instruction: <"Instruction to a function that will be used to perform a business event">
-  	// TODO - This should be updated to either use a cross reference to a func type or use an annotation.
-  	instructionFunction string (1..1) <"Specifies the function that will be called">
+   	instructionFunction string (1..1) <"Specifies the function that will be called">
 	allocation AllocationInstruction (0..1) <"Instruction to allocate">
 	clearing ClearingInstruction (0..1) <"Instruction to clear">
 	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
   	execution ExecutionInstruction (0..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, and a trade date.">
   	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
-  	condition OneOfInstruction: required choice allocation, clearing, execution, exercise
+  	reset ResetInstruction (0..1) <"Specifies inputs needed to process a Reset business event.">
+    transfer TransferInstruction (0..1) <"Specifies inputs needed to process a Transfer business event.">
+    condition OneOfInstruction: required choice allocation, clearing, execution, exercise, reset, transfer
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -130,7 +131,7 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
 		[synonym Workflow_Event value "functionCall"]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
-	eventDate date (1..1) <"Specifies the date on which the event is taking place. This is the equivalent of the trade date in the case of an execution.">
+	eventDate date (1..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
 		[synonym Workflow_Event value "eventDate"]
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 		[synonym Workflow_Event value "effectiveDate"]
@@ -174,6 +175,15 @@ type ExerciseInstruction: <"Specifies the information required to communicate th
 	exerciseDate AdjustableOrAdjustedDate (0..1) <"Specifies the date on which an option contained within the financial product would be exercised. The date may be omitted if the contractual product allows for only a single date of exercise (European exercise).">
 	exerciseTime BusinessCenterTime (0..1) <"Specifies the time at which an option contained within the financial product woulld be exercised. The time may be omitted if the contractual product allows for only a single time of exercise (European exercise). ">
 
+type ResetInstruction: <"Defines the information needed to create a Reset Business Event. ">
+ 	payout Payout (1..1)
+ 		[metadata reference]
+
+ type TransferInstruction: <"Defines the payout on which to create a Transfer along with all necessary resets.">
+ 	payout Payout (1..1)
+ 		[metadata reference]
+ 	resets Reset (1..*)
+
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
 	[rootType]
@@ -186,15 +196,15 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	transferHistory Transfer (0..*)
 	    [synonym Workflow_Event value "transferHistory"]
 
-type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definitioin details with observations to compute the reset value.">
-	resetValue number (1..1) <"Specifies the reset or fixing value. The fixing value could ">
+type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
+	resetValue Price (1..1) <"Specifies the reset or fixing value. The fixing value could be a cash price, interest rate, or other value.">
 	    [synonym Workflow_Event value "resetValue"]
 	resetDate date (1..1) <"Specifies the date on which the reset occurred.">
 	    [synonym Workflow_Event value "resetDate"]
 	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
 		[metadata reference]
-	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value.">
-	
+	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value and the method is not defined in a payout.">
+
 	condition: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
 		if observations count > 1 then aggregationMethodology exists
 
@@ -478,7 +488,7 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
         [metadata reference]
         [synonym Workflow_Event value "contractReference" meta "href"]
         [synonym Workflow_Event value "executionReference" meta "href"]
-	
+
 	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a globalKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 		[synonym Workflow_Event value "eventReference" meta "href"]
@@ -525,7 +535,7 @@ type SecurityTransferComponent extends TransferBase:
 		[synonym Workflow_Event value "security"]
 	quantity number (1..1)
 		[synonym Workflow_Event value "quantity"]
-	assetTransferType AssetTransferTypeEnum (0..1) 
+	assetTransferType AssetTransferTypeEnum (0..1)
 		[synonym Workflow_Event value "assetTransferType"]
 	breakdown SecurityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
 		[synonym Workflow_Event value "breakdown"]
@@ -641,10 +651,6 @@ type SplitPrimitive: <"Defines splitting of a single trade into one or more trad
 
 	condition: <"Ensure the productremains unchanged.">
 		after -> trade -> tradableProduct -> product = before -> trade -> tradableProduct -> product
-
-	// TODO add syntax to handle comparison between list and single item.  https://github.com/REGnosys/rosetta-dsl/issues/167
-    //condition: <"The price should be unchanged.">
-    //    after -> originalTrade -> trade -> tradableProduct -> priceQuantity -> price = before -> trade -> tradableProduct -> priceQuantity -> price
 
 	condition: <"Ensure the quantities of each split trade totals that of the single trade.">
 		Sum( FilterOpenTradeStates(after) -> tradeStates ->trade -> tradableProduct -> priceQuantity -> quantity -> amount) = before -> trade -> tradableProduct -> priceQuantity -> quantity -> amount
