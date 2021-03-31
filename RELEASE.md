@@ -1,40 +1,43 @@
-# *Model Change - Added Support for Commodity Swaps*
+# *Model Change - Added Mapping for Commodity Derivative Products*
 
 _What is being released?_
 
-This release introduces support for basic Commodity Swaps, featuring new payout data types and an expanded data structure to support the definition of the underlying commodity reference price.  Specific changes listed below:
+This release introduces mapping for Commodity derivative products.  A set of critical attributes has been succesully mapped for Commodity Swaps and a basic framework has been completed for Commodity Options.  In addition, one new product qualification and three related ingestion examples have been added in a new Products category called Commodity.  Specific changes are listed below:
 
-New and revised `Payout` data types
-- `ObservationPayout`: Added to represent common attributes for `EquityPayout` and `CommodityPayout'
-- `CommodityPayout`: Added to support the floating leg of a Commodity Swap with data structures that can represent the unique needs of Commodity Swaps
-- `FixedForwardPayout`: Added to support the fixed leg of a Commodity Swap and may be re-used in other product contexts
-- `EquityPayout` : Modified as an extension of `ObservationPayout` and removed the attributes that are now represented in `ObservationPayout`
+New synonyms to support Commodity derivative products in existing data types:
+- `Price`
+- `ProductIdentifier`
+- `Quantity`
+- `Observable`
+- `OptionPayout`
+- `Payout`
+- `Product`
+- `TradableProduct`
+- `Frequency`
+- `UnitType`
+- `PeriodEnum`
+- `QuotationSideEnum`
+- `CapacityUnitEnum`
+- `BusinessCenterEnum`
 
-New data types to support the `CommodityPayout`data type
-- `CommodityPriceReturnTerms`: Defines parameters in which the commodity price is assessed
-- `RollFeature`: Identifies a way in which the futures contracts referenced will roll between periods
-- `PricingDates`: Specifies dates or parametric rules for the dates on which the price will be determined
-- `ParametricDates`: Defines rules for the dates on which the price will be determined
-- `Lag`: The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period
+New synonyms for new data types that support Commodity derivative products:
+-`FixedForwardPayout`
+- `Commodity`
 
-Modified and new data types to support Commodity Reference Prices as underliers
-- `Commodity` : Expanded with additional attributes to define the Commodity Reference Prices
-- `CommodityProductDefinition` : Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists
-- `DeliveryDateParameters`: Specifies a date or the parameters for identifying the relevant contract date when the commodity reference price is a futures contract
-- `CommodityReferenceFramework`: Specifies the type of commodity
-- `PriceSource`: Specifies a publication that provides the commodity price, including, where applicable, the details of where in the publication the price is published
-	
-New functions to support Commodity Swaps
-- `Qualify_Commodity_Swap_FixedFloat` : Identifies a product as a Commodity FixedFloat swap
-- `Qualify_Commodity_Swap_Basis` : Identifies a product as a Commodity Basis swap (FloatFloat)
+Changes to Product Qualifications:
+- Added `Qualify_CommodityOption`
+- Added description to `Qualify_Commodity_Swap_FixedFloat`
+- Added description to `Qualify_Commodity_Swap_Basis`
 
-Changes in enums to support Commodity Swaps
-- Added `RollSourceCalendarEnum` : Identifies a date source calendar from which the pricing dates and the roll to the next contract will be based
-- Added `DayDistributionEnum` : Denotes the method by which the pricing days are distributed across the pricing period
-- Combined the values from `CommodityBusiness` with the values in `BusinessCenterEnum`
-- Modified `PeriodExtendedEnum` by adding a new enumerated value, C (CalculationPeriod), which is used when the defined the period corresponds to the calculation period, for example, it is used in the Commodity Markets to indicate that a reference contract is the one that corresponds to the period of the calculation period
+Added new ingestion examples:
+- `com-ex1-gas-swap-daily-delivery-prices-last`
+- `com-ex5-gas-v-electricity-spark-spread`
+- `com-ex08-oil-call-option-strip'
+
+Completed the enumerated list for the following:
+- `CommodityInformationPublisherEnum`
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser, search for any of the changes specified above.  For example, begin with `Payout` and then drill down into `ObservationPayout`,  `CommodityPayout`, or `FixedForwardPayout`.  
+In the CDM Portal, select the Textual Browser, search for any of the changes specified above.  Also, select the Ingestion Feature, Products->Commodity, and select any of the new examples to see the results of mapping from FpML to a CDM Compliant format, including the applicable Product Qualification. 
 
