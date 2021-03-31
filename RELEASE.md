@@ -1,4 +1,4 @@
-# *Model Change - Added Mapping for Commodity Derivative Products*
+# *Product Model - Commodity: Added Mapping for Commodity Derivative Products*
 
 _What is being released?_
 
