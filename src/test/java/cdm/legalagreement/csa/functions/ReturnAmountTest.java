@@ -1,5 +1,6 @@
 package cdm.legalagreement.csa.functions;
 
+import cdm.base.math.UnitType;
 import cdm.legalagreement.csa.CollateralRounding;
 import cdm.legalagreement.csa.MarginApproachEnum;
 import cdm.legalagreement.csa.PostedCreditSupportItem;
@@ -272,11 +273,11 @@ class ReturnAmountTest extends AbstractFunctionTest {
 	private Money getMoney(double amount) {
 		return Money.builder()
 				.setAmount(BigDecimal.valueOf(amount))
-				.setCurrency(FieldWithMetaString.builder()
-						.setValue(BASE_CURRENCY_USD)
-						.setMeta(MetaFields.builder()
-								.setScheme(CURRENCY_SCHEME))
-						.build())
+				.setUnitOfAmount(UnitType.builder()
+						.setCurrency(FieldWithMetaString.builder()
+								.setValue(BASE_CURRENCY_USD)
+								.setMeta(MetaFields.builder()
+										.setScheme(CURRENCY_SCHEME))))
 				.build();
 	}
 }
