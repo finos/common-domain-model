@@ -42,7 +42,7 @@ class ElectiveAmountElectionMappingHelper {
 				(value) -> moneyBuilder.setAmount(new BigDecimal(value)), mappings, path);
 
 		setValueAndOptionallyUpdateMappings(synonymPath.addElement(party + "_currency"),
-				(value) -> setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, moneyBuilder::setCurrency, value), mappings, path);
+				(value) -> setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, cur -> moneyBuilder.getOrCreateUnitOfAmount().setCurrency(cur), value), mappings, path);
 
 		if (moneyBuilder.hasData()) {
 			electiveAmountElectionBuilder.setAmount(moneyBuilder);

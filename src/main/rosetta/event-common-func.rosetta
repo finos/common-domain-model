@@ -499,7 +499,7 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 	assign-output cashflow -> cashflowAmount -> amount:
 		performance
 
-	assign-output cashflow -> cashflowAmount -> currency:
+	assign-output cashflow -> cashflowAmount -> unitOfAmount -> currency:
 		interestRatePayout -> payoutQuantity -> resolvedQuantity -> unitOfAmount -> currency
 
 	assign-output cashflow -> payerReceiver -> payer:
@@ -609,7 +609,7 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
 	assign-output equityCashSettlementAmount -> cashflowAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
 		Abs(equityPerformance)
 
-	assign-output equityCashSettlementAmount -> cashflowAmount -> currency: <"Does not handle the cross currency case, currently.">
+	assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency: <"Does not handle the cross currency case, currently.">
         ResolveEquityInitialPrice( tradeState -> trade -> tradableProduct -> priceQuantity ) -> unitOfAmount -> currency
 
 	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
@@ -1021,7 +1021,7 @@ func Create_CashTransfer: <"Defines how Transfer that represents an exchange of 
 		cashflow -> cashflowAmount -> amount
 
 	assign-output transfer -> priceQuantity -> quantity -> unitOfAmount -> currency:
-		cashflow -> cashflowAmount -> currency
+		cashflow -> cashflowAmount -> unitOfAmount-> currency
 
 	assign-output transfer -> payerReceiver -> payerPartyReference:
 		if cashflow -> payerReceiver -> payer exists
