@@ -16,23 +16,105 @@ import cdm.product.common.schedule.*
 import cdm.synonyms.config.*
 
 isProduct root EconomicTerms;
-func Qualify_CreditDefaultSwap: <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
+
+func Qualify_CreditDefaultSwap_SingleName: <"Qualifies a product as a Credit Default Swap which provides protection relative to defaults of a reference entity that could be a corporate, municipal, sovererign, or special purpose vehicle issuer of publically traded debt.  The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is corporate, municipal, or sovererign issuer of debt, 3) the reference obligation is not a loan, and 4) there are no opton features.">
 	[qualification Product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
+	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
 	assign-output is_product:
+		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
 		economicTerms -> payout -> creditDefaultPayout exists
 		and (economicTerms -> payout -> interestRatePayout
 		or economicTerms -> payout -> cashflow) exists
 		and economicTerms -> payout -> equityPayout is absent
 		and economicTerms -> payout -> optionPayout is absent
-
+		and economicTerms -> payout -> commodityPayout is absent
+		and economicTerms -> payout -> fixedForwardPayout is absent
+		and economicTerms -> payout -> forwardPayout is absent
+		and economicTerms -> payout -> securityPayout is absent
+		//qualifies the Credit Default Swap as having a single name underlyer that is not a loan
+		and economicTerms -> payout -> creditDefaultPayout-> generalTerms ->referenceInformation exists
+		and economicTerms -> payout -> creditDefaultPayout-> generalTerms ->referenceInformation ->referenceObligation->loan is absent
+func Qualify_CreditDefaultSwap_Index: <"Qualifies a product as a Credit Default Swap which provides protection relative to the performance of an index. The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is an index, and 3) there are no opton features.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
+	assign-output is_product:
+		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
+		economicTerms -> payout -> creditDefaultPayout exists
+		and (economicTerms -> payout -> interestRatePayout
+		or economicTerms -> payout -> cashflow) exists
+		and economicTerms -> payout -> equityPayout is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> commodityPayout is absent
+		and economicTerms -> payout -> fixedForwardPayout is absent
+		and economicTerms -> payout -> forwardPayout is absent
+		and economicTerms -> payout -> securityPayout is absent
+		//qualifies the Credit Default Swap as having a single name underlyer that is not a loan
+		and economicTerms -> payout -> creditDefaultPayout-> generalTerms ->indexReferenceInformation exists
+		and economicTerms -> payout -> creditDefaultPayout-> generalTerms ->indexReferenceInformation->tranche is absent
+func Qualify_CreditDefaultSwap_IndexTranche: <"Qualifies a product as a Credit Default Swap which provides protection relative to the performance of an index. The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is an index, and 3) there are no opton features.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
+	assign-output is_product:
+		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
+		economicTerms -> payout -> creditDefaultPayout exists
+		and (economicTerms -> payout -> interestRatePayout
+		or economicTerms -> payout -> cashflow) exists
+		and economicTerms -> payout -> equityPayout is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> commodityPayout is absent
+		and economicTerms -> payout -> fixedForwardPayout is absent
+		and economicTerms -> payout -> forwardPayout is absent
+		and economicTerms -> payout -> securityPayout is absent
+		//qualifies the Credit Default Swap as having a single name underlyer that is not a loan
+		and economicTerms -> payout -> creditDefaultPayout-> generalTerms ->indexReferenceInformation exists
+		and economicTerms -> payout -> creditDefaultPayout-> generalTerms ->indexReferenceInformation->tranche exists
+func Qualify_CreditDefaultSwap_Loan: <"Qualifies a product as a Credit Default Swap which provides protection relative to defaults of a reference entity that is a loan. The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is a loan, and there are no opton features.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
+	assign-output is_product:
+		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
+		economicTerms -> payout -> creditDefaultPayout exists
+		and (economicTerms -> payout -> interestRatePayout
+		or economicTerms -> payout -> cashflow) exists
+		and economicTerms -> payout -> equityPayout is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> commodityPayout is absent
+		and economicTerms -> payout -> fixedForwardPayout is absent
+		and economicTerms -> payout -> forwardPayout is absent
+		and economicTerms -> payout -> securityPayout is absent
+		//qualifies the Credit Default Swap as having a single name underlyer that is not a loan
+		and economicTerms -> payout -> creditDefaultPayout-> generalTerms ->referenceInformation exists
+		and economicTerms -> payout -> creditDefaultPayout-> generalTerms ->referenceInformation ->referenceObligation->loan exists
+		
+func Qualify_CreditDefaultSwap_Basket: <"Qualifies a product as a Credit Default Swap which provides protection relative to defaults of a reference entity that is a loan. The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is a loan, and there are no opton features.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
+	assign-output is_product:
+		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
+		economicTerms -> payout -> creditDefaultPayout exists
+		and (economicTerms -> payout -> interestRatePayout
+		or economicTerms -> payout -> cashflow) exists
+		and economicTerms -> payout -> equityPayout is absent
+		and economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> commodityPayout is absent
+		and economicTerms -> payout -> fixedForwardPayout is absent
+		and economicTerms -> payout -> forwardPayout is absent
+		and economicTerms -> payout -> securityPayout is absent
+		//qualifies the Credit Default Swap as having a single name underlyer that is not a loan
+		and economicTerms -> payout -> creditDefaultPayout-> generalTerms ->basketReferenceInformation exists
+		
 func Qualify_CreditDefaultSwaption: <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 	assign-output is_product:
 		economicTerms -> payout -> optionPayout exists
+		and economicTerms -> payout -> interestRatePayout is absent
+		and economicTerms -> payout -> equityPayout is absent
+		and economicTerms -> payout -> commodityPayout is absent
+		and economicTerms -> payout -> fixedForwardPayout is absent
+		and economicTerms -> payout -> forwardPayout is absent
+		and economicTerms -> payout -> securityPayout is absent
 		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
 		and (economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout
 		or economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> cashflow) exists
