@@ -35,7 +35,6 @@ type PortfolioState: <" State-full representation of a Portfolio that describes 
 type AggregationParameters: <" Parameters to be used to filter events that are relevant to a given portfolio in order to calculate the state of this portfolio. The attributes correspond to all the possible aggregation criteria that can be used and these criteria can be combined. All the attributes are optional.">
 	dateTime zonedDateTime (1..1) <"To aggregate as of a particular date">
 	totalPosition boolean (0..1) <"Specifies whether to calculate total position to given date, or only daily position for the given date.">
-	// Just a subset of possible aggregation parameters, for illustration to initiate the build-up of that class
 	positionStatus PositionStatusEnum (0..1) <"To aggregate based on position status (EXECUTED, SETTLED etc)">
 	party Party (0..*) <"To aggregate based on a selection of party(ies) / legal entity(ies).">
 		[metadata reference]
@@ -43,19 +42,11 @@ type AggregationParameters: <" Parameters to be used to filter events that are r
 	productQualifier productType (0..*) <"To aggregate based on a selection of product type(s).">
 	tradeReference Trade (0..*)
 	    [metadata reference]
-	//contractReference Contract (0..*) <"To aggregate based only on given Contract(s).">
-	//	[metadata reference]
-	//executionReference Execution (0..*) <"To aggregate based only on given Execution(s).">
-	//	[metadata reference]
 
-// TO DO: add more possible aggregation attributes, and more complex filtering/aggregation rules such as exclusion instead of just inclusion, etc.
-// TBD: include the time dimension here to filter relevant events in a given period?
 type Portfolio: <" A Portfolio represents an aggregation of multiple Positions, by describing the parameters that this Portfolio should be aggregated based on. The resulting PortfolioState is calculated using these aggregation parameters as inputs, by aggregating all the Events that are relevant to this Portfolio. The concept of Portfolio works at all levels in the model: from the highest for a given LegalEntity for instance, to the lowest to account for security substitutions in a secutity financing transaction. As such, Portfolio can be used either above or below the Contract level.">
 
 	aggregationParameters AggregationParameters (1..1) <"Describes the portfolio by describing how to aggregate all its relevant Events.">
 	portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">
-
-// TO ADD: PortfolioState calculation based on EventEffect
 
 type AveragingObservation: <"Defines parameters for use in cases when a valuation or other term is based on an average of market observations.">
    calculationMethod AveragingCalculationMethodEnum (1..1) <"Specifies enumerations for the type of averaging calculation.">

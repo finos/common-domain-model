@@ -40,7 +40,7 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
         for (RelatedAgreement.RelatedAgreementBuilder relatedAgreementBuilder : relatedAgreementBuilders) {
             setValueAndOptionallyUpdateMappings(synonymPath.addElement("isda_master_agreement_form"),
                     (vintage) -> {
-                        relatedAgreementBuilder.getOrCreateLegalAgreement().getOrCreateAgreementType().setVintage(vintage);
+                        relatedAgreementBuilder.getOrCreateLegalAgreement().getOrCreateAgreementType().setVintage(Integer.valueOf(vintage));
                         return true;
                     },
                     getMappings(), getModelPath());

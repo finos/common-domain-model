@@ -87,7 +87,9 @@ type UnitContractValuationModel: <" Unit contract model for security valuation, 
 type Price extends MeasureBase: <"Specifies a price to be used for trade amounts and other purposes.">
 
 	priceType PriceTypeEnum (1..1) <"Provides a value for a type of price in order to explain how to interpret the amount and use it in calculations.">
-	perUnitOfAmount UnitType (0..1) <"Provides an optional attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
+	    [synonym Workflow_Event value "priceType"]
+	perUnitOfAmount UnitType (1..1) <"Provides an attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
+        [synonym Workflow_Event value "perUnitOfAmount"]
 
 	condition PositiveFXRate: <"Requires that per FpML rules, the FX rate must be a positive value.">
 		if priceType = PriceTypeEnum -> ExchangeRate
@@ -153,25 +155,6 @@ type Money extends Quantity: <"Defines a monetary amount in a specified currency
 	condition:
 	unitOfAmount->currency exists
 
-type FixedInterestRate: <"Data to specify a fixed interest rate price.">
-
-	rate number (1..1)
-
-type FloatingInterestRate: <"Data to specify a floating interest rate price.">
-
-	initialRate number (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
-	spread number (0..1)
-	capRate number (0..1)
-	floorRate number (0..1)
-	multiplier number (0..1)
-
-	condition AtLeastOneOf:
-		(initialRate or spread or capRate or floorRate) exists
-
-	condition FloatingRateMultiplierSchedule: <"FpML specifies that the floatingRateMultiplierSchedule should only be included if the multiplier is not equal to 1 for the term of the stream.">
-		if multiplier exists
-		then multiplier <> 1.0
-
 type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
 
 	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">
@@ -205,8 +188,6 @@ type QuotedCurrencyPair: <"A class that describes the composition of a rate that
 		[metadata scheme]
 	quoteBasis QuoteBasisEnum (1..1) <"The method by which the exchange rate is quoted.">
 
-
-// TODO: Duplicates large part of ExchangeRate, consider removing redundancy
 type CrossRate extends QuotedCurrencyPair: <"A class that is used for including the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
 
 	rate number (1..1) <"The exchange rate used to cross between the traded currencies.">
@@ -221,7 +202,7 @@ type Curve:
 
 	interestRateCurve InterestRateCurve (0..1)
 		[synonym Workflow_Event value "interestRateCurve"]
-	commodityCurve CommodityReferencePriceEnum (0..1) // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
+	commodityCurve CommodityReferencePriceEnum (0..1)
 		[metadata scheme]
 		[synonym Workflow_Event value "commodityCurve" meta "commodityReferencePriceScheme"]
 
@@ -240,12 +221,6 @@ type FixedRateSpecification: <"Type defining the specification for a fixed rate.
 
 	rateSchedule RateSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 
-/*
- * QUESTION TO CDM GROUP
- * TODO - FpML sample credit trades don't include examples that specify those attributes
- * Would be great if we could confirm the actual usage though sample transactions
- * See Trello card https://trello.com/c/VLtPwoek
- */
 type TransactedPrice: <" A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
 
 	marketFixedRate number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">
@@ -356,7 +331,7 @@ type RateObservation: <"A class defining parameters associated with an individua
 type CreditNotation: <"A class to specify the credit notation as the combination of agency, notation, scale and debt type qualifications.">
 
 	agency CreditRatingAgencyEnum (1..1) <"The credit agency to which the other variables (notation, scale, debt type) refer to.">
-		// [metadata scheme]
+
 	notation string (1..1) <"The credit rating notation. As it varies among credit rating agencies, FpML doesn't specify a default scheme.">
 		[metadata scheme]
 	scale string (0..1) <"The credit rating scale, with a typical distinction between short term, long term. FpML doesn't specify a default scheme, which is hence not specified as an enumeration as part of the CDM.">
@@ -375,8 +350,7 @@ type CreditNotations: <"The credit rating notation higher level construct, which
 type CreditRatingDebt: <"The credit rating debt type(s) associated with the credit rating notation and scale. When several debt types are specified, they must be qualified through an 'any' or 'all'.">
 
 	debtType string (0..1) <"This attribute is to be specified when only one debt type is specified. FpML doesn't specify values in relation to the associated scheme, which is hence not specified as an enumeration as part of the CDM.">
-	// potential values: Long Term, Short Term, High Yield, Deposits.  Make cardinality (0..*) and remove multiple debt types
-		[metadata scheme]
+			[metadata scheme]
 	debtTypes MultipleDebtTypes (0..1) <"This attribute provides the ability to specify several debt types, alongside an 'any' or 'all' or all condition. As an example, Baa1 rating is required for any long term debt and deposit.">
 
 	condition: one-of
