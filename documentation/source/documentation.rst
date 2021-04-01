@@ -1846,17 +1846,17 @@ Some of those calculations are presented below:
 
 	inputs:
 		postedCreditSupportItems PostedCreditSupportItem (0..*)
-		priorDeliveryAmountAdjustment Money (1..1) <"The adjustment value to include any prior Delivery Amount (IM), the transfer of which has not yet been completed and for which the relevant Regular Settlement Day falls on or prior to such Calculation Date (IM)).  See Paragraph 3 (a) (ii).">
-		priorReturnAmountAdjustment Money (1..1) <"The adjustment value to exclude any prior Return Amount (IM), the transfer of which has not yet been completed and for which the relevant Regular Settlement Day falls on or prior to such Calculation Date (IM)).  See Paragraph 3 (a) (ii).">
-		disputedTransferredPostedCreditSupportAmount Money (1..1) <"Paragraph 5. If a party (a 'Disputing Party') disputes the Value of any Transfer of Eligible Credit Support.">
-		marginAmount Money (1..1) <"Paragraph 3 (c) (i) Margin Amount (IM) means, for any Calculation Date (IM) and a posting obligation of a Pledgor under a Regime, the Base Currency Equivalent of an amount equal to the sum of the initial margin amounts in respect of the Covered Transactions (IM) determined using the Method specified as applicable to such Regime in Paragraph 13.">
-		threshold Money (1..1) <"Threshold (IM) means, with respect to a party, the Base Currency Equivalent of the amount specified as such for that party in Paragraph 13 and, if no amount is specified, zero.">
-		marginApproach MarginApproachEnum (1..1) <"Margin Approach has the meaning specified in Paragraph 3 (c) (iii).">
-		marginAmountIA Money (0..1)  <"Paragraph 3 (c) (ii) Margin Amount (IA) means, for any Calculation Date (IM) and a posting obligation of a Pledgor, the Base Currency Equivalent of an amount equal to the sum of the Independent Amounts (as defined in any Other CSA) applicable to the Pledgor and any other amounts applicable to the Pledgor (other than any amounts in respect of Margin Amount (IM) or Exposure), however described, intended by the parties to operate as an Independent Amount, if any, after taking into account any relevant Threshold applicable to the Pledgor and any other relevant amounts applicable to the Pledgor, however described, intended by the parties to operate as a Threshold but prior to giving effect to any other applicable deduction, discharge or netting of such amounts, under or in relation to this Agreement, as determined and reported by the party responsible for calculating such amounts.  For the avoidance of doubt, in order to determine the amounts 'applicable to the Pledgor' for the purposes hereof, the parties will take into account the effect of any conditions precedent applicable to such amounts.">
-		minimumTransferAmount Money (1..1) <"Minimum Transfer Amount (IM) means, with respect to a party, the Base Currency Equivalent of the amount specified as such for that party in Paragraph 13 and, if no amount is specified, zero.">
-		rounding CollateralRounding (1..1) <"Rounding methodology applicable to the Delivery Amount and the Return Amount in terms of nearest integral multiple of Base Currency units. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(C): Rounding. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(C): Rounding.">
-		disputedDeliveryAmount Money (1..1) <"Paragraph 5. If a party (a 'Disputing Party') disputes the the Calculation Agent (IM)’s calculation of a Delivery Amount (IM).">
-		baseCurrency string (1..1) <"Base Currency means the currency specified as such in Paragraph 13.">
+		priorDeliveryAmountAdjustment Money (1..1)
+		priorReturnAmountAdjustment Money (1..1)
+		disputedTransferredPostedCreditSupportAmount Money (1..1)
+		marginAmount Money (1..1)
+		threshold Money (1..1)
+		marginApproach MarginApproachEnum (1..1)
+		marginAmountIA Money (0..1)
+		minimumTransferAmount Money (1..1)
+		rounding CollateralRounding (1..1)
+		disputedDeliveryAmount Money (1..1)
+		baseCurrency string (1..1)
 
 	output:
 		result Money (1..1)
@@ -1884,7 +1884,6 @@ Some of those calculations are presented below:
 
 	assign-output result -> unitOfAmount -> currency:
 	    baseCurrency
-
 
 .. code-block:: Haskell
  func ReturnAmount:
