@@ -1,10 +1,19 @@
-# *Model Change - Removed New Inline Comments*
+# *Legal Agreement Model - Add ISDA Create Samples*
 
 _What is being released?_
 
-This release removes inline comments (e.g. ones preceeded by TODO) that were introduced after the last clean up of inline comments.  There were eleven rows in the logical model from which these comments were removed.
+This release adds additional ISDA Create sample json files for the legal agreement document types listed below, including samples from their both Production and Sandbox environments.
+
+- 2016 IM CSA (NY Law)
+- 2019 Clearstream SA (Security-provider) (Lux Law)
+- 2019 Clearstream SA (Security-taker) (Lux Law)
+- 2019 ISDA Bank Custodian SA (Eng Law)
+- 2019 ISDA Bank Custodian SA (NY Law)
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser, search for any instances of //.  The only remaining ones should be as part of a URL or as a guidance comment in a function or synonyum.  Also there should not be any instances of /*.
+In the CDM Portal, select Ingestion, and run samples from the following folders:
+
+- isda-create/test-pack/production/
+- isda-create/test-pack/sandbox/
 
