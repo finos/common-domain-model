@@ -211,14 +211,15 @@ func DeliveryAmount: <"2018 Credit Support Annex For Initial Margin, Paragraph 3
 		Max(deliveryAmount - disputedDeliveryAmount -> amount, 0.0)
 
 	condition:
-		(baseCurrency = minimumTransferAmount -> unitOfAmount->currency		and (baseCurrency = disputedDeliveryAmount -> unitOfAmount->currency))
+		(baseCurrency = minimumTransferAmount -> unitOfAmount -> currency
+		and (baseCurrency = disputedDeliveryAmount -> unitOfAmount -> currency))
 
 	assign-output result -> amount:
 		if undisputedDeliveryAmount >= minimumTransferAmount -> amount
 		then RoundToNearest(undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up)
 		else 0.0
 
-	assign-output result -> unitOfAmount->currency:
-	baseCurrency
+	assign-output result -> unitOfAmount -> currency:
+	    baseCurrency
 
 		
