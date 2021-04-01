@@ -1,7 +1,7 @@
 # *Model Change - Modified Money data type to use the new standard Quantity data type*
 _What is being released?_
 
-This release modifies the `Money` type by making it an extension of `Quantity`, removing the existing attributes in 'Money', and adding a condition that requires the `unitOfAmount` to be a `currency`.
+This release modifies the `Money` type by making it an extension of `Quantity`, removing the existing attributes in `Money`, and adding a condition that requires the `unitOfAmount` to be a `currency`.
 
 The following functions required minor modifications to point-to/use the new location of currency in the 'Money' data type:
 - `Create_Transfer`
