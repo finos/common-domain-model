@@ -39,7 +39,7 @@ type CreditDefaultPayout: <" The credit default payout specification provides th
 		if protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> seller exists
 		then protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> seller = generalTerms -> buyerSeller -> seller
 
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
+	condition CreditDefaultPayoutChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice cashSettlementTerms, physicalSettlementTerms
 
 
@@ -56,7 +56,7 @@ type GeneralTerms: <" A class specifying a set of non-monetary terms for the Cre
 	modifiedEquityDelivery boolean (0..1) <"Value of this attribute set to 'true' indicates that modified equity delivery is applicable.">
 		[synonym Workflow_Event value "modifiedEquityDelivery"]
 
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
+	condition GeneralTermsChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice referenceInformation, indexReferenceInformation, basketReferenceInformation
 
 	condition FpML_cd_41: <"FpML validation rule cd-41 - If indexReferenceInformation/tranche does not exist, then modifiedEquityDelivery must not exist.">
@@ -94,7 +94,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 	fixedAmount calculation (0..1) <"Fixed Amount Calculation">
 	floatingAmount calculation (0..1) <"Floating Amount Calculation">
 
-	condition Choice: <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">
+	condition InterestRatePayoutChoice: <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">
 		optional choice paymentDates, paymentDate
 
 	condition FutureValueNotional: <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
@@ -200,7 +200,7 @@ type BasketReferenceInformation: <"CDS Basket Reference Information.">
 	mthToDefault int (0..1) <"M th reference obligation to default to allow representation of N th to M th defaults.">
 	tranche Tranche (0..1) <"This element contains CDS tranche terms.">
 
-	condition Choice: <"Choice rule to represent an FpML choice construct. This choice rule is complemented by the data rule BasketReferenceInformation_nthToDefault to represent the FpML construct where there is a choice between a tranche element and a [required nthToDefault, optional mthToDefault] branch.">
+	condition BasketReferenceInformationChoice: <"Choice rule to represent an FpML choice construct. This choice rule is complemented by the data rule BasketReferenceInformation_nthToDefault to represent the FpML construct where there is a choice between a tranche element and a [required nthToDefault, optional mthToDefault] branch.">
 		required choice nthToDefault, tranche
 
 	condition NthToDefault: <"As part of the branch of the choice node, FpML requires the nthToDefault element to be present, while the mthToDefault one is optional.">
@@ -274,7 +274,7 @@ type ReferenceInformation: <"A class specifying the Credit Default Swap Referenc
 	referencePolicy boolean (0..1) <"Applicable to the transactions on mortgage-backed security, which can make use of a reference policy. Presence of the element with value set to 'true' indicates that the reference policy is applicable; absence implies that it is not.">
 	securedList boolean (0..1) <"With respect to any day, the list of Syndicated Secured Obligations of the Designated Priority of the Reference Entity published by Markit Group Limited or any successor thereto appointed by the Specified Dealers (the 'Secured List Publisher') on or most recently before such day, which list is currently available at [http://www.markit.com]. ISDA 2003 Term: Relevant Secured List.">
 
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
+	condition ReferenceInformationChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice referenceObligation, noReferenceObligation , unknownReferenceObligation
 
 type ReferenceObligation: <"A class to specify the reference obligation that is associated with a credit derivative instrument.">
