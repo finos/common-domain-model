@@ -1,6 +1,8 @@
 namespace cdm.legalagreement.master : <"Master agreement concepts.">
 version "${project.version}"
 
+import cdm.base.math.*
+
 import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 
@@ -8,6 +10,7 @@ import cdm.product.asset.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 
+import cdm.legalagreement.csa.*
 import cdm.legalagreement.common.*
 
 import cdm.synonyms.config.*
@@ -73,6 +76,7 @@ type MasterAgreementSchedule: <"The set of elections which specify a Master Agre
 	creditSupportDocument CreditSupportDocument (1..1) <"Identification of party specific Credit Support Documents applicable to the document.">
 	creditSupportProvider CreditSupportProvider (1..1) <"Identification of party specific Credit Support Providers applicable to the document.">
 	specifiedEntities SpecifiedEntities (4..4) <"A provision that allows each party to specify its Specified Entities for certain Events of Default and Termination Events">
+	creditEventUponMerger CreditEventUponMerger (0..1) 
 
 type CreditSupportDocument: <"Identification of party specific Credit Support Documents applicable to the document.">
 
@@ -148,4 +152,40 @@ type PartyOptionTerminationCurrency: <"Specifies mechanism for Termination curre
 type PartyTerminationCurrencySelection: <"Specifies the termination currency to be used by a party when it is the Non-Defaulting Party or the Party which is not the Affected Party.">
 	party Party (1..1) <"The elective party.">
 	statedPartyCurrency string (1..1) <"Specifies termination Currency">
+
+type CreditEventUponMerger: <"Specifies the version of Credit Event upon Merger that is applicable to the Master Agreement, whether it is applicable to a party, whether an objective or reasonable text applies, and whether certain designated events within the definition have been modified.">
+	versionCEUM CEUMVersionEnum (1..1) <"Specifies which version of the Credit Event upon Merger clause applies.">
+	partyElection CEUMElection (2..2) <"The party election specific to Credit Event upon Merger.">
+	reasonableTest boolean (0..1) <"A boolean election specifying whether a reasonableness test applies when a party is determining the definition of 'materially weaker'.">
+	objectiveTest ObjectiveTestType (0..2) <"Specifies whether an objective test applies to one or both parties when determining the definition of 'materially weaker'.">
+	designatedEvents DesignatedEvents (0..*)
+
+	condition designatedEvents: <"A validation rule to ensure that amendments to designated events can only apply to the 2002 version of Credit Event Upon Merger.">
+		if versionCEUM = CEUMVersionEnum->Version_92 then designatedEvents is absent
+
+type CEUMElection: <"A class to specify the party elections specific to CreditEventUponMerger.">
+	party Party (1..1) <"The party for whom Credit Event upon Merger is applicable.">
+	isApplicable boolean (1..1) <"A boolean election to specify whether Credit Event upon Merger is applicable.">
+	
+type ObjectiveTestType: <"Specifies the type of objective test that is applied when determining the definition of materially weaker.">
+	party Party (0..1)
+	ratingFloor AgencyRatingCriteria (0..*)
+	other string (0..1)
+
+type DesignatedEvents: <"A class to specify which designated events are being amended or included.">
+	amendExisting AmendExistingEnum (0..1) <"Specifies whether existing designated events are being amended">
+	entryAgreement boolean (0..1) <"Specifies whether the definitions of designated events has been expanded to also capture the entry into of an agreement related to any of the designated events.">
+	other string (0..1)
+
+enum CEUMVersionEnum: <"The enumerated values to specify which version of Credit Event upon Merger applies.">
+	Version_92 <"The version of Credit Event upon Merger set out in the 1992 ISDA Master Agreement.">
+	Version_02 <"The version of Credit Event upon Merger set out in the 2002 ISDA Master Agreement.">
+
+enum AmendExistingEnum: <"The enumerated values to specify which existing designated events are being amended.">
+	Exclude_Ownership <"Excluding sub-section (2) from section 5(b)(v) of the 2002 ISDA Master Agreement.">
+	Exclude_Cap_Structure <"Excluding sub-section (3) from section 5(b)(v) of the 2002 ISDA Master Agreement.">
+	Exclude_Ownership_and_Cap_Structure <"Excluding sub-sections (2) and (3) from section 5(b)(v) of the 2002 ISDA Master Agreement.">
+
+
+
 
