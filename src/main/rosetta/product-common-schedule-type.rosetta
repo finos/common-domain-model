@@ -290,3 +290,24 @@ type FinalCalculationPeriodDateAdjustment: <"A data to:  define business date co
 		[metadata reference]
 	businessDayConvention BusinessDayConventionEnum (1..1) <"Override business date convention. This takes precedence over leg level information.">
 
+type PricingDates: <"Specifies specific dates or parametric rules for the dates on which the price will be determined">
+	specifiedDates AdjustableDates (0..*)  <"Defines specified dates on which the price will be determined.">
+	parametricDates ParametricDates (0..1) <"Defines rules for the dates on which the price will be determined.">
+	condition: one-of
+
+type ParametricDates: <"Defines rules for the dates on which the price will be determined.">
+	dayType DayTypeEnum (1..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">
+	dayDistribution DayDistributionEnum (0..1) <"Denotes the method by which the pricing days are distributed across the pricing period.">
+	dayOfWeek DayOfWeekEnum (0..7) <"Indicates the days of the week on which the price will be determined.">
+	dayFrequency number (0..1) <"Defines the occurrence of the dayOfWeek within the pricing period on which pricing will take place, e.g. the 3rd Friday within each Calculation Period. If omitted, every dayOfWeek will be a pricing day.">
+	lag Lag (0..1) <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
+	businessCalendar BusinessCenterEnum (1..1) <"The enumerated values to specify the business centers.">
+	condition Choice:
+		required choice dayDistribution, dayOfWeek
+	condition DayOfWeekMethod:
+		if dayOfWeek exists
+		then dayFrequency exists
+		
+type Lag: <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
+   lagDuration Offset (1..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
+   firstObservationDateOffset Offset (0..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">

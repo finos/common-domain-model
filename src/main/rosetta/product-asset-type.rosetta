@@ -18,6 +18,19 @@ import cdm.product.common.schedule.*
 
 import cdm.synonyms.config.*
 
+type CommodityPayout extends ObservationPayout: <"Payout based on the averaged price of a referenced underlier. (e.g. Commodities). Can represent both average (average of many) & bullet (average of 1) pricing">
+   settlementCurrency string (0..1) <"Defines the currency in which the payment will be made.">
+   	[metadata scheme]
+   averagingMethod AveragingMethodEnum (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted.">
+   commodityPriceReturnTerms CommodityPriceReturnTerms (0..1) <"Defines parameters in which the commodity price is assessed.">
+   pricingDates PricingDates (1..1) <"Specifies specific dates or parametric rules for the dates on which the price will be determined.">
+   
+type CommodityPriceReturnTerms: <"Defines parameters in which the commodity price is assessed.">
+   rounding Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of a number.">
+   spread SpreadSchedule (0..1) <"Defines a spread value for one or more defined dates.">
+   rollFeature RollFeature (0..1) <"Used in conjunction with an exchange-based pricing source. Identifies a way in which the futures contracts referenced will roll between periods. ">
+   conversionFactor number (0..1) <"Defines the conversion applied if the quantity unit on contract is different from unit on referenced underlier.">
+
 type CreditDefaultPayout: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated globalKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 
@@ -42,6 +55,46 @@ type CreditDefaultPayout: <" The credit default payout specification provides th
 	condition Choice: <"Choice rule to represent an FpML choice construct.">
 		optional choice cashSettlementTerms, physicalSettlementTerms
 
+type EquityPayout extends PayoutBase: <" The equity payout specification terms. The associated globalKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+	[metadata key]
+	
+	payerReceiver PayerReceiver (0..1)
+	underlier Underlier (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">
+	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">
+	dividendReturnTerms DividendReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Dividend Obligations">
+	priceReturnTerms PriceReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing">
+    fxFeature FxFeature (0..1) <"A quanto or composite FX feature.">
+	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">
+	paymentDates PaymentDates (1..1) <"The payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
+	settlementTerms SettlementTerms (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Settlement.">
+	rateOfReturn number (0..1) <"Rate of Return calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return'.">
+	performance number (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
+	condition DividendReturn: <"An equity price return specifies price return terms, but no dividend terms.">
+		if returnType = ReturnTypeEnum -> Price
+		then priceReturnTerms exists
+			and dividendReturnTerms is absent
+	condition PriceReturn: <"An equity dividend return specifies dividend return terms, but no price terms.">
+		if returnType = ReturnTypeEnum -> Dividend
+		then dividendReturnTerms exists
+			and priceReturnTerms is absent
+	condition TotalReturn: <"An equity total return specifies price return as well as dividend terms.">
+		if returnType = ReturnTypeEnum -> Total
+		then priceReturnTerms exists
+			and dividendReturnTerms exists
+	condition SingleUnderlier: <"In the case of an equity payout with a single underlier, that underlier needs to be an equity product.">
+		if underlier exists
+		then (underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
+            or (underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
+				and  underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+			or (underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
+				and  underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
+			or underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
+            )
+
+type FixedForwardPayout extends PayoutBase: <"Represents a forward settling, fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
+	payerReceiver PayerReceiver (1..1) <"Specifies the parties responsible for making and receiving payments defined by this structure.">
+	paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
+    fixedPrice Price (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
 
 type GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
 

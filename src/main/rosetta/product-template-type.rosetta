@@ -72,46 +72,12 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 		if calculationAgent -> calculationAgentParty exists
 		then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> CalculationAgentIndependent
 
-type EquityPayout extends PayoutBase: <" The equity payout specification terms. The associated globalKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-	[metadata key]
-	
-	payerReceiver PayerReceiver (0..1)
-	underlier Underlier (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">
-	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">
-	dividendReturnTerms DividendReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Dividend Obligations">
-	priceReturnTerms PriceReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing">
-    fxFeature FxFeature (0..1) <"A quanto or composite FX feature.">
-	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">
-	paymentDates PaymentDates (1..1) <"The payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
-	settlementTerms SettlementTerms (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Settlement.">
-	rateOfReturn number (0..1) <"Rate of Return calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return'.">
-	performance number (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
-
-	condition DividendReturn: <"An equity price return specifies price return terms, but no dividend terms.">
-		if returnType = ReturnTypeEnum -> Price
-		then priceReturnTerms exists
-			and dividendReturnTerms is absent
-
-	condition PriceReturn: <"An equity dividend return specifies dividend return terms, but no price terms.">
-		if returnType = ReturnTypeEnum -> Dividend
-		then dividendReturnTerms exists
-			and priceReturnTerms is absent
-
-	condition TotalReturn: <"An equity total return specifies price return as well as dividend terms.">
-		if returnType = ReturnTypeEnum -> Total
-		then priceReturnTerms exists
-			and dividendReturnTerms exists
-
-	condition SingleUnderlier: <"In the case of an equity payout with a single underlier, that underlier needs to be an equity product.">
-		if underlier exists
-
-		then (underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
-            or (underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
-				and  underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
-			or (underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
-				and  underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
-			or underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
-            )
+type ObservationPayout extends PayoutBase: <"Defines payout terms relevent where the underlier is an asset (e.g. equities, commodities) or a referenced benchmark that is observed to obtain a price">
+    payerReceiver PayerReceiver (1..1) <"Identifies the enumerated values to specify an observation payout payer and receiver parties.">
+    calculationPeriodDates CalculationPeriodDates (1..*) <"Defines the calculation period dates schedule.">
+    paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
+    underlier Underlier (1..1)<"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
+    fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
 
 type OptionExercise: <" A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 
@@ -240,6 +206,9 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 	condition NotionalResetInterestRatePayoutExists: <"As the equityPayout -> payoutQuantity -> reset attribute applies to return swaps, the interestRatePayout needs to be present alongside it.">
 		if equityPayout -> payoutQuantity -> reset = True
 		then interestRatePayout exists
+
+type PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
+	payoutQuantity ResolvablePayoutQuantity (1..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
 
 type Product: <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
 	[metadata key]
@@ -376,11 +345,6 @@ type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attr
 		if ForwardFX() exists
 		then (settlementTerms -> cashSettlementTerms is absent
 			and settlementTerms -> physicalSettlementTerms is absent)
-
-type FixedForwardPayout extends PayoutBase: <"Represents a forward settling, fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
-	payerReceiver PayerReceiver (1..1) <"Specifies the parties responsible for making and receiving payments defined by this structure.">
-	paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
-    fixedPrice Price (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
 
 type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
 
