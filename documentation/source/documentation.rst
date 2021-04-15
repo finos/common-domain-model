@@ -1429,7 +1429,7 @@ The ``partyElection`` attribute, which is of the type partyElection ``PostingObl
  type PostingObligationsElection:
    party CounterpartyRoleEnum (1..1)
    asPermitted boolean (1..1)
-   eligibleCollateral EligibleCollateral (0..*)
+   eligibleCollateral EligibleCollateralSchedule (0..*)
    excludedCollateral string (0..1)
    additionalLanguage string (0..1)
 
@@ -1439,9 +1439,11 @@ The development of a digital data standard for representation of eligible collat
 
 .. code-block:: Haskell
 
- type EligibleCollateral:
- [rootType]
-   criteria EligibleCollateralCriteria (1..*)
+ type EligibleCollateralSchedule:
+	[rootType]
+	[metadata key]
+	scheduleIdentifier Identifier (0..*)
+	criteria EligibleCollateralCriteria (1..*)
 
 The ``EligibleCollateralCriteria`` data type contains the following key components to allow the digital representation of the detailed criteria reflected in the legal agreement:
 
