@@ -1,8 +1,10 @@
-package cdm.event.common;
+package cdm.event.common.functions;
 
 import cdm.base.math.MeasureBase;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.event.common.Transfer;
+import cdm.event.common.Transfers;
 import cdm.event.common.functions.FilterCashTransfers;
 import cdm.observable.asset.PriceQuantity;
 import com.rosetta.model.metafields.FieldWithMetaString;

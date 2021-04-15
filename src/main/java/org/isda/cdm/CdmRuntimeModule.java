@@ -5,16 +5,8 @@ import cdm.base.datetime.functions.NowImpl;
 import cdm.base.datetime.functions.Today;
 import cdm.base.datetime.functions.TodayImpl;
 import cdm.base.math.functions.*;
-import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRole;
-import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRoleImpl;
-import cdm.base.staticdata.party.functions.ExtractCounterpartyByRole;
-import cdm.base.staticdata.party.functions.ExtractCounterpartyByRoleImpl;
-import cdm.event.common.FilterCashTransfersImpl;
-import cdm.event.common.FilterSecurityTransfersImpl;
-import cdm.event.common.TransfersForDateImpl;
-import cdm.event.common.functions.FilterCashTransfers;
-import cdm.event.common.functions.FilterSecurityTransfers;
-import cdm.event.common.functions.TransfersForDate;
+import cdm.base.staticdata.party.functions.*;
+import cdm.event.common.functions.*;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.asset.functions.FilterPrice;
@@ -23,6 +15,8 @@ import cdm.observable.common.functions.CurrencyAmount;
 import cdm.observable.common.functions.CurrencyAmountImpl;
 import cdm.observable.common.functions.NoOfUnits;
 import cdm.observable.common.functions.NoOfUnitsImpl;
+import cdm.product.asset.functions.ExtractFixedLeg;
+import cdm.product.asset.functions.ExtractFixedLegImpl;
 import cdm.product.asset.functions.ResolveEquityInitialPrice;
 import cdm.product.asset.functions.ResolveEquityInitialPriceImpl;
 import cdm.product.common.schedule.functions.CalculationPeriod;
@@ -64,6 +58,14 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(FilterQuantity.class).to(bindFilterQuantity());
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
+		bind(Create_SplitTrades.class).to(bindCreateSplitTrades());
+		bind(Create_ContractFormationPrimitives.class).to(bindCreateContractFormationPrimitives());
+		bind(ExtractFixedLeg.class).to(bindExtractFixedLeg());
+		bind(FilterQuantityByFinancialUnit.class).to(bindFilterQuantityByFinancialUnit());
+		bind(FilterOpenTradeStates.class).to(bindFilterOpenTradeStates());
+		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
+		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
+		bind(ReplaceParty.class).to(bindReplaceParty());
 	}
 
 	protected Class<? extends FilterSecurityTransfers> bindFilterSecurityTransfers() {
@@ -154,5 +156,37 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends Today> bindToday() {
 		return TodayImpl.class;
+	}
+
+	protected Class<? extends Create_SplitTrades> bindCreateSplitTrades() {
+		return Create_SplitTradesImpl.class;
+	}
+
+	protected Class<? extends Create_ContractFormationPrimitives> bindCreateContractFormationPrimitives() {
+		return Create_ContractFormationPrimitivesImpl.class;
+	}
+
+	protected Class<? extends ExtractFixedLeg> bindExtractFixedLeg() {
+		return ExtractFixedLegImpl.class;
+	}
+
+	protected Class<? extends FilterQuantityByFinancialUnit> bindFilterQuantityByFinancialUnit() {
+		return FilterQuantityByFinancialUnitImpl.class;
+	}
+
+	protected Class<? extends FilterOpenTradeStates> bindFilterOpenTradeStates() {
+		return FilterOpenTradeStatesImpl.class;
+	}
+
+	protected Class<? extends UpdateAmountForEachQuantity> bindUpdateAmountForEachQuantity() {
+		return UpdateAmountForEachQuantityImpl.class;
+	}
+
+	protected Class<? extends UpdateAmountForEachMatchingQuantity> bindUpdateAmountForEachMatchingQuantity() {
+		return UpdateAmountForEachMatchingQuantityImpl.class;
+	}
+
+	protected Class<? extends ReplaceParty> bindReplaceParty() {
+		return ReplacePartyImpl.class;
 	}
 }
