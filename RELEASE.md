@@ -47,7 +47,7 @@ The following data types containing conditions named Choice have been adjusted t
 - `ExerciseFee`
 - `ExerciseFeeSchedule`
 - `ExerciseProcedure`
-- `MultipleExerciseChoice`
+- `MultipleExercise`
 
 _Review directions_
 
