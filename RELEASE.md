@@ -1,50 +1,53 @@
-# *Model Change - Modified Money data type to use the new standard Quantity data type*
+# *Model Change - Modified Choice conditions to rename with unique names*
+
 _What is being released?_
 
-This release modifies the `Money` type by making it an extension of `Quantity`, removing the existing attributes in `Money`, and adding a condition that requires the `unitOfAmount` to be a `currency`.
+This release modifies the naming of choice conditions in the model that were not previously identified with a unique condition name.  Conditions previously identified with the name `Choice` now have a unique name consisting of the name of the data type with the word `Choice` as a suffix.
 
-The following functions required minor modifications to point-to/use the new location of currency in the `Money` data type:
-- `Create_Transfer`
-- `CreditSupportAmount`
-- `DeliveryAmount`
-- `EquityCashSettlementAmount`
-- `PostedCreditSupportItemAmount`
-- `ReturnAmount`
-- `UndisputedAdjustedPostedCreditSupportAmount`
+The following data types containing conditions named Choice have been adjusted to reflect the new naming convention.
 
-The following function required no change after the `Money` data type was changed:
-- `SumPostedCreditSupportItemAmounts`
-
-The data type for the following attribute was changed from `Money` to `Price`:
-- `UnitContractValuationModel`->`unitPrice`
-
-The following data types required no change after the `Money` data type was changed
-- `BondPriceAndYieldModel`
-- `CalculationPeriod`
-- `Cashflow`
+- `AdjustableDate`
+- `AdjustableOrRelativeDate`
+- `AdjustableOrRelativeDates`
+- `BusinessCenters`
+- `AdjustableRelativeOrPeriodicDates`
+- `CommodityProductDefinition`
+- `DeliveryDateParameters`
+- `CommodityReferenceFramework`
+- `Obligations`
+- `NaturalPerson`
+- `PartyContactInformation`
+- `LimitApplicable`
+- `PartyCustomisedWorkflow`
+- `Resource`
+- `ApplicableRegime`
+- `NotificationTimeElection`
+- `SubstitutedRegime`
+- `AssetCriteria`
+- `FxSettlementRateSource`
+- `CalculationAgent`
+- `ExtraordinaryEvents`
+- `FeaturePayment`
+- `CreditDefaultPayout`
+- `GeneralTerms`
+- `InterestRatePayout`
+- `BasketReferenceInformation`
+- `ReferenceInformation`
+- `PaymentCalculationPeriod`
+- `AveragingPeriod`
+- `WeightedAveragingObservation`
+- `ResolvablePayoutQuantity`
 - `CashSettlementTerms`
-- `CashTransferBreakdown`
-- `CashTransferComponent`
-- `ConcentrationLimit`
-- `CreditEvents`
-- `CustodianTerms`
-- `ElectiveAmountElection`
+- `DeliverableObligations`
+- `OptionSettlement`
+- `SettlementTerms`
+- `SecurityLeg`
+- `InitialMarginCalculation`
+- `FxFeature`
 - `ExerciseFee`
 - `ExerciseFeeSchedule`
-- `FailureToPay`
-- `InitialMargin`
-- `PartialExercise`
-- `PaymentCalculationPeriod`
-- `PaymentDetail`
-- `PaymentDiscounting`
-- `PercentageRule`
-- `Position`
-- `PostedCreditSupportItem`
-- `PremiumExpression`
-- `PrincipalExchange`
-- `SecurityLeg`
-- `SimplePayment`
-- `StubValue`
+- `ExerciseProcedure`
+- `MultipleExercise`
 
 _Review directions_
 

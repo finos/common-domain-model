@@ -140,7 +140,8 @@ type SecurityLeg: <" Terms defining a security leg in a securities financing tra
 	fxRate ExchangeRate (0..1) <"FX rate in case when cash settlement amount is in a different currency to the security.">
 	deliveryDate AdjustableOrRelativeDate (0..1) <"Delivery Date for the transaction. Delivery Date can be populated when it is not equal to the Settlement Date.">
 	deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security transaction.">
-	condition Choice:
+
+	condition SecurityLegChoice:
 		required choice settlementAmount, settlementCurrency
 
 
@@ -177,7 +178,7 @@ type InitialMarginCalculation: <" Defines the initial margin calculation applica
 	haircut number (0..1) <"An element defining a haircut expressed as the percentage difference between the Market Value of the collateral and the Purchase Price of the repo and calculated as 100 multiplied by a ratio of the difference between the Market Value of the collateral and the Purchase Price of the repo to the Market Value of the collateral. Haircut is alternative way to adjust the value of collateral sold in a repurchase agreement to initial margin ratio. Because an initial margin is a percentage of the Purchase Price, while a haircut is a percentage of the Market Value of collateral, the arithmetic of initial margins and haircuts is slightly different. For example, an initial margin of 102% is not equivalent to a haircut of 2%, but to 1.961% (ie 100/102%). See GMRA 2011 paragraph 2(aa).">
 	haircutThreshold number (0..2) <"An element defining a haircut percentage threshold which is the value above (when it's lower than initial haircut) or below (when it's higher than initial haircut) which parties agree they will not call a margin from each other.">
 
-	condition Choice:
+	condition InitialMarginCalculationChoice:
 		required choice marginRatio, haircut
 
 type Payout: <" A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
@@ -567,7 +568,7 @@ type FxFeature: <"A type for defining FX Features.">
 	composite Composite (0..1) <"If 'Composite' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price – Strike Price) / (Strike Price – Settlement Price) x Multiplier provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">
 	quanto Quanto (0..1) <"If 'Quanto' is specified as the Settlement Type in the relevant Transaction Supplement, an amount, as determined by the Calculation Agent in accordance with the Section 8.2 of the Equity Definitions.">
 	crossCurrency Composite (0..1) <"If 'Cross-Currency' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price – Strike Price) / (Strike Price – Settlement Price) x Multiplier x one unit of the Reference Currency converted into an amount in the Settlement Currency using the rate of exchange of the Settlement Currency as quoted on the Reference Price Source on the Valuation Date, provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">
-	condition Choice: <" Choice rule to represent an FpML choice construct.">
+	condition FxFeatureChoice: <" Choice rule to represent an FpML choice construct.">
 		required choice composite, quanto, crossCurrency
 
 type Knock: <"Knock In means option to exercise comes into existence. Knock Out means option to exercise goes out of existence.">
@@ -688,7 +689,8 @@ type ExerciseFee extends BuyerSeller: <"A class defining the fee payable on exer
 	feeAmount number (0..1) <"The amount of fee to be paid on exercise. The fee currency is that of the referenced notional.">
 	feeRate number (0..1) <"A fee represented as a percentage of some referenced notional. A percentage of 5% would be represented as 0.05.">
 	feePaymentDate RelativeDateOffset (1..1) <"The date on which exercise fee(s) will be paid. It is specified as a relative date.">
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
+
+	condition ExerciseFeeChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice feeAmount, feeRate
 
 type ExerciseFeeSchedule extends PayerReceiver: <"A class to define a fee or schedule of fees to be payable on the exercise of an option. This fee may be defined as an amount or a percentage of the notional exercised. As a difference with FpML, it extends the BuyerSeller class.">
@@ -699,7 +701,7 @@ type ExerciseFeeSchedule extends PayerReceiver: <"A class to define a fee or sch
 	feeRateSchedule Schedule (0..1) <"The exercise free rate schedule. The fees are expressed as percentage rates of the notional being exercised. The currency of the fee is assumed to be that of the notional schedule referenced.">
 	feePaymentDate RelativeDateOffset (1..1) <"The date on which exercise fee(s) will be paid. It is specified as a relative date.">
 	
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
+	condition ExerciseFeeScheduleChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice feeAmountSchedule, feeRateSchedule
 
 type ExerciseNotice: <"Defines to whom and where notice of execution should be given. The exerciseNoticeGiver refers to one or both of the principal parties of the trade. If present the exerciseNoticeReceiver refers to a party, other than the principal party, to whom notice should be given.">
@@ -717,7 +719,7 @@ type ExerciseProcedure: <"A class describing how notice of exercise should be gi
 	limitedRightToConfirm boolean (0..1) <"Has the meaning defined as part of the 1997 ISDA Government Bond Option Definitions, section 4.5 Limited Right to Confirm Exercise. If present, (i) the Seller may request the Buyer to confirm its intent if not done on or before the expiration time on the Expiration date (ii) specific rules will apply in relation to the settlement mode.">
 	splitTicket boolean (0..1) <"Typically applicable to the physical settlement of bond and convertible bond options. If present, means that the party required to deliver the bonds will divide those to be delivered as notifying party desires to facilitate delivery obligations.">
 
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
+	condition ExerciseProcedureChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice manualExercise, automaticExercise
 
 type ManualExercise: <"A class defining manual exercise, i.e. that the option buyer counterparty must give notice to the option seller of exercise.">
