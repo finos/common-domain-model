@@ -474,7 +474,8 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
  		and economicTerms -> payout -> equityPayout is absent
  		and economicTerms -> payout -> forwardPayout is absent
  		and economicTerms -> payout -> optionPayout is absent
- 		and economicTerms -> payout -> securityPayout is absent))
+ 		and economicTerms -> payout -> securityPayout is absent
+        and economicTerms -> payout -> securityFinancePayout is absent))
  		and economicTerms -> payout -> interestRatePayout count =2
  		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
  		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
