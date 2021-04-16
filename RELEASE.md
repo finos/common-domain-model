@@ -1,4 +1,5 @@
 # *Model Change - Modified Choice conditions to rename with unique names*
+
 _What is being released?_
 
 This release modifies the naming of choice conditions in the model that were not previously identified with a unique condition name.  Conditions previously identified with the name `Choice` now have a unique name consisting of the name of the data type with the word `Choice` as a suffix.
