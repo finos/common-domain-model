@@ -1,53 +1,31 @@
-# *Model Change - Modified Choice conditions to rename with unique names*
+# *Model Change - Contribution of ISLA - CDM for Securities Lending - SecurityFinancePayout*
 
 _What is being released?_
 
-This release modifies the naming of choice conditions in the model that were not previously identified with a unique condition name.  Conditions previously identified with the name `Choice` now have a unique name consisting of the name of the data type with the word `Choice` as a suffix.
+This release contributes product modelling work completed by ISLA to extend the CDM to support Securities Lending products.  The release introduces a new Payout `SecurityFinancePayout`, five additional new data types contained within `SecurityFinancePayout`, and two new enumerations.  The existing `SecurityPayout` data type and the encapsulated data types and enumerations have been marked as `[deprecated]` in the model to reflect the move to using a Payout developed and approved by ISLA.
 
-The following data types containing conditions named Choice have been adjusted to reflect the new naming convention.
+Changes to other data types and qualification functions have been made where the ISLA model has impacted existing CDM model content.
 
-- `AdjustableDate`
-- `AdjustableOrRelativeDate`
-- `AdjustableOrRelativeDates`
-- `BusinessCenters`
-- `AdjustableRelativeOrPeriodicDates`
-- `CommodityProductDefinition`
-- `DeliveryDateParameters`
-- `CommodityReferenceFramework`
-- `Obligations`
-- `NaturalPerson`
-- `PartyContactInformation`
-- `LimitApplicable`
-- `PartyCustomisedWorkflow`
-- `Resource`
-- `ApplicableRegime`
-- `NotificationTimeElection`
-- `SubstitutedRegime`
-- `AssetCriteria`
-- `FxSettlementRateSource`
-- `CalculationAgent`
-- `ExtraordinaryEvents`
-- `FeaturePayment`
-- `CreditDefaultPayout`
-- `GeneralTerms`
-- `InterestRatePayout`
-- `BasketReferenceInformation`
-- `ReferenceInformation`
-- `PaymentCalculationPeriod`
-- `AveragingPeriod`
-- `WeightedAveragingObservation`
-- `ResolvablePayoutQuantity`
-- `CashSettlementTerms`
-- `DeliverableObligations`
-- `OptionSettlement`
-- `SettlementTerms`
-- `SecurityLeg`
-- `InitialMarginCalculation`
-- `FxFeature`
-- `ExerciseFee`
-- `ExerciseFeeSchedule`
-- `ExerciseProcedure`
-- `MultipleExercise`
+_Details_
+
+New Data Types
+- `SecurityFinancePayout`
+- `DividendTerms`
+- `CollateralProvisions`
+- `SecurityFinanceLeg`
+- `Duration`
+- `EvergreenProvision`
+
+New Enumerations
+- `DurationTypeEnum`
+- `CollateralTypeEnum`
+
+Updates to Existing Data Types
+- `EligibleCollateral` - data type renamed to `EligibleCollateralSchedule`, attribute `scheduleIdentifier` of type `Identifier` added to allow specification of an identified Collateral Schedule within a Legal Agreement.
+- `PostingObligationsElection` - attribute `eligibleCollateral` updated to reflect data type name change above.
+- `CollateralValuationPercentage` - new attribute `marginPercentage` and data condition `MarginPercentage` added to support alternate approach to defining margin requirements for Securities Finance transactions.
+
+Data Types marked as Deprecated
 
 _Review directions_
 
