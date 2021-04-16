@@ -13,7 +13,7 @@ The following data types containing conditions named Choice have been adjusted t
 - `CommodityProductDefinition`
 - `DeliveryDateParameters`
 - `CommodityReferenceFramework`
-- `ObligationsChoice`
+- `Obligations`
 - `NaturalPerson`
 - `PartyContactInformation`
 - `LimitApplicable`
