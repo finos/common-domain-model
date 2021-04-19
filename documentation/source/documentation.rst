@@ -259,6 +259,10 @@ The scope of contractual products in the current model are summarized below:
 * **Options**:
 
   * Any other OTC Options (incl. FX Options)
+  
+* **Securities Lending**:
+
+  * Single underlyer, cash collateralised, open/term security loan 
 
 In the CDM, contractual products are represented by the ``ContractualProduct`` type:
 
@@ -306,9 +310,10 @@ The ``Payout`` type defines the composable payout types, each of which describes
    forwardPayout ForwardPayout (0..*)
    fixedForwardPayout FixedForwardPayout (0..*)
    securityPayout SecurityPayout (0..*)
+   securityFinancePayout SecurityFinancePayout (0..*)
    cashflow Cashflow (0..*)
    
-The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``Cashflow``, and the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout`` are all extensions of the base type called ``PayoutBase``, which provides a common location for referencing payout quantities, as illustrated below:
+The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``SecurityFinancePayout``, ``Cashflow``, and the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout`` are all extensions of the base type called ``PayoutBase``, which provides a common location for referencing payout quantities, as illustrated below:
 
 .. code-block:: Haskell
 

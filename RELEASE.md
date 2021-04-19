@@ -21,11 +21,27 @@ New Enumerations
 - `CollateralTypeEnum`
 
 Updates to Existing Data Types
+- `Payout` - added new data attribute `securityFinancePayout`
 - `EligibleCollateral` - data type renamed to `EligibleCollateralSchedule`, attribute `scheduleIdentifier` of type `Identifier` added to allow specification of an identified Collateral Schedule within a Legal Agreement.
 - `PostingObligationsElection` - attribute `eligibleCollateral` updated to reflect data type name change above.
 - `CollateralValuationPercentage` - new attribute `marginPercentage` and data condition `MarginPercentage` added to support alternate approach to defining margin requirements for Securities Finance transactions.
 
+Updates to Qualification Functions
+- Twenty nine Product Qualification functions for Credit Default Swaps, Equity Swaps and Interest Rate Swaps have been updated to extend the list of Payout types that must be absent to include `SecurityFinancePayout`.
+
 Data Types marked as Deprecated
+- `SecurityPayout`
+- `InitialMargin`
+- `InitialMarginCalculation`
+- `SecurityValuation`
+- `SecurityValuationModel`
+- `BondValuationModel`
+- `BondPriceAndYieldModel`
+- `UnitContractValuationModel`
+
+Enumerations marked as Deprecated
+- `MarginTypeEnum`
+- `RepoDurationEnum`
 
 _Review directions_
 
