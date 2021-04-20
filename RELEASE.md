@@ -1,10 +1,10 @@
-# *Model Change - Contribution of ISLA - CDM for Securities Lending - SecurityFinancePayout*
+# *Product Model - Contribution of ISLA - CDM for Securities Lending - SecurityFinancePayout*
 
 _What is being released?_
 
-This release contributes product modelling work completed by ISLA to extend the CDM to support Securities Lending products.  The release introduces a new Payout `SecurityFinancePayout`, five additional new data types contained within `SecurityFinancePayout`, and two new enumerations.  The existing `SecurityPayout` data type and the encapsulated data types and enumerations have been marked as `[deprecated]` in the model to reflect the move to using a Payout developed and approved by ISLA.
+This release contributes modelling components proposed by ISLA to extend the CDM in term of Securities Lending products.  The release introduces a new Payout `SecurityFinancePayout`, five additional new data types contained within `SecurityFinancePayout`, and two new enumerations.  The existing `SecurityPayout` data type and the encapsulated data types and related enumerations have been marked as `[deprecated]` in the model to reflect the move to using the new `SecurityFinancePayout`.
 
-Changes to other data types and qualification functions have been made where the ISLA model has impacted existing CDM model content.
+Changes to other data types and qualification functions have been made where appropriate to accomodate for the new payout.
 
 _Details_
 
@@ -27,7 +27,7 @@ Updates to Existing Data Types
 - `CollateralValuationPercentage` - new attribute `marginPercentage` and data condition `MarginPercentage` added to support alternate approach to defining margin requirements for Securities Finance transactions.
 
 Updates to Qualification Functions
-- Twenty nine Product Qualification functions for Credit Default Swaps, Equity Swaps and Interest Rate Swaps have been updated to extend the list of Payout types that must be absent to include `SecurityFinancePayout`.
+- Twenty nine Product Qualification functions for Credit Default Swaps, Equity Swaps and Interest Rate Swaps have been updated or extended to factor the use of the new  `SecurityFinancePayout`.
 
 Data Types marked as Deprecated
 - `SecurityPayout`
