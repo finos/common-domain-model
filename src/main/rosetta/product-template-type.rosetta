@@ -5,8 +5,10 @@ import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
+
 import cdm.event.position.*
 
+import cdm.legalagreement.csa.*
 
 import cdm.observable.event.*
 import cdm.observable.asset.*
@@ -22,12 +24,10 @@ import cdm.synonyms.config.*
 type ContractualProduct: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
 	[metadata key]
 	[metadata template]
-	
+
 	productIdentification ProductIdentification (0..1) <"The product identification value(s) that might be associated with a contractual product. The CDM provides the ability to associate several product identification methods with a product.">
 	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">
-	economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">	
-
-
+	economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
 
 type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification.">
 
@@ -67,14 +67,14 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 		if (payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate
 			and terminationDate) exists
 		then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate < terminationDate -> adjustableDate -> unadjustedDate
-	
+
 	condition IndependentCalculationAgent:
 		if calculationAgent -> calculationAgentParty exists
 		then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> CalculationAgentIndependent
 
 type EquityPayout extends PayoutBase: <" The equity payout specification terms. The associated globalKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
-	
+
 	payerReceiver PayerReceiver (0..1)
 	underlier Underlier (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">
 	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">
@@ -147,15 +147,16 @@ type SecurityLeg: <" Terms defining a security leg in a securities financing tra
 
 type SecurityPayout: <" Security payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction.">
 	[metadata key]
+    [deprecated]
 
 	securityLeg SecurityLeg (1..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
-	
-	initialMargin InitialMargin (0..1) <"RepoDurationEnum.">
+    initialMargin InitialMargin (0..1) <"RepoDurationEnum.">
 	repoDuration RepoDurationEnum (0..1) <"A duration code for the repo transaction. This defines a type of a repo transaction with fixed duration.">
 	securityValuation SecurityValuation (1..*) <"The underlying securities and their valuation for the security leg.">
 
 
 type InitialMargin: <" Defines initial margin applied to a repo transaction. Initial margin is an agreed premium to the Purchase Price of a repo to determine the required Market Value of the collateral to be delivered on the Purchase Date. It reflects quality of the collateral. Its aim is to calculate the risk-adjusted or liquidation value of collateral.">
+    [deprecated]
 
 	marginType MarginTypeEnum (1..1) <"An element defining the type of assets (cash or securities) specified to apply as margin to the repo transaction. See GMRA 2011 paragraph 2(h) for 'Cash Margin' and GMRA 2011 paragraph 2(cc) for 'Margin Securities'.">
 	margin InitialMarginCalculation (1..*) <"Initial margin calculation for a collateral asset. Initial margin requirements may be specified for multiple pieces of collateral.">
@@ -172,6 +173,7 @@ type InitialMargin: <" Defines initial margin applied to a repo transaction. Ini
 
 
 type InitialMarginCalculation: <" Defines the initial margin calculation applicable to a single piece of collateral.">
+    [deprecated]
 
 	marginRatio number (0..1) <"An element defining an initial margin expressed as a ratio of the Market Value of the collateral to the Purchase Price. A default value of initial margin ratio of 1.00 means there is no margin and thus no risk related with the collateral. See GMRA 2000 paragraph 2(z) and GMRA 2011 paragraph 2(bb).">
 	marginRatioThreshold number (0..2) <"An element defining a margin ratio threshold which is the value above (when it's lower than initial margin ratio) or below (when it's higher than initial margin ratio) which parties agree they will not call a margin from each other.">
@@ -183,6 +185,7 @@ type InitialMarginCalculation: <" Defines the initial margin calculation applica
 
 type Payout: <" A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
     [metadata key]
+
 	interestRatePayout InterestRatePayout (0..*) <"All of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate. The interest rate payout can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg).">
 	creditDefaultPayout CreditDefaultPayout (0..1) <"The credit default payout, which provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms.">
 	equityPayout EquityPayout (0..*) <"The equity payout, which encompasses the equity price returns, dividend returns, volatility and variance return provisions.">
@@ -191,7 +194,8 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 	forwardPayout ForwardPayout (0..*) <"Represents a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this component.">
 	fixedForwardPayout FixedForwardPayout (0..*)<"Defines a payout in which one or more forward payouts are defined as a fixed price.">
 	securityPayout SecurityPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
-	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
+	securityFinancePayout SecurityFinancePayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
+    cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
 
 	condition LastRegularPaymentDate: <"FpML specifies that lastRegularPaymentDate must only be included if there is a final stub. As part of the CDM, this data rule has been adjusted to specify that it only applies to interest rate swaps, as the credit derivatives products can have a specified lastRegularPaymentDate while the stub is typically not applicable to those.">
 		if interestRatePayout -> paymentDates -> lastRegularPaymentDate exists
@@ -289,11 +293,11 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 	condition OptionPayout_PredeterminedClearingOrganizationParty:
 		if product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> settlement -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
-	
+
 	condition ForwardPayout_PredeterminedClearingOrganizationParty:
 		if product -> contractualProduct -> economicTerms -> payout -> forwardPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
-	
+
 	condition PredeterminedClearingOrganizationParty:
 		if ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty then
 		product -> contractualProduct -> economicTerms -> payout -> forwardPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists or
@@ -397,7 +401,7 @@ type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a
 
 	condition ExerciseChoice: <"condition to represent an FpML substitution group construct.">
 		required choice americanExercise, bermudaExercise, europeanExercise
-	
+
 	condition CancelableProvisionExerciseNoticeReceiverParty:
 		if exerciseNotice -> exerciseNoticeReceiver exists
 		then exerciseNotice -> exerciseNoticeReceiver = AncillaryRoleEnum -> ExerciseNoticeReceiverPartyCancelableProvision
@@ -465,7 +469,7 @@ type ExtendibleProvision extends BuyerSeller: <"A data defining:  an option to e
 
 	condition ExerciseChoice: <"condition to represent an FpML choice construct.">
 		required choice americanExercise, bermudaExercise, europeanExercise
-	
+
 	condition ExtendibleProvisionExerciseNoticeReceiverParty:
 		if exerciseNotice -> exerciseNoticeReceiver exists
 		then exerciseNotice -> exerciseNoticeReceiver = AncillaryRoleEnum -> ExerciseNoticeReceiverPartyExtendibleProvision
@@ -610,7 +614,7 @@ type OptionStrike: <"Defines the strike price of an option.">
 	strikeReference FixedRateSpecification (0..1) <"Defines the strike of an option in reference to the spread of the underlying swap (typical practice in the case of an option on a credit single name swaps).">
 		[metadata reference]
 	referenceSwapCurve ReferenceSwapCurve (0..1) <"Defines the strike of an option when expressed by reference to a swap curve (Typically the case for a convertible bond option).">
-	averagingStrikeFeature AveragingObservation (0..1) <"Defines an option strike that is calculated from an average of observed market prices.">			
+	averagingStrikeFeature AveragingObservation (0..1) <"Defines an option strike that is calculated from an average of observed market prices.">
 
 	condition: one-of
 
@@ -644,7 +648,7 @@ type StrikeSpread: <"A class for defining a strike spread feature.">
 
 	upperStrike OptionStrike (1..1) <"Upper strike in a strike spread.">
 	upperStrikeNumberOfOptions number (1..1) <"Number of options at the upper strike price in a strike spread.">
-	
+
 type AmericanExercise: <"A class defining the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[metadata key]
 
@@ -730,15 +734,13 @@ type ManualExercise: <"A class defining manual exercise, i.e. that the option bu
 	condition ManualExerciseNoticeReceiverParty:
 		if exerciseNotice -> exerciseNoticeReceiver exists
 		then exerciseNotice -> exerciseNoticeReceiver = AncillaryRoleEnum -> ExerciseNoticeReceiverPartyManual
-	
 
 type MultipleExercise extends PartialExercise: <"A class defining multiple exercises. As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more than the maximum notional amount, and if an integral multiple amount is specified, the notional exercised must be equal to or, be an integral multiple of, the integral multiple amount. In FpML, MultipleExercise is built upon the PartialExercise.model.">
 
 	maximumNotionalAmount number (0..1) <"The maximum notional amount that can be exercised on a given exercise date.">
 	maximumNumberOfOptions number (0..1) <"The maximum number of options that can be exercised on a given exercise date. If the number is not specified, it means that the maximum number of options corresponds to the remaining unexercised options.">
 
-	condition Choice: <"Requires that one of the two attributes must be populated.">
-		required choice maximumNotionalAmount, maximumNumberOfOptions
+	condition: one-of
 
 	condition MaximumNumberOfOptions: <"FpML MultipleExercise construct specifies the minimumNumberOfOptions as a positive integer.">
 		if maximumNumberOfOptions exists
@@ -795,5 +797,55 @@ type CalculationAgentModel: <"This class corresponds to the FpML CalculationAgen
 		[synonym Workflow_Event value "calculationAgent"]
 	calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located. The short-form confirm for a trade that is executed under a Sovereign or Asia-Pacific Master Confirmation Agreement (MCA), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent city. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent city.">
 		[synonym Workflow_Event value "calculationAgentBusinessCenter"]
+
+type SecurityFinancePayout extends PayoutBase: <"Security payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction.">
+    [metadata key]
+    securityFinanceLeg SecurityFinanceLeg (1..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
+    securityInformation Product (1..1) <"Specifies the reference asset.  This is The base type which all products extend (similar to FpML model). Within SecurityPayout we include a condition which validates that the product must be a Security (see below condition 'ProductMustBeSecurity').">
+    durationType Duration (1..1) <"Specifies the Duration Terms of the Security Finance transaction. e.g. Open or Term.">
+    minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
+    dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
+    collateralProvisions CollateralProvisions (1..1) <"Specifies collateral provisions for a Security Finance transaction, including Collateral Type and Margin Percentage.">
+
+    condition ProductMustBeSecurity: <"Validates that the reference asset must be a security.">
+        securityInformation -> security exists
+
+    condition DividendTermsValidation: <"Validates that if the transaction has Dividend Terms specified then the Duration should be Term.">
+        if dividendTerms exists
+        then durationType -> durationType = DurationTypeEnum -> Term
+
+type DividendTerms: <"Information related to dividends and payments.">
+    manufacturedIncomeRequirement DividendPayout (1..1) <"Specifies the proportion of the value of the dividend on the borrowed shares that the borrower is legally obligated to return to the lender.">
+    dividendEntitlement DividendEntitlementEnum (0..1) <"Defines the date on which the receiver of the equity return is entitled to the dividend.">
+    minimumBillingAmount Money (0..1) <"daily fee increments accrue until a threshold is crossed, at which point payment becomes due)">
+
+type CollateralProvisions: <"Contains collateral attributes which can also inherit information from a master agreement.">
+    collateralType CollateralTypeEnum (1..1) <"Cash or NonCash collateral">
+    marginPercentage CollateralValuationPercentage (0..1) <"Specification of the valuation treatment for the specified collateral.">
+    eligibleCollateral EligibleCollateralSchedule (0..*) <"The eligible collateral as specified in relation to the transaction.">
+
+type SecurityFinanceLeg: <"Defines each security movement of a security financing transaction.">
+    [metadata key]
+    payerReceiver PayerReceiver (1..1) <"Specifies who the buyer (receiver) and seller (payer) of the security movement.">
+    settlementDate AdjustableOrRelativeDate (1..1) <"Settlement date of the security movement.">
+    deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security movement.">
+
+type Duration: <"Specifies the Duration Terms of the Security Financing Transaction, and optionally any Evergreen terms.">
+    durationType DurationTypeEnum (1..1) <"Specifies the Duration Terms of the Security Financing transaction. e.g. Open or Term.">
+    evergreenProvision EvergreenProvision (0..1) <"A data defining: the right of a party to exercise an Evergreen option">
+
+type EvergreenProvision extends BuyerSeller: <"Specifies a transaction which automatically extends for a specified timeframe until the exercise of an embedded option.">
+	americanExercise AmericanExercise (0..1) <"Defines the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
+	bermudaExercise BermudaExercise (0..1) <"Defines the Bermuda option exercise dates and the expiration date together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fee.">
+	europeanExercise EuropeanExercise (0..1) <"Defines the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
+	followUpConfirmation boolean (1..1) <"A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.">
+	evergreenExtensionPeriod RelativeDateOffset (1..1) <"The length of each Evergreen extension period relative to the Effective date of the preceding contract.">
+    evergreenRollFrequency CalculationPeriodFrequency (1..1) <"The frequency with which the Evergreen contract will be extended if notice is not given.">
+    callingParty CallingPartyEnum (0..1) <"Identifies a party to that has a right to demand for termination of the Security Finance transaction.">
+
+    condition ExerciseChoice: <"Condition that requires the choice of exercise style to be specified.">
+		required choice americanExercise, bermudaExercise, europeanExercise
+
+
 
 
