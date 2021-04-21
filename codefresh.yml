@@ -34,7 +34,7 @@ steps:
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -U -s /settings.xml clean deploy -P daml,scala,typescript,golang,csharp8,csharp9
+      - mvn -U -s /settings.xml clean deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
 
   BuildRelease:
     title: Maven build for release
@@ -119,6 +119,15 @@ steps:
         commands:
           - tar -cvzf cdm-golang.tar.gz golang
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-golang/${{RELEASE_NAME}}/cdm-golang-${{RELEASE_NAME}}.zip" -T cdm-golang.tar.gz
+      BuildKotlin:
+        title: Kotlin build and deploy
+        fail_fast: false
+        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        working_directory: ./
+        shell: bash
+        commands:
+          - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+          - mvn -s /settings.xml -f kotlin-pom.xml deploy
       BuildJavaDocs:
         title: Javadocs build and deploy
         fail_fast: false
