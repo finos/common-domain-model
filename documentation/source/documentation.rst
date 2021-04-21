@@ -259,6 +259,10 @@ The scope of contractual products in the current model are summarized below:
 * **Options**:
 
   * Any other OTC Options (incl. FX Options)
+  
+* **Securities Lending**:
+
+  * Single underlyer, cash collateralised, open/term security loan 
 
 In the CDM, contractual products are represented by the ``ContractualProduct`` type:
 
@@ -306,9 +310,10 @@ The ``Payout`` type defines the composable payout types, each of which describes
    forwardPayout ForwardPayout (0..*)
    fixedForwardPayout FixedForwardPayout (0..*)
    securityPayout SecurityPayout (0..*)
+   securityFinancePayout SecurityFinancePayout (0..*)
    cashflow Cashflow (0..*)
    
-The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``Cashflow``, and the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout`` are all extensions of the base type called ``PayoutBase``, which provides a common location for referencing payout quantities, as illustrated below:
+The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``SecurityFinancePayout``, ``Cashflow``, and the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout`` are all extensions of the base type called ``PayoutBase``, which provides a common location for referencing payout quantities, as illustrated below:
 
 .. code-block:: Haskell
 
@@ -474,7 +479,8 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
  		and economicTerms -> payout -> equityPayout is absent
  		and economicTerms -> payout -> forwardPayout is absent
  		and economicTerms -> payout -> optionPayout is absent
- 		and economicTerms -> payout -> securityPayout is absent))
+ 		and economicTerms -> payout -> securityPayout is absent
+        and economicTerms -> payout -> securityFinancePayout is absent))
  		and economicTerms -> payout -> interestRatePayout count =2
  		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
  		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
@@ -1429,7 +1435,7 @@ The ``partyElection`` attribute, which is of the type partyElection ``PostingObl
  type PostingObligationsElection:
    party CounterpartyRoleEnum (1..1)
    asPermitted boolean (1..1)
-   eligibleCollateral EligibleCollateral (0..*)
+   eligibleCollateral EligibleCollateralSchedule (0..*)
    excludedCollateral string (0..1)
    additionalLanguage string (0..1)
 
@@ -1439,9 +1445,11 @@ The development of a digital data standard for representation of eligible collat
 
 .. code-block:: Haskell
 
- type EligibleCollateral:
- [rootType]
-   criteria EligibleCollateralCriteria (1..*)
+ type EligibleCollateralSchedule:
+	[rootType]
+	[metadata key]
+	scheduleIdentifier Identifier (0..*)
+	criteria EligibleCollateralCriteria (1..*)
 
 The ``EligibleCollateralCriteria`` data type contains the following key components to allow the digital representation of the detailed criteria reflected in the legal agreement:
 

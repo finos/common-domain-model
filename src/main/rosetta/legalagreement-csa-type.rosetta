@@ -42,21 +42,33 @@ type AgencyRatingCriteria: <"A class to specify multiple credit notations alongs
 		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
 		then AgencyRatingCriteria -> referenceAgency exists
 
-type CollateralValuationPercentage:
+type CollateralValuationPercentage: <"Specification of the valuation treatment for the specified collateral.">
 
-	valuationPercentage number (1..1) <"Percentage value of asset to be used as collateral once discounted haircut take into consideration,expressed as a valuation. As an example a 0.5% haircut would be expressed as 99.5% and represented as a decimal number 0.995">
+	valuationPercentage number (0..1) <"Percentage value of asset to be used as collateral once discounted haircut take into consideration,expressed as a valuation. As an example a 0.5% haircut would be expressed as 99.5% and represented as a decimal number 0.995">
+	marginPercentage number (0..1) <"Percentage value of transaction needing to be posted as collateral expressed as a valuation. As an example a 104% requirement would be represented as a decimal number 1.04">
 	fxHaircutPercentage number (0..1) <"FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin).The percentage value is expressed as the discount haircut to the value of the collateral- as an example an 8% FX haircut would be expressed as 0.08.">
 
-	condition: valuationPercentage > 0 and valuationPercentage <= 1
+	condition ValuationPercentage: <"A data rule to validate that if an Valuation Percentage is specified it should be between 0 and 1.">
+		if valuationPercentage exists
+		then valuationPercentage > 0 and valuationPercentage <= 1
+
+	condition MarginPercentage: <"A data rule to validate that if a Margin Percentage is specified it should be greater than 1.">
+		if marginPercentage exists
+		then marginPercentage > 1
 
 	condition FxHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and 1.">
 		if fxHaircutPercentage exists
 		then fxHaircutPercentage > 0 and fxHaircutPercentage <= 1
 
-type EligibleCollateral: <"Set of criteria used to specify eligible collateral.">
-	[rootType]
+	condition ValuationPercentageOrMarginPercentage: <"Choice rule requiring that either a valuation percentage or margin percentage is specified.">
+		required choice valuationPercentage, marginPercentage
 
-	criteria EligibleCollateralCriteria (1..*)
+type EligibleCollateralSchedule: <"Set of criteria used to specify an eligible collateral schedule.">
+	[rootType]
+	[metadata key]
+
+	scheduleIdentifier Identifier (0..*) <"Represents the identifier(s) that uniquely identify an eligible collateral schedule for an identity issuer.">
+	criteria EligibleCollateralCriteria (1..*) <"Criteria used to specify eligible collateral.">
 
 type EligibleCollateralCriteria: <"Criteria used to specify eligible collateral.">
 
@@ -64,7 +76,7 @@ type EligibleCollateralCriteria: <"Criteria used to specify eligible collateral.
 	asset AssetCriteria (0..*) <"Filter based on the asset.">
 	treatment CollateralTreatment (1..1) <"Treatment of described collateral">
 
-type CollateralTreatment: <"A class to specify the treatment terms for the eligible collateral criteria specified.">
+type CollateralTreatment: <"Specifies the treatment terms for the eligible collateral criteria specified.">
 
 	valuationPercentage CollateralValuationPercentage (0..1) <"Specification of the valuation treatment for the specified collateral.">
 	concentrationLimit ConcentrationLimit (0..*) <"Specification of concentration limits applicable to the collateral criteria.">
@@ -982,7 +994,7 @@ type PostingObligationsElection: <"A class to specify the collateral posting obl
 	
 	party CounterpartyRoleEnum (1..1) <"The elective party.">
 	asPermitted boolean (1..1) <"If set to True, the Control Agreement is a Credit Support Document with respect to the party(ies). ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6, (e).">
-	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, Eligible Credit Support (IM) Schedule.">
+	eligibleCollateral EligibleCollateralSchedule (0..*) <"The eligible collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, Eligible Credit Support (IM) Schedule.">
 		[synonym ISDA_Create_1_0 value "partyA_eligible_currencies" set when "partyA_type" = "specify"]
 		[synonym ISDA_Create_1_0 value "partyB_eligible_currencies" set when "partyB_type" = "specify"]
 	excludedCollateral string (0..1) <"The excluded collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii)(B)(i)."> 
