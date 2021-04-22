@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release renames the ISDA Create sample json files for the legal agreement document types to be in line with the agreed ISDA Create naming convension.
+This release renames the ISDA Create sample json files for the legal agreement document types to be in line with the agreed ISDA Create naming convention.
 
 - 2016-im-csa-ny-law
 - 2019-clearstream-sa-security-provider-lux-law
