@@ -2,12 +2,8 @@
 
 _What is being released?_
 
-Following a member contribution, this release has a new code generator that projects the CDM into the Kotlin language.
-
-- Kotlin code generated for all CDM types and enums.
-- Injected into CDM build pipeline so all new CDM releases will include Kotlin code artefacts.
-- Kotlin download tile added to the ISDA CDM Portal Downloads page.
+The suite of CDM Distributions has been expanded with a version in Kotlin programming language on the CDM Portal. This version only contains CDM types and enums for now.
 
 _Review Directions_
 
-- In the CDM Portal, go to Downloads section and download Kotlin distribution.
+- In the CDM Portal, A new tile in the downloads section offers the option to retrieve the new CDM Kotlin Distribution.
