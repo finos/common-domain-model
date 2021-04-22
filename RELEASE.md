@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-Following a contribution from a member, this release contains a new code generator that projects the CDM into the Kotlin language.
+Following a member contribution, this release has a new code generator that projects the CDM into the Kotlin language.
 
 - Kotlin code generated for all CDM types and enums.
 - Injected into CDM build pipeline so all new CDM releases will include Kotlin code artefacts.
