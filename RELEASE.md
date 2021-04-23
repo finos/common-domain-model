@@ -1,18 +1,9 @@
-# *Legal Agreement Model - Updated ISDA Create Samples Names*
+# *CDM Distribution: Kotlin Language*
 
 _What is being released?_
 
-This release renames the ISDA Create sample json files for the legal agreement document types to be in line with the agreed ISDA Create naming convention.
+The suite of CDM Distributions has been expanded with a version in Kotlin programming language on the CDM Portal. This version only contains CDM types and enums for now.
 
-- 2016-im-csa-ny-law
-- 2019-clearstream-sa-security-provider-lux-law
-- 2019-clearstream-sa-security-taker-lux-law
-- 2019-isda-bank-custodian-sa-eng-law
-- 2019-isda-bank-custodian-sa-ny-law
+_Review Directions_
 
-_Review directions_
-
-In the CDM Portal, select Ingestion, and run samples from the following folders:
-
-- isda-create/test-pack/production/
-- isda-create/test-pack/sandbox/
+- In the CDM Portal, A new tile in the downloads section offers the option to retrieve the new CDM Kotlin Distribution.
