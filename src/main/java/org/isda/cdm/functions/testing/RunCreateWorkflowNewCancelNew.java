@@ -38,15 +38,15 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<TradeSt
     @Override
     public Workflow execute(TradeState tradeState) {
         WorkflowStep newExecutionWorkflowStep = lineageUtils.withGlobalReference(WorkflowStep.class,
-        		workflowStep.evaluate(messageInformation("msg-1"), eventDate(tradeState.getTrade().getTradeDate(), LocalTime.of(18, 12)), identifier("id-1"), emptyList(), emptyList(),
+        		workflowStep.evaluate(messageInformation("msg-1"), eventDate(tradeState.getTrade().getTradeEffectiveDate(), LocalTime.of(18, 12)), identifier("id-1"), emptyList(), emptyList(),
         				null, ActionEnum.NEW, newBusinessEvent(tradeState)));
 
         WorkflowStep cancelledExecutionWorkflowStep = lineageUtils.withGlobalReference(WorkflowStep.class,
-        		workflowStep.evaluate(messageInformation("msg-2"), eventDate(tradeState.getTrade().getTradeDate(), LocalTime.of(18, 55)), identifier("id-2"), emptyList(), emptyList(),
+        		workflowStep.evaluate(messageInformation("msg-2"), eventDate(tradeState.getTrade().getTradeEffectiveDate(), LocalTime.of(18, 55)), identifier("id-2"), emptyList(), emptyList(),
         				newExecutionWorkflowStep, ActionEnum.CANCEL, null));
 
         WorkflowStep correctedExecutionWorkflowStep = lineageUtils.withGlobalReference(WorkflowStep.class,
-        		workflowStep.evaluate(messageInformation("msg-3"), eventDate(tradeState.getTrade().getTradeDate(), LocalTime.of(19, 13)), identifier("id-3"), emptyList(), emptyList(),
+        		workflowStep.evaluate(messageInformation("msg-3"), eventDate(tradeState.getTrade().getTradeEffectiveDate(), LocalTime.of(19, 13)), identifier("id-3"), emptyList(), emptyList(),
         				null, ActionEnum.NEW, correctedBusinessEvent(tradeState)));
 
 		return Workflow.builder()

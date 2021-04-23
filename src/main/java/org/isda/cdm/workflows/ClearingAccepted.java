@@ -48,7 +48,7 @@ public class ClearingAccepted implements Function<TradeState, Workflow> {
 		Identifier identifier = Optional.ofNullable(alphaContract.getTrade().getTradeIdentifier())
 				.flatMap(ids -> ids.stream().findFirst())
 				.orElse(null);
-		Date tradeDate = Optional.ofNullable(alphaContract.getTrade().getTradeDate())
+		Date tradeDate = Optional.ofNullable(alphaContract.getTrade().getTradeEffectiveDate())
 				.map(FieldWithMetaDate::getValue)
 				.orElse(null);
 
