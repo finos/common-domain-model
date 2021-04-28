@@ -275,8 +275,7 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 		and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
 		and businessEvent -> eventDate = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates only-element
-		//and originalContractParties <> newContractParties
-
+		
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
 	inputs:
@@ -322,8 +321,7 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
 		businessEvent -> primitives count = 1
 		and transfer -> priceQuantity -> observable -> productIdentifier exists
 		and transfer -> priceQuantity -> quantity -> unitOfAmount -> financialUnit only exists
-		// and transfer -> priceQuantity -> quantity -> unitOfAmount -> financialUnit = FinancialUnitEnum -> Notional
-
+		
 func Qualify_SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
 	[qualification BusinessEvent]
 	inputs:
@@ -501,7 +499,7 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 	assign-output cashflow -> cashflowAmount -> amount:
 		performance
 
-	assign-output cashflow -> cashflowAmount -> currency:
+	assign-output cashflow -> cashflowAmount -> unitOfAmount -> currency:
 		interestRatePayout -> payoutQuantity -> resolvedQuantity -> unitOfAmount -> currency
 
 	assign-output cashflow -> payerReceiver -> payer:
@@ -611,7 +609,7 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
 	assign-output equityCashSettlementAmount -> cashflowAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
 		Abs(equityPerformance)
 
-	assign-output equityCashSettlementAmount -> cashflowAmount -> currency: <"Does not handle the cross currency case, currently.">
+	assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency: <"Does not handle the cross currency case, currently.">
         ResolveEquityInitialPrice( tradeState -> trade -> tradableProduct -> priceQuantity ) -> unitOfAmount -> currency
 
 	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
@@ -843,7 +841,7 @@ func Create_ContractFormationPrimitive: <"Function specification to create the p
 
 	assign-output trade -> contractDetails -> documentation -> legalAgreement: <"When an overlaying legal agreement exists, the contract must reference it.">
 		if legalAgreement exists
-		then Create_LegalAgreementWithPartyReference(legalAgreement -> agreementTerms, legalAgreement -> agreementDate, legalAgreement -> effectiveDate, legalAgreement -> identifier, /*legalAgreement -> lineage,*/ legalAgreement -> agreementType, legalAgreement -> contractualParty, legalAgreement -> otherParty)
+		then Create_LegalAgreementWithPartyReference(legalAgreement -> agreementTerms, legalAgreement -> agreementDate, legalAgreement -> effectiveDate, legalAgreement -> identifier,  legalAgreement -> agreementType, legalAgreement -> contractualParty, legalAgreement -> otherParty)
 
 func Create_Exercise: <"Defines the process of putting into effect the rights specified in an options contract, such as to buy or sell a security.  Once exercised the option contract is terminated.">
  	[creation BusinessEvent]
@@ -1023,7 +1021,7 @@ func Create_CashTransfer: <"Defines how Transfer that represents an exchange of 
 		cashflow -> cashflowAmount -> amount
 
 	assign-output transfer -> priceQuantity -> quantity -> unitOfAmount -> currency:
-		cashflow -> cashflowAmount -> currency
+		cashflow -> cashflowAmount -> unitOfAmount-> currency
 
 	assign-output transfer -> payerReceiver -> payerPartyReference:
 		if cashflow -> payerReceiver -> payer exists
@@ -1416,7 +1414,7 @@ func NewSingleNameEquityPayout: <"Function specification to create the equity pa
 		equityPayout EquityPayout (1..1)
 
 	condition: <"Security must be equity (single name).">
-		security -> securityType = SecurityTypeEnum->Equity //= underlier
+		security -> securityType = SecurityTypeEnum->Equity 
 
 	assign-output equityPayout -> returnType: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
 		masterConfirmation -> typeOfSwapElection

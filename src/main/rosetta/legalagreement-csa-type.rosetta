@@ -42,21 +42,33 @@ type AgencyRatingCriteria: <"A class to specify multiple credit notations alongs
 		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
 		then AgencyRatingCriteria -> referenceAgency exists
 
-type CollateralValuationPercentage:
+type CollateralValuationPercentage: <"Specification of the valuation treatment for the specified collateral.">
 
-	valuationPercentage number (1..1) <"Percentage value of asset to be used as collateral once discounted haircut take into consideration,expressed as a valuation. As an example a 0.5% haircut would be expressed as 99.5% and represented as a decimal number 0.995">
+	valuationPercentage number (0..1) <"Percentage value of asset to be used as collateral once discounted haircut take into consideration,expressed as a valuation. As an example a 0.5% haircut would be expressed as 99.5% and represented as a decimal number 0.995">
+	marginPercentage number (0..1) <"Percentage value of transaction needing to be posted as collateral expressed as a valuation. As an example a 104% requirement would be represented as a decimal number 1.04">
 	fxHaircutPercentage number (0..1) <"FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin).The percentage value is expressed as the discount haircut to the value of the collateral- as an example an 8% FX haircut would be expressed as 0.08.">
 
-	condition: valuationPercentage > 0 and valuationPercentage <= 1
+	condition ValuationPercentage: <"A data rule to validate that if an Valuation Percentage is specified it should be between 0 and 1.">
+		if valuationPercentage exists
+		then valuationPercentage > 0 and valuationPercentage <= 1
+
+	condition MarginPercentage: <"A data rule to validate that if a Margin Percentage is specified it should be greater than 1.">
+		if marginPercentage exists
+		then marginPercentage > 1
 
 	condition FxHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and 1.">
 		if fxHaircutPercentage exists
 		then fxHaircutPercentage > 0 and fxHaircutPercentage <= 1
 
-type EligibleCollateral: <"Set of criteria used to specify eligible collateral.">
-	[rootType]
+	condition ValuationPercentageOrMarginPercentage: <"Choice rule requiring that either a valuation percentage or margin percentage is specified.">
+		required choice valuationPercentage, marginPercentage
 
-	criteria EligibleCollateralCriteria (1..*)
+type EligibleCollateralSchedule: <"Set of criteria used to specify an eligible collateral schedule.">
+	[rootType]
+	[metadata key]
+
+	scheduleIdentifier Identifier (0..*) <"Represents the identifier(s) that uniquely identify an eligible collateral schedule for an identity issuer.">
+	criteria EligibleCollateralCriteria (1..*) <"Criteria used to specify eligible collateral.">
 
 type EligibleCollateralCriteria: <"Criteria used to specify eligible collateral.">
 
@@ -64,7 +76,7 @@ type EligibleCollateralCriteria: <"Criteria used to specify eligible collateral.
 	asset AssetCriteria (0..*) <"Filter based on the asset.">
 	treatment CollateralTreatment (1..1) <"Treatment of described collateral">
 
-type CollateralTreatment: <"A class to specify the treatment terms for the eligible collateral criteria specified.">
+type CollateralTreatment: <"Specifies the treatment terms for the eligible collateral criteria specified.">
 
 	valuationPercentage CollateralValuationPercentage (0..1) <"Specification of the valuation treatment for the specified collateral.">
 	concentrationLimit ConcentrationLimit (0..*) <"Specification of concentration limits applicable to the collateral criteria.">
@@ -202,7 +214,7 @@ type ApplicableRegime: <"A class to specify the applicable regulatory regime(s) 
 	additionalType AdditionalTypeEnum (0..1) <"The Additional Type of transaction that can require the collection or delivery of initial margin under the specified regulatory regime for the purposes of Covered Transactions, as specified in ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (b)(B).">
 	additionalTerms string (0..1) <"The bespoke Additional Type for the purposes of Covered Transactions (IM).">
 	
-	condition Choice: <"The applicable regime should be specified either as an enumeration or as an additional regime specified by the parties.">
+	condition ApplicableRegimeChoice: <"The applicable regime should be specified either as an enumeration or as an additional regime specified by the parties.">
 		required choice regime, additionalRegime
 
 type AppropriatedCollateralValuation: <"A class to specify the Valuation of Appropriated Collateral that is applicable to the English Law ISDA CSA. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (u): Valuation of Appropriated Collateral.">
@@ -926,7 +938,7 @@ type NotificationTimeElection: <"A class to specify the notification time electi
 		[synonym ISDA_Create_1_0 value "partyA_specify" set when "partyA_notification_time" = "false"]
 		[synonym ISDA_Create_1_0 value "partyB_specify" set when "partyB_notification_time" = "false"]
 
-	condition Choice: <"The Notification Time is specified either as a time that is qualified by a standard business center or as a custom election.">
+	condition NotificationTimeElectionChoice: <"The Notification Time is specified either as a time that is qualified by a standard business center or as a custom election.">
 		required choice notificationTime, customNotification
 
 
@@ -982,7 +994,7 @@ type PostingObligationsElection: <"A class to specify the collateral posting obl
 	
 	party CounterpartyRoleEnum (1..1) <"The elective party.">
 	asPermitted boolean (1..1) <"If set to True, the Control Agreement is a Credit Support Document with respect to the party(ies). ISDA 2016 Credit Support Annex for Initial Margin, paragraph 6, (e).">
-	eligibleCollateral EligibleCollateral (0..*) <"The eligible collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, Eligible Credit Support (IM) Schedule.">
+	eligibleCollateral EligibleCollateralSchedule (0..*) <"The eligible collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, Eligible Credit Support (IM) Schedule.">
 		[synonym ISDA_Create_1_0 value "partyA_eligible_currencies" set when "partyA_type" = "specify"]
 		[synonym ISDA_Create_1_0 value "partyB_eligible_currencies" set when "partyB_type" = "specify"]
 	excludedCollateral string (0..1) <"The excluded collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (ii)(B)(i)."> 
@@ -1215,7 +1227,7 @@ type SubstitutedRegime: <"A class to specify each party's election with respect 
     additionalRegime string (0..1) <"The additional regulatory regime as specified by the parties.">
 	regimeTerms SubstitutedRegimeTerms (2..2) <"Specifies the applicability of the Substituted Regime as denoted in the Substituted Regime Table as part of certain legal agreements, such as such as the ISDA 2016 and 2018 CSA for Initial Margin.">
 
-	condition Choice: <"The applicable regime should be specified either as an enumeration or as an additional regime specified by the parties.">
+	condition SubstitutedRegimeChoice: <"The applicable regime should be specified either as an enumeration or as an additional regime specified by the parties.">
 		required choice regime, additionalRegime
 
 type SubstitutedRegimeTerms: <"Specifies the applicability of the Substituted Regime as denoted in the Substituted Regime Table as part of certain legal agreements, such as such as the ISDA 2016 and 2018 CSA for Initial Margin.">
@@ -1266,6 +1278,7 @@ type AdditionalObligations: <"The election of party specific additional obligati
 
 type BaseAndEligibleCurrency: <"The base and eligible currency(ies) for the document as specified by the parties to the agreement.">
 	baseCurrency string (1..1) <"The base currency for the document as elected by the parties to the agreement. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+		[metadata scheme]
 		[synonym ISDA_Create_1_0 value "currency" path "base_currency" mapper "IsoCurrency"]
 	eligibleCurrency string (0..*) <"The list of eligible currencies, in addition to the base currency, for the document as elected by the parties to the agreement.">
 		[metadata scheme]
@@ -1311,7 +1324,7 @@ type AssetCriteria: <"Criteria used to specify eligible collateral assets.">
 	domesticCurrencyIssued boolean (0..1) <"Identifies that the Security must be denominated in the domestic currency of the issuer.">
 	listing ListingType (0..1) <"Specifies the exchange, index or sector specific to listing of a security.">
 	
-	condition Choice: <"If any are specified, only one of AssetType, ProductTaxonomy or ProductIdentifer should exist.">
+	condition AssetCriteriaChoice: <"If any are specified, only one of AssetType, ProductTaxonomy or ProductIdentifer should exist.">
 		optional choice collateralAssetType, productTaxonomy, productIdentifier
 
 type ListingType: <"Filter based on an underlying corporate financial official listing defined at a stock exchange.">

@@ -1,20 +1,33 @@
-# *Product Model - PriceQuantity: PriceQuantity refactoring follow up tasks - minor changes for Reset, OptionStrike, and FloatingRate*
+# *Product Model - PriceQuantity: FpML synonym mappings for FloatingRateSpecification*
 
-_What is being released_
+_What is being released?_
 
-The recent `PriceQuantity` refactoring introduced a new standard set of data types for `Price` and `Quantity` and also propagated the related changes throughout most of the model.  This release continues that propagation in specific areas and includes other minor clean up tasks:
+The recent `PriceQuantity` refactoring introduced a new standard set of data types for `Price` and `Quantity` and also propagated the related changes throughout most of the model. This release contains a few minor clean up tasks:
 
-1. Updated `Reset`->`resetValue` and `Observation`->`observationValue`type to use the `Price` data type. 
+The initial floating rate is considered an attribute of the `Product`.  The FpML synonyms have been changed to map the initial floating rate into the `FloatingRateSpecification -> initialRate`, rather than `PriceQuantity -> price`.
 
-2.  In `OptionStrike`
-  - Removed metadata address from `StrikePrice`:  This attribute uses the new standard `Price` data type, but does not require the new metadata address pointing to `PriceQuantity` because the strike price is not represented there.  This change corrects an unintended change from the `PriceQuantity` refactoring release.
-  - For the FpML synonyms, changed the mapping for the FpML `StrikePrice` to point to the `OptionPayout` instead of the `TradableProduct->PriceQuantity`.
-  - Changed the condition `choice` to `one of`, which is a more streamlined expression that can be used in this case.
+_Review Directions_
 
-3. Tangentially related to `PriceQuantity`: Expanded the description for `BusinessEvent`->`EventDate`.
+In the CDM Portal, select Ingestion, and review the following samples:
 
-_Review directions_
+For `FloatingRateSpecification -> initialRate`:
 
-In the CDM Portal, select the Textual Browser and search for the data types and attributes listed above. Also, see one or more ingestion examples, e.g. 
-`fx ex09 euro op`.
+- products > credit > cdindex-ex04-iBoxx-uti.xml
+- products > rates > ird-ex29-non-deliverable-settlement-swap-uti.xml
+- products > rates > ird-ex33-BRL-CDI-swap-versioned.json
 
+# *Event Model - Event Date: FpML Record-Keeping synonym mappings for BusinessEvent*
+
+_What is being released?_
+
+This release adds an FpML Record-Keeping synonym mapping for `BusinessEvent -> eventDate`.
+
+_Review Directions_
+
+In the CDM Portal, select Ingestion, and review the following samples:
+
+For `BusinessEvent -> eventDate`: 
+
+- record-keeping > record-ex01-vanilla-swap.xml
+- record-keeping > record-ex02-vanilla-swap-datadoc.xml
+- record-keeping > record-ex100-new-trade.xml

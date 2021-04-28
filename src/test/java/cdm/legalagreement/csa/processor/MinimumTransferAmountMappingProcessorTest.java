@@ -49,7 +49,7 @@ class MinimumTransferAmountMappingProcessorTest {
 		assertNull(partyA.getCustomElection());
 		Money amount = partyA.getAmount();
 		assertEquals(10000, amount.getAmount().intValue());
-		assertEquals("EUR", amount.getCurrency().getValue());
+		assertEquals("EUR", amount.getUnitOfAmount().getCurrency().getValue());
 
 		ElectiveAmountElection partyB = getPartyElection(minimumTransferAmount, CounterpartyRoleEnum.PARTY_2);
 		assertNull(partyB.getCustomElection());

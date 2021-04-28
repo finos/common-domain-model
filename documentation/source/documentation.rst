@@ -99,7 +99,7 @@ The ``Price`` data type extends the ``MeasureBase`` data type with the addition 
 
  type Price extends MeasureBase:  
 	priceType PriceTypeEnum (1..1)
-	perUnitOfAmount UnitType (0..1)
+	perUnitOfAmount UnitType (1..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
 
@@ -259,6 +259,10 @@ The scope of contractual products in the current model are summarized below:
 * **Options**:
 
   * Any other OTC Options (incl. FX Options)
+  
+* **Securities Lending**:
+
+  * Single underlyer, cash collateralised, open/term security loan 
 
 In the CDM, contractual products are represented by the ``ContractualProduct`` type:
 
@@ -306,9 +310,10 @@ The ``Payout`` type defines the composable payout types, each of which describes
    forwardPayout ForwardPayout (0..*)
    fixedForwardPayout FixedForwardPayout (0..*)
    securityPayout SecurityPayout (0..*)
+   securityFinancePayout SecurityFinancePayout (0..*)
    cashflow Cashflow (0..*)
    
-The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``Cashflow``, and the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout`` are all extensions of the base type called ``PayoutBase``, which provides a common location for referencing payout quantities, as illustrated below:
+The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``SecurityFinancePayout``, ``Cashflow``, and the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout`` are all extensions of the base type called ``PayoutBase``, which provides a common location for referencing payout quantities, as illustrated below:
 
 .. code-block:: Haskell
 
@@ -474,7 +479,8 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
  		and economicTerms -> payout -> equityPayout is absent
  		and economicTerms -> payout -> forwardPayout is absent
  		and economicTerms -> payout -> optionPayout is absent
- 		and economicTerms -> payout -> securityPayout is absent))
+ 		and economicTerms -> payout -> securityPayout is absent
+        and economicTerms -> payout -> securityFinancePayout is absent))
  		and economicTerms -> payout -> interestRatePayout count =2
  		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
  		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
@@ -631,8 +637,10 @@ The ``settlementTerms`` attribute defines how the transaction should be settled 
    settlementType SettlementTypeEnum (0..1)
    settlementDate AdjustableOrRelativeDate (0..1)
    valueDate date (0..1)
-   settlementAmount Money (0..1)
    transferSettlementType TransferSettlementEnum (0..1)
+   payerReceiver PartyReferencePayerReceiver (0..1)
+   priceQuantity PriceQuantity (0..1)
+       [metadata reference]
 
 Additionally, ``Trade`` supports representation of specific execution or contractual details via the ``executionDetails`` and ``contractDetails`` attributes.
 
@@ -1427,7 +1435,7 @@ The ``partyElection`` attribute, which is of the type partyElection ``PostingObl
  type PostingObligationsElection:
    party CounterpartyRoleEnum (1..1)
    asPermitted boolean (1..1)
-   eligibleCollateral EligibleCollateral (0..*)
+   eligibleCollateral EligibleCollateralSchedule (0..*)
    excludedCollateral string (0..1)
    additionalLanguage string (0..1)
 
@@ -1437,9 +1445,11 @@ The development of a digital data standard for representation of eligible collat
 
 .. code-block:: Haskell
 
- type EligibleCollateral:
- [rootType]
-   criteria EligibleCollateralCriteria (1..*)
+ type EligibleCollateralSchedule:
+	[rootType]
+	[metadata key]
+	scheduleIdentifier Identifier (0..*)
+	criteria EligibleCollateralCriteria (1..*)
 
 The ``EligibleCollateralCriteria`` data type contains the following key components to allow the digital representation of the detailed criteria reflected in the legal agreement:
 
@@ -1796,13 +1806,13 @@ Some of those calculations are presented below:
  	alias equityPerformance:
  	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
 
-     condition:
+ 	condition:
          tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
 
  	assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
  		Abs(equityPerformance)
 
- 	assign-output equityCashSettlementAmount -> cashflowAmount -> currency: 
+ 	assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency:
          ResolveEquityInitialPrice( tradeState -> trade -> tradableProduct -> priceQuantity ) -> unitOfAmount -> currency
 
  	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
@@ -1840,43 +1850,48 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
  func DeliveryAmount:
-   [calculation]
-   inputs:
-     postedCreditSupportItems PostedCreditSupportItem (0..*)
-     priorDeliveryAmountAdjustment Money (1..1)
-     priorReturnAmountAdjustment Money (1..1)
-     disputedTransferredPostedCreditSupportAmount Money (1..1)
-     marginAmount Money (1..1)
-     threshold Money (1..1)
-     marginApproach MarginApproachEnum (1..1)
-     marginAmountIA Money (0..1)
-     minimumTransferAmount Money (1..1)
-     rounding CollateralRounding (1..1)
-     disputedDeliveryAmount Money (1..1)
-     baseCurrency string (1..1)
+	[calculation]
 
-   output:
-     result Money (1..1)
+	inputs:
+		postedCreditSupportItems PostedCreditSupportItem (0..*)
+		priorDeliveryAmountAdjustment Money (1..1)
+		priorReturnAmountAdjustment Money (1..1)
+		disputedTransferredPostedCreditSupportAmount Money (1..1)
+		marginAmount Money (1..1)
+		threshold Money (1..1)
+		marginApproach MarginApproachEnum (1..1)
+		marginAmountIA Money (0..1)
+		minimumTransferAmount Money (1..1)
+		rounding CollateralRounding (1..1)
+		disputedDeliveryAmount Money (1..1)
+		baseCurrency string (1..1)
 
-     alias undisputedAdjustedPostedCreditSupportAmount:
-       UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency )
-     alias creditSupportAmount:
-       CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
-     alias deliveryAmount:
-       Max( creditSupportAmount -> amount - undisputedAdjustedPostedCreditSupportAmount -> amount, 0.0 )
-     alias undisputedDeliveryAmount:
-       Max( deliveryAmount - disputedDeliveryAmount -> amount, 0.0 )
+	output:
+		result Money (1..1)
 
-     condition:
-       ( baseCurrency = minimumTransferAmount -> currency )
-       and ( baseCurrency = disputedDeliveryAmount -> currency )
+	alias undisputedAdjustedPostedCreditSupportAmount:
+		UndisputedAdjustedPostedCreditSupportAmount(postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency)
 
-     assign-output result -> amount:
-       if undisputedDeliveryAmount >= minimumTransferAmount -> amount
-       then RoundToNearest( undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up )
-       else 0.0
-     assign-output result -> currency:
-       baseCurrency
+	alias creditSupportAmount:
+		CreditSupportAmount(marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency)
+
+	alias deliveryAmount:
+		Max(creditSupportAmount -> amount - undisputedAdjustedPostedCreditSupportAmount -> amount, 0.0)
+
+	alias undisputedDeliveryAmount:
+		Max(deliveryAmount - disputedDeliveryAmount -> amount, 0.0)
+
+	condition:
+		(baseCurrency = minimumTransferAmount -> unitOfAmount -> currency
+		and (baseCurrency = disputedDeliveryAmount -> unitOfAmount -> currency))
+
+	assign-output result -> amount:
+		if undisputedDeliveryAmount >= minimumTransferAmount -> amount
+		then RoundToNearest(undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up)
+		else 0.0
+
+	assign-output result -> unitOfAmount -> currency:
+	    baseCurrency
 
 .. code-block:: Haskell
  func ReturnAmount:
