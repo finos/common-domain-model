@@ -1,4 +1,4 @@
-# *Legal Agreement Model - Eligible Collateral Schedule*
+# *Legal Agreement Model - Collateral Agreement Elections*
 
 _What is being released?_
 
