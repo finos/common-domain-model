@@ -25,11 +25,13 @@ type ObservationSource: <"The observation source can be composed of an curve and
 
 
 type SecurityValuation: <" Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
+	[deprecated]
 
 	securityValuationModel SecurityValuationModel (1..1) <"The security valuation model choice, based on either a nominal amount or a number of units.">
 	underlier Security (1..1) <"The underlying security of the security leg.">
 
 type SecurityValuationModel: <" The security valuation model choice, which can either be based on nominal amount as for a bond, or on the number of contract units as for equity.">
+	[deprecated]
 
 	bondValuationModel BondValuationModel (0..1) <"The valuation model when the security is a bond.">
 	unitContractValuationModel UnitContractValuationModel (0..1) <"The valuation model when the security is a unit contract like equity.">
@@ -37,13 +39,15 @@ type SecurityValuationModel: <" The security valuation model choice, which can e
 	condition: one-of
 
 type BondValuationModel: <" Bond valuation model for the security leg in a securities financing transaction, closely modelled onto the BondCollateral.model in FpML.">
+	[deprecated]
 
 	nominalAmount Money (1..1) <"The quantity of the underlier expressed as a nominal amount.">
 	bondPriceAndYieldModel BondPriceAndYieldModel (1..1) <"Price and yield model for valuing a bond security leg.">
 	accrualsAmount Money (0..1) <"Accruals amount for the bond in the security leg">
 
 type BondPriceAndYieldModel: <" Bond price and yield valuation model for the security leg in a securities financing transaction, closely modelled onto the BondPriceAndYield.model in FpML.">
-
+	[deprecated]
+	
 	cleanOrDirtyPrice CleanOrDirtyPrice (0..1) <"Either the clean or dirty price of the bond.">
 	relativePrice RelativePrice (0..1) <"Bond price relative to a Benchmark.">
 	yieldToMaturity number (0..1) <"Price specified as a yield to maturity.">
@@ -80,6 +84,7 @@ type BondChoiceModel: <" Either a bond or convertible bond.">
 	condition: one-of
 
 type UnitContractValuationModel: <" Unit contract model for security valuation, e.g. for equity, modelled onto UnitContract.model in FpML.">
+	[deprecated]
 
 	numberOfUnits Quantity (1..1) <"The number of units (index or securities).">
 	unitPrice Money (1..1) <"The price of each unit.">
@@ -377,7 +382,7 @@ type FxSettlementRateSource: <"The source of the Foreign Exchange settlement rat
 		[metadata scheme]
 	nonstandardSettlementRate FxInformationSource (0..1) <"Indicates that a non-standard rate source will be used for the fixing.">
 
-	condition Choice:
+	condition FxSettlementRateSourceChoice:
 		required choice settlementRateOption, nonstandardSettlementRate
 
 type CalculationAgent: <"A class defining the ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
@@ -387,5 +392,5 @@ type CalculationAgent: <"A class defining the ISDA calculation agent responsible
 	calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located The short-form confirm for a trade that is executed under a Sovereign or Asia Pacific Master Confirmation Agreement ( MCA ), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent City. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent City.">
 		[metadata scheme]
 
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
+	condition CalculationAgentChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice calculationAgentParty, calculationAgentPartyEnum

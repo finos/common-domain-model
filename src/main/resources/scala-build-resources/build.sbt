@@ -9,15 +9,12 @@ val versions = new {
   val jackson = "2.10.0"
 }
 
-resolvers += Resolver.bintrayRepo("commodityvectors", "commodityvectors-releases")
-
 lazy val root = (project in file("."))
   .settings(
     name := "cdm-scala",
     libraryDependencies ++= Seq(
       scalaTest % Test,
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % versions.jackson,
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % versions.jackson,
-      "com.commodityvectors" %% "scalatest-snapshot-matcher-core" % "2.0.2"
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % versions.jackson
     )
   )

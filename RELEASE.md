@@ -1,51 +1,33 @@
-# *Model Change - Modified Money data type to use the new standard Quantity data type*
+# *Product Model - PriceQuantity: FpML synonym mappings for FloatingRateSpecification*
+
 _What is being released?_
 
-This release modifies the `Money` type by making it an extension of `Quantity`, removing the existing attributes in 'Money', and adding a condition that requires the `unitOfAmount` to be a `currency`.
+The recent `PriceQuantity` refactoring introduced a new standard set of data types for `Price` and `Quantity` and also propagated the related changes throughout most of the model. This release contains a few minor clean up tasks:
 
-The following functions required minor modifications to point-to/use the new location of currency in the 'Money' data type:
-- `Create_Transfer`
-- `CreditSupportAmount`
-- `DeliveryAmount`
-- `EquityCashSettlementAmount`
-- `PostedCreditSupportItemAmount`
-- `ReturnAmount`
-- `UndisputedAdjustedPostedCreditSupportAmount`
+The initial floating rate is considered an attribute of the `Product`.  The FpML synonyms have been changed to map the initial floating rate into the `FloatingRateSpecification -> initialRate`, rather than `PriceQuantity -> price`.
 
-The following function required no change after the `Money` data type was changed:
-- `SumPostedCreditSupportItemAmounts`
+_Review Directions_
 
-The data type for the following attribute was changed from `Money` to `Price`:
-- `UnitContractValuationModel`->`unitPrice`
+In the CDM Portal, select Ingestion, and review the following samples:
 
-The following data types required no change after the `Money` data type was changed
-- `BondPriceAndYieldModel`
-- `CalculationPeriod`
-- `Cashflow`
-- `CashSettlementTerms`
-- `CashTransferBreakdown`
-- `CashTransferComponent`
-- `ConcentrationLimit`
-- `CreditEvents`
-- `CustodianTerms`
-- `ElectiveAmountElection`
-- `ExerciseFee`
-- `ExerciseFeeSchedule`
-- `FailureToPay`
-- `InitialMargin`
-- `PartialExercise`
-- `PaymentCalculationPeriod`
-- `PaymentDetail`
-- `PaymentDiscounting`
-- `PercentageRule`
-- `Position`
-- `PostedCreditSupportItem`
-- `PremiumExpression`
-- `PrincipalExchange`
-- `SecurityLeg`
-- `SimplePayment`
-- `StubValue`
+For `FloatingRateSpecification -> initialRate`:
 
-_Review directions_
+- products > credit > cdindex-ex04-iBoxx-uti.xml
+- products > rates > ird-ex29-non-deliverable-settlement-swap-uti.xml
+- products > rates > ird-ex33-BRL-CDI-swap-versioned.json
 
-In the CDM Portal, select the Textual Browser and search for any of the changes specified above. 
+# *Event Model - Event Date: FpML Record-Keeping synonym mappings for BusinessEvent*
+
+_What is being released?_
+
+This release adds an FpML Record-Keeping synonym mapping for `BusinessEvent -> eventDate`.
+
+_Review Directions_
+
+In the CDM Portal, select Ingestion, and review the following samples:
+
+For `BusinessEvent -> eventDate`: 
+
+- record-keeping > record-ex01-vanilla-swap.xml
+- record-keeping > record-ex02-vanilla-swap-datadoc.xml
+- record-keeping > record-ex100-new-trade.xml
