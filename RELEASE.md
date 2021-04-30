@@ -1,33 +1,33 @@
-# *Product Model - PriceQuantity: FpML synonym mappings for FloatingRateSpecification*
+# *Legal Agreement Model - Collateral Agreement Elections*
 
 _What is being released?_
 
-The recent `PriceQuantity` refactoring introduced a new standard set of data types for `Price` and `Quantity` and also propagated the related changes throughout most of the model. This release contains a few minor clean up tasks:
+Under Credit Support Agreement Elections, mapping exercises identified a number of validation errors due to the model initially focussing on IM documentation, during mapping a VM agreement these were spotted. This release resolves some of the fields which are mandatory for IM only and makes them optional. The elections covered in this release are as follows: 
 
-The initial floating rate is considered an attribute of the `Product`.  The FpML synonyms have been changed to map the initial floating rate into the `FloatingRateSpecification -> initialRate`, rather than `PriceQuantity -> price`.
+* generalSimmElections
+* substitutedRegime
+* conditionsPrecedent
+* custodyArrangements
 
 _Review Directions_
 
-In the CDM Portal, select Ingestion, and review the following samples:
+In the CDM portal use the textual browser to review the following:
 
-For `FloatingRateSpecification -> initialRate`:
+* Review enhancements to type `CreditSupportAgreementElections`
+*	Locate generalSimmElections, substitutedRegime, conditionsPrecedent, custodyArrangements
+* Check cardinality changes for each from (1..1) to (0..1)
 
-- products > credit > cdindex-ex04-iBoxx-uti.xml
-- products > rates > ird-ex29-non-deliverable-settlement-swap-uti.xml
-- products > rates > ird-ex33-BRL-CDI-swap-versioned.json
-
-# *Event Model - Event Date: FpML Record-Keeping synonym mappings for BusinessEvent*
+# *Legal Agreement Model - Eligible Collateral Schedule*
 
 _What is being released?_
 
-This release adds an FpML Record-Keeping synonym mapping for `BusinessEvent -> eventDate`.
+Eligible Collateral Criteria allows specification of a Listing Type in order to define constraints based on the index, sector, or exchange an asset is listed on.  The cardinality on these attributes has been changed so that multiple values for each can be specified.
+
 
 _Review Directions_
 
-In the CDM Portal, select Ingestion, and review the following samples:
+In the CDM portal use the textual browser  to review the following:
 
-For `BusinessEvent -> eventDate`: 
+* Review enhancements to type `ListingType`
 
-- record-keeping > record-ex01-vanilla-swap.xml
-- record-keeping > record-ex02-vanilla-swap-datadoc.xml
-- record-keeping > record-ex100-new-trade.xml
+
