@@ -40,28 +40,30 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 		if (unitOfAmount != null && unitOfAmount.hasData()) {
 			return;
 		}
-		if (updateRateUnits(priceBuilder, synonymPath, "swapStream", "notionalSchedule", "notionalStepSchedule", "currency")
-				|| updateRateUnits(priceBuilder, synonymPath, "capFloorStream", "notionalSchedule", "notionalStepSchedule", "currency")
-				|| updateRateUnits(priceBuilder, synonymPath, "bondOption", "notionalAmount", "currency")
-				|| updateRateUnits(priceBuilder, synonymPath, "fra", "notional", "currency")
+		if (updateCurrencyUnits(priceBuilder, synonymPath, "swapStream", "notionalSchedule", "notionalStepSchedule", "currency")
+				|| updateCurrencyUnits(priceBuilder, synonymPath, "capFloorStream", "notionalSchedule", "notionalStepSchedule", "currency")
+				|| updateCurrencyUnits(priceBuilder, synonymPath, "bondOption", "notionalAmount", "currency")
+				|| updateCurrencyUnits(priceBuilder, synonymPath, "fra", "notional", "currency")
+				|| updateCurrencyUnits(priceBuilder, synonymPath, "equityOption", "equityExercise", "settlementCurrency")
 				// Credit
-				|| updateRateUnits(priceBuilder, synonymPath, "fixedAmountCalculation", "calculationAmount", "currency")
-				|| updateRateUnits(priceBuilder, synonymPath, "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
-				|| updateRateUnits(priceBuilder, synonymPath, "creditDefaultSwapOption", "notionalReference", "href")
+				|| updateCurrencyUnits(priceBuilder, synonymPath, "fixedAmountCalculation", "calculationAmount", "currency")
+				|| updateCurrencyUnits(priceBuilder, synonymPath, "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
+				|| updateCurrencyUnits(priceBuilder, synonymPath, "creditDefaultSwapOption", "notionalReference", "href")
+				|| updateCurrencyUnits(priceBuilder, synonymPath, "creditDefaultSwapOption", "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
 				// Equity
-				|| updateRateUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
+				|| updateCurrencyUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
 				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", "currency")
 				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", "notional", "notionalAmount", "currency")
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
 				// Repo
-				|| updateRateUnits(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")) {
+				|| updateCurrencyUnits(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")) {
 			return;
 		}
 	}
 
 	@NotNull
-	private boolean updateRateUnits(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
+	private boolean updateCurrencyUnits(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
 		return subPath(basePathElement, synonymPath)
 				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, endsWith))
 				.map(m -> m.getXmlPath().endsWith("href") ? findReference(synonymPath, m) : m)
@@ -86,7 +88,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, endsWith))
 				.map(currencyMapping -> updateBuilder(builder,
 						toCurrencyUnitType(currencyMapping),
-						UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARES)))
+						UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))
 				.orElse(false);
 	}
 
@@ -121,7 +123,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	}
 
 	private boolean updateFxOption(PriceBuilder builder, Path synonymPath) {
-		if (builder.getPriceType() != PriceTypeEnum.RATE_PRICE) {
+		if (builder.getPriceType() != PriceTypeEnum.EXCHANGE_RATE) {
 			return false;
 		}
 		Optional<Path> subPath = subPath("fxOption", synonymPath);

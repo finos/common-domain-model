@@ -1,5 +1,6 @@
 package cdm.legalagreement.csa.functions;
 
+import cdm.base.math.UnitType;
 import cdm.legalagreement.csa.PostedCreditSupportItem;
 import cdm.observable.asset.Money;
 import cdm.observable.asset.Money.MoneyBuilder;
@@ -24,9 +25,9 @@ public class SumPostedCreditSupportItemAmountsImpl extends SumPostedCreditSuppor
 		}
 		return Money.builder()
 				.setAmount(sum)
-				.setCurrency(FieldWithMetaString.builder()
-						.setValue(baseCurrency)
-						.build());
+				.setUnitOfAmount(UnitType.builder()
+						.setCurrency(FieldWithMetaString.builder()
+								.setValue(baseCurrency)));
 	}
 
 }

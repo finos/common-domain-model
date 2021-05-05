@@ -34,7 +34,7 @@ steps:
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -U -s /settings.xml clean deploy -P daml,scala,typescript,golang,csharp8,csharp9
+      - mvn -U -s /settings.xml clean deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
 
   BuildRelease:
     title: Maven build for release
@@ -50,7 +50,7 @@ steps:
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml clean deploy -P daml,scala,typescript,golang,csharp8,csharp9,full
+      - mvn -s /settings.xml clean deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
 
   ParallelTasks:
     type: parallel
@@ -81,20 +81,24 @@ steps:
         title: CSharp8 build and deploy
         fail_fast: false
         image: mcr.microsoft.com/dotnet/core/sdk:3.1
-        working_directory: ./target/classes/cdm/csharp8
+        working_directory: ./target/classes/cdm/csharp8/NetStandard.2.1
         shell: bash
         commands:
-          - dotnet publish -c release -o ./app
+          - dotnet build Cdm/Cdm.csproj
+          - dotnet test Test/Test.csproj
+          - dotnet publish Cdm/Cdm.csproj -c release -o ./app
           - tar -cvzf cdm-csharp8.tar.gz app
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp8/${{RELEASE_NAME}}/cdm-csharp8-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp8.tar.gz
       BuildCSharp9:
         title: CSharp9 build and deploy
         fail_fast: false
         image: mcr.microsoft.com/dotnet/sdk:5.0
-        working_directory: ./target/classes/cdm/csharp9
+        working_directory: ./target/classes/cdm/csharp9/Net.5.0
         shell: bash
         commands:
-          - dotnet publish -c release -o ./app
+          - dotnet build Cdm/Cdm.csproj
+          - dotnet test Test/Test.csproj
+          - dotnet publish Cdm/Cdm.csproj -c release -o ./app
           - tar -cvzf cdm-csharp9.tar.gz app
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp9/${{RELEASE_NAME}}/cdm-csharp9-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp9.tar.gz
       BuildTypeScript:
@@ -115,6 +119,16 @@ steps:
         commands:
           - tar -cvzf cdm-golang.tar.gz golang
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-golang/${{RELEASE_NAME}}/cdm-golang-${{RELEASE_NAME}}.zip" -T cdm-golang.tar.gz
+      BuildKotlin:
+        title: Kotlin build and deploy
+        fail_fast: false
+        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        working_directory: ./
+        shell: bash
+        commands:
+          - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/kotlin
+          - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+          - mvn -s /settings.xml -f kotlin-pom.xml clean deploy
       BuildJavaDocs:
         title: Javadocs build and deploy
         fail_fast: false

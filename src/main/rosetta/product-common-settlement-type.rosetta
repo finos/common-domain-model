@@ -62,7 +62,7 @@ type ResolvablePayoutQuantity: <"Generic class to specify the quantity for diffe
 	reset boolean (0..1) <"Whether the quantity is resettable">
 	futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">
 
-	condition Choice: <"A payout quantity can be resolved either (i) by fetching its actual quantity from a higher-level quantity specification referenced via metadata location reference, or (ii) by reference to another (resolvable) quantity.">
+	condition ResolvablePayoutQuantityChoice: <"A payout quantity can be resolved either (i) by fetching its actual quantity from a higher-level quantity specification referenced via metadata location reference, or (ii) by reference to another (resolvable) quantity.">
 		optional choice quantitySchedule, quantityReference
 
 	condition QuantityMultiplier: <"A quantity reference must exist when there is a quantity multiplier on a resolvable quantity.">
@@ -89,7 +89,7 @@ type ObservationPayout extends PayoutBase: <"Defines payout terms relevent where
 type CommodityPayout extends ObservationPayout: <"Payout based on the averaged price of a referenced underlier. (e.g. Commodities). Can represent both average (average of many) & bullet (average of 1) pricing">
    settlementCurrency string (0..1) <"Defines the currency in which the payment will be made.">
    	[metadata scheme]
-   averagingMethod AveragingMethodEnum (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted."> 
+   averagingMethod AveragingMethodEnum (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted.">
    commodityPriceReturnTerms CommodityPriceReturnTerms (0..1) <"Defines parameters in which the commodity price is assessed.">
    pricingDates PricingDates (1..1) <"Specifies specific dates or parametric rules for the dates on which the price will be determined.">
 
@@ -106,6 +106,7 @@ type RollFeature: <"Used in conjunction with an exchange-based pricing source. I
 type PricingDates: <"Specifies specific dates or parametric rules for the dates on which the price will be determined">
 	specifiedDates AdjustableDates (0..*)  <"Defines specified dates on which the price will be determined.">
 	parametricDates ParametricDates (0..1) <"Defines rules for the dates on which the price will be determined.">
+	
 	condition: one-of
 
 type ParametricDates: <"Defines rules for the dates on which the price will be determined.">
@@ -115,11 +116,14 @@ type ParametricDates: <"Defines rules for the dates on which the price will be d
 	dayFrequency number (0..1) <"Defines the occurrence of the dayOfWeek within the pricing period on which pricing will take place, e.g. the 3rd Friday within each Calculation Period. If omitted, every dayOfWeek will be a pricing day.">
 	lag Lag (0..1) <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
 	businessCalendar BusinessCenterEnum (1..1) <"The enumerated values to specify the business centers.">
-	condition Choice: 
+	
+	condition ParametricDatesChoice:
 		required choice dayDistribution, dayOfWeek
+	
 	condition DayOfWeekMethod:
 		if dayOfWeek exists
 		then dayFrequency exists
+
 type Lag: <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
    lagDuration Offset (1..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
    firstObservationDateOffset Offset (0..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
@@ -140,7 +144,7 @@ type CashSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTe
 	accruedInterest boolean (0..1) <"Indicates whether accrued interest is included (true) or not (false). For cash settlement this specifies whether quotations should be obtained inclusive or not of accrued interest. For physical settlement this specifies whether the buyer should deliver the obligation with an outstanding principal balance that includes or excludes accrued interest. ISDA 2003 Term: Include/Exclude Accrued Interest.">
 	valuationMethod ValuationMethodEnum (0..1) <"The ISDA defined methodology for determining the final price of the reference obligation for purposes of cash settlement. (ISDA 2003 Term: Valuation Method). For example, Market, Highest etc.">
 
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
+	condition CashSettlementTermsChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice cashSettlementAmount, recoveryFactor
 
 	condition CashSettlementBusinessDays: <"FpML specifies cashSettlementBusinessDays as a nonNegativeInteger.">
@@ -153,7 +157,7 @@ type CashSettlementTerms extends SettlementBase: <"In FpML, PhysicalSettlementTe
 
 	condition FpML_cd_37: <"FpML validation rule cd-37 - If condition quotationAmount is true, and if condition minimumQuotationAmount is true, and if both amounts have the same-currency, then quotationAmount/amount must be greater or equal to minimumQuotationAmount/amount.">
 		if (quotationAmount exists and minimumQuotationAmout exists)
-			and quotationAmount -> currency = minimumQuotationAmout -> currency
+			and quotationAmount -> unitOfAmount-> currency = minimumQuotationAmout -> unitOfAmount-> currency
 		then quotationAmount -> amount > minimumQuotationAmout -> amount
 
 type DeliverableObligations: <"A class to specify all the ISDA terms relevant to defining the deliverable obligations.">
@@ -182,7 +186,7 @@ type DeliverableObligations: <"A class to specify all the ISDA terms relevant to
 	excluded string (0..1) <"A free format string to specify any excluded obligations or deliverable obligations, as the case may be, of the reference entity or excluded types of obligations or deliverable obligations. ISDA 2003 Term: Excluded Obligations/Excluded Deliverable Obligations.">
 	othReferenceEntityObligations string (0..1) <"This element is used to specify any other obligations of a reference entity in both obligations and deliverable obligations. The obligations can be specified free-form. ISDA 2003 Term: Other Obligations of a Reference Entity.">
 
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
+	condition DeliverableObligationsChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice fullFaithAndCreditObLiability, generalFundObligationLiability, revenueObligationLiability
 
 	condition FpML_cd_34: <"FpML validation rule cd-34 - Context: DeliverableObligations. If category is equal to 'ReferenceObligationsOnly', then no other elements may be contained in the deliverable obligations element.">
@@ -355,11 +359,12 @@ type YieldCurveMethod: <"A data defining:  the parameters required for each of t
 	quotationRateType QuotationRateTypeEnum (1..1) <"Which rate quote is to be observed, either Bid, Mid, Offer or Exercising Party Pays. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j).">
 
 type OptionSettlement extends SettlementTerms: <"The option settlement terms, which can either be cash, physical, or fx-based cash-settlement. This class can be used for both the settlement of options or forwards.">
-	
+
 	cashSettlementTerms OptionCashSettlement (0..1) <"Specifies the parameters associated with the cash settlement procedure.">
 	physicalSettlementTerms OptionPhysicalSettlement (0..1) <"Specifies the physical settlement terms which apply to the transaction.">
 	fxSettlementTerms FxCashSettlement (0..1) <"Specifies the cash settlement of a non deliverable fx option / forward. It includes the currency to settle into together with the fixings required to calculate the currency amount">
-	condition Choice: <"The option settlement cannot combine both physical and cash terms specification.">
+	
+	condition OptionSettlementChoice: <"The option settlement cannot combine both physical and cash terms specification.">
 		optional choice cashSettlementTerms, physicalSettlementTerms, fxSettlementTerms
 
 	condition CashSettlementTerms: <"If the cash settlement terms are specified, then the settlementType can either be Cash, Election or CashOrPhysical">
@@ -408,14 +413,13 @@ type SettlementTerms extends SettlementBase: <"The settlement terms applicable t
 	settlementType SettlementTypeEnum (0..1) <"Whether the settlement will be cash, physical, by election, ...">
 	settlementDate AdjustableOrRelativeDate (0..1)
 	valueDate date (0..1) <"The settlement date for a forward settling product. For Foreign Exchange contracts, this represents a common settlement date between both currency legs. To specify different settlement dates for each currency leg, see the ForeignExchange class. This attribute is meant to be merged with the 'settlementDate' at some future point noce we refactor 'Date' to use a single complex type across the model.">
-	settlementAmount Money (0..1) <"The Settlement Amount, when known in advance.">
 	transferSettlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
 	payerReceiver PartyReferencePayerReceiver (0..1) <"The direction of transfer of the settlement.">
 	priceQuantity PriceQuantity (0..1) <"Identifies the Price, Quantity, and Observable of the settlement.">
 	    [metadata reference]
 
-	condition Choice: <"The settlementCurrency attribute is to be specified when the settlement amount is not known in advance.">
-		optional choice settlementAmount, settlementCurrency
+	condition SettlementTermsChoice: <"The settlementCurrency attribute is to be specified when the settlement amount is not known in advance.">
+		optional choice priceQuantity, settlementCurrency
 
 	condition DateChoice: <"Settlement date must be specified either throught he 'settlementDate' or 'valueDate' attribute. This is a temporary work-around until such time when we can retire the 'valueDate' attribute.">
 		optional choice settlementDate, valueDate
