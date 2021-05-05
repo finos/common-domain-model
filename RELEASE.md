@@ -1,4 +1,4 @@
-# *Collateral Taxonomy Sources - EU US $ US Eligible Collateral Category Listings*
+# *Collateral Taxonomy Sources - EU US & US Eligible Collateral Category Listings*
 
 _What is being released?_
 
