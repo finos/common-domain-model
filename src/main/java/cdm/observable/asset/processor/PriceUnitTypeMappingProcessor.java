@@ -1,5 +1,6 @@
 package cdm.observable.asset.processor;
 
+import cdm.base.math.CapacityUnitEnum;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.UnitType;
 import cdm.observable.asset.PriceTypeEnum;
@@ -57,7 +58,9 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
 				// Repo
-				|| updateCurrencyUnits(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")) {
+				|| updateCurrencyUnits(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")
+				// Commodity
+				|| updatePriceUnits(priceBuilder, synonymPath, "commodityOption", List.of("strikePricePerUnit", "currency"), List.of("notionalQuantity", "quantityUnit"))) {
 			return;
 		}
 	}
@@ -91,6 +94,18 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				.orElse(false);
 	}
 
+	private boolean updatePriceUnits(PriceBuilder builder, Path synonymPath, String basePathElement, List<String> unitOfAmountEndsWith, List<String> perUnitOfAmountEndsWith) {
+		Optional<Path> basePath = subPath(basePathElement, synonymPath);
+		Optional<UnitTypeBuilder> unitOfAmount = basePath
+				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(unitOfAmountEndsWith)))
+				.map(this::toCurrencyUnitType);
+		Optional<UnitTypeBuilder> perUnitOfAmount = basePath
+				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(perUnitOfAmountEndsWith)))
+				.map(this::toCapacityUnitEnumType);
+		return unitOfAmount.flatMap(uoa -> perUnitOfAmount.map(puoa -> updateBuilder(builder, uoa, puoa)))
+				.orElse(false);
+	}
+
 	@NotNull
 	private Boolean updateBuilder(PriceBuilder builder, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount) {
 		// unit of amount
@@ -111,6 +126,17 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 						.setMeta(MetaFields.builder()
 								.setScheme(currencyScheme).build())
 						.build());
+	}
+
+	private UnitTypeBuilder toCapacityUnitEnumType(Mapping capacityUnitMapping) {
+		String value = String.valueOf(capacityUnitMapping.getXmlValue());
+		UnitTypeBuilder builder = UnitType.builder();
+		try {
+			// This is a hack.  It should be looked up based on synonyms, however for CapacityUnitEnum the
+			// FpML values match the CDM enum values.
+			builder.setCapacityUnit(CapacityUnitEnum.valueOf(value.toUpperCase()));
+		} catch (IllegalArgumentException e) { /* ignored */ }
+		return builder;
 	}
 
 	private Optional<Mapping> getNonNullMappingId(Path startsWith, String id) {

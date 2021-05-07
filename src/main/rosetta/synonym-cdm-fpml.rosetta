@@ -522,7 +522,9 @@ synonym source FpML_5_10 extends FpML
             [value "spread" path "floatingRateCalculation" mapper "PriceUnitType"]
             [value "referencePrice" mapper "PriceUnitType"]
 			// For Commodity Swap Fixed Leg
-			[value "price" maps 2]
+			[value "price"]
+			// For Commodity Option
+            [value "amount" path "strikePricePerUnit" mapper "PriceUnitType"]
 		+ unitOfAmount
             [value "quotedCurrencyPair"]
             [value "settlementAmount" path "nearLeg"]
@@ -559,6 +561,8 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity Swaps
 			[set to PriceTypeEnum->CashPrice when path = "fixedLeg->fixedPrice"]
 			[set to PriceTypeEnum->Spread when path = "calculation->spread"]
+			// For Commodity Option
+            [set to PriceTypeEnum->CashPrice when "strikePricePerUnit->amount" exists]
 
 
 	PrincipalExchanges:
@@ -901,6 +905,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "strikePrice"]
             [hint "rate"]
             [hint "spread"]
+            [hint "strikePricePerUnit"]
         + strikeReference
 			[value "strikeReference" meta "href"]
 		+ referenceSwapCurve
@@ -1997,6 +2002,7 @@ synonym source FpML_5_10 extends FpML
 	OptionExercise:
 		+ strike
 			[value "strike"]
+			[hint "strikePricePerUnit"]
 		+ exerciseProcedure
 			[value "exerciseProcedure"]
 
