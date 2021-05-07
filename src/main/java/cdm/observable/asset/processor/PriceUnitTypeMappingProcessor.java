@@ -52,8 +52,8 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "creditDefaultSwapOption", "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
 				// Equity
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
-				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", "currency")
-				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", "notional", "notionalAmount", "currency")
+				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", List.of("currency"), FinancialUnitEnum.SHARE)
+				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", List.of("notional", "notionalAmount", "currency"), FinancialUnitEnum.SHARE)
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
 				// Repo
@@ -62,7 +62,6 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 		}
 	}
 
-	@NotNull
 	private boolean updateCurrencyUnits(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
 		return subPath(basePathElement, synonymPath)
 				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, endsWith))
@@ -77,18 +76,18 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				.map(Mapping::getXmlValue)
 				.map(String::valueOf)
 				.flatMap(notionalHef -> getNonNullMappingId(getBasePath(synonymPath), notionalHef))
-				.map(m -> m.getXmlPath())
+				.map(Mapping::getXmlPath)
 				.map(p -> p.getParent())
 				.flatMap(referencedPath -> getNonNullMapping(getMappings(), referencedPath, "currency"))
 				.orElse(null);
 	}
 
-	private boolean updatePriceUnits(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
+	private boolean updatePriceUnits(PriceBuilder builder, Path synonymPath, String basePathElement, List<String> endsWith, FinancialUnitEnum perUnitOfAmount) {
 		return subPath(basePathElement, synonymPath)
-				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, endsWith))
+				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(endsWith)))
 				.map(currencyMapping -> updateBuilder(builder,
 						toCurrencyUnitType(currencyMapping),
-						UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))
+						UnitType.builder().setFinancialUnit(perUnitOfAmount)))
 				.orElse(false);
 	}
 
@@ -146,5 +145,10 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	private Path getBasePath(Path synonymPath) {
 		Path.PathElement basePathElement = synonymPath.getElements().get(0);
 		return new Path().addElement(basePathElement);
+	}
+
+	@NotNull
+	private String[] toArray(List<String> a) {
+		return a.toArray(new String[a.size()]);
 	}
 }
