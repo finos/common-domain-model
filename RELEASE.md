@@ -15,7 +15,7 @@ _Review directions_
 
 In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
 
-•	Search for `TaxonomySourceEnum` and inspect the new  enum values `EUEMIREligibleCollateralAssetClass`, `UKEMIREligibleCollateralAssetClass`,`USCFTCPREligibleCollateralAssetClass`. These are followed by each enum list please observe the list for each regime. `EUEMIREligibleCollateral` contains 18 types A to R, `UKEMIREligibleCollateral` contains 18 types A to R, `USCFTCPREligibleCollateral`contains 13 types. Each of the types has its own complete description based on the respective regulations.
+•	Search for `TaxonomySourceEnum` and inspect the new  enum values `EUEMIREligibleCollateralAssetClass`, `UKEMIREligibleCollateralAssetClass`,`USCFTCPREligibleCollateralAssetClass`. Each corresponds to a regulatory enumeration list for a regime: `EUEMIREligibleCollateral` contains 18 enum values A to R, `UKEMIREligibleCollateral` contains 18 enum values A to R, `USCFTCPREligibleCollateral`contains 13 enum values. Each of the enum values has its own complete description based on the corresponding regulations.
 
 •	Search for the new type `CollateralTaxonomy` under `ProductTaxonomy`. This new type specifies a `TaxonomySource` and a value from the enumeration list. 
 
