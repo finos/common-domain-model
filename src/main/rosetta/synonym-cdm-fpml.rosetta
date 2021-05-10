@@ -460,6 +460,10 @@ synonym source FpML_5_10 extends FpML
             [value "floatingRateCalculation"]
             [value "spreadSchedule" path "floatingRateCalculation"]
 		    [value "floatingRateMultiplierSchedule" path "floatingRateCalculation"]
+			// For Commodity:
+			[value "fixedPrice"] // Commodity Swap Fixed Leg
+			[value "spread" path "calculation"] // Commodity Swap Floating Leg
+			[value "paymentAmount" path "commodityOption->premium"]
         + quantity
 		    [value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule"]
 		    [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
@@ -481,6 +485,8 @@ synonym source FpML_5_10 extends FpML
             [value "callCurrencyAmount"]
             // For Repo:
             [value "settlementAmount" path "nearLeg"]
+			// For Commodity
+			[value "notionalQuantity"]
 		+ observable
 		    // For Swap Streams etc
 			[value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
@@ -499,6 +505,8 @@ synonym source FpML_5_10 extends FpML
             // For Repo / Bond Options:
             [hint "bond"]
             [hint "convertibleBond"]
+			// For Commodity Swap Floating Leg
+			[hint "commodity"]
 
     Price:
         + amount
@@ -512,15 +520,22 @@ synonym source FpML_5_10 extends FpML
             [value "strikePrice" mapper "PriceUnitType"]
             [value "spread" mapper "PriceUnitType"]
             [value "spread" path "floatingRateCalculation" mapper "PriceUnitType"]
-            //floatingRate
             [value "referencePrice" mapper "PriceUnitType"]
-        + unitOfAmount
+			// For Commodity Swap Fixed Leg
+			[value "price"]
+			// For Commodity Option
+            [value "amount" path "strikePricePerUnit" mapper "PriceUnitType"]
+		+ unitOfAmount
             [value "quotedCurrencyPair"]
             [value "settlementAmount" path "nearLeg"]
+			// For Commodity Swap Fixed Leg
+			[hint "priceCurrency"]
         + perUnitOfAmount
             [value "quotedCurrencyPair"]
             [value "settlementAmount" path "nearLeg"]
-            [value "amount"]
+		    [value "amount"]
+            // For Commodity Swap Fixed Leg
+			[hint "priceUnit"]
         + priceType
             [set to PriceTypeEnum->InterestRate when path = "fixedRateSchedule"]
             [set to PriceTypeEnum->InterestRate when "fixedRate" exists]
@@ -543,6 +558,12 @@ synonym source FpML_5_10 extends FpML
             [set to PriceTypeEnum->CashPrice when path = "singlePayment->fixedAmount"]
             [set to PriceTypeEnum->Premium when path = "premium->paymentAmount"]
             [set to PriceTypeEnum->Premium when path = "equityPremium->paymentAmount"]
+			// For Commodity Swaps
+			[set to PriceTypeEnum->CashPrice when path = "fixedLeg->fixedPrice"]
+			[set to PriceTypeEnum->Spread when path = "calculation->spread"]
+			// For Commodity Option
+            [set to PriceTypeEnum->CashPrice when "strikePricePerUnit->amount" exists]
+
 
 	PrincipalExchanges:
 	 	[value "PrincipalExchanges" meta "id"]
@@ -653,6 +674,7 @@ synonym source FpML_5_10 extends FpML
 	    + initialValue
             [meta "initialValue"]
             [meta "fixedRate"]
+            [value "spread" meta "amount"]
         + step
             [value "step"]
 
@@ -883,6 +905,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "strikePrice"]
             [hint "rate"]
             [hint "spread"]
+            [hint "strikePricePerUnit"]
         + strikeReference
 			[value "strikeReference" meta "href"]
 		+ referenceSwapCurve
@@ -1044,7 +1067,7 @@ synonym source FpML_5_10 extends FpML
 			[value "relativeEffectiveDate" path "calculationPeriodDates"]
 			[hint "adjustedEffectiveDate"]
 			[value "effectiveDate" path "interestLegCalculationPeriodDates"]
-			[value "effectiveDate" set when rosettaPath = Payout->equityPayout]
+			[value "effectiveDate" set when rosettaPath = Payout->equityPayout->calculationPeriodDates]
 			[value "settlementDate" path "nearLeg"]
 		+ terminationDate
 			[value "terminationDate" path "calculationPeriodDates"]
@@ -1491,6 +1514,7 @@ synonym source FpML_5_10 extends FpML
 		 	[value "instrumentId" path "mortgage" maps 2 meta "instrumentIdScheme"]
 		 	[value "instrumentId" path "equity" maps 2 meta "instrumentIdScheme"]
 		 	[value "productId" maps 2 meta "productIdScheme"]
+			[value "instrumentId" path "commodity" maps 2 meta "instrumentIdScheme"]
 		+ source
 		    [set to ProductIdTypeEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "CUSIP"]
             [set to ProductIdTypeEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
@@ -1518,6 +1542,7 @@ synonym source FpML_5_10 extends FpML
             [set to ProductIdTypeEnum -> Other when path = "instrumentId"]
             [set to ProductIdTypeEnum -> Other when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
             [set to ProductIdTypeEnum -> Other when "instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
+			[set to ProductIdTypeEnum -> ISDACRP when "commodity->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/commodity-reference-price-1-0"]
             [set to ProductIdTypeEnum -> Other when path = "productId"] // catch-all
 
     ProductIdentification:
@@ -1545,8 +1570,10 @@ synonym source FpML_5_10 extends FpML
 			[value "initialValue" maps 2]
             [value "amount" maps 2]
             [value "openUnits" maps 2]
+			// For Commodity Swap
+			[value "quantity"]
         + multiplierUnit
-            [value "ignore"]
+            [hint "quantityFrequency"]
 
 	NonNegativeQuantitySchedule:
 		+ initialQuantity
@@ -1765,7 +1792,7 @@ synonym source FpML_5_10 extends FpML
 
 	Observable:
 	    + commodity
-	        [value "ignore"]
+	       [hint "commodity"]
 		+ productIdentifier
 			[value "equity"]
 			[value "bond"]
@@ -1975,6 +2002,7 @@ synonym source FpML_5_10 extends FpML
 	OptionExercise:
 		+ strike
 			[value "strike"]
+			[hint "strikePricePerUnit"]
 		+ exerciseProcedure
 			[value "exerciseProcedure"]
 
@@ -1992,6 +2020,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "swap"]
 			[hint "creditDefaultSwap"]
 			[hint "putCurrencyAmount", "callCurrencyAmount"]
+            [hint "commodity"]
 
 	SecurityLeg:
 		[meta "id"]
@@ -2023,14 +2052,15 @@ synonym source FpML_5_10 extends FpML
 			[value "pricingDates" path "calculation"]
 
 	CommodityPriceReturnTerms:
+	    + spread
+	        [value "calculation"]
 		+ conversionFactor
-		[value "conversionFactor" path "calculation"]
+		    [value "conversionFactor" path "calculation"]
 
 	PricingDates:
 		+ specifiedDates
 			[value "calculationPeriodsScheduleReference"]
 			[value "pricingDates"]
-		+ parametricDates
 
 	ParametricDates:
 		+ dayOfWeek
@@ -2049,7 +2079,7 @@ synonym source FpML_5_10 extends FpML
 			[value "paymentDates"]
 			[value "relativePaymentDates"]
 		+ fixedPrice
-			[value "fixedPrice"]
+		    [value "fixedPrice" meta "price"]
 
 	SecurityValuation:
 		+ securityValuationModel
@@ -2146,6 +2176,7 @@ synonym source FpML_5_10 extends FpML
 			[value "fxOption"]
 			[hint "fxOption"]
 			[value "equityOption"]
+			[value "commodityOption"]
 		+ forwardPayout
 			[value "fxSingleLeg"]
 			[value "nearLeg"]
@@ -2166,9 +2197,9 @@ synonym source FpML_5_10 extends FpML
 			[value "otherPartyPayment"]
 			[value "equityPremium" path "equityOption"]
 		+ commodityPayout
-			[value "ignore"]
+			[value "commoditySwap", "floatingLeg" path "commoditySwap"]
 		+ fixedForwardPayout
-			[value "ignore"]
+			[value "fixedLeg" path "commoditySwap"]
 		+ securityFinancePayout
 			[value "ignore"]
 
@@ -2207,6 +2238,8 @@ synonym source FpML_5_10 extends FpML
 			// To handle commoditySwap:
 			[value "commoditySwap"] // hard link to CommoditySwap
 			[hint "commoditySwap"] // allows mapping of effective and termination dates to EconomicTerms
+			// For Commodity Option
+			[hint "commodityOption"]
 		+ index
 			[value "index"]
 		+ loan
@@ -2218,7 +2251,13 @@ synonym source FpML_5_10 extends FpML
 
 	Commodity:
 		+ priceQuoteType
-			[value "specifiedPrice" path "floatingRateLeg->commodity"]
+			[value "specifiedPrice" path "commodity"]
+		+ deliveryDateReference
+	    	[hint "deliveryDates"]
+
+	DeliveryDateParameters:
+		+ deliveryNearby
+			[value "deliveryDates"]
 
 	TradableProduct:
 	    + priceQuantity
@@ -2231,6 +2270,7 @@ synonym source FpML_5_10 extends FpML
 		    [value "premium" path "swaption"]
 		    [value "premium" path "bondOption"]
 		    [value "premium" path "creditDefaultSwapOption"]
+		    [hint "commodityOption"] // for commodityOption.premium
 		    [value "equityOption"]
 		    [hint "fxOption"] // for fxOption.premium
 		    [value "bondOption"]
@@ -2252,7 +2292,10 @@ synonym source FpML_5_10 extends FpML
             [value "repo"]
 			[hint "equityOption"]
 			[value "paymentAmount" path "equityOption->equityPremium"]
-        + adjustment
+            [value "fixedLeg" path "commoditySwap"]
+			[value "floatingLeg" path "commoditySwap"]
+			[value "commodityOption"]
+		+ adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
 	RateSpecification:
@@ -2483,6 +2526,7 @@ synonym source FpML_5_10 extends FpML
 		+ period
 			[value "period"]
 			[value "period" path "paymentDatesInterim->relativeDates"]
+			[value "quantityFrequency" set when rosettaPath = Quantity->multiplierUnit->frequency]
 
 	Offset:
 		+ dayType
@@ -2494,9 +2538,14 @@ synonym source FpML_5_10 extends FpML
 			[value "periodMultiplier" maps 2]
 			[value "periodMultiplier" path "dateOffset"]
 			[value "periodMultiplier" path "calculationPeriodDates->relativeEffectiveDate"]
+			// For Commodity Swap
+		    //[set to 1 when path = "deliveryDates->FirstNearby"]
 		+ period
 			[value "period" maps 2]
 			[value "period" path "dateOffset"]
+			// For Commodity Swap
+		    //[set to PeriodEnum-> M when path = "deliveryDates"]
+
 
 	RelativeDates:
 		+ periodSkip
@@ -3172,9 +3221,13 @@ synonym source FpML_5_10 extends FpML
 
 	UnitType:
 		+ capacityUnit
-			[value "quantityUnit"]
+			[value "quantityUnit" maps 2]
+			// For Commodity Swap Fixed Leg
+			[value "priceUnit" set when rosettaPath = Price->perUnitOfAmount]
 		+ weatherUnit
 			[value "quantityUnit"]
+			// For Commodity Swap Fixed Leg
+			[value "priceUnit" set when rosettaPath = Price->perUnitOfAmount]
 		+ financialUnit
 			[value "quantityUnit"]
 			[set to FinancialUnitEnum->Share when "openUnits" exists]
@@ -3187,12 +3240,16 @@ synonym source FpML_5_10 extends FpML
         + currency
 			[value "currency" maps 2 meta "currencyScheme"]
 			[value "varyingNotionalCurrency" maps 2 meta "currencyScheme"]
-			[value "currency1" maps 2 set when "quoteBasis" = "Currency1PerCurrency2" and rosettaPath = Price->unitOfAmount]
-			[value "currency2" maps 2 set when "quoteBasis" = "Currency1PerCurrency2" and rosettaPath = Price->perUnitOfAmount]
-            [value "currency2" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->unitOfAmount]
-            [value "currency1" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->perUnitOfAmount]
+			[value "currency1" maps 2 set when "quoteBasis" = "Currency1PerCurrency2" and rosettaPath = Price->unitOfAmount->currency]
+			[value "currency2" maps 2 set when "quoteBasis" = "Currency1PerCurrency2" and rosettaPath = Price->perUnitOfAmount->currency]
+            [value "currency2" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->unitOfAmount->currency]
+            [value "currency1" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->perUnitOfAmount->currency]
+			// For Commodity Swap Fixed Leg
+			[value "priceCurrency" maps 2 set when rosettaPath = Price->unitOfAmount->currency]
         + frequency
 			[value "Frequency"]
+			// For Commodity Swap Fixed Leg
+			[hint "quantityFrequency"]
 
 	enums
 
@@ -4433,10 +4490,235 @@ synonym source FpML_5_10 extends FpML
 			[value "ZMLU"]
 		+ ZWHA
 			[value "ZWHA"]
+		// Commodity Business Centers from FpML
+		+ ADSM
+			[value "ADSM"]
+		+ AGRUSFMB
+			[value "AGRUS-FMB"]
+		+ APPI
+			[value "APPI"]
+		+ ARGUSCRUDE
+			[value "ARGUS-CRUDE"]
+		+ ARGUSEUROPEANGAS
+			[value "ARGUS-EUROPEAN-GAS"]
+		+ ARGUSEUROPEANPRODUCTS
+			[value "ARGUS-EUROPEAN-PRODUCTS"]
+		+ ARGUSINTERNATIONALLPG
+			[value "ARGUS-INTERNATIONAL-LPG"]
+		+ ARGUSMCCLOSKEYSCOALREPORT
+			[value "ARGUS-MCCLOSKEYS-COAL-REPORT"]
+		+ ARGUSUSPRODUCTS
+			[value "ARGUS-US-PRODUCTS"]
+		+ ASX
+			[value "ASX"]
+		+ AWB
+			[value "AWB"]
+		+ AWEX
+			[value "AWEX"]
+		+ BALTICEXCHANGE
+			[value "BALTIC-EXCHANGE"]
+		+ BANKNEGARAMALAYSIAPOLICYCOMMITTEE
+			[value "BANK-NEGARA-MALAYSIA-POLICY-COMMITTEE"]
+		+ BELPEX
+			[value "BELPEX"]
+		+ BLUENEXT
+			[value "BLUENEXT"]
+		+ BMandF
+			[value "BM&F"]
+		+ BURSAMALAYSIASETTLEMENT
+			[value "BURSA-MALAYSIA-SETTLEMENT"]
+		+ BURSAMALAYSIATRADING
+			[value "BURSA-MALAYSIA-TRADING"]
+		+ CANADIANGASPRICEREPORTER
+			[value "CANADIAN-GAS-PRICE-REPORTER"]
+		+ CBOTSOFT
+			[value "CBOT-SOFT"]
+		+ CMAIAROMATICSMARKETREPORT
+			[value "CMAI-AROMATICS-MARKET-REPORT"]
+		+ CMAIGLOBALPLASTICSANDPOLYMERSMARKETREPORT
+			[value "CMAI-GLOBAL-PLASTICS-AND-POLYMERS-MARKET-REPORT"]
+		+ CMAIMETHANOLMARKETREPORT
+			[value "CMAI-METHANOL-MARKET-REPORT"]
+		+ CMAIMONOMERSMARKETREPORT
+			[value "CMAI-MONOMERS-MARKET-REPORT"]
+		+ CMEDAIRY
+			[value "CME-DAIRY"]
+		+ CMENONDAIRYSOFT
+			[value "CME-NON-DAIRY-SOFT"]
+		+ COMEX
+			[value "COMEX"]
+		+ CRU
+			[value "CRU"]
+		+ CRULONG
+			[value "CRU-LONG"]
+		+ DEPARTMENTOFENERGY
+			[value "DEPARTMENT-OF-ENERGY"]
+		+ DEWITTBENZENEDERIVATIVES
+			[value "DEWITT-BENZENE-DERIVATIVES"]
+		+ DME
+			[value "DME"]
+		+ DOWJONES
+			[value "DOW-JONES"]
+		+ DOWJONESENERGYSERVICE
+			[value "DOW-JONES-ENERGY-SERVICE"]
 		+ DowJonesPower
 			[value "DowJonesPower"]
+		+ EEXCOAL
+			[value "EEX-COAL"]
+		+ EEXEMISSIONS
+			[value "EEX-EMISSIONS"]
+		+ EEXGAS
+			[value "EEX-GAS"]
+		+ EEXPOWER
+			[value "EEX-POWER"]
+		+ EURONEXMATIF
+			[value "EURONEX-MATIF"]
+		+ FERTECON
+			[value "FERTECON"]
+		+ FERTILIZERWEEK
+			[value "FERTILIZER-WEEK"]
+		+ GASDAILY
+			[value "GAS-DAILY"]
+		+ GASDAILYPRICEGUIDE
+			[value "GAS-DAILY-PRICE-GUIDE"]
+		+ GLOBALCOAL
+			[value "GLOBALCOAL"]
+		+ HERENREPORT
+			[value "HEREN-REPORT"]
+		+ ICE10XDAILY
+			[value "ICE/10X-DAILY"]
+		+ ICE10XMONTHLY
+			[value "ICE/10X-MONTHLY"]
+		+ ICECANADA
+			[value "ICE-CANADA"]
+		+ ICEECX
+			[value "ICE-ECX"]
+		+ ICEGAS
+			[value "ICE-GAS"]
+		+ ICEOIL
+			[value "ICE-OIL"]
+		+ ICEUSAGRICULTURAL
+			[value "ICE-US-AGRICULTURAL"]
+		+ ICISPRICINGBENZENEEUROPE
+			[value "ICIS-PRICING-BENZENE-(EUROPE)"]
+		+ ICISPRICINGETHYLENEEUROPE
+			[value "ICIS-PRICING-ETHYLENE-(EUROPE)"]
+		+ ICISPRICINGPOLYPROPYLENEEUROPE
+			[value "ICIS-PRICING-POLYPROPYLENE-(EUROPE)"]
+		+ INSIDEFERC
+			[value "INSIDE-FERC"]
+		+ JAPANMOFTSRR
+			[value "JAPAN-MOF-TSRR"]
+		+ KCBOT
+			[value "KCBOT"]
+		+ KUALALUMPURBANK
+			[value "KUALA-LUMPUR-BANK"]
+		+ LABUANBANK
+			[value "LABUAN-BANK"]
+		+ LIFFELONDONSOFT
+			[value "LIFFE-LONDON-SOFT"]
+		+ LME
+			[value "LME"]
+		+ LONDONBULLIONMARKET
+			[value "LONDON-BULLION-MARKET"]
+		+ LONDONBULLIONMARKETGOLDAMONLY
+			[value "LONDON-BULLION-MARKET-GOLD-A.M-ONLY"]
+		+ LONDONPLATINUMPALLADIUMMARKET
+			[value "LONDON-PLATINUM-PALLADIUM-MARKET"]
+		+ MGEX
+			[value "MGEX"]
+		+ NASDAQOMX
+			[value "NASDAQ-OMX"]
+		+ NATURALGASWEEK
+			[value "NATURAL-GAS-WEEK"]
+		+ NERC
+			[value "NERC"]
+		+ NGI
+			[value "NGI"]
+		+ NGX
+			[value "NGX"]
+		+ NUCLEARMARKETREVIEW
+			[value "NUCLEAR-MARKET-REVIEW"]
+		+ NYMEXELECTRICITY
+			[value "NYMEX-ELECTRICITY"]
+		+ NYMEXGAS
+			[value "NYMEX-GAS"]
 		+ NYMEXNATURALGAS
 			[value "NYMEX-NATURAL-GAS"]
+		+ NYMEXOIL
+			[value "NYMEX-OIL"]
+		+ OFFICIALBOARDMARKETS
+			[value "OFFICIAL-BOARD-MARKETS"]
+		+ OPISLPGAS
+			[value "OPIS-LP-GAS"]
+		+ OPISPROPANE
+			[value "OPIS-PROPANE"]
+		+ PAPERPACKAGINGMONITOR
+			[value "PAPER-PACKAGING-MONITOR"]
+		+ PAPERTRADER
+			[value "PAPER-TRADER"]
+		+ PERTAMINA
+			[value "PERTAMINA"]
+		+ PETROCHEMWIRE
+			[value "PETROCHEMWIRE"]
+		+ PIXPULPBENCHMARKINDICES
+			[value "PIX-PULP-BENCHMARK-INDICES"]
+		+ PLATTSAPAGMARKETSCAN
+			[value "PLATTS-APAG-MARKETSCAN"]
+		+ PLATTSBUNKERWIRE
+			[value "PLATTS-BUNKERWIRE"]
+		+ PLATTSCLEANTANKERWIRE
+			[value "PLATTS-CLEAN-TANKERWIRE"]
+		+ PLATTSCRUDEOILMARKETWIRE
+			[value "PLATTS-CRUDE-OIL-MARKETWIRE"]
+		+ PLATTSDIRTYTANKERWIRE
+			[value "PLATTS-DIRTY-TANKERWIRE"]
+		+ PLATTSEUROPEANGAS
+			[value "PLATTS-EUROPEAN-GAS"]
+		+ PLATTSEUROPEANMARKETSCAN
+			[value "PLATTS-EUROPEAN-MARKETSCAN"]
+		+ PLATTSMETALSALERT
+			[value "PLATTS-METALS-ALERT"]
+		+ PLATTSOILGRAM
+			[value "PLATTS-OILGRAM"]
+		+ PLATTSTSIIRONORE
+			[value "PLATTS-TSI-IRON-ORE"]
+		+ PLATTSTSISCRAP
+			[value "PLATTS-TSI-SCRAP"]
+		+ PLATTSTSISTEEL
+			[value "PLATTS-TSI-STEEL"]
+		+ PLATTSUSMARKETSCAN
+			[value "PLATTS-US-MARKETSCAN"]
+		+ PULPANDPAPERINTERNATIONAL
+			[value "PULP-AND-PAPER-INTERNATIONAL"]
+		+ PULPANDPAPERWEEK
+			[value "PULP-AND-PAPER-WEEK"]
+		+ RIMPRODUCTSINTELLIGENCEDAILY
+			[value "RIM-PRODUCTS-INTELLIGENCE-DAILY"]
+		+ SAFEXSOFT
+			[value "SAFEX-SOFT"]
+		+ SFESOFT
+			[value "SFE-SOFT"]
+		+ SGX
+			[value "SGX"]
+		+ SICOM
+			[value "SICOM"]
+		+ SPGSCI
+			[value "SP-GSCI"]
+		+ STATISTICHESBUNDESAMT
+			[value "STATISTICHES-BUNDESAMT"]
+		+ TGE
+			[value "TGE"]
+		+ TOCOMOIL
+			[value "TOCOM-OIL"]
+		+ TOCOMPRECIOUS
+			[value "TOCOM-PRECIOUS"]
+		+ TOCOMSOFT
+			[value "TOCOM-SOFT"]
+		+ UXWEEKLY
+			[value "UX-WEEKLY"]
+		+ WORLDPULPMONTHLY
+			[value "WORLD-PULP-MONTHLY"]
 
 	BusinessDayConventionEnum:
 		+ FOLLOWING
@@ -4488,6 +4770,7 @@ synonym source FpML_5_10 extends FpML
 	PeriodEnum:
 		+ D
 			[value "D"]
+			[value "PerCalendarDay"]
 		+ W
 			[value "W"]
 		+ M
@@ -6146,7 +6429,7 @@ synonym source FpML_5_10 extends FpML
 		+ Mid
 			[value "Mid"]
 		+ Settlement
-		   [value"Settlement"]
+		   [value "Settlement"]
 
 	QuotationStyleEnum:
 		+ PointsUpFront
@@ -6977,8 +7260,8 @@ synonym source FpML_5_10 extends FpML
 		[value "MJ"]
 		+ MMBF
 		[value "MMBF"]
-		+ MBTU
-		[value "MBTU"]
+		+ MMBTU
+		[value "MMBTU"]
 		+ MSF
 		[value "msf"]
 		+ MT
