@@ -21,7 +21,7 @@ New synonyms to support Commodity derivative products in existing data types:
 - `BusinessCenterEnum`
 
 New synonyms for new data types that support Commodity derivative products:
--`FixedForwardPayout`
+- `FixedForwardPayout`
 - `Commodity`
 
 Changes to Product Qualifications:
@@ -32,7 +32,7 @@ Changes to Product Qualifications:
 Added new ingestion examples:
 - `com-ex1-gas-swap-daily-delivery-prices-last`
 - `com-ex5-gas-v-electricity-spark-spread`
-- `com-ex08-oil-call-option-strip'
+- `com-ex08-oil-call-option-strip`
 
 Completed the enumerated list for the following:
 - `CommodityInformationPublisherEnum`
