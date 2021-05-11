@@ -804,7 +804,8 @@ The *transfer* process creates instances of the ``Transfer`` data type, which ar
  type Transfer:
    identifier Identifier (0..*)
      [metadata scheme]
-   priceQuantity PriceQuantity (1..1)
+   quantity Quantity (1..1)
+   observable Observable (0..1)
    payerReceiver PartyReferencePayerReceiver (1..1)
    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
    settlementOrigin SettlementOrigin (0..1)
