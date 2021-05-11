@@ -81,6 +81,11 @@
             <xsd:enumeration value="Voice"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:simpleType name="FinancialUnitEnum">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="Share"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:simpleType name="IntentEnum">
         <xsd:restriction base="xsd:token">
             <xsd:enumeration value="correction"/>
@@ -631,7 +636,8 @@
     </xsd:complexType>
     <xsd:complexType name="UnitType">
         <xsd:sequence>
-            <xsd:element name="currency" type="xsd:string"/>
+            <xsd:element name="currency" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="financialUnit" type="FinancialUnitEnum" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="QuantityChange">
@@ -722,13 +728,6 @@
             <xsd:element name="averagingCalculationMethod" type="AveragingCalculationMethodEnum" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
-    <!-- <xsd:complexType name="LegalAgreementReference">
-        <xsd:complexContent>
-            <xsd:extension base="fpml:Reference">
-                <xsd:attribute name="href" type="xsd:IDREF" use="required"/>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType> -->
     <xsd:complexType name="TransferPrimitive">
         <xsd:sequence>
             <xsd:element name="before" type="ContractState"/>
@@ -746,16 +745,10 @@
     <xsd:complexType name="Transfer">
         <xsd:sequence>
             <xsd:element name="transferIdentifier" type="Identifier" minOccurs="0"/>
-            <xsd:element name="priceQuantity" type="PriceQuantity"/>
-            <xsd:group ref="fpml:PayerReceiver.model"/>
-            <xsd:element name="settlementDate" type="xsd:date"/>
-<!--            <xsd:element name="settlementOrigin" type="SettlementOrigin" minOccurs="0"/>-->
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="PriceQuantity">
-        <xsd:sequence>
             <xsd:element name="quantity" type="Quantity"/>
             <xsd:element name="observable" type="Observable" minOccurs="0"/>
+            <xsd:group ref="fpml:PayerReceiver.model"/>
+            <xsd:element name="settlementDate" type="xsd:date"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="Observable">
