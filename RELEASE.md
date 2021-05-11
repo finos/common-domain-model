@@ -6,4 +6,17 @@ This release adjusts the `Transfer` type by replacing the `PriceQuantity` attrib
 
 _Review directions_
 
-In the CDM Portal, select the Ingestion, and review samples in the Events and Bundles folders. 
+In the CDM Portal, select the Ingestion, and review the following samples: 
+
+- events > compression-bilateral
+- events > exercise-swaption-cash
+- events > increase-contract-cash-intent
+- events > increase-contract-cash-no-intent
+- events > increase-xccy
+- events > partial-termination-contract-cash-intent
+- events > partial-termination-contract-cash-no-intent
+- events > partial-termination-xccy
+- events > termination-contract-with-fee
+- bundles > transfer-cash-netted-bundle
+- bundles > transfer-physical-exercise-bundle
+- bundles > transfer-xccy-cash-netted-bundle-with-correction
