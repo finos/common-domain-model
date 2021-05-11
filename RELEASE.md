@@ -1,4 +1,4 @@
-# *Event Model - Transfer: Quantity and Observable*
+# *Event Model - Transfer: Added Quantity and Observable attributes*
 
 _What is being released?_
 
