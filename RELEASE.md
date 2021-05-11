@@ -4,6 +4,8 @@ _What is being released?_
 
 This release adjusts the `Transfer` type by replacing the `PriceQuantity` attribute, with separate `Quantity` and optional `Observable` attributes.  In addition, a data constraint has been added to the `Transfer` type to validate that when an `Observable` is specified that the `Quantity->unitOfAmount->financialUnit` is also specified.
 
+The updated `Transfer` type is shown below:
+
 ```
 type Transfer:
    identifier Identifier (0..*)
