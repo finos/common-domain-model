@@ -1332,17 +1332,17 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 	alias gammaContractPrimitives: NewContractFormationPrimitiveEvent(gammaContract)
 
 	condition: <"The alpha contract being terminated must include the party1 contained in the clearing instruction.">
-		clearingInstruction -> alphaContract -> trade -> party includes clearingInstruction -> party1
+		clearingInstruction -> alphaContract -> trade -> party contains clearingInstruction -> party1
 	condition: <"The alpha contract being terminated must include the party2 contained in the clearing instruction.">
-		clearingInstruction -> alphaContract -> trade -> party includes clearingInstruction -> party2
+		clearingInstruction -> alphaContract -> trade -> party contains clearingInstruction -> party2
 
 	condition: <"The alpha contract being terminated must include the party role of the clearing member (clearerParty1) if it has been specified.">
 		if clearingInstruction -> clearerParty1 exists
-		then clearingInstruction -> alphaContract -> trade -> partyRole -> partyReference includes clearingInstruction -> clearerParty1
+		then clearingInstruction -> alphaContract -> trade -> partyRole -> partyReference contains clearingInstruction -> clearerParty1
 
 	condition: <"The alpha contract being terminated must include the party role of the clearing member (clearerParty2) if it has been specified.">
 		if clearingInstruction -> clearerParty2 exists
-		then clearingInstruction -> alphaContract -> trade -> partyRole -> partyReference includes clearingInstruction -> clearerParty2
+		then clearingInstruction -> alphaContract -> trade -> partyRole -> partyReference contains clearingInstruction -> clearerParty2
 
 	assign-output clearedEvent -> primitives: <"Create the event made up of five primitives; alpha terminated, beta execution, beta contract, gamma execution and gamma contract. Each beta and gamma contracts contain references to the respective executions.">
 		[
