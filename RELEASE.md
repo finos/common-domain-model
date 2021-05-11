@@ -6,20 +6,11 @@ This release adjusts the `Transfer` type by replacing the `PriceQuantity` attrib
 
 _Review directions_
 
-In the CDM Portal, select the Ingestion, and review the following samples: 
+In the CDM Portal, select the Ingestion panel, and review in the following samples the details of the transfer history associated to the after state of the transfer primitive that composes the business event.
 
-- events > compression-bilateral
 - events > exercise-swaption-cash
-- events > increase-contract-cash-intent
-- events > increase-contract-cash-no-intent
 - events > increase-xccy
-- events > partial-termination-contract-cash-intent
-- events > partial-termination-contract-cash-no-intent
 - events > partial-termination-xccy
-- events > termination-contract-with-fee
-- bundles > transfer-cash-netted-bundle
-- bundles > transfer-physical-exercise-bundle
-- bundles > transfer-xccy-cash-netted-bundle-with-correction
 
 # *Legal Agreement Model - Collateral Taxonomy Sources: EU UK, & US Eligible Collateral Category Listings*
 
