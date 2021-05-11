@@ -1,4 +1,4 @@
-# *Event Model - Transfer components: Rationalised repsentation of Quantity and Observable attributes*
+# *Event Model - Transfer components: Rationalised representation of Quantity and Observable attributes*
 
 _What is being released?_
 

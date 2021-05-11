@@ -1490,7 +1490,7 @@ The following code snippets represent these three components of the eligible col
    maturityType MaturityTypeEnum (0..1)
    maturityRange PeriodRange (0..1)
    productIdentifier ProductIdentifier (0..*)
-   productTaxonomy ProductTaxonomy (0..*)
+   collateralTaxonomy CollateralTaxonomy (0..*)
    domesticCurrencyIssued boolean (0..1)
    listing ListingType (0..1)
 
