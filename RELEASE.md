@@ -1,4 +1,4 @@
-# *DSL Syntax - Deprecation of Includes keywork *
+# *DSL Syntax - Deprecation of "includes" keyword
 
 _What is being released?_
 
