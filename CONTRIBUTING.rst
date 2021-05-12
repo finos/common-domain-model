@@ -43,7 +43,8 @@ Once ready to start modelling, the contributor can log into Rosetta and start us
 
 No syntax warning or error
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-Model changes require use of the Rosetta DSL syntax, for further information refer to the Rosetta DSL Documentation and Rosetta Syntax Validation Guide.  All syntax warnings and errors must be resolved before contributing the changes.
+
+The model is edited using the Rosetta DSL syntax. All syntax warnings and errors must be resolved to have a valid model before contributing any changes. For further guidance about the syntax and validation, please refer to the `Rosetta DSL <https://docs.rosetta-technology.io/dsl/documentation.html>`_ and the `Rosetta Design Content Assist <https://docs.rosetta-technology.io/core/2-rosetta-design.html#rosetta-design-content-assist>`_ documentations.
 
 Model compilation
 ^^^^^^^^^^^^^^^^^
