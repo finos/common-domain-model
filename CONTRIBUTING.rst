@@ -1,28 +1,30 @@
 How to Contribute
 =================
 
-This purpose of this page is to provide guidance to community contributors to the CDM.
+This purpose of this section is to provide guidance for accepting community contributions into the CDM. It describes:
+
+- What a Contributor should do to edit and contribute to the CDM
+- What a Reviewer should do to review the changes
+- How to release a new CDM version once changes have been approved
 
 Before you start modelling
 --------------------------
 
-Before you start modelling, please make sure you have gone through your pre-modelling checklist:
+Before you start modelling, please make sure you have gone through the following pre-modelling checklist:
 
 - Review the `CDM Components and Design Principles <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#>`_
 - Review the `Rosetta Starter Guide <https://docs.rosetta-technology.io/core/0-welcome-to-rosetta.html>`_
 - Get approval of conceptual design from stakeholders (for large model change)
 
-For large model changes, or changes to core data types, it is recommended that the contributor reviews the CDM governance documentation and follows these steps:
+For large model changes, or changes to core data types, it is recommended that the Contributor reviews the `CDM Governance Documentation <https://docs.rosetta-technology.io/cdm/readme.html#the-cdm-governance>`_ and follows these steps:
 
 - **Define Use Case**: Identify and document one or more use cases with details (e.g., a sample trade).
 - **Draft Conceptual Design** (High Level): Draft a conceptual view showing the set of data types, their definitions (and/or sample attributes but not the whole set of attributes), their relationships to each other, and, if applicable, a workflow.
 - **Design approval**: Obtain approval of high-level conceptual design from CDM stakeholders
 
-  - CDM Owner (ISDA and other Trade Associations)
+  - CDM Owners (ISDA and other involved Trade Associations, where applicable)
   - CDM Sub-Working Group, if applicable
   - CDM Architecture and Review Committee
-
-For further information about the CDM governance structure, please refer to the `CDM Governance Documentation <https://docs.rosetta-technology.io/cdm/readme.html#the-cdm-governance>`_
 
 Editing the model
 -----------------
@@ -42,7 +44,7 @@ Before you start editing the CDM using Rosetta, please go through the following 
 Use latest available CDM version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once ready to start modelling, the contributor can log into Rosetta and start using the Rosetta Design application to create a workspace and edit the model, referring to the `Rosetta Design Guide <https://docs.rosetta-technology.io/core/2-rosetta-design.html>`_.
+Once ready to start modelling, the Contributor can log into Rosetta and start using the Rosetta Design application to create a workspace and edit the model, referring to the `Rosetta Design Guide <https://docs.rosetta-technology.io/core/2-rosetta-design.html>`_.
 
 No syntax warning or error
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -54,24 +56,21 @@ For further guidance about features of the syntax, please refer to the `Rosetta 
 Model compilation
 ^^^^^^^^^^^^^^^^^
 
-Model changes can also cause static compilation errors when changes conflict with static function or mapper implementations (Rosetta Static Compilation Error Guide, TODO).  Rosetta support can help resolve these issues before the changes are contributed.  If significant work is required to resolve these errors, then the contributor should contact ISDA to discuss allocating resources to assist.
+Model changes can also cause static compilation errors when changes conflict with static function or mapper implementations (Rosetta Static Compilation Error Guide, TODO). Rosetta support can help resolve these issues before the changes are contributed. If the Rosetta support identifies that significant work may be required to resolve these errors, they will notify the Contributor who should then contact the CDM Owners to discuss allocating resources to assist.
 
 Testing
 ^^^^^^^
 
 The CDM has adopted a test-driven development approach that maps model components to existing sample data (e.g., FpML documents or other existing standards).  Mappings are specified in the CDM as `synonyms` which are collected into a Translation Dictionary, and the sample data are collected into a Test Pack. Each new model version is regression-tested using those mappings to translate the sample data in the Test Pack and then comparing against the expected number of mapped data points, validation and qualification results.
 
-Model changes can be tested live against the Test Pack using the Rosetta Translate application, referring to the `Rosetta Translate Guide <https://docs.rosetta-technology.io/core/3-rosetta-translate.html>`_.
+Contributors are invited to test their model changes live against the Test Pack using the Rosetta Translate application, referring to the `Rosetta Translate Guide <https://docs.rosetta-technology.io/core/3-rosetta-translate.html>`_. When editing existing model components, the corresponding synonyms should be updated to maintain or improve existing levels. When adding new model components, new sample data and corresponding synonym mappings should also be provided so the new use-case can be added to the set of regression tests.
 
-When editing existing model components, the corresponding synonyms should be updated to maintain or improve existing levels. When adding new model components, new sample data and corresponding synonym mappings should also be provided so the new use-case can be added to the set of regression tests.
-
-Please refer to the `Mapping Guide <https://docs.rosetta-technology.io/dsl/documentation.html#mapping-component> for details about the synonym mapping syntax.
+Please refer to the `Mapping Guide <https://docs.rosetta-technology.io/dsl/documentation.html#mapping-component>`_ for details about the synonym mapping syntax.
 
 All model components have descriptions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 All model components (e.g. types, attributes, conditions, functions etc.) should be specified with descriptions in accordance with the CDM Style Guide (TODO migrate to the documentation website).
-
 
 Contributing model changes
 --------------------------
@@ -94,7 +93,7 @@ Before you start contributing your model changes, please go through the followin
 Contributing using Rosetta
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once the model changes have been completed, use Rosetta to submit changes to GitHub for review (Rosetta Contribute Workspace Guide), specifying a meaningful title and description.
+Once the model changes have been completed, use Rosetta to submit changes for review, referring to the `Rosetta Workspce Contribution Guide <https://docs.rosetta-technology.io/core/1-workspace.html#contribute-workspace-changes>`_ and specifying a meaningful title and description.
 
 The CDM is hosted in GitHub. Any changes contributed through Rosetta are submitted as a "Pull Request" on a one-off CDM branch and will invoke a build process to compile and run all CDM unit tests and regression tests.
 
@@ -103,7 +102,7 @@ The CDM is hosted in GitHub. Any changes contributed through Rosetta are submitt
 Documentation
 ^^^^^^^^^^^^^
 
-The CDM documentation must be kept up-to-date with the model in production. Where applicable, the contributor should provide accompanying documentation (in text format) that can be added to the CDM documentation site for their proposed changes.
+The CDM documentation must be kept up-to-date with the model in production. Where applicable, the Contributor should provide accompanying documentation (in text format) that can be added to the CDM documentation for their proposed changes.
 
 The documentation includes *.rosetta* code snippets that directly illustrate explanations about certain model components, and those snippets are validated against the actual model definitions. When a model change impacts those snippets, or if new relevant snippets should be added to support the documentation, those snippets should be provided together with the documentation update.
 
@@ -124,7 +123,7 @@ Before starting to review a contribution, the CDM Reviewer should go through the
 - Review the GitHub Pull Request to assert that:
 
   - Model changes fulfil the proposed design and use-case requirements
-  - Synonyms have been updated and output json looks correct
+  - Synonyms have been updated and output (JSON) looks correct
   
 .. note:: It is not yet possible to verify that mapping, validation and qualification expectations have been maintained by looking at the output of the GitHub Pull Request and CDM build only. Pleae refer to the downstream projects section for more details.
 
