@@ -440,7 +440,7 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 		and cashPriceChanged = True 
 		and adjustmentRatioMatches = True
 
-func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the EquityPayout should be used to locate and resolve the underlier's price, for example for the reset process.">
+func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the InterestRatePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
 	inputs:
 		payout InterestRatePayout (1..1)
 		date date (1..1)
@@ -454,20 +454,24 @@ func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on th
 		date
 
 
-// ResolveInterestRateReset is identical to ResolveEquityReset as they both only support the basic use cases for reset. Once support is added for stub periods and thus rate interpolation, the formula to derive the reset value will start to look different between the functions.
-func ResolveInterestRateReset: <"Defines how to resolve the reset value for an equity payout.">
+// ResolveInterestRateReset is similar to ResolveEquityReset as they both only support the basic use cases for reset. Once support is added for stub periods and thus rate interpolation, the formula to derive the reset value will start to look different between the functions.
+func ResolveInterestRateReset: <"Defines how to resolve the reset value for an InterestRatePayout.">
 	inputs:
 		payouts InterestRatePayout (1..*)
 		observation Observation (1..1)
-		date date (1..1)
+		resetDate date (1..1)
+		rateRecordDate date (0..1)
 	output:
 		reset Reset (1..1)
 
-	assign-output reset -> resetValue: <"Assigns the observed value to the reset value. In the case of EquityPayout, the observed value represents the price of the underlying at the end of the period and no further manupulation of that value is required.">
+	assign-output reset -> resetValue: <"Assigns the observed value to the reset value.">
 		observation -> observedValue
 
 	assign-output reset -> resetDate:
-		date
+		resetDate
+
+	assign-output reset -> rateRecordDate:
+		rateRecordDate
 
 	assign-output reset -> observations: <"Assigns the observation required to compute the rest value as audit.">
 		observation
@@ -914,15 +918,15 @@ func SecurityTransferInstruction: <"Defines the creation of a Transfer Instructi
 func Create_Reset: <"Defines the process of applying a reference rate (also known as fixing rate) to a transaction, usually in order to calculate the settlement value of a periodic payment schedule between two parties.">
 	[creation BusinessEvent]
 	inputs:
-		tradeState TradeState (1..1) <"Represents the trade to which the reset applies.">
-		instruction ResetInstruction (1..1)
+		tradeState TradeState (1..1) <"Specifies the trade to which the reset applies.">
+		instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
 		date date (1..1) <"Specified the date of the reset event.">
 
 	output:
 		resetEvent BusinessEvent (1..1) <"Represents the Business Event created as a result of the reset.">
 
 	assign-output resetEvent -> primitives -> reset: <"Creates the reset primitive and assigns it to the business event.">
-		Create_ResetPrimitive(tradeState, instruction -> payout, date)
+		Create_ResetPrimitive(tradeState, instruction, date)
 
 	assign-output resetEvent -> eventEffect -> effectedTrade: <"Assigns the effectedTrade value as the input TradeState using a reference.">
 		tradeState as-key
@@ -931,15 +935,23 @@ func Create_Reset: <"Defines the process of applying a reference rate (also know
 func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructed.">
 	[creation PrimitiveEvent]
 	inputs:
-		tradeState TradeState (1..1) <"Represents the trade that is resetting.">
-		payout Payout (1..1) <"Represents the payout on the trade is resetting.">
-		date date (1..1) <"Represents the date on which the reset is occuring.">
+		tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
+		instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
+		resetDate date (1..1) <"Specifies the date on which the reset is occuring.">
 	output:
 		resetPrimitive ResetPrimitive (1..1)
 
+	alias payout: <"Specifies the payout that is resetting.">
+		instruction -> payout
+
+	alias observationDate: <"If the rateRecordDate is provided in the instructions, it should used as the observation date when determining the fixing rate for an interest rate payout.">
+		if instruction -> rateRecordDate exists
+		then instruction -> rateRecordDate
+		else resetDate
+
 	alias observationIdentifiers: <"Resolves the ObservationIdentifier to be used to derive the single observation to be used in the reset calculation. Resolving the ObservationIdentifier is dependent on the type of payout in use.">
-		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, date) else
-        if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, date)
+		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, resetDate) 
+		else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
 
 	alias observation: <"Represents the single observation that will be used to compute the reset value.">
 		ResolveObservation([observationIdentifiers], empty)
@@ -951,8 +963,8 @@ func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructe
 		tradeState
 
 	assign-output resetPrimitive -> after -> resetHistory: <"To handle the various ways Contracts can change over time, ">
-    	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date) else
-    	if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, date)
+    	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate) 
+		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
 
 
 func Create_Transfer: <"Function specification to build a transfer event following a reset on a contract">
