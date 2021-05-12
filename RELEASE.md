@@ -16,7 +16,7 @@ In the CDM Portal, select the Ingestion panel, and review in the following sampl
 
 _What is being released?_
 
-Collateral Taxonomy sources and Regulatory Enumeration lists to support the identification/labelling and categorisation of eligible collateral asset types per different regime's regulations, as part of global uncleared derivatives margin rules for posting collateral margin. The lists added to the model are based on those published and supported under the following jurisdictional regulatory bodies:
+Collateral Taxonomy sources and Regulatory Enumeration lists to support the identification/labelling and categorisation of eligible collateral asset types per different regime regulations, as part of global uncleared derivatives margin rules for posting collateral margin. The lists added to the model are based on those published and supported under the following jurisdictional regulatory bodies:
 
 - European Union Eligible Collateral Assets classification categories based on EMIR Uncleared Margin Rules
 - United Kingdom Eligible Collateral Assets classification categories based on UK Onshored EMIR Uncleared Margin Rules
