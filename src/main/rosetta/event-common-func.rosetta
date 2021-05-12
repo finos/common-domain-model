@@ -133,7 +133,7 @@ func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact 
 	assign-output is_event:
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> transfer exists
-		and businessEvent -> primitives -> transfer -> after -> transferHistory -> priceQuantity -> quantity -> unitOfAmount -> currency only exists
+		and businessEvent -> primitives -> transfer -> after -> transferHistory -> quantity -> unitOfAmount -> currency only exists
 		and businessEvent -> primitives -> transfer -> after -> transferHistory -> identifier -> scheme <> "DTCCCashflowId"
 
 func Qualify_CashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
@@ -143,8 +143,8 @@ func Qualify_CashAndSecurityTransfer: <"The qualification of a security settleme
 	output: is_event boolean (1..1)
 	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers
 	assign-output is_event:
-		transfers -> priceQuantity -> quantity -> unitOfAmount -> currency exists
-		and transfers -> priceQuantity -> quantity -> unitOfAmount -> financialUnit exists
+		transfers -> quantity -> unitOfAmount -> currency exists
+		and transfers -> quantity -> unitOfAmount -> financialUnit exists
 		and transfers count = 2
 
 func LatestTransfers:
@@ -319,8 +319,8 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
 	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
 	assign-output is_event:
 		businessEvent -> primitives count = 1
-		and transfer -> priceQuantity -> observable -> productIdentifier exists
-		and transfer -> priceQuantity -> quantity -> unitOfAmount -> financialUnit only exists
+		and transfer -> observable -> productIdentifier exists
+		and transfer -> quantity -> unitOfAmount -> financialUnit only exists
 		
 func Qualify_SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
 	[qualification BusinessEvent]
@@ -329,8 +329,8 @@ func Qualify_SecuritySettlement: <"The qualification of a security settlement fr
 	output: is_event boolean (1..1)
 	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers
 	assign-output is_event:
-		transfers -> priceQuantity -> observable -> productIdentifier only exists
-		and transfers -> priceQuantity -> quantity -> unitOfAmount -> currency only exists
+		transfers -> observable -> productIdentifier only exists
+		and transfers -> quantity -> unitOfAmount -> currency only exists
 		and FilterCashTransfers(transfers) -> transfers only-element -> payerReceiver -> payerPartyReference =
 			FilterSecurityTransfers(transfers) -> transfers only-element -> payerReceiver -> receiverPartyReference
 		and businessEvent -> primitives -> quantityChange is absent
@@ -1029,10 +1029,10 @@ func Create_CashTransfer: <"Defines how Transfer that represents an exchange of 
 	alias ancillaryParties:
 		tradeState -> trade -> tradableProduct -> ancillaryParty
 
-	assign-output transfer -> priceQuantity -> quantity -> amount:
+	assign-output transfer -> quantity -> amount:
 		cashflow -> cashflowAmount -> amount
 
-	assign-output transfer -> priceQuantity -> quantity -> unitOfAmount -> currency:
+	assign-output transfer -> quantity -> unitOfAmount -> currency:
 		cashflow -> cashflowAmount -> unitOfAmount-> currency
 
 	assign-output transfer -> payerReceiver -> payerPartyReference:
@@ -1063,8 +1063,8 @@ func Create_SecurityTransfer: <"Defines the creation of a Transfer, given a Trad
 	post-condition:
 		if tradeState -> trade -> tradableProduct -> product -> security exists
 			and tradeState -> trade -> settlementTerms -> transferSettlementType = TransferSettlementEnum -> DeliveryVersusPayment
-		then transfer -> priceQuantity -> quantity -> unitOfAmount -> currency only exists
-			and transfer -> priceQuantity -> observable -> productIdentifier exists
+		then transfer -> quantity -> unitOfAmount -> currency only exists
+			and transfer -> observable -> productIdentifier exists
 
 
 func ResolveCashflow: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
