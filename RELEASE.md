@@ -25,7 +25,7 @@ This release adds additional ISDA Create sample json files for the legal agreeme
 
 _Review directions_
 
-In the CDM Portal, select Ingestion, and run samples from the following folders:
+In the CDM Portal, select Ingestion panel, and run samples from the following folders:
 
 - isda-create/test-pack-2021-05-06/production/
 - isda-create/test-pack-2021-05-06/sandbox/
