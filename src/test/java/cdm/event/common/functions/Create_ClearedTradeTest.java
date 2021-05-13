@@ -13,6 +13,7 @@ import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
+
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.workflows.ClearingUtils;
 import org.junit.jupiter.api.Test;
@@ -57,6 +58,7 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 		BusinessEvent businessEvent = func.evaluate(clearingInstruction, tradeDate, null);
 
 		String businessEventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
+		businessEventJson = businessEventJson.replace("\r", "");
 		assertEquals(getJson("expected-cleared-trade-business-event.json"), businessEventJson);
 	}
 
@@ -67,6 +69,6 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 
 	private String getJson(String pathToJson) throws IOException {
 		URL url = Resources.getResource(pathToJson);
-		return Resources.toString(url, Charset.defaultCharset());
+		return Resources.toString(url, Charset.defaultCharset()).replace("\r", "");
 	}
 }

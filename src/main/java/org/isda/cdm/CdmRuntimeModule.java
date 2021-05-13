@@ -1,22 +1,30 @@
 package org.isda.cdm;
 
+import cdm.base.datetime.functions.Now;
+import cdm.base.datetime.functions.NowImpl;
+import cdm.base.datetime.functions.Today;
+import cdm.base.datetime.functions.TodayImpl;
 import cdm.base.math.functions.*;
 import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRole;
 import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRoleImpl;
 import cdm.base.staticdata.party.functions.ExtractCounterpartyByRole;
 import cdm.base.staticdata.party.functions.ExtractCounterpartyByRoleImpl;
+import cdm.event.common.FilterCashTransfersImpl;
+import cdm.event.common.FilterSecurityTransfersImpl;
+import cdm.event.common.TransfersForDateImpl;
+import cdm.event.common.functions.FilterCashTransfers;
+import cdm.event.common.functions.FilterSecurityTransfers;
+import cdm.event.common.functions.TransfersForDate;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
+import cdm.observable.asset.functions.FilterPrice;
+import cdm.observable.asset.functions.FilterPriceImpl;
 import cdm.observable.common.functions.CurrencyAmount;
 import cdm.observable.common.functions.CurrencyAmountImpl;
 import cdm.observable.common.functions.NoOfUnits;
 import cdm.observable.common.functions.NoOfUnitsImpl;
 import cdm.product.asset.functions.ResolveEquityInitialPrice;
 import cdm.product.asset.functions.ResolveEquityInitialPriceImpl;
-import cdm.product.common.functions.ResolveContractualProduct;
-import cdm.product.common.functions.ResolveContractualProductImpl;
-import cdm.product.common.functions.ResolvePayoutQuantity;
-import cdm.product.common.functions.ResolvePayoutQuantityImpl;
 import cdm.product.common.schedule.functions.CalculationPeriod;
 import cdm.product.common.schedule.functions.CalculationPeriodImpl;
 import cdm.product.template.functions.FpmlIrd8;
@@ -41,16 +49,33 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(CalculationPeriod.class).to(bindCalculationPeriod());
 		bind(Sum.class).to(bindSum());
 		bind(ListsCompare.class).to(bindListsCompare());
-		bind(ResolvePayoutQuantity.class).to(bindResolvePayoutQuantity());
-		bind(ResolveContractualProduct.class).to(bindResolveContractualProduct());
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
 		bind(NoOfUnits.class).to(bindNoOfUnits());
 		bind(CurrencyAmount.class).to(bindCurrencyAmount());
+		bind(TransfersForDate.class).to(bindTransfersForDate());
+		bind(FilterCashTransfers.class).to(bindFilterCashTransfers());
+		bind(FilterSecurityTransfers.class).to(bindFilterSecurityTransfers());
 		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
 		bind(ExtractCounterpartyByRole.class).to(bindExtractCounterpartyByRole());
 		bind(ExtractAncillaryPartyByRole.class).to(bindExtractAncillaryPartyByRole());
+		bind(FilterPrice.class).to(bindFilterPrice());
+		bind(FilterQuantity.class).to(bindFilterQuantity());
+		bind(Now.class).to(bindNow());
+		bind(Today.class).to(bindToday());
+	}
+
+	protected Class<? extends FilterSecurityTransfers> bindFilterSecurityTransfers() {
+		return FilterSecurityTransfersImpl.class;
+	}
+
+	protected Class<? extends FilterCashTransfers> bindFilterCashTransfers() {
+		return FilterCashTransfersImpl.class;
+	}
+
+	protected Class<? extends TransfersForDate> bindTransfersForDate() {
+		return TransfersForDateImpl.class;
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -83,14 +108,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		return SumImpl.class;
 	}
 
-	protected Class<? extends ResolvePayoutQuantity> bindResolvePayoutQuantity() {
-		return ResolvePayoutQuantityImpl.class;
-	}
-
-	protected Class<? extends ResolveContractualProduct> bindResolveContractualProduct() {
-		return ResolveContractualProductImpl.class;
-	}
-
 	protected Class<? extends ResolveEquityInitialPrice> bindResolveEquityInitialPrice() {
 		return ResolveEquityInitialPriceImpl.class;
 	}
@@ -121,5 +138,21 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends ExtractAncillaryPartyByRole> bindExtractAncillaryPartyByRole() {
 		return ExtractAncillaryPartyByRoleImpl.class;
+	}
+
+	protected Class<? extends FilterPrice> bindFilterPrice() {
+		return FilterPriceImpl.class;
+	}
+
+	protected Class<? extends FilterQuantity> bindFilterQuantity() {
+		return FilterQuantityImpl.class;
+	}
+
+	protected Class<? extends Now> bindNow() {
+		return NowImpl.class;
+	}
+
+	protected Class<? extends Today> bindToday() {
+		return TodayImpl.class;
 	}
 }

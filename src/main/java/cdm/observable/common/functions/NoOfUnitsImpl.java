@@ -1,12 +1,16 @@
 package cdm.observable.common.functions;
 
-import cdm.base.math.NonNegativeQuantity;
-import cdm.observable.asset.AssetIdentifier;
-import cdm.observable.asset.QuantityNotation;
+import cdm.base.math.FinancialUnitEnum;
+import cdm.base.math.Quantity;
+import cdm.base.math.UnitType;
+import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.observable.asset.PriceQuantity;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 /**
  * Extracts the quantity amount associated with the product identifier.
@@ -14,19 +18,22 @@ import java.util.Optional;
 public class NoOfUnitsImpl extends NoOfUnits {
 
 	@Override
-	protected BigDecimal doEvaluate(List<QuantityNotation> quantityNotations) {
-		return quantityNotations.stream()
-				.filter(this::isProductAssetIdentifier)
-				.map(QuantityNotation::getQuantity)
-				.map(NonNegativeQuantity::getAmount)
-				.findFirst()
-				.orElse(null);
-	}
-
-	private boolean isProductAssetIdentifier(QuantityNotation quantityNotation) {
-		return Optional.ofNullable(quantityNotation)
-				.map(QuantityNotation::getAssetIdentifier)
-				.map(AssetIdentifier::getProductIdentifier)
-				.isPresent();
+	protected BigDecimal doEvaluate(List<? extends PriceQuantity> priceQuantity) {
+		Set<BigDecimal> noOfUnits = emptyIfNull(priceQuantity).stream()
+				.map(PriceQuantity::getQuantity)
+				.filter(Objects::nonNull)
+				.flatMap(Collection::stream)
+				.map(FieldWithMetaQuantity::getValue)
+				.filter(q -> Optional.ofNullable(q)
+						.map(Quantity::getUnitOfAmount)
+						.map(UnitType::getFinancialUnit)
+						.map(FinancialUnitEnum.SHARE::equals)
+						.orElse(false))
+				.map(Quantity::getAmount)
+				.collect(Collectors.toSet());
+		if (noOfUnits.size() > 1) {
+			throw new IllegalArgumentException("Multiple Quantity instances found with unitOfAmount FinancialUnitEnum.Share, expected only one.");
+		}
+		return noOfUnits.stream().findFirst().orElse(null);
 	}
 }

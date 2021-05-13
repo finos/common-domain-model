@@ -25,11 +25,13 @@ type ObservationSource: <"The observation source can be composed of an curve and
 
 
 type SecurityValuation: <" Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
+	[deprecated]
 
 	securityValuationModel SecurityValuationModel (1..1) <"The security valuation model choice, based on either a nominal amount or a number of units.">
 	underlier Security (1..1) <"The underlying security of the security leg.">
 
 type SecurityValuationModel: <" The security valuation model choice, which can either be based on nominal amount as for a bond, or on the number of contract units as for equity.">
+	[deprecated]
 
 	bondValuationModel BondValuationModel (0..1) <"The valuation model when the security is a bond.">
 	unitContractValuationModel UnitContractValuationModel (0..1) <"The valuation model when the security is a unit contract like equity.">
@@ -37,13 +39,15 @@ type SecurityValuationModel: <" The security valuation model choice, which can e
 	condition: one-of
 
 type BondValuationModel: <" Bond valuation model for the security leg in a securities financing transaction, closely modelled onto the BondCollateral.model in FpML.">
+	[deprecated]
 
 	nominalAmount Money (1..1) <"The quantity of the underlier expressed as a nominal amount.">
 	bondPriceAndYieldModel BondPriceAndYieldModel (1..1) <"Price and yield model for valuing a bond security leg.">
 	accrualsAmount Money (0..1) <"Accruals amount for the bond in the security leg">
 
 type BondPriceAndYieldModel: <" Bond price and yield valuation model for the security leg in a securities financing transaction, closely modelled onto the BondPriceAndYield.model in FpML.">
-
+	[deprecated]
+	
 	cleanOrDirtyPrice CleanOrDirtyPrice (0..1) <"Either the clean or dirty price of the bond.">
 	relativePrice RelativePrice (0..1) <"Bond price relative to a Benchmark.">
 	yieldToMaturity number (0..1) <"Price specified as a yield to maturity.">
@@ -80,47 +84,62 @@ type BondChoiceModel: <" Either a bond or convertible bond.">
 	condition: one-of
 
 type UnitContractValuationModel: <" Unit contract model for security valuation, e.g. for equity, modelled onto UnitContract.model in FpML.">
+	[deprecated]
 
 	numberOfUnits Quantity (1..1) <"The number of units (index or securities).">
 	unitPrice Money (1..1) <"The price of each unit.">
 
-type ActualPrice:
+type Price extends MeasureBase: <"Specifies a price to be used for trade amounts and other purposes.">
 
-	currency string (0..1) <"Specifies the currency associated with the net price. This element is not present if the price is expressed in percentage terms (as specified through the priceExpression element).">
-		[metadata scheme]
-	amount number (1..1)
-	priceExpression PriceExpressionEnum (1..1) <"Specifies whether the price is expressed in absolute or relative terms.">
-	condition Currency: <"The currency attribute associated with the ActualPrice should not be specified when the price is expressed as percentage of notional.">
-		if priceExpression = PriceExpressionEnum -> PercentageOfNotional
-		then currency is absent
+	priceType PriceTypeEnum (1..1) <"Provides a value for a type of price in order to explain how to interpret the amount and use it in calculations.">
+	    [synonym Workflow_Event value "priceType"]
+	perUnitOfAmount UnitType (1..1) <"Provides an attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
+        [synonym Workflow_Event value "perUnitOfAmount"]
 
+	condition PositiveFXRate: <"Requires that per FpML rules, the FX rate must be a positive value.">
+		if priceType = PriceTypeEnum -> ExchangeRate
+		then amount > 0
 
-// TODO - #1 Look for further synergies with the option strike
-type Price: <"Generic description of the price concept applicable across product types, which can be expressed in a number of ways other than simply cash price">
+	condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
+		if priceType = PriceTypeEnum -> Spot
+		then amount > 0
 
-	cashPrice CashPrice (0..1) <"Price specified in cash terms, e.g. for securities proceeds or fee payment in a contractual product.">
-	exchangeRate ExchangeRate (0..1) <"Price specified as an exchange rate between two currencies.">
-	fixedInterestRate FixedInterestRate (0..1) <"Price specified as a fixed interest rate.">
-	floatingInterestRate FloatingInterestRate (0..1) <"Price specified as a spread on top of a floating interest rate.">
+	condition CurrencyUnitForInterestRate: <"Requires that the unit of amount for an interest rate must be a currency.">
+		if priceType = PriceTypeEnum -> InterestRate
+		then unitOfAmount -> currency exists
+
+type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+	[metadata key]
+
+	rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
+	    [metadata location]
+	commodity Commodity (0..1) <"Identifies a commodity by referencing a product identifier.">
+	productIdentifier ProductIdentifier (0..*) <"Comprises of an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+	     [synonym Workflow_Event value "productIdentifier"]
+	currencyPair QuotedCurrencyPair (0..1) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
 
 	condition: one-of
 
-// TODO - Look for further synergies with the SecurityValuation class
-type CashPrice: <"Describes a price component as a cash amount, which can either represent cash proceeds for a security purchase or a cashflow that is embedded as part of a contractual product: for instance an upfront fee.">
+type PriceQuantity: <"Specifies the price, quantity, and optionally the observable for use in a trade or other purposes.">
+	[metadata key]
 
-	grossPrice ActualPrice (0..1) <"Specifies the price of the underlier, before commissions.">
-	cleanNetPrice ActualPrice (0..1) <"Specifies the clean price of the underlier (e.g. excluding accrued interest), net of commissions.">
-	netPrice ActualPrice (0..1) <"Specifies the dirty price of the underlier (e.g. including accrued interest), net of commissions.">
-	accruedInterest number (0..1) <"Specifies the accrued interest that are part of the dirty price in the case of a fixed income security or a convertible bond. Expressed in percentage of the notional.">
-	cashflowAmount Money (0..1) <"Specifies the price as a cashflow amount embedded as part of a a contractual product.">
+	price Price (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
+	    [metadata location]
+	quantity Quantity (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
+	    [metadata location]
+	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
 
-	/*
-	 * FpML construct also includes other elements, such as the fxConversion
-	 */
-	condition NetPrice: <" The netPrice and/or cleanNetPrice must be specified.">
-		if CashPrice exists
-		then netPrice exists or cleanNetPrice exists or cashflowAmount exists
+	condition NonNegativeQuantity:
+	    if quantity -> amount exists
+	    then quantity -> amount >= 0
 
+    condition:
+	    if observable -> rateOption exists and price exists
+	    then 
+			price -> priceType contains PriceTypeEnum -> Spread or
+			price -> priceType contains PriceTypeEnum -> CapRate or
+			price -> priceType contains PriceTypeEnum -> FloorRate or
+			price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
@@ -132,31 +151,10 @@ type InformationSource: <"A class defining the source for a piece of information
 	sourcePageHeading string (0..1) <"The heading for the source on a given source page.">
 
 
-type Money: <"A class defining a currency amount.">
+type Money extends Quantity: <"Defines a monetary amount in a specified currency.">
 	[metadata key]
-
-	currency string (1..1) <"The currency in which the associated amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-	amount number (1..1) <"The monetary quantity in currency units.">
-
-type FixedInterestRate: <"Data to specify a fixed interest rate price.">
-
-	rate number (1..1)
-
-type FloatingInterestRate: <"Data to specify a floating interest rate price.">
-
-	initialRate number (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
-	spread number (0..1)
-	capRate number (0..1)
-	floorRate number (0..1)
-	multiplier number (0..1)
-
-	condition AtLeastOneOf:
-		(initialRate or spread or capRate or floorRate) exists
-
-	condition FloatingRateMultiplierSchedule: <"FpML specifies that the floatingRateMultiplierSchedule should only be included if the multiplier is not equal to 1 for the term of the stream.">
-		if multiplier exists
-		then multiplier <> 1.0
+	condition:
+    	unitOfAmount->currency exists
 
 type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
 
@@ -191,8 +189,6 @@ type QuotedCurrencyPair: <"A class that describes the composition of a rate that
 		[metadata scheme]
 	quoteBasis QuoteBasisEnum (1..1) <"The method by which the exchange rate is quoted.">
 
-
-// TODO: Duplicates large part of ExchangeRate, consider removing redundancy
 type CrossRate extends QuotedCurrencyPair: <"A class that is used for including the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
 
 	rate number (1..1) <"The exchange rate used to cross between the traded currencies.">
@@ -207,7 +203,7 @@ type Curve:
 
 	interestRateCurve InterestRateCurve (0..1)
 		[synonym Workflow_Event value "interestRateCurve"]
-	commodityCurve CommodityReferencePriceEnum (0..1) // This is just an illustrative alternative curve instance, which implementation needs to be refined and confirmed
+	commodityCurve CommodityReferencePriceEnum (0..1)
 		[metadata scheme]
 		[synonym Workflow_Event value "commodityCurve" meta "commodityReferencePriceScheme"]
 
@@ -221,53 +217,11 @@ type InterestRateCurve:
 	tenor Period (1..1)
 		[synonym Workflow_Event value "tenor"]
 
-type AssetIdentifier: <"Generic object to specify an identifier for a quantifiable object, which can either be a product, a currency or a rate option.">
-
-	productIdentifier ProductIdentifier (0..1) <"Product identifier, when the quantifiable asset is a product.">
-	currency string (0..1) <"Currency identifier, when the quantifiable asset is a currency.">
-		[metadata scheme]
-	rateOption FloatingRateOption (0..1) <"Rate option identifier, when the quantifiable asset is a floating rate.">
-
-	condition: one-of
-
-type FixedRateSpecification extends RateSpecificationBase: <"Type defining the specification for a fixed rate.">
+type FixedRateSpecification: <"Type defining the specification for a fixed rate.">
 	[metadata key]
 
-	rateSchedule Schedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
+	rateSchedule RateSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 
-	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
-		assetIdentifier -> currency only exists
-
-type RateSpecificationBase:
-	assetIdentifier AssetIdentifier (0..1)
-
-type QuantityNotation: <"Specification of a product's quantity as a single, non-negative amount. The asset identifier qualifies the quantity being specified and can be used as a referencing mechanism in the underlying payout legs to 'resolve' the product, by fetching the actual amount from the appropriate quantity notation. For some product cases, several quantity notations can be associated with a single product: e.g. for an Equity Swap, both the notional and (optionally) the number of securities can be specified, with a validation to check that they are consistent in relation to the equity price. ">
-
-	quantity NonNegativeQuantity (1..1) <"The quantity as a non-negative amount.">
-	assetIdentifier AssetIdentifier (1..1) <"identifier for the asset being quantified, allowing it to be positioned in the product definition.">
-
-	condition CurrencyAmount: <"When quantity type is specified as a currency amount, the quantity must be specified without unit.">
-		if assetIdentifier -> currency exists then quantity -> unit is absent
-
-type PriceNotation: <"Object to specify the price of a product as a single number, which can be negative in some cases, and asset identifier so that it can be positioned in the product. For some product cases, several price notations can be associated with a single product: e.g. for an Equity Swap, both the initial equity price and the rate spread can be specified, which allows factoring of the product definition.">
-
-	price Price (1..1) <"Price expressed as a number.">
-	assetIdentifier AssetIdentifier (0..1) <"Identifier for the asset being priced.">
-
-	condition CurrencyAssetIdentifier: <"The asset identifier for a fixed interest rate must be a currency.">
-		if price -> fixedInterestRate exists
-		then assetIdentifier -> currency only exists
-
-	condition RateOptionAssetIdentifier: <"The asset identifier for an interest rate spread must be a rate option.">
-		if price -> floatingInterestRate exists
-		then assetIdentifier -> rateOption only exists
-
-/*
- * QUESTION TO CDM GROUP
- * TODO - FpML sample credit trades don't include examples that specify those attributes
- * Would be great if we could confirm the actual usage though sample transactions
- * See Trello card https://trello.com/c/VLtPwoek
- */
 type TransactedPrice: <" A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
 
 	marketFixedRate number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">
@@ -295,8 +249,9 @@ type SwapCurveValuation: <"A class to specify a valuation swap curve, which is u
 	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the measure.">
 
 
-type EquityValuation extends CashPrice: <"A class for defining how and when an equity option or equity swap is to be valued.">
+type EquityValuation : <"Defines how and when an equity option or equity swap is to be valued.">
 
+	price Price (0..1) <"Specifies the price used for valuation.">
 	determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
 	valuationDates AdjustableRelativeOrPeriodicDates (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
 	valuationDate AdjustableOrRelativeDate (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
@@ -377,7 +332,7 @@ type RateObservation: <"A class defining parameters associated with an individua
 type CreditNotation: <"A class to specify the credit notation as the combination of agency, notation, scale and debt type qualifications.">
 
 	agency CreditRatingAgencyEnum (1..1) <"The credit agency to which the other variables (notation, scale, debt type) refer to.">
-		// [metadata scheme]
+
 	notation string (1..1) <"The credit rating notation. As it varies among credit rating agencies, FpML doesn't specify a default scheme.">
 		[metadata scheme]
 	scale string (0..1) <"The credit rating scale, with a typical distinction between short term, long term. FpML doesn't specify a default scheme, which is hence not specified as an enumeration as part of the CDM.">
@@ -396,8 +351,7 @@ type CreditNotations: <"The credit rating notation higher level construct, which
 type CreditRatingDebt: <"The credit rating debt type(s) associated with the credit rating notation and scale. When several debt types are specified, they must be qualified through an 'any' or 'all'.">
 
 	debtType string (0..1) <"This attribute is to be specified when only one debt type is specified. FpML doesn't specify values in relation to the associated scheme, which is hence not specified as an enumeration as part of the CDM.">
-	// potential values: Long Term, Short Term, High Yield, Deposits.  Make cardinality (0..*) and remove multiple debt types
-		[metadata scheme]
+			[metadata scheme]
 	debtTypes MultipleDebtTypes (0..1) <"This attribute provides the ability to specify several debt types, alongside an 'any' or 'all' or all condition. As an example, Baa1 rating is required for any long term debt and deposit.">
 
 	condition: one-of
@@ -427,21 +381,8 @@ type FxSettlementRateSource: <"The source of the Foreign Exchange settlement rat
 		[metadata scheme]
 	nonstandardSettlementRate FxInformationSource (0..1) <"Indicates that a non-standard rate source will be used for the fixing.">
 
-	condition Choice:
+	condition FxSettlementRateSourceChoice:
 		required choice settlementRateOption, nonstandardSettlementRate
-
-type ObservationPrimitive: <"A class to specify the primitive object to specify market observation events, which is applicable across all asset classes.">
-
-	source ObservationSource (1..1) <"The observation source, such as an interest rate curve or an information provider.">
-		[synonym Workflow_Event value "source"]
-	observation number (1..1) <"The observed value.">
-		[synonym Workflow_Event value "observation"]
-	date date (1..1) <"The observation date.">
-		[synonym Workflow_Event value "date"]
-	time TimeZone (0..1) <"The observation time.">
-		[synonym Workflow_Event value "time"]
-	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the observation, when applicable.">
-		[synonym Workflow_Event value "side"]
 
 type CalculationAgent: <"A class defining the ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 
@@ -450,5 +391,5 @@ type CalculationAgent: <"A class defining the ISDA calculation agent responsible
 	calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located The short-form confirm for a trade that is executed under a Sovereign or Asia Pacific Master Confirmation Agreement ( MCA ), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent City. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent City.">
 		[metadata scheme]
 
-	condition Choice: <"Choice rule to represent an FpML choice construct.">
+	condition CalculationAgentChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice calculationAgentParty, calculationAgentPartyEnum

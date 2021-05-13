@@ -36,7 +36,7 @@ class ExerciseNoticeGiverMappingProcessorTest {
 		assertEquals(ExerciseNoticeGiverEnum.BUYER, parent.getExerciseNoticeGiver());
 
 		Mapping updatedMapping = context.getMappings().get(0);
-		assertEquals(SYNONYM_PATH, updatedMapping.getXmlPath());
+		assertEquals(SYNONYM_PATH.addElement("href"), updatedMapping.getXmlPath());
 		assertEquals("p1", updatedMapping.getXmlValue());
 		assertEquals(PathUtils.toPath(MODEL_PATH), updatedMapping.getRosettaPath());
 		assertNull(updatedMapping.getError());
@@ -56,7 +56,7 @@ class ExerciseNoticeGiverMappingProcessorTest {
 		assertEquals(ExerciseNoticeGiverEnum.SELLER, parent.getExerciseNoticeGiver());
 
 		Mapping updatedMapping = context.getMappings().get(0);
-		assertEquals(SYNONYM_PATH, updatedMapping.getXmlPath());
+		assertEquals(SYNONYM_PATH.addElement("href"), updatedMapping.getXmlPath());
 		assertEquals("p2", updatedMapping.getXmlValue());
 		assertEquals(PathUtils.toPath(MODEL_PATH), updatedMapping.getRosettaPath());
 		assertNull(updatedMapping.getError());
@@ -76,7 +76,7 @@ class ExerciseNoticeGiverMappingProcessorTest {
 		assertNull(parent.getExerciseNoticeGiver());
 
 		Mapping updatedMapping = context.getMappings().get(0);
-		assertEquals(SYNONYM_PATH, updatedMapping.getXmlPath());
+		assertEquals(SYNONYM_PATH.addElement("href"), updatedMapping.getXmlPath());
 		assertEquals("p3", updatedMapping.getXmlValue());
 		assertNull(updatedMapping.getRosettaPath());
 		assertEquals("no destination", updatedMapping.getError());
@@ -87,7 +87,7 @@ class ExerciseNoticeGiverMappingProcessorTest {
 	private List<Mapping> getMappings(String synonymValue) {
 		return Arrays.asList(
 				// exercise notice giver mapping (initially unmapped)
-				new Mapping(SYNONYM_PATH, synonymValue, null, null, "no destination", false, false),
+				new Mapping(SYNONYM_PATH.addElement("href"), synonymValue, null, null, "no destination", false, false),
 				// option buyer mapping
 				new Mapping(Path.parse("dataDocument.trade.bondOption.buyerPartyReference.href"),
 						"p1",

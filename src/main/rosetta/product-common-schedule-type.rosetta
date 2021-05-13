@@ -88,8 +88,7 @@ type CalculationPeriodDates: <"A data for:  defining the parameters used to gene
 	[metadata key]
 
 	effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">
-	// TODO - The above mapping logic doesn't handle the case of an equity swap payout with an effective date specified as an adjustable date, such as in the eqs-ex01-single-underlyer-execution-long-form.xml
-	// This use case should be tackled as part of this Trello card https://trello.com/c/tGA9hPQi
+	
 	terminationDate AdjustableOrRelativeDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention. It can also be specified in relation to another scheduled date (e.g. the last payment date).">
 	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
 	firstPeriodStartDate AdjustableOrRelativeDate (0..1) <"The start date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the effective date. It is always specified in the case of equity swaps and credit default swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
@@ -143,7 +142,8 @@ type FxLinkedNotionalAmount: <"A data to:  describe the cashflow representation 
 
 type FxLinkedNotionalSchedule: <"A data to:  describe a notional schedule where each notional that applies to a calculation period is calculated with reference to a notional amount or notional amount schedule in a different currency by means of a spot currency exchange rate which is normally observed at the beginning of each period.">
 
-	initialValue number (0..1) <"The initial currency amount for the varying notional. This may be omitted for a forward starting swap if the FX-linked notional value is not known at deal inception.">
+	initialValue Quantity (0..1) <"The initial currency amount for the varying notional. This may be omitted for a forward starting swap if the FX-linked notional value is not known at deal inception.">
+	    [metadata address "pointsTo"=PriceQuantity->quantity]
 	varyingNotionalCurrency string (1..1) <"The currency of the varying notional amount, i.e. the notional amount being determined periodically based on observation of a spot currency exchange rate. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
 	varyingNotionalFixingDates RelativeDateOffset (1..1) <"The dates on which spot currency exchange rates are observed for purposes of determining the varying notional currency amount that will apply to a calculation period.">
@@ -165,7 +165,7 @@ type PaymentCalculationPeriod: <"A data defining:  the adjusted payment date and
 		if calculationPeriod -> calculationPeriodNumberOfDays exists
 		then calculationPeriod -> calculationPeriodNumberOfDays >= 0
 
-	condition Choice: <"condition to represent an FpML choice construct.">
+	condition PaymentCalculationPeriodChoice: <"condition to represent an FpML choice construct.">
 		required choice calculationPeriod, fixedPaymentAmount
 
 	condition FpML_ird_34: <"FpML validation rule ird-34 - Either unadjustedPaymentDate or adjustedPaymentDate must exist.">
@@ -199,7 +199,7 @@ type ResetDates: <"A data defining:  the parameters used to generate the reset d
 		then resetFrequency -> weeklyRollConvention is absent
 
 type StubCalculationPeriodAmount: <"A data defining:  how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
-	// TODO Never referenced in CDM
+	
 	calculationPeriodDatesReference CalculationPeriodDates (1..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
 		[metadata reference]
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
@@ -217,7 +217,7 @@ type AveragingPeriod: <"Period over which an average value is taken.">
 	marketDisruption MarketDisruptionEnum (0..1) <"The market disruption event as defined by ISDA 2002 Definitions.">
 		[metadata scheme]
 
-	condition Choice: <" Choice rule to represent an FpML choice construct between unweighted and weighted averaging date and times.">
+	condition AveragingPeriodChoice: <" Choice rule to represent an FpML choice construct between unweighted and weighted averaging date and times.">
 		optional choice averagingDateTimes, averagingObservations
 
 type WeightedAveragingObservation: <"A single weighted averaging observation.">
@@ -226,7 +226,7 @@ type WeightedAveragingObservation: <"A single weighted averaging observation.">
 	observationNumber int (0..1) <"Observation number, which should be unique, within a series generated by a date schedule.">
 	weight number (1..1) <"Observation weight, which is used as a multiplier for the observation value.">
 
-	condition Choice: <" Choice rule to represent an FpML choice construct between date times for literal date values, and observation numbers for schedule generated observations.">
+	condition WeightedAveragingObservationChoice: <" Choice rule to represent an FpML choice construct between date times for literal date values, and observation numbers for schedule generated observations.">
 		required choice dateTime, observationNumber
 
 	condition PositiveObservationNumber: <" FpML specifies observationNumber as a positive integer.">
@@ -249,7 +249,7 @@ type InitialFixingDate: <"A CDM class which purpose is to specify the initial fi
 
 	condition: one-of
 
-type PaymentDates: <"A class to specify the parameters to generate the payment date schedule, either through a parametric representation or by reference to other dates specified in the instance document (e.g. the reset dates or valuation dates). The CDM representation combines the FpML payment dates representation for interest rate and total return swap products by providing the ability to specify the payment dates as a function of some other dates specified in the instance document.">
+type PaymentDates: <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
 	[metadata key]
 
 	paymentFrequency Frequency (0..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">
@@ -268,11 +268,6 @@ type PaymentDates: <"A class to specify the parameters to generate the payment d
 	condition NonZeroPeriodMultiplier: <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
 		if paymentDaysOffset exists
 		then paymentDaysOffset -> periodMultiplier <> 0
-
-// condition DateRelativeTo: <"When the payment dates are specified by reference to another date, the payment offset and the payment date adjustments also need to be specified.">
-// if dateRelativeTo exists
-// then ( paymentDaysOffset
-// and paymentDatesAdjustments) exists
 
 type PaymentDateSchedule: <"The payment dates when specified as relative to a set of dates specified somewhere else in the instance document/transaction, e.g. the valuation dates as typically the case for equity swaps, or when specified as a calculation period schedule.">
 

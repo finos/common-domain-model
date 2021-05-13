@@ -1,13 +1,16 @@
 package cdm.observable.common.functions;
 
-import cdm.base.math.NonNegativeQuantity;
-import cdm.observable.asset.AssetIdentifier;
-import cdm.observable.asset.QuantityNotation;
-import com.rosetta.model.lib.meta.FieldWithMeta;
+import cdm.base.math.Quantity;
+import cdm.base.math.UnitType;
+import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.observable.asset.PriceQuantity;
+import com.rosetta.model.metafields.FieldWithMetaString;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 /**
  * Extracts the quantity amount associated with the currency.
@@ -15,22 +18,23 @@ import java.util.Optional;
 public class CurrencyAmountImpl extends CurrencyAmount {
 
 	@Override
-	protected BigDecimal doEvaluate(List<QuantityNotation> quantityNotations, String currency) {
-		return quantityNotations.stream()
-				.filter(q -> isCurrencyAssetIdentifier(q, Optional.ofNullable(currency)))
-				.map(QuantityNotation::getQuantity)
-				.map(NonNegativeQuantity::getAmount)
-				.distinct()
-				.findFirst()
-				.orElse(null);
-	}
-
-	private boolean isCurrencyAssetIdentifier(QuantityNotation quantityNotation, Optional<String> currency) {
-		return Optional.ofNullable(quantityNotation)
-				.map(QuantityNotation::getAssetIdentifier)
-				.map(AssetIdentifier::getCurrency)
-				.map(FieldWithMeta::getValue)
-				.filter(c -> currency.map(c::equals).orElse(true))
-				.isPresent();
+	protected BigDecimal doEvaluate(List<? extends PriceQuantity> priceQuantity, String currency) {
+		Set<BigDecimal> notionals = emptyIfNull(priceQuantity).stream()
+				.map(PriceQuantity::getQuantity)
+				.filter(Objects::nonNull)
+				.flatMap(Collection::stream)
+				.map(FieldWithMetaQuantity::getValue)
+				.filter(q -> Optional.ofNullable(q)
+						.map(Quantity::getUnitOfAmount)
+						.map(UnitType::getCurrency)
+						.map(FieldWithMetaString::getValue)
+						.map(c -> Optional.ofNullable(currency).map(c::equals).orElse(false))
+						.orElse(false))
+				.map(Quantity::getAmount)
+				.collect(Collectors.toSet());
+		if (notionals.size() > 1) {
+			throw new IllegalArgumentException(String.format("Multiple Quantity instances found with unitOfAmount currency of %s, expected only one.", currency));
+		}
+		return notionals.stream().findFirst().orElse(null);
 	}
 }
