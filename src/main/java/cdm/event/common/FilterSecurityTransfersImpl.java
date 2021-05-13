@@ -2,23 +2,29 @@ package cdm.event.common;
 
 import cdm.event.common.functions.FilterSecurityTransfers;
 import cdm.observable.asset.Observable;
-import cdm.observable.asset.PriceQuantity;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.rosetta.util.CollectionUtils.emptyIfNull;
+
 public class FilterSecurityTransfersImpl extends FilterSecurityTransfers {
+
     @Override
     protected Transfers.TransfersBuilder doEvaluate(List<? extends Transfer> transfers) {
-        List<Transfer> cashTransfers = transfers.stream().filter(this::hasSecurity).collect(Collectors.toList());
+        List<Transfer> cashTransfers = emptyIfNull(transfers).stream()
+                .filter(this::hasSecurity)
+                .collect(Collectors.toList());
         return !cashTransfers.isEmpty() ? Transfers.builder().addTransfers(cashTransfers) : null;
     }
 
     private boolean hasSecurity(Transfer transfer) {
-        return Optional.ofNullable(transfer).map(Transfer::getPriceQuantity)
-                .map(PriceQuantity::getObservable)
+        return !Optional.ofNullable(transfer)
+                .map(Transfer::getObservable)
                 .map(Observable::getProductIdentifier)
-                .isPresent();
+                .orElse(Collections.emptyList())
+                .isEmpty();
     }
 }
