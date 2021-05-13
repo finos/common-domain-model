@@ -1,7 +1,7 @@
 CDM Documentation Style Guide
 =============================
 
-The purpose of this section is to provide recommendations for CDM documentation style and substance. "Documentation" in this context means any form of written guidance to CDM users and includes:
+The purpose of this section is to provide form and substance recommendations for editors of CDM documentation. "Documentation" in this context means any form of written guidance to CDM users and includes:
 
 - the CDM user documentation
 - release notes provided with each CDM release
@@ -195,7 +195,7 @@ Release notes are text describing the content of any new CDM release and are a c
    #. ``*`` before and after text (no space) for bold
    #. ``_`` before and after text (no space) for italics
    #. ``–`` (plus a space) for bullets
-   #. Backticks ````` before and after model components, e.g. data types, attributes, enums, function names, etc for special code-style formatting
+   #. Backticks ````` before and after model components, e.g. data types, attributes, enums, function names, etc. for special code-style formatting
    
 Example release notes formatted in MD:
 
@@ -216,3 +216,42 @@ Example release notes formatted in MD:
 The MD editing syntax in which release notes are written is a standard web mark-up language, for which a reference guide can be found at: https://www.markdownguide.org/cheat-sheet/
 
 .. note:: The MD syntax provides similar features to the RST syntax (used to edit the user documentation), but the special formatting characters are slightly different between the two. While RST allows richer features that are useful for a full documentation website, MD is preferred for release notes because Slack supports (a subset of) the MD language and can therefore serve as a release publication channel.
+
+Style
+-----
+
+Content style
+^^^^^^^^^^^^^
+
+1. Content should be correct with regard to grammar, punctuation, and spelling (in British English), including but not limited to the following rules:
+
+   #. Grammatical agreement, e.g. data types need, not data types needs
+   #. Punctuation:
+   
+      #. etc. requires a period.
+      #. Complete sentences should end with a period or colon (there should be no need for a question mark or exclamation point in these artefacts).
+      #. Incomplete sentences cannot end with a punctuation.  For example, “Through the ``legalAgreement`` attribute the CDM provides support for implementors to:" is an incomplete sentence and cannot end in a punctuation. This can be fixed by adding a few words, e .g. “Through the ``legalAgreement`` attribute the CDM provides support for implementors to do the following:"
+      #. Always use the Oxford Comma (aka the Serial Comma) for clarity when listing more than two items in a sentence, e.g. “data types, attributes, and enumerated values.”  In extreme cases, failure to use this comma could be costly.  See the following article: `$5 million cost of a missing comma <https://www.cnn.com/2018/02/09/us/dairy-drivers-oxford-comma-case-settlement-trnd/index.html>`_
+
+2. Other grammatical rules
+
+   #. Agreement of numbers:  For example, if one sentence reads “the following initiatives…” , then it should be followed by more than one.
+   #. Sentences should not end with a preposition
+   
+      #. Non-compliant example: “..to represent the party that the election terms are being defined for.”
+      #. Compliant: “...to represent the party or parties for which the election terms are being defined.”
+
+3. When a name or phrase is defined - continue to use it unless an alias has been defined. For example, one section reviewed had an expression "agreement specification details" but then switched to using "agreement content" without explanation. There is sufficient terminology to absorb, as such there is no need for synonyms or aliases, unless there are commonly used terms, in which case, they should be defined and one term should be used consistently.
+4. User Documentation and descriptions should always be in the third person, for example: "the CDM model provides the following...". NEVER use the first person (including the use of "we").
+5. In the User Documentation, when there is a need for a long list, use bullets (* space then text)  as opposed to long sentences.
+6. To the extent possible, use simple direct sentence structures, e.g. replace "An example of such" with "For example", or replace "Proposals for amendment to the CDM can be created upon the initiative of members of a Committee or by any users of CDM within the community who are not a current Committee member." with "Committee members or any user of CDM within the community can propose amendments to the CDM."
+7. Exclude the usage of "mean to", “intends to”, or “looks to”.
+
+   #. For example, "the model looks to use strong data type attributes such as numbers, boolean or enumerations whenever possible."
+   #. Either the object works as designed or it does not. This expression might be used in a bug report when describing a function not working as intended but not to describe a working data model.
+   
+8.	Explain the CDM model and objects in an honest and transparent manner, but without criticism of the model. Critical discussions can be conducted internally in other documents. There is no need to provide easy ammunition for critics, e.g. "...which firms may deem inappropriate and may replace by..." is unnecessary and potentially damaging to the brand.
+
+Special format for CDM objects
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
