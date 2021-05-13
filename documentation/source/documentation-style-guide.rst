@@ -255,3 +255,53 @@ Content style
 Special format for CDM objects
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1. Data types and attributes display rules:
+
+   #. Data types and attributes should be identified in the editor with code quotes, where the text between the quotes will appear in a special block format as illustrated here: ``LegalAgreementBase``.
+   #. If the same word or phrase is used in a business context, as part of an explanation, then the words should be spaced and titled normally and the special format is not required: e.g. “Tradable products are represented by...”.
+
+2. Code snippets should be preceded by the string: `.. code-block:: Language` (where the Language could be: Haskell, Java, JSON, etc.), followed by a line spacing before the snippet itself. The entire snippet should be indented with one space, to be identified as part of the code block and formatted appropriately. Indentation can be produced inside the snippet itself using further double space. Meta-data such as data type descriptions or synonyms that appear in the CDM should be excluded from the code snippet, unless the purpose of the snippet is to illustrate those.
+
+Example of how a code snippet should be edited in the documentation:
+
+.. code-block:: MD
+
+ .. code-block:: Haskell
+ 
+  type EventEffect:
+    effectedTrade TradeState (0..*)
+      [metadata reference]
+    trade TradeState (0..*)
+      [metadata reference]
+    productIdentifier ProductIdentifier (0..*)
+      [metadata reference]
+    transfer TransferPrimitive (0..*)
+      [metadata reference]
+    
+And the result will be rendered as:
+
+.. code-block:: Haskell
+
+ type EventEffect:
+   effectedTrade TradeState (0..*)
+     [metadata reference]
+   trade TradeState (0..*)
+     [metadata reference]
+   productIdentifier ProductIdentifier (0..*)
+     [metadata reference]
+   transfer TransferPrimitive (0..*)
+     [metadata reference]
+
+3. Fonts, Text Styles, and Spaces
+
+   #. Bold should be used sparingly:
+   
+      #. Only in the beginning of a section when there is a salient point to emphasize, like a tag line-  the bold line should be syntactically complete and correct.
+      #. In the editor, bold is specified with double asterisks before and after the word or phrase.
+
+   #. Italics
+   
+      #. Italics should be used when defining an unusual term for the first time rather than using quotes, for example to identify something CDM specific, such as the concept of Primitive Events.
+      #. In the editor, italics is specified with a single asterisk ``*`` before and after the word or phrase.
+   
+   #. Single space should be used in-between sentences, not double space.
