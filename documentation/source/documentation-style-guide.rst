@@ -95,3 +95,37 @@ Content Guidelines
 
 General guidelines
 """"""""""""""""""
+
+1. Data Definition components  (e.g. data types, attributes, enumerations and enumerated values) should be explained in business terms.
+
+   #. The description of objects in the model should begin with the purpose of the object. The purpose should explain what the object is, not "what it is not".
+   #. Data type description should begin with a verb that describes what the type does.
+   #. The logical model identifies data types without needing a description, therefore, the description should not begin with a phrase like: “A data type that does..."
+   #. Attribute description should articulate the use of the type in the context of the attribute.
+   #. The description should not be tautological, e.g. PartyRole <defines the party role> is not compliant with these guidelines.
+   #. References to a similar attribute in  FpML should not be used as a crutch in place of explaining a data type, attribute, etc.
+   #. In most cases, where a reference to FpML is considered useful, it should be placed at the end of a description in the logical model, or in a note at the end of a section in the user documentation.  In the case of the logical model, note that synonyms for FpML are provided, therefore it should not be necessary to reference FpML in every case.  
+
+Example of a non-compliant description:
+
+.. code-block:: Haskell
+
+  <"A data type to represent a financial product. With respect to contractual products, this class specifies the pre-execution product characteristics (the ContractualProduct class). This class is used as underlying for the option exercise representation, which makes use of the contractualProduct attribute to support the swaption use case, with the exercise into a swap. In a complete workflow, the swaption contract itself then needs to be superseded by a swap contract underpinned by the exercised swap as a contractualProduct.">
+
+Instead a compliant description would state:
+
+.. code-block:: Haskell
+
+  <"Represents a financial product. With respect to a contractual products, this data type specifies the pre-execution product characteristics...”>
+
+Another non-compliant example:
+
+.. code-block:: Haskell
+
+  <"This class corresponds to the FpML CalculationAgent.model.">
+
+2. The description of data objects or the overall model should be focused on the current state, there should be no reference to the history of the model or a future state.
+
+   #. The history of the model is not relevant in this context – it’s sufficient to describe how the model currently works.
+   #. Forward-looking statements can create a perception that the product is not finished, and become a distraction to explaining what the product does.  Moreover, these future plans may never materialize.
+   #. Given these rules, phrases such as “the model currently does….” should be excluded because everything described in the User Documentation and Logical Model is a description of what the model currently does.
