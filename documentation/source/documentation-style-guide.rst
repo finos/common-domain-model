@@ -133,7 +133,7 @@ Another non-compliant example:
 Heading styles and flow in the user documentation
 """""""""""""""""""""""""""""""""""""""""""""""""
 
-1. Heading styles. The user documentation is edited in the *RST (reStructured Text)* mark-up language, which is then rendered into Html in the CDM documentation website using *Sphinx*. For heading to be rendered with the correct structure, they should be annotated according to the following table:
+1. Heading styles. The user documentation is edited in the *RST (reStructured Text)* mark-up language, which is then rendered into Html in the CDM documentation website using *Sphinx*. For headings to be rendered with the correct structure, they should be annotated according to the following table:
 
    #. If using a header to identify a section to describe a component, then use headers to describe other components that are at the same level.
    #. Sub-headings should have a name distinct from the higher level heading. e.g. if Legal Agreement is the Heading Level 2, then there should not be a heading at level 3 or 4 with the exact same title.
@@ -163,6 +163,8 @@ Heading styles and flow in the user documentation
      - S font (same as content), but bold
      - `Price Quantity <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#pricequantity>`_
 
+The RST editing syntax in which the user documentation is written is a standard web mark-up language, for which a reference guide can be found at: https://sublime-and-sphinx-guide.readthedocs.io
+
 2. Logical organization and order:
 
    #. The user documentation should walk the user through the model from the top down, beginning at a description of the primary components.
@@ -178,26 +180,39 @@ Heading styles and flow in the user documentation
 Content of Release Notes
 """"""""""""""""""""""""
 
-Release notes are text describing the content of any new CDM release and are a critical part of the distribution of that release. Release notes are edited in the *Mark-Down (MD)* language, which is then rendered into Html in the various channels where the release is published. 
+Release notes are text describing the content of any new CDM release and are a critical component of the distribution of that release. Release notes are edited in the *Mark-Down (MD)* syntax, which is then rendered into Html in the various channels where the release is published. 
 
-1. Should begin with a ``#``: CDM Model or #Technical Change followed by – and a headline description
-2. Should provide enough detail for an ARC member or other interested parties to be able to find and evaluate the change.  If it’s a data model change, for example, the class and attributes should be named and the before and after states of the model explained, along with a justification in which the issue is summarized.
-3.	If the release is describing mapping rules, then there should be explicit information about the examples affected and the change in resulting values for those examples
-4.	If the release is documentation, then it should specify exactly where the document was changed and why.
+1. release notes should begin with a high-level headline of the part of the model being changed, followed by "–" and a short headline description
 
-5.	Special formatting rules
-5.1.	* before and after text for bold
-5.2.	_ before and after for italics
-5.3.	– before and after for bullets
-5.4.	Backticks ` before and after model elements, e.g. data types, attributes, enums, function names, etc for special formatting (usually found on left of the keyboard, near Z or 1)
-6.	The github editing syntax is a standard that can be can referenced here: https://www.markdownguide.org/cheat-sheet/
-7.	Sample with formatting in github:
-# *CDM Model: Expanded set of enumerations in RegulatoryRegimeEnum*
-_What is being released?_ 
+   #. For example: "# Legal Agreement Model - Collateral Agreement Elections"
+   
+2. They should provide enough detail for a reviewer or other interested parties to be able to find and evaluate the change. For a data model change, for example, the data type and attributes should be named and the before/after states of the model explained, along with a justification in which the issue is summarised.
+3.	If the release notes describe mapping rules, there should be explicit information about the examples affected and the change in resulting values for those examples.
+4. If the release is documentation, it should specify exactly where the document was changed and why.
+5. Special formatting rules related to use of the MD mark-up language:
 
-Additional regimes have been added to the `RegulatoryRegimeEnum` which is used to express the required regimes for initial margin documentation. The `RegulatoryRegimeEnum` is used as an enumeration for attributes in the `ApplicableRegime` and `SubstitutedRegime` data types within the legal agreements model.  
+   #. Headline should begin with a ``#``, as in the above example, so that it appears correctly formatted in Html
+   #. ``*`` before and after text (no space) for bold
+   #. ``_`` before and after text (no space) for italics
+   #. ``–`` (plus a space) for bullets
+   #. Backticks ````` before and after model components, e.g. data types, attributes, enums, function names, etc for special code-style formatting
+   
+Example release notes formatted in MD:
 
-The new enumerated values are `BrazilMarginRules`, `UnitedKingdomMarginRules`, `SouthAfricaMarginRules`, `SouthKoreaMarginRules`, and `HongKongSFCMarginRules`, all of which have come into force in January 2021.  Each of these enumerated values has a complete description that uses the text provided in the relevant regulatory supplement.
+.. code-block:: MD
 
-_Review directions_
-In the CDM Portal select the Textual Browser, search for ‘ApplicableRegime’ and ‘SubstitutedRegime’, click on the ‘RegulatoryRegimeEnum’ next to the ‘regime’ attribute and observe the expanded list of regimes, including the ones noted above.
+  # *CDM Model: Expanded set of enumerations in RegulatoryRegimeEnum*
+  
+  _What is being released_ 
+
+  Additional regimes have been added to the `RegulatoryRegimeEnum` which is used to express the required regimes for initial margin documentation. The `RegulatoryRegimeEnum` is used as an enumeration for attributes in the `ApplicableRegime` and `SubstitutedRegime` data types within the legal agreements model.  
+  
+  The new enumerated values are `BrazilMarginRules`, `UnitedKingdomMarginRules`, `SouthAfricaMarginRules`, `SouthKoreaMarginRules`, and `HongKongSFCMarginRules`, all of which have come into force in January 2021.  Each of these enumerated values has a complete description that uses the text provided in the relevant regulatory supplement.
+
+  _Review directions_
+  
+  In the CDM Portal select the Textual Browser, search for ‘ApplicableRegime’ and ‘SubstitutedRegime’, click on the ‘RegulatoryRegimeEnum’ next to the ‘regime’ attribute and observe the expanded list of regimes, including the ones noted above.
+
+The MD editing syntax in which release notes are written is a standard web mark-up language, for which a reference guide can be found at: https://www.markdownguide.org/cheat-sheet/
+
+.. note:: The MD syntax provides similar features to the RST syntax (used to edit the user documentation), but the special formatting characters are slightly different between the two. While RST allows richer features that are useful for a full documentation website, MD is preferred for release notes because Slack supports (a subset of) the MD language and can therefore serve as a release publication channel.
