@@ -294,6 +294,8 @@ And the result will be rendered as:
    transfer TransferPrimitive (0..*)
      [metadata reference]
 
+.. note:: Code snippets that appear in the user documentation are being compared against actual CDM components during the CDM build process, and any mismatch will trigger an error in the build. This mechanism ensures that the user documentation is kept in sync with the model in production prior to any release.
+
 Fonts, Text Styles, and Spaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
