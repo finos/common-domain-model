@@ -126,6 +126,55 @@ Another non-compliant example:
 
 2. The description of data objects or the overall model should be focused on the current state, there should be no reference to the history of the model or a future state.
 
-   #. The history of the model is not relevant in this context – it’s sufficient to describe how the model currently works.
-   #. Forward-looking statements can create a perception that the product is not finished, and become a distraction to explaining what the product does.  Moreover, these future plans may never materialize.
-   #. Given these rules, phrases such as “the model currently does….” should be excluded because everything described in the User Documentation and Logical Model is a description of what the model currently does.
+   #. The history of the model is not relevant in this context. It is sufficient to describe how the model currently works.
+   #. Forward-looking statements can create a perception that the product is not finished, and become a distraction to explaining what the product does. Moreover, these future plans may never materialise.
+   #. Given these rules, phrases such as “the model currently does….” should be excluded because any documentation must be a description of what the model currently does.
+
+Heading styles and flow in the user documentation
+"""""""""""""""""""""""""""""""""""""""""""""""""
+
+1. Heading styles. The user documentation is edited in the *RST (reStructured Text)* mark-up language, which is then rendered into Html in the CDM documentation website using *Sphinx*. For heading to be rendered with the correct structure, they should be annotated according to the following table:
+
+   #. If using a header to identify a section to describe a component, then use headers to describe other components that are at the same level.
+   #. Sub-headings should have a name distinct from the higher level heading. e.g. if Legal Agreement is the Heading Level 2, then there should not be a heading at level 3 or 4 with the exact same title.
+
+.. list-table:: Heading Styles
+   :widths: 10 25 25 25
+   :header-rows: 1
+
+   * - Heading Level
+     - Notation (underline in .rst)
+     - Relative font size (as seen by users)
+     - Section Example
+   * - 1
+     - `===============`
+     - XL font and bold
+     - `The Common Domain Model <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#>`_
+   * - 2
+     - `---------------`
+     - L font and bold
+     - `Product Model <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#product-model>`_, `Legal Agreements <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#legal-agreements>`_
+   * - 3
+     - `^^^^^^^^^^^^^^^`
+     - M font and bold
+     - `Tradable Product <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#tradableproduct>`_
+   * - 4
+     - `"""""""""""""""`
+     - S font (same as content), but bold
+     - `Tradable Product <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#tradableproduct>`_
+
+2. Logical organization and order:
+
+   #. The user documentation should walk the user through the model from the top down, beginning at a description of the primary components.
+   #. Levels 1 and 2 should include a bullet point list of the sub sections that will be described (bullets formatted with the insertion of an asterisk followed by a space).
+
+3. Define business terms and CDM terminology early in a section so that the broader audience understands the model.
+4. Details about a topic should be presented in the section for that topic:
+
+   #. In the case of a model component, the description of the component should always be followed by an example.  
+   #. Most or all of the explanation should occur before the example, not after, unless the example was needed as context for an explanation.
+   #. Transitions from one topic to another should be used to help guide the user through the model.
+
+Content of Release Notes
+""""""""""""""""""""""""
+
