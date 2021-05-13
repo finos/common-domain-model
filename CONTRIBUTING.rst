@@ -1,7 +1,7 @@
 How to Contribute
 =================
 
-This purpose of this section is to provide guidance for accepting contributions into the CDM by the wider industry community including market participants, trade associations and technology or service vendors. It describes:
+The purpose of this section is to provide guidance for accepting contributions into the CDM by the wider industry community including market participants, trade associations and technology or service vendors. It describes:
 
 - What a Contributor should do to edit and contribute to the CDM
 - What a Reviewer should do to review the changes
@@ -58,7 +58,7 @@ For further guidance about features of the syntax, please refer to the `Rosetta 
 Model compilation
 ^^^^^^^^^^^^^^^^^
 
-Normally, when the model is syntactically correctly edited, valid code is being auto-generated and compiled in Rosetta. However, certain model changes can sometimes cause compilation errors when changes conflict with static code (e.g. certain mapper implementations).
+Normally, when the model is syntactically correctly edited, valid code is being auto-generated and compiled in Rosetta. However, certain model changes can cause compilation errors when changes conflict with static code (e.g. certain mapper implementations).
 
 The Rosetta support team can help resolve these issues before the changes are contributed. If the Rosetta support identifies that significant work may be required to resolve these errors, they will notify the Contributor who should then contact the CDM Owners to discuss allocating resources to assist.
 
