@@ -25,7 +25,7 @@ Terminology
 The CDM
 ^^^^^^^
 
-The model should be referred to as *the CDM*, without any ownership mention. The only exception is the `Overview of the ISDA CDM <https://docs.rosetta-technology.io/cdm/readme.html>`_ at the beginning of the user documentation when the CDM is introduced as *the ISDA CDM*.
+The model should be referred to as *the CDM*, without any ownership mention. The only exception is the `Overview of the ISDA CDM <https://docs.rosetta-technology.io/cdm/readme.html>`_ section at the beginning of the user documentation when the CDM is introduced as *the ISDA CDM*.
 
 General data definition components
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -57,8 +57,41 @@ Product
 Event
 """""
 
-#. Business Event. In the CDM, `Business Events <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#business-event>`_ represent a lifecycle event of a trade.  When referring to these data structures in the CDM, the term *Business Event* should be consistently used rather than Lifecycle Event.
-#. Primitive Event. In the CDM, `Primitive Events <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#primitive-event>`_ are the building block components used to specify business events in the CDM.  In the user documentation and model descriptions, the word *Primitive* always needs to be qualified with *Event*, because the word *Primitive* (stand-alone) may be associated to very different meanings, e.g. in computing.
+#. Business Event. In the CDM, a `Business Event <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#business-event>`_ represents an event that may occur during the lifecycle of a trade, such as an amendment, a termination, a reset or a payment.
+
+   #. Not Lifecycle Event. the term *Business Event* should be consistently used when referring to these data structures in the CDM documentation.
+  
+#. Primitive Event. In the CDM, a `Primitive Event <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#primitive-event>`_ represents a building block component used to specify business events in the CDM.
+
+   #. Not Primitive. In the CDM documentation, the word *Primitive* always needs to be qualified with *Event*, because the word *Primitive* (stand-alone) may be associated to very different meanings, e.g. in computing.
 
 Content
 -------
+
+Completeness
+^^^^^^^^^^^^
+
+User Documentation
+""""""""""""""""""
+
+#. The user documentation should provide an applicable introduction and should have a section for every primary component of the CDM.
+#. Each section should provide enough business context and explanations of the model so that the average reader in the target audience understands the purpose of the component and its role in the model.
+#. Each section should have at least one example of a data structure
+
+Logical Model
+"""""""""""""
+
+#. Every data type, attribute, enumerated value, function, and test should have a description that describes its purpose in the context of the CDM.
+
+Accuracy
+^^^^^^^^
+
+#. Descriptions should accurately describe the current state of the model. This seems obvious, but there are many possible ways for introducing misalignments, including: an anticipated change never occurred, or the author incorrectly interpreted the structure, or the data structure changed while the documentation or description was not updated.
+#. Subtasks in a design process should include an assessment of documentation and descriptions that will be required to be changed or created, and should include the content.
+#. A release checklist should verify that the affected documentation and descriptions are completed accordingly.
+
+Content Guidelines
+^^^^^^^^^^^^^^^^^^
+
+General guidelines
+""""""""""""""""""
