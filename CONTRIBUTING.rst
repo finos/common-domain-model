@@ -76,7 +76,7 @@ Please refer to the `Mapping Guide <https://docs.rosetta-technology.io/dsl/docum
 All model components have descriptions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-All model components (e.g. types, attributes, conditions, functions etc.) should be specified with descriptions in accordance with the CDM Style Guide (TODO migrate to the documentation website).
+All model components (e.g. types, attributes, conditions, functions etc.) should be specified with descriptions in accordance with the `CDM Style Guide <https://docs.rosetta-technology.io/cdm/documentation/source/documentation-style-guide.html>`.
 
 Contributing model changes
 --------------------------
@@ -115,8 +115,7 @@ The documentation includes *.rosetta* code snippets that directly illustrate exp
 Release note
 ^^^^^^^^^^^^
 
-A release note should be provided with the proposed model change that concisely describes the high-level conceptual design, model changes and how to review (TODO release notes style guide).
-
+A release note should be provided with the proposed model change that concisely describes the high-level conceptual design, model changes and how to review. Please refer to the `Release Note Style Guide <https://docs.rosetta-technology.io/cdm/documentation/source/documentation-style-guide.html#content-of-release-notes>` for further guidance on editing release notes.
 
 Reviewing model changes
 -----------------------
