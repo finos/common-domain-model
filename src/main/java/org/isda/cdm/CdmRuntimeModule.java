@@ -1,9 +1,6 @@
 package org.isda.cdm;
 
-import cdm.base.datetime.functions.Now;
-import cdm.base.datetime.functions.NowImpl;
-import cdm.base.datetime.functions.Today;
-import cdm.base.datetime.functions.TodayImpl;
+import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
 import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRole;
 import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRoleImpl;
@@ -64,6 +61,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(FilterQuantity.class).to(bindFilterQuantity());
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
+		bind(GetDateByIndex.class).to(GetDateByIndexImpl.class);
 	}
 
 	protected Class<? extends FilterSecurityTransfers> bindFilterSecurityTransfers() {
