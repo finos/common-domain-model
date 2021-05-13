@@ -161,7 +161,7 @@ Heading styles and flow in the user documentation
    * - 4
      - `"""""""""""""""`
      - S font (same as content), but bold
-     - `Tradable Product <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#tradableproduct>`_
+     - `Price Quantity <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#pricequantity>`_
 
 2. Logical organization and order:
 
@@ -178,3 +178,26 @@ Heading styles and flow in the user documentation
 Content of Release Notes
 """"""""""""""""""""""""
 
+Release notes are text describing the content of any new CDM release and are a critical part of the distribution of that release. Release notes are edited in the *Mark-Down (MD)* language, which is then rendered into Html in the various channels where the release is published. 
+
+1. Should begin with a ``#``: CDM Model or #Technical Change followed by – and a headline description
+2. Should provide enough detail for an ARC member or other interested parties to be able to find and evaluate the change.  If it’s a data model change, for example, the class and attributes should be named and the before and after states of the model explained, along with a justification in which the issue is summarized.
+3.	If the release is describing mapping rules, then there should be explicit information about the examples affected and the change in resulting values for those examples
+4.	If the release is documentation, then it should specify exactly where the document was changed and why.
+
+5.	Special formatting rules
+5.1.	* before and after text for bold
+5.2.	_ before and after for italics
+5.3.	– before and after for bullets
+5.4.	Backticks ` before and after model elements, e.g. data types, attributes, enums, function names, etc for special formatting (usually found on left of the keyboard, near Z or 1)
+6.	The github editing syntax is a standard that can be can referenced here: https://www.markdownguide.org/cheat-sheet/
+7.	Sample with formatting in github:
+# *CDM Model: Expanded set of enumerations in RegulatoryRegimeEnum*
+_What is being released?_ 
+
+Additional regimes have been added to the `RegulatoryRegimeEnum` which is used to express the required regimes for initial margin documentation. The `RegulatoryRegimeEnum` is used as an enumeration for attributes in the `ApplicableRegime` and `SubstitutedRegime` data types within the legal agreements model.  
+
+The new enumerated values are `BrazilMarginRules`, `UnitedKingdomMarginRules`, `SouthAfricaMarginRules`, `SouthKoreaMarginRules`, and `HongKongSFCMarginRules`, all of which have come into force in January 2021.  Each of these enumerated values has a complete description that uses the text provided in the relevant regulatory supplement.
+
+_Review directions_
+In the CDM Portal select the Textual Browser, search for ‘ApplicableRegime’ and ‘SubstitutedRegime’, click on the ‘RegulatoryRegimeEnum’ next to the ‘regime’ attribute and observe the expanded list of regimes, including the ones noted above.
