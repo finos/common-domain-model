@@ -531,7 +531,7 @@ func ResolveEquityObservationIdentifiers: <"Defines which attributes on the Equi
 			else payout -> priceReturnTerms -> valuationPriceInterim
 
 	assign-output identifiers -> observable -> productIdentifier: <"Represents the identifer for the equity underlier.">
-		payout -> underlier -> underlyingProduct -> security -> productIdentifier only-element
+		payout -> underlier -> security -> productIdentifier only-element
 
 	assign-output identifiers -> observationDate: <"Specifies the date for which to retireve the market data value(s).">
 		ResolveEquityValuationDate(equityValuation, date)
@@ -604,7 +604,7 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
 	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
 
 	condition:
-        tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
+        tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> security -> productIdentifier
 
 	assign-output equityCashSettlementAmount -> cashflowAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return) × Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return) × Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
 		Abs(equityPerformance)
@@ -865,7 +865,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
  		optionPayout -> exerciseTerms
 
   	alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout.">
- 		optionPayout -> underlier -> underlyingProduct
+ 		optionPayout -> underlier
 
   	alias execution: <"Creates the execution primitive describing the exchange of the underlying product, either as a cash transfer or as the formation of a new contractual product between parties.">
  		Create_ExecutionPrimitive( underlier,

@@ -121,11 +121,11 @@ func Qualify_CreditDefaultSwaption: <"This product qualification is temporary un
 		and economicTerms -> payout -> forwardPayout is absent
 		and economicTerms -> payout -> securityPayout is absent
 		and economicTerms -> payout -> securityFinancePayout is absent
-		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
-		and (economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout
-		or economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> cashflow) exists
-		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
-		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
+		and economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
+		and (economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout
+		or economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> cashflow) exists
+		and economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
+		and economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
 
 func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg, 2) the returnType is Price, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features.">
 
@@ -147,12 +147,12 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a pr
 
 	// qualifies that the returnType is price and the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant
         and  economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Price
-        and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
-            or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
-				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
-			or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
-				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
-			or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
+        and ( economicTerms -> payout -> equityPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Equity
+            or (economicTerms -> payout -> equityPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Fund
+				and economicTerms -> payout -> equityPayout -> underlier -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+			or (economicTerms -> payout -> equityPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Fund
+				and economicTerms -> payout -> equityPayout -> underlier -> security -> fundType = FundProductTypeEnum -> MutualFund)
+			or economicTerms -> payout -> equityPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Warrant
           )
 
 func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg, 2) the returnType is Total, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features.">
@@ -172,12 +172,12 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a pr
 
 	// qualifies that the returnType is total and the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant
  		and  economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Total
-        and ( economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
-            or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
-				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
-			or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
-				and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
-			or economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
+        and ( economicTerms -> payout -> equityPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Equity
+            or (economicTerms -> payout -> equityPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Fund
+				and economicTerms -> payout -> equityPayout -> underlier -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+			or (economicTerms -> payout -> equityPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Fund
+				and economicTerms -> payout -> equityPayout -> underlier -> security -> fundType = FundProductTypeEnum -> MutualFund)
+			or economicTerms -> payout -> equityPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Warrant
             )
 
 func Qualify_EquitySwap_PriceReturnBasicPerformance_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg 2) the returnType is Price 3) the underlier is an index, and 4) there are no option features.">
@@ -198,7 +198,7 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_Index: <"Qualifies a product
 		and economicTerms -> payout -> securityFinancePayout is absent)
 	// qualifies that the returnType is price or total and the underlier is an index
 	and economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Price
-    and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> index exists
+    and economicTerms -> payout -> equityPayout -> underlier -> index exists
 
 
 
@@ -218,7 +218,7 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_Index: <"Qualifies a product
 		and economicTerms -> payout -> securityFinancePayout is absent)
 	// qualifies that the returnType is price or total and the underlier is an index
 	and economicTerms -> payout -> equityPayout -> returnType = ReturnTypeEnum -> Total
-    and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> index exists
+    and economicTerms -> payout -> equityPayout -> underlier -> index exists
 
 func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as a plain vanilla Equity Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is a single stock and 2) No special option feature exists other than option averaging.">//
 	[qualification Product]
@@ -236,12 +236,12 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a 
 		and economicTerms -> payout -> securityPayout is absent
 		and economicTerms -> payout -> securityFinancePayout is absent)
 	// qualifies that the underlier is an equity security
-     and ( economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
-            or (economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
-				and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
-			or (economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
-				and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
-			or economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
+     and ( economicTerms -> payout -> optionPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Equity
+            or (economicTerms -> payout -> optionPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Fund
+				and economicTerms -> payout -> optionPayout -> underlier -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+			or (economicTerms -> payout -> optionPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Fund
+				and economicTerms -> payout -> optionPayout -> underlier -> security -> fundType = FundProductTypeEnum -> MutualFund)
+			or economicTerms -> payout -> optionPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Warrant
           )
 	//qualifies that an option style is defined and that no feature other than averaging exists
 		and	(economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
@@ -267,7 +267,7 @@ func Qualify_IndexVanillaOption: <"Qualifies a product as a plain vanilla Index 
 		and economicTerms -> payout -> securityFinancePayout is absent)
 
 	// qualifies that the the underlier is an index
-	 and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> index exists
+	 and economicTerms -> payout -> optionPayout -> underlier -> index exists
 
 	//qualifies that an option style is defined and that no feature other than averaging exists
 		and	(economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
@@ -972,7 +972,7 @@ func Qualify_InterestRate_Option_Swaption: <"Qualifies a product as a Swaption t
 		and economicTerms -> payout -> securityFinancePayout is absent))
 
 	// qualifies that the underlier is an interest rate product with two legs
-	and	economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
+	and	economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
 
 func Qualify_InterestRate_Option_DebtOption: <"Qualifies a product as a Option that can be exercised into an Debt Product based on the economic terms.">
 	[qualification Product]
@@ -994,9 +994,9 @@ func Qualify_InterestRate_Option_DebtOption: <"Qualifies a product as a Option t
 		and economicTerms -> payout -> securityFinancePayout is absent))
 
 	//qualifies the underlyer of the option as a debt security
-	and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Debt
-	or (economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Debt
-		and economicTerms -> payout -> equityPayout -> underlier -> underlyingProduct -> security -> debtType -> debtClass = DebtClassEnum -> Convertible)
+	and economicTerms -> payout -> optionPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Debt
+	or (economicTerms -> payout -> equityPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Debt
+		and economicTerms -> payout -> equityPayout -> underlier -> security -> debtType -> debtClass = DebtClassEnum -> Convertible)
 
 func Qualify_ForeignExchange_Spot_Forward: <"Qualifies a product as Foreign Exchange based on economic terms, which is defined as an agreement to buy one currency against the delivery of another currency at a rate set on the trade date for settlement on a specified date in the future.  Dependent on conventions specific to local markets the product could be considered either Spot or Forward.">
 	[qualification Product]
@@ -1007,8 +1007,8 @@ func Qualify_ForeignExchange_Spot_Forward: <"Qualifies a product as Foreign Exch
 			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Forward"]
 			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Spot"]
 	assign-output is_product:
-		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange only exists and
-		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange count = 1
+		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange only exists and
+		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange count = 1
 		and economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
 
 func Qualify_ForeignExchange_Swap: <"Qualifies a product as Foreign Exchange Swap based on economic terms, which is defined as a contract in which one party borrows one currency from, and simultaneously lends another to, the second party. Each party uses the repayment obligation to its counterparty as collateral and the amount of repayment is fixed at the FX forward rate as of the start of the contract.">
@@ -1016,8 +1016,8 @@ func Qualify_ForeignExchange_Swap: <"Qualifies a product as Foreign Exchange Swa
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 	assign-output is_product:
-		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange only exists and
-		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange count = 2
+		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange only exists and
+		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange count = 2
 		and economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms is absent
 
 func Qualify_ForeignExchange_NDF: <"Qualifies a product as Foreign Exchange Non-Deliverable Forward based on economic terms, which is defined as a Forward transaction where the notional amount of one of the currencies (the “reference currency”) is converted into the other currency (the “settlement currency”) at a spot foreign exchange rate that is observed on a valuation date prior to the settlement date, and a single net payment in the settlement currency is made on the settlement date. No payment or account transfer takes place in the reference currency.">
@@ -1028,8 +1028,8 @@ func Qualify_ForeignExchange_NDF: <"Qualifies a product as Foreign Exchange Non-
 			[synonym ISDA_Taxonomy_v1 value "ForeignExchange_NDF"]
 			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_NDF"]
 	assign-output is_product:
-		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange only exists and
-		economicTerms -> payout -> forwardPayout -> underlier -> underlyingProduct -> foreignExchange count = 1
+		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange only exists and
+		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange count = 1
 		and economicTerms -> payout -> forwardPayout -> settlementTerms -> fxSettlementTerms exists
 
 func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Vanilla Option based on economic terms, which is defined as one where 1) exercise style is American or European style only, and 2) does not contain any feature like Forward Starting Strike or Performance payout.">
@@ -1040,7 +1040,7 @@ func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Va
 			[synonym ISDA_Taxonomy_v2 value "ForeignExchange_VanillaOption"]
 	assign-output is_product:
 		economicTerms -> payout -> optionPayout exists
-		and economicTerms -> payout -> optionPayout -> underlier -> underlyingProduct -> foreignExchange only exists
+		and economicTerms -> payout -> optionPayout -> underlier -> foreignExchange only exists
 		and	(economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
 			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists)
 		and (economicTerms -> payout -> optionPayout -> feature is absent
