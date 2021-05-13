@@ -98,7 +98,7 @@ Content Guidelines
 General guidelines
 """"""""""""""""""
 
-1. Data Definition components  (e.g. data types, attributes, enumerations and enumerated values) should be explained in business terms.
+1. Data Definition components (e.g. data types, attributes, enumerations and enumerated values) should be explained in business terms.
 
    #. The description of objects in the model should begin with the purpose of the object. The purpose should explain what the object is, not "what it is not".
    #. Data type description should begin with a verb that describes what the type does.
