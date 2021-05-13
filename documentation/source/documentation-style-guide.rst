@@ -13,11 +13,13 @@ The purpose of this section is to provide form and substance recommendations for
   - test descriptions
   - any other areas of the logical model where a textual description may be provided
 
-The baseline for the recommendation is standards for spelling, punctuation, and other style rules applicable to British English, such as those found in `New Hart’s Rules <https://global.oup.com/academic/product/new-harts-rules-9780199570027>`_. The recommendation in this document extends this rule set with a set of guidelines applicable to documentation for logical models. The recommendation does not provide an exhaustive list of all of the standard British English rules, but provides selective examples that are common to documentation in general.
-
 The intended audience for the CDM documentation includes software developers, data modelers, legal experts, business experts, and other subject matter experts who may have expertise in one area related to financial products, but are not experts in every area.
 
-Unless otherwise noted, the recommended rules apply to all forms of CDM documentation. When rules are applicable only to certain forms of Documentation (for instance, the logical model descriptions or the release notes), they will be specified as such.
+The baseline for the recommendation is standards for spelling, punctuation, and other style rules applicable to British English. The recommendation in this document extends this rule set with a set of guidelines applicable to documentation for logical models. The recommendation does not provide an exhaustive list of all of the standard British English rules, but provides selective examples that are common to documentation in general.
+
+Writing and editing style is subjective and a matter of personal preferences, rather than right or wrong. The following guidelines are intended to ensure that the documentation provides consistent styling, regardless of who writes it, but should not be interpreted as an authoritative source on "good" styling.
+
+Unless otherwise noted, the recommended rules apply to all forms of CDM documentation. When rules are applicable only to certain forms of documentation (for instance, the logical model descriptions or the release notes), they will be specified as such.
 
 Terminology
 -----------
@@ -32,15 +34,15 @@ General data definition components
 
 The two data definition components should be referred to as follows:
 
-#. Data type: defines an entity with a description, attributes, and where applicable, conditions.
+#. *Data type*: defines an entity with a description, attributes, and where applicable, conditions.
 
-   #. Not type.
-   #. Not class: although these are appropriate terms for some of the distributions of the CDM into other languages, they are not applicable for all.
+   #. Not *type*.
+   #. Not *class*: although these are appropriate terms for some of the distributions of the CDM into other languages, they are not applicable for all.
 
-#. Attribute: defines a member of a data type.
+#. *Attribute*: defines a member of a data type.
 
-   #. Not field.
-   #. Not element.
+   #. Not *field*.
+   #. Not *element*.
 
 Specific components
 ^^^^^^^^^^^^^^^^^^^
@@ -48,22 +50,22 @@ Specific components
 Product
 """""""
 
-#. Financial Product. The user documentation defines `Financial Product <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#financial-product>`_ as the highest level of the hierarchy of the universe of products. The term *Financial Product* should be used consistently throughout the documentation and wherever applicable in the model descriptions when describing the broad set of products.
-#. Contractual Product. Similarly, `Contractual Product <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#contractual-product>`_ is defined as a subset of Financial Products and should be used consistently in any documentation.
+#. *Financial Product*. The user documentation defines `Financial Product <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#financial-product>`_ as the highest level of the hierarchy of the universe of products. The term *Financial Product* should be used consistently throughout the documentation and wherever applicable in the model descriptions when describing the broad set of products.
+#. *Contractual Product*. Similarly, `Contractual Product <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#contractual-product>`_ is defined as a subset of Financial Products and should be used consistently in any documentation.
 
-   #. Not Derivatives.
-   #. Not OTC. Contractual Product is at a higher hierarchy level than OTC Derivatives because it can include other types of products such as Security Financing.
+   #. Not *Derivatives*.
+   #. Not *OTC*. Contractual Product is at a higher hierarchy level than OTC Derivatives because it can include other types of products such as Security Financing.
 
 Event
 """""
 
-#. Business Event. In the CDM, a `Business Event <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#business-event>`_ represents an event that may occur during the lifecycle of a trade, such as an amendment, a termination, a reset or a payment.
+#. *Business Event*. In the CDM, a `Business Event <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#business-event>`_ represents an event that may occur during the lifecycle of a trade, such as an amendment, a termination, a reset or a payment.
 
-   #. Not Lifecycle Event. the term *Business Event* should be consistently used when referring to these data structures in the CDM documentation.
+   #. Not *Lifecycle Event*. the term *Business Event* should be consistently used when referring to these data structures in the CDM documentation.
   
-#. Primitive Event. In the CDM, a `Primitive Event <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#primitive-event>`_ represents a building block component used to specify business events in the CDM.
+#. *Primitive Event*. In the CDM, a `Primitive Event <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#primitive-event>`_ represents a building block component used to specify business events in the CDM.
 
-   #. Not Primitive. In the CDM documentation, the word *Primitive* always needs to be qualified with *Event*, because the word *Primitive* (stand-alone) may be associated to very different meanings, e.g. in computing.
+   #. Not *Primitive* (stand-alone). In the CDM documentation, the word *Primitive* always needs to be qualified with *Event*, because the word *Primitive* may be associated to very different meanings, e.g. in computing.
 
 Content
 -------
@@ -231,7 +233,7 @@ Content style
       #. etc. requires a period.
       #. Complete sentences should end with a period or colon (there should be no need for a question mark or exclamation point in these artefacts).
       #. Incomplete sentences cannot end with a punctuation.  For example, “Through the ``legalAgreement`` attribute the CDM provides support for implementors to:" is an incomplete sentence and cannot end in a punctuation. This can be fixed by adding a few words, e .g. “Through the ``legalAgreement`` attribute the CDM provides support for implementors to do the following:"
-      #. Always use the Oxford Comma (aka the Serial Comma) for clarity when listing more than two items in a sentence, e.g. “data types, attributes, and enumerated values.”  In extreme cases, failure to use this comma could be costly.  See the following article: `$5 million cost of a missing comma <https://www.cnn.com/2018/02/09/us/dairy-drivers-oxford-comma-case-settlement-trnd/index.html>`_
+      #. Always use the Oxford Comma (aka the Serial Comma) for clarity when listing more than two items in a sentence, e.g. “data types, attributes, and enumerated values.”  In extreme cases, failure to use this comma could be costly.  See the following article: `$5 million cost of a missing comma <https://www.cnn.com/2018/02/09/us/dairy-drivers-oxford-comma-case-settlement-trnd/index.html>`_.
 
 2. Other grammatical rules
 
@@ -242,15 +244,15 @@ Content style
       #. Compliant: “...to represent the party or parties for which the election terms are being defined.”
 
 3. When a name or phrase is defined - continue to use it unless an alias has been defined. For example, one section reviewed had an expression "agreement specification details" but then switched to using "agreement content" without explanation. There is sufficient terminology to absorb, as such there is no need for synonyms or aliases, unless there are commonly used terms, in which case, they should be defined and one term should be used consistently.
-4. User Documentation and descriptions should always be in the third person, for example: "the CDM model provides the following...". NEVER use the first person (including the use of "we").
-5. In the User Documentation, when there is a need for a long list, use bullets (* space then text)  as opposed to long sentences.
+4. User Documentation and descriptions should always be in the third person, for example: "the CDM model provides the following...". Never use the first person (including the use of "we").
+5. In the user documentation, when there is a need for a long list, use bullets (``*`` or ``-`` followed by space, then text) as opposed to long sentences.
 6. To the extent possible, use simple direct sentence structures, e.g. replace "An example of such" with "For example", or replace "Proposals for amendment to the CDM can be created upon the initiative of members of a Committee or by any users of CDM within the community who are not a current Committee member." with "Committee members or any user of CDM within the community can propose amendments to the CDM."
 7. Exclude the usage of "mean to", “intends to”, or “looks to”.
 
    #. For example, "the model looks to use strong data type attributes such as numbers, boolean or enumerations whenever possible."
-   #. Either the object works as designed or it does not. This expression might be used in a bug report when describing a function not working as intended but not to describe a working data model.
+   #. Either the object works as designed or it does not. This expression might be used in a bug report when describing a function not working as intended but not to describe a production data model.
    
-8.	Explain the CDM model and objects in an honest and transparent manner, but without criticism of the model. Critical discussions can be conducted internally in other documents. There is no need to provide easy ammunition for critics, e.g. "...which firms may deem inappropriate and may replace by..." is unnecessary and potentially damaging to the brand.
+8.	Explain the CDM objects in an honest and transparent manner, but without criticism of the model. Sentences such as: "...which firms may deem inappropriate and may replace by..." or "the model is incomplete with regards to..." are unnecessary in a documentation. Rather, issues which may be identified in the CDM should be raised and addressed via the CDM governance structure.
 
 Special format for CDM objects
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -260,7 +262,7 @@ Special format for CDM objects
    #. Data types and attributes should be identified in the editor with code quotes, where the text between the quotes will appear in a special block format as illustrated here: ``LegalAgreementBase``.
    #. If the same word or phrase is used in a business context, as part of an explanation, then the words should be spaced and titled normally and the special format is not required: e.g. “Tradable products are represented by...”.
 
-2. Code snippets should be preceded by the string: `.. code-block:: Language` (where the Language could be: Haskell, Java, JSON, etc.), followed by a line spacing before the snippet itself. The entire snippet should be indented with one space, to be identified as part of the code block and formatted appropriately. Indentation can be produced inside the snippet itself using further double space. Meta-data such as data type descriptions or synonyms that appear in the CDM should be excluded from the code snippet, unless the purpose of the snippet is to illustrate those.
+2. Code snippets should be preceded by the string: ``.. code-block:: Language`` (where the Language could be any of Haskell, Java, JSON, etc.), followed by a line spacing before the snippet itself. The entire snippet should be indented with one space, to be identified as part of the code block and formatted appropriately. Indentation can be produced inside the snippet itself using further double space. Meta-data such as data type descriptions or synonyms that appear in the CDM should be excluded from the code snippet, unless the purpose of the snippet is to illustrate those.
 
 Example of how a code snippet should be edited in the documentation:
 
@@ -292,16 +294,23 @@ And the result will be rendered as:
    transfer TransferPrimitive (0..*)
      [metadata reference]
 
-3. Fonts, Text Styles, and Spaces
+Fonts, Text Styles, and Spaces
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   #. Bold should be used sparingly:
+#. Bold should be used sparingly:
    
-      #. Only in the beginning of a section when there is a salient point to emphasize, like a tag line-  the bold line should be syntactically complete and correct.
-      #. In the editor, bold is specified with double asterisks before and after the word or phrase.
+   #. Only in the beginning of a section when there is a salient point to emphasize, like a tag line - the bold line should be syntactically complete and correct.
+   #. In the editor, bold is specified with double asterisks before and after the word or phrase.
 
-   #. Italics
+#. Italics
    
-      #. Italics should be used when defining an unusual term for the first time rather than using quotes, for example to identify something CDM specific, such as the concept of Primitive Events.
-      #. In the editor, italics is specified with a single asterisk ``*`` before and after the word or phrase.
+   #. Italics should be used when defining an unusual term for the first time rather than using quotes, for example to identify something CDM specific, such as the concept of Primitive Events.
+   #. In the editor, italics is specified with a single asterisk ``*`` before and after the word or phrase.
    
-   #. Single space should be used in-between sentences, not double space.
+#. Single space should be used in-between sentences, not double space.
+
+Style references for additional guidance
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. `New Hart’s Rules <https://global.oup.com/academic/product/new-harts-rules-9780199570027>`_: An updated version of this erstwhile comprehensive style guide for writers and editors using British English, published by the Oxford University Press. Invaluable as an official reference on proofreading and copy-editing.  Subjects include spelling, hyphenation, punctuation, capitalisation, languages, law, science, lists, and tables. An earlier version coined the phrase Oxford Comma in July 1905.
+#. `Eats, Shoots & Leaves: The Zero Tolerance Approach to Punctuation <https://www.lynnetruss.com/books/eats-shoots-leaves/>`_:  A light-hearted book with a serious purpose regarding common problems and correctness for using punctuation in the English language.
