@@ -784,6 +784,7 @@ The *reset* process creates instances of the ``Reset`` data type, which are adde
  type Reset:
    resetValue Price (1..1)
    resetDate date (1..1)
+   rateRecordDate date (0..1)
    observations Observation (1..*)
      [metadata reference]
    aggregationMethodology AggregationMethod (0..1)
@@ -1982,27 +1983,35 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
  	[creation PrimitiveEvent]
  	inputs:
  		tradeState TradeState (1..1)
- 		payout Payout (1..1)
- 		date date (1..1)
+ 		instruction ResetInstruction (1..1)
+ 		resetDate date (1..1)
  	output:
  		resetPrimitive ResetPrimitive (1..1)
 
- 	alias observationIdentifiers:
- 		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, date) else
-         if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, date)
+ 	alias payout:
+		instruction -> payout
 
- 	alias observation:
- 		ResolveObservation([observationIdentifiers], empty)
+	alias observationDate:
+		if instruction -> rateRecordDate exists
+		then instruction -> rateRecordDate
+		else resetDate
 
- 	assign-output resetPrimitive -> before:
- 		tradeState
+	alias observationIdentifiers:
+		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, resetDate)
+		else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
 
- 	assign-output resetPrimitive -> after:
- 		tradeState
+	alias observation:
+		ResolveObservation([observationIdentifiers], empty)
 
- 	assign-output resetPrimitive -> after -> resetHistory:
-     	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date) else
-     	if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, date)
+	assign-output resetPrimitive -> before:
+		tradeState
+
+	assign-output resetPrimitive -> after:
+		tradeState
+
+	assign-output resetPrimitive -> after -> resetHistory:
+    	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate)
+		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
 
 
 First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
