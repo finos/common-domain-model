@@ -1,10 +1,10 @@
-# *Event Model - Reset: Fallback Rates*
+# *Event Model - Rate Reset: Fallback Rates*
 
 _What is being released?_
 
-This release adjusts the `Reset` type and related functions to support ISDA/Bloomberg Fallback Rates.  
+This release adjusts the `Reset` type and related functions to support Fallback Rates.  
 
-The Fallback Rates are used as a substitute for LIBOR on legacy LIBOR contracts that have not been amended to an Adjusted Reference Rate (ARR), and where Fallback contractually applies.  
+Fallback Rates are used as a substitute for LIBOR on legacy LIBOR contracts that have not been amended to an Adjusted Reference Rate (ARR), and where Fallback contractually applies.  
 
 The fallback reset process calculates the reset rate in arrears rather than in advance.  For example, given a trade with 3 month floating rate, and a reset date (defined in the model as existing attribute `Reset->resetDate`) of 20th April, the rate record date would be 3 months earlier, 19th Jan (e.g. the accrual period start date because reset rate is calculated in arrears, defined in the model as new attribute `Reset->rateRecordDate`).  If no rate is available for the 19th Jan, the observed rate will be taken from the nearest previous available date (defined in the model as existing attribute `Reset->observations->observationIdentifier->observationDate`).
 
