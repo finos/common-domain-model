@@ -226,12 +226,18 @@ An Index product is an exception because it's not directly tradable, but is incl
 Underlier
 """""""""
 
-The ``Underlier`` type allows for any product to be used as the underlier for a higher-level product such as an option, forward, or an equity swap.
+The underlier attribute on types ``OptionPayout``, ``ForwardPayout`` and ``EquityPayout`` allows for any product to be used as the underlier for a corresponding products option, forward, and equity swap.
 
 .. code-block:: Haskell
 
- type Underlier:
-   underlyingProduct Product (1..1)
+ type OptionPayout extends PayoutBase:
+   [metadata key]
+   buyerSeller BuyerSeller (1..1)
+   optionType OptionTypeEnum (0..1)
+   feature OptionFeature (0..1)
+   denomination OptionDenomination (0..1)
+   exerciseTerms OptionExercise (1..1)
+   underlier Product (1..1)
 
 This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
 
@@ -1808,7 +1814,7 @@ Some of those calculations are presented below:
  	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
 
  	condition:
-         tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
+         tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> security -> productIdentifier
 
  	assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
  		Abs(equityPerformance)
@@ -2021,7 +2027,7 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
  			else payout -> priceReturnTerms -> valuationPriceInterim
 
  	assign-output identifiers -> observable -> productIdentifier:
- 		payout -> underlier -> underlyingProduct -> security -> productIdentifier only-element
+ 		payout -> underlier -> security -> productIdentifier only-element
 
  	assign-output identifiers -> observationDate:
  		ResolveEquityValuationDate(equityValuation, date)
