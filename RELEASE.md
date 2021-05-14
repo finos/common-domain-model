@@ -1,33 +1,33 @@
-# *Product Model - PriceQuantity: FpML synonym mappings for FloatingRateSpecification*
+# *Legal Agreement Model - Add ISDA Create Samples*
 
 _What is being released?_
 
-The recent `PriceQuantity` refactoring introduced a new standard set of data types for `Price` and `Quantity` and also propagated the related changes throughout most of the model. This release contains a few minor clean up tasks:
+This release adds additional ISDA Create sample json files for the legal agreement document types listed below, including samples from their Development, Sandbox and Production environments.
 
-The initial floating rate is considered an attribute of the `Product`.  The FpML synonyms have been changed to map the initial floating rate into the `FloatingRateSpecification -> initialRate`, rather than `PriceQuantity -> price`.
+- 2002-isda-master-agreement
+- 2002-isda-master-agreement-schedule-with-isda-clause-library
+- 2002-isda-master-agreement-with-clause-library
+- 2016-im-csa-ny-law
+- 2018-im-csa-ny-law
+- 2018-im-csd-eng-law
+- 2018-isda-im-csa-ny-law
+- 2018-isda-im-csd-eng-law
+- 2019-clearstream-sa-security-provider-lux-law
+- 2019-clearstream-sa-security-taker-lux-law
+- 2019-euroclear-cta
+- 2019-isda-bank-custodian-cta
+- 2019-isda-bank-custodian-sa-eng-law
+- 2019-isda-bank-custodian-sa-ny-law
+- 2019-isda-bank-custodian-sa-ny-law-sample
+- 2019-isda-clearstream-cta
+- 2019-isda-euroclear-cta
+- 2021-small-sample-document
 
-_Review Directions_
+_Review directions_
 
-In the CDM Portal, select Ingestion, and review the following samples:
+In the CDM Portal, select Ingestion panel, and run samples from the following folders:
 
-For `FloatingRateSpecification -> initialRate`:
+- isda-create/test-pack-2021-05-06/production/
+- isda-create/test-pack-2021-05-06/sandbox/
+- isda-create/test-pack-2021-05-06/development/
 
-- products > credit > cdindex-ex04-iBoxx-uti.xml
-- products > rates > ird-ex29-non-deliverable-settlement-swap-uti.xml
-- products > rates > ird-ex33-BRL-CDI-swap-versioned.json
-
-# *Event Model - Event Date: FpML Record-Keeping synonym mappings for BusinessEvent*
-
-_What is being released?_
-
-This release adds an FpML Record-Keeping synonym mapping for `BusinessEvent -> eventDate`.
-
-_Review Directions_
-
-In the CDM Portal, select Ingestion, and review the following samples:
-
-For `BusinessEvent -> eventDate`: 
-
-- record-keeping > record-ex01-vanilla-swap.xml
-- record-keeping > record-ex02-vanilla-swap-datadoc.xml
-- record-keeping > record-ex100-new-trade.xml
