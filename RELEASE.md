@@ -1,33 +1,25 @@
-# *Legal Agreement Model - Add ISDA Create Samples*
+# *Event Model - Rate Reset: Fallback Rates*
 
 _What is being released?_
 
-This release adds additional ISDA Create sample json files for the legal agreement document types listed below, including samples from their Development, Sandbox and Production environments.
+This release adjusts the `Reset` type and related functions to support Fallback Rates.  
 
-- 2002-isda-master-agreement
-- 2002-isda-master-agreement-schedule-with-isda-clause-library
-- 2002-isda-master-agreement-with-clause-library
-- 2016-im-csa-ny-law
-- 2018-im-csa-ny-law
-- 2018-im-csd-eng-law
-- 2018-isda-im-csa-ny-law
-- 2018-isda-im-csd-eng-law
-- 2019-clearstream-sa-security-provider-lux-law
-- 2019-clearstream-sa-security-taker-lux-law
-- 2019-euroclear-cta
-- 2019-isda-bank-custodian-cta
-- 2019-isda-bank-custodian-sa-eng-law
-- 2019-isda-bank-custodian-sa-ny-law
-- 2019-isda-bank-custodian-sa-ny-law-sample
-- 2019-isda-clearstream-cta
-- 2019-isda-euroclear-cta
-- 2021-small-sample-document
+Fallback Rates are used, for example, as a substitute for LIBOR on legacy LIBOR contracts that have not been amended to an Adjusted Reference Rate (ARR), and where Fallback contractually applies.  
+
+Often in a fallback reset process the reset rate is set in arrears rather than in advance as is the case with rates like LIBOR today, where the rate is reset for the subsequent accrual period.  For example, given a trade with 3 month floating rate, and where such as fallback applies, the reset date (defined in the model with existing attribute `Reset->resetDate`) of 20th April is at the end of the interest accrual period, the Rate Record Date would be 3 months earlier, 19th Jan (e.g. near start of the accrual period because reset rate is set in arrears, defined in the model with new attribute `Reset->rateRecordDate`).
+
+Typically, if no rate is available on the Rate Record Date of 19th Jan, the observed rate will be taken on the nearest previous date where a rate is available (defined in the model with the existing attribute `Reset->observations->observationIdentifier->observationDate`).
+
+The related functions `Create_Reset`, `Create_ResetPrimitive` and `ResolveInterestRateReset` have been adjusted to use the new attribute rateRecordDate when specified.
+
+Note that the reset process for equities is unaffected.
 
 _Review directions_
 
-In the CDM Portal, select Ingestion panel, and run samples from the following folders:
+In the CDM Portal, select the Textual Browser, and review the following types and functions:
 
-- isda-create/test-pack-2021-05-06/production/
-- isda-create/test-pack-2021-05-06/sandbox/
-- isda-create/test-pack-2021-05-06/development/
+- `Reset`, `ResetInstruction`
+- `Create_Reset`, `Create_ResetPrimitive` and `ResolveInterestRateReset`
+
+
 
