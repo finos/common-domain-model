@@ -1,4 +1,4 @@
-# *Product Model - Simplify uncessary nesting when pointing to an Underlier data type*
+# *Product Model - Simplify unnecessary nesting when pointing to an Underlier data type*
 
 _What is being released?_
 
