@@ -6,6 +6,7 @@ import cdm.base.datetime.*
 import cdm.base.staticdata.asset.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.identifier.*
 
 import cdm.observable.asset.*
@@ -119,7 +120,9 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
   	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
   	reset ResetInstruction (0..1) <"Specifies inputs needed to process a Reset business event.">
     transfer TransferInstruction (0..1) <"Specifies inputs needed to process a Transfer business event.">
-    condition OneOfInstruction: required choice allocation, clearing, execution, exercise, reset, transfer
+    indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
+	
+	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -183,6 +186,21 @@ type ResetInstruction: <"Defines the information needed to create a Reset Busine
  	payout Payout (1..1)
  		[metadata reference]
  	resets Reset (1..*)
+
+// FloatingRateOption
+	// what about basis or xccy swaps, should both legs change, and different spreads on each
+type IndexTransitionInstruction: <"Data required to perform an Index Transition business event.">
+	// adjustmentSpread Price (1..1) <"Specifies the spread that accounts for the difference of the old index relative to the new one. This value is added to the original spread to determine the new spread to be applied from the Index Transition effectiveDate forward. In the case of the IBOR Fallback Rate Adjustments, the adjustment spread (also known as the Fallback Adjustment) accounts for two distinctions: i) the fact that the replacement Risk-Free Rate is an overnight rate while IBORs have term structures (e.g., 1, 3, 6-month LIBOR); and (ii) the historical spread differential between IBORs and their term equivalent Overnight Risk-Free Rate compounded rates.">
+	// rateOption FloatingRateOption (1..1) <"Specifies the new index and tenor in an index transition event.">
+	priceQuantity PriceQuantity (1..1)
+	effectiveDate date (1..1) <"Specifies the effective date of the index transition event. This is first date on which the floating rate calculation will use the new index and the adjustmentSpread will be added to the original spread in the floating rate calculation.">
+	cashTransfer Transfer (0..1) <"Specifies the cash transfer that may be tied to an index transition event.">
+
+	condition:
+		priceQuantity -> price -> priceType = PriceTypeEnum -> Spread
+		and priceQuantity -> observable -> rateOption exists
+		and priceQuantity -> quantity is absent
+
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
