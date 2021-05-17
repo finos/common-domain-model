@@ -31,7 +31,7 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 
 	@Test
 	void shouldCreateClearedTrade() throws IOException {
-		TradeState alphaContract = getRosettaModelObject(TradeState.class,"result-json-files/products/rates/EUR-Vanilla-account.json");
+		TradeState alphaContract = getRosettaModelObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/EUR-Vanilla-account.json");
 
 		Party counterparty1 = ClearingUtils.getParty(alphaContract, CounterpartyRoleEnum.PARTY_1);
 		Party counterparty2 = ClearingUtils.getParty(alphaContract, CounterpartyRoleEnum.PARTY_2);

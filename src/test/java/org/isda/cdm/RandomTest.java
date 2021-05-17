@@ -14,9 +14,9 @@ import java.util.List;
 
 class RandomTest {
 
-	private static final String RATES_SAMPLE = "result-json-files/products/rates/GBP-Vanilla-uti.json";
-	private static final String EQUITY_SAMPLE = "result-json-files/products/equity/eqs-ex01-single-underlyer-execution-long-form-other-party.json";
-	///Users/hugohills/code/src/github.com/REGnosys/rosetta-cdm/src/main/resources/result-json-files/products/equity/eqs-ex01-single-underlyer-execution-long-form-other-party.json
+	private static final String RATES_SAMPLE = "result-json-files/fpml-5-10/products/rates/GBP-Vanilla-uti.json";
+	private static final String EQUITY_SAMPLE = "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form-other-party.json";
+	///Users/hugohills/code/src/github.com/REGnosys/rosetta-cdm/src/main/resources/result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form-other-party.json
 
 	@Test
 	@Disabled
