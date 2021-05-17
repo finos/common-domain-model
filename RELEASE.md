@@ -1,4 +1,4 @@
-# *Product Model - remove UnderlyingProduct data type*
+# *Product Model - remove Underlier data type*
 
 _What is being released?_
 
