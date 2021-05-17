@@ -1,8 +1,8 @@
-# *Product Model - remove Underlier data type*
+# *Product Model - Simplify uncessary nesting when pointing to an Underlier data type*
 
 _What is being released?_
 
-Payouts containing an underlier previously referenced the data type `Underlier` which contained a single attribute `underlyingProduct` of type `Product`.  This created an unnecessary extra layer in the model.  This release removes the data type `Underlier`, payouts which previously contained this data type now point directly to Product.
+Payouts containing an underlier previously referenced the data type `Underlier` which contained a single attribute `underlyingProduct` of type `Product`.  This created an unnecessary extra layer in the model.  This release simplifies this unnecessary nesting and removes the redundant data type `Underlier`. All the payouts that previously contained this data type now point directly to a `Product`.
 
 Functions and Regulatory Report definitions referencing this model structure have been updated to reflect the simplification of the model.
 
