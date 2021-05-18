@@ -1,16 +1,16 @@
-# *Product Model - Simplify unnecessary nesting when pointing to an Underlier data type*
+# *Product Model - Mapping to FpML: Enables ingestion of FpML 5.12 data samples and adds new illustrative examples*
 
 _What is being released?_
 
-Payouts containing an underlier previously referenced the data type `Underlier` which contained a single attribute `underlyingProduct` of type `Product`.  This created an unnecessary extra layer in the model.  This release simplifies this unnecessary nesting and removes the redundant data type `Underlier`. All the payouts that previously contained this data type now point directly to a `Product`.
-
-Functions and Regulatory Report definitions referencing this model structure have been updated to reflect the simplification of the model.
+This release enables the ingestion of FpML 5.12 data samples with the model and provides illustrative CDM examples  across commodity, credit, equity, fx, rates and repo products. This release does not address yet differences between FpML 5.10 and 5.12. This will be done in future work.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser, and review the following data types:
+In the CDM Portal, select the Ingestion panel, and review the following samples:
 
-- `EquityPayout`
-- `ForwardPayout`
-- `ObservationPayout`
-- `OptionPayout`
+- `fpml-5-12 > products > commodity`
+- `fpml-5-12 > products > credit`
+- `fpml-5-12 > products > equity`
+- `fpml-5-12 > products > fx`
+- `fpml-5-12 > products > rates`
+- `fpml-5-12 > products > repo`
