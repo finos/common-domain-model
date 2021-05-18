@@ -7,7 +7,7 @@ The purpose of this section is to provide guidance for accepting contributions i
 - What a Reviewer should do to review the changes
 - How to release a new CDM version once changes have been approved
 
-The CDM is an open source project and any contribution to its on-going development is governed by the `CDM Governance Principles <https://docs.rosetta-technology.io/cdm/readme.html#the-cdm-governance>`_
+The CDM is an open source project and any contribution to its on-going development is governed by the `CDM Governance Principles <https://docs.rosetta-technology.io/cdm/readme.html#the-cdm-governance>`_.
 
 Before you start modelling
 --------------------------
@@ -15,8 +15,8 @@ Before you start modelling
 Before you start modelling, please make sure you have gone through the following pre-modelling checklist:
 
 - Review the `CDM Components and Design Principles <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#>`_
-- Review the `Rosetta Starter Guide <https://docs.rosetta-technology.io/core/0-welcome-to-rosetta.html>`_
 - Get approval of conceptual design from stakeholders (for large model change)
+- Review the `Rosetta Starter Guide <https://docs.rosetta-technology.io/core/0-welcome-to-rosetta.html>`_
 
 For large model changes, or changes to core data types, it is recommended that the Contributor reviews the CDM Governance Principles and follows these steps:
 
@@ -34,6 +34,8 @@ Editing the model
 Modelling checklist
 ^^^^^^^^^^^^^^^^^^^
 
+The CDM can be edited using a modelling platform called `Rosetta <https://ui.rosetta-technology.io>`_, which is accessible via a web browser.
+
 Before you start editing the CDM using Rosetta, please go through the following modelling checklist:
 
 - Use latest available CDM version
@@ -42,6 +44,8 @@ Before you start editing the CDM using Rosetta, please go through the following 
 - All translate regression tests expectations for mapping, validation and qualification maintained or improved
 - Additional test samples used (if use-case is not covered by existing samples)
 - All model components have descriptions
+
+.. note:: The CDM may also be supported through alternative modelling platforms (for instance `Legend <https://legend.finos.org/studio>`_). If you intend on using a platform other than Rosetta to edit the CDM, please go through the Rosetta check-list anyway as you will still need to validate and then contribute your code through Rosetta.
 
 Use latest available CDM version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
