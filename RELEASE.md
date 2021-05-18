@@ -1,4 +1,4 @@
-# *Product Model - Adds new synonym mappings and new ingested samples from for FpML 5.12 *
+# *Product Model - Adds new synonym mappings and new ingested samples from for FpML 5.12*
 
 _What is being released?_
 
