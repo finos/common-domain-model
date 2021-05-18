@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release adds an ingestion environment for FpML 5.12, and also added samples for commodity, credit, equity, fx, rates and repo.
+This release augments the CDM mappings to FpML 5.12 and provides new sample representations using this format for products accross commodity, credit, equity, fx, rates and repo asset classes.
 
 _Review directions_
 
