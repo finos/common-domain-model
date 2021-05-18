@@ -1,8 +1,8 @@
-# *Product Model - Adds new synonym mappings and new ingested samples from for FpML 5.12*
+# *Product Model - Mapping to FpML: Enables ingestion of FpML 5.12 data samples and adds new illustrative examples*
 
 _What is being released?_
 
-This release augments the CDM mappings to FpML 5.12. It also provides illustrative CDM representations assembled directly from FpML 5.12 trade samples across commodity, credit, equity, fx, rates and repo asset classes.
+This release enables the ingestion of FpML 5.12 data samples with the model and provides illustrative CDM examples  across commodity, credit, equity, fx, rates and repo products. This release does not address yet differences between FpML 5.10 and 5.12. This will be done in future work.
 
 _Review directions_
 
