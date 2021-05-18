@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release augments the CDM mappings to FpML 5.12. It also provides illustrative CDM representations assembled directly from FpML 5.12 trade samples accross commodity, credit, equity, fx, rates and repo asset classes.
+This release augments the CDM mappings to FpML 5.12. It also provides illustrative CDM representations assembled directly from FpML 5.12 trade samples across commodity, credit, equity, fx, rates and repo asset classes.
 
 _Review directions_
 
