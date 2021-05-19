@@ -1509,13 +1509,7 @@ func Create_IndexTransition: <"Function specification to create the fully-formed
 		businessEvent BusinessEvent (1..1) <"The resulting business event which will be composed of up to two primitive events: TermsChangePrimitive and optionally a (cash) TransferPrimitive.">
 	
 	alias termsChangePrimitive:
-		Create_IndexTransitionPrimitive(tradeState, instruction)
-		
-	assign-output businessEvent -> intent: 
-		IntentEnum -> IndexTransition
-
-	assign-output businessEvent -> eventDate: 
-		instruction -> effectiveDate // Is this wrong?
+		Create_IndexTransitionTermsChangePrimitive(tradeState, instruction)
 
 	assign-output businessEvent -> primitives -> termsChange: 
 		termsChangePrimitive
@@ -1524,7 +1518,14 @@ func Create_IndexTransition: <"Function specification to create the fully-formed
 		if instruction -> cashTransfer exists
 		then Create_TransferPrimitiveFromTransfer( termsChangePrimitive -> after, instruction -> cashTransfer )
 
-func Create_IndexTransitionPrimitive: <"Function specification to replace an interest rate index by another one during the life of a trade and add a transition spread on top of this index (and on top of the spreads already defined in the trade, if any).">
+	assign-output businessEvent -> intent: 
+		IntentEnum -> IndexTransition
+	
+	assign-output businessEvent -> eventDate: 
+		// To review following the increase / decrease discussions
+		instruction -> effectiveDate
+
+func Create_IndexTransitionTermsChangePrimitive: <"Function specification to replace an interest rate index by another one during the life of a trade and add a transition spread on top of this index (and on top of the spreads already defined in the trade, if any).">
 	[creation PrimitiveEvent]
 	inputs:
 		tradeState TradeState (1..1) // changed input to be TradeState rather than Trade
@@ -1534,42 +1535,74 @@ func Create_IndexTransitionPrimitive: <"Function specification to replace an int
 		termsChangePrimitive TermsChangePrimitive (1..1) // changed output to be TermsChangePrimitive
 
 	assign-output termsChangePrimitive -> after: 
-		tradeState
+		UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity(
+			tradeState, 
+			instruction -> priceQuantity
+		)
 
 	// Q: for basis - which rateOption to replace - should it be based on tenor?
+	// for xccy swap - spread will match on price unit of amount and per unit of amount
 	// Replace current spread by instructed spread value (Before margin + Transition spread)
-	assign-output termsChangePrimitive -> after -> trade -> tradableProduct -> priceQuantity: 
-		AddPriceAmountForMatchingPriceQuantity(
-			tradeState -> trade -> tradableProduct -> priceQuantity, 
-			instruction -> priceQuantity -> price only-element, 
-			instruction -> priceQuantity -> observable -> rateOption -> indexTenor
-		) 
+	// assign-output termsChangePrimitive -> after -> trade -> tradableProduct -> priceQuantity: 
+	// 	AddPriceAmountForMatchingPriceQuantity(
+	// 		tradeState -> trade -> tradableProduct -> priceQuantity, 
+	// 		instruction -> priceQuantity -> price only-element, 
+	// 		instruction -> priceQuantity -> observable -> rateOption -> indexTenor
+	// 	) 
 	
 	// Q: for basis - which spread to replace - should it be based on tenor?
 	// Replace interest rate index by instructed index and tenor
-	assign-output termsChangePrimitive -> after -> trade -> tradableProduct -> priceQuantity: 
-		UpdateFloatingRateOptionForMatchingIndexTenor(
-			termsChangePrimitive -> after -> trade -> tradableProduct -> priceQuantity,
-			instruction -> priceQuantity -> observable -> rateOption
-		)
+	// assign-output termsChangePrimitive -> after -> trade -> tradableProduct -> priceQuantity: 
+	// 	UpdateFloatingRateOptionForMatchingIndexTenor(
+	// 		termsChangePrimitive -> after -> trade -> tradableProduct -> priceQuantity,
+	// 		instruction -> priceQuantity -> observable -> rateOption
+	// 	)
 	
 	assign-output termsChangePrimitive -> before: 
 		tradeState	
 
-func AddPriceAmountForMatchingPriceQuantity:
+func UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity:
+	inputs:
+		tradeState TradeState (1..1)
+		instructionPriceQuantity PriceQuantity (1..*)
+	output:
+		updatedTradeState TradeState (1..1)
+
+func UpdateSpreadAdjustmentAndRateOption:
+	inputs:
+		tradeState TradeState (1..1)
+		instructionPriceQuantity PriceQuantity (1..1)
+
+	output:
+		updatedTradeState TradeState (1..1)
+	
+	alias spreadAdjustment:
+		instructionPriceQuantity -> price only-element
+	
+	alias newRateOption:
+		instructionPriceQuantity -> observable -> rateOption
+	
+	alias tradePriceQuantity:
+		FilterPriceQuantity( 
+			tradeState -> trade -> tradableProduct -> priceQuantity, 
+			spreadAdjustment -> unitOfAmount -> currency, 
+			spreadAdjustment -> perUnitOfAmount -> currency,
+			spreadAdjustment -> priceType,
+			newRateOption -> indexTenor 
+		)
+	
+	assign-output tradePriceQuantity -> price -> amount:
+		tradePriceQuantity -> price -> amount + spreadAdjustment -> amount
+
+	assign-output tradePriceQuantity -> observable -> rateOption:
+		newRateOption
+
+func FilterPriceQuantity:
 	inputs:
 		priceQuantity PriceQuantity (0..*)
-		price Price (1..1)
-		indexTenor Period (1..1)
+		priceUnitOfAmount string (1..1)
+		pricePerUnitOfAmount string (1..1)
+		priceType PriceTypeEnum (1..1)
+		rateOptionIndexTenor Period (1..1)
 	output:
-		updatedPriceQuantity PriceQuantity (0..*)
-
-func UpdateFloatingRateOptionForMatchingIndexTenor:
-	inputs:
-		priceQuantity PriceQuantity (0..*)
-		rateOption FloatingRateOption (1..1)
-	output:
-		updatedPriceQuantity PriceQuantity (0..*)
-
-
-
+		filteredPriceQuantity PriceQuantity (0..1)
