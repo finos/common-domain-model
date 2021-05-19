@@ -226,12 +226,18 @@ An Index product is an exception because it's not directly tradable, but is incl
 Underlier
 """""""""
 
-The ``Underlier`` type allows for any product to be used as the underlier for a higher-level product such as an option, forward, or an equity swap.
+The underlier attribute on types ``OptionPayout``, ``ForwardPayout`` and ``EquityPayout`` allows for any product to be used as the underlier for a corresponding products option, forward, and equity swap.
 
 .. code-block:: Haskell
 
- type Underlier:
-   underlyingProduct Product (1..1)
+ type OptionPayout extends PayoutBase:
+   [metadata key]
+   buyerSeller BuyerSeller (1..1)
+   optionType OptionTypeEnum (0..1)
+   feature OptionFeature (0..1)
+   denomination OptionDenomination (0..1)
+   exerciseTerms OptionExercise (1..1)
+   underlier Product (1..1)
 
 This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
 
@@ -778,6 +784,7 @@ The *reset* process creates instances of the ``Reset`` data type, which are adde
  type Reset:
    resetValue Price (1..1)
    resetDate date (1..1)
+   rateRecordDate date (0..1)
    observations Observation (1..*)
      [metadata reference]
    aggregationMethodology AggregationMethod (0..1)
@@ -804,7 +811,8 @@ The *transfer* process creates instances of the ``Transfer`` data type, which ar
  type Transfer:
    identifier Identifier (0..*)
      [metadata scheme]
-   priceQuantity PriceQuantity (1..1)
+   quantity Quantity (1..1)
+   observable Observable (0..1)
    payerReceiver PartyReferencePayerReceiver (1..1)
    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
    settlementOrigin SettlementOrigin (0..1)
@@ -1371,24 +1379,24 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
  type CreditSupportAgreementElections:
    regime Regime (1..1)
    oneWayProvisions OneWayProvisions (1..1)
-   generalSimmElections GeneralSimmElections (1..1)
+   generalSimmElections GeneralSimmElections (0..1)
    identifiedCrossCurrencySwap boolean (0..1)
    sensitivityMethodologies SensitivityMethodologies (1..1)
    fxHaircutCurrency FxHaircutCurrency (0..1)
    postingObligations PostingObligations (1..1)
-   substitutedRegime SubstitutedRegime (1..*)
+   substitutedRegime SubstitutedRegime (0..*)
    baseAndEligibleCurrency BaseAndEligibleCurrency (1..1)
    additionalObligations string (0..1)
    coveredTransactions CoveredTransactions (1..1)
    creditSupportObligations CreditSupportObligations (1..1)
    exchangeDate string (0..1)
    calculationAndTiming CalculationAndTiming (1..1)
-   conditionsPrecedent ConditionsPrecedent (1..1)
+   conditionsPrecedent ConditionsPrecedent (0..1)
    substitution Substitution (1..1)
    disputeResolution DisputeResolution (1..1)
    holdingAndUsingPostedCollateral HoldingAndUsingPostedCollateral (1..1)
    rightsEvents RightsEvents (1..1)
-   custodyArrangements CustodyArrangements (1..1)
+   custodyArrangements CustodyArrangements (0..1)
    distributionAndInterestPayment DistributionAndInterestPayment (0..1)
    creditSupportOffsets boolean (1..1)
    additionalRepresentations AdditionalRepresentations (1..1)
@@ -1489,7 +1497,7 @@ The following code snippets represent these three components of the eligible col
    maturityType MaturityTypeEnum (0..1)
    maturityRange PeriodRange (0..1)
    productIdentifier ProductIdentifier (0..*)
-   productTaxonomy ProductTaxonomy (0..*)
+   collateralTaxonomy CollateralTaxonomy (0..*)
    domesticCurrencyIssued boolean (0..1)
    listing ListingType (0..1)
 
@@ -1807,7 +1815,7 @@ Some of those calculations are presented below:
  	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
 
  	condition:
-         tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
+         tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> security -> productIdentifier
 
  	assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
  		Abs(equityPerformance)
@@ -1975,27 +1983,35 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
  	[creation PrimitiveEvent]
  	inputs:
  		tradeState TradeState (1..1)
- 		payout Payout (1..1)
- 		date date (1..1)
+ 		instruction ResetInstruction (1..1)
+ 		resetDate date (1..1)
  	output:
  		resetPrimitive ResetPrimitive (1..1)
 
- 	alias observationIdentifiers:
- 		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, date) else
-         if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, date)
+ 	alias payout:
+		instruction -> payout
 
- 	alias observation:
- 		ResolveObservation([observationIdentifiers], empty)
+	alias observationDate:
+		if instruction -> rateRecordDate exists
+		then instruction -> rateRecordDate
+		else resetDate
 
- 	assign-output resetPrimitive -> before:
- 		tradeState
+	alias observationIdentifiers:
+		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, resetDate)
+		else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
 
- 	assign-output resetPrimitive -> after:
- 		tradeState
+	alias observation:
+		ResolveObservation([observationIdentifiers], empty)
 
- 	assign-output resetPrimitive -> after -> resetHistory:
-     	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date) else
-     	if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, date)
+	assign-output resetPrimitive -> before:
+		tradeState
+
+	assign-output resetPrimitive -> after:
+		tradeState
+
+	assign-output resetPrimitive -> after -> resetHistory:
+    	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate)
+		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
 
 
 First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
@@ -2020,7 +2036,7 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
  			else payout -> priceReturnTerms -> valuationPriceInterim
 
  	assign-output identifiers -> observable -> productIdentifier:
- 		payout -> underlier -> underlyingProduct -> security -> productIdentifier only-element
+ 		payout -> underlier -> security -> productIdentifier only-element
 
  	assign-output identifiers -> observationDate:
  		ResolveEquityValuationDate(equityValuation, date)

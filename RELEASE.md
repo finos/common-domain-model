@@ -1,33 +1,16 @@
-# *Product Model - PriceQuantity: FpML synonym mappings for FloatingRateSpecification*
+# *Product Model - Mapping to FpML: Enables ingestion of FpML 5.12 data samples and adds new illustrative examples*
 
 _What is being released?_
 
-The recent `PriceQuantity` refactoring introduced a new standard set of data types for `Price` and `Quantity` and also propagated the related changes throughout most of the model. This release contains a few minor clean up tasks:
+This release enables the ingestion of FpML 5.12 data samples with the model and provides illustrative CDM examples  across commodity, credit, equity, fx, rates and repo products. This release does not address yet differences between FpML 5.10 and 5.12. This will be done in future work.
 
-The initial floating rate is considered an attribute of the `Product`.  The FpML synonyms have been changed to map the initial floating rate into the `FloatingRateSpecification -> initialRate`, rather than `PriceQuantity -> price`.
+_Review directions_
 
-_Review Directions_
+In the CDM Portal, select the Ingestion panel, and review the following samples:
 
-In the CDM Portal, select Ingestion, and review the following samples:
-
-For `FloatingRateSpecification -> initialRate`:
-
-- products > credit > cdindex-ex04-iBoxx-uti.xml
-- products > rates > ird-ex29-non-deliverable-settlement-swap-uti.xml
-- products > rates > ird-ex33-BRL-CDI-swap-versioned.json
-
-# *Event Model - Event Date: FpML Record-Keeping synonym mappings for BusinessEvent*
-
-_What is being released?_
-
-This release adds an FpML Record-Keeping synonym mapping for `BusinessEvent -> eventDate`.
-
-_Review Directions_
-
-In the CDM Portal, select Ingestion, and review the following samples:
-
-For `BusinessEvent -> eventDate`: 
-
-- record-keeping > record-ex01-vanilla-swap.xml
-- record-keeping > record-ex02-vanilla-swap-datadoc.xml
-- record-keeping > record-ex100-new-trade.xml
+- `fpml-5-12 > products > commodity`
+- `fpml-5-12 > products > credit`
+- `fpml-5-12 > products > equity`
+- `fpml-5-12 > products > fx`
+- `fpml-5-12 > products > rates`
+- `fpml-5-12 > products > repo`

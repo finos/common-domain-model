@@ -181,6 +181,7 @@ type ExerciseInstruction: <"Specifies the information required to communicate th
 type ResetInstruction: <"Defines the information needed to create a Reset Business Event. ">
  	payout Payout (1..1)
  		[metadata reference]
+	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
 
  type TransferInstruction: <"Defines the payout on which to create a Transfer along with all necessary resets.">
  	payout Payout (1..1)
@@ -219,6 +220,8 @@ type Reset: <"Defines the reset value or fixing value produced in cashflow calcu
 	    [synonym Workflow_Event value "resetValue"]
 	resetDate date (1..1) <"Specifies the date on which the reset occurred.">
 	    [synonym Workflow_Event value "resetDate"]
+	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
+	    [synonym Workflow_Event value "rateRecordDate"]
 	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
 		[metadata reference]
 	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value and the method is not defined in a payout.">
@@ -245,11 +248,17 @@ type Transfer: <"Defines the movement of cash, securities or commodities between
 	identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
 		[metadata scheme]
 	    [synonym Workflow_Event value "transferIdentifier"]
-	priceQuantity PriceQuantity (1..1) <"Represents the amount of the asset to tbe transferred.">
-	    [synonym Workflow_Event value "priceQuantity"]
+	quantity Quantity (1..1) <"Represents the amount of the asset to tbe transferred.">
+	    [synonym Workflow_Event value "quantity"]
+	observable Observable (0..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
+		[synonym Workflow_Event value "observable"]
 	payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
 	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
 	settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+
+	condition:
+		if observable exists
+		then quantity -> unitOfAmount -> financialUnit exists
 
 type SettlementOrigin: <"Defines the various model elements where transfers can arrise.">
 	interestRatePayout InterestRatePayout (0..1) <"Represents a reference to an Interest Rate Payout.">
