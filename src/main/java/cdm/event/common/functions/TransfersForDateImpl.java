@@ -1,7 +1,8 @@
-package cdm.event.common;
+package cdm.event.common.functions;
 
 import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
-import cdm.event.common.functions.TransfersForDate;
+import cdm.event.common.Transfer;
+import cdm.event.common.Transfers;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 import org.jetbrains.annotations.NotNull;
