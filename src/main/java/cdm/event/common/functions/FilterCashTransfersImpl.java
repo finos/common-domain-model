@@ -1,8 +1,9 @@
-package cdm.event.common;
+package cdm.event.common.functions;
 
 import cdm.base.math.MeasureBase;
 import cdm.base.math.UnitType;
-import cdm.event.common.functions.FilterCashTransfers;
+import cdm.event.common.Transfer;
+import cdm.event.common.Transfers;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
 import java.util.List;

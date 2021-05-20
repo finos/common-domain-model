@@ -1,4 +1,4 @@
-namespace cdm.event.common : <"Business event concepts: primitives, contract state and associated state transition function specifications.">
+namespace cdm.event.common: <"Business event concepts: primitives, contract state and associated state transition function specifications.">
 version "${project.version}"
 
 import cdm.base.math.*
@@ -6,6 +6,7 @@ import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.asset.rates.*
 
 import cdm.observable.asset.*
 import cdm.observable.common.*
@@ -440,6 +441,42 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 		and cashPriceChanged = True 
 		and adjustmentRatioMatches = True
 
+func Qualify_IndexTransition: <"The qualification of an index transition event based on (i) adjustment spread applied and (ii) floating rate index changed.">
+	[qualification BusinessEvent]
+	inputs:
+		businessEvent BusinessEvent (1..1)
+	output:
+		is_event boolean (1..1)
+
+	alias after:
+		businessEvent -> primitives -> termsChange -> after -> trade -> tradableProduct
+
+	alias before:
+		businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct
+
+	alias floatingRateIndexChanged:
+	    before -> priceQuantity -> observable -> rateOption -> floatingRateIndex exists
+	    and before -> priceQuantity -> observable -> rateOption -> floatingRateIndex disjoint after -> priceQuantity -> observable -> rateOption -> floatingRateIndex
+
+	alias spread:
+		FilterPrice( after -> priceQuantity -> price, PriceTypeEnum -> Spread )
+
+	alias adjustmentSpreadAdded:
+		if spread exists
+		then spread -> amount <> 0
+		else True
+
+	assign-output is_event:
+		( businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> IndexTransition )
+		and businessEvent -> primitives -> termsChange count = 1
+		and businessEvent -> primitives -> execution is absent
+		and businessEvent -> primitives -> contractFormation is absent
+		and businessEvent -> primitives -> split is absent
+		and businessEvent -> primitives -> quantityChange is absent
+		and businessEvent -> primitives -> reset is absent
+		and floatingRateIndexChanged = True
+		and adjustmentSpreadAdded = True
+
 func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the InterestRatePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
 	inputs:
 		payout InterestRatePayout (1..1)
@@ -788,13 +825,13 @@ func Create_ContractFormation: <"Creates the fully formed business event of affi
       	alias execution:
       		contractFormationInstruction -> execution
 
-	condition : <"Input event must be an execution must be on a contractual product.">
+	condition: <"Input event must be an execution must be on a contractual product.">
       		execution exists and
       		execution -> trade -> tradableProduct -> product -> contractualProduct exists and
       		execution -> trade -> contractDetails is absent and
       		execution -> state -> positionState = PositionStatusEnum -> Executed
 
-	condition : <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided.">
+	condition: <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided.">
       		if contractFormationInstruction -> legalAgreement exists then contractFormationInstruction -> legalAgreement -> contractualParty contains execution -> trade -> party
 
 	assign-output contractFormationEvent -> primitives -> contractFormation: <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
@@ -809,7 +846,7 @@ func Create_ContractFormation: <"Creates the fully formed business event of affi
       	assign-output contractFormationEvent -> eventDate: <"The event date of the contract formation points to the contractFormationDate.">
       		contractFormationDate
 
-	post-condition : <"Event effect must point to the new execution and contract, and exclude other effects.">
+	post-condition: <"Event effect must point to the new execution and contract, and exclude other effects.">
 		contractFormationEvent -> eventEffect -> productIdentifier is absent
 		and contractFormationEvent -> eventEffect -> transfer is absent
 
@@ -950,7 +987,7 @@ func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructe
 		else resetDate
 
 	alias observationIdentifiers: <"Resolves the ObservationIdentifier to be used to derive the single observation to be used in the reset calculation. Resolving the ObservationIdentifier is dependent on the type of payout in use.">
-		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, resetDate) 
+		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, resetDate)
 		else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
 
 	alias observation: <"Represents the single observation that will be used to compute the reset value.">
@@ -963,7 +1000,7 @@ func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructe
 		tradeState
 
 	assign-output resetPrimitive -> after -> resetHistory: <"To handle the various ways Contracts can change over time, ">
-    	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate) 
+    	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate)
 		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
 
 
@@ -1010,6 +1047,22 @@ func Create_TransferPrimitive: <"Defines how a transfer primitive should be cons
 		else if instruction -> payout -> securityPayout exists then
 			Create_SecurityTransfer( tradeState, date )
 
+func Create_TransferPrimitiveFromTransfer:
+	[creation PrimitiveEvent]
+	inputs:
+		tradeState TradeState (1..1)
+		transfer Transfer (1..1)
+	output:
+		transferPrimitive TransferPrimitive (1..1)
+
+	assign-output transferPrimitive -> after:
+		tradeState
+
+	assign-output transferPrimitive -> after -> transferHistory:
+		transfer
+
+	assign-output transferPrimitive -> before:
+		tradeState
 
 func Create_CashTransfer: <"Defines how Transfer that represents an exchange of cash, should be constructed.">
 	inputs:
@@ -1450,4 +1503,82 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 		then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod
 			and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
-		
+func Create_IndexTransition: <"Function specification to create the business event which represents an Index Transition on a Derivatives contract. The function adjust updates the floating rate index and adds the spread adjustment to any existing spread.">
+	[creation BusinessEvent]
+	inputs:
+		tradeState TradeState (1..1) <"Specifies the trade to be updated.">
+		instruction IndexTransitionInstruction (1..1) <"Specifies the instructions containing the floating rate index, spread adjustment for each leg to be updated, and the effective date.">
+		date date (1..1) <"Specifies the event date.">
+
+	output:
+		businessEvent BusinessEvent (1..1) <"Specifies the resulting business event which will be composed of up to two primitive events: TermsChangePrimitive and optionally a (cash) TransferPrimitive.">
+
+	alias termsChangePrimitive:
+		Create_IndexTransitionTermsChangePrimitive(tradeState, instruction)
+
+	assign-output businessEvent -> primitives -> termsChange:
+		termsChangePrimitive
+
+	assign-output businessEvent -> primitives -> transfer:
+		if instruction -> cashTransfer exists
+		then Create_TransferPrimitiveFromTransfer( termsChangePrimitive -> after, instruction -> cashTransfer )
+
+	assign-output businessEvent -> intent:
+		IntentEnum -> IndexTransition
+
+	assign-output businessEvent -> eventDate:
+		// To review following the increase / decrease discussions
+		instruction -> effectiveDate
+
+func Create_IndexTransitionTermsChangePrimitive: <"Function specification to create a terms change primitive that contains changes to the floating rate indexes and adds an adjustment spread to any existing spread.">
+	[creation PrimitiveEvent]
+	inputs:
+		tradeState TradeState (1..1) <"Specifies the trade to be updated.">
+		instruction IndexTransitionInstruction (1..1) <"Specifies the instructions containing the floating rate index, spread adjustment for each leg to be updated, and the effective date.">
+
+	output:
+		termsChangePrimitive TermsChangePrimitive (1..1) <"Specifies the resulting term change primitive.">
+
+	assign-output termsChangePrimitive -> after: <"Updates the trade based on each instruction priceQuantity (e.g. one for each floating rate leg).">
+		UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity(
+			tradeState,
+			instruction -> priceQuantity)
+
+	assign-output termsChangePrimitive -> before:
+		tradeState
+
+func UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity: <"Function that loops through each instruction priceQuantity and calls UpdateSpreadAdjustmentAndRateOption for each one.">
+	inputs:
+		tradeState TradeState (1..1) <"Specifies the trade to be updated.">
+		instructionPriceQuantity PriceQuantity (1..*) <"List of PriceQuantity from the IndexTransitionInstruction (e.g. one for each floating rate leg).">
+	output:
+		updatedTradeState TradeState (1..1) <"Specifies the updated trade.">
+
+func UpdateSpreadAdjustmentAndRateOption: <"Function that loops through each instruction priceQuantity and calls UpdateSpreadAdjustmentAndRateOption for each one.">
+	inputs:
+		tradeState TradeState (1..1) <"Specifies the trade to be updated.">
+		instructionPriceQuantity PriceQuantity (1..1) <"PriceQuantity from the IndexTransitionInstruction (e.g. for one of the floating rate legs).">
+
+	output:
+		updatedTradeState TradeState (1..1) <"Specifies the updated trade.">
+
+	alias spreadAdjustment: <"Specifies the spread adjustment that accounts for the difference of the old floating rate index relative to the new one. This spread amount is added to the existing spread to determine the new spread, which is applied from the specified effective date forward. In the case of the IBOR Fallback Rate Adjustments, the adjustment spread (also known as the Fallback Adjustment) accounts for two distinctions: i) the fact that the replacement Risk-Free Rate is an overnight rate while IBORs have term structures (e.g., 1, 3, 6-month LIBOR); and (ii) the historical spread differential between IBORs and their term equivalent Overnight Risk-Free Rate compounded rates.">
+		instructionPriceQuantity -> price only-element
+
+	alias newRateOption: <"Specifies the replacement rate option from the IndexTransitionInstruction.">
+		instructionPriceQuantity -> observable -> rateOption
+
+	alias tradePriceQuantity: <"Find the trade's PriceQuantity with match matching floating rate index tenor and currency.">
+		FilterPriceQuantity(
+			updatedTradeState -> trade -> tradableProduct -> priceQuantity,
+			spreadAdjustment -> unitOfAmount -> currency,
+			newRateOption -> indexTenor)
+
+    assign-output updatedTradeState:
+        tradeState
+
+	assign-output tradePriceQuantity -> price -> amount: <"Add the spread adjustment to the existing spread.">
+	    tradePriceQuantity -> price only-element -> amount + spreadAdjustment -> amount
+
+	assign-output tradePriceQuantity -> observable -> rateOption -> floatingRateIndex: <"Set the new floating rate index.">
+	    newRateOption -> floatingRateIndex

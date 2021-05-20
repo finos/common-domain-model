@@ -1,16 +1,13 @@
-# *Product Model - Mapping to FpML: Enables ingestion of FpML 5.12 data samples and adds new illustrative examples*
+# *Event Model - Function Development - Create Index Transition Business Event*
 
 _What is being released?_
 
-This release enables the ingestion of FpML 5.12 data samples with the model and provides illustrative CDM examples  across commodity, credit, equity, fx, rates and repo products. This release does not address yet differences between FpML 5.10 and 5.12. This will be done in future work.
+Based on a member contribution, this release contains functions to create a `BusinessEvent` that represents an index transition on an interest rate product.  
+
+Taking as an input `IndexTransitionInstruction`, the function creates a `BusinessEvent` that comprises a `TermsChangePrimitive` containing the update to the floating rate index and any spread adjustment, and also, optionally, a `TransferPrimitive`, for any required value settlement (cash transfer).  The function does not support adjustment to a spread schedule yet.
 
 _Review directions_
 
-In the CDM Portal, select the Ingestion panel, and review the following samples:
+In the CDM Portal, select the Textual Browser, and review type `IndexTransitionInstruction` and functions `Create_IndexTransition`, `Create_IndexTransitionTermsChangePrimitive`.
 
-- `fpml-5-12 > products > commodity`
-- `fpml-5-12 > products > credit`
-- `fpml-5-12 > products > equity`
-- `fpml-5-12 > products > fx`
-- `fpml-5-12 > products > rates`
-- `fpml-5-12 > products > repo`
+In the Rosetta application, select the Visualisation tab, and review the `Create_IndexTransition` examples for Vanilla Swap and Cross Currency Swap.

@@ -1,6 +1,7 @@
-package cdm.event.common;
+package cdm.event.common.functions;
 
-import cdm.event.common.functions.FilterSecurityTransfers;
+import cdm.event.common.Transfer;
+import cdm.event.common.Transfers;
 import cdm.observable.asset.Observable;
 
 import java.util.Collections;
