@@ -181,7 +181,7 @@ The change can be merged into the main CDM code base only upon:
 Releasing model changes
 -----------------------
 
-Once the contributed model change has been merged, a new release can be built, tested and deployed. Upo The Rosetta support team will work with the CDM Owners and the Contributor on a deployment timeline
+Once the contributed model change has been merged, a new release can be built, tested and deployed. The Rosetta support team will work with the CDM Owners and the Contributor on a deployment timeline
 
 The following release checklist should be verified before deploying a new model:
 
