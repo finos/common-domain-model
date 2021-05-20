@@ -5,7 +5,6 @@ import cdm.base.math.UnitType;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.metafields.FieldWithMetaPrice;
-import cdm.product.template.Underlier;
 
 import java.util.Collection;
 import java.util.List;
