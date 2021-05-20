@@ -233,7 +233,7 @@ Content style
       #. etc. requires a period.
       #. Complete sentences should end with a period or colon (there should be no need for a question mark or exclamation point in these artefacts).
       #. Incomplete sentences cannot end with a punctuation.  For example, “Through the ``legalAgreement`` attribute the CDM provides support for implementors to:" is an incomplete sentence and cannot end in a punctuation. This can be fixed by adding a few words, e .g. “Through the ``legalAgreement`` attribute the CDM provides support for implementors to do the following:"
-      #. Always use the Oxford Comma (aka the Serial Comma) for clarity when listing more than two items in a sentence, e.g. “data types, attributes, and enumerated values.”  In extreme cases, failure to use this comma could be costly.  See the following article: `$5 million cost of a missing comma <https://www.cnn.com/2018/02/09/us/dairy-drivers-oxford-comma-case-settlement-trnd/index.html>`_.
+      #. Always use the Oxford Comma (aka the Serial Comma) for clarity when listing more than two items in a sentence, e.g. “data types, attributes, and enumerated values.”  In extreme cases, failure to use this comma could be costly.
 
 2. Other grammatical rules
 
