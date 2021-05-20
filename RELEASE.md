@@ -1,4 +1,4 @@
-# *Event Model - Index Transition Business Event*
+# *Event Model - Function Development - Create Index Transition Business Event*
 
 _What is being released?_
 
