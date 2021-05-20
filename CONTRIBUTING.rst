@@ -28,7 +28,7 @@ For large model changes, or changes to core data types, it is recommended that t
   - CDM Sub-Working Group, if applicable
   - CDM Architecture and Review Committee
   
-- **Quality Assurance**: Seek the early appointment of at least one CDM reviewer who can assist modelling discussions and provide early feedback. CDM Reviewers are appointed by the the CDM Owner. Please contact `cdmInfo@isda.org <cdminfo@isda.org>`_.
+- **Quality Assurance**: Seek the early appointment of at least one CDM reviewer who can assist modelling discussions and provide early feedback. CDM Reviewers are appointed by the the CDM Owners as and when relevant. Please contact `cdmInfo@isda.org <cdminfo@isda.org>`_.
 
 Editing the model
 -----------------
@@ -172,12 +172,16 @@ The CDM has a number of dependent projects that are required for the CDM to be s
 - **CDM Portal**: compile and test.
 - **CDM Java Examples**: compile and test.
 
-Once all the above technical tasks have been completed and the CDM and all downstream builds are successful, then the change can be merged into the main CDM code base.
+The change can be merged into the main CDM code base only upon:
+
+- Approval by CDM Reviewers and/or CDM Architecture and Review Committee,
+- Successfull completiong of all the above technical tasks, and
+- Successfull buils of the CDM with all downstream dependencies
 
 Releasing model changes
 -----------------------
 
-Once the contributed model change has been merged, a new release can be built, tested and deployed. Upoin The Rosetta support team will work with the CDM Owners and the Contributor on a deployment timeline
+Once the contributed model change has been merged, a new release can be built, tested and deployed. Upo The Rosetta support team will work with the CDM Owners and the Contributor on a deployment timeline
 
 The following release checklist should be verified before deploying a new model:
 
