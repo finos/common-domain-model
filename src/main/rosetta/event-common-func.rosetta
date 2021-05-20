@@ -441,48 +441,40 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 		and cashPriceChanged = True 
 		and adjustmentRatioMatches = True
 
-func Qualify_IndexTransition: <"The qualification of an index transition event based on the combination of an adjustment spread and replacement index.">
+func Qualify_IndexTransition: <"The qualification of an index transition event based on (i) adjustment spread applied and (ii) floating rate index changed.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output:
 		is_event boolean (1..1)
 
-	alias afterFloatingRateSpreadSchedule:
-		businessEvent -> primitives -> termsChange -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule
+	alias after:
+		businessEvent -> primitives -> termsChange -> after -> trade -> tradableProduct
 
-	// alias interestRateIndexChanged:
-		// businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex disjoint businessEvent -> primitives -> termsChange -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> assetIdentifier -> rateOption -> floatingRateIndex
+	alias before:
+		businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct
 
-	// alias transitionSpreadAdded:
-	// 	if (afterFloatingRateSpreadSchedule exists)
-	// 	then afterFloatingRateSpreadSchedule -> initialValue <> 0
-	// 	else True
-	// Only term change primitive and/or cash transfer primitives are presents
-	alias termChangeAndCashTransferOnly:
-		businessEvent -> primitives -> termsChange exists
+	alias floatingRateIndexChanged:
+		before -> priceQuantity -> observable -> rateOption -> floatingRateIndex disjoint after -> priceQuantity -> observable -> rateOption -> floatingRateIndex
+
+	alias spread:
+		FilterPrice( after -> priceQuantity -> price, PriceTypeEnum -> Spread )
+
+	alias adjustmentSpreadAdded:
+		if spread exists
+		then spread -> amount <> 0
+		else True
+
+	assign-output is_event:
+		( businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> IndexTransition )
+		and businessEvent -> primitives -> termsChange count = 1
 		and businessEvent -> primitives -> execution is absent
 		and businessEvent -> primitives -> contractFormation is absent
 		and businessEvent -> primitives -> split is absent
-		// and businessEvent -> primitives -> observation is absent
 		and businessEvent -> primitives -> quantityChange is absent
 		and businessEvent -> primitives -> reset is absent
-
-	// Only cash transfer is allowed, forbid the other transfer types
-	// alias cashTransferTypeOnly:
-	// 	if (businessEvent -> primitives -> transfer exists)
-	// 	then (businessEvent -> primitives -> transfer -> securityTransfer is absent
-	// 		and businessEvent -> primitives -> transfer -> commodityTransfer is absent
-	// 	    and businessEvent -> primitives -> transfer -> cashTransfer count <= 1)
-	// 	else True
-	assign-output is_event:
-		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> IndexTransition)
-		and (businessEvent -> primitives -> termsChange -> before count = businessEvent -> primitives -> termsChange -> after count)
-		// and interestRateIndexChanged = True
-		// Optional: transition spread is specified
-		// and transitionSpreadAdded = True
-		and termChangeAndCashTransferOnly = True
-		// and cashTransferTypeOnly = True
+		and floatingRateIndexChanged = True
+		and adjustmentSpreadAdded = True
 
 func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the InterestRatePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
 	inputs:
@@ -1569,7 +1561,7 @@ func UpdateSpreadAdjustmentAndRateOption: <"Function that loops through each ins
 	output:
 		updatedTradeState TradeState (1..1) <"Specifies the updated trade.">
 
-	alias spreadAdjustment: <"Specifies the spread adjustment from the IndexTransitionInstruction.">
+	alias spreadAdjustment: <"Specifies the spread adjustment that accounts for the difference of the old floating rate index relative to the new one. This spread amount is added to the existing spread to determine the new spread, which is applied from the specified effective date forward. In the case of the IBOR Fallback Rate Adjustments, the adjustment spread (also known as the Fallback Adjustment) accounts for two distinctions: i) the fact that the replacement Risk-Free Rate is an overnight rate while IBORs have term structures (e.g., 1, 3, 6-month LIBOR); and (ii) the historical spread differential between IBORs and their term equivalent Overnight Risk-Free Rate compounded rates.">
 		instructionPriceQuantity -> price only-element
 
 	alias newRateOption: <"Specifies the replacement rate option from the IndexTransitionInstruction.">
