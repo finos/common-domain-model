@@ -2,9 +2,9 @@
 
 _What is being released?_
 
-Following a member contribution, this release contains functions to create a `BusinessEvent` that represents an index transition on an interest rate product.  
+Based on a member contribution, this release contains functions to create a `BusinessEvent` that represents an index transition on an interest rate product.  
 
-Based on the input `IndexTransitionInstruction`, the function creates a `BusinessEvent` that comprises a `TermsChangePrimitive` that contains the updated to the floating rate index and spread adjustment, and also, optionally, a `TransferPrimitive`.  
+Taking as an input `IndexTransitionInstruction`, the function creates a `BusinessEvent` that comprises a `TermsChangePrimitive` containing the update to the floating rate index and any spread adjustment, and also, optionally, a `TransferPrimitive`, for any required value settlement (cash transfer).  
 
 _Review directions_
 
