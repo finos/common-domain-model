@@ -1,10 +1,10 @@
-# *Event Model - Index Transition Business Event*
+# *Event Model - Function Development - Create Index Transition Business Event*
 
 _What is being released?_
 
 Based on a member contribution, this release contains functions to create a `BusinessEvent` that represents an index transition on an interest rate product.  
 
-Taking as an input `IndexTransitionInstruction`, the function creates a `BusinessEvent` that comprises a `TermsChangePrimitive` containing the update to the floating rate index and any spread adjustment, and also, optionally, a `TransferPrimitive`, for any required value settlement (cash transfer).  
+Taking as an input `IndexTransitionInstruction`, the function creates a `BusinessEvent` that comprises a `TermsChangePrimitive` containing the update to the floating rate index and any spread adjustment, and also, optionally, a `TransferPrimitive`, for any required value settlement (cash transfer).  The function does not support adjustment to a spread schedule yet.
 
 _Review directions_
 
