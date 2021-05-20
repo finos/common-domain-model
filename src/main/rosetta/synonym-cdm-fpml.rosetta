@@ -464,9 +464,18 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity:
 			[value "fixedPrice"] // Commodity Swap Fixed Leg
 			[value "spread" path "calculation"] // Commodity Swap Floating Leg
-        	// Premium for all Options
-            [value "paymentAmount"]
-    	+ quantity
+        	// Additional payment
+        	[value "paymentAmount"]
+            // Premium for all Options
+        	[value "paymentAmount" path "swaption->premium"]
+            [value "paymentAmount" path "capFloor->premium"]
+            [value "paymentAmount" path "bondOption->premium"]
+            [value "paymentAmount" path "creditDefaultSwapOption->premium"]
+            [value "paymentAmount" path "fxDigitalOption->premium"]
+            [value "paymentAmount" path "fxOption->premium"]
+            [value "paymentAmount" path "commodityOption->premium"]
+            [value "paymentAmount" path "equityOption->equityPremium"]
+        + quantity
 		    [value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule"]
 		    [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
 		    [value "futureValueNotional" path "calculationPeriodAmount->calculation"]
@@ -2306,14 +2315,14 @@ synonym source FpML_5_10 extends FpML
 			[value "fxOption"]
 			[value "commodityOption"]
 			// Options: Premium
-		    [value "premium" path "swaption"]
-			[value "premium" path "capFloor"]
-		    [value "premium" path "bondOption"]
-		    [value "premium" path "creditDefaultSwapOption"]
-			[value "premium" path "fxDigitalOption"]
-			[value "premium" path "fxOption"]
-			[value "premium" path "commodityOption"]
-			[value "equityPremium" path "equityOption"]
+		    [hint "swaption"]
+            [hint "capFloor"]
+            [hint "bondOption"]
+            [hint "creditDefaultSwapOption"]
+            [hint "fxDigitalOption"]
+            [hint "fxOption"]
+            [hint "commodityOption"]
+            [hint "equityOption"]
 		+ adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
