@@ -5,9 +5,35 @@ func Abs:
 	inputs: x number (1..1)
 	output: result number (1..1)
 
-func Sum:
+// Added BALynn 
+func SelectFromVector: <"selects a single value from a vector (list of numbers), i.e. result = val[index] ">
+	inputs: 
+		vector number (0..*)  <"input vector">
+		index int(1..1)	<"index to of the value to select">
+	output: result number (1..1)	<"resulting value">
+
+func AppendToVector: <"append a single value to a vector list (list of numbers)">
+	inputs: 
+		vector number (0..*)  <"input vector">
+		value number(1..1)	<"value to add to the vector">
+	output: resultVector number (0..*)	<"resulting vector">
+
+func LastInVector: <"return the last value in a vector">
+	[calculation]
+	inputs: 
+		vector number (0..*)  <"input vector">
+	output: lastValue number (0..1)	<"resulting value">
+	alias vectorLength : ToInt(vector count)
+	assign-output  lastValue : SelectFromVector(vector, vectorLength)
+
+func Sum:<'generates the scalar sum (total) of all of the supplied values'>
 	inputs: x number (0..*)
 	output: sum number (1..1)
+
+// Added BALynn
+func Product:<'generates the scalar product of all of the supplied values'>
+	inputs: x number (0..*)
+	output: product number (1..1)
 
 func ListsCompare:
 	inputs:
@@ -51,3 +77,22 @@ func FilterQuantity: <"Filter list of quantities based on unit type.">
         currency string (1..1) <"Currency unit type.">
     output:
         quantity Quantity (0..1)
+
+
+// Added BALynn to support calculated rates
+func ToInt: <"convert number to int">
+	inputs: val number(1..1)
+output: 
+	rounded int(1..1)
+func VectorOperation: <"Generates a result vector by applying the supplied arithmetic operation to each element of the supplied left and right vectors in turn.  i.e. result[n] = left[n] <op> right[n], where <op> is the arithmetic operation defined by arithmeticOp.">
+	inputs:
+		arithmeticOp ArithmeticOp(1..1)  <"operator">
+		left number (0..*)			<"left vector">
+		right number(0..*)			<"right vector">
+	output: result number (0..*)	<"result vector">
+func VectorScalarOperation: <"Generates a result vector by applying the supplied arithemetic operation and scalar right value to each element of the supplied left vector in turn. i.e. result[n] = left[n] <op> right, where <op> is the arithmetic operation defined by arithmeticOp.">
+	inputs:
+		arithmeticOp ArithmeticOp(1..1)  <"operator">
+		left number (0..*)				<"left vector">
+		right number(1..1)				<"scalar number, single value applied to all elements of vector">
+	output: result number (0..*)		<"result vector">
