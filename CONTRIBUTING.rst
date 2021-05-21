@@ -52,7 +52,9 @@ Before you start editing the CDM using Rosetta, please go through the following 
 Use latest available CDM version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once ready to start modelling, the Contributor can log into Rosetta and start using the Rosetta Design application to create a workspace and edit the model, referring to the `Rosetta Design Guide <https://docs.rosetta-technology.io/core/2-rosetta-design.html>`_. To the extent possible it is recommended that the Contributor keeps working with a version of the CDM that is as close as possible to the latest. This will minimise the risk of backward compatibility. More information on workspace upgrade is available here: `Rosetta Workspace <https://docs.rosetta-technology.io/core/1-workspace.html>`_
+Once ready to start modelling, the Contributor can log into Rosetta and start using the Rosetta Design application to create a workspace and edit the model, referring to the `Rosetta Design Guide <https://docs.rosetta-technology.io/core/2-rosetta-design.html>`_. To the extent possible it is recommended that the Contributor keeps working with a version of the CDM that is as close as possible to the latest to minimise the risk of backward compatibility.
+
+Please refer to the `Source Control Integration Guide <https://docs.rosetta-technology.io/core/1-workspace.html#id1>`_ for more information.
 
 No syntax warning or error
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -66,7 +68,7 @@ Model compilation
 
 Normally, when the model is syntactically correctly edited, valid code is being auto-generated and compiled in Rosetta. However, certain model changes can cause compilation errors when changes conflict with static code (e.g. certain mapper implementations).
 
-The Rosetta support team can help resolve these errors before the changes are contributed. In most cases you will be able to contact the team via the In-App chat (Please consult the `Rosetta Starter Guide <https://docs.rosetta-technology.io/core/0-welcome-to-rosetta.html>`_ for more details). If the Rosetta support identifies that significant work may be required to resolve these errors, they will notify the Contributor who should then contact the CDM Reviewer originally appointed for the proposed change and/or CDM Owners. The latter will be able to assist in the resolution of the issues.
+The Rosetta support team can help resolve these errors before the changes are contributed. In most cases you will be able to contact the team via the `In-App chat <https://docs.rosetta-technology.io/core/0-welcome-to-rosetta.html#in-app-chat>`_. If the Rosetta support identifies that significant work may be required to resolve these errors, they will notify the Contributor who should then contact the CDM Reviewer originally appointed for the proposed change and/or CDM Owners. The latter will be able to assist in the resolution of the issues.
 
 For more information about auto-compilation in Rosetta, please refer to the `Rosetta Auto Compilation Guide <https://docs.rosetta-technology.io/core/2-rosetta-design.html#auto-compilation>`_.
 
@@ -140,7 +142,7 @@ Before starting to review a contribution, the CDM Reviewer should go through the
   - Contributed model version is not stale and does not conflict with any recent changes
   - Changes are in accordance with the CDM governance guidelines
   
-.. note:: It is not yet possible to verify that mapping, validation and qualification expectations have been maintained by looking at the output of the GitHub Pull Request and CDM build only. Pleae refer to the downstream projects section for more details.
+.. note:: It is not yet possible to verify that mapping, validation and qualification expectations have been maintained by looking at the output of the GitHub Pull Request and CDM build only. Please refer to the `downstream dependencies <https://docs.rosetta-technology.io/cdm/contributing.html#downstream-dependencies>`_ section for more details.
 
 - CDM build process completed with no errors or test failures
 - Review additional samples provided (if use-case is not covered by existing samples)
@@ -157,31 +159,33 @@ Post-review technical tasks
 
 Following model reviews, a number of technical tasks may be required before the changes can be finally approved, merged and released:
 
-- **Stale CDM version**: Contribution is based on an old CDM version and model changes conflict with more recent changes. If the conflicting change is available in Rosetta, the contributor should be asked to update their contribution to the latest version and resubmit. If the conflicting change is not yet available in Rosetta, this will need to be handled by the Rosetta support team.
-- **Failed unit tests**: Java unit tests in the CDM project may fail due to problems in the contributed changes. Alternatively it may be that the test expectations need to be updated. The Reviewer should determine the cause of the test failure and notify either the contributor or the Rosetta support team.
+- **Stale CDM version**: Contribution is based on an old CDM version and model changes conflict with more recent changes. If the conflicting change is available in Rosetta, the contributor should be asked to update their contribution to the latest version and resubmit. If the conflicting change is not yet available in Rosetta, this merge will need to be handled by the CDM Reviewer.
+- **Failed unit tests**: Java unit tests in the CDM project may fail due to problems in the contributed changes. Alternatively it may be that the test expectations need to be updated. The Reviewer should determine the cause of the test failure and notify either the Contributor or work on adjusting the test expectations.
 - **Additional documentation**: If the contributor provided additional documentation, the Reviewer should update the CDM documentation by editing the *documentation.rst* file in GitHub.
 - **Documentation code snippets**: To avoid stale documentation, the CDM build process verifies that any code snippets in the documentation exists and is in line with the model itself. The Reviewer should adjust or include any code snippets by editing the *documentation.rst* file on GitHub.
-- **Code generation**: Model changes may cause code generator failures (e.g., Java, C#, Scala, Kotlin etc.). In the unlikely event of code generation failures, contact the Rosetta support team.
+- **Code generation**: Model changes may cause code generator failures (e.g., Java, C#, Scala, Kotlin etc.). In the unlikely event of code generation failures, these will need to be addressed by the Reviewer.
 
 Downstream dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The CDM has a number of dependent projects that are required for the CDM to be successfully distributed. It is possible that model changes may cause these downstream projects to fail. The Reviewer will need to contact the Rosetta support team to test and, if necessary, update those before the changes can be released.
+The CDM has a number of dependent projects that are required for the CDM to be successfully distributed. It is possible that model changes may cause these downstream projects to fail. The Reviewer will need to test and, if necessary, update those before the changes can be released.
 
 - **Translate**: The regression tests in this project compare the contributed model against the expected number of mapping, validation and qualification results. Due to the contributed model changes, it is likely that there will be expectation mismatches that cause this build to fail.
 - **CDM Portal**: compile and test.
 - **CDM Java Examples**: compile and test.
 
+.. note:: In most cases, the post-review technical tasks and downstream dependencies require software engineering expertise in addition to CDM expertise. The Reviewer should seek additional technical support to address those if they cannot handle those tasks themselves.
+
 The change can be merged into the main CDM code base only upon:
 
-- Approval by CDM Reviewers and/or CDM Architecture and Review Committee,
-- Successfull completiong of all the above technical tasks, and
-- Successfull buils of the CDM with all downstream dependencies
+- approval by CDM Reviewers and/or CDM Architecture and Review Committee,
+- successfull completiong of all the above technical tasks, and
+- successfull builds of the CDM and all its downstream dependencies.
 
 Releasing model changes
 -----------------------
 
-Once the contributed model change has been merged, a new release can be built, tested and deployed. The Rosetta support team will work with the CDM Owners and the Contributor on a deployment timeline
+Once the contributed model change has been merged, a new release can be built, tested and deployed. The Reviewer will work with the CDM Owners and the Contributor on a deployment timeline.
 
 The following release checklist should be verified before deploying a new model:
 
@@ -191,4 +195,4 @@ The following release checklist should be verified before deploying a new model:
 - Deploy release candidate and notify channels if need be
 - (Currently done at a later stage) Update the latest CDM version available in Rosetta
 
-.. note:: The release process is now being handled by the **Rosetta Deploy** solution.
+.. note:: The release process is now being handled by the **Rosetta Deploy** solution. The Reviewer should contact the Rosetta support team to request that deployment and discuss a timeline for the release.
