@@ -107,7 +107,7 @@ Before you start contributing your model changes, please go through the followin
 Contributing using Rosetta
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once the model changes have been completed, use Rosetta to submit changes for review, referring to the `Rosetta Workspce Contribution Guide <https://docs.rosetta-technology.io/core/1-workspace.html#contribute-workspace-changes>`_ and specifying a meaningful title and description.
+Once the model changes have been completed, use Rosetta to submit changes for review, referring to the `Rosetta Workspace Contribution Guide <https://docs.rosetta-technology.io/core/1-workspace.html#contribute-workspace-changes>`_ and specifying a meaningful title and description.
 
 .. note:: All contributions are submitted as candidate changes to be incorprated under `the CDM licence <https://portal.cdm.rosetta-technology.io/#/terms-isda>`_
 
@@ -179,8 +179,8 @@ The CDM has a number of dependent projects that are required for the CDM to be s
 The change can be merged into the main CDM code base only upon:
 
 - approval by CDM Reviewers and/or CDM Architecture and Review Committee,
-- successfull completiong of all the above technical tasks, and
-- successfull builds of the CDM and all its downstream dependencies.
+- successful completing of all the above technical tasks, and
+- successful builds of the CDM and all its downstream dependencies.
 
 Releasing model changes
 -----------------------
