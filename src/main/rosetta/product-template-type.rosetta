@@ -76,7 +76,7 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 	[metadata key]
 
 	payerReceiver PayerReceiver (0..1)
-	underlier Underlier (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">
+	underlier Product (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">
 	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">
 	dividendReturnTerms DividendReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Dividend Obligations">
 	priceReturnTerms PriceReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing">
@@ -105,12 +105,12 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 	condition SingleUnderlier: <"In the case of an equity payout with a single underlier, that underlier needs to be an equity product.">
 		if underlier exists
 
-		then (underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Equity
-            or (underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
-				and  underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
-			or (underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Fund
-				and  underlier -> underlyingProduct -> security -> fundType = FundProductTypeEnum -> MutualFund)
-			or underlier -> underlyingProduct -> security -> securityType = SecurityTypeEnum -> Warrant
+		then (underlier -> security -> securityType = SecurityTypeEnum -> Equity
+            or (underlier -> security -> securityType = SecurityTypeEnum -> Fund
+				and  underlier -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+			or (underlier -> security -> securityType = SecurityTypeEnum -> Fund
+				and  underlier -> security -> fundType = FundProductTypeEnum -> MutualFund)
+			or underlier -> security -> securityType = SecurityTypeEnum -> Warrant
             )
 
 type OptionExercise: <" A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
@@ -128,7 +128,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlier per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
-	underlier Underlier (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
+	underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
 
 type SecurityLeg: <" Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
 	[metadata key]
@@ -275,8 +275,8 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		then product -> contractualProduct -> economicTerms -> payout -> equityPayout exists
 
 	condition EquityUnderlierResolvable:
-		if product->contractualProduct->economicTerms->payout->equityPayout->underlier->underlyingProduct->security->productIdentifier exists
-		then product->contractualProduct->economicTerms->payout->equityPayout->underlier->underlyingProduct->security->productIdentifier contains priceQuantity->observable->productIdentifier
+		if product->contractualProduct->economicTerms->payout->equityPayout->underlier->security->productIdentifier exists
+		then product->contractualProduct->economicTerms->payout->equityPayout->underlier->security->productIdentifier contains priceQuantity->observable->productIdentifier
 
 	condition DisruptionEventsDeterminingParty:
 		if product -> contractualProduct -> economicTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
@@ -360,13 +360,9 @@ type ConstituentWeight: <"A class describing the weight of each of the underlier
 		if basketPercentage exists
 		then basketPercentage >= 0.0 and basketPercentage <= 1.0
 
-type Underlier: <"A class describing the whole set of possible underliers: single underliers or multiple underliers, each of these having either security or index components.">
-
-	underlyingProduct Product (1..1) <"Specifies the underlying product. As a difference with FpML, and for the purpose of also supporting swaption and options on CDS through a generic construct, its scope also includes the contract and contractualProduct.">
-
 type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this component.">
 
-	underlier Underlier (1..1) <"Underlying product that the forward is written on, which can be of any type: FX, a contractual product, a security, etc.">
+	underlier Product (1..1) <"Underlying product that the forward is written on, which can be of any type: FX, a contractual product, a security, etc.">
 	settlementTerms OptionSettlement (1..1) <"Settlement terms for the underlier that include the settlement date, settlement method etc.">
 
 	condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">

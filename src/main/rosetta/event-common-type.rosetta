@@ -6,6 +6,7 @@ import cdm.base.datetime.*
 import cdm.base.staticdata.asset.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.identifier.*
 
 import cdm.observable.asset.*
@@ -119,7 +120,9 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
   	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
   	reset ResetInstruction (0..1) <"Specifies inputs needed to process a Reset business event.">
     transfer TransferInstruction (0..1) <"Specifies inputs needed to process a Transfer business event.">
-    condition OneOfInstruction: required choice allocation, clearing, execution, exercise, reset, transfer
+    indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
+	
+	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -178,11 +181,22 @@ type ExerciseInstruction: <"Specifies the information required to communicate th
 type ResetInstruction: <"Defines the information needed to create a Reset Business Event. ">
  	payout Payout (1..1)
  		[metadata reference]
+	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
 
  type TransferInstruction: <"Defines the payout on which to create a Transfer along with all necessary resets.">
  	payout Payout (1..1)
  		[metadata reference]
  	resets Reset (1..*)
+
+type IndexTransitionInstruction: <"Defines the information needed to create a Index Transition Business Event.">
+	priceQuantity PriceQuantity (1..*) <"Specifies both new floating rate index and spread adjustment for each leg to be updated.  The spread adjustment accounts for the difference between the old floating rate index relative to the new one. This spread amount is added to the existing spread to determine the new spread, which is applied from the specified effective date forward. In the case of the IBOR Fallback Rate Adjustments, the adjustment spread (also known as the Fallback Adjustment) accounts for two distinctions: i) the fact that the replacement Risk-Free Rate is an overnight rate while IBORs have term structures (e.g., 1, 3, 6-month LIBOR); and (ii) the historical spread differential between IBORs and their term equivalent Overnight Risk-Free Rate compounded rates.">
+	effectiveDate date (1..1) <"Specifies the effective date of the index transition event. This is first date on which the floating rate calculation will use the new floating rate index and adjusted spread in the floating rate calculation.">
+	cashTransfer Transfer (0..1) <"Specifies the cash transfer that can optionally be tied to an index transition event.">
+
+	condition:
+		priceQuantity -> price -> priceType contains PriceTypeEnum -> Spread
+		and priceQuantity -> observable -> rateOption exists
+		and priceQuantity -> quantity is absent
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
@@ -201,6 +215,8 @@ type Reset: <"Defines the reset value or fixing value produced in cashflow calcu
 	    [synonym Workflow_Event value "resetValue"]
 	resetDate date (1..1) <"Specifies the date on which the reset occurred.">
 	    [synonym Workflow_Event value "resetDate"]
+	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
+	    [synonym Workflow_Event value "rateRecordDate"]
 	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
 		[metadata reference]
 	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value and the method is not defined in a payout.">
