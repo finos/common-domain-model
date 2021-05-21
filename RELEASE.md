@@ -1,4 +1,4 @@
-# *Product Model - Mapping to FpML: Adjusts the synonym mapping set and adds new illustrative record-keeping data samples*
+# *Product Model - Mapping to FpML: Add new Record-Keeping samples*
 
 _What is being released?_
 
