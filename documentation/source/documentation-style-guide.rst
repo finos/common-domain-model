@@ -201,7 +201,7 @@ Release notes are text describing the content of any new CDM release and are a c
    
 Example release notes formatted in MD:
 
-.. code-block:: sourcecode
+.. code-block:: MD
 
   # *CDM Model: Expanded set of enumerations in RegulatoryRegimeEnum*
   
