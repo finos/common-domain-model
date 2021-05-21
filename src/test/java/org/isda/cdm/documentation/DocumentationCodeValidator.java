@@ -73,7 +73,8 @@ public class DocumentationCodeValidator {
 	
 	long validate(List<String> code, String model) {
 		 Stream<String> invalidCode = code.stream()
-	                .filter ( _code -> !_code.contains(".. code-block:: Javascript") )
+					 .filter ( _code -> !_code.contains(".. code-block:: sourcecode") )
+					 .filter ( _code -> !_code.contains(".. code-block:: Javascript") )
 	                .filter ( _code -> !_code.contains(".. code-block:: Java") )
 	                .filter ( _code -> {
 	                    String cleaned = _code
