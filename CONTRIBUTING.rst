@@ -142,7 +142,7 @@ Before starting to review a contribution, the CDM Reviewer should go through the
   - Contributed model version is not stale and does not conflict with any recent changes
   - Changes are in accordance with the CDM governance guidelines
   
-.. note:: It is not yet possible to verify that mapping, validation and qualification expectations have been maintained by looking at the output of the GitHub Pull Request and CDM build only. Please refer to the `downstream dependencies <https://docs.rosetta-technology.io/cdm/contributing.html#downstream-dependencies>`_ section for more details.
+.. note:: It is not yet possible to verify that mapping, validation and qualification expectations have been maintained by looking at the output of the GitHub Pull Request and CDM build only. Please refer to the `downstream dependencies <https://docs.rosetta-technology.io/cdm/contributing.html#id1>`_ section for more details.
 
 - CDM build process completed with no errors or test failures
 - Review additional samples provided (if use-case is not covered by existing samples)
