@@ -110,19 +110,19 @@ General guidelines
 
 Example of a non-compliant description:
 
-.. code-block::
+.. code-block:: sourcecode
 
   <"A data type to represent a financial product. With respect to contractual products, this class specifies the pre-execution product characteristics (the ContractualProduct class). This class is used as underlying for the option exercise representation, which makes use of the contractualProduct attribute to support the swaption use case, with the exercise into a swap. In a complete workflow, the swaption contract itself then needs to be superseded by a swap contract underpinned by the exercised swap as a contractualProduct.">
 
 Instead a compliant description would state:
 
-.. code-block::
+.. code-block:: sourcecode
 
   <"Represents a financial product. With respect to a contractual products, this data type specifies the pre-execution product characteristics...”>
 
 Another non-compliant example:
 
-.. code-block::
+.. code-block:: sourcecode
 
   <"This class corresponds to the FpML CalculationAgent.model.">
 
@@ -201,7 +201,7 @@ Release notes are text describing the content of any new CDM release and are a c
    
 Example release notes formatted in MD:
 
-.. code-block::
+.. code-block:: sourcecode
 
   # *CDM Model: Expanded set of enumerations in RegulatoryRegimeEnum*
   
