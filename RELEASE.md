@@ -46,4 +46,4 @@ _Review directions_
 Review the new sections in the CDM documentation:
 
 - [How to Contribute](https://docs.rosetta-technology.io/cdm/contributing.html)
-- [Documentation Style Guide](https://docs.rosetta-technology.io/cdm/documentation-style-guide.html)
+- [Documentation Style Guide](https://docs.rosetta-technology.io/cdm/documentation/source/documentation-style-guide.html)
