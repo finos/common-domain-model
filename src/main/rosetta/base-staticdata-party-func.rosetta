@@ -29,14 +29,22 @@ func Create_PartyRole: <"Constructs a PartyRole given a party and party role enu
 
 func ExtractCounterpartyByRole: <"Extracts from a list of Counterparty data types, the Counterparty that corresponds to the role i.e. Party1 or Party2.">
 	inputs:
-		counterparties Counterparty (1..*)
-		roleEnumToExtract CounterpartyRoleEnum (1..1)
+		counterparties Counterparty (1..*) <"The list of counterparties to filter.">
+		roleEnumToExtract CounterpartyRoleEnum (1..1) <"The counterparty role enum to filter by.">
 	output:
-		counterparty Counterparty (1..1)
+		counterparty Counterparty (0..1) <"The counterparty with specified counterparty role.">
 
 func ExtractAncillaryPartyByRole: <"Extracts from a list of AncillaryParty data types, the AncillaryParty that corresponds to the AncillaryRoleEnum.">
 	inputs:
-		ancillaryParties AncillaryParty (1..*)
-		roleEnumToExtract AncillaryRoleEnum (1..1)
+		ancillaryParties AncillaryParty (1..*) <"The list of ancillary parties to filter.">
+		roleEnumToExtract AncillaryRoleEnum (1..1) <"The ancillary role enum to filter by.">
 	output:
-		ancillaryParty AncillaryParty (1..1)
+		ancillaryParty AncillaryParty (0..1) <"The ancillary party with specified ancillary role.">
+
+func ReplaceParty: <"Removes the old party, and adds the new party.">
+	inputs:
+		parties Party (0..*) <"Specifies the list of parties to update.">
+		oldParty Party (1..1) <"Specifies the party to be removed.">
+		newParty Party (1..1) <"Specifies the party to be added.">
+	output:
+		updatedParties Party (0..*) <"The updated list of parties.">
