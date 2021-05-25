@@ -1,25 +1,49 @@
-# *Event Model - Rate Reset: Fallback Rates*
+# *Product Model - Mapping to FpML: Add new Record-Keeping samples*
 
 _What is being released?_
 
-This release adjusts the `Reset` type and related functions to support Fallback Rates.  
+New FpML samples (non-public execution report) are added to the set of Record-Keeping samples:
 
-Fallback Rates are used, for example, as a substitute for LIBOR on legacy LIBOR contracts that have not been amended to an Adjusted Reference Rate (ARR), and where Fallback contractually applies.  
+- Rates: FRA, OIS Swap, Inflation Swap, CapFloor
+- FX: Simple Exotic Barrier and Digital
+- Commodity: Oil Swap
 
-Often in a fallback reset process the reset rate is set in arrears rather than in advance as is the case with rates like LIBOR today, where the rate is reset for the subsequent accrual period.  For example, given a trade with 3 month floating rate, and where such as fallback applies, the reset date (defined in the model with existing attribute `Reset->resetDate`) of 20th April is at the end of the interest accrual period, the Rate Record Date would be 3 months earlier, 19th Jan (e.g. near start of the accrual period because reset rate is set in arrears, defined in the model with new attribute `Reset->rateRecordDate`).
+Although synonyms have been adjusted to map a large number of fields in those documents, some more work will be required to allow a complete coverage. Example of fields missing:
 
-Typically, if no rate is available on the Rate Record Date of 19th Jan, the observed rate will be taken on the nearest previous date where a rate is available (defined in the model with the existing attribute `Reset->observations->observationIdentifier->observationDate`).
+- Rate option for Inflation Swap
+- Cap rate schedule, when a spread schedule is also present
+- Special features for FX Simple Exotic
 
-The related functions `Create_Reset`, `Create_ResetPrimitive` and `ResolveInterestRateReset` have been adjusted to use the new attribute rateRecordDate when specified.
+These samples are included as part of a broader addition of samples for DRR, and having those documents at least partially mapped in CDM allows to proceed with modelling of the reporting logic (for instance, having the premium fields captured for options).
 
-Note that the reset process for equities is unaffected.
+The FpML synonyms and paths have also been cleaned-up to provide a more consistent treatment across product types / asset classes, making the mappings more readable and more easily extensible (for instance in the treatment of option premium).
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser, and review the following types and functions:
+In the CDM Portal, select the Ingestion panel and review the following samples:
 
-- `Reset`, `ResetInstruction`
-- `Create_Reset`, `Create_ResetPrimitive` and `ResolveInterestRateReset`
+- `record-keeping` > `record ex03 capfloor with premium`
+- `record-keeping` > `record ex04 fra`
+- `record-keeping` > `record ex05 inflation swap`
+- `record-keeping` > `record ex06 ois swap`
+- `record-keeping` > `record ex07 capfloor with spread`
+- `record-keeping` > `record ex21 fx simpleexotic barrier`
+- `record-keeping` > `record ex22 fx simpleexotic digital`
+- `record-keeping` > `record ex31 commodity oil swap`
 
+# *Documentation - How to Contribute and Doc Style Guide sections*
 
+_What is being released?_
 
+The documentation has been updated to accomodate an increasing number of contributors to the CDM from the industry community.
+
+The documentation now contains an "How to Contribute" section that details the practical responsibilities of both the Contributor and the Reviewer in the process, in accordance with the CDM governance guidelines, and the subsequent deployment process.
+
+As any contribution needs to include its own documentation update and release notes, a "Documentation Style Guide" section has been provided to ensure on-going consistency in the CDM documentation which may be sourced from many different writers.
+
+_Review directions_
+
+Review the new sections in the CDM documentation:
+
+- [How to Contribute](https://docs.rosetta-technology.io/cdm/contributing.html)
+- [Documentation Style Guide](https://docs.rosetta-technology.io/cdm/documentation/source/documentation-style-guide.html)

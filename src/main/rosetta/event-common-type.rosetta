@@ -6,6 +6,7 @@ import cdm.base.datetime.*
 import cdm.base.staticdata.asset.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.identifier.*
 
 import cdm.observable.asset.*
@@ -120,9 +121,11 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
   	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
   	reset ResetInstruction (0..1) <"Specifies inputs needed to process a Reset business event.">
     transfer TransferInstruction (0..1) <"Specifies inputs needed to process a Transfer business event.">
-	increase IncreaseInstruction (0..1) <"Specifies the inputs needed to process a trade increase, containing the price and quantity of the new trade lot to add.">
-	decrease DecreaseInstruction (0..1) <"Specifies the inputs needed to process a trade decrease / unwind, containing the quantity of the trade lot(s) to be decreased and at what price.">
-    condition OneOfInstruction: required choice allocation, clearing, execution, exercise, reset, transfer, increase, decrease
+	  increase IncreaseInstruction (0..1) <"Specifies the inputs needed to process a trade increase, containing the price and quantity of the new trade lot to add.">
+	  decrease DecreaseInstruction (0..1) <"Specifies the inputs needed to process a trade decrease / unwind, containing the quantity of the trade lot(s) to be decreased and at what price.">
+    indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
+	
+	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -199,6 +202,16 @@ type DecreaseInstruction: <"Instructions required to create a Decrease Business 
 		[metadata reference]
 	tradeLot TradeLot (1..*) <"Trade lots containing the quantity being decreased, and the price and effective date of each decrease. Attribute is of multiple cardinality, to be used to specify exactly which lots / IDs are being decreased. A client could opt not to specify this and indicate just 1 lot and no ID, and implementations should then enrich these details based on unwind method (e.g. FIFO, LIFO, etc).">
 	fee SettlementTerms (0..1) <"Fee agreed to be exchanged as part of the trade decrease (optional).">
+
+type IndexTransitionInstruction: <"Defines the information needed to create a Index Transition Business Event.">
+	priceQuantity PriceQuantity (1..*) <"Specifies both new floating rate index and spread adjustment for each leg to be updated.  The spread adjustment accounts for the difference between the old floating rate index relative to the new one. This spread amount is added to the existing spread to determine the new spread, which is applied from the specified effective date forward. In the case of the IBOR Fallback Rate Adjustments, the adjustment spread (also known as the Fallback Adjustment) accounts for two distinctions: i) the fact that the replacement Risk-Free Rate is an overnight rate while IBORs have term structures (e.g., 1, 3, 6-month LIBOR); and (ii) the historical spread differential between IBORs and their term equivalent Overnight Risk-Free Rate compounded rates.">
+	effectiveDate date (1..1) <"Specifies the effective date of the index transition event. This is first date on which the floating rate calculation will use the new floating rate index and adjusted spread in the floating rate calculation.">
+	cashTransfer Transfer (0..1) <"Specifies the cash transfer that can optionally be tied to an index transition event.">
+
+	condition:
+		priceQuantity -> price -> priceType contains PriceTypeEnum -> Spread
+		and priceQuantity -> observable -> rateOption exists
+		and priceQuantity -> quantity is absent
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
