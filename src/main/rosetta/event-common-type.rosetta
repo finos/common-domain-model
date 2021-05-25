@@ -10,6 +10,7 @@ import cdm.base.staticdata.identifier.*
 
 import cdm.observable.asset.*
 import cdm.observable.event.*
+import cdm.product.common.*
 import cdm.product.asset.*
 import cdm.product.template.*
 import cdm.product.common.settlement.*
@@ -119,7 +120,9 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
   	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
   	reset ResetInstruction (0..1) <"Specifies inputs needed to process a Reset business event.">
     transfer TransferInstruction (0..1) <"Specifies inputs needed to process a Transfer business event.">
-    condition OneOfInstruction: required choice allocation, clearing, execution, exercise, reset, transfer
+	increase IncreaseInstruction (0..1) <"Specifies the inputs needed to process a trade increase, containing the price and quantity of the new trade lot to add.">
+	decrease DecreaseInstruction (0..1) <"Specifies the inputs needed to process a trade decrease / unwind, containing the quantity of the trade lot(s) to be decreased and at what price.">
+    condition OneOfInstruction: required choice allocation, clearing, execution, exercise, reset, transfer, increase, decrease
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -180,10 +183,22 @@ type ResetInstruction: <"Defines the information needed to create a Reset Busine
  		[metadata reference]
 	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
 
- type TransferInstruction: <"Defines the payout on which to create a Transfer along with all necessary resets.">
+type TransferInstruction: <"Defines the payout on which to create a Transfer along with all necessary resets.">
  	payout Payout (1..1)
  		[metadata reference]
  	resets Reset (1..*)
+
+type IncreaseInstruction: <"Instructions required to create an Increase Business Event. An increase effectively adds a new trade lot to the original trade.">
+	tradeState TradeState (1..1) <"Reference to the trade that is being increased.">
+		[metadata reference]
+	tradeLot TradeLot (1..1) <"Trade lot containing the quantity by which the trade is being increased, and the price and effective date of that increase.">
+	fee SettlementTerms (0..1) <"Fee agreed to be exchanged as part of the trade increase (optional).">
+
+type DecreaseInstruction: <"Instructions required to create a Decrease Business Event (i.e. Partial or Full Termination). A decrease effectively decreases one or more trade lots contained in the original trade.">
+	tradeState TradeState (1..1) <"Reference to the trade that is being decreased.">
+		[metadata reference]
+	tradeLot TradeLot (1..*) <"Trade lots containing the quantity being decreased, and the price and effective date of each decrease. Attribute is of multiple cardinality, to be used to specify exactly which lots / IDs are being decreased. A client could opt not to specify this and indicate just 1 lot and no ID, and implementations should then enrich these details based on unwind method (e.g. FIFO, LIFO, etc).">
+	fee SettlementTerms (0..1) <"Fee agreed to be exchanged as part of the trade decrease (optional).">
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
@@ -289,7 +304,7 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 
 	condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
 		if tradableProduct -> product -> security exists
-		then tradableProduct -> priceQuantity -> price exists
+		then tradableProduct -> tradeLots -> priceQuantity -> price exists
 
 	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
 		if tradableProduct -> product -> security exists
@@ -467,7 +482,7 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 		if ( contractDetails -> documentation -> documentationIdentification -> masterConfirmation and contractDetails -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity exists
-			and tradableProduct -> priceQuantity -> quantity -> amount exists
+			and tradableProduct -> tradeLots -> priceQuantity -> quantity -> amount exists
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
 
 	condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
@@ -662,7 +677,7 @@ type SplitPrimitive: <"Defines splitting of a single trade into one or more trad
 		after -> trade -> tradableProduct -> product = before -> trade -> tradableProduct -> product
 
 	condition: <"Ensure the quantities of each split trade totals that of the single trade.">
-		Sum( FilterOpenTradeStates(after) -> tradeStates ->trade -> tradableProduct -> priceQuantity -> quantity -> amount) = before -> trade -> tradableProduct -> priceQuantity -> quantity -> amount
+		Sum( FilterOpenTradeStates(after) -> tradeStates ->trade -> tradableProduct -> tradeLots -> priceQuantity -> quantity -> amount ) =Sum( before -> trade -> tradableProduct -> tradeLots -> priceQuantity -> quantity -> amount )
 
 func FilterOpenTradeStates: <"Outlines inputs and outputs required to filter only 'open' Trade States.">
 	inputs:

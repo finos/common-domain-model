@@ -286,19 +286,19 @@ reporting rule Quantity <"The number of units of the financial instrument, or th
 		[regulatoryReference ESMA EMIR ITS_9 field "2.22"
 			provision "Number of contracts included in the report. For spread bets, the quantity shall be the monetary value wagered per point movement in the direct underlying financial instrument."]
  	TradeForEvent then
- 	extract Trade -> tradableProduct -> priceQuantity -> quantity -> amount
+ 	extract Trade -> tradableProduct -> tradeLots -> priceQuantity -> quantity -> amount
 		as "Quantity"
 
  reporting rule FixedRatePrice
  	TradeForEvent then
-		 filter when Trade -> tradableProduct -> priceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate then
-		 	extract Trade -> tradableProduct -> priceQuantity -> price -> amount
+		 filter when Trade -> tradableProduct -> tradeLots -> priceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate then
+		 	extract Trade -> tradableProduct -> tradeLots -> priceQuantity -> price -> amount
 	 		as "Price"
 
   reporting rule FloatingRatePrice
  	TradeForEvent then
-	 	filter when Trade -> tradableProduct -> priceQuantity -> observable -> rateOption exists then
-	 		extract Trade -> tradableProduct -> priceQuantity -> price -> amount
+	 	filter when Trade -> tradableProduct -> tradeLots -> priceQuantity -> observable -> rateOption exists then
+	 		extract Trade -> tradableProduct -> tradeLots -> priceQuantity -> price -> amount
 	 		as "Price"
 
 reporting rule VenueOfExecution <"Venue of Execution">
@@ -563,7 +563,7 @@ reporting rule SingleCurrencyBasisSwap
             structured_provision "The Seller of a [Single-Currency] Basis Swap is by definition the Receiver of the  Spread"
             provision ""]
 	filter when rule IsIRSwapBasis then
-	filter when Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> rateOption = Trade -> tradableProduct -> priceQuantity -> observable -> rateOption then
+	filter when Trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> rateOption = Trade -> tradableProduct -> tradeLots -> priceQuantity -> observable -> rateOption then
 	(
 		InterestRatePayoutPayer then PartyToBuyer,
 		InterestRatePayoutReceiver then PartyToSeller
@@ -642,7 +642,7 @@ reporting rule FixedFloatPrice
 	 	   	provision "Questions and Answers On MiFIR data reporting. Section 14 Financial instruments’ volatile attributes [Last update: 05/10/2017]. Question 1; Answer 1 (a) Where a swap rate or forward rate financial contract is quoted as the fixed rate and it is considered to be an attribute of the transaction rather than an attribute of the financial instrument, the respective reports should be completed as follows: Transaction report - the price (field 33) of the transaction should be populated with the fixed rate value. Question 2; Example 1: CFI code SRC*S* fixed-floating with single currency"]
 	filter when rule IsFixedFloat then
 
-		extract Trade -> tradableProduct -> priceQuantity -> price then
+		extract Trade -> tradableProduct -> tradeLots -> priceQuantity -> price then
 		filter when Price -> priceType = PriceTypeEnum -> InterestRate then
 		maxBy Price -> amount then
 		extract Price -> amount as "Price"
@@ -654,13 +654,13 @@ reporting rule BasisSwapPrice
 	 	   	structured_provision "The regulatoryPrice of a Basis or Float-Inflation Swap is by definition the highest Spread"
 	 	   	provision "09April 2019|ESMA70-1861941480-56. Questions and Answers On MiFIR data reporting. Section 16 Interest Rate Swaps reporting [Last update: 26/09/2018]. Question 2 Answer 2 CFI SRA*S*, Tenor basis swap (float-to-float single currency). 10 Years EUR EURIBOR 3 months + 2 basis points VS EURIBOR 6 MONTHS. 33 Price 2: If the spread was negative i.e. Firm X was paying 3 month EUR EURIBOR - 2 basis points then Firm X should still be reported as the buyer but the price would be reported as '-2’ in the reports of X and Y."]
 	filter when rule IsIRSwapBasis then
-	filter when Trade -> tradableProduct -> priceQuantity -> observable -> rateOption exists then
-	extract Trade -> tradableProduct -> priceQuantity -> price -> amount as "Price"
+	filter when Trade -> tradableProduct -> tradeLots -> priceQuantity -> observable -> rateOption exists then
+	extract Trade -> tradableProduct -> tradeLots -> priceQuantity -> price -> amount as "Price"
 
 reporting rule FixedFixedPrice
 	filter when rule IsFixedFixed then
-	filter when Trade -> tradableProduct -> priceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate then
-		extract Trade -> tradableProduct -> priceQuantity -> price then
+	filter when Trade -> tradableProduct -> tradeLots -> priceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate then
+		extract Trade -> tradableProduct -> tradeLots -> priceQuantity -> price then
 		maxBy Price -> amount then
 		extract Price -> amount as "Price"
 
@@ -672,10 +672,10 @@ reporting rule CDSPrice
 	 	   	provision "For credit default swaps (CDS) it shall be the coupon in basis points. "]
 	filter when rule IsCreditDefaultSwap then
 	extract Trade -> tradableProduct then
-	extract if (TradableProduct -> priceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate and
-				TradableProduct -> priceQuantity -> observable -> rateOption is absent and
-					TradableProduct -> priceQuantity -> price -> amount <> 0)
-				then TradableProduct -> priceQuantity -> price -> amount
+	extract if (TradableProduct -> tradeLots -> priceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate and
+				TradableProduct -> tradeLots -> priceQuantity -> observable -> rateOption is absent and
+					TradableProduct -> tradeLots -> priceQuantity -> price -> amount <> 0)
+				then TradableProduct -> tradeLots -> priceQuantity -> price -> amount
 			else
 			if (TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> initialRate -> amount exists)
 				then TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> initialRate -> amount

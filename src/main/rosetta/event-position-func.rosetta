@@ -15,14 +15,14 @@ func FxMarkToMarket: <"Representation of sample mark to market calculation provi
 	alias forwardPayout: <"Alias to the forward pay out.">
 		trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> forwardPayout only-element
 
-    alias currencyPair: <"The quoted currency pair.">
-        trade -> tradableProduct -> priceQuantity only-element -> observable -> currencyPair
+    alias currencyPair: <"The quoted currency pair. Only works for single trade lot and price">
+        trade -> tradableProduct -> tradeLots -> priceQuantity only-element -> observable -> currencyPair
 	
-	alias currency1Quantity: <"Quantity amount for currency 1.">
-		FilterQuantity( trade -> tradableProduct -> priceQuantity -> quantity, currencyPair -> currency1 ) -> amount
+	alias currency1Quantity: <"Quantity amount for currency 1. Only works in the case of a single trade lot.">
+		FilterQuantity( trade -> tradableProduct -> tradeLots only-element -> priceQuantity -> quantity, currencyPair -> currency1 ) -> amount
 	
-	alias currency2Quantity: <"Quantity amount for currency 2.">
-		FilterQuantity( trade -> tradableProduct -> priceQuantity -> quantity, currencyPair -> currency2 ) -> amount
+	alias currency2Quantity: <"Quantity amount for currency 2. Only works in the case of a single trade lot.">
+		FilterQuantity( trade -> tradableProduct -> tradeLots only-element -> priceQuantity -> quantity, currencyPair -> currency2 ) -> amount
 	
 	 alias quotedQuantity: <"The quoted currency amount.">
 		if currencyPair -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2

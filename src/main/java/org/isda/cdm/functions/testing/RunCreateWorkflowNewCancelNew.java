@@ -9,6 +9,7 @@ import cdm.event.common.functions.Create_Execution;
 import cdm.event.workflow.*;
 import cdm.event.workflow.functions.Create_WorkflowStep;
 import cdm.observable.asset.PriceQuantity;
+import cdm.product.common.TradeLot;
 import com.google.common.collect.Lists;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
@@ -78,8 +79,10 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<TradeSt
 		tradeStateBuilder
 				.getTrade()
 				.getTradableProduct()
-				.getPriceQuantity()
+				.getTradeLots()
 				.stream()
+				.map(TradeLot.TradeLotBuilder::getPriceQuantity)
+				.flatMap(Collection::stream)
 				.map(PriceQuantity.PriceQuantityBuilder::getQuantity)
 				.flatMap(Collection::stream)
 				.forEach(q -> q.getOrCreateValue().setAmount(BigDecimal.valueOf(99_999)));
