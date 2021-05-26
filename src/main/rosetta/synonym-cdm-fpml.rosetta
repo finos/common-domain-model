@@ -1507,56 +1507,88 @@ synonym source FpML_5_10 extends FpML
 			[value "currentFactor"]
 
 	Loan:
+        + productIdentifier
+            [value "loan" meta "instrumentId"]
+            [hint "loan"]
 		+ borrower
-			[value "borrower"]
+			[value "borrower" path "loan"]
 		+ lien
-			[value "lien" meta "lienScheme"]
+			[value "lien" path "loan" meta "lienScheme"]
 		+ facilityType
-			[value "facilityType" meta "facilityTypeScheme"]
+			[value "facilityType" path "loan" meta "facilityTypeScheme"]
 		+ creditAgreementDate
-			[value "creditAgreementDate"]
+			[value "creditAgreementDate" path "loan"]
 		+ tranche
-			[value "tranche" meta "loanTrancheScheme"]
+			[value "tranche" path "loan" meta "loanTrancheScheme"]
 
 	ProductIdentifier:
-
 		+ identifier
-			[value "instrumentId" maps 2 meta "instrumentIdScheme"]
- 	 	 	[value "instrumentId" path "bond" maps 2 meta "instrumentIdScheme"]
+			[value "instrumentId" path "bond" maps 2 meta "instrumentIdScheme"]
 		 	[value "instrumentId" path "convertibleBond" maps 2 meta "instrumentIdScheme"]
 		 	[value "instrumentId" path "mortgage" maps 2 meta "instrumentIdScheme"]
 		 	[value "instrumentId" path "equity" maps 2 meta "instrumentIdScheme"]
-		 	[value "productId" maps 2 meta "productIdScheme"]
-			[value "instrumentId" path "commodity" maps 2 meta "instrumentIdScheme"]
+			[value "instrumentId" path "index" maps 2 meta "instrumentIdScheme"]
+			[value "instrumentId" path "loan" maps 2 meta "instrumentIdScheme"]
+            [value "instrumentId" path "commodity" maps 2 meta "instrumentIdScheme"]
+			[value "productId" maps 2 meta "productIdScheme"]
 		+ source
+		    // Bond
 			[set to ProductIdTypeEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "CUSIP"]
 			[set to ProductIdTypeEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
 			[set to ProductIdTypeEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
+			[set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "ISIN"]
+            [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0"]
+            [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
+            [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN-1-0"]
+            [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN"]
+            [set to ProductIdTypeEnum -> Other when "bond->instrumentId->instrumentIdScheme" exists]
+            // Equity
+            [set to ProductIdTypeEnum -> ISIN when "equity->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0"]
+            [set to ProductIdTypeEnum -> ISIN when "equity->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
+            [set to ProductIdTypeEnum -> ISIN when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-ISIN-1-0"]
+            [set to ProductIdTypeEnum -> ISIN when "equity->instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-ISIN-1-0"]
+            [set to ProductIdTypeEnum -> RIC when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-Reuters-RIC-1-0"]
+            [set to ProductIdTypeEnum -> RIC when "equity->instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-Reuters-RIC-1-0"]
+            [set to ProductIdTypeEnum -> Other when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
+            [set to ProductIdTypeEnum -> Other when "equity->instrumentId->instrumentIdScheme" exists]
+            // Mortgage
 			[set to ProductIdTypeEnum -> CUSIP when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
 			[set to ProductIdTypeEnum -> CUSIP when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
-			[set to ProductIdTypeEnum -> CUSIP when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
-			[set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "ISIN"]
-			[set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0"]
-			[set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
-			[set to ProductIdTypeEnum -> ISIN when "convertibleBond->instrumentId->instrumentIdScheme" = "ISIN"]
 			[set to ProductIdTypeEnum -> ISIN when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0"]
-			[set to ProductIdTypeEnum -> ISIN when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
-			[set to ProductIdTypeEnum -> ISIN when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
-			[set to ProductIdTypeEnum -> ISIN when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN-1-0"]
-			[set to ProductIdTypeEnum -> ISIN when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-ISIN-1-0"]
-			[set to ProductIdTypeEnum -> ISIN when "equity->instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-ISIN-1-0"]
-			[set to ProductIdTypeEnum -> BBGID when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-Bloomberg-1-0"]
-			[set to ProductIdTypeEnum -> BBGID when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-Bloomberg"]
-			[set to ProductIdTypeEnum -> RIC when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-Reuters-RIC-1-0"]
-			[set to ProductIdTypeEnum -> RIC when "equity->instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-Reuters-RIC-1-0"]
-			[set to ProductIdTypeEnum -> RIC when "instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-Reuters-RIC-1-0"]
-			[set to ProductIdTypeEnum -> Other when path = "mortgage->instrumentId"]
-			[set to ProductIdTypeEnum -> Other when path = "bond->instrumentId"]
-			[set to ProductIdTypeEnum -> Other when path = "instrumentId"]
-			[set to ProductIdTypeEnum -> Other when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
-			[set to ProductIdTypeEnum -> Other when "instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
+            [set to ProductIdTypeEnum -> ISIN when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
+            [set to ProductIdTypeEnum -> BBGID when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-Bloomberg-1-0"]
+            [set to ProductIdTypeEnum -> Other when "mortgage->instrumentId->instrumentIdScheme" exists]
+            // Index
+			[set to ProductIdTypeEnum -> CUSIP when "index->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
+            [set to ProductIdTypeEnum -> CUSIP when "index->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
+            [set to ProductIdTypeEnum -> ISIN when "index->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0"]
+            [set to ProductIdTypeEnum -> ISIN when "index->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
+            [set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" exists]
+            // Loan
+            [set to ProductIdTypeEnum -> CUSIP when "loan->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
+            [set to ProductIdTypeEnum -> CUSIP when "loan->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
+            [set to ProductIdTypeEnum -> ISIN when "loan->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0"]
+            [set to ProductIdTypeEnum -> ISIN when "loan->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
+            [set to ProductIdTypeEnum -> Other when "loan->instrumentId->instrumentIdScheme" exists]
+            // Convertible Bond
+            [set to ProductIdTypeEnum -> ISIN when "convertibleBond->instrumentId->instrumentIdScheme" = "ISIN"]
+			[set to ProductIdTypeEnum -> Other when "convertibleBond->instrumentId->instrumentIdScheme" exists]
+            // Commodity
 			[set to ProductIdTypeEnum -> ISDACRP when "commodity->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/commodity-reference-price-1-0"]
-			[set to ProductIdTypeEnum -> Other when path = "productId"] // catch-all
+            [set to ProductIdTypeEnum -> ISDACRP when "commodity->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/commodity-reference-price"]
+            [set to ProductIdTypeEnum -> Other when "commodity->instrumentId->instrumentIdScheme" exists]
+            // Repo
+            [set to ProductIdTypeEnum -> CUSIP when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "CUSIP"]
+            [set to ProductIdTypeEnum -> CUSIP when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
+            [set to ProductIdTypeEnum -> CUSIP when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
+            [set to ProductIdTypeEnum -> ISIN when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "ISIN"]
+            [set to ProductIdTypeEnum -> ISIN when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0"]
+            [set to ProductIdTypeEnum -> ISIN when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
+            [set to ProductIdTypeEnum -> ISIN when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN-1-0"]
+            [set to ProductIdTypeEnum -> ISIN when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN"]
+            [set to ProductIdTypeEnum -> Other when path = "repo->bond" and "instrumentId->instrumentIdScheme" exists]
+            // Catch all
+            [set to ProductIdTypeEnum -> Other when path = "productId"] // catch-all
 
 	ProductIdentification:
 		+ primaryAssetData
@@ -1572,7 +1604,17 @@ synonym source FpML_5_10 extends FpML
 			[set to ExternalProductTypeSourceEnum -> Other when path = "productType"]
 
 	Security:
-		+ securityType
+	    + productIdentifier
+	        [value "bond" meta "instrumentId"]
+	        [value "convertibleBond" meta "instrumentId"]
+	        [value "mortgage" meta "instrumentId"]
+	        [value "equity" meta "instrumentId"]
+	        [meta "instrumentId"]
+            [hint "bond"]
+	        [hint "convertibleBond"]
+	        [hint "mortgage"]
+	        [hint "equity"]
+	    + securityType
 			[set to SecurityTypeEnum -> Debt when "bond" exists]
 			[set to SecurityTypeEnum -> Debt when "convertibleBond" exists]
 			[set to SecurityTypeEnum -> Debt when "mortgage" exists]
@@ -1807,10 +1849,10 @@ synonym source FpML_5_10 extends FpML
 		+ commodity
 			[hint "commodity"]
 		+ productIdentifier
-			[value "equity"]
-			[value "bond"]
-			[value "convertibleBond"]
-			[value "index"]
+			[hint "equity"]
+			[hint "bond"]
+			[hint "convertibleBond"]
+			[hint "index"]
 		+ currencyPair
 			[value "quotedCurrencyPair"]
 
@@ -2121,7 +2163,8 @@ synonym source FpML_5_10 extends FpML
 		+ repoDuration
 			[value "duration"]
 		+ securityValuation
-			[value "nearLeg", "bond"]
+		    [value "nearLeg", "bond"]
+
 
 	InitialMargin:
 		+ marginType
@@ -2261,19 +2304,26 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity Option
 			[hint "commodityOption"]
 		+ index
-			[value "index"]
+			[hint "index"]
 		+ loan
-			[value "loan"]
+			[hint "loan"]
 		+ commodity
 			[value "commodity" meta "instrumentId"]
 		+ security
 			[hint "bond", "equity", "mortgage", "convertibleBond"]
 
+    Index:
+        + productIdentifier
+            [value "index" meta "instrumentId"]
+	        [hint "index"]
+
 	Commodity:
+	    + productIdentifier
+	        [hint "commodity"]
 		+ priceQuoteType
 			[value "specifiedPrice" path "commodity"]
 		+ deliveryDateReference
-			[hint "deliveryDates"]
+			[value "commodity"]
 
 	DeliveryDateParameters:
 		+ deliveryNearby
@@ -3037,10 +3087,10 @@ synonym source FpML_5_10 extends FpML
 	ReferenceObligation:
 		+ security
 			[hint "bond"]
-			[value "convertibleBond"]
+			[hint "convertibleBond"]
 			[hint "mortgage"]
 		+ loan
-			[value "loan"]
+			[hint "loan"]
 		+ primaryObligor
 			[value "primaryObligor"]
 		+ primaryObligorReference

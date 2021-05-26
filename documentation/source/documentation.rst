@@ -187,8 +187,10 @@ he Observable data type requires the specification of either a ``rateOption`` (i
 	[metadata key]
 	rateOption FloatingRateOption (0..1)
         [metadata location]
-	commodity Commodity (0..1) 
+	commodity Commodity (0..1)
+        [metadata location]
 	productIdentifier ProductIdentifier (0..*)
+        [metadata location]
 	currencyPair QuotedCurrencyPair (0..1) 
 
 	condition: one-of 
@@ -207,6 +209,7 @@ A financial product is an instrument that is used to transfer financial risk bet
    loan Loan (0..1)
    foreignExchange ForeignExchange (0..1)
    commodity Commodity (0..1)
+     [metadata address "pointsTo"=Observable->commodity]
    security Security (0..1)
    
    condition: one-of

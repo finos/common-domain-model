@@ -335,7 +335,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.build();
 			pq.getValue()
 					.getOrCreateObservable()
-					.addProductIdentifier(productIdentifier, 0);
+					.addProductIdentifierValue(productIdentifier, 0);
 			// should be reference
 			PathValue<SecurityFinancePayoutBuilder> secLendingPayout = getSecPO(tradeState);
 			secLendingPayout
@@ -343,7 +343,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreateSecurityInformation()
 					.getOrCreateSecurity()
 					.setSecurityType(SecurityTypeEnum.EQUITY)
-					.addProductIdentifier(productIdentifier, 0);
+					.addProductIdentifierValue(productIdentifier, 0);
 			return List.of(
 					new PathValue<>(pq.getModelPath().append(Path.parse("productIdentifier.identifier")), value),
 					new PathValue<>(secLendingPayout.getModelPath().append(Path.parse("securityInformation.security.productIdentifier.identifier")), value));
