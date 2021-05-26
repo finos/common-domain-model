@@ -77,7 +77,7 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
 		tradeStateBuilder
 				.getTrade()
 				.getTradableProduct()
-				.getTradeLots()
+				.getTradeLot()
 				.stream()
 				.map(TradeLot.TradeLotBuilder::getPriceQuantity)
 				.flatMap(Collection::stream)

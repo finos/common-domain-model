@@ -20,7 +20,7 @@ public class FunctionUtils {
     public static ExecutionInstruction createExecutionInstructionFromTradeState(TradeState tradeState) {
         return ExecutionInstruction.builder()
                 .setProduct(tradeState.getTrade().getTradableProduct().getProduct())
-                .setPriceQuantity(guard(tradeState.getTrade().getTradableProduct().getTradeLots()).stream().map(t -> guard(t.getPriceQuantity())).flatMap(Collection::stream).collect(Collectors.toList()))
+                .setPriceQuantity(guard(tradeState.getTrade().getTradableProduct().getTradeLot()).stream().map(t -> guard(t.getPriceQuantity())).flatMap(Collection::stream).collect(Collectors.toList()))
                 .addCounterparty(guard(tradeState.getTrade().getTradableProduct().getCounterparty()))
                 .addAncillaryParty(guard(tradeState.getTrade().getTradableProduct().getAncillaryParty()))
                 .addParties(guard(tradeState.getTrade().getParty()))

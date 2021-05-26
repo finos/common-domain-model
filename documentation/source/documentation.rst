@@ -35,7 +35,7 @@ A tradable product represents a financial product that is ready to be traded, me
 
  type TradableProduct:
     product Product (1..1)
-    priceQuantity PriceQuantity (1..*) 
+    tradeLot TradeLot (1..*)
     counterparty Counterparty (2..2) 
     ancillaryParty AncillaryParty (0..*) 
     settlementTerms SettlementTerms (0..1) 
@@ -1801,35 +1801,26 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
  func EquityCashSettlementAmount:
- 	inputs:
- 		tradeState TradeState (1..1)
- 		date date (1..1)
-
- 	output:
- 		equityCashSettlementAmount Cashflow (1..1)
-
- 	alias equityPayout:
- 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-
- 	alias equityPerformance:
- 	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-
- 	condition:
-         tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> security -> productIdentifier
-
- 	assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
- 		Abs(equityPerformance)
-
- 	assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency:
-         ResolveEquityInitialPrice( tradeState -> trade -> tradableProduct -> priceQuantity ) -> unitOfAmount -> currency
-
- 	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
- 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
-
- 	assign-output equityCashSettlementAmount -> payerReceiver -> receiver:
- 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
-
-     assign-output equityCashSettlementAmount -> cashflowDate -> adjustedDate:
+     inputs:
+         tradeState TradeState (1..1)
+         date date (1..1)
+     output:
+         equityCashSettlementAmount Cashflow (1..1)
+     alias equityPayout:
+         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+     alias equityPerformance:
+         EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
+     condition:
+         tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> security -> productIdentifier
+     assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
+         Abs(equityPerformance)
+     assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency:
+         ResolveEquityInitialPrice( tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity ) -> unitOfAmount -> currency
+     assign-output equityCashSettlementAmount -> payerReceiver -> payer:
+         if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
+     assign-output equityCashSettlementAmount -> payerReceiver -> receiver:
+         if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
+    assign-output equityCashSettlementAmount -> cashflowDate -> adjustedDate:
          ResolveCashSettlementDate(tradeState)
 
 .. code-block:: Haskell

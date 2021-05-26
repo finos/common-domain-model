@@ -79,7 +79,7 @@ public class RunCreateWorkflowNewCancelNew implements ExecutableFunction<TradeSt
 		tradeStateBuilder
 				.getTrade()
 				.getTradableProduct()
-				.getTradeLots()
+				.getTradeLot()
 				.stream()
 				.map(TradeLot.TradeLotBuilder::getPriceQuantity)
 				.flatMap(Collection::stream)
