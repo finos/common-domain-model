@@ -82,7 +82,7 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
                             .addQuantity(FieldWithMetaQuantity.builder()
                                     .setValue(quantity2))
                             .setObservable(Observable.builder()
-                                .setCurrencyPair(QuotedCurrencyPair.builder()
+                                .setCurrencyPairValue(QuotedCurrencyPair.builder()
                                         .setCurrency1(FieldWithMetaString.builder().setValue(curr1).build())
                                         .setCurrency2(FieldWithMetaString.builder().setValue(curr2).build())
                                         .setQuoteBasis(basisEnum)))))

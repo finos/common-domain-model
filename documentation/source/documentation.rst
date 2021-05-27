@@ -192,6 +192,7 @@ he Observable data type requires the specification of either a ``rateOption`` (i
 	productIdentifier ProductIdentifier (0..*)
         [metadata location]
 	currencyPair QuotedCurrencyPair (0..1) 
+        [metadata location]
 
 	condition: one-of 
 

@@ -119,6 +119,7 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
 		[metadata location]
 		[synonym Workflow_Event value "productIdentifier"]
 	currencyPair QuotedCurrencyPair (0..1) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
+        [metadata location]
 
 	condition: one-of
 
@@ -161,19 +162,24 @@ type Money extends Quantity: <"Defines a monetary amount in a specified currency
 type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
 
 	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">
-	rate number (1..1) <"The rate of exchange between the two currencies of the leg of a deal. Must be specified with a quote basis.">
-	spotRate number (0..1) <"An element used for FX forwards and certain types of FX OTC options. For deals consummated in the FX Forwards Market, this represents the current market rate for a particular currency pair. For barrier and digital/binary options, it can be useful to include the spot rate at the time the option was executed to make it easier to know whether the option needs to move 'up' or 'down' to be triggered.">
-	forwardPoints number (0..1) <"An optional element used for deals consummated in the FX Forwards market. Forward points represent the interest rate differential between the two currencies traded and are quoted as a premium or a discount. Forward points are added to, or subtracted from, the spot rate to create the rate of the forward trade.">
-	pointValue number (0..1) <"An optional element that documents the size of point (pip) in which a rate was quoted (or in this case, forwardPoints are calculated). Point (pip) size varies by currency pair: major currencies are all traded in points of 0.0001, with the exception of JPY which has a point size of 0.01. The FpML PointValue type is constrained such that the factor can only be values of 10^n, where n <= 0, this constraint is not enforced here and is left to the implementor.">
+	    [metadata address "pointsTo"=Observable->currencyPair]
+	rate Price (1..1) <"The rate of exchange between the two currencies of the leg of a deal. Must be specified with a quote basis.">
+	    [metadata address "pointsTo"=PriceQuantity->price]
+	spotRate Price (0..1) <"An element used for FX forwards and certain types of FX OTC options. For deals consummated in the FX Forwards Market, this represents the current market rate for a particular currency pair. For barrier and digital/binary options, it can be useful to include the spot rate at the time the option was executed to make it easier to know whether the option needs to move 'up' or 'down' to be triggered.">
+	    [metadata address "pointsTo"=PriceQuantity->price]
+	forwardPoints Price (0..1) <"An optional element used for deals consummated in the FX Forwards market. Forward points represent the interest rate differential between the two currencies traded and are quoted as a premium or a discount. Forward points are added to, or subtracted from, the spot rate to create the rate of the forward trade.">
+	    [metadata address "pointsTo"=PriceQuantity->price]
+	pointValue Price (0..1) <"An optional element that documents the size of point (pip) in which a rate was quoted (or in this case, forwardPoints are calculated). Point (pip) size varies by currency pair: major currencies are all traded in points of 0.0001, with the exception of JPY which has a point size of 0.01. The FpML PointValue type is constrained such that the factor can only be values of 10^n, where n <= 0, this constraint is not enforced here and is left to the implementor.">
+	    [metadata address "pointsTo"=PriceQuantity->price]
 	crossRate CrossRate (0..*) <"An optional element that allow for definition of the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
 
 	condition PositiveRate: <"Per FpML the rate must be a PositiveDecimal">
-		if rate exists
-		then rate > 0
+		if rate -> amount exists
+		then rate -> amount > 0
 
 	condition PositiveSpotRate: <"Per FpML the spotRate must be a PositiveDecimal">
-		if spotRate exists
-		then spotRate > 0
+		if spotRate -> amount exists
+		then spotRate -> amount > 0
 
 	condition ForwardPoints:
 		if pointValue exists
