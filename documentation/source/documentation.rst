@@ -1019,6 +1019,25 @@ Proposed Instruction
 
 This attribute allows for the specification of inputs that when combined with the current trade state, are referenced to generate the state-transition. For example, allocation instructions describe how to divide the initial block trade into smaller pieces, each of which is assigned to a specific party representing a legal entity related to the executing party.  It is optional because it is not required for all workflow steps.  Validation components are in place to check that the ``businessEvent`` and ``proposedInstruction`` attributes are mutually exclusive.
 
+The list of business events for which this process is currently implemented in the CDM is reflected in the structure of the ``Instruction`` data type:
+
+.. code-block:: Haskell
+
+ type Instruction:
+   instructionFunction string (1..1)
+   allocation AllocationInstruction (0..1)
+   clearing ClearingInstruction (0..1)
+   contractFormation ContractFormationInstruction (0..1)
+   execution ExecutionInstruction (0..1)
+   exercise ExerciseInstruction (0..1)
+   reset ResetInstruction (0..1)
+   transfer TransferInstruction (0..1)
+   increase IncreaseInstruction (0..1)
+   decrease DecreaseInstruction (0..1)
+   indexTransition IndexTransitionInstruction (0..1)
+   
+   condition OneOfInstruction: required choice allocation, clearing, execution, exercise, reset, transfer, indexTransition, increase, decrease
+
 Previous Workflow Step
 """"""""""""""""""""""
 
