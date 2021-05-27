@@ -19,7 +19,7 @@ _Review directions_
 In the CDM Portal, select the Textual Browser and review the following data types:
 
 - `TradableProduct`, `TradeLot` and `PriceQuantity`
-- `IncreaseInstruction` and `DecreaseInsruction`
+- `IncreaseInstruction` and `DecreaseInstruction`
 
 In the CDM Documentation, review the following sections:
 
