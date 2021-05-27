@@ -16,15 +16,19 @@ import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.settlement.DeliveryMethodEnum;
-import cdm.product.template.*;
+import cdm.product.template.CollateralTypeEnum;
+import cdm.product.template.DurationTypeEnum;
+import cdm.product.template.EconomicTerms;
+import cdm.product.template.TradableProduct;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Streams;
-import com.regnosys.rosetta.common.translation.*;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.translation.flat.Capture;
-import com.regnosys.rosetta.common.translation.flat.IndexCapturePath;
 import com.regnosys.rosetta.common.translation.flat.FlatFileMappingProcessor;
+import com.regnosys.rosetta.common.translation.flat.IndexCapturePath;
 import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.metafields.FieldWithMetaString;
@@ -40,7 +44,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static cdm.product.template.SecurityFinancePayout.*;
+import static cdm.product.template.SecurityFinancePayout.SecurityFinancePayoutBuilder;
 
 @SuppressWarnings("unused")
 public class FISMapperMappingProcessor extends FlatFileMappingProcessor<WorkflowStep.WorkflowStepBuilder> {
@@ -330,23 +334,25 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			// key
 			PathValue<PriceQuantity.PriceQuantityBuilder> pq = getPriceQuantityForSecurityFinancePayout(tradeState);
 			ProductIdentifier productIdentifier = ProductIdentifier.builder()
-					.setIdentifier(FieldWithMetaString.builder().setValue(value))
+					.setIdentifierValue(value)
 					.setSource(ProductIdTypeEnum.SEDOL)
 					.build();
 			pq.getValue()
 					.getOrCreateObservable()
 					.addProductIdentifierValue(productIdentifier, 0);
-			// should be reference
+			// reference
+			Reference.ReferenceBuilder reference = Reference.builder();
 			PathValue<SecurityFinancePayoutBuilder> secLendingPayout = getSecPO(tradeState);
 			secLendingPayout
 					.getValue()
 					.getOrCreateSecurityInformation()
 					.getOrCreateSecurity()
 					.setSecurityType(SecurityTypeEnum.EQUITY)
-					.addProductIdentifierValue(productIdentifier, 0);
+					.getOrCreateProductIdentifier(0)
+					.setReference(reference);
 			return List.of(
-					new PathValue<>(pq.getModelPath().append(Path.parse("productIdentifier.identifier")), value),
-					new PathValue<>(secLendingPayout.getModelPath().append(Path.parse("securityInformation.security.productIdentifier.identifier")), value));
+					new PathValue<>(pq.getModelPath().append(Path.parse("observable.productIdentifier[0].value.identifier.value")), value),
+					new PathValue<>(secLendingPayout.getModelPath().append(Path.parse("securityInformation.security.productIdentifier[0].value.identifier.value")), reference));
 		});
 
 		commonMappings.put("DVP_Indicator", (indexes, value, tradeState) -> {
