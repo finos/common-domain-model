@@ -13,7 +13,7 @@ import static util.ResourcesUtils.getObject;
 
 public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctionTest {
 
-	private static final String EQUITY_DIR = "result-json-files/products/equity/";
+	private static final String EQUITY_DIR = "result-json-files/fpml-5-10/products/equity/";
 	
 	@Inject
 	private CashPriceQuantityNoOfUnitsTriangulation func;

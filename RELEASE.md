@@ -1,33 +1,49 @@
-# *Product Model - PriceQuantity: FpML synonym mappings for FloatingRateSpecification*
+# *Product Model - Mapping to FpML: Add new Record-Keeping samples*
 
 _What is being released?_
 
-The recent `PriceQuantity` refactoring introduced a new standard set of data types for `Price` and `Quantity` and also propagated the related changes throughout most of the model. This release contains a few minor clean up tasks:
+New FpML samples (non-public execution report) are added to the set of Record-Keeping samples:
 
-The initial floating rate is considered an attribute of the `Product`.  The FpML synonyms have been changed to map the initial floating rate into the `FloatingRateSpecification -> initialRate`, rather than `PriceQuantity -> price`.
+- Rates: FRA, OIS Swap, Inflation Swap, CapFloor
+- FX: Simple Exotic Barrier and Digital
+- Commodity: Oil Swap
 
-_Review Directions_
+Although synonyms have been adjusted to map a large number of fields in those documents, some more work will be required to allow a complete coverage. Example of fields missing:
 
-In the CDM Portal, select Ingestion, and review the following samples:
+- Rate option for Inflation Swap
+- Cap rate schedule, when a spread schedule is also present
+- Special features for FX Simple Exotic
 
-For `FloatingRateSpecification -> initialRate`:
+These samples are included as part of a broader addition of samples for DRR, and having those documents at least partially mapped in CDM allows to proceed with modelling of the reporting logic (for instance, having the premium fields captured for options).
 
-- products > credit > cdindex-ex04-iBoxx-uti.xml
-- products > rates > ird-ex29-non-deliverable-settlement-swap-uti.xml
-- products > rates > ird-ex33-BRL-CDI-swap-versioned.json
+The FpML synonyms and paths have also been cleaned-up to provide a more consistent treatment across product types / asset classes, making the mappings more readable and more easily extensible (for instance in the treatment of option premium).
 
-# *Event Model - Event Date: FpML Record-Keeping synonym mappings for BusinessEvent*
+_Review directions_
+
+In the CDM Portal, select the Ingestion panel and review the following samples:
+
+- `record-keeping` > `record ex03 capfloor with premium`
+- `record-keeping` > `record ex04 fra`
+- `record-keeping` > `record ex05 inflation swap`
+- `record-keeping` > `record ex06 ois swap`
+- `record-keeping` > `record ex07 capfloor with spread`
+- `record-keeping` > `record ex21 fx simpleexotic barrier`
+- `record-keeping` > `record ex22 fx simpleexotic digital`
+- `record-keeping` > `record ex31 commodity oil swap`
+
+# *Documentation - How to Contribute and Doc Style Guide sections*
 
 _What is being released?_
 
-This release adds an FpML Record-Keeping synonym mapping for `BusinessEvent -> eventDate`.
+The documentation has been updated to accomodate an increasing number of contributors to the CDM from the industry community.
 
-_Review Directions_
+The documentation now contains an "How to Contribute" section that details the practical responsibilities of both the Contributor and the Reviewer in the process, in accordance with the CDM governance guidelines, and the subsequent deployment process.
 
-In the CDM Portal, select Ingestion, and review the following samples:
+As any contribution needs to include its own documentation update and release notes, a "Documentation Style Guide" section has been provided to ensure on-going consistency in the CDM documentation which may be sourced from many different writers.
 
-For `BusinessEvent -> eventDate`: 
+_Review directions_
 
-- record-keeping > record-ex01-vanilla-swap.xml
-- record-keeping > record-ex02-vanilla-swap-datadoc.xml
-- record-keeping > record-ex100-new-trade.xml
+Review the new sections in the CDM documentation:
+
+- [How to Contribute](https://docs.rosetta-technology.io/cdm/contributing.html)
+- [Documentation Style Guide](https://docs.rosetta-technology.io/cdm/documentation/source/documentation-style-guide.html)

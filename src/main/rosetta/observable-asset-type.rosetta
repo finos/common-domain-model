@@ -127,9 +127,7 @@ type PriceQuantity: <"Specifies the price, quantity, and optionally the observab
 	    [metadata location]
 	quantity Quantity (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
 	    [metadata location]
-	    [synonym Workflow_Event value "quantity"]
 	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
-	    [synonym Workflow_Event value "observable"]
 
 	condition NonNegativeQuantity:
 	    if quantity -> amount exists
@@ -137,10 +135,11 @@ type PriceQuantity: <"Specifies the price, quantity, and optionally the observab
 
     condition:
 	    if observable -> rateOption exists and price exists
-	    then price -> priceType contains PriceTypeEnum -> Spread or
-	    price -> priceType contains PriceTypeEnum -> CapRate or
-	    price -> priceType contains PriceTypeEnum -> FloorRate or
-	    price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
+	    then 
+			price -> priceType contains PriceTypeEnum -> Spread or
+			price -> priceType contains PriceTypeEnum -> CapRate or
+			price -> priceType contains PriceTypeEnum -> FloorRate or
+			price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 

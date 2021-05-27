@@ -67,9 +67,36 @@ type Loan extends ProductBase: <"Identifies a loan by referencing a product iden
 	tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
 		[metadata scheme]
 
-type ProductTaxonomy: <"The product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+
+type ProductTaxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 	taxonomyValue string (0..1) <"The taxonomy value.">
 	taxonomySource TaxonomySourceEnum (0..1) <"The taxonomy source.">
+type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+    taxonomyValue CollateralTaxonomyValue (1..*) <"The taxonomy value.">
+    taxonomySource TaxonomySourceEnum (1..*) <"The taxonomy source.">
+condition Eu_EligibleCollateralTaxonomy: <"If the Taxonomy Source is specified as EU EMIR Eligible Collateral then the enumeration must be EU EMIR Eligible Collateral.">
+ if taxonomySource = TaxonomySourceEnum-> EU_EMIR_EligibleCollateralAssetClass
+        	then taxonomyValue -> eu_EMIR_EligibleCollateral exists
+
+condition UkEligibleCollateralTaxonomy: <"If the Taxonomy Source is specified as UK EMIR Eligible Collateral then the enumeration must be UK EMIR Eligible Collateral.">
+        	if taxonomySource = TaxonomySourceEnum-> UK_EMIR_EligibleCollateralAssetClass
+        	then taxonomyValue -> uk_EMIR_EligibleCollateral exists
+
+condition UsEligibleCollateralTaxonomy: <"If the Taxonomy Source is specified as US CFTCPR Eligbile Collateral then the enumeration must be US CFTCPR Eligible Collateral.">
+       	 if taxonomySource = TaxonomySourceEnum-> US_CFTC_PR_EligibleCollateralAssetClass
+        	then taxonomyValue -> us_CFTC_PR_EligibleCollateral exists
+
+condition taxonomyValue: <"If the Taxonomy Value is specified as a string then the taxonomy Source cannot be either EU Eligible Collateral or Uk Eligible Collateral or US Eligible Collateral.">
+        	if taxonomyValue -> nonEnumeratedTaxonomyValue exists
+        	then taxonomySource <> TaxonomySourceEnum -> EU_EMIR_EligibleCollateralAssetClass and taxonomySource <> TaxonomySourceEnum -> UK_EMIR_EligibleCollateralAssetClass and taxonomySource <> TaxonomySourceEnum -> US_CFTC_PR_EligibleCollateralAssetClass
+
+type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either as a specified enumeration or as a string.">
+
+eu_EMIR_EligibleCollateral EU_EMIR_EligibleCollateralEnum (0..*) <"Identifies European Union Eligible Collateral Assets classification categories based on EMIR Uncleared Margin Rules. Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM">
+uk_EMIR_EligibleCollateral UK_EMIR_EligibleCollateralEnum (0..*) <"Identifies United Kingdom Eligible Collateral Assets classification categories based on UK Onshored EMIR Uncleared Margin Rules Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: UK EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM.">
+us_CFTC_PR_EligibleCollateral US_CFTC_PR_EligibleCollateralEnum (0..*) <"Identifies US Eligible Collateral Assets classification categories based on Uncleared Margin Rules published by the CFTC and the US Prudential Regulator. Note: While the same basic categories exist in the CFTC and US Prudential Regulators’ margin rules, the precise definitions or application of those rules could differ between the two rules ">
+nonEnumeratedTaxonomyValue string (0..1) <"The taxonomy value when not specified as an enumeration.">
+    condition: eu_EMIR_EligibleCollateral exists or uk_EMIR_EligibleCollateral exists or us_CFTC_PR_EligibleCollateral exists or nonEnumeratedTaxonomyValue exists
 
 type Security extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
 	securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
