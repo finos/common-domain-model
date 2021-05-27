@@ -15,11 +15,11 @@ type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
 		if version is absent
 		then effectiveDate is absent
 
-type Bond extends IdentifiedProduct: <"A class to specify a bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+type Bond extends ProductIdentifier: <"A class to specify a bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
-type ConvertibleBond extends IdentifiedProduct: <"A class to specify a convertible bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+type ConvertibleBond extends ProductIdentifier: <"A class to specify a convertible bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
-type Equity extends IdentifiedProduct: <"A class to specify an equity as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
+type Equity extends ProductIdentifier: <"A class to specify an equity as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
 
 type ProductIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
@@ -31,8 +31,17 @@ type ProductIdentifier: <"Comprises an identifier and a source. The associated m
 
 type IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
 	productIdentifier ProductIdentifier (1..1)
+
 type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
 	productIdentifier ProductIdentifier (1..*)
+	productIdentification cdm.product.common.ProductIdentification (0..*) <"The product identification value(s) that might be associated with a contractual product. The CDM provides the ability to associate several product identification methods with a product.">
+	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">
+	economicTerms cdm.product.template.EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
+
+type ProductBaseNew: <"Serves as an abstract class to specify a product using a productIdentifier.">
+	productIdentification cdm.product.common.ProductIdentification (0..1) <"The product identification value(s) that might be associated with a contractual product. The CDM provides the ability to associate several product identification methods with a product.">
+	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">
+	economicTerms cdm.product.template.EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
 
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
 	indexType IndexTypeEnum (1..1)
@@ -59,14 +68,15 @@ type Loan extends ProductBase: <"Identifies a loan by referencing a product iden
 		[metadata scheme]
 
 type ProductTaxonomy: <"The product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-	taxonomyValue string (1..1) <"The taxonomy value.">
-	taxonomySource TaxonomySourceEnum (1..1) <"The taxonomy source.">
+	taxonomyValue string (0..1) <"The taxonomy value.">
+	taxonomySource TaxonomySourceEnum (0..1) <"The taxonomy source.">
 
 type Security extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
 	securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
 	debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
 	equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
+	securityInformation SecurityInformation (0..1)
 
 condition DebtSubType:
 		if securityType <> SecurityTypeEnum -> Debt
@@ -79,6 +89,12 @@ condition EquitySubType:
 condition FundSubType:
 		if securityType <> SecurityTypeEnum -> Fund
 		then fundType is absent
+
+type SecurityInformation:
+	issuer LegalEntity (0..1)
+	listing cdm.legalagreement.csa.ListingType (0..1)
+	settlementCentre cdm.product.common.settlement.SettlementCentreEnum (0..1)
+	agencyRating cdm.observable.asset.CreditNotation (0..*)
 
 type DebtType: <"Specifies the type of debt instrument.">
 	debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
