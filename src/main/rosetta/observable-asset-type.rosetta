@@ -153,41 +153,13 @@ type InformationSource: <"A class defining the source for a piece of information
 		[metadata scheme]
 	sourcePageHeading string (0..1) <"The heading for the source on a given source page.">
 
-
 type Money extends Quantity: <"Defines a monetary amount in a specified currency.">
 	[metadata key]
 	condition:
     	unitOfAmount->currency exists
 
 type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
-
-	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">
-	    [metadata address "pointsTo"=Observable->currencyPair]
-	rate Price (1..1) <"The rate of exchange between the two currencies of the leg of a deal. Must be specified with a quote basis.">
-	    [metadata address "pointsTo"=PriceQuantity->price]
-	spotRate Price (0..1) <"An element used for FX forwards and certain types of FX OTC options. For deals consummated in the FX Forwards Market, this represents the current market rate for a particular currency pair. For barrier and digital/binary options, it can be useful to include the spot rate at the time the option was executed to make it easier to know whether the option needs to move 'up' or 'down' to be triggered.">
-	    [metadata address "pointsTo"=PriceQuantity->price]
-	forwardPoints Price (0..1) <"An optional element used for deals consummated in the FX Forwards market. Forward points represent the interest rate differential between the two currencies traded and are quoted as a premium or a discount. Forward points are added to, or subtracted from, the spot rate to create the rate of the forward trade.">
-	    [metadata address "pointsTo"=PriceQuantity->price]
-	pointValue Price (0..1) <"An optional element that documents the size of point (pip) in which a rate was quoted (or in this case, forwardPoints are calculated). Point (pip) size varies by currency pair: major currencies are all traded in points of 0.0001, with the exception of JPY which has a point size of 0.01. The FpML PointValue type is constrained such that the factor can only be values of 10^n, where n <= 0, this constraint is not enforced here and is left to the implementor.">
-	    [metadata address "pointsTo"=PriceQuantity->price]
 	crossRate CrossRate (0..*) <"An optional element that allow for definition of the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
-
-	condition PositiveRate: <"Per FpML the rate must be a PositiveDecimal">
-		if rate -> amount exists
-		then rate -> amount > 0
-
-	condition PositiveSpotRate: <"Per FpML the spotRate must be a PositiveDecimal">
-		if spotRate -> amount exists
-		then spotRate -> amount > 0
-
-	condition ForwardPoints:
-		if pointValue exists
-		then forwardPoints exists
-
-	condition SpotRate:
-		if forwardPoints exists
-		then spotRate exists
 
 type QuotedCurrencyPair: <"A class that describes the composition of a rate that has been quoted or is to be quoted. This includes the two currencies and the quotation relationship between the two currencies and is used as a building block throughout the FX specification.">
 
@@ -269,7 +241,7 @@ type EquityValuation : <"Defines how and when an equity option or equity swap is
 type FxFixing: <"A class that specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate.">
 
 	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">
-
+        [metadata address "pointsTo"=Observable->currencyPair]
 	fixingDate date (0..1) <"Describes the specific date when a non-deliverable forward or cash-settled option will 'fix' against a particular rate, which will be used to compute the ultimate cash settlement. This element should be omitted where a single, discrete fixing date cannot be identified e.g. on an american option, where fixing may occur at any date on a continuous range.">
 	fxSpotRateSource FxSpotRateSource (0..1) <"Specifies the methodology (reference source and, optionally, fixing time) to be used for determining a currency conversion rate.">
 

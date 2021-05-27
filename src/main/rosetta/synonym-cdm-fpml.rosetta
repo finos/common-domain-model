@@ -510,7 +510,9 @@ synonym source FpML_5_10 extends FpML
 			[value "singleUnderlyer" path "underlyer"]
 			[value "floatingRateCalculation" path "interestCalculation"]
 			// For FX:
-			[value "exchangeRate"]
+			[value "fixing" path "nonDeliverableSettlement"]
+			[value "fixing" path "cashSettlement"]
+			[value "features"]
 			// For Repo:
 			[value "floatingRateCalculation"]
 			// For Repo / Bond Options:
@@ -589,14 +591,14 @@ synonym source FpML_5_10 extends FpML
 
 	QuotedCurrencyPair:
 		+ currency1
-			[value "currency1" meta "currencyScheme"]
+			[value "currency1" maps 2 meta "currencyScheme"]
 			[value "putCurrencyAmount"]
 		+ currency2
-			[value "currency2" meta "currencyScheme"]
+			[value "currency2" maps 2 meta "currencyScheme"]
 			[value "callCurrencyAmount"]
 		+ quoteBasis
-			[value "quoteBasis"]
-			[hint "rateObservationQuoteBasis"]
+			[value "quoteBasis" maps 2]
+			[value "rateObservationQuoteBasis" maps 2]
 
 	RateObservation:
 	 	[value "RateObservation" meta "id"]
@@ -928,8 +930,8 @@ synonym source FpML_5_10 extends FpML
 
 	FxRateObservable:
 		+ quotedCurrencyPair
-			[value "quotedCurrencyPair"]
-			[value "rateObservationQuoteBasis"]
+			[value "quotedCurrencyPair" meta "quoteBasis"]
+			[meta "rateObservationQuoteBasis"]
 		+ primaryFxSpotRateSource
 			[value "informationSource"]
 			[value "primaryRateSource"]
@@ -1865,6 +1867,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "index"]
 		+ currencyPair
 			[value "quotedCurrencyPair"]
+			[value "asian"]
 
 	Cashflow:
 		[meta "id"]
@@ -3173,16 +3176,6 @@ synonym source FpML_5_10 extends FpML
 			[value "exchangeRate"]
 
 	ExchangeRate:
-		+ quotedCurrencyPair
-			[value "quotedCurrencyPair" meta "quoteBasis"]
-		+ rate
-			[meta "rate"]
-		+ spotRate
-			[meta "spotRate"]
-		+ forwardPoints
-			[meta "forwardPoints"]
-		+ pointValue
-			[meta "pointValue"]
 		+ crossRate
 			[value "crossRate"]
 
@@ -3210,7 +3203,7 @@ synonym source FpML_5_10 extends FpML
 
 	FxFixing:
 		+ quotedCurrencyPair
-			[value "quotedCurrencyPair"]
+			[value "quotedCurrencyPair" meta "quoteBasis"]
 		+ fixingDate
 			[value "fixingDate"]
 		+ fxSpotRateSource
