@@ -28,7 +28,6 @@ Regardless of whether the data structure is the same or different from FpML, the
 TradableProduct
 ^^^^^^^^^^^^^^^
 
-
 A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract between two counterparties. Tradable products are represented by the ``TradableProduct`` type.
 
 .. code-block:: Haskell
@@ -43,25 +42,49 @@ A tradable product represents a financial product that is ready to be traded, me
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
 
-The primary set of attributes represented in the ``TradableProduct`` data type are ones that are shared by all trades and transactions.  For example, every trade has a price, a quantity, and a pair of counterparties.  In some cases, there are ancillary parties, settlement terms, and an allowable adjustment to the notional quantity.  All of the other attributes required to describe a product are defined in distinct product data types.
+The primary set of attributes represented in the ``TradableProduct`` data type are ones that are shared by all trades and transactions.  For example, every trade has a price, a quantity (treated jointly as a trade lot), and a pair of counterparties.  In some cases, there are ancillary parties, settlement terms, and an allowable adjustment to the notional quantity.  All of the other attributes required to describe a product are defined in distinct product data types.
+
+TradeLot
+""""""""
+
+A trade lot represents the quantity and price at which a product is being traded.
+
+In certain markets, trading same product with the same economics (except for price and quantity) and the same counterparty is treated as a separate trade. This will be represented as a separate tradable product containing only 1 trade lot. In other markets, trading the same product with the same characteristics (except for price and quantity) will be represented as part of the same trade. In this case, a single tradable product will contain multiple trade lots, so the ``tradeLot`` attribute is represented as an array of the ``TradeLot`` data type.
+
+For each trade lot, the quantity and price are represente by an attribute called ``priceQuantity``, which is an array of the ``PriceQuantity`` data type.
+
+.. code-block:: Haskell
+
+ type TradeLot:
+   priceQuantity PriceQuantity (1..*)
+
+For composite financial products that are made of different legs, each leg may require its own price and quantity attributes, and each instance of a ``PriceQuantity`` data type identifies the relevant information for the leg of a trade or a complete trade. For example, for an Interest Rate Swap, a trade lot would have multiple instances of the ``PriceQuantity`` data type, one for each leg, and potentially a third one for an upfront fee.  By comparison, the purchase or sale of a security or listed derivative would typically have a single ``PriceQuantity`` instance in the trade lot.
 
 PriceQuantity
 """""""""""""
-The ``priceQuantity`` attribute is an array of the ``PriceQuantity`` data type which allows for multiple sets of price, quantity, and optionally an observable, which describes an asset or a reference to which the price and quantity are related.
+
+The price and quantity attributes of a trade, or of a leg of a trade in the case of composite products, are joined together in a single data type called ``PriceQuantity``. This data type also contains (optionally) an observable, which describes the asset or a reference to which the price and quantity are related.
 
 .. code-block:: Haskell
 
  type PriceQuantity: 
-	[metadata key]
-	price Price (0..*)
-	    [metadata location]
-	quantity Quantity (0..*)
-	    [metadata location]
-	observable Observable (0..1) 
+   [metadata key]
+   price Price (0..*)
+     [metadata location]
+   quantity Quantity (0..*)
+     [metadata location]
+   observable Observable (0..1)
+   effectiveDate AdjustableOrRelativeDate (0..1)
 	
-Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
-	     
-Each representation of a ``PriceQuantity`` data type can identify the relevant information for the leg of a trade or a complete trade.  For example, for an Interest Rate Swap, the ``TradableProduct`` would have multiple instances of the ``PriceQuantity`` data type, one for each leg, and potentially a third one for an upfront fee.  By comparison, the purchase or sale of a security or listed derivative would typically have a single instance.
+.. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
+
+The price, quantity and observable attributes are joined in a single ``PriceQuantity`` data type because in some cases, those 3 attributes need to be considered together. For example, the return leg of an Equity Swap will have:
+
+- the identifier for the shares as ``observable``
+- the number of shares as ``quantity``
+- the initial value of the shares as ``price``
+
+However, those attributes are optional because in other cases, only some of them will be specified. In the fixed leg of an Interest Rate Swap, there is no observable as the rate is already fixed. An option trade will contain an instance of a ``PriceQuantity`` containing only the premium as price attribute, but no quantity or observable (the quantity and/or observable for the option underlyer will be specified in a different ``PriceQuantity`` instance).
 
 The ``price`` and ``quantity`` attributes in the ``PriceQuantity`` data type each have a metadata location which can reference a metadata address in one of the  ``Payout`` data types.  The metadata address-location pair allows for a reference to link objects without populating the address object in persistence.  This capability helps to support an agnostic definition of the product in a trade (i.e. a product definition without a price and quantity). However, the reference can be used to populate values for an input into a function or for other purposes.
 
