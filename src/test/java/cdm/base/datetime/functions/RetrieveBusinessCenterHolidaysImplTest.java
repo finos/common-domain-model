@@ -2,6 +2,7 @@ package cdm.base.datetime.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenters;
+import cdm.base.datetime.DateCollection;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
@@ -15,13 +16,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest {
 
     @Inject
-    private final RetrieveBusinessCenterHolidaysImpl func = new RetrieveBusinessCenterHolidaysImpl();
+    public static final RetrieveBusinessCenterHolidaysImpl func = new RetrieveBusinessCenterHolidaysImpl();
 
-    public final BusinessCenterEnum london = BusinessCenterEnum.GBLO;
-    public final BusinessCenterEnum target = BusinessCenterEnum.EUTA;
-    public final BusinessCenterEnum us = BusinessCenterEnum.USGS;
+    public static final BusinessCenterEnum london = BusinessCenterEnum.GBLO;
+    public static final BusinessCenterEnum target = BusinessCenterEnum.EUTA;
+    public static final BusinessCenterEnum us = BusinessCenterEnum.USGS;
 
-    public final List<Date> londonHolidays2021 = List.of(
+    public static final List<Date> londonHolidays2021 = List.of(
             DateImpl.of(2021,1,1),
             DateImpl.of(2021,4,2),
             DateImpl.of(2021,4,5),
@@ -32,7 +33,7 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,12,28)
     );
 
-    public final List<Date> usGsHolidays2021 = List.of(
+    public static final List<Date> usGsHolidays2021 = List.of(
             DateImpl.of(2021,1,1),
             DateImpl.of(2021,1,18),
             DateImpl.of(2021,2,15),
@@ -45,14 +46,14 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,12,24)
     );
 
-    public final List<Date> targetHolidays2021 = List.of(
+    public static final List<Date> targetHolidays2021 = List.of(
             DateImpl.of(2021,1,1),
             DateImpl.of(2021,4,2),
             DateImpl.of(2021,4,5),
             DateImpl.of(2021,5,1)
     );
 
-    public final List<Date> londonAndUsGsHolidays2021 = List.of(
+    public static final List<Date> londonAndUsGsHolidays2021 = List.of(
             DateImpl.of(2021,1,1),
             DateImpl.of(2021,1,18),
             DateImpl.of(2021,2,15),
@@ -70,7 +71,7 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,12,28)
     );
 
-    public final List<Date> londonAndUsGsAndTargetHolidays2021 = List.of(
+    public static final List<Date> londonAndUsGsAndTargetHolidays2021 = List.of(
             DateImpl.of(2021,1,1),
             DateImpl.of(2021,1,18),
             DateImpl.of(2021,2,15),
@@ -89,7 +90,7 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,12,28)
     );
 
-    public final List<Date> londonAndTargetHolidays2021 = List.of(
+    public static final List<Date> londonAndTargetHolidays2021 = List.of(
             DateImpl.of(2021,1,1),
             DateImpl.of(2021,4,2),
             DateImpl.of(2021,4,5),
@@ -100,26 +101,24 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,12,27),
             DateImpl.of(2021,12,28)
     );
+    public static final List<BusinessCenterEnum> lonTargetList = List.of( london, target );
+    public static final List<BusinessCenterEnum> lonUsList = List.of( london, us );
+    public static final List<BusinessCenterEnum> targetList = List.of( target);
+    public static final List<BusinessCenterEnum> londonList = List.of( london );
+    public static final List<BusinessCenterEnum> lonTargUsList = List.of( london, target, us );
+
+    public static final BusinessCenters londonBC = BusinessCenters.builder().addBusinessCenterValue(londonList);
+    public static final BusinessCenters londonTargetBC = BusinessCenters.builder().addBusinessCenterValue(lonTargetList);
+    public static final BusinessCenters londonUsBC = BusinessCenters.builder().addBusinessCenterValue(lonUsList);
+    public static final BusinessCenters targetBC = BusinessCenters.builder().addBusinessCenterValue(targetList);
+    public static final BusinessCenters londonTargetUSBC = BusinessCenters.builder().addBusinessCenterValue(lonTargUsList);
+    public static final BusinessCenters londonTargetBCRef = BusinessCenters.builder().setBusinessCentersReferenceValue(londonTargetBC);
+    public static final BusinessCenters londonUsBCRef = BusinessCenters.builder().setBusinessCentersReferenceValue(londonUsBC);
+    public static final BusinessCenters targetBCRef = BusinessCenters.builder().setBusinessCentersReferenceValue(targetBC);
 
     @Test
     void shouldRetrieve() {
         initializeHolidays();
-
-        List<BusinessCenterEnum> list1 = List.of( london, target );
-        List<BusinessCenterEnum> list2 = List.of( london, us );
-        List<BusinessCenterEnum> list3 = List.of( target);
-        List<BusinessCenterEnum> list4 = List.of( london );
-        List<BusinessCenterEnum> list5 = List.of( london, target, us );
-
-        BusinessCenters londonBC = BusinessCenters.builder().addBusinessCenterValue(list4);
-        BusinessCenters londonTargetBC = BusinessCenters.builder().addBusinessCenterValue(list1);
-        BusinessCenters londonUsBC = BusinessCenters.builder().addBusinessCenterValue(list2);
-        BusinessCenters targetBC = BusinessCenters.builder().addBusinessCenterValue(list3);
-        BusinessCenters londonTargetUSBC = BusinessCenters.builder().addBusinessCenterValue(list5);
-
-        BusinessCenters londonTargetBCRef = BusinessCenters.builder().setBusinessCentersReferenceValue(londonTargetBC);
-        BusinessCenters londonUsBCRef = BusinessCenters.builder().setBusinessCentersReferenceValue(londonUsBC);
-        BusinessCenters targetBCRef = BusinessCenters.builder().setBusinessCentersReferenceValue(targetBC);
 
         check(londonHolidays2021, func.evaluate(londonBC));
         check(londonAndTargetHolidays2021, func.evaluate(londonTargetBC));
@@ -131,12 +130,16 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
         check(targetHolidays2021, func.evaluate(targetBCRef));
     }
 
-    void initializeHolidays() {
+    public static void initializeHolidays() {
         func.setHolidays(london, londonHolidays2021);
         func.setHolidays(us, usGsHolidays2021);
         func.setHolidays(target,targetHolidays2021);
     }
 
+    void check(List<? extends Date> expected, DateCollection actualCollection) {
+        List<? extends Date> actual = actualCollection.getDatelist();
+        check(expected, actual);
+    }
 
     void check(List<? extends Date> expected, List<? extends Date> actual) {
         assertEquals(expected.size(), actual.size());

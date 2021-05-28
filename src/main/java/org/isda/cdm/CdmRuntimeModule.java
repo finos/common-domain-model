@@ -1,9 +1,6 @@
 package org.isda.cdm;
 
-import cdm.base.datetime.functions.Now;
-import cdm.base.datetime.functions.NowImpl;
-import cdm.base.datetime.functions.Today;
-import cdm.base.datetime.functions.TodayImpl;
+import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
 import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRole;
 import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRoleImpl;
@@ -48,7 +45,13 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Abs.class).to(bindAbs());
 		bind(CalculationPeriod.class).to(bindCalculationPeriod());
 		bind(Sum.class).to(bindSum());
+		bind(AppendToVector.class).to(bindAppendToVector());
+		bind(SelectFromVector.class).to(bindSelectFromVector());
 		bind(ListsCompare.class).to(bindListsCompare());
+		bind(VectorOperation.class).to(bindVectorOperation());
+		bind(VectorScalarOperation.class).to(bindVectorScalarOperation());
+		bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
+
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
 		bind(NoOfUnits.class).to(bindNoOfUnits());
 		bind(CurrencyAmount.class).to(bindCurrencyAmount());
@@ -64,6 +67,17 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(FilterQuantity.class).to(bindFilterQuantity());
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
+		bind(SelectDate.class).to(bindSelectDate());
+		bind(AppendDateToList.class).to(bindAppenDateToList());
+		bind(AddDays.class).to(bindAddDays());
+		bind(PopOffDateList.class).to(bindPopOffDateList());
+		bind(RetrieveBusinessCenterHolidays.class).to(bindRetrieveBusinessCenterHolidays());
+		bind(CombineBusinessCenters.class).to(bindCombineBusinessCenters());
+		bind(DateDifference.class).to(bindDateDifference());
+		bind(DayOfWeek.class).to(bindDayOfWeek());
+		bind(IsHoliday.class).to(bindIsHoliday());
+		bind(IsBusinessDay.class).to(bindIsBusinessDay());
+		bind(GenerateDateList.class).to(bindGenerateDateList());
 	}
 
 	protected Class<? extends FilterSecurityTransfers> bindFilterSecurityTransfers() {
@@ -80,6 +94,21 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
 		return ListsCompareImpl.class;
+	}
+	protected Class<? extends SelectFromVector> bindSelectFromVector() {
+		return SelectFromVectorImpl.class;
+	}
+	protected Class<? extends AppendToVector> bindAppendToVector() {
+		return AppendToVectorImpl.class;
+	}
+	protected Class<? extends VectorOperation> bindVectorOperation() {
+		return VectorOperationImpl.class;
+	}
+	protected Class<? extends VectorScalarOperation> bindVectorScalarOperation() {
+		return VectorScalarOperationImpl.class;
+	}
+	protected Class<? extends VectorGrowthOperation> bindVectorGrowthOperation() {
+		return VectorGrowthOperationImpl.class;
 	}
 
 	protected Class<? extends ModelObjectValidator> bindModelObjectValidator() {
@@ -151,6 +180,24 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends Now> bindNow() {
 		return NowImpl.class;
 	}
+	protected Class<? extends AppendDateToList> bindAppenDateToList() {
+		return AppendDateToListImpl.class;
+	}
+	protected Class<? extends SelectDate> bindSelectDate() {
+		return SelectDateImpl.class;
+	}
+
+	protected Class<? extends DateDifference> bindDateDifference() {
+		return DateDifferenceImpl.class;
+	}
+	protected Class<? extends DayOfWeek> bindDayOfWeek() { return DayOfWeekImpl.class; }
+	protected Class<? extends AddDays> bindAddDays() { return AddDaysImpl.class; }
+	protected Class<? extends CombineBusinessCenters> bindCombineBusinessCenters() { return CombineBusinessCentersImpl.class; }
+	protected Class<? extends PopOffDateList> bindPopOffDateList() { return PopOffDateListImpl.class; }
+	protected Class<? extends RetrieveBusinessCenterHolidays> bindRetrieveBusinessCenterHolidays() { return RetrieveBusinessCenterHolidaysImpl.class; }
+	protected Class<? extends IsHoliday> bindIsHoliday() { return IsHolidayImpl.class; }
+	protected Class<? extends IsBusinessDay> bindIsBusinessDay() { return IsBusinessDayImpl.class; }
+	protected Class<? extends GenerateDateList> bindGenerateDateList() { return GenerateDateListImpl.class; }
 
 	protected Class<? extends Today> bindToday() {
 		return TodayImpl.class;

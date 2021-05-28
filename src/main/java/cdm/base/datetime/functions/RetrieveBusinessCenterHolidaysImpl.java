@@ -2,6 +2,8 @@ package cdm.base.datetime.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenters;
+//import cdm.base.datetime.DateCollection;
+import cdm.base.datetime.DateCollection;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import com.rosetta.model.lib.records.Date;
@@ -9,8 +11,8 @@ import com.rosetta.model.lib.records.Date;
 import java.util.*;
 
 public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHolidays{
-    Map<String, List<Date>> cache = new HashMap<>();
-    Map<BusinessCenterEnum, List<Date>> holidayData = new HashMap<>();
+    protected static Map<String, List<Date>> cache = new HashMap<>();
+    protected static Map<BusinessCenterEnum, List<Date>> holidayData = new HashMap<>();
 
     @Override
     protected List<Date> doEvaluate(BusinessCenters businessCenters) {
@@ -32,8 +34,10 @@ public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHo
         }
         List<Date> result = new ArrayList<>(newHols.size());
         result.addAll(newHols);
-
         return result;
+        //DateCollection.DateCollectionBuilder builder = DateCollection.builder();
+        //builder.addDatelist(result);
+        //return builder;
     }
 
     private List<Date> getHolidays(FieldWithMetaBusinessCenterEnum bc) {
@@ -54,7 +58,7 @@ public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHo
         List<? extends FieldWithMetaBusinessCenterEnum> bcl = getBC(bcs);
         String key = "";
         for (FieldWithMetaBusinessCenterEnum bc: bcl) {
-            key += bc.toString();
+            key += bc.getValue().toString();
         }
         return key;
     }
