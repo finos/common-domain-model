@@ -35,7 +35,10 @@ In the CDM Documentation, review the following sections:
 _What is being released?_
 
 A new `IncreaseInstruction` type has been added to cater for the Increase business event use case (also known as upsize) where a new trade lot is added to the trade.
-A new `DecreaseInstruction` type has been added to cater for the Decrease business event use case (also known as unwind) where the trade lots inscribed on a trade will be decreased.  
+
+A new `DecreaseInstruction` type has been added to cater for the Decrease business event use case (also known as unwind) where the trade lots inscribed on a trade will be decreased.
+
+The `Instruction` type has been augemented with these 2 new types.
 
 The relevant sections in the CDM documentation have been updated.
 
