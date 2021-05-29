@@ -2,14 +2,14 @@
 
 _What is being released?_
 
-The structural definition of a `Tradableproduct` has been adjusted with a new `TradeLot` data type. This type is introduced to represent the trading of multiple trade lots as part of a single trade. This new feature is particularly needed to support use cases like trade increase (upsize) as well as decrease (unwind).
+The structural definition of a `TradableProduct` has been adjusted with a new `TradeLot` data type. This type is introduced to represent the trading of multiple trade lots as part of a single trade. This new feature is particularly needed to support use cases like trade increase (upsize) as well as decrease (unwind).
 A `Tradableproduct` can have multiple `TradeLot`. They each contain:
 
 - multiple instances of `PriceQuantity`,  
 - an `effectiveDate` attribute (optional) to capture the date at which the price and quantity elements become effective in the case of an already open trade
 - a `lotIdentifier` as unique identifier
 
-Several functions have been updated to reflect the new definition of `Tradableproduct`. For example, the functions that calculate the performance and cash settlement on the return leg of an equity Swap, have been updated to work in the case of a single trade lot only.
+Several functions have been updated to reflect the new definition of `TradableProduct`. For example, the functions that calculate the performance and cash settlement on the return leg of an equity Swap, have been updated to work in the case of a single trade lot only.
 Future work will ensure that those functions also work with multiple trade lots. This requires iteration logic which is not yet supported in the Rosetta DSL today.
 
 All the synonym mappings have been adjusted. All the FpML product sample messages have been interpreted with a single trade lot. 
@@ -21,7 +21,7 @@ _Review directions_
 In the CDM Portal, select the textual browser and review the following data types:
 
 - `TradableProduct`, 
-- `TradeLot` and 
+- `TradeLot` 
 - `PriceQuantity`
 
 In the CDM Portal, select the ingestion panel and review any of the FpML product samples.
@@ -46,7 +46,7 @@ _Review directions_
 
 In the CDM Portal, select the textual browser and review the following data types:
 
-- `IncreaseInstruction` and
+- `IncreaseInstruction`
 - `DecreaseInstruction`
 
 In the CDM Documentation, review the following sections:
