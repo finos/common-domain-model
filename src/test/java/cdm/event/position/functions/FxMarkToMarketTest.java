@@ -8,6 +8,7 @@ import cdm.observable.asset.Observable;
 import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.QuoteBasisEnum;
 import cdm.observable.asset.QuotedCurrencyPair;
+import cdm.product.common.TradeLot;
 import cdm.product.template.*;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -76,16 +77,17 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
 		                        .setEconomicTerms(EconomicTerms.builder()
 		                                .setPayout(Payout.builder()
 		                                        .addForwardPayout(ForwardPayout.builder())))))
-                	.addPriceQuantity(PriceQuantity.builder()
-                            .addQuantity(FieldWithMetaQuantity.builder()
-                                .setValue(quantity1))
-                            .addQuantity(FieldWithMetaQuantity.builder()
-                                    .setValue(quantity2))
-                            .setObservable(Observable.builder()
-                                .setCurrencyPairValue(QuotedCurrencyPair.builder()
-                                        .setCurrency1(FieldWithMetaString.builder().setValue(curr1).build())
-                                        .setCurrency2(FieldWithMetaString.builder().setValue(curr2).build())
-                                        .setQuoteBasis(basisEnum)))))
+                        .addTradeLot(TradeLot.builder()
+                                .addPriceQuantity(PriceQuantity.builder()
+                                        .addQuantity(FieldWithMetaQuantity.builder()
+                                            .setValue(quantity1))
+                                        .addQuantity(FieldWithMetaQuantity.builder()
+                                                .setValue(quantity2))
+                                        .setObservable(Observable.builder()
+                                            .setCurrencyPairValue(QuotedCurrencyPair.builder()
+                                                    .setCurrency1(FieldWithMetaString.builder().setValue(curr1).build())
+                                                    .setCurrency2(FieldWithMetaString.builder().setValue(curr2).build())
+                                                    .setQuoteBasis(basisEnum))))))
                 .build();
     }
 

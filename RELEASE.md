@@ -1,49 +1,54 @@
-# *Product Model - Mapping to FpML: Add new Record-Keeping samples*
+# *Product Model - Support for Increase and Decrease as part of a single Trade*
 
 _What is being released?_
 
-New FpML samples (non-public execution report) are added to the set of Record-Keeping samples:
+The structural definition of a `TradableProduct` has been adjusted with a new `TradeLot` data type. This type is introduced to represent the trading of multiple trade lots as part of a single trade. This new feature is particularly needed to support use cases like trade increase (upsize) as well as decrease (unwind).
+A `Tradableproduct` can have multiple `TradeLot`. They each contain:
 
-- Rates: FRA, OIS Swap, Inflation Swap, CapFloor
-- FX: Simple Exotic Barrier and Digital
-- Commodity: Oil Swap
+- multiple instances of `PriceQuantity`,  
+- an `effectiveDate` attribute (optional) to capture the date at which the price and quantity elements become effective in the case of an already open trade
+- a `lotIdentifier` as unique identifier
 
-Although synonyms have been adjusted to map a large number of fields in those documents, some more work will be required to allow a complete coverage. Example of fields missing:
+Several functions have been updated to reflect the new definition of `TradableProduct`. For example, the functions that calculate the performance and cash settlement on the return leg of an equity Swap, have been updated to work in the case of a single trade lot only.
+Future work will ensure that those functions also work with multiple trade lots. This requires iteration logic which is not yet supported in the Rosetta DSL today.
 
-- Rate option for Inflation Swap
-- Cap rate schedule, when a spread schedule is also present
-- Special features for FX Simple Exotic
+All the synonym mappings have been adjusted. All the FpML product sample messages have been interpreted with a single trade lot. 
 
-These samples are included as part of a broader addition of samples for DRR, and having those documents at least partially mapped in CDM allows to proceed with modelling of the reporting logic (for instance, having the premium fields captured for options).
-
-The FpML synonyms and paths have also been cleaned-up to provide a more consistent treatment across product types / asset classes, making the mappings more readable and more easily extensible (for instance in the treatment of option premium).
+The relevant sections in the CDM documentation have been updated.
 
 _Review directions_
 
-In the CDM Portal, select the Ingestion panel and review the following samples:
+In the CDM Portal, select the textual browser and review the following data types:
 
-- `record-keeping` > `record ex03 capfloor with premium`
-- `record-keeping` > `record ex04 fra`
-- `record-keeping` > `record ex05 inflation swap`
-- `record-keeping` > `record ex06 ois swap`
-- `record-keeping` > `record ex07 capfloor with spread`
-- `record-keeping` > `record ex21 fx simpleexotic barrier`
-- `record-keeping` > `record ex22 fx simpleexotic digital`
-- `record-keeping` > `record ex31 commodity oil swap`
+- `TradableProduct`, 
+- `TradeLot` 
+- `PriceQuantity`
 
-# *Documentation - How to Contribute and Doc Style Guide sections*
+In the CDM Portal, select the ingestion panel and review any of the FpML product samples.
+
+In the CDM Documentation, review the following sections:
+
+- [Tradable Product](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#tradableproduct)
+
+# *Event Model - Function Development - Support for Increase and Decrease Events*
 
 _What is being released?_
 
-The documentation has been updated to accomodate an increasing number of contributors to the CDM from the industry community.
+A new `IncreaseInstruction` type has been added to cater for the Increase business event use case (also known as upsize) where a new trade lot is added to the trade.
 
-The documentation now contains an "How to Contribute" section that details the practical responsibilities of both the Contributor and the Reviewer in the process, in accordance with the CDM governance guidelines, and the subsequent deployment process.
+A new `DecreaseInstruction` type has been added to cater for the Decrease business event use case (also known as unwind) where the trade lots inscribed on a trade will be decreased.
 
-As any contribution needs to include its own documentation update and release notes, a "Documentation Style Guide" section has been provided to ensure on-going consistency in the CDM documentation which may be sourced from many different writers.
+The `Instruction` type has been augemented with these 2 new types.
+
+The relevant sections in the CDM documentation have been updated.
 
 _Review directions_
 
-Review the new sections in the CDM documentation:
+In the CDM Portal, select the textual browser and review the following data types:
 
-- [How to Contribute](https://docs.rosetta-technology.io/cdm/contributing.html)
-- [Documentation Style Guide](https://docs.rosetta-technology.io/cdm/documentation/source/documentation-style-guide.html)
+- `IncreaseInstruction`
+- `DecreaseInstruction`
+
+In the CDM Documentation, review the following sections:
+
+- [Proposed Instruction](https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#proposed-instruction)
