@@ -464,38 +464,30 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity:
 			[value "fixedPrice"] // Commodity Swap Fixed Leg
 			[value "spread" path "calculation"] // Commodity Swap Floating Leg
-			// Additional payment
+			// Premium (for all Options) / Additional payment
 			[value "paymentAmount"]
-			// Premium for all Options
-			[value "paymentAmount" path "swaption->premium"]
-			[value "paymentAmount" path "capFloor->premium"]
-			[value "paymentAmount" path "bondOption->premium"]
-			[value "paymentAmount" path "creditDefaultSwapOption->premium"]
-			[value "paymentAmount" path "fxDigitalOption->premium"]
-			[value "paymentAmount" path "fxOption->premium"]
-			[value "paymentAmount" path "commodityOption->premium"]
-			[value "paymentAmount" path "equityOption->equityPremium"]
-		+ quantity
+    + quantity
+		  // For Swap Stream
 			[value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule"]
-			[value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
-			[value "futureValueNotional" path "calculationPeriodAmount->calculation"]
-			[value "notionalAmount"]
-			// For FRAs:
-			[value "notional"]
-			// For CDS, Swaption, Index:
-			[value "calculationAmount" path "periodicPayment->fixedAmountCalculation"]
-			[value "calculationAmount"]
-			[value "calculationAmount" path "periodicPayment->floatingAmountCalculation"]
-			// For Equity Swaps:
-			[value "singleUnderlyer" path "underlyer"]
-			[value "notionalAmount" path "notional"]
-			// For FX:
-			[value "paymentAmount" path "exchangedCurrency1"]
-			[value "paymentAmount" path "exchangedCurrency2"]
-			[value "putCurrencyAmount"]
-			[value "callCurrencyAmount"]
-			// For Repo:
-			[value "settlementAmount" path "nearLeg"]
+		    [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
+		    [value "futureValueNotional" path "calculationPeriodAmount->calculation"]
+		    [value "notionalAmount"]
+            // For FRAs:
+            [value "notional"]
+            // For CDS, Swaption, Index:
+            [value "calculationAmount" path "periodicPayment->fixedAmountCalculation"]
+            [value "calculationAmount"]
+            [value "calculationAmount" path "periodicPayment->floatingAmountCalculation"]
+            // For Equity Swaps:
+            [value "singleUnderlyer" path "underlyer"]
+            [value "notionalAmount" path "notional"]
+            // For FX:
+            [value "paymentAmount" path "exchangedCurrency1"]
+            [value "paymentAmount" path "exchangedCurrency2"]
+            [value "putCurrencyAmount"]
+            [value "callCurrencyAmount"]
+            // For Repo:
+            [value "settlementAmount" path "nearLeg"]
 			// For Commodity
 			[value "notionalQuantity"]
 		+ observable
@@ -513,11 +505,13 @@ synonym source FpML_5_10 extends FpML
 			[value "exchangeRate"]
 			// For Repo:
 			[value "floatingRateCalculation"]
-			// For Repo / Bond Options:
-			[hint "bond"]
-			[hint "convertibleBond"]
+            // For Repo / Bond Options:
+            [hint "bond", "convertibleBond"]
 			// For Commodity Swap Floating Leg
 			[hint "commodity"]
+		+ effectiveDate
+			// Do not map, until a canonical representation of effective date is built in the CDM and existing effective date attributes can be re-directed here
+			[value "ignore"]
 
 	Price:
 		+ amount
@@ -576,7 +570,6 @@ synonym source FpML_5_10 extends FpML
 			[set to PriceTypeEnum->Spread when path = "calculation->spread"]
 			// For Commodity Option
 			[set to PriceTypeEnum->CashPrice when "strikePricePerUnit->amount" exists]
-
 
 	PrincipalExchanges:
 	 	[value "PrincipalExchanges" meta "id"]
@@ -2279,50 +2272,64 @@ synonym source FpML_5_10 extends FpML
 		+ deliveryNearby
 			[value "deliveryDates"]
 
-	TradableProduct:
-		+ priceQuantity
+	TradeLot:
+	    + priceQuantity
 			// Rates
-			[value "swapStream" path "swap"]
-			[value "swapStream" path "swaption->swap"]
-			[value "capFloorStream" path "capFloor"]
+			[value "swapStream"]
+			[value "capFloorStream"]
 			[value "fra"]
 			// Credit
-			[value "feeLeg" path "creditDefaultSwap"]
-			[value "protectionTerms" path "creditDefaultSwap"]
-			[value "feeLeg" path "creditDefaultSwapOption->creditDefaultSwap"]
-			[value "protectionTerms" path "creditDefaultSwapOption->creditDefaultSwap"]
+			[value "feeLeg"]
+			[value "protectionTerms"]
 			// Equity
-			[value "returnLeg" path "returnSwap"]
-			[value "returnLeg" path "equitySwapTransactionSupplement"]
-			[value "interestLeg" path "returnSwap"]
-			[value "interestLeg" path "equitySwapTransactionSupplement"]
+			[value "returnLeg"]
+			[value "interestLeg"]
 			// FX
-			[value "nearLeg" path "fxSwap"]
-			[value "farLeg" path "fxSwap"]
+			[value "nearLeg"]
+			[value "farLeg"]
 			[value "fxSingleLeg"]
+			[hint "spotRate"] // for Spot on FX Option (Barrier)
 			// Other
 			[value "repo"]
-			[value "fixedLeg" path "commoditySwap"]
-			[value "floatingLeg" path "commoditySwap"]
+			[value "fixedLeg"]
+			[value "floatingLeg"]
 			// Additional payment
-			[value "additionalPayment" path "swap"]
+			[value "additionalPayment"]
 			[value "otherPartyPayment"]
-			[value "initialPayment" path "creditDefaultSwap->feeLeg"]
-			[value "singlePayment" path "creditDefaultSwap->feeLeg"]
+			[value "initialPayment" path "feeLeg"]
+			[value "singlePayment" path "feeLeg"]
 			// Options: Quantity and Observable (Except Swaption, Credit Default Swaption)
-			[value "equityOption"]
-			[value "bondOption"]
-			[value "fxOption"]
-			[value "commodityOption"]
+			[hint "underlyer"] // Equity Option
+			[hint "bond", "convertibleBond", "notionalAmount"] // Bond Option
+			[hint "callCurrencyAmount"] // FX Option
+			[hint "putCurrencyAmount"]
+			[hint "commodity", "notionalQuantity"] // Commodity Option
 			// Options: Premium
-			[hint "swaption"]
-			[hint "capFloor"]
-			[hint "bondOption"]
-			[hint "creditDefaultSwapOption"]
-			[hint "fxDigitalOption"]
-			[hint "fxOption"]
-			[hint "commodityOption"]
-			[hint "equityOption"]
+			[value "premium", "equityPremium"]
+		+ lotIdentifier
+			[value "ignore"]
+	TradableProduct:
+		+ tradeLot
+			// Rates
+			[value "swap", "swap" path "swaption"]
+			[value "swaption", "bondOption"]
+			[value "capFloor"]
+			[hint "fra"]
+			// Credit
+			[value "creditDefaultSwap", "creditDefaultSwap" path "creditDefaultSwapOption"]
+			[value "creditDefaultSwapOption"]
+			// FX
+			[hint "fxSingleLeg"]
+			[value "fxSwap"]
+			[value "fxOption", "fxDigitalOption"]
+			// Equity
+			[value "returnSwap", "equitySwapTransactionSupplement"]
+			[value "equityOption"]
+			// Other
+			[value "commoditySwap"]
+			[value "commodityOption"]
+			[hint "repo"]
+			[hint "otherPartyPayment"]
 		+ adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
