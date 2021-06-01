@@ -20,9 +20,11 @@ _Review directions_
 
 In the CDM Portal, select the textual browser and review the following data types:
 
-- `TradableProduct`, 
+- `TradableProduct`
 - `TradeLot` 
 - `PriceQuantity`
+
+To review all the functions that have been modified, in the textual browser search on `tradeLot`.
 
 In the CDM Portal, select the ingestion panel and review any of the FpML product samples.
 
@@ -48,6 +50,7 @@ In the CDM Portal, select the textual browser and review the following data type
 
 - `IncreaseInstruction`
 - `DecreaseInstruction`
+- `Instruction`
 
 In the CDM Documentation, review the following sections:
 
