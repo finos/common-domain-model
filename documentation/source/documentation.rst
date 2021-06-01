@@ -28,40 +28,72 @@ Regardless of whether the data structure is the same or different from FpML, the
 TradableProduct
 ^^^^^^^^^^^^^^^
 
-
 A tradable product represents a financial product that is ready to be traded, meaning that there is an agreed financial product, price, quantity, and other details necessary to complete an execution of a security or a negotiated contract between two counterparties. Tradable products are represented by the ``TradableProduct`` type.
 
 .. code-block:: Haskell
 
  type TradableProduct:
     product Product (1..1)
-    priceQuantity PriceQuantity (1..*) 
+    tradeLot TradeLot (1..*)
     counterparty Counterparty (2..2) 
     ancillaryParty AncillaryParty (0..*) 
     settlementTerms SettlementTerms (0..1) 
     adjustment NotionalAdjustmentEnum (0..1) 
 
-Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
+.. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
 
-The primary set of attributes represented in the ``TradableProduct`` data type are ones that are shared by all trades and transactions.  For example, every trade has a price, a quantity, and a pair of counterparties.  In some cases, there are ancillary parties, settlement terms, and an allowable adjustment to the notional quantity.  All of the other attributes required to describe a product are defined in distinct product data types.
+The primary set of attributes represented in the ``TradableProduct`` data type are ones that are shared by all trades and transactions.  For example, every trade has a price, a quantity (treated jointly as a trade lot), and a pair of counterparties.  In some cases, there are ancillary parties, settlement terms, and an allowable adjustment to the notional quantity.  All of the other attributes required to describe a product are defined in distinct product data types.
+
+TradeLot
+""""""""
+
+A trade lot represents the quantity and price at which a product is being traded.
+
+In certain markets, trading the same product with the same economics (except for price and quantity) and the same counterparty may be treated as a separate trade. Each trade is represented by a tradable product containing only 1 trade lot. In other markets, trading the same product with the same characteristics (except for price and quantity) is represented as part of the same trade. In this case, a single tradable product contains multiple trade lots represented as an array of the ``TradeLot`` data type.
+
+When a trade can have multiple trade lots, increases (or upsize) and decreases (or unwind) are treated differently. An increase adds a new ``TradeLot`` instance to the tradadable product, whereas a decrease reduces the quantity of one or more of the existing trade lots.
+
+.. note:: The term *lot* is borrowed from the Equity terminology that refers to each trade lot as a *tax lot*, where the capital gains tax that may arise upon unwind is calculated based on the price at which the lot was entered.
+
+For each trade lot, the quantity and price are represente by an attribute called ``priceQuantity``.
+
+.. code-block:: Haskell
+
+ type TradeLot:
+   lotIdentifier Identifier (0..*)
+   priceQuantity PriceQuantity (1..*)
+
+The ``pricequantity`` attribute is represented as an array of the ``PriceQuantity`` data type. For composite financial products that are made of different legs, each leg may require its own price and quantity attributes, and each instance of a ``PriceQuantity`` data type identifies the relevant information for the leg of a trade. For example, for an Interest Rate Swap, a trade lot would have one instance of the ``PriceQuantity`` data type for each interest leg, and potentially a third one for an upfront fee.  By comparison, the purchase or sale of a security or listed derivative would typically have a single ``PriceQuantity`` instance in the trade lot.
 
 PriceQuantity
 """""""""""""
-The ``priceQuantity`` attribute is an array of the ``PriceQuantity`` data type which allows for multiple sets of price, quantity, and optionally an observable, which describes an asset or a reference to which the price and quantity are related.
+
+The price and quantity attributes of a trade, or of a leg of a trade in the case of composite products, are part of a data type called ``PriceQuantity``. This data type also contains (optionally) an observable, which describes the asset or reference index to which the price and quantity are related, and a date, which indicates when these price and quantity become effective.
 
 .. code-block:: Haskell
 
  type PriceQuantity: 
-	[metadata key]
-	price Price (0..*)
-	    [metadata location]
-	quantity Quantity (0..*)
-	    [metadata location]
-	observable Observable (0..1) 
+   [metadata key]
+   price Price (0..*)
+     [metadata location]
+   quantity Quantity (0..*)
+     [metadata location]
+   observable Observable (0..1)
+   effectiveDate AdjustableOrRelativeDate (0..1)
 	
-Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
-	     
-Each representation of a ``PriceQuantity`` data type can identify the relevant information for the leg of a trade or a complete trade.  For example, for an Interest Rate Swap, the ``TradableProduct`` would have multiple instances of the ``PriceQuantity`` data type, one for each leg, and potentially a third one for an upfront fee.  By comparison, the purchase or sale of a security or listed derivative would typically have a single instance.
+.. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
+
+The price, quantity and observable attributes are joined together in a single ``PriceQuantity`` data type because in some cases, those 3 attributes need to be considered together. For example, the return leg of an Equity Swap will have:
+
+- the identifier for the shares as ``observable``
+- the number of shares as ``quantity``
+- the initial share price as ``price``
+
+However, those attributes are optional because in other cases, only some of them will be specified. In the fixed leg of an Interest Rate Swap, there is no observable as the rate is already fixed. An option trade will contain an instance of a ``PriceQuantity`` containing only the premium as price attribute, but no quantity or observable (the quantity and/or observable for the option underlyer will be specified in a different ``PriceQuantity`` instance).
+
+Both the price and quantity can be specified as arrays in a single ``PriceQuantity``. All elements in the array express the same values but according to different conventions. For example, the return leg of an Equity Swap may specify both the number of shares and the notional (a currency amount equal to: number of shares x price per share) as quantities. In a Forward FX trade, the spot rate, forward points and forward rate (equal to spot rate + forward points) may all be specified as prices. When mutiple values are specified for either the price or quantity attributes in a single ``PriceQuantity`` instance, they will be tied by rules that enforce that they are internally consistent.
+
+The effective date attribute is optional and will usually be specified when a single trade has multiple trade lots, to indicate when each trade lot become effective (usually on or around the date when the lot was traded). The trade itself will have an effective date, corresponding to the date when the first lot was traded and the trade opened.
 
 The ``price`` and ``quantity`` attributes in the ``PriceQuantity`` data type each have a metadata location which can reference a metadata address in one of the  ``Payout`` data types.  The metadata address-location pair allows for a reference to link objects without populating the address object in persistence.  This capability helps to support an agnostic definition of the product in a trade (i.e. a product definition without a price and quantity). However, the reference can be used to populate values for an input into a function or for other purposes.
 
@@ -226,12 +258,18 @@ An Index product is an exception because it's not directly tradable, but is incl
 Underlier
 """""""""
 
-The ``Underlier`` type allows for any product to be used as the underlier for a higher-level product such as an option, forward, or an equity swap.
+The underlier attribute on types ``OptionPayout``, ``ForwardPayout`` and ``EquityPayout`` allows for any product to be used as the underlier for a corresponding products option, forward, and equity swap.
 
 .. code-block:: Haskell
 
- type Underlier:
-   underlyingProduct Product (1..1)
+ type OptionPayout extends PayoutBase:
+   [metadata key]
+   buyerSeller BuyerSeller (1..1)
+   optionType OptionTypeEnum (0..1)
+   feature OptionFeature (0..1)
+   denomination OptionDenomination (0..1)
+   exerciseTerms OptionExercise (1..1)
+   underlier Product (1..1)
 
 This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
 
@@ -778,6 +816,7 @@ The *reset* process creates instances of the ``Reset`` data type, which are adde
  type Reset:
    resetValue Price (1..1)
    resetDate date (1..1)
+   rateRecordDate date (0..1)
    observations Observation (1..*)
      [metadata reference]
    aggregationMethodology AggregationMethod (0..1)
@@ -804,7 +843,8 @@ The *transfer* process creates instances of the ``Transfer`` data type, which ar
  type Transfer:
    identifier Identifier (0..*)
      [metadata scheme]
-   priceQuantity PriceQuantity (1..1)
+   quantity Quantity (1..1)
+   observable Observable (0..1)
    payerReceiver PartyReferencePayerReceiver (1..1)
    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
    settlementOrigin SettlementOrigin (0..1)
@@ -978,6 +1018,25 @@ Proposed Instruction
 """"""""""""""""""""
 
 This attribute allows for the specification of inputs that when combined with the current trade state, are referenced to generate the state-transition. For example, allocation instructions describe how to divide the initial block trade into smaller pieces, each of which is assigned to a specific party representing a legal entity related to the executing party.  It is optional because it is not required for all workflow steps.  Validation components are in place to check that the ``businessEvent`` and ``proposedInstruction`` attributes are mutually exclusive.
+
+The list of business events for which this process is currently implemented in the CDM is reflected in the structure of the ``Instruction`` data type:
+
+.. code-block:: Haskell
+
+ type Instruction:
+   instructionFunction string (1..1)
+   allocation AllocationInstruction (0..1)
+   clearing ClearingInstruction (0..1)
+   contractFormation ContractFormationInstruction (0..1)
+   execution ExecutionInstruction (0..1)
+   exercise ExerciseInstruction (0..1)
+   reset ResetInstruction (0..1)
+   transfer TransferInstruction (0..1)
+   increase IncreaseInstruction (0..1)
+   decrease DecreaseInstruction (0..1)
+   indexTransition IndexTransitionInstruction (0..1)
+   
+   condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease
 
 Previous Workflow Step
 """"""""""""""""""""""
@@ -1371,24 +1430,24 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
  type CreditSupportAgreementElections:
    regime Regime (1..1)
    oneWayProvisions OneWayProvisions (1..1)
-   generalSimmElections GeneralSimmElections (1..1)
+   generalSimmElections GeneralSimmElections (0..1)
    identifiedCrossCurrencySwap boolean (0..1)
    sensitivityMethodologies SensitivityMethodologies (1..1)
    fxHaircutCurrency FxHaircutCurrency (0..1)
    postingObligations PostingObligations (1..1)
-   substitutedRegime SubstitutedRegime (1..*)
+   substitutedRegime SubstitutedRegime (0..*)
    baseAndEligibleCurrency BaseAndEligibleCurrency (1..1)
    additionalObligations string (0..1)
    coveredTransactions CoveredTransactions (1..1)
    creditSupportObligations CreditSupportObligations (1..1)
    exchangeDate string (0..1)
    calculationAndTiming CalculationAndTiming (1..1)
-   conditionsPrecedent ConditionsPrecedent (1..1)
+   conditionsPrecedent ConditionsPrecedent (0..1)
    substitution Substitution (1..1)
    disputeResolution DisputeResolution (1..1)
    holdingAndUsingPostedCollateral HoldingAndUsingPostedCollateral (1..1)
    rightsEvents RightsEvents (1..1)
-   custodyArrangements CustodyArrangements (1..1)
+   custodyArrangements CustodyArrangements (0..1)
    distributionAndInterestPayment DistributionAndInterestPayment (0..1)
    creditSupportOffsets boolean (1..1)
    additionalRepresentations AdditionalRepresentations (1..1)
@@ -1489,7 +1548,7 @@ The following code snippets represent these three components of the eligible col
    maturityType MaturityTypeEnum (0..1)
    maturityRange PeriodRange (0..1)
    productIdentifier ProductIdentifier (0..*)
-   productTaxonomy ProductTaxonomy (0..*)
+   collateralTaxonomy CollateralTaxonomy (0..*)
    domesticCurrencyIssued boolean (0..1)
    listing ListingType (0..1)
 
@@ -1793,35 +1852,26 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
  func EquityCashSettlementAmount:
- 	inputs:
- 		tradeState TradeState (1..1)
- 		date date (1..1)
-
- 	output:
- 		equityCashSettlementAmount Cashflow (1..1)
-
- 	alias equityPayout:
- 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-
- 	alias equityPerformance:
- 	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-
- 	condition:
-         tradeState -> trade -> tradableProduct -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> underlyingProduct -> security -> productIdentifier
-
- 	assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
- 		Abs(equityPerformance)
-
- 	assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency:
-         ResolveEquityInitialPrice( tradeState -> trade -> tradableProduct -> priceQuantity ) -> unitOfAmount -> currency
-
- 	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
- 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
-
- 	assign-output equityCashSettlementAmount -> payerReceiver -> receiver:
- 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
-
-     assign-output equityCashSettlementAmount -> cashflowDate -> adjustedDate:
+     inputs:
+         tradeState TradeState (1..1)
+         date date (1..1)
+     output:
+         equityCashSettlementAmount Cashflow (1..1)
+     alias equityPayout:
+         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+     alias equityPerformance:
+         EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
+     condition:
+         tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> security -> productIdentifier
+     assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
+         Abs(equityPerformance)
+     assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency:
+         ResolveEquityInitialPrice( tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity ) -> unitOfAmount -> currency
+     assign-output equityCashSettlementAmount -> payerReceiver -> payer:
+         if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
+     assign-output equityCashSettlementAmount -> payerReceiver -> receiver:
+         if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
+    assign-output equityCashSettlementAmount -> cashflowDate -> adjustedDate:
          ResolveCashSettlementDate(tradeState)
 
 .. code-block:: Haskell
@@ -1975,27 +2025,35 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
  	[creation PrimitiveEvent]
  	inputs:
  		tradeState TradeState (1..1)
- 		payout Payout (1..1)
- 		date date (1..1)
+ 		instruction ResetInstruction (1..1)
+ 		resetDate date (1..1)
  	output:
  		resetPrimitive ResetPrimitive (1..1)
 
- 	alias observationIdentifiers:
- 		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, date) else
-         if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, date)
+ 	alias payout:
+		instruction -> payout
 
- 	alias observation:
- 		ResolveObservation([observationIdentifiers], empty)
+	alias observationDate:
+		if instruction -> rateRecordDate exists
+		then instruction -> rateRecordDate
+		else resetDate
 
- 	assign-output resetPrimitive -> before:
- 		tradeState
+	alias observationIdentifiers:
+		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, resetDate)
+		else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
 
- 	assign-output resetPrimitive -> after:
- 		tradeState
+	alias observation:
+		ResolveObservation([observationIdentifiers], empty)
 
- 	assign-output resetPrimitive -> after -> resetHistory:
-     	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, date) else
-     	if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, date)
+	assign-output resetPrimitive -> before:
+		tradeState
+
+	assign-output resetPrimitive -> after:
+		tradeState
+
+	assign-output resetPrimitive -> after -> resetHistory:
+    	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate)
+		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
 
 
 First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
@@ -2020,7 +2078,7 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
  			else payout -> priceReturnTerms -> valuationPriceInterim
 
  	assign-output identifiers -> observable -> productIdentifier:
- 		payout -> underlier -> underlyingProduct -> security -> productIdentifier only-element
+ 		payout -> underlier -> security -> productIdentifier only-element
 
  	assign-output identifiers -> observationDate:
  		ResolveEquityValuationDate(equityValuation, date)

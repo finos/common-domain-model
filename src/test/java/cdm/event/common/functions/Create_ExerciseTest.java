@@ -21,7 +21,7 @@ public class Create_ExerciseTest extends AbstractFunctionTest {
 
 	@Test
 	void shouldCreatePhysicalExercise() throws IOException {
-		TradeState swaption = getObject(TradeState.class,"result-json-files/products/rates/ird-ex09-euro-swaption-explicit-physical-exercise.json");
+		TradeState swaption = getObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex09-euro-swaption-explicit-physical-exercise.json");
 
 		BusinessEvent businessEvent = func.evaluate(swaption, ExerciseInstruction.builder().build());
 		
