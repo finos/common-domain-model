@@ -397,12 +397,12 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 		businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct -> tradeLot -> priceQuantity-> price -> amount
 	alias beforeCashPrice: <"Only works in the case of a single trade lot and price.">
 		beforeCashPrices only-element 
-	
+
 	alias afterCashPrices:
 		businessEvent -> primitives -> termsChange -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity-> price -> amount
 	alias afterCashPrice: <"Only works in the case of a single trade lot and price.">
 		afterCashPrices only-element
-	
+
 	alias currencyAmountUnchanged:
 		if ( beforeCurrencyAmount and afterCurrencyAmount ) exists
 		then beforeCurrencyAmount = afterCurrencyAmount
@@ -1202,15 +1202,15 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 		Create_ContractFormationPrimitive(gammaExecution -> after -> trade, empty)
 	alias gammaContractPrimitives: NewContractFormationPrimitiveEvent(gammaContract)
 	condition: <"The alpha contract being terminated must include the party1 contained in the clearing instruction.">
-		clearingInstruction -> alphaContract -> trade -> party includes clearingInstruction -> party1
+		clearingInstruction -> alphaContract -> trade -> party contains clearingInstruction -> party1
 	condition: <"The alpha contract being terminated must include the party2 contained in the clearing instruction.">
-		clearingInstruction -> alphaContract -> trade -> party includes clearingInstruction -> party2
+		clearingInstruction -> alphaContract -> trade -> party contains clearingInstruction -> party2
 	condition: <"The alpha contract being terminated must include the party role of the clearing member (clearerParty1) if it has been specified.">
 		if clearingInstruction -> clearerParty1 exists
-		then clearingInstruction -> alphaContract -> trade -> partyRole -> partyReference includes clearingInstruction -> clearerParty1
+		then clearingInstruction -> alphaContract -> trade -> partyRole -> partyReference contains clearingInstruction -> clearerParty1
 	condition: <"The alpha contract being terminated must include the party role of the clearing member (clearerParty2) if it has been specified.">
 		if clearingInstruction -> clearerParty2 exists
-		then clearingInstruction -> alphaContract -> trade -> partyRole -> partyReference includes clearingInstruction -> clearerParty2
+		then clearingInstruction -> alphaContract -> trade -> partyRole -> partyReference contains clearingInstruction -> clearerParty2
 	assign-output clearedEvent -> primitives: <"Create the event made up of five primitives; alpha terminated, beta execution, beta contract, gamma execution and gamma contract. Each beta and gamma contracts contain references to the respective executions.">
 		[
 			alphaTerminatedPrimitives,
@@ -1271,7 +1271,7 @@ func NewSingleNameEquityPayout: <"Function specification to create the equity pa
 	output:
 		equityPayout EquityPayout (1..1)
 	condition: <"Security must be equity (single name).">
-		security -> securityType = SecurityTypeEnum->Equity 
+		security -> securityType = SecurityTypeEnum->Equity
 	assign-output equityPayout -> returnType: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
 		masterConfirmation -> typeOfSwapElection
 	assign-output equityPayout -> calculationPeriodDates: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
