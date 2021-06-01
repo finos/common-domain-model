@@ -1157,9 +1157,9 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 	alias alphaTerminatedPrimitives: NewQuantityChangePrimitiveEvent(alphaTerminated)
 	alias clearerRole: <"The clearing party (CCP) role set to ClearingOrganization.">
 		Create_PartyRole(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
-	alias clearerCounterparty:
-		Create_Counterparty(clearingInstruction -> clearingParty, CounterpartyRoleEnum -> Party2)
-	alias betaParty: <"Beta party is the clearerParty1 when acting as a clearing member or else is party1 when it is clearing for its own account.">
+	alias betaClearerCounterparty:
+    		Create_Counterparty(clearingInstruction -> clearingParty, CounterpartyRoleEnum -> Party2)
+    alias betaParty: <"Beta party is the clearerParty1 when acting as a clearing member or else is party1 when it is clearing for its own account.">
 		if clearingInstruction -> clearerParty1 exists
 		then clearingInstruction -> clearerParty1
 		else clearingInstruction -> party1
@@ -1168,7 +1168,7 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 	alias betaExecution: <"Execution between the CCP and the beta party. Only works with a single trade lot.">
 		Create_ExecutionPrimitive(clearingInstruction -> alphaContract -> trade -> tradableProduct -> product,
 		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
-		    [betaCounterparty, clearerCounterparty],
+		    [betaCounterparty, betaClearerCounterparty],
 		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> ancillaryParty,
 		    [betaParty, clearingInstruction -> clearingParty],
 		    [clearerRole],
@@ -1180,16 +1180,18 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 	alias betaContract: <"Contract between the CCP and the beta party.">
 		Create_ContractFormationPrimitive(betaExecution -> after -> trade, empty)
 	alias betaContractPrimitives: NewContractFormationPrimitiveEvent(betaContract)
+	alias gammaClearerCounterparty:
+		Create_Counterparty(clearingInstruction -> clearingParty, CounterpartyRoleEnum -> Party1)
 	alias gammaParty: <"Gamma party is the clearerParty2 when acting as a clearing member or else is party1 when it is clearing for its own account.">
 		if clearingInstruction -> clearerParty2 exists
 		then clearingInstruction -> clearerParty2
 		else clearingInstruction -> party2
 	alias gammaCounterparty:
-		Create_Counterparty(gammaParty, CounterpartyRoleEnum -> Party1)
-	alias gammaExecution: <"Execution between the CCP and the gamma party. Only works with a single trade lot.">
+		Create_Counterparty(gammaParty, CounterpartyRoleEnum -> Party2)
+	alias gammaExecution: <"Execution between the CCP and the gamma party">
 		Create_ExecutionPrimitive(clearingInstruction -> alphaContract -> trade -> tradableProduct -> product,
 		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
-		    [gammaCounterparty, clearerCounterparty],
+		    [gammaCounterparty, gammaClearerCounterparty],
 		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> ancillaryParty,
 		    [gammaParty, clearingInstruction -> clearingParty],
 		    [clearerRole],
@@ -1218,7 +1220,7 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 			betaContractPrimitives,
 			gammaExecutionPrimitives,
 			gammaContractPrimitives
-	]
+		]
 
 func ExtractTradeState: <"Extracts a single Contract State, given an Event. This function navigates all the possible paths to product and extracts a single value.">
 	inputs: event BusinessEvent (1..1)
