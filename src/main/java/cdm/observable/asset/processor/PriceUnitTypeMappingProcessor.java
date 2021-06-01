@@ -1,5 +1,6 @@
 package cdm.observable.asset.processor;
 
+import cdm.base.math.CapacityUnitEnum;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.UnitType;
 import cdm.observable.asset.PriceTypeEnum;
@@ -52,17 +53,18 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "creditDefaultSwapOption", "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
 				// Equity
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
-				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", "currency")
-				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", "notional", "notionalAmount", "currency")
+				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", List.of("currency"), FinancialUnitEnum.SHARE)
+				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", List.of("notional", "notionalAmount", "currency"), FinancialUnitEnum.SHARE)
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
 				// Repo
-				|| updateCurrencyUnits(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")) {
+				|| updateCurrencyUnits(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")
+				// Commodity
+				|| updatePriceUnits(priceBuilder, synonymPath, "commodityOption", List.of("strikePricePerUnit", "currency"), List.of("notionalQuantity", "quantityUnit"))) {
 			return;
 		}
 	}
 
-	@NotNull
 	private boolean updateCurrencyUnits(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
 		return subPath(basePathElement, synonymPath)
 				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, endsWith))
@@ -77,18 +79,30 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				.map(Mapping::getXmlValue)
 				.map(String::valueOf)
 				.flatMap(notionalHef -> getNonNullMappingId(getBasePath(synonymPath), notionalHef))
-				.map(m -> m.getXmlPath())
+				.map(Mapping::getXmlPath)
 				.map(p -> p.getParent())
 				.flatMap(referencedPath -> getNonNullMapping(getMappings(), referencedPath, "currency"))
 				.orElse(null);
 	}
 
-	private boolean updatePriceUnits(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
+	private boolean updatePriceUnits(PriceBuilder builder, Path synonymPath, String basePathElement, List<String> endsWith, FinancialUnitEnum perUnitOfAmount) {
 		return subPath(basePathElement, synonymPath)
-				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, endsWith))
+				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(endsWith)))
 				.map(currencyMapping -> updateBuilder(builder,
 						toCurrencyUnitType(currencyMapping),
-						UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))
+						UnitType.builder().setFinancialUnit(perUnitOfAmount)))
+				.orElse(false);
+	}
+
+	private boolean updatePriceUnits(PriceBuilder builder, Path synonymPath, String basePathElement, List<String> unitOfAmountEndsWith, List<String> perUnitOfAmountEndsWith) {
+		Optional<Path> basePath = subPath(basePathElement, synonymPath);
+		Optional<UnitTypeBuilder> unitOfAmount = basePath
+				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(unitOfAmountEndsWith)))
+				.map(this::toCurrencyUnitType);
+		Optional<UnitTypeBuilder> perUnitOfAmount = basePath
+				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(perUnitOfAmountEndsWith)))
+				.map(this::toCapacityUnitEnumType);
+		return unitOfAmount.flatMap(uoa -> perUnitOfAmount.map(puoa -> updateBuilder(builder, uoa, puoa)))
 				.orElse(false);
 	}
 
@@ -112,6 +126,17 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 						.setMeta(MetaFields.builder()
 								.setScheme(currencyScheme).build())
 						.build());
+	}
+
+	private UnitTypeBuilder toCapacityUnitEnumType(Mapping capacityUnitMapping) {
+		String value = String.valueOf(capacityUnitMapping.getXmlValue());
+		UnitTypeBuilder builder = UnitType.builder();
+		try {
+			// This is a hack.  It should be looked up based on synonyms, however for CapacityUnitEnum the
+			// FpML values match the CDM enum values.
+			builder.setCapacityUnit(CapacityUnitEnum.valueOf(value.toUpperCase()));
+		} catch (IllegalArgumentException e) { /* ignored */ }
+		return builder;
 	}
 
 	private Optional<Mapping> getNonNullMappingId(Path startsWith, String id) {
@@ -146,5 +171,10 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	private Path getBasePath(Path synonymPath) {
 		Path.PathElement basePathElement = synonymPath.getElements().get(0);
 		return new Path().addElement(basePathElement);
+	}
+
+	@NotNull
+	private String[] toArray(List<String> a) {
+		return a.toArray(new String[a.size()]);
 	}
 }

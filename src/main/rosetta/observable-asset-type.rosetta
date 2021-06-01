@@ -120,27 +120,27 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
 
 	condition: one-of
 
-type PriceQuantity: <"Specifies the price, quantity, and optionally the observable for use in a trade or other purposes.">
+type PriceQuantity: <"Specifies the price, quantity, and optionally the observable and effective date for use in a trade or other purposes.">
 	[metadata key]
 
 	price Price (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
 	    [metadata location]
 	quantity Quantity (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
 	    [metadata location]
-	    [synonym Workflow_Event value "quantity"]
-	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
-	    [synonym Workflow_Event value "observable"]
+	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference. The cardinality is optional as some quantity / price cases have no observable (e.g. a notional and a fixed rate in a given currency).">
+	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
 
 	condition NonNegativeQuantity:
 	    if quantity -> amount exists
 	    then quantity -> amount >= 0
-
-    condition:
+	
+	condition:
 	    if observable -> rateOption exists and price exists
-	    then price -> priceType contains PriceTypeEnum -> Spread or
-	    price -> priceType contains PriceTypeEnum -> CapRate or
-	    price -> priceType contains PriceTypeEnum -> FloorRate or
-	    price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
+	    then 
+			price -> priceType contains PriceTypeEnum -> Spread or
+			price -> priceType contains PriceTypeEnum -> CapRate or
+			price -> priceType contains PriceTypeEnum -> FloorRate or
+			price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 

@@ -108,14 +108,23 @@ The CDM governance framework regulates the development of the open source CDM st
 
 #. The *CDM Working Groups* are assembled per subject matter or use cases to actively develop and implement concretely targeted elements of the CDM. Participants include ISDA members and non-members from the CDM user community who commit time and effort for the development and implementation of the CDM as a global standard.
 
+The on-going development of the CDM is organised in accordance with the following process:
+
+.. figure:: documentation/source/CDM-Development-Process.png
+
 Committee members or any user of CDM within the community can propose amendments to the CDM. The proposals can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM design principles and submitted to ISDA staff and the Architecture & Review Committee for approval. If approved, the amendment will be merged with the CDM master code branch. In some instances, the proposal may not be immediately approved, but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
 
 
 .. |Codefresh build status| image:: https://g.codefresh.io/api/badges/pipeline/regnosysops/REGnosys%2Frosetta-cdm%2Frosetta-cdm?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWE1N2EyYTlmM2JiOTMwMDAxNDRiODMz.ZDeqVUhB-oMlbZGj4tfEiOg0cy6azXaBvoxoeidyL0g&type=cf-1
    :target: https://g.codefresh.io/pipelines/rosetta-cdm/builds?repoOwner=REGnosys&repoName=rosetta-cdm&serviceName=REGnosys%2Frosetta-cdm&filter=trigger:build~Build;branch:master;pipeline:5a86c209eaf77d0001daacb6~rosetta-cdm
    
-Using the CDM
--------------
-The java implementation of the CDM is designed to be built and used with Maven. It depends on some open source java artifacts created by Regnosys. These are freely available from an artifactory repository. Maven can be configured to use this repository using the repository settings contained in the settings.xml file in the CDM jar.
+Using the CDM (Java)
+--------------------
 
-For more details see the cdm-guidelines documentation page. 
+The Java distribution of the CDM is designed to be built and used with Maven.
+
+It depends on some open source java artifacts which are freely available from an artifact repository. Maven can be configured to use this repository using the repository settings contained in the ``settings.xml`` file in the CDM jar.
+
+For more details, please follow the `CDM Java Distribution Guidelines <https://docs.rosetta-technology.io/cdm/documentation/source/cdm-guidelines.html>`_.
+
+.. note:: These guidelines are intended as a technical documentation for developers to make use of the Java distribution in their implementation.
