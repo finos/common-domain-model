@@ -219,9 +219,12 @@ he Observable data type requires the specification of either a ``rateOption`` (i
 	[metadata key]
 	rateOption FloatingRateOption (0..1)
         [metadata location]
-	commodity Commodity (0..1) 
+	commodity Commodity (0..1)
+        [metadata location]
 	productIdentifier ProductIdentifier (0..*)
+        [metadata location]
 	currencyPair QuotedCurrencyPair (0..1) 
+        [metadata location]
 
 	condition: one-of 
 
@@ -239,6 +242,7 @@ A financial product is an instrument that is used to transfer financial risk bet
    loan Loan (0..1)
    foreignExchange ForeignExchange (0..1)
    commodity Commodity (0..1)
+     [metadata address "pointsTo"=Observable->commodity]
    security Security (0..1)
    
    condition: one-of
@@ -1861,8 +1865,6 @@ Some of those calculations are presented below:
          tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
      alias equityPerformance:
          EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-     condition:
-         tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> security -> productIdentifier
      assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
          Abs(equityPerformance)
      assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency:

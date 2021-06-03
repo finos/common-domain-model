@@ -600,8 +600,6 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 	alias equityPerformance:
 	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-	condition:
-        tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> security -> productIdentifier
 	assign-output equityCashSettlementAmount -> cashflowAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
 		Abs(equityPerformance)
 	assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
@@ -688,7 +686,7 @@ func Create_Execution: <"Creates the fully formed business event of executing a 
 	assign-output executionEvent -> primitives -> execution: <"Create and assign the execution primitive event to the execution business event, using the corresponding primitive event creation function.">
 		Create_ExecutionPrimitive(executionInstruction -> product, executionInstruction -> priceQuantity, executionInstruction -> counterparty, executionInstruction -> ancillaryParty, executionInstruction -> parties, executionInstruction -> partyRoles, executionInstruction -> settlementTerms, executionInstruction -> executionDetails, executionInstruction -> tradeDate, executionInstruction -> tradeIdentifier)
 	assign-output executionEvent -> eventEffect -> trade: <"The trade object, i.e. the after state of the execution primitive event, is the single event effect of the business event.">
-    		executionEvent -> primitives -> execution -> after
+        executionEvent -> primitives -> execution -> after
 
 func Create_ExecutionPrimitive: <"Specifies the function to compose an execution based on a minimum required set of inputs: product, quantity, parties, etc.">
 	[creation PrimitiveEvent]
@@ -723,7 +721,6 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 		executionDetails
 	assign-output executionPrimitive -> after -> trade -> tradeDate: <"Assign the tradeDate input to the execution object.">
 		tradeDate
-	
 	assign-output executionPrimitive -> after -> trade -> tradeIdentifier: <"Assign the identifier input to the execution object.">
 		tradeIdentifier
 	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
@@ -732,30 +729,27 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 func Create_ContractFormation: <"Creates the fully formed business event of affirming (confirming) a transaction based on contract formation instructions. The formed contract can reference a legal agreement, for instance a master agreement, by using the optional legalAgreement input.">
 	[creation BusinessEvent]
 	inputs:
-      		contractFormationInstruction ContractFormationInstruction (1..1) <"Specifies the Contract Formation instructions to be applied.">
-      		contractFormationDate date (1..1) <"Specifies the event date of the contract formation.">
+        contractFormationInstruction ContractFormationInstruction (1..1) <"Specifies the Contract Formation instructions to be applied.">
+        contractFormationDate date (1..1) <"Specifies the event date of the contract formation.">
 	output:
 		contractFormationEvent BusinessEvent (1..1) <"Qualified contract formation business event.">
-      	alias execution:
-      		contractFormationInstruction -> execution
-
+    alias execution:
+        contractFormationInstruction -> execution
 	condition: <"Input event must be an execution must be on a contractual product.">
       		execution exists and
       		execution -> trade -> tradableProduct -> product -> contractualProduct exists and
       		execution -> trade -> contractDetails is absent and
       		execution -> state -> positionState = PositionStatusEnum -> Executed
-
 	condition: <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided.">
-      		if contractFormationInstruction -> legalAgreement exists then contractFormationInstruction -> legalAgreement -> contractualParty contains execution -> trade -> party
+        if contractFormationInstruction -> legalAgreement exists then contractFormationInstruction -> legalAgreement -> contractualParty contains execution -> trade -> party
 	assign-output contractFormationEvent -> primitives -> contractFormation: <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
-      		Create_ContractFormationPrimitive(contractFormationInstruction -> execution -> trade, contractFormationInstruction -> legalAgreement)
+        Create_ContractFormationPrimitive(contractFormationInstruction -> execution -> trade, contractFormationInstruction -> legalAgreement)
 	assign-output contractFormationEvent -> eventEffect -> trade: <"The event effect of the business event points to the contract object, i.e. the after state of the contract formation primitive event.">
 		contractFormationEvent -> primitives -> contractFormation -> after
 	assign-output contractFormationEvent -> eventEffect -> effectedTrade: <"The event effect of the business event points to the execution object, i.e. the before state of the contract formation primitive event.">
 		contractFormationEvent -> primitives -> contractFormation -> before
-      	assign-output contractFormationEvent -> eventDate: <"The event date of the contract formation points to the contractFormationDate.">
-      		contractFormationDate
-
+    assign-output contractFormationEvent -> eventDate: <"The event date of the contract formation points to the contractFormationDate.">
+        contractFormationDate
 	post-condition: <"Event effect must point to the new execution and contract, and exclude other effects.">
 		contractFormationEvent -> eventEffect -> productIdentifier is absent
 		and contractFormationEvent -> eventEffect -> transfer is absent
@@ -1157,9 +1151,9 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 	alias alphaTerminatedPrimitives: NewQuantityChangePrimitiveEvent(alphaTerminated)
 	alias clearerRole: <"The clearing party (CCP) role set to ClearingOrganization.">
 		Create_PartyRole(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
-	alias clearerCounterparty:
-		Create_Counterparty(clearingInstruction -> clearingParty, CounterpartyRoleEnum -> Party2)
-	alias betaParty: <"Beta party is the clearerParty1 when acting as a clearing member or else is party1 when it is clearing for its own account.">
+	alias betaClearerCounterparty:
+    		Create_Counterparty(clearingInstruction -> clearingParty, CounterpartyRoleEnum -> Party2)
+    alias betaParty: <"Beta party is the clearerParty1 when acting as a clearing member or else is party1 when it is clearing for its own account.">
 		if clearingInstruction -> clearerParty1 exists
 		then clearingInstruction -> clearerParty1
 		else clearingInstruction -> party1
@@ -1168,7 +1162,7 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 	alias betaExecution: <"Execution between the CCP and the beta party. Only works with a single trade lot.">
 		Create_ExecutionPrimitive(clearingInstruction -> alphaContract -> trade -> tradableProduct -> product,
 		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
-		    [betaCounterparty, clearerCounterparty],
+		    [betaCounterparty, betaClearerCounterparty],
 		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> ancillaryParty,
 		    [betaParty, clearingInstruction -> clearingParty],
 		    [clearerRole],
@@ -1180,16 +1174,18 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 	alias betaContract: <"Contract between the CCP and the beta party.">
 		Create_ContractFormationPrimitive(betaExecution -> after -> trade, empty)
 	alias betaContractPrimitives: NewContractFormationPrimitiveEvent(betaContract)
+	alias gammaClearerCounterparty:
+		Create_Counterparty(clearingInstruction -> clearingParty, CounterpartyRoleEnum -> Party1)
 	alias gammaParty: <"Gamma party is the clearerParty2 when acting as a clearing member or else is party1 when it is clearing for its own account.">
 		if clearingInstruction -> clearerParty2 exists
 		then clearingInstruction -> clearerParty2
 		else clearingInstruction -> party2
 	alias gammaCounterparty:
-		Create_Counterparty(gammaParty, CounterpartyRoleEnum -> Party1)
-	alias gammaExecution: <"Execution between the CCP and the gamma party. Only works with a single trade lot.">
+		Create_Counterparty(gammaParty, CounterpartyRoleEnum -> Party2)
+	alias gammaExecution: <"Execution between the CCP and the gamma party">
 		Create_ExecutionPrimitive(clearingInstruction -> alphaContract -> trade -> tradableProduct -> product,
 		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
-		    [gammaCounterparty, clearerCounterparty],
+		    [gammaCounterparty, gammaClearerCounterparty],
 		    clearingInstruction -> alphaContract -> trade -> tradableProduct -> ancillaryParty,
 		    [gammaParty, clearingInstruction -> clearingParty],
 		    [clearerRole],
@@ -1218,7 +1214,7 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 			betaContractPrimitives,
 			gammaExecutionPrimitives,
 			gammaContractPrimitives
-	]
+		]
 
 func ExtractTradeState: <"Extracts a single Contract State, given an Event. This function navigates all the possible paths to product and extracts a single value.">
 	inputs: event BusinessEvent (1..1)

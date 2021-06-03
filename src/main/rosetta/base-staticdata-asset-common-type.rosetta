@@ -3,6 +3,8 @@ version "${project.version}"
 
 import cdm.base.staticdata.party.*
 
+import cdm.observable.asset.*
+
 import cdm.synonyms.config.*
 
 type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
@@ -31,8 +33,10 @@ type ProductIdentifier: <"Comprises an identifier and a source. The associated m
 
 type IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
 	productIdentifier ProductIdentifier (1..1)
+
 type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
 	productIdentifier ProductIdentifier (1..*)
+        [metadata address "pointsTo"=Observable->productIdentifier]
 
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
 	indexType IndexTypeEnum (1..1)
