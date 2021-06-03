@@ -1865,8 +1865,6 @@ Some of those calculations are presented below:
          tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
      alias equityPerformance:
          EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-     condition:
-         tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity ->  observable -> productIdentifier = equityPayout -> underlier -> security -> productIdentifier
      assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
          Abs(equityPerformance)
      assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency:
