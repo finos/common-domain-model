@@ -2,10 +2,10 @@
 
 _What is being released?_
 
-Following the recent price, quantity and observable refactor, make the `PriceQuantity->observable` attributes referencable by adding `location`/`address` annotations to type `Observable` attributes and to the corresponding `Product` attribute.  Synonyms have also been migrated to the new model for all products including rates, equity, FX, credit and repo, and also all other Event, DTCC and CME synonyms.
+Following the recent price, quantity and observable refactor, this release makes the `PriceQuantity->observable` attributes referencable by adding `location`/`address` annotations to the attributes of type `Observable` and their corresponding `Product` attributes.  Synonyms have also been migrated to the new model for all products including rates, equity, FX, credit and repo, and also all other Event, DTCC and CME synonyms.
 
-- Add `location` annotation to `Observable->commodity` and add `address` annotation to `CommodityPayout->underlier->commodity`, and add underlier synonym mappings.
-- Add `location` annotation to `Observable->productIdentifier` and add `address` annotation to `PayoutBase->productIdentifier` (super type of `Security`, `Loan` and `Index`), and add underlier synonym mappings.
+- Add `location` annotation to `Observable->commodity` and add `address` annotation to `CommodityPayout->underlier->commodity`.
+- Add `location` annotation to `Observable->productIdentifier` and add `address` annotation to `PayoutBase->productIdentifier` (super type of `Security`, `Loan` and `Index`).
 - Add `location` annotation to `Observable->currencyPair` and add `address` annotation to:
   - `optionPayout.exerciseTerms.settlement.fxSettlementTerms.fixing.quotedCurrencyPair`
   - `forwardPayout.settlementTerms.fxSettlementTerms.fixing.quotedCurrencyPair`
@@ -38,7 +38,7 @@ In the CDM Portal, select ingestion and review the following samples:
 
 _What is being released?_
 
-The use of the keyword `includes` has been deprecated in favor of the equivalent keyword`contains`. The former was  only used in the definition of the function `Create_ClearedTrade`.
+The use of the keyword `includes` has been deprecated in favor of the equivalent keyword`contains`. The former was only used in the definition of the function `Create_ClearedTrade`.
 
 _Review Directions_
 
