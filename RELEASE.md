@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-Following the recent price, quantity and observable refactor, this release makes the `PriceQuantity->observable` attributes referencable by adding `location`/`address` annotations to the attributes of type `Observable` and their corresponding `Product` attributes.  Synonyms have also been migrated to the new model for all products including rates, equity, FX, credit and repo, and also all other Event, DTCC and CME synonyms.
+Following the recent price, quantity and observable refactor, this release makes the `PriceQuantity->observable` attributes referencable by adding `location`/`address` annotations to the attributes of type `Observable` and their corresponding attributes in the `Product` payouts.  Synonyms have also been migrated to the new model for all products including rates, equity, FX, credit and repo, and also all other Event, DTCC and CME synonyms.
 
 - Add `location` annotation to `Observable->commodity` and add `address` annotation to `CommodityPayout->underlier->commodity`.
 - Add `location` annotation to `Observable->productIdentifier` and add `address` annotation to `PayoutBase->productIdentifier` (super type of `Security`, `Loan` and `Index`).
