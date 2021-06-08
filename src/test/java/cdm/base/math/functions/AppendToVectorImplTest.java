@@ -1,5 +1,6 @@
 package cdm.base.math.functions;
 
+import cdm.base.math.Vector;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -28,9 +29,11 @@ public class AppendToVectorImplTest extends AbstractFunctionTest {
                 BigDecimal.valueOf(12.0),
                 BigDecimal.valueOf(13.0));
 
-        List<? extends  BigDecimal> actualList = func.evaluate(valueList, newVal);
+        Vector.VectorBuilder vb = Vector.builder();
+        vb.setValues(valueList);
+        Vector actualVector = func.evaluate(vb, newVal);
 
-        check(expectedList, actualList);
+        check(expectedList, actualVector.getValues());
     }
     @Test
     void shouldhandleEmptyList() {
@@ -39,10 +42,13 @@ public class AppendToVectorImplTest extends AbstractFunctionTest {
         BigDecimal newVal = BigDecimal.valueOf(13.0);
         List<BigDecimal> expectedList = List.of(
                 BigDecimal.valueOf(13.0));
+        Vector.VectorBuilder vb = Vector.builder();
+        vb.setValues(valueList);
 
-        List<? extends  BigDecimal> actualList = func.evaluate(valueList, newVal);
 
-        check(expectedList, actualList);
+        Vector actualCVector = func.evaluate(vb, newVal);
+
+        check(expectedList, actualCVector.getValues());
     }
 
     void check(List<BigDecimal> expected, List<? extends BigDecimal> actual) {

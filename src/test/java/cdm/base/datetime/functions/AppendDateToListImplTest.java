@@ -1,13 +1,12 @@
 package cdm.base.datetime.functions;
 
-import cdm.base.math.functions.AppendToVector;
+import cdm.base.datetime.DateGroup;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class AppendDateToListImplTest extends AbstractFunctionTest {
                 DateImpl.of(2021, 5, 14),
                 DateImpl.of(2021, 5, 15));
 
-        List<? extends Date> actualList = func.evaluate(dateList, newVal);
+        DateGroup actualList = func.evaluate(DateGroup.builder().setDates(dateList), newVal);
 
         check(expectedList, actualList);
     }
@@ -47,14 +46,15 @@ public class AppendDateToListImplTest extends AbstractFunctionTest {
         List<Date> expectedList = List.of(
                 DateImpl.of(2021, 5, 15));
 
-        List<? extends Date> actualList = func.evaluate(dateList, newVal);
+        DateGroup actualList = func.evaluate(DateGroup.builder().setDates(dateList), newVal);
 
         check(expectedList, actualList);
     }
 
 
 
-    void check(List<? extends Date> expected, List<? extends Date> actual) {
+    void check(List<? extends Date> expected, DateGroup actualList) {
+        List<? extends Date> actual = actualList.getDates();
         assertEquals(expected.size(), actual.size());
         int n = expected.size();
         for(int i = 0; i < n; i++) {

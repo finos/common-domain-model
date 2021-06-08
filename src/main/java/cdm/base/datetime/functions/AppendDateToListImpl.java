@@ -1,5 +1,6 @@
 package cdm.base.datetime.functions;
 
+import cdm.base.datetime.DateGroup;
 import com.rosetta.model.lib.records.Date;
 
 import javax.inject.Inject;
@@ -9,10 +10,19 @@ import java.util.List;
 public class AppendDateToListImpl extends  AppendDateToList{
 
     @Override
-    protected List<Date> doEvaluate(List<? extends Date> dateList, Date newDate) {
+    protected DateGroup.DateGroupBuilder doEvaluate(DateGroup dateList, Date newDate) {
+        if (dateList == null) return DateGroup.builder().addDates(newDate);
+        List<Date> res = doEval(dateList.getDates(), newDate);
+        DateGroup.DateGroupBuilder ret = DateGroup.builder().setDates(res);
+        return ret;
+    }
+
+    protected List<Date> doEval(List<? extends Date> dateList, Date newDate) {
         List<Date> result = new ArrayList<>(dateList.size()+1);
         result.addAll(dateList);
         result.add(newDate);
         return result;
     }
+
+
 }

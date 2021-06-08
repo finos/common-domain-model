@@ -1,5 +1,6 @@
 package cdm.base.datetime.functions;
 
+import cdm.base.datetime.DateGroup;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
@@ -21,7 +22,7 @@ class SelectDateImplTest extends AbstractFunctionTest {
 				DateImpl.of(2021, 5, 12),
 				DateImpl.of(2021, 5, 13),
 				DateImpl.of(2021, 5, 14));
-		Date date = func.evaluate(dateList, 1);
+		Date date = func.evaluate(DateGroup.builder().setDates(dateList), 1);
 
 		assertEquals(DateImpl.of(2021, 5, 13), date);
 	}
@@ -31,7 +32,7 @@ class SelectDateImplTest extends AbstractFunctionTest {
 				DateImpl.of(2021, 5, 12),
 				DateImpl.of(2021, 5, 13),
 				DateImpl.of(2021, 5, 14));
-		Date date = func.evaluate(dateList, 10);
+		Date date = func.evaluate(DateGroup.builder().setDates(dateList), 10);
 
 		assertNull(date);
 	}

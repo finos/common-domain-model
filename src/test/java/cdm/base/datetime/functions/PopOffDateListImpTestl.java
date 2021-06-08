@@ -1,5 +1,6 @@
 package cdm.base.datetime.functions;
 
+import cdm.base.datetime.DateGroup;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
@@ -18,7 +19,7 @@ public class PopOffDateListImpTestl extends AbstractFunctionTest {
 
     @Test
     void shouldRemove() {
-        List<Date> dateList = List.of(
+        List<Date> dates = List.of(
                 DateImpl.of(2021, 5, 12),
                 DateImpl.of(2021, 5, 13),
                 DateImpl.of(2021, 5, 14));
@@ -27,27 +28,25 @@ public class PopOffDateListImpTestl extends AbstractFunctionTest {
                 DateImpl.of(2021, 5, 12),
                 DateImpl.of(2021, 5, 13));
 
-        List<? extends Date> actualList = func.evaluate(dateList);
+        DateGroup actualList = func.evaluate(DateGroup.builder().setDates(dates));
 
         check(expectedList, actualList);
     }
 
     @Test
     void shouldHandleEmptyList() {
-        List<Date> dateList = new ArrayList<>();
-
-
+        List<Date> dates = new ArrayList<>();
         List<Date> expectedList = new ArrayList<>();
 
-
-        List<? extends Date> actualList = func.evaluate(dateList);
+        DateGroup actualList = func.evaluate(DateGroup.builder().setDates(dates));
 
         check(expectedList, actualList);
     }
 
 
 
-    void check(List<? extends Date> expected, List<? extends Date> actual) {
+    void check(List<? extends Date> expected, DateGroup actualDateCollection) {
+        List<? extends Date> actual = actualDateCollection.getDates();
         assertEquals(expected.size(), actual.size());
         int n = expected.size();
         for(int i = 0; i < n; i++) {

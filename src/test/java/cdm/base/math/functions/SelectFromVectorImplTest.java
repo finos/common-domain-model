@@ -1,6 +1,7 @@
 package cdm.base.math.functions;
 
 import cdm.base.datetime.functions.SelectDate;
+import cdm.base.math.Vector;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
@@ -23,7 +24,8 @@ public class SelectFromVectorImplTest extends AbstractFunctionTest {
                BigDecimal.valueOf(10.0),
                 BigDecimal.valueOf(11.0),
                 BigDecimal.valueOf(12.0));
-        BigDecimal val = func.evaluate(valueList, 1);
+        Vector.VectorBuilder vb = Vector.builder().setValues(valueList);
+        BigDecimal val = func.evaluate(vb, 1);
 
         assertEquals(BigDecimal.valueOf((11.0)), val);
     }
@@ -33,7 +35,8 @@ public class SelectFromVectorImplTest extends AbstractFunctionTest {
                 BigDecimal.valueOf(10.0),
                 BigDecimal.valueOf(11.0),
                 BigDecimal.valueOf(12.0));
-        BigDecimal value = func.evaluate(valueList, 10);
+        Vector.VectorBuilder vb = Vector.builder().setValues(valueList);
+        BigDecimal value = func.evaluate(vb, 10);
 
         assertEquals(null, value);
     }

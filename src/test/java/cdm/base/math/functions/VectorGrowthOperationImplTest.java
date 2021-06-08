@@ -1,5 +1,6 @@
 package cdm.base.math.functions;
 
+import cdm.base.math.Vector;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,8 @@ public class VectorGrowthOperationImplTest  extends AbstractFunctionTest {
                 BigDecimal.valueOf(1.21),
                 BigDecimal.valueOf(1.21 * 0.9));
 
-        check(expected, vectorGrowthOp.evaluate(initVal, factors));
+        Vector.VectorBuilder vb = Vector.builder().setValues(factors);
+        check(expected, vectorGrowthOp.evaluate(initVal, vb).getValues());
     }
 
     void check(List<BigDecimal> expected, List<? extends BigDecimal> actual) {

@@ -1,31 +1,31 @@
 package cdm.base.datetime.functions;
 
-import cdm.base.datetime.BusinessCenterEnum;
-import cdm.base.datetime.BusinessCenters;
-//import cdm.base.datetime.DateCollection;
-import cdm.base.datetime.DateCollection;
+import cdm.base.datetime.*;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
+import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.lib.validation.ModelObjectValidator;
 
 import java.util.*;
 
 public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHolidays{
-    protected static Map<String, List<Date>> cache = new HashMap<>();
+    protected static Map<String, DateGroup.DateGroupBuilder> cache = new HashMap<>();
     protected static Map<BusinessCenterEnum, List<Date>> holidayData = new HashMap<>();
 
-    @Override
-    protected List<Date> doEvaluate(BusinessCenters businessCenters) {
+
+    protected DateGroup.DateGroupBuilder doEvaluate(BusinessCenters businessCenters) {
+        objectValidator = new NoOpValidator();
         String key = getKey(businessCenters);
-        List<Date> cached = cache.get(key);
-        if (cached != null) return cached;
-        List<Date> generated = generateHolidayList(businessCenters);
+        DateGroup cached = cache.get(key);
+        if (cached != null) return cached.toBuilder();
+        DateGroup.DateGroupBuilder generated = generateHolidayList(businessCenters);
         cache.put(key, generated);
-        return generated;
+        return generated.toBuilder();
     }
 
 
-    private List<Date> generateHolidayList(BusinessCenters bcs) {
+    private DateGroup.DateGroupBuilder generateHolidayList(BusinessCenters bcs) {
         List<? extends FieldWithMetaBusinessCenterEnum> bcl =  getBC(bcs);
         Set<Date> newHols = new TreeSet<>();
         for (FieldWithMetaBusinessCenterEnum bc: bcl) {
@@ -34,10 +34,9 @@ public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHo
         }
         List<Date> result = new ArrayList<>(newHols.size());
         result.addAll(newHols);
-        return result;
-        //DateCollection.DateCollectionBuilder builder = DateCollection.builder();
-        //builder.addDatelist(result);
-        //return builder;
+        DateGroup.DateGroupBuilder ret = DateGroup.builder().setDates(result);
+        return ret;
+
     }
 
     private List<Date> getHolidays(FieldWithMetaBusinessCenterEnum bc) {
@@ -70,5 +69,15 @@ public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHo
             return getBC(refBC);
         }
         return bc.getBusinessCenter();
+    }
+
+    private class NoOpValidator implements ModelObjectValidator {
+        @Override
+        public <T extends RosettaModelObject> void validateAndFailOnErorr(Class<T> topClass, T modelObject) {
+        }
+
+        @Override
+        public <T extends RosettaModelObject> void validateAndFailOnErorr(Class<T> topClass, List<? extends T> modelObjects) {
+        }
     }
 }

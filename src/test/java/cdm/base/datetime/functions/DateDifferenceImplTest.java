@@ -14,7 +14,7 @@ public class DateDifferenceImplTest extends AbstractFunctionTest {
     private DateDifference func;
 
     @Test
-    void shouldSubtraactDays() {
+    void shouldSubtractDays() {
 
 
         Date first = DateImpl.of(2021, 5, 12);
@@ -23,8 +23,8 @@ public class DateDifferenceImplTest extends AbstractFunctionTest {
         Integer res1 = func.evaluate(first, second);
         Integer res2 = func.evaluate(second, first);
 
-        assertEquals(-31, res1.intValue());
-        assertEquals(31, res2.intValue());
+        assertEquals(31, res1.intValue());
+        assertEquals(-31, res2.intValue());
     }
 
 }

@@ -7,10 +7,10 @@ import java.time.LocalDate;
 
 public class DateDifferenceImpl extends DateDifference{
     @Override
-    protected Integer doEvaluate(Date leftDate, Date rightDate) {
-       LocalDate left = leftDate.toLocalDate();
-       LocalDate right = rightDate.toLocalDate();
-       Duration dur =  Duration.between(right.atStartOfDay(), left.atStartOfDay());
+    protected Integer doEvaluate(Date firstDate, Date secondDate) {
+       LocalDate second = secondDate.toLocalDate();
+       LocalDate first = firstDate.toLocalDate();
+       Duration dur =  Duration.between(first.atStartOfDay(), second.atStartOfDay());
        int diff = (int) dur.toDays();
        return Integer.valueOf(diff);
     }

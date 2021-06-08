@@ -82,7 +82,7 @@ func RetrieveBusinessCenterHolidays: <"Returns a merged list of holidays for the
 	inputs:
 		businessCenters BusinessCenters(1..1) <"The business centers for which the holiday list is required">
 	output:
-		holidays date(0..*)	<"The combined list of holidays in all of the supplied business centers">
+		holidays DateGroup(0..1)	<"The combined list of holidays in all of the supplied business centers">
 
 
 func DayOfWeek: <"returns the day of week corresponding to the supplied date">
@@ -98,32 +98,41 @@ func AddDays: <"adds the specified number of calendar days to the supplied date.
 	output:
 		resultDate date(1..1)  <"The date shifted by the specified number of days">
 
-func DateDifference: <"subtracts the two supplied dates to return the number of calendar days between them .  A negative number implies right is after left.">
+func DateDifference: <"subtracts the two supplied dates to return the number of calendar days between them .  A negative number implies first is after second.">
 	inputs:
-		leftDate	date(1..1) <"The left side of the subtraction.   ">
-		rightDate  date(1..1) <"The right side of the subtraction">
+		firstDate	date(1..1) <"The earlier date.   ">
+		secondDate  date(1..1) <"The later date.">
 	output:
-		difference int(1..1)  <"The number of calendar days leftDate date is after rightDate.  Negative means leftDate is before rightDate.">
+		difference int(1..1)  <"The number of calendar days second date is after firstDate.  Negative means secondDate is before firstDate.">
+
+func LeapYearDateDifference: <"subtracts the two supplied dates to return the number of leap year calendar days between them .  A negative number implies firstDate is after secondDate.">
+	inputs:
+		firstDate	date(1..1) <"The left side of the subtraction.   ">
+		secondDate  date(1..1) <"The right side of the subtraction">
+	output:
+		difference int(1..1)  <"The number of leap year calendar days secondDate is after firstDate.  Negative means secondDate is before firstDate.">
 
 func SelectDate: <"Select a date from a list of dates based on index.  If not found return nothing.">
 	inputs:
-		dateList date(0..*)  <"list to select from">
+		dates DateGroup(1..1)  <"list to select from">
 		position int(1..1)	<"index to look up">
 	output:
 		date date(0..1)  <"the selected date">
 	
 func AppendDateToList: <"Add a date to a list of dates">
 	inputs:
-		dateList date(0..*) <"list of dates">
+		origDates DateGroup(1..1) <"list of dates">
 		newDate date(1..1)	<"date to add to the list">
 	output:
-		newList date(1..*)	<"the newly increased list">
-		
+		newList DateGroup(0..1)	<"the newly increased list">
+
+
+
 func PopOffDateList:  <"Remove last element from a list of dates">
 	inputs:
-		dateList date(0..*) <"list of dates">
+		dates DateGroup(1..1) <"list of dates">
 	output:
-		newList date(0..*)	<"the newly created list, omitting the last element of the original list">
+		newList DateGroup(1..1)	<"the newly created list, omitting the last element of the original list">
 		
 // the following are implemented in Rosetta based on the above primitives
 func IsWeekend: <"returns whether the supplied date is a weekend.  This assumes a 5 day week with Saturday and Sunday as holidays.  A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.">
@@ -147,10 +156,10 @@ func IsHoliday: <"Returns whether a day is a holiday for the specified business 
 		isHoliday boolean(1..1) <"true if the supplied date is a holiday">
 
 	// get the combined list of holidays for the supplied business centers
-	//alias holidays : RetrieveBusinessCenterHolidays(businessCenters)
+	alias holidays : RetrieveBusinessCenterHolidays(businessCenters)
 	
 	// check if the supplied date is contained in the holiday list
-	//assign-output isHoliday : holidays->datelist contains checkDate
+	assign-output isHoliday : holidays->dates contains checkDate
 
 
 func IsBusinessDay: <"returns an indicator of whether the supplied date is a good business date given the supplied business centers.  True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday">
@@ -190,21 +199,22 @@ func AddBusinessDays: <"Returns a good business date that has been offset by the
 	assign-output shiftedDate : newDate
 
 func GenerateDateList: <"Creates a list of good business days starting from the startDate and going to the end date, inclusive, omitting any days that are weekends or holidays according to the supplied business centers.">
+[calculation]
 	inputs:
 		startDate date(1..1) <" start of the date range to be generated">
 		endDate date(1..1) <" end of the date range to be generated">
 		businessCenters BusinessCenters(1..1)	<"business centers to be used to generate the list of good business days">
 	output:
-		dateList date(0..*) <" resulting list of good business days">
+		datelist DateGroup(1..1) <" resulting list of good business days">
 	alias active : startDate <= endDate		// do we have anything to do?  Nothing to do if start date is after end date
 	alias isGoodBusinessDay : IsBusinessDay(endDate, businessCenters)		// is endDate a good business day?
 	alias priorDate : AddBusinessDays(endDate, -1, businessCenters)			// find the previous good business day before the endDate
-//	alias priorList : GenerateDateList(startDate, priorDate, businessCenters)	// recursively find the list of dates from the start to the prior business day
+	alias priorList : GenerateDateList(startDate, priorDate, businessCenters)	// recursively find the list of dates from the start to the prior business day
 	// add the current end date to the previous list if it is a good business day  (the test handles the case when the first supplied end date is not a business day)
-//	alias newList : if isGoodBusinessDay then AppendDateToList(priorList, endDate) else priorList
-//	assign-output dateList : if  active then  newList   // else empty list
+	alias newList : if isGoodBusinessDay then AppendDateToList(priorList, endDate) else priorList
+	assign-output datelist : if  active then  newList
 
-
+/*
 
 func AdjustDate: <"Returns a date that has been adjusted by the supplied BusinessDayConvention with the supplied BusinessCenters">
 	inputs:
@@ -212,3 +222,4 @@ func AdjustDate: <"Returns a date that has been adjusted by the supplied Busines
 		businessDayConvention BusinessDayConventionEnum(1..1)	<" business day convention to use in the adjustment">
 		businessCenters BusinessCenters(1..1)	<" business centers to use in the adjustment">
 	output: adjustedDate date(1..1)
+*/

@@ -1,6 +1,8 @@
 package cdm.base.datetime.functions;
 
 import cdm.base.datetime.BusinessCenters;
+
+import cdm.base.datetime.DateGroup;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
@@ -55,16 +57,18 @@ public class GenerateDateListTest  extends AbstractFunctionTest {
                 DateImpl.of(2021, 12,29),
                 DateImpl.of(2021, 12,30));
 
+        check(List.of(), func.evaluate(last, first, targetBC));
         check(targetExpected, func.evaluate(first, last, targetBC));
         check(londonTargetExpected, func.evaluate(first, last, londonTargetBC));
         check(londonTargetUsExpected, func.evaluate(first, last, londonTargetUsBC));
         check(londonTargetUsExpected, func.evaluate(DateImpl.of(2021, 12, 20), DateImpl.of(2021, 12, 30), londonTargetUsBC));
-        check(List.of(), func.evaluate(last, first, targetBC));
     }
 
 
 
-    void check(List<Date> expected, List<? extends Date> actual) {
+    void check(List<Date> expected, DateGroup actualList) {
+        if (actualList == null && expected.size() == 0) return;
+        List<? extends Date> actual = actualList.getDates();
         assertEquals(expected.size(), actual.size());
         int n = expected.size();
         for(int i = 0; i < n; i++) {

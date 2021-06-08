@@ -2,13 +2,13 @@ package cdm.base.datetime.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenters;
-import cdm.base.datetime.DateCollection;
+import cdm.base.datetime.DateGroup;
 import com.google.inject.Inject;
-import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
-
+import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.lib.records.DateImpl;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -136,8 +136,8 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
         func.setHolidays(target,targetHolidays2021);
     }
 
-    void check(List<? extends Date> expected, DateCollection actualCollection) {
-        List<? extends Date> actual = actualCollection.getDatelist();
+    void check(List<? extends Date> expected, DateGroup actualCollection) {
+        List<? extends Date> actual = actualCollection.getDates();
         check(expected, actual);
     }
 
