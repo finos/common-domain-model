@@ -62,11 +62,7 @@ public class IndexValueObservationImpl extends IndexValueObservation {
         }
     }
     public void setValue(FloatingRateOption fro, Date date, double value) {
-        Map valueMap = indexData.get(getKey(fro));
-        if (valueMap == null) {
-            valueMap = new HashMap();
-            indexData.put(getKey(fro), valueMap);
-        }
+        Map<Date, BigDecimal> valueMap = indexData.computeIfAbsent(getKey(fro), k -> new HashMap<>());
         valueMap.put(date, BigDecimal.valueOf(value));
     }
 

@@ -16,10 +16,7 @@ public class IndexValueObservationMultipleImpl  extends IndexValueObservationMul
         }
         IndexValueObservationImpl obs = IndexValueObservationImpl.getInstance();
         List<Date> dates = new ArrayList<>(observationDate.size());
-        for (int i = 0; i < observationDate.size(); i++) {
-            Date myDate = observationDate.get(i);
-            dates.add(myDate);
-        }
+        dates.addAll(observationDate);
         List<? extends BigDecimal> vals = obs.getValues(dates, floatingRateOption);
         Vector.VectorBuilder vb = Vector.builder();
         if (vals != null) vb.addValues(vals);
