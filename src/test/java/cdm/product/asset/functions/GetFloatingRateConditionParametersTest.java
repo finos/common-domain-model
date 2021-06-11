@@ -2,6 +2,7 @@ package cdm.product.asset.functions;
 
 import cdm.base.math.RateSchedule;
 import cdm.base.math.Step;
+import cdm.observable.asset.FloatingRateOption;
 import cdm.observable.asset.Price;
 import cdm.product.asset.*;
 import cdm.product.common.schedule.CalculationPeriodBase;
@@ -26,48 +27,60 @@ public class GetFloatingRateConditionParametersTest extends AbstractFunctionTest
     void shouldInitializeValues() {
         InterestRatePayout interestRatePayout = initInterestPayout();
 
-        CalculationPeriodBase dec2020 = CalculationPeriodBase.builder()
-                    .setAdjustedStartDate(DateImpl.of(2020, 12, 10))
-                    .setAdjustedEndDate(DateImpl.of(2020, 12, 10))
-                .build();
-        CalculationPeriodBase dec2021 = CalculationPeriodBase.builder()
-                .setAdjustedStartDate(DateImpl.of(2021, 12, 10))
-                .setAdjustedEndDate(DateImpl.of(2021, 12, 10))
-                .build();
+        CalculationPeriodBase dec2020 = period(date(2020, 12, 10), date(2020, 12, 10));
+        CalculationPeriodBase dec2021 = period(date(2021, 12, 10), date(2021, 12, 10));
 
         check(expectedParms(0.075, 0.020, 0.0023), func.evaluate(interestRatePayout, dec2021));
         check(expectedParms(0.055, 0.004, 0.0018), func.evaluate(interestRatePayout, dec2020));
     }
 
+    public static Date date(int yy, int mm, int dd) {
+        return DateImpl.of(yy,mm,dd);
+    }
 
-    InterestRatePayout initInterestPayout() {
+    public static CalculationPeriodBase period (Date start, Date end) {
+        return CalculationPeriodBase.builder()
+                .setAdjustedStartDate(start)
+                .setAdjustedEndDate(end)
+                .build();
+    }
+
+    public static InterestRatePayout initInterestPayout() {
+
+        return InterestRatePayout.builder()
+                .setPayoutQuantity(LookupNotionalAmountTest.initNotionalSchedule())
+                .setRateSpecification(RateSpecification.builder()
+                        .setFloatingRate(initFloatingRate(null)).build())
+                .build();
+    }
+
+    public static FloatingRateSpecification initFloatingRate (FloatingRateOption fro) {
         double[] capRates = {0.06, 0.065, 0.07, 0.075};
         double[] floorRates = {0.005, 0.01, 0.015, 0.020};
         double[] spreadRates = {0.002, 0.0021, 0.0022, 0.0023};
-        InterestRatePayout interestRatePayout = InterestRatePayout.builder()
-                .setPayoutQuantity(LookupNotionalAmountTest.initNotionalSchedule())
-                .setRateSpecification(RateSpecification.builder()
-                        .setFloatingRate(FloatingRateSpecification.builder()
-                                .addCapRateSchedule(generateStrikeSchedule(0.055, capRates))
-                                .addFloorRateSchedule(generateStrikeSchedule(0.004, floorRates)
-                                        .build())
-                                .addSpreadSchedule(generateSpreadSchedule(0.0018, spreadRates))
-                        )
-                        .build()).build();
-        return interestRatePayout;
+        FloatingRateSpecification.FloatingRateSpecificationBuilder rateSpec =  FloatingRateSpecification.builder()
+                .addCapRateSchedule(generateStrikeSchedule(0.055, capRates))
+                .addFloorRateSchedule(generateStrikeSchedule(0.004, floorRates)
+                        .build())
+                .addSpreadSchedule(generateSpreadSchedule(0.0018, spreadRates)
+                        .build());
+        if (fro !=null)
+            rateSpec.setRateOptionValue(fro);
+
+        return rateSpec.build();
     }
 
-    SpreadSchedule generateSpreadSchedule(double initVal, double[] sched) {
+    static SpreadSchedule generateSpreadSchedule(double initVal, double[] sched) {
         return (SpreadSchedule) initSchedule(SpreadSchedule.builder(), initVal, sched);
     }
-    StrikeSchedule generateStrikeSchedule(double initVal, double[] sched) {
+    static StrikeSchedule generateStrikeSchedule(double initVal, double[] sched) {
         return (StrikeSchedule) initSchedule(StrikeSchedule.builder(), initVal, sched);
     }
-    RateSchedule generateRateSchedule(double initVal, double[] sched) {
+    static RateSchedule generateRateSchedule(double initVal, double[] sched) {
         return initSchedule(RateSchedule.builder(), initVal, sched);
     }
 
-    RateSchedule initSchedule(RateSchedule.RateScheduleBuilder scheduleBuilder, double initVal, double[] sched) {
+    static RateSchedule initSchedule(RateSchedule.RateScheduleBuilder scheduleBuilder, double initVal, double[] sched) {
         List<Date> dates = List.of(
                 DateImpl.of(2021, 3, 10),
                 DateImpl.of(2021, 6, 10),

@@ -277,7 +277,7 @@ func DividendCashSettlementAmount: <"Based on the following legal text: means, i
 
 // BAL additions for new calculated rates //
 
-/*
+
 func IndexValueObservation: <"BAL addition>> Retrieve the values of the supplied index on the specified observation date">
 	inputs:
 		observationDate date(1..1)
@@ -290,7 +290,7 @@ func IndexValueObservationMultiple: <"BAL addition>> Retrieve the values of the 
 		observationDate date(0..*)
 		floatingRateOption FloatingRateOption(1..1)
 	output:
-		observedValue number(0..*)
+		observedValues Vector(1..1)
 
 
 
@@ -330,7 +330,7 @@ func FloatingAmountCalculation: <"Calculate a floating amount for a calculation 
 		interestRatePayout InterestRatePayout (1..1) <"The interest rate stream for which the floating amount calculation is being done">
 		calculationPeriod CalculationPeriodBase(1..1) <"The calculation period for which the floating rate calculation is being done">
 	output:
-	    result FloatingAmountCalculationDetails(1..1) <"The detailed of the floating rate calculation, including raw rate, rate treatment details, notional, and calculated cashlow amount">
+	    result FloatingAmountCalculationDetails(1..1) <"The details of the floating rate calculation, including raw rate, rate treatment details, notional, and calculated cashlow amount">
 
 	//alias numDays : CalculatePeriodLength(calculationPeriod)
 
@@ -368,7 +368,7 @@ func DetermineFloatingRateReset: <"Get the value of a floating rate by either ob
 	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)	<"Floating rate stream definition">
-		calculationPeriod CalculationPeriodBase(1..1)	<"The calculation period for which you want the rate">
+		calcPeriod CalculationPeriodBase(1..1)	<"The calculation period for which you want the rate">
 	output:
 		floatingRate FloatingRateSettingDetails(1..1)	<"Details of the rate observation/calculation">
 
@@ -377,22 +377,18 @@ func DetermineFloatingRateReset: <"Get the value of a floating rate by either ob
 	alias	isCalculatedRate : rateDef->calculationParameters exists
 	alias resetDates : interestRatePayout->resetDates
 	alias dayCount : interestRatePayout->dayCountFraction
-	alias priorCalculationPeriod : FindPriorCalculationPeriod(interestRatePayout, calculationPeriod)
+	alias priorCalculationPeriod : CalculationPeriod(interestRatePayout -> calculationPeriodDates, calcPeriod->adjustedStartDate)
 	alias fro : rateDef->rateOption
 	alias calcParams : rateDef->calculationParameters
 
 	// perform the relevant operation (look up a term rate or do the rate calculation for a calculated rate)
 	assign-output floatingRate :
-			if isCalculatedRate then EvaluateCalculatedRate(fro, calcParams,  resetDates, calculationPeriod, priorCalculationPeriod, dayCount)
-			else EvaluateTermRate(rateDef, resetDates, calculationPeriod)
+//			if isCalculatedRate then EvaluateCalculatedRate(fro, calcParams,  resetDates, calcPeriod, priorCalculationPeriod, dayCount)
+//			else
+			EvaluateTermRate(rateDef, resetDates, calcPeriod)
 
 
-func FindPriorCalculationPeriod: <"Given a floating interest stream and a calculation period, find the corresponding prior calculation period, deemed or actual">
-	inputs:
-		interestRatePayout InterestRatePayout (1..1)	<"Floating rate stream definition">
-		calculationPeriod CalculationPeriodBase(1..1)	<"The calculation period for which you want the prior period">
-	output:
-		priorPeriod CalculationPeriodBase(0..1) <"The deemed or actual prior calculation period">
+
 
 
 func EvaluateTermRate: <"Evaluate/lookup the value of a term rate">
@@ -409,7 +405,7 @@ func EvaluateTermRate: <"Evaluate/lookup the value of a term rate">
 	alias isStart : resetRelativeTo = ResetRelativeToEnum->CalculationPeriodStartDate
 	alias resetDate : if (isStart) then calculationPeriod->adjustedStartDate else calculationPeriod->adjustedEndDate
 	alias fixingOffsetDays : resetDates->fixingDates->periodMultiplier
-	alias fixingDate : AddBusinessDays(resetDate, fixingOffsetDays, resetDates->resetDatesAdjustments->businessCenters)
+	alias fixingDate : AddBusinessDays(resetDate, fixingOffsetDays, resetDates->fixingDates->businessCenters)
 	// look up the rate on that date
 	alias observedRate : IndexValueObservation(fixingDate, rateDef->rateOption)
 
@@ -417,7 +413,7 @@ func EvaluateTermRate: <"Evaluate/lookup the value of a term rate">
 	assign-output details->resetDate : resetDate
 	assign-output details->observationDate : fixingDate
 	assign-output details->floatingRate : observedRate
-*/
+
 
 func GetFloatingRateConditioningParameters: <"Determine the conditioning parameters to use from the InterestRatePayout by looking them up if necessary from the corresponding schedules">
 inputs:
@@ -461,14 +457,16 @@ func ApplyFloatingRateConditioning: <"Perform rate treatments on floating rates,
 
 	// perform rate treatment calculations
 
-	alias	cappedRate :		if cap exists and rawRate > cap then  cap else rawRate
-	alias	flooredRate : 		if floor exists and cappedRate < floor then floor else cappedRate
-    alias   multiplied :        flooredRate * multiplier
-	alias	multipliedRate : 	if multiplier exists then multiplied else flooredRate
+    alias   multiplied :        rawRate * multiplier
+	alias	multipliedRate : 	if multiplier exists then multiplied else rawRate
 	alias   added :             multipliedRate + spreadRate
 	alias	ratePlusSpread :  	if spreadRate exists then added else multipliedRate
-//	alias	treatedRate :		if treatment exists then ApplyRateTreatment(ratePlusSpread, treatment) else ratePlusSpread
-    alias   treatedRate :       ratePlusSpread    // TODO: rate treatment not currently implemented
+	alias	cappedRate :		if cap exists and ratePlusSpread > cap then  cap else ratePlusSpread
+	alias	flooredRate : 		if floor exists and cappedRate < floor then floor else cappedRate
+
+//	alias	treatedRate :		if treatment exists then ApplyRateTreatment(flooredRate, treatment) else flooredRate
+    alias   treatedRate :       flooredRate
+    // TODO: rate treatment not currently implemented
 	// TODO: final rate rounding and negative interest treatment not currently implemented
 //	alias	roundedRate:		if rounding exists then ApplyFinalRateRounding(treatedRate, rounding) else flooredRate
 //	alias	negativeTreatedRate:	if negativeTreatment exists then ApplyNegativeInterestTreatment(roundedRate, negativeTreatment) else roundedRate

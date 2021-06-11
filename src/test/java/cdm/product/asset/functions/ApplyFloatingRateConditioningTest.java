@@ -31,7 +31,7 @@ public class ApplyFloatingRateConditioningTest extends AbstractFunctionTest {
 
 
         assertEquals(BigDecimal.valueOf(0.032), func.evaluate(params, BigDecimal.valueOf(0.03)).getConditionedRate());
-        assertEquals(BigDecimal.valueOf(0.052), func.evaluate(params, BigDecimal.valueOf(0.06)).getConditionedRate());
+        assertEquals(BigDecimal.valueOf(0.05), func.evaluate(params, BigDecimal.valueOf(0.06)).getConditionedRate());
         assertEquals(BigDecimal.valueOf(0.03), func.evaluate(params2, BigDecimal.valueOf(0.03)).getConditionedRate());
 
 

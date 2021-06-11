@@ -30,13 +30,11 @@ public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHo
         Set<Date> newHols = new TreeSet<>();
         for (FieldWithMetaBusinessCenterEnum bc: bcl) {
             List<Date>  holidays = getHolidays(bc);
-            newHols.addAll(holidays);
+            if(holidays!= null) newHols.addAll(holidays);
         }
         List<Date> result = new ArrayList<>(newHols.size());
         result.addAll(newHols);
-        DateGroup.DateGroupBuilder ret = DateGroup.builder().setDates(result);
-        return ret;
-
+        return DateGroup.builder().setDates(result);
     }
 
     private List<Date> getHolidays(FieldWithMetaBusinessCenterEnum bc) {

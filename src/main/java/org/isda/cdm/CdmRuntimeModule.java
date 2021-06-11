@@ -81,6 +81,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 		bind(SelectScheduleStep.class).to(bindSelectScheduleStep());
 		bind(SelectNonNegativeScheduleStep.class).to(bindSelectNonNegativeScheduleStep());
+		bind(IndexValueObservation.class).to(bindIndexValueObservation());
+		bind(IndexValueObservation.class).to(bindIndexValueObservation());
+		bind(IndexValueObservationMultiple.class).to(bindIndexValueObservationMultiple());
 	}
 
 	protected Class<? extends FilterSecurityTransfers> bindFilterSecurityTransfers() {
@@ -204,7 +207,8 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends SelectScheduleStep> bindSelectScheduleStep() { return SelectScheduleStepImpl.class; }
 	protected Class<? extends SelectNonNegativeScheduleStep> bindSelectNonNegativeScheduleStep() { return SelectNonNegativeScheduleStepImpl.class; }
-
+	protected Class<? extends IndexValueObservation> bindIndexValueObservation() { return IndexValueObservationImpl.class; }
+	protected Class<? extends IndexValueObservationMultiple> bindIndexValueObservationMultiple() { return IndexValueObservationMultipleImpl.class; }
 
 	protected Class<? extends Today> bindToday() {
 		return TodayImpl.class;
