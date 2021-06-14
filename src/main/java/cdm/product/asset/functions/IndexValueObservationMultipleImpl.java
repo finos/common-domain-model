@@ -1,5 +1,6 @@
 package cdm.product.asset.functions;
 
+import cdm.base.datetime.DateGroup;
 import cdm.base.math.Vector;
 import cdm.observable.asset.FloatingRateOption;
 import com.rosetta.model.lib.records.Date;
@@ -10,7 +11,8 @@ import java.util.List;
 
 public class IndexValueObservationMultipleImpl  extends IndexValueObservationMultiple{
     @Override
-    protected Vector.VectorBuilder doEvaluate(List<? extends Date> observationDate, FloatingRateOption floatingRateOption) {
+    protected Vector.VectorBuilder doEvaluate(DateGroup observationDates, FloatingRateOption floatingRateOption) {
+        List<? extends Date> observationDate = observationDates.getDates();
         if (observationDate==null || observationDate.size() ==0) {
             return Vector.builder();
         }

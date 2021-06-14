@@ -21,6 +21,7 @@ import cdm.observable.common.functions.CurrencyAmountImpl;
 import cdm.observable.common.functions.NoOfUnits;
 import cdm.observable.common.functions.NoOfUnitsImpl;
 import cdm.product.asset.functions.*;
+import cdm.product.asset.functions.LastInDateList;
 import cdm.product.common.schedule.functions.CalculationPeriod;
 import cdm.product.common.schedule.functions.CalculationPeriodImpl;
 import cdm.product.template.functions.FpmlIrd8;
@@ -46,6 +47,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Sum.class).to(bindSum());
 		bind(AppendToVector.class).to(bindAppendToVector());
 		bind(SelectFromVector.class).to(bindSelectFromVector());
+		bind(LastInVector.class).to(bindLastInVector());
 		bind(ListsCompare.class).to(bindListsCompare());
 		bind(VectorOperation.class).to(bindVectorOperation());
 		bind(VectorScalarOperation.class).to(bindVectorScalarOperation());
@@ -68,6 +70,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Today.class).to(bindToday());
 		bind(SelectDate.class).to(bindSelectDate());
 		bind(AppendDateToList.class).to(bindAppenDateToList());
+		bind(LastInDateList.class).to(bindLastInDateList());
 		bind(AddDays.class).to(bindAddDays());
 		bind(PopOffDateList.class).to(bindPopOffDateList());
 		bind(RetrieveBusinessCenterHolidays.class).to(bindRetrieveBusinessCenterHolidays());
@@ -104,6 +107,7 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends SelectFromVector> bindSelectFromVector() {
 		return SelectFromVectorImpl.class;
 	}
+	protected Class<? extends LastInVector> bindLastInVector() { return LastInVectorImpl.class; }
 	protected Class<? extends AppendToVector> bindAppendToVector() { return AppendToVectorImpl.class; }
 	protected Class<? extends VectorOperation> bindVectorOperation() {
 		return VectorOperationImpl.class;
@@ -184,9 +188,8 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends Now> bindNow() {
 		return NowImpl.class;
 	}
-	protected Class<? extends AppendDateToList> bindAppenDateToList() {
-		return AppendDateToListImpl.class;
-	}
+	protected Class<? extends AppendDateToList> bindAppenDateToList() { return AppendDateToListImpl.class; }
+	protected Class<? extends LastInDateList> bindLastInDateList() { return LastInDateListImpl.class; }
 	protected Class<? extends SelectDate> bindSelectDate() {
 		return SelectDateImpl.class;
 	}

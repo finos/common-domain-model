@@ -27,9 +27,11 @@ import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
 
-class CalculationPeriodImplTest extends AbstractFunctionTest {
+public class CalculationPeriodImplTest extends AbstractFunctionTest {
 	
 	@Inject CalculationPeriod calculationPeriod;
+
+	public CalculationPeriodDates initDates () { return calculationPeriodDates;}
 
     private final CalculationPeriodDates calculationPeriodDates = CalculationPeriodDates.builder()
             .setEffectiveDate((AdjustableOrRelativeDate.builder()

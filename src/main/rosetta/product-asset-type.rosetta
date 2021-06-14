@@ -557,6 +557,7 @@ type FloatingAmountCalculationDetails:  <"Type for reporting the detailed result
     floatingRate        FloatingRateSettingDetails(0..1)    <"The details of the floating rate settting.  (If it is a calculated rate, details of that calculation will be inside that.">
     conditioningDetails  FloatingRateConditioningDetails(0..1)    <"Details fo the floating rate treatment after the rate is observed or calculated.  This will include details of things like multipliers, spreads, caps and floors, and the raw and treated rates.">
     appliedRate  number(1..1)   <"The rate that was actually applied, after all calculations and treatments">
+    yearFraction number(1..1) <"The fraction of a year that this calculation represents, according to the day count fraction method">
     calculatedAmount number(1..1)   <"The amount of the cash flow that was computed">
 
 type FloatingRateSettingDetails: <"Type for reporting the raw (untreated) observed or calculated rate for a calculation period.  If this is a calculated rate, it allows details of the observations and the resulting rate to be returned ">
@@ -567,23 +568,23 @@ type FloatingRateSettingDetails: <"Type for reporting the raw (untreated) observ
 
 type CalculatedRateDetails: <"Type for reporting details of calculated rates, including the observations that went into the final reported rate">
 	observations CalculatedRateObservations(0..1)  <"the observation dates and weights for each observation date">
-	weightedRates   number(0..*)  	<"the weighted value of each obervation">
-	growthFactor   number(0..*)		<"The daily growth factors, showing the weighted rates divided by the day count basis plus one, giving how much the value grows for each step in the calculation">
-	compoundedGrowth  number(0..*)	<"The compounding curve, showing how the initial value grew during the calculation period">
+	weightedRates   Vector(1..1) 	<"the weighted value of each obervation">
+	growthFactor   Vector(1..1)		<"The daily growth factors, showing the weighted rates divided by the day count basis plus one, giving how much the value grows for each step in the calculation">
+	compoundedGrowth  Vector(1..1)	<"The compounding curve, showing how the initial value grew during the calculation period">
 	aggregateValue  number(0..1)	<"The total sum or product of all the individual terms that went into the calculated rate">
 	aggregateWeight number(0..1)	<"The total weight of all the terms that went into the calculated rate">
 	calculatedRate 	number(0..1)	<"The resulting calculated weight">
-//	weight  		number(0..*)	<" the weight for each observation">
+//	weight  		Vector(1..1)	<" the weight for each observation">
 
 type CalculatedRateObservations: <"Type for reporting observations that went into the final reported rate">
-	observationDates date(0..*) <"The observation date upon which the rate is observed">
-	weights number(0..*)	<"The corresponding weight for each date">
-	observedRates number(0..*) <"The value observed for that date">
-	processedRates number(0..*) <"The value after any processing, such as application of caps or floors">
+	observationDates DateGroup(1..1) <"The observation date upon which the rate is observed">
+	weights Vector(1..1)	<"The corresponding weight for each date">
+	observedRates Vector(1..1) <"The value observed for that date">
+	processedRates Vector(1..1) <"The value after any processing, such as application of caps or floors">
 
 type CalculatedRateObservationDatesAndWeights: <"Type for reporting the observations dates and the corresponding weights going into a daily calculated rate">
-	observationDates date(0..*) <"The observation date upon which the rate is observed">
-	weights number(0..*)	<"The corresponding weight for each date">
+	observationDates DateGroup(1..1) <"The observation date upon which the rate is observed">
+	weights Vector(1..1)	<"The corresponding weight for each date">
 
 
 

@@ -5,10 +5,7 @@ import cdm.product.common.schedule.CalculationPeriodData.CalculationPeriodDataBu
 import cdm.product.common.schedule.CalculationPeriodDates;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.basics.schedule.Schedule;
-import com.opengamma.strata.basics.schedule.SchedulePeriod;
-import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.schedule.*;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 
@@ -28,6 +25,19 @@ public class CalculationPeriodImpl extends CalculationPeriod {
 
     @Override
     protected CalculationPeriodDataBuilder doEvaluate(CalculationPeriodDates calculationPeriodDates, Date date) {
+        LocalDate effDate = calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate().toLocalDate();
+        LocalDate termDate = calculationPeriodDates.getTerminationDate().getAdjustableDate().getUnadjustedDate().toLocalDate();
+        Frequency freq = getFrequency(calculationPeriodDates);
+        RollConvention roll = getRollConvention(calculationPeriodDates);
+
+        PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
+                effDate,
+                termDate,
+                freq,
+                BusinessDayAdjustment.NONE,
+                StubConvention.NONE,
+                roll);
+        /*
     	PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
 				calculationPeriodDates.getEffectiveDate().getAdjustableDate().getUnadjustedDate().toLocalDate(),
 				calculationPeriodDates.getTerminationDate().getAdjustableDate().getUnadjustedDate().toLocalDate(),
@@ -35,6 +45,7 @@ public class CalculationPeriodImpl extends CalculationPeriod {
 				BusinessDayAdjustment.NONE,
 				StubConvention.NONE,
 				getRollConvention(calculationPeriodDates));
+         */
 
 		Schedule schedule = periodicSchedule.createSchedule(ReferenceData.minimal());
 

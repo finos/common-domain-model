@@ -1,5 +1,6 @@
 package cdm.product.asset.functions;
 
+import cdm.base.datetime.DateGroup;
 import cdm.base.math.Vector;
 import cdm.observable.asset.FloatingRateOption;
 import com.google.inject.Inject;
@@ -30,6 +31,7 @@ public class IndexValueObservationMultipleImplTest extends AbstractFunctionTest 
                 DateImpl.of(2021,1,1),
                 DateImpl.of(2021,6,1),
                 DateImpl.of(2021,7,1));
+        DateGroup dg = DateGroup.builder().addDates(dates).build();
 
         List<BigDecimal> expected = List.of(
                             BigDecimal.valueOf(0.033),
@@ -39,7 +41,7 @@ public class IndexValueObservationMultipleImplTest extends AbstractFunctionTest 
                             BigDecimal.valueOf(0.02),
                             BigDecimal.valueOf(0.03));
 
-        check(expected, func.evaluate(dates, fro));
+        check(expected, func.evaluate(dg, fro));
     }
 
     private void check(List<BigDecimal> expected, Vector actual) {

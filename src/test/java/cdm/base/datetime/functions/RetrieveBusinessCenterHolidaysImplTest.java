@@ -23,6 +23,8 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
     public static final BusinessCenterEnum us = BusinessCenterEnum.USGS;
 
     public static final List<Date> londonHolidays2021 = List.of(
+            DateImpl.of(2020,12,25),
+            DateImpl.of(2020,12,28),
             DateImpl.of(2021,1,1),
             DateImpl.of(2021,4,2),
             DateImpl.of(2021,4,5),

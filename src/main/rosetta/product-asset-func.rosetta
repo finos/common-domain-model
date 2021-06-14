@@ -287,7 +287,7 @@ func IndexValueObservation: <"BAL addition>> Retrieve the values of the supplied
 
 func IndexValueObservationMultiple: <"BAL addition>> Retrieve the values of the supplied index on the specified observation dates">
 	inputs:
-		observationDate date(0..*)
+		observationDate DateGroup(1..1)
 		floatingRateOption FloatingRateOption(1..1)
 	output:
 		observedValues Vector(1..1)
@@ -301,12 +301,12 @@ func FloatingAmountEnhanced: <"2006 ISDA Definition Article 6 Section 6.1. Calcu
 		spread number (0..1)		<"This is ignored if provided and instead the spread is obtained from the interest rate payount ">
 		rate number (0..1)			<"This is ignored and instead the rate is obtained by querying the IndexValueObservation function ">
 		quantity Quantity (0..1)	<"This is ignored and instead the notional is determined by querying the noitonal schedule">
-		calculationPeriodEndDate date (1..1)  <"The final date of the calculation period">
+		calculationPeriodStartDate date (1..1)  <"The final date of the calculation period">
 	output:
 	    floatingAmount number (1..1)
 
 	// determine the calculation period corresponding to the supplied end date
-	alias calcPeriod :  CalculationPeriod(interestRatePayout -> calculationPeriodDates, calculationPeriodEndDate)
+	alias calcPeriod :  CalculationPeriod(interestRatePayout -> calculationPeriodDates, calculationPeriodStartDate)
 	//perform the floating amount calculation
 	alias results : FloatingAmountCalculation(interestRatePayout, InitCalculationPeriodBase(calcPeriod))
 	// record the results
@@ -344,12 +344,13 @@ alias conditioningDetails  : ApplyFloatingRateConditioning(conditioningParameter
 
 	alias appliedRate : conditioningDetails-> conditionedRate
 
-
 	//determine notional, year fraction, and perform the final calculation
 	alias notional : LookupNotionalAmount(interestRatePayout, calculationPeriod)
-	alias dayCountFraction : interestRatePayout->dayCountFraction
-	alias yearFraction : DayCountFraction(interestRatePayout, dayCountFraction, calculationPeriod->adjustedEndDate)
-	alias cashflow : notional->amount * appliedRate * yearFraction
+
+	alias dcf : interestRatePayout->dayCountFraction
+	alias yearFraction : DayCountFraction(interestRatePayout, dcf, calculationPeriod->adjustedStartDate)
+	alias annualAccrual : notional->multiplier  * appliedRate
+	alias cashflow : annualAccrual * yearFraction
 
 // record results
 	assign-output result->calculationPeriod : calculationPeriod
@@ -358,6 +359,7 @@ alias conditioningDetails  : ApplyFloatingRateConditioning(conditioningParameter
 	assign-output result->conditioningDetails : conditioningDetails
 	assign-output result->appliedRate : appliedRate
 	//assign-output result->notionalAmount : notional->amount
+	assign-output result->yearFraction : yearFraction
 	assign-output result->calculatedAmount : cashflow
 
 
@@ -446,14 +448,8 @@ func ApplyFloatingRateConditioning: <"Perform rate treatments on floating rates,
 	output:
 		details FloatingRateConditioningDetails(1..1)	<"Results are details of the rate treatment">
 
-
 	alias multiplier : conditioning -> mult
 	alias spreadRate : conditioning -> spread
-	alias  treatment : conditioning -> treatment
-	alias negativeTreatment : conditioning ->negativeTreatment
-	alias rounding : conditioning -> rounding
-	alias cap : conditioning -> capRate
-	alias floor : conditioning -> floorRate
 
 	// perform rate treatment calculations
 
@@ -461,22 +457,50 @@ func ApplyFloatingRateConditioning: <"Perform rate treatments on floating rates,
 	alias	multipliedRate : 	if multiplier exists then multiplied else rawRate
 	alias   added :             multipliedRate + spreadRate
 	alias	ratePlusSpread :  	if spreadRate exists then added else multipliedRate
-	alias	cappedRate :		if cap exists and ratePlusSpread > cap then  cap else ratePlusSpread
-	alias	flooredRate : 		if floor exists and cappedRate < floor then floor else cappedRate
 
-//	alias	treatedRate :		if treatment exists then ApplyRateTreatment(flooredRate, treatment) else flooredRate
-    alias   treatedRate :       flooredRate
-    // TODO: rate treatment not currently implemented
-	// TODO: final rate rounding and negative interest treatment not currently implemented
-//	alias	roundedRate:		if rounding exists then ApplyFinalRateRounding(treatedRate, rounding) else flooredRate
-//	alias	negativeTreatedRate:	if negativeTreatment exists then ApplyNegativeInterestTreatment(roundedRate, negativeTreatment) else roundedRate
-    alias   negativeTreatedRate :   treatedRate
+    alias   cappedAndFloorRate : ApplyCapsAndFloors(conditioning, ratePlusSpread)
+    alias	treatedRate :		ApplyRateTreatments(conditioning, cappedAndFloorRate)
 
 	// record results
 	assign-output	details -> conditioningParameters : conditioning
 	assign-output  details->rawRate : 	rawRate
+	assign-output	details->conditionedRate : treatedRate
 
-	assign-output	details->conditionedRate : negativeTreatedRate
+
+func ApplyCapsAndFloors: <"Apply any cap or floor rate as a constraint on a regular swap rate">
+    [calculation]
+    inputs:
+		conditioning FloatingRateConditioningParameters(1..1)
+		inputRate number(1..1)	<"The floating rate prior to treatment, either a single term rate, or a calculated rate such as an OIS or lookback compounded rate">
+    output:
+        cappedAndFlooredRate number(1..1) <"The rate after application of cap and/or floor">
+
+    	alias cap : conditioning -> capRate
+    	alias floor : conditioning -> floorRate
+
+    	alias	cappedRate :		if cap exists and inputRate > cap then  cap else inputRate
+        alias	flooredRate : 		if floor exists and cappedRate < floor then floor else cappedRate
+
+        assign-output cappedAndFlooredRate :  flooredRate
+
+
+func ApplyRateTreatments:
+    [calculation]
+    inputs:
+		conditioning FloatingRateConditioningParameters(1..1)
+		rawRate number(1..1)	<"The floating rate prior to treatment, either a single term rate, or a calculated rate such as an OIS or lookback compounded rate">
+    output:
+        treatedRate number(1..1)
+
+//        alias treatment : conditioning -> treatment
+//        alias negativeTreatment : conditioning ->negativeTreatment
+//        alias rounding : conditioning -> rounding
+
+//  alias	treatedRate :		if treatment exists then ApplyRateTreatment(rawRate, treatment) else rawRate
+//	alias	roundedRate:		if rounding exists then ApplyFinalRateRounding(treatedRate, rounding) else flooredRate
+//	alias	negativeTreatedRate:	if negativeTreatment exists then ApplyNegativeInterestTreatment(roundedRate, negativeTreatment) else roundedRate
+
+     assign-output  treatedRate : rawRate  // for now
 
 /*
 func ApplyRateTreatment: <"Apply the rate treatment logic">
@@ -664,7 +688,7 @@ output:
 
 
 
-/*
+
 func EvaluateCalculatedRate: <"Evaluate a calculated rate as described in the Aspects to Compounded Rates memo">
 	inputs:
 		floatingRateOption FloatingRateOption(1..1)
@@ -800,10 +824,10 @@ func GenerateObservationDates: <"Generate the list of observation dates given an
 		bc BusinessCenters(1..1)						<"The observation dates">
 		lockoutDays int(0..1)							<"The number of lockout dates">
 	output:
-		observationDates date(0..*)						<"The resulting list of observation dates">
+		observationDates DateGroup(1..1)						<"The resulting list of observation dates">
 
 	// work out the final date of the observations
-	alias endDate : AddBusinessDays(observationPeriod->adjustedEndDate, lockoutDays, bc)
+	alias endDate : AddBusinessDays(observationPeriod->adjustedEndDate, -1 * lockoutDays, bc)
 	// create the list
 	alias obsDates : GenerateDateList(observationPeriod->adjustedStartDate, endDate, bc)
 	// return it
@@ -813,9 +837,9 @@ func GenerateObservationDates: <"Generate the list of observation dates given an
 func ProcessObservations: <"Apply daily observation parameters to rate observations">
 	inputs:
 		calculationDetails FloatingRateCalculationParameters(1..1) <"Floating rate definition for the calculated rate">
-		rawObservations number(0..*)
+		rawObservations Vector(1..1)
 	output:
-		processedObservations number(0..*)
+		processedObservations Vector(1..1)
 
 	alias cap : calculationDetails->observationParameters->observationCapRate
 	alias floor : calculationDetails->observationParameters->observationFloorRate
@@ -826,22 +850,15 @@ func ProcessObservations: <"Apply daily observation parameters to rate observati
 	assign-output processedObservations : flooredObservations
 
 
-func LastInDateList: <"Return the last date in a list of dates">
-	inputs:
-		dateList DateCollection(1..1)  <"Supplied list of dates">
-	output:
-		lastDate date(0..1)	<"The last date in the list">
-
-	assign-output  lastDate : SelectDate(dateList, ToInt(dateList count) )
 
 
 func GenerateWeights: <"Creates a list of weights based on the date difference between successive days.">
 	inputs:
-		weightingDates date(0..*)  <"a list of dates for which weightings are required">
+		weightingDates DateGroup(1..1)  <"a list of dates for which weightings are required">
 	output:
 		weights Vector(1..1)  <" a vector of weights, typically numbers between 1 and 3 or 4">
 
-	alias active : weightingDates count > 2
+	alias active : weightingDates->dates count > 2
 
 	alias refDate : LastInDateList(weightingDates)// find the last date in the supplied list of dates
 	alias remainingDates : PopOffDateList(weightingDates)	// determine the prior list of dates, i.e. omitting the last in the list
@@ -891,8 +908,8 @@ func DayCountBasis(dcf: DayCountFractionEnum ->BUS_252):
 
 func ApplyCompoundingFormula:  <"Implements the compounding formula:   Product of ( 1 + (rate * weight) / basis), then backs out the final rate.">
 	inputs:
-		observations number(0..*)	<"a vector of observation values">
-		weights 	number(0..*)	<"a vector of weights (should be same size as observations, 1 weight per observation)">
+		observations Vector(1..1)	<"a vector of observation values">
+		weights 	Vector(1..1)	<"a vector of weights (should be same size as observations, 1 weight per observation)">
 		yearFrac	number(1..1)  <" year fraction of a single day (ie. 1/basis)">
 	output:
 		results  CalculatedRateDetails(1..1)  <"Details of the compounding calculations">
@@ -908,7 +925,7 @@ func ApplyCompoundingFormula:  <"Implements the compounding formula:   Product o
 	// find the final value of the growth curve (the product of all the growth factors times)
 	alias finalValue : LastInVector(growthCurve)
 	// find the values to scale by to compute the rate
-	alias totalWeight : Sum(weights)
+	alias totalWeight : Sum(weights->values)
 	alias overallYearFrac : totalWeight * yearFrac
 
 	// compute the final calculated rate
@@ -927,17 +944,17 @@ func ApplyCompoundingFormula:  <"Implements the compounding formula:   Product o
 
 func ApplyAveragingFormula: <"Implementst the weighted arithmetic averaging formula.  Sums the weighted rates and divides by the total weight.">
 	inputs:
-		observations number(0..*)	<"a vector of observation values">
-		weights 	number(0..*)	<"a vector of weights (should be same size as observations, 1 weight per observation)">
+		observations Vector(1..1)	<"a vector of observation values">
+		weights 	Vector(1..1)	<"a vector of weights (should be same size as observations, 1 weight per observation)">
 	output:
 		results  CalculatedRateDetails(1..1) <"Details of the averaging calculation">
 // weight the observations
 	alias  weightedObservations : VectorOperation(ArithmeticOp->MultiplyOp, observations, weights)
 
 // sum the weighted observations
-	alias totalWeightedObservations : Sum(weightedObservations)
+	alias totalWeightedObservations : Sum(weightedObservations->values)
 // sum the weights
-	alias totalWeight : Sum(weights)
+	alias totalWeight : Sum(weights->values)
 // compute the final calculated rate
 	alias calculatedRate : totalWeightedObservations / totalWeight
 
@@ -949,4 +966,4 @@ func ApplyAveragingFormula: <"Implementst the weighted arithmetic averaging form
 	assign-output  results->weightedRates : weightedObservations
 
 
-*/
+
