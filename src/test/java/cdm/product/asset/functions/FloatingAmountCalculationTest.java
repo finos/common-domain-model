@@ -74,7 +74,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
 
     public static InterestRatePayout initInterestPayout(FloatingRateOption fro, DayCountFractionEnum dcf) {
         FloatingRate rate = GetFloatingRateConditionParametersTest.initFloatingRate(fro);
-        ResetDates resetDates = EvaluateTermRateTest.initResetDates(BusinessCenterEnum.EUTA, 3, 2);
+        ResetDates resetDates = EvaluateTermRateTest.initResetDates(BusinessCenterEnum.EUTA, 3, 2, false);
         CalculationPeriodDates calculationPeriodDates = initCalculationPeriodDates();
 
         InterestRatePayout interestRatePayout = InterestRatePayout.builder()

@@ -7,6 +7,7 @@ import cdm.product.asset.FloatingRateSettingDetails;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.schedule.ResetDates;
 import cdm.product.common.schedule.ResetFrequency;
+import cdm.product.common.schedule.ResetRelativeToEnum;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -25,7 +26,7 @@ public class EvaluateTermRateTest extends AbstractFunctionTest {
     void shouldEvaluateRate() {
         FloatingRateOption fro = IndexValueObservationImplTest.initFro();
         FloatingRate rate = GetFloatingRateConditionParametersTest.initFloatingRate(fro);
-        ResetDates resetDates = initResetDates(BusinessCenterEnum.GBLO, 3, 2);
+        ResetDates resetDates = initResetDates(BusinessCenterEnum.GBLO, 3, 2, false);
 
         IndexValueObservationImplTest.initIndexData(fro);
 
@@ -38,17 +39,23 @@ public class EvaluateTermRateTest extends AbstractFunctionTest {
     public Date date (int yy, int mm, int dd) { return GetFloatingRateConditionParametersTest.date(yy, mm, dd); }
 
 
-    public static ResetDates initResetDates(BusinessCenterEnum bc, int freq, int offsetDays) {
+    public static ResetDates initResetDates(BusinessCenterEnum bc, int freq, int offsetDays, boolean inAdvance) {
+        BusinessCenters myBC = BusinessCenters.builder()
+                .addBusinessCenterValue(bc).build();
         return ResetDates.builder()
                 .setFixingDates(RelativeDateOffset.builder()
-                        .setBusinessCenters(BusinessCenters.builder()
-                                .addBusinessCenterValue(bc).build())
+                        .setBusinessCenters(myBC)
                         .setPeriod(PeriodEnum.D)
                         .setPeriodMultiplier(-offsetDays)
                         .build())
                 .setResetFrequency(ResetFrequency.builder()
                         .setPeriod(PeriodExtendedEnum.M)
-                        .setPeriodMultiplier(freq))
+                        .setPeriodMultiplier(freq)
+                        .build())
+                .setResetDatesAdjustments(BusinessDayAdjustments.builder()
+                        .setBusinessCenters(myBC)
+                        .build())
+                .setResetRelativeTo(inAdvance? ResetRelativeToEnum.CALCULATION_PERIOD_START_DATE : ResetRelativeToEnum.CALCULATION_PERIOD_END_DATE)
                 .build();
     }
 

@@ -690,6 +690,7 @@ output:
 
 
 func EvaluateCalculatedRate: <"Evaluate a calculated rate as described in the Aspects to Compounded Rates memo">
+[calculation]
 	inputs:
 		floatingRateOption FloatingRateOption(1..1)
 		calculationDetails FloatingRateCalculationParameters(1..1) <"Floating rate definition for the calculated rate">
@@ -732,11 +733,12 @@ func EvaluateCalculatedRate: <"Evaluate a calculated rate as described in the As
 
 
 func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of observation dates and weights for each of those dates">
+[calculation]
 	inputs:
 		calculationDetails FloatingRateCalculationParameters(1..1) <"Floating rate definition for the calculated rate">
 		resetDates ResetDates(0..1)						<"reset sctucture (needed only for fallback rates, otherwise will be empty)">
 		calculationPeriod CalculationPeriodBase(1..1)	<"calculation period for which we want to determine the rate">
-		priorCalculationPeriod CalculationPeriodBase(0..1) <"the prior calculation period (needed only for set in adance observation shift rates">
+		priorCalculationPeriod CalculationPeriodBase(0..1) <"the prior calculation period (needed only for set in advance observation shift rates">
 	output:
 		results CalculatedRateObservationDatesAndWeights(1..1) <"observation dates and corresonding weights">
 
@@ -768,6 +770,7 @@ func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of 
 
 
 func ComputeCalculationPeriod: <"Determine the calculation period to use for computing the calculated rate (it may not be the same as the normal calculation period, for instance if the rate is set in advance)">
+[calculation]
 	inputs:
 		calculationPeriod CalculationPeriodBase(1..1)		<"The current calculation period for which the rate is needed">
 		priorCalculationPeriod CalculationPeriodBase(0..1)	<"The prior actual or deemed calculation period, if needed">
@@ -835,6 +838,7 @@ func GenerateObservationDates: <"Generate the list of observation dates given an
 
 
 func ProcessObservations: <"Apply daily observation parameters to rate observations">
+[calculation]
 	inputs:
 		calculationDetails FloatingRateCalculationParameters(1..1) <"Floating rate definition for the calculated rate">
 		rawObservations Vector(1..1)
@@ -853,12 +857,13 @@ func ProcessObservations: <"Apply daily observation parameters to rate observati
 
 
 func GenerateWeights: <"Creates a list of weights based on the date difference between successive days.">
+[calculation]
 	inputs:
 		weightingDates DateGroup(1..1)  <"a list of dates for which weightings are required">
 	output:
 		weights Vector(1..1)  <" a vector of weights, typically numbers between 1 and 3 or 4">
 
-	alias active : weightingDates->dates count > 2
+	alias active : weightingDates->dates count > 1
 
 	alias refDate : LastInDateList(weightingDates)// find the last date in the supplied list of dates
 	alias remainingDates : PopOffDateList(weightingDates)	// determine the prior list of dates, i.e. omitting the last in the list
@@ -872,6 +877,7 @@ func GenerateWeights: <"Creates a list of weights based on the date difference b
 
 
 func YearFractionForOneDay: <"Return the year fraction reprsented by a single day, i.e 1 / dayCountBasis, where daycountBasis represents the denominator of the day count fraction. This perhaps should take into account leap years, though the ISDA compounding formulas do not cover ACT basis at the moment.">
+[calculation]
 	inputs:
 		dcf DayCountFractionEnum(1..1)	<"Supplied Day count fraction">
 	output:
@@ -882,6 +888,7 @@ func YearFractionForOneDay: <"Return the year fraction reprsented by a single da
 
 
 func DayCountBasis: <"Return the day count basis (the denominator of the day count fraction) for the day count fraction">
+[calculation]
 	inputs:
 		dcf DayCountFractionEnum(1..1)	<"a supplied day count fraction">
 	output:
@@ -907,6 +914,7 @@ func DayCountBasis(dcf: DayCountFractionEnum ->BUS_252):
 	assign-output basis: 252
 
 func ApplyCompoundingFormula:  <"Implements the compounding formula:   Product of ( 1 + (rate * weight) / basis), then backs out the final rate.">
+[calculation]
 	inputs:
 		observations Vector(1..1)	<"a vector of observation values">
 		weights 	Vector(1..1)	<"a vector of weights (should be same size as observations, 1 weight per observation)">
@@ -943,6 +951,7 @@ func ApplyCompoundingFormula:  <"Implements the compounding formula:   Product o
 
 
 func ApplyAveragingFormula: <"Implementst the weighted arithmetic averaging formula.  Sums the weighted rates and divides by the total weight.">
+[calculation]
 	inputs:
 		observations Vector(1..1)	<"a vector of observation values">
 		weights 	Vector(1..1)	<"a vector of weights (should be same size as observations, 1 weight per observation)">

@@ -2,26 +2,38 @@ package cdm.product.asset.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenters;
+import cdm.base.datetime.functions.RetrieveBusinessCenterHolidaysImplTest;
+import cdm.product.asset.CalculateRelativeToEnum;
 import cdm.product.common.schedule.CalculationPeriodBase;
+import cdm.product.common.schedule.ResetDates;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class GenerateObservationPeriodTest extends AbstractFunctionTest {
+public class ComputeCalculationPeriodTest extends AbstractFunctionTest {
 
     @Inject
-    private GenerateObservationPeriod func;
+    private ComputeCalculationPeriod func;
 
     @Test
     void shouldDeterminePeriod() {
         CalculationPeriodBase calcPeriod = period(date(2020,12,10), date(2021, 3, 10));
+        CalculationPeriodBase priorCalcPeriod = period(date(2020,9,10), date(2020, 12, 10));
         BusinessCenters bc = BusinessCenters.builder().addBusinessCenterValue(BusinessCenterEnum.GBLO).build();
-        Integer shift = 3;
+        ResetDates resetDates = EvaluateTermRateTest.initResetDates(BusinessCenterEnum.GBLO, 3, 2, true);
+        RetrieveBusinessCenterHolidaysImplTest.initializeHolidays();
 
-        CalculationPeriodBase expected = period(date(2020, 12, 7), date(2021, 3, 5));
-        check (expected, func.evaluate(calcPeriod, bc, shift));
+        CalculationPeriodBase expected = period(date(2020, 12, 10), date(2021, 3, 10));
+        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, CalculateRelativeToEnum.END, null));
+
+        expected = period(date(2020, 9, 10), date(2020, 12, 10));
+        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, CalculateRelativeToEnum.START, null));
+
+        expected = period(date(2020, 9, 8), date(2020, 12, 8));
+        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, CalculateRelativeToEnum.ORIGINALRESET, resetDates));
     }
 
     private void check(CalculationPeriodBase expected, CalculationPeriodBase actual) {

@@ -1,7 +1,6 @@
 package cdm.base.datetime.functions;
 
 import cdm.base.datetime.DateGroup;
-import cdm.product.asset.functions.LastInDateList;
 import com.rosetta.model.lib.records.Date;
 
 import java.util.List;

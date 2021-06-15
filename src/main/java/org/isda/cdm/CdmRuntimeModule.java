@@ -21,7 +21,6 @@ import cdm.observable.common.functions.CurrencyAmountImpl;
 import cdm.observable.common.functions.NoOfUnits;
 import cdm.observable.common.functions.NoOfUnitsImpl;
 import cdm.product.asset.functions.*;
-import cdm.product.asset.functions.LastInDateList;
 import cdm.product.common.schedule.functions.CalculationPeriod;
 import cdm.product.common.schedule.functions.CalculationPeriodImpl;
 import cdm.product.template.functions.FpmlIrd8;

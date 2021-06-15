@@ -45,7 +45,7 @@ public class DetermineFloatingRateResetTest extends AbstractFunctionTest {
 
     public static InterestRatePayout initInterestPayout(FloatingRateOption fro) {
         FloatingRate rate = GetFloatingRateConditionParametersTest.initFloatingRate(fro);
-        ResetDates resetDates = EvaluateTermRateTest.initResetDates(BusinessCenterEnum.GBLO, 3, 2);
+        ResetDates resetDates = EvaluateTermRateTest.initResetDates(BusinessCenterEnum.GBLO, 3, 2, false);
 
         InterestRatePayout interestRatePayout = InterestRatePayout.builder()
                 .setResetDates(resetDates)
