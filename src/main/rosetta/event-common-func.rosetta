@@ -328,11 +328,10 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
-		and (businessEvent -> primitives count = 1
-			and businessEvent -> primitives -> quantityChange exists
+		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
 			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
-		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
+		and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 
 
 func Qualify_TradeWarehousePositionNotification:
@@ -959,9 +958,7 @@ func Create_SecurityTransfer: <"Defines the creation of a Transfer, given a Trad
 		transfer Transfer (1..1)
 	post-condition:
 		if tradeState -> trade -> tradableProduct -> product -> security exists
-			and tradeState -> trade -> settlementTerms -> transferSettlementType all = TransferSettlementEnum -> DeliveryVersusPayment
-		then transfer -> quantity -> unitOfAmount -> currency only exists
-			and transfer -> observable -> productIdentifier exists
+		then transfer -> observable -> productIdentifier exists
 
 func ResolveCashflow: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
 	inputs:

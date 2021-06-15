@@ -1154,11 +1154,10 @@ One distinction with the product approach is that the ``intent`` qualification i
  	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
  	assign-output is_event:
  		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
- 		and (businessEvent  -> primitives count = 1
- 			and businessEvent -> primitives -> quantityChange exists
+ 		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
  			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
  		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
- 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
+ 		and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
