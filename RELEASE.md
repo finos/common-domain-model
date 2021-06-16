@@ -2,13 +2,13 @@
 
 _What is being released?_
 
-New keywords introduced to be used when comparing a list to a single value. The `all` and `any` keywords to be used with equality operators; `=`, `<>`, `>`, `>=` etc.
+New keywords have been introduced to be used when comparing a list to a single value. The `all` and `any` keywords are used with equality operators; `=`, `<>`, `>`, `>=` etc.
 
-The `all` keyword is used to specify that *all* list items must match the given value.  In the example below, `payout -> interestRatePayout` has multiple cardinality, so to evaluate to true, the `interestRatePayout -> paymentDates -> paymentFrequency -> period` must equal `T` on each and every payout.
+The `all` keyword is used to specify that *all* list items must match the given value.  In the example below, `payout -> interestRatePayout` has multiple cardinality, so for the statement to evaluate to true, the `interestRatePayout -> paymentDates -> paymentFrequency -> period` must equal `T` on each and every `interestRatePayout`.
 
 - `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T`
 
-The `any` keyword is used to specify that *any* list item must match the given value.  In the example below, to evaluate to true, the `interestRatePayout -> paymentDates -> paymentFrequency -> period` must equal `T` on at least one of the payouts.
+The `any` keyword is used to specify that *any* list item must match the given value.  In the example below, for the statement to evaluate to true, the `interestRatePayout -> paymentDates -> paymentFrequency -> period` must equal `T` on at least one of the `interestRatePayouts`.
 
 - `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any = PeriodExtendedEnum -> T`
   
