@@ -53,15 +53,9 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
 
 
         CalculationPeriodBase calcPeriod = period(date(2020,12,10), date(2021,3,10));
-        double expectedYF = (31+31+28)/360.0;
-        double expectedRate = 0.0118;
-        double expectedNotional = 9_000_000;
-        double expected = expectedNotional * expectedRate * expectedYF;
-        check(func.evaluate(interestRatePayout, calcPeriod), expectedNotional, expectedRate, expectedYF);
-
-        calcPeriod = period(date(2021,9,29), date(2021,12,29));
-        expected = 10_000_000 * 0.01 * (30+31+30)/360.0;
-       // check(func.evaluate(interestRatePayout, calcPeriod),  expected);
+        check(func.evaluate(interestRatePayout, calcPeriod), 9_000_000, 0.0118, (31+31+28)/360.0);
+        calcPeriod = period(date(2021,9,10), date(2021,12, 10));
+        check(func.evaluate(interestRatePayout, calcPeriod), 12_000_000, 0.015, (30+31+30)/360.0);
     }
 
     private void check(FloatingAmountCalculationDetails result, double expectedNotional, double expectedRate, double expectedYearFrac) {
@@ -77,7 +71,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
         ResetDates resetDates = EvaluateTermRateTest.initResetDates(BusinessCenterEnum.EUTA, 3, 2, false);
         CalculationPeriodDates calculationPeriodDates = initCalculationPeriodDates();
 
-        InterestRatePayout interestRatePayout = InterestRatePayout.builder()
+        return InterestRatePayout.builder()
                 .setCalculationPeriodDates(calculationPeriodDates)
                 .setResetDates(resetDates)
                 .setPayoutQuantity(LookupNotionalAmountTest.initNotionalSchedule())
@@ -85,7 +79,6 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
                         .setFloatingRate(GetFloatingRateConditionParametersTest.initFloatingRate(fro)).build())
                 .setDayCountFractionValue(DayCountFractionEnum.ACT_360)
                 .build();
-        return interestRatePayout;
     }
 
     private static CalculationPeriodDates initCalculationPeriodDates() {

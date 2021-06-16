@@ -12,7 +12,6 @@ public class DateDifferenceImpl extends DateDifference{
        LocalDate second = secondDate.toLocalDate();
        LocalDate first = firstDate.toLocalDate();
        Duration dur =  Duration.between(first.atStartOfDay(), second.atStartOfDay());
-       int diff = (int) dur.toDays();
-       return Integer.valueOf(diff);
+       return (int) dur.toDays();
     }
 }

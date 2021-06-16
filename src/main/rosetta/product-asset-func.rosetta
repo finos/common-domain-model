@@ -925,9 +925,9 @@ func ApplyCompoundingFormula:  <"Implements the compounding formula:   Product o
 	// weight the observations
 	alias  weightedObservations : VectorOperation(ArithmeticOp->MultiplyOp, observations, weights)
 	// scale the weighted observations based on the basis
-	alias  scaledAndWeightedObservations : VectorScalarOperation(ArithmeticOp->MultiplyOp, observations, yearFrac)
+	alias  scaledAndWeightedObservations : VectorScalarOperation(ArithmeticOp->MultiplyOp, weightedObservations, yearFrac)
 	// compute series of growth factors by adding 1 to the scaled and weighted observations
-	alias  growthFactors : VectorScalarOperation(ArithmeticOp->AddOp, observations, 1.0)
+	alias  growthFactors : VectorScalarOperation(ArithmeticOp->AddOp, scaledAndWeightedObservations, 1.0)
 	// compute a growth curve by successively applying the growth factors
 	alias  growthCurve : VectorGrowthOperation(1.0, growthFactors)
 	// find the final value of the growth curve (the product of all the growth factors times)

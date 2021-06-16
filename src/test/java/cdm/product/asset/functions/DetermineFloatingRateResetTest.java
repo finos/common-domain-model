@@ -47,13 +47,12 @@ public class DetermineFloatingRateResetTest extends AbstractFunctionTest {
         FloatingRate rate = GetFloatingRateConditionParametersTest.initFloatingRate(fro);
         ResetDates resetDates = EvaluateTermRateTest.initResetDates(BusinessCenterEnum.GBLO, 3, 2, false);
 
-        InterestRatePayout interestRatePayout = InterestRatePayout.builder()
+        return InterestRatePayout.builder()
                 .setResetDates(resetDates)
                 .setPayoutQuantity(LookupNotionalAmountTest.initNotionalSchedule())
                 .setRateSpecification(RateSpecification.builder()
                         .setFloatingRate(GetFloatingRateConditionParametersTest.initFloatingRate(fro)).build())
                 .build();
-        return interestRatePayout;
     }
 
     public CalculationPeriodBase period (Date start, Date end) { return GetFloatingRateConditionParametersTest.period(start, end);}

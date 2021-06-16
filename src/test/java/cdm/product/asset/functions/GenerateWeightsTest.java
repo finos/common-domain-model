@@ -89,28 +89,30 @@ public class GenerateWeightsTest extends AbstractFunctionTest {
                 date(2021,3,4),
                 date(2021,3,5)
         );
-        double expected[] = {
-                1.0, 1.0, 1.0, 1.0, 3.0,
-                1.0, 1.0, 1.0, 1.0, 3.0,
-                1.0, 1.0, 1.0, 5.0,
-                1.0, 1.0, 4.0,
-                1.0, 1.0, 1.0, 1.0, 3.0,
-                1.0, 1.0, 1.0, 1.0, 3.0,
-                1.0, 1.0, 1.0, 1.0, 3.0,
-                1.0, 1.0, 1.0, 1.0, 3.0,
-                1.0, 1.0, 1.0, 1.0, 3.0,
-                1.0, 1.0, 1.0, 1.0, 3.0,
-                1.0, 1.0, 1.0, 1.0, 3.0,
-                1.0, 1.0, 1.0, 1.0, 3.0,
-                1.0, 1.0, 1.0, 1.0
-        };
+        double[] expected = expectedWeights;
 
         DateGroup wtDates = DateGroup.builder().setDates(weightingDates).build();
 
         check (expected, func.evaluate(wtDates));
     }
 
-    private void check(double expected[], Vector actual) {
+    public static double[] expectedWeights = {
+            1.0, 1.0, 1.0, 1.0, 3.0,
+            1.0, 1.0, 1.0, 1.0, 3.0,
+            1.0, 1.0, 1.0, 5.0,
+            1.0, 1.0, 4.0,
+            1.0, 1.0, 1.0, 1.0, 3.0,
+            1.0, 1.0, 1.0, 1.0, 3.0,
+            1.0, 1.0, 1.0, 1.0, 3.0,
+            1.0, 1.0, 1.0, 1.0, 3.0,
+            1.0, 1.0, 1.0, 1.0, 3.0,
+            1.0, 1.0, 1.0, 1.0, 3.0,
+            1.0, 1.0, 1.0, 1.0, 3.0,
+            1.0, 1.0, 1.0, 1.0, 3.0,
+            1.0, 1.0, 1.0, 1.0
+    };
+
+    private void check(double[] expected, Vector actual) {
         List<? extends BigDecimal>act = actual.getValues();
         for (int i=0; i< expected.length && i < act.size(); i++) {
             assertEquals(BigDecimal.valueOf(expected[i]), act.get(i));
