@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-New keywords have been introduced to be used when comparing a list to a single value. The `all` and `any` keywords are used with equality operators; `=`, `<>`, `>`, `>=` etc.
+New keywords have been introduced to be used when comparing a list to a single value. Currently a list to single value comparison will only evaluate to true if all the list items match the single value.  The `all` and `any` keywords can be used with any equality operators; `=`, `<>`, `>`, `>=` etc.
 
 The `all` keyword is used to specify that *all* list items must match the given value.  In the example below, `payout -> interestRatePayout` has multiple cardinality, so for the statement to evaluate to true, the `interestRatePayout -> paymentDates -> paymentFrequency -> period` must equal `T` on each and every `interestRatePayout`.
 
