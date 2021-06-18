@@ -5,10 +5,7 @@ import cdm.base.datetime.functions.NowImpl;
 import cdm.base.datetime.functions.Today;
 import cdm.base.datetime.functions.TodayImpl;
 import cdm.base.math.functions.*;
-import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRole;
-import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRoleImpl;
-import cdm.base.staticdata.party.functions.ExtractCounterpartyByRole;
-import cdm.base.staticdata.party.functions.ExtractCounterpartyByRoleImpl;
+import cdm.base.staticdata.party.functions.*;
 import cdm.event.common.functions.*;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
@@ -58,6 +55,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
 		bind(ExtractCounterpartyByRole.class).to(bindExtractCounterpartyByRole());
 		bind(ExtractAncillaryPartyByRole.class).to(bindExtractAncillaryPartyByRole());
+		bind(FilterPartyRole.class).to(bindFilterPartyRole());
 		bind(FilterPrice.class).to(bindFilterPrice());
 		bind(FilterQuantity.class).to(bindFilterQuantity());
 		bind(FilterPriceQuantity.class).to(bindFilterPriceQuantity());
@@ -138,6 +136,10 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends ExtractAncillaryPartyByRole> bindExtractAncillaryPartyByRole() {
 		return ExtractAncillaryPartyByRoleImpl.class;
+	}
+
+	protected Class<? extends FilterPartyRole> bindFilterPartyRole() {
+		return FilterPartyRoleImpl.class;
 	}
 
 	protected Class<? extends FilterPrice> bindFilterPrice() {
