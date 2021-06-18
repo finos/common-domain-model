@@ -1,18 +1,20 @@
-# *DSL Syntax - List comparison keywords*
+# *DSL Syntax - New keywords to compare a list to a singleton*
 
 _What is being released?_
 
-New keywords have been introduced to be used when comparing a list to a single value. Currently a list to single value comparison will only evaluate to true if all the list items match the single value.  The `all` and `any` keywords can be used with any equality operators; `=`, `<>`, `>`, `>=`, `<`, `<=`.
+New keywords have been introduced in the DSL syntax to compare a list of items to a singleton. Currently comparing a list to single value will only result to true if all the items of the list match the single value.  The `all` and `any` keywords can now be used to extend the comparison outcome with any equality operators: `=`, `<>`, `>`, `>=`, `<`, `<=`.
 
-The `all` keyword is used to specify that *all* list items must match the given value.  In the example below, `payout -> interestRatePayout` has multiple cardinality, so for the statement to evaluate to true, the `interestRatePayout -> paymentDates -> paymentFrequency -> period` must equal `T` on each and every `interestRatePayout`.
+In the examples below, `payout -> interestRatePayout` is a list according to the  cardinality of its definition in the model.
+
+The `all` keyword will be used to specify that *all* list items must match the referenced singleton. Accordingly, the statement will evaluate to true if each `paymentDates -> paymentFrequency -> period` for every item of the list `interestRatePayout` is equal to `T`.
 
 - `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T`
 
-The `any` keyword is used to specify that *any* list item must match the given value.  In the example below, for the statement to evaluate to true, the `interestRatePayout -> paymentDates -> paymentFrequency -> period` must equal `T` on at least one of the `interestRatePayouts`.
+The `any` keyword will be used to specify that *any* list item must match the referenced singleton. Accordingly, the statement will evaluate to true if at least one `paymentDates -> paymentFrequency -> period` for any item of the list `interestRatePayout` is equal to `T`.
 
 - `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any = PeriodExtendedEnum -> T`
   
-All list comparisons in the model have been updated to use `all` or `any` keywords.
+All list comparisons in the model have been updated to use the `all` or `any` keywords whilst retaining the original expected logical outcome.
 
 In the CDM Documentation, review the following sections:
 
