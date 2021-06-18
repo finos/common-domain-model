@@ -2,15 +2,15 @@
 
 _What is being released?_
 
-New keywords have been introduced in the DSL syntax to compare a list of items to a singleton. Currently comparing a list to single value will only result to true if all the items of the list match the single value.  The `all` and `any` keywords can now be used to extend the comparison outcome with any equality operators: `=`, `<>`, `>`, `>=`, `<`, `<=`.
+New keywords have been introduced in the DSL syntax to compare a list of items to a single data object. Currently comparing a list to single data object will only result to true if all the items of the list match the single data object.  The `all` and `any` keywords can now be used to extend the comparison outcome with any equality operators: `=`, `<>`, `>`, `>=`, `<`, `<=`.
 
-In the examples below, `payout -> interestRatePayout` is a list according to the  cardinality of its definition in the model.
+In the examples below, `payout -> interestRatePayout` is a list according to the cardinality of its definition in the model.
 
-The `all` keyword will be used to specify that *all* items in the list must match the referenced singleton. Accordingly, the statement will evaluate to true if each `paymentDates -> paymentFrequency -> period` for every item of the list `interestRatePayout` is equal to `T`.
+The `all` keyword will be used to specify that *all* items in the list must match the single data object. Accordingly, the statement will evaluate to true if each `paymentDates -> paymentFrequency -> period` for every item of the list `interestRatePayout` is equal to `T`.
 
 - `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T`
 
-The `any` keyword will be used to specify that *any* list item must match the referenced singleton. Accordingly, the statement will evaluate to true if at least one `paymentDates -> paymentFrequency -> period` for any item of the list `interestRatePayout` is equal to `T`.
+The `any` keyword will be used to specify that *any* list item must match the single data object. Accordingly, the statement will evaluate to true if at least one `paymentDates -> paymentFrequency -> period` for any item of the list `interestRatePayout` is equal to `T`.
 
 - `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any = PeriodExtendedEnum -> T`
   
