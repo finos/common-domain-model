@@ -746,25 +746,28 @@ func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of 
 	alias obsShift: calculationDetails->observationShiftCalculation
 	alias lookback: calculationDetails->lookbackCalculation
 	alias lockout: calculationDetails->lockoutCalculation
-//	alias frequency: calculationDetails->observationFrequency
+	alias lockoutDays: if (lockout exists) then lockout->offsetDays else 0
 	alias bc:		calculationDetails->applicableBusinessDays
 	alias addlBc: 	obsShift->additionalBusinessDays
 	alias allBc: 	CombineBusinessCenters(bc, addlBc)
-	// work out the calculation base to use
-	alias calculateRelative : if obsShift->calculationBase exists then obsShift->calculationBase else CalculateRelativeToEnum->START
+
 	// work out the calculation period for which the rate will actually be computed (might be the prior period or based on resetDates)
+	alias calculateRelative : if obsShift->calculationBase exists then obsShift->calculationBase else CalculateRelativeToEnum->END
 	alias adjustedCalculationPeriod : ComputeCalculationPeriod(calculationPeriod, priorCalculationPeriod, calculateRelative, resetDates)
-	// figure out how much the observations are shifted from the calc period
-	alias shift : if (obsShift exists) then obsShift->offsetDays else if lookback exists then lookback->offsetDays else 0
+
 	// generate the (shifted) observation period and then the observation dates
+	alias shift : if (obsShift exists) then obsShift->offsetDays else if lookback exists then lookback->offsetDays else 0   // shift amount
 	alias observationPeriod : GenerateObservationPeriod(adjustedCalculationPeriod, allBc, shift)
-	alias observationDates : GenerateObservationDates(observationPeriod, allBc, lockout->offsetDays)
+	alias observationDates : GenerateObservationDates(observationPeriod, allBc, lockoutDays)
+
 	// work out the date list for calculating weights, then calculate the weights
-	alias weightingDates : if obsShift exists then observationDates else GenerateObservationDates(adjustedCalculationPeriod, bc, 0)
-	alias weights : GenerateWeights(weightingDates)
+	alias weightingDates : if obsShift exists then observationDates else GenerateObservationDates(adjustedCalculationPeriod, bc, lockoutDays)
+	alias wtPeriod : if (lookback exists) then adjustedCalculationPeriod  else observationPeriod
+	alias weightingDatesAll :  AppendDateToList(weightingDates, wtPeriod->adjustedEndDate)     // including final date to compute weight
+	alias weights : GenerateWeights(weightingDatesAll)
 
 	// record the results
-	assign-output results->observationDates : PopOffDateList(observationDates)  // omit the last
+	assign-output results->observationDates : observationDates
 	assign-output results->weights : weights
 	// possibly record some other intermediate results to aid debugging/understanding?
 
@@ -829,8 +832,10 @@ func GenerateObservationDates: <"Generate the list of observation dates given an
 	output:
 		observationDates DateGroup(1..1)						<"The resulting list of observation dates">
 
-	// work out the final date of the observations
-	alias endDate : AddBusinessDays(observationPeriod->adjustedEndDate, -1 * lockoutDays, bc)
+	// work out the final date of the observations  - we skip observing on the last day of the observation period
+
+	alias days : 1 + (if (lockoutDays exists) then lockoutDays else 0)
+	alias endDate : AddBusinessDays(observationPeriod->adjustedEndDate, -1 * days, bc)
 	// create the list
 	alias obsDates : GenerateDateList(observationPeriod->adjustedStartDate, endDate, bc)
 	// return it

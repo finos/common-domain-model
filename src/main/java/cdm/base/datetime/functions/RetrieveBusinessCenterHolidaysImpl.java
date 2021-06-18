@@ -53,14 +53,16 @@ public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHo
 
     private String getKey(BusinessCenters bcs) {
         List<? extends FieldWithMetaBusinessCenterEnum> bcl = getBC(bcs);
-        String key = "";
+        StringBuilder key = new StringBuilder();
         for (FieldWithMetaBusinessCenterEnum bc: bcl) {
-            key += bc.getValue().toString();
+            if(bc == null || bc.getValue() == null) continue;
+            key.append(bc.getValue().toString());
         }
-        return key;
+        return key.toString();
     }
 
     private List<? extends FieldWithMetaBusinessCenterEnum> getBC(BusinessCenters bc) {
+        if (bc == null) return List.of();
         ReferenceWithMetaBusinessCenters ref = bc.getBusinessCentersReference();
         if (ref != null) {
             BusinessCenters refBC = ref.getValue();
