@@ -6,7 +6,7 @@ New keywords have been introduced in the DSL syntax to compare a list of items t
 
 In the examples below, `payout -> interestRatePayout` is a list according to the  cardinality of its definition in the model.
 
-The `all` keyword will be used to specify that *all* list items must match the referenced singleton. Accordingly, the statement will evaluate to true if each `paymentDates -> paymentFrequency -> period` for every item of the list `interestRatePayout` is equal to `T`.
+The `all` keyword will be used to specify that *all* items in the list must match the referenced singleton. Accordingly, the statement will evaluate to true if each `paymentDates -> paymentFrequency -> period` for every item of the list `interestRatePayout` is equal to `T`.
 
 - `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T`
 
