@@ -1,4 +1,4 @@
-# *DSL Syntax - New keywords to compare a list to a singleton*
+# *DSL Syntax - New keywords to compare a list to a single data object*
 
 _What is being released?_
 
@@ -10,7 +10,7 @@ The `all` keyword will be used to specify that *all* items in the list must matc
 
 - `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T`
 
-The `any` keyword will be used to specify that *any* list item must match the single data object. Accordingly, the statement will evaluate to true if at least one `paymentDates -> paymentFrequency -> period` for any item of the list `interestRatePayout` is equal to `T`.
+The `any` keyword will be used to specify that *any* item in the list must match the single data object. Accordingly, the statement will evaluate to true if at least one `paymentDates -> paymentFrequency -> period` for any item of the list `interestRatePayout` is equal to `T`.
 
 - `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any = PeriodExtendedEnum -> T`
 
