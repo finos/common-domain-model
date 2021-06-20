@@ -45,6 +45,7 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,9,6),
             DateImpl.of(2021,10,11),
             DateImpl.of(2021,11,11),
+            DateImpl.of(2021,11,25),
             DateImpl.of(2021,12,24)
     );
 
@@ -56,6 +57,8 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
     );
 
     public static final List<Date> londonAndUsGsHolidays2021 = List.of(
+            DateImpl.of(2020,12,25),
+            DateImpl.of(2020,12,28),
             DateImpl.of(2021,1,1),
             DateImpl.of(2021,1,18),
             DateImpl.of(2021,2,15),
@@ -68,12 +71,15 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,9,6),
             DateImpl.of(2021,10,11),
             DateImpl.of(2021,11,11),
+            DateImpl.of(2021,11,25),
             DateImpl.of(2021,12,24),
             DateImpl.of(2021,12,27),
             DateImpl.of(2021,12,28)
     );
 
     public static final List<Date> londonAndUsGsAndTargetHolidays2021 = List.of(
+            DateImpl.of(2020,12,25),
+            DateImpl.of(2020,12,28),
             DateImpl.of(2021,1,1),
             DateImpl.of(2021,1,18),
             DateImpl.of(2021,2,15),
@@ -87,12 +93,15 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,9,6),
             DateImpl.of(2021,10,11),
             DateImpl.of(2021,11,11),
+            DateImpl.of(2021,11,25),
             DateImpl.of(2021,12,24),
             DateImpl.of(2021,12,27),
             DateImpl.of(2021,12,28)
     );
 
     public static final List<Date> londonAndTargetHolidays2021 = List.of(
+            DateImpl.of(2020,12,25),
+            DateImpl.of(2020,12,28),
             DateImpl.of(2021,1,1),
             DateImpl.of(2021,4,2),
             DateImpl.of(2021,4,5),
@@ -144,10 +153,10 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
     }
 
     void check(List<? extends Date> expected, List<? extends Date> actual) {
-        assertEquals(expected.size(), actual.size());
         int n = expected.size();
         for(int i = 0; i < n; i++) {
             assertEquals(expected.get(i), actual.get(i));
         }
+        assertEquals(expected.size(), actual.size());
     }
 }

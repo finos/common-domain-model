@@ -67,7 +67,10 @@ public class IndexValueObservationImpl extends IndexValueObservation {
     }
 
     String getKey(FloatingRateOption fro) {
-        return fro.getFloatingRateIndex().getValue().toString() + ":" + fro.getIndexTenor().getPeriodMultiplier().toString() + fro.getIndexTenor().getPeriod().toString();
+        return fro.getFloatingRateIndex().getValue().toString() + (
+                (fro.getIndexTenor() == null) ? "" :
+                ":" + fro.getIndexTenor().getPeriodMultiplier().toString() + fro.getIndexTenor().getPeriod().toString()
+        );
     }
 
 }

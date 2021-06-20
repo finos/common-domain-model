@@ -87,9 +87,7 @@ public class GenerateObservationDatesTest extends AbstractFunctionTest {
                 date(2021,2,26),
                 date(2021,3,1),
                 date(2021,3,2),
-                date(2021,3,3),
-                date(2021,3,4)
-
+                date(2021,3,3)
         );
 
         check (expected, func.evaluate(obsPeriod, bc, lockout));

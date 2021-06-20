@@ -90,7 +90,7 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
 
     @Test
     void shouldHandleObsShiftNormal () {
-        FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.ObsShift, 2, null, false , false, false);
+        FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.ObsShift, 2, BusinessCenterEnum.USGS, false , false, false);
         Date st = date(2021, 9,10);
         Date shifst = date(2021, 9,8);
         Date end = date(2021, 12, 10);
@@ -98,15 +98,20 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
 
         CalculationPeriodBase calculationPeriod = period(st, end);
 
+
         List<Date> wtDates = dateList(shifst, shiftend);
         List<Date> obsDate = dateList(shifst,shiftend);
 
+
         obsDate.remove(obsDate.size()-1);     // remove the last day
+
         List<Integer> wts = weights(wtDates);
 
         CalculatedRateObservationDatesAndWeights result = func.evaluate(calculationParams, null, calculationPeriod, null);
         check(obsDate, result.getObservationDates());
         check(wts, result.getWeights());
+
+
     }
 
     @Test
@@ -118,6 +123,8 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
 
         List<Date> wtDates = dateList(obsPeriod);
         List<Date> obsDate = dateList(obsPeriod);
+        wtDates.remove(date(2021, 8, 30));
+        obsDate.remove(date(2021, 8, 30));
 
         obsDate.remove(obsDate.size()-1);     // remove the last day
 
@@ -137,6 +144,8 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
 
         List<Date> wtDates = dateList(obsPeriod);
         List<Date> obsDate = dateList(obsPeriod);
+        wtDates.remove(date(2021, 8, 30));
+        obsDate.remove(date(2021, 8, 30));
 
         obsDate.remove(obsDate.size()-1);     // remove the last day
 
@@ -147,11 +156,11 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
         check(wts, result.getWeights());
     }
 
-    List<Date> dateList(CalculationPeriodBase period) {
+   public List<Date> dateList(CalculationPeriodBase period) {
         return dateList(period.getAdjustedStartDate(), period.getAdjustedEndDate());
     }
 
-    List<Date> dateList(Date start, Date end) {
+    public List<Date> dateList(Date start, Date end) {
         LocalDate startDate = start.toLocalDate();
         LocalDate endDate = end.toLocalDate();
         List<Date> result = new ArrayList<>();
@@ -162,7 +171,7 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
         return result;
     }
 
-    List<Integer> weights(List<Date> dates) {
+    public List<Integer> weights(List<Date> dates) {
         List<Integer> result = new ArrayList<>(dates.size()-1);
         for (int i = 0 ; i < dates.size() -1; i++) {
             LocalDate d1 = dates.get(i).toLocalDate();
@@ -175,7 +184,8 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
     }
 
 
-    private FloatingRateCalculationParameters initCalcParameters(boolean isAvg, BusinessCenterEnum applicableDays, CalcMethod method, int shift, BusinessCenterEnum additionalDays,  boolean isCapped, boolean setInAdvance, boolean fallback)  {
+    public FloatingRateCalculationParameters initCalcParameters(boolean isAvg, BusinessCenterEnum applicableDays, CalcMethod method, int shift, BusinessCenterEnum additionalDays,  boolean isCapped, boolean setInAdvance, boolean fallback)  {
+        RetrieveBusinessCenterHolidaysImplTest.initializeHolidays();
         FloatingRateCalculationParameters.FloatingRateCalculationParametersBuilder params = FloatingRateCalculationParameters.builder();
         params.setApplicableBusinessDays(BusinessCenters.builder().addBusinessCenterValue(applicableDays));
         params.setCalcType(isAvg ? CalculationTypeEnum.AVERAGING : CalculationTypeEnum.COMPOUNDING);
@@ -210,7 +220,7 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
 
 
 
-    private void check(List<Date> expected, DateGroup actual) {
+    public void check(List<Date> expected, DateGroup actual) {
         List<? extends Date>act = actual.getDates();
         for (int i=0; i< expected.size() && i < act.size(); i++) {
             assertEquals(expected.get(i), act.get(i));
@@ -218,7 +228,7 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
         assertEquals(expected.size(), act.size());
     }
 
-    private void check(List<Integer> expected, Vector actual) {
+    public void check(List<Integer> expected, Vector actual) {
         List<? extends BigDecimal> act = actual.getValues();
         for (int i=0; i< expected.size() && i < act.size(); i++) {
             assertEquals(expected.get(i).intValue(), act.get(i).intValue());

@@ -746,7 +746,8 @@ func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of 
 	alias obsShift: calculationDetails->observationShiftCalculation
 	alias lookback: calculationDetails->lookbackCalculation
 	alias lockout: calculationDetails->lockoutCalculation
-	alias lockoutDays: if (lockout exists) then lockout->offsetDays else 0
+	alias specifiedLockout: if lockout->offsetDays exists then lockout->offsetDays else 5
+	alias lockoutDays: if (lockout exists) then specifiedLockout else 0
 	alias bc:		calculationDetails->applicableBusinessDays
 	alias addlBc: 	obsShift->additionalBusinessDays
 	alias allBc: 	CombineBusinessCenters(bc, addlBc)
@@ -757,8 +758,9 @@ func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of 
 
 	// generate the (shifted) observation period and then the observation dates
 	alias shift : if (obsShift exists) then obsShift->offsetDays else if lookback exists then lookback->offsetDays else 0   // shift amount
-	alias observationPeriod : GenerateObservationPeriod(adjustedCalculationPeriod, allBc, shift)
-	alias observationDates : GenerateObservationDates(observationPeriod, allBc, lockoutDays)
+	alias shiftDefaulted : if shift exists then shift else 5
+	alias observationPeriod : GenerateObservationPeriod(adjustedCalculationPeriod, allBc, shiftDefaulted)
+	alias observationDates : GenerateObservationDates(observationPeriod, bc, lockoutDays)
 
 	// work out the date list for calculating weights, then calculate the weights
 	alias weightingDates : if obsShift exists then observationDates else GenerateObservationDates(adjustedCalculationPeriod, bc, lockoutDays)
@@ -850,11 +852,12 @@ func ProcessObservations: <"Apply daily observation parameters to rate observati
 	output:
 		processedObservations Vector(1..1)
 
-	alias cap : calculationDetails->observationParameters->observationCapRate
-	alias floor : calculationDetails->observationParameters->observationFloorRate
+    alias params : calculationDetails->observationParameters
+	alias cap : if params exists then params->observationCapRate
+	alias floor : if params exists then params->observationFloorRate
 
-	alias cappedObservations : VectorScalarOperation(ArithmeticOp->MaxOp, rawObservations, cap)
-	alias flooredObservations : VectorScalarOperation(ArithmeticOp->MinOp, cappedObservations, floor)
+	alias cappedObservations : if cap exists then VectorScalarOperation(ArithmeticOp->MaxOp, rawObservations, cap) else rawObservations
+	alias flooredObservations : if floor exists then VectorScalarOperation(ArithmeticOp->MinOp, cappedObservations, floor) else cappedObservations
 
 	assign-output processedObservations : flooredObservations
 
