@@ -60,13 +60,16 @@ func Today: <"Current date.">
 	output: today date (1..1)
 
 
+
 /* added by BALynn to support calculated rates */
 // the following are primitive functions that need to be implemented by an implementation
+
 func CombineBusinessCenters: <"Creates a BusinessCenters object that includes the union of business centers in the two supplied lists">
 	inputs:
 		list1 BusinessCenters(1..1) <"first list of business centers">
 		list2 BusinessCenters(1..1) <"second list of business centers">
 	output: combinedList BusinessCenters(1..1) <" resulting merged list of business centers">
+
 
 /*
 func InitializeBusinessCenterHolidays:  <"Allows a user to supply a list of holidays for a business center for subsequent use.  This is provided primarily for testing.">
@@ -91,12 +94,14 @@ func DayOfWeek: <"returns the day of week corresponding to the supplied date">
 	output:
 		dayOfWeek DayOfWeekEnum(1..1) <"The day of the week as an enumerated value">
 
+
 func AddDays: <"adds the specified number of calendar days to the supplied date.  A negative number will generate a date before the supplied date.">
 	inputs:
 		inputDate	date(1..1) <"The base date for the calculation">
 		numDays int(1..1) <"The number of days to add">
 	output:
 		resultDate date(1..1)  <"The date shifted by the specified number of days">
+
 
 func DateDifference: <"subtracts the two supplied dates to return the number of calendar days between them .  A negative number implies first is after second.">
 	inputs:
@@ -105,6 +110,7 @@ func DateDifference: <"subtracts the two supplied dates to return the number of 
 	output:
 		difference int(1..1)  <"The number of calendar days second date is after firstDate.  Negative means secondDate is before firstDate.">
 
+
 func LeapYearDateDifference: <"subtracts the two supplied dates to return the number of leap year calendar days between them .  A negative number implies firstDate is after secondDate.">
 	inputs:
 		firstDate	date(1..1) <"The left side of the subtraction.   ">
@@ -112,12 +118,14 @@ func LeapYearDateDifference: <"subtracts the two supplied dates to return the nu
 	output:
 		difference int(1..1)  <"The number of leap year calendar days secondDate is after firstDate.  Negative means secondDate is before firstDate.">
 
+
 func SelectDate: <"Select a date from a list of dates based on index.  If not found return nothing.">
 	inputs:
 		dates DateGroup(1..1)  <"list to select from">
 		position int(1..1)	<"index to look up">
 	output:
 		date date(0..1)  <"the selected date">
+
 
 func LastInDateList: <"Return the last date in a list of dates">
 	inputs:
@@ -134,14 +142,16 @@ func AppendDateToList: <"Add a date to a list of dates">
 		newList DateGroup(0..1)	<"the newly increased list">
 
 
-
 func PopOffDateList:  <"Remove last element from a list of dates">
 	inputs:
 		dates DateGroup(1..1) <"list of dates">
 	output:
 		newList DateGroup(1..1)	<"the newly created list, omitting the last element of the original list">
+
 		
 // the following are implemented in Rosetta based on the above primitives
+
+
 func IsWeekend: <"returns whether the supplied date is a weekend.  This assumes a 5 day week with Saturday and Sunday as holidays.  A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.">
 	[calculation]
 	inputs:
@@ -155,13 +165,11 @@ func IsWeekend: <"returns whether the supplied date is a weekend.  This assumes 
 
 
 func IsHoliday: <"Returns whether a day is a holiday for the specified business centers">
-
 	inputs:
 		checkDate	date(1..1) <"The date being tested">
 		businessCenters BusinessCenters(1..1) <"The business centers for which the test is required">
 	output:
 		isHoliday boolean(1..1) <"true if the supplied date is a holiday">
-
 	// get the combined list of holidays for the supplied business centers
 	alias holidays : RetrieveBusinessCenterHolidays(businessCenters)
 	
@@ -179,7 +187,6 @@ func IsBusinessDay: <"returns an indicator of whether the supplied date is a goo
 	// determine if a weekend or holiday
 	alias weekend : IsWeekend(date, businessCenters)
 	alias holiday : IsHoliday(date, businessCenters)
-
 	// return whether it's a good business day
 	assign-output isGoodBusinessDay : if weekend then False else if holiday then False else True
 
@@ -199,12 +206,12 @@ func AddBusinessDays: <"Returns a good business date that has been offset by the
 	alias isShiftedGood : IsBusinessDay(shiftedByOne, businessCenters)
 	alias newShift : if isShiftedGood then shift else 0
 	alias newOffset : if offsetBusinessDays = 0 then 0 else   offsetBusinessDays - newShift
-
 	alias done : offsetBusinessDays = 0 and isGoodBusinessDay = True	// we're done if the offsetBusinessDays is 0 and it's a good business day
 	// calculate the shifted date:  if we're done, return the supplied date, else recursively try after having shifted by one day (recursion because iteration isn't supported by the Rosetta DSL)
 	alias newDate : if  done then originalDate else   AddBusinessDays(shiftedByOne, newOffset, businessCenters)
 	assign-output shiftedDate : newDate
 
+	
 func GenerateDateList: <"Creates a list of good business days starting from the startDate and going to the end date, inclusive, omitting any days that are weekends or holidays according to the supplied business centers.">
 [calculation]
 	inputs:
@@ -220,13 +227,3 @@ func GenerateDateList: <"Creates a list of good business days starting from the 
 	// add the current end date to the previous list if it is a good business day  (the test handles the case when the first supplied end date is not a business day)
 	alias newList : if isGoodBusinessDay then AppendDateToList(priorList, endDate) else priorList
 	assign-output datelist : if  active then  newList
-
-/*
-
-func AdjustDate: <"Returns a date that has been adjusted by the supplied BusinessDayConvention with the supplied BusinessCenters">
-	inputs:
-		unadjustedDate date(1..1)  <" date to be adjusted">
-		businessDayConvention BusinessDayConventionEnum(1..1)	<" business day convention to use in the adjustment">
-		businessCenters BusinessCenters(1..1)	<" business centers to use in the adjustment">
-	output: adjustedDate date(1..1)
-*/

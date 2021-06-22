@@ -5,30 +5,9 @@ func Abs:
 	inputs: x number (1..1)
 	output: result number (1..1)
 
-// Added BALynn 
-func SelectFromVector: <"selects a single value from a vector (list of numbers), i.e. result = val[index] ">
-	inputs: 
-		vector Vector (1..1)  <"input vector">
-		index int(1..1)	<"index to of the value to select">
-	output: result number (1..1)	<"resulting value">
-
-
-func LastInVector: <"return the last value in a vector">
-	[calculation]
-	inputs:
-		vector Vector(1..1)  <"input vector">
-	output: lastValue number (0..1)	<"resulting value">
-//	alias vectorLength : ToInt(vector count)
-//	assign-output  lastValue : SelectFromVector(vector, vector count - 1)
-
-func Sum:<'generates the scalar sum (total) of all of the supplied values'>
+func Sum: <"generates the scalar sum (total) of all of the supplied values">
 	inputs: x number (0..*)
 	output: sum number (1..1)
-
-// Added BALynn
-func Product:<'generates the scalar product of all of the supplied values'>
-	inputs: x number (0..*)
-	output: product number (1..1)
 
 func ListsCompare:
 	inputs:
@@ -74,15 +53,44 @@ func FilterQuantity: <"Filter list of quantities based on unit type.">
         quantity Quantity (0..1)
 
 
-// Added BALynn to support calculated rates
+// BAL additions
+
+func ToVector: <"Create a vector from a list of numbers ">
+  [calculation]
+    inputs:
+        vals number(0..*)
+    output:
+        vect Vector(1..1)
+    assign-output vect->values : vals
+	
+
+func SelectFromVector: <"selects a single value from a vector (list of numbers), i.e. result = val[index].  Returns null if the supplied vector is empty or if the supplied index is out of range.  Returns the first element of the vetor when supplied an index of 0, and the index - 1 th element if idex  ">
+	inputs: 
+		vector Vector (1..1)  <"input vector">
+		index int(1..1)	<"index to of the value to select">
+	output: result number (1..1)	<"resulting value">
+
+func LastInVector: <"return the last value in a vector.  If the vector is empty, return null">
+	[calculation]
+	inputs:
+		vector Vector(1..1)  <"input vector">
+	output: lastValue number (0..1)	<"resulting value">
 
 
+func AppendToVector: <"append a single value to a vector list (list of numbers)">
+    inputs:
+    	vector Vector (1..1)  <"input vector">
+    	value number(1..1)	<"value to add to the vector">
+    output: resultVector Vector (1..1)	<"resulting vector">
+
+	
 func VectorOperation: <"Generates a result vector by applying the supplied arithmetic operation to each element of the supplied left and right vectors in turn.  i.e. result[n] = left[n] <op> right[n], where <op> is the arithmetic operation defined by arithmeticOp.">
 	inputs:
 		arithmeticOp ArithmeticOp(1..1)  <"operator">
 		left Vector (1..1)			<"left vector">
 		right Vector(1..1)			<"right vector">
 	output: result Vector (1..1)	<"result vector">
+
 
 func VectorScalarOperation: <"Generates a result vector by applying the supplied arithemetic operation and scalar right value to each element of the supplied left vector in turn. i.e. result[n] = left[n] <op> right, where <op> is the arithmetic operation defined by arithmeticOp.">
 	inputs:
@@ -91,6 +99,7 @@ func VectorScalarOperation: <"Generates a result vector by applying the supplied
 		right number(1..1)				<"scalar number, single value applied to all elements of vector">
 	output: result Vector (1..1)		<"result vector">
 
+
 func VectorGrowthOperation: <"Generates a result vector by starting with the supplied base value (typically 1), and then multiplying it in turn by each growth factor, which is typically a number just above 1.  For instance, a growth factor of 1.1 reprsents a 10% increase, and 0.9 a 10% decrease.  The results will show the successive results of applying the successive growth factors (excluding the initial base value), with the first value of the list being the supplied baseValue, and final value of the results list being the product of all of the supplied values.  i.e. result[1] = baseValue * factor[1], result[n] = result[n-1] * factor[n].  The resulting list will have the one more element than the supplied list of factors.">
 	inputs:
 		baseValue number (1..1)   <"original value, typically 1.0">
@@ -98,22 +107,6 @@ func VectorGrowthOperation: <"Generates a result vector by starting with the sup
     output: result Vector (1..1)	<"result vector, showing all of the interim growth values">
 
 
-  func ToVector:
-  [calculation]
-    inputs:
-        vals number(0..*)
-    output:
-        vect Vector(1..1)
-    assign-output vect->values : vals
-
-
-    func AppendToVector: <"append a single value to a vector list (list of numbers)">
-    	inputs:
-    		vector Vector (1..1)  <"input vector">
-    		value number(1..1)	<"value to add to the vector">
-    	output: resultVector Vector (1..1)	<"resulting vector">
 
 
 
-func NullVector:
-    output: values Vector(1..1)
