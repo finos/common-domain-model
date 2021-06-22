@@ -382,18 +382,46 @@ func EvaluateTermRate: <"Evaluate/lookup the value of a term rate">
 		calculationPeriod CalculationPeriodBase(1..1)	<"Calculation period for which you want the rate">
 	output:
 		details FloatingRateSettingDetails(1..1)	<"Resulting details of the rate setting ">
+
 	// figure out the date for which the rate is needed
-	alias resetRelativeTo : resetDates->resetRelativeTo
-	alias isStart : resetRelativeTo = ResetRelativeToEnum->CalculationPeriodStartDate
-	alias resetDate : if (isStart) then calculationPeriod->adjustedStartDate else calculationPeriod->adjustedEndDate
-	alias fixingOffsetDays : resetDates->fixingDates->periodMultiplier
-	alias fixingDate : AddBusinessDays(resetDate, fixingOffsetDays, resetDates->fixingDates->businessCenters)
+	alias resetDate : DetermineResetDate(resetDates, calculationPeriod)
+	alias fixingDate : DetermineFixingDate(resetDates, resetDate)
+
 	// look up the rate on that date
 	alias observedRate : IndexValueObservation(fixingDate, rateDef->rateOption)
 	// record relevant dates and observed rate
 	assign-output details->resetDate : resetDate
 	assign-output details->observationDate : fixingDate
 	assign-output details->floatingRate : observedRate
+
+
+func DetermineResetDate: <"Determine the value of the reset date given a reset dates structure and a calculation paeriod for which it's needed">
+	[calculation]
+	inputs:
+		resetDates ResetDates(1..1)	<"Reset dates for observing the rate">
+		calculationPeriod CalculationPeriodBase(1..1)	<"Calculation period for which you want the rate">
+	output:
+		resetDate date (1..1)	<"The date upon which the rate should be observed. ">
+	// figure out the date for which the rate is needed
+	alias resetRelativeTo : resetDates->resetRelativeTo
+	alias isStart : resetRelativeTo = ResetRelativeToEnum->CalculationPeriodStartDate
+	alias reset : if (isStart) then calculationPeriod->adjustedStartDate else calculationPeriod->adjustedEndDate
+
+	assign-output resetDate : reset
+
+func DetermineFixingDate: <"Determine the observation (fixing) date needed given a reset dates structure and a reset date">
+	[calculation]
+	inputs:
+		resetDates ResetDates(1..1)	<"Reset date parameters for observing the rate">
+		resetDate date(1..1) <"The date that the rate is needed for">
+	output:
+		fixingDate date (1..1)	<"The date upon which the rate should be observed. ">
+
+
+	alias fixingOffsetDays : resetDates->fixingDates->periodMultiplier
+	alias fixDate : AddBusinessDays(resetDate, fixingOffsetDays, resetDates->fixingDates->businessCenters)
+
+	assign-output fixingDate : fixDate
 
 
 func GetFloatingRateConditioningParameters: <"Determine the conditioning parameters to use from the InterestRatePayout by looking them up if necessary from the corresponding schedules">
