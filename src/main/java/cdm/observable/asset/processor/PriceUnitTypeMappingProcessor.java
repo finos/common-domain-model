@@ -148,7 +148,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	}
 
 	private boolean updateFxOption(PriceBuilder builder, Path synonymPath) {
-		if (builder.getPriceType() != PriceTypeEnum.EXCHANGE_RATE) {
+		if (builder.getPriceType() != PriceTypeEnum.EXCHANGE_RATE && builder.getPriceType() != PriceTypeEnum.SPOT) {
 			return false;
 		}
 		Optional<Path> subPath = subPath("fxOption", synonymPath);

@@ -1,25 +1,29 @@
-# *Event Model - Rate Reset: Fallback Rates*
+# *DSL Syntax - New keywords to compare a list to a single data object*
 
 _What is being released?_
 
-This release adjusts the `Reset` type and related functions to support Fallback Rates.  
+New keywords have been introduced in the DSL syntax to compare a list of items to a single data object. Currently comparing a list to single data object will only result to true if all the items of the list match the single data object.  The `all` and `any` keywords can now be used to extend the comparison outcome with any equality operators: `=`, `<>`, `>`, `>=`, `<`, `<=`.
 
-Fallback Rates are used, for example, as a substitute for LIBOR on legacy LIBOR contracts that have not been amended to an Adjusted Reference Rate (ARR), and where Fallback contractually applies.  
+In the examples below, `payout -> interestRatePayout` is a list according to the cardinality of its definition in the model.
 
-Often in a fallback reset process the reset rate is set in arrears rather than in advance as is the case with rates like LIBOR today, where the rate is reset for the subsequent accrual period.  For example, given a trade with 3 month floating rate, and where such as fallback applies, the reset date (defined in the model with existing attribute `Reset->resetDate`) of 20th April is at the end of the interest accrual period, the Rate Record Date would be 3 months earlier, 19th Jan (e.g. near start of the accrual period because reset rate is set in arrears, defined in the model with new attribute `Reset->rateRecordDate`).
+The `all` keyword will be used to specify that *all* items in the list must match the single data object. Accordingly, the statement will evaluate to true if each `paymentDates -> paymentFrequency -> period` for every item of the list `interestRatePayout` is equal to `T`.
 
-Typically, if no rate is available on the Rate Record Date of 19th Jan, the observed rate will be taken on the nearest previous date where a rate is available (defined in the model with the existing attribute `Reset->observations->observationIdentifier->observationDate`).
+- `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T`
 
-The related functions `Create_Reset`, `Create_ResetPrimitive` and `ResolveInterestRateReset` have been adjusted to use the new attribute rateRecordDate when specified.
+The `any` keyword will be used to specify that *any* item in the list must match the single data object. Accordingly, the statement will evaluate to true if at least one `paymentDates -> paymentFrequency -> period` for any item of the list `interestRatePayout` is equal to `T`.
 
-Note that the reset process for equities is unaffected.
+- `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any = PeriodExtendedEnum -> T`
 
-_Review directions_
+All list comparisons in the model have been updated to use the `all` or `any` keywords whilst retaining the original expected logical outcome.
 
-In the CDM Portal, select the Textual Browser, and review the following types and functions:
+In the CDM Documentation, review the following sections:
 
-- `Reset`, `ResetInstruction`
-- `Create_Reset`, `Create_ResetPrimitive` and `ResolveInterestRateReset`
+- [List comparison operators](https://docs.rosetta-technology.io/dsl/expressions.html#list-comparison-operators)
 
+_Review Directions_
 
+In the CDM Portal, use the Textual Browser to review the list comparisons in the model, including the following examples:
 
+- Event qualification functions - `Qualify_CashTransfer`, `Qualify_Novation`
+- Product qualification functions - `Qualify_InterestRate_IRSwap_FixedFloat`, `Qualify_InterestRate_IRSwap_FixedFloat_OIS`
+- Conditions - `PriceQuantity -> NonNegativeQuantity`, `CreditDefaultPayout -> FpML_cd_13`, `CreditDefaultPayout -> FpML_cd_14`

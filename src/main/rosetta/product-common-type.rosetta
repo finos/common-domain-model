@@ -1,7 +1,9 @@
 namespace cdm.product.common
 version "${project.version}"
 
+import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.asset.common.*
+import cdm.observable.asset.*
 
 type ProductIdentification: <"Combines the CDM product qualifier with other product types and identifiers. While the CDM product qualifier is derived by the CDM from the product payout features, the other product type and identification elements are assigned by external sources and correspond to values specified by other data representation protocols.">
 
@@ -13,5 +15,7 @@ type ProductIdentification: <"Combines the CDM product qualifier with other prod
 	externalProductType ExternalProductType (0..*) <"Provides a classification of the type of product that is external to the product qualifications used in the CDM. Product types mapped from external models are mapped to this data type.">
 	productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 
-
+type TradeLot: <"Specifies the price and quantity of a trade lot, where the same product could be traded multiple times with the same counterparty but in different lots (at a different date, in a different quantity and at a different price). One trade lot combined with a product definition specifies the entire economics of a trade. The lifecycle mechanics of each such trade lot (e.g. cashflow payments) is independent of the other lots.">
+	lotIdentifier Identifier (0..*) <"Specifies one or more identifiers for the lot, if any.">
+	priceQuantity PriceQuantity (1..*) <"Specifies the price, quantity, and optionally the observable of a trade lot. This attribute has a multiple cardinality to allow to specify the price, quantity and observable of different legs in a single, composite product (e.g. a Swap).">
 

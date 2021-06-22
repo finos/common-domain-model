@@ -2,20 +2,14 @@ package org.isda.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
-import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRole;
-import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRoleImpl;
-import cdm.base.staticdata.party.functions.ExtractCounterpartyByRole;
-import cdm.base.staticdata.party.functions.ExtractCounterpartyByRoleImpl;
-import cdm.event.common.FilterCashTransfersImpl;
-import cdm.event.common.FilterSecurityTransfersImpl;
-import cdm.event.common.TransfersForDateImpl;
-import cdm.event.common.functions.FilterCashTransfers;
-import cdm.event.common.functions.FilterSecurityTransfers;
-import cdm.event.common.functions.TransfersForDate;
+import cdm.base.staticdata.party.functions.*;
+import cdm.event.common.functions.*;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.asset.functions.FilterPrice;
 import cdm.observable.asset.functions.FilterPriceImpl;
+import cdm.observable.asset.functions.FilterPriceQuantity;
+import cdm.observable.asset.functions.FilterPriceQuantityImpl;
 import cdm.observable.common.functions.CurrencyAmount;
 import cdm.observable.common.functions.CurrencyAmountImpl;
 import cdm.observable.common.functions.NoOfUnits;
@@ -30,6 +24,7 @@ import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
 import com.rosetta.model.lib.validation.ValidatorFactory;
+import org.jetbrains.annotations.NotNull;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -63,8 +58,10 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
 		bind(ExtractCounterpartyByRole.class).to(bindExtractCounterpartyByRole());
 		bind(ExtractAncillaryPartyByRole.class).to(bindExtractAncillaryPartyByRole());
+		bind(FilterPartyRole.class).to(bindFilterPartyRole());
 		bind(FilterPrice.class).to(bindFilterPrice());
 		bind(FilterQuantity.class).to(bindFilterQuantity());
+		bind(FilterPriceQuantity.class).to(bindFilterPriceQuantity());
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
 		bind(SelectDate.class).to(bindSelectDate());
@@ -86,6 +83,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(IndexValueObservation.class).to(bindIndexValueObservation());
 		bind(IndexValueObservation.class).to(bindIndexValueObservation());
 		bind(IndexValueObservationMultiple.class).to(bindIndexValueObservationMultiple());
+		bind(UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity.class).to(bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity());
+
 	}
 
 	protected Class<? extends FilterSecurityTransfers> bindFilterSecurityTransfers() {
@@ -176,12 +175,20 @@ public class CdmRuntimeModule extends AbstractModule {
 		return ExtractAncillaryPartyByRoleImpl.class;
 	}
 
+	protected Class<? extends FilterPartyRole> bindFilterPartyRole() {
+		return FilterPartyRoleImpl.class;
+	}
+
 	protected Class<? extends FilterPrice> bindFilterPrice() {
 		return FilterPriceImpl.class;
 	}
 
 	protected Class<? extends FilterQuantity> bindFilterQuantity() {
 		return FilterQuantityImpl.class;
+	}
+
+	protected Class<? extends FilterPriceQuantity> bindFilterPriceQuantity() {
+		return FilterPriceQuantityImpl.class;
 	}
 
 	protected Class<? extends Now> bindNow() {
@@ -214,5 +221,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends Today> bindToday() {
 		return TodayImpl.class;
+	}
+
+	protected Class<UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl> bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity() {
+		return UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl.class;
 	}
 }
