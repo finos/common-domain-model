@@ -477,6 +477,9 @@ type FloatingRate: <"A class defining a floating interest rate through the speci
 
     rateOption FloatingRateOption (0..1)
         [metadata address "pointsTo"=Observable->rateOption]
+
+	calculationParameters FloatingRateCalculationParameters(0..1) <" Support for modular calculated rates, such such as lockout compound calculations.  ">
+
 	floatingRateMultiplierSchedule RateSchedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
 	spreadSchedule SpreadSchedule (0..*) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
 	rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
@@ -527,3 +530,82 @@ type StubValue: <"A type defining how a stub calculation period amount is calcul
 	condition: one-of
 
 
+
+// BAL enhancements
+type FloatingRateCalculationParameters: <"Defines the structures needed to represent the calculation parameters for daily averaged and compounded modular rates as defined in the Approaches to Compounding memo, and as represented in FpML 5-12">
+	calcType  CalculationTypeEnum(1..1)  <"calculation type (averaging or compounding)">
+	observationShiftCalculation ObservationShiftCalculation(0..1) <"any obervation shift parameters if applicable">
+	lookbackCalculation OffsetCalculation(0..1) <"any lookback  parameters if applicable">
+	lockoutCalculation OffsetCalculation(0..1) <"any lockout  parameters if applicable">
+	applicableBusinessDays BusinessCenters(0..1) <"the business days that are applicable for the calculation">
+	observationParameters ObservationParameters(0..1) <" any applicable observation parameters, such as daily caps or floors">
+
+type OffsetCalculation:  <"Defines business day shifts for daily componded or averaged rates">
+	offsetDays int(0..1)	<" the number of business days offset">
+
+
+type ObservationShiftCalculation: <"Parameters to describe the observation shift for a daily compounded or averaged floating rate">
+	offsetDays int(0..1)		<"The number of days of observation shift">
+	calculationBase CalculateRelativeToEnum(0..1)	<"Whether the rate is calculated in advance, in arrears, or relative to a reset date">
+	additionalBusinessDays BusinessCenters(0..1)	<"Any additional business days that be applicable">
+
+
+type ObservationParameters: <"Parameters on daily observed computed rates">
+	observationCapRate number(0..1) <"A daily observation cap rate">
+	observationFloorRate number(0..1) <"A daily observation floor rate">
+
+
+type FloatingAmountCalculationDetails:  <"Type for reporting the detailed results of calculating a cash flow for a calcuation period.  This is enhanced relative to the FpML-based cashflows structure to allow more information to be returned about daily compounded rates.">
+    calculationPeriod   CalculationPeriodBase(1..1) <"The calculation period for which the floating calculation was performed">
+    calculationPeriodNotionalAmount  Money(1..1)    <"The notional in effect during the calculation period">
+    floatingRate        FloatingRateSettingDetails(0..1)    <"The details of the floating rate settting.  (If it is a calculated rate, details of that calculation will be inside that.">
+    conditioningDetails  FloatingRateConditioningDetails(0..1)    <"Details fo the floating rate treatment after the rate is observed or calculated.  This will include details of things like multipliers, spreads, caps and floors, and the raw and treated rates.">
+    appliedRate  number(1..1)   <"The rate that was actually applied, after all calculations and treatments">
+    yearFraction number(1..1) <"The fraction of a year that this calculation represents, according to the day count fraction method">
+    calculatedAmount number(1..1)   <"The amount of the cash flow that was computed">
+
+
+type FloatingRateSettingDetails: <"Type for reporting the raw (untreated) observed or calculated rate for a calculation period.  If this is a calculated rate, it allows details of the observations and the resulting rate to be returned ">
+	calculationDetails  CalculatedRateDetails(0..1)	<"Calculated rate details (observation dates, values, and weights)">
+	observationDate date(0..1)	<"The day upon which the rate was observed (for term rates)">
+	resetDate date(0..1)		<"The day for which the rate is needed (e.g. period beginning or end date)">
+	floatingRate number(1..1)	<"The resulting rate that was observed or calculated">
+
+type CalculatedRateDetails: <"Type for reporting details of calculated rates, including the observations that went into the final reported rate">
+	observations CalculatedRateObservations(0..1)  <"the observation dates and weights for each observation date">
+	weightedRates   Vector(1..1) 	<"the weighted value of each obervation">
+	growthFactor   Vector(1..1)		<"The daily growth factors, showing the weighted rates divided by the day count basis plus one, giving how much the value grows for each step in the calculation">
+	compoundedGrowth  Vector(1..1)	<"The compounding curve, showing how the initial value grew during the calculation period">
+	aggregateValue  number(0..1)	<"The total sum or product of all the individual terms that went into the calculated rate">
+	aggregateWeight number(0..1)	<"The total weight of all the terms that went into the calculated rate">
+	calculatedRate 	number(0..1)	<"The resulting calculated weight">
+//	weight  		Vector(1..1)	<" the weight for each observation">
+
+
+type CalculatedRateObservations: <"Type for reporting observations that went into the final reported rate">
+	observationDates DateGroup(1..1) <"The observation date upon which the rate is observed">
+	weights Vector(1..1)	<"The corresponding weight for each date">
+	observedRates Vector(1..1) <"The value observed for that date">
+	processedRates Vector(1..1) <"The value after any processing, such as application of caps or floors">
+
+
+type CalculatedRateObservationDatesAndWeights: <"Type for reporting the observations dates and the corresponding weights going into a daily calculated rate">
+	observationDates DateGroup(1..1) <"The observation date upon which the rate is observed">
+	weights Vector(1..1)	<"The corresponding weight for each date">
+
+
+type FloatingRateConditioningDetails: <"Type for reporting the details of the rate treatment.  This could potentially be replaced by the existing FloatingRateDefinition type , but this is slightly more detailed.">
+	rawRate number(1..1)  <"The raw or untreated rate, prior to any of the rate treatments">
+	conditioningParameters FloatingRateConditioningParameters(0..1)
+	conditionedRate  number(1..1)
+
+
+type FloatingRateConditioningParameters: <"xxx">
+	initialRate Price(0..1)
+	rounding Rounding(0..1)
+	negativeTreatment NegativeInterestRateTreatmentEnum(0..1)
+	treatment RateTreatmentEnum (0..1)
+	mult	 	number(0..1)
+	spread 		number(0..1)
+	capRate		number(0..1)
+	floorRate	number(0..1)

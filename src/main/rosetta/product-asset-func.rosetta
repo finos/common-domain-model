@@ -272,4 +272,663 @@ func DividendCashSettlementAmount: <"Based on the following legal text: means, i
 
 	assign-output dividendCashSettlementAmount:
 		declaredDividend * numberOfSecurities
+
+
+
+
+// BAL additions for new calculated rates //
+func IndexValueObservation: <"BAL addition>> Retrieve the values of the supplied index on the specified observation date">
+	inputs:
+		observationDate date(1..1)
+		floatingRateOption FloatingRateOption(1..1)
+	output:
+		observedValue number(1..1)
+func IndexValueObservationMultiple: <"BAL addition>> Retrieve the values of the supplied index on the specified observation dates">
+	inputs:
+		observationDate DateGroup(1..1)
+		floatingRateOption FloatingRateOption(1..1)
+	output:
+		observedValues Vector(1..1)
+
+
+func FloatingAmountEnhanced: <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount  Floating Rate + Spread  Floating Rate Day Count Fraction (b) if 'Compounding' is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.   This enhanced version supports parameterized rate treatments, such as spread schedules, cap rate schedules, negative rate treatment, final rate rounding, etc.">
+	[calculation]
+	inputs:
+		interestRatePayout InterestRatePayout (1..1)
+		spread number (0..1)		<"This is ignored if provided and instead the spread is obtained from the interest rate payount ">
+		rate number (0..1)			<"This is ignored and instead the rate is obtained by querying the IndexValueObservation function ">
+		quantity Quantity (0..1)	<"This is ignored and instead the notional is determined by querying the noitonal schedule">
+		calculationPeriodStartDate date (1..1)  <"The final date of the calculation period">
+	output:
+	    floatingAmount number (1..1)
+	// determine the calculation period corresponding to the supplied end date
+	alias calcPeriod :  CalculationPeriod(interestRatePayout -> calculationPeriodDates, calculationPeriodStartDate)
+	//perform the floating amount calculation
+	alias results : FloatingAmountCalculation(interestRatePayout, InitCalculationPeriodBase(calcPeriod))
+	// record the results
+	assign-output floatingAmount : results -> calculatedAmount
+
+
+func InitCalculationPeriodBase: <"Initialize a CalculationPeriodBase type from CalculationPeriodData type">
+	[calculation]
+	inputs:
+		calcPeriodData CalculationPeriodData(1..1)		<"A supplied CalculationPeriodData structure">
+	output:
+		calcPeriod CalculationPeriodBase(1..1)			<"The corresponding CalculationPeriodBase structure">
+	assign-output calcPeriod->adjustedStartDate : calcPeriodData->startDate
+	assign-output calcPeriod ->adjustedEndDate : calcPeriodData->endDate
+
+
+func FloatingAmountCalculation: <"Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction">
+	[calculation]
+	inputs:
+		interestRatePayout InterestRatePayout (1..1) <"The interest rate stream for which the floating amount calculation is being done">
+		calculationPeriod CalculationPeriodBase(1..1) <"The calculation period for which the floating rate calculation is being done">
+	output:
+	    result FloatingAmountCalculationDetails(1..1) <"The details of the floating rate calculation, including raw rate, rate treatment details, notional, and calculated cashlow amount">
+	//alias numDays : CalculatePeriodLength(calculationPeriod)
+	//Get the floating rate before treatments
+	alias rawFloatingRateDetails : DetermineFloatingRateReset(interestRatePayout, calculationPeriod)
+	alias rawFloatingRate :	rawFloatingRateDetails->floatingRate
+	//apply rate treatments
+	alias conditioningParameters : GetFloatingRateConditioningParameters(interestRatePayout, calculationPeriod)
+	alias conditioningDetails  : ApplyFloatingRateConditioning(conditioningParameters, rawFloatingRate)
+	alias appliedRate : conditioningDetails-> conditionedRate
+	//determine notional, year fraction, and perform the final calculation
+	alias notional : LookupNotionalAmount(interestRatePayout, calculationPeriod)
+	alias dcf : interestRatePayout->dayCountFraction
+	alias yearFraction : DayCountFraction(interestRatePayout, dcf, calculationPeriod->adjustedStartDate)
+	alias annualAccrual : notional->multiplier  * appliedRate
+	alias cashflow : annualAccrual * yearFraction
+// record results
+	assign-output result->calculationPeriod : calculationPeriod
+	assign-output result->calculationPeriodNotionalAmount : notional
+	assign-output result->floatingRate : rawFloatingRateDetails
+	assign-output result->conditioningDetails : conditioningDetails
+	assign-output result->appliedRate : appliedRate
+	//assign-output result->notionalAmount : notional->amount
+	assign-output result->yearFraction : yearFraction
+	assign-output result->calculatedAmount : cashflow
+// The following functions support term rates
+
+
+func DetermineFloatingRateReset: <"Get the value of a floating rate by either observing it directly or performing a rate calculation">
+	[calculation]
+	inputs:
+		interestRatePayout InterestRatePayout (1..1)	<"Floating rate stream definition">
+		calcPeriod CalculationPeriodBase(1..1)	<"The calculation period for which you want the rate">
+	output:
+		floatingRate FloatingRateSettingDetails(1..1)	<"Details of the rate observation/calculation">
+	// figure out the characteristics of the rate
+	alias  rateDef : interestRatePayout->rateSpecification->floatingRate
+	alias	isCalculatedRate : rateDef->calculationParameters exists
+	alias resetDates : interestRatePayout->resetDates
+	alias dayCount : interestRatePayout->dayCountFraction
+	alias priorCalculationPeriod : InitCalculationPeriodBase(CalculationPeriod(interestRatePayout -> calculationPeriodDates, calcPeriod->adjustedStartDate))
+	alias fro : rateDef->rateOption
+	alias calcParams : rateDef->calculationParameters
+	// perform the relevant operation (look up a term rate or do the rate calculation for a calculated rate)
+	assign-output floatingRate :
+			if isCalculatedRate then EvaluateCalculatedRate(fro, calcParams,  resetDates, calcPeriod, priorCalculationPeriod, dayCount)
+			else
+			EvaluateTermRate(rateDef, resetDates, calcPeriod)
+
+
+func EvaluateTermRate: <"Evaluate/lookup the value of a term rate">
+	[calculation]
+	inputs:
+		rateDef FloatingRate(1..1)  <"Floating rate definition">
+		resetDates ResetDates(1..1)	<"Reset dates for observing the rate">
+		calculationPeriod CalculationPeriodBase(1..1)	<"Calculation period for which you want the rate">
+	output:
+		details FloatingRateSettingDetails(1..1)	<"Resulting details of the rate setting ">
+	// figure out the date for which the rate is needed
+	alias resetRelativeTo : resetDates->resetRelativeTo
+	alias isStart : resetRelativeTo = ResetRelativeToEnum->CalculationPeriodStartDate
+	alias resetDate : if (isStart) then calculationPeriod->adjustedStartDate else calculationPeriod->adjustedEndDate
+	alias fixingOffsetDays : resetDates->fixingDates->periodMultiplier
+	alias fixingDate : AddBusinessDays(resetDate, fixingOffsetDays, resetDates->fixingDates->businessCenters)
+	// look up the rate on that date
+	alias observedRate : IndexValueObservation(fixingDate, rateDef->rateOption)
+	// record relevant dates and observed rate
+	assign-output details->resetDate : resetDate
+	assign-output details->observationDate : fixingDate
+	assign-output details->floatingRate : observedRate
+
+
+func GetFloatingRateConditioningParameters: <"Determine the conditioning parameters to use from the InterestRatePayout by looking them up if necessary from the corresponding schedules">
+inputs:
+		interestRatePayout InterestRatePayout (1..1) <"An interest rate stream">
+		calculationPeriod CalculationPeriodBase(1..1)	<"The calculation period for which the calculation is being perfmored (needed to look up paramters)">
+output:
+	conditioningParameters FloatingRateConditioningParameters(1..1)
+// look up parameters
+	alias	spreadRate : SpreadAmount(interestRatePayout, calculationPeriod)
+	alias 	multiplier : MultiplierAmount(interestRatePayout, calculationPeriod)
+	alias	cap : CapRateAmount(interestRatePayout, calculationPeriod)
+	alias	floor : FloorRateAmount(interestRatePayout, calculationPeriod)
+	alias	treatment : interestRatePayout->rateSpecification->floatingRate->rateTreatment
+	alias 	rounding : interestRatePayout->rateSpecification->floatingRate->finalRateRounding
+	alias	negativeTreatment : interestRatePayout->rateSpecification->floatingRate->negativeInterestRateTreatment
+assign-output conditioningParameters->spread : spreadRate
+assign-output conditioningParameters->mult : multiplier
+assign-output conditioningParameters->capRate : cap
+assign-output conditioningParameters->floorRate : floor
+assign-output conditioningParameters->treatment : treatment
+assign-output conditioningParameters->rounding : rounding
+assign-output conditioningParameters->negativeTreatment : negativeTreatment
+
+
+func ApplyFloatingRateConditioning: <"Perform rate treatments on floating rates, such as applying spreads, multipliers, caps and floors, rounding, and negative interest treatment.  TBD:  initialRate needs to be supported">
+	inputs:
+		conditioning FloatingRateConditioningParameters(1..1)
+		rawRate number(1..1)	<"The floating rate prior to treatment, either a single term rate, or a calculated rate such as an OIS or lookback compounded rate">
+	output:
+		details FloatingRateConditioningDetails(1..1)	<"Results are details of the rate treatment">
+	alias multiplier : conditioning -> mult
+	alias spreadRate : conditioning -> spread
+	// perform rate treatment calculations
+    alias   multiplied :        rawRate * multiplier
+	alias	multipliedRate : 	if multiplier exists then multiplied else rawRate
+	alias   added :             multipliedRate + spreadRate
+	alias	ratePlusSpread :  	if spreadRate exists then added else multipliedRate
+    alias   cappedAndFloorRate : ApplyCapsAndFloors(conditioning, ratePlusSpread)
+    alias	treatedRate :		ApplyRateTreatments(conditioning, cappedAndFloorRate)
+	// record results
+	assign-output	details -> conditioningParameters : conditioning
+	assign-output  details->rawRate : 	rawRate
+	assign-output	details->conditionedRate : treatedRate
+
+
+func ApplyCapsAndFloors: <"Apply any cap or floor rate as a constraint on a regular swap rate">
+    [calculation]
+    inputs:
+		conditioning FloatingRateConditioningParameters(1..1)
+		inputRate number(1..1)	<"The floating rate prior to treatment, either a single term rate, or a calculated rate such as an OIS or lookback compounded rate">
+    output:
+        cappedAndFlooredRate number(1..1) <"The rate after application of cap and/or floor">
+    	alias cap : conditioning -> capRate
+    	alias floor : conditioning -> floorRate
+    	alias	cappedRate :		if cap exists and inputRate > cap then  cap else inputRate
+        alias	flooredRate : 		if floor exists and cappedRate < floor then floor else cappedRate
+        assign-output cappedAndFlooredRate :  flooredRate
+
+
+func ApplyRateTreatments:
+    [calculation]
+    inputs:
+		conditioning FloatingRateConditioningParameters(1..1)
+		rawRate number(1..1)	<"The floating rate prior to treatment, either a single term rate, or a calculated rate such as an OIS or lookback compounded rate">
+    output:
+        treatedRate number(1..1)
+//        alias treatment : conditioning -> treatment
+//        alias negativeTreatment : conditioning ->negativeTreatment
+//        alias rounding : conditioning -> rounding
+//  alias	treatedRate :		if treatment exists then ApplyRateTreatment(rawRate, treatment) else rawRate
+//	alias	roundedRate:		if rounding exists then ApplyFinalRateRounding(treatedRate, rounding) else treatedRate
+//	alias	negativeTreatedRate:	if negativeTreatment exists then ApplyNegativeInterestTreatment(roundedRate, negativeTreatment) else roundedRate
+     assign-output  treatedRate : rawRate  // for now
+
+
+/*
+func ApplyRateTreatment: <"Apply the rate treatment logic">
+	inputs:
+		baseRate number(1..1) <"Rate before treatment">
+		rateTreatment RateTreatmentEnum(1..1) <"type of treatment">
+	output:
+		treatedRate number(1..1)	<"rate after treatment">
+// TODO: implement using enumerated function definitions
+
+
+func ApplyFinalRateRounding: <"Apply the final rate rounding treatment logic">
+	inputs:
+		baseRate number(1..1) <"Rate before rounding">
+		finalRateRounding Rounding(1..1) <"type of rounding">
+	output:
+		roundedRate number(1..1) <"rate after rounding">
+// TODO: implement
+
+
+func ApplyNegativeInterestTreatment: <"Apply the negative interest treatment logic">
+inputs:
+		baseRate number(1..1) <"Rate before treatment">
+		negativeTreatment NegativeInterestRateTreatmentEnum(1..1) <"type of treatment">
+	output:
+		negativeTreatedRate number(1..1) <"rate after rounding">
+// TODO: implement using enumerated function definitions
+*/
+
+func SpreadAmount: <"Look up the spread amount for a calculation period">
+	[calculation]
+	inputs:
+		interestRatePayout InterestRatePayout (1..1) <"An interest rate stream">
+		calculationPeriod CalculationPeriodBase(1..1) <"The calculation period for which you want the spread">
+	output:
+	    spread number(0..1)  <"the spread value for the period">
+	alias	startDate : calculationPeriod->adjustedStartDate
+	assign-output
+		spread: LookupRateScheduleAmount(interestRatePayout->rateSpecification->floatingRate->spreadSchedule only-element, startDate)
+
+
+func MultiplierAmount: <"Look up the multiplier amount for a calculation period">
+[calculation]
+	inputs:
+		interestRatePayout InterestRatePayout (1..1) <"An interest rate stream">
+		calculationPeriod CalculationPeriodBase(1..1) <"The calculation period for which you want the multiplier">
+	output:
+	    multiplier number(0..1) <"The multiplier in effect from the calculation period start date">
+assign-output
+		multiplier: LookupRateScheduleAmount(interestRatePayout->rateSpecification->floatingRate->floatingRateMultiplierSchedule, calculationPeriod->adjustedStartDate)
+
+
+func CapRateAmount: <"Look up the cap rate amount for a calculation period">
+[calculation]
+	inputs:
+		interestRatePayout InterestRatePayout (1..1) <"An interest rate stream">
+		calculationPeriod CalculationPeriodBase(1..1) <"The calculation period for which you want the cap rate">
+	output:
+	    capRate number(0..1) <"The cap rate in effect from the calculation period start date">
+	// look up and return the amount from the cap rate schedule
+	assign-output
+		capRate: LookupRateScheduleAmount(interestRatePayout->rateSpecification->floatingRate->capRateSchedule only-element, calculationPeriod->adjustedStartDate)
+
+
+func FloorRateAmount: <"Look up the floor rate amount for a calculation period">
+[calculation]
+inputs:
+		interestRatePayout InterestRatePayout (1..1) <"An interest rate stream">
+		calculationPeriod CalculationPeriodBase(1..1) <"The calculation period for which you want the floor rate">
+output:
+	    floorRate number(0..1) <"The cap rate in effect from the calculation period start date">
+// look up and return the amount
+assign-output
+		floorRate: LookupRateScheduleAmount(interestRatePayout->rateSpecification->floatingRate->floorRateSchedule only-element, calculationPeriod->adjustedStartDate)
+
+
+func LookupRateScheduleAmount: <"Look up an amount for a calculation period from a rate schedule">
+[calculation]
+inputs:
+	schedule RateSchedule(0..1)  <"The rate schedule">
+	periodStartDate date(1..1)	<"The start date for which you want the rate">
+output:
+	value number(0..1) <"The value that is in effect starting from the supplied start date">
+alias stepValues : FindScheduleSteps(schedule->step, periodStartDate, 0)
+alias vals : AppendToVector (stepValues, schedule->initialValue->amount)
+assign-output
+	value:  SelectFromVector(vals, 0)
+
+
+func FindScheduleSteps: <"Find all rate schedule step values whose stepDate is before or equal to the supplied periodStartDate, starting from supplied startingStep number.  Returns a list of step values starting from the last matching one and going in reverse order.  Done this slightly odd way for efficiency and simplicity in code generation.">
+[calculation]
+inputs:
+	steps Step(0..*) <"The quantity schedule being looked up from">
+	periodStartDate date(1..1)	<"The date for which the quantity is required">
+	startingStep int(1..1) <"The first step to start looking at">
+output:
+	vector Vector(1..1)
+	alias currentStep : SelectScheduleStep(steps, startingStep)
+	alias remainingValues : FindScheduleSteps(steps, periodStartDate, startingStep + 1)
+	alias append : AppendToVector (remainingValues, currentStep->stepValue)
+	alias checkAppend : if (periodStartDate >= stepDate) then append
+	alias stepDate : currentStep->stepDate
+	assign-output vector:
+		if (startingStep < steps count) then checkAppend
+//		if (currentStep exists) then checkAppend
+
+func SelectScheduleStep: <"Retrieve a single step from a  schedule given a step number">
+inputs:
+	steps Step(0..*) <"The quantity schedule bein looked up from">
+	stepNo int(1..1) <"The  step to return">
+output:
+	step Step(0..1)
+
+
+func LookupNotionalAmount: <"Look up the notional amouunt in effect for a calculation period">
+[calculation]
+inputs:
+		interestRatePayout InterestRatePayout (1..1) <"An interest rate stream">
+		calculationPeriod CalculationPeriodBase(1..1) <"The calculation period for which you want the notional">
+	output:
+	    notional Money(1..1) <"The notional that is in effect starting from the adjusterPeriodStartDate">
+	// look up and return the notional from the notional schedule
+	assign-output notional->multiplier: LookupQuantityScheduleAmount(interestRatePayout->payoutQuantity->quantitySchedule, calculationPeriod->adjustedStartDate)
+	assign-output notional->multiplierUnit->currency : interestRatePayout->payoutQuantity->quantitySchedule->initialQuantity->multiplierUnit->currency
+
+
+func LookupQuantityScheduleAmount: <"Look up a value from a quantity schedule given a supplied starting date.  It will return the value of the last step that is before the supplied starting date, or if none matches, the intial value.">
+[calculation]
+inputs:
+	schedule NonNegativeQuantitySchedule(0..1) <"The quantity schedule bein looked up from">
+	periodStartDate date(1..1)	<"The date for which the quantity is required">
+output:
+	value number(1..1)	<"The quantity in effect on the supplied date">
+alias stepValues : FindNonNegativeScheduleSteps(schedule->stepSchedule, periodStartDate, 0)
+alias vals : AppendToVector (stepValues, schedule->initialQuantity->multiplier)
+assign-output
+	value:  SelectFromVector(vals, 0)
+
+
+// Calculations required for the daily compounded rates calculations
+
+
+func FindNonNegativeScheduleSteps: <"Find all  schedule step values whose stepDate is before or equal to the supplied periodStartDate, starting from supplied startingStep number.  Returns a list of step values starting from the last matching one and going in reverse order.  Done this slightly odd way for efficiency and simplicity in code generation.">
+[calculation]
+inputs:
+	schedule NonNegativeStepSchedule(1..1) <"The quantity schedule being looked up from">
+	periodStartDate date(1..1)	<"The date for which the quantity is required">
+	startingStep int(1..1) <"The first step to start looking at">
+output:
+	vector Vector(1..1)
+	alias currentStep : SelectNonNegativeScheduleStep(schedule, startingStep)
+	alias remainingValues : FindNonNegativeScheduleSteps(schedule, periodStartDate, startingStep + 1)
+	alias append : AppendToVector (remainingValues, currentStep->stepValue)
+	alias checkAppend : if (periodStartDate >= stepDate) then append
+	alias stepDate : currentStep->stepDate
+	assign-output vector:
+		if (startingStep < schedule->step count) then checkAppend
+
+
+func SelectNonNegativeScheduleStep: <"Retrieve a single step from a  schedule given a step number">
+inputs:
+	schedule NonNegativeStepSchedule(1..1) <"The quantity schedule bein looked up from">
+	stepNo int(1..1) <"The  step to return">
+output:
+	step NonNegativeStep(0..1)
+
+
+func EvaluateCalculatedRate: <"Evaluate a calculated rate as described in the Aspects to Compounded Rates memo">
+[calculation]
+	inputs:
+		floatingRateOption FloatingRateOption(1..1)
+		calculationParameters FloatingRateCalculationParameters(1..1) <"Floating rate definition for the calculated rate">
+		resetDates ResetDates(0..1)						<"reset sctucture (needed only for fallback rates, otherwise will be empty)">
+		calculationPeriod CalculationPeriodBase(1..1)	<"calculation period for which we want to determine the rate">
+		priorCalculationPeriod CalculationPeriodBase(0..1) <"the prior calculation period (needed only for set in adance observation shift rates">
+		dayCount DayCountFractionEnum(1..1)			<"The day count fraction in effect on the stream">
+	output:
+		results FloatingRateSettingDetails(1..1) <"details of the floating rate calculation">
+	// get the FRO
+	alias fro : floatingRateOption
+	// work out the observation dates needed and the weight for each
+	alias datesAndWeights : GenerateObservationDatesAndWeights(calculationParameters, resetDates, calculationPeriod, priorCalculationPeriod)
+	// get the weight observations
+	alias observationDates : datesAndWeights->observationDates
+	alias observations: IndexValueObservationMultiple(observationDates, fro)
+	alias weights : datesAndWeights->weights
+//	apply observation parameters (caps/floors)
+	alias processedObservations : ProcessObservations(calculationParameters, observations)
+// perform the calculation (compounding or averaging)
+	alias calcType : calculationParameters->calcType
+	alias isCompounding : calcType = CalculationTypeEnum->Compounding
+	alias yearFraction : YearFractionForOneDay(dayCount)  // the year fraction of 1 business day (needed for compounding formula)
+	alias calculationResults : if isCompounding then ApplyCompoundingFormula(processedObservations, weights, yearFraction) else
+					ApplyAveragingFormula(observations, weights)
+// reecord the results
+	assign-output results->calculationDetails : calculationResults
+	assign-output results->calculationDetails->observations->observationDates : datesAndWeights->observationDates
+	assign-output results->calculationDetails->observations->weights : datesAndWeights->weights
+	assign-output results->calculationDetails->observations->observedRates : observations
+	assign-output results->calculationDetails->observations->processedRates : processedObservations
+	assign-output results->floatingRate : calculationResults->calculatedRate
+
+
+func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of observation dates and weights for each of those dates">
+[calculation]
+	inputs:
+		calculationParams FloatingRateCalculationParameters(1..1) <"Floating rate definition for the calculated rate">
+		resetDates ResetDates(0..1)						<"reset sctucture (needed only for fallback rates, otherwise will be empty)">
+		calculationPeriod CalculationPeriodBase(1..1)	<"calculation period for which we want to determine the rate">
+		priorCalculationPeriod CalculationPeriodBase(0..1) <"the prior calculation period (needed only for set in advance observation shift rates">
+	output:
+		results CalculatedRateObservationDatesAndWeights(1..1) <"observation dates and corresonding weights">
+	// set up some convenience accessors
+	alias obsShift: calculationParams->observationShiftCalculation
+	alias lockout: calculationParams->lockoutCalculation
+	alias specifiedLockout: if lockout->offsetDays exists then lockout->offsetDays else 5
+	alias lockoutDays: if (lockout exists) then specifiedLockout else 0
+	alias businessDays:		calculationParams->applicableBusinessDays
+	// work out the calculation period for which the rate will actually be computed (might be the prior period or based on resetDates)
+	alias calculateRelative : if obsShift->calculationBase exists then obsShift->calculationBase else CalculateRelativeToEnum->END
+	alias adjustedCalculationPeriod : ComputeCalculationPeriod(calculationPeriod, priorCalculationPeriod, calculateRelative, resetDates)
+	// generate the (shifted) observation period and then the observation dates
+	alias observationPeriod : DetermineObservationPeriod(adjustedCalculationPeriod, calculationParams)
+	alias observationDates : GenerateObservationDates(observationPeriod, businessDays, lockoutDays)
+	// work out the date list for calculating weights, then calculate the weights
+	alias weightingDates : DetermineWeightingDates(calculationParams, observationDates, observationPeriod, adjustedCalculationPeriod, lockoutDays)
+	alias weights : GenerateWeights(weightingDates)
+	// record the results
+	assign-output results->observationDates : observationDates
+	assign-output results->weights : weights
+	// possibly record some other intermediate results to aid debugging/understanding?
+
+
+func ComputeCalculationPeriod: <"Determine the calculation period to use for computing the calculated rate (it may not be the same as the normal calculation period, for instance if the rate is set in advance)">
+[calculation]
+	inputs:
+		calculationPeriod CalculationPeriodBase(1..1)		<"The current calculation period for which the rate is needed">
+		priorCalculationPeriod CalculationPeriodBase(0..1)	<"The prior actual or deemed calculation period, if needed">
+		calculateRelativeTo	CalculateRelativeToEnum(0..1)	<"How the calculation is done with respect to the base calculation period">
+		resetDates ResetDates(0..1)							<"The resetDates structure, if needed, e.g. for fallback rates">
+	output:
+		result CalculationPeriodBase(1..1)	<"The calculation period over which the calculated rate should be calculated">
+func ComputeCalculationPeriod(calculateRelativeTo :  CalculateRelativeToEnum->START):
+	assign-output result: priorCalculationPeriod
+func ComputeCalculationPeriod(calculateRelativeTo : CalculateRelativeToEnum -> END):
+	assign-output result : calculationPeriod
+func ComputeCalculationPeriod(calculateRelativeTo : CalculateRelativeToEnum -> ORIGINALRESET):
+// TODO : this should use the code in Evaluate Term Rate to do the offset calculation (needs refactoring)
+	alias resetRelativeTo : resetDates->resetRelativeTo
+	alias isStart : resetRelativeTo = ResetRelativeToEnum->CalculationPeriodStartDate
+	alias calcPd : if (isStart) then priorCalculationPeriod else calculationPeriod
+	alias fixingOffsetDays : resetDates->fixingDates->periodMultiplier
+	alias endDate : AddBusinessDays(calcPd->adjustedEndDate, fixingOffsetDays, resetDates->resetDatesAdjustments->businessCenters)
+	alias startDate: AddBusinessDays(calcPd->adjustedStartDate, fixingOffsetDays, resetDates->resetDatesAdjustments->businessCenters)
+	assign-output result->adjustedEndDate : endDate
+	assign-output result->adjustedStartDate : startDate
+
+
+func DetermineObservationPeriod: <"Determine any applicable offsets/shifts for the period for observing an index, and then generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shifts">
+	[calculation]
+	inputs:
+		adjustedCalculationPeriod CalculationPeriodBase(1..1)  <"The calculation period for which the rate is being comnputed, after any adjustments">
+		calculationParams FloatingRateCalculationParameters(1..1) <"Floating rate definition for the calculated rate">
+	output:
+		observationPeriod CalculationPeriodBase(1..1)	<"The resulting observation period">
+    alias obsShift: calculationParams->observationShiftCalculation
+    alias lookback: calculationParams->lookbackCalculation
+    alias businessDays:		calculationParams->applicableBusinessDays
+    alias additionalBusinessDays: 	obsShift->additionalBusinessDays
+    alias allBusinessDays: 	CombineBusinessCenters(businessDays, additionalBusinessDays)
+	alias shift : if (obsShift exists) then obsShift->offsetDays else if lookback exists then lookback->offsetDays else 0   // shift amount
+	alias shiftDefaulted : if shift exists then shift else 5
+	alias obsPeriod : GenerateObservationPeriod(adjustedCalculationPeriod, allBusinessDays, shiftDefaulted)
+	assign-output observationPeriod : obsPeriod
+
+
+func GenerateObservationPeriod: <"Generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shifts.">
+	[calculation]
+	inputs:
+		calculationPeriod CalculationPeriodBase(1..1)  <"The calculation period for which the rate is being comnputed">
+		bc BusinessCenters(1..1)						<"The business centers to be used for shifting">
+		shiftDays int(0..1)							<"The amount of any shift">
+	output:
+		observationPeriod CalculationPeriodBase(1..1)	<"The resulting observation period">
+	// calculate the starting and ending dates
+	alias calcStart : calculationPeriod->adjustedStartDate
+	alias calcEnd : calculationPeriod->adjustedEndDate
+	alias obsStart : AddBusinessDays(calcStart, -1 * shiftDays, bc)
+	alias obsEnd: AddBusinessDays(calcEnd, -1 * shiftDays, bc)
+	// record results
+	assign-output observationPeriod->adjustedStartDate : obsStart
+	assign-output observationPeriod->adjustedEndDate : obsEnd
+
+
+func GenerateObservationDates: <"Generate the list of observation dates given an observation period">
+	[calculation]
+	inputs:
+		observationPeriod CalculationPeriodBase(1..1)	<"The given observation period">
+		bc BusinessCenters(1..1)						<"The observation dates">
+		lockoutDays int(0..1)							<"The number of lockout dates">
+	output:
+		observationDates DateGroup(1..1)						<"The resulting list of observation dates">
+	// work out the final date of the observations  - we skip observing on the last day of the observation period
+	alias days : 1 + (if (lockoutDays exists) then lockoutDays else 0)
+	alias endDate : AddBusinessDays(observationPeriod->adjustedEndDate, -1 * days, bc)
+	// create the list
+	alias obsDates : GenerateDateList(observationPeriod->adjustedStartDate, endDate, bc)
+	// return it
+	assign-output observationDates : obsDates
+
+
+func DetermineWeightingDates: <"Determine the dates to be used for weighting observations">
+[calculation]
+	inputs:
+		calculationParams FloatingRateCalculationParameters(1..1) <"Floating rate definition for the calculated rate">
+		observationDates  DateGroup(1..1)
+		observationPeriod CalculationPeriodBase(1..1)	<"The resulting observation period">
+		adjustedCalculationPeriod CalculationPeriodBase(1..1)  <"The calculation period for which the rate is being comnputed, after any adjustments">
+		lockoutDays int(1..1)							<"The number of lockout days">
+   	output:
+		weightingDates DateGroup(1..1)
+	// set up some convenience accessors
+	alias obsShift: calculationParams->observationShiftCalculation
+	alias lookback: calculationParams->lookbackCalculation
+	alias bc:		calculationParams->applicableBusinessDays
+	// work out the date list for calculating weights
+	alias baseWeightingDates : if obsShift exists then observationDates else GenerateObservationDates(adjustedCalculationPeriod, bc, lockoutDays)
+	alias wtPeriod : if (lookback exists) then adjustedCalculationPeriod  else observationPeriod
+	alias weightingDatesAll :  AppendDateToList(baseWeightingDates, wtPeriod->adjustedEndDate)     // including final date to compute weight
+    assign-output weightingDates : weightingDatesAll
+
+
+func ProcessObservations: <"Apply daily observation parameters to rate observations">
+[calculation]
+	inputs:
+		calulationParameters FloatingRateCalculationParameters(1..1) <"Floating rate definition for the calculated rate">
+		rawObservations Vector(1..1)
+	output:
+		processedObservations Vector(1..1)
+    alias params : calulationParameters->observationParameters
+	alias cap : if params exists then params->observationCapRate
+	alias floor : if params exists then params->observationFloorRate
+	alias cappedObservations : if cap exists then VectorScalarOperation(ArithmeticOp->MaxOp, rawObservations, cap) else rawObservations
+	alias flooredObservations : if floor exists then VectorScalarOperation(ArithmeticOp->MinOp, cappedObservations, floor) else cappedObservations
+	assign-output processedObservations : flooredObservations
+
+
+func GenerateWeights: <"Creates a list of weights based on the date difference between successive days.">
+[calculation]
+	inputs:
+		weightingDates DateGroup(1..1)  <"a list of dates for which weightings are required">
+	output:
+		weights Vector(1..1)  <" a vector of weights, typically numbers between 1 and 3 or 4">
+	alias active : weightingDates->dates count > 1
+	alias refDate : LastInDateList(weightingDates)// find the last date in the supplied list of dates
+	alias remainingDates : PopOffDateList(weightingDates)	// determine the prior list of dates, i.e. omitting the last in the list
+	alias prevDate : LastInDateList(remainingDates)		// find the second to last date in the supplied list of dates
+	alias diff : DateDifference(prevDate, refDate)		// the weight is the date difference between the supplied ref date and the last one in the list
+	alias remainingWeights : GenerateWeights(remainingDates)	// recursively generate weights for eearlier part of the list
+	// if we have >= 1 in the list, add the date difference to the list of weights from the prior part of the list, else return nothing
+	assign-output weights : if active then AppendToVector(remainingWeights, diff * 1.0) // else null (empty list)
+
+
+func YearFractionForOneDay: <"Return the year fraction reprsented by a single day, i.e 1 / dayCountBasis, where daycountBasis represents the denominator of the day count fraction. This perhaps should take into account leap years, though the ISDA compounding formulas do not cover ACT basis at the moment.">
+[calculation]
+	inputs:
+		dcf DayCountFractionEnum(1..1)	<"Supplied Day count fraction">
+	output:
+		yearFrac number(1..1)	<"Corresponding year fraction">
+	// calculate and return the value from the DayCountBasis
+	assign-output  yearFrac : 1/ DayCountBasis(dcf)
+
+
+func DayCountBasis: <"Return the day count basis (the denominator of the day count fraction) for the day count fraction">
+[calculation]
+	inputs:
+		dcf DayCountFractionEnum(1..1)	<"a supplied day count fraction">
+	output:
+		basis int(1..1)		<" the corresponding basis, typically 360 or 365">
+
+func DayCountBasis(dcf: DayCountFractionEnum -> ACT_360):
+	assign-output basis: 360
+
+func DayCountBasis(dcf: DayCountFractionEnum ->_30_360):
+	assign-output basis: 360
+
+func DayCountBasis(dcf: DayCountFractionEnum ->_30E_360):
+	assign-output basis: 360
+
+func DayCountBasis(dcf: DayCountFractionEnum -> ACT_365L):
+	assign-output basis: 365
+
+func DayCountBasis(dcf: DayCountFractionEnum ->ACT_365_FIXED):
+	assign-output basis: 365
+
+func DayCountBasis(dcf: DayCountFractionEnum ->ACT_ACT_AFB):
+	assign-output basis: 365 // Should this support 366 in leap years?  requires passing in the actual dates
+
+func DayCountBasis(dcf: DayCountFractionEnum ->ACT_ACT_ISDA):
+	assign-output basis: 365  // Should this support 366 in leap years?  requires passing in the actual dates
+
+func DayCountBasis(dcf: DayCountFractionEnum ->ACT_ACT_ICMA):
+	assign-output basis: 365 // Should this support 366 in leap years? requires passing in the actual dates
+
+func DayCountBasis(dcf: DayCountFractionEnum ->BUS_252):
+	assign-output basis: 252
+
+
+func ApplyCompoundingFormula:  <"Implements the compounding formula:   Product of ( 1 + (rate * weight) / basis), then backs out the final rate.">
+[calculation]
+	inputs:
+		observations Vector(1..1)	<"a vector of observation values">
+		weights 	Vector(1..1)	<"a vector of weights (should be same size as observations, 1 weight per observation)">
+		yearFrac	number(1..1)  <" year fraction of a single day (ie. 1/basis)">
+	output:
+		results  CalculatedRateDetails(1..1)  <"Details of the compounding calculations">
+	// weight the observations
+	alias  weightedObservations : VectorOperation(ArithmeticOp->MultiplyOp, observations, weights)
+	// scale the weighted observations based on the basis
+	alias  scaledAndWeightedObservations : VectorScalarOperation(ArithmeticOp->MultiplyOp, weightedObservations, yearFrac)
+	// compute series of growth factors by adding 1 to the scaled and weighted observations
+	alias  growthFactors : VectorScalarOperation(ArithmeticOp->AddOp, scaledAndWeightedObservations, 1.0)
+	// compute a growth curve by successively applying the growth factors
+	alias  growthCurve : VectorGrowthOperation(1.0, growthFactors)
+	// find the final value of the growth curve (the product of all the growth factors times)
+	alias finalValue : LastInVector(growthCurve)
+	// find the values to scale by to compute the rate
+	alias totalWeight : Sum(weights->values)
+	alias overallYearFrac : totalWeight * yearFrac
+	// compute the final calculated rate
+	alias calculatedRate : (finalValue - 1) / overallYearFrac
+	// record results
+	assign-output  results->aggregateValue : finalValue
+	assign-output  results->aggregateWeight: totalWeight
+	assign-output  results->calculatedRate : calculatedRate
+	assign-output  results->compoundedGrowth : growthCurve
+	assign-output  results->growthFactor : growthFactors
+	//assign-output  results->weight : weights
+	assign-output  results->weightedRates : weightedObservations
+
+
+func ApplyAveragingFormula: <"Implementst the weighted arithmetic averaging formula.  Sums the weighted rates and divides by the total weight.">
+[calculation]
+	inputs:
+		observations Vector(1..1)	<"a vector of observation values">
+		weights 	Vector(1..1)	<"a vector of weights (should be same size as observations, 1 weight per observation)">
+	output:
+		results  CalculatedRateDetails(1..1) <"Details of the averaging calculation">
+// weight the observations
+	alias  weightedObservations : VectorOperation(ArithmeticOp->MultiplyOp, observations, weights)
+// sum the weighted observations
+	alias totalWeightedObservations : Sum(weightedObservations->values)
+// sum the weights
+	alias totalWeight : Sum(weights->values)
+// compute the final calculated rate
+	alias calculatedRate : totalWeightedObservations / totalWeight
+// record results
+	assign-output  results->aggregateValue : totalWeightedObservations
+	assign-output  results->aggregateWeight: totalWeight
+	assign-output  results->calculatedRate : calculatedRate
+	//assign-output  results->weight : weights
+	assign-output  results->weightedRates : weightedObservations
 	
