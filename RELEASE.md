@@ -1,45 +1,17 @@
-# *Product Model - Observable attribute references*
+# *Legal Agreement Model – Agreement Type/Identification  and addition of Margin Type*
 
 _What is being released?_
 
-Following the recent price, quantity and observable refactor, this release makes the `PriceQuantity->observable` attributes referencable by adding `location`/`address` annotations to the attributes of type `Observable` and their corresponding attributes in the `Product` payouts.  Synonyms have also been migrated to the new model for all products including rates, equity, FX, credit and repo, and also all other Event, DTCC and CME synonyms.
-
-- Add `location` annotation to `Observable->commodity` and add `address` annotation to `CommodityPayout->underlier->commodity`.
-- Add `location` annotation to `Observable->productIdentifier` and add `address` annotation to `PayoutBase->productIdentifier` (super type of `Security`, `Loan` and `Index`).
-- Add `location` annotation to `Observable->currencyPair` and add `address` annotation to:
-  - `optionPayout.exerciseTerms.settlement.fxSettlementTerms.fixing.quotedCurrencyPair`
-  - `forwardPayout.settlementTerms.fxSettlementTerms.fixing.quotedCurrencyPair`
-  - `optionPayout.feature.averagingRateFeature.fxRateObservable.quotedCurrencyPair`
-- Add `deprecated` annotation to ExchangeRate type.
-
+Change of the name of data type `LegalAgreementType` to `LegalAgreementIdentification` as more relevant to it purpose. This is also referenced in several places throughout the CDM model therefore changes have been made where used. In addition to this change another data label has been added within this data type called `marginType` this is to allow users to identify the margin type of an agreement, and enumeration list has been added to support this to specify the margin type such as Initial or variation margin. Conditions are added to enforce using the margin type for relevant agreement types only and specific vintage years.
+ 
 _Review Directions_
 
-In the CDM Portal, select the textual browser and inspect the types mentioned above.
+In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
+Search for the data type `LegalAgreemenyIdentification` and inspect the change from `LegalAgreemenyType` the change is also reflected where `agreementType` is referenced under `LegalAgreementBase` , (Type) is replaced with (Identification) throughout the CDM model where referenced for these data labels.  
 
-In the CDM Portal, select ingestion and review the following samples:
+Please see changes have been made to the description of data label `LegalAgreementNameEnum` to remove reference to variation margin.
 
-`Observable->commodity`:
-- fpml-5-10/products/commodity/com-ex1-gas-swap-daily-delivery-prices-last
-- fpml-5-10/products/commodity/com-ex5-gas-v-electricity-spark-spread
-- fpml-5-10/products/commodity/com-ex8-oil-call-option-strip
+Search for the data type `LegalAgreemenyIdentification` and review a new data label added called `marginType` and its associated enumeration list called `AgreementMarginTypeEnum` which contains the required margin types. A condition has been added to CDM so that if marginType is used it would only be for specific documents identified by data type `LegalAgreementNameEnum` such as the CSA CSD and CTA . Another condition is added so that certain margin types from the `AgreementMarginTypeEnum` can only be used for specified published vintage years on documents. For example `LegacyMargin`  only in vintage is < 2016, or `VariationMargin` and `InitialMargin` if vintage is >= 2016 
 
-`Observable->productIdentifier`:
-- fpml-5-10/products/rates/bond-option-uti
-- fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json (Security)
-- fpml-5-10/products/equity/eqd-ex04-european-call-index-long-form.json (Index)
+Please also note: There are related synonyms in (synonym-cdm-fpml) where `LegalAgreementType` is referenced the CDM side of the synonym has been amended to the new label `LegalAgeeementIdentification` 
 
-`Observable->currencyPair`:
-- fpml-5-10/products/equity/fx-ex07-non-deliverable-forward
-- fpml-5-10/products/equity/fx-ex11-non-deliverable-option
-- fpml-5-10/products/equity/fx-ex22-avg-rate-option-specific
-
-
-# *DSL Syntax - Deprecation of "includes" keyword*
-
-_What is being released?_
-
-The use of the keyword `includes` has been deprecated in favor of the equivalent keyword`contains`. The former was only used in the definition of the function `Create_ClearedTrade`.
-
-_Review Directions_
-
-In the CDM Portal, select the textual browser and inspect that the syntax keyword `includes` is no longer present.
