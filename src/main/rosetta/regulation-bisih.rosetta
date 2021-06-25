@@ -1,0 +1,314 @@
+namespace cdm.regulation.bisih
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.observable.asset.*
+import cdm.product.template.*
+import cdm.product.common.settlement.*
+import cdm.product.asset.*
+import cdm.legalagreement.csa.*
+import cdm.legalagreement.common.*
+import cdm.legalagreement.contract.*
+import cdm.event.common.*
+import cdm.event.workflow.*
+
+segment rationale
+segment rationale_author
+segment structured_provision
+segment article
+segment whereas
+segment annex
+segment table
+segment section
+segment field
+segment paragraph
+segment question
+body Organisation ISDA <"Since 1985, the International Swaps and Derivatives Association has worked to make the global derivatives markets safer and more efficient">
+
+body Authority BoE <"Bank of England">
+body Authority PRA <"UK Prudential Regulatory Authority">
+corpus Regulation "PS19/27" PSD001
+	<"Regulation (EU) No 600/2014 of the European Parliament and of the Council of 15 May 2014 on markets in financial instruments and amending Regulation (EU) No 648/2012 Text with EEA relevance">
+
+report BoE PSD001 in T+1
+	when  ReportableTransaction and ReportableProduct
+	with fields
+		BoEFirmReferenceNumber
+		BoETransactionReference
+		BoESizeOfLoan
+		BoECurrencyOfLoan
+		BoECollateralIdentifier
+		BoEPropertyPostalCode
+		BoEPropertyValue
+		BoEPropertyValueCurrency
+		BoEBorrowerIdentifier
+		BoEBorrowerEmploymentStatus	
+
+body Authority MAS <"Monetary Authority of Singapore">
+corpus Regulation "HL12/34" MASHousingLoan
+	<"Regulation (MAS) No HL12/34/2016 of the mandated ...">
+
+report MAS MASHousingLoan in T+1
+	when  ReportableTransaction and ReportableProduct
+	with fields
+		MASFirmReferenceNumber
+		MASTransactionReference
+		MASSizeOfLoan
+		MASCurrencyOfLoan
+		MASCollateralIdentifier
+		MASPropertyPostalCode
+		MASPropertyValue
+		MASPropertyValueCurrency
+		MASBorrowerIdentifier
+		MASBorrowerEmploymentStatus
+
+//Utility Rules
+
+reporting rule ContractForEvent
+       	extract
+       		if WorkflowStep -> businessEvent -> primitives -> contractFormation -> after -> trade only exists
+      	then WorkflowStep -> businessEvent -> primitives -> contractFormation -> after -> trade
+      	else if WorkflowStep -> businessEvent -> primitives -> quantityChange -> after -> trade  exists
+      		then WorkflowStep -> businessEvent -> primitives -> quantityChange -> after -> trade
+      		else WorkflowStep -> businessEvent -> primitives -> contractFormation -> after -> trade
+       	as "Contract"
+
+//Eligibility Rules
+eligibility rule ReportableProduct <"When eligible for EMIR">
+  	[regulatoryReference BoE PSD001 article "9" paragraph "1"
+     		provision "Counterparties and CCPs shall ensure that the details of any derivative contract they have concluded and of any modification or termination of the contract are reported to a trade repository registered in accordance with Article 55 or recognised in accordance with Article 77. The details shall be reported no later than the working day following the conclusion, modification or termination of the contract."]
+  		filter when rule HasContract
+
+eligibility rule HasContract <"When eligible for EMIR">
+  	[regulatoryReference BoE PSD001 article "2" paragraph "5"
+     		provision "derivative or derivative contract means a financial instrument as set out in points (4) to (10) of Section C of Annex I to Directive 2004/39 EC as implemented by Article 38 and 39 of Regulation (EC) No 1287/2006"]
+  		ContractForEvent then
+  		extract Trade -> tradableProduct -> product -> loan exists
+
+eligibility rule ReportableTransaction <"When eligible for rts 22">
+	[regulatoryReference BoE PSD001 article "26"
+	provision "For the purposes of Article 26 of Regulation (EU) No 600/2014, the conclusion of an acquisition or disposal of a financial instrument referred to in Article 26(2) of Regulation (EU) No 600/2014 shall constitute a transaction."]
+		(NewTrade, QuantityChange)
+
+eligibility rule NewTrade
+	[regulatoryReference BoE PSD001 article "26" paragraph "2"
+		provision "o be confirmed which regulatory provision specifies an change of loan size is reportable "]
+		(
+			filter when WorkflowStep -> businessEvent -> primitives -> execution exists,
+			filter when (WorkflowStep -> businessEvent -> primitives -> contractFormation exists and WorkflowStep -> businessEvent -> primitives -> contractFormation -> after only exists)
+		)
+
+eligibility rule QuantityChange
+	[regulatoryReference BoE PSD001 article "26" paragraph "2"
+		structured_provision "A business event that contains a quantityChange primitive must be reported if the business event is in {Increase, partialTermination, Termination}"
+		provision " To be confirmed which regulatory provision specifies an change of loan size is reportable"]
+	filter when WorkflowStep -> businessEvent -> primitives -> quantityChange exists
+
+eligibility rule BranchInUK
+		ContractForEvent then
+			ExecutingEntityForReportingParty then
+			 extract ExecutingEntity -> addressOfBranch then
+			IsAddressInUK
+
+eligibility rule ExecutingEntityForReportingParty
+			extract Trade -> contractDetails -> partyContractInformation then
+			filter when PartyContractInformation -> relatedParty -> role = PartyRoleEnum -> ReportingParty then
+			extract PartyContractInformation -> partyReference then
+			lookup ExecutingEntity ExecutingEntity
+
+//Todo: Checkt the relevance of this type
+type ExecutingEntity:
+	isInvestmentFirm boolean (1..1)
+	addressOfBranch Address (1..1)
+	addressOfIncorporation Address (1..1)
+
+eligibility rule IsAddressInUK
+extract
+	Address -> country = "GBR" 
+
+/*eligibility rule LenderInScope <"Identify as firm which has made the loan and in scope for regulation">
+	[regulatoryReference PRA PSD001 article "26" paragraph "2"
+	   	provision "What firms are in scope for this requirement?"]
+		filter when rule IsExecutingEntityInScope then
+	    filter when rule BranchInUK
+*/
+
+// Bank of England Reporting Rules
+reporting rule BoEFirmReferenceNumber
+	[regulatoryReference PRA PSD001  section "1" paragraph "A"
+		provision "Reference number of firm that sold the product"]
+		ContractForEvent then
+		  extract Trade->party then
+		  	filter when  Party-> corporation exists then  
+ 			extract Party->partyId only-element
+			 as "Firm Reference Number"
+
+reporting rule BoETransactionReference <"The unique transaction ID reported by the bank">
+	[regulatoryReference PRA PSD001 section "2" paragraph "A"
+		provision "Transaction reference (regulated mortgage contractsonly)"]
+	ContractForEvent then
+		  extract Trade->tradeIdentifier only-element->assignedIdentifier->identifier
+ 			as "Transaction Reference"
+
+reporting rule BoEBorrowerIdentifier <"The unique identifier of the main borrower">
+	[regulatoryReference PRA PSD001 section "6" paragraph "A"
+		provision "The unique identifier of the borrower"]
+	ContractForEvent then
+		 extract Trade->party then
+		  	filter when  Party-> person exists then  
+ 			extract Party->partyId
+ 			as "Borrower ID"
+
+reporting rule BoEBorrowerEmploymentStatus <"The unique identifier of the borrower">
+	[regulatoryReference PRA PSD001 section "6" paragraph "A"
+		provision "Employment status of first borrower"]
+	ContractForEvent then
+		  extract Trade->party then
+		  	filter when  Party-> person exists then  
+ 			extract Party->creditDetails->employmentStatus
+ 			as "First Borrower Employment Status"
+
+reporting rule BoESizeOfLoan
+	[regulatoryReference PRA PSD001 article "5" paragraph "A"
+		provision "Size of the loan made under the mortgage"]
+	ContractForEvent then
+	//Todo order by date and then extract the initial loan size
+		extract Trade -> tradableProduct -> product ->loan->loanLeg->payoutQuantity->quantitySchedule->initialQuantity->amount 
+		as "Size of Loan"
+
+reporting rule BoECurrencyOfLoan
+	[regulatoryReference PRA PSD001 article "5" paragraph "A"
+		provision "Currency of the loan made under the mortgage"]
+	ContractForEvent then
+	//Todo order by date and then extract the initial loan size
+		extract Trade -> tradableProduct -> product ->loan->loanLeg->payoutQuantity->quantitySchedule->initialQuantity->unitOfAmount->currency 
+		as "Currency of Loan"
+
+reporting rule BoECollateralIdentifier 
+	[regulatoryReference PRA PSD001 article "26" paragraph "A"
+		provision "Unique identifier of the propoerty serving as collateral"]
+	ContractForEvent then
+		extract Trade -> collateral->collateralProperty->property->propertyIdentifier->assignedIdentifier->identifier
+		as "Property Unique Identifier"
+
+reporting rule BoEPropertyPostalCode
+	[regulatoryReference PRA PSD001 section "26" paragraph "A"
+		provision "Postcode of the mortgaged property"]
+	ContractForEvent then
+		extract Trade -> collateral->collateralProperty->property->physicalAddress->postalCode
+		as "Property Postcode"
+
+reporting rule BoEPropertyValue
+	[regulatoryReference PRA PSD001 section "17" paragraph "J"
+		provision "Market value of the mortgaged property"]
+	ContractForEvent then
+		extract Trade -> collateral->collateralProperty->propertyValuation->amount
+		as "Property Value"
+
+reporting rule BoEPropertyValueCurrency
+	[regulatoryReference PRA PSD001 section "17" paragraph "A"
+		provision "Currency of the quoted market value of the mortgaged property"]
+	ContractForEvent then
+		extract Trade -> collateral->collateralProperty->propertyValuation->unitOfAmount->currency
+		as "Property value currency"
+
+reporting rule BoEPropertyValuationType
+	[regulatoryReference PRA PSD001 section "17" paragraph "C"
+		provision "The method used to value the propoerty"]
+	ContractForEvent then
+		extract Trade -> collateral->collateralProperty->valuationType
+		as "Valuation Type"
+
+//MAS Reporting Rules
+reporting rule MASFirmReferenceNumber
+	[regulatoryReference MAS MASHousingLoan  section "1" paragraph "A1"
+		provision "Reference number of firm that sold the product"]
+		ContractForEvent then
+		  extract Trade->party then
+		  	filter when  Party-> corporation exists then  
+ 			extract Party->partyId only-element
+			 as "Firm Reference Number"
+			 
+reporting rule MASTransactionReference <"The unique transaction ID reported by the bank">
+	[regulatoryReference MAS MASHousingLoan section "2" paragraph "A2"
+		provision "Transaction reference (regulated mortgage contractsonly)"]
+	ContractForEvent then
+		  extract Trade->tradeIdentifier only-element->assignedIdentifier->identifier
+ 			as "Transaction Reference"
+
+reporting rule MASBorrowerIdentifier <"The unique identifier of the main borrower">
+	[regulatoryReference MAS MASHousingLoan section "6" paragraph "B1"
+		provision "The unique identifier of the borrower"]
+	ContractForEvent then
+		 extract Trade->party then
+		  	filter when  Party-> person exists then  
+ 			extract Party->partyId
+ 			as "Borrower ID"
+
+reporting rule MASBorrowerEmploymentStatus <"The unique identifier of the borrower">
+	[regulatoryReference MAS MASHousingLoan section "6" paragraph "A"
+		provision "Employment status of first borrower"]
+	ContractForEvent then
+		  extract Trade->party then
+		  	filter when  Party-> person exists then  
+ 			extract Party->creditDetails->employmentStatus
+ 			as "First Borrower Employment Status"
+
+reporting rule MASSizeOfLoan
+	[regulatoryReference MAS MASHousingLoan article "5" paragraph "A"
+		provision "Size of the loan made under the mortgage"]
+	ContractForEvent then
+	//Todo order by date and then extract the initial loan size
+		extract Trade -> tradableProduct -> product ->loan->loanLeg->payoutQuantity->quantitySchedule->initialQuantity->amount 
+		as "Loan Amount"
+
+reporting rule MASCurrencyOfLoan
+	[regulatoryReference MAS MASHousingLoan article "5" paragraph "B"
+		provision "Currency of the loan made under the mortgage"]
+	ContractForEvent then
+	//Todo order by date and then extract the initial loan size
+		extract Trade -> tradableProduct -> product ->loan->loanLeg->payoutQuantity->quantitySchedule->initialQuantity->unitOfAmount->currency 
+		as "Loan Currency"
+
+reporting rule MASCollateralIdentifier 
+	[regulatoryReference MAS MASHousingLoan article "12" paragraph "C"
+		provision "Unique identifier of the propoerty serving as collateral"]
+	ContractForEvent then
+		extract Trade -> collateral->collateralProperty->property->propertyIdentifier->assignedIdentifier->identifier
+		as "Property Unique Identifier"
+
+reporting rule MASPropertyPostalCode // use word  BoEPropertyPostcode and it does not compile
+	[regulatoryReference MAS MASHousingLoan section "12" paragraph "D"
+		provision "Postcode of the mortgaged property"]
+	ContractForEvent then
+		extract Trade -> collateral->collateralProperty->property->physicalAddress->postalCode
+		as "Postal Code"
+
+reporting rule MASPropertyValue
+	[regulatoryReference MAS MASHousingLoan section "8" paragraph "J"
+		provision "Market value of the mortgaged property"]
+	ContractForEvent then
+		extract Trade -> collateral->collateralProperty->propertyValuation->amount
+		as "Value of Property"
+
+reporting rule MASPropertyValueCurrency
+	[regulatoryReference MAS MASHousingLoan section "8" paragraph "L"
+		provision "Currency of the quoted market value of the mortgaged property"]
+	ContractForEvent then
+		extract Trade -> collateral->collateralProperty->propertyValuation->unitOfAmount->currency
+		as "Property Value Currency"
+
+reporting rule MASPropertyType
+	[regulatoryReference MAS MASHousingLoan section "8" paragraph "M"
+		provision "Type of property "]
+	ContractForEvent then
+		extract Trade -> collateral->collateralProperty->property->propertyType
+		as "Property Type"
+reporting rule MASPropertyCountry
+	[regulatoryReference MAS MASHousingLoan section "8" paragraph "O"
+		provision "Country where the property is physically located "]
+	ContractForEvent then
+		extract Trade -> collateral->collateralProperty->property->physicalAddress->country
+		as "Country of Property"
