@@ -103,7 +103,22 @@ A number of utility functions have been updated or added to the model in order t
 New Data Types and Functions
 
 - `Create_TradableProduct` - creates a tradable product object from a set of given inputs.
-- `TransfersForDate` - creates a list of transfers for a specific date.
+- `ConvertToAdjustableOrAdjustedOrRelativeDate` - Utility function to convert from AdjustableOrAdjustedOrRelativeDate to AdjustableOrAdjustedOrRelativeDate.
+- `FilterQuantityByFinancialUnit` - Filter list of quantities based on unit type.
+- `UpdateAmountForEachQuantity` - Updates all quantities on each price quantity with the new amount.
+- `UpdateAmountForEachMatchingQuantity` - Updates any quantity from the list of new quantities if the unit of amount matches.
+- `DeductAmountForEachMatchingQuantity` - Deducts the amount for any quantity from the list of new quantities if the unit of amount matches.
+- `Create_Quantity` - Create Quantity with given amount and unit of amount.
+- `Create_UnitType` - Create UnitType with given currency or financial unit.
+- `ExtractCounterpartyByRole` - Extracts from a list of Counterparty data types, the Counterparty that corresponds to the role i.e. Party1 or Party2.
+- `ReplaceParty` - Removes the old party, and adds the new party.
+- `Create_PayerReceiver` - Create PayerReceiver with given payer and receiver.
+- `ExtractFixedLeg` - Filters a list of InterestRatePayouts to extract a Fixed Leg.
+- `CalculationPeriodRange` - Outputs CalculationPeriodData for a given start date, end date and business days.
+- `Create_TradableProduct` - Creates a new TradableProduct with the given inputs.
+- `Create_SplitTrades` - Loops through each trade and calls Create_SplitTrade.
+- `Create_SplitTrade` - Creates a split trade from a block trade and a breakdown.
+
 
 Updates to Existing Data Types and Functions
 
