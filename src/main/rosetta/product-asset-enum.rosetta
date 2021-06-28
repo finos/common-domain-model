@@ -87,6 +87,7 @@ enum InterestShortfallCapEnum: <"The enumerated values to specify the interest s
 enum NegativeInterestRateTreatmentEnum: <"The enumerated values to specify the method of calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
 	NegativeInterestRateMethod <"Negative Interest Rate Method. Per 2000 ISDA Definitions, Section 6.4 Negative Interest Rates, paragraphs (b) and (c).">
 	ZeroInterestRateMethod <"Zero Interest Rate Method. Per 2000 ISDA Definitions, Section 6.4. Negative Interest Rates, paragraphs (d) and (e).">
+	ZeroInterestRateExcludingSpreadMethod <" New method for 2021 Definitions, see section 6.8.6 ">
 
 enum RateTreatmentEnum: <"The enumerated values to specify the methods for converting rates from one basis to another.">
 	BondEquivalentYield <"Bond Equivalent Yield. Per Annex to the 2000 ISDA Definitions (June 2000 Version), Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraph (g).">
@@ -118,27 +119,83 @@ enum DayDistributionEnum: <"Denotes the method by which the pricing days are dis
    Last
    Penultimate
 
+// =====================================================================
+//
+// Floating Rate Definitions
+//
+// these enumerations are used to hold confirmation (trade level) data about floating rates 
+// used in trade definitions, and during floating amount calculation
+//
+// ======================================================================
 
-// added BAL
 
-enum CalculationTypeEnum: <"What calculation type is required, averaging or compounding">
+
+
+enum CalculationMethodEnum: <"What calculation type is required, averaging or compounding">
 	Averaging  <"Averaging, i.e. arithmetic averaging">
 	Compounding <"Compounding, i.e. geometric averaging following an ISDA defined formala">
 
 
-enum CalcRelativeEnum: <"The enumerated values to specify the day count fraction.">
-	Start displayName "ACT/360" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (e) or Annex to the 2000 ISDA Definitions (June 2000 Version), Section 4.16. Day Count Fraction, paragraph (d).">
-	ACT_365L displayName "ACT/365L" <"Per 2006 ISDA Definitions, Section 4.16. Day Count Fraction, paragraph (i).">
+enum ObservationPeriodDatesEnum: <"The enumerated values to specify whether rate calculations occur relative to the first or last day of a calculation period. Done in uppercase due to a bug in code generation.">
+	SETINADVANCE displayName "Set in advance" <"calculations occur relative to the first day of a calculation period.">
+	STANDARD displayName "Standard (set in arrears)"	<"calculations occur relative to the last day of a calculation period.">
+	FIXINGDATE displayName "Original Fixing Date" <"calculations occur relative to a previously defined reset date, e.g. for a fallback rate.">  // BAL addition
 
 
-enum CalculateRelativeToEnum: <"The enumerated values to specify whether rate calculations occur relative to the first or last day of a calculation period. Done in uppercase due to a bug in code generation.">
-	START displayName "Calculation Period Start" <"calculations occur relative to the first day of a calculation period.">
-	END displayName "Calculation Period End"	<"calculations occur relative to the last day of a calculation period.">
-	ORIGINALRESET displayName "Original Reset Date" <"calculations occur relative to a previously defined reset date, e.g. for a fallback rate.">  // BAL addition
-
-
-enum CalculationMethodEnum: <" the specific calculation method, e.g. lookback">
+enum CalculationShiftMethodEnum: <" the specific calculation method, e.g. lookback">
 	lookback displayName "Lookback" <"calculations and weighting are done with respect to the calculation period, but observations are shifted back by several days">
 	observationShift displayName "Observation Period Shift" <"the observation period is shifted by several days prior to rate setting, and weightings are done with respect to the obseration period">
 	lockout displayName "Lockout (Rate Cut Off)"  <"calculations cut the rate off several business days prior to rate setting">
 	noShift displayName "OIS Compounding/Basic Averaging" <"calculations occur without any shifting, e.g. OIS Compound style.">
+
+
+// =====================================================================
+//
+// Floating Amount Calculations
+//
+// these enumerations are used to hold processing methods for FROs
+//
+// ======================================================================
+
+enum FloatingRateIndexProcessingTypeEnum: <"This enumeration provides guidance on how to process a given floating rate index.  It's based on the ISDA Floating Rate Index information, but transforms it into the specific categories needed for calculation ">
+	SCREEN displayName "Screen Rate" <"These values are just looked up from the screen and applied">
+	COUMPOUNDINDEX displayName "Compounded Index" <"A published index calculated using compounding; the implid rate must be backed out">
+	OIS displayName "Pre-Defined Calculated Rate" <"These are calculated by the calculation agent based on a standard OIS FRO definition">
+	OVERNIGHTAVG displayName "Pre-Defined Calculated Rate" <"These are calculated by the calculation agent based on a standard overnight averaging FRO definition">
+	MODULAR displayName "Calculated Rate" <"These are calculated by the calculation agent based on deal-specific parameters (e.g. lookback compound based on an RFR)">
+	REFBANKS displayName "Reference Banks Rate" <" These must be looked up using a maual process">
+
+
+// =====================================================================
+//
+// Floating Rate Index definitions
+//
+// these enumerations are used to hold reference data about floating rate indexes
+//
+// ======================================================================
+
+
+enum FloatingRateIndexCategoryEnum:
+	ScreenRate displayName "Screen Rate"
+	Calculated displayName "Calculated Rate"
+	ReferenceBanks displayName "Reference Banks Rate"
+
+
+
+enum	FloatingRateIndexStyleEnum:
+	AverageFRO displayName "Average FRO" <"An ISDA-defined calculated rate done using arithmetic averaging">
+	CompoundedFRO displayName"Compounded FRO" <"An ISDA-defined calculated rate done using arithmetic averaging">
+	CompoundedIndex displayName "Compounded Index" <"A published index calculated using compounding">
+	Index displayName "Index" <"A published index using a methodology defined by the publisher, e.g. S&P 500">
+	Other displayName "Other FRO"
+	Overnight displayName "Overnight Rate"
+	PublishedAverage displayName "Published Average Rate" <" A published rate computed using an averaging methodology">
+	SwapRate displayName "Swap Rate" <" A rate representing the market rate for swaps of a given maturity">
+	TermRate displayName "Term Rate" <"A  rate specified over a given term, such as a libor-type rate">
+
+
+enum FloatingRateIndexCalculationMethodEnum:
+	OISCompound displayName "OIS Compounding" <" A calculation methodology using the ISDA-defined OIS compounding formula">
+	Average  displayName "Overnight Average" <" A calculation methodology using the arithmetic mean">
+
+
