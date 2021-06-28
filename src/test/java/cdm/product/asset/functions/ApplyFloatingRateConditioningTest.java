@@ -1,6 +1,7 @@
 package cdm.product.asset.functions;
 
 import cdm.product.asset.FloatingRateConditioningParameters;
+import cdm.product.common.schedule.CalculationPeriodBase;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -19,20 +20,20 @@ public class ApplyFloatingRateConditioningTest extends AbstractFunctionTest {
                 FloatingRateConditioningParameters.builder()
                 .setCapRate(BigDecimal.valueOf(0.05))
                 .setFloorRate(BigDecimal.valueOf(0.005))
-                .setMult(BigDecimal.valueOf(1))
+                .setMultiplier(BigDecimal.valueOf(1))
                 .setSpread(BigDecimal.valueOf(0.0020))
                 .build();
 
         FloatingRateConditioningParameters params2 =
                 FloatingRateConditioningParameters.builder()
-                        .setMult(BigDecimal.valueOf(-1))
+                        .setMultiplier(BigDecimal.valueOf(-1))
                         .setSpread(BigDecimal.valueOf(0.06))
                         .build();
 
 
-        assertEquals(BigDecimal.valueOf(0.032), func.evaluate(params, BigDecimal.valueOf(0.03)).getConditionedRate());
-        assertEquals(BigDecimal.valueOf(0.05), func.evaluate(params, BigDecimal.valueOf(0.06)).getConditionedRate());
-        assertEquals(BigDecimal.valueOf(0.03), func.evaluate(params2, BigDecimal.valueOf(0.03)).getConditionedRate());
+        assertEquals(BigDecimal.valueOf(0.032), func.evaluate(params, BigDecimal.valueOf(0.03), null ,false).getConditionedRate());
+        assertEquals(BigDecimal.valueOf(0.05), func.evaluate(params, BigDecimal.valueOf(0.06), null ,false).getConditionedRate());
+        assertEquals(0.03, func.evaluate(params2, BigDecimal.valueOf(0.03), null, false).getConditionedRate().doubleValue(), 0.000001);
 
 
 

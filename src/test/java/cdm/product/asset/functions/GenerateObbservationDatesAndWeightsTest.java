@@ -3,7 +3,6 @@ package cdm.product.asset.functions;
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenters;
 import cdm.base.datetime.DateGroup;
-import cdm.base.datetime.Period;
 import cdm.base.datetime.functions.RetrieveBusinessCenterHolidaysImplTest;
 import cdm.base.math.Vector;
 import cdm.product.asset.*;
@@ -12,7 +11,6 @@ import cdm.product.common.schedule.ResetDates;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
-import org.checkerframework.checker.units.qual.A;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -137,7 +135,7 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
     @Test
     void shouldHandleFallback () {
         FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.ObsShift, 2, null, false , true, true);
-        ResetDates resetDate =  EvaluateTermRateTest.initResetDates(BusinessCenterEnum.GBLO, 3, 2, true);
+        ResetDates resetDate =  EvaluateScreenRateTest.initResetDates(BusinessCenterEnum.GBLO, 3, 2, true);
         CalculationPeriodBase   calcPeriod = period(date(2021, 9,10), date(2021, 12, 10));
         CalculationPeriodBase   priorPeriod = period(date(2021, 6,10), date(2021, 9, 10));
         CalculationPeriodBase   obsPeriod = period(date(2021, 6,4), date(2021, 9, 6));
@@ -188,7 +186,7 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
         RetrieveBusinessCenterHolidaysImplTest.initializeHolidays();
         FloatingRateCalculationParameters.FloatingRateCalculationParametersBuilder params = FloatingRateCalculationParameters.builder();
         params.setApplicableBusinessDays(BusinessCenters.builder().addBusinessCenterValue(applicableDays));
-        params.setCalcType(isAvg ? CalculationTypeEnum.AVERAGING : CalculationTypeEnum.COMPOUNDING);
+        params.setCalcType(isAvg ? CalculationMethodEnum.AVERAGING : CalculationMethodEnum.COMPOUNDING);
         if(isCapped) {
             params.setObservationParameters(ObservationParameters.builder()
                     .setObservationFloorRate(BigDecimal.valueOf(0.01))
@@ -208,7 +206,7 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
                 params.setObservationShiftCalculation(ObservationShiftCalculation.builder()
                         .setOffsetDays(shift)
                         .setAdditionalBusinessDays(BusinessCenters.builder().addBusinessCenterValue(additionalDays))
-                        .setCalculationBase(fallback? CalculateRelativeToEnum.ORIGINALRESET : (setInAdvance? CalculateRelativeToEnum.START : CalculateRelativeToEnum.END))
+                        .setCalculationBase(fallback? ObservationPeriodDatesEnum.FIXINGDATE : (setInAdvance? ObservationPeriodDatesEnum.SETINADVANCE : ObservationPeriodDatesEnum.STANDARD))
                         .build());
                 break;
         }

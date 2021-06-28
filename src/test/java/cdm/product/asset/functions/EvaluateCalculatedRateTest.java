@@ -159,7 +159,7 @@ public class EvaluateCalculatedRateTest extends GenerateObbservationDatesAndWeig
     @Test
     void shouldHandleFallback () { /*
         FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, GenerateObbservationDatesAndWeightsTest.CalcMethod.ObsShift, 2, null, false , true, true);
-        ResetDates resetDate =  EvaluateTermRateTest.initResetDates(BusinessCenterEnum.GBLO, 3, 2, true);
+        ResetDates resetDate =  EvaluateScreenRateTest.initResetDates(BusinessCenterEnum.GBLO, 3, 2, true);
         CalculationPeriodBase   calcPeriod = period(date(2021, 9,10), date(2021, 12, 10));
         CalculationPeriodBase   priorPeriod = period(date(2021, 6,10), date(2021, 9, 10));
         CalculationPeriodBase   obsPeriod = period(date(2021, 6,4), date(2021, 9, 6));

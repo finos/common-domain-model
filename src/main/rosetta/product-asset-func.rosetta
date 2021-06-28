@@ -444,8 +444,8 @@ func GetFloatingRateProcessingType: <" Get a classification of  the floating rat
                                                 else   calcProcessingType
 
     alias   processingCategory : if (isCalculatedRate=True) then FloatingRateIndexProcessingTypeEnum->MODULAR else
-                                 							(if floatingRateDefinition exists then definitionProcessingType
-                                 							else FloatingRateIndexProcessingTypeEnum->SCREEN)
+                                 					(if floatingRateDefinition->fro exists then definitionProcessingType
+                                 						else FloatingRateIndexProcessingTypeEnum->SCREEN)
 	// categorize the rates based on the floating rate specification in the payout and based on the FRO definition from the metadata and output the resulting category
 	assign-output
 		processingType : processingCategory
@@ -882,7 +882,7 @@ func ApplyFinalRateRounding: <"Apply the final rate rounding treatment logic as 
 	alias precision : finalRateRounding->precision
 	alias direction : finalRateRounding->roundingDirection
 
-	assign-output  roundedRate : RoundToPrecision(baseRate, precision, direction)				
+	assign-output  roundedRate : if (precision exists and direction exists) then RoundToPrecision(baseRate, precision, direction)	else baseRate
 
 
 

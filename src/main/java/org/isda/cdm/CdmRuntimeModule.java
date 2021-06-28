@@ -58,7 +58,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
 		bind(ExtractCounterpartyByRole.class).to(bindExtractCounterpartyByRole());
 		bind(ExtractAncillaryPartyByRole.class).to(bindExtractAncillaryPartyByRole());
-		bind(FilterPartyRole.class).to(bindFilterPartyRole());
+//		bind(FilterPartyRole.class).to(bindFilterPartyRole());
 		bind(FilterPrice.class).to(bindFilterPrice());
 		bind(FilterQuantity.class).to(bindFilterQuantity());
 		bind(FilterPriceQuantity.class).to(bindFilterPriceQuantity());
@@ -175,9 +175,9 @@ public class CdmRuntimeModule extends AbstractModule {
 		return ExtractAncillaryPartyByRoleImpl.class;
 	}
 
-	protected Class<? extends FilterPartyRole> bindFilterPartyRole() {
-		return FilterPartyRoleImpl.class;
-	}
+//	protected Class<? extends FilterPartyRole> bindFilterPartyRole() {
+//		return FilterPartyRoleImpl.class;
+//	}
 
 	protected Class<? extends FilterPrice> bindFilterPrice() {
 		return FilterPriceImpl.class;
