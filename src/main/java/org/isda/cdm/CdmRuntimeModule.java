@@ -1,14 +1,8 @@
 package org.isda.cdm;
 
-import cdm.base.datetime.functions.Now;
-import cdm.base.datetime.functions.NowImpl;
-import cdm.base.datetime.functions.Today;
-import cdm.base.datetime.functions.TodayImpl;
+import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
-import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRole;
-import cdm.base.staticdata.party.functions.ExtractAncillaryPartyByRoleImpl;
-import cdm.base.staticdata.party.functions.ExtractCounterpartyByRole;
-import cdm.base.staticdata.party.functions.ExtractCounterpartyByRoleImpl;
+import cdm.base.staticdata.party.functions.*;
 import cdm.event.common.functions.*;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
@@ -20,8 +14,7 @@ import cdm.observable.common.functions.CurrencyAmount;
 import cdm.observable.common.functions.CurrencyAmountImpl;
 import cdm.observable.common.functions.NoOfUnits;
 import cdm.observable.common.functions.NoOfUnitsImpl;
-import cdm.product.asset.functions.ResolveEquityInitialPrice;
-import cdm.product.asset.functions.ResolveEquityInitialPriceImpl;
+import cdm.product.asset.functions.*;
 import cdm.product.common.schedule.functions.CalculationPeriod;
 import cdm.product.common.schedule.functions.CalculationPeriodImpl;
 import cdm.product.template.functions.FpmlIrd8;
@@ -46,7 +39,14 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Abs.class).to(bindAbs());
 		bind(CalculationPeriod.class).to(bindCalculationPeriod());
 		bind(Sum.class).to(bindSum());
+		bind(AppendToVector.class).to(bindAppendToVector());
+		bind(SelectFromVector.class).to(bindSelectFromVector());
+		bind(LastInVector.class).to(bindLastInVector());
 		bind(ListsCompare.class).to(bindListsCompare());
+		bind(VectorOperation.class).to(bindVectorOperation());
+		bind(VectorScalarOperation.class).to(bindVectorScalarOperation());
+		bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
+
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
 		bind(NoOfUnits.class).to(bindNoOfUnits());
 		bind(CurrencyAmount.class).to(bindCurrencyAmount());
@@ -58,12 +58,33 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
 		bind(ExtractCounterpartyByRole.class).to(bindExtractCounterpartyByRole());
 		bind(ExtractAncillaryPartyByRole.class).to(bindExtractAncillaryPartyByRole());
+		bind(FilterPartyRole.class).to(bindFilterPartyRole());
 		bind(FilterPrice.class).to(bindFilterPrice());
 		bind(FilterQuantity.class).to(bindFilterQuantity());
 		bind(FilterPriceQuantity.class).to(bindFilterPriceQuantity());
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
+		bind(SelectDate.class).to(bindSelectDate());
+		bind(AppendDateToList.class).to(bindAppenDateToList());
+		bind(LastInDateList.class).to(bindLastInDateList());
+		bind(AddDays.class).to(bindAddDays());
+		bind(PopOffDateList.class).to(bindPopOffDateList());
+		bind(RetrieveBusinessCenterHolidays.class).to(bindRetrieveBusinessCenterHolidays());
+		bind(CombineBusinessCenters.class).to(bindCombineBusinessCenters());
+		bind(DateDifference.class).to(bindDateDifference());
+		bind(LeapYearDateDifference.class).to(bindLeapYearDateDiff());
+		bind(DayOfWeek.class).to(bindDayOfWeek());
+//		bind(IsHoliday.class).to(bindIsHoliday());
+//		bind(IsBusinessDay.class).to(bindIsBusinessDay());
+//		bind(GenerateDateList.class).to(bindGenerateDateList());
+
+		bind(SelectScheduleStep.class).to(bindSelectScheduleStep());
+		bind(SelectNonNegativeScheduleStep.class).to(bindSelectNonNegativeScheduleStep());
+		bind(IndexValueObservation.class).to(bindIndexValueObservation());
+		bind(IndexValueObservation.class).to(bindIndexValueObservation());
+		bind(IndexValueObservationMultiple.class).to(bindIndexValueObservationMultiple());
 		bind(UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity.class).to(bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity());
+
 	}
 
 	protected Class<? extends FilterSecurityTransfers> bindFilterSecurityTransfers() {
@@ -80,6 +101,20 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
 		return ListsCompareImpl.class;
+	}
+	protected Class<? extends SelectFromVector> bindSelectFromVector() {
+		return SelectFromVectorImpl.class;
+	}
+	protected Class<? extends LastInVector> bindLastInVector() { return LastInVectorImpl.class; }
+	protected Class<? extends AppendToVector> bindAppendToVector() { return AppendToVectorImpl.class; }
+	protected Class<? extends VectorOperation> bindVectorOperation() {
+		return VectorOperationImpl.class;
+	}
+	protected Class<? extends VectorScalarOperation> bindVectorScalarOperation() {
+		return VectorScalarOperationImpl.class;
+	}
+	protected Class<? extends VectorGrowthOperation> bindVectorGrowthOperation() {
+		return VectorGrowthOperationImpl.class;
 	}
 
 	protected Class<? extends ModelObjectValidator> bindModelObjectValidator() {
@@ -140,6 +175,10 @@ public class CdmRuntimeModule extends AbstractModule {
 		return ExtractAncillaryPartyByRoleImpl.class;
 	}
 
+	protected Class<? extends FilterPartyRole> bindFilterPartyRole() {
+		return FilterPartyRoleImpl.class;
+	}
+
 	protected Class<? extends FilterPrice> bindFilterPrice() {
 		return FilterPriceImpl.class;
 	}
@@ -155,6 +194,30 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends Now> bindNow() {
 		return NowImpl.class;
 	}
+	protected Class<? extends AppendDateToList> bindAppenDateToList() { return AppendDateToListImpl.class; }
+	protected Class<? extends LastInDateList> bindLastInDateList() { return LastInDateListImpl.class; }
+	protected Class<? extends SelectDate> bindSelectDate() {
+		return SelectDateImpl.class;
+	}
+
+	protected Class<? extends DateDifference> bindDateDifference() {
+		return DateDifferenceImpl.class;
+	}
+	protected Class<? extends LeapYearDateDifference> bindLeapYearDateDiff() { return LeapYearDateDifferenceImpl.class; }
+
+	protected Class<? extends DayOfWeek> bindDayOfWeek() { return DayOfWeekImpl.class; }
+	protected Class<? extends AddDays> bindAddDays() { return AddDaysImpl.class; }
+	protected Class<? extends CombineBusinessCenters> bindCombineBusinessCenters() { return CombineBusinessCentersImpl.class; }
+	protected Class<? extends PopOffDateList> bindPopOffDateList() { return PopOffDateListImpl.class; }
+	protected Class<? extends RetrieveBusinessCenterHolidays> bindRetrieveBusinessCenterHolidays() { return RetrieveBusinessCenterHolidaysImpl.class; }
+//	protected Class<? extends IsHoliday> bindIsHoliday() { return IsHolidayImpl.class; }
+//	protected Class<? extends IsBusinessDay> bindIsBusinessDay() { return IsBusinessDayImpl.class; }
+//	protected Class<? extends GenerateDateList> bindGenerateDateList() { return GenerateDateListImpl.class; }
+
+	protected Class<? extends SelectScheduleStep> bindSelectScheduleStep() { return SelectScheduleStepImpl.class; }
+	protected Class<? extends SelectNonNegativeScheduleStep> bindSelectNonNegativeScheduleStep() { return SelectNonNegativeScheduleStepImpl.class; }
+	protected Class<? extends IndexValueObservation> bindIndexValueObservation() { return IndexValueObservationImpl.class; }
+	protected Class<? extends IndexValueObservationMultiple> bindIndexValueObservationMultiple() { return IndexValueObservationMultipleImpl.class; }
 
 	protected Class<? extends Today> bindToday() {
 		return TodayImpl.class;

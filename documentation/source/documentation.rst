@@ -514,20 +514,20 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
  	inputs: economicTerms EconomicTerms (1..1)
  	output: is_product boolean (1..1)
  	assign-output is_product:
-  	(economicTerms -> payout -> interestRatePayout only exists
- 		or (economicTerms -> payout -> interestRatePayout exists
- 		and economicTerms -> payout -> cashflow exists
- 		and economicTerms -> payout -> creditDefaultPayout is absent
- 		and economicTerms -> payout -> equityPayout is absent
- 		and economicTerms -> payout -> forwardPayout is absent
- 		and economicTerms -> payout -> optionPayout is absent
- 		and economicTerms -> payout -> securityPayout is absent
-        and economicTerms -> payout -> securityFinancePayout is absent))
- 		and economicTerms -> payout -> interestRatePayout count =2
- 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
- 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
- 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
- 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
+        (economicTerms -> payout -> interestRatePayout only exists
+            or (economicTerms -> payout -> interestRatePayout exists
+                and economicTerms -> payout -> cashflow exists
+                and economicTerms -> payout -> creditDefaultPayout is absent
+                and economicTerms -> payout -> equityPayout is absent
+                and economicTerms -> payout -> forwardPayout is absent
+                and economicTerms -> payout -> optionPayout is absent
+                and economicTerms -> payout -> securityPayout is absent
+                and economicTerms -> payout -> securityFinancePayout is absent))
+        and economicTerms -> payout -> interestRatePayout count = 2
+        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+        and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
+        and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
 
 If all the statements above are true, then the function evaluates to True, and the product is determined to be qualified as the product type referenced by the function name.
 
@@ -1154,11 +1154,10 @@ One distinction with the product approach is that the ``intent`` qualification i
  	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
  	assign-output is_event:
  		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
- 		and (businessEvent  -> primitives count = 1
- 			and businessEvent -> primitives -> quantityChange exists
+ 		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
  			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
  		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
- 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+ 		and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 

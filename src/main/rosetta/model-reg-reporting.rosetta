@@ -289,17 +289,19 @@ reporting rule Quantity <"The number of units of the financial instrument, or th
  	extract Trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount
 		as "Quantity"
 
- reporting rule FixedRatePrice
+reporting rule FixedRatePrice
  	TradeForEvent then
-		 filter when Trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate then
-		 	extract Trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> amount
-	 		as "Price"
+	extract Trade -> tradableProduct -> tradeLot -> priceQuantity then
+	filter when PriceQuantity -> price -> priceType all = PriceTypeEnum -> InterestRate then
+	extract PriceQuantity -> price -> amount
+	as "Price"
 
-  reporting rule FloatingRatePrice
+reporting rule FloatingRatePrice
  	TradeForEvent then
-	 	filter when Trade -> tradableProduct -> tradeLot -> priceQuantity -> observable -> rateOption exists then
-	 		extract Trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> amount
-	 		as "Price"
+ 	extract Trade -> tradableProduct -> tradeLot -> priceQuantity then
+	filter when PriceQuantity -> observable -> rateOption exists then
+	extract PriceQuantity -> price -> amount
+	as "Price"
 
 reporting rule VenueOfExecution <"Venue of Execution">
 		[regulatoryReference ESMA MiFIR RTS_22 annex "I" table "2" field "36"
@@ -524,24 +526,22 @@ reporting rule FixedFixedBuyerSeller
 
 reporting rule PartyToBuyer
 	(
-		filter when Party -> partyId -> scheme = "iso17442" then
-		extract Party -> partyId as "Buyer identification code"
-		,
-		filter when Party -> partyId -> scheme = "iso17442" then
-		lookup ExecutingEntity ExecutingEntity then
-		extract ExecutingEntity -> addressOfBranch -> country
-		as "Country of the branch for the buyer"
+		filter when Party -> partyId -> scheme contains "iso17442" then
+			extract Party -> partyId as "Buyer identification code",
+		filter when Party -> partyId -> scheme contains "iso17442" then
+			lookup ExecutingEntity ExecutingEntity then
+			extract ExecutingEntity -> addressOfBranch -> country
+			as "Country of the branch for the buyer"
 	)
 
 reporting rule PartyToSeller
 	(
-		filter when Party -> partyId -> scheme = "iso17442" then
-		extract Party -> partyId as "Seller identification code"
-		,
-		filter when Party -> partyId -> scheme = "iso17442" then
-		lookup ExecutingEntity ExecutingEntity then
-		extract ExecutingEntity -> addressOfBranch -> country
-		as "Country of the branch for the seller"
+		filter when Party -> partyId -> scheme contains "iso17442" then
+			extract Party -> partyId as "Seller identification code",
+		filter when Party -> partyId -> scheme contains "iso17442" then
+			lookup ExecutingEntity ExecutingEntity then
+			extract ExecutingEntity -> addressOfBranch -> country
+			as "Country of the branch for the seller"
 	)
 
 reporting rule IsFixedFloat
@@ -659,10 +659,12 @@ reporting rule BasisSwapPrice
 
 reporting rule FixedFixedPrice
 	filter when rule IsFixedFixed then
-	filter when Trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate then
-		extract Trade -> tradableProduct -> tradeLot -> priceQuantity -> price then
-		maxBy Price -> amount then
-		extract Price -> amount as "Price"
+	extract Trade -> tradableProduct -> tradeLot -> priceQuantity then
+	filter when PriceQuantity -> price -> priceType all = PriceTypeEnum -> InterestRate then
+	extract PriceQuantity -> price then
+	maxBy Price -> amount then
+	extract Price -> amount 
+	as "Price"
 
 reporting rule CDSPrice
 		[regulatoryReference ESMA MiFIR RTS_22 annex "1" table "2" field "33"
@@ -672,10 +674,9 @@ reporting rule CDSPrice
 	 	   	provision "For credit default swaps (CDS) it shall be the coupon in basis points. "]
 	filter when rule IsCreditDefaultSwap then
 	extract Trade -> tradableProduct then
-	extract if (TradableProduct -> tradeLot -> priceQuantity -> price -> priceType = PriceTypeEnum -> InterestRate and
-				TradableProduct -> tradeLot -> priceQuantity -> observable -> rateOption is absent and
-					TradableProduct -> tradeLot -> priceQuantity -> price -> amount <> 0)
-				then TradableProduct -> tradeLot -> priceQuantity -> price -> amount
+	extract if (TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate only-element -> rateSchedule -> initialValue -> amount exists 
+				and TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate only-element -> rateSchedule -> initialValue -> amount <> 0)
+				then TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate  only-element -> rateSchedule -> initialValue -> amount
 			else
 			if (TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> initialRate -> amount exists)
 				then TradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> initialRate -> amount

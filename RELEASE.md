@@ -1,45 +1,29 @@
-# *Product Model - Observable attribute references*
+# *DSL Syntax - New keywords to compare a list to a single data object*
 
 _What is being released?_
 
-Following the recent price, quantity and observable refactor, this release makes the `PriceQuantity->observable` attributes referencable by adding `location`/`address` annotations to the attributes of type `Observable` and their corresponding attributes in the `Product` payouts.  Synonyms have also been migrated to the new model for all products including rates, equity, FX, credit and repo, and also all other Event, DTCC and CME synonyms.
+New keywords have been introduced in the DSL syntax to compare a list of items to a single data object. Currently comparing a list to single data object will only result to true if all the items of the list match the single data object.  The `all` and `any` keywords can now be used to extend the comparison outcome with any equality operators: `=`, `<>`, `>`, `>=`, `<`, `<=`.
 
-- Add `location` annotation to `Observable->commodity` and add `address` annotation to `CommodityPayout->underlier->commodity`.
-- Add `location` annotation to `Observable->productIdentifier` and add `address` annotation to `PayoutBase->productIdentifier` (super type of `Security`, `Loan` and `Index`).
-- Add `location` annotation to `Observable->currencyPair` and add `address` annotation to:
-  - `optionPayout.exerciseTerms.settlement.fxSettlementTerms.fixing.quotedCurrencyPair`
-  - `forwardPayout.settlementTerms.fxSettlementTerms.fixing.quotedCurrencyPair`
-  - `optionPayout.feature.averagingRateFeature.fxRateObservable.quotedCurrencyPair`
-- Add `deprecated` annotation to ExchangeRate type.
+In the examples below, `payout -> interestRatePayout` is a list according to the cardinality of its definition in the model.
 
-_Review Directions_
+The `all` keyword will be used to specify that *all* items in the list must match the single data object. Accordingly, the statement will evaluate to true if each `paymentDates -> paymentFrequency -> period` for every item of the list `interestRatePayout` is equal to `T`.
 
-In the CDM Portal, select the textual browser and inspect the types mentioned above.
+- `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T`
 
-In the CDM Portal, select ingestion and review the following samples:
+The `any` keyword will be used to specify that *any* item in the list must match the single data object. Accordingly, the statement will evaluate to true if at least one `paymentDates -> paymentFrequency -> period` for any item of the list `interestRatePayout` is equal to `T`.
 
-`Observable->commodity`:
-- fpml-5-10/products/commodity/com-ex1-gas-swap-daily-delivery-prices-last
-- fpml-5-10/products/commodity/com-ex5-gas-v-electricity-spark-spread
-- fpml-5-10/products/commodity/com-ex8-oil-call-option-strip
+- `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any = PeriodExtendedEnum -> T`
 
-`Observable->productIdentifier`:
-- fpml-5-10/products/rates/bond-option-uti
-- fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json (Security)
-- fpml-5-10/products/equity/eqd-ex04-european-call-index-long-form.json (Index)
+All list comparisons in the model have been updated to use the `all` or `any` keywords whilst retaining the original expected logical outcome.
 
-`Observable->currencyPair`:
-- fpml-5-10/products/equity/fx-ex07-non-deliverable-forward
-- fpml-5-10/products/equity/fx-ex11-non-deliverable-option
-- fpml-5-10/products/equity/fx-ex22-avg-rate-option-specific
+In the CDM Documentation, review the following sections:
 
-
-# *DSL Syntax - Deprecation of "includes" keyword*
-
-_What is being released?_
-
-The use of the keyword `includes` has been deprecated in favor of the equivalent keyword`contains`. The former was only used in the definition of the function `Create_ClearedTrade`.
+- [List comparison operators](https://docs.rosetta-technology.io/dsl/expressions.html#list-comparison-operators)
 
 _Review Directions_
 
-In the CDM Portal, select the textual browser and inspect that the syntax keyword `includes` is no longer present.
+In the CDM Portal, use the Textual Browser to review the list comparisons in the model, including the following examples:
+
+- Event qualification functions - `Qualify_CashTransfer`, `Qualify_Novation`
+- Product qualification functions - `Qualify_InterestRate_IRSwap_FixedFloat`, `Qualify_InterestRate_IRSwap_FixedFloat_OIS`
+- Conditions - `PriceQuantity -> NonNegativeQuantity`, `CreditDefaultPayout -> FpML_cd_13`, `CreditDefaultPayout -> FpML_cd_14`
