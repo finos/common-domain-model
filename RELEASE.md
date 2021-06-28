@@ -2,50 +2,59 @@
 
 _What is being released?_
 
-
-This release contributes modelling components proposed by ISLA to extend the CDM in term of Securities Lending products. The release introduces a new Payout SecurityFinancePayout, five additional new data types contained within SecurityFinancePayout, and two new enumerations. The existing SecurityPayout data type and the encapsulated data types and related enumerations have been marked as [deprecated] in the model to reflect the move to using the new SecurityFinancePayout.
-
-Changes to other data types and qualification functions have been made where appropriate to accomodate for the new payout.
+This release contributes modelling components proposed by ISLA to extend the CDM event model in term of Securities Lending products. The release extends existing CDM event model concepts to support allocation, re-allocation, initial Settlement, and part and full return, of a Securities Lending contract.  In addition a new product and event model is introduced for the billing function.  Visualisation examples are included for all events covered as part of the contribution in a new folder `Security Lending`.
 
 _Details_
 
-New Data Types
+_Allocation and Re-Allocation_
 
-- SecurityFinancePayout
-- DividendTerms
+The `Create_Allocation` and `Create_SplitPrimitive` functions have been extended to be fully formed functions that are able to support multiple allocations.  A new `Create_Reallocation` function has been introduced to allow specification of a reallocation event through the `ReallocationInstruction` data type consisting of: the original block trade, existing splits to be decreased, existing splits to be increased, and details of any new splits produced by the reallocation event. 
 
-New Enumerations
+Updates to Existing Data Types and Functions
 
-    DurationTypeEnum
-    CollateralTypeEnum
+-
 
-Updates to Existing Data Types
+New Data Types and Functions
 
-    Payout - added new data attribute securityFinancePayout
-    EligibleCollateral - data type renamed to EligibleCollateralSchedule, attribute scheduleIdentifier of type Identifier added to allow specification of an identified Collateral Schedule within a Legal Agreement.
-    PostingObligationsElection - attribute eligibleCollateral updated to reflect data type name change above.
-    CollateralValuationPercentage - new attribute marginPercentage and data condition MarginPercentage added to support alternate approach to defining margin requirements for Securities Finance transactions.
+-
 
-Updates to Qualification Functions
+Visualisation
 
-    Twenty nine Product Qualification functions for Credit Default Swaps, Equity Swaps and Interest Rate Swaps have been updated or extended to factor the use of the new SecurityFinancePayout.
+- See examples `Allocation` and `Reallocation` 
 
-Data Types marked as Deprecated
+_New Settlement, Part and Full Return_
 
-    SecurityPayout
-    InitialMargin
-    InitialMarginCalculation
-    SecurityValuation
-    SecurityValuationModel
-    BondValuationModel
-    BondPriceAndYieldModel
-    UnitContractValuationModel
+The `Create_Transfer` function has been extended to support creation of cash and security transfers representing the settlement of a security lending transaction.  A new `Create_Return` function has been introduced to allow specification of the part or full return of a Security Lending Transaction through the `ReturnInstruction` data type consisting of: the trade being partially or fully returned, the quantity being returned, and the return date.
 
-Enumerations marked as Deprecated
+Updates to Existing Data Types and Functions
 
-    MarginTypeEnum
-    RepoDurationEnum
+-
+
+New Data Types and Functions
+
+-
+
+Visualisation
+The workflow of the new, partial, and full return, settlement events are demonstrated using the CDM workflow event model reflecting the instruction and settlement of each event.
+- See examples `New Settlement Workflow`, `Part Return Settlement Workflow` and `Full Return Settlement Workflow`.
+
+_Billing_
+
+The process of invoicing fees associated with a Security Lending transaction has been modelled with the addition of the `SecurityLendingInvoice` data type, to represent the information needing to be passed from one party to the other.  The `Create_SecurityLendingInvoice` function has been introduced to allow specification of the information required to populate an invoice, including calculation of the billing amounts, through the `BillingInstruction` data type consisting of: the sending and receiving party, the billing start and end date, a `BillingRecordInstruction`, and a `BillingSummaryInstruction`.
+
+New Data Types and Functions
+
+- SecurityLendingInvoice
+- Create_SecurityLendingInvoice
+- BillingInstruction
+- BillingRecordInstruction
+- BillingSummaryInstruction
+
+
+Visualisation
+- See example `Billing`.
 
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and search for any of the changes specified above.
+In Rosetta, select Visualisation and search for any of the examples defined above.
