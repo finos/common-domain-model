@@ -436,15 +436,19 @@ func GetFloatingRateProcessingType: <" Get a classification of  the floating rat
 	alias 	idxStyle : calcDefaults->indexStyle
 	alias 	method : calcDefaults->method
 
-	// categorize the rates based on the floating rate specification in the payout and based on the FRO definition from the metadata and output the resulting category7
+	alias   calcProcessingType : if (calcDefaults->indexStyle = FloatingRateIndexStyleEnum->CompoundedFRO and calcDefaults->method= FloatingRateIndexCalculationMethodEnum->OISCompound)
+	                                        then FloatingRateIndexProcessingTypeEnum->OIS else
+                             				if (idxStyle = FloatingRateIndexStyleEnum->AverageFRO and  calcDefaults->method= FloatingRateIndexCalculationMethodEnum->Average) then FloatingRateIndexProcessingTypeEnum->OVERNIGHTAVG
+    alias   definitionProcessingType : if calcDefaults->category = FloatingRateIndexCategoryEnum->ScreenRate
+                                                then  FloatingRateIndexProcessingTypeEnum->SCREEN
+                                                else   calcProcessingType
+
+    alias   processingCategory : if (isCalculatedRate=True) then FloatingRateIndexProcessingTypeEnum->MODULAR else
+                                 							(if floatingRateDefinition exists then definitionProcessingType
+                                 							else FloatingRateIndexProcessingTypeEnum->SCREEN)
+	// categorize the rates based on the floating rate specification in the payout and based on the FRO definition from the metadata and output the resulting category
 	assign-output
-		processingType : if isCalculatedRate then FloatingRateIndexProcessingTypeEnum->MODULAR else
-							if floatingRateDefinition exists then (
-								if category = FloatingRateIndexCategoryEnum->ScreenRate then FloatingRateIndexProcessingTypeEnum->SCREEN else
-								if idxStyle = FloatingRateIndexStyleEnum->CompoundedFRO and method= FloatingRateIndexCalculationMethodEnum->OISCompound then FloatingRateIndexProcessingTypeEnum->OIS else
-								if idxStyle = FloatingRateIndexStyleEnum->AverageFRO and  method= FloatingRateIndexCalculationMethodEnum->Average then FloatingRateIndexProcessingTypeEnum->OVERNIGHTAVG 
-							)
-							else FloatingRateIndexProcessingTypeEnum->SCREEN
+		processingType : processingCategory
 
 
 
