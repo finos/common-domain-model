@@ -103,18 +103,18 @@ The CDM supports the market objectives of standardisation via a set of design pr
 
 * Normalisation through abstration of common components, e.g. *price* or *quantity*
 * Construction by composition and qualification, i.e. "bottom-up" approach
-* Embedded processing logic, e.g. data validation, state-transition logic
-* Organisation into logical layers using namespaces
-* Mapping to existing industry messaging formats
+* Mapping to existing industry messaging formats, e.g. *FpML*
+* Embedded processing logic, e.g. data validation or state-transition logic
+* Organisation into logical layers using *namespaces*
 
 Normalisation through abstraction of common components
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To achieve standardisation across products and asset classes, the CDM is designed to identify logical components that fulfil the same function and to normalise them, even when those components may be named and treated differently in the context of their respective markets. By helping to remove the inefficiencies that exist in the industry's siloed IT environments (e.g. different systems dealing with cash, listed, financing and derivatives), such design reaffirms the goal of creating an inter-operable ecosystem for the processing of transactions across asset classes.
 
-An example of this contribution is the normalisation of the concepts of *quantity*, *price* and *party* in the representation of financial transactions. The CDM identifies that, regardless of the asset class or product type, a financial transaction always involves two counterparties *trading* (i.e. buying or selling) a certain financial product in a specific quantity and at a specific price. Both quantity and price are themselves a type of *measure*, i.e. an amount expressed in a specific unit which could be a currency, a number of shares or barrels, etc. An exchange rate between currencies, or an interest rate, also fit that specification and can be represented as prices.
+An example of this contribution is the normalisation of the concepts of *quantity*, *price* and *party* in the representation of financial transactions. The CDM identifies that, regardless of the asset class or product type, a financial transaction always involves two counterparties *trading* (i.e. buying or selling) a certain financial product in a specific quantity and at a specific price. Both quantity and price are themselves a type of *measure*, i.e. an amount expressed in a specific unit which could be a currency, a number of shares or barrels, etc. An exchange rate between currencies, or an interest rate, also fit that description and are represented as prices.
 
-This approach means that a single logical concept such as *quantity* represents concepts that may be named and captured differently across markets: e.g. *notional*, *principal*, *amount* etc. This in turn allows to normalise processes that depend on this concept: for instance, how to perform an allocation (essentially a split of the quantity of a transaction into several sub-transactions) or an unwind, which would usually be handled differently by specialised IT systems for each asset class.
+This approach means that a single logical concept such as *quantity* represents concepts that may be named and captured differently across markets: e.g. *notional* or *principal* amount etc. This in turn allows to normalise processes that depend on this concept: for instance, how to perform an allocation (essentially a split of the quantity of a transaction into several sub-transactions) or an unwind, which would usually be handled differently by specialised IT systems for each asset class.
 
 To maintain such normalisation feature and avoid specialising the model according to each use case, it is imperative that any request to add new model components or extend existing ones is analysed against existing components, to find patterns that should be factored into common components. For instance, when developing the model for *averaging* options (often used for commodity products, whereby multiple price observations are averaged through time to be compared to the option's strike price), the components are built and named such that they could be re-used across asset classes.
 
@@ -130,6 +130,21 @@ To ensure re-usability across different markets, the CDM is designed to be a com
 In this paradigm, the type of object defined by the CDM, whether financial product, business event or legal agreement, is not declared ex-ante: instead, the type is inferred through some business logic applied onto its constituents, which may be context-specific based on a given taxonomy.
 
 The benefit of this approach is that consistency of object classification is achieved through how those objects are populated, rather than depending on each market participant's implementation to use the same labels (e.g. product names). Furthermore, this approach avoids the model relying on specific taxonomies, product labels and product identifiers to function and provides the flexibility to maintain multiple values from different taxonomies and product identifier sets as data in the model related to the same transaction, which is a very useful application not least for regulatory purposes.
+
+Mapping to existing industry messaging formats
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Embeded processing logic
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The CDM is designed to lay the foundation for the standardisation, automation and inter-operability of industry processes. Industry processes represent events and actions that occur through the transaction’s lifecycle, from negotiating a legal agreement to allocating a block-trade, calculating settlement amounts or exchanging margin requirements.
+
+While ISDA defines the protocols for industry processes in its documentation library, differences in the implementation minutia may cause operational friction between market participants. Even the protocols that have a native digital representation have written specifications artefacts which require further manual coding in order to result in a complete executable solution: e.g. the validation rules in FpML or the Recommended Practices/Guidelines in FIX, which are only available in the form of PDF documents.
+
+Traditional implentation of a technical standard distributed in prose comes with the risk of misinterpretation and implementation error, and the process is duplicated across each firm adopting the standard, ultimately adding up to high implementation costs across the industry.
+
+Instead, the CDM provides a fully specified processing model designed to translate the technical standards that support industry processes into a standardised machine-readable and machine-executable format. Systematically providing the domain model as executable code vastly reduces implementation effort and virtually eliminates the risk of inconsistency.
+
 
 The CDM Governance
 ------------------
