@@ -1,4 +1,4 @@
-# Event Model - Contribution of ISLA - CDM for Securities Lending*
+# Event Model - Contribution of ISLA - CDM for Securities Lending
 
 _What is being released?_
 
@@ -12,7 +12,9 @@ The `Create_Allocation` and `Create_SplitPrimitive` functions have been extended
 
 Updates to Existing Data Types and Functions
 
--
+- `AllocationBreakdown` - updated `partyReference` attribute to `counterparty` to allow the new party to be specified, and which side of the trade they are being allocated into.
+- `Quantity` - cardinality updated to allow specification of all quantities associated with the individual split
+- `SplitPrimitive` - additional condition added to ensure the quantities of the resulting split trades total that of the block trade.
 
 New Data Types and Functions
 
@@ -28,7 +30,9 @@ The `Create_Transfer` function has been extended to support creation of cash and
 
 Updates to Existing Data Types and Functions
 
--
+- `TransferInstruction` - new attribute `payerReceiver` and `quantity` added to specify values when part of a return event.
+- `Qualify_CashAndSecurityTransfer` - updated function to qualify only on transfers associated with the event date
+- `InterestCashSettlementAmount` - 
 
 New Data Types and Functions
 
@@ -53,6 +57,15 @@ New Data Types and Functions
 
 Visualisation
 - See example `Billing`.
+
+_Utility Functions_
+
+A number of utility functions have been added to the model in order to facilitate implementation of the above model components.
+
+New Data Types and Functions
+
+- Create_TradableProduct - creates a tradable product object from a set of given inputs.
+- TransfersForDate - creates a list of transfers for a specific date
 
 _Review directions_
 
