@@ -116,11 +116,20 @@ An example of this contribution is the normalisation of the concepts of *quantit
 
 This approach means that a single logical concept such as *quantity* represents concepts that may be named and captured differently across markets: e.g. *notional*, *principal*, *amount* etc. This in turn allows to normalise processes that depend on this concept: for instance, how to perform an allocation (essentially a split of the quantity of a transaction into several sub-transactions) or an unwind, which would usually be handled differently by specialised IT systems for each asset class.
 
-To maintain such normalisation feature and avoid specialising the model according to each use case, it is imperative that any request to add new model components or extend existing ones is analysed against existing components, to find common patterns that should be factored into common components. For instance, when developing the model for *averaging* options that are often used for commodity products (i.e. where multiple price observations are averaged through time, to be compared to the option's strike price), the components should be developed (and named) such that they could be re-used across asset classes.
+To maintain such normalisation feature and avoid specialising the model according to each use case, it is imperative that any request to add new model components or extend existing ones is analysed against existing components, to find patterns that should be factored into common components. For instance, when developing the model for *averaging* options (often used for commodity products, whereby multiple price observations are averaged through time to be compared to the option's strike price), the components are built and named such that they could be re-used across asset classes.
 
 Construction by composition and qualification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+To ensure re-usability across different markets, the CDM is designed to be a composable model whereby financial objects can be constructed bottom-up based on building-block components. A composable and modular approach allows for a streamlined model to address a broad scope of operational processes consistently across firms' front-to-back flows and across asset classes. The main groups of composable components are:
+
+* **Financial products**: e.g. the same *option* component is re-used to describe option payouts across any asset class, rather than having specialised *Swaption*, *Equity Option* or *FX option* etc. components.
+* **Business events** that occur throughout the transaction lifecycle are described by composing more fundamental building blocks called *primitive events*: e.g. a *partial novation* is described by combining a *quantity change* primitive event (describing the partial unwind of the transaction being novated away) and a *contract formation* primitive event (describing the new contract with the novation party).
+* **Legal agreements** that document the legal obligations that parties enter into when transacting in financial products are constructed using *election* components associated to functional logic that is re-usable across different types of agreement: e.g. the same logic defining the calculation of margin requirements can be re-used across both initial and variation margin agreements.
+
+In this paradigm, the type of object defined by the CDM, whether financial product, business event or legal agreement, is not declared ex-ante: instead, the type is inferred through some business logic applied onto its constituents, which may be context-specific based on a given taxonomy.
+
+The benefit of this approach is that consistency of object classification is achieved through how those objects are populated, rather than depending on each market participant's implementation to use the same labels (e.g. product names). Furthermore, this approach avoids the model relying on specific taxonomies, product labels and product identifiers to function and provides the flexibility to maintain multiple values from different taxonomies and product identifier sets as data in the model related to the same transaction, which is a very useful application not least for regulatory purposes.
 
 The CDM Governance
 ------------------
