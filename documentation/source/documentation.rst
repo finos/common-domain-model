@@ -1782,26 +1782,30 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
 
 .. code-block:: Haskell
 
- func FloatingAmount:
- 	[calculation]
- 	inputs:
- 		interestRatePayout InterestRatePayout (1..1)
- 		spread number (1..1)
- 		rate number (1..1)
- 		quantity Quantity (1..1)
- 		date date (1..1)
+func FloatingAmount:
+	[calculation]
+	inputs:
+		interestRatePayout InterestRatePayout (1..1)
+		spread number (1..1)
+		rate number (1..1)
+		quantity Quantity (1..1)
+		date date (1..1)
+		calculationPeriodData CalculationPeriodData (0..1)
 
- 	output:
- 	    floatingAmount number (1..1)
+	output:
+	    floatingAmount number (1..1)
 
- 	alias calculationAmount:
- 	    quantity -> amount
+	alias calculationAmount:
+	    quantity -> amount
 
- 	alias dayCountFraction:
- 	    DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+	alias calculationPeriod:
+		if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
 
- 	assign-output floatingAmount:
- 	    calculationAmount * (rate + spread) * dayCountFraction
+	alias dayCountFraction:
+	    DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date, calculationPeriod)
+
+	assign-output floatingAmount:
+	    calculationAmount * (rate + spread) * dayCountFraction
 
 Day Count Fraction
 """"""""""""""""""
@@ -1814,19 +1818,18 @@ The CDM process model eliminates the need for implementators to interpret the lo
 
 .. code-block:: Haskell
 
- func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
-   [calculation]
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+	[calculation]
 
-   alias calculationPeriod: CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
-   alias startYear: calculationPeriod -> startDate -> year
-   alias endYear: calculationPeriod -> endDate -> year
-   alias startMonth: calculationPeriod -> startDate -> month
-   alias endMonth: calculationPeriod -> endDate -> month
-   alias endDay: Min(calculationPeriod -> endDate -> day, 30)
-   alias startDay: Min(calculationPeriod -> startDate -> day, 30)
+	alias startYear: calculationPeriod -> startDate -> year
+	alias endYear: calculationPeriod -> endDate -> year
+	alias startMonth: calculationPeriod -> startDate -> month
+	alias endMonth: calculationPeriod -> endDate -> month
+	alias endDay: Min(calculationPeriod -> endDate -> day, 30)
+	alias startDay: Min(calculationPeriod -> startDate -> day, 30)
 
-   assign-output result:
-     (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+	assign-output result:
+		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
 Utility Function
 """"""""""""""""
