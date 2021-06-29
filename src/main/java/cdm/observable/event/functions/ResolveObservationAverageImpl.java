@@ -1,9 +1,10 @@
-package cdm.security.lending.functions;
+package cdm.observable.event.functions;
 
 import cdm.base.math.MeasureBase;
 import cdm.base.math.UnitType;
 import cdm.observable.asset.Price;
 import cdm.observable.event.Observation;
+import cdm.observable.event.functions.ResolveObservationAverage;
 
 import java.math.BigDecimal;
 import java.util.List;

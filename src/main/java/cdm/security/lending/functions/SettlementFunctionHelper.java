@@ -6,21 +6,13 @@ import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.MeasureBase;
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
-import cdm.base.staticdata.identifier.AssignedIdentifier;
-import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.PayerReceiver;
 import cdm.event.common.*;
 import cdm.event.common.functions.Create_Execution;
+import cdm.event.common.functions.Create_Return;
 import cdm.event.common.functions.Create_Transfer;
-import cdm.event.workflow.EventTimestamp;
-import cdm.event.workflow.EventTimestampQualificationEnum;
-import cdm.event.workflow.MessageInformation;
 import cdm.event.workflow.WorkflowStep;
-import cdm.event.workflow.functions.Create_AcceptedWorkflowStep;
-import cdm.event.workflow.functions.Create_ProposedWorkflowStep;
-import cdm.event.workflow.functions.Create_WorkflowStep;
 import cdm.product.template.*;
-import cdm.security.lending.ReturnInstruction;
 import com.google.common.collect.Iterables;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
@@ -34,7 +26,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -53,7 +44,8 @@ public class SettlementFunctionHelper {
     LineageUtils lineageUtils;
 
     public BusinessEvent createExecution(ExecutionInstruction executionInstruction) {
-        ExecutionInstruction executionInstructionWithRefs = lineageUtils.withGlobalReference(ExecutionInstruction.class, executionInstruction);
+        ExecutionInstruction executionInstructionWithRefs = lineageUtils
+                .withGlobalReference(ExecutionInstruction.class, executionInstruction);
 
         BusinessEvent businessEvent = create_execution.evaluate(executionInstructionWithRefs);
         return lineageUtils.withGlobalReference(BusinessEvent.class, businessEvent);
@@ -71,7 +63,6 @@ public class SettlementFunctionHelper {
                 DateImpl.of(settlementDate));
         return lineageUtils.withGlobalReference(BusinessEvent.class, transferBusinessEvent);
     }
-
 
 
     public LocalDate nearSettlementDate(BusinessEvent businessEvent) {
@@ -105,9 +96,9 @@ public class SettlementFunctionHelper {
         return Instruction.builder()
                 .setInstructionFunction(Create_Transfer.class.getSimpleName())
                 .setTransfer(TransferInstruction.builder()
-                .setPayoutValue(payout)
-                .setPayerReceiver(getPayerReceiver(payout).orElse(null))
-                .build()).build();
+                        .setPayoutValue(payout)
+                        .setPayerReceiver(getPayerReceiver(payout).orElse(null))
+                        .build()).build();
     }
 
     public Instruction createReturnTransferInstruction(BusinessEvent executionBusinessEvent, List<? extends Quantity> quantities) {
@@ -116,10 +107,10 @@ public class SettlementFunctionHelper {
         return Instruction.builder()
                 .setInstructionFunction(Create_Transfer.class.getSimpleName())
                 .setTransfer(TransferInstruction.builder()
-                .setPayoutValue(payout)
-                .setPayerReceiver(getReturnPayerReceiver(payout).orElse(null))
-                .setQuantity(shareQuantity)
-                .build()).build();
+                        .setPayoutValue(payout)
+                        .setPayerReceiver(getReturnPayerReceiver(payout).orElse(null))
+                        .setQuantity(shareQuantity)
+                        .build()).build();
     }
 
     private Quantity getShareQuantity(List<? extends Quantity> quantities) {
@@ -166,7 +157,8 @@ public class SettlementFunctionHelper {
     private Optional<Payout> getSecurityPayout(BusinessEvent executionBusinessEvent) {
         return getPayout(executionBusinessEvent)
                 .map(Payout::getSecurityFinancePayout)
-                .map(securityFinancePayouts -> Payout.builder().setSecurityFinancePayout(securityFinancePayouts).build());
+                .map(securityFinancePayouts -> Payout.builder().setSecurityFinancePayout(securityFinancePayouts)
+                        .build());
     }
 
     private Optional<TradeState> getAfterState(BusinessEvent executionBusinessEvent) {

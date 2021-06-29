@@ -1,8 +1,10 @@
-package cdm.security.lending.functions;
+package cdm.event.common.functions;
 
+import cdm.event.common.BillingRecord;
+import cdm.event.common.BillingRecordInstruction;
 import cdm.event.common.Transfer;
-import cdm.security.lending.BillingRecord;
-import cdm.security.lending.BillingRecordInstruction;
+import cdm.event.common.functions.Create_BillingRecord;
+import cdm.event.common.functions.Create_BillingRecords;
 
 import javax.inject.Inject;
 import java.math.RoundingMode;

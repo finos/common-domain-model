@@ -1,7 +1,7 @@
 package cdm.security.lending.functions;
 
+import cdm.event.common.ReturnInstruction;
 import cdm.event.common.TradeState;
-import cdm.security.lending.ReturnInstruction;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rosetta.model.lib.records.Date;
 
