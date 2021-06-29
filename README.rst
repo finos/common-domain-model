@@ -127,12 +127,24 @@ To ensure re-usability across different markets, the CDM is designed to be a com
 * **Business events** that occur throughout the transaction lifecycle are described by composing more fundamental building blocks called *primitive events*: e.g. a *partial novation* is described by combining a *quantity change* primitive event (describing the partial unwind of the transaction being novated away) and a *contract formation* primitive event (describing the new contract with the novation party).
 * **Legal agreements** that document the legal obligations that parties enter into when transacting in financial products are constructed using *election* components associated to functional logic that is re-usable across different types of agreement: e.g. the same logic defining the calculation of margin requirements can be re-used across both initial and variation margin agreements.
 
-In this paradigm, the type of object defined by the CDM, whether financial product, business event or legal agreement, is not declared ex-ante: instead, the type is inferred through some business logic applied onto its constituents, which may be context-specific based on a given taxonomy.
+In this paradigm, the type of object defined by the CDM, whether a financial product, business event or legal agreement, is not declared upfront: instead, the type is inferred through some business logic applied onto its constituents, which may be context-specific based on a given taxonomy (e.g. a product classification).
 
-The benefit of this approach is that consistency of object classification is achieved through how those objects are populated, rather than depending on each market participant's implementation to use the same labels (e.g. product names). Furthermore, this approach avoids the model relying on specific taxonomies, product labels and product identifiers to function and provides the flexibility to maintain multiple values from different taxonomies and product identifier sets as data in the model related to the same transaction, which is a very useful application not least for regulatory purposes.
+The benefit of this approach is that consistency of object classification is achieved through how those objects are populated, rather than depending on each market participant's implementation to use the same naming convention. This approach also avoids the model relying on specific taxonomies, labels or identifiers to function and provides the flexibility to maintain multiple values from different taxonomies and identifier sets as data in the model related to the same transaction. This has a number of useful application, not least for regulatory purposes.
 
 Mapping to existing industry messaging formats
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To facilitate the adoption of CDM by market participants, the model is made compatible with certain existing industry messaging formats.
+
+This means that the CDM does not need to be implemented "wholesale" as a replacement to existing messaging systems or databases but can coexist alongside existing systems, with a translation layer. In fact, the CDM is designed to provide only a logical model but does not prescribe any physical data format, neither for storage nor transport. This means that translation to those physical data formats is built-in, and the CDM is best thought of as a logical layer supporting inter-operability between them.
+
+.. note:: Although the CDM provides a *serialisation* feature (currently in JSON), this format is only provided for the convenience of representing physical CDM objects and is not designed as a storage mechanism.
+
+The need for such inter-operability is illustrated by a typical trade flow, as it exists in derivatives: a trade may be executed using the pre-trade FIX protocol (with an FpML paylod representing the product), confirmed electronically using FpML as the contract representation, and reported to a Trade Repository under the ISO 20022 format. What the CDM provides is a consistent logical layer that allows to articulate the different components of that front-to-back flow.
+
+In practice, mapping to existing formats is supported by *synonym* mappings, which are a compact description of how data attributes in one format map to model components. In turn, those synonym mappings can support an *ingestion* process that consumes physical data messages and converts them into a CDM objects.
+
+Recognising certain formats as de-facto *standards* that are widely adopted and often used to exchange information between market participants, their synonym mappings are included and rigorously tested in each CDM release, allowing firms that already use such standards to bootstrap their CDM adoption and implementation process. Besides, because most standard messaging formats are typically extended and customised by each market participants (e.g. FpML or FIX), the CDM allows the synonym representation for those standards to be similarly inherited and extended to cover each firm's specific customisation.
 
 Embeded processing logic
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -143,8 +155,7 @@ While ISDA defines the protocols for industry processes in its documentation lib
 
 Traditional implentation of a technical standard distributed in prose comes with the risk of misinterpretation and implementation error, and the process is duplicated across each firm adopting the standard, ultimately adding up to high implementation costs across the industry.
 
-Instead, the CDM provides a fully specified processing model designed to translate the technical standards that support industry processes into a standardised machine-readable and machine-executable format. Systematically providing the domain model as executable code vastly reduces implementation effort and virtually eliminates the risk of inconsistency.
-
+Instead, the CDM provides a fully specified processing model designed to translate the technical standards that support industry processes into a standardised machine-readable and machine-executable format. Systematically providing the domain model as executable code vastly reduces implementation effort and virtually eliminates the risk of inconsistency. For instance, the CDM is designed to provide a fully functional event model, where the state-transition logic for all potential transaction lifecycle events is being spefied and distributed as executable code. Another CDM feature is that each model component is associated with data validation constraints to ensure that data is being validated at the point of creation, and this validation logic is distributed alongside the model itself.
 
 The CDM Governance
 ------------------
