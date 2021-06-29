@@ -110,9 +110,9 @@ The CDM supports the market objectives of standardisation via a set of design pr
 Normalisation through abstraction of common components
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To achieve standardisation across products and asset classes, the CDM is designed to identify logical components that fulfil the same function and to normalise them, even when those components may be named and treated differently in the context of their respective markets. By helping to remove inefficiencies that siloed IT environments can create (e.g. different systems dealing with cash, listed, financing and derivative trades make it harder to obtain an aggregated view of one's position), such design reaffirms the goal of creating an inter-operable ecosystem for the processing of transactions across asset classes.
+To achieve standardisation across products and asset classes, the CDM is designed to identify logical components that fulfil the same function and to normalise them, even when those components may be named and treated differently in the context of their respective markets. By helping to remove inefficiencies that siloed IT environments can create (e.g. different systems dealing with cash, listed, financing and derivative trades make it harder to manage aggregated positions), such design reaffirms the goal of creating an inter-operable ecosystem for the processing of transactions across asset classes.
 
-An example of this contribution is the normalisation of the concepts of *quantity*, *price* and *party* in the representation of financial transactions. The CDM identifies that, regardless of the asset class or product type, a financial transaction always involves two counterparties *trading* (i.e. buying or selling) a certain financial product in a specific quantity and at a specific price. Both quantity and price are themselves a type of *measure*, i.e. an amount expressed in a specific unit which could be a currency, a number of shares or barrels, etc. An exchange rate between currencies, or an interest rate, also fit that description and are represented as prices.
+An example of this approach is the normalisation of the concepts of *quantity*, *price* and *party* in the representation of financial transactions. The CDM identifies that, regardless of the asset class or product type, a financial transaction always involves two counterparties *trading* (i.e. buying or selling) a certain financial product in a specific quantity and at a specific price. Both quantity and price are themselves a type of *measure*, i.e. an amount expressed in a specific unit which could be a currency, a number of shares or barrels, etc. An exchange rate between currencies, or an interest rate, also fit that description and are represented as prices.
 
 This approach means that a single logical concept such as *quantity* represents concepts that may be named and captured differently across markets: e.g. *notional* or *principal* amount etc. This in turn allows to normalise processes that depend on this concept: for instance, how to perform an allocation (essentially a split of the quantity of a transaction into several sub-transactions) or an unwind, which would usually be handled differently by specialised IT systems for each asset class.
 
@@ -162,7 +162,7 @@ Modularisation into logical layers
 
 The set of files that define the CDM data structures and functions are organised into a hierarchy of *namespaces*. The first level in the namespace hierarchy corresponds to the layer of the CDM that the components belong to, and those CDM layers are organised from inner- to outer-most as follows:
 
-.. figure:: 
+.. figure:: documentation/source/namespaces.png
 
 Namespaces have many benefits:
 
@@ -171,10 +171,11 @@ Namespaces have many benefits:
 * Allowing for partial adoption of areas of interest in the model
 * Smaller upgrades representing new versions limited to the name spaces that are impacted
 
-Each of these namespaces is further divided into lower level namespaces. The independent components in each namespace are organised according to their core purpose but can be referenced from anywhere in the model to allow all the components to work together for a complete modelling solution. E.g. below is the *product* namespace:
+Each of these higher-level namespaces is further divided into lower-level namespaces. The independent components in each namespace are organised according to their core purpose but can be referenced from anywhere in the model to allow all the components to work together for a complete modelling solution. E.g. below is the *product* namespace:
 
-.. figure:: 
+.. figure:: documentation/source/product-namespace.png
 
+When developing new CDM components, the positioning of those components in the namespace hierarchy (or potentially the re-organising of that hierarchy based on this new development) must be thought through as part of the design, to ensure the CDM remains well organised.
 
 The CDM Governance
 ------------------
