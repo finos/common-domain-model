@@ -1706,7 +1706,10 @@ Coverage
 * Trade execution and confirmation
 * Clearing
 * Allocation
+* Reallocation
 * Settlement (including any future contingent cashflow payment)
+* Return (settlement of the part and/or full return of the loaned security as defined by a Securities Lending transaction.)
+* Billing (calculation and population of invoicing for Securities Lending transactions)
 * Exercise of options
 * Margin calculation
 * Regulatory reporting (although covered in a different documentation section)
@@ -1903,49 +1906,48 @@ Some of those calculations are presented below:
 
 .. code-block:: Haskell
 
- func DeliveryAmount:
+  func DeliveryAmount:
 	[calculation]
+    inputs:
+      postedCreditSupportItems PostedCreditSupportItem (0..*)
+      priorDeliveryAmountAdjustment Money (1..1)
+      priorReturnAmountAdjustment Money (1..1)
+      disputedTransferredPostedCreditSupportAmount Money (1..1)
+      marginAmount Money (1..1)
+      threshold Money (1..1)
+      marginApproach MarginApproachEnum (1..1)
+      marginAmountIA Money (0..1)
+      minimumTransferAmount Money (1..1)
+      rounding CollateralRounding (1..1)
+      disputedDeliveryAmount Money (1..1)
+      baseCurrency string (1..1)
 
-	inputs:
-		postedCreditSupportItems PostedCreditSupportItem (0..*)
-		priorDeliveryAmountAdjustment Money (1..1)
-		priorReturnAmountAdjustment Money (1..1)
-		disputedTransferredPostedCreditSupportAmount Money (1..1)
-		marginAmount Money (1..1)
-		threshold Money (1..1)
-		marginApproach MarginApproachEnum (1..1)
-		marginAmountIA Money (0..1)
-		minimumTransferAmount Money (1..1)
-		rounding CollateralRounding (1..1)
-		disputedDeliveryAmount Money (1..1)
-		baseCurrency string (1..1)
+    output:
+      result Money (1..1)
 
-	output:
-		result Money (1..1)
+    alias undisputedAdjustedPostedCreditSupportAmount:
+      UndisputedAdjustedPostedCreditSupportAmount(postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency)
 
-	alias undisputedAdjustedPostedCreditSupportAmount:
-		UndisputedAdjustedPostedCreditSupportAmount(postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency)
+    alias creditSupportAmount:
+      CreditSupportAmount(marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency)
 
-	alias creditSupportAmount:
-		CreditSupportAmount(marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency)
+    alias deliveryAmount:
+      Max(creditSupportAmount -> amount - undisputedAdjustedPostedCreditSupportAmount -> amount, 0.0)
 
-	alias deliveryAmount:
-		Max(creditSupportAmount -> amount - undisputedAdjustedPostedCreditSupportAmount -> amount, 0.0)
+    alias undisputedDeliveryAmount:
+      Max(deliveryAmount - disputedDeliveryAmount -> amount, 0.0)
 
-	alias undisputedDeliveryAmount:
-		Max(deliveryAmount - disputedDeliveryAmount -> amount, 0.0)
+    condition:
+      (baseCurrency = minimumTransferAmount -> unitOfAmount -> currency
+      and (baseCurrency = disputedDeliveryAmount -> unitOfAmount -> currency))
 
-	condition:
-		(baseCurrency = minimumTransferAmount -> unitOfAmount -> currency
-		and (baseCurrency = disputedDeliveryAmount -> unitOfAmount -> currency))
+    assign-output result -> amount:
+      if undisputedDeliveryAmount >= minimumTransferAmount -> amount
+      then RoundToNearest(undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up)
+      else 0.0
 
-	assign-output result -> amount:
-		if undisputedDeliveryAmount >= minimumTransferAmount -> amount
-		then RoundToNearest(undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up)
-		else 0.0
-
-	assign-output result -> unitOfAmount -> currency:
-	    baseCurrency
+    assign-output result -> unitOfAmount -> currency:
+      baseCurrency
 
 .. code-block:: Haskell
  func ReturnAmount:
@@ -1986,6 +1988,46 @@ Some of those calculations are presented below:
 	 else 0.0
        assign-output result -> currency:
          baseCurrency
+	 
+Billing
+"""""""""
+
+The CDM process model includes calculations to support the billing event consisting of the individual amounts that need to be settled in relation to a portfolio of Security Loans.  These calculations leverage the `FixedAmount`, `FloatingAmount` and `Day Count Fraction` calculations described earlier in the documentation.  A functional model is provided to populate the `SecurityLendingInvoice` data type following the definitions as normalised in the *ISLA best practice handbook*
+
+The data type and function to generate a Security Lending Invoice:
+
+.. code-block:: Haskell
+  type SecurityLendingInvoice:
+    sendingParty Party (1..1)
+    receivingParty Party (1..1)
+    billingStartDate date (1..1)
+    billingEndDate date (1..1)
+    billingRecord BillingRecord (1..*)
+    billingSummary BillingSummary (1..*)
+    
+.. code-block:: Haskell
+  func Create_SecurityLendingInvoice: <"Defines the process of calculating and creating a Security Lending Invoice.">
+
+    inputs:
+      instruction BillingInstruction (1..1) <"Specifies the instructions for creation of a Security Lending billing invoice.">
+
+    output:
+      invoice SecurityLendingInvoice (1..1) <"Produces the Security Lending Invoice">
+
+      assign-output invoice->sendingParty:
+        instruction->sendingParty
+      assign-output invoice->receivingParty:
+	instruction->receivingParty	
+      assign-output invoice->billingStartDate:
+	instruction->billingStartDate
+      assign-output invoice->billingEndDate:
+	instruction->billingEndDate
+      assign-output invoice -> billingRecord:
+	Create_BillingRecords (instruction -> billingRecordInstruction)
+      assign-output invoice->billingSummary:
+	Create_BillingSummary (invoice -> billingRecord)
+
+
 
 Lifecycle Event Process
 ^^^^^^^^^^^^^^^^^^^^^^^
