@@ -33,13 +33,8 @@ import com.google.common.io.Resources;
 import com.google.inject.*;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
-import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
-import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 
-import com.rosetta.model.lib.RosettaModelObject;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
@@ -79,10 +74,10 @@ class SecLendingFunctionInputCreationTest {
 
     // ALLOCATION AND REALLOCATION EXAMPLES ARE BASED ON THIS EXECUTION INSTRUCTION.
     // This is the execution instruction between an agent lender and a borrower
-    public static final String EXECUTION_INSTRUCTION_JSON = "/cdm-sample-files/functions/block-execution-instruction.json";
+    public static final String EXECUTION_INSTRUCTION_JSON = "/cdm-sample-files/functions/sec-lending/block-execution-instruction.json";
 
     // SETTLEMENT AND RETURN WORKFLOWS ARE BASED OF THIS..
-    public static final String SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON = "/cdm-sample-files/functions/new-settlement-workflow-func-input.json";
+    public static final String SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON = "/cdm-sample-files/functions/sec-lending/new-settlement-workflow-func-input.json";
 
     private static Injector injector;
 
@@ -92,7 +87,7 @@ class SecLendingFunctionInputCreationTest {
                 .with(new AbstractModule() {
                     @Override
                     protected void configure() {
-                        bind(PostProcessor.class).to(WorkflowPostProcessRunner.class);
+                        bind(PostProcessor.class).to(GlobalKeyProcessRunner.class);
                         bind(ModelObjectValidator.class).toInstance(Mockito.mock(ModelObjectValidator.class));
                     }
                 });
@@ -111,7 +106,7 @@ class SecLendingFunctionInputCreationTest {
 
     @Test
     void validatePartReturnSettlementWorkflowFuncInputJson() throws IOException {
-        assertJsonConformsToRosettaType("/cdm-sample-files/functions/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
+        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
 
         RunReturnSettlementWorkflowInput actual = new RunReturnSettlementWorkflowInput(getTransferTradeState(),
                 ReturnInstruction.builder()
@@ -128,14 +123,14 @@ class SecLendingFunctionInputCreationTest {
                 DateImpl.of(2020, 10, 8)
         );
 
-        assertEquals(readResource("/cdm-sample-files/functions/part-return-settlement-workflow-func-input.json"),
+        assertEquals(readResource("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for part-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
     @Test
     void validateFullReturnSettlementWorkflowFuncInputJson() throws IOException {
-        assertJsonConformsToRosettaType("/cdm-sample-files/functions/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
+        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
 
         RunReturnSettlementWorkflowInput actual = new RunReturnSettlementWorkflowInput(getTransferTradeState(),
                 ReturnInstruction.builder()
@@ -152,7 +147,7 @@ class SecLendingFunctionInputCreationTest {
                 DateImpl.of(2020, 10, 21)
         );
 
-        assertEquals(readResource("/cdm-sample-files/functions/full-return-settlement-workflow-func-input.json"),
+        assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for part-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -167,7 +162,7 @@ class SecLendingFunctionInputCreationTest {
                 .build();
 
         JsonNode expectedJsonNode = STRICT_MAPPER
-                .readTree(this.getClass().getResource("/cdm-sample-files/functions/create-allocation-func-input.json"));
+                .readTree(this.getClass().getResource("/cdm-sample-files/functions/sec-lending/create-allocation-func-input.json"));
         TradeState expectedTradeState = assertJsonConformsToRosettaType(expectedJsonNode
                 .get("tradeState"), TradeState.class);
         AllocationInstruction expectedAllocationInstruction = assertJsonConformsToRosettaType(expectedJsonNode
@@ -224,7 +219,7 @@ class SecLendingFunctionInputCreationTest {
 
         JsonNode expectedJsonNode = STRICT_MAPPER
                 .readTree(this.getClass()
-                        .getResource("/cdm-sample-files/functions/create-reallocation-pre-settled-func-input.json"));
+                        .getResource("/cdm-sample-files/functions/sec-lending/create-reallocation-pre-settled-func-input.json"));
 
         TradeState expectedTradeState = assertJsonConformsToRosettaType(expectedJsonNode
                 .get("originalBlock"), TradeState.class);
@@ -240,7 +235,7 @@ class SecLendingFunctionInputCreationTest {
 
     @Test
     void validateCreateSecurityLendingInvoiceFuncInputJson() throws IOException {
-        RunReturnSettlementWorkflowInput input = assertJsonConformsToRosettaType("/cdm-sample-files/functions/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
+        RunReturnSettlementWorkflowInput input = assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
         Workflow part = injector.getInstance(RunReturnSettlementWorkflow.class).execute(input);
 
         TradeState fullReturnAfterTradeState = getTransferTradeState();
@@ -327,7 +322,7 @@ class SecLendingFunctionInputCreationTest {
                         )))
                 .build();
 
-        BillingInstruction expectedBillingInstruction = assertJsonConformsToRosettaType("/cdm-sample-files/functions/create-security-lending-invoice-func-input.json", BillingInstruction.class);
+        BillingInstruction expectedBillingInstruction = assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
 
         assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actualBillingInstruction),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectedBillingInstruction),
@@ -492,16 +487,6 @@ class SecLendingFunctionInputCreationTest {
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for " + inputJson + " has been updated (probably due to a model change). Update the input file");
         return actual;
-    }
-
-    static class WorkflowPostProcessRunner implements PostProcessor {
-        private final PostProcessStep postProcessor = new GlobalKeyProcessStep(NonNullHashCollector::new);
-
-        @Override
-        public <T extends RosettaModelObject> RosettaModelObjectBuilder postProcess(Class<T> rosettaType, RosettaModelObjectBuilder instance) {
-            postProcessor.runProcessStep(rosettaType, instance);
-            return instance;
-        }
     }
 
 }
