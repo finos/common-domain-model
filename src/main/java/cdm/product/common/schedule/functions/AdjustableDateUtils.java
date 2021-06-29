@@ -7,6 +7,7 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 /**
  * TODO - Move this to the CDM
@@ -28,12 +29,12 @@ public class AdjustableDateUtils {
                 return adjustableDate.getAdjustedDate().getValue().toLocalDate();
             }
             if (adjustableDate.getUnadjustedDate() != null) {
-                BusinessDayConventionEnum businessDayConvention = adjustableDate.getDateAdjustments()
-                        .getBusinessDayConvention();
+                BusinessDayConventionEnum businessDayConvention = Optional
+                        .ofNullable(adjustableDate.getDateAdjustments())
+                        .map(BusinessDayAdjustments::getBusinessDayConvention)
+                        .orElse(BusinessDayConventionEnum.NONE);
+
                 LocalDate unadjustedDate = adjustableDate.getUnadjustedDate().toLocalDate();
-
-                BusinessDayConvention.extendedEnum().lookupAll();
-
                 return BusinessDayAdjustment.builder()
                         .convention(toBusinessDayConvention(businessDayConvention))
                         .calendar(HolidayCalendarIds.SAT_SUN).build()
