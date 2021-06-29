@@ -45,6 +45,7 @@ Before you start editing the CDM using Rosetta, please go through the following 
 - Model compiles (with no "static compilation" errors)
 - All translate regression tests expectations for mapping, validation and qualification maintained or improved
 - Additional test samples used (if use-case is not covered by existing samples)
+- All model components positioned in the correct namespace
 - All model components have descriptions
 
 .. note:: The CDM may also be supported through alternative modelling platforms (for instance `Legend <https://legend.finos.org/studio>`_). If you intend on using a platform other than Rosetta to edit the CDM, please go through the Rosetta check-list anyway as you will still need to validate and then contribute your code through Rosetta.
@@ -80,6 +81,13 @@ The CDM has adopted a test-driven development approach that maps model component
 Contributors are invited to test their model changes live against the Test Pack using the Rosetta Translate application, referring to the `Rosetta Translate Guide <https://docs.rosetta-technology.io/core/3-rosetta-translate.html>`_. When editing existing model components, the corresponding synonyms should be updated to maintain or improve existing levels. When adding new model components, new sample data and corresponding synonym mappings should also be provided so the new use-case can be added to the set of regression tests.
 
 Please refer to the `Mapping Guide <https://docs.rosetta-technology.io/dsl/documentation.html#mapping-component>`_ for details about the synonym mapping syntax.
+
+Namespace
+^^^^^^^^^
+
+All model components should be positioned appropriately in the existing namespace hierarchy. If the proposed contribution includes changes to the namespace hierarchy, those changes should be justified and documented. Any new namespace should have an associated description, and be imported where required.
+
+Please refer to the `Namespace documentation <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#namespace>`_ for more details.
 
 All model components have descriptions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -146,6 +154,7 @@ Before starting to review a contribution, the CDM Reviewer should go through the
 
 - CDM build process completed with no errors or test failures
 - Review additional samples provided (if use-case is not covered by existing samples)
+- All model components positioned in the correct namespace
 - All model components have descriptions
 - Additional documentation provided, if necessary.
 - Release note provided
