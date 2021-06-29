@@ -105,18 +105,18 @@ The CDM supports the market objectives of standardisation via a set of design pr
 * Construction by composition and qualification, i.e. "bottom-up" approach
 * Mapping to existing industry messaging formats, e.g. *FpML*
 * Embedded processing logic, e.g. data validation or state-transition logic
-* Organisation into logical layers using *namespaces*
+* Modularisation into logical layers, using *namespaces* organisation
 
 Normalisation through abstraction of common components
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To achieve standardisation across products and asset classes, the CDM is designed to identify logical components that fulfil the same function and to normalise them, even when those components may be named and treated differently in the context of their respective markets. By helping to remove the inefficiencies that exist in the industry's siloed IT environments (e.g. different systems dealing with cash, listed, financing and derivatives), such design reaffirms the goal of creating an inter-operable ecosystem for the processing of transactions across asset classes.
+To achieve standardisation across products and asset classes, the CDM is designed to identify logical components that fulfil the same function and to normalise them, even when those components may be named and treated differently in the context of their respective markets. By helping to remove inefficiencies that siloed IT environments can create (e.g. different systems dealing with cash, listed, financing and derivative trades make it harder to obtain an aggregated view of one's position), such design reaffirms the goal of creating an inter-operable ecosystem for the processing of transactions across asset classes.
 
 An example of this contribution is the normalisation of the concepts of *quantity*, *price* and *party* in the representation of financial transactions. The CDM identifies that, regardless of the asset class or product type, a financial transaction always involves two counterparties *trading* (i.e. buying or selling) a certain financial product in a specific quantity and at a specific price. Both quantity and price are themselves a type of *measure*, i.e. an amount expressed in a specific unit which could be a currency, a number of shares or barrels, etc. An exchange rate between currencies, or an interest rate, also fit that description and are represented as prices.
 
 This approach means that a single logical concept such as *quantity* represents concepts that may be named and captured differently across markets: e.g. *notional* or *principal* amount etc. This in turn allows to normalise processes that depend on this concept: for instance, how to perform an allocation (essentially a split of the quantity of a transaction into several sub-transactions) or an unwind, which would usually be handled differently by specialised IT systems for each asset class.
 
-To maintain such normalisation feature and avoid specialising the model according to each use case, it is imperative that any request to add new model components or extend existing ones is analysed against existing components, to find patterns that should be factored into common components. For instance, when developing the model for *averaging* options (often used for commodity products, whereby multiple price observations are averaged through time to be compared to the option's strike price), the components are built and named such that they could be re-used across asset classes.
+To maintain such normalisation feature and avoid specialising the model according to each use case, it is imperative that any request to add new model components or extend existing ones is analysed against existing components, to find patterns that should be factored into common components. For instance, in the model for *averaging* options (often used for commodity products, whereby multiple price observations are averaged through time to be compared to the option's strike price), the components are built and named such that they can be re-used across asset classes.
 
 Construction by composition and qualification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -156,6 +156,25 @@ While ISDA defines the protocols for industry processes in its documentation lib
 Traditional implentation of a technical standard distributed in prose comes with the risk of misinterpretation and implementation error, and the process is duplicated across each firm adopting the standard, ultimately adding up to high implementation costs across the industry.
 
 Instead, the CDM provides a fully specified processing model designed to translate the technical standards that support industry processes into a standardised machine-readable and machine-executable format. Systematically providing the domain model as executable code vastly reduces implementation effort and virtually eliminates the risk of inconsistency. For instance, the CDM is designed to provide a fully functional event model, where the state-transition logic for all potential transaction lifecycle events is being spefied and distributed as executable code. Another CDM feature is that each model component is associated with data validation constraints to ensure that data is being validated at the point of creation, and this validation logic is distributed alongside the model itself.
+
+Modularisation into logical layers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The set of files that define the CDM data structures and functions are organised into a hierarchy of *namespaces*. The first level in the namespace hierarchy corresponds to the layer of the CDM that the components belong to, and those CDM layers are organised from inner- to outer-most as follows:
+
+.. figure:: 
+
+Namespaces have many benefits:
+
+* Accelerated understanding of the model by allowing users to easily see a high-level view of the model and easily find, select, and study specific areas of interest
+* Faster and easier to find data types and functions for referencing/use in new components
+* Allowing for partial adoption of areas of interest in the model
+* Smaller upgrades representing new versions limited to the name spaces that are impacted
+
+Each of these namespaces is further divided into lower level namespaces. The independent components in each namespace are organised according to their core purpose but can be referenced from anywhere in the model to allow all the components to work together for a complete modelling solution. E.g. below is the *product* namespace:
+
+.. figure:: 
+
 
 The CDM Governance
 ------------------
