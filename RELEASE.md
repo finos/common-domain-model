@@ -1,29 +1,21 @@
-# *DSL Syntax - New keywords to compare a list to a single data object*
+# *DSL Syntax - Only Exists for multiple attributes*
 
 _What is being released?_
 
-New keywords have been introduced in the DSL syntax to compare a list of items to a single data object. Currently comparing a list to single data object will only result to true if all the items of the list match the single data object.  The `all` and `any` keywords can now be used to extend the comparison outcome with any equality operators: `=`, `<>`, `>`, `>=`, `<`, `<=`.
+The `only exists` DSL feature has been enhanced to allow a list of attributes to be evaluated.
 
-In the examples below, `payout -> interestRatePayout` is a list according to the cardinality of its definition in the model.
+The syntax for a single attribute remains the same.  The statement below will evaluate to true if `interestRatePayout` exists and all other attributes of `Payout` are absent.
 
-The `all` keyword will be used to specify that *all* items in the list must match the single data object. Accordingly, the statement will evaluate to true if each `paymentDates -> paymentFrequency -> period` for every item of the list `interestRatePayout` is equal to `T`.
+- `economicTerms -> payout -> interestRatePayout only exists`
 
-- `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T`
+The new syntax allows for a list of attributes to be specified.  The statement below will evaluate to true only if both `interestRatePayout` and `equityPayout` exist and all other attributes of `Payout` are absent.
 
-The `any` keyword will be used to specify that *any* item in the list must match the single data object. Accordingly, the statement will evaluate to true if at least one `paymentDates -> paymentFrequency -> period` for any item of the list `interestRatePayout` is equal to `T`.
+- `(economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> equityPayout) only exists`
 
-- `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any = PeriodExtendedEnum -> T`
-
-All list comparisons in the model have been updated to use the `all` or `any` keywords whilst retaining the original expected logical outcome.
-
-In the CDM Documentation, review the following sections:
-
-- [List comparison operators](https://docs.rosetta-technology.io/dsl/expressions.html#list-comparison-operators)
+This change allows many of the qualification functions to be simplified.
 
 _Review Directions_
 
-In the CDM Portal, use the Textual Browser to review the list comparisons in the model, including the following examples:
+In the CDM Portal, use the Textual Browser to review the usages of `only exists` in the model, including the following examples:
 
-- Event qualification functions - `Qualify_CashTransfer`, `Qualify_Novation`
-- Product qualification functions - `Qualify_InterestRate_IRSwap_FixedFloat`, `Qualify_InterestRate_IRSwap_FixedFloat_OIS`
-- Conditions - `PriceQuantity -> NonNegativeQuantity`, `CreditDefaultPayout -> FpML_cd_13`, `CreditDefaultPayout -> FpML_cd_14`
+- Product qualification functions - `Qualify_InterestRate_IRSwap_FixedFloat`, `Qualify_Commodity_Swap_FixedFloat`, `Qualify_CreditDefaultSwap_SingleName`.
