@@ -515,14 +515,7 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
  	output: is_product boolean (1..1)
  	assign-output is_product:
         (economicTerms -> payout -> interestRatePayout only exists
-            or (economicTerms -> payout -> interestRatePayout exists
-                and economicTerms -> payout -> cashflow exists
-                and economicTerms -> payout -> creditDefaultPayout is absent
-                and economicTerms -> payout -> equityPayout is absent
-                and economicTerms -> payout -> forwardPayout is absent
-                and economicTerms -> payout -> optionPayout is absent
-                and economicTerms -> payout -> securityPayout is absent
-                and economicTerms -> payout -> securityFinancePayout is absent))
+			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
         and economicTerms -> payout -> interestRatePayout count = 2
         and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
         and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
