@@ -758,7 +758,7 @@ func Create_ContractFormationPrimitive: <"Function specification to create the p
 	[creation PrimitiveEvent]
 	inputs:
 		execution Trade (1..1) <"Execution consisting of the economic terms which are agreed between the parties.">
-		legalAgreement LegalAgreement (0..1) <"Optional legal agreement associated to the contract being formed, for instance a master agreement.">
+		legalAgreement LegalAgreement (0..*) <"Optional legal agreements associated to the contract being formed, for instance a master agreement.">
 	output:
 		contractFormation ContractFormationPrimitive (1..1) <"Primitive event containing the execution as its before state and the contract as the after state.">
 	alias trade:
@@ -775,9 +775,9 @@ func Create_ContractFormationPrimitive: <"Function specification to create the p
 		execution -> partyRole
 	assign-output trade -> party: <"Assign the party input to the execution object.">
 		execution -> party
-	assign-output trade -> contractDetails -> documentation -> legalAgreement: <"When an overlaying legal agreement exists, the contract must reference it.">
-		if legalAgreement exists
-		then Create_LegalAgreementWithPartyReference(legalAgreement -> agreementTerms, legalAgreement -> agreementDate, legalAgreement -> effectiveDate, legalAgreement -> identifier,  legalAgreement -> agreementType, legalAgreement -> contractualParty, legalAgreement -> otherParty)
+
+	assign-output trade -> contractDetails -> documentation: <"When an overlaying related legal agreement exists, the contract must reference it.">
+		if legalAgreement exists then Create_RelatedAgreementsWithPartyReference(legalAgreement)
 
 func Create_Exercise: <"Defines the process of putting into effect the rights specified in an options contract, such as to buy or sell a security.  Once exercised the option contract is terminated.">
  	[creation BusinessEvent]
