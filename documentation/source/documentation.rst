@@ -514,20 +514,20 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
  	inputs: economicTerms EconomicTerms (1..1)
  	output: is_product boolean (1..1)
  	assign-output is_product:
-  	(economicTerms -> payout -> interestRatePayout only exists
- 		or (economicTerms -> payout -> interestRatePayout exists
- 		and economicTerms -> payout -> cashflow exists
- 		and economicTerms -> payout -> creditDefaultPayout is absent
- 		and economicTerms -> payout -> equityPayout is absent
- 		and economicTerms -> payout -> forwardPayout is absent
- 		and economicTerms -> payout -> optionPayout is absent
- 		and economicTerms -> payout -> securityPayout is absent
-        and economicTerms -> payout -> securityFinancePayout is absent))
- 		and economicTerms -> payout -> interestRatePayout count =2
- 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
- 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
- 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
- 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
+        (economicTerms -> payout -> interestRatePayout only exists
+            or (economicTerms -> payout -> interestRatePayout exists
+                and economicTerms -> payout -> cashflow exists
+                and economicTerms -> payout -> creditDefaultPayout is absent
+                and economicTerms -> payout -> equityPayout is absent
+                and economicTerms -> payout -> forwardPayout is absent
+                and economicTerms -> payout -> optionPayout is absent
+                and economicTerms -> payout -> securityPayout is absent
+                and economicTerms -> payout -> securityFinancePayout is absent))
+        and economicTerms -> payout -> interestRatePayout count = 2
+        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+        and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
+        and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
 
 If all the statements above are true, then the function evaluates to True, and the product is determined to be qualified as the product type referenced by the function name.
 
@@ -1154,11 +1154,10 @@ One distinction with the product approach is that the ``intent`` qualification i
  	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
  	assign-output is_event:
  		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
- 		and (businessEvent  -> primitives count = 1
- 			and businessEvent -> primitives -> quantityChange exists
+ 		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
  			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
  		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
- 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+ 		and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
@@ -1707,7 +1706,10 @@ Coverage
 * Trade execution and confirmation
 * Clearing
 * Allocation
+* Reallocation
 * Settlement (including any future contingent cashflow payment)
+* Return (settlement of the part and/or full return of the loaned security as defined by a Securities Lending transaction.)
+* Billing (calculation and population of invoicing for Securities Lending transactions)
 * Exercise of options
 * Margin calculation
 * Regulatory reporting (although covered in a different documentation section)
@@ -1782,26 +1784,30 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
 
 .. code-block:: Haskell
 
- func FloatingAmount:
- 	[calculation]
- 	inputs:
- 		interestRatePayout InterestRatePayout (1..1)
- 		spread number (1..1)
- 		rate number (1..1)
- 		quantity Quantity (1..1)
- 		date date (1..1)
+func FloatingAmount:
+	[calculation]
+	inputs:
+		interestRatePayout InterestRatePayout (1..1)
+		spread number (1..1)
+		rate number (1..1)
+		quantity Quantity (1..1)
+		date date (1..1)
+		calculationPeriodData CalculationPeriodData (0..1)
 
- 	output:
- 	    floatingAmount number (1..1)
+	output:
+	    floatingAmount number (1..1)
 
- 	alias calculationAmount:
- 	    quantity -> amount
+	alias calculationAmount:
+	    quantity -> amount
 
- 	alias dayCountFraction:
- 	    DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+	alias calculationPeriod:
+		if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
 
- 	assign-output floatingAmount:
- 	    calculationAmount * (rate + spread) * dayCountFraction
+	alias dayCountFraction:
+	    DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date, calculationPeriod)
+
+	assign-output floatingAmount:
+	    calculationAmount * (rate + spread) * dayCountFraction
 
 Day Count Fraction
 """"""""""""""""""
@@ -1814,19 +1820,18 @@ The CDM process model eliminates the need for implementators to interpret the lo
 
 .. code-block:: Haskell
 
- func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
-   [calculation]
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+	[calculation]
 
-   alias calculationPeriod: CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
-   alias startYear: calculationPeriod -> startDate -> year
-   alias endYear: calculationPeriod -> endDate -> year
-   alias startMonth: calculationPeriod -> startDate -> month
-   alias endMonth: calculationPeriod -> endDate -> month
-   alias endDay: Min(calculationPeriod -> endDate -> day, 30)
-   alias startDay: Min(calculationPeriod -> startDate -> day, 30)
+	alias startYear: calculationPeriod -> startDate -> year
+	alias endYear: calculationPeriod -> endDate -> year
+	alias startMonth: calculationPeriod -> startDate -> month
+	alias endMonth: calculationPeriod -> endDate -> month
+	alias endDay: Min(calculationPeriod -> endDate -> day, 30)
+	alias startDay: Min(calculationPeriod -> startDate -> day, 30)
 
-   assign-output result:
-     (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+	assign-output result:
+		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
 Utility Function
 """"""""""""""""
@@ -1901,49 +1906,48 @@ Some of those calculations are presented below:
 
 .. code-block:: Haskell
 
- func DeliveryAmount:
+  func DeliveryAmount:
 	[calculation]
+    inputs:
+      postedCreditSupportItems PostedCreditSupportItem (0..*)
+      priorDeliveryAmountAdjustment Money (1..1)
+      priorReturnAmountAdjustment Money (1..1)
+      disputedTransferredPostedCreditSupportAmount Money (1..1)
+      marginAmount Money (1..1)
+      threshold Money (1..1)
+      marginApproach MarginApproachEnum (1..1)
+      marginAmountIA Money (0..1)
+      minimumTransferAmount Money (1..1)
+      rounding CollateralRounding (1..1)
+      disputedDeliveryAmount Money (1..1)
+      baseCurrency string (1..1)
 
-	inputs:
-		postedCreditSupportItems PostedCreditSupportItem (0..*)
-		priorDeliveryAmountAdjustment Money (1..1)
-		priorReturnAmountAdjustment Money (1..1)
-		disputedTransferredPostedCreditSupportAmount Money (1..1)
-		marginAmount Money (1..1)
-		threshold Money (1..1)
-		marginApproach MarginApproachEnum (1..1)
-		marginAmountIA Money (0..1)
-		minimumTransferAmount Money (1..1)
-		rounding CollateralRounding (1..1)
-		disputedDeliveryAmount Money (1..1)
-		baseCurrency string (1..1)
+    output:
+      result Money (1..1)
 
-	output:
-		result Money (1..1)
+    alias undisputedAdjustedPostedCreditSupportAmount:
+      UndisputedAdjustedPostedCreditSupportAmount(postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency)
 
-	alias undisputedAdjustedPostedCreditSupportAmount:
-		UndisputedAdjustedPostedCreditSupportAmount(postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency)
+    alias creditSupportAmount:
+      CreditSupportAmount(marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency)
 
-	alias creditSupportAmount:
-		CreditSupportAmount(marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency)
+    alias deliveryAmount:
+      Max(creditSupportAmount -> amount - undisputedAdjustedPostedCreditSupportAmount -> amount, 0.0)
 
-	alias deliveryAmount:
-		Max(creditSupportAmount -> amount - undisputedAdjustedPostedCreditSupportAmount -> amount, 0.0)
+    alias undisputedDeliveryAmount:
+      Max(deliveryAmount - disputedDeliveryAmount -> amount, 0.0)
 
-	alias undisputedDeliveryAmount:
-		Max(deliveryAmount - disputedDeliveryAmount -> amount, 0.0)
+    condition:
+      (baseCurrency = minimumTransferAmount -> unitOfAmount -> currency
+      and (baseCurrency = disputedDeliveryAmount -> unitOfAmount -> currency))
 
-	condition:
-		(baseCurrency = minimumTransferAmount -> unitOfAmount -> currency
-		and (baseCurrency = disputedDeliveryAmount -> unitOfAmount -> currency))
+    assign-output result -> amount:
+      if undisputedDeliveryAmount >= minimumTransferAmount -> amount
+      then RoundToNearest(undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up)
+      else 0.0
 
-	assign-output result -> amount:
-		if undisputedDeliveryAmount >= minimumTransferAmount -> amount
-		then RoundToNearest(undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up)
-		else 0.0
-
-	assign-output result -> unitOfAmount -> currency:
-	    baseCurrency
+    assign-output result -> unitOfAmount -> currency:
+      baseCurrency
 
 .. code-block:: Haskell
  func ReturnAmount:
@@ -1984,6 +1988,46 @@ Some of those calculations are presented below:
 	 else 0.0
        assign-output result -> currency:
          baseCurrency
+	 
+Billing
+"""""""""
+
+The CDM process model includes calculations to support the billing event consisting of the individual amounts that need to be settled in relation to a portfolio of Security Loans.  These calculations leverage the `FixedAmount`, `FloatingAmount` and `Day Count Fraction` calculations described earlier in the documentation.  A functional model is provided to populate the `SecurityLendingInvoice` data type following the definitions as normalised in the *ISLA best practice handbook*
+
+The data type and function to generate a Security Lending Invoice:
+
+.. code-block:: Haskell
+  type SecurityLendingInvoice:
+    sendingParty Party (1..1)
+    receivingParty Party (1..1)
+    billingStartDate date (1..1)
+    billingEndDate date (1..1)
+    billingRecord BillingRecord (1..*)
+    billingSummary BillingSummary (1..*)
+    
+.. code-block:: Haskell
+  func Create_SecurityLendingInvoice: <"Defines the process of calculating and creating a Security Lending Invoice.">
+
+    inputs:
+      instruction BillingInstruction (1..1) <"Specifies the instructions for creation of a Security Lending billing invoice.">
+
+    output:
+      invoice SecurityLendingInvoice (1..1) <"Produces the Security Lending Invoice">
+
+      assign-output invoice->sendingParty:
+        instruction->sendingParty
+      assign-output invoice->receivingParty:
+	instruction->receivingParty	
+      assign-output invoice->billingStartDate:
+	instruction->billingStartDate
+      assign-output invoice->billingEndDate:
+	instruction->billingEndDate
+      assign-output invoice -> billingRecord:
+	Create_BillingRecords (instruction -> billingRecordInstruction)
+      assign-output invoice->billingSummary:
+	Create_BillingSummary (invoice -> billingRecord)
+
+
 
 Lifecycle Event Process
 ^^^^^^^^^^^^^^^^^^^^^^^
