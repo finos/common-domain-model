@@ -1,21 +1,25 @@
 package cdm.event.workflow.processor;
 
-import cdm.base.datetime.*;
+import cdm.base.datetime.BusinessCenterEnum;
+import cdm.base.datetime.BusinessDayConventionEnum;
+import cdm.base.datetime.PeriodExtendedEnum;
+import cdm.base.datetime.RollConventionEnum;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.UnitType;
 import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
 import cdm.base.staticdata.asset.common.ProductIdentifier;
 import cdm.base.staticdata.asset.common.SecurityTypeEnum;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
-import cdm.base.staticdata.party.Party;
 import cdm.event.common.ExecutionTypeEnum;
-import cdm.event.common.TradeState;
 import cdm.event.workflow.EventTimestampQualificationEnum;
 import cdm.event.workflow.WorkflowStep;
-import cdm.observable.asset.PriceQuantity;
+import cdm.event.workflow.WorkflowStep.WorkflowStepBuilder;
 import cdm.observable.asset.PriceTypeEnum;
-import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.settlement.DeliveryMethodEnum;
+import cdm.product.template.CollateralTypeEnum;
+import cdm.product.template.DurationTypeEnum;
+import cdm.product.template.EconomicTerms.EconomicTermsBuilder;
+import cdm.product.template.TradableProduct.TradableProductBuilder;
 import cdm.product.template.CollateralTypeEnum;
 import cdm.product.template.DurationTypeEnum;
 import cdm.product.template.EconomicTerms;
@@ -41,22 +45,34 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static cdm.base.datetime.AdjustableDate.AdjustableDateBuilder;
+import static cdm.base.math.UnitType.UnitTypeBuilder;
+import static cdm.base.staticdata.party.Party.PartyBuilder;
+import static cdm.event.common.TradeState.TradeStateBuilder;
+import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
+import static cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
+import static cdm.product.template.SecurityFinancePayout.SecurityFinancePayoutBuilder;
+import static com.rosetta.model.metafields.FieldWithMetaString.FieldWithMetaStringBuilder;
 import static cdm.product.template.SecurityFinancePayout.SecurityFinancePayoutBuilder;
 
+/**
+ * This instance override the version in CDM so it can be kept up to date with ISLA model changes.
+ */
 @SuppressWarnings("unused")
-public class FISMapperMappingProcessor extends FlatFileMappingProcessor<WorkflowStep.WorkflowStepBuilder> {
+public class FISMapperMappingProcessor extends FlatFileMappingProcessor<WorkflowStepBuilder> {
 
 	private static final String BORROWER = "Borrower";
 	private static final String AGENT_LENDER = "AGENT_LENDER";
 
-	protected void doHardCodings(WorkflowStep.WorkflowStepBuilder workflow) {
+	protected void doHardCodings(WorkflowStepBuilder workflow) {
 
 	}
 
-	private void staticMappings(PathValue<TradeState.TradeStateBuilder> tradeState) {
+	private void staticMappings(PathValue<TradeStateBuilder> tradeState) {
 
 		tradeState.getValue().getOrCreateTrade().getOrCreateExecutionDetails().setExecutionType(ExecutionTypeEnum.OFF_FACILITY);
 
@@ -88,14 +104,14 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		getSecPO(tradeState).getValue().getOrCreateDurationType().setDurationType(DurationTypeEnum.OPEN);
 		getSecPO(tradeState).getValue().getOrCreateSecurityInformation().getOrCreateSecurity().setSecurityType(SecurityTypeEnum.EQUITY);
 
-		getSecPO(tradeState).getValue().getOrCreateSecurityFinanceLeg(0).getOrCreatePayerReceiver().setPayer(CounterpartyRoleEnum.PARTY_1);
-		getSecPO(tradeState).getValue().getOrCreateSecurityFinanceLeg(0).getOrCreatePayerReceiver().setReceiver(CounterpartyRoleEnum.PARTY_2);
+		getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setPayer(CounterpartyRoleEnum.PARTY_1);
+		getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setReceiver(CounterpartyRoleEnum.PARTY_2);
 	}
 
 	public FISMapperMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);
 
-		Multimap<String, MappingConsumer<TradeState.TradeStateBuilder>> commonMappings = buildCommonMappings();
+		Multimap<String, MappingConsumer<TradeStateBuilder>> commonMappings = buildCommonMappings();
 		buildTradeStateMappings(commonMappings);
 		buildAllocationMappings(commonMappings);
 
@@ -118,7 +134,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			if (colatCap.isPresent() && rateCap.isPresent()) {
 				String colat = colatCap.get().getValue();
 				BigDecimal rate = parseDecimal(rateCap.get().getValue());
-				Stream<InterestRatePayout.InterestRatePayoutBuilder> allIRPs =
+				Stream<InterestRatePayoutBuilder> allIRPs =
 						Streams.concat(Stream.of(getTradeState(new PathValue<>(BASE_PATH, workflow)).getValue()),
 								Streams.stream(Iterables.skip(workflow.getOrCreateBusinessEvent().getOrCreatePrimitives(0).getOrCreateSplit().getAfter(), 1)))
 								.map(s -> new PathValue<>(BASE_PATH, s))
@@ -139,11 +155,11 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		});
 	}
 
-	private Multimap<String, MappingConsumer<TradeState.TradeStateBuilder>> buildCommonMappings() {
-		Multimap<String, MappingConsumer<TradeState.TradeStateBuilder>> commonMappings = HashMultimap.create();
+	private Multimap<String, MappingConsumer<TradeStateBuilder>> buildCommonMappings() {
+		Multimap<String, MappingConsumer<TradeStateBuilder>> commonMappings = HashMultimap.create();
 
 		commonMappings.put("Own_Cpty_LEI", (indexes, value, tradeState) -> {
-			Party.PartyBuilder party = tradeState.getValue().getOrCreateTrade().getOrCreateParty(1);
+			PartyBuilder party = tradeState.getValue().getOrCreateTrade().getOrCreateParty(1);
 			party.getOrCreatePartyId(0).setValue(value);
 			party.getOrCreateMeta().setExternalKey(AGENT_LENDER);
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
@@ -159,23 +175,21 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		});
 
 		commonMappings.put("Client_Identifier", (indexes, value, tradeState) -> {
-			Party.PartyBuilder party = tradeState.getValue().getOrCreateTrade().getOrCreateParty(2);
+			PartyBuilder party = tradeState.getValue().getOrCreateTrade().getOrCreateParty(2);
 			party.getOrCreateName().setValue(value);
 			party.getOrCreateMeta().setExternalKey(BORROWER);
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 
 		commonMappings.put("Cpty_LEI", (indexes, value, tradeState) -> {
-			FieldWithMetaString.FieldWithMetaStringBuilder partyId = tradeState.getValue().getOrCreateTrade().getOrCreateParty(2).getOrCreatePartyId(0);
+			FieldWithMetaStringBuilder partyId = tradeState.getValue().getOrCreateTrade().getOrCreateParty(2).getOrCreatePartyId(0);
 			partyId.setValue(value);
 			//TODO should hard code the scheme
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 
 		commonMappings.put("Effective_Date", (indexes, value, tradeState) -> {
-			AdjustableDate.AdjustableDateBuilder orCreateAdjustableDate = getEcTerms(tradeState).getValue()
-					.getOrCreateEffectiveDate()
-					.getOrCreateAdjustableDate();
+			AdjustableDateBuilder orCreateAdjustableDate = getEcTerms(tradeState).getValue().getOrCreateEffectiveDate().getOrCreateAdjustableDate();
 			orCreateAdjustableDate.setUnadjustedDate(parseISODate(value));
 			orCreateAdjustableDate.getOrCreateDateAdjustments().setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING);
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
@@ -183,7 +197,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 
 		commonMappings.put("Activity_Rate", (indexes, value, tradeState) -> {
 			// key
-			PathValue<PriceQuantity.PriceQuantityBuilder> pq = getPriceQuantityForInterestRatePayout(tradeState);
+			PathValue<PriceQuantityBuilder> pq = getPriceQuantityForInterestRatePayout(tradeState);
 			pq.getValue()
 					.getOrCreatePrice(0)
 					.getOrCreateValue()
@@ -191,7 +205,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.setPriceType(PriceTypeEnum.INTEREST_RATE);
 			// reference
 			Reference.ReferenceBuilder reference = Reference.builder();
-			PathValue<InterestRatePayout.InterestRatePayoutBuilder> irp = getIRP(tradeState);
+			PathValue<InterestRatePayoutBuilder> irp = getIRP(tradeState);
 			irp.getValue()
 					.getOrCreateRateSpecification()
 					.getOrCreateFixedRate()
@@ -205,14 +219,14 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 
 		commonMappings.put("Loan_Value", (indexes, value, tradeState) -> {
 			// key
-			PathValue<PriceQuantity.PriceQuantityBuilder> pq = getPriceQuantityForInterestRatePayout(tradeState);
+			PathValue<PriceQuantityBuilder> pq = getPriceQuantityForInterestRatePayout(tradeState);
 			pq.getValue()
 					.getOrCreateQuantity(0)
 					.getOrCreateValue()
 					.setAmount(parseDecimal(value));
 			// reference
 			Reference.ReferenceBuilder reference = Reference.builder();
-			PathValue<InterestRatePayout.InterestRatePayoutBuilder> irp = getIRP(tradeState);
+			PathValue<InterestRatePayoutBuilder> irp = getIRP(tradeState);
 			irp.getValue()
 					.getOrCreatePayoutQuantity()
 					.getOrCreateQuantitySchedule()
@@ -224,8 +238,8 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		});
 
 		commonMappings.put("Loan_Value_Currency", (indexes, value, tradeState) -> {
-			UnitType.UnitTypeBuilder currencyUnit = UnitType.builder().setCurrency(FieldWithMetaString.builder().setValue(value));
-			PathValue<PriceQuantity.PriceQuantityBuilder> pq = getPriceQuantityForInterestRatePayout(tradeState);
+			UnitTypeBuilder currencyUnit = UnitType.builder().setCurrency(FieldWithMetaString.builder().setValue(value));
+			PathValue<PriceQuantityBuilder> pq = getPriceQuantityForInterestRatePayout(tradeState);
 			pq.getValue()
 					.getOrCreatePrice(0)
 					.getOrCreateValue()
@@ -275,7 +289,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		});
 
 		commonMappings.put("Effective_Date", (indexes, value, tradeState) -> {
-			AdjustableDate.AdjustableDateBuilder adjDate = getIRP(tradeState)
+			AdjustableDateBuilder adjDate = getIRP(tradeState)
 					.getValue()
 					.getOrCreateCalculationPeriodDates()
 					.getOrCreateEffectiveDate().getOrCreateAdjustableDate();
@@ -332,7 +346,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 
 		commonMappings.put("Security_Sedol_Code", (indexes, value, tradeState) -> {
 			// key
-			PathValue<PriceQuantity.PriceQuantityBuilder> pq = getPriceQuantityForSecurityFinancePayout(tradeState);
+			PathValue<PriceQuantityBuilder> pq = getPriceQuantityForSecurityFinancePayout(tradeState);
 			ProductIdentifier productIdentifier = ProductIdentifier.builder()
 					.setIdentifierValue(value)
 					.setSource(ProductIdTypeEnum.SEDOL)
@@ -403,7 +417,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		return commonMappings;
 	}
 
-	private void buildTradeStateMappings(Multimap<String, MappingConsumer<TradeState.TradeStateBuilder>> commonMappings) {
+	private void buildTradeStateMappings(Multimap<String, MappingConsumer<TradeStateBuilder>> commonMappings) {
 		addMapping(IndexCapturePath.parse("FIS_TRADE.Activity[0]"), (indexes, value, workflow) -> {
 			staticMappings(getTradeState(workflow));
 			return List.of();
@@ -431,7 +445,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			return List.of();
 		});
 
-		for (Map.Entry<String, MappingConsumer<TradeState.TradeStateBuilder>> mapping : commonMappings.entries()) {
+		for (Entry<String, MappingConsumer<TradeStateBuilder>> mapping : commonMappings.entries()) {
 			buildTradeStateMapping(mapping.getKey(), (i, v, w) -> mapping.getValue().accept(i, v, getTradeState(w)));
 		}
 
@@ -444,14 +458,14 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		});
 	}
 
-	private void buildAllocationMappings(Multimap<String, MappingConsumer<TradeState.TradeStateBuilder>> commonMappings) {
+	private void buildAllocationMappings(Multimap<String, MappingConsumer<TradeStateBuilder>> commonMappings) {
 		addMapping(IndexCapturePath.parse("FIS_TRADE.Activity[allocationNumPlus1]"),
 				allocaNumberMapConsumer((indexes, value, workflow) -> {
 					staticMappings(getSplitTradeState(workflow, indexes));
 					return List.of();
 				}));
 
-		for (Map.Entry<String, MappingConsumer<TradeState.TradeStateBuilder>> mapping : commonMappings.entries()) {
+		for (Entry<String, MappingConsumer<TradeStateBuilder>> mapping : commonMappings.entries()) {
 			buildAllocationMapping(mapping.getKey(), (i, v, w) -> mapping.getValue().accept(i, v, getSplitTradeState(w, i)));
 		}
 
@@ -465,8 +479,8 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		});
 
 		buildAllocationMapping("Fund_LEI", (i, v, w) -> {
-			PathValue<TradeState.TradeStateBuilder> splitTradeState = getSplitTradeState(w, i);
-			Party.PartyBuilder party = splitTradeState
+			PathValue<TradeStateBuilder> splitTradeState = getSplitTradeState(w, i);
+			PartyBuilder party = splitTradeState
 					.getValue()
 					.getOrCreateTrade()
 					.getOrCreateParty(0);
@@ -517,7 +531,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		}
 	}
 
-	private PathValue<TradeState.TradeStateBuilder> getTradeState(PathValue<WorkflowStep.WorkflowStepBuilder> w) {
+	private PathValue<TradeStateBuilder> getTradeState(PathValue<WorkflowStepBuilder> w) {
 		return new PathValue<>(
 				w.getModelPath().append(Path.parse("businessEvent.primitives[0].split.after[0]")),
 				w.getValue()
@@ -527,7 +541,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 						.getOrCreateAfter(0));
 	}
 
-	private PathValue<TradeState.TradeStateBuilder> getSplitTradeState(PathValue<WorkflowStep.WorkflowStepBuilder> w, Map<String, Integer> indexes) {
+	private PathValue<TradeStateBuilder> getSplitTradeState(PathValue<WorkflowStepBuilder> w, Map<String, Integer> indexes) {
 		int i = indexes.get("allocationNum") + 1; // +1 because the first is the trade being split (in closed state)
 		return new PathValue<>(
 				w.getModelPath().append(Path.parse("businessEvent.primitives[0].split.after[" + i + "]")),
@@ -538,52 +552,52 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 						.getOrCreateAfter(i));
 	}
 
-	private PathValue<TradableProduct.TradableProductBuilder> getTradableProduct(PathValue<TradeState.TradeStateBuilder> pv) {
+	private PathValue<TradableProductBuilder> getTradableProduct(PathValue<TradeStateBuilder> pv) {
 		return new PathValue<>(pv.getModelPath().append(Path.parse("trade.tradableProduct")),
 				pv.getValue().getOrCreateTrade().getOrCreateTradableProduct());
 	}
 
-	private PathValue<InterestRatePayout.InterestRatePayoutBuilder> getIRP(PathValue<TradeState.TradeStateBuilder> ts) {
-		PathValue<EconomicTerms.EconomicTermsBuilder> et = getEcTerms(ts);
+	private PathValue<InterestRatePayoutBuilder> getIRP(PathValue<TradeStateBuilder> ts) {
+		PathValue<EconomicTermsBuilder> et = getEcTerms(ts);
 		return new PathValue<>(et.getModelPath().addElement("payout").addElement("interestRatePayout", 0),
 				et.getValue().getOrCreatePayout().getOrCreateInterestRatePayout(0));
 	}
 
-	private PathValue<EconomicTerms.EconomicTermsBuilder> getEcTerms(PathValue<TradeState.TradeStateBuilder> ts) {
-		PathValue<TradableProduct.TradableProductBuilder> tp = getTradableProduct(ts);
+	private PathValue<EconomicTermsBuilder> getEcTerms(PathValue<TradeStateBuilder> ts) {
+		PathValue<TradableProductBuilder> tp = getTradableProduct(ts);
 		return new PathValue<>(tp.getModelPath().append(Path.parse("product.contractualProduct.economicTerms")),
 				tp.getValue().getOrCreateProduct().getOrCreateContractualProduct().getOrCreateEconomicTerms());
 	}
 
-	private PathValue<SecurityFinancePayoutBuilder> getSecPO(PathValue<TradeState.TradeStateBuilder> ts) {
-		PathValue<EconomicTerms.EconomicTermsBuilder> et = getEcTerms(ts);
+	private PathValue<SecurityFinancePayoutBuilder> getSecPO(PathValue<TradeStateBuilder> ts) {
+		PathValue<EconomicTermsBuilder> et = getEcTerms(ts);
 		return new PathValue<>(et.getModelPath().addElement("payout").addElement("securityFinancePayout", 0),
 				et.getValue().getOrCreatePayout().getOrCreateSecurityFinancePayout(0));
 	}
 
-	private PathValue<PriceQuantity.PriceQuantityBuilder> getPriceQuantityForInterestRatePayout(PathValue<TradeState.TradeStateBuilder> ts) {
+	private PathValue<PriceQuantityBuilder> getPriceQuantityForInterestRatePayout(PathValue<TradeStateBuilder> ts) {
 		PathValue<TradableProduct.TradableProductBuilder> tp = getTradableProduct(ts);
 		return new PathValue<>(tp.getModelPath().addElement("tradeLot", 0).addElement("priceQuantity", 0),
 				tp.getValue().getOrCreateTradeLot(0).getOrCreatePriceQuantity(0));
 	}
 
-	private PathValue<PriceQuantity.PriceQuantityBuilder> getPriceQuantityForSecurityFinancePayout(PathValue<TradeState.TradeStateBuilder> ts) {
+	private PathValue<PriceQuantityBuilder> getPriceQuantityForSecurityFinancePayout(PathValue<TradeStateBuilder> ts) {
 		PathValue<TradableProduct.TradableProductBuilder> tp = getTradableProduct(ts);
 		return new PathValue<>(tp.getModelPath().addElement("tradeLot", 0).addElement("priceQuantity", 1),
 				tp.getValue().getOrCreateTradeLot(0).getOrCreatePriceQuantity(1));
 	}
 
-	private void buildTradeStateMapping(String xmlPath, MappingConsumer<WorkflowStep.WorkflowStepBuilder> consumer) {
+	private void buildTradeStateMapping(String xmlPath, MappingConsumer<WorkflowStepBuilder> consumer) {
 		IndexCapturePath path = IndexCapturePath.parse("FIS_TRADE.Activity[0]." + xmlPath);
 		addMapping(path, nonNullConsumer(consumer));
 	}
 
-	private void buildAllocationMapping(String xmlPath, MappingConsumer<WorkflowStep.WorkflowStepBuilder> consumer) {
+	private void buildAllocationMapping(String xmlPath, MappingConsumer<WorkflowStepBuilder> consumer) {
 		IndexCapturePath path = IndexCapturePath.parse("FIS_TRADE.Activity[allocationNumPlus1]." + xmlPath);
 		addMapping(path, allocaNumberMapConsumer(nonNullConsumer(consumer)));
 	}
 
-	private MappingConsumer<WorkflowStep.WorkflowStepBuilder> allocaNumberMapConsumer(MappingConsumer<WorkflowStep.WorkflowStepBuilder> consumer) {
+	private MappingConsumer<WorkflowStepBuilder> allocaNumberMapConsumer(MappingConsumer<WorkflowStepBuilder> consumer) {
 		return (i, v, w) -> {
 			Integer allocationNumPlus1 = i.get("allocationNumPlus1");
 			if (allocationNumPlus1 != null && allocationNumPlus1 > 0) {

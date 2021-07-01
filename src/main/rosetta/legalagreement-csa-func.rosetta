@@ -49,14 +49,14 @@ func PostedCreditSupportItemAmount: <"Calculates the Value for the given Posted 
 		cashOrSecurityValue * (valuationPercentage - fxHaircutPercentage) / 100.0
 
 	condition:
-		(baseCurrency = item -> cashOrSecurityValue -> unitOfAmount-> currency)
-		and (baseCurrency = item -> disputedCashOrSecurityValue -> unitOfAmount-> currency)
+		baseCurrency = item -> cashOrSecurityValue -> unitOfAmount-> currency
+			and baseCurrency = item -> disputedCashOrSecurityValue -> unitOfAmount-> currency
 
 	assign-output result -> amount:
 		postedCreditSupportAmount - item -> disputedCashOrSecurityValue -> amount
 
 	assign-output result -> unitOfAmount-> currency:
-	baseCurrency
+		baseCurrency
 
 func SumPostedCreditSupportItemAmounts: <"Loops through each PostedCreditSupportItem, calculating the PostedCreditSupportItemAmount (by executing func PostedCreditSupportItemAmount), and summing the result.  Currently loops are not supported in the syntax so the loop must be implemented in code.">
 	[calculation]
