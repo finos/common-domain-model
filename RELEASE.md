@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-The `only exists` DSL feature has been enhanced to allow a list of attributes to be evaluated in a similar way to a single attribute.
+The `only exists` DSL feature has been enhanced to allow a list of attributes to be evaluated to determine a boolean outcome in a similar way to a single attribute.
 
 The syntax for a single attribute remains the same.  The statement below will evaluate to true if `interestRatePayout` exists and all other attributes of `Payout` are absent.
 
