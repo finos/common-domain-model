@@ -18,7 +18,49 @@ import cdm.synonyms.config.*
 
 type Collateral: <"A type for defining the obligations of the counterparty subject to credit support requirements.">
 
-	independentAmount IndependentAmount (1..1) <"Independent Amount is an amount that usually less creditworthy counterparties are asked to provide. It can either be a fixed amount or a percentage of the Transaction's value. The Independent Amount can be: (i) transferred before any trading between the parties occurs (as a deposit at a third party's account or with the counterparty) or (ii) callable after trading has occurred (typically because a downgrade has occurred). In situation (i), the Independent Amount is not included in the calculation of Exposure, but in situation (ii), it is included in the calculation of Exposure. Thus, for situation (ii), the Independent Amount may be transferred along with any collateral call. Independent Amount is a defined term in the ISDA Credit Support Annex. ('with respect to a party, the amount specified as such for that party in Paragraph 13; if no amount is specified, zero').">
+	independentAmount IndependentAmount (0..1) <"Independent Amount is an amount that usually less creditworthy counterparties are asked to provide. It can either be a fixed amount or a percentage of the Transaction's value. The Independent Amount can be: (i) transferred before any trading between the parties occurs (as a deposit at a third party's account or with the counterparty) or (ii) callable after trading has occurred (typically because a downgrade has occurred). In situation (i), the Independent Amount is not included in the calculation of Exposure, but in situation (ii), it is included in the calculation of Exposure. Thus, for situation (ii), the Independent Amount may be transferred along with any collateral call. Independent Amount is a defined term in the ISDA Credit Support Annex. ('with respect to a party, the amount specified as such for that party in Paragraph 13; if no amount is specified, zero').">
+	collateralProperty CollateralProperty (0..*)
+    condition: one-of
+
+type CollateralProperty: <"Desciption of a collateral for a mortgage loan">
+    property Property (1..1)
+    purchasePrice Money (0..1) <"The purchase price of the property as stated for the purpose of the transaction. (in units of currency of denomination)">
+	purchasePriceDate date (0..1) <"(YYYY-MM-DD)">
+    propertyValuation Money (1..1) <" The market value of the property. The value reported should be based on a surveyors valuation, a valuation index, or other method that the product provider used to determine the market value used in the assessment of the application. In the case of staged construction or self-build schemes, report expected final value of property at the time the lending decision is made. For let-to-buy this is the value of the existing property which is being remortgaged and rented out"> 
+	valuationDate date (1..1) <"The date when this property was value for the purpose of the trade">
+    valuationType ValuationTypeEnum (1..1) <"The m">
+
+type Property:
+    propertyIdentifier Identifier (1..1)
+    propertyType PropertyTypeEnum (1..1)
+    dwellingType DwellingTypeEnum (1..1)
+    newDwellingCategory NewDwellingCategoryEnum (0..1)
+	habitableRooms int (0..1)
+    bedrooms int (0..1)
+    garage int (0..1)
+    physicalAddress Address (1..1) <"Country/Jurisdiction where Property is Located, postal Code, address Line 1, address Line 2 (Optional)">
+
+enum PropertyTypeEnum:
+	PublicResidential
+	PrivateResidential
+
+enum ValuationTypeEnum:
+	Surveyor 
+	ValuationIndex
+	Other
+
+enum DwellingTypeEnum:
+	Bungalow
+	Detached
+	SemiDetached
+	Terraced
+	ApartmentOrFlat
+	Other
+
+enum NewDwellingCategoryEnum:
+    NewDwelling
+    ExistingDwelling
+    NotKnow
 
 type CreditSupportAgreement: <"The agreement executed between the parties and intended to govern collateral arrangement for all OTC derivatives transactions between those parties.">
 

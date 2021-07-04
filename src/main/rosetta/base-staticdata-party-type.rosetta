@@ -3,6 +3,8 @@ version "${project.version}"
 
 import cdm.base.staticdata.identifier.*
 import cdm.synonyms.config.*
+import cdm.observable.asset.*
+import cdm.base.datetime.*
 
 type Counterparty: <"Defines a counterparty enumerated value, e.g. Party1 or Party2, with an associated party reference. The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the CounterpartyEnum (e.g. values Party1 or Party2). The CounterpartyEnum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this Counterparty type, which is positioned outside of the product definition, allows the CounterpartyEnum to be associated with an actual party reference.">
 
@@ -110,6 +112,7 @@ type Address: <"A class to specify a post or street address.">
 	country string (1..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
 		[metadata scheme]
 	postalCode string (1..1) <"The code, required for computerized mail sorting systems, that is allocated to a physical address by a national postal authority.">
+		[metadata scheme]
 
 type BusinessUnit: <"A class to specify an organizational unit.">
 	[metadata key]
@@ -144,6 +147,8 @@ type NaturalPerson: <"A class to represent the attributes that are specific to a
 	surname string (1..1) <"The natural person's surname.">
 	suffix string (0..1) <"Name suffix, such as Jr., III, etc.">
 	dateOfBirth date (0..1) <"The natural person's date of birth.">
+	nationalityCitizenship string (0..1)
+    numberOfDependents number (0..1) <"(include both Adults and Children) *To proportion accordingly (i.e. if the same individual is a dependent of two individuals, one of whom is the borrower, to report as 0.5)">
 
 	condition NaturalPersonChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice middleName, initial
@@ -164,6 +169,64 @@ type Party: <"A class to specify a party, without a qualification as to whether 
 		[metadata scheme]
 	person NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">
 	account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">
+	corporation Corporation (0..1)
+    relationshipManager Party (0..1) <"if applicable">
+    creditDetails CreditDetails (0..1)
+	condition: optional choice person, corporation
+
+type CreditDetails: 
+    hasAMortgage boolean (0..1)
+	employmentStatus EmploymentStatusEnum (0..1)
+    intendedRetirement date (0..1) <"(YYYY-MM-DD)">
+	income Income (0..*)
+    debt Debt (0..*)
+    assets Asset (0..*)
+
+enum EmploymentStatusEnum:
+	Employed
+	SelfEmployed
+	Retired
+	Other
+
+type Corporation:
+    fullName string (0..1)
+	registrationIdentifier Identifier (1..1)
+	addressOfIncorporation Address (0..1)
+	incorporationDate date (0..1)
+	governingLaw cdm.legalagreement.common.GoverningLawEnum (0..1)
+
+type Income:
+    incomeType IncomeTypeEnum (1..1)
+    incomeAmount Money (1..1)<"(in currency of denomination)">
+    paymentDates cdm.product.common.schedule.PaymentDates (1..1)
+
+enum IncomeTypeEnum: <"The enumerated values for the natural person's role.">
+	FromEmployment <"(i.e. gross basic + other pay)">
+	FromSelfEmployment <"">
+	FromNonEmploymentSources <""> 
+
+type Asset:
+    assetType AsetTypeEnum (1..1)
+    assetValue Money (1..1) <"(in currency of denomination)">
+	valuationDate date (1..1) <"(YYYY-MM-DD)">
+
+enum AsetTypeEnum: <"The enumerated values for the natural person's role.">
+	CashOrCashEquivalents
+	DebtSecuritiesGovvies
+	DebtSecuritiesNonGovvies
+	EquitySecurities
+	Other <"">
+
+type Debt:
+    debtType string (1..1)
+    debtAmount Money (0..1) <"(in currency of denomination)">
+    paymentDates cdm.product.common.schedule.PaymentDates (1..1)
+
+enum DebtTypeEnum: <"The enumerated values for the natural person's role.">
+	ResidentialProperty
+	NonResidentialProperty
+	UnsecuredCredit
+	OtherDebt <"">
 
 type PartyContactInformation: <"A class to specify contact information within a party: address and, optionally, associated business unit and person. This class also supports the ISDA CSA representation as a single string, through the address attribute.">
 
