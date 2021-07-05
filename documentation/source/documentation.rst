@@ -690,7 +690,7 @@ The ``ExecutionDetails`` data type represents details applicable to trade execut
 
  type ContractDetails:
    [metadata key]
-   documentation RelatedAgreement (0..1)
+   documentation RelatedAgreement (0..*)
    governingLaw GoverningLawEnum (0..1)
      [metadata scheme]
    partyContractInformation PartyContractInformation (0..*)
