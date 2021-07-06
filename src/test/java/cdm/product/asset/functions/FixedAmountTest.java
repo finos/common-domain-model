@@ -69,6 +69,6 @@ class FixedAmountTest extends AbstractFunctionTest {
                         .build())
                 .build();
         
-        assertThat(fixedAmount.evaluate(interestRatePayout, price, quantity, DateImpl.of(2018, 8, 22)), is(new BigDecimal("750000.0000")));
+        assertThat(fixedAmount.evaluate(interestRatePayout, price, quantity, DateImpl.of(2018, 8, 22), null), is(new BigDecimal("750000.0000")));
     }
 }

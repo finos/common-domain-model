@@ -50,23 +50,23 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 			and effectiveDate exists
 			and payout -> cashflow -> cashflowDate -> unadjustedDate exists
 			and payout -> cashflow -> cashflowDate -> relativeDate is absent
-		then payout -> cashflow -> cashflowDate -> unadjustedDate > effectiveDate -> adjustableDate -> unadjustedDate
-			or payout -> cashflow -> cashflowDate -> adjustedDate > effectiveDate -> adjustableDate -> adjustedDate
-			or payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate > effectiveDate -> relativeDate -> adjustedDate
+		then payout -> cashflow -> cashflowDate -> unadjustedDate all > effectiveDate -> adjustableDate -> unadjustedDate
+			or payout -> cashflow -> cashflowDate -> adjustedDate all > effectiveDate -> adjustableDate -> adjustedDate
+			or payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate
 
 	condition FpML_cd_27: <"FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 		if payout -> creditDefaultPayout exists
 			and payout -> cashflow exists
 			and terminationDate exists
 			and payout -> cashflow -> cashflowDate exists
-		then payout -> cashflow -> cashflowDate -> unadjustedDate < terminationDate -> adjustableDate -> unadjustedDate
-			or payout -> cashflow -> cashflowDate -> adjustedDate < terminationDate -> adjustableDate -> adjustedDate
-			or payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate < terminationDate -> adjustableDate -> adjustedDate
+		then payout -> cashflow -> cashflowDate -> unadjustedDate all < terminationDate -> adjustableDate -> unadjustedDate
+			or payout -> cashflow -> cashflowDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
+			or payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 		if (payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate
 			and terminationDate) exists
-		then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate < terminationDate -> adjustableDate -> unadjustedDate
+		then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> unadjustedDate
 
 	condition IndependentCalculationAgent:
 		if calculationAgent -> calculationAgentParty exists
@@ -237,7 +237,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 		and cashflow -> payoutQuantity -> reset is absent
 
 	condition NotionalResetInterestRatePayoutExists: <"As the equityPayout -> payoutQuantity -> reset attribute applies to return swaps, the interestRatePayout needs to be present alongside it.">
-		if equityPayout -> payoutQuantity -> reset = True
+		if equityPayout -> payoutQuantity -> reset contains True
 		then interestRatePayout exists
 
 type Product: <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
@@ -510,7 +510,7 @@ type OptionalEarlyTermination: <"A data defining:  an early termination provisio
 
 	condition OptionalEarlyTerminationExerciseNoticeReceiverParty:
 		if exerciseNotice -> exerciseNoticeReceiver exists
-		then exerciseNotice -> exerciseNoticeReceiver = AncillaryRoleEnum -> ExerciseNoticeReceiverPartyOptionalEarlyTermination
+		then exerciseNotice -> exerciseNoticeReceiver contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyOptionalEarlyTermination
 
     condition MandatoryEarlyTerminationCalculationAgent:
         if calculationAgent -> calculationAgentParty exists
@@ -778,6 +778,7 @@ type CalculationAgentModel: <"This class corresponds to the FpML CalculationAgen
 
 type SecurityFinancePayout extends PayoutBase: <"Security payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction.">
     [metadata key]
+    payerReceiver PayerReceiver (1..1) <"Specifies the Lender (Payer) and Borrower (Receiver) in the transaction.">
     securityFinanceLeg SecurityFinanceLeg (1..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
     securityInformation Product (1..1) <"Specifies the reference asset.  This is The base type which all products extend (similar to FpML model). Within SecurityPayout we include a condition which validates that the product must be a Security (see below condition 'ProductMustBeSecurity').">
     durationType Duration (1..1) <"Specifies the Duration Terms of the Security Finance transaction. e.g. Open or Term.">
@@ -804,7 +805,6 @@ type CollateralProvisions: <"Contains collateral attributes which can also inher
 
 type SecurityFinanceLeg: <"Defines each security movement of a security financing transaction.">
     [metadata key]
-    payerReceiver PayerReceiver (1..1) <"Specifies who the buyer (receiver) and seller (payer) of the security movement.">
     settlementDate AdjustableOrRelativeDate (1..1) <"Settlement date of the security movement.">
     deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security movement.">
 

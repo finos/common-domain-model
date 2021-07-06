@@ -4,7 +4,7 @@
 == Financial Products Markup Language is subject to the FpML public license. 
 == A copy of this license is available at http://www.fpml.org/license/license.html
 -->
-<xsd:schema xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:fpml-annotation="http://www.fpml.org/annotation" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fpml.org/FpML-5/confirmation" ecore:documentRoot="FpML" ecore:nsPrefix="conf" ecore:package="org.fpml.confirmation" version="$Revision: 14205 $" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xsd:schema xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:fpml-annotation="http://www.fpml.org/annotation" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fpml.org/FpML-5/confirmation" ecore:documentRoot="FpML" ecore:nsPrefix="conf" ecore:package="org.fpml.confirmation" version="$Revision: 14260 $" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <xsd:include schemaLocation="fpml-enum-5-12.xsd" />
   <xsd:simpleType name="CorrelationValue">
     <xsd:annotation>
@@ -54,15 +54,6 @@
     </xsd:annotation>
     <xsd:restriction base="xsd:decimal">
       <xsd:minExclusive value="0" />
-    </xsd:restriction>
-  </xsd:simpleType>
-  <xsd:simpleType name="RestrictedDecimalFraction">
-    <xsd:annotation>
-      <xsd:documentation xml:lang="en">A type defining a decimal fraction from 0 to 1 (base 1). A percentage of 5% would be represented as 0.05. This is an orphan base type, which may be used by extensions to the standard.</xsd:documentation>
-    </xsd:annotation>
-    <xsd:restriction base="xsd:decimal">
-      <xsd:minInclusive value="0" />
-      <xsd:maxInclusive value="1" />
     </xsd:restriction>
   </xsd:simpleType>
   <xsd:simpleType name="Scheme">
@@ -723,6 +714,15 @@
     </xsd:sequence>
     <xsd:attribute name="id" type="xsd:ID" />
   </xsd:complexType>
+<!--New 2021 Defs-->
+  <xsd:complexType name="BusinessCentersOrReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A pointer style reference to a set of business day calendar defined elsewhere in the document.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:group ref="BusinessCentersOrReference.model" />
+    </xsd:sequence>
+  </xsd:complexType>
   <xsd:complexType name="BusinessCentersReference">
     <xsd:annotation>
       <xsd:documentation xml:lang="en">A pointer style reference to a set of business day calendar defined elsewhere in the document.</xsd:documentation>
@@ -851,6 +851,46 @@
         </xsd:annotation>
       </xsd:element>
     </xsd:choice>
+  </xsd:complexType>
+<!--new 2021 ISDA Defs-->
+  <xsd:complexType name="CalculationParameters">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining a rate that is calculated based on a number of observations of an underlying rate that are averaged or compounded using a specified method. (See "Approaches to compounded RFRs" memo.)</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="calculationMethod" type="CalculationMethodEnum">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Specifies whether the calculation is a compounding or an averaging calculation.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="applicableBusinessDays" minOccurs="0" type="BusinessCentersOrReference">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Specifies the applicable business days to be used for this calculation. If omitted, the business days should be defaulted from the FRO Matrix, as represented in the FRO metadata. Failing that, it should be defaulted from the default business center for the relevant currency.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="lookback" type="ObservationOffset">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">Specifies that lookback calculation is in effect, and supplies parameters needed to support that.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="observationShift" type="ObservationShiftParameters">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">Specifies that observation shift calculation is in effect, and supplies parameters needed to support that.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="lockout" type="ObservationOffset">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">Specifies that lockout calculation is in effect, and supplies parameters needed to support that.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:group ref="ObservationParameters.model" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Specifies any parameters to be applied to each individual observation, such as caps or floors.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+    </xsd:sequence>
   </xsd:complexType>
   <xsd:complexType name="CalculationPeriodFrequency">
     <xsd:annotation>
@@ -1532,6 +1572,49 @@
       </xsd:element>
     </xsd:choice>
   </xsd:complexType>
+<!--new 2021 ISDA defs-->
+  <xsd:complexType name="FallbackRate">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Defines a fallback rate, which is a rate to be used in place of a publish term rate (such as an ibor rate) when that term rate ceases to be usable, whether because it ceases to be published or is deemed non-representative by regulator.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="floatingRateIndex" type="FloatingRateIndex">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The benchmark rate used for computing the fallback rate. Typically this will be a risk-free overnight rate.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="effectiveDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date upon which the fallback rate becomes effective, which is typically the cessation date of the associated term rate.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="calculationParameters" type="CalculationParameters" minOccurs="0" />
+      <xsd:element name="spreadAdjustment" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">An amount to be added to the calculated value before subsequent use, in order to more closely replicate the original term rate, by adjusting for the economic or credit spread between risk-free rates and risky term rates.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" use="optional" />
+  </xsd:complexType>
+<!--new 2021 ISDA defs-->
+  <xsd:complexType name="FallbackRateObservation">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A type defining parameters associated with a fallback observation, i.e. a rate observation where the original published rate is not available and instead a fallback rate must be used.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="observationDate" type="xsd:date">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The date which is the Fallback Observation Date, as defined in the ISDA 2006/2021 Definitions (typically 2 days prior to the relevant Payment/calculation date.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="availableRecordDate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The original record date from the fallback publication source that was available at the time that fallback rate was observed. This may be before the original fixing date depending on publication schedules</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
   <xsd:complexType name="FloatingRate">
     <xsd:annotation>
       <xsd:documentation xml:lang="en">A type defining a floating rate.</xsd:documentation>
@@ -1540,13 +1623,6 @@
       <xsd:extension base="Rate">
         <xsd:sequence>
           <xsd:group ref="FloatingRateIndex.model" />
-<!-- new 2021 Defs-->
-          <xsd:element name="observationParameters" type="ObservationParameters" minOccurs="0">
-            <xsd:annotation>
-              <xsd:documentation xml:lang="en">Defines parameters that are to be applied to each individual observation, for instance when there is daily averaging or compounding.</xsd:documentation>
-            </xsd:annotation>
-          </xsd:element>
-<!-- new 2021 Defs end-->
           <xsd:element name="floatingRateMultiplierSchedule" type="Schedule" minOccurs="0">
             <xsd:annotation>
               <xsd:documentation xml:lang="en">A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.</xsd:documentation>
@@ -1598,13 +1674,6 @@
               <xsd:documentation xml:lang="en">If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.</xsd:documentation>
             </xsd:annotation>
           </xsd:element>
-<!--new 2021 Defs - RFR-->
-          <xsd:element name="weightingPeriod" type="AveragingPeriodEnum" minOccurs="0">
-            <xsd:annotation>
-              <xsd:documentation xml:lang="en">If weighted daily averaging or daily compounding is applicable, this element specifies whether the weights should be based on the days in the calculation (accrual) period, or the days in the observation (fixing) period. The element must only be included when weighted averaging or daily compounding applies. If weights are based on the accrual period, rates applicable for Fridays in the accrual period will typically be weighted as 3. (This means that a rate observed on, say, a Wednesday may be weighted 3 in the compounding or averaging calculation). This corresponds to the "lookback" method of compounding. If weights are based on the fixing period, that means that rates observed on Fridays will typically be weighted as 3, even if they are used, say, on the following Tuesday in the accrual/compounding calculation. This corresponds to the "observation shift" method of compounding.</xsd:documentation>
-            </xsd:annotation>
-          </xsd:element>
-<!--new 2021 Defs - RFR end-->
           <xsd:element name="negativeInterestRateTreatment" type="NegativeInterestRateTreatmentEnum" minOccurs="0">
             <xsd:annotation>
               <xsd:documentation xml:lang="en">The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).</xsd:documentation>
@@ -2559,13 +2628,39 @@
     </xsd:complexContent>
   </xsd:complexType>
 <!-- new 2021 Defs-->
-  <xsd:complexType name="ObservationParameters">
+  <xsd:complexType name="ObservationOffset">
     <xsd:annotation>
-      <xsd:documentation xml:lang="en">Defines parameters that are to be applied to each individual observation, for instance when there is daily averaging or compounding.</xsd:documentation>
+      <xsd:documentation xml:lang="en">A type that allows an offset specified in business days to be applied for an observation shift, lookback, or lockout provision.</xsd:documentation>
     </xsd:annotation>
     <xsd:sequence>
-      <xsd:group ref="DailyCapFloor.model" />
+      <xsd:element name="offsetDays" type="xsd:nonNegativeInteger" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">The number of business days before the base date that the observations are to be shifted.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
     </xsd:sequence>
+  </xsd:complexType>
+<!--new 2021 ISDA Defs-->
+  <xsd:complexType name="ObservationShiftParameters">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Specifies parameters specific to the observation shift method of compounding/averaging.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="ObservationOffset">
+        <xsd:sequence>
+          <xsd:element name="observationPeriodDates" type="ObservationPeriodDatesEnum">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">Specifies how the observation period is to be determined relative to the basic calculation period. Options include "standard" (observation period aligns with the calculation period except for any shifts/lookbacks/lockouts), "InAdvance" (observation period is based on the prior or deemed prior calculation period plus any shifts), or "FixingDate" (observation period is based on a fixing date defined the the FpML resetDates structure).</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="additionalBusinessDays" minOccurs="0" type="BusinessCentersOrReference">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">Any additional business centers that are applicable to the observation shift calculation, in addition to the regular "applicableBusinessDays".</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
   </xsd:complexType>
   <xsd:complexType name="Offset">
     <xsd:annotation>
@@ -3276,6 +3371,12 @@
       <xsd:element name="treatedForecastRate" type="xsd:decimal" minOccurs="0">
         <xsd:annotation>
           <xsd:documentation xml:lang="en">The value representing the forecast rate after applying rate treatment rules. A value of 1% should be represented as 0.01</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+<!--new 2021 ISDA Defs-->
+      <xsd:element name="fallback" type="FallbackRateObservation" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Observation Parameters for IBOR fallback rates.</xsd:documentation>
         </xsd:annotation>
       </xsd:element>
     </xsd:sequence>
@@ -4053,13 +4154,6 @@
       <xsd:extension base="Rate">
         <xsd:sequence>
           <xsd:group ref="StubFloatingRateIndex.model" />
-<!-- new 2021 Defs - RFR-->
-          <xsd:element name="observationParameters" type="ObservationParameters" minOccurs="0">
-            <xsd:annotation>
-              <xsd:documentation xml:lang="en">Defines parameters that are to be applied to each individual observation, for instance when there is daily averaging or compounding.</xsd:documentation>
-            </xsd:annotation>
-          </xsd:element>
-<!-- new 2021 Defs - RFR end-->
           <xsd:element name="floatingRateMultiplierSchedule" type="Schedule" minOccurs="0">
             <xsd:annotation>
               <xsd:documentation xml:lang="en">A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.</xsd:documentation>
@@ -4319,33 +4413,29 @@
       </xsd:element>
     </xsd:sequence>
   </xsd:group>
-<!--new 2021 Defs-->
-  <xsd:group name="DailyCapFloor.model">
-    <xsd:annotation>
-      <xsd:documentation xml:lang="en">Definitions of daily cap and floor rates for floating rate indexes.</xsd:documentation>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name="dailyCapRate" type="xsd:decimal" minOccurs="0">
-        <xsd:annotation>
-          <xsd:documentation>A maximum rate for an rate observation; optionally applied for daily averaged rates.</xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-      <xsd:element name="dailyFloorRate" type="xsd:decimal" minOccurs="0">
-        <xsd:annotation>
-          <xsd:documentation>A minimum rate for an rate observation; optionally applied for daily averaged rates.</xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-    </xsd:sequence>
-  </xsd:group>
   <xsd:group name="FloatingRateIndex.model">
     <xsd:sequence>
-      <xsd:element name="floatingRateIndex" type="FloatingRateIndex" />
-      <xsd:element name="indexTenor" type="Period" minOccurs="0">
+      <xsd:sequence>
+        <xsd:element name="floatingRateIndex" type="FloatingRateIndex" />
+        <xsd:element name="indexTenor" type="Period" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The ISDA Designated Maturity, i.e. the tenor of the floating rate.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+<!--new 2021 ISDA Defs start-->
+      <xsd:element name="calculationParameters" type="CalculationParameters" minOccurs="0">
         <xsd:annotation>
-          <xsd:documentation xml:lang="en">The ISDA Designated Maturity, i.e. the tenor of the floating rate.</xsd:documentation>
+          <xsd:documentation xml:lang="en">A parameters to specify a rate calculated using an averaging or compounding formula</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="fallbackRate" type="FallbackRate" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A fallback rate calculated using an averaging or compounding formula to be used in case of the cessation of the original term rate. This structure is provided to allow an approximate representation to be created for published fallback rates to allow operations such as valuation, accrual calculation, and risk calculation.</xsd:documentation>
         </xsd:annotation>
       </xsd:element>
     </xsd:sequence>
+<!--new 2021 ISDA Defs end-->
   </xsd:group>
   <xsd:group name="IssuerTradeId.model">
     <xsd:annotation>
@@ -4354,6 +4444,24 @@
     <xsd:sequence>
       <xsd:element name="issuer" type="IssuerId" />
       <xsd:element name="tradeId" type="TradeId" />
+    </xsd:sequence>
+  </xsd:group>
+<!--new 2021 ISDA Defs-->
+  <xsd:group name="ObservationParameters.model">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Definitions of daily cap and floor rates for floating rate indexes.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="observationCapRate" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>A maximum rate for an rate observation; optionally applied for daily averaged rates.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="observationFloorRate" type="xsd:decimal" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>A minimum rate for an rate observation; optionally applied for daily averaged rates.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
     </xsd:sequence>
   </xsd:group>
   <xsd:group name="OnBehalfOf.model">
@@ -4490,7 +4598,7 @@
           <xsd:documentation xml:lang="en">The legal jurisdiction of the entity's registration.</xsd:documentation>
         </xsd:annotation>
       </xsd:element>
-      <xsd:element name="organizationType" type="OrganizationType" minOccurs="0">
+      <xsd:element name="organizationType" type="OrganizationType" minOccurs="0" maxOccurs="unbounded">
         <xsd:annotation>
           <xsd:documentation xml:lang="en">The type of an organization's participantion in the OTC derivatives market.</xsd:documentation>
         </xsd:annotation>
@@ -4709,10 +4817,22 @@
   </xsd:group>
   <xsd:group name="StubFloatingRateIndex.model">
     <xsd:sequence>
-      <xsd:element name="floatingRateIndex" type="FloatingRateIndex" />
-      <xsd:element name="indexTenor" type="Period" minOccurs="0">
+      <xsd:sequence>
+        <xsd:element name="floatingRateIndex" type="FloatingRateIndex" />
+        <xsd:element name="indexTenor" type="Period" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">The ISDA Designated Maturity, i.e. the tenor of the floating rate.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+      <xsd:element name="calculationParameters" type="CalculationParameters" minOccurs="0">
         <xsd:annotation>
-          <xsd:documentation xml:lang="en">The ISDA Designated Maturity, i.e. the tenor of the floating rate.</xsd:documentation>
+          <xsd:documentation xml:lang="en">Parameters defining a rate calculated using an averaging or compounding formula</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="fallbackRate" type="FallbackRate" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A fallback rate calculated using an averaging or compounding formula to be used in case of the cessation of the original term rate. This structure is provided to allow an approximate representation to be created for published fallback rates to allow operations such as valuation, accrual calculation, and risk calculation.</xsd:documentation>
         </xsd:annotation>
       </xsd:element>
     </xsd:sequence>
