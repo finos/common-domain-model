@@ -36,4 +36,4 @@ _Review Directions_
 
 In the CDM Portal, select the User Documentation tile and navigate to the CDM Design Principles section, or review the documentation section directly:
 
-- [https://docs.rosetta-technology.io/cdm/readme.html#what-is-the-isda-cdm]
+- [CDM Design Principles](https://docs.rosetta-technology.io/cdm/readme.html#the-cdm-design-principles)
