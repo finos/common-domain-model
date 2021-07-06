@@ -337,12 +337,6 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentMandatoryEarlyTermination
 		then product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
 
-	// condition CalculationAgentFallback:
-	// 	if product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement -> priceSourceDisruption -> fallbackReferencePrice -> calculationAgentDetermination -> calculationAgentParty exists
-	// 	then ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentFallback
-	// 	and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentFallback
-	// 	then product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement -> priceSourceDisruption -> fallbackReferencePrice -> calculationAgentDetermination -> calculationAgentParty exists
-
 type ConstituentWeight: <"A class describing the weight of each of the underlier constituent within the basket, either in absolute or relative terms.">
 
 	openUnits number (0..1) <"The number of units (index or securities) that constitute the underlier of the swap. In the case of a basket swap, this element is used to reference both the number of basket units, and the number of each asset components of the basket when these are expressed in absolute terms.">
@@ -484,10 +478,6 @@ type MandatoryEarlyTermination: <"A data to:  define an early termination provis
 	calculationAgent CalculationAgent (1..1) <"The ISDA Calculation Agent responsible for performing duties associated with an optional early termination.">
 	cashSettlement CashSettlementTerms (1..1) <"If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement procedure. If not specified, then physical settlement is applicable.">
 	mandatoryEarlyTerminationAdjustedDates MandatoryEarlyTerminationAdjustedDates (0..1) <"The adjusted dates associated with a mandatory early termination provision. These dates have been adjusted for any applicable business day convention.">
-
-	// condition FpML_ird_27: <"FpML validation rule ird-27 - cashSettlement/cashSettlementPaymentDate must not exist.">
-	// 	if cashSettlement exists
-	// 	then cashSettlement -> paymentDate is absent
 
     condition MandatoryEarlyTerminationCalculationAgent:
         if calculationAgent -> calculationAgentParty exists
