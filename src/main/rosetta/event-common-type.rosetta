@@ -165,6 +165,13 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 		[deprecated]
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
 
+	condition Intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
+		if (primitives -> split exists
+			or primitives -> execution exists
+			or primitives -> contractFormation exists
+			or primitives -> reset exists)
+		then intent is absent
+
 type EventEffect: <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
 
 	effectedTrade TradeState (0..*) <"A pointer to the trade(s) to which the event effect(s) apply, i.e. in the before event state.">
