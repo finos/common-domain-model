@@ -1323,6 +1323,9 @@ func Create_SplitTrade:
 	assign-output splitTrade -> trade -> tradableProduct -> tradeLot -> priceQuantity: <"Assigns the new quantity amounts.">
 		UpdateAmountForEachMatchingQuantity( blockTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity, breakdown -> quantity )
 
+	assign-output splitTrade -> trade -> tradableProduct -> settlementInstructions:
+		blockTradeState -> trade -> tradableProduct -> settlementInstructions
+
 	assign-output splitTrade -> trade -> party: <"Removes the existing party, and adds the new party.">
 		ReplaceParty( blockTradeState -> trade -> party,
 		    partyToRemove,
@@ -1333,9 +1336,6 @@ func Create_SplitTrade:
 
 	assign-output splitTrade -> trade -> partyRole: <"Add ancillary party role">
 		ancillaryParty
-
-	assign-output splitTrade -> trade -> settlementTerms:
-		blockTradeState -> trade -> settlementTerms
 
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
 	inputs:
@@ -1378,7 +1378,7 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 			UpdateAmountForEachMatchingQuantity( tradableProduct -> tradeLot -> priceQuantity, quantity ),
 			tradableProduct -> counterparty,
 			tradableProduct -> ancillaryParty,
-			tradableProduct -> settlementTerms,
+			tradableProduct -> settlementInstructions,
 			tradableProduct -> adjustment )
 
 	post-condition: <"The input and output types need to be consistent, if we started with an Execution, we should end with an Execution, likewise with Contract.">
@@ -1421,7 +1421,7 @@ func CloseTrade: <"Function specification for a contract termination where the c
 	        UpdateAmountForEachQuantity( tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity, 0.0 ),
 	        tradeState -> trade -> tradableProduct -> counterparty,
             tradeState -> trade -> tradableProduct -> ancillaryParty,
-            tradeState -> trade -> tradableProduct -> settlementTerms,
+            tradeState -> trade -> tradableProduct -> settlementInstructions,
             tradeState -> trade -> tradableProduct -> adjustment )
 
 	assign-output closedTrade -> state -> closedState -> state:
