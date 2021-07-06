@@ -4,7 +4,7 @@
 == Financial Products Markup Language is subject to the FpML public license. 
 == A copy of this license is available at http://www.fpml.org/license/license.html
 -->
-<xsd:schema xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:fpml-annotation="http://www.fpml.org/annotation" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fpml.org/FpML-5/confirmation" ecore:documentRoot="FpML" ecore:nsPrefix="conf" ecore:package="org.fpml.confirmation" version="$Revision: 14185 $" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xsd:schema xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:fpml-annotation="http://www.fpml.org/annotation" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fpml.org/FpML-5/confirmation" ecore:documentRoot="FpML" ecore:nsPrefix="conf" ecore:package="org.fpml.confirmation" version="$Revision: 14254 $" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <xsd:include schemaLocation="fpml-asset-5-12.xsd" />
   <xsd:complexType name="AdditionalData">
     <xsd:annotation>
@@ -931,6 +931,16 @@
           <xsd:documentation xml:lang="en">Provides a name, code, or other identifier for the collateral portfolio to which this belongs.</xsd:documentation>
         </xsd:annotation>
       </xsd:element>
+      <xsd:element name="collateralPortfolioInitialMargin" type="PortfolioName" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Provides a name, code, or other identifier for the initial margin collateral portfolio to which this belongs. Added to support CFTC Amendments to Part 43/45 (Published November 2020).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="collateralPortfolioVariationMargin" type="PortfolioName" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Provides a name, code, or other identifier for the variation margin collateral portfolio to which this belongs. Added to support CFTC Amendments to Part 43/45 (Published November 2020).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
       <xsd:element name="reportingRegime" type="ReportingRegime" minOccurs="0" maxOccurs="unbounded">
         <xsd:annotation>
           <xsd:documentation xml:lang="en">Allows the organization to specify which if any relevant regulators or other supervisory bodies this is relevant for, and what reporting rules apply.</xsd:documentation>
@@ -1112,6 +1122,11 @@
     <xsd:sequence>
       <xsd:element name="finalSettlementDate" type="xsd:date" minOccurs="0" />
       <xsd:element name="settlementType" type="SettlementTypeEnum" minOccurs="0" />
+      <xsd:element name="settlementLocation" type="BusinessCenter" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">Added to support CFTC Amendments to Part 43/45 (Published November 2020)</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
       <xsd:element name="seniority" type="CreditSeniority" minOccurs="0" fpml-annotation:deprecated="true" fpml-annotation:deprecatedReason="Use instead the field within credit products: indexReferenceInformation/seniority">
         <xsd:annotation>
           <xsd:documentation xml:lang="en">DEPRECATED. Use instead the field within credit products: indexReferenceInformation/seniority (RPTWG decision 2017-09)</xsd:documentation>
@@ -1836,7 +1851,7 @@
         <xsd:documentation xml:lang="en">This optional attribute can be supplied by a message creator in an FpML instance to specify which build number of the schema was used to define the message when it was generated.</xsd:documentation>
       </xsd:annotation>
     </xsd:attribute>
-    <xsd:attribute name="actualBuild" type="xsd:positiveInteger" fixed="1">
+    <xsd:attribute name="actualBuild" type="xsd:positiveInteger" fixed="2">
       <xsd:annotation>
         <xsd:documentation xml:lang="en">The specific build number of this schema version. This attribute is not included in an instance document. Instead, it is supplied by the XML parser when the document is validated against the FpML schema and indicates the build number of the schema file. Every time FpML publishes a change to the schema, validation rules, or examples within a version (e.g., version 4.2) the actual build number is incremented. If no changes have been made between releases within a version (i.e. from Trial Recommendation to Recommendation) the actual build number stays the same.</xsd:documentation>
       </xsd:annotation>
