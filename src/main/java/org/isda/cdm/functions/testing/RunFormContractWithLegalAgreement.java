@@ -36,7 +36,7 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Tra
 
         ContractFormationInstruction contractFormationInstruction = ContractFormationInstruction.builder()
                 .setExecution(tradeStateBuilder)
-                .setLegalAgreement(legalAgreement)
+                .addLegalAgreement(legalAgreement)
                 .build();
 
         return formContract.evaluate(contractFormationInstruction, new DateImpl(1, 12, 1994));

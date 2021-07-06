@@ -1,29 +1,25 @@
-# *DSL Syntax - New keywords to compare a list to a single data object*
+# *Legal Agreement Model – Conditions added to Concentration Limit*
 
 _What is being released?_
 
-New keywords have been introduced in the DSL syntax to compare a list of items to a single data object. Currently comparing a list to single data object will only result to true if all the items of the list match the single data object.  The `all` and `any` keywords can now be used to extend the comparison outcome with any equality operators: `=`, `<>`, `>`, `>=`, `<`, `<=`.
-
-In the examples below, `payout -> interestRatePayout` is a list according to the cardinality of its definition in the model.
-
-The `all` keyword will be used to specify that *all* items in the list must match the single data object. Accordingly, the statement will evaluate to true if each `paymentDates -> paymentFrequency -> period` for every item of the list `interestRatePayout` is equal to `T`.
-
-- `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T`
-
-The `any` keyword will be used to specify that *any* item in the list must match the single data object. Accordingly, the statement will evaluate to true if at least one `paymentDates -> paymentFrequency -> period` for any item of the list `interestRatePayout` is equal to `T`.
-
-- `economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any = PeriodExtendedEnum -> T`
-
-All list comparisons in the model have been updated to use the `all` or `any` keywords whilst retaining the original expected logical outcome.
-
-In the CDM Documentation, review the following sections:
-
-- [List comparison operators](https://docs.rosetta-technology.io/dsl/expressions.html#list-comparison-operators)
+A condition has been added to CDM to ensure that when a concentration limit is used, a choice of concentration type is made to either use `ConcentrationLimitCriteria` for a specific description of where to apply the concentration limit or `ConcentrationLimitType` for a higher level generic description of where to apply the concentration limit.
+In addition a condition is also added to ensure that when the data type `ConcentrationLimit` is used, a concentration value choice must be made to either use `valuatiocap` or `percentagecap`.
 
 _Review Directions_
 
-In the CDM Portal, use the Textual Browser to review the list comparisons in the model, including the following examples:
+In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
 
-- Event qualification functions - `Qualify_CashTransfer`, `Qualify_Novation`
-- Product qualification functions - `Qualify_InterestRate_IRSwap_FixedFloat`, `Qualify_InterestRate_IRSwap_FixedFloat_OIS`
-- Conditions - `PriceQuantity -> NonNegativeQuantity`, `CreditDefaultPayout -> FpML_cd_13`, `CreditDefaultPayout -> FpML_cd_14`
+- Search for the data type `ConcentrationLimit` under the allowed data attributes are 2 additional conditions `ConcentrationLimitValueChoice` and `ConcentrationLimitTypeChoice` Please review these conditions to ensure they determine the correct outcomes required.
+
+# *Legal Agreement Model – Removal of SCSA from Legal Agreement Name enumeration list*
+
+_What is being released?_
+
+Removal of legal agreement type Standard Credit Support Annex from the list of identifiable document names in the `LegalAgreementNameEnum` list. The reason for this being, the document is no longer widely negotiated and research has indicated less than 5 of these exist operationally. Having it referenced in CDM has confused members and feedback has confirmed consensus agreement to remove from the model.
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
+
+- Search for the data type enum `LegalAgreemenyNameEnum` and inspect the removal of `StandardCreditSupportAnnex` 
+- Related synonyms in `synonym-cdm-fpml` where `StandardCreditSupportAnnex` is referenced have also been removed from CDM.
