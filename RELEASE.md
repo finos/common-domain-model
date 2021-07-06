@@ -1,21 +1,25 @@
-# *DSL Syntax - Only Exists for multiple attributes*
+# *Legal Agreement Model – Conditions added to Concentration Limit*
 
 _What is being released?_
 
-The `only exists` DSL feature has been enhanced to allow a list of attributes to be evaluated to determine a boolean outcome in a similar way to a single attribute.
-
-The syntax for a single attribute remains the same.  The statement below will evaluate to true if `interestRatePayout` exists and all other attributes of `Payout` are absent.
-
-- `economicTerms -> payout -> interestRatePayout only exists`
-
-The new syntax allows for a list of attributes to be specified.  The statement below will evaluate to true only if both `interestRatePayout` and `equityPayout` exist and all other attributes of `Payout` are absent.
-
-- `(economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> equityPayout) only exists`
-
-This change allows many of the qualification functions to be simplified.
+A condition has been added to CDM to ensure that when a concentration limit is used, a choice of concentration type is made to either use `ConcentrationLimitCriteria` for a specific description of where to apply the concentration limit or `ConcentrationLimitType` for a higher level generic description of where to apply the concentration limit.
+In addition a condition is also added to ensure that when the data type `ConcentrationLimit` is used, a concentration value choice must be made to either use `valuatiocap` or `percentagecap`.
 
 _Review Directions_
 
-In the CDM Portal, use the Textual Browser to review the usages of `only exists` in the model, including the following examples:
+In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
 
-- Product qualification functions - `Qualify_InterestRate_IRSwap_FixedFloat`, `Qualify_Commodity_Swap_FixedFloat`, `Qualify_CreditDefaultSwap_SingleName`.
+- Search for the data type `ConcentrationLimit` under the allowed data attributes are 2 additional conditions `ConcentrationLimitValueChoice` and `ConcentrationLimitTypeChoice` Please review these conditions to ensure they determine the correct outcomes required.
+
+# *Legal Agreement Model – Removal of SCSA from Legal Agreement Name enumeration list*
+
+_What is being released?_
+
+Removal of legal agreement type Standard Credit Support Annex from the list of identifiable document names in the `LegalAgreementNameEnum` list. The reason for this being, the document is no longer widely negotiated and research has indicated less than 5 of these exist operationally. Having it referenced in CDM has confused members and feedback has confirmed consensus agreement to remove from the model.
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
+
+- Search for the data type enum `LegalAgreemenyNameEnum` and inspect the removal of `StandardCreditSupportAnnex` 
+- Related synonyms in `synonym-cdm-fpml` where `StandardCreditSupportAnnex` is referenced have also been removed from CDM.

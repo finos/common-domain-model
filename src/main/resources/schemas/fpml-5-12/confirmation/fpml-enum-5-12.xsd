@@ -4,15 +4,54 @@
 == Financial Products Markup Language is subject to the FpML public license. 
 == A copy of this license is available at http://www.fpml.org/license/license.html
 -->
-<xsd:schema xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:fpml-annotation="http://www.fpml.org/annotation" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fpml.org/FpML-5/confirmation" ecore:documentRoot="FpML" ecore:nsPrefix="conf" ecore:package="org.fpml.confirmation" version="$Revision: 14183 $" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xsd:schema xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:fpml-annotation="http://www.fpml.org/annotation" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fpml.org/FpML-5/confirmation" ecore:documentRoot="FpML" ecore:nsPrefix="conf" ecore:package="org.fpml.confirmation" version="$Revision: 14242 $" elementFormDefault="qualified" attributeFormDefault="unqualified">
 <!--
         ================
             enumerations    
         ================
         -->
+  <xsd:simpleType name="AccountingStandardEnum">
+    <xsd:annotation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">The type of accounting standard applied.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="GAAP">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the accounting standards observed are the generally accepted accounting principles.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="IFRS">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the accounting standards observed are the International Financial Reporting Standards.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="AccrualCompoundingMethodTypeEnum">
+    <xsd:annotation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">Describes whether an accrual is calculated as compounding on the balance, compounding on the rate, or simple (i.e. not compounded).</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="CompoundingBalance">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that a compounding balance method is used to calculate accruals.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="CompoundingRate">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that a compounding rate method is used to calculate accruals.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Simple">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the simple method is used to calculate accruals.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
   <xsd:simpleType name="AccrualReferenceAmountTypeEnum">
     <xsd:annotation>
-      <xsd:documentation source="http://www.FpML.org" xml:lang="en">The type of automatic adjustment that a Letter of Credit can exhibit.</xsd:documentation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">The type of amount referenced by the accrual.</xsd:documentation>
     </xsd:annotation>
     <xsd:restriction base="xsd:token">
       <xsd:enumeration value="Commitment">
@@ -103,30 +142,12 @@
       </xsd:enumeration>
     </xsd:restriction>
   </xsd:simpleType>
-<!--new 2021 Defs-->
-  <xsd:simpleType name="AveragingPeriodEnum">
-    <xsd:annotation>
-      <xsd:documentation xml:lang="en">The period to use when calculating the weighted averaging of rates.</xsd:documentation>
-    </xsd:annotation>
-    <xsd:restriction base="xsd:token">
-      <xsd:enumeration value="CalculationPeriod">
-        <xsd:annotation>
-          <xsd:documentation source="http://www.FpML.org" xml:lang="en">The observation weights are based on the business days in the calculation period. In other words, a rate is determined for each business day in the calculation period, and for Fridays or other calculation dates before holidays in the calculation period, the weight is increased to reflect the subsequent non-business days. This corresponds to a "Lookback" type of averaging, and can also be called "accrual period" weighting.</xsd:documentation>
-        </xsd:annotation>
-      </xsd:enumeration>
-      <xsd:enumeration value="ObservationPeriod">
-        <xsd:annotation>
-          <xsd:documentation source="http://www.FpML.org" xml:lang="en">This means that the observation weights are based on the weekends and holidays of the Observation Period. In other words, the observation period is determined based on the calculation period, and then the rates are weighted higher for observations occurring before a weekend or holiday in the observation period. This corresponds to an "observation period shift" type of averaging, and can also be called "fixing period" weighting.</xsd:documentation>
-        </xsd:annotation>
-      </xsd:enumeration>
-    </xsd:restriction>
-  </xsd:simpleType>
   <xsd:simpleType name="BreakageCalculatedByEnum">
     <xsd:annotation>
       <xsd:documentation xml:lang="en">When breakage cost is applicable, this defines who is calculating it.</xsd:documentation>
     </xsd:annotation>
     <xsd:restriction base="xsd:token">
-      <xsd:enumeration value="Agent Bank">
+      <xsd:enumeration value="AgentBank">
         <xsd:annotation>
           <xsd:documentation xml:lang="en">Breakage cost is calculated by the agent bank.</xsd:documentation>
         </xsd:annotation>
@@ -241,12 +262,12 @@
     <xsd:restriction base="xsd:token">
       <xsd:enumeration value="Buyer">
         <xsd:annotation>
-          <xsd:documentation source="http://www.FpML.org" xml:lang="en" />
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates the buyer.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="Seller">
         <xsd:annotation>
-          <xsd:documentation source="http://www.FpML.org" xml:lang="en" />
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates the seller.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
     </xsd:restriction>
@@ -279,6 +300,24 @@
       <xsd:enumeration value="Both">
         <xsd:annotation>
           <xsd:documentation source="http://www.FpML.org" xml:lang="en">Both parties with joined rights to be a calculation agent.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+<!--new 2021 Defs-->
+  <xsd:simpleType name="CalculationMethodEnum">
+    <xsd:annotation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">The type of calculation formula to use when combining multiple rates.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="Averaging">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">The resulting value is based on the weighted arithmetic average of the observations.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Compounding">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">The resulting value is based on a geometric averaging formula which is based on the multiplying the weighted daily rates.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
     </xsd:restriction>
@@ -2342,6 +2381,28 @@
       </xsd:enumeration>
     </xsd:restriction>
   </xsd:simpleType>
+  <xsd:simpleType name="InventoryAccountingMethodEnum">
+    <xsd:annotation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">The type of accounting method applied to inventory treatment.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="FIFO">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the inventory calculation method used is first-in first-out.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="LIFO">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the inventory calculation method used is last-in first-out.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="WeightedAverage">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the inventory calculation method used is weighted average.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
   <xsd:simpleType name="LcAutoAdjustEnum">
     <xsd:annotation>
       <xsd:documentation source="http://www.FpML.org" xml:lang="en">The type of automatic adjustment that a Letter of Credit can exhibit.</xsd:documentation>
@@ -2441,6 +2502,28 @@
       </xsd:enumeration>
     </xsd:restriction>
   </xsd:simpleType>
+  <xsd:simpleType name="LoanCovenantObligationMetricValueTypeEnum">
+    <xsd:annotation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">A list of types that a loan covenant obligation metric can be (i.e. maximum amount, minimum amount, precise amount).</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="Maximum">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates the maximum value for a specific covenant obligation metric.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Minimum">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates the minimum value for a specific covenant obligation metric.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Precise">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates the precise value for a specific covenant obligation metric.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
   <xsd:simpleType name="LoanTradingAccrualSettlementEnum">
     <xsd:annotation>
       <xsd:documentation xml:lang="en">A list that defines how the interest accrued during the settlement period is calculated and paid.</xsd:documentation>
@@ -2529,195 +2612,189 @@
       </xsd:enumeration>
     </xsd:restriction>
   </xsd:simpleType>
-  <xsd:simpleType name="LoanTradingFormOfPurchaseEnum">
-    <xsd:annotation>
-      <xsd:documentation xml:lang="en">A list describing forms of purchase.</xsd:documentation>
-    </xsd:annotation>
-    <xsd:restriction base="xsd:token">
-      <xsd:enumeration value="Assignment">
-        <xsd:annotation>
-          <xsd:documentation xml:lang="en" />
-        </xsd:annotation>
-      </xsd:enumeration>
-      <xsd:enumeration value="AssignmentOnly">
-        <xsd:annotation>
-          <xsd:documentation xml:lang="en" />
-        </xsd:annotation>
-      </xsd:enumeration>
-      <xsd:enumeration value="Other">
-        <xsd:annotation>
-          <xsd:documentation xml:lang="en" />
-        </xsd:annotation>
-      </xsd:enumeration>
-      <xsd:enumeration value="LMAFundedParticipation">
-        <xsd:annotation>
-          <xsd:documentation xml:lang="en" />
-        </xsd:annotation>
-      </xsd:enumeration>
-      <xsd:enumeration value="LMAFundedRiskParticipation">
-        <xsd:annotation>
-          <xsd:documentation xml:lang="en" />
-        </xsd:annotation>
-      </xsd:enumeration>
-      <xsd:enumeration value="LMARiskParticipation">
-        <xsd:annotation>
-          <xsd:documentation xml:lang="en" />
-        </xsd:annotation>
-      </xsd:enumeration>
-      <xsd:enumeration value="LMARiskToFundedParticipation">
-        <xsd:annotation>
-          <xsd:documentation xml:lang="en" />
-        </xsd:annotation>
-      </xsd:enumeration>
-      <xsd:enumeration value="LMATransferAgreement">
-        <xsd:annotation>
-          <xsd:documentation xml:lang="en" />
-        </xsd:annotation>
-      </xsd:enumeration>
-      <xsd:enumeration value="LMATransferCertificate">
-        <xsd:annotation>
-          <xsd:documentation xml:lang="en" />
-        </xsd:annotation>
-      </xsd:enumeration>
-      <xsd:enumeration value="Participation">
-        <xsd:annotation>
-          <xsd:documentation xml:lang="en" />
-        </xsd:annotation>
-      </xsd:enumeration>
-    </xsd:restriction>
-  </xsd:simpleType>
   <xsd:simpleType name="LoanTradingLetterOfCreditFeeTypeEnum">
     <xsd:annotation>
-      <xsd:documentation xml:lang="en">A list of accruing fee types associated with a letter of credit.</xsd:documentation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">A list of accruing fee types associated with a letter of credit.</xsd:documentation>
     </xsd:annotation>
     <xsd:restriction base="xsd:token">
       <xsd:enumeration value="LetterOfCreditFronting">
         <xsd:annotation>
-          <xsd:documentation xml:lang="en">Calculated as a percentage of the unutilized portion of the facility.</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Calculated as a percentage of the unutilized portion of the facility.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="LetterOfCreditIssuance">
         <xsd:annotation>
-          <xsd:documentation xml:lang="en">An on-going (accrual) fee paid to the Issuing Bank for a Letter of Credit. This is separate from the basic Letter of Credit Fee paid to the lender group.</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">An on-going (accrual) fee paid to the Issuing Bank for a Letter of Credit. This is separate from the basic Letter of Credit Fee paid to the lender group.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LoanTradingFormOfPurchaseEnum">
+    <xsd:annotation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">A list describing forms of purchase.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="Assignment">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">An assignment.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="AssignmentOnly">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">An assignment only.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Other">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Another form of trade.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="LMAFundedParticipation">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">An LMA funded participation.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="LMAFundedRiskParticipation">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">An LMA funded risk participation.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="LMARiskParticipation">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">An LMA risk participation.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="LMARiskToFundedParticipation">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">An LMA risk to funded participation.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="LMATransferAgreement">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">An LMA transfer agreement.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="LMATransferCertificate">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">An LMA Transfer certificate.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Participation">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">A participation.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
     </xsd:restriction>
   </xsd:simpleType>
   <xsd:simpleType name="LoanTradingNonAccruingFeeTypeEnum">
     <xsd:annotation>
-      <xsd:documentation xml:lang="en">A list of accruing fee types associated with a facility.</xsd:documentation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">A list of accruing fee types associated with a facility.</xsd:documentation>
     </xsd:annotation>
     <xsd:restriction base="xsd:token">
       <xsd:enumeration value="Amendment">
         <xsd:annotation>
-          <xsd:documentation xml:lang="en">Calculated as a percentage of the global commitment amount of a facility.</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">An amendment fee.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
-      <xsd:enumeration value="Consent" />
-      <xsd:enumeration value="Facility" />
+      <xsd:enumeration value="Consent">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">A consent fee.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Facility">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">A facility fee.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
       <xsd:enumeration value="FacilityExension">
         <xsd:annotation>
-          <xsd:documentation xml:lang="en">An on-going (accrual) fee paid to the Issuing Bank for a Letter of Credit. This is separate from the basic Letter of Credit Fee paid to the lender group.</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">A facility extension fee.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="Upfront">
         <xsd:annotation>
-          <xsd:documentation xml:lang="en">Calculated as a percentage of the utilized portion of the facility. This fee type is subject to banding rules – different portions of the utilization amount may be subject to different percentages.</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">An upfront fee.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
-      <xsd:enumeration value="Waiver" />
-    </xsd:restriction>
-  </xsd:simpleType>
-  <xsd:simpleType name="LoanTaskStatusEnum">
-    <xsd:annotation>
-      <xsd:documentation xml:lang="en">A list that defines the status of a settlement task.</xsd:documentation>
-    </xsd:annotation>
-    <xsd:restriction base="xsd:token">
-      <xsd:enumeration value="Active">
+      <xsd:enumeration value="Waiver">
         <xsd:annotation>
-          <xsd:documentation xml:lang="en">Loan Market Association (UK).</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">A waiver fee.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
-      <xsd:enumeration value="Cleared">
-        <xsd:annotation>
-          <xsd:documentation xml:lang="en">The Loan Syndications and Trading Association (US).</xsd:documentation>
-        </xsd:annotation>
-      </xsd:enumeration>
-      <xsd:enumeration value="Cancelled" />
     </xsd:restriction>
   </xsd:simpleType>
   <xsd:simpleType name="LoanTradingTypeEnum">
     <xsd:annotation>
-      <xsd:documentation xml:lang="en">A list that specifies whether a trade was executed during the syndication period or in the post-syndication market.</xsd:documentation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">A list that specifies whether a trade was executed during the syndication period or in the post-syndication market.</xsd:documentation>
     </xsd:annotation>
     <xsd:restriction base="xsd:token">
       <xsd:enumeration value="Primary">
         <xsd:annotation>
-          <xsd:documentation xml:lang="en">Trade is part of a syndication.</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Trade is part of a syndication.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="Secondary">
         <xsd:annotation>
-          <xsd:documentation xml:lang="en">Trade was performed in the secondary (non-syndication) market.</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Trade was performed in the secondary (non-syndication) market.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
     </xsd:restriction>
   </xsd:simpleType>
   <xsd:simpleType name="LoanTradingVotingRightsEnum">
     <xsd:annotation>
-      <xsd:documentation xml:lang="en">A list that specifies type of voting rights process, i.e. whether voting rights are passed along to buyer or retained by seller.</xsd:documentation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">A list that specifies type of voting rights process, i.e. whether voting rights are passed along to buyer or retained by seller.</xsd:documentation>
     </xsd:annotation>
     <xsd:restriction base="xsd:token">
       <xsd:enumeration value="PassedOnToBuyer">
         <xsd:annotation>
-          <xsd:documentation xml:lang="en">Voting rights passed to the buyer</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Voting rights passed to the buyer</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="RetainedBySeller">
         <xsd:annotation>
-          <xsd:documentation xml:lang="en">Voting rights retained by the seller</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Voting rights retained by the seller</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
     </xsd:restriction>
   </xsd:simpleType>
   <xsd:simpleType name="LoanTransferFeePaidByEnum">
     <xsd:annotation>
-      <xsd:documentation>A list of standard market rules for the treatment of split of assignment fees between counterparties.</xsd:documentation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">A list of standard market rules for the treatment of split of assignment fees between counterparties.</xsd:documentation>
     </xsd:annotation>
     <xsd:restriction base="xsd:token">
       <xsd:enumeration value="BuyerSplitOneHalf">
         <xsd:annotation>
-          <xsd:documentation>Buyer is responsible for one half of one allocation's assignment fee (regardless of the number of allocations).</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Buyer is responsible for one half of one allocation's assignment fee (regardless of the number of allocations).</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="OneFeePaidByBuyer">
         <xsd:annotation>
-          <xsd:documentation>Buyer is responsible for one allocation's assignment fee (regardless of the number of allocations).</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Buyer is responsible for one allocation's assignment fee (regardless of the number of allocations).</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="OneFeePaidBySeller">
         <xsd:annotation>
-          <xsd:documentation>Seller is responsible for one allocation's assignment fee (regardless of the number of allocations).</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Seller is responsible for one allocation's assignment fee (regardless of the number of allocations).</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="PaidByBuyer">
         <xsd:annotation>
-          <xsd:documentation>Fee is paid by buyer.</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Fee is paid by buyer.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="PaidBySeller">
         <xsd:annotation>
-          <xsd:documentation>Fee is paid by seller.</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Fee is paid by seller.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="SellerSplitOneHalf">
         <xsd:annotation>
-          <xsd:documentation>Seller is responsible for one half of one allocation's assignment fee (regardless of the number of allocations).</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Seller is responsible for one half of one allocation's assignment fee (regardless of the number of allocations).</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="SplitFull">
         <xsd:annotation>
-          <xsd:documentation>Ticket owner is responsible for one allocation's assignment fee (regardless of the number of allocations).</xsd:documentation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Ticket owner is responsible for one allocation's assignment fee (regardless of the number of allocations).</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
     </xsd:restriction>
@@ -2927,6 +3004,29 @@
       </xsd:enumeration>
     </xsd:restriction>
   </xsd:simpleType>
+<!--new 2021 Defs-->
+  <xsd:simpleType name="ObservationPeriodDatesEnum">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The specification of whether calculated rates are set relative to the beginning or end of a calculation period, or another date.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="SetInAdvance">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Calculations will occur relative to the first day of each calculation period, following the "set in advance" conventions outlined in the ISDA definitions. This means that the observation period will be relative to the prior or deemed prior calculation period.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Standard">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Calculations will occur using the standard observation conventions, i.e. relative to the current calculation period.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="FixingDate">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Observations will be based on a fixing date offset specified in the FpML "resetDates" structure, so the observation period will end on a date shifted relative to that date. This option is available for fallback rate calculations and for RFR-based trades that mirror or mimic term-rate based trades.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
   <xsd:simpleType name="OptionTypeEnum">
     <xsd:annotation>
       <xsd:documentation source="http://www.FpML.org" xml:lang="en">Specifies the type of the option.</xsd:documentation>
@@ -2952,6 +3052,23 @@
         </xsd:restriction>
       </xsd:simpleType>
     </xsd:union>
+  </xsd:simpleType>
+  <xsd:simpleType name="PartyDeterminationEnum">
+    <xsd:annotation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">The specification of how a protected party will be determined.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="NonExercisingParty">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">The party that is given notice of exercise. Per 2000 ISDA Definitions, Section 11.1. Parties, paragraph (e).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Both">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Both parties with joined rights to be a calculation agent.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
   </xsd:simpleType>
   <xsd:simpleType name="PayerReceiverEnum">
     <xsd:annotation>
@@ -3177,6 +3294,48 @@
       <xsd:enumeration value="Call">
         <xsd:annotation>
           <xsd:documentation source="http://www.FpML.org" xml:lang="en">A call option gives the holder the right to buy the underlying asset by a certain date for a certain price.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="ReportingFrequencyTypeEnum">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">Defines the frequency by which reporting recurs.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="Annually">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the reporting frequency is performed on an annual basis.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Biweekly">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the reporting frequency is performed on a bi-weekly basis.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Daily">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the reporting frequency is performed on a daily basis.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Monthly">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the reporting frequency is performed on a monthly basis.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Quarterly">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the reporting frequency is performed on a quarterly basis.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Semiannually">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the reporting frequency is performed on a semi-annual basis.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Weekly">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that the reporting frequency is performed on a weekly basis.</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
     </xsd:restriction>
@@ -3935,24 +4094,6 @@
       </xsd:enumeration>
     </xsd:restriction>
   </xsd:simpleType>
-<!--new 2021 Defs-->
-  <xsd:simpleType name="StubCompoundingPeriodOffsetEnum">
-    <xsd:annotation>
-      <xsd:documentation source="http://www.FpML.org" xml:lang="en">For stubs based on daily compounding indexes set in advance, defines how far back the observations should be shifted.</xsd:documentation>
-    </xsd:annotation>
-    <xsd:restriction base="xsd:token">
-      <xsd:enumeration value="FullCalculationPeriod">
-        <xsd:annotation>
-          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Observations should go back a full regular calculation period.</xsd:documentation>
-        </xsd:annotation>
-      </xsd:enumeration>
-      <xsd:enumeration value="StubPeriod">
-        <xsd:annotation>
-          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Observations should go back to the beginning of the stub calculation period.</xsd:documentation>
-        </xsd:annotation>
-      </xsd:enumeration>
-    </xsd:restriction>
-  </xsd:simpleType>
   <xsd:simpleType name="StubPeriodTypeEnum">
     <xsd:annotation>
       <xsd:documentation xml:lang="en">Element to define how to deal with a none standard calculation period within a swap stream.</xsd:documentation>
@@ -3993,6 +4134,28 @@
       <xsd:enumeration value="CallCurrencyPerPutCurrency">
         <xsd:annotation>
           <xsd:documentation source="http://www.FpML.org" xml:lang="en">The strike price is an amount of callCurrency per one unit of putCurrency.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="TaskStatusEnum">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A list that defines the status of a task.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="Active">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates a task status of active.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Cleared">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates a task status of cleared (i.e. the task is completed).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Cancelled">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates a task status of cancelled (i.e. the task was cancelled and no longer needs to be completed).</xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
     </xsd:restriction>
@@ -4172,6 +4335,33 @@
       <xsd:enumeration value="BlendedHighest" />
       <xsd:enumeration value="AverageBlendedMarket" />
       <xsd:enumeration value="AverageBlendedHighest" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="VoteDecisionEnum">
+    <xsd:annotation>
+      <xsd:documentation source="http://www.FpML.org" xml:lang="en">The type of vote decision.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="Abstain">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates an abstention from voting on the measure.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Against">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates a vote against the measure.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="For">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates a vote in favor of the measure.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Pending">
+        <xsd:annotation>
+          <xsd:documentation source="http://www.FpML.org" xml:lang="en">Indicates that a vote is pending.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
     </xsd:restriction>
   </xsd:simpleType>
   <xsd:simpleType name="WeatherSettlementLevelEnum">
