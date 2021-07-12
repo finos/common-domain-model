@@ -37,7 +37,7 @@ A tradable product represents a financial product that is ready to be traded, me
     tradeLot TradeLot (1..*)
     counterparty Counterparty (2..2) 
     ancillaryParty AncillaryParty (0..*) 
-    settlementTerms SettlementTerms (0..1) 
+    settlementInstructions SettlementInstructions (0..*)
     adjustment NotionalAdjustmentEnum (0..1) 
 
 .. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
@@ -360,7 +360,9 @@ The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``SecurityFinanc
 .. code-block:: Haskell
 
  type PayoutBase: 
-	payoutQuantity ResolvablePayoutQuantity (1..1) 
+	payerReceiver PayerReceiver (1..1)
+    payoutQuantity ResolvablePayoutQuantity (1..1)
+    settlementTerms SettlementTerms (1..1)
 
 .. code-block:: Haskell
 
@@ -383,8 +385,7 @@ Note that the ``resolvedQuantity`` attribute has a metadata address that points 
 
  type InterestRatePayout extends PayoutBase:
 	[metadata key]
-	payerReceiver PayerReceiver (0..1) 
-	rateSpecification RateSpecification (1..1) 
+	rateSpecification RateSpecification (1..1)
 	dayCountFraction DayCountFractionEnum (0..1) 
 		[metadata scheme]
 	calculationPeriodDates CalculationPeriodDates (0..1) 
@@ -395,8 +396,8 @@ Note that the ``resolvedQuantity`` attribute has a metadata address that points 
 	discountingMethod DiscountingMethod (0..1) 
 	compoundingMethod CompoundingMethodEnum (0..1) 
 	cashflowRepresentation CashflowRepresentation (0..1) 
-	crossCurrencyTerms CrossCurrencyTerms (0..1) 
-	stubPeriod StubPeriod (0..1) 
+	principalExchanges PrincipalExchanges (0..1)
+	stubPeriod StubPeriod (0..1)
 	bondReference BondReference (0..1) 
 	fixedAmount calculation (0..1) 
 	floatingAmount calculation (0..1) 
@@ -653,7 +654,6 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
    tradableProduct TradableProduct (1..1)
    party Party (0..*)
    partyRole PartyRole (0..*)
-   settlementTerms SettlementTerms (0..*)
    executionDetails ExecutionDetails (0..1)
    contractDetails ContractDetails (0..1)
    clearedDate date (0..1)
@@ -664,18 +664,25 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
 
 .. note:: Attributes within ``Trade`` and ``ContractDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view.
 
-The ``settlementTerms`` attribute defines how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
+The ``settlementInstructions`` attribute defines how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
+
+.. code-block:: Haskell
+
+ type SettlementInstructions extends PayoutBase:
+
+.. code-block:: Haskell
+
+ type PayoutBase:
+   payerReceiver PayerReceiver (1..1)
+   payoutQuantity ResolvablePayoutQuantity (1..1)
+   settlementTerms SettlementTerms (1..1)
 
 .. code-block:: Haskell
 
  type SettlementTerms extends SettlementBase:
-   settlementType SettlementTypeEnum (0..1)
-   settlementDate AdjustableOrRelativeDate (0..1)
-   valueDate date (0..1)
-   transferSettlementType TransferSettlementEnum (0..1)
-   payerReceiver PartyReferencePayerReceiver (0..1)
-   priceQuantity PriceQuantity (0..1)
-       [metadata reference]
+   cashSettlementTerms CashSettlementTerms (0..1)
+   physicalSettlementTerms OptionPhysicalSettlement (0..1)
+   fxSettlementTerms FxCashSettlement (0..1)
 
 Additionally, ``Trade`` supports representation of specific execution or contractual details via the ``executionDetails`` and ``contractDetails`` attributes.
 
