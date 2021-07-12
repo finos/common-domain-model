@@ -259,23 +259,28 @@ By contrast, in the case of the execution of a security (e.g. a listed equity), 
 
 An Index product is an exception because it's not directly tradable, but is included here because it can be referenced as an underlier for a tradable product and can be identified by a public identifier.
 
-Underlier
-"""""""""
+Settlement Instructions
+"""""""""""""""""""""""
 
-The underlier attribute on types ``OptionPayout``, ``ForwardPayout`` and ``EquityPayout`` allows for any product to be used as the underlier for a corresponding products option, forward, and equity swap.
+The ``settlementInstructions`` attribute defines how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
 .. code-block:: Haskell
 
- type OptionPayout extends PayoutBase:
-   [metadata key]
-   buyerSeller BuyerSeller (1..1)
-   optionType OptionTypeEnum (0..1)
-   feature OptionFeature (0..1)
-   denomination OptionDenomination (0..1)
-   exerciseTerms OptionExercise (1..1)
-   underlier Product (1..1)
+ type SettlementInstructions extends PayoutBase:
 
-This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
+.. code-block:: Haskell
+
+ type PayoutBase:
+   payerReceiver PayerReceiver (1..1)
+   payoutQuantity ResolvablePayoutQuantity (1..1)
+   settlementTerms SettlementTerms (1..1)
+
+.. code-block:: Haskell
+
+ type SettlementTerms extends SettlementBase:
+   cashSettlementTerms CashSettlementTerms (0..1)
+   physicalSettlementTerms OptionPhysicalSettlement (0..1)
+   fxSettlementTerms FxCashSettlement (0..1)
 
 Contractual Product
 ^^^^^^^^^^^^^^^^^^^
@@ -441,6 +446,24 @@ There are a number of components that are reusable across several payout types. 
    lastRegularPeriodEndDate date (0..1)
    stubPeriodType StubPeriodTypeEnum (0..1)
    calculationPeriodFrequency CalculationPeriodFrequency (0..1)
+
+Underlier
+"""""""""
+
+The underlier attribute on types ``OptionPayout``, ``ForwardPayout`` and ``EquityPayout`` allows for any product to be used as the underlier for a corresponding products option, forward, and equity swap.
+
+.. code-block:: Haskell
+
+ type OptionPayout extends PayoutBase:
+   [metadata key]
+   buyerSeller BuyerSeller (1..1)
+   optionType OptionTypeEnum (0..1)
+   feature OptionFeature (0..1)
+   denomination OptionDenomination (0..1)
+   exerciseTerms OptionExercise (1..1)
+   underlier Product (1..1)
+
+This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
 
 Data Templates
 """"""""""""""
@@ -663,26 +686,6 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
      [deprecated]
 
 .. note:: Attributes within ``Trade`` and ``ContractDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view.
-
-The ``settlementInstructions`` attribute defines how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
-
-.. code-block:: Haskell
-
- type SettlementInstructions extends PayoutBase:
-
-.. code-block:: Haskell
-
- type PayoutBase:
-   payerReceiver PayerReceiver (1..1)
-   payoutQuantity ResolvablePayoutQuantity (1..1)
-   settlementTerms SettlementTerms (1..1)
-
-.. code-block:: Haskell
-
- type SettlementTerms extends SettlementBase:
-   cashSettlementTerms CashSettlementTerms (0..1)
-   physicalSettlementTerms OptionPhysicalSettlement (0..1)
-   fxSettlementTerms FxCashSettlement (0..1)
 
 Additionally, ``Trade`` supports representation of specific execution or contractual details via the ``executionDetails`` and ``contractDetails`` attributes.
 
