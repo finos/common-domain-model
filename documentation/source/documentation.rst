@@ -2234,12 +2234,12 @@ Namespace
 The CDM is partitioned into groups of namespaces. A namespace is an abstract container created to hold a logical grouping of model artefacts. The approach is designed to make it easier for users to understand the model structure and adopt selected components. It also aids the development cycle by insulating groups of components from unrelated model changes that may occur. The partitioning is visible to users in Rosetta Core by toggling the Namespace view in the left hand panel, and in the generated code files.
 
 Model Artifacts
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 Model artifacts are organised into a directory hierarchy that is exposed in the model editor.
 
 Organising Principles
-"""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^
 
 Namespaces are organised into a hierarchy, with layers going from in to out. The hierarchy contains an intrinsic inheritance structure where each layer has access to (“imports”) the layer outside, and is designed to be usable without any of its inner layers. Layers can contain several namespaces (“siblings”), which can also refer to each other. 
 
@@ -2250,7 +2250,7 @@ Example – the base namespace
 In the example above the layers of the “base” namespace can be observed. There are four layers to the namespace. The outer layer “base” contains one file and three namespaces. The next layer contains three siblings, “datetime”, “math”, and “staticdata”. A third and fourth layer is contained within the “staticdata” namespace.
 
 Hierarchy Structure
-"""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^
 
 The namespace hierarchy in the CDM contains 7 components
 
