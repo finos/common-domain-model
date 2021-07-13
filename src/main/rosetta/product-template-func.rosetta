@@ -3,6 +3,11 @@ version "${project.version}"
 
 import cdm.base.staticdata.party.*
 
+import cdm.observable.asset.*
+
+import cdm.product.common.*
+import cdm.product.common.settlement.*
+
 func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
 	inputs:
 		tradableProduct TradableProduct (1..1)
@@ -10,6 +15,31 @@ func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as 
 	output:
 		success boolean (1..1) <"Validation result">
 
-		
+func Create_TradableProduct: <"Creates a new TradableProduct with the given inputs.">
+	inputs:
+		product Product (1..1) <"The product to set.">
+		priceQuantity PriceQuantity (1..*) <"The price quantities to set.">
+		counterparty Counterparty (2..2) <"The counterparties to set.">
+		ancillaryParty AncillaryParty (0..*) <"The ancillary parties to set.">
+		settlementInstructions SettlementInstructions (0..*) <"The settlement instructions to set.">
+		adjustment NotionalAdjustmentEnum (0..1) <"The adjustment to set.">
+	output:
+		tradableProduct TradableProduct (1..1)
 
+	assign-output tradableProduct -> product:
+         product
 
+    assign-output tradableProduct -> tradeLot -> priceQuantity: 
+        priceQuantity
+
+    assign-output tradableProduct -> counterparty:
+        counterparty
+
+    assign-output tradableProduct -> ancillaryParty:
+        ancillaryParty
+
+    assign-output tradableProduct -> settlementInstructions:
+        settlementInstructions
+
+    assign-output tradableProduct -> adjustment:
+        adjustment

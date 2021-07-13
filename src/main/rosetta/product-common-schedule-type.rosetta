@@ -24,35 +24,6 @@ type StubPeriod: <" A class defining how the initial or final stub calculation p
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
 	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
 
-
-type MultipleValuationDates extends SingleValuationDate:
-
-	businessDaysThereafter int (0..1) <"The number of business days between successive valuation dates when multiple valuation dates are applicable for cash settlement. ISDA 2003 Term: Business Days thereafter.">
-	numberValuationDates int (0..1) <"Where multiple valuation dates are specified as being applicable for cash settlement, this element specifies (a) the number of applicable valuation dates, and (b) the number of business days after satisfaction of all conditions to settlement when the first such valuation date occurs, and (c) the number of business days thereafter of each successive valuation date. ISDA 2003 Term: Multiple Valuation Dates.">
-
-	condition BusinessDaysThereafter: <"FpML specifies businessDaysThereafter as a PositiveInteger.">
-		if businessDaysThereafter exists
-		then businessDaysThereafter >= 0
-
-	condition NumberValuationDates: <"FpML specifies numberValuationDates as a PositiveInteger.">
-		if numberValuationDates exists
-		then numberValuationDates >= 0
-
-type SingleValuationDate: <"A class to specify the number of business days after satisfaction of all conditions to settlement.">
-
-	businessDays int (0..1) <"A number of business days. Its precise meaning is dependant on the context in which this element is used. ISDA 2003 Term: Business Day.">
-
-	condition NonNegativeBusinessDays: <"FpML specifies businessDays as a NonNegativeInteger.">
-		if businessDays exists
-		then businessDays >= 0
-
-type ValuationDate:
-
-	singleValuationDate SingleValuationDate (0..1) <"Where single valuation date is specified as being applicable for cash settlement, this element specifies the number of business days after satisfaction of all conditions to settlement when such valuation date occurs. ISDA 2003 Term: Single Valuation Date.">
-	multipleValuationDates MultipleValuationDates (0..1) <"Where multiple valuation dates are specified as being applicable for cash settlement, this element specifies (a) the number of applicable valuation dates, and (b) the number of business days after satisfaction of all conditions to settlement when the first such valuation date occurs, and (c) the number of business days thereafter of each successive valuation date. ISDA 2003 Term: Multiple Valuation Dates.">
-
-	condition: one-of
-
 type CalculationPeriodBase: <"The calculation period adjusted start and end dates, which are the baseline arguments needed to compute an interest accrual calculation.">
 	[metadata key]
 
@@ -163,7 +134,7 @@ type PaymentCalculationPeriod: <"A data defining:  the adjusted payment date and
 
 	condition CalculationPeriodNumberOfDays: <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
 		if calculationPeriod -> calculationPeriodNumberOfDays exists
-		then calculationPeriod -> calculationPeriodNumberOfDays >= 0
+		then calculationPeriod -> calculationPeriodNumberOfDays all >= 0
 
 	condition PaymentCalculationPeriodChoice: <"condition to represent an FpML choice construct.">
 		required choice calculationPeriod, fixedPaymentAmount

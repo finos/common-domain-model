@@ -1,49 +1,25 @@
-# *Product Model - Mapping to FpML: Adjusts the synonym mapping set and adds new illustrative record-keeping data samples*
+# *Legal Agreement Model – Conditions added to Concentration Limit*
 
 _What is being released?_
 
-New FpML samples (non-public execution report) are added to the set of Record-Keeping samples:
+A condition has been added to CDM to ensure that when a concentration limit is used, a choice of concentration type is made to either use `ConcentrationLimitCriteria` for a specific description of where to apply the concentration limit or `ConcentrationLimitType` for a higher level generic description of where to apply the concentration limit.
+In addition a condition is also added to ensure that when the data type `ConcentrationLimit` is used, a concentration value choice must be made to either use `valueCap` or `percentageCap`.
 
-- Rates: FRA, OIS Swap, Inflation Swap, CapFloor
-- FX: Simple Exotic Barrier and Digital
-- Commodity: Oil Swap
+_Review Directions_
 
-Although synonyms have been adjusted to map a large number of fields in those documents, some more work will be required to allow a complete coverage. Example of fields missing:
+In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
 
-- Rate option for Inflation Swap
-- Cap rate schedule, when a spread schedule is also present
-- Special features for FX Simple Exotic
+- Search for the data type `ConcentrationLimit` under the allowed data attributes are 2 additional conditions `ConcentrationLimitValueChoice` and `ConcentrationLimitTypeChoice` Please review these conditions to ensure they determine the correct outcomes required.
 
-These samples are included as part of a broader addition of samples for DRR, and having those documents at least partially mapped in CDM allows to proceed with modelling of the reporting logic (for instance, having the premium fields captured for options).
-
-The FpML synonyms and paths have also been cleaned-up to provide a more consistent treatment across product types / asset classes, making the mappings more readable and more easily extensible (for instance in the treatment of option premium).
-
-_Review directions_
-
-In the CDM Portal, select the Ingestion panel and review the following samples:
-
-- `record-keeping` > `record ex03 capfloor with premium`
-- `record-keeping` > `record ex04 fra`
-- `record-keeping` > `record ex05 inflation swap`
-- `record-keeping` > `record ex06 ois swap`
-- `record-keeping` > `record ex07 capfloor with spread`
-- `record-keeping` > `record ex21 fx simpleexotic barrier`
-- `record-keeping` > `record ex22 fx simpleexotic digital`
-- `record-keeping` > `record ex31 commodity oil swap`
-
-# *Documentation - How to Contribute and Doc Style Guide sections*
+# *Legal Agreement Model – Removal of SCSA from Legal Agreement Name enumeration list*
 
 _What is being released?_
 
-The documentation has been updated to accomodate an increasing number of contributors to the CDM from the industry community.
+Removal of legal agreement type Standard Credit Support Annex from the list of identifiable document names in the `LegalAgreementNameEnum` list. The reason for this being, the document is no longer widely negotiated and research has indicated less than 5 of these exist operationally. Having it referenced in CDM has confused members and feedback has confirmed consensus agreement to remove from the model.
 
-The documentation now contains an "How to Contribute" section that details the practical responsibilities of both the Contributor and the Reviewer in the process, in accordance with the CDM governance guidelines, and the subsequent deployment process.
+_Review Directions_
 
-As any contribution needs to include its own documentation update and release notes, a "Documentation Style Guide" section has been provided to ensure on-going consistency in the CDM documentation which may be sourced from many different writers.
+In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
 
-_Review directions_
-
-Review the new sections in the CDM documentation:
-
-- [How to Contribute](https://docs.rosetta-technology.io/cdm/documentation/source/contributing.html)
-- [Documentation Style Guide](https://docs.rosetta-technology.io/cdm/documentation/source/documentation-style-guide.html)
+- Search for the data type enum `LegalAgreemenyNameEnum` and inspect the removal of `StandardCreditSupportAnnex` 
+- Related synonyms in `synonym-cdm-fpml` where `StandardCreditSupportAnnex` is referenced have also been removed from CDM.
