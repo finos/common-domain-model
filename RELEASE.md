@@ -1,25 +1,31 @@
-# *Legal Agreement Model – Conditions added to Concentration Limit*
+# *Product Model – Cash Settlement Terms*
 
 _What is being released?_
 
-A condition has been added to CDM to ensure that when a concentration limit is used, a choice of concentration type is made to either use `ConcentrationLimitCriteria` for a specific description of where to apply the concentration limit or `ConcentrationLimitType` for a higher level generic description of where to apply the concentration limit.
-In addition a condition is also added to ensure that when the data type `ConcentrationLimit` is used, a concentration value choice must be made to either use `valueCap` or `percentageCap`.
+The structural definition of Settlement Terms has been harmonised. This release will only impact more consistently the transaction components related to Cash Settlement of derivative products.  A further release will incorporate harmonisation of concepts related to Physical Settlement.
+
+_Background_
+
+Multiple inconsistencies have been identified in the current modelling of settlement terms.  This leads to inefficiency in the product model and in the ability to represent functional rules for digital regulatory reporting. The resolution approach creates several modelling components common across products as part of `PayoutBase` and preserve the  elements that are genuinely specific.
+
+_Details_
+
+Extension of the `SettlementTerms` data type that is now used consistently:
+- Across payouts through extension of `PayoutBase`
+- As part of `TradableProduct`
+`CashSettlementTerms` describes a harmonised cash-settlement structure that works across credit, cross-currency swaps and swaptions.
+The different cash-settlement methods have been migrated to a specific `CashSettlementMethodEnum`. Other settlement enums (cash vs physical, DvP etc.) have been positioned in the `SettlementBase` type.
+
+Removal of the `SettlementTerms` attribute from `Trade` and `EquityPayout`
+
+Addition of a new data type `SettlementInstructions` that is used in the definition of  `TradableProduct` for event related cashflows.
+
+Addition of a common `SettlementDate` abstraction layer, in which the different methods are represented as a `one-of`.
+
+Update of the relevant synonym mappings to reflect the new model structure.
+
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
-
-- Search for the data type `ConcentrationLimit` under the allowed data attributes are 2 additional conditions `ConcentrationLimitValueChoice` and `ConcentrationLimitTypeChoice` Please review these conditions to ensure they determine the correct outcomes required.
-
-# *Legal Agreement Model – Removal of SCSA from Legal Agreement Name enumeration list*
-
-_What is being released?_
-
-Removal of legal agreement type Standard Credit Support Annex from the list of identifiable document names in the `LegalAgreementNameEnum` list. The reason for this being, the document is no longer widely negotiated and research has indicated less than 5 of these exist operationally. Having it referenced in CDM has confused members and feedback has confirmed consensus agreement to remove from the model.
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
-
-- Search for the data type enum `LegalAgreemenyNameEnum` and inspect the removal of `StandardCreditSupportAnnex` 
-- Related synonyms in `synonym-cdm-fpml` where `StandardCreditSupportAnnex` is referenced have also been removed from CDM.
+In the CDM Portal, select the Textual Browser and search for the relevant data types specified above.
+In the CDM Portal, select the Ingestion view and review sample trade fpml-5-10/products/rates/ird-ex12-euro-swaption-straddle-cash.xml
