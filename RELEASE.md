@@ -2,23 +2,27 @@
 
 _What is being released?_
 
-The representation of SettlementTerms has been refactored in order to create a harmonised settlement terms structure in the model.  This release incorporates harmonisation of concepts related to Cash Settlement of derivative products.  A further release will incorporate harmonisation of concepts related to Physical Settlement.
+The structural definition of Settlement Terms has been harmonised. This release will only impact more consistently the transaction components related to Cash Settlement of derivative products.  A further release will incorporate harmonisation of concepts related to Physical Settlement.
 
 _Background_
 
-Multiple inconsistencies have been identified in the current modelling of settlement terms.  This leads to inefficiency in the model and the ability to represent functional rules for digital regulatory reporting.  Modelling components have been created that are common across products as part of `PayoutBase` while preserving model components that are genuinely specific.
+Multiple inconsistencies have been identified in the current modelling of settlement terms.  This leads to inefficiency in the product model and in the ability to represent functional rules for digital regulatory reporting. The resolution approach creates several modelling components common across products as part of `PayoutBase` and preserve the  elements that are genuinely specific.
 
 _Details_
 
-Creation of a unique `SettlementTerms` data type, that is used consistently:
+Extension of the `SettlementTerms` data type that is now used consistently:
 - Across payouts through extension of `PayoutBase`
 - As part of `TradableProduct`
 `CashSettlementTerms` describes a harmonised cash-settlement structure that works across credit, cross-currency swaps and swaptions.
 The different cash-settlement methods have been migrated to a specific `CashSettlementMethodEnum`. Other settlement enums (cash vs physical, DvP etc.) have been positioned in the `SettlementBase` type.
-`SettlementTerms` has been removed from `Trade` and `EquityPayout`
-A new data type `SettlementInstructions` has been added to `TradableProduct` for event related cashflows.
-A common `SettlementDate` abstraction layer has been created, in which the different methods are represented as a `one-of`.
-Synonym mappings have been updated to reflect the new model structure.
+
+Removal of the `SettlementTerms` attribute from `Trade` and `EquityPayout`
+
+Addition of a new data type `SettlementInstructions` that is used in the definition of  `TradableProduct` for event related cashflows.
+
+Addition of a common `SettlementDate` abstraction layer, in which the different methods are represented as a `one-of`.
+
+Update of the relevant synonym mappings to reflect the new model structure.
 
 
 _Review Directions_
