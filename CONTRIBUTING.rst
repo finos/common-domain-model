@@ -14,8 +14,8 @@ Before you start modelling
 
 Before you start modelling, please make sure you have gone through the following pre-modelling checklist:
 
-- Review the `CDM Components and Design Principles <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#>`_
-- Get approval of conceptual design from stakeholders (for large model change)
+- Review the `CDM Design Principles <https://docs.rosetta-technology.io/cdm/readme.html#the-cdm-design-principles>`_
+- Get approval of your conceptual design from stakeholders (for large model change)
 - Review the `Rosetta Starter Guide <https://docs.rosetta-technology.io/core/0-welcome-to-rosetta.html>`_
 
 For large model changes, or changes to core data types, it is recommended that the Contributor reviews the CDM Governance Principles and follows these steps:
