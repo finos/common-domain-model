@@ -37,7 +37,7 @@ A tradable product represents a financial product that is ready to be traded, me
     tradeLot TradeLot (1..*)
     counterparty Counterparty (2..2) 
     ancillaryParty AncillaryParty (0..*) 
-    settlementTerms SettlementTerms (0..1) 
+    settlementInstructions SettlementInstructions (0..*)
     adjustment NotionalAdjustmentEnum (0..1) 
 
 .. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
@@ -259,23 +259,28 @@ By contrast, in the case of the execution of a security (e.g. a listed equity), 
 
 An Index product is an exception because it's not directly tradable, but is included here because it can be referenced as an underlier for a tradable product and can be identified by a public identifier.
 
-Underlier
-"""""""""
+Settlement Instructions
+"""""""""""""""""""""""
 
-The underlier attribute on types ``OptionPayout``, ``ForwardPayout`` and ``EquityPayout`` allows for any product to be used as the underlier for a corresponding products option, forward, and equity swap.
+The ``settlementInstructions`` attribute defines how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
 .. code-block:: Haskell
 
- type OptionPayout extends PayoutBase:
-   [metadata key]
-   buyerSeller BuyerSeller (1..1)
-   optionType OptionTypeEnum (0..1)
-   feature OptionFeature (0..1)
-   denomination OptionDenomination (0..1)
-   exerciseTerms OptionExercise (1..1)
-   underlier Product (1..1)
+ type SettlementInstructions extends PayoutBase:
 
-This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
+.. code-block:: Haskell
+
+ type PayoutBase:
+   payerReceiver PayerReceiver (1..1)
+   payoutQuantity ResolvablePayoutQuantity (1..1)
+   settlementTerms SettlementTerms (1..1)
+
+.. code-block:: Haskell
+
+ type SettlementTerms extends SettlementBase:
+   cashSettlementTerms CashSettlementTerms (0..1)
+   physicalSettlementTerms OptionPhysicalSettlement (0..1)
+   fxSettlementTerms FxCashSettlement (0..1)
 
 Contractual Product
 ^^^^^^^^^^^^^^^^^^^
@@ -360,7 +365,9 @@ The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``SecurityFinanc
 .. code-block:: Haskell
 
  type PayoutBase: 
-	payoutQuantity ResolvablePayoutQuantity (1..1) 
+	payerReceiver PayerReceiver (1..1)
+    payoutQuantity ResolvablePayoutQuantity (1..1)
+    settlementTerms SettlementTerms (1..1)
 
 .. code-block:: Haskell
 
@@ -383,8 +390,7 @@ Note that the ``resolvedQuantity`` attribute has a metadata address that points 
 
  type InterestRatePayout extends PayoutBase:
 	[metadata key]
-	payerReceiver PayerReceiver (0..1) 
-	rateSpecification RateSpecification (1..1) 
+	rateSpecification RateSpecification (1..1)
 	dayCountFraction DayCountFractionEnum (0..1) 
 		[metadata scheme]
 	calculationPeriodDates CalculationPeriodDates (0..1) 
@@ -395,8 +401,8 @@ Note that the ``resolvedQuantity`` attribute has a metadata address that points 
 	discountingMethod DiscountingMethod (0..1) 
 	compoundingMethod CompoundingMethodEnum (0..1) 
 	cashflowRepresentation CashflowRepresentation (0..1) 
-	crossCurrencyTerms CrossCurrencyTerms (0..1) 
-	stubPeriod StubPeriod (0..1) 
+	principalExchanges PrincipalExchanges (0..1)
+	stubPeriod StubPeriod (0..1)
 	bondReference BondReference (0..1) 
 	fixedAmount calculation (0..1) 
 	floatingAmount calculation (0..1) 
@@ -440,6 +446,24 @@ There are a number of components that are reusable across several payout types. 
    lastRegularPeriodEndDate date (0..1)
    stubPeriodType StubPeriodTypeEnum (0..1)
    calculationPeriodFrequency CalculationPeriodFrequency (0..1)
+
+Underlier
+"""""""""
+
+The underlier attribute on types ``OptionPayout``, ``ForwardPayout`` and ``EquityPayout`` allows for any product to be used as the underlier for a corresponding products option, forward, and equity swap.
+
+.. code-block:: Haskell
+
+ type OptionPayout extends PayoutBase:
+   [metadata key]
+   buyerSeller BuyerSeller (1..1)
+   optionType OptionTypeEnum (0..1)
+   feature OptionFeature (0..1)
+   denomination OptionDenomination (0..1)
+   exerciseTerms OptionExercise (1..1)
+   underlier Product (1..1)
+
+This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
 
 Data Templates
 """"""""""""""
@@ -653,7 +677,6 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
    tradableProduct TradableProduct (1..1)
    party Party (0..*)
    partyRole PartyRole (0..*)
-   settlementTerms SettlementTerms (0..*)
    executionDetails ExecutionDetails (0..1)
    contractDetails ContractDetails (0..1)
    clearedDate date (0..1)
@@ -663,19 +686,6 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
      [deprecated]
 
 .. note:: Attributes within ``Trade`` and ``ContractDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view.
-
-The ``settlementTerms`` attribute defines how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
-
-.. code-block:: Haskell
-
- type SettlementTerms extends SettlementBase:
-   settlementType SettlementTypeEnum (0..1)
-   settlementDate AdjustableOrRelativeDate (0..1)
-   valueDate date (0..1)
-   transferSettlementType TransferSettlementEnum (0..1)
-   payerReceiver PartyReferencePayerReceiver (0..1)
-   priceQuantity PriceQuantity (0..1)
-       [metadata reference]
 
 Additionally, ``Trade`` supports representation of specific execution or contractual details via the ``executionDetails`` and ``contractDetails`` attributes.
 
@@ -2234,12 +2244,12 @@ Namespace
 The CDM is partitioned into groups of namespaces. A namespace is an abstract container created to hold a logical grouping of model artefacts. The approach is designed to make it easier for users to understand the model structure and adopt selected components. It also aids the development cycle by insulating groups of components from unrelated model changes that may occur. The partitioning is visible to users in Rosetta Core by toggling the Namespace view in the left hand panel, and in the generated code files.
 
 Model Artifacts
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 Model artifacts are organised into a directory hierarchy that is exposed in the model editor.
 
 Organising Principles
-"""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^
 
 Namespaces are organised into a hierarchy, with layers going from in to out. The hierarchy contains an intrinsic inheritance structure where each layer has access to (“imports”) the layer outside, and is designed to be usable without any of its inner layers. Layers can contain several namespaces (“siblings”), which can also refer to each other. 
 
@@ -2250,7 +2260,7 @@ Example – the base namespace
 In the example above the layers of the “base” namespace can be observed. There are four layers to the namespace. The outer layer “base” contains one file and three namespaces. The next layer contains three siblings, “datetime”, “math”, and “staticdata”. A third and fourth layer is contained within the “staticdata” namespace.
 
 Hierarchy Structure
-"""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^
 
 The namespace hierarchy in the CDM contains 7 components
 

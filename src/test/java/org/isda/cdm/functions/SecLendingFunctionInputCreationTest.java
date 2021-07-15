@@ -149,7 +149,7 @@ class SecLendingFunctionInputCreationTest {
 
         assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for part-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
+                "The input JSON for full-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
     @Test
@@ -324,8 +324,8 @@ class SecLendingFunctionInputCreationTest {
 
         BillingInstruction expectedBillingInstruction = assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
 
-        assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actualBillingInstruction),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectedBillingInstruction),
+        assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectedBillingInstruction),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actualBillingInstruction),
                 "The input JSON for create-security-lending-invoice-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
