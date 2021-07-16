@@ -14,17 +14,25 @@ import cdm.observable.common.functions.CurrencyAmount;
 import cdm.observable.common.functions.CurrencyAmountImpl;
 import cdm.observable.common.functions.NoOfUnits;
 import cdm.observable.common.functions.NoOfUnitsImpl;
+import cdm.observable.event.functions.ResolveObservationAverage;
+import cdm.product.asset.functions.ExtractFixedLeg;
+import cdm.product.asset.functions.ExtractFixedLegImpl;
+import cdm.product.asset.functions.ResolveEquityInitialPrice;
+import cdm.product.asset.functions.ResolveEquityInitialPriceImpl;
 import cdm.product.asset.functions.*;
 import cdm.product.common.schedule.functions.CalculationPeriod;
 import cdm.product.common.schedule.functions.CalculationPeriodImpl;
+import cdm.product.common.schedule.functions.CalculationPeriodRange;
+import cdm.product.common.schedule.functions.CalculationPeriodRangeImpl;
 import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
+import cdm.event.common.functions.Create_BillingRecordsImpl;
+import cdm.observable.event.functions.ResolveObservationAverageImpl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
 import com.rosetta.model.lib.validation.ValidatorFactory;
-import org.jetbrains.annotations.NotNull;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -85,6 +93,33 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(IndexValueObservationMultiple.class).to(bindIndexValueObservationMultiple());
 		bind(UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity.class).to(bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity());
 
+		bind(Create_SplitTrades.class).to(bindCreateSplitTrades());
+		bind(Create_ContractFormationPrimitives.class).to(bindCreateContractFormationPrimitives());
+		bind(ExtractFixedLeg.class).to(bindExtractFixedLeg());
+		bind(FilterQuantityByFinancialUnit.class).to(bindFilterQuantityByFinancialUnit());
+		bind(FilterOpenTradeStates.class).to(bindFilterOpenTradeStates());
+		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
+		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
+		bind(DeductAmountForEachMatchingQuantity.class).to(bindDeductAmountForEachMatchingQuantity());
+		bind(Create_DecreasedTradeQuantityChangePrimitives.class)
+				.to(bindCreateDecreasedTradeQuantityChangePrimitives());
+		bind(ReplaceParty.class).to(bindReplaceParty());
+		bind(Create_BillingRecords.class).to(bindCreateBillingRecords());
+		bind(ResolveObservationAverage.class).to(bindResolveObservationAverage());
+		bind(CalculationPeriodRange.class).to(bindCalculationPeriodRange());
+
+	}
+
+	protected Class<CalculationPeriodRangeImpl> bindCalculationPeriodRange() {
+		return CalculationPeriodRangeImpl.class;
+	}
+
+	protected Class<ResolveObservationAverageImpl> bindResolveObservationAverage() {
+		return ResolveObservationAverageImpl.class;
+	}
+
+	protected Class<? extends Create_BillingRecords> bindCreateBillingRecords() {
+		return Create_BillingRecordsImpl.class;
 	}
 
 	protected Class<? extends FilterSecurityTransfers> bindFilterSecurityTransfers() {
@@ -225,5 +260,43 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl> bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity() {
 		return UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl.class;
+	}    protected Class<? extends Create_SplitTrades> bindCreateSplitTrades() {
+		return Create_SplitTradesImpl.class;
+	}
+
+	protected Class<? extends Create_ContractFormationPrimitives> bindCreateContractFormationPrimitives() {
+		return Create_ContractFormationPrimitivesImpl.class;
+	}
+
+	protected Class<? extends ExtractFixedLeg> bindExtractFixedLeg() {
+		return ExtractFixedLegImpl.class;
+	}
+
+	protected Class<? extends FilterQuantityByFinancialUnit> bindFilterQuantityByFinancialUnit() {
+		return FilterQuantityByFinancialUnitImpl.class;
+	}
+
+	protected Class<? extends FilterOpenTradeStates> bindFilterOpenTradeStates() {
+		return FilterOpenTradeStatesImpl.class;
+	}
+
+	protected Class<? extends UpdateAmountForEachQuantity> bindUpdateAmountForEachQuantity() {
+		return UpdateAmountForEachQuantityImpl.class;
+	}
+
+	protected Class<? extends UpdateAmountForEachMatchingQuantity> bindUpdateAmountForEachMatchingQuantity() {
+		return UpdateAmountForEachMatchingQuantityImpl.class;
+	}
+
+	protected Class<? extends DeductAmountForEachMatchingQuantity> bindDeductAmountForEachMatchingQuantity() {
+		return DeductAmountForEachMatchingQuantityImpl.class;
+	}
+
+	protected Class<? extends Create_DecreasedTradeQuantityChangePrimitives> bindCreateDecreasedTradeQuantityChangePrimitives() {
+		return Create_DecreasedTradeQuantityChangePrimitivesImpl.class;
+	}
+
+	protected Class<? extends ReplaceParty> bindReplaceParty() {
+		return ReplacePartyImpl.class;
 	}
 }

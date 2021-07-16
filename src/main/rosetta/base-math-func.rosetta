@@ -1,6 +1,8 @@
 namespace cdm.base.math : <"Basic maths concepts: quantity and unit, rounding, curve / schedule, non-negativity constraint etc.">
 version "${project.version}"
 
+import cdm.observable.asset.*
+
 func Abs:
 	inputs: x number (1..1)
 	output: result number (1..1)
@@ -52,6 +54,67 @@ func FilterQuantity: <"Filter list of quantities based on unit type.">
     output:
         quantity Quantity (0..1)
 
+func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit type.">
+    inputs:
+        quantities Quantity (0..*) <"List of quantities to filter.">
+        financialUnit FinancialUnitEnum (1..1) <"FinancialUnitEnum unit type.">
+    output:
+        quantity Quantity (0..1)
+
+func UpdateAmountForEachQuantity: <"Updates all quantities on each price quantity with the new amount.">
+	inputs:
+		priceQuantity PriceQuantity (0..*) <"List of price quantities to update.">
+		amount number (1..1) <"The new amount.">
+
+	output:
+		updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with all quantity amounts updated.">
+
+func UpdateAmountForEachMatchingQuantity: <"Updates any quantity from the list of new quantities if the unit of amount matches.">
+	inputs:
+		priceQuantity PriceQuantity (0..*) <"List of price quantities to update.">
+		quantity Quantity (0..*) <"The new quantities.">
+
+	output:
+		updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with quantity amounts updated.">
+
+func DeductAmountForEachMatchingQuantity: <"Deducts the amount for any quantity from the list of new quantities if the unit of amount matches.">
+	inputs:
+		quantity Quantity (0..*) <"List of quantities to update.">
+		quantityDeducted Quantity (0..*) <"The quantities to be deducted from the quantity input.">
+	output:
+		updatedQuantity Quantity (0..*) <"List of  quantities with quantity amounts updated.">
+
+func Create_Quantity: <"Create Quantity with given amount and unit of amount.">
+	inputs:
+		amount number (1..1)
+		unitOfAmount UnitType (1..1)
+	output:
+		quantity Quantity (1..1)
+
+	assign-output quantity -> amount:
+		amount
+
+	assign-output quantity -> unitOfAmount:
+		unitOfAmount
+
+func Create_UnitType: <"Create UnitType with given currency or financial unit.">
+	inputs:
+		currency string (0..1)
+			[metadata scheme]
+		financialUnit FinancialUnitEnum (0..1)
+	output:
+		unitType UnitType (1..1)
+
+	condition:
+		( currency or financialUnit ) exists
+
+	assign-output unitType -> currency:
+		currency
+
+	assign-output unitType -> financialUnit:
+		financialUnit
+
+
 
 // BAL additions
 
@@ -62,10 +125,10 @@ func ToVector: <"Create a vector from a list of numbers ">
     output:
         vect Vector(1..1)
     assign-output vect->values : vals
-	
+
 
 func SelectFromVector: <"selects a single value from a vector (list of numbers), i.e. result = val[index].  Returns null if the supplied vector is empty or if the supplied index is out of range.  Returns the first element of the vetor when supplied an index of 0, and the index - 1 th element if idex  ">
-	inputs: 
+	inputs:
 		vector Vector (1..1)  <"input vector">
 		index int(1..1)	<"index to of the value to select">
 	output: result number (1..1)	<"resulting value">
@@ -83,7 +146,7 @@ func AppendToVector: <"append a single value to a vector list (list of numbers)"
     	value number(1..1)	<"value to add to the vector">
     output: resultVector Vector (1..1)	<"resulting vector">
 
-	
+
 func VectorOperation: <"Generates a result vector by applying the supplied arithmetic operation to each element of the supplied left and right vectors in turn.  i.e. result[n] = left[n] <op> right[n], where <op> is the arithmetic operation defined by arithmeticOp.">
 	inputs:
 		arithmeticOp ArithmeticOp(1..1)  <"operator">

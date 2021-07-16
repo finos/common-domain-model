@@ -9,8 +9,10 @@ import com.google.common.collect.Streams;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.function.BiPredicate;
 import java.util.regex.MatchResult;
@@ -28,7 +30,8 @@ public class DocumentationCodeValidator {
     private final String lineCommentRegex = "[^:]\\/\\/.*$";
     private final String whitespaceRegex = "\\s+";
     private final Pattern illegalSyntaxRegex = Pattern.compile(synonymRegex+"|"+definitionRegex+"|"+lineCommentRegex, Pattern.MULTILINE);
-    private final Pattern codeBlockRegex = Pattern.compile("(\\.\\. code-block:: .*\\s+$)((\\n[ \\t]+.*|\\s)+)", Pattern.MULTILINE);
+	private static final PatternStreamer codeBlockRegex = new PatternStreamer("(\\.\\. code-block:: .*\\s+$)((\\n[ \\t]+.*|\\s)+)");
+
 	private String modelPath;
 	private String docPath;
 	private String snippetPath;
@@ -87,11 +90,11 @@ public class DocumentationCodeValidator {
 
 	        return invalidCode.count();
 	}
-	
+
 	private Stream<String> getCodeBlocks() throws IOException {
         Stream<String> docs = loadFiles(docPath, ".rst").stream().map(f->f.content);
 
-        Stream<String> codeBlocks = docs.flatMap ( doc -> codeBlockRegex.matcher(doc).results())
+		Stream<String> codeBlocks = docs.flatMap (codeBlockRegex::results)
                 .map(MatchResult::group);
                 //.ifEmpty { throw IllegalStateException("No code blocks found in documentation file [$docPath]. Doesn't sound right! Go check.") }
 
@@ -112,7 +115,7 @@ public class DocumentationCodeValidator {
 	
 	private Collection<MyFile> loadFiles(String dir, String ext) throws IOException  {
 		BiPredicate<Path, BasicFileAttributes> docFileFilter = (path, attr) -> attr.isRegularFile() && path.getFileName().toString().endsWith(ext);
-		try (Stream<Path> paths = Files.find(Path.of(dir), 1, docFileFilter)) {
+		try (Stream<Path> paths = Files.find(Paths.get(dir), 1, docFileFilter)) {
 			return paths.map(path -> new MyFile(path, readString(path))).collect(Collectors.toList());
 		}
     }
@@ -123,7 +126,7 @@ public class DocumentationCodeValidator {
 	
 	private String readString(Path p) {
 		try {
-			return Files.readString(p);
+			return new String(Files.readAllBytes(p), StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
@@ -137,7 +140,7 @@ public class DocumentationCodeValidator {
             String sanitised = illegalSyntaxRegex.matcher(file.content).replaceAll(""); 
             System.out.println("Sanitising [${file.path}]");
             try {
-				Files.writeString(file.path, sanitised);
+				Files.write(file.path, sanitised.getBytes(StandardCharsets.UTF_8));
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}

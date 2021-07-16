@@ -26,7 +26,7 @@ public class CombineBusinessCentersImpl extends CombineBusinessCenters{
     }
 
     private List<? extends FieldWithMetaBusinessCenterEnum> getBC(BusinessCenters bc) {
-        if (bc==null) return List.of();
+        if (bc==null) return new ArrayList<>();
         ReferenceWithMetaBusinessCenters ref = bc.getBusinessCentersReference();
         if (ref != null) {
             BusinessCenters refBC = ref.getValue();
