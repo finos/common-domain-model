@@ -54,7 +54,7 @@ public class CalculationPeriodImpl extends CalculationPeriod {
         }
 
         Optional<SchedulePeriod> optionalSchedulePeriod = getSchedulePeriod(calculationPeriodDates, date, adjustedStartDate, adjustedEndDate);
-        if (optionalSchedulePeriod.isEmpty()) {
+        if (!optionalSchedulePeriod.isPresent()) {
             LOGGER.warn("Can not build CalculationPeriodData as no targetPeriod could be found.");
             return builder;
         }
