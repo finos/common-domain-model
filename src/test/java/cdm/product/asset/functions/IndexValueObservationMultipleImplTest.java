@@ -10,6 +10,7 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,7 +25,7 @@ public class IndexValueObservationMultipleImplTest extends AbstractFunctionTest 
         FloatingRateOption fro = IndexValueObservationImplTest.initFro();
         IndexValueObservationImplTest.initIndexData(fro);
 
-        List<Date> dates = List.of(
+        List<Date> dates = Arrays.asList(
                 DateImpl.of(2021,7,31),
                 DateImpl.of(2021,7,30),
                 DateImpl.of(2021,8,1),
@@ -33,7 +34,7 @@ public class IndexValueObservationMultipleImplTest extends AbstractFunctionTest 
                 DateImpl.of(2021,7,1));
         DateGroup dg = DateGroup.builder().addDates(dates).build();
 
-        List<BigDecimal> expected = List.of(
+        List<BigDecimal> expected = Arrays.asList(
                             BigDecimal.valueOf(0.033),
                             BigDecimal.valueOf(0.0329),
                             BigDecimal.valueOf(0.01),

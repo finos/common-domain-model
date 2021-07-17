@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,12 +19,12 @@ public class AppendToVectorImplTest extends AbstractFunctionTest {
 
     @Test
     void shouldAppend() {
-        List<BigDecimal> valueList = List.of(
+        List<BigDecimal> valueList = Arrays.asList(
                 BigDecimal.valueOf(10.0),
                 BigDecimal.valueOf(11.0),
                 BigDecimal.valueOf(12.0));
         BigDecimal newVal = BigDecimal.valueOf(13.0);
-        List<BigDecimal> expectedList = List.of(
+        List<BigDecimal> expectedList = Arrays.asList(
                 BigDecimal.valueOf(10.0),
                 BigDecimal.valueOf(11.0),
                 BigDecimal.valueOf(12.0),
@@ -40,7 +41,7 @@ public class AppendToVectorImplTest extends AbstractFunctionTest {
         List<BigDecimal> valueList = new ArrayList<>();
 
         BigDecimal newVal = BigDecimal.valueOf(13.0);
-        List<BigDecimal> expectedList = List.of(
+        List<BigDecimal> expectedList = Arrays.asList(
                 BigDecimal.valueOf(13.0));
         Vector.VectorBuilder vb = Vector.builder();
         vb.setValues(valueList);

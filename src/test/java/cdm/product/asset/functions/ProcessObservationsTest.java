@@ -8,6 +8,7 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,7 +21,7 @@ public class ProcessObservationsTest  extends AbstractFunctionTest {
 
     @Test
     void shouldProcessObservations() {
-        List<BigDecimal> observations = List.of(
+        List<BigDecimal> observations = Arrays.asList(
                 BigDecimal.valueOf(0.01),
                 BigDecimal.valueOf(0.02),
                 BigDecimal.valueOf(0.03),

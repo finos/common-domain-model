@@ -8,6 +8,7 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,12 +20,12 @@ public class PopOffDateListImpTestl extends AbstractFunctionTest {
 
     @Test
     void shouldRemove() {
-        List<Date> dates = List.of(
+        List<Date> dates = Arrays.asList(
                 DateImpl.of(2021, 5, 12),
                 DateImpl.of(2021, 5, 13),
                 DateImpl.of(2021, 5, 14));
 
-        List<Date> expectedList = List.of(
+        List<Date> expectedList = Arrays.asList(
                 DateImpl.of(2021, 5, 12),
                 DateImpl.of(2021, 5, 13));
 

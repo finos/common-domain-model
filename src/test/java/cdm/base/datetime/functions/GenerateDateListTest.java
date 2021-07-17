@@ -9,6 +9,7 @@ import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,7 +30,7 @@ public class GenerateDateListTest  extends AbstractFunctionTest {
         Date first = DateImpl.of(2021, 12, 20);
         Date last = DateImpl.of(2021, 12, 30);
 
-        List<Date> targetExpected = List.of(
+        List<Date> targetExpected = Arrays.asList(
                 DateImpl.of(2021, 12,20),
                 DateImpl.of(2021, 12,21),
                 DateImpl.of(2021, 12,22),
@@ -40,7 +41,7 @@ public class GenerateDateListTest  extends AbstractFunctionTest {
                 DateImpl.of(2021, 12,29),
                 DateImpl.of(2021, 12,30));
 
-        List<Date> londonTargetExpected = List.of(
+        List<Date> londonTargetExpected = Arrays.asList(
                 DateImpl.of(2021, 12,20),
                 DateImpl.of(2021, 12,21),
                 DateImpl.of(2021, 12,22),
@@ -49,7 +50,7 @@ public class GenerateDateListTest  extends AbstractFunctionTest {
                 DateImpl.of(2021, 12,29),
                 DateImpl.of(2021, 12,30));
 
-        List<Date> londonTargetUsExpected = List.of(
+        List<Date> londonTargetUsExpected = Arrays.asList(
                 DateImpl.of(2021, 12,20),
                 DateImpl.of(2021, 12,21),
                 DateImpl.of(2021, 12,22),
@@ -57,7 +58,7 @@ public class GenerateDateListTest  extends AbstractFunctionTest {
                 DateImpl.of(2021, 12,29),
                 DateImpl.of(2021, 12,30));
 
-        check(List.of(), func.evaluate(last, first, targetBC));
+        check(Arrays.asList(), func.evaluate(last, first, targetBC));
         check(targetExpected, func.evaluate(first, last, targetBC));
         check(londonTargetExpected, func.evaluate(first, last, londonTargetBC));
         check(londonTargetUsExpected, func.evaluate(first, last, londonTargetUsBC));

@@ -7,6 +7,7 @@ import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,7 +19,7 @@ class SelectDateImplTest extends AbstractFunctionTest {
 
 	@Test
 	void shouldGetDateByIndex() {
-		List<Date> dateList = List.of(
+		List<Date> dateList = Arrays.asList(
 				DateImpl.of(2021, 5, 12),
 				DateImpl.of(2021, 5, 13),
 				DateImpl.of(2021, 5, 14));
@@ -28,7 +29,7 @@ class SelectDateImplTest extends AbstractFunctionTest {
 	}
 	@Test
 	void shouldHandleIndexOutOfRange() {
-		List<Date> dateList = List.of(
+		List<Date> dateList = Arrays.asList(
 				DateImpl.of(2021, 5, 12),
 				DateImpl.of(2021, 5, 13),
 				DateImpl.of(2021, 5, 14));

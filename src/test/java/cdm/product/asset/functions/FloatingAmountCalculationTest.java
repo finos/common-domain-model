@@ -49,7 +49,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
 
         assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
 
-        assertEquals(BigDecimal.valueOf((31+31+28)/360.0), dayCountFraction.evaluate(interestRatePayout, interestRatePayout.getDayCountFraction().getValue(), date(2020, 12, 10)));
+        assertEquals(BigDecimal.valueOf((31+31+28)/360.0), dayCountFraction.evaluate(interestRatePayout, interestRatePayout.getDayCountFraction().getValue(), date(2020, 12, 10), null));
 
 
         CalculationPeriodBase calcPeriod = period(date(2020,12,10), date(2021,3,10));

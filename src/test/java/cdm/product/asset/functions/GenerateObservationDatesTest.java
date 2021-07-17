@@ -10,6 +10,7 @@ import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +28,7 @@ public class GenerateObservationDatesTest extends AbstractFunctionTest {
 
         Integer lockout = 1;
 
-        List<Date> expected = List.of(
+        List<Date> expected = Arrays.asList(
                 date(2020,12, 7),
                 date(2020,12, 8),
                 date(2020,12, 9),

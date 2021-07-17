@@ -9,6 +9,7 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,7 +21,7 @@ public class SelectFromVectorImplTest extends AbstractFunctionTest {
 
     @Test
     void shouldGetValueByIndex() {
-        List<BigDecimal> valueList = List.of(
+        List<BigDecimal> valueList = Arrays.asList(
                BigDecimal.valueOf(10.0),
                 BigDecimal.valueOf(11.0),
                 BigDecimal.valueOf(12.0));
@@ -31,7 +32,7 @@ public class SelectFromVectorImplTest extends AbstractFunctionTest {
     }
     @Test
     void shouldHandleIndexOutOfRange() {
-        List<BigDecimal> valueList = List.of(
+        List<BigDecimal> valueList = Arrays.asList(
                 BigDecimal.valueOf(10.0),
                 BigDecimal.valueOf(11.0),
                 BigDecimal.valueOf(12.0));

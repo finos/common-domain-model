@@ -9,6 +9,8 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
+
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,7 +24,7 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
     public static final BusinessCenterEnum target = BusinessCenterEnum.EUTA;
     public static final BusinessCenterEnum us = BusinessCenterEnum.USGS;
 
-    public static final List<Date> londonHolidays2021 = List.of(
+    public static final List<Date> londonHolidays2021 = Arrays.asList(
             DateImpl.of(2020,12,25),
             DateImpl.of(2020,12,28),
             DateImpl.of(2021,1,1),
@@ -35,7 +37,7 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,12,28)
     );
 
-    public static final List<Date> usGsHolidays2021 = List.of(
+    public static final List<Date> usGsHolidays2021 = Arrays.asList(
             DateImpl.of(2021,1,1),
             DateImpl.of(2021,1,18),
             DateImpl.of(2021,2,15),
@@ -49,14 +51,14 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,12,24)
     );
 
-    public static final List<Date> targetHolidays2021 = List.of(
+    public static final List<Date> targetHolidays2021 = Arrays.asList(
             DateImpl.of(2021,1,1),
             DateImpl.of(2021,4,2),
             DateImpl.of(2021,4,5),
             DateImpl.of(2021,5,1)
     );
 
-    public static final List<Date> londonAndUsGsHolidays2021 = List.of(
+    public static final List<Date> londonAndUsGsHolidays2021 = Arrays.asList(
             DateImpl.of(2020,12,25),
             DateImpl.of(2020,12,28),
             DateImpl.of(2021,1,1),
@@ -77,7 +79,7 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,12,28)
     );
 
-    public static final List<Date> londonAndUsGsAndTargetHolidays2021 = List.of(
+    public static final List<Date> londonAndUsGsAndTargetHolidays2021 = Arrays.asList(
             DateImpl.of(2020,12,25),
             DateImpl.of(2020,12,28),
             DateImpl.of(2021,1,1),
@@ -99,7 +101,7 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,12,28)
     );
 
-    public static final List<Date> londonAndTargetHolidays2021 = List.of(
+    public static final List<Date> londonAndTargetHolidays2021 = Arrays.asList(
             DateImpl.of(2020,12,25),
             DateImpl.of(2020,12,28),
             DateImpl.of(2021,1,1),
@@ -112,11 +114,11 @@ public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest
             DateImpl.of(2021,12,27),
             DateImpl.of(2021,12,28)
     );
-    public static final List<BusinessCenterEnum> lonTargetList = List.of( london, target );
-    public static final List<BusinessCenterEnum> lonUsList = List.of( london, us );
-    public static final List<BusinessCenterEnum> targetList = List.of( target);
-    public static final List<BusinessCenterEnum> londonList = List.of( london );
-    public static final List<BusinessCenterEnum> lonTargUsList = List.of( london, target, us );
+    public static final List<BusinessCenterEnum> lonTargetList = Arrays.asList( london, target );
+    public static final List<BusinessCenterEnum> lonUsList = Arrays.asList( london, us );
+    public static final List<BusinessCenterEnum> targetList = Arrays.asList( target);
+    public static final List<BusinessCenterEnum> londonList = Arrays.asList( london );
+    public static final List<BusinessCenterEnum> lonTargUsList = Arrays.asList( london, target, us );
 
     public static final BusinessCenters londonBC = BusinessCenters.builder().addBusinessCenterValue(londonList);
     public static final BusinessCenters londonTargetBC = BusinessCenters.builder().addBusinessCenterValue(lonTargetList);

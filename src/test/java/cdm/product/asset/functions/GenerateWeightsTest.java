@@ -12,6 +12,7 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +26,7 @@ public class GenerateWeightsTest extends AbstractFunctionTest {
     void shouldDeterminedDates() {
 
 
-        List<Date> weightingDates = List.of(
+        List<Date> weightingDates = Arrays.asList(
                 date(2020,12, 7),
                 date(2020,12, 8),
                 date(2020,12, 9),

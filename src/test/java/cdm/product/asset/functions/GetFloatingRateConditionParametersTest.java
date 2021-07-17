@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 public class GetFloatingRateConditionParametersTest extends AbstractFunctionTest {
@@ -81,7 +82,7 @@ public class GetFloatingRateConditionParametersTest extends AbstractFunctionTest
     }
 
     static RateSchedule initSchedule(RateSchedule.RateScheduleBuilder scheduleBuilder, double initVal, double[] sched) {
-        List<Date> dates = List.of(
+        List<Date> dates = Arrays.asList(
                 DateImpl.of(2021, 3, 10),
                 DateImpl.of(2021, 6, 10),
                 DateImpl.of(2021, 9, 10),

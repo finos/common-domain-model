@@ -10,6 +10,7 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,9 +27,9 @@ public class CombineBusinessCentersImplTest extends AbstractFunctionTest {
 
     @Test
     void shouldCombine() {
-        List<BusinessCenterEnum> list1 = List.of( london, target );
-        List<BusinessCenterEnum> list2 = List.of( london, us );
-        List<BusinessCenterEnum> list3 = List.of( target);
+        List<BusinessCenterEnum> list1 = Arrays.asList( london, target );
+        List<BusinessCenterEnum> list2 = Arrays.asList( london, us );
+        List<BusinessCenterEnum> list3 = Arrays.asList( target);
 
         BusinessCenters bc1 = BusinessCenters.builder().addBusinessCenterValue(list1);
         BusinessCenters bc2 = BusinessCenters.builder().addBusinessCenterValue(list2);
@@ -37,11 +38,11 @@ public class CombineBusinessCentersImplTest extends AbstractFunctionTest {
         BusinessCenters bc5 = BusinessCenters.builder().setBusinessCentersReferenceValue(bc2);
         BusinessCenters bc6 = BusinessCenters.builder().setBusinessCentersReferenceValue(bc3);
 
-        List<BusinessCenterEnum> expected12 = List.of(london, target, us);
-        List<BusinessCenterEnum> expected13 = List.of(london, target);
-        List<BusinessCenterEnum> expected23 = List.of(london, target, us);
-        List<BusinessCenterEnum> expected42 = List.of(london, target, us);
-        List<BusinessCenterEnum> expected56 = List.of(london, target, us);
+        List<BusinessCenterEnum> expected12 = Arrays.asList(london, target, us);
+        List<BusinessCenterEnum> expected13 = Arrays.asList(london, target);
+        List<BusinessCenterEnum> expected23 = Arrays.asList(london, target, us);
+        List<BusinessCenterEnum> expected42 = Arrays.asList(london, target, us);
+        List<BusinessCenterEnum> expected56 = Arrays.asList(london, target, us);
 
         checkBusinessCenters(expected12, func.evaluate(bc1, bc2));
         checkBusinessCenters(expected12, func.evaluate(bc2, bc1));
