@@ -22,7 +22,7 @@ import java.util.List;
 public class GetFloatingRateConditionParametersTest extends AbstractFunctionTest {
 
     @Inject
-    private GetFloatingRateConditioningParameters func;
+    private GetFloatingRateProcessingParameters func;
 
     @Test
     void shouldInitializeValues() {
@@ -99,14 +99,14 @@ public class GetFloatingRateConditionParametersTest extends AbstractFunctionTest
 
     }
 
-    void check(FloatingRateConditioningParameters expected, FloatingRateConditioningParameters actual) {
+    void check(FloatingRateProcessingParameters expected, FloatingRateProcessingParameters actual) {
         assertEquals(expected.getCapRate(), actual.getCapRate());
         assertEquals(expected.getFloorRate(), actual.getFloorRate());
         assertEquals(expected.getSpread(), actual.getSpread());
     }
 
-    FloatingRateConditioningParameters expectedParms (double cap, double floor, double spread) {
-        return FloatingRateConditioningParameters.builder()
+    FloatingRateProcessingParameters expectedParms (double cap, double floor, double spread) {
+        return FloatingRateProcessingParameters.builder()
                 .setCapRate(BigDecimal.valueOf(cap))
                 .setFloorRate(BigDecimal.valueOf(floor))
                 .setSpread(BigDecimal.valueOf(spread))

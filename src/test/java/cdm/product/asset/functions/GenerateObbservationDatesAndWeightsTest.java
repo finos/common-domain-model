@@ -137,7 +137,7 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
     @Test
     void shouldHandleFallback () {
         FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.ObsShift, 2, null, false , true, true);
-        ResetDates resetDate =  EvaluateTermRateTest.initResetDates(BusinessCenterEnum.GBLO, 3, 2, true);
+        ResetDates resetDate =  EvaluateScreenRateTest.initResetDates(BusinessCenterEnum.GBLO, 3, 2, true);
         CalculationPeriodBase   calcPeriod = period(date(2021, 9,10), date(2021, 12, 10));
         CalculationPeriodBase   priorPeriod = period(date(2021, 6,10), date(2021, 9, 10));
         CalculationPeriodBase   obsPeriod = period(date(2021, 6,4), date(2021, 9, 6));
@@ -188,7 +188,7 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
         RetrieveBusinessCenterHolidaysImplTest.initializeHolidays();
         FloatingRateCalculationParameters.FloatingRateCalculationParametersBuilder params = FloatingRateCalculationParameters.builder();
         params.setApplicableBusinessDays(BusinessCenters.builder().addBusinessCenterValue(applicableDays));
-        params.setCalcType(isAvg ? CalculationTypeEnum.AVERAGING : CalculationTypeEnum.COMPOUNDING);
+        params.setCalcType(isAvg ? CalculationMethodEnum.AVERAGING : CalculationMethodEnum.COMPOUNDING);
         if(isCapped) {
             params.setObservationParameters(ObservationParameters.builder()
                     .setObservationFloorRate(BigDecimal.valueOf(0.01))
@@ -208,7 +208,7 @@ public class GenerateObbservationDatesAndWeightsTest extends AbstractFunctionTes
                 params.setObservationShiftCalculation(ObservationShiftCalculation.builder()
                         .setOffsetDays(shift)
                         .setAdditionalBusinessDays(BusinessCenters.builder().addBusinessCenterValue(additionalDays))
-                        .setCalculationBase(fallback? CalculateRelativeToEnum.ORIGINALRESET : (setInAdvance? CalculateRelativeToEnum.START : CalculateRelativeToEnum.END))
+                        .setCalculationBase(fallback? ObservationPeriodDatesEnum.FIXINGDATE : (setInAdvance? ObservationPeriodDatesEnum.SETINADVANCE : ObservationPeriodDatesEnum.STANDARD))
                         .build());
                 break;
         }

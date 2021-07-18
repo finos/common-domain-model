@@ -53,9 +53,9 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
 
 
         CalculationPeriodBase calcPeriod = period(date(2020,12,10), date(2021,3,10));
-        check(func.evaluate(interestRatePayout, calcPeriod), 9_000_000, 0.0118, (31+31+28)/360.0);
+        check(func.evaluate(interestRatePayout, calcPeriod, false), 9_000_000, 0.0118, (31+31+28)/360.0);
         calcPeriod = period(date(2021,9,10), date(2021,12, 10));
-        check(func.evaluate(interestRatePayout, calcPeriod), 12_000_000, 0.015, (30+31+30)/360.0);
+        check(func.evaluate(interestRatePayout, calcPeriod, false), 12_000_000, 0.015, (30+31+30)/360.0);
     }
 
     private void check(FloatingAmountCalculationDetails result, double expectedNotional, double expectedRate, double expectedYearFrac) {
@@ -68,7 +68,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
 
     public static InterestRatePayout initInterestPayout(FloatingRateOption fro, DayCountFractionEnum dcf) {
         FloatingRate rate = GetFloatingRateConditionParametersTest.initFloatingRate(fro);
-        ResetDates resetDates = EvaluateTermRateTest.initResetDates(BusinessCenterEnum.EUTA, 3, 2, false);
+        ResetDates resetDates = EvaluateScreenRateTest.initResetDates(BusinessCenterEnum.EUTA, 3, 2, false);
         CalculationPeriodDates calculationPeriodDates = initCalculationPeriodDates();
 
         return InterestRatePayout.builder()

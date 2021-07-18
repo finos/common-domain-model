@@ -17,10 +17,10 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class EvaluateTermRateTest extends AbstractFunctionTest {
+public class EvaluateScreenRateTest extends AbstractFunctionTest {
 
     @Inject
-    private EvaluateTermRate func;
+    private EvaluateScreenRate func;
 
     @Test
     void shouldEvaluateRate() {

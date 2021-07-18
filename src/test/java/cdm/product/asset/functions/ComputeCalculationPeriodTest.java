@@ -3,7 +3,7 @@ package cdm.product.asset.functions;
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenters;
 import cdm.base.datetime.functions.RetrieveBusinessCenterHolidaysImplTest;
-import cdm.product.asset.CalculateRelativeToEnum;
+import cdm.product.asset.ObservationPeriodDatesEnum;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.schedule.ResetDates;
 import com.google.inject.Inject;
@@ -23,17 +23,17 @@ public class ComputeCalculationPeriodTest extends AbstractFunctionTest {
         CalculationPeriodBase calcPeriod = period(date(2020,12,10), date(2021, 3, 10));
         CalculationPeriodBase priorCalcPeriod = period(date(2020,9,10), date(2020, 12, 10));
         BusinessCenters bc = BusinessCenters.builder().addBusinessCenterValue(BusinessCenterEnum.GBLO).build();
-        ResetDates resetDates = EvaluateTermRateTest.initResetDates(BusinessCenterEnum.GBLO, 3, 2, true);
+        ResetDates resetDates = EvaluateScreenRateTest.initResetDates(BusinessCenterEnum.GBLO, 3, 2, true);
         RetrieveBusinessCenterHolidaysImplTest.initializeHolidays();
 
         CalculationPeriodBase expected = period(date(2020, 12, 10), date(2021, 3, 10));
-        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, CalculateRelativeToEnum.END, null));
+        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, ObservationPeriodDatesEnum.STANDARD, null));
 
         expected = period(date(2020, 9, 10), date(2020, 12, 10));
-        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, CalculateRelativeToEnum.START, null));
+        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, ObservationPeriodDatesEnum.SETINADVANCE, null));
 
         expected = period(date(2020, 9, 8), date(2020, 12, 8));
-        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, CalculateRelativeToEnum.ORIGINALRESET, resetDates));
+        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, ObservationPeriodDatesEnum.FIXINGDATE, resetDates));
     }
 
     private void check(CalculationPeriodBase expected, CalculationPeriodBase actual) {
