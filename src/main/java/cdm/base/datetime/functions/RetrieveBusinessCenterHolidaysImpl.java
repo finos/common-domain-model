@@ -10,28 +10,38 @@ import com.rosetta.model.lib.validation.ModelObjectValidator;
 import java.util.*;
 
 public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHolidays{
-    protected static Map<String, DateGroup.DateGroupBuilder> cache = new HashMap<>();
-    protected static Map<BusinessCenterEnum, List<Date>> holidayData = new HashMap<>();
+    protected static Map<String, DateGroup.DateGroupBuilder> cache = new HashMap<>(); // cache of combined holiday data lists for lists of business centers
+    protected static Map<BusinessCenterEnum, List<Date>> holidayData = new HashMap<>(); // raw holiday lists
 
 
     protected DateGroup.DateGroupBuilder doEvaluate(BusinessCenters businessCenters) {
         objectValidator = new NoOpValidator();
-        String key = getKey(businessCenters);
+
+        String key = getKey(businessCenters);   //get a key based on the list of business centers
+
+        // check if the combined list is cached and if so return it
         DateGroup cached = cache.get(key);
         if (cached != null) return cached.toBuilder();
+
+        // otherwise generat the combined list, cache it, and return it
         DateGroup.DateGroupBuilder generated = generateHolidayList(businessCenters);
         cache.put(key, generated);
         return generated.toBuilder();
     }
 
 
+    // generate a combined list of holidays for a list of businecss centers
     private DateGroup.DateGroupBuilder generateHolidayList(BusinessCenters bcs) {
+        // retrive the list of business centers as a list
         List<? extends FieldWithMetaBusinessCenterEnum> bcl =  getBC(bcs);
-        Set<Date> newHols = new TreeSet<>();
+
+        Set<Date> newHols = new TreeSet<>();    // initialize a sorted set to hold the dates
+        // for each business center
         for (FieldWithMetaBusinessCenterEnum bc: bcl) {
-            List<Date>  holidays = getHolidays(bc);
-            if(holidays!= null) newHols.addAll(holidays);
+            List<Date>  holidays = getHolidays(bc); // get the list of holidays for the bc
+            if(holidays!= null) newHols.addAll(holidays);   // add it to the set of holidays to be return
         }
+        // convert the sorted set to a list
         List<Date> result = new ArrayList<>(newHols.size());
         result.addAll(newHols);
         return DateGroup.builder().setDates(result);
@@ -51,6 +61,7 @@ public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHo
     }
 
 
+    // create a key by concatenating the BC codes
     private String getKey(BusinessCenters bcs) {
         List<? extends FieldWithMetaBusinessCenterEnum> bcl = getBC(bcs);
         StringBuilder key = new StringBuilder();
@@ -61,6 +72,7 @@ public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHo
         return key.toString();
     }
 
+    // retrieve the list of business centers to a BusinessCenters structure, dereferencing if necessary
     private List<? extends FieldWithMetaBusinessCenterEnum> getBC(BusinessCenters bc) {
         if (bc == null) return new ArrayList<>();
         ReferenceWithMetaBusinessCenters ref = bc.getBusinessCentersReference();

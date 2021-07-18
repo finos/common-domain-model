@@ -8,6 +8,8 @@ import java.time.chrono.IsoChronology;
 public class LeapYearDateDifferenceImpl extends LeapYearDateDifference {
     @Override
     protected Integer doEvaluate(Date firstDate, Date secondDate) {
+        if (firstDate == null || secondDate == null) return null;
+
         LocalDate startDate = firstDate.toLocalDate();
         LocalDate endDate = secondDate.toLocalDate();
 

@@ -8,7 +8,7 @@ import java.time.LocalDate;
 public class DateDifferenceImpl extends DateDifference{
     @Override
     protected Integer doEvaluate(Date firstDate, Date secondDate) {
-        if (firstDate == null || secondDate == null) return 0;
+        if (firstDate == null || secondDate == null) return null;
        LocalDate second = secondDate.toLocalDate();
        LocalDate first = firstDate.toLocalDate();
        Duration dur =  Duration.between(first.atStartOfDay(), second.atStartOfDay());

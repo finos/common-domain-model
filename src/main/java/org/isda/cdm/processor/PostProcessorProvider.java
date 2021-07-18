@@ -1,5 +1,6 @@
 package org.isda.cdm.processor;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -21,7 +22,7 @@ public interface PostProcessorProvider {
 
 		public Default() {
 			GlobalKeyProcessStep globalKeyProcessStep = new GlobalKeyProcessStep(NonNullHashCollector::new);
-			this.processors = ImmutableList.of(globalKeyProcessStep, new EventEffectProcessStep(globalKeyProcessStep));
+			this.processors = Arrays.asList(globalKeyProcessStep, new EventEffectProcessStep(globalKeyProcessStep));
 		}
 
 		@Override

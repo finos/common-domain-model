@@ -63,6 +63,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(FilterSecurityTransfers.class).to(bindFilterSecurityTransfers());
 		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
+		bind(RoundToPrecision.class).to(bindRoundToPrecision());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
 		bind(ExtractCounterpartyByRole.class).to(bindExtractCounterpartyByRole());
 		bind(ExtractAncillaryPartyByRole.class).to(bindExtractAncillaryPartyByRole());
@@ -196,6 +197,10 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends RoundToNearest> bindRoundToNearest() {
 		return RoundToNearestImpl.class;
+	}
+
+	protected Class<? extends RoundToPrecision> bindRoundToPrecision() {
+		return RoundToPrecisionImpl.class;
 	}
 
 	protected Class<? extends FpmlIrd8> bindFpmlIrd8() {

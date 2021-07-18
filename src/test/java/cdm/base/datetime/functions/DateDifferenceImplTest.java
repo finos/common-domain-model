@@ -7,6 +7,7 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class DateDifferenceImplTest extends AbstractFunctionTest {
 
@@ -27,4 +28,12 @@ public class DateDifferenceImplTest extends AbstractFunctionTest {
         assertEquals(-31, res2.intValue());
     }
 
+    @Test
+    void shouldhandleNulls() {
+        Date baseDate = DateImpl.of(1,1,2020);
+
+        assertNull(func.evaluate( baseDate, null));
+        assertNull(func.evaluate( null, null));
+        assertNull(func.evaluate( null, baseDate));
+    }
 }

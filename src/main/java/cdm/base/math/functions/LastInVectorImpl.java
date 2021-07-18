@@ -10,7 +10,10 @@ public class LastInVectorImpl extends LastInVector {
 
     @Override
     protected BigDecimal doEvaluate(Vector vector) {
-        List<? extends BigDecimal> values = vector.getValues();
+        // get original list values if supplied
+        List<? extends BigDecimal> values = vector == null ? null : vector.getValues();
+
+        // return last in the list if the list is not empty
         if (values !=null && values.size() > 0) {
             return values.get(values.size()-1);
         }

@@ -6,6 +6,7 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,6 +33,17 @@ public class VectorGrowthOperationImplTest  extends AbstractFunctionTest {
 
         Vector.VectorBuilder vb = Vector.builder().setValues(factors);
         check(expected, vectorGrowthOp.evaluate(initVal, vb).getValues());
+    }
+
+    @Test
+    void shouldhandleNulls() {
+        List<BigDecimal> emptyList = new ArrayList<>();
+        List<BigDecimal> zeroList = Arrays.asList(BigDecimal.valueOf(0.0));
+        Vector.VectorBuilder vb = Vector.builder();
+
+        check(emptyList, vectorGrowthOp.evaluate(null, null).getValues());
+        check(emptyList, vectorGrowthOp.evaluate(null, vb).getValues());
+        check(emptyList, vectorGrowthOp.evaluate(BigDecimal.valueOf(0.0), null).getValues());
     }
 
     void check(List<BigDecimal> expected, List<? extends BigDecimal> actual) {

@@ -29,4 +29,11 @@ public class DayOfWeekImplTest extends AbstractFunctionTest {
 
     }
 
+    @Test
+    void shouldhandleNulls() {
+        Date baseDate = DateImpl.of(1,1,2020);
+
+        assertNull(func.evaluate( null));
+    }
+
 }

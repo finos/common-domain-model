@@ -52,6 +52,17 @@ public class AppendToVectorImplTest extends AbstractFunctionTest {
         check(expectedList, actualCVector.getValues());
     }
 
+    @Test
+    void shouldhandleNulls() {
+        List<BigDecimal> emptyList = new ArrayList<>();
+        List<BigDecimal> zeroList = Arrays.asList(BigDecimal.valueOf(0.0));
+        Vector.VectorBuilder vb = Vector.builder();
+
+        check(emptyList, func.evaluate(null, null).getValues());
+        check(emptyList, func.evaluate(vb, null).getValues());
+        check(zeroList, func.evaluate(null,  BigDecimal.valueOf(0.0)).getValues());
+    }
+
     void check(List<BigDecimal> expected, List<? extends BigDecimal> actual) {
         assertEquals(expected.size(), actual.size());
         int n = expected.size();

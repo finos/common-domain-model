@@ -9,6 +9,7 @@ public class LastInDateListImpl extends LastInDateList {
 
     @Override
     protected Date doEvaluate(DateGroup dateList) {
+        if (dateList == null) return null;
         List<? extends Date> dates = dateList.getDates();
         if (dates !=null && dates.size() > 0) {
             return dates.get(dates.size()-1);

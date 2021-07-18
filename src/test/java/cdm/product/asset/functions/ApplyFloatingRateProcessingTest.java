@@ -30,9 +30,11 @@ public class ApplyFloatingRateProcessingTest extends AbstractFunctionTest {
                         .build();
 
 
-        assertEquals(BigDecimal.valueOf(0.032), func.evaluate(params, BigDecimal.valueOf(0.03), null, Boolean.valueOf(false)).getProcessedRate());
-        assertEquals(BigDecimal.valueOf(0.05), func.evaluate(params, BigDecimal.valueOf(0.06), null, Boolean.valueOf(false)).getProcessedRate());
-        assertEquals(BigDecimal.valueOf(0.03), func.evaluate(params2, BigDecimal.valueOf(0.03), null, Boolean.valueOf(false)).getProcessedRate());
+
+        assertEquals("0.03200000", func.evaluate(params, BigDecimal.valueOf(0.03), null, Boolean.valueOf(false)).getProcessedRate().toString());
+        assertEquals("0.05000000", func.evaluate(params, BigDecimal.valueOf(0.06), null, Boolean.valueOf(false)).getProcessedRate().toString());
+        assertEquals("0.03000000", func.evaluate(params2, BigDecimal.valueOf(0.03), null, Boolean.valueOf(false)).getProcessedRate().toString());
+
 
 
 

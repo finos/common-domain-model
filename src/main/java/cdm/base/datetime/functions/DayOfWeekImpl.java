@@ -8,6 +8,8 @@ import java.time.LocalDate;
 public class DayOfWeekImpl extends DayOfWeek{
     @Override
     protected DayOfWeekEnum doEvaluate(Date date) {
+        if (date == null) return null;
+
         LocalDate localDate = date.toLocalDate();
         java.time.DayOfWeek dow = localDate.getDayOfWeek();
         DayOfWeekEnum result = null;

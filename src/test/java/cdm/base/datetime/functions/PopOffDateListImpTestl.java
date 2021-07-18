@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class PopOffDateListImpTestl extends AbstractFunctionTest {
 
@@ -44,6 +45,11 @@ public class PopOffDateListImpTestl extends AbstractFunctionTest {
         check(expectedList, actualList);
     }
 
+    @Test
+    void shouldhandleNullList() {
+        DateGroup.DateGroupBuilder empty = DateGroup.builder();
+        assertEquals(empty, func.evaluate( null));
+    }
 
 
     void check(List<? extends Date> expected, DateGroup actualDateCollection) {

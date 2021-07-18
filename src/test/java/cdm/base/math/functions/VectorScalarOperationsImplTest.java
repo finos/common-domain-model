@@ -7,6 +7,7 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,6 +17,17 @@ public class VectorScalarOperationsImplTest extends AbstractFunctionTest {
 
     @Inject
     private VectorScalarOperation vectorScalarOp;
+
+    @Test
+    void shouldhandleNulls() {
+        List<BigDecimal> emptyList = new ArrayList<>();
+        List<BigDecimal> shortList = Arrays.asList(BigDecimal.valueOf(10.0), BigDecimal.valueOf(20.0));
+        Vector.VectorBuilder vb = Vector.builder().setValues(shortList);
+
+        check(emptyList, vectorScalarOp.evaluate(ArithmeticOp.ADD_OP, null, null).getValues());
+        check(shortList, vectorScalarOp.evaluate(ArithmeticOp.ADD_OP, vb, null).getValues());
+        check(emptyList, vectorScalarOp.evaluate(ArithmeticOp.ADD_OP, null, BigDecimal.valueOf(10.0)).getValues());
+    }
 
     @Test
     void shouldApplyOperations() {

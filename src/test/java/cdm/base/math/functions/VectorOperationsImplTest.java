@@ -22,6 +22,17 @@ public class VectorOperationsImplTest  extends AbstractFunctionTest {
     private VectorOperation vectorOp;
 
     @Test
+    void shouldhandleNulls() {
+        List<BigDecimal> emptyList = new ArrayList<>();
+        List<BigDecimal> shortList = Arrays.asList(BigDecimal.valueOf(10.0), BigDecimal.valueOf(20.0));
+        Vector.VectorBuilder vb = Vector.builder().setValues(shortList);
+
+        check(emptyList, vectorOp.evaluate(ArithmeticOp.ADD_OP, null, null).getValues());
+        check(shortList, vectorOp.evaluate(ArithmeticOp.ADD_OP, vb, null).getValues());
+        check(shortList, vectorOp.evaluate(ArithmeticOp.ADD_OP, null, vb).getValues());
+    }
+
+    @Test
     void shouldApplyOperations() {
         List<BigDecimal> left = Arrays.asList(
                 BigDecimal.valueOf(10.0),

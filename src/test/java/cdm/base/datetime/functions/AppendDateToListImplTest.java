@@ -52,7 +52,16 @@ public class AppendDateToListImplTest extends AbstractFunctionTest {
         check(expectedList, actualList);
     }
 
+    @Test
+    void shouldhandleNulls() {
+        List<Date> emptyList = new ArrayList<>();
+        List<Date> zeroList = Arrays.asList(DateImpl.of(1,1,2020));
+        DateGroup.DateGroupBuilder dateGroup = DateGroup.builder();
 
+        check(emptyList, func.evaluate(null, null));
+        check(emptyList, func.evaluate(dateGroup, null));
+        check(zeroList, func.evaluate(null,  DateImpl.of(1,1,2020)));
+    }
 
     void check(List<? extends Date> expected, DateGroup actualList) {
         List<? extends Date> actual = actualList.getDates();

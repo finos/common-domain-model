@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AddDaysImplTest extends AbstractFunctionTest {
 
@@ -29,4 +30,13 @@ public class AddDaysImplTest extends AbstractFunctionTest {
         assertEquals(expected2,actual2 );
     }
 
+    @Test
+    void shouldhandleNulls() {
+        Date baseDate = DateImpl.of(1,1,2020);
+
+        assertNull(func.evaluate( baseDate, null));
+        assertNull(func.evaluate( null, null));
+        assertNull(func.evaluate( null, 2));
+
+    }
 }
