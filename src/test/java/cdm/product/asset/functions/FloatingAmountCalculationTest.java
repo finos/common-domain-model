@@ -28,7 +28,9 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
 
     @Inject private FloatingAmountCalculation func;
     @Inject private CalculationPeriod calculationPeriod;
-    @Inject private DayCountFraction dayCountFraction;
+    @Inject private InitCalculationPeriodBase initCalculationPeriodBase;
+    @Inject private CalculateYearFraction calculateYearFraction;
+      //      interestRatePayout, dcf, calculationPeriod) dayCountFraction;
 
     @Test
     void shouldEvaluateRate() {
@@ -47,9 +49,10 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
         CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2021, 2, 14));
         CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2021, 3, 9));
 
+        CalculationPeriodBase period = initCalculationPeriodBase.evaluate(usingStartDate);
         assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
 
-        assertEquals(BigDecimal.valueOf((31+31+28)/360.0), dayCountFraction.evaluate(interestRatePayout, interestRatePayout.getDayCountFraction().getValue(), date(2020, 12, 10), null));
+        assertEquals(BigDecimal.valueOf((31+31+28)/360.0), calculateYearFraction.evaluate(interestRatePayout, interestRatePayout.getDayCountFraction().getValue(), period));
 
 
         CalculationPeriodBase calcPeriod = period(date(2020,12,10), date(2021,3,10));
