@@ -330,9 +330,11 @@ type OptionCashSettlement: <"A data to:  define the cash settlement terms for a 
 	parYieldCurveUnadjustedMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (e).">
 	crossCurrencyMethod CrossCurrencyMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (f) (published in Supplement number 23).">
 	collateralizedCashPriceMethod YieldCurveMethod (0..1) <"An ISDA defined cash settlement method used for the determination of the applicable cash settlement amount. The method is defined in the 2006 ISDA Definitions, Section 18.3. Cash Settlement Methods, paragraph (g) (published in Supplement number 28).">
+	midMarketValuation MidMarketValuation(0..1)
+	replacementValue ReplacementValue(0..1)
 
 	condition MethodChoice: <"condition to represent an FpML choice construct.">
-		optional choice cashPriceMethod, cashPriceAlternateMethod, parYieldCurveAdjustedMethod, zeroCouponYieldAdjustedMethod, parYieldCurveUnadjustedMethod, crossCurrencyMethod, collateralizedCashPriceMethod
+		optional choice cashPriceMethod, cashPriceAlternateMethod, parYieldCurveAdjustedMethod, zeroCouponYieldAdjustedMethod, parYieldCurveUnadjustedMethod, crossCurrencyMethod, collateralizedCashPriceMethod		, midMarketValuation, replacementValue
 
 type PriceSourceDisruption: <"A data defining:  the parameters used to get a price quote to replace the settlement rate option that is disrupted.">
 
@@ -440,4 +442,61 @@ type SimplePayment extends PartyReferencePayerReceiver: <"A class to specified p
 	condition NonNegativePaymentAmount: <"FpML specifies paymentAmount as NonNegativeMoney.">
 		if paymentAmount exists
 		then paymentAmount -> amount > 0.0
+
+//******************************************************************************************************
+//
+// 2021 cash settlement definitions
+//
+// ******************************************************************************************************
+
+// TODO:  add annotations to link to ISDA definitions
+
+type MidMarketValuation :
+	indicativeQuotations MidMarketValuationMethod(0..1)
+	indicativeQuotationsAlternate MidMarketValuationMethod(0..1)
+	calculationAgentDetermination MidMarketValuationMethod(0..1)
+condition: one-of
+
+type ReplacementValue:
+	firmQuotations ReplacementValueFirmQuotations(0..1)
+	calculationAgentDetermination ReplacementValueCalculationAgentDetermination(0..1)
+condition: one-of	
+
+type MidMarketValuationMethod :
+	cashSettlementCurrency string(1..1)
+	applicableCsa	CsaTypeEnum(0..1)
+	cashSettlementReferenceBanks CashSettlementReferenceBanks(0..1)
+	cashCollateralCurrency string(0..1)
+	cashCollateralInterestRate string(0..1)
+	agreedDiscountRate string(0..1)
+	[ metadata scheme]
+
+type ReplacementValueBase :
+	cashSettlementCurrency string(1..1)
+	cashSettlementReferenceBanks CashSettlementReferenceBanks(0..1)
+	protectedParty CounterpartyRoleEnum(0..2)
+	cashCollateralCurrency string(0..1)
+
+
+type ReplacementValueFirmQuotations extends ReplacementValueBase: 
+	prescribedDocumentationAdjustment boolean(0..1)
+
+
+type ReplacementValueCalculationAgentDetermination extends ReplacementValueBase: 
+
+
+type MutuallyAgreedClearinghouse :
+	predeterminedClearingOrganizationParty AncillaryRoleEnum (0..1) <"Specifies the clearing organization (CCP, DCO) to which the trade should be cleared.">
+	identifier string(0..1)
+	condition: one-of
+
+
+
+type CollateralizedCashPriceMethod:
+	cashSettlementCurrency string(0..1)
+	settlementRateSource SettlementRateSource (0..1) <"The method for obtaining a settlement rate. This may be from some information source (e.g. Reuters) or from a set of reference banks.">
+	quotationRateType QuotationRateTypeEnum (1..1) <"The type of price quotations to be requested from dealers when determining the market value of the reference obligation for purposes of cash settlement. For example, Bid, Offer or Mid-market. ISDA 2003 Term: Quotation Method.">
+	mutuallyAgreedClearinghouse MutuallyAgreedClearinghouse(0..1)
+	agreedDiscountRate string(0..1)
+
 

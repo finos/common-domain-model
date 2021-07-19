@@ -87,6 +87,7 @@ enum InterestShortfallCapEnum: <"The enumerated values to specify the interest s
 enum NegativeInterestRateTreatmentEnum: <"The enumerated values to specify the method of calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
 	NegativeInterestRateMethod <"Negative Interest Rate Method. Per 2000 ISDA Definitions, Section 6.4 Negative Interest Rates, paragraphs (b) and (c).">
 	ZeroInterestRateMethod <"Zero Interest Rate Method. Per 2000 ISDA Definitions, Section 6.4. Negative Interest Rates, paragraphs (d) and (e).">
+	ZeroInterestRateMethodExcludingSpread <"Pero 2021 ISDA Definitions section 6.8.6">
 
 enum RateTreatmentEnum: <"The enumerated values to specify the methods for converting rates from one basis to another.">
 	BondEquivalentYield <"Bond Equivalent Yield. Per Annex to the 2000 ISDA Definitions (June 2000 Version), Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraph (g).">
@@ -117,3 +118,28 @@ enum DayDistributionEnum: <"Denotes the method by which the pricing days are dis
    First
    Last
    Penultimate
+
+// *************************************************************************
+//
+// The following enumerations are used to represent the definitions of modular calculated rates as described in the 2021 ISDA Definitions, section 7
+//
+// **************************************************************************
+
+
+enum CalculationMethodEnum: <"What calculation type is required, averaging or compounding">
+	Averaging  <"Averaging, i.e. arithmetic averaging">
+	Compounding <"Compounding, i.e. geometric averaging following an ISDA defined formala">
+	CompoundedIndex <" A rate based on an index that is computed by a rate administrator.  The user is responsible for backing out the rate by applying a simple formula.">
+
+
+enum ObservationPeriodDatesEnum: <"The enumerated values to specify whether rate calculations occur relative to the first or last day of a calculation period. Done in uppercase due to a bug in code generation.">
+	SETINADVANCE displayName "Set in advance" <"calculations occur relative to the first day of a calculation period.">
+	STANDARD displayName "Standard (set in arrears)"	<"calculations occur relative to the last day of a calculation period.">
+	FIXINGDATE displayName "Original Fixing Date" <"calculations occur relative to a previously defined reset date, e.g. for a fallback rate.">  
+
+
+enum CalculationShiftMethodEnum: <" the specific calculation method, e.g. lookback">
+	lookback displayName "Lookback" <"calculations and weighting are done with respect to the calculation period, but observations are shifted back by several days">
+	observationShift displayName "Observation Period Shift" <"the observation period is shifted by several days prior to rate setting, and weightings are done with respect to the obseration period">
+	lockout displayName "Lockout (Rate Cut Off)"  <"calculations cut the rate off several business days prior to rate setting">
+	noShift displayName "OIS Compounding/Basic Averaging" <"calculations occur without any shifting, e.g. OIS Compound style.">
