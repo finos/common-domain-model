@@ -119,7 +119,7 @@ synonym source FpML_5_10 extends FpML
 		+balanceOfFirstPeriod
 			[value"balanceOfFirstPeriod"]
 
-	CashSettlementReferenceBanks:
+	ReferenceBanks:
 		+ referenceBank
 			[value "referenceBank"]
 
@@ -282,8 +282,6 @@ synonym source FpML_5_10 extends FpML
 			[value "primaryRateSource"]
 		+ secondaryRateSource
 			[value "secondaryRateSource"]
-		+ fixingTime
-			[value "fixingTime"]
 
 	IndependentAmount:
 		+ paymentDetail
@@ -648,30 +646,49 @@ synonym source FpML_5_10 extends FpML
 
 	SettlementBase:
 		[meta "id"]
-		+ settlementCurrency
-			[value "settlementCurrency" meta "currencyScheme"]
-
-	SettlementTerms:
 		+ settlementType
 			[value "settlementType"]
-		+ settlementDate
-			[value "settlementDate"]
-		+ valueDate
-			[value "valueDate"]
-			[value "valueDate" path "americanExercise"]
-			[value "valueDate" path "europeanExercise"]
-			[value "latestValueDate" path "americanExercise"]
-			[value "latestValueDate" path "europeanExercise"]
-		+ priceQuantity
-			[value "settlementAmount" set when rosettaPath = SettlementTerms->priceQuantity]
-		+ payerReceiver
-			[value "payerReceiver"]
+		+ settlementCurrency
+			[value "settlementCurrency" meta "currencyScheme"]
+			[value "settlementCurrency" path "settlementProvision"]
+			[value "cashSettlementCurrency" meta "currencyScheme"]
+			[value "settlementCurrency" path "cashSettlementTerms"]
+			[value "settlementCurrency" path "physicalSettlementTerms"]
+			[value "settlementCurrency" path "nonDeliverableSettlement"]
+			[value "settlementCurrency" path "cashSettlement"]
 
-	SettlementRateSource:
+	SettlementTerms:
+		+ settlementDate
+			[value "cashSettlement"]
+			[hint "valueDate"]
+			[hint "settlementDate"]
+			// [hint "americanExercise"]
+			// [hint "europeanExercise"]
+			[value "americanExercise"]
+			[value "europeanExercise"]
+		+ cashSettlementTerms
+			[value "cashSettlement"]
+			[value "cashSettlementTerms"]
+			[value "settlementProvision"]
+			[value "nonDeliverableSettlement"]
+		+ physicalSettlementTerms
+			[value "physicalSettlement"]
+			[value "physicalSettlementTerms"]
+
+	ValuationSource:
 		+ informationSource
 			[value "informationSource"]
-		+ cashSettlementReferenceBanks
+			[value "fxSpotRateSource"]
+		+ referenceBanks
 			[value "cashSettlementReferenceBanks"]
+		+ dealer
+			[value "dealer"]
+
+	SettlementRateOption:
+		+ settlementRateOption
+			[value "settlementRateOption" meta "settlementRateOptionScheme"]
+		+ priceSourceDisruption
+			[value "priceSourceDisruption"]
 
 	SimplePayment:
 	 	[value "SimplePayment" meta "id"]
@@ -785,6 +802,8 @@ synonym source FpML_5_10 extends FpML
 			[value "relativeDate"]
 		+ fxSpotRateSource
 			[value "fxSpotRateSource"]
+		+fixingTime
+			[value "fixingTime" path "fxSpotRateSource"]
 
 	CreditEvents:
 	 	[value "CreditEvents" meta "id"]
@@ -904,11 +923,6 @@ synonym source FpML_5_10 extends FpML
 		+ extendibleProvision
 			[value "extendibleProvision"]
 
-	OptionSettlement:
-		+ cashSettlementTerms
-		+ physicalSettlementTerms
-			[value "physicalSettlement"]
-
 	OptionStrike:
 		+ strikePrice
 			[value "price"]
@@ -976,6 +990,8 @@ synonym source FpML_5_10 extends FpML
 			[value "fxRate"]
 		+ fxSpotRateSource
 			[value "fxSpotRateSource"]
+		+ fixingTime
+			[value "fixingTime" path "fxSpotRateSource"]
 
 	Restructuring:
 		+ applicable
@@ -1143,30 +1159,22 @@ synonym source FpML_5_10 extends FpML
 		+ paymentCalculationPeriod
 			[value "paymentCalculationPeriod"]
 
-	CashPriceMethod:
-		+ cashSettlementReferenceBanks
-			[value "cashSettlementReferenceBanks"]
-		+ cashSettlementCurrency
-			[value "cashSettlementCurrency" meta "currencyScheme"]
-		+ quotationRateType
-			[value "quotationRateType"]
-
-	CashSettlementPaymentDate:
+	SettlementDate:
 		[meta "id"]
+		+ settlementDate
+			[value "cashSettlementPaymentDate"]
+			[value "settlementDate"]
+		+ valueDate
+			[value "valueDate"]
+			[value "latestValueDate"]
+			// [value "valueDate" path "americanExercise"]
+			// [value "valueDate" path "europeanExercise"]
+			[value "latestValueDate" path "americanExercise"]
+			[value "latestValueDate" path "europeanExercise"]
 		+ adjustableDates
 			[value "adjustableDates"]
-		+ relativeDate
-			[value "relativeDate"]
 		+ businessDateRange
 			[value "businessDateRange"]
-
-	CrossCurrencyMethod:
-		+ cashSettlementReferenceBanks
-			[value "cashSettlementReferenceBanks"]
-		+ cashSettlementCurrency
-			[value "cashSettlementCurrency" meta "currencyScheme"]
-		+ quotationRateType
-			[value "quotationRateType"]
 
 	DateRelativeToCalculationPeriodDates:
 		+ calculationPeriodDatesReference
@@ -1299,6 +1307,9 @@ synonym source FpML_5_10 extends FpML
 			[value "dateRelativeToPaymentDates"]
 		+ dateRelativeToCalculationPeriodDates
 			[value "dateRelativeToCalculationPeriodDates"]
+		+ fxFixingDate
+			[value "fixingDate"]
+			[hint "fixingDate"]
 
 	FxLinkedNotionalAmount:
 		+ resetDate
@@ -1319,6 +1330,8 @@ synonym source FpML_5_10 extends FpML
 			[value "varyingNotionalFixingDates"]
 		+ fxSpotRateSource
 			[value "fxSpotRateSource"]
+		+fixingTime
+			[value "fixingTime" path "fxSpotRateSource"]
 		+ varyingNotionalInterimExchangePaymentDates
 			[value "varyingNotionalInterimExchangePaymentDates"]
 
@@ -1355,18 +1368,6 @@ synonym source FpML_5_10 extends FpML
 		+ adjustedCashSettlementPaymentDate
 			[value "adjustedCashSettlementPaymentDate"]
 
-	NonDeliverableSettlement:
-		+ referenceCurrency
-			[value "referenceCurrency" meta "currencyScheme"]
-		+ fxFixingDate
-			[value "fxFixingDate"]
-		+ fxFixingSchedule
-			[value "fxFixingSchedule"]
-		+ settlementRateOption
-			[value "settlementRateOption" meta "settlementRateOptionScheme"]
-		+ priceSourceDisruption
-			[value "priceSourceDisruption"]
-
 	OptionalEarlyTermination:
 		+ singlePartyOption
 			[value "singlePartyOption"]
@@ -1390,29 +1391,6 @@ synonym source FpML_5_10 extends FpML
 	OptionalEarlyTerminationAdjustedDates:
 		+ earlyTerminationEvent
 			[value "earlyTerminationEvent"]
-
-	OptionCashSettlement:
-	 	[value "CashSettlement" meta "id" path "cashSettlement"]
-		+ cashSettlementValuationTime
-			[value "cashSettlementValuationTime" path "cashSettlement"]
-		+ cashSettlementValuationDate
-			[value "cashSettlementValuationDate" path "cashSettlement"]
-		+ cashSettlementPaymentDate
-			[value "cashSettlementPaymentDate" path "cashSettlement"]
-		+ cashPriceMethod
-			[value "cashPriceMethod" path "cashSettlement"]
-		+ cashPriceAlternateMethod
-			[value "cashPriceAlternateMethod" path "cashSettlement"]
-		+ parYieldCurveAdjustedMethod
-			[value "parYieldCurveAdjustedMethod" path "cashSettlement"]
-		+ zeroCouponYieldAdjustedMethod
-			[value "zeroCouponYieldAdjustedMethod" path "cashSettlement"]
-		+ parYieldCurveUnadjustedMethod
-			[value "parYieldCurveUnadjustedMethod" path "cashSettlement"]
-		+ crossCurrencyMethod
-			[value "crossCurrencyMethod" path "cashSettlement"]
-		+ collateralizedCashPriceMethod
-			[value "collateralizedCashPriceMethod" path "cashSettlement"]
 
 	PaymentCalculationPeriod:
 	 	[value "PaymentCalculationPeriod" meta "id"]
@@ -1469,12 +1447,6 @@ synonym source FpML_5_10 extends FpML
 		+ resetDatesAdjustments
 			[value "resetDatesAdjustments" path "resetDates"]
 
-	SettlementProvision:
-		+ settlementCurrency
-			[value "settlementCurrency" meta "currencyScheme"]
-		+ nonDeliverableSettlement
-			[value "nonDeliverableSettlement"]
-
 	StubCalculationPeriodAmount:
 		+ calculationPeriodDatesReference
 			[value "calculationPeriodDatesReference" meta "href"]
@@ -1486,12 +1458,6 @@ synonym source FpML_5_10 extends FpML
 	ValuationPostponement:
 		+ maximumDaysOfPostponement
 			[value "maximumDaysOfPostponement"]
-
-	YieldCurveMethod:
-		+ settlementRateSource
-			[value "settlementRateSource"]
-		+ quotationRateType
-			[value "quotationRateType"]
 
 	AssetPool:
 		+ version
@@ -1962,22 +1928,12 @@ synonym source FpML_5_10 extends FpML
 		+ futureValueNotional
 			[value "futureValueNotional"]
 
-	CrossCurrencyTerms:
-		+ principalExchanges
-			[value "principalExchanges"]
-		+ settlementProvision
-			[value "settlementProvision"]
-
 	CreditDefaultPayout:
 		[meta "id"]
 		+ generalTerms
 			[value "generalTerms"]
 		+ protectionTerms
 			[value "protectionTerms"]
-		+ cashSettlementTerms
-			[value "cashSettlementTerms"]
-		+ physicalSettlementTerms
-			[value "physicalSettlementTerms"]
 
 	EconomicTerms:
 		+ effectiveDate
@@ -2043,6 +1999,8 @@ synonym source FpML_5_10 extends FpML
 		+ discountingMethod
 			[value "discounting" path "calculationPeriodAmount->calculation"]
 			[hint "fraDiscounting"]
+		+ principalExchanges
+			[value "principalExchanges"]
 		+ compoundingMethod
 			[value "compoundingMethod" path "calculationPeriodAmount->calculation"]
 		+ cashflowRepresentation
@@ -2108,8 +2066,6 @@ synonym source FpML_5_10 extends FpML
 			[hint "calculationPeriodsSchedule"]
 
 	CommodityPayout:
-		+ settlementCurrency
-			[value "settlementCurrency" meta "currencyScheme"]
 		+ averagingMethod
 			[value "averagingMethod" path "calculation"]
 		+ pricingDates
@@ -2205,7 +2161,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "notionalAmount"]
 			// For Credit:
 			[value "fixedAmountCalculation" path "periodicPayment"]
-			[hint "calculationAmount"]
+			[value "protectionTerms"]
 			[hint "notionalReference"]
 			[value "floatingAmountCalculation" path "periodicPayment"]
 			// For Equity Swap:
@@ -2232,6 +2188,9 @@ synonym source FpML_5_10 extends FpML
 			[value "interestLeg"]
 			// For Repo:
 			[value "repo"]
+		+ creditDefaultPayout
+			[value "creditDefaultSwap"]
+			[value "generalTerms" path "creditDefaultSwap"]
 		+ equityPayout
 			[value "returnLeg"]
 		+ optionPayout
@@ -2290,6 +2249,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "bondOption"]
 			// For CDS:
 			[value "creditDefaultSwap"]
+			[hint "creditDefaultSwap"]
 			// For CDS Option
 			[hint "creditDefaultSwapOption"]
 			// For FX:
@@ -2499,6 +2459,7 @@ synonym source FpML_5_10 extends FpML
 			[value "adjustablePaymentDate"]
 			[value "startDate"]
 			[value "endDate"]
+			[value "fixingDate"]
 		+ dateAdjustments
 			[value "dateAdjustments"]
 			[value "dateAdjustments" path "calculationPeriodDates->terminationDate"]
@@ -2931,20 +2892,25 @@ synonym source FpML_5_10 extends FpML
 			[value "tranche"]
 
 	CashSettlementTerms:
+		[meta "id"]
+		+ cashSettlementMethod
+			[set to CashSettlementMethodEnum -> CashPriceMethod when path = "cashSettlement->cashPriceMethod"]
+			[set to CashSettlementMethodEnum -> CashPriceAlternateMethod when path = "cashSettlement->cashPriceAlternateMethod"]
+			[set to CashSettlementMethodEnum -> ParYieldCurveUnadjustedMethod when path = "cashSettlement->parYieldCurveUnadjustedMethod"]
+			[set to CashSettlementMethodEnum -> ParYieldCurveAdjustedMethod when path = "cashSettlement->parYieldCurveAdjustedMethod"]
+			[set to CashSettlementMethodEnum -> ZeroCouponYieldAdjustedMethod when path = "cashSettlement->zeroCouponYieldAdjustedMethod"]
+			[set to CashSettlementMethodEnum -> CrossCurrencyMethod when path = "cashSettlement->crossCurrencyMethod"]
+			[set to CashSettlementMethodEnum -> CollateralizedCashPriceMethod when path = "cashSettlement->collateralizedCashPriceMethod"]
 		+ valuationDate
+			[value "fixing"]
+			[value "rateSourceFixing"]
 			[value "valuationDate"]
+			// [value "nonDeliverableSettlement"]
+			[value "cashSettlementValuationDate"]
 		+ valuationTime
+			[value "fixingTime" path "fixing->fxSpotRateSource"]
 			[value "valuationTime"]
-		+ quotationMethod
-			[value "quotationMethod"]
-		+ quotationAmount
-			[value "quotationAmount"]
-		+ minimumQuotationAmout
-			[value "minimumQuotationAmount"]
-		+ dealer
-			[value "dealer"]
-		+ cashSettlementBusinessDays
-			[value "cashSettlementBusinessDays"]
+			[value "cashSettlementValuationTime"]
 		+ cashSettlementAmount
 			[value "cashSettlementAmount"]
 		+ recoveryFactor
@@ -2954,7 +2920,44 @@ synonym source FpML_5_10 extends FpML
 		+ accruedInterest
 			[value "accruedInterest"]
 		+ valuationMethod
+			[hint "fixing"]
+			[hint "rateSourceFixing"]
+			// [hint "fxSpotRateSource"]
 			[value "valuationMethod"]
+			[value "cashPriceMethod"]
+			[value "cashPriceAlternateMethod"]
+			[value "parYieldCurveAdjustedMethod"]
+			[value "zeroCouponYieldAdjustedMethod"]
+			[value "parYieldCurveUnadjustedMethod"]
+			[value "crossCurrencyMethod"]
+			[value "collateralizedCashPriceMethod"]
+
+PhysicalSettlementTerms:
+		+ physicalSettlementPeriod
+			[value "physicalSettlementPeriod"]
+		+ deliverableObligations
+			[value "deliverableObligations"]
+		+ escrow
+			[value "escrow"]
+		+ sixtyBusinessDaySettlementCap
+			[value "sixtyBusinessDaySettlementCap"]
+		+ clearedPhysicalSettlement
+			[value "clearedPhysicalSettlement"]
+		// + predeterminedClearingOrganizationParty
+		// 	[value "predeterminedClearingOrganizationPartyReference" mapper "PredeterminedClearingOrganizationParty"]
+
+
+	ValuationMethod:
+		+ quotationMethod
+			[value "quotationMethod"]
+		+ quotationAmount
+			[value "quotationAmount"]
+		+ minimumQuotationAmount
+			[value "minimumQuotationAmount"]
+		+ valuationSource
+			[value "settlementRateSource"]
+			[value "fixing"]
+			[value "rateSourceFixing"]
 
 	DeliverableObligations:
 		+ accruedInterest
@@ -3177,6 +3180,12 @@ synonym source FpML_5_10 extends FpML
 			[value "singleValuationDate"]
 		+ multipleValuationDates
 			[value "multipleValuationDates"]
+		+ fxFixingDate
+			[hint "fixingDate"]
+			[value "fxFixingDate"]
+			[hint "rateSourceFixing"]
+		+ fxFixingSchedule
+			[value "fxFixingSchedule"]
 
 	ForeignExchange:
 		+ exchangedCurrency1
@@ -3201,28 +3210,6 @@ synonym source FpML_5_10 extends FpML
 			[value "spotRate"]
 		+ forwardPoints
 			[value "forwardPoints"]
-
-	FxCashSettlement:
-		+ settlementCurrency
-			[value "settlementCurrency" path "nonDeliverableSettlement"]
-			[value "settlementCurrency" path "cashSettlement"]
-		+ referenceCurrency
-			[value "referenceCurrency" path "nonDeliverableSettlement"]
-			[value "referenceCurrency" path "cashSettlement"]
-		+ fixing
-			[value "fixing" path "nonDeliverableSettlement"]
-			[value "fixing" path "cashSettlement"]
-		+ rateSourceFixing
-			[value "rateSourceFixing" path "nonDeliverableSettlement"]
-			[value "rateSourceFixing" path "cashSettlement"]
-
-	FxFixing:
-		+ quotedCurrencyPair
-			[value "quotedCurrencyPair" meta "quoteBasis"]
-		+ fixingDate
-			[value "fixingDate"]
-		+ fxSpotRateSource
-			[value "fxSpotRateSource"]
 
 	FxRateSourceFixing:
 		+ settlementRateSource

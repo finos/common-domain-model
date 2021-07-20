@@ -75,7 +75,6 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 type EquityPayout extends PayoutBase: <" The equity payout specification terms. The associated globalKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 
-	payerReceiver PayerReceiver (0..1)
 	underlier Product (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">
 	returnType ReturnTypeEnum (1..1) <"Specifies the type of return associated with the equity payout.">
 	dividendReturnTerms DividendReturnTerms (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Dividend Obligations">
@@ -83,7 +82,6 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
     fxFeature FxFeature (0..1) <"A quanto or composite FX feature.">
 	calculationPeriodDates CalculationPeriodDates (1..1) <"The calculation period dates schedule.">
 	paymentDates PaymentDates (1..1) <"The payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
-	settlementTerms SettlementTerms (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Settlement.">
 	rateOfReturn number (0..1) <"Rate of Return calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return'.">
 	performance number (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
 
@@ -118,7 +116,6 @@ type OptionExercise: <" A class to represent the applicable terms to qualify an 
 	optionStyle OptionStyle (1..1) <"The option exercise can be of American style, Bermuda style or European style. The FpML implementation makes use of a substitution group.">
 	strike OptionStrike (0..1) <"Specifies the strike of the option on credit default swap.">
 	exerciseProcedure ExerciseProcedure (0..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">
-	settlement OptionSettlement (0..1) <"The option settlement terms, such as cash vs. physical, the settlement date, the settlement currency and/or amount. FpML represents this information as part of the OptionSettlement.model.">
 
 type OptionPayout extends PayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
@@ -129,6 +126,13 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlier per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 	underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
+
+	condition:
+		if underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout only exists and
+			underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
+		then
+			settlementTerms -> physicalSettlementTerms -> clearedPhysicalSettlement exists
+				else settlementTerms -> physicalSettlementTerms -> clearedPhysicalSettlement is absent
 
 type SecurityLeg: <" Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
 	[metadata key]
@@ -144,7 +148,6 @@ type SecurityLeg: <" Terms defining a security leg in a securities financing tra
 	condition SecurityLegChoice:
 		required choice settlementAmount, settlementCurrency
 
-
 type SecurityPayout: <" Security payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction.">
 	[metadata key]
     [deprecated]
@@ -153,7 +156,6 @@ type SecurityPayout: <" Security payout specification in case the product payout
     initialMargin InitialMargin (0..1) <"RepoDurationEnum.">
 	repoDuration RepoDurationEnum (0..1) <"A duration code for the repo transaction. This defines a type of a repo transaction with fixed duration.">
 	securityValuation SecurityValuation (1..*) <"The underlying securities and their valuation for the security leg.">
-
 
 type InitialMargin: <" Defines initial margin applied to a repo transaction. Initial margin is an agreed premium to the Purchase Price of a repo to determine the required Market Value of the collateral to be delivered on the Purchase Date. It reflects quality of the collateral. Its aim is to calculate the risk-adjusted or liquidation value of collateral.">
     [deprecated]
@@ -170,7 +172,6 @@ type InitialMargin: <" Defines initial margin applied to a repo transaction. Ini
 	condition MinimumTransferAmount:
 		if minimumTransferAmount exists
 		then minimumTransferAmount -> amount > 0
-
 
 type InitialMarginCalculation: <" Defines the initial margin calculation applicable to a single piece of collateral.">
     [deprecated]
@@ -238,7 +239,7 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 
 	condition NotionalResetOnEquityPayout: <"Notional reset only applies to return swaps, and therefore can only exist on an equityPayout.">
 		interestRatePayout -> payoutQuantity -> reset is absent
-		and creditDefaultPayout -> protectionTerms -> payoutQuantity -> reset is absent
+		and creditDefaultPayout -> payoutQuantity -> reset is absent
 		and optionPayout -> payoutQuantity -> reset is absent
 		and cashflow -> payoutQuantity -> reset is absent
 
@@ -265,7 +266,7 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 	tradeLot TradeLot (1..*) <"Specifies the price, quantity and effective date of each trade lot, when the same product may be traded multiple times in different lots with the same counterparty. In a trade increase, a new trade lot is added to the list, with the corresponding effective date. In a trade decrease, the existing trade lot(s) are decreased of the corresponding quantity (and an unwind fee may have to be settled). The multiple cardinality and the ability to increase existing trades is used for Equity Swaps in particular.">
 	counterparty Counterparty (2..2) <"Specifies the parties which are the two counterparties to the transaction.  The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the counterparty enum (e.g. CounterpartyEnum values Party1 or Party2). The counterparty enum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this counterparties attribute, which is positioned outside of the product definition, allows the counterparty enum to be associated with an actual party reference.">
 	ancillaryParty AncillaryParty (0..*) <"Specifies the parties with ancillary roles in the transaction. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this AncillaryParty type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
-    settlementTerms SettlementTerms (0..1) <"Defines the settlement terms applicable to any transfer of cash or securities, including the date, amount, payer/receiver side and type (e.g. cash vs physical, DvP etc.)">
+    settlementInstructions SettlementInstructions (0..*) <"Defines the settlement terms associated to the tradable product, including the delivery type (e.g. cash vs physical)settlement date and type of transfer (DvP etc.). This is applicable to any transfer of cash or securities. In the case of more complex financial instruments, this allows to capture any ancillary payment to be settled as part of the trade but not includede in the product itself: e.g. initial fee, broker fee, up-front cds payment or option premium settlement.">
 	adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
 
 	// TODO: this should be able to iterate on each trade lot
@@ -289,7 +290,7 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		then product -> contractualProduct -> economicTerms -> payout -> equityPayout -> dividendReturnTerms -> extraordinaryDividendsParty exists
 
 	condition OptionPayout_PredeterminedClearingOrganizationParty:
-		if product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> settlement -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
+		if product -> contractualProduct -> economicTerms -> payout -> optionPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
 
 	condition ForwardPayout_PredeterminedClearingOrganizationParty:
@@ -299,7 +300,7 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 	condition PredeterminedClearingOrganizationParty:
 		if ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty then
 		product -> contractualProduct -> economicTerms -> payout -> forwardPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists or
-		product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> settlement -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
+		product -> contractualProduct -> economicTerms -> payout -> optionPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
 
 	condition ExerciseNoticeReceiverPartyManual:
 		if product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> exerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticeReceiver exists
@@ -343,11 +344,11 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentMandatoryEarlyTermination
 		then product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
 
-	condition CalculationAgentFallback:
-		if product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement -> priceSourceDisruption -> fallbackReferencePrice -> calculationAgentDetermination -> calculationAgentParty exists
-		then ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentFallback
-		and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentFallback
-		then product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement -> priceSourceDisruption -> fallbackReferencePrice -> calculationAgentDetermination -> calculationAgentParty exists
+	// condition CalculationAgentFallback:
+	// 	if product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement -> priceSourceDisruption -> fallbackReferencePrice -> calculationAgentDetermination -> calculationAgentParty exists
+	// 	then ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentFallback
+	// 	and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentFallback
+	// 	then product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement -> priceSourceDisruption -> fallbackReferencePrice -> calculationAgentDetermination -> calculationAgentParty exists
 
 type ConstituentWeight: <"A class describing the weight of each of the underlier constituent within the basket, either in absolute or relative terms.">
 
@@ -359,25 +360,22 @@ type ConstituentWeight: <"A class describing the weight of each of the underlier
 		then basketPercentage >= 0.0 and basketPercentage <= 1.0
 
 type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this component.">
-
 	underlier Product (1..1) <"Underlying product that the forward is written on, which can be of any type: FX, a contractual product, a security, etc.">
-	settlementTerms OptionSettlement (1..1) <"Settlement terms for the underlier that include the settlement date, settlement method etc.">
+	settlementTerms SettlementTerms (1..1) <"Settlement terms for the underlier that include the settlement date, settlement method etc.">
 
 	condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
 		if ForwardFX() exists
-		then (settlementTerms -> valueDate exists
+		then (settlementTerms -> settlementDate -> valueDate exists
 			and ForwardFX() -> exchangedCurrency1 -> cashflowDate is absent and ForwardFX() -> exchangedCurrency2 -> cashflowDate is absent)
-			or (settlementTerms -> valueDate is absent
+			or (settlementTerms -> settlementDate -> valueDate is absent
 			and ForwardFX() -> exchangedCurrency1 -> cashflowDate exists and ForwardFX() -> exchangedCurrency2 -> cashflowDate exists and
 			ForwardFX() -> exchangedCurrency1 -> cashflowDate = ForwardFX() -> exchangedCurrency2 -> cashflowDate)
 
 	condition FxSettlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
 		if ForwardFX() exists
-		then (settlementTerms -> cashSettlementTerms is absent
-			and settlementTerms -> physicalSettlementTerms is absent)
+		then settlementTerms -> physicalSettlementTerms is absent
 
 type FixedForwardPayout extends PayoutBase: <"Represents a forward settling, fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
-	payerReceiver PayerReceiver (1..1) <"Specifies the parties responsible for making and receiving payments defined by this structure.">
 	paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
     fixedPrice Price (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
         [metadata address "pointsTo"=PriceQuantity->price]
@@ -488,12 +486,7 @@ type MandatoryEarlyTermination: <"A data to:  define an early termination provis
 
 	mandatoryEarlyTerminationDate AdjustableDate (1..1) <"The early termination date associated with a mandatory early termination of a swap.">
 	calculationAgent CalculationAgent (1..1) <"The ISDA Calculation Agent responsible for performing duties associated with an optional early termination.">
-	cashSettlement OptionCashSettlement (1..1) <"If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement procedure. If not specified, then physical settlement is applicable.">
-	mandatoryEarlyTerminationAdjustedDates MandatoryEarlyTerminationAdjustedDates (0..1) <"The adjusted dates associated with a mandatory early termination provision. These dates have been adjusted for any applicable business day convention.">
-
-	condition FpML_ird_27: <"FpML validation rule ird-27 - cashSettlement/cashSettlementPaymentDate must not exist.">
-		if cashSettlement exists
-		then cashSettlement -> cashSettlementPaymentDate is absent
+	cashSettlement CashSettlementTerms (1..1) <"If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement procedure. If not specified, then physical settlement is applicable.">	mandatoryEarlyTerminationAdjustedDates MandatoryEarlyTerminationAdjustedDates (0..1) <"The adjusted dates associated with a mandatory early termination provision. These dates have been adjusted for any applicable business day convention.">
 
     condition MandatoryEarlyTerminationCalculationAgent:
         if calculationAgent -> calculationAgentParty exists
@@ -519,7 +512,7 @@ type OptionalEarlyTermination: <"A data defining:  an early termination provisio
 	exerciseNotice ExerciseNotice (0..*) <"Definition of the party to whom notice of exercise should be given.">
 	followUpConfirmation boolean (0..1) <"A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.">
 	calculationAgent CalculationAgent (1..1) <"The ISDA Calculation Agent responsible for performing duties associated with an optional early termination.">
-	cashSettlement OptionCashSettlement (1..1) <"If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement procedure. If not specified, then physical settlement is applicable.">
+	cashSettlement CashSettlementTerms (1..1) <"If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement procedure. If not specified, then physical settlement is applicable.">
 	optionalEarlyTerminationAdjustedDates OptionalEarlyTerminationAdjustedDates (0..1) <"An early termination provision to terminate the trade at fair value where one or both parties have the right to decide on termination.">
 
 	condition ExerciseChoice: <"condition to represent an FpML choice construct.">
@@ -558,6 +551,7 @@ type Composite: <"Specifies the conditions to be applied for converting into a r
 	determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">
 	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">
 	fxSpotRateSource FxSpotRateSource (0..1) <"Specifies the methodology (reference source and, optionally, fixing time) to be used for determining a currency conversion rate.">
+	fixingTime BusinessCenterTime (0..1) <"The time at which the spot currency exchange rate will be observed. It is specified as a time in a business day calendar location, e.g. 11:00am London time.">
 
 type FxFeature: <"A type for defining FX Features.">
 
@@ -633,6 +627,7 @@ type Quanto: <"Determines the currency rate that the seller of the equity amount
 
 	fxRate FxRate (0..*) <"Specifies a currency conversion rate.">
 	fxSpotRateSource FxSpotRateSource (0..1) <"Specifies the methodology (reference source and, optionally, fixing time) to be used for determining a currency conversion rate.">
+	fixingTime BusinessCenterTime (0..1) <"The time at which the spot currency exchange rate will be observed. It is specified as a time in a business day calendar location, e.g. 11:00am London time.">
 
 type StrategyFeature: <"A class for defining option strategy features.">
 
@@ -745,6 +740,7 @@ type MultipleExercise extends PartialExercise: <"A class defining multiple exerc
 		if minimumNumberOfOptions exists
 		then minimumNumberOfOptions >= 0
 
+// removal causes a static compile error due to mapper.  To be removed once synonym mapping complete
 type OptionPhysicalSettlement:
 
 	clearedPhysicalSettlement boolean (1..1) <"Specifies whether the swap resulting from physical settlement of the swaption transaction will clear through a clearing house. The meaning of Cleared Physical Settlement is defined in the 2006 ISDA Definitions, Section 15.2 (published in Supplement number 28).">
@@ -753,6 +749,7 @@ type OptionPhysicalSettlement:
 	condition PredeterminedClearingOrganizationParty:
 		if predeterminedClearingOrganizationParty exists
 		then predeterminedClearingOrganizationParty = AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
+
 
 type PartialExercise: <"A class defining partial exercise. As defined in the 2000 ISDA Definitions, Section 12.3 Partial Exercise, the buyer of the option may exercise all or less than all the notional amount of the underlying swap but may not be less than the minimum notional amount (if specified) and must be an integral multiple of the integral multiple amount if specified.">
 
@@ -795,7 +792,6 @@ type CalculationAgentModel: <"This class corresponds to the FpML CalculationAgen
 
 type SecurityFinancePayout extends PayoutBase: <"Security payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction.">
     [metadata key]
-    payerReceiver PayerReceiver (1..1) <"Specifies the Lender (Payer) and Borrower (Receiver) in the transaction.">
     securityFinanceLeg SecurityFinanceLeg (1..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
     securityInformation Product (1..1) <"Specifies the reference asset.  This is The base type which all products extend (similar to FpML model). Within SecurityPayout we include a condition which validates that the product must be a Security (see below condition 'ProductMustBeSecurity').">
     durationType Duration (1..1) <"Specifies the Duration Terms of the Security Finance transaction. e.g. Open or Term.">
