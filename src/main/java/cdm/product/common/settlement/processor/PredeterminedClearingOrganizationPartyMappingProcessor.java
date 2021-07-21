@@ -1,4 +1,4 @@
-package cdm.product.template.processor;
+package cdm.product.common.settlement.processor;
 
 import cdm.base.staticdata.party.AncillaryRoleEnum;
 import cdm.legalagreement.contract.processor.PartyMappingHelper;
