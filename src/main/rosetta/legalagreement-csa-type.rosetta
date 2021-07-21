@@ -33,10 +33,11 @@ type IndependentAmount extends PartyReferencePayerReceiver: <"A class specifying
 
 type AgencyRatingCriteria: <"A class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
 
-	qualifier QuantifierEnum (1..1) <"Indicates whether all or any agency ratings apply.">
+	qualifier QualifierEnum (1..1) <"Indicates whether all or any agency ratings apply.">
 	creditNotation CreditNotation (1..*) <"Indicates the agency rating criteria specified for the asset or issuer.">
-	mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
-	referenceAgency CreditRatingAgencyEnum (0..1)
+	mismatchResolution CreditNotationMismatchResolutionEnum (0..1) <"Indicator for options to be used if several agency ratings (>1) are specified and its necessary to identify specific charateristics. i.e (lowest or highest).">
+	referenceAgency CreditRatingAgencyEnum (0..1) <"To identify The dominant reference agency if there is a missmatch and several reference agencies exsist.">
+	boundary CreditNotationBoundaryEnum (0..1) <"Indicates the boundary of a credit agency rating i.e minimum or maximum.">
 
 	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
 		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
