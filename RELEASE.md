@@ -1,45 +1,21 @@
-# *Product Model - Observable attribute references*
+# *Credit Notations – Agency Rating Criteria additions and added descriptions – USER STORY 677*
 
 _What is being released?_
 
-Following the recent price, quantity and observable refactor, this release makes the `PriceQuantity->observable` attributes referencable by adding `location`/`address` annotations to the attributes of type `Observable` and their corresponding attributes in the `Product` payouts.  Synonyms have also been migrated to the new model for all products including rates, equity, FX, credit and repo, and also all other Event, DTCC and CME synonyms.
+Addition to data type (AgencyRatingCriteria) to the list of available data attributes the following has been added (boundary) which can be used to indicate the boundary of a credit agency rating i.e minimum or maximum. An enumeration list is added to support this (CreditNotationBoundaryEnum).
 
-- Add `location` annotation to `Observable->commodity` and add `address` annotation to `CommodityPayout->underlier->commodity`.
-- Add `location` annotation to `Observable->productIdentifier` and add `address` annotation to `PayoutBase->productIdentifier` (super type of `Security`, `Loan` and `Index`).
-- Add `location` annotation to `Observable->currencyPair` and add `address` annotation to:
-  - `optionPayout.exerciseTerms.settlement.fxSettlementTerms.fixing.quotedCurrencyPair`
-  - `forwardPayout.settlementTerms.fxSettlementTerms.fixing.quotedCurrencyPair`
-  - `optionPayout.feature.averagingRateFeature.fxRateObservable.quotedCurrencyPair`
-- Add `deprecated` annotation to ExchangeRate type.
+Missing descriptions have been added to attributes and enumeration list (CreditNotationMismatchResolution).
+
+Under data type (AgencyRatingCriteria) a typo has been corrected to an existing data attribute (qualifier) and changed from quantifier to qualifier this has also been changed elsewhere in the model where referenced. 
+
 
 _Review Directions_
 
-In the CDM Portal, select the textual browser and inspect the types mentioned above.
+In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
 
-In the CDM Portal, select ingestion and review the following samples:
+Search for the data type `AgencyRatingCriteria` and inspect the descriptions added to attributes `mismatchResolution` and `referenceAgency`. Also inspect the new added data attribute boundary and its related enumerations `CreditNotationBoundaryEnum` with descriptions.
 
-`Observable->commodity`:
-- fpml-5-10/products/commodity/com-ex1-gas-swap-daily-delivery-prices-last
-- fpml-5-10/products/commodity/com-ex5-gas-v-electricity-spark-spread
-- fpml-5-10/products/commodity/com-ex8-oil-call-option-strip
+Search for `CreditNotationMismatchResolutionEnum` and inspect the descriptions now populated that where previously missing in the model.
 
-`Observable->productIdentifier`:
-- fpml-5-10/products/rates/bond-option-uti
-- fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json (Security)
-- fpml-5-10/products/equity/eqd-ex04-european-call-index-long-form.json (Index)
+Finally review the changes made to data attribute `qualifier QualifierEnum` where typos have been corrected to detail (qualifier) rather than (quantifier), this has been corrected whereelse referenced in CDM. 
 
-`Observable->currencyPair`:
-- fpml-5-10/products/equity/fx-ex07-non-deliverable-forward
-- fpml-5-10/products/equity/fx-ex11-non-deliverable-option
-- fpml-5-10/products/equity/fx-ex22-avg-rate-option-specific
-
-
-# *DSL Syntax - Deprecation of "includes" keyword*
-
-_What is being released?_
-
-The use of the keyword `includes` has been deprecated in favor of the equivalent keyword`contains`. The former was only used in the definition of the function `Create_ClearedTrade`.
-
-_Review Directions_
-
-In the CDM Portal, select the textual browser and inspect that the syntax keyword `includes` is no longer present.
