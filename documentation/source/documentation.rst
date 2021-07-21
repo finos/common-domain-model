@@ -279,7 +279,7 @@ The ``settlementInstructions`` attribute defines how the transaction should be s
 
  type SettlementTerms extends SettlementBase:
    cashSettlementTerms CashSettlementTerms (0..*)
-   physicalSettlementTerms OptionPhysicalSettlement (0..1)
+   physicalSettlementTerms PhysicalSettlementTerms (0..1)
 
 Contractual Product
 ^^^^^^^^^^^^^^^^^^^
