@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-ISDA Create synonym mapping fixes for `ApplicableRegime`, adding: Brazil, United Kingdom, South Africa, South Korea and Hong Kong SFC.
+ISDA Create synonym mapping fixes for `ApplicableRegime`, adding `RegulatoryRegimeEnum` synonyms for Brazil, United Kingdom, South Africa, South Korea and Hong Kong SFC.
 
 _Review Directions_
 
