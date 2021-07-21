@@ -38,7 +38,7 @@ func Qualify_CreditDefaultSwap_Index: <"Qualifies a product as a Credit Default 
 		((economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
 			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> cashflow) only exists
 			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> cashflow) only exists)
-		
+
 		// qualifies the Credit Default Swap as having a single name underlyer that is not a loan
 		and economicTerms -> payout -> creditDefaultPayout-> generalTerms ->indexReferenceInformation exists
 		and economicTerms -> payout -> creditDefaultPayout-> generalTerms ->indexReferenceInformation->tranche is absent
@@ -105,7 +105,7 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a pr
 	assign-output is_product:
 	    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> equityPayout) only exists
-		
+
 		// qualifies that the returnType is price and the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant
         and  equityPayout -> returnType = ReturnTypeEnum -> Price
         and ( equityPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Equity
@@ -124,7 +124,7 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a pr
 	assign-output is_product:
 	    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> equityPayout) only exists
-		
+
 		// qualifies that the returnType is total and the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant
  		and equityPayout -> returnType = ReturnTypeEnum -> Total
         and ( equityPayout -> underlier -> security -> securityType = SecurityTypeEnum -> Equity
@@ -145,7 +145,7 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_Index: <"Qualifies a product
 	assign-output is_product:
 	    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> equityPayout) only exists
-		
+
 		// qualifies that the returnType is price or total and the underlier is an index
 		and equityPayout -> returnType = ReturnTypeEnum -> Price
 	    and equityPayout -> underlier -> index exists
@@ -158,7 +158,7 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_Index: <"Qualifies a product
 	assign-output is_product:
 	    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> equityPayout) only exists
-		
+
 		// qualifies that the returnType is price or total and the underlier is an index
 		and equityPayout -> returnType = ReturnTypeEnum -> Total
 	    and equityPayout -> underlier -> index exists
@@ -173,7 +173,7 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a 
 	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
 	 	(economicTerms -> payout -> optionPayout only exists
 			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
-			
+
 		// qualifies that the underlier is an equity security
 	 	and ( economicTerms -> payout -> optionPayout -> underlier -> security -> securityType all = SecurityTypeEnum -> Equity
 	        or (economicTerms -> payout -> optionPayout -> underlier -> security -> securityType all = SecurityTypeEnum -> Fund
@@ -199,10 +199,10 @@ func Qualify_IndexVanillaOption: <"Qualifies a product as a plain vanilla Index 
 	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
 	 	(economicTerms -> payout -> optionPayout only exists
 			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
-	
+
 		// qualifies that the the underlier is an index
 		 and economicTerms -> payout -> optionPayout -> underlier -> index exists
-	
+
 		// qualifies that an option style is defined and that no feature other than averaging exists
 		and	(economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
 			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists
@@ -224,20 +224,21 @@ func Qualify_InterestRate_IRSwap_FixedFloat: <"Qualifies a product as a Fixed-Fl
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-			
+
 		// qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-	
+
 		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both)
 			and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
-	
+
 		// qualifies product as not having cross-currency features
-	and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent	
+		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
+
 		// qualifies product as not having the 'zero coupon' feature
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any <> PeriodExtendedEnum -> T
-	
+
 		// qualifies product as not having an OIS index in the floating rate index
 		and floatingRateIndex all <> FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
 		and floatingRateIndex all <> FloatingRateIndexEnum -> OIS
@@ -292,10 +293,10 @@ func Qualify_InterestRate_IRSwap_FixedFixed: <"Qualifies a product as a Fixed-Fi
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	((economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists))
-	
+
 		// qualifies product as an Interest Rate Product with two fixed legs (by elimination not inflation)
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
-	
+
 		// qualifies product as not having cross-currency features
 		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
 
@@ -313,11 +314,11 @@ func Qualify_InterestRate_IRSwap_Basis: <"Qualifies a product as a Basis (Float-
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-	
+
 		// qualifies product as an Interest Rate Product with two floating legs (by elimination not inflation)
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
-	
+
 		// qualifies product as not having cross-currency features
 		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
 	
@@ -383,17 +384,17 @@ func Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon: <"Qualifies a product as
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-	
+
 		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both) therefore, given all the constraints, it's qualified as a Fixed-Float IR Swap
 		and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
-	
+
 		// qualifies product as not having cross-currency features
 		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
 	
 		// qualifies product as having the 'zero coupon' feature
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
-	
+
 		// qualifies product as not having an OIS index in the floating rate index
 		and floatingRateIndex all <> FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND
 		and floatingRateIndex all <> FloatingRateIndexEnum-> OIS
@@ -451,15 +452,15 @@ func Qualify_InterestRate_IRSwap_FixedFloat_OIS: <"Qualifies a product as a Fixe
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-	
+
 		// qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-	
+
 		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both) therefore, given all the constraints, it's qualified as a Fixed-Float IR Swap
 		and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
-	
+
 		// qualifies product as not having cross-currency features
 		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
 	
@@ -520,14 +521,14 @@ func Qualify_InterestRate_IRSwap_Basis_OIS: <"Qualifies a product as a Basis (Fi
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-	
+
 		// qualifies product as an Interest Rate Product with two floating legs (by elimination not inflation)
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
-	
+
 		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both) therefore, given all the constraints, it's qualified as a Fixed-Float IR Swap
 		and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
-	
+
 		// qualifies product as not having cross-currency features
 		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
 	
@@ -574,7 +575,7 @@ func Qualify_InterestRate_IRSwap_Basis_OIS: <"Qualifies a product as a Basis (Fi
 			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_3_00_BGCANTOR
 			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_3_00_NY_ICAP
 			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_4_00_TRADITION)
-		
+
 func Qualify_InterestRate_CrossCurrency_FixedFloat: <"Qualifies a product as a Fixed-Float Cross-Currency Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one floating leg and a cross-currency feature and more than one payment, 2) without inflation features and 3) could be a 'zero coupon' and the floating leg index could be OIS or non-OIS.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
@@ -584,15 +585,15 @@ func Qualify_InterestRate_CrossCurrency_FixedFloat: <"Qualifies a product as a F
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-	
+
 	 	// qualifies product as a having a fixed and floating leg, and by elimination, given the count constraint above, no inflation legs
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-	
+
 		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both) therefore, given all the constraints, it's qualified as a Fixed-Float IR Swap
 		and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
-	
+
 		// and has CrossCurrency features in one or both legs
 		and economicTerms -> payout -> interestRatePayout -> principalExchanges exists
 
@@ -607,11 +608,11 @@ func Qualify_InterestRate_CrossCurrency_Basis: <"Qualifies a product as a Basis 
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-	
+
 		// qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
 		and	economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
-	
+
 		// qualifies that the product and has cross-currency features in one or both legs
 		and economicTerms -> payout -> interestRatePayout -> principalExchanges exists
 
@@ -625,11 +626,11 @@ func Qualify_InterestRate_CrossCurrency_FixedFixed: <"Qualifies a product as a F
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-	
+
 		// qualifies product as an Interest Rate Product with two fixed legs (by elimination not inflation)
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
-	
+
 		// qualifies product as having a cross-currency feature in one or more legs
 		and economicTerms -> payout -> interestRatePayout -> principalExchanges exists
 
@@ -642,18 +643,18 @@ func Qualify_InterestRate_InflationSwap_FixedFloat_YearOn_Year: <"Qualifies a pr
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-	
+
 		// qualifies product as an Interest Rate Product with one fixed and one inflation rate leg (by elimination not floating interest)
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
-	
+
 		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both)
 		and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
-	
+
 		// qualifies product as not having the 'zero coupon' feature
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any <> PeriodExtendedEnum -> T
-	
+
 		// qualifies product as having an annual payment frequency
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> Y
@@ -686,18 +687,18 @@ func Qualify_InterestRate_InflationSwap_Basis_YearOn_Year: <"Qualifies a product
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-	
+
 		// qualifies product as an Interest Rate Product with one inflation rate leg and one floating interest rate leg (by elimination not fixed interest)
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
-	
+
 		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both)
 		and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
-	
+
 		// qualifies product as not having the 'zero coupon' feature
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any <> PeriodExtendedEnum -> T
-	
+
 		// qualifies product as having an annual payment frequency
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> Y
@@ -712,12 +713,12 @@ func Qualify_InterestRate_InflationSwap_Basis_ZeroCoupon: <"Qualifies a product 
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-	
+
 		// qualifies product as an Interest Rate Product with one fixed and one inflation rate leg (by elimination not floating interest)
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
-	
+
 		// qualifies product as having the 'zero coupon' feature
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
@@ -734,12 +735,12 @@ func Qualify_InterestRate_Fra: <"Qualifies the product as a Floating Rate Agreem
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-	
+
 		// qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-	
+
 		// qualifies product as having a single payment in each leg (the complex type paymentDate is used when there is a single payment)
 		and economicTerms -> payout -> interestRatePayout -> paymentDate count = 2
 
@@ -754,10 +755,10 @@ func Qualify_InterestRate_CapFloor:	<"Qualifies a product as an interest rate ca
 		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-	
+
 		// qualifies product as an Interest Rate product with a single leg
 		and economicTerms -> payout -> interestRatePayout count = 1
-	
+
 		// qualifies the product as having a cap and/or floor in the interestRatePayout
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> capRateSchedule exists
 		or economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floorRateSchedule exists
@@ -800,7 +801,7 @@ func Qualify_ForeignExchange_Spot_Forward: <"Qualifies a product as Foreign Exch
 		[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Forward"]
 		[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Spot"]
 	assign-output is_product:
-		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange only exists 
+		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange only exists
 		and economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange count = 1
 		and economicTerms -> payout -> forwardPayout -> settlementTerms -> cashSettlementTerms is absent
 
@@ -809,7 +810,7 @@ func Qualify_ForeignExchange_Swap: <"Qualifies a product as Foreign Exchange Swa
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 	assign-output is_product:
-		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange only exists 
+		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange only exists
 		and economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange count = 2
 		and economicTerms -> payout -> forwardPayout -> settlementTerms -> cashSettlementTerms is absent
 
@@ -820,7 +821,7 @@ func Qualify_ForeignExchange_NDF: <"Qualifies a product as Foreign Exchange Non-
 		[synonym ISDA_Taxonomy_v1 value "ForeignExchange_NDF"]
 		[synonym ISDA_Taxonomy_v2 value "ForeignExchange_NDF"]
 	assign-output is_product:
-		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange only exists 
+		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange only exists
 		and economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange count = 1
 		and economicTerms -> payout -> forwardPayout -> settlementTerms -> cashSettlementTerms exists
 
@@ -873,7 +874,7 @@ func Qualify_Commodity_Option:
 		(economicTerms -> payout -> optionPayout only exists
 		    or (economicTerms -> payout -> optionPayout, economicTerms -> payout -> cashflow) only exists)
 		and economicTerms -> payout -> optionPayout -> underlier -> commodity exists
-		
+
 func Qualify_SecurityLendingAgreement: <"Qualifies a product as a Security Loan.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)

@@ -2,8 +2,7 @@ package cdm.product.template.processor;
 
 import cdm.base.staticdata.party.AncillaryRoleEnum;
 import cdm.legalagreement.contract.processor.PartyMappingHelper;
-import cdm.product.template.ExerciseNotice;
-import cdm.product.template.OptionPhysicalSettlement;
+import cdm.product.common.settlement.PhysicalSettlementTerms;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -28,7 +27,7 @@ public class PredeterminedClearingOrganizationPartyMappingProcessor extends Mapp
 		PartyMappingHelper.getInstanceOrThrow(getContext())
 				.setAncillaryRoleEnum(getModelPath(),
 						synonymPath,
-						((OptionPhysicalSettlement.OptionPhysicalSettlementBuilder) parent)::setPredeterminedClearingOrganizationParty,
+						((PhysicalSettlementTerms.PhysicalSettlementTermsBuilder) parent)::setPredeterminedClearingOrganizationParty,
 						AncillaryRoleEnum.PREDETERMINED_CLEARING_ORGANIZATION_PARTY);
 	}
 }

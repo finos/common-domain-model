@@ -141,7 +141,7 @@ type CashSettlementTerms: <"Defines the terms required to compute and settle a c
 	recoveryFactor number (0..1) <"Used for fixed recovery, specifies the recovery level, determined at contract formation, to be applied on a default. Used to calculate the amount paid by the seller to the buyer for cash settlement on the cash settlement date. Amount calculation is (1 minus the Recovery Factor) multiplied by the Floating Rate Payer Calculation Amount. The currency will be derived from the Floating Rate Payer Calculation Amount.">
 	fixedSettlement boolean (0..1) <"Used for Recovery Lock, to indicate whether fixed Settlement is Applicable or Not Applicable. If Buyer fails to deliver an effective Notice of Physical Settlement on or before the Buyer NOPS Cut-off Date, and if Seller fails to deliver an effective Seller NOPS on or before the Seller NOPS Cut-off Date, then either: (a) if Fixed Settlement is specified in the related Confirmation as not applicable, then the Seller NOPS Cut-off Date shall be the Termination Date; or (b) if Fixed Settlement is specified in the related Confirmation as applicable, then: (i) if the Fixed Settlement Amount is a positive number, Seller shall, subject to Section 3.1 (except for the requirement of satisfaction of the Notice of Physical Settlement Condition to Settlement), pay the Fixed Settlement Amount to Buyer on the Fixed Settlement Payment Date; and (ii) if the Fixed Settlement Amount is a negative number, Buyer shall, subject to Section 3.1 (except for the requirement of satisfaction of the Notice of Physical Settlement Condition to Settlement), pay the absolute value of the Fixed Settlement Amount to Seller on the Fixed Settlement Payment Date.">
 	accruedInterest boolean (0..1) <"Indicates whether accrued interest is included (true) or not (false). For cash settlement this specifies whether quotations should be obtained inclusive or not of accrued interest. For physical settlement this specifies whether the buyer should deliver the obligation with an outstanding principal balance that includes or excludes accrued interest. ISDA 2003 Term: Include/Exclude Accrued Interest.">
-	
+
 	condition CashSettlementTermsChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice cashSettlementAmount, recoveryFactor
 
@@ -261,10 +261,10 @@ type SettlementDate: <"A data defining the settlement date(s) for cash or physic
 			then cashSettlementBusinessDays >= 0
 		else
 			settlementDate exists or valueDate exists or adjustableDates exists or businessDateRange exists
-		
+
 	condition DateChoice: <"Settlement date must be specified either throught the 'settlementDate' or 'valueDate' attribute. This is a temporary work-around until such time when we can retire the 'valueDate' attribute.">
 		optional choice settlementDate, valueDate, adjustableDates, businessDateRange
-		
+
 type FxFixingDate extends Offset: <"Extends the Offset structure to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
 
 	businessDayConvention BusinessDayConventionEnum (0..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
@@ -330,6 +330,7 @@ type PrincipalExchanges: <"A class defining which principal exchanges occur for 
 
 type SettlementBase: <"A base class to be extended by the SettlementTerms class.">
 	[metadata key]
+
 	settlementType SettlementTypeEnum (1..1) <"Whether the settlement will be cash, physical, by election, ...">
 	transferSettlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
 	settlementCurrency string (0..1) <"The settlement currency is to be specified when the Settlement Amount cannot be known in advance. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">

@@ -342,12 +342,6 @@ synonym source FpML_5_10 extends FpML
 		+ maximumNumberOfOptions
 			[value "maximumNumberOfOptions"]
 
-	OptionPhysicalSettlement:
-		+ clearedPhysicalSettlement
-			[value "clearedPhysicalSettlement"]
-		+ predeterminedClearingOrganizationParty
-			[value "predeterminedClearingOrganizationPartyReference" mapper "PredeterminedClearingOrganizationParty"]
-
 	OtherAgreement:
 		+ identifier
 			[value "identifier" meta "agreementIdScheme"]
@@ -662,8 +656,6 @@ synonym source FpML_5_10 extends FpML
 			[value "cashSettlement"]
 			[hint "valueDate"]
 			[hint "settlementDate"]
-			// [hint "americanExercise"]
-			// [hint "europeanExercise"]
 			[value "americanExercise"]
 			[value "europeanExercise"]
 		+ cashSettlementTerms
@@ -677,8 +669,8 @@ synonym source FpML_5_10 extends FpML
 
 	ValuationSource:
 		+ informationSource
-			[value "informationSource"]
-			[value "fxSpotRateSource"]
+			[value "informationSource" path "settlementRateSource"]
+        	[value "fxSpotRateSource"]
 		+ referenceBanks
 			[value "cashSettlementReferenceBanks"]
 		+ dealer
@@ -888,12 +880,6 @@ synonym source FpML_5_10 extends FpML
 			[value "knockIn"]
 		+ knockOut
 			[value "knockOut"]
-
-	NotifyingParty:
-		+ buyer
-			[value "buyerPartyReference" mapper "Buyer"]
-		+ seller
-			[value "sellerPartyReference" mapper "Seller"]
 
 	OptionDenomination:
 		+ optionEntitlement
@@ -1160,17 +1146,14 @@ synonym source FpML_5_10 extends FpML
 			[value "paymentCalculationPeriod"]
 
 	SettlementDate:
-		[meta "id"]
+        [meta "id" path "settlementDate"]
+        [meta "id" path "cashSettlementPaymentDate"]
 		+ settlementDate
 			[value "cashSettlementPaymentDate"]
 			[value "settlementDate"]
 		+ valueDate
 			[value "valueDate"]
 			[value "latestValueDate"]
-			// [value "valueDate" path "americanExercise"]
-			// [value "valueDate" path "europeanExercise"]
-			[value "latestValueDate" path "americanExercise"]
-			[value "latestValueDate" path "europeanExercise"]
 		+ adjustableDates
 			[value "adjustableDates"]
 		+ businessDateRange
@@ -2922,8 +2905,8 @@ synonym source FpML_5_10 extends FpML
 		+ valuationMethod
 			[hint "fixing"]
 			[hint "rateSourceFixing"]
-			// [hint "fxSpotRateSource"]
 			[value "valuationMethod"]
+            [value "nonDeliverableSettlement"]
 			[value "cashPriceMethod"]
 			[value "cashPriceAlternateMethod"]
 			[value "parYieldCurveAdjustedMethod"]
@@ -2931,8 +2914,9 @@ synonym source FpML_5_10 extends FpML
 			[value "parYieldCurveUnadjustedMethod"]
 			[value "crossCurrencyMethod"]
 			[value "collateralizedCashPriceMethod"]
+            [hint "minimumQuotationAmount", "quotationAmount", "quotationMethod"]
 
-PhysicalSettlementTerms:
+    PhysicalSettlementTerms:
 		+ physicalSettlementPeriod
 			[value "physicalSettlementPeriod"]
 		+ deliverableObligations
@@ -2950,14 +2934,15 @@ PhysicalSettlementTerms:
 	ValuationMethod:
 		+ quotationMethod
 			[value "quotationMethod"]
+			[value "quotationRateType"]
 		+ quotationAmount
 			[value "quotationAmount"]
 		+ minimumQuotationAmount
 			[value "minimumQuotationAmount"]
-		+ valuationSource
-			[value "settlementRateSource"]
-			[value "fixing"]
-			[value "rateSourceFixing"]
+		//+ valuationSource
+		//	[value "settlementRateSource"]
+		//	[value "fixing"]
+		//	[value "rateSourceFixing"]
 
 	DeliverableObligations:
 		+ accruedInterest
