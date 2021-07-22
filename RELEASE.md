@@ -1,4 +1,4 @@
-# *Product Model – Settlement Terms*
+# *Product Model – Cash Settlement and Physical Settlement Terms*
 
 _What is being released?_
 
@@ -7,7 +7,7 @@ The structural definition of Settlement Terms has been harmonised. This release 
 
 _Background_
 
-Multiple inconsistencies have been identified in the current modelling of settlement terms. This leads to inefficiency in the product model and in the ability to represent functional rules for digital regulatory reporting. The resolution approach creates several modelling components common across products as part of PayoutBase and preserve the elements that are genuinely specific.
+Multiple inconsistencies have been identified in the current modelling of settlement terms. This leads to inefficiency in the product model and in the ability to represent functional rules for digital regulatory reporting. The resolution approach creates several modelling components common across products as part of `PayoutBase` and preserve the elements that are genuinely specific.
 
 _Details_
 
