@@ -210,6 +210,141 @@ func Qualify_IndexVanillaOption: <"Qualifies a product as a plain vanilla Index 
 		and (economicTerms -> payout -> optionPayout -> feature is absent
 			or economicTerms -> payout -> optionPayout -> feature -> averagingRateFeature only exists)
 
+func Qualify_AssetClass_InterestRate_Swap: <"Qualifies a product as Interest Rate">
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+
+	assign-output is_product:
+	 	(economicTerms -> payout -> interestRatePayout only exists
+			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+			and economicTerms -> payout -> interestRatePayout count = 2	
+
+func Qualify_BaseProduct_IRSwap: <"Qualifies a product as IR Swap based on the ">
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+
+	assign-output is_product:
+		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
+		and economicTerms -> payout -> interestRatePayout -> paymentDates count = 2
+		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
+
+func Qualify_BaseProduct_CrossCurrency: <"Qualifies a subproduct as Cross Currency">
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
+	 	and economicTerms -> payout -> interestRatePayout -> principalExchanges exists
+
+func Qualify_BaseProduct_Fra: <"Qualifies a subproduct as a Forward Rate Agreement">
+	// [qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+	Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
+	 	and economicTerms -> payout -> interestRatePayout -> paymentDate count = 2
+
+func Qualify_BaseProduct_Inflation: <"Qualifies a product as Inflation based on the ">
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
+		and economicTerms -> payout -> interestRatePayout -> paymentDates count = 2
+		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
+		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate exists
+
+func Qualify_SubProduct_FixedFloat: <"Qualifies a sub product as Fixed Float">
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+
+	assign-output is_product:
+	 	(economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1)
+		or
+		(economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1)
+
+
+func Qualify_SubProduct_FixedFixed: <"Qualifies a sub product as Fixed Fixed">
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+	 	economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
+
+func Qualify_SubProduct_Basis: <"Qualifies a sub product as Basis">
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+	 	economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+		or
+		(economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1)
+
+func Qualify_Transaction_ZeroCoupon: <"Qualifies a product as having the Transaction classification Zero Coupon">
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+	 	economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
+
+func Qualify_Transaction_YoY: <"Qualifies a product as having the Transaction classification Year on Year">
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+		economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
+		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> Y
+
+func Qualify_Transaction_OIS: <"Qualifies a product as having the Transaction classification OIS">
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+
+	alias floatingRateIndex:
+		economicTerms -> payout -> interestRatePayout  -> rateSpecification -> floatingRate -> rateOption ->floatingRateIndex
+
+	assign-output is_product:
+		floatingRateIndex any = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> OIS
+		or floatingRateIndex any = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND_SwapMarker
+		or floatingRateIndex any = FloatingRateIndexEnum -> CAD_CORRA_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> CNY_Shibor_OIS_Compounding
+		or floatingRateIndex any = FloatingRateIndexEnum -> COP_IBR_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> DKK_DKKOIS_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> EUR_EONIA_OIS_10_00_BGCANTOR
+		or floatingRateIndex any = FloatingRateIndexEnum -> EUR_EONIA_OIS_10_00_ICAP
+		or floatingRateIndex any = FloatingRateIndexEnum -> EUR_EONIA_OIS_10_00_TRADITION
+		or floatingRateIndex any = FloatingRateIndexEnum -> EUR_EONIA_OIS_11_00_ICAP
+		or floatingRateIndex any = FloatingRateIndexEnum -> EUR_EONIA_OIS_4_15_TRADITION
+		or floatingRateIndex any = FloatingRateIndexEnum -> EUR_EONIA_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> EUR_EONIA_OIS_COMPOUND_Bloomberg
+		or floatingRateIndex any = FloatingRateIndexEnum -> EUR_EURONIA_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> GBP_SONIA_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> GBP_SONIA_OIS_11_00_ICAP
+		or floatingRateIndex any = FloatingRateIndexEnum -> GBP_SONIA_OIS_11_00_TRADITION
+		or floatingRateIndex any = FloatingRateIndexEnum -> GBP_SONIA_OIS_4_15_TRADITION
+		or floatingRateIndex any = FloatingRateIndexEnum -> HKD_HONIX_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> INR_MIBOR_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> INR_MITOR_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> JPY_OIS_11_00_ICAP
+		or floatingRateIndex any = FloatingRateIndexEnum -> JPY_OIS_11_00_TRADITION
+		or floatingRateIndex any = FloatingRateIndexEnum -> JPY_OIS_3_00_TRADITION
+		or floatingRateIndex any = FloatingRateIndexEnum -> JPY_TONA_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> NZD_NZIONA_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> PLN_POLONIA_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> REPOFUNDS_RATE_FRANCE_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> REPOFUNDS_RATE_GERMANY_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> RUB_RUONIA_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> SEK_SIOR_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> SGD_SONAR_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> SGD_SONAR_OIS_VWAP_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> USD_Federal_Funds_H_15_OIS_COMPOUND
+		or floatingRateIndex any = FloatingRateIndexEnum -> USD_OIS_11_00_BGCANTOR
+		or floatingRateIndex any = FloatingRateIndexEnum -> USD_OIS_11_00_LON_ICAP
+		or floatingRateIndex any = FloatingRateIndexEnum -> USD_OIS_11_00_NY_ICAP
+		or floatingRateIndex any = FloatingRateIndexEnum -> USD_OIS_11_00_TRADITION
+		or floatingRateIndex any = FloatingRateIndexEnum -> USD_OIS_3_00_BGCANTOR
+		or floatingRateIndex any = FloatingRateIndexEnum -> USD_OIS_3_00_NY_ICAP
+		or floatingRateIndex any = FloatingRateIndexEnum -> USD_OIS_4_00_TRADITION
+
 func Qualify_InterestRate_IRSwap_FixedFloat: <"Qualifies a product as a Fixed-Float Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one floating leg and more than one payment, 2) without inflation features or cross-currency features or 'zero coupon' features, and 3) where the floating leg is not based on an OIS index.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
@@ -217,71 +352,76 @@ func Qualify_InterestRate_IRSwap_FixedFloat: <"Qualifies a product as a Fixed-Fl
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFloat"]
         [synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_FixedFloat"]
 
-	alias floatingRateIndex:
-		economicTerms -> payout -> interestRatePayout  -> rateSpecification -> floatingRate -> rateOption ->floatingRateIndex
-
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		Qualify_BaseProduct_IRSwap(economicTerms) = True
+		and Qualify_SubProduct_FixedFloat(economicTerms) = True
+		and Qualify_Transaction_ZeroCoupon(economicTerms) = False
+		and Qualify_Transaction_OIS(economicTerms) = False
+		// qualifies product as having more tan a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both)
+		// and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
 
-		// qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
-		and economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both)
-			and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
+		// // qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
+		// and economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	    // and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 
-		// qualifies product as not having cross-currency features
-		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
+		// // qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both)
+		// 	and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
 
-		// qualifies product as not having the 'zero coupon' feature
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any <> PeriodExtendedEnum -> T
+		// // qualifies product as not having cross-currency features
+		// and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
 
-		// qualifies product as not having an OIS index in the floating rate index
-		and floatingRateIndex all <> FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> OIS
-		and floatingRateIndex all <> FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND_SwapMarker
-		and floatingRateIndex all <> FloatingRateIndexEnum -> CAD_CORRA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> CNY_Shibor_OIS_Compounding
-		and floatingRateIndex all <> FloatingRateIndexEnum -> COP_IBR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> DKK_DKKOIS_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_10_00_BGCANTOR
-		and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_10_00_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_10_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_11_00_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_4_15_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_COMPOUND_Bloomberg
-		and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EURONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> GBP_SONIA_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> GBP_SONIA_OIS_11_00_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum -> GBP_SONIA_OIS_11_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum -> GBP_SONIA_OIS_4_15_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum -> HKD_HONIX_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> INR_MIBOR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> INR_MITOR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> JPY_OIS_11_00_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum -> JPY_OIS_11_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum -> JPY_OIS_3_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum -> JPY_TONA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> NZD_NZIONA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> PLN_POLONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> REPOFUNDS_RATE_FRANCE_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> REPOFUNDS_RATE_GERMANY_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> RUB_RUONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> SEK_SIOR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> SGD_SONAR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> SGD_SONAR_OIS_VWAP_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> USD_Federal_Funds_H_15_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_11_00_BGCANTOR
-		and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_11_00_LON_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_11_00_NY_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_11_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_3_00_BGCANTOR
-		and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_3_00_NY_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_4_00_TRADITION
+		// // qualifies product as not having the 'zero coupon' feature
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any <> PeriodExtendedEnum -> T
+
+		// // qualifies product as not having an OIS index in the floating rate index
+		// and Qualify_Transaction_OIS(economicTerms) = False
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> OIS
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND_SwapMarker
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> CAD_CORRA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> CNY_Shibor_OIS_Compounding
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> COP_IBR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> DKK_DKKOIS_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_10_00_BGCANTOR
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_10_00_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_10_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_11_00_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_4_15_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EONIA_OIS_COMPOUND_Bloomberg
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> EUR_EURONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> GBP_SONIA_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> GBP_SONIA_OIS_11_00_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> GBP_SONIA_OIS_11_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> GBP_SONIA_OIS_4_15_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> HKD_HONIX_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> INR_MIBOR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> INR_MITOR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> JPY_OIS_11_00_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> JPY_OIS_11_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> JPY_OIS_3_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> JPY_TONA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> NZD_NZIONA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> PLN_POLONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> REPOFUNDS_RATE_FRANCE_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> REPOFUNDS_RATE_GERMANY_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> RUB_RUONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> SEK_SIOR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> SGD_SONAR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> SGD_SONAR_OIS_VWAP_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> USD_Federal_Funds_H_15_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_11_00_BGCANTOR
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_11_00_LON_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_11_00_NY_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_11_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_3_00_BGCANTOR
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_3_00_NY_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum -> USD_OIS_4_00_TRADITION
 
 func Qualify_InterestRate_IRSwap_FixedFixed: <"Qualifies a product as a Fixed-Fixed Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with two fixed legs and more than one payment and 2) without inflation features or cross-currency features but could have 'zero coupon' features.">
 	[qualification Product]
@@ -290,15 +430,19 @@ func Qualify_InterestRate_IRSwap_FixedFixed: <"Qualifies a product as a Fixed-Fi
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFixed"]
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_FixedFixed"]
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	((economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists))
 
-		// qualifies product as an Interest Rate Product with two fixed legs (by elimination not inflation)
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
+		Qualify_BaseProduct_IRSwap(economicTerms) = True
+		and Qualify_SubProduct_FixedFixed(economicTerms) = True
 
-		// qualifies product as not having cross-currency features
-		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// ((economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists))
+
+		// // qualifies product as an Interest Rate Product with two fixed legs (by elimination not inflation)
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
+
+		// // qualifies product as not having cross-currency features
+		// and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
 
 func Qualify_InterestRate_IRSwap_Basis: <"Qualifies a product as a Basis (Float-Float) Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with two floating legs and more than one payment, 2) without inflation features or cross-currency features but could have 'zero coupon' features, and 3) where neither floating leg is  based on an OIS index.">
 	[qualification Product]
@@ -307,64 +451,65 @@ func Qualify_InterestRate_IRSwap_Basis: <"Qualifies a product as a Basis (Float-
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Basis"]
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Basis"]
 
-	alias floatingRateIndex:
-		economicTerms -> payout -> interestRatePayout  -> rateSpecification -> floatingRate -> rateOption ->floatingRateIndex
-
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		Qualify_BaseProduct_IRSwap(economicTerms) = True
+		and Qualify_SubProduct_Basis(economicTerms) = True
+		and Qualify_Transaction_OIS(economicTerms) = False
 
-		// qualifies product as an Interest Rate Product with two floating legs (by elimination not inflation)
-		and economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies product as not having cross-currency features
-		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
+		// // qualifies product as an Interest Rate Product with two floating legs (by elimination not inflation)
+		// and economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
 
-		// qualifies product as not having an OIS index in the floating leg
-		and floatingRateIndex all <> FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> OIS
-		and floatingRateIndex all <> FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND_SwapMarker
-		and floatingRateIndex all <> FloatingRateIndexEnum-> CAD_CORRA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> CNY_Shibor_OIS_Compounding
-		and floatingRateIndex all <> FloatingRateIndexEnum-> COP_IBR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> DKK_DKKOIS_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_BGCANTOR
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_11_00_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_4_15_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND_Bloomberg
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EURONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_OIS_4_15_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> HKD_HONIX_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> INR_MIBOR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> INR_MITOR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_OIS_11_00_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_OIS_11_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_OIS_3_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_TONA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> NZD_NZIONA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> PLN_POLONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> REPOFUNDS_RATE_FRANCE_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> REPOFUNDS_RATE_GERMANY_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> RUB_RUONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> SEK_SIOR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> SGD_SONAR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> SGD_SONAR_OIS_VWAP_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_Federal_Funds_H_15_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_BGCANTOR
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_LON_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_NY_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_3_00_BGCANTOR
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_3_00_NY_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_4_00_TRADITION
+		// // qualifies product as not having cross-currency features
+		// and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
+
+		// // qualifies product as not having an OIS index in the floating leg		
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> OIS
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND_SwapMarker
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> CAD_CORRA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> CNY_Shibor_OIS_Compounding
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> COP_IBR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> DKK_DKKOIS_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_BGCANTOR
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_11_00_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_4_15_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND_Bloomberg
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EURONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_OIS_4_15_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> HKD_HONIX_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> INR_MIBOR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> INR_MITOR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_OIS_11_00_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_OIS_11_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_OIS_3_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_TONA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> NZD_NZIONA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> PLN_POLONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> REPOFUNDS_RATE_FRANCE_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> REPOFUNDS_RATE_GERMANY_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> RUB_RUONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> SEK_SIOR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> SGD_SONAR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> SGD_SONAR_OIS_VWAP_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_Federal_Funds_H_15_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_BGCANTOR
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_LON_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_NY_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_3_00_BGCANTOR
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_3_00_NY_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_4_00_TRADITION
 
 func Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon: <"Qualifies a product as a Fixed-Float Zero Coupon Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one floating leg and more than one payment, 2) without inflation features or cross-currency features, and 3) where the floating leg is not based on an OIS index.">
 	[qualification Product]
@@ -372,72 +517,76 @@ func Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon: <"Qualifies a product as
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_FixedFloat_ZeroCoupon"]
 
-	alias floatingRateIndex:
-		economicTerms -> payout -> interestRatePayout  -> rateSpecification -> floatingRate -> rateOption ->floatingRateIndex
-
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		Qualify_BaseProduct_IRSwap(economicTerms) = True
+		and Qualify_SubProduct_FixedFloat(economicTerms) = True
+		and Qualify_Transaction_ZeroCoupon(economicTerms) = True
+		and Qualify_Transaction_OIS(economicTerms) = False
+		// qualifies product as having more tan a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both)
+		// and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
 
-		// qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
-		and economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both) therefore, given all the constraints, it's qualified as a Fixed-Float IR Swap
-		and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
+		// // qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
+		// and economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	    // and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 
-		// qualifies product as not having cross-currency features
-		and economicTerms -> payout -> interestRatePayout -> principalExchanges  is absent
+		// // qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both) therefore, given all the constraints, it's qualified as a Fixed-Float IR Swap
+		// and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
 
-		// qualifies product as having the 'zero coupon' feature
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
+		// // qualifies product as not having cross-currency features
+		// and economicTerms -> payout -> interestRatePayout -> principalExchanges  is absent
 
-		// qualifies product as not having an OIS index in the floating rate index
-		and floatingRateIndex all <> FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> OIS
-		and floatingRateIndex all <> FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND_SwapMarker
-		and floatingRateIndex all <> FloatingRateIndexEnum-> CAD_CORRA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> CNY_Shibor_OIS_Compounding
-		and floatingRateIndex all <> FloatingRateIndexEnum-> COP_IBR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> DKK_DKKOIS_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_BGCANTOR
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_11_00_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_4_15_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND_Bloomberg
-		and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EURONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_OIS_4_15_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> HKD_HONIX_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> INR_MIBOR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> INR_MITOR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_OIS_11_00_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_OIS_11_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_OIS_3_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_TONA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> NZD_NZIONA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> PLN_POLONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> REPOFUNDS_RATE_FRANCE_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> REPOFUNDS_RATE_GERMANY_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> RUB_RUONIA_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> SEK_SIOR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> SGD_SONAR_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> SGD_SONAR_OIS_VWAP_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_Federal_Funds_H_15_OIS_COMPOUND
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_BGCANTOR
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_LON_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_NY_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_TRADITION
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_3_00_BGCANTOR
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_3_00_NY_ICAP
-		and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_4_00_TRADITION
+		// // qualifies product as having the 'zero coupon' feature
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
+
+		// // qualifies product as not having an OIS index in the floating rate index
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> OIS
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND_SwapMarker
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> CAD_CORRA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> CNY_Shibor_OIS_Compounding
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> COP_IBR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> DKK_DKKOIS_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_BGCANTOR
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_11_00_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_4_15_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND_Bloomberg
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> EUR_EURONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> GBP_SONIA_OIS_4_15_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> HKD_HONIX_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> INR_MIBOR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> INR_MITOR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_OIS_11_00_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_OIS_11_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_OIS_3_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> JPY_TONA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> NZD_NZIONA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> PLN_POLONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> REPOFUNDS_RATE_FRANCE_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> REPOFUNDS_RATE_GERMANY_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> RUB_RUONIA_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> SEK_SIOR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> SGD_SONAR_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> SGD_SONAR_OIS_VWAP_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_Federal_Funds_H_15_OIS_COMPOUND
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_BGCANTOR
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_LON_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_NY_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_11_00_TRADITION
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_3_00_BGCANTOR
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_3_00_NY_ICAP
+		// and floatingRateIndex all <> FloatingRateIndexEnum-> USD_OIS_4_00_TRADITION
 
 func Qualify_InterestRate_IRSwap_FixedFloat_OIS: <"Qualifies a product as a Fixed-Float OIS Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one floating leg and more than one payment and where the floating leg is based on an OIS index, 2) without inflation features or cross-currency features, and 3) could include 'zero coupon' features.">
 	[qualification Product]
@@ -445,68 +594,71 @@ func Qualify_InterestRate_IRSwap_FixedFloat_OIS: <"Qualifies a product as a Fixe
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_FixedFloat_OIS"]
 
-	alias floatingRateIndex:
-		economicTerms -> payout -> interestRatePayout  -> rateSpecification -> floatingRate -> rateOption ->floatingRateIndex
-
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		Qualify_BaseProduct_IRSwap(economicTerms) = True
+		and Qualify_SubProduct_FixedFloat(economicTerms) = True
+		and Qualify_Transaction_OIS(economicTerms) = True
+		// qualifies product as having more tan a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both)
+		// and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2		
 
-		// qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
-		and economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both) therefore, given all the constraints, it's qualified as a Fixed-Float IR Swap
-		and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
+		// // qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
+		// and economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	    // and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 
-		// qualifies product as not having cross-currency features
-		and economicTerms -> payout -> interestRatePayout -> principalExchanges  is absent
+		// // qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both) therefore, given all the constraints, it's qualified as a Fixed-Float IR Swap
+		// and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
 
-		// qualifies product as having a floating rate leg with an OIS index
-		and (floatingRateIndex all = FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> OIS
-			or floatingRateIndex all = FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND_SwapMarker
-			or floatingRateIndex all = FloatingRateIndexEnum-> CAD_CORRA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> CNY_Shibor_OIS_Compounding
-			or floatingRateIndex all = FloatingRateIndexEnum-> COP_IBR_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> DKK_DKKOIS_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_BGCANTOR
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_11_00_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_4_15_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND_Bloomberg
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EURONIA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_OIS_4_15_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> HKD_HONIX_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> INR_MIBOR_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> INR_MITOR_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> JPY_OIS_11_00_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> JPY_OIS_11_00_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> JPY_OIS_3_00_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> JPY_TONA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> NZD_NZIONA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> PLN_POLONIA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> REPOFUNDS_RATE_FRANCE_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> REPOFUNDS_RATE_GERMANY_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> RUB_RUONIA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> SEK_SIOR_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> SGD_SONAR_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> SGD_SONAR_OIS_VWAP_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_Federal_Funds_H_15_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_BGCANTOR
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_LON_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_NY_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_3_00_BGCANTOR
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_3_00_NY_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_4_00_TRADITION)
+		// // qualifies product as not having cross-currency features
+		// and economicTerms -> payout -> interestRatePayout -> principalExchanges  is absent
+
+		// // qualifies product as having a floating rate leg with an OIS index
+		// and (floatingRateIndex all = FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> OIS
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND_SwapMarker
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> CAD_CORRA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> CNY_Shibor_OIS_Compounding
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> COP_IBR_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> DKK_DKKOIS_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_BGCANTOR
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_11_00_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_4_15_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND_Bloomberg
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EURONIA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_OIS_4_15_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> HKD_HONIX_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> INR_MIBOR_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> INR_MITOR_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> JPY_OIS_11_00_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> JPY_OIS_11_00_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> JPY_OIS_3_00_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> JPY_TONA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> NZD_NZIONA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> PLN_POLONIA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> REPOFUNDS_RATE_FRANCE_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> REPOFUNDS_RATE_GERMANY_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> RUB_RUONIA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> SEK_SIOR_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> SGD_SONAR_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> SGD_SONAR_OIS_VWAP_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_Federal_Funds_H_15_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_BGCANTOR
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_LON_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_NY_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_3_00_BGCANTOR
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_3_00_NY_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_4_00_TRADITION)
 
 func Qualify_InterestRate_IRSwap_Basis_OIS: <"Qualifies a product as a Basis (Fixed-Float) OIS Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with two floating legs and more than one payment and where one or both the floating leg is based on an OIS index, 2) without inflation features or cross-currency features, and 3) could include 'zero coupon' features.">
 	[qualification Product]
@@ -514,248 +666,294 @@ func Qualify_InterestRate_IRSwap_Basis_OIS: <"Qualifies a product as a Basis (Fi
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Basis"]
 
-	alias floatingRateIndex:
-		economicTerms -> payout -> interestRatePayout  -> rateSpecification -> floatingRate -> rateOption ->floatingRateIndex
-
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		Qualify_BaseProduct_IRSwap(economicTerms) = True
+		and Qualify_SubProduct_Basis(economicTerms) = True
+		and Qualify_Transaction_OIS(economicTerms) = True
 
-		// qualifies product as an Interest Rate Product with two floating legs (by elimination not inflation)
-		and economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both) therefore, given all the constraints, it's qualified as a Fixed-Float IR Swap
-		and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
+		// // qualifies product as an Interest Rate Product with two floating legs (by elimination not inflation)
+		// and economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
 
-		// qualifies product as not having cross-currency features
-		and economicTerms -> payout -> interestRatePayout -> principalExchanges  is absent
+		// // qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both) therefore, given all the constraints, it's qualified as a Fixed-Float IR Swap
+		// and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
 
-		// qualifies product as having a floating rate leg with an OIS index
-		and (floatingRateIndex all = FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> OIS
-			or floatingRateIndex all = FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND_SwapMarker
-			or floatingRateIndex all = FloatingRateIndexEnum-> CAD_CORRA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> CNY_Shibor_OIS_Compounding
-			or floatingRateIndex all = FloatingRateIndexEnum-> COP_IBR_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> DKK_DKKOIS_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_BGCANTOR
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_11_00_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_4_15_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND_Bloomberg
-			or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EURONIA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_OIS_4_15_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> HKD_HONIX_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> INR_MIBOR_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> INR_MITOR_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> JPY_OIS_11_00_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> JPY_OIS_11_00_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> JPY_OIS_3_00_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> JPY_TONA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> NZD_NZIONA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> PLN_POLONIA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> REPOFUNDS_RATE_FRANCE_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> REPOFUNDS_RATE_GERMANY_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> RUB_RUONIA_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> SEK_SIOR_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> SGD_SONAR_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> SGD_SONAR_OIS_VWAP_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_Federal_Funds_H_15_OIS_COMPOUND
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_BGCANTOR
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_LON_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_NY_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_TRADITION
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_3_00_BGCANTOR
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_3_00_NY_ICAP
-			or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_4_00_TRADITION)
+		// // qualifies product as not having cross-currency features
+		// and economicTerms -> payout -> interestRatePayout -> principalExchanges  is absent
+
+		// // qualifies product as having a floating rate leg with an OIS index
+		// and (floatingRateIndex all = FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> OIS
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> AUD_AONIA_OIS_COMPOUND_SwapMarker
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> CAD_CORRA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> CNY_Shibor_OIS_Compounding
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> COP_IBR_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> DKK_DKKOIS_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_BGCANTOR
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_10_00_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_11_00_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_4_15_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EONIA_OIS_COMPOUND_Bloomberg
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> EUR_EURONIA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_OIS_11_00_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> GBP_SONIA_OIS_4_15_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> HKD_HONIX_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> INR_MIBOR_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> INR_MITOR_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> JPY_OIS_11_00_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> JPY_OIS_11_00_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> JPY_OIS_3_00_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> JPY_TONA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> NZD_NZIONA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> PLN_POLONIA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> REPOFUNDS_RATE_FRANCE_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> REPOFUNDS_RATE_GERMANY_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> RUB_RUONIA_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> SEK_SIOR_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> SGD_SONAR_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> SGD_SONAR_OIS_VWAP_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_Federal_Funds_H_15_OIS_COMPOUND
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_BGCANTOR
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_LON_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_NY_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_11_00_TRADITION
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_3_00_BGCANTOR
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_3_00_NY_ICAP
+		// 	or floatingRateIndex all = FloatingRateIndexEnum-> USD_OIS_4_00_TRADITION)
 
 func Qualify_InterestRate_CrossCurrency_FixedFloat: <"Qualifies a product as a Fixed-Float Cross-Currency Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one floating leg and a cross-currency feature and more than one payment, 2) without inflation features and 3) could be a 'zero coupon' and the floating leg index could be OIS or non-OIS.">
 	[qualification Product]
+
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_CrossCurrency_FixedFloat"]
+
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		Qualify_BaseProduct_CrossCurrency(economicTerms) = True
+		and Qualify_SubProduct_FixedFloat(economicTerms) = True
 
-	 	// qualifies product as a having a fixed and floating leg, and by elimination, given the count constraint above, no inflation legs
-		and economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both) therefore, given all the constraints, it's qualified as a Fixed-Float IR Swap
-		and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
+	 	// // qualifies product as a having a fixed and floating leg, and by elimination, given the count constraint above, no inflation legs
+		// and economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	    // and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 
-		// and has CrossCurrency features in one or both legs
-		and economicTerms -> payout -> interestRatePayout -> principalExchanges  exists
+		// // qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both) therefore, given all the constraints, it's qualified as a Fixed-Float IR Swap
+		// and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
+
+		// // and has CrossCurrency features in one or both legs
+		// and economicTerms -> payout -> interestRatePayout -> principalExchanges  exists
 
 func Qualify_InterestRate_CrossCurrency_Basis: <"Qualifies a product as a Basis (Float-Float) Cross Currency Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with two floating legs, a cross-currency feature in one or both legs, and more than one payment, 2) but without inflation features, and 3) could be a 'zero coupon' and floating leg index could be OIS or non-OIS.">
-
 	[qualification Product]
+
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_CrossCurrency_Basis"]
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_CrossCurrency_Basis"]
+
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		Qualify_BaseProduct_CrossCurrency(economicTerms) = True
+		and Qualify_SubProduct_Basis(economicTerms) = True
 
-		// qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
-		and	economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies that the product and has cross-currency features in one or both legs
-		and economicTerms -> payout -> interestRatePayout -> principalExchanges  exists
+		// // qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
+		// and	economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
+
+		// // qualifies that the product and has cross-currency features in one or both legs
+		// and economicTerms -> payout -> interestRatePayout -> principalExchanges  exists
 
 func Qualify_InterestRate_CrossCurrency_FixedFixed: <"Qualifies a product as a Fixed-Fixed Cross-Currency Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with two fixed legs and a cross-currency feature and more than one payment, 2) without inflation features and 3) could be a 'zero coupon'">
 	[qualification Product]
+
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_CrossCurrency_FixedFixed"]
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_CrossCurrency_FixedFixed"]
+
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		Qualify_BaseProduct_CrossCurrency(economicTerms) = True
+		and Qualify_SubProduct_FixedFixed(economicTerms) = True
 
-		// qualifies product as an Interest Rate Product with two fixed legs (by elimination not inflation)
-		and economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies product as having a cross-currency feature in one or more legs
-		and economicTerms -> payout -> interestRatePayout -> principalExchanges  exists
+		// // qualifies product as an Interest Rate Product with two fixed legs (by elimination not inflation)
+		// and economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
+
+		// // qualifies product as having a cross-currency feature in one or more legs
+		// and economicTerms -> payout -> interestRatePayout -> principalExchanges  exists
 
 func Qualify_InterestRate_InflationSwap_FixedFloat_YearOn_Year: <"Qualifies a product as a Fixed-Float Annual Reset Inflation Swap based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one inflation rate leg and more than one payment, and 2) without cross-currency features or 'zero coupon' features.">
 	[qualification Product]
+
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Inflation"]
+
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		Qualify_BaseProduct_Inflation(economicTerms) = True
+		and Qualify_SubProduct_FixedFloat(economicTerms) = True
+		and Qualify_Transaction_YoY(economicTerms) = True
 
-		// qualifies product as an Interest Rate Product with one fixed and one inflation rate leg (by elimination not floating interest)
-		and economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both)
-		and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
+		// // qualifies product as an Interest Rate Product with one fixed and one inflation rate leg (by elimination not floating interest)
+		// and economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	    // and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
 
-		// qualifies product as not having the 'zero coupon' feature
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any <> PeriodExtendedEnum -> T
+		// // qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both)
+		// and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
 
-		// qualifies product as having an annual payment frequency
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> Y
+		// // qualifies product as not having the 'zero coupon' feature
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any <> PeriodExtendedEnum -> T
+
+		// // qualifies product as having an annual payment frequency
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> Y
 
 func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon: <"Qualifies a product as a Fixed-Float Inflation Swap with a single accrual period based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one inflation rate leg and more than one payment, and 2) without cross-currency features.">
 	[qualification Product]
+
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Inflation"]
+
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		Qualify_BaseProduct_Inflation(economicTerms) = True
+		and Qualify_SubProduct_FixedFloat(economicTerms) = True
+		and Qualify_Transaction_ZeroCoupon(economicTerms) = True
 
-		// qualifies product as an Interest Rate Product with one fixed and one inflation rate leg (by elimination not floating interest)
-		and economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies product as having the 'zero coupon' feature
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
+		// // qualifies product as an Interest Rate Product with one fixed and one inflation rate leg (by elimination not floating interest)
+		// and economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+
+		// // qualifies product as having the 'zero coupon' feature
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
 
 func Qualify_InterestRate_InflationSwap_Basis_YearOn_Year: <"Qualifies a product as a Basis (Float-Float) Annual Reset Inflation Swap based on the economic terms and the following criteria: 1) An interest rate product with one floating interest rate leg and one inflation rate leg and more than one payment, and 2) without cross-currency features or 'zero coupon' features.">
 	[qualification Product]
+
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
+	
+	
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		Qualify_BaseProduct_Inflation(economicTerms) = True
+		and Qualify_SubProduct_Basis(economicTerms) = True
+		and Qualify_Transaction_YoY(economicTerms) = True
 
-		// qualifies product as an Interest Rate Product with one inflation rate leg and one floating interest rate leg (by elimination not fixed interest)
-		and economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both)
-		and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
+		// // qualifies product as an Interest Rate Product with one inflation rate leg and one floating interest rate leg (by elimination not fixed interest)
+		// and economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
 
-		// qualifies product as not having the 'zero coupon' feature
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any <> PeriodExtendedEnum -> T
+		// // qualifies product as having more than a single payment in each leg (note that the InterestRatePayout data type has a condition that allows for population of paymentDates or paymentDate, but not both)
+		// and economicTerms -> payout -> interestRatePayout ->paymentDates count = 2
 
-		// qualifies product as having an annual payment frequency
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> Y
+		// // qualifies product as not having the 'zero coupon' feature
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period any <> PeriodExtendedEnum -> T
+
+		// // qualifies product as having an annual payment frequency
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> Y
 
 func Qualify_InterestRate_InflationSwap_Basis_ZeroCoupon: <"Qualifies a product as a Fixed-Float Inflation Swap with a single accrual period based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one inflation rate leg and more than one payment, and 2) without cross-currency features.">
-
 	[qualification Product]
+
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
+
 	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		Qualify_BaseProduct_Inflation(economicTerms) = True
+		and Qualify_SubProduct_Basis(economicTerms) = True
+		and Qualify_Transaction_ZeroCoupon(economicTerms) = True
 
-		// qualifies product as an Interest Rate Product with one fixed and one inflation rate leg (by elimination not floating interest)
-		and economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies product as having the 'zero coupon' feature
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
-		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
+		// // qualifies product as an Interest Rate Product with one fixed and one inflation rate leg (by elimination not floating interest)
+		// and economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+
+		// // qualifies product as having the 'zero coupon' feature
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
+		// and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
 
 func Qualify_InterestRate_Fra: <"Qualifies the product as a Floating Rate Agreement based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one floating leg, each of which has a single payment, and 2) could include a cross-currency feature, and the floating rate leg could be based OIS index.">
-
 	[qualification Product]
+
 	inputs: economicTerms EconomicTerms (1..1)
-	output: result boolean (1..1)
+	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_Fra"]
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_Fra"]
 
-	assign-output result:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+	assign-output is_product:
+		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
+			and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+		    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+	 		and economicTerms -> payout -> interestRatePayout -> paymentDate count = 2
+	
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
-		// qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
-		and economicTerms -> payout -> interestRatePayout count = 2
-		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		// // qualifies product as an Interest Rate Product with one fixed and one floating leg (by elimination not inflation)
+		// and economicTerms -> payout -> interestRatePayout count = 2
+		// and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+	    // and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
 
-		// qualifies product as having a single payment in each leg (the complex type paymentDate is used when there is a single payment)
-		and economicTerms -> payout -> interestRatePayout -> paymentDate count = 2
+		// // qualifies product as having a single payment in each leg (the complex type paymentDate is used when there is a single payment)
+		// and economicTerms -> payout -> interestRatePayout -> paymentDate count = 2
 
 func Qualify_InterestRate_CapFloor:	<"Qualifies a product as an interest rate cap, interest rate floor, or an interest rate collar based on the economic terms and the following criteria: 1) An interest rate product with one one leg that includes a cap and/or a floor.">
-
 	[qualification Product]
+
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_CapFloor"]
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_CapFloor"]
-	assign-output is_product:
-		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
+	assign-output is_product:
+		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
+		
+		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	// (economicTerms -> payout -> interestRatePayout only exists
+		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 		// qualifies product as an Interest Rate product with a single leg
 		and economicTerms -> payout -> interestRatePayout count = 1
 
