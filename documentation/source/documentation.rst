@@ -458,7 +458,6 @@ The underlier attribute on types ``OptionPayout``, ``ForwardPayout`` and ``Equit
    buyerSeller BuyerSeller (1..1)
    optionType OptionTypeEnum (0..1)
    feature OptionFeature (0..1)
-   denomination OptionDenomination (0..1)
    exerciseTerms OptionExercise (1..1)
    underlier Product (1..1)
 

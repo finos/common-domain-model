@@ -483,6 +483,8 @@ synonym source FpML_5_10 extends FpML
             [value "settlementAmount" path "nearLeg"]
 			// For Commodity
 			[value "notionalQuantity"]
+			// For Equity / Bond Option
+			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"]
 		+ observable
 			// For Swap Streams etc
 			[value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
@@ -886,14 +888,6 @@ synonym source FpML_5_10 extends FpML
 			[value "knockIn"]
 		+ knockOut
 			[value "knockOut"]
-
-	OptionDenomination:
-		+ optionEntitlement
-			[value "optionEntitlement"]
-		+ entitlementCurrency
-			[value "entitlementCurrency" meta "currencyScheme"]
-		+ numberOfOptions
-			[value "numberOfOptions"]
 
 	OptionFeature:
 		+ fxFeature
@@ -1589,8 +1583,12 @@ synonym source FpML_5_10 extends FpML
 			[value "openUnits" maps 2]
 			// For Commodity Swap
 			[value "quantity"]
+			[value "numberOfOptions"]
+		+ multiplier
+			[value "optionEntitlement"]
 		+ multiplierUnit
 			[hint "quantityFrequency"]
+			[hint "entitlementCurrency"]
 
 	NonNegativeQuantitySchedule:
 		+ initialQuantity
@@ -2319,6 +2317,7 @@ synonym source FpML_5_10 extends FpML
 			[value "fxOption"]
 			[value "fxDigitalOption"]
 			[hint "commodity", "notionalQuantity"] // Commodity Option
+			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"] // For Equity / Bond Option
 			// Options: Premium
 			[value "premium", "equityPremium"]
 			[value "premium" path "bondOption"]
@@ -3320,6 +3319,8 @@ synonym source FpML_5_10 extends FpML
 			[value "currency1" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->perUnitOfAmount->currency]
 			// For Commodity Swap Fixed Leg
 			[value "priceCurrency" maps 2 set when rosettaPath = Price->unitOfAmount->currency]
+			// For Bond Option
+			[value "entitlementCurrency" maps 2 meta "currencyScheme"]
 		+ frequency
 			[value "Frequency"]
 			// For Commodity Swap Fixed Leg

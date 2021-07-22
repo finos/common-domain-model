@@ -123,7 +123,6 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	buyerSeller BuyerSeller (1..1)
 	optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">
-	denomination OptionDenomination (0..1) <"The denomination qualifies the number of units of underlier per option and the number of options comprised in the option transaction. FpML represents this information as part of the OptionDenomination.model.">
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 	underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
 
@@ -567,20 +566,6 @@ type Knock: <"Knock In means option to exercise comes into existence. Knock Out 
 
 	knockIn TriggerEvent (0..1) <"The knock in.">
 	knockOut TriggerEvent (0..1) <"The knock out.">
-
-type OptionDenomination: <"Class which corresponds to the FpML OptionDenomination.model group.">
-
-	optionEntitlement number (1..1) <"The number of units of underlier per option comprised in the option transaction.">
-	entitlementCurrency string (0..1) <"The currency in which the option is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-	numberOfOptions number (0..1) <"The number of options comprised in the option transaction.">
-	condition PositiveOptionEntitlement: <" In FpML the optionEntitlement element is specified as a positive decimal.">
-		if optionEntitlement exists
-		then optionEntitlement >= 0.0
-
-	condition PositiveNumberOfOptions: <" In FpML the numberOfOptions element is specified as a positive decimal.">
-		if numberOfOptions exists
-		then numberOfOptions >= 0.0
 
 type OptionFeature: <"Defines additional optional features that can be included in an option contract.">
 
