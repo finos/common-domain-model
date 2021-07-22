@@ -1,16 +1,19 @@
-# *Legal Agreement Model – Collateral Valuation Treatment/Identification and addition of additional haircuts – USER STORY 635*
+# *Legal Agreement Model – Collateral Valuation Treatment/Identification and addition of additional haircuts*
 
 _What is being released?_
 
-Change of the name of data type `CollateralValuationPercentage` to `CollateralValuationTreatment` as more relevant to its purpose. This is also referenced in several places throughout the CDM model therefore changes have been made where used. 
+The data type `CollateralValuationPercentage` has been renamed to `CollateralValuationTreatment` as more relevant. The corresponding data attribute `valuationPercentage` has been renamed to `haircutPercentage` and its description reflect now its use for representing haircut rather than the full valuation percentage. 
 
-In addition to this change data attribute `valuationPercentage` has been renamed to `haircutPercentage` the description has been amended to support this change so it is used to represent the haircut rather than the full valuation percentage, the function supporting this logic has been amended to reflect this.
+The folllowing function have been updated with the new names:
+- `PostedCreditSupportItemAmount`
+- `SecurityFinanceCashSettlementAmount`
+- `ResolveSecurityFinanceBillingAmount`
 
-An additional haircut data attribute is added named `additionalHaircutPercentage` with related description this work with the same functional logic and conditions as `haircutPercentage` and `fxHaircutPercentage`.
+An additional haircut data attribute `additionalHaircutPercentage` with related description has been added along with conditions as `haircutPercentage` and `fxHaircutPercentage`.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
+In the CDM Portal, select the Textual Browser and search for the data types mentioned above:
 
 Search for the data type `CollateralValuationTreatment` and inspect the change from `CollateralValuationPercentage` throughout the model. Inspect the change to data attribute `haircutPercentage` from `valuationPercentage` and changes to the description and related conditions.
 
@@ -19,11 +22,11 @@ Check the addition of data attribute `additionalHaircutPercentage` and inspect t
 Inspect the addition of condition `HaircutPercentageOrMarginPercentage` which forces a required choice for `haricutpercentage` or `marginpercentage` 
 In the legalagreement-csa-func file inspect the changes made to the function for haircut calculation to support the changes made.
 
-# *Credit Notations – Agency Rating Criteria additions and added descriptions – USER STORY 677*
+# *Credit Notations – Agency Rating Criteria additions and added descriptions*
 
 _What is being released?_
 
-Addition to data type `AgencyRatingCriteria` to the list of available data attributes the following has been added `boundary` which can be used to indicate the boundary of a credit agency rating i.e minimum or maximum. An enumeration list is added to support this `CreditNotationBoundaryEnum`.
+Addition of the data type `AgencyRatingCriteria` to the list of available data attributes the following has been added `boundary` which can be used to indicate the boundary of a credit agency rating i.e minimum or maximum. An enumeration list is added to support this `CreditNotationBoundaryEnum`.
 
 Missing descriptions have been added to attributes and enumeration list `CreditNotationMismatchResolution`.
 
