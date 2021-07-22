@@ -35,22 +35,24 @@ type AgencyRatingCriteria: <"A class to specify multiple credit notations alongs
 
 	qualifier QuantifierEnum (1..1) <"Indicates whether all or any agency ratings apply.">
 	creditNotation CreditNotation (1..*) <"Indicates the agency rating criteria specified for the asset or issuer.">
-	mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
-	referenceAgency CreditRatingAgencyEnum (0..1)
+	mismatchResolution CreditNotationMismatchResolutionEnum (0..1) <"Indicator for options to be used if several agency ratings (>1) are specified and its necessary to identify specific charateristics. i.e (lowest or highest).">
+	referenceAgency CreditRatingAgencyEnum (0..1) <"To identify The dominant reference agency if there is a missmatch and several reference agencies exsist.">
+	boundary CreditNotationBoundaryEnum (0..1) <"Indicates the boundary of a credit agency rating i.e minimum or maximum.">
 
 	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
 		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
 		then AgencyRatingCriteria -> referenceAgency exists
 
-type CollateralValuationPercentage: <"Specification of the valuation treatment for the specified collateral.">
+type CollateralValuationTreatment: <"Specification of the valuation treatment for the specified collateral.">
 
-	valuationPercentage number (0..1) <"Percentage value of asset to be used as collateral once discounted haircut take into consideration,expressed as a valuation. As an example a 0.5% haircut would be expressed as 99.5% and represented as a decimal number 0.995">
+	haircutPercentage number (0..1) <"Haircut percentage to be applied to the value of asset and used as a discount factor to the value of the collateral asset,expressed as a percentage in decimal terms. As an example a 0.5% haircut would be represented as a decimal number 0.005">
 	marginPercentage number (0..1) <"Percentage value of transaction needing to be posted as collateral expressed as a valuation. As an example a 104% requirement would be represented as a decimal number 1.04">
 	fxHaircutPercentage number (0..1) <"FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin).The percentage value is expressed as the discount haircut to the value of the collateral- as an example an 8% FX haircut would be expressed as 0.08.">
+	additionalHaircutPercentage number (0..1) <"Percentage value of any additional haircut to be applied to a collateral asset,the percentage value is expressed as the discount haircut to the value of the collateral- as an example a 5% haircut would be expressed as 0.05. ">
 
-	condition ValuationPercentage: <"A data rule to validate that if an Valuation Percentage is specified it should be between 0 and 1.">
-		if valuationPercentage exists
-		then valuationPercentage > 0 and valuationPercentage <= 1
+	condition HaircutPercentage: <"A data rule to validate that if a Valuation Percentage is specified it should be between 0 and 1.">
+		if haircutPercentage exists
+		then haircutPercentage > 0 and haircutPercentage <= 1
 
 	condition MarginPercentage: <"A data rule to validate that if a Margin Percentage is specified it should be greater than 1.">
 		if marginPercentage exists
@@ -60,8 +62,12 @@ type CollateralValuationPercentage: <"Specification of the valuation treatment f
 		if fxHaircutPercentage exists
 		then fxHaircutPercentage > 0 and fxHaircutPercentage <= 1
 
-	condition ValuationPercentageOrMarginPercentage: <"Choice rule requiring that either a valuation percentage or margin percentage is specified.">
-		required choice valuationPercentage, marginPercentage
+	condition AdditionalHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and 1.">
+		if additionalHaircutPercentage exists
+		then additionalHaircutPercentage > 0 and additionalHaircutPercentage <= 1
+
+	condition HaircutPercentageOrMarginPercentage: <"Choice rule requiring that either a haircut percentage or margin percentage is specified.">
+		required choice haircutPercentage, marginPercentage
 
 type EligibleCollateralSchedule: <"Set of criteria used to specify an eligible collateral schedule.">
 	[rootType]
@@ -78,7 +84,7 @@ type EligibleCollateralCriteria: <"Criteria used to specify eligible collateral.
 
 type CollateralTreatment: <"Specifies the treatment terms for the eligible collateral criteria specified.">
 
-	valuationPercentage CollateralValuationPercentage (0..1) <"Specification of the valuation treatment for the specified collateral.">
+	valuationTreatment CollateralValuationTreatment (0..1) <"Specification of the valuation treatment for the specified collateral.">
 	concentrationLimit ConcentrationLimit (0..*) <"Specification of concentration limits applicable to the collateral criteria.">
 	isIncluded boolean (1..1) <"A boolean attribute to specify whether collateral critieria are inclusion (True) or exclusion (False) criteria">
 
@@ -110,10 +116,12 @@ type IssuerCriteria: <"Criteria used to specify eligible collateral issuers.">
 	issuerAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk and creditors claim in event of default associated with asset issuer.">
 	sovereignAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk of country.">
 	counterpartyOwnIssuePermitted boolean (0..1) <"Filter based on whether it is permitted for the the underlying asset to be issued by the posting entity or part of their corporate family.">
+
 type PostedCreditSupportItem: <"Posted Credit Support item with corresponding Valuation Percentage, FX Haircut Percentage and any related disputed Posted Credit Support valuation.">
 	cashOrSecurityValue Money (1..1) <"The Base Currency Equivalent of Cash or Security.">
-	valuationPercentage number (1..1) <"Valuation Percentage means, for any item of Eligible Collateral (IM), the percentage specified in accordance with Paragraph 13.">
-	fxHaircutPercentage number (1..1) <"FX Haircut Percentage means, for any item of Eligible Collateral (IM), the percentage specified in accordance with Paragraph 13.">
+	haircutPercentage number (1..1) <"Valuation Percentage means, for any item of Eligible Collateral (IM), the percentage specified in accordance with Paragraph 13.">
+	fxHaircutPercentage number (0..1) <"FX Haircut Percentage means, for any item of Eligible Collateral (IM), the percentage specified in accordance with Paragraph 13.">
+	additionalHaircutPercentage number (0..1) <"Percentage value of any additional haircut to be applied to a collateral asset,the percentage value is expressed as the discount haircut to the value of the collateral- as an example a 5% haircut would be expressed as 0.05. ">
 	disputedCashOrSecurityValue Money (1..1) <"Paragraph 5. If a party (a 'Disputing Party') disputes the Value of any Posted Credit Support (IM).">
 
 type AccessConditions: <"A class to specify each party's election with respect to the Termination Events that will be deemed an Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (e): Conditions Precedent and Secured Party’s Rights and Remedies.">
