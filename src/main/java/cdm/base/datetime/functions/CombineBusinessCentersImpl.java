@@ -7,10 +7,11 @@ import cdm.event.common.functions.FilterCashTransfers;
 
 import java.util.*;
 
-public class CombineBusinessCentersImpl extends CombineBusinessCenters{
+public class CombineBusinessCentersImpl extends CombineBusinessCenters {
+
     @Override
     protected BusinessCenters.BusinessCentersBuilder doEvaluate(BusinessCenters list1, BusinessCenters list2) {
-        BusinessCenters.BusinessCentersBuilder result = new BusinessCenters.BusinessCentersBuilderImpl();
+        BusinessCenters.BusinessCentersBuilder result = BusinessCenters.builder();
 
         if (list1 == null && list2 == null)  return result;
         List<? extends FieldWithMetaBusinessCenterEnum> bc1 = getBC(list1);

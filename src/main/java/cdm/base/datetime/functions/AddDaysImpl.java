@@ -17,6 +17,6 @@ public class AddDaysImpl extends AddDays {
         if (inputDate == null || numDays == null) return null;
         LocalDate date = inputDate.toLocalDate();
         LocalDate newDate = date.plusDays(numDays);
-        return new DateImpl(newDate);
+        return DateImpl.of(newDate);
     }
 }

@@ -20,7 +20,6 @@ public class VectorGrowthOperationImpl extends VectorGrowthOperation {
         return ret;
     }
 
-
     private List<BigDecimal> doEval(BigDecimal baseValue, List<? extends BigDecimal> factor) {
         List<BigDecimal> result = new ArrayList<>(factor.size() + 1);
         BigDecimal value = baseValue;

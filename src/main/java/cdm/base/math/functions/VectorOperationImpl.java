@@ -6,6 +6,7 @@ import cdm.base.math.Vector;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class VectorOperationImpl extends VectorOperation {
 
@@ -22,9 +23,8 @@ public class VectorOperationImpl extends VectorOperation {
         return ret;
     }
 
-
     protected List<BigDecimal> doEval(ArithmeticOp arithmeticOp, List<? extends BigDecimal> left, List<? extends BigDecimal> right) {
-        ArithmeticOpImpl eval = new ArithmeticOpImpl(arithmeticOp);
+        BiFunction<BigDecimal, BigDecimal, BigDecimal> eval = ArithmeticOpImpl.operation(arithmeticOp);
 
         int leftSize = left == null ? 0 : left.size();
         int rightSize = right == null ? 0 : right.size();

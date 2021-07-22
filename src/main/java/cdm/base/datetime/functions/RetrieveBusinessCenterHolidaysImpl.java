@@ -9,14 +9,12 @@ import com.rosetta.model.lib.validation.ModelObjectValidator;
 
 import java.util.*;
 
-public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHolidays{
+public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHolidays {
     protected static Map<String, DateGroup.DateGroupBuilder> cache = new HashMap<>(); // cache of combined holiday data lists for lists of business centers
     protected static Map<BusinessCenterEnum, List<Date>> holidayData = new HashMap<>(); // raw holiday lists
 
 
     protected DateGroup.DateGroupBuilder doEvaluate(BusinessCenters businessCenters) {
-        objectValidator = new NoOpValidator();
-
         String key = getKey(businessCenters);   //get a key based on the list of business centers
 
         // check if the combined list is cached and if so return it
@@ -60,7 +58,6 @@ public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHo
         existingHolidays.addAll(holidays);
     }
 
-
     // create a key by concatenating the BC codes
     private String getKey(BusinessCenters bcs) {
         List<? extends FieldWithMetaBusinessCenterEnum> bcl = getBC(bcs);
@@ -81,15 +78,5 @@ public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHo
             return getBC(refBC);
         }
         return bc.getBusinessCenter();
-    }
-
-    private class NoOpValidator implements ModelObjectValidator {
-        @Override
-        public <T extends RosettaModelObject> void validateAndFailOnErorr(Class<T> topClass, T modelObject) {
-        }
-
-        @Override
-        public <T extends RosettaModelObject> void validateAndFailOnErorr(Class<T> topClass, List<? extends T> modelObjects) {
-        }
     }
 }

@@ -6,6 +6,7 @@ import cdm.base.math.Vector;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class VectorScalarOperationImpl extends VectorScalarOperation{
 
@@ -21,8 +22,8 @@ public class VectorScalarOperationImpl extends VectorScalarOperation{
         return ret;
     }
 
-    protected List<BigDecimal> doEval(ArithmeticOp arithmeticOp, List<? extends BigDecimal> left, BigDecimal right) {
-        ArithmeticOpImpl eval = new ArithmeticOpImpl(arithmeticOp);
+    protected List<BigDecimal> doEval(ArithmeticOp arithmeticOpEnum, List<? extends BigDecimal> left, BigDecimal right) {
+        BiFunction<BigDecimal, BigDecimal, BigDecimal> eval = ArithmeticOpImpl.operation(arithmeticOpEnum);
         int num = left == null ? 0 : left.size();
         List<BigDecimal> result = new ArrayList<>(num);
         BigDecimal rightVal = right == null ? BigDecimal.valueOf(0.0)  : right;
@@ -35,8 +36,5 @@ public class VectorScalarOperationImpl extends VectorScalarOperation{
         }
 
         return result;
-
     }
-
-
 }
