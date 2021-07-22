@@ -278,9 +278,8 @@ The ``settlementInstructions`` attribute defines how the transaction should be s
 .. code-block:: Haskell
 
  type SettlementTerms extends SettlementBase:
-   cashSettlementTerms CashSettlementTerms (0..1)
-   physicalSettlementTerms OptionPhysicalSettlement (0..1)
-   fxSettlementTerms FxCashSettlement (0..1)
+   cashSettlementTerms CashSettlementTerms (0..*)
+   physicalSettlementTerms PhysicalSettlementTerms (0..1)
 
 Contractual Product
 ^^^^^^^^^^^^^^^^^^^
