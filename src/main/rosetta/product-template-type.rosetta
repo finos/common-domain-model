@@ -127,10 +127,10 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
 
 	condition:
-		if underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout only exists
+		if settlementTerms -> physicalSettlementTerms exists
+		    and underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout only exists
 		    and underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
 		then settlementTerms -> physicalSettlementTerms -> clearedPhysicalSettlement exists
-        else settlementTerms -> physicalSettlementTerms -> clearedPhysicalSettlement is absent
 
 type SecurityLeg: <" Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
 	[metadata key]
