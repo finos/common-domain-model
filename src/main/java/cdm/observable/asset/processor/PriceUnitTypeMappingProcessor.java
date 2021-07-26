@@ -14,6 +14,7 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,14 +54,14 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "creditDefaultSwapOption", "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
 				// Equity
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
-				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", List.of("currency"), FinancialUnitEnum.SHARE)
-				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", List.of("notional", "notionalAmount", "currency"), FinancialUnitEnum.SHARE)
+				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", Arrays.asList("currency"), FinancialUnitEnum.SHARE)
+				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", Arrays.asList("notional", "notionalAmount", "currency"), FinancialUnitEnum.SHARE)
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
 				// Repo
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")
 				// Commodity
-				|| updatePriceUnits(priceBuilder, synonymPath, "commodityOption", List.of("strikePricePerUnit", "currency"), List.of("notionalQuantity", "quantityUnit"))) {
+				|| updatePriceUnits(priceBuilder, synonymPath, "commodityOption", Arrays.asList("strikePricePerUnit", "currency"), Arrays.asList("notionalQuantity", "quantityUnit"))) {
 			return;
 		}
 	}

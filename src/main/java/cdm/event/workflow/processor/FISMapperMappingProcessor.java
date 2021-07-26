@@ -12,7 +12,6 @@ import cdm.base.staticdata.asset.common.SecurityTypeEnum;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.event.common.ExecutionTypeEnum;
 import cdm.event.workflow.EventTimestampQualificationEnum;
-import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.WorkflowStep.WorkflowStepBuilder;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.common.settlement.DeliveryMethodEnum;
@@ -20,9 +19,6 @@ import cdm.product.template.CollateralTypeEnum;
 import cdm.product.template.DurationTypeEnum;
 import cdm.product.template.EconomicTerms.EconomicTermsBuilder;
 import cdm.product.template.TradableProduct.TradableProductBuilder;
-import cdm.product.template.CollateralTypeEnum;
-import cdm.product.template.DurationTypeEnum;
-import cdm.product.template.EconomicTerms;
 import cdm.product.template.TradableProduct;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
@@ -42,6 +38,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +54,6 @@ import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
 import static cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
 import static cdm.product.template.SecurityFinancePayout.SecurityFinancePayoutBuilder;
 import static com.rosetta.model.metafields.FieldWithMetaString.FieldWithMetaStringBuilder;
-import static cdm.product.template.SecurityFinancePayout.SecurityFinancePayoutBuilder;
 
 /**
  * This instance override the version in CDM so it can be kept up to date with ISLA model changes.
@@ -212,7 +208,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreateRateSchedule()
 					.getOrCreateInitialValue()
 					.setReference(reference);
-			return List.of(
+			return Arrays.asList(
 					new PathValue<>(pq.getModelPath().append(Path.parse("price[0].value.amount")), value),
 					new PathValue<>(irp.getModelPath().append(Path.parse("rateSpecification.fixedRate.rateSchedule.initialValue")), reference));
 		});
@@ -232,7 +228,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreateQuantitySchedule()
 					.getOrCreateInitialQuantity()
 					.setReference(reference);
-			return List.of(
+			return Arrays.asList(
 					new PathValue<>(pq.getModelPath().append(Path.parse("quantity[0].value.amount")), value),
 					new PathValue<>(irp.getModelPath().append(Path.parse("payoutQuantity.quantitySchedule.initialQuantity")), reference));
 		});
@@ -249,7 +245,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreateQuantity(0)
 					.getOrCreateValue()
 					.setUnitOfAmount(currencyUnit);
-			return List.of(
+			return Arrays.asList(
 					new PathValue<>(pq.getModelPath().append(Path.parse("price[0].value.unitOfAmount.currency.value")), value),
 					new PathValue<>(pq.getModelPath().append(Path.parse("price[0].value.perUnitOfAmount.currency.value")), value),
 					new PathValue<>(pq.getModelPath().append(Path.parse("quantity[0].value.unitOfAmount.currency.value")), value));
@@ -364,7 +360,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.setSecurityType(SecurityTypeEnum.EQUITY)
 					.getOrCreateProductIdentifier(0)
 					.setReference(reference);
-			return List.of(
+			return Arrays.asList(
 					new PathValue<>(pq.getModelPath().append(Path.parse("observable.productIdentifier[0].value.identifier.value")), value),
 					new PathValue<>(secLendingPayout.getModelPath().append(Path.parse("securityInformation.security.productIdentifier[0].value.identifier.value")), reference));
 		});
@@ -420,7 +416,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 	private void buildTradeStateMappings(Multimap<String, MappingConsumer<TradeStateBuilder>> commonMappings) {
 		addMapping(IndexCapturePath.parse("FIS_TRADE.Activity[0]"), (indexes, value, workflow) -> {
 			staticMappings(getTradeState(workflow));
-			return List.of();
+			return Collections.emptyList();
 		});
 
 		addMapping(IndexCapturePath.parse("FIS_TRADE.Activity[0]"), (indexes, value, workflow) -> {
@@ -442,7 +438,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreateCounterparty(0)
 					.getOrCreatePartyReference()
 					.setExternalReference(AGENT_LENDER);
-			return List.of();
+			return Collections.emptyList();
 		});
 
 		for (Entry<String, MappingConsumer<TradeStateBuilder>> mapping : commonMappings.entries()) {
@@ -462,7 +458,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		addMapping(IndexCapturePath.parse("FIS_TRADE.Activity[allocationNumPlus1]"),
 				allocaNumberMapConsumer((indexes, value, workflow) -> {
 					staticMappings(getSplitTradeState(workflow, indexes));
-					return List.of();
+					return Collections.emptyList();
 				}));
 
 		for (Entry<String, MappingConsumer<TradeStateBuilder>> mapping : commonMappings.entries()) {
@@ -504,8 +500,8 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			return Collections.singletonList(new PathValue<>(w.getModelPath(), v));
 		});
 
-		buildAllocationMapping("Activity_Input_Date", (i, v, w) -> List.of());
-		buildAllocationMapping("Activity_Time_In_Milliseconds", (i, v, w) -> List.of());
+		buildAllocationMapping("Activity_Input_Date", (i, v, w) -> Collections.emptyList());
+		buildAllocationMapping("Activity_Time_In_Milliseconds", (i, v, w) -> Collections.emptyList());
 
 	}
 
@@ -605,7 +601,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 				i.put("allocationNum", allocationNum);
 				return consumer.accept(i, v, w);
 			}
-			return List.of();
+			return Collections.emptyList();
 		};
 	}
 }

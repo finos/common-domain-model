@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import com.google.inject.*;
 import com.google.inject.Module;
@@ -52,11 +53,10 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -149,7 +149,7 @@ class SecLendingFunctionInputCreationTest {
 
         assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for part-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
+                "The input JSON for full-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
     @Test
@@ -168,10 +168,14 @@ class SecLendingFunctionInputCreationTest {
         AllocationInstruction expectedAllocationInstruction = assertJsonConformsToRosettaType(expectedJsonNode
                 .get("allocationInstruction"), AllocationInstruction.class);
 
-        assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Map
-                        .of("tradeState", actualTradeState, "allocationInstruction", actualAllocationInstruction))),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Map
-                        .of("tradeState", expectedTradeState, "allocationInstruction", expectedAllocationInstruction))),
+        assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Stream
+						.of(new AbstractMap.SimpleEntry<>("tradeState", actualTradeState),
+								new AbstractMap.SimpleEntry<>("allocationInstruction", actualAllocationInstruction))
+						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Stream
+						.of(new AbstractMap.SimpleEntry<>("tradeState", expectedTradeState),
+								new AbstractMap.SimpleEntry<>("allocationInstruction", expectedAllocationInstruction))
+						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))),
                 "The input JSON for create-allocation-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
@@ -197,14 +201,14 @@ class SecLendingFunctionInputCreationTest {
                 .map(SplitPrimitive::getAfter).flatMap(Collection::stream)
                 .filter(x -> x.getState().getClosedState().getState() == ClosedStateEnum.ALLOCATED)
                 .filter(x -> x.getState().getPositionState() == PositionStatusEnum.CLOSED)
-                .findFirst().orElseThrow();
+                .findFirst().orElseThrow(RuntimeException::new);
 
         // trade state where the quantity is 40%
         TradeState tradeStateToBeDecreased = originalAllocationBusinessEvent.getPrimitives().stream()
                 .map(PrimitiveEvent::getContractFormation).filter(Objects::nonNull)
                 .map(ContractFormationPrimitive::getAfter)
                 .reduce((first, second) -> second)
-                .orElseThrow();
+                .orElseThrow(RuntimeException::new);
 
         AllocationBreakdown.AllocationBreakdownBuilder reallocationBreakdown = createAllocationBreakdown(originalBlockTradeState, "lender-3", "Fund 3", 0.10);
         ReallocationInstruction actualReallocationInstruction = ReallocationInstruction.builder()
@@ -226,10 +230,15 @@ class SecLendingFunctionInputCreationTest {
         ReallocationInstruction expectedReallocationInstruction = assertJsonConformsToRosettaType(expectedJsonNode
                 .get("reallocationInstruction"), ReallocationInstruction.class);
 
-        assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Map
-                        .of("originalBlock", closedBlockTradeState, "reallocationInstruction", actualReallocationInstruction))),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Map
-                        .of("originalBlock", expectedTradeState, "reallocationInstruction", expectedReallocationInstruction))),
+        assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Stream
+						.of(new AbstractMap.SimpleEntry<>("originalBlock", closedBlockTradeState),
+								new AbstractMap.SimpleEntry<>("reallocationInstruction", actualReallocationInstruction)
+						)
+						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Stream
+						.of(new AbstractMap.SimpleEntry<>("originalBlock", expectedTradeState),
+								new AbstractMap.SimpleEntry<>("reallocationInstruction", expectedReallocationInstruction))
+						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))),
                 "The input JSON for create-reallocation-pre-settled-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
@@ -240,20 +249,20 @@ class SecLendingFunctionInputCreationTest {
 
         TradeState fullReturnAfterTradeState = getTransferTradeState();
 
-        TradeState partReturnBeforeTradeState = part.getSteps().stream()
+		TradeState partReturnBeforeTradeState = part.getSteps().stream()
                 .map(WorkflowStep::getBusinessEvent).filter(Objects::nonNull)
                 .map(BusinessEvent::getPrimitives).flatMap(Collection::stream).filter(Objects::nonNull)
                 .map(PrimitiveEvent::getTransfer).filter(Objects::nonNull)
                 .map(TransferPrimitive::getBefore).filter(Objects::nonNull)
                 .map(ReferenceWithMetaTradeState::getValue)
-                .findFirst().orElseThrow();
+                .findFirst().orElseThrow(RuntimeException::new);
 
         TradeState partReturnAfterTradeState = part.getSteps().stream()
                 .map(WorkflowStep::getBusinessEvent).filter(Objects::nonNull)
                 .map(BusinessEvent::getPrimitives).flatMap(Collection::stream).filter(Objects::nonNull)
                 .map(PrimitiveEvent::getTransfer).filter(Objects::nonNull)
                 .map(TransferPrimitive::getAfter).filter(Objects::nonNull)
-                .findFirst().orElseThrow();
+                .findFirst().orElseThrow(RuntimeException::new);
 
         BillingInstruction actualBillingInstruction = BillingInstruction.builder()
                 .setSendingParty(getParty(partReturnAfterTradeState, CounterpartyRoleEnum.PARTY_1))
@@ -264,7 +273,7 @@ class SecLendingFunctionInputCreationTest {
                 .addBillingRecordInstruction(createBillingRecordInstruction(fullReturnAfterTradeState,
                         DateImpl.of(2020, 10, 1),
                         DateImpl.of(2020, 10, 22),
-                        DateImpl.of(2020, 11, 10), List.of(
+                        DateImpl.of(2020, 11, 10), Arrays.asList(
                                 obs("2020-10-22", 28.18, "USD"),
                                 obs("2020-10-21", 28.34, "USD"),
                                 obs("2020-10-20", 30.72, "USD"),
@@ -291,7 +300,7 @@ class SecLendingFunctionInputCreationTest {
                 .addBillingRecordInstruction(createBillingRecordInstruction(partReturnBeforeTradeState,
                         DateImpl.of(2020, 10, 1),
                         DateImpl.of(2020, 10, 9),
-                        DateImpl.of(2020, 11, 10), List.of(
+                        DateImpl.of(2020, 11, 10), Arrays.asList(
                                 obs("2020-10-09", 30.03, "USD"),
                                 obs("2020-10-08", 29.53, "USD"),
                                 obs("2020-10-07", 28.72, "USD"),
@@ -305,7 +314,7 @@ class SecLendingFunctionInputCreationTest {
                 .addBillingRecordInstruction(createBillingRecordInstruction(partReturnAfterTradeState,
                         DateImpl.of(2020, 10, 10),
                         DateImpl.of(2020, 10, 22),
-                        DateImpl.of(2020, 11, 10), List.of(
+                        DateImpl.of(2020, 11, 10), Arrays.asList(
                                 obs("2020-10-22", 28.18, "USD"),
                                 obs("2020-10-21", 28.34, "USD"),
                                 obs("2020-10-20", 30.72, "USD"),
@@ -324,8 +333,8 @@ class SecLendingFunctionInputCreationTest {
 
         BillingInstruction expectedBillingInstruction = assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
 
-        assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actualBillingInstruction),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectedBillingInstruction),
+        assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectedBillingInstruction),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actualBillingInstruction),
                 "The input JSON for create-security-lending-invoice-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
@@ -429,7 +438,7 @@ class SecLendingFunctionInputCreationTest {
                 .filter(c -> c.getRole() == counterpartyRoleEnum)
                 .map(Counterparty::getPartyReference)
                 .map(ReferenceWithMetaParty::getValue)
-                .findFirst().orElseThrow();
+                .findFirst().orElseThrow(RuntimeException::new);
     }
 
     @NotNull
