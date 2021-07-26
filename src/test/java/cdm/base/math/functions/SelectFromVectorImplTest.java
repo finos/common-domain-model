@@ -1,10 +1,7 @@
 package cdm.base.math.functions;
 
-import cdm.base.datetime.functions.SelectDate;
 import cdm.base.math.Vector;
 import com.google.inject.Inject;
-import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +42,7 @@ public class SelectFromVectorImplTest extends AbstractFunctionTest {
     }
 
     @Test
-    void shouldhandleNulls() {
+    void shouldHandleNulls() {
         List<BigDecimal> emptyList = new ArrayList<>();
         List<BigDecimal> zeroList = Arrays.asList(BigDecimal.valueOf(0.0));
         Vector.VectorBuilder vb = Vector.builder();

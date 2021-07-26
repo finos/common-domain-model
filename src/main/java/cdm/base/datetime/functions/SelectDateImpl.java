@@ -6,6 +6,7 @@ import com.rosetta.model.lib.records.Date;
 import java.util.List;
 
 public class SelectDateImpl extends SelectDate {
+
 	@Override
 	protected Date doEvaluate(DateGroup dateList, Integer position) {
 		if (dateList == null || position == null) return null;

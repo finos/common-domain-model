@@ -16,7 +16,6 @@ public class LeapYearDateDifferenceImpTest extends AbstractFunctionTest {
 
     @Test
     void shouldSubtractDays() {
-
         Date jan1_2019 = DateImpl.of(2019, 1, 1);
         Date jan1_2020 = DateImpl.of(2020, 1, 1);
         Date jan1_2021 =  DateImpl.of(2021, 1, 1);
@@ -29,7 +28,7 @@ public class LeapYearDateDifferenceImpTest extends AbstractFunctionTest {
     }
 
     @Test
-    void shouldhandleNulls() {
+    void shouldHandleNulls() {
         Date baseDate = DateImpl.of(1,1,2020);
 
         assertNull(func.evaluate( baseDate, null));

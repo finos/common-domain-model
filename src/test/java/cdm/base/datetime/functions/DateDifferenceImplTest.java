@@ -11,29 +11,26 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class DateDifferenceImplTest extends AbstractFunctionTest {
 
-    @Inject
-    private DateDifference func;
+	@Inject
+	private DateDifference func;
 
-    @Test
-    void shouldSubtractDays() {
+	@Test
+	void shouldSubtractDays() {
+		Date first = DateImpl.of(2021, 5, 12);
+		Date second = DateImpl.of(2021, 6, 12);
+		int res1 = func.evaluate(first, second);
+		int res2 = func.evaluate(second, first);
 
+		assertEquals(31, res1);
+		assertEquals(-31, res2);
+	}
 
-        Date first = DateImpl.of(2021, 5, 12);
-        Date second =  DateImpl.of(2021, 6, 12);
- //       Date third = DateImpl.of(2021, 4, 12);
-        Integer res1 = func.evaluate(first, second);
-        Integer res2 = func.evaluate(second, first);
+	@Test
+	void shouldHandleNulls() {
+		Date baseDate = DateImpl.of(1, 1, 2020);
 
-        assertEquals(31, res1.intValue());
-        assertEquals(-31, res2.intValue());
-    }
-
-    @Test
-    void shouldhandleNulls() {
-        Date baseDate = DateImpl.of(1,1,2020);
-
-        assertNull(func.evaluate( baseDate, null));
-        assertNull(func.evaluate( null, null));
-        assertNull(func.evaluate( null, baseDate));
-    }
+		assertNull(func.evaluate(baseDate, null));
+		assertNull(func.evaluate(null, null));
+		assertNull(func.evaluate(null, baseDate));
+	}
 }

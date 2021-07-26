@@ -73,11 +73,12 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
 		bind(SelectDate.class).to(bindSelectDate());
-		bind(AppendDateToList.class).to(bindAppenDateToList());
+		bind(AppendDateToList.class).to(bindAppendDateToList());
 		bind(LastInDateList.class).to(bindLastInDateList());
 		bind(AddDays.class).to(bindAddDays());
 		bind(PopOffDateList.class).to(bindPopOffDateList());
 		bind(RetrieveBusinessCenterHolidays.class).to(bindRetrieveBusinessCenterHolidays());
+		bind(BusinessCenterHolidaysDataProvider.class).to(bindBusinessCenterHolidaysDataProvider()).asEagerSingleton();
 		bind(CombineBusinessCenters.class).to(bindCombineBusinessCenters());
 		bind(DateDifference.class).to(bindDateDifference());
 		bind(LeapYearDateDifference.class).to(bindLeapYearDateDiff());
@@ -225,8 +226,10 @@ public class CdmRuntimeModule extends AbstractModule {
 		return NowImpl.class;
 	}
 
-	protected Class<? extends AppendDateToList> bindAppenDateToList() { return AppendDateToListImpl.class; }
+	protected Class<? extends AppendDateToList> bindAppendDateToList() { return AppendDateToListImpl.class; }
+
 	protected Class<? extends LastInDateList> bindLastInDateList() { return LastInDateListImpl.class; }
+
 	protected Class<? extends SelectDate> bindSelectDate() {
 		return SelectDateImpl.class;
 	}
@@ -237,14 +240,18 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends LeapYearDateDifference> bindLeapYearDateDiff() { return LeapYearDateDifferenceImpl.class; }
 
 	protected Class<? extends DayOfWeek> bindDayOfWeek() { return DayOfWeekImpl.class; }
-	protected Class<? extends AddDays> bindAddDays() { return AddDaysImpl.class; }
-	protected Class<? extends CombineBusinessCenters> bindCombineBusinessCenters() { return CombineBusinessCentersImpl.class; }
-	protected Class<? extends PopOffDateList> bindPopOffDateList() { return PopOffDateListImpl.class; }
-	protected Class<? extends RetrieveBusinessCenterHolidays> bindRetrieveBusinessCenterHolidays() { return RetrieveBusinessCenterHolidaysImpl.class; }
-//	protected Class<? extends IsHoliday> bindIsHoliday() { return IsHolidayImpl.class; }
-//	protected Class<? extends IsBusinessDay> bindIsBusinessDay() { return IsBusinessDayImpl.class; }
-//	protected Class<? extends GenerateDateList> bindGenerateDateList() { return GenerateDateListImpl.class; }
 
+	protected Class<? extends AddDays> bindAddDays() { return AddDaysImpl.class; }
+
+	protected Class<? extends CombineBusinessCenters> bindCombineBusinessCenters() { return CombineBusinessCentersImpl.class; }
+
+	protected Class<? extends PopOffDateList> bindPopOffDateList() { return PopOffDateListImpl.class; }
+
+	protected Class<? extends RetrieveBusinessCenterHolidays> bindRetrieveBusinessCenterHolidays() { return RetrieveBusinessCenterHolidaysImpl.class; }
+
+	protected Class<? extends BusinessCenterHolidaysDataProvider> bindBusinessCenterHolidaysDataProvider() {
+		return BusinessCenterHolidaysEmptyDataProviderImpl.class;
+	}
 
 	protected Class<? extends Today> bindToday() {
 		return TodayImpl.class;
@@ -252,7 +259,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl> bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity() {
 		return UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl.class;
-	}    protected Class<? extends Create_SplitTrades> bindCreateSplitTrades() {
+	}
+
+	protected Class<? extends Create_SplitTrades> bindCreateSplitTrades() {
 		return Create_SplitTradesImpl.class;
 	}
 

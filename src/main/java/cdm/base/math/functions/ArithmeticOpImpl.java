@@ -17,9 +17,7 @@ public class ArithmeticOpImpl {
             case MULTIPLY_OP:
                 return BigDecimal::multiply;
             case DIVIDE_OP:
-                return (b1, b2) -> (Math.abs(b2.doubleValue()) > 1e-9) ?
-                        BigDecimal.valueOf(Double.NaN) :
-                        b1.divide(b2, 10, RoundingMode.HALF_EVEN);
+                return (b1, b2) -> b1.divide(b2, 10, RoundingMode.HALF_EVEN);
             case MAX_OP:
                 return BigDecimal::max;
             case MIN_OP:

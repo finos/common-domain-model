@@ -36,7 +36,7 @@ public class VectorGrowthOperationImplTest  extends AbstractFunctionTest {
     }
 
     @Test
-    void shouldhandleNulls() {
+    void shouldHandleNulls() {
         List<BigDecimal> emptyList = new ArrayList<>();
         List<BigDecimal> zeroList = Arrays.asList(BigDecimal.valueOf(0.0));
         Vector.VectorBuilder vb = Vector.builder();

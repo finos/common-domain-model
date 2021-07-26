@@ -22,7 +22,7 @@ public class VectorOperationsImplTest  extends AbstractFunctionTest {
     private VectorOperation vectorOp;
 
     @Test
-    void shouldhandleNulls() {
+    void shouldHandleNulls() {
         List<BigDecimal> emptyList = new ArrayList<>();
         List<BigDecimal> shortList = Arrays.asList(BigDecimal.valueOf(10.0), BigDecimal.valueOf(20.0));
         Vector.VectorBuilder vb = Vector.builder().setValues(shortList);
