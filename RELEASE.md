@@ -45,7 +45,7 @@ New functions include:
 * `AppendDateToList`: Adds a date to a list of dates
 * `PopOffDateList`:  Removes the last element from a list of dates
 
-The following are new functions. However, a simple Java reference implementation accompanies the change is also provided.
+The following are also new functions. A simple Java reference implementation is also provided.
 * `IsWeekend`: Returns whether the specified date is a weekend.  The implementation currently assumes a 5 day week with Saturday and Sunday as holidays.  A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.
 * `IsHoliday`: Returns whether a day is a holiday for the specified business centers
 * `IsBusinessDay`: Returns an indicator of whether the specified date is a good business date given the specified business centers.  True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday
