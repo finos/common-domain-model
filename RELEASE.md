@@ -10,8 +10,8 @@ New functions include:
 
 * `ToVector`: Creates a vector from a list of numbers.
 * `SelectFromVector`: Selects a single value from a vector (list of numbers), i.e. result = val[index].  
-Returns null if the supplied vector is empty or if the supplied index is out of range.  
-Returns the first element of the vector when supplied an index of 0, and the index - 1 th element if index is in range.
+  * Returns null if the supplied vector is empty or if the supplied index is out of range.  
+  * Returns the element of the vector at the supplied index.
 * `LastInVector`: Returns the last value in a vector.  If the vector is empty, returns null
 * `AppendToVector`: Appends a single value to a vector
 * `VectorOperation`: Generates a result vector by applying the supplied arithmetic operation to each element of the supplied left and right vectors in turn.  i.e. result[n] = left[n] [op] right[n], where [op] is the arithmetic operation defined by arithmeticOp.  This function can be used to, for example, multiply or add two vectors.
