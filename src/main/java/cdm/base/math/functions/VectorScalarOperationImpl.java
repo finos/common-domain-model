@@ -1,6 +1,6 @@
 package cdm.base.math.functions;
 
-import cdm.base.math.ArithmeticOp;
+import cdm.base.math.ArithmeticOperationEnum;
 import cdm.base.math.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ public class VectorScalarOperationImpl extends VectorScalarOperation {
 	// apply an arithmetic operation on a supplied vector and a scalar, applying the operation to each
 	// element of the vector and to the scalar.
 	@Override
-	protected Vector.VectorBuilder doEvaluate(ArithmeticOp arithmeticOp, Vector left, BigDecimal right) {
+	protected Vector.VectorBuilder doEvaluate(ArithmeticOperationEnum arithmeticOp, Vector left, BigDecimal right) {
 		List<? extends BigDecimal> leftVals = left == null ? null : left.getValues();
 
 		List<BigDecimal> res = doEval(arithmeticOp, leftVals, right);
@@ -26,7 +26,7 @@ public class VectorScalarOperationImpl extends VectorScalarOperation {
 		return ret;
 	}
 
-	protected List<BigDecimal> doEval(ArithmeticOp arithmeticOpEnum, List<? extends BigDecimal> left, BigDecimal right) {
+	protected List<BigDecimal> doEval(ArithmeticOperationEnum arithmeticOpEnum, List<? extends BigDecimal> left, BigDecimal right) {
 		BiFunction<BigDecimal, BigDecimal, BigDecimal> eval = ArithmeticOpImpl.operation(arithmeticOpEnum);
 		int num = left == null ? 0 : left.size();
 		List<BigDecimal> result = new ArrayList<>(num);

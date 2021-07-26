@@ -1,6 +1,6 @@
 package cdm.base.math.functions;
 
-import cdm.base.math.ArithmeticOp;
+import cdm.base.math.ArithmeticOperationEnum;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -8,19 +8,19 @@ import java.util.function.BiFunction;
 
 public class ArithmeticOpImpl {
 
-    static BiFunction<BigDecimal, BigDecimal, BigDecimal> operation(ArithmeticOp arithmeticOp) {
+    static BiFunction<BigDecimal, BigDecimal, BigDecimal> operation(ArithmeticOperationEnum arithmeticOp) {
         switch (arithmeticOp) {
-            case ADD_OP:
+            case ADD:
                 return BigDecimal::add;
-            case SUBTRACT_OP:
+            case SUBTRACT:
                 return BigDecimal::subtract;
-            case MULTIPLY_OP:
+            case MULTIPLY:
                 return BigDecimal::multiply;
-            case DIVIDE_OP:
+            case DIVIDE:
                 return (b1, b2) -> b1.divide(b2, 10, RoundingMode.HALF_EVEN);
-            case MAX_OP:
+            case MAX:
                 return BigDecimal::max;
-            case MIN_OP:
+            case MIN:
                 return BigDecimal::min;
             default:
                 throw new IllegalArgumentException(String.format("Unknown ArithmeticOp %s", arithmeticOp));
