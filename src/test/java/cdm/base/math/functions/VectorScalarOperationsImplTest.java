@@ -1,6 +1,6 @@
 package cdm.base.math.functions;
 
-import cdm.base.math.ArithmeticOp;
+import cdm.base.math.ArithmeticOperationEnum;
 import cdm.base.math.Vector;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -24,9 +24,9 @@ public class VectorScalarOperationsImplTest extends AbstractFunctionTest {
         List<BigDecimal> shortList = Arrays.asList(BigDecimal.valueOf(10.0), BigDecimal.valueOf(20.0));
         Vector.VectorBuilder vb = Vector.builder().setValues(shortList);
 
-        check(emptyList, vectorScalarOp.evaluate(ArithmeticOp.ADD_OP, null, null).getValues());
-        check(shortList, vectorScalarOp.evaluate(ArithmeticOp.ADD_OP, vb, null).getValues());
-        check(emptyList, vectorScalarOp.evaluate(ArithmeticOp.ADD_OP, null, BigDecimal.valueOf(10.0)).getValues());
+        check(emptyList, vectorScalarOp.evaluate(ArithmeticOperationEnum.ADD, null, null).getValues());
+        check(shortList, vectorScalarOp.evaluate(ArithmeticOperationEnum.ADD, vb, null).getValues());
+        check(emptyList, vectorScalarOp.evaluate(ArithmeticOperationEnum.ADD, null, BigDecimal.valueOf(10.0)).getValues());
     }
 
     @Test
@@ -64,12 +64,12 @@ public class VectorScalarOperationsImplTest extends AbstractFunctionTest {
 
 
         BigDecimal ten = BigDecimal.valueOf(10.0);
-        check(addExpected, vectorScalarOp.evaluate(ArithmeticOp.ADD_OP, leftv,  ten));
-        check(subExpected, vectorScalarOp.evaluate(ArithmeticOp.SUBTRACT_OP, leftv,  ten));
-        check(mulExpected, vectorScalarOp.evaluate(ArithmeticOp.MULTIPLY_OP, leftv,  ten));
-        check(divExpected, vectorScalarOp.evaluate(ArithmeticOp.DIVIDE_OP, leftv,  ten));
-        check(maxExpected, vectorScalarOp.evaluate(ArithmeticOp.MAX_OP, leftv,  ten));
-        check(minExpected, vectorScalarOp.evaluate(ArithmeticOp.MIN_OP, leftv,  ten));
+        check(addExpected, vectorScalarOp.evaluate(ArithmeticOperationEnum.ADD, leftv,  ten));
+        check(subExpected, vectorScalarOp.evaluate(ArithmeticOperationEnum.SUBTRACT, leftv,  ten));
+        check(mulExpected, vectorScalarOp.evaluate(ArithmeticOperationEnum.MULTIPLY, leftv,  ten));
+        check(divExpected, vectorScalarOp.evaluate(ArithmeticOperationEnum.DIVIDE, leftv,  ten));
+        check(maxExpected, vectorScalarOp.evaluate(ArithmeticOperationEnum.MAX, leftv,  ten));
+        check(minExpected, vectorScalarOp.evaluate(ArithmeticOperationEnum.MIN, leftv,  ten));
 
 
     }
