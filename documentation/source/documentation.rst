@@ -1559,7 +1559,7 @@ The following code snippets represent these three components of the eligible col
 .. code-block:: Haskell
 
  type CollateralTreatment:
-   valuationPercentage CollateralValuationPercentage (0..1)
+   valuationTreatment CollateralValuationTreatment (0..1)
    concentrationLimit ConcentrationLimit (0..*)
    isIncluded boolean (1..1)
 
