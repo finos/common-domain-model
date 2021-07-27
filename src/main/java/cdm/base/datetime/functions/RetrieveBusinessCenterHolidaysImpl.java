@@ -15,7 +15,6 @@ public class RetrieveBusinessCenterHolidaysImpl extends RetrieveBusinessCenterHo
 	private BusinessCenterHolidaysDataProvider holidayData; // raw holiday lists
 
 	// Is this cache necessary in the default implementation?
-	// Removed static cache, mark as singleton in runtime mode really necessary.
 	private final Map<String, DateGroup.DateGroupBuilder> cache = new HashMap<>(); // cache of combined holiday data lists for lists of business centers
 
 	protected DateGroup.DateGroupBuilder doEvaluate(BusinessCenters businessCenters) {
