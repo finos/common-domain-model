@@ -463,6 +463,8 @@ type FloatingRate: <"A class defining a floating interest rate through the speci
 
     rateOption FloatingRateOption (0..1)
         [metadata address "pointsTo"=Observable->rateOption]
+	calculationParameters FloatingRateCalculationParameters(0..1) <" Support for modular calculated rates, such such as lockout compound calculations.  ">
+	fallbackRate FallbackRateParameters(0..1) <" definition of any fallback rate that may be applicalble ">
 	floatingRateMultiplierSchedule RateSchedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
 	spreadSchedule SpreadSchedule (0..*) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
 	rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
@@ -512,4 +514,37 @@ type StubValue: <"A type defining how a stub calculation period amount is calcul
 
 	condition: one-of
 
+// =====================================================================
+//
+// Floating Rate Amount Calculation definitions
+//
+// these types are used to represent modular computed rates in interestRatePayounts
+//
+// ======================================================================
+
+type FloatingRateCalculationParameters: <"Defines the structures needed to represent the calculation parameters for daily averaged and compounded modular rates as defined in the 2021 ISDA Definitions in Section 7.">
+	calculationMethod  CalculationMethodEnum(1..1)  <"calculation type (averaging or compounding)">
+	observationShiftCalculation ObservationShiftCalculation(0..1) <"any obervation shift parameters if applicable">
+	lookbackCalculation OffsetCalculation(0..1) <"any lookback  parameters if applicable">
+	lockoutCalculation OffsetCalculation(0..1) <"any lockout  parameters if applicable">
+	applicableBusinessDays BusinessCenters(0..1) <"the business days that are applicable for the calculation">
+	observationParameters ObservationParameters(0..1) <" any applicable observation parameters, such as daily caps or floors">
+
+type FallbackRateParameters: <"Defines the structure needed to represent fallback rate paramters">
+	floatingRateIndex FloatingRateIndexEnum(1..1) <"The floating rate index that is used as the basis of the fallback rate">
+	effectiveDate date(0..1)	<"The date the fallback rate takes effect">
+	calculationParameters FloatingRateCalculationParameters(0..1) <" Support for modular calculated rates, such such as lockout compound calculations.  ">
+	spreadAdjustment number(0..1)  <"The economic spread applied to the underlying fallback rate to replicate the original risky rate">
+
+type OffsetCalculation:  <"Defines business day shifts for daily componded or averaged rates.  This type is used for lookback and lockout rates. ">
+	offsetDays int(0..1)	<" the number of business days offset">
+
+type ObservationShiftCalculation: <"Parameters to describe the observation shift for a daily compounded or averaged floating rate">
+	offsetDays int(0..1)		<"The number of days of observation shift">
+	calculationBase ObservationPeriodDatesEnum(0..1)	<"Whether the rate is calculated in advance, in arrears, or relative to a reset date">
+	additionalBusinessDays BusinessCenters(0..1)	<"Any additional business days that be applicable">
+
+type ObservationParameters: <"Parameters on daily observed computed rates, specifically daily caps and floors. ">
+	observationCapRate number(0..1) <"A daily observation cap rate">
+	observationFloorRate number(0..1) <"A daily observation floor rate">
 
