@@ -353,23 +353,23 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 	condition DeliverableObligationsPhysicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
 		if (contractDetails -> documentation -> documentationIdentification -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
 			or contractDetails -> documentation -> documentationIdentification -> contractualMatrix -> matrixType is absent)
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations exists
-		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notSubordinated
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> specifiedCurrency
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notSovereignLender
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notDomesticCurrency
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notDomesticLaw
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notContingent
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notDomesticIssuance
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> assignableLoan
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> consentRequiredLoan
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> transferable
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> maximumMaturity
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> notBearer
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations exists
+		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notSubordinated
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> specifiedCurrency
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notSovereignLender
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticCurrency
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticLaw
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notContingent
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticIssuance
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> assignableLoan
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> consentRequiredLoan
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> transferable
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> maximumMaturity
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notBearer
 			) exists
-			and (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> fullFaithAndCreditObLiability
-			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> generalFundObligationLiability
-			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> revenueObligationLiability
+			and (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> fullFaithAndCreditObLiability
+			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> generalFundObligationLiability
+			or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> revenueObligationLiability
 			) exists
 
 	condition ObligationsPhysicalSettlementMatrix: <"The below set of obligation of the reference entity are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in case the case where an auction could not take place because of, say, liquidity considerations.">
@@ -496,7 +496,7 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 	condition FpML_cd_23: <"FpML validation rule cd-23 - If the condition LongForm is true, then cashSettlementTerms or physicalSettlementTerms must exist.">
 		if ( contractDetails -> documentation -> documentationIdentification -> masterConfirmation and contractDetails -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> cashSettlementTerms or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms) exists
+		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> cashSettlementTerms or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms) exists
 
 	condition FpML_cd_24: <"FpML validation rule cd-24 - If the condition LongForm is true, then the following elements must exist: protectionTerms/creditEvents/creditEventNotice, protectionTerms/obligations, generalTerms/referenceInformation/referencePrice.">
 		if ( contractDetails -> documentation -> documentationIdentification -> masterConfirmation and contractDetails -> documentation -> documentationIdentification -> contractualMatrix ) is absent
@@ -509,11 +509,11 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 	condition FpML_cd_25: <"FpML validation rule cd-25 - If the condition LongForm is true, and if physicalSettlementTerms exists, then physicalSettlementTerms must contain settlementCurrency, physicalSettlementPeriod, escrow and deliverableObligations/accruedInterest.">
 		if ( contractDetails -> documentation -> documentationIdentification -> masterConfirmation and contractDetails -> documentation -> documentationIdentification -> contractualMatrix ) is absent
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms exists
-		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementCurrency
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> physicalSettlementPeriod
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> escrow
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> physicalSettlementTerms -> deliverableObligations -> accruedInterest
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms exists
+		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> settlementCurrency
+		and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> physicalSettlementPeriod
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> escrow
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> accruedInterest
 			) exists
 
 	condition FpML_cd_32: <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
