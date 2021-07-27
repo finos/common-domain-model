@@ -4,10 +4,17 @@ import cdm.base.datetime.Period;
 import cdm.base.datetime.PeriodEnum;
 import cdm.base.math.UnitType;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
-import cdm.event.common.*;
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.IndexTransitionInstruction;
+import cdm.event.common.Trade;
+import cdm.event.common.TradeState;
 import cdm.event.common.functions.Create_IndexTransition;
-import cdm.observable.asset.*;
+import cdm.observable.asset.FloatingRateOption;
+import cdm.observable.asset.Observable;
+import cdm.observable.asset.Price;
+import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.common.ProductIdentification;
+import cdm.product.common.settlement.PriceQuantitySettlement;
 import cdm.product.template.ContractualProduct;
 import cdm.product.template.Product;
 import cdm.product.template.TradableProduct;
@@ -19,7 +26,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-public class RunCreateIndexTransition  implements ExecutableFunction<TradeState, BusinessEvent> {
+public class RunCreateIndexTransition implements ExecutableFunction<TradeState, BusinessEvent> {
 
 	@Inject
 	Create_IndexTransition func;
@@ -28,7 +35,7 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 	public BusinessEvent execute(TradeState tradeState) {
 		if (isProductQualifier(tradeState, "InterestRate_CrossCurrency_Basis")) {
 			IndexTransitionInstruction instruction = IndexTransitionInstruction.builder()
-					.addPriceQuantity(PriceQuantity.builder()
+					.addPriceQuantity(PriceQuantitySettlement.builder()
 							.setObservable(Observable.builder()
 									.setRateOptionValue(FloatingRateOption.builder()
 											.setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_ISDA)
@@ -40,7 +47,7 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 									.setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
 									.setPerUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
 									.setPriceType(PriceTypeEnum.SPREAD)))
-					.addPriceQuantity(PriceQuantity.builder()
+					.addPriceQuantity(PriceQuantitySettlement.builder()
 							.setObservable(Observable.builder()
 									.setRateOptionValue(FloatingRateOption.builder()
 											.setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
@@ -58,7 +65,7 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 		}
 		else if (isProductQualifier(tradeState, "InterestRate_IRSwap_FixedFloat")) {
 			IndexTransitionInstruction instruction = IndexTransitionInstruction.builder()
-					.addPriceQuantity(PriceQuantity.builder()
+					.addPriceQuantity(PriceQuantitySettlement.builder()
 							.setObservable(Observable.builder()
 									.setRateOptionValue(FloatingRateOption.builder()
 											.setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)

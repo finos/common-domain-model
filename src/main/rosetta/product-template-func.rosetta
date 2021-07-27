@@ -18,10 +18,9 @@ func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as 
 func Create_TradableProduct: <"Creates a new TradableProduct with the given inputs.">
 	inputs:
 		product Product (1..1) <"The product to set.">
-		priceQuantity PriceQuantity (1..*) <"The price quantities to set.">
+		priceQuantitySettlement PriceQuantitySettlement (1..*) <"The settlement instructions to set, including price, quantity and settlement terms (if any).">
 		counterparty Counterparty (2..2) <"The counterparties to set.">
 		ancillaryParty AncillaryParty (0..*) <"The ancillary parties to set.">
-		settlementInstructions SettlementInstructions (0..1) <"The settlement terms to set.">
 		adjustment NotionalAdjustmentEnum (0..1) <"The adjustment to set.">
 	output:
 		tradableProduct TradableProduct (1..1)
@@ -29,17 +28,14 @@ func Create_TradableProduct: <"Creates a new TradableProduct with the given inpu
 	assign-output tradableProduct -> product:
          product
 
-    assign-output tradableProduct -> tradeLot -> priceQuantity: 
-        priceQuantity
+    assign-output tradableProduct -> tradeLot -> priceQuantitySettlement:
+        priceQuantitySettlement
 
     assign-output tradableProduct -> counterparty:
         counterparty
 
     assign-output tradableProduct -> ancillaryParty:
         ancillaryParty
-
-    assign-output tradableProduct -> settlementInstructions:
-        settlementInstructions
 
     assign-output tradableProduct -> adjustment:
         adjustment

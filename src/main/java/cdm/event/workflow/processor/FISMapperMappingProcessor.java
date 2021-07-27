@@ -574,13 +574,13 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 	private PathValue<PriceQuantityBuilder> getPriceQuantityForInterestRatePayout(PathValue<TradeStateBuilder> ts) {
 		PathValue<TradableProduct.TradableProductBuilder> tp = getTradableProduct(ts);
 		return new PathValue<>(tp.getModelPath().addElement("tradeLot", 0).addElement("priceQuantity", 0),
-				tp.getValue().getOrCreateTradeLot(0).getOrCreatePriceQuantity(0));
+				tp.getValue().getOrCreateTradeLot(0).getOrCreatePriceQuantitySettlement(0));
 	}
 
 	private PathValue<PriceQuantityBuilder> getPriceQuantityForSecurityFinancePayout(PathValue<TradeStateBuilder> ts) {
 		PathValue<TradableProduct.TradableProductBuilder> tp = getTradableProduct(ts);
 		return new PathValue<>(tp.getModelPath().addElement("tradeLot", 0).addElement("priceQuantity", 1),
-				tp.getValue().getOrCreateTradeLot(0).getOrCreatePriceQuantity(1));
+				tp.getValue().getOrCreateTradeLot(0).getOrCreatePriceQuantitySettlement(1));
 	}
 
 	private void buildTradeStateMapping(String xmlPath, MappingConsumer<WorkflowStepBuilder> consumer) {

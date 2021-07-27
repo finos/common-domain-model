@@ -9,7 +9,7 @@ import cdm.event.common.functions.Create_Execution;
 import cdm.event.workflow.*;
 import cdm.event.workflow.functions.Create_WorkflowStep;
 import cdm.observable.asset.PriceQuantity;
-import cdm.product.common.TradeLot;
+import cdm.product.template.TradeLot;
 import com.google.common.collect.Lists;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaDate;
@@ -20,11 +20,9 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static org.isda.cdm.functions.testing.FunctionUtils.createExecutionInstructionFromTradeState;
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 
 public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<TradeState, Workflow> {
 
@@ -79,7 +77,7 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
 				.getTradableProduct()
 				.getTradeLot()
 				.stream()
-				.map(TradeLot.TradeLotBuilder::getPriceQuantity)
+				.map(TradeLot.TradeLotBuilder::getPriceQuantitySettlement)
 				.flatMap(Collection::stream)
 				.map(PriceQuantity.PriceQuantityBuilder::getQuantity)
 				.flatMap(Collection::stream)

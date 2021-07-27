@@ -1,6 +1,7 @@
 namespace cdm.observable.common
 version "${project.version}"
 
+import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
 
@@ -17,31 +18,35 @@ func ResolveTimeZoneFromTimeType: <"Defines inputs and outputs needed to derive 
 
 func PriceQuantityTriangulation: <"Defines all the scenarios which triangulation can be helpful validation between Prices and Quantities.">
 	inputs:
-		priceQuantity PriceQuantity (0..*)
-
+		// priceQuantity PriceQuantity (0..*)
+		quantity Quantity (0..*)
+		price Price (0..*)
+		
 	output:
 		success boolean (1..1)
 
 	assign-output success:
-		if priceQuantity -> price -> priceType contains PriceTypeEnum -> CashPrice
-		then CashPriceQuantityNoOfUnitsTriangulation(priceQuantity)
+		if price -> priceType contains PriceTypeEnum -> CashPrice
+		then CashPriceQuantityNoOfUnitsTriangulation(quantity, price)
 		else True
 
 func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
 	inputs:
-		priceQuantity PriceQuantity (0..*)
-
+		// priceQuantity PriceQuantity (0..*)
+		quantity Quantity (0..*)
+		price Price (0..*)
+		
 	output:
 		success boolean (1..1)
 
 	alias notional:
-		CurrencyAmount(priceQuantity, empty)
+		CurrencyAmount(quantity, empty)
 
 	alias noOfUnits:
-		NoOfUnits(priceQuantity)
+		NoOfUnits(quantity)
 
 	alias cashPrices:
-		priceQuantity -> price -> amount
+		price -> amount
 
 	alias cashPrice:
 		cashPrices only-element
@@ -52,7 +57,7 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 
 func NoOfUnits: <"Get quantity associated with product identifier.">
 	inputs:
-		priceQuantity PriceQuantity (0..*)
+		quantity Quantity (0..*)
 
 	output:
 		noOfUnits number (1..1)
@@ -60,7 +65,7 @@ func NoOfUnits: <"Get quantity associated with product identifier.">
 
 func CurrencyAmount: <"Get quantity associated with currency.">
 	inputs:
-		priceQuantity PriceQuantity (0..*)
+		quantity Quantity (0..*)
 		currency string (0..1)
 
 	output:
@@ -68,28 +73,28 @@ func CurrencyAmount: <"Get quantity associated with currency.">
 
 func Plus:
 	inputs:
-		q1 cdm.base.math.Quantity (1..1)
-		q2 cdm.base.math.Quantity (1..1)
+		q1 Quantity (1..1)
+		q2 Quantity (1..1)
 	output:
-		result cdm.base.math.Quantity (1..1)
+		result Quantity (1..1)
 
 func Equals:
 	inputs:
-		quantity cdm.base.math.Quantity (1..*)
+		quantity Quantity (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
 
 func GreaterThan:
 	inputs:
-		quantity cdm.base.math.Quantity (1..*)
+		quantity Quantity (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)
 
 func GreaterThanEquals:
 	inputs:
-		quantity cdm.base.math.Quantity (1..*)
+		quantity Quantity (1..*)
 		scalar number (1..1)
 	output:
 		result boolean (1..1)

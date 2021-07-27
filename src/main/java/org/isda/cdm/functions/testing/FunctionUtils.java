@@ -1,15 +1,14 @@
 package org.isda.cdm.functions.testing;
 
+import cdm.event.common.ExecutionInstruction;
+import cdm.event.common.TradeState;
+import com.google.common.collect.Lists;
+import com.rosetta.model.metafields.FieldWithMetaDate;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import cdm.event.common.ExecutionInstruction;
-import cdm.event.common.TradeState;
-import cdm.product.common.TradeLot;
-import com.google.common.collect.Lists;
-import com.rosetta.model.metafields.FieldWithMetaDate;
 
 public class FunctionUtils {
 
@@ -20,7 +19,7 @@ public class FunctionUtils {
     public static ExecutionInstruction createExecutionInstructionFromTradeState(TradeState tradeState) {
         return ExecutionInstruction.builder()
                 .setProduct(tradeState.getTrade().getTradableProduct().getProduct())
-                .setPriceQuantity(guard(tradeState.getTrade().getTradableProduct().getTradeLot()).stream().map(t -> guard(t.getPriceQuantity())).flatMap(Collection::stream).collect(Collectors.toList()))
+                .setPriceQuantitySettlement(guard(tradeState.getTrade().getTradableProduct().getTradeLot()).stream().map(t -> guard(t.getPriceQuantitySettlement())).flatMap(Collection::stream).collect(Collectors.toList()))
                 .addCounterparty(guard(tradeState.getTrade().getTradableProduct().getCounterparty()))
                 .addAncillaryParty(guard(tradeState.getTrade().getTradableProduct().getAncillaryParty()))
                 .addParties(guard(tradeState.getTrade().getParty()))

@@ -18,12 +18,9 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
 public class CurrencyAmountImpl extends CurrencyAmount {
 
 	@Override
-	protected BigDecimal doEvaluate(List<? extends PriceQuantity> priceQuantity, String currency) {
-		Set<BigDecimal> notionals = emptyIfNull(priceQuantity).stream()
-				.map(PriceQuantity::getQuantity)
+	protected BigDecimal doEvaluate(List<? extends Quantity> quantity, String currency) {
+		Set<BigDecimal> notionals = emptyIfNull(quantity).stream()
 				.filter(Objects::nonNull)
-				.flatMap(Collection::stream)
-				.map(FieldWithMetaQuantity::getValue)
 				.filter(q -> Optional.ofNullable(q)
 						.map(Quantity::getUnitOfAmount)
 						.map(UnitType::getCurrency)

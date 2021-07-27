@@ -11,13 +11,12 @@ import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.asset.functions.FilterPrice;
 import cdm.observable.asset.functions.FilterPriceImpl;
-import cdm.observable.asset.functions.FilterPriceQuantity;
-import cdm.observable.asset.functions.FilterPriceQuantityImpl;
 import cdm.observable.common.functions.CurrencyAmount;
 import cdm.observable.common.functions.CurrencyAmountImpl;
 import cdm.observable.common.functions.NoOfUnits;
 import cdm.observable.common.functions.NoOfUnitsImpl;
 import cdm.observable.event.functions.ResolveObservationAverage;
+import cdm.observable.event.functions.ResolveObservationAverageImpl;
 import cdm.product.asset.functions.ExtractFixedLeg;
 import cdm.product.asset.functions.ExtractFixedLegImpl;
 import cdm.product.asset.functions.ResolveEquityInitialPrice;
@@ -26,10 +25,10 @@ import cdm.product.common.schedule.functions.CalculationPeriod;
 import cdm.product.common.schedule.functions.CalculationPeriodImpl;
 import cdm.product.common.schedule.functions.CalculationPeriodRange;
 import cdm.product.common.schedule.functions.CalculationPeriodRangeImpl;
+import cdm.product.common.settlement.functions.*;
+import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantityImpl;
 import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
-import cdm.event.common.functions.Create_BillingRecordsImpl;
-import cdm.observable.event.functions.ResolveObservationAverageImpl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
@@ -64,7 +63,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(FilterPartyRole.class).to(bindFilterPartyRole());
 		bind(FilterPrice.class).to(bindFilterPrice());
 		bind(FilterQuantity.class).to(bindFilterQuantity());
-		bind(FilterPriceQuantity.class).to(bindFilterPriceQuantity());
+		bind(FilterPriceQuantitySettlement.class).to(bindFilterPriceQuantitySettlement());
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
 		bind(UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity.class).to(bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity());
@@ -184,8 +183,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		return FilterQuantityImpl.class;
 	}
 
-	protected Class<? extends FilterPriceQuantity> bindFilterPriceQuantity() {
-		return FilterPriceQuantityImpl.class;
+	protected Class<? extends FilterPriceQuantitySettlement> bindFilterPriceQuantitySettlement() {
+		return FilterPriceQuantitySettlementImpl.class;
 	}
 
 	protected Class<? extends Now> bindNow() {
@@ -198,7 +197,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl> bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity() {
 		return UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl.class;
-	}    protected Class<? extends Create_SplitTrades> bindCreateSplitTrades() {
+	}
+
+	protected Class<? extends Create_SplitTrades> bindCreateSplitTrades() {
 		return Create_SplitTradesImpl.class;
 	}
 
