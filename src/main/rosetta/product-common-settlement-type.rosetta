@@ -149,6 +149,31 @@ type CashSettlementTerms: <"Defines the terms required to compute and settle a c
 		if recoveryFactor exists
 		then recoveryFactor >= 0.0 and recoveryFactor <= 1.0
 
+	condition CashCollateralMethod: <"The cash collateral valuation method only applies to mid-market and replacement value methods.">
+		if valuationMethod -> cashCollateralValuationMethod exists then
+			cashSettlementMethod = CashSettlementMethodEnum -> MidMarketIndicativeQuotations or
+			cashSettlementMethod = CashSettlementMethodEnum -> MidMarketIndicativeQuotationsAlternate or
+			cashSettlementMethod = CashSettlementMethodEnum -> MidMarketCalculationAgentDetermination or
+			cashSettlementMethod = CashSettlementMethodEnum -> ReplacementValueFirmQuotations or
+			cashSettlementMethod = CashSettlementMethodEnum -> ReplacementValueCalculationAgentDetermination
+	
+	condition MidMarketValuationMethod: <"Certain cash collateral valuation parameters only apply to the mid-market valuation methods.">
+		if ( valuationMethod -> cashCollateralValuationMethod -> applicableCsa exists or
+			valuationMethod -> cashCollateralValuationMethod -> agreedDiscountRate exists or
+			valuationMethod -> cashCollateralValuationMethod -> cashCollateralInterestRate exists ) then
+				cashSettlementMethod = CashSettlementMethodEnum -> MidMarketIndicativeQuotations or
+				cashSettlementMethod = CashSettlementMethodEnum -> MidMarketIndicativeQuotationsAlternate or
+				cashSettlementMethod = CashSettlementMethodEnum -> MidMarketCalculationAgentDetermination
+
+	condition ReplacementValueMethod: <"Protected party can only be specified for replacement value methods.">
+		if valuationMethod -> cashCollateralValuationMethod -> protectedParty exists then
+			cashSettlementMethod = CashSettlementMethodEnum -> ReplacementValueFirmQuotations or
+			cashSettlementMethod = CashSettlementMethodEnum -> ReplacementValueCalculationAgentDetermination
+
+	condition FirmQuotationMethod: <"Prescribed documentation adjustment can only be specified for firm quotations method.">
+		if valuationMethod -> cashCollateralValuationMethod -> prescribedDocumentationAdjustment exists then
+			cashSettlementMethod = CashSettlementMethodEnum -> ReplacementValueFirmQuotations
+
 type DeliverableObligations: <"A class to specify all the ISDA terms relevant to defining the deliverable obligations.">
 
 	accruedInterest boolean (0..1) <"Indicates whether accrued interest is included (true) or not (false). For cash settlement this specifies whether quotations should be obtained inclusive or not of accrued interest. For physical settlement this specifies whether the buyer should deliver the obligation with an outstanding principal balance that includes or excludes accrued interest. ISDA 2003 Term: Include/Exclude Accrued Interest.">
@@ -346,4 +371,3 @@ type SimplePayment extends PartyReferencePayerReceiver: <"A class to specified p
 	condition NonNegativePaymentAmount: <"FpML specifies paymentAmount as NonNegativeMoney.">
 		if paymentAmount exists
 		then paymentAmount -> amount > 0.0
-

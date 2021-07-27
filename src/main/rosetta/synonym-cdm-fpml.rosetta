@@ -681,8 +681,30 @@ synonym source FpML_5_10 extends FpML
             [hint "settlementRateOption"]
 		+ referenceBanks
 			[value "cashSettlementReferenceBanks"]
-		+ dealer
+		+ dealerOrCCP
+			[value "mutuallyAgreeClearinghouse"]
+			[hint "dealer"]
+
+	OtherParty:
+		+ ancillaryParty
+			[value "partyReference"]
+		+ identifier
 			[value "dealer"]
+			[value "identifier"]
+	
+	CashCollateralValuationMethod:
+		+ applicableCsa	
+			[value "applicableCsa"]
+		+ cashCollateralCurrency
+			[value "cashCollateralCurrency"]
+		+ cashCollateralInterestRate
+			[value "cashCollateralInterestRate"]
+		+ agreedDiscountRate
+			[value "agreedDiscountRate" meta "benchmarkRateScheme"]
+		+ protectedParty
+		 	[value "protectedParty"]
+		+ prescribedDocumentationAdjustment
+			[value "prescribedDocumentationAdjustment"]
 
 	SettlementRateOption:
 		+ settlementRateOption
@@ -2889,6 +2911,11 @@ synonym source FpML_5_10 extends FpML
 			[set to CashSettlementMethodEnum -> ZeroCouponYieldAdjustedMethod when "zeroCouponYieldAdjustedMethod" exists]
 			[set to CashSettlementMethodEnum -> CrossCurrencyMethod when "crossCurrencyMethod" exists]
 			[set to CashSettlementMethodEnum -> CollateralizedCashPriceMethod when "collateralizedCashPriceMethod" exists]
+			[set to CashSettlementMethodEnum -> MidMarketIndicativeQuotations when "midMarketValuation->indicativeQuotations" exists]
+			[set to CashSettlementMethodEnum -> MidMarketIndicativeQuotationsAlternate when "midMarketValuation->indicativeQuotationsAlternate" exists]
+			[set to CashSettlementMethodEnum -> MidMarketCalculationAgentDetermination when "midMarketValuation->calculationAgentDetermination" exists]
+			[set to CashSettlementMethodEnum -> ReplacementValueFirmQuotations when "replacementValue->collateralizedCashPriceMethod" exists]
+			[set to CashSettlementMethodEnum -> ReplacementValueCalculationAgentDetermination when "replacementValue->calculationAgentDetermination" exists]
 		+ valuationDate
 			[value "fixing"]
 			[value "rateSourceFixing"]
@@ -2941,6 +2968,8 @@ synonym source FpML_5_10 extends FpML
             [value "fixing"]
             [value "rateSourceFixing"]
             [hint "settlementRateOption"]
+			[value "midMarketValuation" /*path "cashSettlement"*/]
+			[value "replacementValue" /*path "cashSettlement"*/]
 		+ quotationMethod
 			[value "quotationMethod"]
 			[value "quotationRateType"]
@@ -2948,6 +2977,9 @@ synonym source FpML_5_10 extends FpML
 			[value "quotationAmount"]
 		+ minimumQuotationAmount
 			[value "minimumQuotationAmount"]
+		+ cashCollateralValuationMethod
+			[value "midMarketValuation" /*path "cashSettlement"*/]
+			[value "replacementValue" /*path "cashSettlement"*/]
 
 	DeliverableObligations:
 		+ accruedInterest
