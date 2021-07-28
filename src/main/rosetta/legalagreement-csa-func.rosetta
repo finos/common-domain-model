@@ -6,26 +6,6 @@ import cdm.observable.asset.*
 
 import cdm.legalagreement.common.*
 
-func SaIsdaBankCustodian2019NewYorkLaw:
-	inputs: legalAgreement LegalAgreement (1..1)
-	output: is_agreement boolean (1..1)
-
-	assign-output is_agreement:
-		legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement
-		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> publisher = LegalAgreementPublisherEnum->ISDA 
-		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> governingLaw = GoverningLawEnum->USNY 
-		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementType -> vintage = 2019
-		and legalAgreement -> relatedAgreements -> legalAgreement -> agreementDate exists 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> pledgedAccount is absent 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> enforcementEvent is absent
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> deliveryInLieuRight is absent 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> fullDischarge is absent
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> appropriatedCollateralValuation is absent 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> processAgent exists 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> japaneseSecuritiesProvisions exists 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> exclusiveJurisdiction exists 
-		and legalAgreement -> agreementTerms -> agreement -> securityAgreementElections -> jurisdictionRelatedTerms -> juryWaiver exists 
-
 func PostedCreditSupportItemAmount: <"Calculates the Value for the given Posted Credit Support item. Value means, unless otherwise specified in Paragraph 13, for any Calculation Date (IM) or other date for which Value is calculated and subject to Paragraph 5 in the case of a dispute, with respect to: (i) save as provided in clause (ii) below, Eligible Collateral (IM) or Posted Collateral (IM) that is: (A) an amount of Cash, the Base Currency Equivalent of such amount multiplied by (VP – HFX); and (B) a security, the Base Currency Equivalent of the bid price obtained by the Calculation Agent (IM) multiplied by (VP – HFX); where: VP equals the applicable Valuation Percentage; and HFX equals the applicable FX Haircut Percentage, provided that, for the purposes of calculating Value under Paragraph 8(b)(iv)(B) or Paragraph 11(a), the VP will be 100% and HFX will be zero; (ii) Posted Collateral (IM) that consists of items that are, in respect of the relevant posting obligation, deemed as of such date to have a Value of zero pursuant to Paragraph 13, zero; and (iii) Other Eligible Support (IM) and Other Posted Support. (IM), as specified in Paragraph 13.">
 	[calculation]
 
@@ -39,24 +19,27 @@ func PostedCreditSupportItemAmount: <"Calculates the Value for the given Posted 
 	alias cashOrSecurityValue:
 		item -> cashOrSecurityValue -> amount
 
-	alias valuationPercentage:
-		item -> valuationPercentage
+	alias haircutPercentage:
+		item -> haircutPercentage
 
 	alias fxHaircutPercentage:
 		item -> fxHaircutPercentage
 
+	alias additionalHaircutPercentage:
+		item -> fxHaircutPercentage
+
 	alias postedCreditSupportAmount:
-		cashOrSecurityValue * (valuationPercentage - fxHaircutPercentage) / 100.0
+		cashOrSecurityValue * (1.00 - (haircutPercentage + fxHaircutPercentage + additionalHaircutPercentage))
 
 	condition:
-		(baseCurrency = item -> cashOrSecurityValue -> unitOfAmount-> currency)
-		and (baseCurrency = item -> disputedCashOrSecurityValue -> unitOfAmount-> currency)
+		baseCurrency = item -> cashOrSecurityValue -> unitOfAmount-> currency
+			and baseCurrency = item -> disputedCashOrSecurityValue -> unitOfAmount-> currency
 
 	assign-output result -> amount:
 		postedCreditSupportAmount - item -> disputedCashOrSecurityValue -> amount
 
 	assign-output result -> unitOfAmount-> currency:
-	baseCurrency
+		baseCurrency
 
 func SumPostedCreditSupportItemAmounts: <"Loops through each PostedCreditSupportItem, calculating the PostedCreditSupportItemAmount (by executing func PostedCreditSupportItemAmount), and summing the result.  Currently loops are not supported in the syntax so the loop must be implemented in code.">
 	[calculation]

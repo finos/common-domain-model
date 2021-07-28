@@ -37,7 +37,7 @@ A tradable product represents a financial product that is ready to be traded, me
     tradeLot TradeLot (1..*)
     counterparty Counterparty (2..2) 
     ancillaryParty AncillaryParty (0..*) 
-    settlementTerms SettlementTerms (0..1) 
+    settlementInstructions SettlementInstructions (0..*)
     adjustment NotionalAdjustmentEnum (0..1) 
 
 .. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
@@ -259,23 +259,27 @@ By contrast, in the case of the execution of a security (e.g. a listed equity), 
 
 An Index product is an exception because it's not directly tradable, but is included here because it can be referenced as an underlier for a tradable product and can be identified by a public identifier.
 
-Underlier
-"""""""""
+Settlement Instructions
+"""""""""""""""""""""""
 
-The underlier attribute on types ``OptionPayout``, ``ForwardPayout`` and ``EquityPayout`` allows for any product to be used as the underlier for a corresponding products option, forward, and equity swap.
+The ``settlementInstructions`` attribute defines how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
 
 .. code-block:: Haskell
 
- type OptionPayout extends PayoutBase:
-   [metadata key]
-   buyerSeller BuyerSeller (1..1)
-   optionType OptionTypeEnum (0..1)
-   feature OptionFeature (0..1)
-   denomination OptionDenomination (0..1)
-   exerciseTerms OptionExercise (1..1)
-   underlier Product (1..1)
+ type SettlementInstructions extends PayoutBase:
 
-This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
+.. code-block:: Haskell
+
+ type PayoutBase:
+   payerReceiver PayerReceiver (1..1)
+   payoutQuantity ResolvablePayoutQuantity (1..1)
+   settlementTerms SettlementTerms (1..1)
+
+.. code-block:: Haskell
+
+ type SettlementTerms extends SettlementBase:
+   cashSettlementTerms CashSettlementTerms (0..*)
+   physicalSettlementTerms PhysicalSettlementTerms (0..1)
 
 Contractual Product
 ^^^^^^^^^^^^^^^^^^^
@@ -360,7 +364,9 @@ The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``SecurityFinanc
 .. code-block:: Haskell
 
  type PayoutBase: 
-	payoutQuantity ResolvablePayoutQuantity (1..1) 
+	payerReceiver PayerReceiver (1..1)
+    payoutQuantity ResolvablePayoutQuantity (1..1)
+    settlementTerms SettlementTerms (1..1)
 
 .. code-block:: Haskell
 
@@ -383,8 +389,7 @@ Note that the ``resolvedQuantity`` attribute has a metadata address that points 
 
  type InterestRatePayout extends PayoutBase:
 	[metadata key]
-	payerReceiver PayerReceiver (0..1) 
-	rateSpecification RateSpecification (1..1) 
+	rateSpecification RateSpecification (1..1)
 	dayCountFraction DayCountFractionEnum (0..1) 
 		[metadata scheme]
 	calculationPeriodDates CalculationPeriodDates (0..1) 
@@ -395,8 +400,8 @@ Note that the ``resolvedQuantity`` attribute has a metadata address that points 
 	discountingMethod DiscountingMethod (0..1) 
 	compoundingMethod CompoundingMethodEnum (0..1) 
 	cashflowRepresentation CashflowRepresentation (0..1) 
-	crossCurrencyTerms CrossCurrencyTerms (0..1) 
-	stubPeriod StubPeriod (0..1) 
+	principalExchanges PrincipalExchanges (0..1)
+	stubPeriod StubPeriod (0..1)
 	bondReference BondReference (0..1) 
 	fixedAmount calculation (0..1) 
 	floatingAmount calculation (0..1) 
@@ -440,6 +445,23 @@ There are a number of components that are reusable across several payout types. 
    lastRegularPeriodEndDate date (0..1)
    stubPeriodType StubPeriodTypeEnum (0..1)
    calculationPeriodFrequency CalculationPeriodFrequency (0..1)
+
+Underlier
+"""""""""
+
+The underlier attribute on types ``OptionPayout``, ``ForwardPayout`` and ``EquityPayout`` allows for any product to be used as the underlier for a corresponding products option, forward, and equity swap.
+
+.. code-block:: Haskell
+
+ type OptionPayout extends PayoutBase:
+   [metadata key]
+   buyerSeller BuyerSeller (1..1)
+   optionType OptionTypeEnum (0..1)
+   feature OptionFeature (0..1)
+   exerciseTerms OptionExercise (1..1)
+   underlier Product (1..1)
+
+This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
 
 Data Templates
 """"""""""""""
@@ -514,20 +536,13 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
  	inputs: economicTerms EconomicTerms (1..1)
  	output: is_product boolean (1..1)
  	assign-output is_product:
-  	(economicTerms -> payout -> interestRatePayout only exists
- 		or (economicTerms -> payout -> interestRatePayout exists
- 		and economicTerms -> payout -> cashflow exists
- 		and economicTerms -> payout -> creditDefaultPayout is absent
- 		and economicTerms -> payout -> equityPayout is absent
- 		and economicTerms -> payout -> forwardPayout is absent
- 		and economicTerms -> payout -> optionPayout is absent
- 		and economicTerms -> payout -> securityPayout is absent
-        and economicTerms -> payout -> securityFinancePayout is absent))
- 		and economicTerms -> payout -> interestRatePayout count =2
- 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
- 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
- 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier = 1
- 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
+        (economicTerms -> payout -> interestRatePayout only exists
+			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+        and economicTerms -> payout -> interestRatePayout count = 2
+        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
+        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
+        and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
+        and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
 
 If all the statements above are true, then the function evaluates to True, and the product is determined to be qualified as the product type referenced by the function name.
 
@@ -660,7 +675,6 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
    tradableProduct TradableProduct (1..1)
    party Party (0..*)
    partyRole PartyRole (0..*)
-   settlementTerms SettlementTerms (0..*)
    executionDetails ExecutionDetails (0..1)
    contractDetails ContractDetails (0..1)
    clearedDate date (0..1)
@@ -670,19 +684,6 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
      [deprecated]
 
 .. note:: Attributes within ``Trade`` and ``ContractDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view.
-
-The ``settlementTerms`` attribute defines how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
-
-.. code-block:: Haskell
-
- type SettlementTerms extends SettlementBase:
-   settlementType SettlementTypeEnum (0..1)
-   settlementDate AdjustableOrRelativeDate (0..1)
-   valueDate date (0..1)
-   transferSettlementType TransferSettlementEnum (0..1)
-   payerReceiver PartyReferencePayerReceiver (0..1)
-   priceQuantity PriceQuantity (0..1)
-       [metadata reference]
 
 Additionally, ``Trade`` supports representation of specific execution or contractual details via the ``executionDetails`` and ``contractDetails`` attributes.
 
@@ -697,7 +698,7 @@ The ``ExecutionDetails`` data type represents details applicable to trade execut
 
  type ContractDetails:
    [metadata key]
-   documentation RelatedAgreement (0..1)
+   documentation RelatedAgreement (0..*)
    governingLaw GoverningLawEnum (0..1)
      [metadata scheme]
    partyContractInformation PartyContractInformation (0..*)
@@ -1154,11 +1155,10 @@ One distinction with the product approach is that the ``intent`` qualification i
  	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
  	assign-output is_event:
  		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
- 		and (businessEvent  -> primitives count = 1
- 			and businessEvent -> primitives -> quantityChange exists
+ 		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
  			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
  		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
- 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+ 		and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
@@ -1559,7 +1559,7 @@ The following code snippets represent these three components of the eligible col
 .. code-block:: Haskell
 
  type CollateralTreatment:
-   valuationPercentage CollateralValuationPercentage (0..1)
+   valuationTreatment CollateralValuationTreatment (0..1)
    concentrationLimit ConcentrationLimit (0..*)
    isIncluded boolean (1..1)
 
@@ -1707,7 +1707,10 @@ Coverage
 * Trade execution and confirmation
 * Clearing
 * Allocation
+* Reallocation
 * Settlement (including any future contingent cashflow payment)
+* Return (settlement of the part and/or full return of the loaned security as defined by a Securities Lending transaction.)
+* Billing (calculation and population of invoicing for Securities Lending transactions)
 * Exercise of options
 * Margin calculation
 * Regulatory reporting (although covered in a different documentation section)
@@ -1775,6 +1778,69 @@ These calculation processes leverage the *calculation function* component of the
 
 Explanations of these processes are provided in the following sections.
 
+
+Base Libraries - Vector Math
+""""""""""""""""""""""""""""
+The CDM includes a very basic library for performing vector math.  This is intended to support more complex calculations such as daily compounded floating amounts.   The CDM includes a basic implementation of these functions in Java, and allows individual implementations to substitute their own more robust representations.
+
+
+A small library of functions for working with vectors (ordered collections of numbers) has been added to CDM to support Rosetta functions needing to perform complex mathematical operations.  Anticipated uses include averaging and compounding calculations for floating amounts, but the functions are designed to be general use.
+
+The functions are located in base-math-func.
+
+Functions include:
+
+* ToVector: Creates a vector from a list of numbers.
+* SelectFromVector: Selects a single value from a vector (list of numbers), i.e. result = val[index].
+Returns null if the supplied vector is empty or if the supplied index is out of range.
+Returns the first element of the vector when supplied an index of 0, and the index - 1 th element if index is in range.
+* LastInVector: Returns the last value in a vector.  If the vector is empty, returns null
+* AppendToVector: Appends a single value to a vector
+* VectorOperation: Generates a result vector by applying the supplied arithmetic operation to each element of the supplied left and right vectors in turn.  i.e. result[n] = left[n] [op] right[n], where [op] is the arithmetic operation defined by arithmeticOp.   This function can be used to, for example, multiply or add two vectors.
+* VectorScalarOperation: Generates a result vector by applying the supplied arithemetic operation and scalar right value to each element of the supplied left vector in turn. i.e. result[n] = left[n] [op] right, where [op] is the arithmetic operation defined by arithmeticOp.  This function can be used to, for example, multiply a vector by a scalar value, or add a scalar to a vector.
+* VectorGrowthOperation: Generates a result vector by starting with the supplied base value (typically 1), and then multiplying it in turn by each growth factor, which is typically a number just above 1.  For instance, a growth factor of 1.1 reprsents a 10% increase, and 0.9 a 10% decrease.  The results will show the successive results of applying the successive growth factors, with the first value of the list being the supplied baseValue, and final value of the results list being the product of all of the supplied values.  i.e. result[1] = baseValue * factor[1], result[n] = result[n-1] * factor[n].  The resulting list will have the one more element than the supplied list of factors.  This function is useful for performing compounding calculations.
+
+
+Also a new scalar functions has been added to better support floating rate processing:
+* Round to precision:  Rounds a supplied number to a specified precison (in decimal places) using a roundingMode of type RoundingDirectionEnum.  This is similar to RoundToNearest but takes a precision rather than an amount, and uses a different rounding mode enumeration that supports more values.
+
+Base Libraries - Date Math
+"""""""""""""""""""""""""""
+
+The CDM includes a very basic library for performing date math.  This is intended to support more complex calculations such as daily compounded floating amounts.   The CDM includes a basic implementation of these functions in Java, and allows individual implementations to substitute their own more robust representations.
+
+
+A small library of functions for working with dates and lists of dates has been added to CDM to support Rosetta
+functions needing to perform date mathematics.  Anticipated uses include date list generation for modular rate
+calculations for floating amounts, but the functions are designed to be general use.
+
+There is a basic Java language implementation that can be used, or users can provide their own implementations
+of these fuctions using a more robust date math library.
+
+The functions are located in base-datetime-func.
+
+Functions include:
+
+* CombineBusinessCenters: Creates a BusinessCenters object that includes the union of business centers in the two supplied lists
+* RetrieveBusinessCenterHolidays: Returns a merged list of holidays for the supplied business centers
+* DayOfWeek: returns the day of week corresponding to the supplied date
+* AddDays: adds the specified number of calendar days to the supplied date.  A negative number will generate a date before the supplied date.
+* DateDifference: subtracts the two supplied dates to return the number of calendar days between them .  A negative number implies first is after second.
+* LeapYearDateDifference: subtracts the two supplied dates to return the number of leap year calendar days between them.(That is, the number of dates that happen to fall within a leap year.)  A negative number implies firstDate is after secondDate.
+* SelectDate: Select a date from a list of dates based on index.  If not found return nothing.
+* LastInDateList: Return the last date in a list of dates
+* AppendDateToList: Add a date to a list of dates
+* PopOffDateList:  Remove last element from a list of dates
+
+The following are implemented in Rosetta based on the above primitives.
+* IsWeekend: returns whether the supplied date is a weekend.  This implementation currently assumes a 5 day week with Saturday and Sunday as holidays.  A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.
+* IsHoliday: Returns whether a day is a holiday for the specified business centers
+* IsBusinessDay: returns an indicator of whether the supplied date is a good business date given the supplied business centers.  True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday
+* AddBusinessDays: Returns a good business date that has been offset by the given number of business days given the supplied business centers.  A negative value implies an earlier date (before the supplied originalDate), and a positive value a later date (after the supplied date).
+* GenerateDateList: Creates a list of good business days starting from the startDate and going to the end date, inclusive, omitting any days that are weekends or holidays according to the supplied business centers.
+
+
+
 Fixed Amount and Floating Amount Definitions
 """"""""""""""""""""""""""""""""""""""""""""
 
@@ -1782,26 +1848,30 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
 
 .. code-block:: Haskell
 
- func FloatingAmount:
- 	[calculation]
- 	inputs:
- 		interestRatePayout InterestRatePayout (1..1)
- 		spread number (1..1)
- 		rate number (1..1)
- 		quantity Quantity (1..1)
- 		date date (1..1)
+func FloatingAmount:
+	[calculation]
+	inputs:
+		interestRatePayout InterestRatePayout (1..1)
+		spread number (1..1)
+		rate number (1..1)
+		quantity Quantity (1..1)
+		date date (1..1)
+		calculationPeriodData CalculationPeriodData (0..1)
 
- 	output:
- 	    floatingAmount number (1..1)
+	output:
+	    floatingAmount number (1..1)
 
- 	alias calculationAmount:
- 	    quantity -> amount
+	alias calculationAmount:
+	    quantity -> amount
 
- 	alias dayCountFraction:
- 	    DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date)
+	alias calculationPeriod:
+		if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
 
- 	assign-output floatingAmount:
- 	    calculationAmount * (rate + spread) * dayCountFraction
+	alias dayCountFraction:
+	    DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date, calculationPeriod)
+
+	assign-output floatingAmount:
+	    calculationAmount * (rate + spread) * dayCountFraction
 
 Day Count Fraction
 """"""""""""""""""
@@ -1814,19 +1884,18 @@ The CDM process model eliminates the need for implementators to interpret the lo
 
 .. code-block:: Haskell
 
- func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
-   [calculation]
+func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+	[calculation]
 
-   alias calculationPeriod: CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
-   alias startYear: calculationPeriod -> startDate -> year
-   alias endYear: calculationPeriod -> endDate -> year
-   alias startMonth: calculationPeriod -> startDate -> month
-   alias endMonth: calculationPeriod -> endDate -> month
-   alias endDay: Min(calculationPeriod -> endDate -> day, 30)
-   alias startDay: Min(calculationPeriod -> startDate -> day, 30)
+	alias startYear: calculationPeriod -> startDate -> year
+	alias endYear: calculationPeriod -> endDate -> year
+	alias startMonth: calculationPeriod -> startDate -> month
+	alias endMonth: calculationPeriod -> endDate -> month
+	alias endDay: Min(calculationPeriod -> endDate -> day, 30)
+	alias startDay: Min(calculationPeriod -> startDate -> day, 30)
 
-   assign-output result:
-     (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+	assign-output result:
+		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
 Utility Function
 """"""""""""""""
@@ -1901,49 +1970,48 @@ Some of those calculations are presented below:
 
 .. code-block:: Haskell
 
- func DeliveryAmount:
+  func DeliveryAmount:
 	[calculation]
+    inputs:
+      postedCreditSupportItems PostedCreditSupportItem (0..*)
+      priorDeliveryAmountAdjustment Money (1..1)
+      priorReturnAmountAdjustment Money (1..1)
+      disputedTransferredPostedCreditSupportAmount Money (1..1)
+      marginAmount Money (1..1)
+      threshold Money (1..1)
+      marginApproach MarginApproachEnum (1..1)
+      marginAmountIA Money (0..1)
+      minimumTransferAmount Money (1..1)
+      rounding CollateralRounding (1..1)
+      disputedDeliveryAmount Money (1..1)
+      baseCurrency string (1..1)
 
-	inputs:
-		postedCreditSupportItems PostedCreditSupportItem (0..*)
-		priorDeliveryAmountAdjustment Money (1..1)
-		priorReturnAmountAdjustment Money (1..1)
-		disputedTransferredPostedCreditSupportAmount Money (1..1)
-		marginAmount Money (1..1)
-		threshold Money (1..1)
-		marginApproach MarginApproachEnum (1..1)
-		marginAmountIA Money (0..1)
-		minimumTransferAmount Money (1..1)
-		rounding CollateralRounding (1..1)
-		disputedDeliveryAmount Money (1..1)
-		baseCurrency string (1..1)
+    output:
+      result Money (1..1)
 
-	output:
-		result Money (1..1)
+    alias undisputedAdjustedPostedCreditSupportAmount:
+      UndisputedAdjustedPostedCreditSupportAmount(postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency)
 
-	alias undisputedAdjustedPostedCreditSupportAmount:
-		UndisputedAdjustedPostedCreditSupportAmount(postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency)
+    alias creditSupportAmount:
+      CreditSupportAmount(marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency)
 
-	alias creditSupportAmount:
-		CreditSupportAmount(marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency)
+    alias deliveryAmount:
+      Max(creditSupportAmount -> amount - undisputedAdjustedPostedCreditSupportAmount -> amount, 0.0)
 
-	alias deliveryAmount:
-		Max(creditSupportAmount -> amount - undisputedAdjustedPostedCreditSupportAmount -> amount, 0.0)
+    alias undisputedDeliveryAmount:
+      Max(deliveryAmount - disputedDeliveryAmount -> amount, 0.0)
 
-	alias undisputedDeliveryAmount:
-		Max(deliveryAmount - disputedDeliveryAmount -> amount, 0.0)
+    condition:
+      (baseCurrency = minimumTransferAmount -> unitOfAmount -> currency
+      and (baseCurrency = disputedDeliveryAmount -> unitOfAmount -> currency))
 
-	condition:
-		(baseCurrency = minimumTransferAmount -> unitOfAmount -> currency
-		and (baseCurrency = disputedDeliveryAmount -> unitOfAmount -> currency))
+    assign-output result -> amount:
+      if undisputedDeliveryAmount >= minimumTransferAmount -> amount
+      then RoundToNearest(undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up)
+      else 0.0
 
-	assign-output result -> amount:
-		if undisputedDeliveryAmount >= minimumTransferAmount -> amount
-		then RoundToNearest(undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up)
-		else 0.0
-
-	assign-output result -> unitOfAmount -> currency:
-	    baseCurrency
+    assign-output result -> unitOfAmount -> currency:
+      baseCurrency
 
 .. code-block:: Haskell
  func ReturnAmount:
@@ -1984,6 +2052,46 @@ Some of those calculations are presented below:
 	 else 0.0
        assign-output result -> currency:
          baseCurrency
+	 
+Billing
+"""""""""
+
+The CDM process model includes calculations to support the billing event consisting of the individual amounts that need to be settled in relation to a portfolio of Security Loans.  These calculations leverage the `FixedAmount`, `FloatingAmount` and `Day Count Fraction` calculations described earlier in the documentation.  A functional model is provided to populate the `SecurityLendingInvoice` data type following the definitions as normalised in the *ISLA best practice handbook*
+
+The data type and function to generate a Security Lending Invoice:
+
+.. code-block:: Haskell
+  type SecurityLendingInvoice:
+    sendingParty Party (1..1)
+    receivingParty Party (1..1)
+    billingStartDate date (1..1)
+    billingEndDate date (1..1)
+    billingRecord BillingRecord (1..*)
+    billingSummary BillingSummary (1..*)
+    
+.. code-block:: Haskell
+  func Create_SecurityLendingInvoice: <"Defines the process of calculating and creating a Security Lending Invoice.">
+
+    inputs:
+      instruction BillingInstruction (1..1) <"Specifies the instructions for creation of a Security Lending billing invoice.">
+
+    output:
+      invoice SecurityLendingInvoice (1..1) <"Produces the Security Lending Invoice">
+
+      assign-output invoice->sendingParty:
+        instruction->sendingParty
+      assign-output invoice->receivingParty:
+	instruction->receivingParty	
+      assign-output invoice->billingStartDate:
+	instruction->billingStartDate
+      assign-output invoice->billingEndDate:
+	instruction->billingEndDate
+      assign-output invoice -> billingRecord:
+	Create_BillingRecords (instruction -> billingRecordInstruction)
+      assign-output invoice->billingSummary:
+	Create_BillingSummary (invoice -> billingRecord)
+
+
 
 Lifecycle Event Process
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -2197,12 +2305,12 @@ Namespace
 The CDM is partitioned into groups of namespaces. A namespace is an abstract container created to hold a logical grouping of model artefacts. The approach is designed to make it easier for users to understand the model structure and adopt selected components. It also aids the development cycle by insulating groups of components from unrelated model changes that may occur. The partitioning is visible to users in Rosetta Core by toggling the Namespace view in the left hand panel, and in the generated code files.
 
 Model Artifacts
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 Model artifacts are organised into a directory hierarchy that is exposed in the model editor.
 
 Organising Principles
-"""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^
 
 Namespaces are organised into a hierarchy, with layers going from in to out. The hierarchy contains an intrinsic inheritance structure where each layer has access to (“imports”) the layer outside, and is designed to be usable without any of its inner layers. Layers can contain several namespaces (“siblings”), which can also refer to each other. 
 
@@ -2213,7 +2321,7 @@ Example – the base namespace
 In the example above the layers of the “base” namespace can be observed. There are four layers to the namespace. The outer layer “base” contains one file and three namespaces. The next layer contains three siblings, “datetime”, “math”, and “staticdata”. A third and fourth layer is contained within the “staticdata” namespace.
 
 Hierarchy Structure
-"""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^
 
 The namespace hierarchy in the CDM contains 7 components
 

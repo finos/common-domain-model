@@ -1,45 +1,40 @@
-# *Product Model - Observable attribute references*
+# *Legal Agreement Model – Collateral Valuation Treatment/Identification and addition of additional haircuts*
 
 _What is being released?_
 
-Following the recent price, quantity and observable refactor, this release makes the `PriceQuantity->observable` attributes referencable by adding `location`/`address` annotations to the attributes of type `Observable` and their corresponding attributes in the `Product` payouts.  Synonyms have also been migrated to the new model for all products including rates, equity, FX, credit and repo, and also all other Event, DTCC and CME synonyms.
+The data type `CollateralValuationPercentage` has been renamed to `CollateralValuationTreatment` as more relevant. The corresponding data attribute `valuationPercentage` has been renamed to `haircutPercentage` and its description reflects haircut rather than the full valuation percentage. 
 
-- Add `location` annotation to `Observable->commodity` and add `address` annotation to `CommodityPayout->underlier->commodity`.
-- Add `location` annotation to `Observable->productIdentifier` and add `address` annotation to `PayoutBase->productIdentifier` (super type of `Security`, `Loan` and `Index`).
-- Add `location` annotation to `Observable->currencyPair` and add `address` annotation to:
-  - `optionPayout.exerciseTerms.settlement.fxSettlementTerms.fixing.quotedCurrencyPair`
-  - `forwardPayout.settlementTerms.fxSettlementTerms.fixing.quotedCurrencyPair`
-  - `optionPayout.feature.averagingRateFeature.fxRateObservable.quotedCurrencyPair`
-- Add `deprecated` annotation to ExchangeRate type.
+The following functions have been updated with the new names:
+- `PostedCreditSupportItemAmount`
+- `SecurityFinanceCashSettlementAmount`
+- `ResolveSecurityFinanceBillingAmount`
+
+An additional haircut data attribute `additionalHaircutPercentage` with related description has been added along with conditions as `haircutPercentage` and `fxHaircutPercentage`.
 
 _Review Directions_
 
-In the CDM Portal, select the textual browser and inspect the types mentioned above.
+In the CDM Portal, select the Textual Browser and search for the data types mentioned above.
 
-In the CDM Portal, select ingestion and review the following samples:
+Search for the data type `CollateralValuationTreatment` and inspect the change from `CollateralValuationPercentage` throughout the model. Inspect the change to data attribute `haircutPercentage` from `valuationPercentage` and changes to the description and related conditions.
 
-`Observable->commodity`:
-- fpml-5-10/products/commodity/com-ex1-gas-swap-daily-delivery-prices-last
-- fpml-5-10/products/commodity/com-ex5-gas-v-electricity-spark-spread
-- fpml-5-10/products/commodity/com-ex8-oil-call-option-strip
+Check the addition of data attribute `additionalHaircutPercentage` and inspect the related conditions.
 
-`Observable->productIdentifier`:
-- fpml-5-10/products/rates/bond-option-uti
-- fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json (Security)
-- fpml-5-10/products/equity/eqd-ex04-european-call-index-long-form.json (Index)
+Inspect the addition of condition `HaircutPercentageOrMarginPercentage` which forces a required choice for `haricutpercentage` or `marginpercentage` 
+In the legalagreement-csa-func file inspect the changes made to the function for haircut calculation to support the changes made.
 
-`Observable->currencyPair`:
-- fpml-5-10/products/equity/fx-ex07-non-deliverable-forward
-- fpml-5-10/products/equity/fx-ex11-non-deliverable-option
-- fpml-5-10/products/equity/fx-ex22-avg-rate-option-specific
-
-
-# *DSL Syntax - Deprecation of "includes" keyword*
+# *Credit Notations – Agency Rating Criteria additions and added descriptions*
 
 _What is being released?_
 
-The use of the keyword `includes` has been deprecated in favor of the equivalent keyword`contains`. The former was only used in the definition of the function `Create_ClearedTrade`.
+A new enumeration list `CreditNotationBoundaryEnum` will now denote the boundary of a credit agency rating i.e minimum or maximum. It is used now with the 
+ `boundary` attribute added  to the `AgencyRatingCriteria` data type. 
+
+Descriptions for attributes of `CreditNotationMismatchResolution` and `AgencyRatingCriteria` have been added.
 
 _Review Directions_
 
-In the CDM Portal, select the textual browser and inspect that the syntax keyword `includes` is no longer present.
+In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
+
+Search for the data type `AgencyRatingCriteria` and inspect the descriptions added to attributes `mismatchResolution` and `referenceAgency`. Also inspect the new added data attribute `boundary` and its related enumerations `CreditNotationBoundaryEnum` with descriptions.
+
+Search for `CreditNotationMismatchResolutionEnum` and inspect the descriptions now populated that where previously missing in the model.
