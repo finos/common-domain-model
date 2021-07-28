@@ -1,44 +1,40 @@
-# *Product Model – Cash Settlement and Physical Settlement Terms*
+# *Legal Agreement Model – Collateral Valuation Treatment/Identification and addition of additional haircuts*
 
 _What is being released?_
 
-The structural definition of Settlement Terms has been harmonised. This release addresses transaction components related to Physical Settlement of derivative products and Cash Settlement of FX products. A previous release incorporated harmonisation of concepts related to Cash Settlement for credit, cross-currency swaps and swaptions.
+The data type `CollateralValuationPercentage` has been renamed to `CollateralValuationTreatment` as more relevant. The corresponding data attribute `valuationPercentage` has been renamed to `haircutPercentage` and its description reflects haircut rather than the full valuation percentage. 
 
-_Background_
+The following functions have been updated with the new names:
+- `PostedCreditSupportItemAmount`
+- `SecurityFinanceCashSettlementAmount`
+- `ResolveSecurityFinanceBillingAmount`
 
-Multiple inconsistencies have been identified in the current modelling of settlement terms. This leads to inefficiency in the product model and in the ability to represent functional rules for digital regulatory reporting. The resolution approach creates several modelling components common across products as part of `PayoutBase` and preserve the elements that are genuinely specific.
-
-_Details_
-
-- `CashSettlementTerms` describes a harmonised cash-settlement structure that works across credit, cross-currency swaps, swaptions and FX products.
-- `CashSettlementTerms` cardinality updated to allow multiple terms to be provided for FX products.
-- `PhysicalSettlementTerms` describes a harmonised physical-settlement structure that works across credit and options.
-- `CreditDefaultPayout` extends `PayoutBase` to pick up the normalised `SettlementTerms` structure.  Corresponding data types have been removed from `CreditDefaultPayout`
+An additional haircut data attribute `additionalHaircutPercentage` with related description has been added along with conditions as `haircutPercentage` and `fxHaircutPercentage`.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search for the relevant data types specified above. In the CDM Portal, select the Ingestion view and review the following sample trades:
-- ird ex09 euro swaption explicit physical exercise
-- fx ex07 non deliverable forward
-- cd ex01 long asia corp fixreg versioned
+In the CDM Portal, select the Textual Browser and search for the data types mentioned above.
 
-# *Product Model - Option Denomination Deprecation*
+Search for the data type `CollateralValuationTreatment` and inspect the change from `CollateralValuationPercentage` throughout the model. Inspect the change to data attribute `haircutPercentage` from `valuationPercentage` and changes to the description and related conditions.
+
+Check the addition of data attribute `additionalHaircutPercentage` and inspect the related conditions.
+
+Inspect the addition of condition `HaircutPercentageOrMarginPercentage` which forces a required choice for `haricutpercentage` or `marginpercentage` 
+In the legalagreement-csa-func file inspect the changes made to the function for haircut calculation to support the changes made.
+
+# *Credit Notations – Agency Rating Criteria additions and added descriptions*
 
 _What is being released?_
 
-As part of the price/quantity normalisation, the option payout structure has been further rationalised by retiring the specialised `OptionDenomination` type and corresponding attributes:
-- `numberOfOptions` (number),
-- `optionEntitlement` (number) and
-- `entitlementCurrency` (string)
+A new enumeration list `CreditNotationBoundaryEnum` will now denote the boundary of a credit agency rating i.e minimum or maximum. It is used now with the 
+ `boundary` attribute added  to the `AgencyRatingCriteria` data type. 
 
-These modeling elements were previously used for Equity and Bond Option products and were all inherited from FpML. This change will see  the same information captured by the `Quantity` structure with the `amount`, `multiplier` and `multiplierUnit` attributes. The relevant synonym mappings have been adjusted so that the corresponding values from  FpML samples are populated in the `Quantity` structure of the CDM representation.
+Descriptions for attributes of `CreditNotationMismatchResolution` and `AgencyRatingCriteria` have been added.
 
 _Review Directions_
 
-In the CDM Portal, use the Textual Browser to review `OptionPayout`, where the `optionDenomination` attribute has been retired
+In the CDM Portal, select the Textual Browser and search for the relevant data types and review as per the following instructions:
 
-In the Ingestion Panel, try the following samples:
+Search for the data type `AgencyRatingCriteria` and inspect the descriptions added to attributes `mismatchResolution` and `referenceAgency`. Also inspect the new added data attribute `boundary` and its related enumerations `CreditNotationBoundaryEnum` with descriptions.
 
-- products > rates > `bond option uti`
-- products > rates > `cb option usi`
-- products > equity > `eqd ex01 american call stock long form`
+Search for `CreditNotationMismatchResolutionEnum` and inspect the descriptions now populated that where previously missing in the model.

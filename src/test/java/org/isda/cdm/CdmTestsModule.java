@@ -1,5 +1,7 @@
 package org.isda.cdm;
 
+import cdm.base.datetime.functions.BusinessCenterHolidaysDataProvider;
+import cdm.base.datetime.functions.BusinessCenterHolidaysTestDataProviderImpl;
 import cdm.product.asset.functions.ResolveRateIndex;
 import cdm.product.common.schedule.functions.CalculationPeriod;
 import cdm.product.common.schedule.functions.ResolveRateIndexImpl;
@@ -26,5 +28,10 @@ public class CdmTestsModule extends CdmRuntimeModule {
 
 	protected Class<? extends ResolveRateIndex> bindResolveRateIndex() {
 		return ResolveRateIndexImpl.class;
+	}
+
+	@Override
+	protected Class<? extends BusinessCenterHolidaysDataProvider> bindBusinessCenterHolidaysDataProvider() {
+		return BusinessCenterHolidaysTestDataProviderImpl.class;
 	}
 }
