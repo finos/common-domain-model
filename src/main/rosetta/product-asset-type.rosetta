@@ -513,38 +513,3 @@ type StubValue: <"A type defining how a stub calculation period amount is calcul
 	stubAmount Money (0..1) <"An actual amount to apply for the initial or final stub period may have been agreed between the two parties. If an actual stub amount has been agreed then it would be included in this component.">
 
 	condition: one-of
-
-// =====================================================================
-//
-// Floating Rate Amount Calculation definitions
-//
-// these types are used to represent modular computed rates in interestRatePayounts
-//
-// ======================================================================
-
-type FloatingRateCalculationParameters: <"Defines the structures needed to represent the calculation parameters for daily averaged and compounded modular rates as defined in the 2021 ISDA Definitions in Section 7.">
-	calculationMethod  CalculationMethodEnum(1..1)  <"calculation type (averaging or compounding)">
-	observationShiftCalculation ObservationShiftCalculation(0..1) <"any obervation shift parameters if applicable">
-	lookbackCalculation OffsetCalculation(0..1) <"any lookback  parameters if applicable">
-	lockoutCalculation OffsetCalculation(0..1) <"any lockout  parameters if applicable">
-	applicableBusinessDays BusinessCenters(0..1) <"the business days that are applicable for the calculation">
-	observationParameters ObservationParameters(0..1) <" any applicable observation parameters, such as daily caps or floors">
-
-type FallbackRateParameters: <"Defines the structure needed to represent fallback rate paramters">
-	floatingRateIndex FloatingRateIndexEnum(1..1) <"The floating rate index that is used as the basis of the fallback rate">
-	effectiveDate date(0..1)	<"The date the fallback rate takes effect">
-	calculationParameters FloatingRateCalculationParameters(0..1) <" Support for modular calculated rates, such such as lockout compound calculations.  ">
-	spreadAdjustment number(0..1)  <"The economic spread applied to the underlying fallback rate to replicate the original risky rate">
-
-type OffsetCalculation:  <"Defines business day shifts for daily componded or averaged rates.  This type is used for lookback and lockout rates. ">
-	offsetDays int(0..1)	<" the number of business days offset">
-
-type ObservationShiftCalculation: <"Parameters to describe the observation shift for a daily compounded or averaged floating rate">
-	offsetDays int(0..1)		<"The number of days of observation shift">
-	calculationBase ObservationPeriodDatesEnum(0..1)	<"Whether the rate is calculated in advance, in arrears, or relative to a reset date">
-	additionalBusinessDays BusinessCenters(0..1)	<"Any additional business days that be applicable">
-
-type ObservationParameters: <"Parameters on daily observed computed rates, specifically daily caps and floors. ">
-	observationCapRate number(0..1) <"A daily observation cap rate">
-	observationFloorRate number(0..1) <"A daily observation floor rate">
-
