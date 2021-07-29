@@ -286,8 +286,6 @@ type FxFixingDate extends Offset: <"Extends the Offset structure to specify an F
 	condition DateRelativeChoice: <"condition to represent an FpML choice construct.">
 		required choice dateRelativeToPaymentDates, dateRelativeToCalculationPeriodDates
 
-type SettlementInstructions extends PayoutBase:
-
 type PrincipalExchange: <"A data for:  defining a principal exchange amount and adjusted exchange date. This data forms:  part of the cashflow representation of a swap stream.">
 	[metadata key]
 
@@ -301,7 +299,7 @@ type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, w
 
 	cashSettlementTerms CashSettlementTerms (0..1) <"Specifies the parameters associated with the cash settlement procedure.">
 	physicalSettlementTerms OptionPhysicalSettlement (0..1) <"Specifies the physical settlement terms which apply to the transaction.">
-	fxSettlementTerms FxCashSettlement (0..1) <"Specifies the cash settlement of a non deliverable fx option / forward. It includes the currency to settle into together with the fixings required to calculate the currency amount">
+	fxSettlementTerms FxCashSettlement (0..1) <"Specifies the cash settlement of a non deliverable fx option / forward. It includes the currency to settle into together with the fixings required to calculate the currency amount.">
 	
 	condition OptionSettlementChoice: <"The option settlement cannot combine both physical and cash terms specification.">
 		optional choice cashSettlementTerms, physicalSettlementTerms, fxSettlementTerms
@@ -313,6 +311,28 @@ type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, w
 	condition PhysicalSettlementTerms: <"If the physical settlement terms are specified, then the settlementType can either be Physical, Election or CashOrPhysical">
 		if physicalSettlementTerms exists or fxSettlementTerms exists
 		then settlementType <> SettlementTypeEnum -> Cash
+
+type PriceQuantity extends PriceQuantityBase: <"Defines a settlement as an exchange between two parties of a specified quantity of an asset (the quantity) against a specified quantity of another asset (the price). The settlement is optional and can be either cash or physical. In the case of non-cash products, the settlement of the price/quantity would not be specified here and instead would be delegated to the product mechanics, as parameterised by the price/quantity values.">
+	buyerSeller BuyerSeller (0..1) <"Defines the direction of the exchange. The convention is that the buyer receives the quantity / pays the price, whereas the seller receives the price / pays the quantity. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
+	settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
+	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
+
+	condition ActualSettlement: <"">
+		if BuyerSeller exists then SettlementTerms exists
+
+func UpdateAmountForEachQuantity: <"Updates all quantities on each price quantity with the new amount.">
+	inputs:
+		priceQuantity PriceQuantity (0..*) <"List of price quantities to update.">
+		amount number (1..1) <"The new amount.">
+	output:
+		updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with all quantity amounts updated.">
+
+func UpdateAmountForEachMatchingQuantity: <"Updates any quantity from the list of new quantities if the unit of amount matches.">
+	inputs:
+		priceQuantity PriceQuantity (0..*) <"List of price quantities to update.">
+		quantity Quantity (0..*) <"The new quantities.">
+	output:
+		updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with quantity amounts updated.">
 
 type PaymentDetail:
 	[metadata key]

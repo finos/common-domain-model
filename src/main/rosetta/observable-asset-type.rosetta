@@ -123,7 +123,7 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
 
 	condition: one-of
 
-type PriceQuantity: <"Specifies the price, quantity, and optionally the observable and effective date for use in a trade or other purposes.">
+type PriceQuantityBase: <"Specifies the price, quantity, and optionally the observable and effective date for use in a trade or other purposes.">
 	[metadata key]
 
 	price Price (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
@@ -131,8 +131,7 @@ type PriceQuantity: <"Specifies the price, quantity, and optionally the observab
 	quantity Quantity (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
 	    [metadata location]
 	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference. The cardinality is optional as some quantity / price cases have no observable (e.g. a notional and a fixed rate in a given currency).">
-	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
-
+	
 	condition NonNegativeQuantity:
 	    if quantity -> amount exists
 	    then quantity -> amount all >= 0
@@ -198,11 +197,6 @@ type InterestRateCurve:
 		[synonym Workflow_Event value "floatingRateIndex" meta "floatingRateIndexScheme"]
 	tenor Period (1..1)
 		[synonym Workflow_Event value "tenor"]
-
-type FixedRateSpecification: <"Type defining the specification for a fixed rate.">
-	[metadata key]
-
-	rateSchedule RateSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 
 type TransactedPrice: <" A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
 
