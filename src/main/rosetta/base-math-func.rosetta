@@ -7,7 +7,7 @@ func Abs:
 	inputs: x number (1..1)
 	output: result number (1..1)
 
-func Sum:
+func Sum: <"generates the scalar sum (total) of all of the supplied values">
 	inputs: x number (0..*)
 	output: sum number (1..1)
 
@@ -46,6 +46,18 @@ func RoundToNearest:
 enum RoundingModeEnum:
 	Down
 	Up
+
+func RoundToPrecision: <"Round a rate to the suplied precision, using the supplied rounding direction">
+inputs:
+		value 		number (1..1) <"The original (unrounded) number ">
+		precision 	int (1..1) <"The number of decimal digits of precision">
+		roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest">
+	output:
+		roundedValue number (1..1) <"The value to the desired precision">
+	condition:
+		precision >= 0
+
+
 
 func FilterQuantity: <"Filter list of quantities based on unit type.">
     inputs:
@@ -104,7 +116,7 @@ func Create_UnitType: <"Create UnitType with given currency or financial unit.">
 		financialUnit FinancialUnitEnum (0..1)
 	output:
 		unitType UnitType (1..1)
-	
+
 	condition:
 		( currency or financialUnit ) exists
 
@@ -113,3 +125,52 @@ func Create_UnitType: <"Create UnitType with given currency or financial unit.">
 
 	assign-output unitType -> financialUnit:
 		financialUnit
+
+func ToVector: <"Create a vector from a list of numbers ">
+    [calculation]
+    inputs:
+        vals number (0..*)
+    output:
+        vect Vector (1..1)
+    assign-output vect->values : vals
+
+func SelectFromVector: <"Selects a single value from a vector (list of numbers), i.e. result = val[index].  Returns null if the supplied vector is empty or if the supplied index is out of range.  Returns the element of the vector at the supplied index.">
+	inputs:
+		vector Vector (1..1) <"input vector">
+		index int (1..1) <"index to of the value to select">
+	output: result number (1..1) <"resulting value">
+
+func LastInVector: <"Return the last value in a vector. If the vector is empty, return null">
+	[calculation]
+	inputs:
+		vector Vector (1..1) <"input vector">
+	output: lastValue number (0..1) <"resulting value">
+
+
+func AppendToVector: <"append a single value to a vector (list of numbers)">
+    inputs:
+    	vector Vector (1..1) <"input vector">
+    	value number (1..1) <"value to add to the vector">
+    output: resultVector Vector (1..1) <"resulting vector">
+
+
+func VectorOperation: <"Generates a result vector by applying the supplied arithmetic operation to each element of the supplied left and right vectors in turn.  i.e. result[n] = left[n] <op> right[n], where <op> is the arithmetic operation defined by ArithmeticOperationEnum.">
+    inputs:
+		arithmeticOp ArithmeticOperationEnum (1..1) <"operator">
+		left Vector (1..1) <"left vector">
+		right Vector(1..1) <"right vector">
+	output: result Vector (1..1) <"result vector">
+
+
+func VectorScalarOperation: <"Generates a result vector by applying the supplied arithemetic operation and scalar right value to each element of the supplied left vector in turn. i.e. result[n] = left[n] <op> right, where <op> is the arithmetic operation defined by ArithmeticOperationEnum.">
+	inputs:
+		arithmeticOp ArithmeticOperationEnum (1..1) <"operator">
+		left Vector (1..1) <"left vector">
+		right number (1..1) <"scalar number, single value applied to all elements of vector">
+	output: result Vector (1..1) <"result vector">
+
+func VectorGrowthOperation: <"Generates a result vector by starting with the supplied base value (typically 1), and then multiplying it in turn by each growth factor, which is typically a number just above 1. For instance, a growth factor of 1.1 reprsents a 10% increase, and 0.9 a 10% decrease. The results will show the successive results of applying the successive growth factors, with the first value of the list being the supplied baseValue, and final value of the results list being the product of all of the supplied values.  i.e. result[1] = baseValue * factor[1], result[n] = result[n-1] * factor[n]. The resulting list will have the one more element than the supplied list of factors.">
+    inputs:
+		baseValue number (1..1) <"original value, typically 1.0">
+		factor Vector (1..1) <"vector of growth factions, which are all typically slightly greater than 1.0">
+    output: result Vector (1..1) <"result vector, showing all of the interim growth values">
