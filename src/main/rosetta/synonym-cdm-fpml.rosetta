@@ -280,10 +280,9 @@ synonym source FpML_5_10 extends FpML
 	FxSpotRateSource:
 		+ primaryRateSource
 			[value "primaryRateSource"]
+			[hint "rateSource"]
 		+ secondaryRateSource
 			[value "secondaryRateSource"]
-		+ fixingTime
-			[value "fixingTime"]
 
 	IndependentAmount:
 		+ paymentDetail
@@ -343,12 +342,6 @@ synonym source FpML_5_10 extends FpML
 			[value "maximumNotionalAmount"]
 		+ maximumNumberOfOptions
 			[value "maximumNumberOfOptions"]
-
-	OptionPhysicalSettlement:
-		+ clearedPhysicalSettlement
-			[value "clearedPhysicalSettlement"]
-		+ predeterminedClearingOrganizationParty
-			[value "predeterminedClearingOrganizationPartyReference" mapper "PredeterminedClearingOrganizationParty"]
 
 	OtherAgreement:
 		+ identifier
@@ -490,6 +483,8 @@ synonym source FpML_5_10 extends FpML
             [value "settlementAmount" path "nearLeg"]
 			// For Commodity
 			[value "notionalQuantity"]
+			// For Equity / Bond Option
+			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"]
 		+ observable
 			// For Swap Streams etc
 			[value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
@@ -656,6 +651,10 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementCurrency" meta "currencyScheme"]
 			[value "settlementCurrency" path "settlementProvision"]
 			[value "cashSettlementCurrency" meta "currencyScheme"]
+			[value "settlementCurrency" path "cashSettlementTerms"]
+			[value "settlementCurrency" path "physicalSettlementTerms"]
+			[value "settlementCurrency" path "nonDeliverableSettlement"]
+			[value "settlementCurrency" path "cashSettlement"]
 
 	SettlementTerms:
 		+ settlementDate
@@ -666,16 +665,22 @@ synonym source FpML_5_10 extends FpML
 			[value "europeanExercise"]
 		+ cashSettlementTerms
 			[value "cashSettlement"]
+			[value "cashSettlementTerms"]
 			[value "settlementProvision"]
+			[value "nonDeliverableSettlement"]
 		+ physicalSettlementTerms
 			[value "physicalSettlement"]
-		+ fxSettlementTerms
-			[value "nonDeliverableSettlement"]
-			[value "cashSettlement"]
+			[value "physicalSettlementTerms"]
 
 	ValuationSource:
+	    + quotedCurrencyPair
+	        [value "quotedCurrencyPair" meta "quoteBasis"]
 		+ informationSource
-			[value "informationSource" path "settlementRateSource"]
+			[value "informationSource"]
+        	[value "fxSpotRateSource"]
+        + settlementRateOption
+            [value "settlementRateSource"]
+            [hint "settlementRateOption"]
 		+ referenceBanks
 			[value "cashSettlementReferenceBanks"]
 		+ dealer
@@ -799,6 +804,8 @@ synonym source FpML_5_10 extends FpML
 			[value "relativeDate"]
 		+ fxSpotRateSource
 			[value "fxSpotRateSource"]
+		+fixingTime
+			[value "fixingTime" path "fxSpotRateSource"]
 
 	CreditEvents:
 	 	[value "CreditEvents" meta "id"]
@@ -835,7 +842,7 @@ synonym source FpML_5_10 extends FpML
 
 	CreditEventNotice:
 		+ notifyingParty
-			[value "notifyingParty"]
+			[value "buyerPartyReference" path "notifyingParty", "sellerPartyReference" path "notifyingParty" mapper "NotifyingParty"]
 		+ businessCenter
 			[value "businessCenter"]
 		+ publiclyAvailableInformation
@@ -883,20 +890,6 @@ synonym source FpML_5_10 extends FpML
 			[value "knockIn"]
 		+ knockOut
 			[value "knockOut"]
-
-	NotifyingParty:
-		+ buyer
-			[value "buyerPartyReference" mapper "Buyer"]
-		+ seller
-			[value "sellerPartyReference" mapper "Seller"]
-
-	OptionDenomination:
-		+ optionEntitlement
-			[value "optionEntitlement"]
-		+ entitlementCurrency
-			[value "entitlementCurrency" meta "currencyScheme"]
-		+ numberOfOptions
-			[value "numberOfOptions"]
 
 	OptionFeature:
 		+ fxFeature
@@ -985,6 +978,8 @@ synonym source FpML_5_10 extends FpML
 			[value "fxRate"]
 		+ fxSpotRateSource
 			[value "fxSpotRateSource"]
+		+ fixingTime
+			[value "fixingTime" path "fxSpotRateSource"]
 
 	Restructuring:
 		+ applicable
@@ -1153,8 +1148,8 @@ synonym source FpML_5_10 extends FpML
 			[value "paymentCalculationPeriod"]
 
 	SettlementDate:
-		[meta "id" path "settlementDate"]
-		[meta "id" path "cashSettlementPaymentDate"]
+        [meta "id" path "settlementDate"]
+        [meta "id" path "cashSettlementPaymentDate"]
 		+ settlementDate
 			[value "cashSettlementPaymentDate"]
 			[value "settlementDate"]
@@ -1297,6 +1292,9 @@ synonym source FpML_5_10 extends FpML
 			[value "dateRelativeToPaymentDates"]
 		+ dateRelativeToCalculationPeriodDates
 			[value "dateRelativeToCalculationPeriodDates"]
+		+ fxFixingDate
+			[value "fixingDate"]
+			[hint "fixingDate"]
 
 	FxLinkedNotionalAmount:
 		+ resetDate
@@ -1317,6 +1315,8 @@ synonym source FpML_5_10 extends FpML
 			[value "varyingNotionalFixingDates"]
 		+ fxSpotRateSource
 			[value "fxSpotRateSource"]
+		+fixingTime
+			[value "fixingTime" path "fxSpotRateSource"]
 		+ varyingNotionalInterimExchangePaymentDates
 			[value "varyingNotionalInterimExchangePaymentDates"]
 
@@ -1585,8 +1585,12 @@ synonym source FpML_5_10 extends FpML
 			[value "openUnits" maps 2]
 			// For Commodity Swap
 			[value "quantity"]
+			[value "numberOfOptions"]
+		+ multiplier
+			[value "optionEntitlement"]
 		+ multiplierUnit
 			[hint "quantityFrequency"]
+			[hint "entitlementCurrency"]
 
 	NonNegativeQuantitySchedule:
 		+ initialQuantity
@@ -1919,13 +1923,6 @@ synonym source FpML_5_10 extends FpML
 			[value "generalTerms"]
 		+ protectionTerms
 			[value "protectionTerms"]
-		+ cashSettlementTerms
-			[value "cashSettlementTerms"]
-		+ physicalSettlementTerms
-			[value "physicalSettlementTerms"]
-		+ settlementCurrency
-			[value "settlementCurrency" path "cashSettlementTerms"]
-			[value "settlementCurrency" path "physicalSettlementTerms"]
 
 	EconomicTerms:
 		+ effectiveDate
@@ -2153,7 +2150,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "notionalAmount"]
 			// For Credit:
 			[value "fixedAmountCalculation" path "periodicPayment"]
-			[hint "calculationAmount"]
+			[value "protectionTerms"]
 			[hint "notionalReference"]
 			[value "floatingAmountCalculation" path "periodicPayment"]
 			// For Equity Swap:
@@ -2180,6 +2177,9 @@ synonym source FpML_5_10 extends FpML
 			[value "interestLeg"]
 			// For Repo:
 			[value "repo"]
+		+ creditDefaultPayout
+			[value "creditDefaultSwap"]
+			[value "generalTerms" path "creditDefaultSwap"]
 		+ equityPayout
 			[value "returnLeg"]
 		+ optionPayout
@@ -2238,6 +2238,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "bondOption"]
 			// For CDS:
 			[value "creditDefaultSwap"]
+			[hint "creditDefaultSwap"]
 			// For CDS Option
 			[hint "creditDefaultSwapOption"]
 			// For FX:
@@ -2273,7 +2274,6 @@ synonym source FpML_5_10 extends FpML
         + productIdentifier
             [value "index" meta "instrumentId"]
 	        [hint "index"]
-		+ indexType
 
 	Commodity:
 	    + productIdentifier
@@ -2319,6 +2319,7 @@ synonym source FpML_5_10 extends FpML
 			[value "fxOption"]
 			[value "fxDigitalOption"]
 			[hint "commodity", "notionalQuantity"] // Commodity Option
+			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"] // For Equity / Bond Option
 			// Options: Premium
 			[value "premium", "equityPremium"]
 			[value "premium" path "bondOption"]
@@ -2448,6 +2449,7 @@ synonym source FpML_5_10 extends FpML
 			[value "adjustablePaymentDate"]
 			[value "startDate"]
 			[value "endDate"]
+			[value "fixingDate"]
 		+ dateAdjustments
 			[value "dateAdjustments"]
 			[value "dateAdjustments" path "calculationPeriodDates->terminationDate"]
@@ -2882,18 +2884,21 @@ synonym source FpML_5_10 extends FpML
 	CashSettlementTerms:
 		[meta "id"]
 		+ cashSettlementMethod
-		    [set to CashSettlementMethodEnum -> CashPriceMethod when "cashPriceMethod" exists]
-		    [set to CashSettlementMethodEnum -> CashPriceAlternateMethod when "cashPriceAlternateMethod" exists]
-		    [set to CashSettlementMethodEnum -> CollateralizedCashPriceMethod when "collateralizedCashPriceMethod" exists]
-		    [set to CashSettlementMethodEnum -> ParYieldCurveAdjustedMethod when "parYieldCurveAdjustedMethod" exists]
-		    [set to CashSettlementMethodEnum -> ParYieldCurveUnadjustedMethod when "parYieldCurveUnadjustedMethod" exists]
-		    [set to CashSettlementMethodEnum -> ZeroCouponYieldAdjustedMethod when "zeroCouponYieldAdjustedMethod" exists]
-		    [set to CashSettlementMethodEnum -> CrossCurrencyMethod when "crossCurrencyMethod" exists]
+			[set to CashSettlementMethodEnum -> CashPriceMethod when "cashPriceMethod" exists]
+			[set to CashSettlementMethodEnum -> CashPriceAlternateMethod when "cashPriceAlternateMethod" exists]
+			[set to CashSettlementMethodEnum -> ParYieldCurveUnadjustedMethod when "parYieldCurveUnadjustedMethod" exists]
+			[set to CashSettlementMethodEnum -> ParYieldCurveAdjustedMethod when "parYieldCurveAdjustedMethod" exists]
+			[set to CashSettlementMethodEnum -> ZeroCouponYieldAdjustedMethod when "zeroCouponYieldAdjustedMethod" exists]
+			[set to CashSettlementMethodEnum -> CrossCurrencyMethod when "crossCurrencyMethod" exists]
+			[set to CashSettlementMethodEnum -> CollateralizedCashPriceMethod when "collateralizedCashPriceMethod" exists]
 		+ valuationDate
+			[value "fixing"]
+			[value "rateSourceFixing"]
 			[value "valuationDate"]
 			[value "nonDeliverableSettlement"]
 			[value "cashSettlementValuationDate"]
 		+ valuationTime
+			[value "fixingTime" path "fixing->fxSpotRateSource"]
 			[value "valuationTime"]
 			[value "cashSettlementValuationTime"]
 		+ cashSettlementAmount
@@ -2905,18 +2910,39 @@ synonym source FpML_5_10 extends FpML
 		+ accruedInterest
 			[value "accruedInterest"]
 		+ valuationMethod
+			[hint "fixing"]
+			[hint "rateSourceFixing"]
 			[value "valuationMethod"]
-			[value "nonDeliverableSettlement"]
+            [value "nonDeliverableSettlement"]
 			[value "cashPriceMethod"]
 			[value "cashPriceAlternateMethod"]
 			[value "parYieldCurveAdjustedMethod"]
-			[value "zeroCouponYieldAdjustedMethod"]
 			[value "parYieldCurveUnadjustedMethod"]
+            [value "zeroCouponYieldAdjustedMethod"]
 			[value "crossCurrencyMethod"]
 			[value "collateralizedCashPriceMethod"]
-			[hint "minimumQuotationAmount", "quotationAmount", "quotationMethod"]
+            [hint "minimumQuotationAmount", "quotationAmount", "quotationMethod"]
 
-    ValuationMethod:
+    PhysicalSettlementTerms:
+		+ physicalSettlementPeriod
+			[value "physicalSettlementPeriod"]
+		+ deliverableObligations
+			[value "deliverableObligations"]
+		+ escrow
+			[value "escrow"]
+		+ sixtyBusinessDaySettlementCap
+			[value "sixtyBusinessDaySettlementCap"]
+		+ clearedPhysicalSettlement
+			[value "clearedPhysicalSettlement"]
+		+ predeterminedClearingOrganizationParty
+		 	[value "predeterminedClearingOrganizationPartyReference" mapper "PredeterminedClearingOrganizationParty"]
+
+	ValuationMethod:
+        + valuationSource
+            [value "settlementRateSource"]
+            [value "fixing"]
+            [value "rateSourceFixing"]
+            [hint "settlementRateOption"]
 		+ quotationMethod
 			[value "quotationMethod"]
 			[value "quotationRateType"]
@@ -3147,7 +3173,9 @@ synonym source FpML_5_10 extends FpML
 		+ multipleValuationDates
 			[value "multipleValuationDates"]
 		+ fxFixingDate
+			[hint "fixingDate"]
 			[value "fxFixingDate"]
+			[hint "rateSourceFixing"]
 		+ fxFixingSchedule
 			[value "fxFixingSchedule"]
 
@@ -3174,24 +3202,6 @@ synonym source FpML_5_10 extends FpML
 			[value "spotRate"]
 		+ forwardPoints
 			[value "forwardPoints"]
-
-	FxCashSettlement:
-		+ settlementCurrency
-			[value "settlementCurrency"]
-		+ referenceCurrency
-			[value "referenceCurrency"]
-		+ fixing
-			[value "fixing"]
-		+ rateSourceFixing
-			[value "rateSourceFixing"]
-
-	FxFixing:
-		+ quotedCurrencyPair
-			[value "quotedCurrencyPair" meta "quoteBasis"]
-		+ fixingDate
-			[value "fixingDate"]
-		+ fxSpotRateSource
-			[value "fxSpotRateSource"]
 
 	FxRateSourceFixing:
 		+ settlementRateSource
@@ -3311,6 +3321,8 @@ synonym source FpML_5_10 extends FpML
 			[value "currency1" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->perUnitOfAmount->currency]
 			// For Commodity Swap Fixed Leg
 			[value "priceCurrency" maps 2 set when rosettaPath = Price->unitOfAmount->currency]
+			// For Bond Option
+			[value "entitlementCurrency" maps 2 meta "currencyScheme"]
 		+ frequency
 			[value "Frequency"]
 			// For Commodity Swap Fixed Leg
@@ -6651,196 +6663,286 @@ synonym source FpML_5_10 extends FpML
 	SettlementRateOptionEnum:
 		+ ARS_BNAR_ARS01
 			[value "ARS.BNAR/ARS01"]
-		+ ARS_EMTA_INDICATIVE_SURVEY_RATE_ARS04
+			[value "ARS01"]
+        + ARS_EMTA_INDICATIVE_SURVEY_RATE_ARS04
 			[value "ARS.EMTA.INDICATIVE.SURVEY.RATE/ARS04"]
+			[value "ARS04"]
 		+ ARS_EMTA_INDUSTRY_SURVEY_RATE_ARS03
 			[value "ARS.EMTA.INDUSTRY.SURVEY.RATE/ARS03"]
+			[value "ARS03"]
 		+ ARS_MAE_ARS05
 			[value "ARS.MAE/ARS05"]
+			[value "ARS05"]
 		+ ARS_OFFICIAL_RATE_ARS02
 			[value "ARS.OFFICIAL.RATE/ARS02"]
+			[value "ARS02"]
 		+ BRL_BRBY_BRL01
 			[value "BRL.BRBY/BRL01"]
+			[value "BRL01"]
 		+ BRL_EMTA_INDICATIVE_SURVEY_RATE_BRL13
 			[value "BRL.EMTA.INDICATIVE.SURVEY.RATE/BRL13"]
+			[value "BRL13"]
 		+ BRL_EMTA_INDUSTRY_SURVEY_RATE_BRL12
 			[value "BRL.EMTA.INDUSTRY.SURVEY.RATE/BRL12"]
+			[value "BRL12"]
 		+ BRL_OFFICIAL_RATE_BRL02
 			[value "BRL.OFFICIAL.RATE/BRL02"]
+			[value "BRL02"]
 		+ BRL_PCOT_COMMERCIAL_BRL03
 			[value "BRL.PCOT-COMMERCIAL/BRL03"]
+			[value "BRL03"]
 		+ BRL_PCOT_FLOATING_BRL04
 			[value "BRL.PCOT-FLOATING/BRL04"]
+			[value "BRL04"]
 		+ BRL_PTAX_BRL09
 			[value "BRL.PTAX/BRL09"]
+			[value "BRL09"]
 		+ BRL_PTAX_COMMERCIAL_BRFR_BRL06
 			[value "BRL.PTAX-COMMERCIAL.BRFR/BRL06"]
+			[value "BRL06"]
 		+ BRL_PTAX_COMMERCIAL_BRL05
 			[value "BRL.PTAX-COMMERCIAL/BRL05"]
+			[value "BRL05"]
 		+ BRL_PTAX_FLOATING_BRFR_BRL08
 			[value "BRL.PTAX-FLOATING.BRFR/BRL08"]
+			[value "BRL08"]
 		+ BRL_PTAX_FLOATING_BRL07
 			[value "BRL.PTAX-FLOATING/BRL07"]
+			[value "BRL07"]
 		+ CLP_BCCH_CLP01
 			[value "CLP.BCCH/CLP01"]
+			[value "CLP01"]
 		+ CLP_CHILD_INFORMAL_CLP02
 			[value "CLP.CHILD-INFORMAL/CLP02"]
+			[value "CLP02"]
 		+ CLP_CHILD_INTERBANK_CLP03
 			[value "CLP.CHILD-INTERBANK/CLP03"]
+			[value "CLP03"]
 		+ CLP_CHILD_OBSERVADO_CLP04
 			[value "CLP.CHILD-OBSERVADO/CLP04"]
+			[value "CLP04"]
 		+ CLP_CHILG_INFORMAL_CLP05
 			[value "CLP.CHILG-INFORMAL/CLP05"]
+			[value "CLP05"]
 		+ CLP_CHILG_INTERBANK_CLP06
 			[value "CLP.CHILG-INTERBANK/CLP06"]
+			[value "CLP06"]
 		+ CLP_CHILG_OBSERVADO_CLP07
 			[value "CLP.CHILG-OBSERVADO/CLP07"]
+			[value "CLP07"]
 		+ CLP_DOLAR_OBS_CLP10
 			[value "CLP.DOLAR.OBS/CLP10"]
+			[value "CLP10"]
 		+ CLP_EMTA_INDICATIVE_SURVEY_RATE_CLP11
 			[value "CLP.EMTA.INDICATIVE.SURVEY.RATE/CLP11"]
+			[value "CLP11"]
 		+ CLP_OFFICIAL_RATE_CLP08
 			[value "CLP.OFFICIAL.RATE/CLP08"]
+			[value "CLP08"]
 		+ CLP_TELERATE_38942_CLP09
 			[value "CLP.TELERATE.38942/CLP09"]
+			[value "CLP09"]
 		+ CNY_SAEC_CNY01
 			[value "CNY.SAEC/CNY01"]
+			[value "CNY01"]
 		+ CNY_SFEMC_INDICATIVE_SURVEY_RATE_CNY02
 			[value "CNY.SFEMC.INDICATIVE.SURVEY.RATE/CNY02"]
+			[value "CNY02"]
 		+ COP_CO_COL03_COP01
 			[value "COP.CO/COL03/COP01"]
+			[value "COP01"]
 		+ COP_EMTA_INDICATIVE_SURVEY_RATE_COP03
 			[value "COP.EMTA.INDICATIVE.SURVEY.RATE/COP03"]
+			[value "COP03"]
 		+ COP_TRM_COP02
 			[value "COP.TRM/COP02"]
+			[value "COP02"]
 		+ CURRENCY_IMPLIED_RATE__ADR__CURA1
 			[value "CURRENCY-IMPLIED.RATE.(ADR)/CURA1"]
+			[value "CURA1"]
 		+ CURRENCY_IMPLIED_RATE__LOCAL_ASSET__CURA2
 			[value "CURRENCY-IMPLIED.RATE.(LOCAL.ASSET)/CURA2"]
+			[value "CURA2"]
 		+ CURRENCY_MUTUAL_AGREEMENT_CURA3
 			[value "CURRENCY-MUTUAL.AGREEMENT/CURA3"]
+			[value "CURA3"]
 		+ CURRENCY_REFERENCE_DEALERS_CURA4
 			[value "CURRENCY-REFERENCE.DEALERS/CURA4"]
+			[value "CURA4"]
 		+ CURRENCY_WHOLESALE_MARKET_CURA5
 			[value "CURRENCY-WHOLESALE.MARKET/CURA5"]
+			[value "CURA5"]
 		+ ECS_DNRP_ECS01
 			[value "ECS.DNRP/ECS01"]
+			[value "ECS01"]
 		+ IDR_ABS_IDR01
 			[value "IDR.ABS/IDR01"]
+			[value "IDR01"]
 		+ IDR_JISDOR_IDR04
 			[value "IDR.JISDOR/IDR04"]
+			[value "IDR04"]
 		+ IDR_SFEMC_INDICATIVE_SURVEY_RATE_IDR02
 			[value "IDR.SFEMC.INDICATIVE.SURVEY.RATE/IDR02"]
+			[value "IDR02"]
 		+ IDR_VWAP_IDR03
 			[value "IDR.VWAP/IDR03"]
+			[value "IDR03"]
 		+ ILS_BOIJ_ILS01
 			[value "ILS.BOIJ/ILS01"]
+			[value "ILS01"]
 		+ ILS_FXIL_ILS02
 			[value "ILS.FXIL/ILS02"]
+			[value "ILS02"]
 		+ INR_FBIL_INR01
 			[value "INR.FBIL/INR01"]
 		+ INR_RBIB_INR01
 			[value "INR.RBIB/INR01"]
 		+ INR_SFEMC_INDICATIVE_SURVEY_RATE_INR02
 			[value "INR.SFEMC.INDICATIVE.SURVEY.RATE/INR02"]
+			[value "INR02"]
 		+ KRW_KEBEY_KRW01
 			[value "KRW.KEBEY/KRW01"]
+			[value "KRW01"]
 		+ KRW_KFTC18_KRW02
 			[value "KRW.KFTC18/KRW02"]
+			[value "KRW02"]
 		+ KRW_SFEMC_INDICATIVE_SURVEY_RATE_KRW04
 			[value "KRW.SFEMC.INDICATIVE.SURVEY.RATE/KRW04"]
+			[value "KRW04"]
 		+ KRW_TELERATE_45644_KRW03
 			[value "KRW.TELERATE.45644/KRW03"]
+			[value "KRW03"]
 		+ KZT_EMTA_INDICATIVE_SURVEY_RATE_KZT02
 			[value "KZT.EMTA.INDICATIVE.SURVEY.RATE/KZT02"]
+			[value "KZT02"]
 		+ KZT_KASE_KZT01
 			[value "KZT.KASE/KZT01"]
+			[value "KZT01"]
 		+ LBP_BDLX_LBP01
 			[value "LBP.BDLX/LBP01"]
+			[value "LBP01"]
 		+ MAD_OFFICIAL_RATE_MAD01
 			[value "MAD.OFFICIAL.RATE/MAD01"]
+			[value "MAD01"]
 		+ MXP_BNMX_MXP01
 			[value "MXP.BNMX/MXP01"]
+			[value "MXP01"]
 		+ MXP_FIXING_RATE_MXP02
 			[value "MXP.FIXING.RATE/MXP02"]
+			[value "MXP02"]
 		+ MXP_MEX01_MXP03
 			[value "MXP.MEX01/MXP03"]
+			[value "MXP03"]
 		+ MXP_PUBLISHED_MXP04
 			[value "MXP.PUBLISHED/MXP04"]
+			[value "MXP04"]
 		+ MYR_ABS_MYR01
 			[value "MYR.ABS/MYR01"]
+			[value "MYR01"]
 		+ MYR_KL_REF_MYR04
 			[value "MYR.KL.REF/MYR04"]
+			[value "MYR04"]
 		+ MYR_PPKM_MYR03
 			[value "MYR.PPKM/MYR03"]
+			[value "MYR03"]
 		+ MYR_SFEMC_INDICATIVE_SURVEY_RATE_MYR02
 			[value "MYR.SFEMC.INDICATIVE.SURVEY.RATE/MYR02"]
+			[value "MYR02"]
 		+ PEN_EMTA_INDICATIVE_SURVEY_RATE_PEN04
 			[value "PEN.EMTA.INDICATIVE.SURVEY.RATE/PEN04"]
+			[value "PEN04"]
 		+ PEN_INTERBANK_AVE_PEN05
 			[value "PEN.INTERBANK.AVE/PEN05"]
+			[value "PEN05"]
 		+ PEN_PDSB_PEN01
 			[value "PEN.PDSB/PEN01"]
+			[value "PEN01"]
 		+ PEN_WT_AVE_PEN03
 			[value "PEN.WT.AVE/PEN03"]
+			[value "PEN03"]
 		+ PHP_BAPPESO_PHP06
 			[value "PHP.BAPPESO/PHP06"]
 		+ PHP_PDSPESO_PHP06
 			[value "PHP.PDSPESO/PHP06"]
 		+ PHP_PHPESO_PHP01
 			[value "PHP.PHPESO/PHP01"]
+			[value "PHP01"]
 		+ PHP_SFEMC_INDICATIVE_SURVEY_RATE_PHP05
 			[value "PHP.SFEMC.INDICATIVE.SURVEY.RATE/PHP05"]
+			[value "PHP05"]
 		+ PHP_TELERATE_15439_PHP03
 			[value "PHP.TELERATE.15439/PHP03"]
+			[value "PHP03"]
 		+ PHP_TELERATE_2920_PHP02
 			[value "PHP.TELERATE.2920/PHP02"]
+			[value "PHP02"]
 		+ PKR_SBPK_PKR01
 			[value "PKR.SBPK/PKR01"]
+			[value "PKR01"]
 		+ PKR_SFEMC_INDICATIVE_SURVEY_RATE_PKR02
 			[value "PKR.SFEMC.INDICATIVE.SURVEY.RATE/PKR02"]
+			[value "PKR02"]
 		+ PLZ_NBPQ_PLZ01
 			[value "PLZ.NBPQ/PLZ01"]
+			[value "PLZ01"]
 		+ PLZ_NBPR_PLZ02
 			[value "PLZ.NBPR/PLZ02"]
+			[value "PLZ02"]
 		+ RUB_CME_EMTA_RUB03
 			[value "RUB.CME-EMTA/RUB03"]
+			[value "RUB03"]
 		+ RUB_EMTA_INDICATIVE_SURVEY_RATE_RUB04
 			[value "RUB.EMTA.INDICATIVE.SURVEY.RATE/RUB04"]
+			[value "RUB04"]
 		+ RUB_MICEXFRX_RUB01
 			[value "RUB.MICEXFRX/RUB01"]
+			[value "RUB01"]
 		+ RUB_MMVB_RUB02
 			[value "RUB.MMVB/RUB02"]
+			[value "RUB02"]
 		+ SGD_VWAP_SGD3
 			[value "SGD.VWAP/SGD3"]
+			[value "SGD3"]
 		+ SKK_NBSB_SKK01
 			[value "SKK.NBSB/SKK01"]
+			[value "SKK01"]
 		+ THB_ABS_THB01
 			[value "THB.ABS/THB01"]
 		+ THB_VWAP_THB01
 			[value "THB.VWAP/THB01"]
 		+ TWD_SFEMC_INDICATIVE_SURVEY_RATE_TWD04
 			[value "TWD.SFEMC.INDICATIVE.SURVEY.RATE/TWD04"]
+			[value "TWD04"]
 		+ TWD_TAIFX1_TWD03
 			[value "TWD.TAIFX1/TWD03"]
+			[value "TWD03"]
 		+ TWD_TELERATE_6161_TWD01
 			[value "TWD.TELERATE.6161/TWD01"]
+			[value "TWD01"]
 		+ TWD_TFEMA_TWD02
 			[value "TWD.TFEMA/TWD02"]
+			[value "TWD02"]
 		+ UAH_EMTA_INDICATIVE_SURVEY_RATE_UAH03
 			[value "UAH.EMTA.INDICATIVE.SURVEY.RATE/UAH03"]
+			[value "UAH03"]
 		+ UAH_EMTA_INDUSTRY_SURVEY_RATE_UAH02
 			[value "UAH.EMTA.INDUSTRY.SURVEY.RATE/UAH02"]
+			[value "UAH02"]
 		+ UAH_GFI_UAH01
 			[value "UAH.GFI/UAH01"]
+			[value "UAH01"]
 		+ VEF_FIX_VEF01
 			[value "VEF.FIX/VEF01"]
+			[value "VEF01"]
 		+ VND_ABS_VND01
 			[value "VND.ABS/VND01"]
+			[value "VND01"]
 		+ VND_FX_VND02
 			[value "VND.FX/VND02"]
+			[value "VND02"]
 		+ VND_SFEMC_INDICATIVE_SURVEY_RATE_VND03
 			[value "VND.SFEMC.INDICATIVE.SURVEY.RATE/VND03"]
+			[value "VND03"]
 
 	ShareExtraordinaryEventEnum:
 		+ AlternativeObligation

@@ -30,7 +30,7 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 	void shouldCalculateDeliveryAmount() {
 		double deliveryAmount = deliveryAmount(
 				5,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -47,11 +47,11 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 	}
 
 	@Test
-	void shouldCalculateDeliveryAmountWithValuationPercentageAndFxHaircutPercentage() {
+	void shouldCalculateDeliveryAmountWithHaircutPercentageAndFxHaircutPercentage() {
 		double deliveryAmount = deliveryAmount(
 				5,
-				90,
-				8,
+				0.1,
+				0.08,
 				0,
 				0,
 				0,
@@ -63,14 +63,14 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 				0,
 				0.01,
 				0);
-		assertEquals(10.9, deliveryAmount, EPSILON);
+		assertEquals(11.3, deliveryAmount, EPSILON);
 	}
 
 	@Test
 	void shouldCalculateDeliveryAmountWithDisputedPostedCreditSupportAmount() {
 		double deliveryAmount = deliveryAmount(
 				5,
-				100,
+				0,
 				0,
 				2,
 				0,
@@ -90,7 +90,7 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 	void shouldCalculateDeliveryAmountWithPriorDeliveryAmountAdjustment() {
 		double deliveryAmount = deliveryAmount(
 				5,
-				100,
+				0,
 				0,
 				0,
 				1,
@@ -110,7 +110,7 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 	void shouldCalculateDeliveryAmountWithPriorReturnAmountAdjustment() {
 		double deliveryAmount = deliveryAmount(
 				5,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -130,7 +130,7 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 	void shouldCalculateDeliveryAmountWithDisputedTransferredPostedCreditSupportAmount() {
 		double deliveryAmount = deliveryAmount(
 				5,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -150,7 +150,7 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 	void shouldCalculateDeliveryAmountWithThreshold() {
 		double deliveryAmount = deliveryAmount(
 				5,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -170,7 +170,7 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 	void shouldCalculateDeliveryAmountWithMarginApproachGreaterOf() {
 		double deliveryAmount = deliveryAmount(
 				5,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -190,7 +190,7 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 	void shouldCalculateDeliveryAmountWithMinimumTransferAmount() {
 		double deliveryAmount = deliveryAmount(
 				5,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -210,7 +210,7 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 	void shouldCalculateDeliveryAmountWithDisputedDeliveryAmount() {
 		double deliveryAmount = deliveryAmount(
 				5,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -228,7 +228,7 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 
 	private double deliveryAmount(
 			double postedCreditSupportAmount,
-			double valuationPercentage,
+			double haircutPercentage,
 			double fxHaircutPercentage,
 			double disputedPostedCreditSupportAmount,
 			double priorDeliveryAmountAdjustment,
@@ -244,7 +244,7 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 	) {
 		List<PostedCreditSupportItem> postedCreditSupportItems = Collections.singletonList(PostedCreditSupportItem.builder()
 				.setCashOrSecurityValue(getMoney(postedCreditSupportAmount))
-				.setValuationPercentage(BigDecimal.valueOf(valuationPercentage))
+				.setHaircutPercentage(BigDecimal.valueOf(haircutPercentage))
 				.setFxHaircutPercentage(BigDecimal.valueOf(fxHaircutPercentage))
 				.setDisputedCashOrSecurityValue(getMoney(disputedPostedCreditSupportAmount))
 				.build());
