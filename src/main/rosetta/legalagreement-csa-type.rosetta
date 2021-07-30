@@ -209,6 +209,7 @@ type AmendmentEffectiveDate: <"A class to specify the effective date of the Amen
 		[synonym ISDA_Create_1_0 value "effectiveness_date"]
 		[synonym ISDA_Create_1_0 value "agreement_date"]
 	customProvision string (0..1)<"The effective date of the Amendment to Termination Currency when specified as a non normalized custom provision.">
+		[synonym ISDA_Create_1_0 value "specify" set when "effectiveness_date" = "other"]
 
 	condition: one-of
 
@@ -416,6 +417,8 @@ type CollateralTransferAgreementElections: <"The set of elections which specify 
 	additionalBespokeTerms string (0..1) <"Any additional terms that might be specified applicable.">
 		[synonym ISDA_Create_1_0 value "specify" path "additional_terms" set when "additional_terms->is_applicable" = "applicable"]
 		[synonym ISDA_Create_1_0 value "specify" path "bespoke_provisions" set when "bespoke_provisions->is_applicable" = "applicable"]
+	representativeProvisions RepresentativeCTAProvisions (0..1) <"The terms of the Rider for the ISDA Euroclear 2019 Collateral Transfer Agreement with respect to the use of a Pledgee Representative attached to this Agreement.">
+		[synonym ISDA_Create_1_0 value "rider"]
 
 type CollateralValuationAgent: <"A class to specify Collateral Valuation Agent terms.">
 
@@ -464,17 +467,14 @@ type ControlAgreementNecEvent: <"A class to specify Control Agreement language r
 
 	controlAgreementNecEventElection ControlAgreementNecEventElection (2..2)
 
-
 type ControlAgreementNecEventElection: <"A class to specify party specific Control Agreement language related to delivery of a Notice of Exclusive Control">
 
 	party CounterpartyRoleEnum (1..1) <"The elective party.">
 		[synonym ISDA_Create_1_0 set to CounterpartyRoleEnum -> Party1 when "partyA_control_agreement_nec_event" = "applicable", set to CounterpartyRoleEnum -> Party1 when "partyA_control_agreement_nec_event" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to CounterpartyRoleEnum -> Party2 when "partyB_control_agreement_nec_event" = "applicable", set to CounterpartyRoleEnum -> Party2 when "partyB_control_agreement_nec_event" = "not_applicable"]
-
 	necEvent boolean (1..1)
 		[synonym ISDA_Create_1_0 set to True when "partyA_control_agreement_nec_event" = "applicable", set to False when "partyA_control_agreement_nec_event" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_control_agreement_nec_event" = "applicable", set to False when "partyB_control_agreement_nec_event" = "not_applicable"]
-
 
 type CreditSupportAgreementElections: <"The set of elections which specify a Credit Support Annex or Deed.">
 
@@ -550,7 +550,6 @@ type CreditSupportObligationsVariationMargin: <"A class to specify the Credit Su
 type Custodian: <"A class to specify the custodian and custody account details for each party to the agreement.">
 
 	partyElection CustodianElection (2..2) <"The party specific elections.">
-
 
 type CustodianElection: <"A class to specify the custodian and custody account details for each party to the agreement.">
 
@@ -905,6 +904,8 @@ type JurisdictionRelatedTerms: <"A class to specify terms jurisdiction related t
 		[synonym ISDA_Create_1_0 set to True when "jury_waiver->is_applicable" = "applicable", set to False when "jury_waiver->is_applicable" = "not_applicable"]
 	frenchLawAddendum FrenchLawAddendum (0..1) <"The French Law Addendum Provisions specific to the agreement.">
 		[synonym ISDA_Create_1_0 value "french_law_addendum" mapper "FrenchLawAddendum"]
+	belgianLawSecurityAgreement boolean (0..1) <"The qualification of whether the Belgian Law Security Agreement Addendum is deemed applicable by the parties (True) or not (False).">
+		[synonym ISDA_Create_1_0 set to True when "belgian_law_security_agreement->is_applicable" = "applicable", set to False when "belgian_law_security_agreement->is_applicable" = "not_applicable"]
 
 type MarginApproach: <"A class for selection of Margin Approach.">
 
@@ -1067,6 +1068,28 @@ type RegimeTerms: <"A class that is used by the ApplicableRegime and the Additio
 	simmException SimmException (0..1) <"The election for SIMM exception to the regulatory regime clause of the ISDA 2016 and 2018 CSA for Initial Margin as either a normalized value specified as part of an enumeration or a customized value specified of type string. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, Regime: SIMM Exception.">
 	retrospectiveEffect RetrospectiveEffect (0..1) <"ISDA 2016 CSA for Initial Margin, paragraph 13 (b)(i): if `Retrospective Effect` is specified as applicable to a Regime (a `Retrospective Regime`) then all Covered Transactions (IM) under all other Regimes with an earlier Regime Effective Time will, to the extent that they would have been Covered Transactions (IM) under such Retrospective Regime had such Transactions been entered into at or after the Regime Effective Time of the Retrospective Regime, be deemed to be Covered Transactions (IM) for such Retrospective Regime.">
 
+type RepresentativeCTAProvisions: <"The terms of the Rider for the ISDA Euroclear 2019 Collateral Transfer Agreement with respect to the use of a Pledgee Representative attached to this Agreement">
+
+	isApplicable boolean (1..1) <"Identification of whether the representative CTA provisions are applicable (True) or not applicable (False)">
+		[synonym ISDA_Create_1_0 set to True when "representative_cta_provisions" = "applicable", set to False when "representative_cta_provisions" = "not_applicable"]
+	party CounterpartyRoleEnum (0..1) <"Identification of the represented party.">
+		[synonym ISDA_Create_1_0 set to CounterpartyRoleEnum -> Party1 when "represented_party" = "party_a", set to CounterpartyRoleEnum -> Party2 when "represented_party" = "party_b"]
+	representativeTerms string (0..1) <"The specific representative terms applicable when specified.">
+		[synonym ISDA_Create_1_0 value "specify"]	
+	representativeEvent ExceptionEnum (0..1) <"The specification of whether the representative event terms are applicable">
+		[synonym ISDA_Create_1_0 value "representative_event"]
+	representativeEventTerms string (0..1) <"The specific representative event terms applicable when specified.">
+		[synonym ISDA_Create_1_0 value "specify_text"]
+	representativeEndDate CustomisableOffset (0..1) <"The definition of representative end date in relation to a representative event.">
+
+	condition representativeParty: <"A data rule to enforce that representative terms and a represented party are specified when representative provisions are applicable.">
+		if isApplicable = True
+		then (party and representativeTerms and representativeEvent and representativeEndDate) exists
+
+	condition representativeEventTerms: <"A data rule to enforce that representative event terms are specified when applicable.">
+		if representativeEvent = ExceptionEnum->Other
+		then representativeEventTerms exists
+
 type RetrospectiveEffect: <"A class to specify the retrospective effect exception to the regulatory regime clause of Initial Margin documents as either a normalized value specified as part of an enumeration or a customized value specified of type string.">
 
 	standardisedException ExceptionEnum (0..1) <"The Standard Initial Margin Model exception when specified by the party according to one of the enumerated values.">
@@ -1128,7 +1151,6 @@ type SecuredPartyRightsEventElection: <"A class to specify party specific Secure
 		[synonym ISDA_Create_1_0 set to True when "partyB_secured_party_rights_event" = "applicable", set to False when "partyB_secured_party_rights_event" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyA_security_taker_rights_event" = "applicable", set to False when "partyA_security_taker_rights_event" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_security_taker_rights_event" = "applicable", set to False when "partyB_security_taker_rights_event" = "not_applicable"]
-
 
 type SecurityAgreementElections: <"The set of elections which specify a Security Agremeent">
 
