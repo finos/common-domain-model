@@ -32,16 +32,8 @@ import org.isda.cdm.*
 
 synonym source FpML
 
-synonym source FpML_5_12 extends FpML_5_10
-{
-}
-
 synonym source FpML_5_10 extends FpML
 {
-	PrimitiveEvent:
-		+ execution
-			[value "ignore"]
-
 	AdjustableRelativeOrPeriodicDates:
 		[meta "id"]
 		+ adjustableDates
@@ -681,8 +673,8 @@ synonym source FpML_5_10 extends FpML
             [hint "settlementRateOption"]
 		+ referenceBanks
 			[value "cashSettlementReferenceBanks"]
-		+ dealer
-			[value "dealer"]
+		+ dealerOrCCP
+			[hint "dealer"]
 
 	SettlementRateOption:
 		+ settlementRateOption
@@ -2725,6 +2717,7 @@ synonym source FpML_5_10 extends FpML
 			[value "entityName" meta "entityNameScheme"]
 			[value "entityName" path "referenceEntity" meta "entityNameScheme"]
 			[value "initialDesignation"]
+			[value "dealer"]
 
 	NaturalPerson:
 	 	[value "Person" meta "id"]
@@ -2803,15 +2796,6 @@ synonym source FpML_5_10 extends FpML
 			[value "long"]
 		+ global
 			[value "global"]
-
-	WorkflowStep:
-		+ action
-			[set to ActionEnum -> New when "isCorrection" = False,
-				 set to ActionEnum -> Correct when "isCorrection" = True]
-		+ party
-			[value "party"]
-		+ account
-			[value "account"]
 
 	LimitApplicable:
 		+ limitType
@@ -3325,7 +3309,7 @@ synonym source FpML_5_10 extends FpML
 			[value "Frequency"]
 			// For Commodity Swap Fixed Leg
 			[hint "quantityFrequency"]
-
+	
 	enums
 
 	ObligationCategoryEnum:
@@ -5457,7 +5441,7 @@ synonym source FpML_5_10 extends FpML
 		+ iTraxxSovX
 			[value "iTraxxSovX"]
 
-	CalculationAgentPartyEnum:
+	PartyDeterminationEnum:
 		+ ExercisingParty
 			[value "ExercisingParty"]
 		+ NonExercisingParty
@@ -6435,7 +6419,7 @@ synonym source FpML_5_10 extends FpML
 			[value "NegativeInterestRateMethod"]
 		+ ZeroInterestRateMethod
 			[value "ZeroInterestRateMethod"]
-
+		
 	NotionalAdjustmentEnum:
 		+ Execution
 			[value "Execution"]
@@ -7481,6 +7465,7 @@ synonym source FpML_5_10 extends FpML
 			[value "Unweighted"]
 		+ Weighted
 			[value "Weighted"]
+	
 	DayDistributionEnum:
 		+ All
 			[value "All"]
@@ -7490,6 +7475,136 @@ synonym source FpML_5_10 extends FpML
 			[value "Last"]
 		+ Penultimate
 			[value "Penultimate"]
-
 }
 
+synonym source FpML_5_12 extends FpML_5_10
+{
+	FloatingRate:
+	 	+ calculationParameters
+			[value "calculationParameters"]
+		+ fallbackRate
+			[value "fallbackRate"]
+	
+	FloatingRateCalculationParameters:
+		+ calculationMethod
+			[value "calculationMethod"]
+		+ applicableBusinessDays 
+			[value "applicableBusinessDays"]
+		+ observationShiftCalculation
+			[value "observationShift"]
+		+ lookbackCalculation
+			[value "lookback" ]
+		+ lockoutCalculation
+			[value "lockout"]
+	
+	FallbackRateParameters:
+		+ floatingRateIndex
+			[value "floatingRateInde"]
+		+ effectiveDate
+			[value "effectiveDate"]
+		+ calculationParameters
+			[value "calculationParameters"]
+		+ spreadAdjustment
+			[value "spreadAdjustment"]
+	
+	OffsetCalculation:
+		+ offsetDays 
+			[value "offsetDays"]
+	
+	ObservationShiftCalculation: 
+		+ offsetDays 
+			[value "offsetDays"]
+		+ calculationBase
+			[value "observationPeriodDates"]
+		+ additionalBusinessDays
+			[value "additionalBusinessDays"]		
+	
+	ObservationParameters:
+		+ observationCapRate 
+			[ value "observationCapRate"]
+		+ observationFloorRate
+			[value "observationFloorRate"]
+
+	AncillaryEntity:
+		+ ancillaryParty
+			[value "partyReference"]
+		+ legalEntity
+			[hint "identifier"]
+	
+	CashCollateralValuationMethod:
+		+ applicableCsa	
+			[value "applicableCsa"]
+		+ cashCollateralCurrency
+			[value "cashCollateralCurrency"]
+		+ cashCollateralInterestRate
+			[value "cashCollateralInterestRate"]
+		+ agreedDiscountRate
+			[value "agreedDiscountRate" meta "benchmarkRateScheme"]
+		+ protectedParty
+		 	[value "partyDetermination" path "protectedParty"]
+		+ prescribedDocumentationAdjustment
+			[value "prescribedDocumentationAdjustment"]
+	
+	CashSettlementTerms:
+		+ cashSettlementMethod
+			[set to CashSettlementMethodEnum -> MidMarketIndicativeQuotations when "midMarketValuation->indicativeQuotations" exists]
+			[set to CashSettlementMethodEnum -> MidMarketIndicativeQuotationsAlternate when "midMarketValuation->indicativeQuotationsAlternate" exists]
+			[set to CashSettlementMethodEnum -> MidMarketCalculationAgentDetermination when "midMarketValuation->calculationAgentDetermination" exists]
+			[set to CashSettlementMethodEnum -> ReplacementValueFirmQuotations when "replacementValue->firmQuotations" exists]
+			[set to CashSettlementMethodEnum -> ReplacementValueCalculationAgentDetermination when "replacementValue->calculationAgentDetermination" exists]
+		+ valuationMethod
+			[value "midMarketValuation"]
+			[value "replacementValue"]
+	
+	LegalEntity:
+		+ name
+			[value "identifier"]
+	
+	ValuationSource:
+		+ dealerOrCCP
+			[value "mutuallyAgreedClearinghouse"]
+	
+	ValuationMethod:
+    + valuationSource
+      [value "indicativeQuotations"]
+			// The following are un-tested:
+			// [value "indicativeQuotationsAlternate"]
+			// [value "calculationAgentDetermination"]
+			[value "firmQuotations"]
+		+ cashCollateralValuationMethod
+			[value "indicativeQuotations"]
+			// The following are un-tested:
+			// [value "indicativeQuotationsAlternate"]
+			// [value "calculationAgentDetermination"]
+			[value "firmQuotations"]
+	
+	enums
+	
+	CsaTypeEnum: 
+		+ NoCSA  
+			[value "NoCSA"]
+		+ ExistingCSA
+			[value "ExistingCSA"]
+		+ ReferenceVMCSA 
+			[value "ReferenceVMCSA"]
+  
+  CalculationMethodEnum:
+	 	+ Averaging
+			[value "Averaging"]
+		+ Compounding 
+			[value "Compounding"]
+ 		+ CompoundedIndex
+			[value "CompoundedIndex"]
+ 
+ 	NegativeInterestRateTreatmentEnum:
+		+ ZeroInterestRateMethodExcludingSpread
+			[value "ZeroInterestRateMethoExcludingSpread"]
+
+	ObservationPeriodDatesEnum: 
+		+ Standard 
+			[ value "Standard"]
+		+ SetInAdvance
+			[ value "SetInAdvance"]
+		+ FixingDate
+			[ value "FixingDate" ]
+}
