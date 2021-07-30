@@ -1150,14 +1150,11 @@ func SecurityFinanceCashSettlementAmount:
     alias securityPrice: <"Specifies the price per security.">
         FilterPrice( tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> NetPrice)
 
-	alias haircutPercentage:
-		(1.0-securityFinancePayout -> collateralProvisions -> marginPercentage -> haircutPercentage)
-
-    alias valuationPercentage:
-        (1/haircutPercentage)
+	alias valuationPercentage:
+		(1/securityFinancePayout -> collateralProvisions -> marginPercentage -> valuationPercentage)
 
 	alias marginRatio:
-		if securityFinancePayout -> collateralProvisions -> marginPercentage -> haircutPercentage exists
+		if securityFinancePayout -> collateralProvisions -> marginPercentage -> valuationPercentage exists
 			then valuationPercentage
 		else if securityFinancePayout -> collateralProvisions -> marginPercentage -> marginPercentage exists
 			then securityFinancePayout -> collateralProvisions -> marginPercentage -> marginPercentage
@@ -1783,14 +1780,11 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 	alias securityFinancePayout: <"The security finance payout that represents the securities lent.">
 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout only-element
 
-    alias haircutPercentage:
-        (1.0-securityFinancePayout -> collateralProvisions -> marginPercentage -> haircutPercentage)
-
 	alias valuationPercentage:
-		(1/haircutPercentage)
+		(1/securityFinancePayout -> collateralProvisions -> marginPercentage -> valuationPercentage)
 
 	alias marginRatio:
-		if securityFinancePayout -> collateralProvisions -> marginPercentage -> haircutPercentage exists
+		if securityFinancePayout -> collateralProvisions -> marginPercentage -> valuationPercentage exists
 			then valuationPercentage
 		else if securityFinancePayout -> collateralProvisions -> marginPercentage -> marginPercentage exists
 			then securityFinancePayout -> collateralProvisions -> marginPercentage -> marginPercentage
