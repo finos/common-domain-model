@@ -30,7 +30,7 @@ class ReturnAmountTest extends AbstractFunctionTest {
 	void shouldCalculateReturnAmount() {
 		double returnAmount = returnAmount(
 				15,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -47,11 +47,11 @@ class ReturnAmountTest extends AbstractFunctionTest {
 	}
 
 	@Test
-	void shouldCalculateReturnAmountWithValuationPercentageAndFxHaircutPercentage() {
+	void shouldCalculateReturnAmountWithHaircutPercentageAndFxHaircutPercentage() {
 		double returnAmount = returnAmount(
 				15,
-				90,
-				8,
+				0.1,
+				0.08,
 				0,
 				0,
 				0,
@@ -63,14 +63,14 @@ class ReturnAmountTest extends AbstractFunctionTest {
 				0,
 				0.01,
 				0);
-		assertEquals(7.3, returnAmount, EPSILON);
+		assertEquals(6.1, returnAmount, EPSILON);
 	}
 
 	@Test
 	void shouldCalculateReturnAmountWithDisputedPostedCreditSupportAmount() {
 		double returnAmount = returnAmount(
 				15,
-				100,
+				0,
 				0,
 				2,
 				0,
@@ -90,7 +90,7 @@ class ReturnAmountTest extends AbstractFunctionTest {
 	void shouldCalculateReturnAmountWithPriorDeliveryAmountAdjustment() {
 		double returnAmount = returnAmount(
 				15,
-				100,
+				0,
 				0,
 				0,
 				1,
@@ -110,7 +110,7 @@ class ReturnAmountTest extends AbstractFunctionTest {
 	void shouldCalculateReturnAmountWithPriorReturnAmountAdjustment() {
 		double returnAmount = returnAmount(
 				15,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -130,7 +130,7 @@ class ReturnAmountTest extends AbstractFunctionTest {
 	void shouldCalculateReturnAmountWithDisputedTransferredPostedCreditSupportAmount() {
 		double returnAmount = returnAmount(
 				15,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -150,7 +150,7 @@ class ReturnAmountTest extends AbstractFunctionTest {
 	void shouldCalculateReturnAmountWithThreshold() {
 		double returnAmount = returnAmount(
 				15,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -170,7 +170,7 @@ class ReturnAmountTest extends AbstractFunctionTest {
 	void shouldCalculateReturnAmountWithMarginApproachGreaterOf() {
 		double returnAmount = returnAmount(
 				15,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -190,7 +190,7 @@ class ReturnAmountTest extends AbstractFunctionTest {
 	void shouldCalculateReturnAmountWithMinimumTransferAmount() {
 		double returnAmount = returnAmount(
 				15,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -210,7 +210,7 @@ class ReturnAmountTest extends AbstractFunctionTest {
 	void shouldCalculateReturnAmountWithDisputedReturnAmount() {
 		double returnAmount = returnAmount(
 				15,
-				100,
+				0,
 				0,
 				0,
 				0,
@@ -228,7 +228,7 @@ class ReturnAmountTest extends AbstractFunctionTest {
 
 	private double returnAmount(
 			double postedCreditSupportAmount,
-			double valuationPercentage,
+			double haircutPercentage,
 			double fxHaircutPercentage,
 			double disputedPostedCreditSupportAmount,
 			double priorDeliveryAmountAdjustment,
@@ -244,7 +244,7 @@ class ReturnAmountTest extends AbstractFunctionTest {
 	) {
 		List<PostedCreditSupportItem> postedCreditSupportItems = Collections.singletonList(PostedCreditSupportItem.builder()
 				.setCashOrSecurityValue(getMoney(postedCreditSupportAmount))
-				.setValuationPercentage(BigDecimal.valueOf(valuationPercentage))
+				.setHaircutPercentage(BigDecimal.valueOf(haircutPercentage))
 				.setFxHaircutPercentage(BigDecimal.valueOf(fxHaircutPercentage))
 				.setDisputedCashOrSecurityValue(getMoney(disputedPostedCreditSupportAmount))
 				.build());

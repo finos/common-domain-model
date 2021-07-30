@@ -28,17 +28,13 @@ public class ListsCompareImpl extends ListsCompare {
 	}
 
 	private BiFunction<BigDecimal, BigDecimal, Boolean> operation(CompareOp compareOp) {
-		BiFunction<BigDecimal, BigDecimal, Boolean> op = null;
 		switch (compareOp) {
-		case GREATER:
-			op = (b1, b2) -> b1.compareTo(b2) > 0;
-			break;
-		case EQUAL:
-			op = (b1, b2) -> b1.compareTo(b2) == 0;
-			break;
-		default:
-			break;
+			case GREATER:
+				return (b1, b2) -> b1.compareTo(b2) > 0;
+			case EQUAL:
+				return (b1, b2) -> b1.compareTo(b2) == 0;
+			default:
+				throw new IllegalArgumentException(String.format("Unknown CompareOp %s", compareOp));
 		}
-		return op;
 	}
 }
