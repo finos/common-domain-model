@@ -677,8 +677,8 @@ synonym source FpML_5_10 extends FpML
             [hint "settlementRateOption"]
 		+ referenceBanks
 			[value "cashSettlementReferenceBanks"]
-		+ dealer
-			[value "dealer"]
+		+ dealerOrCCP
+			[hint "dealer"]
 
 	SettlementRateOption:
 		+ settlementRateOption
@@ -2721,6 +2721,7 @@ synonym source FpML_5_10 extends FpML
 			[value "entityName" meta "entityNameScheme"]
 			[value "entityName" path "referenceEntity" meta "entityNameScheme"]
 			[value "initialDesignation"]
+			[value "dealer"]
 
 	NaturalPerson:
 	 	[value "Person" meta "id"]
@@ -5453,7 +5454,7 @@ synonym source FpML_5_10 extends FpML
 		+ iTraxxSovX
 			[value "iTraxxSovX"]
 
-	CalculationAgentPartyEnum:
+	PartyDeterminationEnum:
 		+ ExercisingParty
 			[value "ExercisingParty"]
 		+ NonExercisingParty
@@ -7537,9 +7538,70 @@ synonym source FpML_5_12 extends FpML_5_10
 		+ observationFloorRate
 			[value "observationFloorRate"]
 
-enums
-
-	CalculationMethodEnum:
+	AncillaryEntity:
+		+ ancillaryParty
+			[value "partyReference"]
+		+ legalEntity
+			[hint "identifier"]
+	
+	CashCollateralValuationMethod:
+		+ applicableCsa	
+			[value "applicableCsa"]
+		+ cashCollateralCurrency
+			[value "cashCollateralCurrency"]
+		+ cashCollateralInterestRate
+			[value "cashCollateralInterestRate"]
+		+ agreedDiscountRate
+			[value "agreedDiscountRate" meta "benchmarkRateScheme"]
+		+ protectedParty
+		 	[value "partyDetermination" path "protectedParty"]
+		+ prescribedDocumentationAdjustment
+			[value "prescribedDocumentationAdjustment"]
+	
+	CashSettlementTerms:
+		+ cashSettlementMethod
+			[set to CashSettlementMethodEnum -> MidMarketIndicativeQuotations when "midMarketValuation->indicativeQuotations" exists]
+			[set to CashSettlementMethodEnum -> MidMarketIndicativeQuotationsAlternate when "midMarketValuation->indicativeQuotationsAlternate" exists]
+			[set to CashSettlementMethodEnum -> MidMarketCalculationAgentDetermination when "midMarketValuation->calculationAgentDetermination" exists]
+			[set to CashSettlementMethodEnum -> ReplacementValueFirmQuotations when "replacementValue->firmQuotations" exists]
+			[set to CashSettlementMethodEnum -> ReplacementValueCalculationAgentDetermination when "replacementValue->calculationAgentDetermination" exists]
+		+ valuationMethod
+			[value "midMarketValuation"]
+			[value "replacementValue"]
+	
+	LegalEntity:
+		+ name
+			[value "identifier"]
+	
+	ValuationSource:
+		+ dealerOrCCP
+			[value "mutuallyAgreedClearinghouse"]
+	
+	ValuationMethod:
+    + valuationSource
+      [value "indicativeQuotations"]
+			// The following are un-tested:
+			// [value "indicativeQuotationsAlternate"]
+			// [value "calculationAgentDetermination"]
+			[value "firmQuotations"]
+		+ cashCollateralValuationMethod
+			[value "indicativeQuotations"]
+			// The following are un-tested:
+			// [value "indicativeQuotationsAlternate"]
+			// [value "calculationAgentDetermination"]
+			[value "firmQuotations"]
+	
+	enums
+	
+	CsaTypeEnum: 
+		+ NoCSA  
+			[value "NoCSA"]
+		+ ExistingCSA
+			[value "ExistingCSA"]
+		+ ReferenceVMCSA 
+			[value "ReferenceVMCSA"]
+  
+  CalculationMethodEnum:
 	 	+ Averaging
 			[value "Averaging"]
 		+ Compounding 
