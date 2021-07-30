@@ -3,11 +3,11 @@ package cdm.observable.common.functions;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
-import cdm.observable.asset.PriceQuantity;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
@@ -18,12 +18,8 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
 public class NoOfUnitsImpl extends NoOfUnits {
 
 	@Override
-	protected BigDecimal doEvaluate(List<? extends PriceQuantity> priceQuantity) {
-		Set<BigDecimal> noOfUnits = emptyIfNull(priceQuantity).stream()
-				.map(PriceQuantity::getQuantity)
-				.filter(Objects::nonNull)
-				.flatMap(Collection::stream)
-				.map(FieldWithMetaQuantity::getValue)
+	protected BigDecimal doEvaluate(List<? extends Quantity> quantity) {
+		Set<BigDecimal> noOfUnits = emptyIfNull(quantity).stream()
 				.filter(q -> Optional.ofNullable(q)
 						.map(Quantity::getUnitOfAmount)
 						.map(UnitType::getFinancialUnit)

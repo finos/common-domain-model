@@ -1,7 +1,9 @@
-package cdm.base.math.functions;
+package cdm.product.common.settlement.functions;
 
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
+import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.product.common.settlement.PriceQuantity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -11,21 +13,30 @@ import java.util.stream.Collectors;
 
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
-public class DeductAmountForEachMatchingQuantityImpl extends DeductAmountForEachMatchingQuantity {
+public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEachMatchingQuantity {
 
+	@Override
+	protected List<PriceQuantity.PriceQuantityBuilder> doEvaluate(List<? extends PriceQuantity> priceQuantity, List<? extends Quantity> quantity) {
+		return emptyIfNull(priceQuantity)
+						.stream()
+						.map(PriceQuantity::toBuilder)
+						.map(pq -> pq.setQuantityValue(updateAmountForEachMatchingQuantity(pq.getQuantity(), quantity)))
+						.collect(Collectors.toList());
+	}
 
-	protected List<Quantity.QuantityBuilder> doEvaluate(List<? extends Quantity> quantity, List<? extends Quantity> quantityDeducted) {
-		List<Quantity.QuantityBuilder> collect = emptyIfNull(quantity)
+	@NotNull
+	private List<? extends Quantity> updateAmountForEachMatchingQuantity(List<? extends FieldWithMetaQuantity> quantitiesToUpdate, List<? extends Quantity> newQuantityAmounts) {
+		return emptyIfNull(quantitiesToUpdate)
 				.stream()
+				.map(FieldWithMetaQuantity::getValue)
 				.filter(Objects::nonNull)
 				.map(Quantity::toBuilder)
 				.map(quantityToUpdate -> {
-					filterQuantityByUnitOfAmount(quantityDeducted, quantityToUpdate.getUnitOfAmount())
-							.ifPresent(filteredQuantity -> quantityToUpdate.setAmount(quantityToUpdate.getAmount().subtract(filteredQuantity.getAmount())));
+					filterQuantityByUnitOfAmount(newQuantityAmounts, quantityToUpdate.getUnitOfAmount())
+							.ifPresent(filteredQuantity -> quantityToUpdate.setAmount(filteredQuantity.getAmount()));
 					return quantityToUpdate;
 				})
 				.collect(Collectors.toList());
-		return collect;
 	}
 
 	@NotNull

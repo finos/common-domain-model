@@ -134,6 +134,8 @@ type CashSettlementTerms: <"Defines the terms required to compute and settle a c
 	[metadata key]
 
 	cashSettlementMethod CashSettlementMethodEnum (0..1) <"Specifies the type of cash settlement method: cash price, yield curve etc.">
+	settlementCurrency string (0..1) <"The settlement currency is to be specified when the Settlement Amount cannot be known in advance. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+		[metadata scheme]
 	valuationMethod ValuationMethod (0..1) <"Specifies the parameters required to obtain a valuation, including the source, quotation method (bid, mid etc.) and any applicable quotation amount.">
 	valuationDate ValuationDate (0..1) <"Defines the different methods to specify a valuation date, as used for cash settlement. The Single / Multiple ValuationDate is used for the determination of recovery in a credit event, the RelativeDateOffset is used for cash-settled option, and FxFixingDate is used for cross-currency settlement.">
 	valuationTime BusinessCenterTime (0..1) <"The time of the cash settlement valuation date when the cash settlement amount will be determined according to the cash settlement method, if the parties have not otherwise been able to agree the cash settlement amount. When using quations, this is the time of day in the specified business center when the calculation agent seeks quotations for an amount of the reference obligation for purposes of cash settlement. ISDA 2003 Term: Valuation Time.">
@@ -144,6 +146,9 @@ type CashSettlementTerms: <"Defines the terms required to compute and settle a c
 
 	condition CashSettlementTermsChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice cashSettlementAmount, recoveryFactor
+	
+	condition SettlementCurrency: <"When a cash settlement amount is included (which specifies the currency), a settlement currency must not be re-specified.">
+		optional choice settlementCurrency, cashSettlementAmount
 
 	condition RecoveryFactor: <"FpML specifies recoveryFactor as a RestrictedPercentage, meaning that it is a decimal which value is restricted between 0 and 1.">
 		if recoveryFactor exists
@@ -281,8 +286,6 @@ type FxFixingDate extends Offset: <"Extends the Offset structure to specify an F
 	condition DateChoice: <"condition to represent an FpML choice construct.">
 		required choice dateRelativeToPaymentDates, dateRelativeToCalculationPeriodDates, fxFixingDate
 
-type SettlementInstructions extends PayoutBase:
-
 type PrincipalExchange: <"A data for:  defining a principal exchange amount and adjusted exchange date. This data forms:  part of the cashflow representation of a swap stream.">
 	[metadata key]
 
@@ -304,6 +307,32 @@ type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, w
 	condition PhysicalSettlementTerms: <"If the physical settlement terms are specified, then the settlementType can either be Physical, Election or CashOrPhysical">
 		if physicalSettlementTerms exists /* or fxSettlementTerms exists*/
 		then settlementType <> SettlementTypeEnum -> Cash
+
+type PriceQuantity /*extends PriceQuantityBase*/: <"Defines a settlement as an exchange between two parties of a specified quantity of an asset (the quantity) against a specified quantity of another asset (the price). The settlement is optional and can be either cash or physical. In the case of non-cash products, the settlement of the price/quantity would not be specified here and instead would be delegated to the product mechanics, as parameterised by the price/quantity values.">
+	[metadata key]
+	price Price (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
+	    [metadata location]
+	quantity Quantity (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
+	    [metadata location]
+	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference. The cardinality is optional as some quantity / price cases have no observable (e.g. a notional and a fixed rate in a given currency).">
+	buyerSeller BuyerSeller (0..1) <"Defines the direction of the exchange. The convention is that the buyer receives the quantity / pays the price, whereas the seller receives the price / pays the quantity. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
+	settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
+	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
+	
+	condition NonNegativeQuantity:
+	    if quantity -> amount exists
+	    then quantity -> amount all >= 0
+	
+	condition:
+	    if observable -> rateOption exists and price exists
+	    then 
+			price -> priceType contains PriceTypeEnum -> Spread or
+			price -> priceType contains PriceTypeEnum -> CapRate or
+			price -> priceType contains PriceTypeEnum -> FloorRate or
+			price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
+	
+	condition ActualSettlement: <"">
+		if buyerSeller exists then settlementTerms exists
 
 type PaymentDetail:
 	[metadata key]
@@ -333,8 +362,6 @@ type SettlementBase: <"A base class to be extended by the SettlementTerms class.
 
 	settlementType SettlementTypeEnum (1..1) <"Whether the settlement will be cash, physical, by election, ...">
 	transferSettlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
-	settlementCurrency string (0..1) <"The settlement currency is to be specified when the Settlement Amount cannot be known in advance. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
 	settlementDate SettlementDate (0..1) <"The date on which the settlement amount will be paid, subject to adjustment in accordance with any applicable business day convention. This component would not be present for a mandatory early termination provision where the cash settlement payment date is the mandatory early termination date.">
 
 type SimplePayment extends PartyReferencePayerReceiver: <"A class to specified payments in a simpler fashion than the Payment type. This construct should be used from the FpML version 4.3 onwards.">

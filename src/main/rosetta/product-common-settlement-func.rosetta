@@ -2,4 +2,27 @@ namespace cdm.product.common.settlement : <"Common product settlement concepts: 
 version "${project.version}"
 
 import cdm.base.datetime.*
+import cdm.base.math.*
 import cdm.base.staticdata.party.*
+
+func FilterPriceQuantity: <"Filter list of PriceQuantity based on unitOfAmount->currency and observable->rateOption->indexTenor.">
+	inputs:
+		priceQuantities PriceQuantity (0..*) <"List of PriceQuantity to filter.">
+		currency string (1..1) <"The currency to filter by.">
+		rateOptionIndexTenor Period (1..1) <"The rate option index tenor to filter by.">
+	output:
+		priceQuantity PriceQuantity (0..1)
+
+func UpdateAmountForEachQuantity: <"Updates all quantities on each price quantity with the new amount.">
+	inputs:
+		priceQuantity PriceQuantity (0..*) <"List of price quantities to update.">
+		amount number (1..1) <"The new amount.">
+	output:
+		updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with all quantity amounts updated.">
+
+func UpdateAmountForEachMatchingQuantity: <"Updates any quantity from the list of new quantities if the unit of amount matches.">
+	inputs:
+		priceQuantity PriceQuantity (0..*) <"List of price quantities to update.">
+		quantity Quantity (0..*) <"The new quantities.">
+	output:
+		updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with quantity amounts updated.">

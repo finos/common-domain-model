@@ -459,7 +459,7 @@ synonym source FpML_5_10 extends FpML
 			[value "spread" path "calculation"] // Commodity Swap Floating Leg
 			// Premium (for all Options) / Additional payment
 			[value "paymentAmount"]
-    + quantity
+    	+ quantity
 		    // For Swap Stream
 			[value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule"]
 		    [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
@@ -506,10 +506,13 @@ synonym source FpML_5_10 extends FpML
             [hint "bond", "convertibleBond"]
 			// For Commodity Swap Floating Leg
 			[hint "commodity"]
+		+ settlementTerms
+			[value "ignore"] // temporary placeholder, until cashflow settlement attribute are re-mapped here
+		+ buyerSeller
+			[value "ignore"] // temporary placeholder, until cashflow settlement attribute are re-mapped here
 		+ effectiveDate
-			// Do not map, until a canonical representation of effective date is built in the CDM and existing effective date attributes can be re-directed here
-			[value "ignore"]
-
+			[value "ignore"] // Do not map, until a canonical representation of effective date is built in the CDM and existing effective date attributes can be re-directed here
+		
 	Price:
 		+ amount
 			[value "initialRate" mapper "PriceUnitType"]
@@ -645,15 +648,9 @@ synonym source FpML_5_10 extends FpML
 		[meta "id"]
 		+ settlementType
 			[value "settlementType"]
-		+ settlementCurrency
-			[value "settlementCurrency" meta "currencyScheme"]
-			[value "settlementCurrency" path "settlementProvision"]
-			[value "cashSettlementCurrency" meta "currencyScheme"]
-			[value "settlementCurrency" path "cashSettlementTerms"]
-			[value "settlementCurrency" path "physicalSettlementTerms"]
-			[value "settlementCurrency" path "nonDeliverableSettlement"]
-			[value "settlementCurrency" path "cashSettlement"]
-
+		// + settlementCurrency
+			// [value "settlementCurrency" path "physicalSettlementTerms"]
+			
 	SettlementTerms:
 		+ settlementDate
 			[value "cashSettlement"]
@@ -661,11 +658,14 @@ synonym source FpML_5_10 extends FpML
 			[hint "settlementDate"]
 			[value "americanExercise"]
 			[value "europeanExercise"]
+			// [hint "paymentDate"]
 		+ cashSettlementTerms
 			[value "cashSettlement"]
 			[value "cashSettlementTerms"]
-			[value "settlementProvision"]
+			[value "settlementProvision" /*set when rosettaPath = Payout->interestRatePayout->settlementTerms*/]
 			[value "nonDeliverableSettlement"]
+			[hint "settlementCurrency"]
+			[hint "cashsettlementCurrency"]
 		+ physicalSettlementTerms
 			[value "physicalSettlement"]
 			[value "physicalSettlementTerms"]
@@ -1151,6 +1151,7 @@ synonym source FpML_5_10 extends FpML
 		+ settlementDate
 			[value "cashSettlementPaymentDate"]
 			[value "settlementDate"]
+			// [value "paymentDate"]
 		+ valueDate
 			[value "valueDate"]
 			[value "latestValueDate"]
@@ -2322,7 +2323,7 @@ synonym source FpML_5_10 extends FpML
 			[value "premium", "equityPremium"]
 			[value "premium" path "bondOption"]
 			[value "premium" path "fxOption"]
-			[value "premium" path "fxDigitalOption"]
+			[value "premium" path "fxDigitalOption"]	
 		+ lotIdentifier
 			[value "ignore"]
 
@@ -2889,6 +2890,9 @@ synonym source FpML_5_10 extends FpML
 			[set to CashSettlementMethodEnum -> ZeroCouponYieldAdjustedMethod when "zeroCouponYieldAdjustedMethod" exists]
 			[set to CashSettlementMethodEnum -> CrossCurrencyMethod when "crossCurrencyMethod" exists]
 			[set to CashSettlementMethodEnum -> CollateralizedCashPriceMethod when "collateralizedCashPriceMethod" exists]
+		+ settlementCurrency
+			[value "settlementCurrency" meta "currencyScheme"]
+			[value "cashSettlementCurrency" meta "currencyScheme"]
 		+ valuationDate
 			[value "fixing"]
 			[value "rateSourceFixing"]
