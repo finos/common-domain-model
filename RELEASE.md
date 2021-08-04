@@ -1,56 +1,78 @@
-# *Base Libraries - Vector Math Library*
+# Interest Payout Calculation Enhancements 
 
 _What is being released?_
 
-A small library of functions for working with vectors (ordered collections of numbers) has been added to CDM to support Rosetta functions needing to perform complex mathematical operations.  Anticipated uses include averaging and compounding calculations for floating amounts, but the functions are designed to be general use.
+A set of enhanced types and functions for computing interest rate payout amounts, and in particular floating amounts.
 
-The functions are located in base-math-func.
+The enhancements are located in product-asset-calculation, product-asset-floating-rate, and product-asset-calculatedrate.
+* **Product-asset-calculation** includes enhanced fixed and floating amount calculations, with the capability to look up the notional in effect during the calculation period, and to do day count calculations using a simplified day count implementation that uses the base date library.
+* **Product-asset-floatingrate** includes floating rate setting and processing, with the capability to look up and apply rate processing such as spreads, multipliers, caps and floors, etc.
+* **Product-asset-calculatedrate** includes a preliminary implementation of the new modular calculated floating rates (such as lookback compound or observation shift daily average) defined in the 2021 ISDA definitions.
 
-New functions include:
+The current implementation should be viewed as **experimental** and is being released for review and feedback.  Implementers using these capabilities are cautioned that they should test the results carefully, and report any issues or concerns to the CDM team.
 
-* ToVector: Creates a vector from a list of numbers.
-* SelectFromVector: Selects a single value from a vector (list of numbers), i.e. result = val[index].  
-Returns null if the supplied vector is empty or if the supplied index is out of range.  
-Returns the first element of the vector when supplied an index of 0, and the index - 1 th element if index is in range.
-* LastInVector: Returns the last value in a vector.  If the vector is empty, returns null
-* AppendToVector: Appends a single value to a vector
-* VectorOperation: Generates a result vector by applying the supplied arithmetic operation to each element of the supplied left and right vectors in turn.  i.e. result[n] = left[n] [op] right[n], where [op] is the arithmetic operation defined by arithmeticOp.   This function can be used to, for example, multiply or add two vectors.
-* VectorScalarOperation: Generates a result vector by applying the supplied arithemetic operation and scalar right value to each element of the supplied left vector in turn. i.e. result[n] = left[n] [op] right, where [op] is the arithmetic operation defined by arithmeticOp.  This function can be used to, for example, multiply a vector by a scalar value, or add a scalar to a vector.
-* VectorGrowthOperation: Generates a result vector by starting with the supplied base value (typically 1), and then multiplying it in turn by each growth factor, which is typically a number just above 1.  For instance, a growth factor of 1.1 reprsents a 10% increase, and 0.9 a 10% decrease.  The results will show the successive results of applying the successive growth factors, with the first value of the list being the supplied baseValue, and final value of the results list being the product of all of the supplied values.  i.e. result[1] = baseValue * factor[1], result[n] = result[n-1] * factor[n].  The resulting list will have the one more element than the supplied list of factors.  This function is useful for performing compounding calculations.
+Some of the calculation period amount capabilities that are included in FpML and the ISDA Definitions that are not yet fully supported in these enhancements include:
+* Initial Rate:  there is a basic implementation of rates specified for the initial period but it is not thoroughly tested and may require adjustment to handle all cases correctly.
+* Stubs:  There is no support for stub rate calculations at this time
+* Compounding methods:  there is currently only support for calculating the cash flows for a single calculation period.   There is some support roughed in for compounding over multiple calculation periods using the CompoungingMethod, such as calculating spread-exclusive rates and cashflows, but this has not been used or tested yet.
+* Reset averaging:  there is currently no support for averaging using the resetDates concept, where the reset period is set to more frequent than the calculation period.
+* The US rate treatment logic has a defined entry point but no implementation as yet.  It may be that the interface to that function will need adjustment to provide all the necessary information for the calculation, although an attempt has been made to suply the necessary information.
 
 
-Also a new scalar functions has been added to better support floating rate processing:
-* Round to precision:  Rounds a supplied number to a specified precison (in decimal places) using a roundingMode of type RoundingDirectionEnum.  This is similar to RoundToNearest but takes a precision rather than an amount, and uses a different rounding mode enumeration that supports more values.
+Following is a description of each of the functions included in the release.
 
-# *Base Libraries - Basic Date Math Library*
+New functions in **product-asset-calculation-func** include:
 
-_What is being released?_
+* FixedAmountEnhanced: Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction
+* FixedAmounCalculationNew: Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction
+* LookupFixedRate: Look up the fixed rate for a calculation period
+* FloatingAmountEnhanced: 2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount  Floating Rate + Spread  Floating Rate Day Count Fraction (b) if 'Compounding' is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.   This enhanced version supports parameterized rate treatments, such as spread schedules, cap rate schedules, negative rate treatment, final rate rounding, etc.
+* FloatingAmountCalculation: Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction.  Floating amount calculations are described in the 2021 ISDA Definitions in Section 6 and 7.
+* LookupNotionalAmount: Look up the notional amouunt in effect for a calculation period
+* LookupQuantityScheduleAmount: Look up a value from a quantity schedule given a supplied starting date.  It will return the value of the last step that is before the supplied starting date, or if none matches, the intial value.
+* FindNonNegativeScheduleSteps: Find all  schedule step values whose stepDate is before or equal to the supplied periodStartDate, starting from supplied startingStep number.  Returns a list of step values starting from the last matching one and going in reverse order.  Done this slightly odd way for efficiency and simplicity in code generation.
+* SelectNonNegativeScheduleStep: Retrieve a single step from a  schedule given a step number.  This is an entry point to a function written in a native langugage like Java.  Returns the step if it exists, else null. The index is 0-based, so 0 returns the first setp.
+* CalculateYearFraction:
+* YearFraction:
+* YearFractionForOneDay: Return the year fraction reprsented by a single day, i.e 1 / dayCountBasis, where daycountBasis represents the denominator of the day count fraction. This perhaps should take into account leap years, though the ISDA compounding formulas do not cover ACT basis at the moment.
+* DayCountBasis: Return the day count basis (the denominator of the day count fraction) for the day count fraction
 
-A small library of functions for working with dates and lists of dates has been added to CDM to support Rosetta 
-functions needing to perform date mathematics.  Anticipated uses include date list generation for modular rate 
-calculations for floating amounts, but the functions are designed to be general use.
+New functions in **product-asset-floatingrate-func** include:
+* DetermineFloatingRateReset: Get the value of a floating rate by either observing it directly or performing a rate calculation.  This function works differently depending on the rate category and style, as described in the 2021 ISDA Definitions, Section 6.6.
+* GetFloatingRateProcessingType:  Get a classification of  the floating rate is processed. This is based on FRO category, style, and calculation method, as described in the 2021 ISDA Definitions Section 6.6.  The categorization information is obtained from the FRO metadata.
+* ProcessFloatingRateReset: Entry point for the function that performs the floating rate resetting operation.  There are different variactions depending on the processing type (e.g. screen rate, OIS, modular calculated rate.
+* GetCalculatedFROCalculationParameters: Initializze a calculation parameters block for an OIS or a daily average rate. Used to support FROs that include an embedded calculation.
+* ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->COUMPOUNDINDEX): Call the compounded index processing logic to calculate the reset
+* EvaluateScreenRate: Evaluate/lookup the value of a screen rate
+* DetermineResetDate: Determine the value of the reset date given a reset dates structure and a calculation paeriod for which it's needed. Reset dates are defined in the 2021 ISDA Definition in Section 6.5.5.
+* DetermineFixingDate: Determine the observation (fixing) date needed given a reset dates structure and a reset date
+* GetFloatingRateProcessingParameters: Determine the processing parameters to use from the InterestRatePayout by looking them up if necessary from the corresponding schedules in the interest rate stream
+* SpreadAmount: Look up the spread amount for a calculation period
+* MultiplierAmount: Look up the multiplier amount for a calculation period
+* CapRateAmount: Look up the cap rate amount for a calculation period
+* FloorRateAmount: Look up the floor rate amount for a calculation period
+* LookupRateScheduleAmount: Look up an amount for a calculation period from a rate schedule
+* FindScheduleSteps: Find all rate schedule step values whose stepDate is before or equal to the supplied periodStartDate, starting from supplied startingStep number.  Returns a list of step values starting from the last matching one and going in reverse order.  Done this slightly odd way for efficiency and simplicity in code generation.  Assumes scehdule stesp are in ascending date order.
+* SelectScheduleStep: Retrieve a single step from a  schedule given a step number
+* ApplyFloatingRateProcessing: Perform rate treatments on floating rates, such as applying spreads, multipliers, caps and floors, rounding, and negative interest treatment.  TODOO:  initialRate needs to be supported.  Also, to support compounding methods, it may be necessary to split the before spread and after spread values and return both, so that cashflows can be computed both ways.  This may require this function to be redesigned or split into pieces (e.g. factor out the post-spread processing).  Rate treatmentst are described in Section 6 of the 2021 ISDA Definitions.  Negative treatment does not correctly support the case where compounded periods are applicable and will need to be enhanced for that case when compounding calculations are developed.
+* ApplyFloatingRatePostSpreadProcessing: Perform post-spread rate treatments on floating rates, such as applying caps and floors, rounding, and negative interest treatment.  TODOO:  initialRate needs to be supported.  Also, to support compounding methods, it may be necessary to split the before spread and after spread values and return both, so that cashflows can be computed both ways.  This may require this function to be redesigned or split into pieces (e.g. factor out the post-spread processing).
+* ApplyCapsAndFloors: Apply any cap or floor rate as a constraint on a regular swap rate, as discussed in the 2021 ISDA Definitions, section 6.5.8 and 6.5.9
+* ApplyUSRateTreatment: Apply the US rate treatment logic where applicable (Bond Equivalent Yield, Money Market Yield, as described in the 2021 ISDA Definitions, section 6.9.  (NB: this function does not have an implementation.)
+* ApplyFinalRateRounding: Apply the final rate rounding treatment logic as described in the 2021 ISDA Definitions, section 4.8.1.
 
-There is a basic Java language implementation that can be used, or users can provide their own implementations
-of these fuctions using a more robust date math library.
+New functions in **product-asset-calculatedrate-func** include:
+* EvaluateCalculatedRate: Evaluate a calculated rate as described in the 2021 ISDA Definitions, Section 7
+* GenerateObservationDatesAndWeights: Apply shifts to generate the list of observation dates and weights for each of those dates
+* ComputeCalculationPeriod: Determine the calculation period to use for computing the calculated rate (it may not be the same as the normal calculation period, for instance if the rate is set in advance)
+* DetermineObservationPeriod: Determine any applicable offsets/shifts for the period for observing an index, and then generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shifts
+* GenerateObservationPeriod: Generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shifts.
+* GenerateObservationDates: Generate the list of observation dates given an observation period
+* DetermineWeightingDates: Determine the dates to be used for weighting observations
+* ProcessObservations: Apply daily observation parameters to rate observation.  These are discussed in the 2021 ISDA Definitions, section 7.2.3 and 7.2.4.
+* GenerateWeights: Recursively creates a list of weights based on the date difference between successive days.
+* ApplyCompoundingFormula:  Implements the compounding formula:   Product of ( 1 + (rate * weight) / basis), then backs out the final rate. This is used to support section 7.3 of the 2021 ISDA Definitions.
+* ApplyAveragingFormula: Implementst the weighted arithmetic averaging formula.  Sums the weighted rates and divides by the total weight.  This is used to support section 7.4 of the 2021 ISDA Definitions.
 
-The functions are located in base-datetime-func.
 
-New functions include:
 
-* CombineBusinessCenters: Creates a BusinessCenters object that includes the union of business centers in the two supplied lists
-* RetrieveBusinessCenterHolidays: Returns a merged list of holidays for the supplied business centers
-* DayOfWeek: returns the day of week corresponding to the supplied date
-* AddDays: adds the specified number of calendar days to the supplied date.  A negative number will generate a date before the supplied date.
-* DateDifference: subtracts the two supplied dates to return the number of calendar days between them .  A negative number implies first is after second.
-* LeapYearDateDifference: subtracts the two supplied dates to return the number of leap year calendar days between them.(That is, the number of dates that happen to fall within a leap year.)  A negative number implies firstDate is after secondDate.
-* SelectDate: Select a date from a list of dates based on index.  If not found return nothing.
-* LastInDateList: Return the last date in a list of dates
-* AppendDateToList: Add a date to a list of dates
-* PopOffDateList:  Remove last element from a list of dates
 
-The following are implemented in Rosetta based on the above primitives.
-* IsWeekend: returns whether the supplied date is a weekend.  This implementation currently assumes a 5 day week with Saturday and Sunday as holidays.  A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.
-* IsHoliday: Returns whether a day is a holiday for the specified business centers
-* IsBusinessDay: returns an indicator of whether the supplied date is a good business date given the supplied business centers.  True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday
-* AddBusinessDays: Returns a good business date that has been offset by the given number of business days given the supplied business centers.  A negative value implies an earlier date (before the supplied originalDate), and a positive value a later date (after the supplied date).
-* GenerateDateList: Creates a list of good business days starting from the startDate and going to the end date, inclusive, omitting any days that are weekends or holidays according to the supplied business centers.
