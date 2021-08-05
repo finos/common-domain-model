@@ -1,5 +1,6 @@
 package cdm.legalagreement.csa.processor;
 
+import cdm.legalagreement.csa.CollateralTreatment;
 import cdm.legalagreement.csa.PostingObligations;
 import cdm.legalagreement.csa.PostingObligationsElection;
 import com.regnosys.rosetta.common.translation.*;
@@ -64,10 +65,14 @@ public class PostingObligationsMappingProcessor extends MappingProcessor {
                     Optional<BigDecimal> maybeFxHaircutValue = parseFxHaircutPercentageValue(xmlValue);
 
                     maybeFxHaircutValue.ifPresent(fxHaircutPercentage -> {
-                        postingObligationsElectionBuilder
+                        CollateralTreatment.CollateralTreatmentBuilder collateralTreatmentBuilder = postingObligationsElectionBuilder
                                 .getOrCreateEligibleCollateral(0)
                                 .getOrCreateCriteria(0)
-                                .getOrCreateTreatment()
+                                .getOrCreateTreatment();
+
+                        collateralTreatmentBuilder.setIsIncluded(true);
+
+                        collateralTreatmentBuilder
                                 .getOrCreateValuationTreatment()
                                 .setFxHaircutPercentage(fxHaircutPercentage);
                     });
@@ -96,7 +101,7 @@ public class PostingObligationsMappingProcessor extends MappingProcessor {
             return Optional.empty();
         }
         BigDecimal bdValue = BigDecimal.valueOf(intValue);
-        return Optional.of(bdValue.divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN));
+        return Optional.of(bdValue.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_EVEN));
     }
 
     private void setExcludedCollateralValueIfYey(Path synonymPath, String party, PostingObligationsElection.PostingObligationsElectionBuilder postingObligationsElectionBuilder, String collateral_management_agreement, String collateral_management_agreement_specify) {
