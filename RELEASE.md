@@ -1,44 +1,58 @@
-# *Product Model – Cash Settlement and Physical Settlement Terms*
+# *Product Model – 2021 Floating Rate Definitions*
 
 _What is being released?_
 
-The structural definition of Settlement Terms has been harmonised. This release addresses transaction components related to Physical Settlement of derivative products and Cash Settlement of FX products. A previous release incorporated harmonisation of concepts related to Cash Settlement for credit, cross-currency swaps and swaptions.
-
-_Background_
-
-Multiple inconsistencies have been identified in the current modelling of settlement terms. This leads to inefficiency in the product model and in the ability to represent functional rules for digital regulatory reporting. The resolution approach creates several modelling components common across products as part of `PayoutBase` and preserve the elements that are genuinely specific.
+The floating rate structure has been extended to include components from the new 2021 ISDA definitions, including new floating rate calculation parameters (observation shift, lookback, lockout, cap/floor) and fallback parameters. The new structure has been validated against FpML 5.12 samples that include the new definitions.
 
 _Details_
 
-- `CashSettlementTerms` describes a harmonised cash-settlement structure that works across credit, cross-currency swaps, swaptions and FX products.
-- `CashSettlementTerms` cardinality updated to allow multiple terms to be provided for FX products.
-- `PhysicalSettlementTerms` describes a harmonised physical-settlement structure that works across credit and options.
-- `CreditDefaultPayout` extends `PayoutBase` to pick up the normalised `SettlementTerms` structure.  Corresponding data types have been removed from `CreditDefaultPayout`
+- A new `FloatingRateCalculationParameters` type describes the parameters applicable to the new floating rate calculations.
+- New enumerations have been introduced to describe the calculation method:
+
+  - `CalculationMethodEnum`
+  - `ObservationPeriodDatesEnum`
+  - `CalculationShiftMethodEnum`
+
+- A new `FallbackRateParameters` type describes the fallback parameters, including the relevant calculation parameters for the fallback rate.
+- New `calculationParameters` and `fallbackRate` attributes have been added to the `FloatingRate` data type
+- A new FpML 5.12 example: `ird-ex40-rfr-avg-swap-obs-period-shift` has been added to the ingestion pack, that tests an example of the new structure
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search for the relevant data types specified above. In the CDM Portal, select the Ingestion view and review the following sample trades:
-- ird ex09 euro swaption explicit physical exercise
-- fx ex07 non deliverable forward
-- cd ex01 long asia corp fixreg versioned
+In the CDM Portal, select the Textual Browser and search for the relevant data types specified above.
 
-# *Product Model - Option Denomination Deprecation*
+Select the Ingestion view and review the sample mentioned above.
+
+# *Product Model – New 2021 Cash Settlement Terms*
 
 _What is being released?_
 
-As part of the price/quantity normalisation, the option payout structure has been further rationalised by retiring the specialised `OptionDenomination` type and corresponding attributes:
-- `numberOfOptions` (number),
-- `optionEntitlement` (number) and
-- `entitlementCurrency` (string)
+New cash-settlement terms for mid-market valuation and replacement value methods have been added in accordance with the 2021 definitions. Synonym mappings have been extended using two new FpML 5.12 examples containing optional early termination terms according to these new valuation methods.
 
-These modeling elements were previously used for Equity and Bond Option products and were all inherited from FpML. This change will see  the same information captured by the `Quantity` structure with the `amount`, `multiplier` and `multiplierUnit` attributes. The relevant synonym mappings have been adjusted so that the corresponding values from  FpML samples are populated in the `Quantity` structure of the CDM representation.
+_Details_
+
+- `CashSettlementMethodEnum` includes 5 new cash-settlement methods for mid-market valuation and replacement value:
+
+  - `MidMarketIndicativeQuotations`
+  - `MidMarketIndicativeQuotationsAlternate`
+  - `MidMarketCalculationAgentDetermination`
+  - `ReplacementValueFirmQuotations`
+  - `ReplacementValueCalculationAgentDetermination`
+  
+- A new `CashCollateralValuationMethod` data type has been added that includes the parameters required for the new valuation methods.
+- The harmonised `CashSettlementTerms` data type has been extended to include an optional `cashCollateralValuationMethod` attribute.
+- Conditions have been added to `CashSettlementTerms` to ensure data integrity against the new cash settlement method types.
+- `CalculationAgentPartyEnum` has been renamed more generically as `PartyDeterminationEnum`, as it now also applies to the protected party determination in the replacement value method.
+- 2 new samples including optional early termination clauses have been added to the FpML 5.12 group:
+
+  - `ird-ex47-rfr-compound-swap-lookback-oet-rvfq-FpML_5_12`
+  - `ird-ex46-rfr-compound-swap-lookback-oet-mmviq`
+
+- Their valuation method attributes have been mapped to the extended `CashSettlementTerms` data type.
 
 _Review Directions_
 
-In the CDM Portal, use the Textual Browser to review `OptionPayout`, where the `optionDenomination` attribute has been retired
+In the CDM Portal, select the Textual Browser and search for the relevant data types.
 
-In the Ingestion Panel, try the following samples:
+In the Ingestion tile, search for the samples specified above.
 
-- products > rates > `bond option uti`
-- products > rates > `cb option usi`
-- products > equity > `eqd ex01 american call stock long form`
