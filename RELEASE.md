@@ -11,6 +11,8 @@ This release contains a number of ISDA Create synonym mapping fixes, as detaille
     * `TerminationCurrencyAmendment->effectiveDate`
     * `MinimumTransferAmountAmendment->effectiveDate->customProvision`
     * `TerminationCurrencyAmendment->effectiveDate->customProvision`
+    * `SensitivityMethodology->specifiedMethodology`
+    * `LegalAgreementNameEnum->ClauseLibrary`and `LegalAgreementNameEnum->MasterAgreement`
 * Added mapping exclusions for fields not intended to be mapped.
 
 _Review Directions_
