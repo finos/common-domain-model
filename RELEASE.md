@@ -7,6 +7,7 @@ This release contains a number of ISDA Create synonym mapping fixes, as detaille
 * Added type `PledgeeRepresentativeRider` to model the terms of the Rider for the ISDA Euroclear 2019 Collateral Transfer Agreement with respect to the use of a Pledgee Representative, and updated the synonym mappings.
 * Added attribute `JurisdictionRelatedTerms->belgianLawSecurityAgreement` to model whether the Belgian Law Security Agreement Addendum is deemed applicable by the parties, and updated the synonym mappings.
 * Fixed synonym mappings for:
+    * `PostingObligations->partyElection->eligibleCollateral->criteria->treatment->valuationTreatment->fxHaircutPercentage
     * `SubstitutedRegime->additionalRegime`
     * `TerminationCurrencyAmendment->effectiveDate`
     * `MinimumTransferAmountAmendment->effectiveDate->customProvision`
