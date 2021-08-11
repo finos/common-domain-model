@@ -35,9 +35,16 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 
 	@Override
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		if (anySubPathValueMatches(synonymPath, "not_applicable", "_amendment_to_termination_currency", "two_affected_parties")) {
+		List<Mapping> notApplicableSubMappings = anySubPathValueMatches(synonymPath, "not_applicable",
+				"_amendment_to_termination_currency", "two_affected_parties");
+
+		if (!notApplicableSubMappings.isEmpty()) {
+			notApplicableSubMappings.forEach(m -> {
+				setValueAndUpdateMappings(m.getXmlPath(), x -> {});
+			});
 			return;
 		}
+
 
 		TerminationCurrencyAmendment.TerminationCurrencyAmendmentBuilder terminationCurrencyAmendmentBuilder =
 				(TerminationCurrencyAmendment.TerminationCurrencyAmendmentBuilder) builder;
@@ -90,14 +97,13 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 		return terminationCurrencyElectionBuilder.hasData() ? Optional.of(terminationCurrencyElectionBuilder.build()) : Optional.empty();
 	}
 
-	private boolean anySubPathValueMatches(Path synonymPath, String valueSearchTerm, String ...subPathEndsWith) {
+	private List<Mapping> anySubPathValueMatches(Path synonymPath, String valueSearchTerm, String ...subPathEndsWith) {
 		List<String> foo = Arrays.asList(subPathEndsWith);
 
 		return getMappings().stream()
 				.filter(m -> synonymPath.fullStartMatches(m.getXmlPath()))
 				.filter(m -> foo.stream().anyMatch(m.getXmlPath().toString()::endsWith))
-				.map(Mapping::getXmlValue)
-				.distinct()
-				.anyMatch(valueSearchTerm::equals);
+				.filter(m -> valueSearchTerm.equals(m.getXmlValue()))
+				.collect(Collectors.toList());
 	}
 }
