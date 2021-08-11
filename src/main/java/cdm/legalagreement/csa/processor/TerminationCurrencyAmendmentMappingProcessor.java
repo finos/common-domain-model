@@ -4,6 +4,7 @@ import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.legalagreement.csa.TerminationCurrencyAmendment;
 import cdm.legalagreement.csa.TerminationCurrencyElection;
+import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -11,10 +12,7 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.processor.IsdaCreateMappingProcessorUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
@@ -37,6 +35,10 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 
 	@Override
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+		if (anySubPathValueMatches(synonymPath, "not_applicable", "_amendment_to_termination_currency", "two_affected_parties")) {
+			return;
+		}
+
 		TerminationCurrencyAmendment.TerminationCurrencyAmendmentBuilder terminationCurrencyAmendmentBuilder =
 				(TerminationCurrencyAmendment.TerminationCurrencyAmendmentBuilder) builder;
 
@@ -86,5 +88,16 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 				getMappings(), getModelPath());
 
 		return terminationCurrencyElectionBuilder.hasData() ? Optional.of(terminationCurrencyElectionBuilder.build()) : Optional.empty();
+	}
+
+	private boolean anySubPathValueMatches(Path synonymPath, String valueSearchTerm, String ...subPathEndsWith) {
+		List<String> foo = Arrays.asList(subPathEndsWith);
+
+		return getMappings().stream()
+				.filter(m -> synonymPath.fullStartMatches(m.getXmlPath()))
+				.filter(m -> foo.stream().anyMatch(m.getXmlPath().toString()::endsWith))
+				.map(Mapping::getXmlValue)
+				.distinct()
+				.anyMatch(valueSearchTerm::equals);
 	}
 }
