@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
@@ -134,6 +135,12 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 				"release_date_ii_type",
 				"release_date_ii_specify")
 				.ifPresent(endDateBuilder::setSafekeepingPeriodExpiry);
+		getCustomisableOffset(synonymPath, "release_date_ii",
+				"release_ii_days",
+				true,
+				"release_date_ii_type",
+				"specify_release_date_ii")
+				.ifPresent(endDateBuilder::setSafekeepingPeriodExpiry);
 		// DateOfTimelyStatement
 		getCustomisableOffset(synonymPath, "date_of_timely_statement",
 				"days_prior_to_release_date",
@@ -184,7 +191,13 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 	private Optional<Offset> getOffset(Path basePath, String numberOfDaysSynonym, boolean after, String dayTypeSynonym) {
 		Offset.OffsetBuilder offsetBuilder = Offset.builder();
 
-		setValueAndUpdateMappings(basePath.addElement(numberOfDaysSynonym),
+		Path numberOfDaysPath = basePath.addElement(numberOfDaysSynonym);
+		Optional<String> numberOfDaysValue = getNonNullMappedValue(numberOfDaysPath, getMappings());
+		if (!numberOfDaysValue.isPresent()) {
+			return Optional.empty();
+		}
+
+		setValueAndUpdateMappings(numberOfDaysPath,
 				(value) -> {
 					int numberOfDays = Integer.parseInt(value);
 					offsetBuilder.setPeriodMultiplier(after ? numberOfDays : -numberOfDays);
