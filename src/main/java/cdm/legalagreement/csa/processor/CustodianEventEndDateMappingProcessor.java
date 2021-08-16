@@ -115,12 +115,12 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 				"after_days_type",
 				"after_specify")
 				.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
-//		getCustomisableOffset(synonymPath, "days_after_clearstream_event",
-//				"after_days",
-//				true,
-//				"after_days_type",
-//				"specify_after_days")
-//				.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
+		getCustomisableOffset(synonymPath, "days_after_clearstream_event",
+				"after_days",
+				true,
+				"after_days_type",
+				"specify_after_days")
+				.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
 		// ReleaseDate
 		getCustomisableOffset(synonymPath, "release_date",
 				"release_days",
