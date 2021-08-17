@@ -7,7 +7,12 @@ This release contains a number of FpML synonym mapping fixes for Equity Swaps an
 _Details_
 
 - For Equity Options the `OptionPayout` has a `PayoutQuantity` populated referencing the `PriceQuantity`.
-
+- For all products the `ExternalProductType` is enumerated based on the metadata scheme associated with the product type value.
+- For specification of Equity Dividend treatment the following attributes and enumerations, and associated synonym mappings, have been added to data type `DividendReturnTerms`.
+  - Attributes `nonCashDividendTreatment, dividendComposition and specialDividends`.
+  - Enumerations `DividendCompositionEnum and NonCashDividendTreatmentEnum` for specification of Equity Dividend Treatment.
+- Added boolean election `mutualEarlyTermination` to `OptionalEarlyTermination`.
+- Added mappings for `multipleExercise` and `partialExercise`.
 
 _Review Directions_
 
