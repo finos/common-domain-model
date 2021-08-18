@@ -25,7 +25,7 @@ public class EffectivenessDateMappingProcessor extends MappingProcessor {
 
         Optional<String> mappedValue = getNonNullMappedValue(synonymPath, getMappings());
 
-        if (synonymPath.endsWith("effectiveness_date") && mappedValue.orElse("").equals("other")) {
+        if (mappedValue.orElse("").equals("other")) {
             setValueAndUpdateMappings(synonymPath, value -> {});
         } else {
             setValueAndOptionallyUpdateMappings(synonymPath, value -> {
