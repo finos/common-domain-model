@@ -1,15 +1,14 @@
-# *Digital Regulatory Reporting - DSL Upgrade for Repeatable Rules*
+# *DSL Syntax - Enhancements for repeatable regulatory rules*
 
 _What is being released?_
 
-This release contains new DSL keyword `repeatable` to support the reporting of repeatable sets of data as required by most regulations. 
+This release introduces the new DSL keyword `repeatable` to model reporting rules that repeat the same reporting logic on a specific sets of data.  One use case is the CFTC Part 45 regulation. Fields 33-35 require to report the full details of a notional quantity schedule: for each quantity schedule step the notional amount, the effective date and the end date must be reported.
 
-For example, in the CFTC Part 45 regulations, fields 33-35 require the reporting of a notional quantity schedule. For each quantity schedule step, the notional amount, effective date and end date must be reported.
-
-In the code snippet below, the `repeatable` keyword specifies that the rule will be reported as a repeating set of data. The reporting rules specified in the brackets specify the fields to report for each repeating data set.
+Usage of the `repeatable` keyword will replicate the following logical template: 
 - `extract repeatable` < ExpressionWithMultipleCardinality> ( < ReportingRule1 >, < ReportingRule2 > ... < ReportingRuleN > )
+The logic prescribes that a set of N reporting rules is applied sequencially but as a collective to each item of  the list of data records named ExpressionWithMultipleCardinality. 
 
-In the example below, the `repeatable` keyword in reporting rule `NotionalAmountScheduleLeg1` specifies that the extracted list of quantity notional schedule steps should be reported as a repeating set of data. The rules specified within the brackets define the fields that should be reported for each repeating step.
+In the example below, the `repeatable` keyword in the reporting rule `NotionalAmountScheduleLeg1` signifies that the bracketed set of reporting rules should be applied as a collective to each item of the extracted list of quantity notional schedule steps. The rule `NotionalAmountScheduleLeg1` will therefore result into a repeating set of reported fields with corresponding values.
 ```
 reporting rule NotionalAmountScheduleLeg1 <"Notional Amount Schedule">
 	[regulatoryReference CFTC Part45 appendix "1" item "33-35" field "Notional Amount Schedule"
