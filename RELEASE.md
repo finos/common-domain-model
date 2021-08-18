@@ -2,11 +2,12 @@
 
 _What is being released?_
 
-This release introduces the new DSL keyword `repeatable` to model reporting rules that repeat the same reporting logic on a specific sets of data.  One use case is the CFTC Part 45 regulation. Fields 33-35 require to report the full details of a notional quantity schedule: for each quantity schedule step the notional amount, the effective date and the end date must be reported.
+This release introduces the new DSL keyword `repeatable` to model reporting rules that repeat the same reporting logic on a specific set of data.  One use case is the CFTC Part 45 regulation. Fields 33-35 require to report the full details of a notional quantity schedule: for each quantity schedule step the notional amount, the effective date and the end date must be reported.
 
 Usage of the `repeatable` keyword will replicate the following logical template: 
 - `extract repeatable` < ExpressionWithMultipleCardinality> ( < ReportingRule1 >, < ReportingRule2 > ... < ReportingRuleN > )
-The logic prescribes that a set of N reporting rules is applied sequencially but as a collective to each item of  the list of data records named ExpressionWithMultipleCardinality. 
+
+The logic prescribes that a set of N reporting rules is applied sequentially but as a collective to each item of  the list of data records named ExpressionWithMultipleCardinality. 
 
 In the example below, the `repeatable` keyword in the reporting rule `NotionalAmountScheduleLeg1` signifies that the bracketed set of reporting rules should be applied as a collective to each item of the extracted list of quantity notional schedule steps. The rule `NotionalAmountScheduleLeg1` will therefore result into a repeating set of reported fields with corresponding values.
 ```
