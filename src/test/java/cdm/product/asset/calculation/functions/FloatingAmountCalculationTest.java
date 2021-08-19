@@ -73,8 +73,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
         assertEquals(expectedAmount, result.getCalculatedAmount().doubleValue(), 0.00001);
     }
 
-    private static InterestRatePayout initInterestPayout(FloatingRateOption fro, DayCountFractionEnum dcf) {
-        FloatingRate rate = initFloatingRate(fro);
+    private InterestRatePayout initInterestPayout(FloatingRateOption fro, DayCountFractionEnum dcf) {
         ResetDates resetDates = initResetDates(BusinessCenterEnum.EUTA, 3, 2, false);
         CalculationPeriodDates calculationPeriodDates = initCalculationPeriodDates();
 
@@ -88,7 +87,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
                 .build();
     }
 
-    private static CalculationPeriodDates initCalculationPeriodDates() {
+    private CalculationPeriodDates initCalculationPeriodDates() {
         return CalculationPeriodDates.builder()
                 .setEffectiveDate(AdjustableOrRelativeDate.builder()
                         .setAdjustableDate(AdjustableDate.builder()

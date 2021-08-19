@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,40 +36,23 @@ public class AppendDateToListImplTest extends AbstractFunctionTest {
 
 		DateGroup actualList = func.evaluate(DateGroup.builder().setDates(dateList), newVal);
 
-		check(expectedList, actualList);
+		assertEquals(expectedList, actualList.getDates());
 	}
 
 	@Test
 	void shouldHandleEmptyList() {
-		List<Date> dateList = new ArrayList<>();
-
 		Date newVal = DateImpl.of(2021, 5, 15);
+		DateGroup actualList = func.evaluate(DateGroup.builder().setDates(new ArrayList<>()), newVal);
 
-		List<Date> expectedList = Arrays.asList(
-				DateImpl.of(2021, 5, 15));
-
-		DateGroup actualList = func.evaluate(DateGroup.builder().setDates(dateList), newVal);
-
-		check(expectedList, actualList);
+		assertEquals(Collections.singletonList(DateImpl.of(2021, 5, 15)), actualList.getDates());
 	}
 
 	@Test
 	void shouldHandleNulls() {
-		List<Date> emptyList = new ArrayList<>();
-		List<Date> zeroList = Arrays.asList(DateImpl.of(1, 1, 2020));
-		DateGroup.DateGroupBuilder dateGroup = DateGroup.builder();
+		assertEquals(Collections.emptyList(), func.evaluate(null, null).getDates());
+		assertEquals(Collections.emptyList(), func.evaluate(DateGroup.builder(), null).getDates());
 
-		check(emptyList, func.evaluate(null, null));
-		check(emptyList, func.evaluate(dateGroup, null));
-		check(zeroList, func.evaluate(null, DateImpl.of(1, 1, 2020)));
-	}
-
-	void check(List<? extends Date> expected, DateGroup actualList) {
-		List<? extends Date> actual = actualList.getDates();
-		assertEquals(expected.size(), actual.size());
-		int n = expected.size();
-		for (int i = 0; i < n; i++) {
-			assertEquals(expected.get(i), actual.get(i));
-		}
+		List<Date> zeroList = Collections.singletonList(DateImpl.of(1, 1, 2020));
+		assertEquals(zeroList, func.evaluate(null, DateImpl.of(1, 1, 2020)).getDates());
 	}
 }

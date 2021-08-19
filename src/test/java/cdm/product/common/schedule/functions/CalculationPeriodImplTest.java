@@ -27,11 +27,9 @@ import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
 
-public class CalculationPeriodImplTest extends AbstractFunctionTest {
+class CalculationPeriodImplTest extends AbstractFunctionTest {
 	
 	@Inject CalculationPeriod calculationPeriod;
-
-	public CalculationPeriodDates initDates () { return calculationPeriodDates;}
 
     private final CalculationPeriodDates calculationPeriodDates = CalculationPeriodDates.builder()
             .setEffectiveDate((AdjustableOrRelativeDate.builder()
@@ -106,6 +104,7 @@ public class CalculationPeriodImplTest extends AbstractFunctionTest {
 							.build())
 					.build())
 			.build();
+
     @Test
     void shouldReturnStartAndEndDateOfFirstPeriod() {
         CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 1, 3));
@@ -149,5 +148,4 @@ public class CalculationPeriodImplTest extends AbstractFunctionTest {
         usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2021, 2, 28));
         assertThat(usingStartDate.getDaysInPeriod(), is(59));
     }
-
 }

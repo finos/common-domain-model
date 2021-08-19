@@ -28,12 +28,11 @@ public class GetFloatingRateConditionParametersTest extends AbstractFunctionTest
 		CalculationPeriodBase dec2020 = period(date(2020, 12, 10), date(2020, 12, 10));
 		CalculationPeriodBase dec2021 = period(date(2021, 12, 10), date(2021, 12, 10));
 
-		check(expectedParms(0.075, 0.020, 0.0023), func.evaluate(interestRatePayout, dec2021));
-		check(expectedParms(0.055, 0.004, 0.0018), func.evaluate(interestRatePayout, dec2020));
+		check(expectedParams(0.075, 0.020, 0.0023), func.evaluate(interestRatePayout, dec2021));
+		check(expectedParams(0.055, 0.004, 0.0018), func.evaluate(interestRatePayout, dec2020));
 	}
 
-	private static InterestRatePayout initInterestPayout() {
-
+	private InterestRatePayout initInterestPayout() {
 		return InterestRatePayout.builder()
 				.setPayoutQuantity(LookupNotionalAmountTest.initNotionalSchedule())
 				.setRateSpecification(RateSpecification.builder()
@@ -47,7 +46,7 @@ public class GetFloatingRateConditionParametersTest extends AbstractFunctionTest
 		assertEquals(expected.getSpread(), actual.getSpread());
 	}
 
-	private FloatingRateProcessingParameters expectedParms(double cap, double floor, double spread) {
+	private FloatingRateProcessingParameters expectedParams(double cap, double floor, double spread) {
 		return FloatingRateProcessingParameters.builder()
 				.setCapRate(BigDecimal.valueOf(cap))
 				.setFloorRate(BigDecimal.valueOf(floor))

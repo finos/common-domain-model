@@ -20,13 +20,11 @@ public class GenerateObservationPeriodTest extends AbstractFunctionTest {
 	void shouldDeterminePeriod() {
 		CalculationPeriodBase calcPeriod = period(date(2020, 12, 10), date(2021, 3, 10));
 		BusinessCenters bc = BusinessCenters.builder().addBusinessCenterValue(BusinessCenterEnum.GBLO).build();
-		Integer shift = 3;
+		int shift = 3;
 
 		CalculationPeriodBase expected = period(date(2020, 12, 7), date(2021, 3, 5));
-		check(expected, func.evaluate(calcPeriod, bc, shift));
-	}
+		CalculationPeriodBase actual = func.evaluate(calcPeriod, bc, shift);
 
-	private void check(CalculationPeriodBase expected, CalculationPeriodBase actual) {
 		assertEquals(expected.getAdjustedStartDate(), actual.getAdjustedStartDate());
 		assertEquals(expected.getAdjustedEndDate(), actual.getAdjustedEndDate());
 	}

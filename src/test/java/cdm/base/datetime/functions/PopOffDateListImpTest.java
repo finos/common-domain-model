@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,31 +32,18 @@ public class PopOffDateListImpTest extends AbstractFunctionTest {
 
 		DateGroup actualList = func.evaluate(DateGroup.builder().setDates(dates));
 
-		check(expectedList, actualList);
+		assertEquals(expectedList, actualList.getDates());
 	}
 
 	@Test
 	void shouldHandleEmptyList() {
-		List<Date> dates = new ArrayList<>();
-		List<Date> expectedList = new ArrayList<>();
+		DateGroup actualList = func.evaluate(DateGroup.builder().setDates(new ArrayList<>()));
 
-		DateGroup actualList = func.evaluate(DateGroup.builder().setDates(dates));
-
-		check(expectedList, actualList);
+		assertEquals(Collections.emptyList(), actualList.getDates());
 	}
 
 	@Test
 	void shouldHandleNullList() {
-		DateGroup.DateGroupBuilder empty = DateGroup.builder();
-		assertEquals(empty, func.evaluate(null));
-	}
-
-	void check(List<? extends Date> expected, DateGroup actualDateCollection) {
-		List<? extends Date> actual = actualDateCollection.getDates();
-		assertEquals(expected.size(), actual.size());
-		int n = expected.size();
-		for (int i = 0; i < n; i++) {
-			assertEquals(expected.get(i), actual.get(i));
-		}
+		assertEquals(DateGroup.builder(), func.evaluate(null));
 	}
 }
