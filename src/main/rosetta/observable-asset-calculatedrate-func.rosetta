@@ -16,10 +16,6 @@ import cdm.product.asset.fro.*
 
 import cdm.legalagreement.common.*
 
-import cdm.synonyms.config.*
-
-
-
 // =====================================================================
 //
 // Calculated rate functions
@@ -90,7 +86,7 @@ func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of 
 	alias businessDays:		calculationParams->applicableBusinessDays
 
 	// work out the calculation period for which the rate will actually be computed (might be the prior period or based on resetDates)
-	alias calculateRelative : if obsShift->calculationBase exists then obsShift->calculationBase else ObservationPeriodDatesEnum->STANDARD
+	alias calculateRelative : if obsShift->calculationBase exists then obsShift->calculationBase else ObservationPeriodDatesEnum->Standard
 	alias adjustedCalculationPeriod : ComputeCalculationPeriod(calculationPeriod, priorCalculationPeriod, calculateRelative, resetDates)
 
 	// generate the (shifted) observation period and then the observation dates
@@ -117,13 +113,13 @@ func ComputeCalculationPeriod: <"Determine the calculation period to use for com
 	output:
 		result CalculationPeriodBase(1..1)	<"The calculation period over which the calculated rate should be calculated">
 
-func ComputeCalculationPeriod(calculateRelativeTo :  ObservationPeriodDatesEnum->SETINADVANCE):
+func ComputeCalculationPeriod(calculateRelativeTo :  ObservationPeriodDatesEnum->SetInAdvance):
 	assign-output result: priorCalculationPeriod
 
-func ComputeCalculationPeriod(calculateRelativeTo : ObservationPeriodDatesEnum -> STANDARD):
+func ComputeCalculationPeriod(calculateRelativeTo : ObservationPeriodDatesEnum -> Standard):
 	assign-output result : calculationPeriod
 
-func ComputeCalculationPeriod(calculateRelativeTo : ObservationPeriodDatesEnum -> FIXINGDATE):
+func ComputeCalculationPeriod(calculateRelativeTo : ObservationPeriodDatesEnum -> FixingDate):
 // TODO : this should use the code in Evaluate Term Rate to do the offset calculation (needs refactoring)
 	alias resetRelativeTo : resetDates->resetRelativeTo
 	alias isStart : resetRelativeTo = ResetRelativeToEnum->CalculationPeriodStartDate

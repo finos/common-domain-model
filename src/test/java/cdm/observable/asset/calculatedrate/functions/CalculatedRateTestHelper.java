@@ -97,8 +97,8 @@ public class CalculatedRateTestHelper {
 					.setOffsetDays(shift)
 					.setAdditionalBusinessDays(BusinessCenters.builder().addBusinessCenterValue(additionalDays))
 					.setCalculationBase(fallback ?
-							ObservationPeriodDatesEnum.FIXINGDATE :
-							(setInAdvance ? ObservationPeriodDatesEnum.SETINADVANCE : ObservationPeriodDatesEnum.STANDARD))
+							ObservationPeriodDatesEnum.FIXING_DATE :
+							(setInAdvance ? ObservationPeriodDatesEnum.SET_IN_ADVANCE : ObservationPeriodDatesEnum.STANDARD))
 					.build());
 			break;
 		}

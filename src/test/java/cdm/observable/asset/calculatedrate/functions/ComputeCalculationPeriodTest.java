@@ -27,10 +27,10 @@ public class ComputeCalculationPeriodTest extends AbstractFunctionTest {
         check (expected, func.evaluate(calcPeriod, priorCalcPeriod, ObservationPeriodDatesEnum.STANDARD, null));
 
         expected = period(date(2020, 9, 10), date(2020, 12, 10));
-        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, ObservationPeriodDatesEnum.SETINADVANCE, null));
+        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, ObservationPeriodDatesEnum.SET_IN_ADVANCE, null));
 
         expected = period(date(2020, 9, 8), date(2020, 12, 8));
-        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, ObservationPeriodDatesEnum.FIXINGDATE, resetDates));
+        check (expected, func.evaluate(calcPeriod, priorCalcPeriod, ObservationPeriodDatesEnum.FIXING_DATE, resetDates));
     }
 
     private void check(CalculationPeriodBase expected, CalculationPeriodBase actual) {

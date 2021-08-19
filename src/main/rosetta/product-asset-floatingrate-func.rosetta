@@ -15,8 +15,6 @@ import cdm.product.asset.fro.*
 
 import cdm.legalagreement.common.*
 
-import cdm.synonyms.config.*
-
 //-------------------------------------------------------
 // The following functions determine the type of rate and what to do for each
 //-------------------------------------------------------
@@ -56,15 +54,15 @@ func GetFloatingRateProcessingType: <" Get a classification of  the floating rat
 	// determine the processing category for FROs that have embedded calculations
 	alias   calcProcessingType : if (idxStyle = FloatingRateIndexStyleEnum->CompoundedFRO and method= FloatingRateIndexCalculationMethodEnum->OISCompound)
 	                                        then FloatingRateIndexProcessingTypeEnum->OIS else
-                             				if (idxStyle = FloatingRateIndexStyleEnum->AverageFRO and  method= FloatingRateIndexCalculationMethodEnum->Average) then FloatingRateIndexProcessingTypeEnum->OVERNIGHTAVG
+                             				if (idxStyle = FloatingRateIndexStyleEnum->AverageFRO and  method= FloatingRateIndexCalculationMethodEnum->Average) then FloatingRateIndexProcessingTypeEnum->OvernightAvg
 
 	// determine the processing category for FROs for which we have metadata
-    alias   definitionProcessingType : if category = FloatingRateIndexCategoryEnum->ScreenRate then FloatingRateIndexProcessingTypeEnum->SCREEN else   calcProcessingType
+    alias   definitionProcessingType : if category = FloatingRateIndexCategoryEnum->ScreenRate then FloatingRateIndexProcessingTypeEnum->Screen else   calcProcessingType
 
 // categorize the rates based on the floating rate specification in the payout and based on the FRO definition from the metadata and output the resulting category
-    alias   processingCategory : if (isCalculatedRate=True) then FloatingRateIndexProcessingTypeEnum->MODULAR else
+    alias   processingCategory : if (isCalculatedRate=True) then FloatingRateIndexProcessingTypeEnum->Modular else
                                  							(if floatingRateDefinition->fro exists then definitionProcessingType
-                                 							else FloatingRateIndexProcessingTypeEnum->SCREEN)
+                                 							else FloatingRateIndexProcessingTypeEnum->Screen)
 
 //return the processing category
 	assign-output processingType : processingCategory
@@ -76,13 +74,13 @@ func ProcessFloatingRateReset: <"Entry point for the function that performs the 
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)	<"Floating rate stream definition">
 		calcPeriod CalculationPeriodBase(1..1)	<"The calculation period for which you want the rate">
-		processingType FloatingRateIndexProcessingTypeEnum(1..1)  <"The rate processing type (e.g. Screeen Rate, OIS); this drives how the resetting calculation is done. ">
+		processingType FloatingRateIndexProcessingTypeEnum(1..1)  <"The rate processing type (e.g. Screen Rate, OIS); this drives how the resetting calculation is done. ">
 
 	output:
 		floatingRate FloatingRateSettingDetails(1..1)	<"Details of the rate observation/calculation">
 
 
-func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->SCREEN): <"Evaulate the rate for a screen rate - call logic to determine how to observe the screen rate">
+func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->Screen): <"Evaluate the rate for a screen rate - call logic to determine how to observe the screen rate">
 [calculation]
 	// set up convenience aliases
 	alias resetDates : interestRatePayout->resetDates
@@ -92,7 +90,7 @@ func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnu
 		floatingRate: EvaluateScreenRate(rateDef, resetDates, calcPeriod)  // Call the screen rate evaluation logic
 
 
-func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->MODULAR): <"Evaulate the rate for a modular calculated rate.  Call the calculated rate calculation logic to determine the value of the reset">
+func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->Modular): <"Evaluate the rate for a modular calculated rate.  Call the calculated rate calculation logic to determine the value of the reset">
 [calculation]
 	// set up convenience aliases
 	alias  rateDef : interestRatePayout->rateSpecification->floatingRate
@@ -109,7 +107,7 @@ assign-output
 	floatingRate :	EvaluateCalculatedRate(fro, calcParams,  resetDates, calcPeriod, priorCalculationPeriod, dayCount)
 
 
-func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->OIS): <"Evaulate the rate for an OIS calculated rate. Call the calculated rate calculation logic to determine the value of the reset.  See the 2021 ISDA Definitions Section 6.6.3">
+func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->OIS): <"Evaluate the rate for an OIS calculated rate. Call the calculated rate calculation logic to determine the value of the reset.  See the 2021 ISDA Definitions Section 6.6.3">
 [calculation]
 // set up convenience aliases
 	alias  rateDef : interestRatePayout->rateSpecification->floatingRate
@@ -124,7 +122,7 @@ assign-output
 	floatingRate :	EvaluateCalculatedRate(fro, calcParams, resetDates  , calcPeriod, calcPeriod, dayCount)
 
 
-func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->OVERNIGHTAVG): <"Evaulate the rate for a daily average calculated FRO. Call the calculated rate calculation logic to determine the value of the reset. See the 2021 ISDA Definitions Section 6.6.3">
+func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->OvernightAvg): <"Evaluate the rate for a daily average calculated FRO. Call the calculated rate calculation logic to determine the value of the reset. See the 2021 ISDA Definitions Section 6.6.3">
 [calculation]
 // set up convenience aliases
 	alias  rateDef : interestRatePayout->rateSpecification->floatingRate
@@ -141,7 +139,7 @@ assign-output
 
 func GetCalculatedFROCalculationParameters: <"Initializze a calculation parameters block for an OIS or a daily average rate. Used to support FROs that include an embedded calculation.">
 	inputs:
-		resetDates ResetDates(1..1)		<"The reset dates for the interest rate payount for which the calculated rate is being compputed">
+		resetDates ResetDates(1..1)		<"The reset dates for the interest rate payout for which the calculated rate is being compputed">
 		calcMethod CalculationMethodEnum(1..1)  <"Whether the rate is a compound (OIS) or daily average rate">
 	output:
 		calcParams FloatingRateCalculationParameters(1..1) <"A calculation parameters block">
@@ -151,7 +149,7 @@ func GetCalculatedFROCalculationParameters: <"Initializze a calculation paramete
 	assign-output calcParams->applicableBusinessDays : resetDates->fixingDates ->businessCenters
 
 
-func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->COUMPOUNDINDEX): <"Call the compounded index processing logic to calculate the reset">
+func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->CompoundIndex): <"Call the compounded index processing logic to calculate the reset">
 // TODO:  this will depend on exactly how FpML implements this.
 
 //-------------------------------------------------------
