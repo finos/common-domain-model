@@ -5,7 +5,7 @@ _What is being released?_
 This release introduces the new DSL keyword `repeatable` to model reporting rules that repeat the same reporting logic on a specific set of data.  One use case is the CFTC Part 45 regulation. Fields 33-35 require to report the full details of a notional quantity schedule: for each quantity schedule step the notional amount, the effective date and the end date must be reported.
 
 Usage of the `repeatable` keyword will replicate the following logical template: 
-- `extract repeatable` < ExpressionWithMultipleCardinality> ( < ReportingRule1 >, < ReportingRule2 > ... < ReportingRuleN > )
+- `extract repeatable` &lt;ExpressionWithMultipleCardinality&gt; ( &lt;ReportingRule1&gt;, &lt;ReportingRule2&gt; ... &lt;ReportingRuleN&gt; )
 
 The logic prescribes that a set of N reporting rules is applied sequentially but as a collective to each item of  the list of data records named ExpressionWithMultipleCardinality. 
 
@@ -41,7 +41,7 @@ reporting rule NotionalAmountScheduleLeg1EndDate <"End date of the notional amou
 
 _Review Directions_
 
-In the CDM Portal, select the User Documentation tile and navigate to the Rosetta DSL > Rosetta Modelling Components > Reporting Component  section, or review the documentation section directly:
+In the CDM Portal, select the User Documentation tile and navigate to the Rosetta DSL&gt; Rosetta Modelling Components&gt; Reporting Component  section, or review the documentation section directly:
 
 - [DSL Documentation - Repeatable Rules](https://docs.rosetta-technology.io/dsl/documentation.html#repeatable-rules)
 
