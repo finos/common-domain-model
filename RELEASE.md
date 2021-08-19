@@ -51,13 +51,13 @@ _What is being released?_
 
 This release contains a number of ISDA Create synonym mapping fixes, as detailed below.
 
-* Fixed synonym mappings for:
-    * `CustodianEvent->endDate`
-    * `CollateralTransferAgreementElections->terminationCurrencyAmendment`
-    * `CreditSupportAgreementElections->terminationCurrencyAmendment`
-    * `AmendmentEffectiveDate->specificDate`
-    * `AmendmentEffectiveDate->customProvision`
-* Added mapping exclusions for fields not intended to be mapped.
+- Fixed synonym mappings for:
+    - `CustodianEvent->endDate`
+    - `CollateralTransferAgreementElections->terminationCurrencyAmendment`
+    - `CreditSupportAgreementElections->terminationCurrencyAmendment`
+    - `AmendmentEffectiveDate->specificDate`
+    - `AmendmentEffectiveDate->customProvision`
+- Added mapping exclusions for fields not intended to be mapped.
 
 _Review Directions_
 
