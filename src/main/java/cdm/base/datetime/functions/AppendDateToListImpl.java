@@ -26,6 +26,4 @@ public class AppendDateToListImpl extends  AppendDateToList{
         result.add(newDate);
         return result;
     }
-
-
 }

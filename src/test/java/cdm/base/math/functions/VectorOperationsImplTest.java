@@ -1,7 +1,6 @@
 package cdm.base.math.functions;
 
-import cdm.base.math.ArithmeticOp;
-import cdm.base.math.RoundingModeEnum;
+import cdm.base.math.ArithmeticOperationEnum;
 import cdm.base.math.Vector;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -14,7 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 public class VectorOperationsImplTest  extends AbstractFunctionTest {
 
@@ -22,14 +20,14 @@ public class VectorOperationsImplTest  extends AbstractFunctionTest {
     private VectorOperation vectorOp;
 
     @Test
-    void shouldhandleNulls() {
+    void shouldHandleNulls() {
         List<BigDecimal> emptyList = new ArrayList<>();
         List<BigDecimal> shortList = Arrays.asList(BigDecimal.valueOf(10.0), BigDecimal.valueOf(20.0));
         Vector.VectorBuilder vb = Vector.builder().setValues(shortList);
 
-        check(emptyList, vectorOp.evaluate(ArithmeticOp.ADD_OP, null, null).getValues());
-        check(shortList, vectorOp.evaluate(ArithmeticOp.ADD_OP, vb, null).getValues());
-        check(shortList, vectorOp.evaluate(ArithmeticOp.ADD_OP, null, vb).getValues());
+        check(emptyList, vectorOp.evaluate(ArithmeticOperationEnum.ADD, null, null).getValues());
+        check(shortList, vectorOp.evaluate(ArithmeticOperationEnum.ADD, vb, null).getValues());
+        check(shortList, vectorOp.evaluate(ArithmeticOperationEnum.ADD, null, vb).getValues());
     }
 
     @Test
@@ -84,14 +82,14 @@ public class VectorOperationsImplTest  extends AbstractFunctionTest {
                 BigDecimal.valueOf(9.0),
                 BigDecimal.valueOf(8.0));
 
-        check(addExpected, vectorOp.evaluate(ArithmeticOp.ADD_OP, leftv, rightv));
-        check(subExpected, vectorOp.evaluate(ArithmeticOp.SUBTRACT_OP, leftv, rightv));
-        check(mulExpected, vectorOp.evaluate(ArithmeticOp.MULTIPLY_OP, leftv, rightv));
-        check(divExpected, vectorOp.evaluate(ArithmeticOp.DIVIDE_OP, leftv, rightv));
-        check(maxExpected, vectorOp.evaluate(ArithmeticOp.MAX_OP, leftv, rightv));
-        check(minExpected, vectorOp.evaluate(ArithmeticOp.MIN_OP, leftv, rightv));
-        check(addShortLeftExpected, vectorOp.evaluate(ArithmeticOp.ADD_OP, shortv, rightv));
-        check(addShortRightExpected, vectorOp.evaluate(ArithmeticOp.ADD_OP, leftv, shortv));
+        check(addExpected, vectorOp.evaluate(ArithmeticOperationEnum.ADD, leftv, rightv));
+        check(subExpected, vectorOp.evaluate(ArithmeticOperationEnum.SUBTRACT, leftv, rightv));
+        check(mulExpected, vectorOp.evaluate(ArithmeticOperationEnum.MULTIPLY, leftv, rightv));
+        check(divExpected, vectorOp.evaluate(ArithmeticOperationEnum.DIVIDE, leftv, rightv));
+        check(maxExpected, vectorOp.evaluate(ArithmeticOperationEnum.MAX, leftv, rightv));
+        check(minExpected, vectorOp.evaluate(ArithmeticOperationEnum.MIN, leftv, rightv));
+        check(addShortLeftExpected, vectorOp.evaluate(ArithmeticOperationEnum.ADD, shortv, rightv));
+        check(addShortRightExpected, vectorOp.evaluate(ArithmeticOperationEnum.ADD, leftv, shortv));
 
     }
     void check(List<BigDecimal> expected, Vector actual) {

@@ -278,9 +278,8 @@ The ``settlementInstructions`` attribute defines how the transaction should be s
 .. code-block:: Haskell
 
  type SettlementTerms extends SettlementBase:
-   cashSettlementTerms CashSettlementTerms (0..1)
-   physicalSettlementTerms OptionPhysicalSettlement (0..1)
-   fxSettlementTerms FxCashSettlement (0..1)
+   cashSettlementTerms CashSettlementTerms (0..*)
+   physicalSettlementTerms PhysicalSettlementTerms (0..1)
 
 Contractual Product
 ^^^^^^^^^^^^^^^^^^^
@@ -459,7 +458,6 @@ The underlier attribute on types ``OptionPayout``, ``ForwardPayout`` and ``Equit
    buyerSeller BuyerSeller (1..1)
    optionType OptionTypeEnum (0..1)
    feature OptionFeature (0..1)
-   denomination OptionDenomination (0..1)
    exerciseTerms OptionExercise (1..1)
    underlier Product (1..1)
 
@@ -1561,7 +1559,7 @@ The following code snippets represent these three components of the eligible col
 .. code-block:: Haskell
 
  type CollateralTreatment:
-   valuationPercentage CollateralValuationPercentage (0..1)
+   valuationTreatment CollateralValuationTreatment (0..1)
    concentrationLimit ConcentrationLimit (0..*)
    isIncluded boolean (1..1)
 

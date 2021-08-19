@@ -7,7 +7,7 @@ import java.util.List;
 
 public class SelectFromVectorImpl extends SelectFromVector{
 
-    // select a vlaue from a vector by index.  return null if not in range
+    // select a value from a vector by index.  return null if not in range
     @Override
     protected BigDecimal doEvaluate(Vector vector, Integer index) {
         if (vector == null || index == null) return null;

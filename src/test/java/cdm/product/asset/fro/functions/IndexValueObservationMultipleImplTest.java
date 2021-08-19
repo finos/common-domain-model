@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
+import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.initFro;
+import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.initIndexData;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class IndexValueObservationMultipleImplTest extends AbstractFunctionTest {
@@ -22,8 +24,8 @@ public class IndexValueObservationMultipleImplTest extends AbstractFunctionTest 
 
     @Test
     void shouldGetValues() {
-        FloatingRateOption fro = IndexValueObservationImplTest.initFro();
-        IndexValueObservationImplTest.initIndexData(fro);
+        FloatingRateOption fro = initFro();
+        initIndexData(fro);
 
         List<Date> dates = Arrays.asList(
                 DateImpl.of(2021,7,31),

@@ -15,8 +15,9 @@ import cdm.observable.common.functions.CurrencyAmountImpl;
 import cdm.observable.common.functions.NoOfUnits;
 import cdm.observable.common.functions.NoOfUnitsImpl;
 import cdm.observable.event.functions.ResolveObservationAverage;
-import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStepImpl;
+import cdm.observable.event.functions.ResolveObservationAverageImpl;
 import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStep;
+import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStepImpl;
 import cdm.product.asset.floatingrate.functions.SelectScheduleStep;
 import cdm.product.asset.floatingrate.functions.SelectScheduleStepImpl;
 import cdm.product.asset.fro.functions.IndexValueObservation;
@@ -33,8 +34,6 @@ import cdm.product.common.schedule.functions.CalculationPeriodRange;
 import cdm.product.common.schedule.functions.CalculationPeriodRangeImpl;
 import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
-import cdm.event.common.functions.Create_BillingRecordsImpl;
-import cdm.observable.event.functions.ResolveObservationAverageImpl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
@@ -81,19 +80,16 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
 		bind(SelectDate.class).to(bindSelectDate());
-		bind(AppendDateToList.class).to(bindAppenDateToList());
+		bind(AppendDateToList.class).to(bindAppendDateToList());
 		bind(LastInDateList.class).to(bindLastInDateList());
 		bind(AddDays.class).to(bindAddDays());
 		bind(PopOffDateList.class).to(bindPopOffDateList());
 		bind(RetrieveBusinessCenterHolidays.class).to(bindRetrieveBusinessCenterHolidays());
+		bind(BusinessCenterHolidaysDataProvider.class).to(bindBusinessCenterHolidaysDataProvider()).asEagerSingleton();
 		bind(CombineBusinessCenters.class).to(bindCombineBusinessCenters());
 		bind(DateDifference.class).to(bindDateDifference());
 		bind(LeapYearDateDifference.class).to(bindLeapYearDateDiff());
 		bind(DayOfWeek.class).to(bindDayOfWeek());
-//		bind(IsHoliday.class).to(bindIsHoliday());
-//		bind(IsBusinessDay.class).to(bindIsBusinessDay());
-//		bind(GenerateDateList.class).to(bindGenerateDateList());
-
 		bind(SelectScheduleStep.class).to(bindSelectScheduleStep());
 		bind(SelectNonNegativeScheduleStep.class).to(bindSelectNonNegativeScheduleStep());
 		bind(IndexValueObservation.class).to(bindIndexValueObservation());
@@ -109,8 +105,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
 		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
 		bind(DeductAmountForEachMatchingQuantity.class).to(bindDeductAmountForEachMatchingQuantity());
-		bind(Create_DecreasedTradeQuantityChangePrimitives.class)
-				.to(bindCreateDecreasedTradeQuantityChangePrimitives());
+		bind(Create_DecreasedTradeQuantityChangePrimitives.class).to(bindCreateDecreasedTradeQuantityChangePrimitives());
 		bind(ReplaceParty.class).to(bindReplaceParty());
 		bind(Create_BillingRecords.class).to(bindCreateBillingRecords());
 		bind(ResolveObservationAverage.class).to(bindResolveObservationAverage());
@@ -118,11 +113,11 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	}
 
-	protected Class<CalculationPeriodRangeImpl> bindCalculationPeriodRange() {
+	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
 		return CalculationPeriodRangeImpl.class;
 	}
 
-	protected Class<ResolveObservationAverageImpl> bindResolveObservationAverage() {
+	protected Class<? extends ResolveObservationAverage> bindResolveObservationAverage() {
 		return ResolveObservationAverageImpl.class;
 	}
 
@@ -145,17 +140,27 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends ListsCompare> bindListsCompare() {
 		return ListsCompareImpl.class;
 	}
+
 	protected Class<? extends SelectFromVector> bindSelectFromVector() {
 		return SelectFromVectorImpl.class;
 	}
-	protected Class<? extends LastInVector> bindLastInVector() { return LastInVectorImpl.class; }
-	protected Class<? extends AppendToVector> bindAppendToVector() { return AppendToVectorImpl.class; }
+
+	protected Class<? extends LastInVector> bindLastInVector() {
+		return LastInVectorImpl.class;
+	}
+
+	protected Class<? extends AppendToVector> bindAppendToVector() {
+		return AppendToVectorImpl.class;
+	}
+
 	protected Class<? extends VectorOperation> bindVectorOperation() {
 		return VectorOperationImpl.class;
 	}
+
 	protected Class<? extends VectorScalarOperation> bindVectorScalarOperation() {
 		return VectorScalarOperationImpl.class;
 	}
+
 	protected Class<? extends VectorGrowthOperation> bindVectorGrowthOperation() {
 		return VectorGrowthOperationImpl.class;
 	}
@@ -241,38 +246,76 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends Now> bindNow() {
 		return NowImpl.class;
 	}
-	protected Class<? extends AppendDateToList> bindAppenDateToList() { return AppendDateToListImpl.class; }
-	protected Class<? extends LastInDateList> bindLastInDateList() { return LastInDateListImpl.class; }
+
 	protected Class<? extends SelectDate> bindSelectDate() {
 		return SelectDateImpl.class;
+	}
+
+	protected Class<? extends AppendDateToList> bindAppendDateToList() {
+		return AppendDateToListImpl.class;
+	}
+
+	protected Class<? extends LastInDateList> bindLastInDateList() {
+		return LastInDateListImpl.class;
+	}
+
+	protected Class<? extends AddDays> bindAddDays() {
+		return AddDaysImpl.class;
+	}
+
+	protected Class<? extends PopOffDateList> bindPopOffDateList() {
+		return PopOffDateListImpl.class;
+	}
+
+	protected Class<? extends RetrieveBusinessCenterHolidays> bindRetrieveBusinessCenterHolidays() {
+		return RetrieveBusinessCenterHolidaysImpl.class;
+	}
+
+	protected Class<? extends CombineBusinessCenters> bindCombineBusinessCenters() {
+		return CombineBusinessCentersImpl.class;
 	}
 
 	protected Class<? extends DateDifference> bindDateDifference() {
 		return DateDifferenceImpl.class;
 	}
-	protected Class<? extends LeapYearDateDifference> bindLeapYearDateDiff() { return LeapYearDateDifferenceImpl.class; }
 
-	protected Class<? extends DayOfWeek> bindDayOfWeek() { return DayOfWeekImpl.class; }
-	protected Class<? extends AddDays> bindAddDays() { return AddDaysImpl.class; }
-	protected Class<? extends CombineBusinessCenters> bindCombineBusinessCenters() { return CombineBusinessCentersImpl.class; }
-	protected Class<? extends PopOffDateList> bindPopOffDateList() { return PopOffDateListImpl.class; }
-	protected Class<? extends RetrieveBusinessCenterHolidays> bindRetrieveBusinessCenterHolidays() { return RetrieveBusinessCenterHolidaysImpl.class; }
-//	protected Class<? extends IsHoliday> bindIsHoliday() { return IsHolidayImpl.class; }
-//	protected Class<? extends IsBusinessDay> bindIsBusinessDay() { return IsBusinessDayImpl.class; }
-//	protected Class<? extends GenerateDateList> bindGenerateDateList() { return GenerateDateListImpl.class; }
+	protected Class<? extends LeapYearDateDifference> bindLeapYearDateDiff() {
+		return LeapYearDateDifferenceImpl.class;
+	}
 
-	protected Class<? extends SelectScheduleStep> bindSelectScheduleStep() { return SelectScheduleStepImpl.class; }
-	protected Class<? extends SelectNonNegativeScheduleStep> bindSelectNonNegativeScheduleStep() { return SelectNonNegativeScheduleStepImpl.class; }
-	protected Class<? extends IndexValueObservation> bindIndexValueObservation() { return IndexValueObservationImpl.class; }
-	protected Class<? extends IndexValueObservationMultiple> bindIndexValueObservationMultiple() { return IndexValueObservationMultipleImpl.class; }
+	protected Class<? extends DayOfWeek> bindDayOfWeek() {
+		return DayOfWeekImpl.class;
+	}
+
+	protected Class<? extends SelectScheduleStep> bindSelectScheduleStep() {
+		return SelectScheduleStepImpl.class;
+	}
+
+	protected Class<? extends SelectNonNegativeScheduleStep> bindSelectNonNegativeScheduleStep() {
+		return SelectNonNegativeScheduleStepImpl.class;
+	}
+
+	protected Class<? extends IndexValueObservation> bindIndexValueObservation() {
+		return IndexValueObservationImpl.class;
+	}
+
+	protected Class<? extends IndexValueObservationMultiple> bindIndexValueObservationMultiple() {
+		return IndexValueObservationMultipleImpl.class;
+	}
+
+	protected Class<? extends BusinessCenterHolidaysDataProvider> bindBusinessCenterHolidaysDataProvider() {
+		return BusinessCenterHolidaysEmptyDataProviderImpl.class;
+	}
 
 	protected Class<? extends Today> bindToday() {
 		return TodayImpl.class;
 	}
 
-	protected Class<UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl> bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity() {
+	protected Class<? extends UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity> bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity() {
 		return UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl.class;
-	}    protected Class<? extends Create_SplitTrades> bindCreateSplitTrades() {
+	}
+
+	protected Class<? extends Create_SplitTrades> bindCreateSplitTrades() {
 		return Create_SplitTradesImpl.class;
 	}
 

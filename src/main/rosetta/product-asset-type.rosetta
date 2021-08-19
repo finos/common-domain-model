@@ -16,36 +16,23 @@ import cdm.observable.common.*
 import cdm.product.template.*
 import cdm.product.common.settlement.*
 import cdm.product.common.schedule.*
-import cdm.product.asset.calculatedrate.*
+import cdm.observable.asset.calculatedrate.*
 
 import cdm.synonyms.config.*
 
-type CreditDefaultPayout: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated globalKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type CreditDefaultPayout extends PayoutBase: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated globalKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 
 	generalTerms GeneralTerms (1..1) <"The specification of the non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms.">
-	protectionTerms ProtectionTerms (1..*) <"Specifies the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event. These terms include the notional amount, the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">
-	cashSettlementTerms CashSettlementTerms (0..*) <"Specifies the terms applicable to the cash settlement of a credit event.">
-	physicalSettlementTerms PhysicalSettlementTerms (0..*) <"Specifies the terms applicable to the physical settlement of a credit event.">
+	protectionTerms ProtectionTerms (0..*) <"Specifies the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event. These terms include the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">
 	transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">
-	settlementCurrency string (0..1) <"The settlement currency is to be specified when the Settlement Amount cannot be known in advance. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
 
 	condition FpML_cd_12: <"FpML validation rule cd-12 - If referencePrice exists, referencePrice must be greater or equal to 0">
 		if generalTerms -> referenceInformation -> referencePrice exists
 		then generalTerms -> referenceInformation -> referencePrice ->amount >= 0
 
-	condition FpML_cd_13: <"FpML validation rule cd-13 - If protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyer exists, then the protectionTerms/creditEvents/creditEventNotice/notifyingParty/buyer is equal to the generalTerms/buyer.">
-		if protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyer exists
-		then protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyer = generalTerms -> buyerSeller -> buyer
-
-	condition FpML_cd_14: <"FpML validation rule cd-14 - If protectionTerms/creditEvents/creditEventNotice/notifyingParty/seller exists, then the protectionTerms/creditEvents/creditEventNotice/notifyingParty/seller must be equal to the generalTerms/seller.">
-		if protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> seller exists
-		then protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> seller = generalTerms -> buyerSeller -> seller
-
 type GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
 
-	buyerSeller BuyerSeller (1..1) <"The credit default payout buyer/seller parties.">
 	referenceInformation ReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the reference entity and reference obligation(s).">
 	indexReferenceInformation IndexReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the Credit DefaultSwap Index.">
 	basketReferenceInformation BasketReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the Credit Default Swap Basket.">
@@ -121,6 +108,13 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 		if stubPeriod exists
 		then stubPeriod -> initialStub exists
 			or stubPeriod -> finalStub exists
+
+	condition CashSettlementTerms: <"Cash Settlements Terms must exist when the settlement currency is different to the notional currency of the trade.">
+		if settlementTerms -> settlementCurrency exists and
+			(settlementTerms -> settlementCurrency <> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+			or settlementTerms -> settlementCurrency <> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
+		then (settlementTerms -> cashSettlementTerms -> valuationMethod and settlementTerms -> cashSettlementTerms -> valuationDate) exists
+		    or payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
 
 	condition FpML_ird_7_1: <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
 		if paymentDates -> paymentFrequency -> period = calculationPeriodDates -> calculationPeriodFrequency -> period
@@ -249,7 +243,7 @@ type InterestShortFall: <"A class to specify the interest shortfall floating rat
 	rateSource FloatingRateIndexEnum (0..1) <"The rate source in the case of a variable cap.">
 		[metadata scheme]
 
-type ProtectionTerms extends PayoutBase: <"A class to specify the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event. These terms include the notional amount, the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">
+type ProtectionTerms: <"A class to specify the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event. These terms include the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">
 	[metadata key]
 
 	creditEvents CreditEvents (0..1) <"Specifies the applicable Credit Events that would trigger a settlement, as specified in the related Confirmation and defined in the ISDA 2014 Credit Definition article IV section 4.1.">
@@ -471,9 +465,8 @@ type FloatingRate: <"A class defining a floating interest rate through the speci
 
     rateOption FloatingRateOption (0..1)
         [metadata address "pointsTo"=Observable->rateOption]
-
-	calculationParameters FloatingRateCalculationParameters(0..1) <" Support for modular calculated rates, such such as lockout compound calculations.  ">
-
+	calculationParameters FloatingRateCalculationParameters (0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
+	fallbackRate FallbackRateParameters (0..1) <"Definition of any fallback rate that may be applicable.">
 	floatingRateMultiplierSchedule RateSchedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
 	spreadSchedule SpreadSchedule (0..*) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
 	rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
@@ -522,11 +515,3 @@ type StubValue: <"A type defining how a stub calculation period amount is calcul
 	stubAmount Money (0..1) <"An actual amount to apply for the initial or final stub period may have been agreed between the two parties. If an actual stub amount has been agreed then it would be included in this component.">
 
 	condition: one-of
-
-
-
-
-
-
-
-

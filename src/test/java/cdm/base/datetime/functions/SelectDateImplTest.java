@@ -39,12 +39,9 @@ class SelectDateImplTest extends AbstractFunctionTest {
 	}
 
 	@Test
-	void shouldhandleNulls() {
-		DateGroup.DateGroupBuilder empty = DateGroup.builder();
-
-
+	void shouldHandleNulls() {
 		assertNull(func.evaluate(null, null));
 		assertNull(func.evaluate(null,  3));
-		assertNull(func.evaluate(empty, null));
+		assertNull(func.evaluate(DateGroup.builder(), null));
 	}
 }

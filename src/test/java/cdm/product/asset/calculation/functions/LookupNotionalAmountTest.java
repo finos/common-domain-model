@@ -29,7 +29,6 @@ public class LookupNotionalAmountTest extends AbstractFunctionTest {
                 .setPayoutQuantity(initNotionalSchedule())
                 .build();
 
-
         CalculationPeriodBase dec1_2020 = CalculationPeriod.builder()
                 .setAdjustedStartDate(DateImpl.of(2020, 12,10))
                 .setAdjustedEndDate(DateImpl.of(2021, 3,10)).build();

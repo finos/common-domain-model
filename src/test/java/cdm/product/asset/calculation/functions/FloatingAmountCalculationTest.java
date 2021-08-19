@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.*;
+import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
@@ -35,15 +37,12 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
     @Inject private CalculationPeriod calculationPeriod;
     @Inject private InitCalculationPeriodBase initCalculationPeriodBase;
     @Inject private CalculateYearFraction calculateYearFraction;
-      //      interestRatePayout, dcf, calculationPeriod) dayCountFraction;
 
     @Test
     void shouldEvaluateRate() {
-
-        FloatingRateOption fro = IndexValueObservationImplTest.initFro();
-        IndexValueObservationImplTest.initIndexData(fro);
+        FloatingRateOption fro = initFro();
+        initIndexData(fro);
         InterestRatePayout interestRatePayout = initInterestPayout(fro, DayCountFractionEnum.ACT_360);
-        RetrieveBusinessCenterHolidaysImplTest.initializeHolidays();
         CalculationPeriodDates calculationPeriodDates = interestRatePayout.getCalculationPeriodDates();
 
         CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates, date(2020, 12, 10));
@@ -74,9 +73,9 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
         assertEquals(expectedAmount, result.getCalculatedAmount().doubleValue(), 0.00001);
     }
 
-    public static InterestRatePayout initInterestPayout(FloatingRateOption fro, DayCountFractionEnum dcf) {
-        FloatingRate rate = GetFloatingRateConditionParametersTest.initFloatingRate(fro);
-        ResetDates resetDates = EvaluateScreenRateTest.initResetDates(BusinessCenterEnum.EUTA, 3, 2, false);
+    private static InterestRatePayout initInterestPayout(FloatingRateOption fro, DayCountFractionEnum dcf) {
+        FloatingRate rate = initFloatingRate(fro);
+        ResetDates resetDates = initResetDates(BusinessCenterEnum.EUTA, 3, 2, false);
         CalculationPeriodDates calculationPeriodDates = initCalculationPeriodDates();
 
         return InterestRatePayout.builder()
@@ -84,7 +83,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
                 .setResetDates(resetDates)
                 .setPayoutQuantity(LookupNotionalAmountTest.initNotionalSchedule())
                 .setRateSpecification(RateSpecification.builder()
-                        .setFloatingRate(GetFloatingRateConditionParametersTest.initFloatingRate(fro)).build())
+                        .setFloatingRate(initFloatingRate(fro)).build())
                 .setDayCountFractionValue(DayCountFractionEnum.ACT_360)
                 .build();
     }
@@ -126,8 +125,4 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
 
                 .build();
     }
-
-    public CalculationPeriodBase period (Date start, Date end) { return GetFloatingRateConditionParametersTest.period(start, end);}
-    public Date date (int yy, int mm, int dd) { return GetFloatingRateConditionParametersTest.date(yy, mm, dd); }
-
 }

@@ -20,8 +20,6 @@ public class AppendToVectorImpl extends AppendToVector {
         if (value != null) result.add(value);
 
         // convert to a builder for return
-        Vector.VectorBuilder builder = Vector.builder();
-        builder.addValues(result);
-        return builder;
+       return Vector.builder().addValues(result);
     }
 }
