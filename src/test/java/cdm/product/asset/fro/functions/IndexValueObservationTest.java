@@ -1,6 +1,7 @@
 package cdm.product.asset.fro.functions;
 
 import cdm.observable.asset.FloatingRateOption;
+import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -12,15 +13,19 @@ import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.in
 import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.initIndexData;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class IndexValueObservationImplTest extends AbstractFunctionTest {
+public class IndexValueObservationTest extends AbstractFunctionTest {
 
 	@Inject
 	private IndexValueObservation func;
 
+	@Override
+	protected void bindTestingMocks(Binder binder) {
+		binder.bind(IndexValueObservationDataProvider.class).toInstance(initIndexData(initFro()));
+	}
+
 	@Test
 	void shouldGetValue() {
 		FloatingRateOption fro = initFro();
-		initIndexData(fro);
 
 		assertEquals(BigDecimal.valueOf(0.033), func.evaluate(DateImpl.of(2021, 7, 31), fro));
 		assertEquals(BigDecimal.valueOf(0.0329), func.evaluate(DateImpl.of(2021, 7, 30), fro));

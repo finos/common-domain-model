@@ -20,10 +20,7 @@ import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStep;
 import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStepImpl;
 import cdm.product.asset.floatingrate.functions.SelectScheduleStep;
 import cdm.product.asset.floatingrate.functions.SelectScheduleStepImpl;
-import cdm.product.asset.fro.functions.IndexValueObservation;
-import cdm.product.asset.fro.functions.IndexValueObservationImpl;
-import cdm.product.asset.fro.functions.IndexValueObservationMultiple;
-import cdm.product.asset.fro.functions.IndexValueObservationMultipleImpl;
+import cdm.product.asset.fro.functions.*;
 import cdm.product.asset.functions.ExtractFixedLeg;
 import cdm.product.asset.functions.ExtractFixedLegImpl;
 import cdm.product.asset.functions.ResolveEquityInitialPrice;
@@ -92,7 +89,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(DayOfWeek.class).to(bindDayOfWeek());
 		bind(SelectScheduleStep.class).to(bindSelectScheduleStep());
 		bind(SelectNonNegativeScheduleStep.class).to(bindSelectNonNegativeScheduleStep());
-		bind(IndexValueObservation.class).to(bindIndexValueObservation());
+		bind(IndexValueObservationDataProvider.class).to(bindIndexValueObservationDataProvider()).asEagerSingleton();
 		bind(IndexValueObservation.class).to(bindIndexValueObservation());
 		bind(IndexValueObservationMultiple.class).to(bindIndexValueObservationMultiple());
 		bind(UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity.class).to(bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity());
@@ -293,6 +290,10 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends SelectNonNegativeScheduleStep> bindSelectNonNegativeScheduleStep() {
 		return SelectNonNegativeScheduleStepImpl.class;
+	}
+
+	protected Class<? extends IndexValueObservationDataProvider> bindIndexValueObservationDataProvider() {
+		return IndexValueObservationEmptyDataProviderImpl.class;
 	}
 
 	protected Class<? extends IndexValueObservation> bindIndexValueObservation() {

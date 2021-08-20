@@ -9,7 +9,8 @@ import cdm.observable.asset.FloatingRateOption;
 import cdm.observable.asset.Price;
 import cdm.product.asset.FloatingRateSpecification;
 import cdm.product.asset.SpreadSchedule;
-import cdm.product.asset.fro.functions.IndexValueObservationImpl;
+import cdm.product.asset.fro.functions.IndexValueObservationDataProvider;
+import cdm.product.asset.fro.functions.IndexValueObservationTestDataProviderImpl;
 import cdm.product.common.schedule.ResetDates;
 import cdm.product.common.schedule.ResetFrequency;
 import cdm.product.common.schedule.ResetRelativeToEnum;
@@ -23,11 +24,12 @@ import java.util.List;
 
 public class FloatingRateTestHelper {
 
-	public static void initIndexData(FloatingRateOption fro) {
-		IndexValueObservationImpl ivo = IndexValueObservationImpl.getInstance();
-		ivo.setDefaultValue(0.01);
-		ivo.setValue(fro, DateImpl.of(2021,6,1), 0.02);
-		ivo.setValues(fro, DateImpl.of(2021,7,1), 31,0.03, 0.0001);
+	public static IndexValueObservationDataProvider initIndexData(FloatingRateOption fro) {
+		IndexValueObservationTestDataProviderImpl testDataProvider = new IndexValueObservationTestDataProviderImpl();
+		testDataProvider.setDefaultValue(0.01);
+		testDataProvider.setValue(fro, DateImpl.of(2021,6,1), 0.02);
+		testDataProvider.setValues(fro, DateImpl.of(2021,7,1), 31,0.03, 0.0001);
+		return testDataProvider;
 	}
 
 	public static FloatingRateOption initFro() {

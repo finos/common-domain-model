@@ -1,30 +1,28 @@
 package cdm.product.asset.calculation.functions;
 
 import cdm.base.datetime.*;
-import cdm.base.datetime.functions.RetrieveBusinessCenterHolidaysImplTest;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.observable.asset.FloatingRateOption;
-import cdm.product.asset.*;
-import cdm.product.asset.calculation.functions.LookupNotionalAmountTest;
+import cdm.product.asset.DayCountFractionEnum;
+import cdm.product.asset.InterestRatePayout;
+import cdm.product.asset.RateSpecification;
 import cdm.product.asset.floatingrate.FloatingAmountCalculationDetails;
-import cdm.product.asset.floatingrate.functions.EvaluateScreenRateTest;
-import cdm.product.asset.floatingrate.functions.GetFloatingRateConditionParametersTest;
-import cdm.product.asset.fro.functions.IndexValueObservationImplTest;
-import cdm.product.asset.functions.InitCalculationPeriodBase;
+import cdm.product.asset.fro.functions.IndexValueObservationDataProvider;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.schedule.ResetDates;
 import cdm.product.common.schedule.functions.CalculationPeriod;
+import com.google.inject.Binder;
 import com.google.inject.Inject;
-import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.*;
+import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.date;
+import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.period;
 import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.AllOf.allOf;
@@ -35,14 +33,17 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
 
     @Inject private FloatingAmountCalculation func;
     @Inject private CalculationPeriod calculationPeriod;
-    @Inject private InitCalculationPeriodBase initCalculationPeriodBase;
+    @Inject private Create_CalculationPeriodBase createCalculationPeriodBase;
     @Inject private CalculateYearFraction calculateYearFraction;
+
+    @Override
+    protected void bindTestingMocks(Binder binder) {
+        binder.bind(IndexValueObservationDataProvider.class).toInstance(initIndexData(initFro()));
+    }
 
     @Test
     void shouldEvaluateRate() {
-        FloatingRateOption fro = initFro();
-        initIndexData(fro);
-        InterestRatePayout interestRatePayout = initInterestPayout(fro, DayCountFractionEnum.ACT_360);
+        InterestRatePayout interestRatePayout = initInterestPayout(initFro(), DayCountFractionEnum.ACT_360);
         CalculationPeriodDates calculationPeriodDates = interestRatePayout.getCalculationPeriodDates();
 
         CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates, date(2020, 12, 10));
@@ -53,7 +54,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
         CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2021, 2, 14));
         CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2021, 3, 9));
 
-        CalculationPeriodBase period = initCalculationPeriodBase.evaluate(usingStartDate);
+        CalculationPeriodBase period = createCalculationPeriodBase.evaluate(usingStartDate);
         assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
 
         assertEquals(BigDecimal.valueOf((31+31+28)/360.0), calculateYearFraction.evaluate(interestRatePayout, interestRatePayout.getDayCountFraction().getValue(), period));

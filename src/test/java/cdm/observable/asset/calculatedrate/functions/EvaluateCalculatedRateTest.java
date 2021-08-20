@@ -6,13 +6,14 @@ import cdm.base.math.Vector;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateOption;
-import cdm.product.asset.*;
 import cdm.observable.asset.calculatedrate.CalculatedRateDetails;
 import cdm.observable.asset.calculatedrate.FloatingRateCalculationParameters;
+import cdm.product.asset.DayCountFractionEnum;
 import cdm.product.asset.floatingrate.FloatingRateSettingDetails;
-import cdm.product.asset.fro.functions.IndexValueObservationImplTest;
+import cdm.product.asset.fro.functions.IndexValueObservationDataProvider;
 import cdm.product.asset.fro.functions.IndexValueObservationMultiple;
 import cdm.product.common.schedule.CalculationPeriodBase;
+import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -23,10 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.*;
+import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.initFro;
 import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.initIndexData;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EvaluateCalculatedRateTest extends AbstractFunctionTest {
@@ -36,6 +35,11 @@ public class EvaluateCalculatedRateTest extends AbstractFunctionTest {
 
     @Inject
     private IndexValueObservationMultiple indexVal;
+
+    @Override
+    protected void bindTestingMocks(Binder binder) {
+        binder.bind(IndexValueObservationDataProvider.class).toInstance(initIndexData(initFro()));
+    }
 
     @Test
     void shouldHandleBasicOISStyle() {
@@ -48,7 +52,6 @@ public class EvaluateCalculatedRateTest extends AbstractFunctionTest {
                 setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder().
                         setValue(FloatingRateIndexEnum.USD_PRIME_H_15)
                         .build());
-        initIndexData(fro);
 
         List<Date> calcDates = dateList(st, end);
         List<Date> obsDate = new ArrayList<>(calcDates);

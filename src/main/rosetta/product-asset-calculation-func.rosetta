@@ -31,7 +31,7 @@ func FixedAmountEnhanced: <"Calculates the fixed amount for a calculation period
 		fixedAmount number (1..1)
 
 	alias calcPeriod: CalculationPeriod(interestRatePayout -> calculationPeriodDates, calculationPeriodStartDate)
-	alias calculationPeriod: InitCalculationPeriodBase(calcPeriod)
+	alias calculationPeriod: Create_CalculationPeriodBase(calcPeriod)
 	assign-output fixedAmount: FixedAmountCalculationNew(interestRatePayout, calculationPeriod)
 
 // TODO: should this be enhanced to support spreads and do spread-exclusive calculations for compounding?
@@ -80,7 +80,7 @@ func FloatingAmountEnhanced: <"2006 ISDA Definition Article 6 Section 6.1. Calcu
 	// determine the calculation period corresponding to the supplied end date
 	alias calcPeriod: CalculationPeriod(interestRatePayout -> calculationPeriodDates, calculationPeriodStartDate)
 	// perform the floating amount calculation
-	alias results: FloatingAmountCalculation(interestRatePayout, InitCalculationPeriodBase(calcPeriod), calcPeriod->isFirstPeriod)
+	alias results: FloatingAmountCalculation(interestRatePayout, Create_CalculationPeriodBase(calcPeriod), calcPeriod->isFirstPeriod)
 	// record the results
 	assign-output floatingAmount: results -> calculatedAmount
 
@@ -123,6 +123,14 @@ func FloatingAmountCalculation: <"Calculate a floating amount for a calculation 
 	assign-output result->yearFraction: yearFraction
 	assign-output result->calculatedAmount: cashflow
 	assign-output result->spreadExclusiveCalculatedAMount: spreadExclusiveCashflow
+
+func Create_CalculationPeriodBase: <"Create a CalculationPeriodBase type from CalculationPeriodData type.">
+	inputs:
+		calcPeriodData CalculationPeriodData(1..1) <"A supplied CalculationPeriodData structure.">
+	output:
+		calcPeriod CalculationPeriodBase(1..1) <"The corresponding CalculationPeriodBase structure.">
+	assign-output calcPeriod->adjustedStartDate: calcPeriodData->startDate
+	assign-output calcPeriod ->adjustedEndDate: calcPeriodData->endDate
 
 //-------------------------------------------------------
 // The following functions look up current notional

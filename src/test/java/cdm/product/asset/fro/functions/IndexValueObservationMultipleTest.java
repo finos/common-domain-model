@@ -3,6 +3,7 @@ package cdm.product.asset.fro.functions;
 import cdm.base.datetime.DateGroup;
 import cdm.base.math.Vector;
 import cdm.observable.asset.FloatingRateOption;
+import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
@@ -17,16 +18,18 @@ import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.in
 import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.initIndexData;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class IndexValueObservationMultipleImplTest extends AbstractFunctionTest {
+public class IndexValueObservationMultipleTest extends AbstractFunctionTest {
 
     @Inject
     private IndexValueObservationMultiple func;
 
+    @Override
+    protected void bindTestingMocks(Binder binder) {
+        binder.bind(IndexValueObservationDataProvider.class).toInstance(initIndexData(initFro()));
+    }
+
     @Test
     void shouldGetValues() {
-        FloatingRateOption fro = initFro();
-        initIndexData(fro);
-
         List<Date> dates = Arrays.asList(
                 DateImpl.of(2021,7,31),
                 DateImpl.of(2021,7,30),
@@ -44,7 +47,9 @@ public class IndexValueObservationMultipleImplTest extends AbstractFunctionTest 
                             BigDecimal.valueOf(0.02),
                             BigDecimal.valueOf(0.03));
 
-        check(expected, func.evaluate(dg, fro));
+        FloatingRateOption fro = initFro();
+        Vector actual = func.evaluate(dg, fro);
+        check(expected, actual);
     }
 
     private void check(List<BigDecimal> expected, Vector actual) {

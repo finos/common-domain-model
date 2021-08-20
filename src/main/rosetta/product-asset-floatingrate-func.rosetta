@@ -9,6 +9,7 @@ import cdm.observable.asset.*
 import cdm.observable.asset.calculatedrate.*
 
 import cdm.product.asset.*
+import cdm.product.asset.calculation.*
 import cdm.product.asset.fro.*
 import cdm.product.common.schedule.*
 import cdm.product.template.*
@@ -65,7 +66,7 @@ func GetFloatingRateProcessingType: <"Get a classification of  the floating rate
 	//return the processing category
 	assign-output processingType: processingCategory
 
-func ProcessFloatingRateReset: <"Entry point for the function that performs the floating rate resetting operation.  There are different variactions depending on the processing type (e.g. screen rate, OIS, modular calculated rate. .">
+func ProcessFloatingRateReset: <"Entry point for the function that performs the floating rate resetting operation.  There are different variations depending on the processing type (e.g. screen rate, OIS, modular calculated rate. .">
 	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1) <"Floating rate stream definition.">
@@ -94,9 +95,9 @@ func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnu
 	alias calcParams: rateDef->calculationParameters
 
 	// determine the prior calculation period corresponding to this period, in case needed.  (used for set-in-advance calculated rates and some fallback rates.)
-	alias priorCalculationPeriod: InitCalculationPeriodBase(CalculationPeriod(interestRatePayout -> calculationPeriodDates, calcPeriod->adjustedStartDate))
+	alias priorCalculationPeriod: Create_CalculationPeriodBase(CalculationPeriod(interestRatePayout -> calculationPeriodDates, calcPeriod->adjustedStartDate))
 
-	// call the calculated rate evaulation logic
+	// call the calculated rate evaluation logic
 	assign-output floatingRate: 
 		EvaluateCalculatedRate(fro, calcParams, resetDates, calcPeriod, priorCalculationPeriod, dayCount)
 
@@ -130,7 +131,7 @@ func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnu
 
 func GetCalculatedFROCalculationParameters: <"Initialize a calculation parameters block for an OIS or a daily average rate. Used to support FROs that include an embedded calculation.">
 	inputs:
-		resetDates ResetDates (1..1) <"The reset dates for the interest rate payout for which the calculated rate is being compputed.">
+		resetDates ResetDates (1..1) <"The reset dates for the interest rate payout for which the calculated rate is being computed.">
 		calcMethod CalculationMethodEnum (1..1) <"Whether the rate is a compound (OIS) or daily average rate.">
 	output:
 		calcParams FloatingRateCalculationParameters (1..1) <"A calculation parameters block.">
