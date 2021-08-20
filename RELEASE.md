@@ -9,7 +9,7 @@ The enhancements are located in namespaces `cdm.product.asset.calculation`, `cdm
 * `cdm.product.asset.calculation` includes enhanced fixed and floating amount calculations, with the capability to look up the notional in effect during the calculation period, and to do day count calculations using a simplified day count implementation that uses the base date library.
 * `cdm.product.asset.floatingrate` includes floating rate setting and processing, with the capability to look up and apply rate processing such as spreads, multipliers, caps and floors, etc.
 * `cdm.observable.asset.calculatedrate` includes a preliminary implementation of the new modular calculated floating rates (such as lookback compound or observation shift daily average) defined in the 2021 ISDA definitions.
-* `cdm.product.asset.fro` - TODO
+* `cdm.product.asset.fro` - TODO?
 
 The current implementation should be viewed as **experimental** and is being released for review and feedback.  Implementers using these capabilities are cautioned that they should test the results carefully, and report any issues or concerns to the CDM team.
 
