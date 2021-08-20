@@ -4,10 +4,12 @@ _What is being released?_
 
 A set of enhanced types and functions for computing interest rate payout amounts, and in particular floating amounts.
 
-The enhancements are located in product-asset-calculation, product-asset-floating-rate, and product-asset-calculatedrate.
-* **Product-asset-calculation** includes enhanced fixed and floating amount calculations, with the capability to look up the notional in effect during the calculation period, and to do day count calculations using a simplified day count implementation that uses the base date library.
-* **Product-asset-floatingrate** includes floating rate setting and processing, with the capability to look up and apply rate processing such as spreads, multipliers, caps and floors, etc.
-* **Product-asset-calculatedrate** includes a preliminary implementation of the new modular calculated floating rates (such as lookback compound or observation shift daily average) defined in the 2021 ISDA definitions.
+The enhancements are located in namespaces `cdm.product.asset.calculation`, `cdm.product.asset.floatingrate` and `cdm.observable.asset.calculatedrate`.
+
+* `cdm.product.asset.calculation` includes enhanced fixed and floating amount calculations, with the capability to look up the notional in effect during the calculation period, and to do day count calculations using a simplified day count implementation that uses the base date library.
+* `cdm.product.asset.floatingrate` includes floating rate setting and processing, with the capability to look up and apply rate processing such as spreads, multipliers, caps and floors, etc.
+* `cdm.observable.asset.calculatedrate` includes a preliminary implementation of the new modular calculated floating rates (such as lookback compound or observation shift daily average) defined in the 2021 ISDA definitions.
+* `cdm.product.asset.fro` - TODO
 
 The current implementation should be viewed as **experimental** and is being released for review and feedback.  Implementers using these capabilities are cautioned that they should test the results carefully, and report any issues or concerns to the CDM team.
 
@@ -21,7 +23,7 @@ Some of the calculation period amount capabilities that are included in FpML and
 
 Following is a description of each of the functions included in the release.
 
-New functions in **product-asset-calculation-func** include:
+New functions in `cdm.product.asset.calculation` include:
 
 * FixedAmountEnhanced: Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction
 * FixedAmounCalculationNew: Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction
@@ -37,7 +39,7 @@ New functions in **product-asset-calculation-func** include:
 * YearFractionForOneDay: Return the year fraction reprsented by a single day, i.e 1 / dayCountBasis, where daycountBasis represents the denominator of the day count fraction. This perhaps should take into account leap years, though the ISDA compounding formulas do not cover ACT basis at the moment.
 * DayCountBasis: Return the day count basis (the denominator of the day count fraction) for the day count fraction
 
-New functions in **product-asset-floatingrate-func** include:
+New functions in `cdm.product.asset.floatingrate` include:
 * DetermineFloatingRateReset: Get the value of a floating rate by either observing it directly or performing a rate calculation.  This function works differently depending on the rate category and style, as described in the 2021 ISDA Definitions, Section 6.6.
 * GetFloatingRateProcessingType:  Get a classification of  the floating rate is processed. This is based on FRO category, style, and calculation method, as described in the 2021 ISDA Definitions Section 6.6.  The categorization information is obtained from the FRO metadata.
 * ProcessFloatingRateReset: Entry point for the function that performs the floating rate resetting operation.  There are different variactions depending on the processing type (e.g. screen rate, OIS, modular calculated rate.
@@ -60,7 +62,7 @@ New functions in **product-asset-floatingrate-func** include:
 * ApplyUSRateTreatment: Apply the US rate treatment logic where applicable (Bond Equivalent Yield, Money Market Yield, as described in the 2021 ISDA Definitions, section 6.9.  (NB: this function does not have an implementation.)
 * ApplyFinalRateRounding: Apply the final rate rounding treatment logic as described in the 2021 ISDA Definitions, section 4.8.1.
 
-New functions in **product-asset-calculatedrate-func** include:
+New functions in `cdm.observable.asset.calculatedrate` include:
 * EvaluateCalculatedRate: Evaluate a calculated rate as described in the 2021 ISDA Definitions, Section 7
 * GenerateObservationDatesAndWeights: Apply shifts to generate the list of observation dates and weights for each of those dates
 * ComputeCalculationPeriod: Determine the calculation period to use for computing the calculated rate (it may not be the same as the normal calculation period, for instance if the rate is set in advance)
@@ -72,7 +74,3 @@ New functions in **product-asset-calculatedrate-func** include:
 * GenerateWeights: Recursively creates a list of weights based on the date difference between successive days.
 * ApplyCompoundingFormula:  Implements the compounding formula:   Product of ( 1 + (rate * weight) / basis), then backs out the final rate. This is used to support section 7.3 of the 2021 ISDA Definitions.
 * ApplyAveragingFormula: Implementst the weighted arithmetic averaging formula.  Sums the weighted rates and divides by the total weight.  This is used to support section 7.4 of the 2021 ISDA Definitions.
-
-
-
-
