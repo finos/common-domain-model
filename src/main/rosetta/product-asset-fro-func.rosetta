@@ -1,4 +1,4 @@
-namespace cdm.product.asset.fro : <"Support for floating rate option definitions">
+namespace cdm.product.asset.fro : <"Support for floating rate option definitions.">
 version "${project.version}"
 
 import cdm.base.math.*
@@ -7,8 +7,6 @@ import cdm.base.staticdata.asset.rates.*
 
 import cdm.observable.asset.*
 
-import cdm.product.template.*
-import cdm.product.common.schedule.*
 import cdm.legalagreement.common.*
 
 // =====================================================================
@@ -20,22 +18,19 @@ import cdm.legalagreement.common.*
 //
 // ======================================================================
 
-
-func IndexValueObservation: <"BAL addition>> Retrieve the values of the supplied index on the specified observation date">
+func IndexValueObservation: <"Retrieve the values of the supplied index on the specified observation date.">
 	inputs:
-		observationDate date(1..1)
-		floatingRateOption FloatingRateOption(1..1)
+		observationDate date (1..1)
+		floatingRateOption FloatingRateOption (1..1)
 	output:
-		observedValue number(1..1)
+		observedValue number (1..1)
 
-func IndexValueObservationMultiple: <"BAL addition>> Retrieve the values of the supplied index on the specified observation dates">
+func IndexValueObservationMultiple: <"Retrieve the values of the supplied index on the specified observation dates.">
 	inputs:
-		observationDate DateGroup(1..1)
-		floatingRateOption FloatingRateOption(1..1)
+		observationDate DateGroup (1..1)
+		floatingRateOption FloatingRateOption (1..1)
 	output:
-		observedValues Vector(1..1)
-
-
+		observedValues Vector (1..1)
 
 // =====================================================================
 //
@@ -46,25 +41,22 @@ func IndexValueObservationMultiple: <"BAL addition>> Retrieve the values of the 
 //
 // ======================================================================
 
-func RetrieveFloatingRateIndexMetadata:  <"Retrieve all available metadata for the floating rate index ">
+func RetrieveFloatingRateIndexMetadata: <"Retrieve all available metadata for the floating rate index.">
 	inputs:
-		floatingRateIndexName FloatingRateIndexEnum(1..1)  <"The name of the floating rate index ">
+		floatingRateIndexName FloatingRateIndexEnum (1..1) <"The name of the floating rate index.">
 	output:
-		floatingRateIndexDescription FloatingRateIndexDefinition(0..1)	<"The detailded description of the index if available, null otherwise">
+		floatingRateIndexDescription FloatingRateIndexDefinition (0..1)	<"The detailed description of the index if available, null otherwise.">
 
+func ValidateFloatingRateIndexName: <"Return whether the supplied floating rate index name is valid for the supplied contractual definitions.">
+	inputs:
+		floatingRateIndexName FloatingRateIndexEnum (1..1) <"The name of the floating rate index.">
+		contractualDefs ContractualDefinitionsEnum (0..1) <"The contractual definitions to validate against.">
+	output:
+		isValid boolean (1..1) <"True if this is a floating rate index name that is valid.">
 
-func ValidateFloatingRateIndexName: <"Return whether the supplied floating rate index name is valid for the supplied contractual definitions">
-inputs:
-		floatingRateIndexName FloatingRateIndexEnum(1..1)  <"The name of the floating rate index ">
-		// to be changed to string
-		contractualDefs ContractualDefinitionsEnum (0..1)  <"optional, the contractual definitions to validate against">
-output:
-		isValid boolean(1..1) <"True if this is a floating rate index name that is valid ">
+	alias defs: RetrieveFloatingRateIndexMetadata(floatingRateIndexName)
+	alias isPresent: defs exists
+	alias defsOk: defs->supportedDefinition /* any */ = contractualDefs
+	alias okDefs: if contractualDefs exists then defsOk else defs exists
 
-	alias defs : RetrieveFloatingRateIndexMetadata(floatingRateIndexName)
-	alias isPresent :  defs exists
-	alias defsOk : defs->supportedDefinition /* any */ = contractualDefs
-	alias okDefs : if contractualDefs exists then  defsOk else defs exists
-
-	assign-output  isValid : okDefs
-
+	assign-output  isValid: okDefs

@@ -1,21 +1,13 @@
-namespace cdm.product.asset.fro : <"Support for floating rate option definitions">
+namespace cdm.product.asset.fro : <"Support for floating rate option definitions.">
 version "${project.version}"
 
-import cdm.base.math.*
 import cdm.base.datetime.*
-import cdm.base.staticdata.party.*
-import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
-import cdm.base.staticdata.asset.credit.*
 
 import cdm.legalagreement.common.*
-import cdm.observable.asset.*
-import cdm.observable.event.*
-import cdm.observable.common.*
 
-import cdm.product.template.*
-import cdm.product.common.settlement.*
-import cdm.product.common.schedule.*
+import cdm.observable.asset.*
+
 import cdm.product.asset.*
 
 // =====================================================================
@@ -26,61 +18,53 @@ import cdm.product.asset.*
 //
 // ======================================================================
 
-
-
 type FloatingRateIndexDefinition:
-	fro FloatingRateOption(1..1)		<"The underlying FRO name and designated maturity">
-	supportedDefinition ContractualDefinitionsEnum(0..*) <"The definition version or versions supported by the FRO">
-	definitionalSource string(0..1) <"The source of an FRO, particularly if not a Contractual Definition (e.g. the broker rates matrix)">
-	designatedMaturityApplicable boolean(0..1)
-	mappings FloatingRateIndexMappings(0..1) <"Any mappings to other FRos">
-	externalMappings FloatingRateIndexExternalMappings(0..1) <"Any mappings to other codes for this index">
-	calculationDefaults FloatingRateIndexCalculationDefaults(0..1) <"Any calculation default values">
+	fro FloatingRateOption (1..1) <"The underlying FRO name and designated maturity.">
+	supportedDefinition ContractualDefinitionsEnum (0..*) <"The definition version or versions supported by the FRO.">
+	definitionalSource string (0..1) <"The source of an FRO, particularly if not a Contractual Definition (e.g. the broker rates matrix).">
+	designatedMaturityApplicable boolean (0..1)
+	mappings FloatingRateIndexMappings (0..1) <"Any mappings to other FRos.">
+	externalMappings FloatingRateIndexExternalMappings (0..1) <"Any mappings to other codes for this index.">
+	calculationDefaults FloatingRateIndexCalculationDefaults (0..1) <"Any calculation default values.">
 
+type FloatingRateIndexMap: <"A map for a single FRO to or from an equivalent or similar FRO in a different contractual definitions version.">
+	index FloatingRateIndexEnum (1..1) <" The FRO name that is being mapped to/from.">
+	definitionVersion ContractualDefinitionsEnum (1..1) <"The definitional version to which the map applies.">
 
-type FloatingRateIndexMap: <"A map for a single FRO to or from an equivalent or similar FRO in a different contractual definitions version">
-	index FloatingRateIndexEnum(1..1)			<" The FRO name that is being mapped to/from">
-	definitionVersion ContractualDefinitionsEnum(1..1)  <"The definitional version to which the map applies">
+type FloatingRateIndexMappings: <"This type defines mappings between FROs in different definitional versions.">
+	mapsTo FloatingRateIndexMap (0..1) <"The successor FRO that this index maps to.">
+	mapsFrom FloatingRateIndexMap (0..*) <"The predecessor FRO(s) that this index maps to.">
 
+type FloatingRateIndexExternalMap: <"A map for a single FRO to or from an equivalent or similar codes in a different standard such as ISO.">
+	externalId string (1..1) <" The FRO name that is being mapped to/from.">
+	externalStandard string (1..1) <"The standard/version to which the map applies.">
 
-type FloatingRateIndexMappings: <"This type defines mappings betwen FROs in different definitional versions">
-	mapsTo FloatingRateIndexMap(0..1) <"The successor FRO that this index maps to">
-	mapsFrom FloatingRateIndexMap(0..*) <"The predecessor FRO(s) that this index maps to.">
+type FloatingRateIndexExternalMappings: <"Represents the mappings of FRO codes to other.">
+	isoCode FloatingRateIndexExternalMap (0..1)
 
+type FloatingRateIndexCalculationDefaults: <"This holds the rate calculation defaults applicable for a floating rate index.">
+	category FloatingRateIndexCategoryEnum (0..1) <"The ISDA FRO category (e.g. screen rate or calculated rate).">
+	indexStyle FloatingRateIndexStyleEnum (0..1) <"The ISDA FRO style (e.g. term rate, swap rate, etc).">
+	method FloatingRateIndexCalculationMethodEnum (0..1) <"The ISDA FRO calculation method (e.g. OIS Compounding).">
+	fixing FloatingRateIndexFixingDetails (0..1) <"The default fixing details.">
+	dayCountFraction DayCountFractionEnum (0..1) <"The default day count fraction.">
+	fixingTime FloatingRateIndexFixingTime (0..1) <"The default fixing time parameters.">
+	fixingOffset FloatingRateIndexFixingOffset (0..1) <"The default fixing offset parameters.">
+	applicableBusinessDays BusinessCenters (0..1) <"The default applicable business days.">
 
-type FloatingRateIndexExternalMap: <"A map for a single FRO to or from an equivalent or similar codes in a different standard such as ISO">
-	externalId string(1..1)			<" The FRO name that is being mapped to/from">
-	externalStandard string(1..1)  <"The standard/version to which the map applies">
-type FloatingRateIndexExternalMappings: <"Represents the mappings of FRO codes to other">
-	isoCode FloatingRateIndexExternalMap(0..1)
+type FloatingRateIndexFixingDetails: <"This type holds parameters defining the fixingt time and offset for a floating rate index.">
+	fixingTime FloatingRateIndexFixingTime (0..*) <"Parameters defining the normal fixing time (can vary by index tenor / designated maturity).">
+	alternativeFixingTime FloatingRateIndexAlternativeFixingTime (0..*) <"Parameters defining the alternative fixing time (e.g. on holiday eves.">
+	fixingOffset BusinessDayOffset (0..*) <"Parameters defining the normal fixing offset (can vary by index tenor / designated maturity).">
 
-type FloatingRateIndexCalculationDefaults: <"This holds the rate calculation defaults applicalbe for a floating rate index">
-	category	FloatingRateIndexCategoryEnum(0..1)			<"The ISDA FRO category (e.g. screen rate or calculated rate) ">
-	indexStyle	FloatingRateIndexStyleEnum(0..1)			<"The ISDA FRO style (e.g. term rate, swap rate, etc.) ">
-	method 		FloatingRateIndexCalculationMethodEnum(0..1)	<"The ISDA FRO calculation method (e.g. OIS Compounding) ">
-	fixing		FloatingRateIndexFixingDetails(0..1)		<"The default fixing details ">
-	dayCountFraction DayCountFractionEnum(0..1)				<"The default day count fraction ">
-	fixingTime FloatingRateIndexFixingTime(0..1)			<"The default fixing time parameters ">
-	fixingOffset FloatingRateIndexFixingOffset(0..1)		<"The default fixing offset parameters ">
-	applicableBusinessDays BusinessCenters(0..1)			<"The default applicable business days ">
+type FloatingRateIndexFixingTime extends BusinessCenterTime: <"This type holds parameters defining the normal fixing time for a floating rate index.">
+	designatedMaturity string (0..1) <"Allows a designed maturity to be specified for the fixing time.">
 
+type FloatingRateIndexAlternativeFixingTime extends FloatingRateIndexFixingTime: <"This type holds parameters defining the alternative fixing time for a floating rate index.">
+	fallbackReason string (0..1) <"Allows a reason to be specified for using the alternative fixing time.">
 
-type FloatingRateIndexFixingDetails: <"This type holds parameters defining the fixingt time and offset for a floating rate index">
-	fixingTime	FloatingRateIndexFixingTime(0..*)			<"Parameters defining the normal fixing time (can vary by index tenor / designated maturity)">
-	alternativeFixingTime FloatingRateIndexAlternativeFixingTime(0..*) <"Parameters defining the alternative fixing time (e.g. on holiday eves ">
-	fixingOffset BusinessDayOffset(0..*)					<"Parameters defining the normal fixing offset (can vary by index tenor / designated maturity) ">
+type FloatingRateIndexFixingOffset extends BusinessDayOffset: <"This type holds parameters defining the normal fixing offset for a floating rate index.">
+	designatedMaturity string (0..1) <"Allows a reason to be specified for using the alternative fixing offset.">
 
-
-type FloatingRateIndexFixingTime extends BusinessCenterTime : <"This type holds parameters defining the normal fixing time for a floating rate index">
-	designatedMaturity string(0..1)							<"Allows a designed maturity to be specified for the fixing time">
-
-type FloatingRateIndexAlternativeFixingTime extends FloatingRateIndexFixingTime: <"This type holds parameters defining the altnerative fixing time for a floating rate index">
-	fallbackReason string(0..1)							<"Allows a reason to be specified for using the altnerative fixing time">
-
-type FloatingRateIndexFixingOffset extends BusinessDayOffset : <"This type holds parameters defining the normal fixing offset for a floating rate index">
-	designatedMaturity string(0..1)						<"Allows a reason to be specified for using the altnerative fixing offset">
-
-
-
-type BusinessDayOffset extends Period: <"This allows an offset to be specied as, for instance, N business days, with a business centers specified as included">
-	businessCenters BusinessCenters(0..1)		<"The business centers for the offset">
+type BusinessDayOffset extends Period: <"This allows an offset to be specified as, for instance, N business days, with a business centers specified as included.">
+	businessCenters BusinessCenters (0..1) <"The business centers for the offset.">
