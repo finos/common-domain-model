@@ -125,7 +125,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 	underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
-
+	observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
 	condition:
 		if settlementTerms -> physicalSettlementTerms exists
 		    and underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout only exists
@@ -568,13 +568,12 @@ type Knock: <"Knock In means option to exercise comes into existence. Knock Out 
 	knockOut TriggerEvent (0..1) <"The knock out.">
 
 type OptionFeature: <"Defines additional optional features that can be included in an option contract.">
-
-	fxFeature FxFeature (0..1) <"Describes a quanto or composite FX feature.">
-	strategyFeature StrategyFeature (0..1) <"Defines a simple strategy feature.">
-	averagingRateFeature AveragingObservation (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
-	barrier Barrier (0..1) <"Specifies a barrier feature.">
-	knock Knock (0..1) <"Specifies a knock in or knock out feature.">
-	passThrough PassThrough (0..1) <"Specifies the rules for pass-through payments from the underlier, such as dividends.">
+   fxFeature FxFeature (0..1) <"Describes a quanto or composite FX feature.">
+   strategyFeature StrategyFeature (0..1) <"Defines a simple strategy feature.">
+   averagingRateFeature AveragingCalculation (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
+   barrier Barrier (0..1) <"Specifies a barrier feature.">
+   knock Knock (0..1) <"Specifies a knock in or knock out feature.">
+   passThrough PassThrough (0..1) <"Specifies the rules for pass-through payments from the underlier, such as dividends.">
 
 
 type OptionProvision: <"A class for defining option provisions.">
@@ -582,12 +581,11 @@ type OptionProvision: <"A class for defining option provisions.">
 	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">
 
 type OptionStrike: <"Defines the strike price of an option.">
-
-	strikePrice Price (0..1) <"Defines the strike of an option in the form of a price that could be a cash price, interestRate, or other types.">
-	strikeReference FixedRateSpecification (0..1) <"Defines the strike of an option in reference to the spread of the underlying swap (typical practice in the case of an option on a credit single name swaps).">
-		[metadata reference]
-	referenceSwapCurve ReferenceSwapCurve (0..1) <"Defines the strike of an option when expressed by reference to a swap curve (Typically the case for a convertible bond option).">
-	averagingStrikeFeature AveragingObservation (0..1) <"Defines an option strike that is calculated from an average of observed market prices.">
+   strikePrice Price (0..1) <"Defines the strike of an option in the form of a price that could be a cash price, interestRate, or other types.">
+   strikeReference FixedRateSpecification (0..1) <"Defines the strike of an option in reference to the spread of the underlying swap (typical practice in the case of an option on a credit single name swaps).">
+   [metadata reference]
+   referenceSwapCurve ReferenceSwapCurve (0..1) <"Defines the strike of an option when expressed by reference to a swap curve (Typically the case for a convertible bond option).">
+   averagingStrikeFeature AveragingStrikeFeature (0..1) <"Defines an option strike that is calculated from an average of observed market prices.">
 
 	condition: one-of
 
@@ -809,6 +807,14 @@ type EvergreenProvision extends BuyerSeller: <"Specifies a transaction which aut
 
     condition ExerciseChoice: <"Condition that requires the choice of exercise style to be specified.">
 		required choice americanExercise, bermudaExercise, europeanExercise
+
+type AveragingStrikeFeature: <"Defines the terms required to calculate the average observations associated with an averaging strike.">
+   averagingCalculation AveragingCalculation (1..1) <"Defines parameters for use in cases when a valuation or other term is based on an average of market observations.">
+   observationTerms ObservationTerms (1..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. ">
+
+type AveragingCalculation: <"Defines parameters for use in cases when a valuation or other term is based on an average of market observations.">
+   calculationMethod AveragingCalculationMethodEnum (1..1) <"Specifies enumerations for the type of averaging calculation.">
+   precision Rounding (1..1) <"Rounding applied to the average calculation. ">  
 
 
 
