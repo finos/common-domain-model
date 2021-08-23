@@ -101,7 +101,7 @@ The CDM Design Principles
 
 The CDM supports the market objectives of standardisation via a set of design principles that include the following concepts:
 
-* Normalisation through abstration of common components, e.g. *price* or *quantity*
+* Normalisation through abstraction of common components, e.g. *price* or *quantity*
 * Construction by composition and qualification, i.e. "bottom-up" approach
 * Mapping to existing industry messaging formats, e.g. *FpML*
 * Embedded processing logic, e.g. data validation or state-transition logic
@@ -144,7 +144,7 @@ In practice, mapping to existing formats is supported by *synonym* mappings, whi
 
 **The CDM recognises certain formats as de-facto standards that are widely used to exchange information between market participants.** Their synonym mappings are included and rigorously tested in each CDM release, allowing firms that already use such standards to bootstrap their CDM implementation. Besides, because most standard messaging formats are typically extended and customised by each market participants (e.g. FpML or FIX), the CDM allows the synonym representation for those standards to be similarly inherited and extended to cover each firm's specific customisation.
 
-Embeded processing logic
+Embedded processing logic
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 **The CDM is designed to lay the foundation for the standardisation, automation and inter-operability of industry processes**. Industry processes represent events and actions that occur through the transaction’s lifecycle, from negotiating a legal agreement to allocating a block-trade, calculating settlement amounts or exchanging margin requirements.
@@ -153,7 +153,7 @@ While ISDA defines the protocols for industry processes in its documentation lib
 
 Traditional implementation of a technical standard distributed in prose comes with the risk of misinterpretation and error. The process is duplicated across each firm adopting the standard, ultimately adding up to high implementation costs across the industry.
 
-**By contrast, the CDM provides a fully specified processing model that translates the technical standards supporting industry processes** into a machine-readable and machine-executable format. Systematically providing the domain model as executable code vastly reduces implementation effort and virtually eliminates the risk of inconsistency. For instance, the CDM is designed to provide a fully functional event model, where the state-transition logic for all potential transaction lifecycle events is being spefied and distributed as executable code. Another CDM feature is that each model component is associated with data validation constraints to ensure that data is being validated at the point of creation, and this validation logic is distributed alongside the model itself.
+**By contrast, the CDM provides a fully specified processing model that translates the technical standards supporting industry processes** into a machine-readable and machine-executable format. Systematically providing the domain model as executable code vastly reduces implementation effort and virtually eliminates the risk of inconsistency. For instance, the CDM is designed to provide a fully functional event model, where the state-transition logic for all potential transaction lifecycle events is being specified and distributed as executable code. Another CDM feature is that each model component is associated with data validation constraints to ensure that data is being validated at the point of creation, and this validation logic is distributed alongside the model itself.
 
 Modularisation into logical layers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
