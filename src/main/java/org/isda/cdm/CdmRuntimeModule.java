@@ -15,6 +15,7 @@ import cdm.observable.common.functions.CurrencyAmountImpl;
 import cdm.observable.common.functions.NoOfUnits;
 import cdm.observable.common.functions.NoOfUnitsImpl;
 import cdm.observable.event.functions.ResolveObservationAverage;
+import cdm.observable.event.functions.ResolveObservationAverageImpl;
 import cdm.product.asset.functions.ExtractFixedLeg;
 import cdm.product.asset.functions.ExtractFixedLegImpl;
 import cdm.product.asset.functions.ResolveEquityInitialPrice;
@@ -25,8 +26,6 @@ import cdm.product.common.schedule.functions.CalculationPeriodRange;
 import cdm.product.common.schedule.functions.CalculationPeriodRangeImpl;
 import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
-import cdm.event.common.functions.Create_BillingRecordsImpl;
-import cdm.observable.event.functions.ResolveObservationAverageImpl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
@@ -77,7 +76,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(LastInDateList.class).to(bindLastInDateList());
 		bind(AddDays.class).to(bindAddDays());
 		bind(PopOffDateList.class).to(bindPopOffDateList());
-		bind(RetrieveBusinessCenterHolidays.class).to(bindRetrieveBusinessCenterHolidays());
+		bind(BusinessCenterHolidays.class).to(bindBusinessCenterHolidays());
 		bind(BusinessCenterHolidaysDataProvider.class).to(bindBusinessCenterHolidaysDataProvider()).asEagerSingleton();
 		bind(CombineBusinessCenters.class).to(bindCombineBusinessCenters());
 		bind(DateDifference.class).to(bindDateDifference());
@@ -247,7 +246,7 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends PopOffDateList> bindPopOffDateList() { return PopOffDateListImpl.class; }
 
-	protected Class<? extends RetrieveBusinessCenterHolidays> bindRetrieveBusinessCenterHolidays() { return RetrieveBusinessCenterHolidaysImpl.class; }
+	protected Class<? extends BusinessCenterHolidays> bindBusinessCenterHolidays() { return BusinessCenterHolidaysImpl.class; }
 
 	protected Class<? extends BusinessCenterHolidaysDataProvider> bindBusinessCenterHolidaysDataProvider() {
 		return BusinessCenterHolidaysEmptyDataProviderImpl.class;
