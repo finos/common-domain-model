@@ -13,10 +13,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest {
+public class BusinessCenterHolidaysImplTest extends AbstractFunctionTest {
 
 	@Inject
-	private RetrieveBusinessCenterHolidays func;
+	private BusinessCenterHolidays func;
 
 	@Test
 	void shouldRetrieve() {
