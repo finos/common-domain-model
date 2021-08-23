@@ -26,6 +26,7 @@ public class BusinessCenterHolidaysImpl extends BusinessCenterHolidays {
 						.filter(Objects::nonNull)
 						.flatMap(Collection::stream)
 						.sorted()
+						.distinct()
 						.collect(Collectors.toList()));
 	}
 
