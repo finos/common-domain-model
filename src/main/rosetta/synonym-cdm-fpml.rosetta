@@ -1488,7 +1488,8 @@ synonym source FpML_5_10 extends FpML
 		 	[value "instrumentId" path "equity" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "index" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "loan" maps 2 meta "instrumentIdScheme"]
-            [value "instrumentId" path "commodity" maps 2 meta "instrumentIdScheme"]
+            // [value "instrumentId" path "commodity" maps 2 meta "instrumentIdScheme"]
+			[value "instrumentId" maps 2 meta "instrumentIdScheme"]
 			[value "productId" maps 2 meta "productIdScheme"]
 		+ source
 		    // Bond
@@ -1543,9 +1544,9 @@ synonym source FpML_5_10 extends FpML
             [set to ProductIdTypeEnum -> ISIN when "convertibleBond->instrumentId->instrumentIdScheme" = "ISIN"]
 			[set to ProductIdTypeEnum -> Other when "convertibleBond->instrumentId->instrumentIdScheme" exists]
             // Commodity
-			[set to ProductIdTypeEnum -> ISDACRP when "commodity->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/commodity-reference-price-1-0"]
-            [set to ProductIdTypeEnum -> ISDACRP when "commodity->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/commodity-reference-price"]
-            [set to ProductIdTypeEnum -> Other when "commodity->instrumentId->instrumentIdScheme" exists]
+			[set to ProductIdTypeEnum -> ISDACRP when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/commodity-reference-price-1-0"]
+            [set to ProductIdTypeEnum -> ISDACRP when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/commodity-reference-price"]
+            [set to ProductIdTypeEnum -> Other when "instrumentId->instrumentIdScheme" exists]
             // Repo
             [set to ProductIdTypeEnum -> CUSIP when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "CUSIP"]
             [set to ProductIdTypeEnum -> CUSIP when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
@@ -1818,7 +1819,7 @@ synonym source FpML_5_10 extends FpML
 
 	Observable:
 		+ commodity
-			[hint "commodity"]
+			[value "commodity"]
 		+ productIdentifier
 			[hint "equity"]
 			[hint "bond"]
@@ -2294,17 +2295,20 @@ synonym source FpML_5_10 extends FpML
 
 	Commodity:
 	    + productIdentifier
-	        [hint "commodity"]
+	        [hint "instrumentId"]
 		+ priceQuoteType
-			[value "specifiedPrice" path "commodity"]
-		+ deliveryDateReference
-			[hint "commodity"]
+			[value "specifiedPrice" maps 2]
+		// + deliveryDateReference
+		// 	[hint "commodity"]
 
 	DeliveryDateParameters:
 		+ deliveryNearby
-			[value "commodity" set when "commodity->deliveryDates" = "FirstNearby"]
+			[hint "deliveryDates"]
+		// 	[value "deliveryDates" set when "deliveryDates" = "FirstNearby"]
 		+ deliveryDateRollConvention
-			[value "deliveryDateRollConvention" path "commodity"]
+			[value "deliveryDateRollConvention"]
+		+ deliveryDateExpirationConvention
+			[value "ignore"]
 
 	TradeLot:
 	    + priceQuantity
@@ -2337,7 +2341,7 @@ synonym source FpML_5_10 extends FpML
 			[value "bondOption"]
 			[value "fxOption"]
 			[value "fxDigitalOption"]
-			[hint "commodity", "notionalQuantity"] // Commodity Option
+			[value "commodityOption"] // Commodity Option
 			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"] // For Equity / Bond Option
 			// Options: Premium
 			[value "premium", "equityPremium"]
@@ -2614,7 +2618,7 @@ synonym source FpML_5_10 extends FpML
 
 	Offset:
 		+ dayType
-			[value "dayType"]
+			[value "dayType" maps 2]
 
 	Period:
 	 	[value "Period" meta "id"]
@@ -2623,12 +2627,13 @@ synonym source FpML_5_10 extends FpML
 			[value "periodMultiplier" path "dateOffset"]
 			[value "periodMultiplier" path "calculationPeriodDates->relativeEffectiveDate"]
 			// For Commodity Swap
-			[set to 1 when path = "deliveryDates->FirstNearby"]
+			[set to 1 when "deliveryDates" = "FirstNearby"]
+			[set to 2 when path = "deliveryDates->SecondNearby"]
 		+ period
 			[value "period" maps 2]
 			[value "period" path "dateOffset"]
 			// For Commodity Swap
-			[set to PeriodEnum-> M when path = "deliveryDates"]
+			[set to PeriodEnum-> M when "deliveryDates" exists]
 
 
 	RelativeDates:
