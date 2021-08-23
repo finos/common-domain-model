@@ -81,7 +81,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(LastInDateList.class).to(bindLastInDateList());
 		bind(AddDays.class).to(bindAddDays());
 		bind(PopOffDateList.class).to(bindPopOffDateList());
-		bind(RetrieveBusinessCenterHolidays.class).to(bindRetrieveBusinessCenterHolidays());
+		bind(BusinessCenterHolidays.class).to(bindBusinessCenterHolidays());
 		bind(BusinessCenterHolidaysDataProvider.class).to(bindBusinessCenterHolidaysDataProvider()).asEagerSingleton();
 		bind(CombineBusinessCenters.class).to(bindCombineBusinessCenters());
 		bind(DateDifference.class).to(bindDateDifference());
@@ -264,8 +264,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		return PopOffDateListImpl.class;
 	}
 
-	protected Class<? extends RetrieveBusinessCenterHolidays> bindRetrieveBusinessCenterHolidays() {
-		return RetrieveBusinessCenterHolidaysImpl.class;
+	protected Class<? extends BusinessCenterHolidays> bindBusinessCenterHolidays() {
+		return BusinessCenterHolidaysImpl.class;
 	}
 
 	protected Class<? extends CombineBusinessCenters> bindCombineBusinessCenters() {

@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 import static cdm.base.datetime.functions.BusinessCenterHolidaysTestData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RetrieveBusinessCenterHolidaysImplTest extends AbstractFunctionTest {
+public class BusinessCenterHolidaysImplTest extends AbstractFunctionTest {
 
 	@Inject
-	private RetrieveBusinessCenterHolidays func;
+	private BusinessCenterHolidays func;
 
 	@Test
 	void shouldRetrieve() {
