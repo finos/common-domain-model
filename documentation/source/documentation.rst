@@ -55,7 +55,7 @@ When a trade can have multiple trade lots, increases (or upsize) and decreases (
 
 .. note:: The term *lot* is borrowed from the Equity terminology that refers to each trade lot as a *tax lot*, where the capital gains tax that may arise upon unwind is calculated based on the price at which the lot was entered.
 
-For each trade lot, the quantity and price are represente by an attribute called ``priceQuantity``.
+For each trade lot, the quantity and price are represented by an attribute called ``priceQuantity``.
 
 .. code-block:: Haskell
 
@@ -211,7 +211,7 @@ Observable
 """"""""""
 The ``Observable`` data type specifies the reference object to be observed for a price, which could be an underlying asset or a reference such as an index.
 
-he Observable data type requires the specification of either a ``rateOption`` (i.e. a floating rate index), ``commodity``, ``productIdentifier``, or ``currencypair``. This choice constraint is supported by specifying a one-of condition, as shown below:
+The Observable data type requires the specification of either a ``rateOption`` (i.e. a floating rate index), ``commodity``, ``productIdentifier``, or ``currencypair``. This choice constraint is supported by specifying a one-of condition, as shown below:
 
 .. code-block:: Haskell
 

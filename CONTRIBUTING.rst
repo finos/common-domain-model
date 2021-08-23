@@ -28,7 +28,7 @@ For large model changes, or changes to core data types, it is recommended that t
   - CDM Sub-Working Group, if applicable
   - CDM Architecture and Review Committee
   
-- **Quality Assurance**: Seek the early appointment of at least one CDM reviewer who can assist modelling discussions and provide early feedback. CDM Reviewers are appointed by the the CDM Owners as and when relevant. Please contact `cdmInfo@isda.org <cdminfo@isda.org>`_.
+- **Quality Assurance**: Seek the early appointment of at least one CDM reviewer who can assist modelling discussions and provide early feedback. CDM Reviewers are appointed by the CDM Owners as and when relevant. Please contact `cdmInfo@isda.org <cdminfo@isda.org>`_.
 
 Editing the model
 -----------------
