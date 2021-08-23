@@ -5,14 +5,23 @@ import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.credit.*
+import cdm.base.staticdata.asset.common.*
 
 import cdm.observable.asset.*
 
 import cdm.product.asset.*
 import cdm.product.template.*
 import cdm.product.common.schedule.*
+import cdm.product.common.*
 
 import cdm.synonyms.config.*
+
+type AveragingObservation: <"Defines parameters for use in cases when a valuation or other term is based on an average of market observations.">
+   calculationMethod AveragingCalculationMethodEnum (1..1) <"Specifies enumerations for the type of averaging calculation.">
+   precision Rounding (1..1) <"Specifies details of any rounding applied when averaging market observations.">
+   observationTime BusinessCenterTime (1..1) <"Specifies the time details at which a market observation will take place.">
+   observationDates ObservationDates (1..1) <"Specifies the date details at which a market observation will take place.">
+   fxRateObservable FxRateObservable (0..1) <"Defines foreign exchange (FX) asset class specific parameters.">
 
 type ComputedAmount: <"A class to specify the outcome of a computed amount, for testing purposes.">
 
@@ -100,25 +109,6 @@ type PricingDates: <"Specifies specific dates or parametric rules for the dates 
 	parametricDates ParametricDates (0..1) <"Defines rules for the dates on which the price will be determined.">
 	
 	condition: one-of
-
-type ParametricDates: <"Defines rules for the dates on which the price will be determined.">
-	dayType DayTypeEnum (1..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">
-	dayDistribution DayDistributionEnum (0..1) <"Denotes the method by which the pricing days are distributed across the pricing period.">
-	dayOfWeek DayOfWeekEnum (0..7) <"Indicates the days of the week on which the price will be determined.">
-	dayFrequency number (0..1) <"Defines the occurrence of the dayOfWeek within the pricing period on which pricing will take place, e.g. the 3rd Friday within each Calculation Period. If omitted, every dayOfWeek will be a pricing day.">
-	lag Lag (0..1) <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
-	businessCalendar BusinessCenterEnum (1..1) <"The enumerated values to specify the business centers.">
-	
-	condition ParametricDatesChoice:
-		required choice dayDistribution, dayOfWeek
-	
-	condition DayOfWeekMethod:
-		if dayOfWeek exists
-		then dayFrequency exists
-
-type Lag: <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
-   lagDuration Offset (1..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
-   firstObservationDateOffset Offset (0..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
 
 type ValuationDate: <"A single object that represents the different methods to specify a valuation date, as used for cash settlement. The Single / Multiple ValuationDate is used for the determination of recovery in a credit event, the RelativeDateOffset is used for cash-settled option, and FxFixingDate is used for cross-currency settlement.">
 
