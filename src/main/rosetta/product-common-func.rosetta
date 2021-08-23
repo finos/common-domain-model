@@ -924,11 +924,9 @@ func Qualify_InterestRate_CapFloor:	<"Qualifies a product as an interest rate ca
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_CapFloor"]
 
 	assign-output is_product:
-		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
-
-		// // qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
-	 	// (economicTerms -> payout -> interestRatePayout only exists
-		// 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
+		// qualifies that either only the interest rate payout exists, or the interest rate payout exists and the cashflow exists and all other payouts are absent
+	 	(economicTerms -> payout -> interestRatePayout only exists
+		 	or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 		// qualifies product as an Interest Rate product with a single leg
 		and economicTerms -> payout -> interestRatePayout count = 1
 
