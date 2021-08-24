@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static cdm.base.math.UnitType.UnitTypeBuilder;
-import static cdm.observable.asset.processor.PriceHelper.toReferencablePriceBuilder;
+import static cdm.observable.asset.processor.PriceQuantityHelper.toReferencablePriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 
 /**
@@ -42,7 +42,7 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 							.addPrice(toReferencablePriceBuilder(floorRate, unitType, unitType, PriceTypeEnum.FLOOR_RATE));
 					// update price index, e.g. floorRate and capRate were previously mapped to the same field so the price index
 					// must be incremented otherwise any references will break
-					frm.setRosettaPath(PriceHelper.incrementPricePathElementIndex(frm.getRosettaPath(), 1));
+					frm.setRosettaPath(PriceQuantityHelper.incrementPathElementIndex(frm.getRosettaPath(), "price", 1));
 					// clear errors
 					frm.setError(null);
 					frm.setCondition(true);
