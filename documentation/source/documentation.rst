@@ -1025,7 +1025,7 @@ The list of business events for which this process is currently implemented in t
 .. code-block:: Haskell
 
  type Instruction:
-   instructionFunction string (1..1)
+   instructionFunction string (0..1)
    allocation AllocationInstruction (0..1)
    clearing ClearingInstruction (0..1)
    contractFormation ContractFormationInstruction (0..1)
