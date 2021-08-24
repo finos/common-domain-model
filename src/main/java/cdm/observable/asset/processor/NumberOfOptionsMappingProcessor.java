@@ -1,4 +1,4 @@
-package cdm.product.common.processor;
+package cdm.observable.asset.processor;
 
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.Quantity;
@@ -16,6 +16,13 @@ import static cdm.observable.asset.processor.PriceQuantityHelper.incrementPathEl
 import static cdm.observable.asset.processor.PriceQuantityHelper.toReferencableQuantityBuilder;
 import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 
+/**
+ * FpML mapper:
+ * - maps numberOfOptions to Quantity.amount
+ * - sets Quantity.unitOfAmount to FinancialUnitEnum.Contract
+ * - optionEntitlement to Quantity.multiplier
+ * - sets/maps the appropriate Quantity.multiplierUnit depending on underlying product
+ */
 public class NumberOfOptionsMappingProcessor extends MappingProcessor {
 
 	private static final Path EQUITY_UNDERLIER_PATH = Path.parse("underlyer.singleUnderlyer.equity.instrumentId");
