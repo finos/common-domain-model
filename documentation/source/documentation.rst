@@ -532,17 +532,13 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
 .. code-block:: Haskell
 
  func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
- 	[qualification Product]
- 	inputs: economicTerms EconomicTerms (1..1)
- 	output: is_product boolean (1..1)
- 	assign-output is_product:
-        (economicTerms -> payout -> interestRatePayout only exists
-			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
-        and economicTerms -> payout -> interestRatePayout count = 2
-        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
-        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
-        and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
-        and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	assign-output is_product:
+		Qualify_BaseProduct_Inflation(economicTerms) = True
+		and Qualify_SubProduct_FixedFloat(economicTerms) = True
+		and Qualify_Transaction_ZeroCoupon(economicTerms) = True
 
 If all the statements above are true, then the function evaluates to True, and the product is determined to be qualified as the product type referenced by the function name.
 
