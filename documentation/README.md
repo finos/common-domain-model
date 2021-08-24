@@ -1,4 +1,4 @@
-# Prerequisits
+# Prerequisites
 The documentation is written using reStructuredText markup language and built into static html pages using Sphyinx.  Sphyinx requires at least Python 2.7 or 3.4.
 
 ## Brew
