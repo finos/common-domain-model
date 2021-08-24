@@ -1,6 +1,5 @@
 package cdm.base.datetime.functions;
 
-import cdm.base.datetime.DateGroup;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
@@ -14,7 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PopOffDateListImpTest extends AbstractFunctionTest {
+public class PopOffDateListImplTest extends AbstractFunctionTest {
 
 	@Inject
 	private PopOffDateList func;
@@ -30,20 +29,20 @@ public class PopOffDateListImpTest extends AbstractFunctionTest {
 				DateImpl.of(2021, 5, 12),
 				DateImpl.of(2021, 5, 13));
 
-		DateGroup actualList = func.evaluate(DateGroup.builder().setDates(dates));
+		List<? extends Date> actualList = func.evaluate(dates);
 
-		assertEquals(expectedList, actualList.getDates());
+		assertEquals(expectedList, actualList);
 	}
 
 	@Test
 	void shouldHandleEmptyList() {
-		DateGroup actualList = func.evaluate(DateGroup.builder().setDates(new ArrayList<>()));
+		List<? extends Date> actualList = func.evaluate(new ArrayList<>());
 
-		assertEquals(Collections.emptyList(), actualList.getDates());
+		assertEquals(Collections.emptyList(), actualList);
 	}
 
 	@Test
 	void shouldHandleNullList() {
-		assertEquals(DateGroup.builder(), func.evaluate(null));
+		assertEquals(Collections.emptyList(), func.evaluate(null));
 	}
 }

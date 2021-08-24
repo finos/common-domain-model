@@ -178,7 +178,7 @@ func GenerateObservationDates: <"Generate the list of observation dates given an
 		bc BusinessCenters (1..1) <"The observation date.">
 		lockoutDays int (0..1) <"The number of lockout date.">
 	output:
-		observationDates DateGroup (1..1) <"The resulting list of observation date.">
+		observationDates date (0..*) <"The resulting list of observation date.">
 
 	// work out the final date of the observations  - we skip observing on the last day of the observation period
 	alias days: 1 + (if (lockoutDays exists) then lockoutDays else 0)
@@ -193,12 +193,12 @@ func DetermineWeightingDates: <"Determine the dates to be used for weighting obs
 	[calculation]
 	inputs:
 		calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
-		observationDates DateGroup (1..1)
+		observationDates date (0..*)
 		observationPeriod CalculationPeriodBase (1..1) <"The resulting observation perio.">
 		adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being comnputed, after any adjustment.">
 		lockoutDays int (1..1) <"The number of lockout day.">
 	output:
-		weightingDates DateGroup (1..1)
+		weightingDates date (0..*)
 
 	// set up some convenience aliases
 	alias obsShift: calculationParams->observationShiftCalculation
@@ -228,17 +228,17 @@ func ProcessObservations: <"Apply daily observation parameters to rate observati
 	alias cappedObservations: if cap exists then VectorScalarOperation(ArithmeticOperationEnum->Max, rawObservations, cap) else rawObservations
 	alias flooredObservations: if floor exists then VectorScalarOperation(ArithmeticOperationEnum->Min, cappedObservations, floor) else cappedObservations
 
-		// return the resulting values
+	// return the resulting values
 	assign-output processedObservations: flooredObservations
 
 func GenerateWeights: <"Recursively creates a list of weights based on the date difference between successive days.">
 	[calculation]
 	inputs:
-		weightingDates DateGroup (1..1) <"a list of dates for which weightings are require.">
+		weightingDates date (0..*) <"A list of dates for which weightings are require.">
 	output:
-		weights Vector (1..1) <" a vector of weights, typically numbers between 1 and 3 or .">
+		weights Vector (1..1) <"A vector of weights, typically numbers between 1 and 3.">
 
-	alias active: weightingDates->dates count > 1 // do we still have more than one date in the list?
+	alias active: weightingDates count > 1 // do we still have more than one date in the list?
 	alias refDate: LastInDateList(weightingDates) // find the last date in the supplied list of dates
 	alias remainingDates: PopOffDateList(weightingDates) // determine the prior list of dates, i.e. omitting the last in the list
 	alias prevDate: LastInDateList(remainingDates) // find the second to last date in the supplied list of dates

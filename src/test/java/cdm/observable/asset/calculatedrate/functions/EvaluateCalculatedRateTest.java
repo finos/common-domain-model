@@ -1,7 +1,6 @@
 package cdm.observable.asset.calculatedrate.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
-import cdm.base.datetime.DateGroup;
 import cdm.base.math.Vector;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
@@ -58,8 +57,7 @@ public class EvaluateCalculatedRateTest extends AbstractFunctionTest {
         obsDate.remove(obsDate.size()-1);
         List<Integer> wts = weights(calcDates);
 
-        DateGroup obsDateGroup = DateGroup.builder().setDates(obsDate);
-        Vector observations = indexVal.evaluate(obsDateGroup,fro);
+        Vector observations = indexVal.evaluate(obsDate,fro);
         FloatingRateSettingDetails result = func.evaluate(fro, calculationParams, null, calculationPeriod, null, dcf);
         double expectedRate = averageRate(observations.getValues(), wts);
         checkResults(obsDate, wts, expectedRate, result);
@@ -73,7 +71,7 @@ public class EvaluateCalculatedRateTest extends AbstractFunctionTest {
 
     private void checkResults(List<Date> obsDate, List<Integer> wts, double expectedRate, FloatingRateSettingDetails result) {
         CalculatedRateDetails calcs = result.getCalculationDetails();
-        assertEquals(obsDate, calcs.getObservations().getObservationDates().getDates());
+        assertEquals(obsDate, calcs.getObservations().getObservationDates());
         check(wts,calcs.getObservations().getWeights());
         assertEquals(expectedRate, calcs.getCalculatedRate().doubleValue(), 0.00000001);
     }

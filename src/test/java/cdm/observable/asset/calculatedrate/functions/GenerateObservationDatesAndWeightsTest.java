@@ -37,7 +37,7 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 		List<Integer> wts = weights(calcDates);
 
 		CalculatedRateObservationDatesAndWeights result = func.evaluate(calculationParams, null, calculationPeriod, null);
-		assertEquals(obsDate, result.getObservationDates().getDates());
+		assertEquals(obsDate, result.getObservationDates());
 		check(wts, result.getWeights());
 	}
 
@@ -59,7 +59,7 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 		List<Integer> wts = weights(wtDates);
 
 		CalculatedRateObservationDatesAndWeights result = func.evaluate(calculationParams, null, calculationPeriod, null);
-		assertEquals(obsDate, result.getObservationDates().getDates());
+		assertEquals(obsDate, result.getObservationDates());
 		check(wts, result.getWeights());
 	}
 
@@ -78,7 +78,7 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 		List<Integer> wts = weights(wtDates);
 
 		CalculatedRateObservationDatesAndWeights result = func.evaluate(calculationParams, null, calculationPeriod, null);
-		assertEquals(obsDate, result.getObservationDates().getDates());
+		assertEquals(obsDate, result.getObservationDates());
 		check(wts, result.getWeights());
 	}
 
@@ -101,7 +101,7 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 		List<Integer> wts = weights(wtDates);
 
 		CalculatedRateObservationDatesAndWeights result = func.evaluate(calculationParams, null, calculationPeriod, null);
-		assertEquals(obsDate, result.getObservationDates().getDates());
+		assertEquals(obsDate, result.getObservationDates());
 		check(wts, result.getWeights());
 	}
 
@@ -123,7 +123,7 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 		List<Integer> wts = weights(wtDates);
 
 		CalculatedRateObservationDatesAndWeights result = func.evaluate(calculationParams, null, calcPeriod, priorPeriod);
-		assertEquals(obsDate, result.getObservationDates().getDates());
+		assertEquals(obsDate, result.getObservationDates());
 		check(wts, result.getWeights());
 	}
 
@@ -146,7 +146,7 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 		List<Integer> wts = weights(wtDates);
 
 		CalculatedRateObservationDatesAndWeights result = func.evaluate(calculationParams, resetDate, calcPeriod, priorPeriod);
-		assertEquals(obsDate, result.getObservationDates().getDates());
+		assertEquals(obsDate, result.getObservationDates());
 		check(wts, result.getWeights());
 	}
 

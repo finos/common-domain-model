@@ -91,6 +91,6 @@ public class GenerateObservationDatesTest extends AbstractFunctionTest {
 				date(2021, 3, 3)
 		);
 
-		assertEquals(expected, func.evaluate(obsPeriod, bc, lockout).getDates());
+		assertEquals(expected, func.evaluate(obsPeriod, bc, lockout));
 	}
 }

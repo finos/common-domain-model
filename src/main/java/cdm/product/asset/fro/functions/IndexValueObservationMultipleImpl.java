@@ -4,6 +4,7 @@ import cdm.base.datetime.DateGroup;
 import cdm.base.math.Vector;
 import cdm.observable.asset.FloatingRateOption;
 import com.google.inject.Inject;
+import com.rosetta.model.lib.records.Date;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
@@ -19,9 +20,9 @@ public class IndexValueObservationMultipleImpl extends IndexValueObservationMult
 	private IndexValueObservation indexValueObservation;
 
 	@Override
-	protected Vector.VectorBuilder doEvaluate(DateGroup observationDates, FloatingRateOption floatingRateOption) {
+	protected Vector.VectorBuilder doEvaluate(List<? extends Date> observationDates, FloatingRateOption floatingRateOption) {
 		return Vector.builder()
-				.addValues(getObservedValues(observationDates, floatingRateOption));
+				.addValues(getObservedValues(DateGroup.builder().setDates(observationDates), floatingRateOption));
 	}
 
 	@NotNull

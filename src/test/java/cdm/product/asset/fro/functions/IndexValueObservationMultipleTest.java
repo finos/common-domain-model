@@ -30,14 +30,13 @@ public class IndexValueObservationMultipleTest extends AbstractFunctionTest {
 
     @Test
     void shouldGetValues() {
-        List<Date> dates = Arrays.asList(
+        List<? extends Date> dates = Arrays.asList(
                 DateImpl.of(2021,7,31),
                 DateImpl.of(2021,7,30),
                 DateImpl.of(2021,8,1),
                 DateImpl.of(2021,1,1),
                 DateImpl.of(2021,6,1),
                 DateImpl.of(2021,7,1));
-        DateGroup dg = DateGroup.builder().addDates(dates).build();
 
         List<BigDecimal> expected = Arrays.asList(
                             BigDecimal.valueOf(0.033),
@@ -48,7 +47,7 @@ public class IndexValueObservationMultipleTest extends AbstractFunctionTest {
                             BigDecimal.valueOf(0.03));
 
         FloatingRateOption fro = initFro();
-        Vector actual = func.evaluate(dg, fro);
+        Vector actual = func.evaluate(dates, fro);
         check(expected, actual);
     }
 

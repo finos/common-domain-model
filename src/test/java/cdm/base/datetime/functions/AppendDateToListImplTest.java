@@ -1,6 +1,5 @@
 package cdm.base.datetime.functions;
 
-import cdm.base.datetime.DateGroup;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
@@ -34,25 +33,25 @@ public class AppendDateToListImplTest extends AbstractFunctionTest {
 				DateImpl.of(2021, 5, 14),
 				DateImpl.of(2021, 5, 15));
 
-		DateGroup actualList = func.evaluate(DateGroup.builder().setDates(dateList), newVal);
+		List<? extends Date> actualList = func.evaluate(dateList, newVal);
 
-		assertEquals(expectedList, actualList.getDates());
+		assertEquals(expectedList, actualList);
 	}
 
 	@Test
 	void shouldHandleEmptyList() {
 		Date newVal = DateImpl.of(2021, 5, 15);
-		DateGroup actualList = func.evaluate(DateGroup.builder().setDates(new ArrayList<>()), newVal);
+		List<? extends Date> actualList = func.evaluate(new ArrayList<>(), newVal);
 
-		assertEquals(Collections.singletonList(DateImpl.of(2021, 5, 15)), actualList.getDates());
+		assertEquals(Collections.singletonList(DateImpl.of(2021, 5, 15)), actualList);
 	}
 
 	@Test
 	void shouldHandleNulls() {
-		assertEquals(Collections.emptyList(), func.evaluate(null, null).getDates());
-		assertEquals(Collections.emptyList(), func.evaluate(DateGroup.builder(), null).getDates());
+		assertEquals(Collections.emptyList(), func.evaluate(null, null));
+		assertEquals(Collections.emptyList(), func.evaluate(Collections.emptyList(), null));
 
 		List<Date> zeroList = Collections.singletonList(DateImpl.of(1, 1, 2020));
-		assertEquals(zeroList, func.evaluate(null, DateImpl.of(1, 1, 2020)).getDates());
+		assertEquals(zeroList, func.evaluate(null, DateImpl.of(1, 1, 2020)));
 	}
 }

@@ -1,9 +1,6 @@
 package cdm.observable.asset.calculatedrate.functions;
 
-import cdm.base.datetime.DateGroup;
 import cdm.base.math.Vector;
-import cdm.product.asset.floatingrate.functions.GetFloatingRateConditionParametersTest;
-import cdm.product.common.schedule.CalculationPeriodBase;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -89,9 +86,7 @@ public class GenerateWeightsTest extends AbstractFunctionTest {
 		);
 		double[] expected = expectedWeights;
 
-		DateGroup wtDates = DateGroup.builder().setDates(weightingDates).build();
-
-		check(expected, func.evaluate(wtDates));
+		check(expected, func.evaluate(weightingDates));
 	}
 
 	public static double[] expectedWeights = {

@@ -52,10 +52,10 @@ public class GenerateDateListTest extends AbstractFunctionTest {
 				DateImpl.of(2021, 12, 29),
 				DateImpl.of(2021, 12, 30));
 
-		assertNull(func.evaluate(last, first, TARGET_BC));
-		assertEquals(targetExpected, func.evaluate(first, last, TARGET_BC).getDates());
-		assertEquals(londonTargetExpected, func.evaluate(first, last, LONDON_TARGET_BC).getDates());
-		assertEquals(londonTargetUsExpected, func.evaluate(first, last, LONDON_TARGET_US_BC).getDates());
-		assertEquals(londonTargetUsExpected, func.evaluate(DateImpl.of(2021, 12, 20), DateImpl.of(2021, 12, 30), LONDON_TARGET_US_BC).getDates());
+		assertEquals(Collections.emptyList(), func.evaluate(last, first, TARGET_BC));
+		assertEquals(targetExpected, func.evaluate(first, last, TARGET_BC));
+		assertEquals(londonTargetExpected, func.evaluate(first, last, LONDON_TARGET_BC));
+		assertEquals(londonTargetUsExpected, func.evaluate(first, last, LONDON_TARGET_US_BC));
+		assertEquals(londonTargetUsExpected, func.evaluate(DateImpl.of(2021, 12, 20), DateImpl.of(2021, 12, 30), LONDON_TARGET_US_BC));
 	}
 }
