@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-A heirarchical approach to product qualification has been introduced in order to a) eliminate unnecessary repitition in the product qualification functions, and b) create a set of functions that can be reused in the development of the Digital Regulatory Reporting ("DRR") ruleset.
+A hierarchical approach to product qualification has been introduced in order to a) eliminate unnecessary repetition in the product qualification functions, and b) create a set of functions that can be reused in the development of the Digital Regulatory Reporting ("DRR") ruleset.
 
 _Background_
 
@@ -14,7 +14,7 @@ This release focuses on creating a composable set of qualification rules for Int
 
 _Details_
 
-New product qualification rules have been added to the model to describe the heirarchy of Interest Rate products as defined by the ISDA Product Taxonomy:
+New product qualification rules have been added to the model to describe the hierarchy of Interest Rate products as defined by the ISDA Product Taxonomy:
 - Qualify_AssetClass_InterestRate_Swap - Qualifies a product as having the Asset Class classification Interest Rate.
 - Qualify_BaseProduct_IRSwap - Qualifies a product as having the Base Product classification Interest Rate Swap.
 - Qualify_BaseProduct_CrossCurrency - Qualifies a product as having the Base Product classification Cross Currency.
