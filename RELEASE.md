@@ -2,14 +2,16 @@
 
 _What is being released?_
 
-`OptionPayout` has been updated to support vanilla Commodity Options (Bullet European & Asian). The release refactors the `AveragingObservation` object to `AveragingCalculation` and introduces a new property, `ObservationTerms`, to the `OptionPayout` object. The solution decouples the aspects of observing & averaging a price that were previously both contained within `AveragingObservation` and also offers support for cross product observations that are possible for Option contracts. Relevant synonym mappings have been updated so that linkage exists to existing fPML structures.
+`OptionPayout` has been updated to support vanilla Commodity Options (Bullet European & Asian). The release refactors the `AveragingObservation` object to `AveragingCalculation` and introduces a new property, `ObservationTerms`, to the `OptionPayout` object. The solution decouples the aspects of observing & averaging a price that were previously both contained within `AveragingObservation` and also offers support for cross product observations that are possible for Option contracts.
 
 _Details_
 
 - `AveragingCalculation` - New data type created to replace `AveragingObservation` & defines calculation parameters associated with Average/Asian Options. Modelled in `OptionFeature` with data attribute `averagingRateFeature`.
 - `ObservationTerms` - New data type created and included in `OptionPayout` to specify terms associated with observing a benchmark price. Contains a number of existing data types to capture; observable, pricingTime, pricingTimeType, primarySource, secondarySource, precision, observationDate & calculationPeriodDates. 
 - `AveragingStrikeFeature` - Object created to keep previous support for average strikes & replaces previous use of `AveragingObservation` in `OptionStrike`. 
-- `ParametricDates` - Added to `ObservationDates` to allow specification of date terms in parametric means typically associated with commodities. 
+- `ParametricDates` - Added to `ObservationDates` to allow specification of date terms in parametric means typically associated with commodities.
+
+Relevant synonym mappings have been updated so that linkage exists to equivalent FpML structures.
 
 _New Ingestion Examples_
 
