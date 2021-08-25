@@ -10,12 +10,10 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
 public class AppendDateToListImpl extends AppendDateToList {
 
 	@Override
-	protected List<? extends Date> doEvaluate(List<? extends Date> origDates, Date newDate) {
-		if (newDate == null)
-			return emptyIfNull(origDates);
-
+	protected List<Date> doEvaluate(List<? extends Date> origDates, Date newDate) {
 		List<Date> dates = new ArrayList<>(emptyIfNull(origDates));
-		dates.add(newDate);
+		if (newDate != null)
+			dates.add(newDate);
 		return dates;
 	}
 }
