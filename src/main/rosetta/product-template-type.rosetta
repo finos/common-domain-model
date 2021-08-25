@@ -43,7 +43,8 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 
 	condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout.">
 		if extraordinaryEvents exists
-		then payout -> equityPayout exists
+		then (payout -> equityPayout exists
+		or payout -> optionPayout -> underlier -> security exists)
 
 	condition FpML_cd_26_28: <"FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate. This data rule tackles those two FpML validation rules at once, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute.">
 		if payout -> creditDefaultPayout exists
@@ -508,17 +509,18 @@ type MandatoryEarlyTerminationAdjustedDates: <"A data defining:  the adjusted da
 type OptionalEarlyTermination: <"A data defining:  an early termination provision where either or both parties have the right to exercise.">
 
 	singlePartyOption BuyerSeller (0..1) <"If optional early termination is not available to both parties then this component specifies the buyer and seller of the option. In FpML, this attribute is of type SinglePsrtyOption, which actually consists of the BuyerSeller.model.">
+	mutualEarlyTermination boolean (0..1) <"Used for specifying whether the Mutual Early Termination Right that is detailed in the Master Confirmation will apply.">
 	americanExercise AmericanExercise (0..1) <"American exercise. FpML implementations consists in an exercise substitution group.">
 	bermudaExercise BermudaExercise (0..1) <"Bermuda exercise. FpML implementations consists in an exercise substitution group.">
 	europeanExercise EuropeanExercise (0..1) <"European exercise. FpML implementations consists in an exercise substitution group.">
 	exerciseNotice ExerciseNotice (0..*) <"Definition of the party to whom notice of exercise should be given.">
 	followUpConfirmation boolean (0..1) <"A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.">
-	calculationAgent CalculationAgent (1..1) <"The ISDA Calculation Agent responsible for performing duties associated with an optional early termination.">
-	cashSettlement CashSettlementTerms (1..1) <"If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement procedure. If not specified, then physical settlement is applicable.">
+	calculationAgent CalculationAgent (0..1) <"The ISDA Calculation Agent responsible for performing duties associated with an optional early termination.">
+	cashSettlement CashSettlementTerms (0..1) <"If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement procedure. If not specified, then physical settlement is applicable.">
 	optionalEarlyTerminationAdjustedDates OptionalEarlyTerminationAdjustedDates (0..1) <"An early termination provision to terminate the trade at fair value where one or both parties have the right to decide on termination.">
 
 	condition ExerciseChoice: <"condition to represent an FpML choice construct.">
-		required choice americanExercise, bermudaExercise, europeanExercise
+		optional choice americanExercise, bermudaExercise, europeanExercise
 
 	condition OptionalEarlyTerminationExerciseNoticeReceiverParty:
 		if exerciseNotice -> exerciseNoticeReceiver exists
@@ -716,13 +718,14 @@ type ManualExercise: <"A class defining manual exercise, i.e. that the option bu
 type MultipleExercise extends PartialExercise: <"A class defining multiple exercises. As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more than the maximum notional amount, and if an integral multiple amount is specified, the notional exercised must be equal to or, be an integral multiple of, the integral multiple amount. In FpML, MultipleExercise is built upon the PartialExercise.model.">
 
 	maximumNotionalAmount number (0..1) <"The maximum notional amount that can be exercised on a given exercise date.">
-	maximumNumberOfOptions number (0..1) <"The maximum number of options that can be exercised on a given exercise date. If the number is not specified, it means that the maximum number of options corresponds to the remaining unexercised options.">
+	maximumNumberOfOptions int (0..1) <"The maximum number of options that can be exercised on a given exercise date. If the number is not specified, it means that the maximum number of options corresponds to the remaining unexercised options.">
 
-	condition: one-of
+	condition MaximumChoice: <"Choice rule to represent an FpML choice construct.">
+		required choice maximumNotionalAmount, maximumNumberOfOptions
 
-	condition MaximumNumberOfOptions: <"FpML MultipleExercise construct specifies the minimumNumberOfOptions as a positive integer.">
+	condition MaximumNumberOfOptions: <"FpML MultipleExercise construct specifies the maximumNumberOfOptions as a positive integer.">
 		if maximumNumberOfOptions exists
-		then maximumNotionalAmount >= 0.0
+		then maximumNotionalAmount >= 0
 
 	condition MinimumNumberOfOptions: <"FpML MultipleExercise construct specifies the minimumNumberOfOptions as a positive integer.">
 		if minimumNumberOfOptions exists
@@ -790,7 +793,7 @@ type DividendTerms: <"Information related to dividends and payments.">
 
 type CollateralProvisions: <"Contains collateral attributes which can also inherit information from a master agreement.">
     collateralType CollateralTypeEnum (1..1) <"Cash or NonCash collateral">
-    marginPercentage CollateralValuationPercentage (0..1) <"Specification of the valuation treatment for the specified collateral.">
+    marginPercentage CollateralValuationTreatment (0..1) <"Specification of the valuation treatment for the specified collateral.">
     eligibleCollateral EligibleCollateralSchedule (0..*) <"The eligible collateral as specified in relation to the transaction.">
 
 type SecurityFinanceLeg: <"Defines each security movement of a security financing transaction.">

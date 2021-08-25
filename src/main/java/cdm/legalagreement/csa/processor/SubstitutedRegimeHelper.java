@@ -8,6 +8,7 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,11 +32,14 @@ public class SubstitutedRegimeHelper {
 
 	@NotNull
 	public List<SubstitutedRegime> getSubstitutedRegimes(Path synonymPath) {
-		return mappings.stream()
+		List<SubstitutedRegime> substitutedRegimes = mappings.stream()
 				// find all sub-paths, e.g. partyA.answers.substitutedRegime.partyA_emir
 				.filter(m -> synonymPath.nameStartMatches(m.getXmlPath()))
 				// filter to only partyA
-				.filter(m -> m.getXmlPath().getLastElement().getPathName().startsWith("partyA_"))
+				.filter(m ->
+						m.getXmlPath().getLastElement().getPathName().startsWith("partyA_")
+								&& !m.getXmlPath().getLastElement().getPathName().endsWith("additional_substituted_regime")
+				)
 				// remove blanks
 				.filter(m -> m.getXmlValue() != null)
 				// build
@@ -43,6 +47,33 @@ public class SubstitutedRegimeHelper {
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.collect(Collectors.toList());
+
+		List<SubstitutedRegime> additionalSubstitutedRegimes = mappings.stream()
+				.filter(m -> synonymPath.append(Path.parse("additional_substituted_regime.name")).nameStartMatches(m.getXmlPath()))
+				.filter(m -> m.getXmlValue() != null)
+				.map(this::getAdditionalSubstitutedRegime)
+				.collect(Collectors.toList());
+
+		List<SubstitutedRegime> results = new ArrayList<>();
+		results.addAll(substitutedRegimes);
+		results.addAll(additionalSubstitutedRegimes);
+		return results;
+	}
+
+	private SubstitutedRegime getAdditionalSubstitutedRegime(Mapping additionalRegimeNameMapping) {
+		SubstitutedRegime.SubstitutedRegimeBuilder substitutedRegimeBuilder = SubstitutedRegime.builder();
+		setValueAndUpdateMappings(additionalRegimeNameMapping.getXmlPath(), substitutedRegimeBuilder::setAdditionalRegime, mappings, path);
+
+		Integer index = additionalRegimeNameMapping.getXmlPath().getLastElement().getIndex().orElse(0);
+
+		Path additionalSubstitutedRegimePath = additionalRegimeNameMapping.getXmlPath().getParent();
+
+		PARTIES.forEach(party -> {
+			getSubstitutedRegimeTerms(additionalSubstitutedRegimePath, party, "additional_substituted_regime[" + index + "]")
+					.ifPresent(substitutedRegimeBuilder::addRegimeTerms);
+		});
+
+		return substitutedRegimeBuilder.build();
 	}
 
 	private Optional<SubstitutedRegime> getSubstitutedRegime(Path synonymPath) {
@@ -68,10 +99,10 @@ public class SubstitutedRegimeHelper {
 		return pathName.substring(pathName.indexOf("_") + 1);
 	}
 
-	private Optional<SubstitutedRegimeTerms.SubstitutedRegimeTermsBuilder> getSubstitutedRegimeTerms(Path basePath, String party, String regulatoryRegime) {
+	private Optional<SubstitutedRegimeTerms.SubstitutedRegimeTermsBuilder> getSubstitutedRegimeTerms(Path basePath, String party, String pathSuffix) {
 		SubstitutedRegimeTerms.SubstitutedRegimeTermsBuilder substitutedRegimeTermsBuilder = SubstitutedRegimeTerms.builder();
 
-		setValueAndUpdateMappings(basePath.addElement(party + "_" + regulatoryRegime),
+		setValueAndUpdateMappings(basePath.append(Path.parse(party + "_" + pathSuffix)),
 				(value) -> {
 					substitutedRegimeTermsBuilder.setParty(toCounterpartyRoleEnum(party));
 					substitutedRegimeTermsBuilder.setIsApplicable(value.equals("applicable"));

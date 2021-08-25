@@ -35,33 +35,39 @@ type AgencyRatingCriteria: <"A class to specify multiple credit notations alongs
 
 	qualifier QuantifierEnum (1..1) <"Indicates whether all or any agency ratings apply.">
 	creditNotation CreditNotation (1..*) <"Indicates the agency rating criteria specified for the asset or issuer.">
-	mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
-	referenceAgency CreditRatingAgencyEnum (0..1)
+	mismatchResolution CreditNotationMismatchResolutionEnum (0..1) <"Indicator for options to be used if several agency ratings (>1) are specified and its necessary to identify specific charateristics. i.e (lowest or highest).">
+	referenceAgency CreditRatingAgencyEnum (0..1) <"To identify The dominant reference agency if there is a missmatch and several reference agencies exsist.">
+	boundary CreditNotationBoundaryEnum (0..1) <"Indicates the boundary of a credit agency rating i.e minimum or maximum.">
 
 	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
 		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
 		then AgencyRatingCriteria -> referenceAgency exists
 
-type CollateralValuationPercentage: <"Specification of the valuation treatment for the specified collateral.">
+type CollateralValuationTreatment: <"Specification of the valuation treatment for the specified collateral.">
 
-	valuationPercentage number (0..1) <"Percentage value of asset to be used as collateral once discounted haircut take into consideration,expressed as a valuation. As an example a 0.5% haircut would be expressed as 99.5% and represented as a decimal number 0.995">
+	haircutPercentage number (0..1) <"Haircut percentage to be applied to the value of asset and used as a discount factor to the value of the collateral asset,expressed as a percentage in decimal terms. As an example a 0.5% haircut would be represented as a decimal number 0.005">
 	marginPercentage number (0..1) <"Percentage value of transaction needing to be posted as collateral expressed as a valuation. As an example a 104% requirement would be represented as a decimal number 1.04">
 	fxHaircutPercentage number (0..1) <"FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin).The percentage value is expressed as the discount haircut to the value of the collateral- as an example an 8% FX haircut would be expressed as 0.08.">
+	additionalHaircutPercentage number (0..1) <"Percentage value of any additional haircut to be applied to a collateral asset,the percentage value is expressed as the discount haircut to the value of the collateral- as an example a 5% haircut would be expressed as 0.05. ">
 
-	condition ValuationPercentage: <"A data rule to validate that if an Valuation Percentage is specified it should be between 0 and 1.">
-		if valuationPercentage exists
-		then valuationPercentage > 0 and valuationPercentage <= 1
+	condition HaircutPercentage: <"A data rule to validate that if a Valuation Percentage is specified it should be between 0 and 1.">
+		if haircutPercentage exists
+		then haircutPercentage > 0 and haircutPercentage <= 1
 
 	condition MarginPercentage: <"A data rule to validate that if a Margin Percentage is specified it should be greater than 1.">
 		if marginPercentage exists
-		then marginPercentage > 1
+		then marginPercentage >= 1
 
 	condition FxHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and 1.">
 		if fxHaircutPercentage exists
 		then fxHaircutPercentage > 0 and fxHaircutPercentage <= 1
 
-	condition ValuationPercentageOrMarginPercentage: <"Choice rule requiring that either a valuation percentage or margin percentage is specified.">
-		required choice valuationPercentage, marginPercentage
+	condition AdditionalHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and 1.">
+		if additionalHaircutPercentage exists
+		then additionalHaircutPercentage > 0 and additionalHaircutPercentage <= 1
+
+	condition HaircutPercentageOrMarginPercentage: <"Choice rule requiring that either a haircut percentage or margin percentage is specified.">
+		required choice haircutPercentage, marginPercentage
 
 type EligibleCollateralSchedule: <"Set of criteria used to specify an eligible collateral schedule.">
 	[rootType]
@@ -78,7 +84,7 @@ type EligibleCollateralCriteria: <"Criteria used to specify eligible collateral.
 
 type CollateralTreatment: <"Specifies the treatment terms for the eligible collateral criteria specified.">
 
-	valuationPercentage CollateralValuationPercentage (0..1) <"Specification of the valuation treatment for the specified collateral.">
+	valuationTreatment CollateralValuationTreatment (0..1) <"Specification of the valuation treatment for the specified collateral.">
 	concentrationLimit ConcentrationLimit (0..*) <"Specification of concentration limits applicable to the collateral criteria.">
 	isIncluded boolean (1..1) <"A boolean attribute to specify whether collateral critieria are inclusion (True) or exclusion (False) criteria">
 
@@ -109,11 +115,13 @@ type IssuerCriteria: <"Criteria used to specify eligible collateral issuers.">
 	issuerName LegalEntity (0..*) <"Filter based on the issuing entity name or LEI.">
 	issuerAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk and creditors claim in event of default associated with asset issuer.">
 	sovereignAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk of country.">
-	counterpartyOwnIssuePermitted boolean (0..1) <"Filter based on whether it is permitted for the the underlying asset to be issued by the posting entity or part of their corporate family.">
+	counterpartyOwnIssuePermitted boolean (0..1) <"Filter based on whether it is permitted for the underlying asset to be issued by the posting entity or part of their corporate family.">
+
 type PostedCreditSupportItem: <"Posted Credit Support item with corresponding Valuation Percentage, FX Haircut Percentage and any related disputed Posted Credit Support valuation.">
 	cashOrSecurityValue Money (1..1) <"The Base Currency Equivalent of Cash or Security.">
-	valuationPercentage number (1..1) <"Valuation Percentage means, for any item of Eligible Collateral (IM), the percentage specified in accordance with Paragraph 13.">
-	fxHaircutPercentage number (1..1) <"FX Haircut Percentage means, for any item of Eligible Collateral (IM), the percentage specified in accordance with Paragraph 13.">
+	haircutPercentage number (1..1) <"Valuation Percentage means, for any item of Eligible Collateral (IM), the percentage specified in accordance with Paragraph 13.">
+	fxHaircutPercentage number (0..1) <"FX Haircut Percentage means, for any item of Eligible Collateral (IM), the percentage specified in accordance with Paragraph 13.">
+	additionalHaircutPercentage number (0..1) <"Percentage value of any additional haircut to be applied to a collateral asset,the percentage value is expressed as the discount haircut to the value of the collateral- as an example a 5% haircut would be expressed as 0.05. ">
 	disputedCashOrSecurityValue Money (1..1) <"Paragraph 5. If a party (a 'Disputing Party') disputes the Value of any Posted Credit Support (IM).">
 
 type AccessConditions: <"A class to specify each party's election with respect to the Termination Events that will be deemed an Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA). ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (f)(ii). | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (e)(ii). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (e): Conditions Precedent and Secured Party’s Rights and Remedies.">
@@ -204,11 +212,15 @@ type AmendmentEffectiveDate: <"A class to specify the effective date of the Amen
 
 	date date (0..1) <"The effective date of the Amendment to Termination Currency when specified as an actual date.">
 		[synonym ISDA_Create_1_0 value "date_of_agreement"]
+		[synonym ISDA_Create_1_0 value "date_of_annex"]
 	specificDate AmendmentEffectiveDateEnum (0..1) <"The effective date of the Amendment to Termination Currency when specified as relative to another date (e.g. the annex date).">
-		[synonym ISDA_Create_1_0 value "annex_date"]
-		[synonym ISDA_Create_1_0 value "effectiveness_date"]
-		[synonym ISDA_Create_1_0 value "agreement_date"]
+		[synonym ISDA_Create_1_0 value "annex_date" mapper "EffectivenessDate"]
+		[synonym ISDA_Create_1_0 value "effectiveness_date" mapper "EffectivenessDate"]
+		[synonym ISDA_Create_1_0 value "agreement_date" mapper "EffectivenessDate"]
 	customProvision string (0..1)<"The effective date of the Amendment to Termination Currency when specified as a non normalized custom provision.">
+		[synonym ISDA_Create_1_0 value "specify" set when "effectiveness_date" = "other"]
+		[synonym ISDA_Create_1_0 value "specify" set when "agreement_date" = "other"]
+		[synonym ISDA_Create_1_0 value "specify" set when "annex_date" = "other"]
 
 	condition: one-of
 
@@ -401,8 +413,7 @@ type CollateralTransferAgreementElections: <"The set of elections which specify 
 		[synonym ISDA_Create_1_0 value "other_csa->specify" set when "other_csa->specified" = "true"]
 		[synonym ISDA_Create_1_0 value "other_csa->other_csa_specify" set when "other_csa->specified" = "true"]
 	terminationCurrencyAmendment TerminationCurrencyAmendment (1..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Termination Currency.  Unless specified the definition of Termination Currency has the meaning specified in the Schedule to the ISDA Master Agreement.">
-		[synonym ISDA_Create_1_0 value "amendment_to_termination_currency" mapper "TerminationCurrencyAmendment"]
-		[synonym ISDA_Create_1_0 value "security_provider_posting_obligations" mapper "TerminationCurrencyAmendment"]
+		[synonym ISDA_Create_1_0 value "amendment_to_termination_currency", "security_provider_posting_obligations" mapper "TerminationCurrencyAmendment"]
 	minimumTransferAmountAmendment MinimumTransferAmountAmendment (0..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Minimum Transfer Amount.  Unless specified the definition of Minimum Transfer Amount in any Other Regulatory CSA has the meaning specified in such Other Regulatory CSA.">
 		[synonym ISDA_Create_1_0 value "amendment_to_minimum_transfer_amount" mapper "MinimumTransferAmountAmendment"]
 	interpretationTerms string (0..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Interpretations.">
@@ -416,6 +427,8 @@ type CollateralTransferAgreementElections: <"The set of elections which specify 
 	additionalBespokeTerms string (0..1) <"Any additional terms that might be specified applicable.">
 		[synonym ISDA_Create_1_0 value "specify" path "additional_terms" set when "additional_terms->is_applicable" = "applicable"]
 		[synonym ISDA_Create_1_0 value "specify" path "bespoke_provisions" set when "bespoke_provisions->is_applicable" = "applicable"]
+	pledgeeRepresentativeRider PledgeeRepresentativeRider (0..1) <"The terms of the Rider for the ISDA Euroclear 2019 Collateral Transfer Agreement with respect to the use of a Pledgee Representative attached to this Agreement.">
+		[synonym ISDA_Create_1_0 value "rider"]
 
 type CollateralValuationAgent: <"A class to specify Collateral Valuation Agent terms.">
 
@@ -464,17 +477,14 @@ type ControlAgreementNecEvent: <"A class to specify Control Agreement language r
 
 	controlAgreementNecEventElection ControlAgreementNecEventElection (2..2)
 
-
 type ControlAgreementNecEventElection: <"A class to specify party specific Control Agreement language related to delivery of a Notice of Exclusive Control">
 
 	party CounterpartyRoleEnum (1..1) <"The elective party.">
 		[synonym ISDA_Create_1_0 set to CounterpartyRoleEnum -> Party1 when "partyA_control_agreement_nec_event" = "applicable", set to CounterpartyRoleEnum -> Party1 when "partyA_control_agreement_nec_event" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to CounterpartyRoleEnum -> Party2 when "partyB_control_agreement_nec_event" = "applicable", set to CounterpartyRoleEnum -> Party2 when "partyB_control_agreement_nec_event" = "not_applicable"]
-
 	necEvent boolean (1..1)
 		[synonym ISDA_Create_1_0 set to True when "partyA_control_agreement_nec_event" = "applicable", set to False when "partyA_control_agreement_nec_event" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_control_agreement_nec_event" = "applicable", set to False when "partyB_control_agreement_nec_event" = "not_applicable"]
-
 
 type CreditSupportAgreementElections: <"The set of elections which specify a Credit Support Annex or Deed.">
 
@@ -517,10 +527,12 @@ type CreditSupportAgreementElections: <"The set of elections which specify a Cre
 		[synonym ISDA_Create_1_0 value "addresses_for_transfers" mapper "ContactElection"]
 	otherAgreements OtherAgreements (0..1) <"The bespoke definition of other agreement terms as specified by the parties to the agreement."> 
 	terminationCurrencyAmendment TerminationCurrencyAmendment (1..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Termination Currency.  Unless specified the definition of Termination Currency has the meaning specified in the Schedule to the ISDA Master Agreement.">
-		[synonym ISDA_Create_1_0 value "amendment_to_termination_currency" mapper "TerminationCurrencyAmendment"]
-		[synonym ISDA_Create_1_0 value "pledgor_posting_obligations" mapper "TerminationCurrencyAmendment"]
-		[synonym ISDA_Create_1_0 value "chargor_posting_obligations" mapper "TerminationCurrencyAmendment"]
-		[synonym ISDA_Create_1_0 value "obligor_posting_obligations" mapper "TerminationCurrencyAmendment"]
+		[synonym ISDA_Create_1_0 value
+			"amendment_to_termination_currency",
+			"pledgor_posting_obligations",
+			"chargor_posting_obligations",
+			"obligor_posting_obligations"
+			mapper "TerminationCurrencyAmendment"]
 	minimumTransferAmountAmendment MinimumTransferAmountAmendment (1..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Minimum Transfer Amount.  Unless specified the definition of Minimum Transfer Amount in any Other Regulatory CSA has the meaning specified in such Other Regulatory CSA.">
 		[synonym ISDA_Create_1_0 value "amendment_to_minimum_transfer_amount" mapper "MinimumTransferAmountAmendment"]
 	interpretationTerms string (0..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Interpretations.">
@@ -550,7 +562,6 @@ type CreditSupportObligationsVariationMargin: <"A class to specify the Credit Su
 type Custodian: <"A class to specify the custodian and custody account details for each party to the agreement.">
 
 	partyElection CustodianElection (2..2) <"The party specific elections.">
-
 
 type CustodianElection: <"A class to specify the custodian and custody account details for each party to the agreement.">
 
@@ -905,6 +916,8 @@ type JurisdictionRelatedTerms: <"A class to specify terms jurisdiction related t
 		[synonym ISDA_Create_1_0 set to True when "jury_waiver->is_applicable" = "applicable", set to False when "jury_waiver->is_applicable" = "not_applicable"]
 	frenchLawAddendum FrenchLawAddendum (0..1) <"The French Law Addendum Provisions specific to the agreement.">
 		[synonym ISDA_Create_1_0 value "french_law_addendum" mapper "FrenchLawAddendum"]
+	belgianLawSecurityAgreement boolean (0..1) <"The qualification of whether the Belgian Law Security Agreement Addendum is deemed applicable by the parties (True) or not (False).">
+		[synonym ISDA_Create_1_0 set to True when "belgian_law_security_agreement->is_applicable" = "applicable", set to False when "belgian_law_security_agreement->is_applicable" = "not_applicable"]
 
 type MarginApproach: <"A class for selection of Margin Approach.">
 
@@ -1067,6 +1080,28 @@ type RegimeTerms: <"A class that is used by the ApplicableRegime and the Additio
 	simmException SimmException (0..1) <"The election for SIMM exception to the regulatory regime clause of the ISDA 2016 and 2018 CSA for Initial Margin as either a normalized value specified as part of an enumeration or a customized value specified of type string. ISDA 2016 Credit Support Annex for Initial Margin paragraph 13, Regime: SIMM Exception.">
 	retrospectiveEffect RetrospectiveEffect (0..1) <"ISDA 2016 CSA for Initial Margin, paragraph 13 (b)(i): if `Retrospective Effect` is specified as applicable to a Regime (a `Retrospective Regime`) then all Covered Transactions (IM) under all other Regimes with an earlier Regime Effective Time will, to the extent that they would have been Covered Transactions (IM) under such Retrospective Regime had such Transactions been entered into at or after the Regime Effective Time of the Retrospective Regime, be deemed to be Covered Transactions (IM) for such Retrospective Regime.">
 
+type PledgeeRepresentativeRider: <"The terms of the Rider for the ISDA Euroclear 2019 Collateral Transfer Agreement with respect to the use of a Pledgee Representative attached to this Agreement">
+
+	isApplicable boolean (1..1) <"Identification of whether the representative CTA provisions are applicable (True) or not applicable (False)">
+		[synonym ISDA_Create_1_0 set to True when "representative_cta_provisions" = "applicable", set to False when "representative_cta_provisions" = "not_applicable"]
+	party CounterpartyRoleEnum (0..1) <"Identification of the represented party.">
+		[synonym ISDA_Create_1_0 set to CounterpartyRoleEnum -> Party1 when "represented_party" = "party_a", set to CounterpartyRoleEnum -> Party2 when "represented_party" = "party_b"]
+	representativeTerms string (0..1) <"The specific representative terms applicable when specified.">
+		[synonym ISDA_Create_1_0 value "specify"]
+	representativeEvent ExceptionEnum (0..1) <"The specification of whether the representative event terms are applicable">
+		[synonym ISDA_Create_1_0 value "representative_event"]
+	representativeEventTerms string (0..1) <"The specific representative event terms applicable when specified.">
+		[synonym ISDA_Create_1_0 value "specify_text"]
+	representativeEndDate CustomisableOffset (0..1) <"The definition of representative end date in relation to a representative event.">
+
+	condition representativeParty: <"A data rule to enforce that representative terms and a represented party are specified when representative provisions are applicable.">
+		if isApplicable = True
+		then (party and representativeTerms and representativeEvent and representativeEndDate) exists
+
+	condition representativeEventTerms: <"A data rule to enforce that representative event terms are specified when applicable.">
+		if representativeEvent = ExceptionEnum->Other
+		then representativeEventTerms exists
+
 type RetrospectiveEffect: <"A class to specify the retrospective effect exception to the regulatory regime clause of Initial Margin documents as either a normalized value specified as part of an enumeration or a customized value specified of type string.">
 
 	standardisedException ExceptionEnum (0..1) <"The Standard Initial Margin Model exception when specified by the party according to one of the enumerated values.">
@@ -1128,7 +1163,6 @@ type SecuredPartyRightsEventElection: <"A class to specify party specific Secure
 		[synonym ISDA_Create_1_0 set to True when "partyB_secured_party_rights_event" = "applicable", set to False when "partyB_secured_party_rights_event" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyA_security_taker_rights_event" = "applicable", set to False when "partyA_security_taker_rights_event" = "not_applicable"]
 		[synonym ISDA_Create_1_0 set to True when "partyB_security_taker_rights_event" = "applicable", set to False when "partyB_security_taker_rights_event" = "not_applicable"]
-
 
 type SecurityAgreementElections: <"The set of elections which specify a Security Agremeent">
 

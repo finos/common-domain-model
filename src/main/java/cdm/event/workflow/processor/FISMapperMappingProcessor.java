@@ -314,7 +314,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getValue()
 					.getOrCreateCollateralProvisions()
 					.getOrCreateMarginPercentage()
-					.setValuationPercentage(parseDecimal(value).divide(BigDecimal.valueOf(100)));
+					.setMarginPercentage(parseDecimal(value).divide(BigDecimal.valueOf(100)));
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 
