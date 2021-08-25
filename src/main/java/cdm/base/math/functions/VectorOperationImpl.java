@@ -18,8 +18,8 @@ public class VectorOperationImpl extends VectorOperation {
     // If one vector is shorter than the other, pad out the shorter one with 0s.
     @Override
     protected Vector.VectorBuilder doEvaluate(ArithmeticOperationEnum arithmeticOp, Vector left, Vector right) {
-        List<? extends BigDecimal> leftVals = left == null ? null : left.getValues();
-        List<? extends BigDecimal> rightVals = right == null ? null : right.getValues();
+        List<BigDecimal> leftVals = left == null ? null : left.getValues();
+        List<BigDecimal> rightVals = right == null ? null : right.getValues();
 
         List<BigDecimal> res = doEval(arithmeticOp, leftVals, rightVals);
         Vector.VectorBuilder ret = Vector.builder();
@@ -27,7 +27,7 @@ public class VectorOperationImpl extends VectorOperation {
         return ret;
     }
 
-    protected List<BigDecimal> doEval(ArithmeticOperationEnum arithmeticOp, List<? extends BigDecimal> left, List<? extends BigDecimal> right) {
+    protected List<BigDecimal> doEval(ArithmeticOperationEnum arithmeticOp, List<BigDecimal> left, List<BigDecimal> right) {
         BiFunction<BigDecimal, BigDecimal, BigDecimal> eval = ArithmeticOpImpl.operation(arithmeticOp);
 
         int leftSize = left == null ? 0 : left.size();

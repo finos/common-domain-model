@@ -12,7 +12,7 @@ public class AppendToVectorImpl extends AppendToVector {
     @Override
     protected Vector.VectorBuilder doEvaluate(Vector vector, BigDecimal value) {
         // get original list
-        List<? extends BigDecimal> orig = vector == null ? null : vector.getValues();
+        List<BigDecimal> orig = vector == null ? null : vector.getValues();
         // allocate space for new list
         List<BigDecimal> result = new ArrayList<>(orig == null ? 1 : orig.size()+1);
         // add original list values and new value to the return list

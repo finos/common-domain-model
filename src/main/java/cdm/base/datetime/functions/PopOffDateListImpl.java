@@ -10,14 +10,14 @@ import java.util.Optional;
 public class PopOffDateListImpl extends PopOffDateList {
 
 	@Override
-	protected List<? extends Date> doEvaluate(List<? extends Date> dates) {
+	protected List<Date> doEvaluate(List<Date> dates) {
 		return Optional.ofNullable(dates)
 				.filter(d -> d.size() > 1)
 				.map(this::removeLastDate)
 				.orElse(Collections.emptyList());
 	}
 
-	protected List<Date> removeLastDate(List<? extends Date> dateList) {
+	protected List<Date> removeLastDate(List<Date> dateList) {
 		List<Date> result = new ArrayList<>();
 		for (int i = 0; i < dateList.size() - 1; i++)
 			result.add(dateList.get(i));

@@ -18,7 +18,7 @@ public class VectorScalarOperationImpl extends VectorScalarOperation {
 	// element of the vector and to the scalar.
 	@Override
 	protected Vector.VectorBuilder doEvaluate(ArithmeticOperationEnum arithmeticOp, Vector left, BigDecimal right) {
-		List<? extends BigDecimal> leftVals = left == null ? null : left.getValues();
+		List<BigDecimal> leftVals = left == null ? null : left.getValues();
 
 		List<BigDecimal> res = doEval(arithmeticOp, leftVals, right);
 		Vector.VectorBuilder ret = Vector.builder();
@@ -26,7 +26,7 @@ public class VectorScalarOperationImpl extends VectorScalarOperation {
 		return ret;
 	}
 
-	protected List<BigDecimal> doEval(ArithmeticOperationEnum arithmeticOpEnum, List<? extends BigDecimal> left, BigDecimal right) {
+	protected List<BigDecimal> doEval(ArithmeticOperationEnum arithmeticOpEnum, List<BigDecimal> left, BigDecimal right) {
 		BiFunction<BigDecimal, BigDecimal, BigDecimal> eval = ArithmeticOpImpl.operation(arithmeticOpEnum);
 		int num = left == null ? 0 : left.size();
 		List<BigDecimal> result = new ArrayList<>(num);

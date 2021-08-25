@@ -20,7 +20,7 @@ public class IndexValueObservationMultipleImpl extends IndexValueObservationMult
 	private IndexValueObservation indexValueObservation;
 
 	@Override
-	protected Vector.VectorBuilder doEvaluate(List<? extends Date> observationDates, FloatingRateOption floatingRateOption) {
+	protected Vector.VectorBuilder doEvaluate(List<Date> observationDates, FloatingRateOption floatingRateOption) {
 		return Vector.builder()
 				.addValues(getObservedValues(DateGroup.builder().setDates(observationDates), floatingRateOption));
 	}
