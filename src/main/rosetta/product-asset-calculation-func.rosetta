@@ -3,6 +3,7 @@ version "${project.version}"
 
 import cdm.base.math.*
 import cdm.base.datetime.*
+import cdm.base.daycount.*
 import cdm.base.staticdata.asset.rates.*
 
 import cdm.observable.asset.*
@@ -166,17 +167,20 @@ func SelectNonNegativeScheduleStep: <"Retrieve a single step from a  schedule gi
 //
 // -----------------------------------------------
 
-func CalculateYearFraction:
+func CalculateYearFraction: <"Calculate the year fraction for a single calculation period, by invoking the base year fraction logic">
 	inputs:
-		interestRatePayout InterestRatePayout (1..1)
-		dcf DayCountFractionEnum (1..1)
-		calculationPeriod CalculationPeriodBase (1..1)
+		interestRatePayout InterestRatePayout (1..1) <"The interest rate payout for which the year fraction is needed">
+		dcf DayCountFractionEnum (1..1) <"The day count fraction convention to use">
+		calculationPeriod CalculationPeriodBase (1..1)  <"The calculation period for which the year fraction is needed">
 	output:
 		yearFrac number (1..1)
 
+// some convenience aliases to access start and end dates
 	alias start: calculationPeriod->adjustedStartDate
 	alias end: calculationPeriod->adjustedEndDate
 	alias termination: interestRatePayout->calculationPeriodDates->terminationDate->adjustableDate->unadjustedDate
+
+// calculate the number of calculation periods in a year
 	alias periodsInYear: <"Number of calculation periods in a year.">
 		PeriodsInYear(interestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency)
 

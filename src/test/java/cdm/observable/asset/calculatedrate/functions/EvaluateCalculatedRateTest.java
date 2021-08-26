@@ -6,7 +6,7 @@ import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndex
 import cdm.observable.asset.FloatingRateOption;
 import cdm.observable.asset.calculatedrate.CalculatedRateDetails;
 import cdm.observable.asset.calculatedrate.FloatingRateCalculationParameters;
-import cdm.product.asset.DayCountFractionEnum;
+import cdm.base.daycount.DayCountFractionEnum;
 import cdm.product.asset.floatingrate.FloatingRateSettingDetails;
 import cdm.observable.asset.fro.functions.IndexValueObservationDataProvider;
 import cdm.observable.asset.fro.functions.IndexValueObservationMultiple;
