@@ -29,14 +29,14 @@ public class PopOffDateListImplTest extends AbstractFunctionTest {
 				DateImpl.of(2021, 5, 12),
 				DateImpl.of(2021, 5, 13));
 
-		List<? extends Date> actualList = func.evaluate(dates);
+		List<Date> actualList = func.evaluate(dates);
 
 		assertEquals(expectedList, actualList);
 	}
 
 	@Test
 	void shouldHandleEmptyList() {
-		List<? extends Date> actualList = func.evaluate(new ArrayList<>());
+		List<Date> actualList = func.evaluate(new ArrayList<>());
 
 		assertEquals(Collections.emptyList(), actualList);
 	}

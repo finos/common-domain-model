@@ -33,7 +33,7 @@ public class AppendDateToListImplTest extends AbstractFunctionTest {
 				DateImpl.of(2021, 5, 14),
 				DateImpl.of(2021, 5, 15));
 
-		List<? extends Date> actualList = func.evaluate(dateList, newVal);
+		List<Date> actualList = func.evaluate(dateList, newVal);
 
 		assertEquals(expectedList, actualList);
 	}
@@ -41,7 +41,7 @@ public class AppendDateToListImplTest extends AbstractFunctionTest {
 	@Test
 	void shouldHandleEmptyList() {
 		Date newVal = DateImpl.of(2021, 5, 15);
-		List<? extends Date> actualList = func.evaluate(new ArrayList<>(), newVal);
+		List<Date> actualList = func.evaluate(new ArrayList<>(), newVal);
 
 		assertEquals(Collections.singletonList(DateImpl.of(2021, 5, 15)), actualList);
 	}
@@ -49,7 +49,7 @@ public class AppendDateToListImplTest extends AbstractFunctionTest {
 	@Test
 	void shouldHandleNulls() {
 		assertEquals(Collections.emptyList(), func.evaluate(null, null));
-		assertEquals(Collections.emptyList(), func.evaluate(Collections.emptyList(), null));
+		assertEquals(Collections.emptyList(), func.evaluate(new ArrayList<>(), null));
 
 		List<Date> zeroList = Collections.singletonList(DateImpl.of(1, 1, 2020));
 		assertEquals(zeroList, func.evaluate(null, DateImpl.of(1, 1, 2020)));
