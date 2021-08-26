@@ -23,9 +23,8 @@ import cdm.legalagreement.common.*
 //
 // ======================================================================
 
-
 // TODO: should this be enhanced to support spreads and do spread-exclusive calculations for compounding?
-func FixedAmountCalculationNew: <"Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction.">
+func FixedAmountCalculation: <"Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction.">
 	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
@@ -59,7 +58,6 @@ func LookupFixedRate: <"Look up the fixed rate for a calculation period.">
 // these functions perform the floating amount calculations
 //
 // ======================================================================
-
 
 func FloatingAmountCalculation: <"Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction.  Floating amount calculations are described in the 2021 ISDA Definitions in Section 6 and 7.">
 	[calculation]
@@ -175,12 +173,12 @@ func CalculateYearFraction: <"Calculate the year fraction for a single calculati
 	output:
 		yearFrac number (1..1)
 
-// some convenience aliases to access start and end dates
+    // some convenience aliases to access start and end dates
 	alias start: calculationPeriod->adjustedStartDate
 	alias end: calculationPeriod->adjustedEndDate
 	alias termination: interestRatePayout->calculationPeriodDates->terminationDate->adjustableDate->unadjustedDate
 
-// calculate the number of calculation periods in a year
+    // calculate the number of calculation periods in a year
 	alias periodsInYear: <"Number of calculation periods in a year.">
 		PeriodsInYear(interestRatePayout -> calculationPeriodDates -> calculationPeriodFrequency)
 
