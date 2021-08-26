@@ -6,6 +6,7 @@ import cdm.observable.asset.Money;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriod;
 import cdm.product.common.schedule.CalculationPeriodBase;
+import cdm.product.common.schedule.NonNegativeQuantitySchedule;
 import cdm.product.common.settlement.ResolvablePayoutQuantity;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.DateImpl;
