@@ -1,6 +1,5 @@
 package cdm.observable.asset.calculatedrate.functions;
 
-import cdm.base.math.Vector;
 import cdm.observable.asset.calculatedrate.FloatingRateCalculationParameters;
 import cdm.observable.asset.calculatedrate.ObservationParameters;
 import com.google.inject.Inject;
@@ -27,21 +26,19 @@ public class ProcessObservationsTest extends AbstractFunctionTest {
 				BigDecimal.valueOf(0.04),
 				BigDecimal.valueOf(0.05));
 		double[] expected = { 0.02, 0.02, 0.03, 0.04, 0.04 };
-		Vector obs = Vector.builder().addValues(observations).build();
 		FloatingRateCalculationParameters params = FloatingRateCalculationParameters.builder()
 				.setObservationParameters(ObservationParameters.builder()
 						.setObservationCapRate(BigDecimal.valueOf(0.02))
 						.setObservationFloorRate(BigDecimal.valueOf(0.04))
 						.build())
 				.build();
-		check(expected, func.evaluate(params, obs));
+		check(expected, func.evaluate(params, observations));
 	}
 
-	private void check(double[] expected, Vector actual) {
-		List<? extends BigDecimal> act = actual.getValues();
-		for (int i = 0; i < expected.length && i < act.size(); i++) {
-			assertEquals(expected[i], act.get(i).doubleValue(), 0.000001);
+	private void check(double[] expected, List<BigDecimal> actual) {
+		for (int i = 0; i < expected.length && i < actual.size(); i++) {
+			assertEquals(expected[i], actual.get(i).doubleValue(), 0.000001);
 		}
-		assertEquals(expected.length, act.size());
+		assertEquals(expected.length, actual.size());
 	}
 }

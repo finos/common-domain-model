@@ -1,10 +1,12 @@
 package cdm.observable.asset.calculatedrate.functions;
 
-import cdm.base.math.Vector;
 import cdm.observable.asset.calculatedrate.CalculatedRateDetails;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.vector;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,8 +31,8 @@ public class ApplyAveragingFormulaTest extends AbstractFunctionTest {
 			totalWeight += weights[i];
 		double avg = sum / totalWeight;
 
-		Vector weightVect = vector(weights);
-		Vector rateVect = vector(rates);
+		List<BigDecimal> weightVect = vector(weights);
+		List<BigDecimal> rateVect = vector(rates);
 
 		CalculatedRateDetails results = func.evaluate(rateVect, weightVect);
 		assertEquals(sum, results.getAggregateValue().doubleValue(), 0.000001);

@@ -1,6 +1,5 @@
 package cdm.observable.asset.calculatedrate.functions;
 
-import cdm.base.math.Vector;
 import cdm.observable.asset.calculatedrate.CalculatedRateDetails;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -36,18 +35,18 @@ public class ApplyCompoundingFormulaTest extends AbstractFunctionTest {
 			totalWeight += weights[i];
 		double avg = (aggregate - 1.0) / totalWeight / dcb;
 
-		Vector weightVect = vector(weights);
-		Vector rateVect = vector(rates);
+		List<BigDecimal> weightVect = vector(weights);
+		List<BigDecimal> rateVect = vector(rates);
 
 		CalculatedRateDetails results = func.evaluate(rateVect, weightVect, BigDecimal.valueOf(dcb));
-		List<? extends BigDecimal> resultFactors = results.getGrowthFactor().getValues();
+		List<BigDecimal> resultFactors = results.getGrowthFactor();
 		check(factors, resultFactors);
 		assertEquals(aggregate, results.getAggregateValue().doubleValue(), 0.000001);
 		assertEquals(totalWeight, results.getAggregateWeight().doubleValue(), 0.000001);
 		assertEquals(avg, results.getCalculatedRate().doubleValue(), 0.000001);
 	}
 
-	void check(double[] expected, List<? extends BigDecimal> actual) {
+	void check(double[] expected, List<BigDecimal> actual) {
 		for (int i = 0; i < expected.length && i < actual.size(); i++)
 			assertEquals(expected[i], actual.get(i).doubleValue(), 0.000001);
 		assertEquals(expected.length, actual.size());

@@ -1,18 +1,16 @@
 package cdm.product.asset.fro.functions;
 
-import cdm.base.datetime.DateGroup;
-import cdm.base.math.Vector;
 import cdm.observable.asset.FloatingRateOption;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 public class IndexValueObservationMultipleImpl extends IndexValueObservationMultiple {
 
@@ -20,16 +18,13 @@ public class IndexValueObservationMultipleImpl extends IndexValueObservationMult
 	private IndexValueObservation indexValueObservation;
 
 	@Override
-	protected Vector.VectorBuilder doEvaluate(List<Date> observationDates, FloatingRateOption floatingRateOption) {
-		return Vector.builder()
-				.addValues(getObservedValues(DateGroup.builder().setDates(observationDates), floatingRateOption));
+	protected List<BigDecimal> doEvaluate(List<Date> observationDates, FloatingRateOption floatingRateOption) {
+		return getObservedValues(observationDates, floatingRateOption);
 	}
 
 	@NotNull
-	private List<BigDecimal> getObservedValues(DateGroup observationDates, FloatingRateOption floatingRateOption) {
-		return Optional.ofNullable(observationDates)
-				.map(DateGroup::getDates)
-				.orElse(Collections.emptyList()).stream()
+	private List<BigDecimal> getObservedValues(List<Date> observationDates, FloatingRateOption floatingRateOption) {
+		return emptyIfNull(observationDates).stream()
 				.map(d -> indexValueObservation.evaluate(d, floatingRateOption))
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());

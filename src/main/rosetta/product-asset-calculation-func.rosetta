@@ -168,10 +168,10 @@ func FindNonNegativeScheduleSteps: <"Find all  schedule step values whose stepDa
 		periodStartDate date (1..1)	<"The date for which the quantity is required.">
 		startingStep int (1..1) <"The first step to start looking at.">
 	output:
-		vector Vector (1..1)
+		vector number (0..*)
 	alias currentStep: SelectNonNegativeScheduleStep(schedule, startingStep)
 	alias remainingValues: FindNonNegativeScheduleSteps(schedule, periodStartDate, startingStep + 1)
-	alias append: AppendToVector (remainingValues, currentStep->stepValue)
+	alias append: AppendToVector(remainingValues, currentStep->stepValue)
 	alias checkAppend: if (periodStartDate >= stepDate) then append
 	alias stepDate: currentStep->stepDate
 	assign-output vector:

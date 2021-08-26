@@ -1,7 +1,6 @@
 package cdm.observable.asset.calculatedrate.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
-import cdm.base.math.Vector;
 import cdm.observable.asset.calculatedrate.CalculatedRateObservationDatesAndWeights;
 import cdm.observable.asset.calculatedrate.FloatingRateCalculationParameters;
 import cdm.product.common.schedule.CalculationPeriodBase;
@@ -150,11 +149,10 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 		check(wts, result.getWeights());
 	}
 
-	private void check(List<Integer> expected, Vector actual) {
-		List<? extends BigDecimal> act = actual.getValues();
-		for (int i = 0; i < expected.size() && i < act.size(); i++) {
-			assertEquals(expected.get(i).intValue(), act.get(i).intValue());
+	private void check(List<Integer> expected, List<BigDecimal> actual) {
+		for (int i = 0; i < expected.size() && i < actual.size(); i++) {
+			assertEquals(expected.get(i).intValue(), actual.get(i).intValue());
 		}
-		assertEquals(expected.size(), act.size());
+		assertEquals(expected.size(), actual.size());
 	}
 }

@@ -1,6 +1,5 @@
 package cdm.observable.asset.calculatedrate.functions;
 
-import cdm.base.math.Vector;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -105,12 +104,11 @@ public class GenerateWeightsTest extends AbstractFunctionTest {
 			1.0, 1.0, 1.0, 1.0
 	};
 
-	private void check(double[] expected, Vector actual) {
-		List<? extends BigDecimal> act = actual.getValues();
-		for (int i = 0; i < expected.length && i < act.size(); i++) {
-			assertEquals(BigDecimal.valueOf(expected[i]), act.get(i));
+	private void check(double[] expected, List<BigDecimal> actual) {
+		for (int i = 0; i < expected.length && i < actual.size(); i++) {
+			assertEquals(BigDecimal.valueOf(expected[i]), actual.get(i));
 		}
-		assertEquals(expected.length, act.size());
+		assertEquals(expected.length, actual.size());
 
 	}
 }

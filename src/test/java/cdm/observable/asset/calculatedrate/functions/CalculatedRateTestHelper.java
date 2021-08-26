@@ -2,7 +2,6 @@ package cdm.observable.asset.calculatedrate.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenters;
-import cdm.base.math.Vector;
 import cdm.observable.asset.calculatedrate.*;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import com.rosetta.model.lib.records.Date;
@@ -19,11 +18,11 @@ public class CalculatedRateTestHelper {
 
 	enum CalcMethod {OIS, ObsShift, Lookback, Lockout}
 
-	static Vector vector(double[] values) {
+	static List<BigDecimal> vector(double[] values) {
 		List<BigDecimal> valueList = new ArrayList<>(values.length);
 		for (double value : values)
 			valueList.add(BigDecimal.valueOf(value));
-		return Vector.builder().setValues(valueList).build();
+		return valueList;
 	}
 
 	public static CalculationPeriodBase period(Date start, Date end) {

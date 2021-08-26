@@ -214,13 +214,13 @@ func DetermineWeightingDates: <"Determine the dates to be used for weighting obs
 func ProcessObservations: <"Apply daily observation parameters to rate observation.  These are discussed in the 2021 ISDA Definitions, section 7.2.3 and 7.2.4.">
 	[calculation]
 	inputs:
-		calulationParameters FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
-		rawObservations Vector (1..1)
+		calculationParameters FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
+		rawObservations number (0..*)
 	output:
-		processedObservations Vector (1..1)
+		processedObservations number (0..*)
 
 	// set up convenience aliases
-	alias params: calulationParameters->observationParameters
+	alias params: calculationParameters->observationParameters
 	alias cap: if params exists then params->observationCapRate
 	alias floor: if params exists then params->observationFloorRate
 
@@ -236,7 +236,7 @@ func GenerateWeights: <"Recursively creates a list of weights based on the date 
 	inputs:
 		weightingDates date (0..*) <"A list of dates for which weightings are require.">
 	output:
-		weights Vector (1..1) <"A vector of weights, typically numbers between 1 and 3.">
+		weights number (0..*) <"A vector of weights, typically numbers between 1 and 3.">
 
 	alias active: weightingDates count > 1 // do we still have more than one date in the list?
 	alias refDate: LastInDateList(weightingDates) // find the last date in the supplied list of dates
@@ -256,9 +256,9 @@ func GenerateWeights: <"Recursively creates a list of weights based on the date 
 func ApplyCompoundingFormula: <"Implements the compounding formula:   Product of ( 1 + (rate * weight) / basis), then backs out the final rate. This is used to support section 7.3 of the 2021 ISDA Definitions.">
 	[calculation]
 	inputs:
-		observations Vector (1..1) <"a vector of observation value.">
-		weights Vector (1..1) <"a vector of weights (should be same size as observations, 1 weight per observation.">
-		yearFrac number (1..1) <" year fraction of a single day (i.e. 1/basis.">
+		observations number (0..*) <"A vector of observation value.">
+		weights number (0..*) <"A vector of weights (should be same size as observations, 1 weight per observation.">
+		yearFrac number (1..1) <"Year fraction of a single day (i.e. 1/basis.">
 	output:
 		results CalculatedRateDetails (1..1) <"Details of the compounding calculation.">
 
@@ -278,7 +278,7 @@ func ApplyCompoundingFormula: <"Implements the compounding formula:   Product of
 	alias finalValue: LastInVector(growthCurve)
 
 	// find the values to scale by to compute the rate
-	alias totalWeight: Sum(weights->values)
+	alias totalWeight: Sum(weights)
 	alias overallYearFrac: totalWeight * yearFrac
 
 	// compute the final calculated rate
@@ -295,8 +295,8 @@ func ApplyCompoundingFormula: <"Implements the compounding formula:   Product of
 func ApplyAveragingFormula: <"Implements the weighted arithmetic averaging formula.  Sums the weighted rates and divides by the total weight.  This is used to support section 7.4 of the 2021 ISDA Definitions.">
 	[calculation]
 	inputs:
-		observations Vector (1..1) <"a vector of observation value.">
-		weights Vector (1..1) <"a vector of weights (should be same size as observations, 1 weight per observation.">
+		observations number (0..*) <"a vector of observation value.">
+		weights number (0..*) <"a vector of weights (should be same size as observations, 1 weight per observation.">
 	output:
 		results CalculatedRateDetails (1..1) <"Details of the averaging calculation.">
 
@@ -304,10 +304,10 @@ func ApplyAveragingFormula: <"Implements the weighted arithmetic averaging formu
 	alias weightedObservations: VectorOperation(ArithmeticOperationEnum->Multiply, observations, weights)
 
 	// sum the weighted observations
-	alias totalWeightedObservations: Sum(weightedObservations->values)
+	alias totalWeightedObservations: Sum(weightedObservations)
 
 	// sum the weights
-	alias totalWeight: Sum(weights->values)
+	alias totalWeight: Sum(weights)
 
 	// compute the final calculated rate
 	alias calculatedRate: totalWeightedObservations / totalWeight

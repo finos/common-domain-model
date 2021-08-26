@@ -14,13 +14,13 @@ public class BusinessCenterHolidaysImplTest extends AbstractFunctionTest {
 
 	@Test
 	void shouldRetrieve() {
-		assertEquals(LONDON_HOLIDAYS_2021, func.evaluate(LONDON_BC).getDates());
-		assertEquals(LONDON_AND_TARGET_HOLIDAYS_2021, func.evaluate(LONDON_TARGET_BC).getDates());
-		assertEquals(LONDON_AND_US_GS_AND_TARGET_HOLIDAYS_2021, func.evaluate(LONDON_TARGET_US_BC).getDates());
-		assertEquals(TARGET_HOLIDAYS_2021, func.evaluate(TARGET_BC).getDates());
+		assertEquals(LONDON_HOLIDAYS_2021, func.evaluate(LONDON_BC));
+		assertEquals(LONDON_AND_TARGET_HOLIDAYS_2021, func.evaluate(LONDON_TARGET_BC));
+		assertEquals(LONDON_AND_US_GS_AND_TARGET_HOLIDAYS_2021, func.evaluate(LONDON_TARGET_US_BC));
+		assertEquals(TARGET_HOLIDAYS_2021, func.evaluate(TARGET_BC));
 
-		assertEquals(LONDON_AND_TARGET_HOLIDAYS_2021, func.evaluate(LONDON_TARGET_BC_REF).getDates());
-		assertEquals(LONDON_AND_US_GS_HOLIDAYS_2021, func.evaluate(LONDON_US_BC_REF).getDates());
-		assertEquals(TARGET_HOLIDAYS_2021, func.evaluate(TARGET_BC_REF).getDates());
+		assertEquals(LONDON_AND_TARGET_HOLIDAYS_2021, func.evaluate(LONDON_TARGET_BC_REF));
+		assertEquals(LONDON_AND_US_GS_HOLIDAYS_2021, func.evaluate(LONDON_US_BC_REF));
+		assertEquals(TARGET_HOLIDAYS_2021, func.evaluate(TARGET_BC_REF));
 	}
 }

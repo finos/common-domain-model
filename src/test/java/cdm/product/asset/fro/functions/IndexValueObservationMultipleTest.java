@@ -1,6 +1,5 @@
 package cdm.product.asset.fro.functions;
 
-import cdm.base.math.Vector;
 import cdm.observable.asset.FloatingRateOption;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -46,15 +45,14 @@ public class IndexValueObservationMultipleTest extends AbstractFunctionTest {
 				BigDecimal.valueOf(0.03));
 
 		FloatingRateOption fro = initFro();
-		Vector actual = func.evaluate(dates, fro);
+		List<BigDecimal> actual = func.evaluate(dates, fro);
 		check(expected, actual);
 	}
 
-	private void check(List<BigDecimal> expected, Vector actual) {
-		List<? extends BigDecimal> results = actual.getValues();
-		assertEquals(expected.size(), results.size());
+	private void check(List<BigDecimal> expected, List<BigDecimal> actual) {
+		assertEquals(expected.size(), actual.size());
 		for (int i = 0; i < expected.size(); i++) {
-			assertEquals(expected.get(i), results.get(i));
+			assertEquals(expected.get(i), actual.get(i));
 		}
 	}
 }

@@ -2,7 +2,6 @@ package cdm.observable.asset.calculatedrate.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenters;
-import cdm.base.datetime.DateGroup;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
