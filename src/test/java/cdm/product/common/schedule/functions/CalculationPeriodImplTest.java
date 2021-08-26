@@ -104,6 +104,7 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
 							.build())
 					.build())
 			.build();
+
     @Test
     void shouldReturnStartAndEndDateOfFirstPeriod() {
         CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 1, 3));
@@ -147,5 +148,4 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
         usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2021, 2, 28));
         assertThat(usingStartDate.getDaysInPeriod(), is(59));
     }
-
 }

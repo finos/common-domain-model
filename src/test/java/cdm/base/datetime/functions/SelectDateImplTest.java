@@ -1,6 +1,5 @@
 package cdm.base.datetime.functions;
 
-import cdm.base.datetime.DateGroup;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
@@ -8,9 +7,11 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class SelectDateImplTest extends AbstractFunctionTest {
 
@@ -23,7 +24,7 @@ class SelectDateImplTest extends AbstractFunctionTest {
 				DateImpl.of(2021, 5, 12),
 				DateImpl.of(2021, 5, 13),
 				DateImpl.of(2021, 5, 14));
-		Date date = func.evaluate(DateGroup.builder().setDates(dateList), 1);
+		Date date = func.evaluate(dateList, 1);
 
 		assertEquals(DateImpl.of(2021, 5, 13), date);
 	}
@@ -33,7 +34,7 @@ class SelectDateImplTest extends AbstractFunctionTest {
 				DateImpl.of(2021, 5, 12),
 				DateImpl.of(2021, 5, 13),
 				DateImpl.of(2021, 5, 14));
-		Date date = func.evaluate(DateGroup.builder().setDates(dateList), 10);
+		Date date = func.evaluate(dateList, 10);
 
 		assertNull(date);
 	}
@@ -42,6 +43,6 @@ class SelectDateImplTest extends AbstractFunctionTest {
 	void shouldHandleNulls() {
 		assertNull(func.evaluate(null, null));
 		assertNull(func.evaluate(null,  3));
-		assertNull(func.evaluate(DateGroup.builder(), null));
+		assertNull(func.evaluate(Collections.emptyList(), null));
 	}
 }
