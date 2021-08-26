@@ -31,7 +31,7 @@ Following is a description of each of the functions included in the release.
 
 New functions in `cdm.product.asset.calculation` include:
 
-* `FixedAmounCalculation`: Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction
+* `FixedAmountCalculation`: Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction
 * `LookupFixedRate`: Look up the fixed rate for a calculation period
 * `FloatingAmountCalculation`: Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction.  Floating amount calculations are described in the 2021 ISDA Definitions in Section 6 and 7.
 * `LookupNotionalAmount`: Look up the notional amount in effect for a calculation period
@@ -76,7 +76,7 @@ New functions in `cdm.observable.asset.calculatedrate` include:
 * `ApplyCompoundingFormula`:  Implements the compounding formula:   Product of ( 1 + (rate * weight) / basis), then backs out the final rate. This is used to support section 7.3 of the 2021 ISDA Definitions.
 * `ApplyAveragingFormula`: Implements the weighted arithmetic averaging formula.  Sums the weighted rates and divides by the total weight.  This is used to support section 7.4 of the 2021 ISDA Definitions.
 
-ew functions in `cdm.observable.asset.fro` include:
+New functions in `cdm.observable.asset.fro` include:
 * `IndexValueObservation`: Retrieve the values of the supplied index on the specified observation date.
 * `IndexValueObservationMultiple`: Retrieve the values of the supplied index on the specified observation dates.
 * `FloatingRateIndexMetadata`: Retrieve all available metadata for the floating rate index.
