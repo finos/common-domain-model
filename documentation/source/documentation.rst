@@ -1771,68 +1771,128 @@ These calculation processes leverage the *calculation function* component of the
 
 Explanations of these processes are provided in the following sections.
 
-
 Base Libraries - Vector Math
 """"""""""""""""""""""""""""
 The CDM includes a very basic library for performing vector math.  This is intended to support more complex calculations such as daily compounded floating amounts.   The CDM includes a basic implementation of these functions in Java, and allows individual implementations to substitute their own more robust representations.
 
-
 A small library of functions for working with vectors (ordered collections of numbers) has been added to CDM to support Rosetta functions needing to perform complex mathematical operations.  Anticipated uses include averaging and compounding calculations for floating amounts, but the functions are designed to be general use.
 
-The functions are located in base-math-func.
+The functions are located in ``base-math-func``.
 
 Functions include:
 
-* ToVector: Creates a vector from a list of numbers.
-* SelectFromVector: Selects a single value from a vector (list of numbers), i.e. result = val[index].
-Returns null if the supplied vector is empty or if the supplied index is out of range.
-Returns the first element of the vector when supplied an index of 0, and the index - 1 th element if index is in range.
-* LastInVector: Returns the last value in a vector.  If the vector is empty, returns null
-* AppendToVector: Appends a single value to a vector
-* VectorOperation: Generates a result vector by applying the supplied arithmetic operation to each element of the supplied left and right vectors in turn.  i.e. result[n] = left[n] [op] right[n], where [op] is the arithmetic operation defined by arithmeticOp.   This function can be used to, for example, multiply or add two vectors.
-* VectorScalarOperation: Generates a result vector by applying the supplied arithemetic operation and scalar right value to each element of the supplied left vector in turn. i.e. result[n] = left[n] [op] right, where [op] is the arithmetic operation defined by arithmeticOp.  This function can be used to, for example, multiply a vector by a scalar value, or add a scalar to a vector.
-* VectorGrowthOperation: Generates a result vector by starting with the supplied base value (typically 1), and then multiplying it in turn by each growth factor, which is typically a number just above 1.  For instance, a growth factor of 1.1 reprsents a 10% increase, and 0.9 a 10% decrease.  The results will show the successive results of applying the successive growth factors, with the first value of the list being the supplied baseValue, and final value of the results list being the product of all of the supplied values.  i.e. result[1] = baseValue * factor[1], result[n] = result[n-1] * factor[n].  The resulting list will have the one more element than the supplied list of factors.  This function is useful for performing compounding calculations.
-
+* ``ToVector``: Creates a vector from a list of numbers.
+* ``SelectFromVector``: Selects a single value from a vector (list of numbers), i.e. result = val[index].
+* ``LastInVector``: Returns the last value in a vector.  If the vector is empty, returns null.
+* ``AppendToVector``: Appends a single value to a vector.
+* ``VectorOperation``: Generates a result vector by applying the supplied arithmetic operation to each element of the supplied left and right vectors in turn.  i.e. result[n] = left[n] [op] right[n], where [op] is the arithmetic operation defined by arithmeticOp.   This function can be used to, for example, multiply or add two vectors.
+* ``VectorScalarOperation``: Generates a result vector by applying the supplied arithemetic operation and scalar right value to each element of the supplied left vector in turn. i.e. result[n] = left[n] [op] right, where [op] is the arithmetic operation defined by arithmeticOp.  This function can be used to, for example, multiply a vector by a scalar value, or add a scalar to a vector.
+* ``VectorGrowthOperation``: Generates a result vector by starting with the supplied base value (typically 1), and then multiplying it in turn by each growth factor, which is typically a number just above 1.  For instance, a growth factor of 1.1 reprsents a 10% increase, and 0.9 a 10% decrease.  The results will show the successive results of applying the successive growth factors, with the first value of the list being the supplied baseValue, and final value of the results list being the product of all of the supplied values.  i.e. result[1] = baseValue * factor[1], result[n] = result[n-1] * factor[n].  The resulting list will have the one more element than the supplied list of factors.  This function is useful for performing compounding calculations.
 
 Also a new scalar functions has been added to better support floating rate processing:
-* Round to precision:  Rounds a supplied number to a specified precison (in decimal places) using a roundingMode of type RoundingDirectionEnum.  This is similar to RoundToNearest but takes a precision rather than an amount, and uses a different rounding mode enumeration that supports more values.
+* ``RoundToPrecision``:  Rounds a supplied number to a specified precision (in decimal places) using a roundingMode of type ``RoundingDirectionEnum``.  This is similar to ``RoundToNearest`` but takes a precision rather than an amount, and uses a different rounding mode enumeration that supports more values.
 
 Base Libraries - Date Math
 """""""""""""""""""""""""""
 
-The CDM includes a very basic library for performing date math.  This is intended to support more complex calculations such as daily compounded floating amounts.   The CDM includes a basic implementation of these functions in Java, and allows individual implementations to substitute their own more robust representations.
+The CDM includes a very basic library for performing date math.  This is intended to support more complex calculations such as daily compounded floating amounts.  The CDM includes a basic implementation of these functions in Java, and allows individual implementations to substitute their own more robust representations.
 
+A small library of functions for working with dates and lists of dates has been added to CDM to support Rosetta functions needing to perform date mathematics.  Anticipated uses include date list generation for modular rate calculations for floating amounts, but the functions are designed to be general use.
 
-A small library of functions for working with dates and lists of dates has been added to CDM to support Rosetta
-functions needing to perform date mathematics.  Anticipated uses include date list generation for modular rate
-calculations for floating amounts, but the functions are designed to be general use.
+There is a basic Java language implementation that can be used, or users can provide their own implementations of these functions using a more robust date math library.
 
-There is a basic Java language implementation that can be used, or users can provide their own implementations
-of these fuctions using a more robust date math library.
-
-The functions are located in base-datetime-func.
+The functions are located in ``base-datetime-func``.
 
 Functions include:
 
-* CombineBusinessCenters: Creates a BusinessCenters object that includes the union of business centers in the two supplied lists
-* RetrieveBusinessCenterHolidays: Returns a merged list of holidays for the supplied business centers
-* DayOfWeek: returns the day of week corresponding to the supplied date
-* AddDays: adds the specified number of calendar days to the supplied date.  A negative number will generate a date before the supplied date.
-* DateDifference: subtracts the two supplied dates to return the number of calendar days between them .  A negative number implies first is after second.
-* LeapYearDateDifference: subtracts the two supplied dates to return the number of leap year calendar days between them.(That is, the number of dates that happen to fall within a leap year.)  A negative number implies firstDate is after secondDate.
-* SelectDate: Select a date from a list of dates based on index.  If not found return nothing.
-* LastInDateList: Return the last date in a list of dates
-* AppendDateToList: Add a date to a list of dates
-* PopOffDateList:  Remove last element from a list of dates
+* ``CombineBusinessCenters``: Creates a BusinessCenters object that includes the union of business centers in the two supplied lists
+* ``RetrieveBusinessCenterHolidays``: Returns a merged list of holidays for the supplied business centers
+* ``DayOfWeek``: returns the day of week corresponding to the supplied date
+* ``AddDays``: adds the specified number of calendar days to the supplied date.  A negative number will generate a date before the supplied date.
+* ``DateDifference``: subtracts the two supplied dates to return the number of calendar days between them .  A negative number implies first is after second.
+* ``LeapYearDateDifference``: subtracts the two supplied dates to return the number of leap year calendar days between them.(That is, the number of dates that happen to fall within a leap year.)  A negative number implies firstDate is after secondDate.
+* ``SelectDate``: Select a date from a list of dates based on index.  If not found return nothing.
+* ``LastInDateList``: Return the last date in a list of dates
+* ``AppendDateToList``: Add a date to a list of dates
+* ``PopOffDateList``:  Remove last element from a list of dates
 
 The following are implemented in Rosetta based on the above primitives.
-* IsWeekend: returns whether the supplied date is a weekend.  This implementation currently assumes a 5 day week with Saturday and Sunday as holidays.  A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.
-* IsHoliday: Returns whether a day is a holiday for the specified business centers
-* IsBusinessDay: returns an indicator of whether the supplied date is a good business date given the supplied business centers.  True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday
-* AddBusinessDays: Returns a good business date that has been offset by the given number of business days given the supplied business centers.  A negative value implies an earlier date (before the supplied originalDate), and a positive value a later date (after the supplied date).
-* GenerateDateList: Creates a list of good business days starting from the startDate and going to the end date, inclusive, omitting any days that are weekends or holidays according to the supplied business centers.
+* ``IsWeekend``: returns whether the supplied date is a weekend.  This implementation currently assumes a 5 day week with Saturday and Sunday as holidays.  A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.
+* ``IsHoliday``: Returns whether a day is a holiday for the specified business centers
+* ``IsBusinessDay``: returns an indicator of whether the supplied date is a good business date given the supplied business centers.  True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday
+* ``AddBusinessDays``: Returns a good business date that has been offset by the given number of business days given the supplied business centers.  A negative value implies an earlier date (before the supplied originalDate), and a positive value a later date (after the supplied date).
+* ``GenerateDateList``: Creates a list of good business days starting from the startDate and going to the end date, inclusive, omitting any days that are weekends or holidays according to the supplied business centers.
 
+Base Libraries - Daycounting
+""""""""""""""""""""""""""""
+The CDM includes a  library for performing day counting calculations.
 
+It includes functions as follows:
+* ``YearFraction``: The fraction of a year represented by a date range
+* ``YearFractionForOneDay```: Return the year fraction represented by a single day, i.e. 1 / dayCountBasis, where dayCountBasis represents the denominator of the day count fraction. This perhaps should take into account leap years, though the ISDA compounding formulas do not cover ACT basis at the moment.
+* ``DayCountBasis``: Return the day count basis (the denominator of the day count fraction) for the day count fraction
+
+Floating Rate Option/Index Features
+"""""""""""""""""""""""""""""""""""
+The CDM includes features for retrieving information about floating rate options and for calculating custom ("modular") floating rates.
+
+Functions for retrieving information about FROs include:
+* ``IndexValueObservation``: Retrieve the values of the supplied index on the specified observation date.
+* ``IndexValueObservationMultiple``: Retrieve the values of the supplied index on the specified observation dates.
+* ``FloatingRateIndexMetadata``: Retrieve all available metadata for the floating rate index.
+* ``ValidateFloatingRateIndexName``: Return whether the supplied floating rate index name is valid for the supplied contractual definitions.
+
+Functions for calculating modular floating rates include:
+* ``EvaluateCalculatedRate``: Evaluate a calculated rate as described in the 2021 ISDA Definitions, Section 7
+* ``GenerateObservationDatesAndWeights``: Apply shifts to generate the list of observation dates and weights for each of those dates
+* ``ComputeCalculationPeriod``: Determine the calculation period to use for computing the calculated rate (it may not be the same as the normal calculation period, for instance if the rate is set in advance)
+* ``DetermineObservationPeriod``: Determine any applicable offsets/shifts for the period for observing an index, and then generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shifts
+* ``GenerateObservationPeriod``: Generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shifts.
+* ``GenerateObservationDates``: Generate the list of observation dates given an observation period
+* ``DetermineWeightingDates``: Determine the dates to be used for weighting observations
+* ``ProcessObservations``: Apply daily observation parameters to rate observation.  These are discussed in the 2021 ISDA Definitions, section 7.2.3 and 7.2.4.
+* ``GenerateWeights``: Recursively creates a list of weights based on the date difference between successive days.
+* ``ApplyCompoundingFormula``:  Implements the compounding formula:   Product of ( 1 + (rate * weight) / basis), then backs out the final rate. This is used to support section 7.3 of the 2021 ISDA Definitions.
+* ``ApplyAveragingFormula``: Implements the weighted arithmetic averaging formula.  Sums the weighted rates and divides by the total weight.  This is used to support section 7.4 of the 2021 ISDA Definitions.
+
+Fixed Amount and Floating Amount Definitions
+""""""""""""""""""""""""""""""""""""""""""""
+The CDM includes preliminary features for calculating fixed and floating amounts for interest rate payouts.
+
+Base calculation functions include:
+* ``FixedAmountCalculation``: Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction
+* ``LookupFixedRate``: Look up the fixed rate for a calculation period
+* ``FloatingAmountCalculation``: Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction.  Floating amount calculations are described in the 2021 ISDA Definitions in Section 6 and 7.
+* ``LookupNotionalAmount``: Look up the notional amount in effect for a calculation period
+* ``LookupQuantityScheduleAmount``: Look up a value from a quantity schedule given a supplied starting date.  It will return the value of the last step that is before the supplied starting date, or if none matches, the initial value.
+* ``FindNonNegativeScheduleSteps``: Find all  schedule step values whose stepDate is before or equal to the supplied periodStartDate, starting from supplied startingStep number.  Returns a list of step values starting from the last matching one and going in reverse order.  Done this slightly odd way for efficiency and simplicity in code generation.
+* ``SelectNonNegativeScheduleStep``: Retrieve a single step from a  schedule given a step number.  This is an entry point to a function written in a native language like Java.  Returns the step if it exists, else null. The index is 0-based, so 0 returns the first step.
+* ``CalculateYearFraction``: Calculate the year fraction for a single calculation period, by invoking the base year fraction logic
+
+Floating rate processing an calculation functions include:
+* ``DetermineFloatingRateReset``: Get the value of a floating rate by either observing it directly or performing a rate calculation.  This function works differently depending on the rate category and style, as described in the 2021 ISDA Definitions, Section 6.6.
+* ``GetFloatingRateProcessingType``:  Get a classification of  the floating rate is processed. This is based on FRO category, style, and calculation method, as described in the 2021 ISDA Definitions Section 6.6.  The categorization information is obtained from the FRO metadata.
+* ``ProcessFloatingRateReset``: Entry point for the function that performs the floating rate resetting operation.  There are different variations depending on the processing type (e.g. screen rate, OIS, modular calculated rate).
+* ``GetCalculatedFROCalculationParameters``: Initialize a calculation parameters block for an OIS or a daily average rate. Used to support FROs that include an embedded calculation.
+* ``ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->CompoundIndex)``: Call the compounded index processing logic to calculate the reset
+* ``EvaluateScreenRate``: Evaluate/lookup the value of a screen rate
+* ``DetermineResetDate``: Determine the value of the reset date given a reset dates structure and a calculation period for which it's needed. Reset dates are defined in the 2021 ISDA Definition in Section 6.5.5.
+* ``DetermineFixingDate``: Determine the observation (fixing) date needed given a reset dates structure and a reset date.
+* ``GetFloatingRateProcessingParameters``: Determine the processing parameters to use from the InterestRatePayout by looking them up if necessary from the corresponding schedules in the interest rate stream
+* ``SpreadAmount``: Look up the spread amount for a calculation period
+* ``MultiplierAmount``: Look up the multiplier amount for a calculation period
+* ``CapRateAmount``: Look up the cap rate amount for a calculation period
+* ``FloorRateAmount``: Look up the floor rate amount for a calculation period
+* ``LookupRateScheduleAmount``: Look up an amount for a calculation period from a rate schedule
+* ``FindScheduleSteps``: Find all rate schedule step values whose stepDate is before or equal to the supplied periodStartDate, starting from supplied startingStep number.  Returns a list of step values starting from the last matching one and going in reverse order.  Done this slightly odd way for efficiency and simplicity in code generation.  Assumes schedule step are in ascending date order.
+* ``SelectScheduleStep``: Retrieve a single step from a  schedule given a step number
+* ``ApplyFloatingRateProcessing``: Perform rate treatments on floating rates, such as applying spreads, multipliers, caps and floors, rounding, and negative interest treatment.
+* ``ApplyFloatingRatePostSpreadProcessing``: Perform post-spread rate treatments on floating rates, such as applying caps and floors, rounding, and negative interest treatment.
+* ``ApplyCapsAndFloors``: Apply any cap or floor rate as a constraint on a regular swap rate, as discussed in the 2021 ISDA Definitions, section 6.5.8 and 6.5.9
+* ``ApplyUSRateTreatment``: Apply the US rate treatment logic where applicable (Bond Equivalent Yield, Money Market Yield, as described in the 2021 ISDA Definitions, section 6.9.  (NB: this function does not have an implementation.)
+* ``ApplyFinalRateRounding``: Apply the final rate rounding treatment logic as described in the 2021 ISDA Definitions, section 4.8.1.
+
+Most of the above have a preliminary implementation for feedback.  A few are only defined as "do-nothing" interfaces, and users needing these features would need to implement the functions.
 
 Fixed Amount and Floating Amount Definitions
 """"""""""""""""""""""""""""""""""""""""""""

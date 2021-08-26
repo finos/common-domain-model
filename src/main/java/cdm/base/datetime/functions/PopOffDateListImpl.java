@@ -1,28 +1,26 @@
 package cdm.base.datetime.functions;
 
-import cdm.base.datetime.DateGroup;
 import com.rosetta.model.lib.records.Date;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class PopOffDateListImpl extends PopOffDateList {
 
-    @Override
-    protected DateGroup.DateGroupBuilder doEvaluate(DateGroup dateList) {
-        if (dateList == null) return DateGroup.builder();
+	@Override
+	protected List<Date> doEvaluate(List<Date> dates) {
+		return Optional.ofNullable(dates)
+				.filter(d -> d.size() > 1)
+				.map(this::removeLastDate)
+				.orElse(Collections.emptyList());
+	}
 
-        List<Date> res = doEval(dateList.getDates());
-        return DateGroup.builder().setDates(res);
-    }
-
-    protected List<Date> doEval(List<? extends Date> dateList) {
-        int len = dateList == null ? 0 : dateList.size();
-        if (len < 2) return new ArrayList<>(0);
-        List<Date> result = new ArrayList<>(len-1);
-        for (int i = 0; i < len-1; i++) result.add(dateList.get(i));
-        return result;
-    }
-
-
+	protected List<Date> removeLastDate(List<Date> dateList) {
+		List<Date> result = new ArrayList<>();
+		for (int i = 0; i < dateList.size() - 1; i++)
+			result.add(dateList.get(i));
+		return result;
+	}
 }

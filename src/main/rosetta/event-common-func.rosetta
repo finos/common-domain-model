@@ -30,17 +30,17 @@ isEvent root BusinessEvent;
 func NovatedContractEffectiveDate:
 
 	inputs:
-		businessEvent BusinessEvent(1..1)
+		businessEvent BusinessEvent (1..1)
 
 	output:
-		result DateGroup(1..1)
+		result date (0..*)
 
 	alias eTerms: businessEvent -> primitives -> contractFormation -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
 	alias effectiveDate: eTerms only-element -> effectiveDate
 	alias interestRatePayoutDate: eTerms only-element-> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate
 	alias equityPayoutDate: eTerms only-element-> payout -> equityPayout -> calculationPeriodDates -> effectiveDate
 
-	assign-output result -> dates: [
+	assign-output result: [
 			effectiveDate -> adjustableDate -> adjustedDate,
 			effectiveDate -> adjustableDate -> unadjustedDate,
 			effectiveDate -> relativeDate -> adjustedDate,
@@ -270,7 +270,7 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state contains ClosedStateEnum -> Novated
 		and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
 		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
-		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) -> dates only-element
+		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
 		
 
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
@@ -283,7 +283,7 @@ func Qualify_PartialNovation: <"The qualification of a novation event from the f
 		and businessEvent -> primitives -> contractFormation exists
 		and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
 		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
-		and businessEvent -> effectiveDate all = NovatedContractEffectiveDate(businessEvent) -> dates
+		and businessEvent -> effectiveDate all = NovatedContractEffectiveDate(businessEvent)
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
 
 func Qualify_PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
