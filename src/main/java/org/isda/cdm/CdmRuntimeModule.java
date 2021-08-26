@@ -20,7 +20,7 @@ import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStep;
 import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStepImpl;
 import cdm.product.asset.floatingrate.functions.SelectScheduleStep;
 import cdm.product.asset.floatingrate.functions.SelectScheduleStepImpl;
-import cdm.product.asset.fro.functions.*;
+import cdm.observable.asset.fro.functions.*;
 import cdm.product.asset.functions.ExtractFixedLeg;
 import cdm.product.asset.functions.ExtractFixedLegImpl;
 import cdm.product.asset.functions.ResolveEquityInitialPrice;

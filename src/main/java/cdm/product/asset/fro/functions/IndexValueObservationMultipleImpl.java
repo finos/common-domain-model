@@ -1,4 +1,4 @@
-package cdm.product.asset.fro.functions;
+package cdm.observable.asset.fro.functions;
 
 import cdm.observable.asset.FloatingRateOption;
 import com.google.inject.Inject;

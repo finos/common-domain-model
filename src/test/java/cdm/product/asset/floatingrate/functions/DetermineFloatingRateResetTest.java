@@ -6,7 +6,7 @@ import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.asset.calculation.functions.LookupNotionalAmountTest;
 import cdm.product.asset.floatingrate.FloatingRateSettingDetails;
-import cdm.product.asset.fro.functions.IndexValueObservationDataProvider;
+import cdm.observable.asset.fro.functions.IndexValueObservationDataProvider;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.schedule.ResetDates;
 import com.google.inject.Binder;

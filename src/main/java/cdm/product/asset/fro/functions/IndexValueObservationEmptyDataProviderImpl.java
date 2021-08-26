@@ -1,4 +1,4 @@
-package cdm.product.asset.fro.functions;
+package cdm.observable.asset.fro.functions;
 
 import cdm.base.datetime.Period;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 /**
  * Empty data provider that can be overridden in any implementing system.
  *
- * See test data provider: cdm.product.asset.fro.functions.IndexValueObservationTestDataProviderImpl
+ * See test data provider: cdm.observable.asset.fro.functions.IndexValueObservationTestDataProviderImpl
  */
 public class IndexValueObservationEmptyDataProviderImpl implements IndexValueObservationDataProvider {
 

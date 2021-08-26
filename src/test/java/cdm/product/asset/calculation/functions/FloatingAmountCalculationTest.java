@@ -7,7 +7,7 @@ import cdm.product.asset.DayCountFractionEnum;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.asset.floatingrate.FloatingAmountCalculationDetails;
-import cdm.product.asset.fro.functions.IndexValueObservationDataProvider;
+import cdm.observable.asset.fro.functions.IndexValueObservationDataProvider;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
