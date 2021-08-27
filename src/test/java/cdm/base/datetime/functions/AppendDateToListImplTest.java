@@ -1,6 +1,5 @@
 package cdm.base.datetime.functions;
 
-import cdm.base.datetime.DateGroup;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,42 +33,25 @@ public class AppendDateToListImplTest extends AbstractFunctionTest {
 				DateImpl.of(2021, 5, 14),
 				DateImpl.of(2021, 5, 15));
 
-		DateGroup actualList = func.evaluate(DateGroup.builder().setDates(dateList), newVal);
+		List<Date> actualList = func.evaluate(dateList, newVal);
 
-		check(expectedList, actualList);
+		assertEquals(expectedList, actualList);
 	}
 
 	@Test
 	void shouldHandleEmptyList() {
-		List<Date> dateList = new ArrayList<>();
-
 		Date newVal = DateImpl.of(2021, 5, 15);
+		List<Date> actualList = func.evaluate(new ArrayList<>(), newVal);
 
-		List<Date> expectedList = Arrays.asList(
-				DateImpl.of(2021, 5, 15));
-
-		DateGroup actualList = func.evaluate(DateGroup.builder().setDates(dateList), newVal);
-
-		check(expectedList, actualList);
+		assertEquals(Collections.singletonList(DateImpl.of(2021, 5, 15)), actualList);
 	}
 
 	@Test
 	void shouldHandleNulls() {
-		List<Date> emptyList = new ArrayList<>();
-		List<Date> zeroList = Arrays.asList(DateImpl.of(1, 1, 2020));
-		DateGroup.DateGroupBuilder dateGroup = DateGroup.builder();
+		assertEquals(Collections.emptyList(), func.evaluate(null, null));
+		assertEquals(Collections.emptyList(), func.evaluate(new ArrayList<>(), null));
 
-		check(emptyList, func.evaluate(null, null));
-		check(emptyList, func.evaluate(dateGroup, null));
-		check(zeroList, func.evaluate(null, DateImpl.of(1, 1, 2020)));
-	}
-
-	void check(List<? extends Date> expected, DateGroup actualList) {
-		List<? extends Date> actual = actualList.getDates();
-		assertEquals(expected.size(), actual.size());
-		int n = expected.size();
-		for (int i = 0; i < n; i++) {
-			assertEquals(expected.get(i), actual.get(i));
-		}
+		List<Date> zeroList = Collections.singletonList(DateImpl.of(1, 1, 2020));
+		assertEquals(zeroList, func.evaluate(null, DateImpl.of(1, 1, 2020)));
 	}
 }
