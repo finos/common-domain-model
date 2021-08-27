@@ -10,7 +10,7 @@ The enhancements are located in the following namespaces:
 * `cdm.product.asset.floatingrate` includes floating rate setting and processing, with the capability to look up and apply rate processing such as spreads, multipliers, caps and floors, etc.
 * `cdm.observable.asset.calculatedrate` includes a preliminary implementation of the new modular calculated floating rates (such as lookback compound or observation shift daily average) defined in the 2021 ISDA definitions.  Also supports OIS rate calculations.
 * `cdm.observable.asset.fro` - includes logic for retrieving Floating Rate Option definitional metadata and index values.
-* `cdm.base.daycount` - new day counting logic, independent of calculation period calculations.
+* `cdm.base.datetime.daycount` - new day counting logic, independent of calculation period calculations.
 
 The current implementation should be viewed as **experimental** and is being released for review and feedback.  Implementers using these capabilities are cautioned that they should test the results carefully, and report any issues or concerns to the CDM team.
 
@@ -21,7 +21,7 @@ Some of the calculation period amount capabilities that are included in FpML and
 * Reset averaging:  there is currently no support for averaging using the resetDates concept, where the reset period is set to more frequent than the calculation period.
 * The US rate treatment logic has a defined entry point but no implementation as yet.  It may be that the interface to that function will need adjustment to provide all the necessary information for the calculation, although an attempt has been made to supply the necessary information.
 
-In addition, some logic has been refactored.  For example, the `DayCountFractionEnum` has been moved to `cdm.base.daycount`.
+In addition, some logic has been refactored.  For example, the `DayCountFractionEnum` has been moved to `cdm.base.datetime.daycount`.
 
 We anticipate that some additional cleanup changes will be made in subsequent releases, including:
 * The existing `FixedAmount` and `FloatingAmount` functions are likely to be rewritten to use the new calculation logic.
@@ -82,7 +82,7 @@ New functions in `cdm.observable.asset.fro` include:
 * `FloatingRateIndexMetadata`: Retrieve all available metadata for the floating rate index.
 * `ValidateFloatingRateIndexName`: Return whether the supplied floating rate index name is valid for the supplied contractual definitions.
 
-New functions in `cdm.base.daycount` include:
+New functions in `cdm.base.datetime.daycount` include:
 * `YearFraction`: The fraction of a year represented by a date range.
 * `YearFractionForOneDay`: Return the year fraction represented by a single day, i.e. 1 / dayCountBasis, where dayCountBasis represents the denominator of the day count fraction. This perhaps should take into account leap years, though the ISDA compounding formulas do not cover ACT basis at the moment.
 * `DayCountBasis`: Return the day count basis (the denominator of the day count fraction) for the day count fraction.
