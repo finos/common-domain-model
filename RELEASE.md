@@ -19,7 +19,6 @@ _Details_
 
 - The `SettlementInstructions` data type has been retired, as its attributes have now been merged into the unique `PriceQuantity`, and the `settlementInstructions` attribute has been removed from `TradableProduct`.
 - Each trade lot now describes its own settlement attributes independently, which can be found in `tradeLot -> priceQuantity`. All functional expressions have been updated to fetch the settlement attributes of `TradableProduct` from `tradeLot -> priceQuantity` instead of `settlementTerms` and `settlementInstructions`.
-- The `settlementCurrency` attribute has been moved out of `SettlementBase` and into `CashSettlementTerms`: specifying a unique settlement currency only makes sense in the context of cash settlement.
 - Some static (java) code has had to be adjusted to work with the restructured model.
 
 _Review Directions_
