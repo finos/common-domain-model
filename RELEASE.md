@@ -47,7 +47,7 @@ New functions in `cdm.product.asset.floatingrate` include:
 * `GetCalculatedFROCalculationParameters`: Initialize a calculation parameters block for an OIS or a daily average rate. Used to support FROs that include an embedded calculation.
 * `ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->CompoundIndex)`: Call the compounded index processing logic to calculate the reset.
 * `EvaluateScreenRate`: Evaluate/lookup the value of a screen rate.
-* `DetermineResetDate`: Determine the value of the reset date given a reset dates structure and a calculation period for which it's needed. Reset dates are defined in the 2021 ISDA Definition in Section 6.5.5.
+* `DetermineResetDate`: Determine the value of the reset date given a reset dates structure and a calculation period for which it is needed. Reset dates are defined in the 2021 ISDA Definition in Section 6.5.5.
 * `DetermineFixingDate`: Determine the observation (fixing) date needed given a reset dates structure and a reset date.
 * `GetFloatingRateProcessingParameters`: Determine the processing parameters to use from the InterestRatePayout by looking them up if necessary from the corresponding schedules in the interest rate stream
 * `SpreadAmount`: Look up the spread amount for a calculation period
