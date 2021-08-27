@@ -55,7 +55,9 @@ The ``counterparty`` attribute uses the ``Counterparty`` data type, which links 
  type Counterparty:
    role CounterpartyRoleEnum (1..1)
    partyReference Party (1..1)
-    [metadata reference]
+     [metadata reference]
+
+.. code-block:: Haskell
 
  enum CounterpartyRoleEnum:
    Party1
@@ -279,6 +281,8 @@ Cash and physical settlement methods require different, specific parameters whic
  type SettlementTerms extends SettlementBase:
    cashSettlementTerms CashSettlementTerms (0..*)
    physicalSettlementTerms PhysicalSettlementTerms (0..1)
+
+.. code-block:: Haskell
 
  type SettlementBase:
    [metadata key]
