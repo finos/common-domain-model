@@ -4,7 +4,7 @@ import cdm.base.datetime.*;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.observable.asset.FloatingRateOption;
 import cdm.observable.asset.fro.functions.IndexValueObservationDataProvider;
-import cdm.base.daycount.DayCountFractionEnum;
+import cdm.base.datetime.daycount.DayCountFractionEnum;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.asset.floatingrate.FloatingAmountCalculationDetails;

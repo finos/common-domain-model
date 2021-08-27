@@ -1,6 +1,6 @@
 package cdm.product.asset.functions;
 
-import cdm.base.daycount.DayCountFractionEnum;
+import cdm.base.datetime.daycount.DayCountFractionEnum;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
