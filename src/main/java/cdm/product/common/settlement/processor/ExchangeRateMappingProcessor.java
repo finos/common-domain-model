@@ -1,9 +1,9 @@
-package cdm.observable.asset.processor;
+package cdm.product.common.settlement.processor;
 
 import cdm.base.math.UnitType;
 import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
+import cdm.product.common.settlement.PriceQuantity;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -18,7 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.observable.asset.metafields.FieldWithMetaPrice.FieldWithMetaPriceBuilder;
-import static cdm.observable.asset.processor.PriceQuantityHelper.toReferencablePriceBuilder;
+import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
+import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencablePriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMapping;
 import static com.regnosys.rosetta.common.util.PathUtils.toPath;
@@ -60,7 +61,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 		return getNonNullMapping(getMappings(), synonymPath).map(mapping -> {
 			// update price index to ensure unique model path, otherwise any references will break
 			Path baseModelPath = toPath(getModelPath()).addElement("amount");
-			Path mappedModelPath = PriceQuantityHelper.incrementPathElementIndex(baseModelPath, "price", priceIndex.getAndIncrement());
+			Path mappedModelPath = incrementPathElementIndex(baseModelPath, "price", priceIndex.getAndIncrement());
 			String amount = String.valueOf(mapping.getXmlValue());
 			updateMappings(synonymPath, mappedModelPath, amount);
 			return toReferencablePriceBuilder(new BigDecimal(amount),

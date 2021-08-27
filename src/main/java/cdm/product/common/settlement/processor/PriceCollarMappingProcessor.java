@@ -1,8 +1,8 @@
-package cdm.observable.asset.processor;
+package cdm.product.common.settlement.processor;
 
 import cdm.base.math.UnitType;
-import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
+import cdm.product.common.settlement.PriceQuantity;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -14,8 +14,9 @@ import com.rosetta.model.metafields.MetaFields;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static cdm.base.math.UnitType.UnitTypeBuilder;
-import static cdm.observable.asset.processor.PriceQuantityHelper.toReferencablePriceBuilder;
+import static cdm.base.math.UnitType.*;
+import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
+import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencablePriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 
 /**
@@ -42,7 +43,7 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 							.addPrice(toReferencablePriceBuilder(floorRate, unitType, unitType, PriceTypeEnum.FLOOR_RATE));
 					// update price index, e.g. floorRate and capRate were previously mapped to the same field so the price index
 					// must be incremented otherwise any references will break
-					frm.setRosettaPath(PriceQuantityHelper.incrementPathElementIndex(frm.getRosettaPath(), "price", 1));
+					frm.setRosettaPath(incrementPathElementIndex(frm.getRosettaPath(), "price", 1));
 					// clear errors
 					frm.setError(null);
 					frm.setCondition(true);
@@ -54,7 +55,7 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 	private UnitTypeBuilder toCurrencyUnitType(Path startsWithPath) {
 		String currency = getNonNullMappedValue(getMappings(), startsWithPath, "notionalStepSchedule", "currency").orElse(null);
 		String currencyScheme = getNonNullMappedValue(getMappings(), startsWithPath, "notionalStepSchedule", "currency", "currencyScheme").orElse(null);
-		return UnitType.builder()
+		return builder()
 				.setCurrency(FieldWithMetaString.builder()
 						.setValue(currency)
 						.setMeta(MetaFields.builder()

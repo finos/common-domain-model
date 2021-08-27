@@ -1,9 +1,9 @@
 package cdm.product.asset.floatingrate.functions;
 
-import cdm.base.math.RateSchedule;
 import cdm.base.math.Step;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.metafields.ReferenceWithMetaPrice;
+import cdm.product.common.schedule.RateSchedule;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;

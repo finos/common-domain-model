@@ -455,7 +455,7 @@ synonym source FpML_5_10 extends FpML
 			[value "spread" path "calculation"] // Commodity Swap Floating Leg
 			// Premium (for all Options) / Additional payment
 			[value "paymentAmount"]
-    + quantity
+    	+ quantity
 		    // For Swap Stream
 			[value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule"]
 		    [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
@@ -503,9 +503,12 @@ synonym source FpML_5_10 extends FpML
             [hint "bond", "convertibleBond"]
 			// For Commodity Swap Floating Leg
 			[hint "commodity"]
+		+ settlementTerms
+			[value "ignore"] // temporary placeholder, until cashflow settlement attribute are re-mapped here
+		+ buyerSeller
+			[value "ignore"] // temporary placeholder, until cashflow settlement attribute are re-mapped here
 		+ effectiveDate
-			// Do not map, until a canonical representation of effective date is built in the CDM and existing effective date attributes can be re-directed here
-			[value "ignore"]
+			[value "ignore"] // Do not map, until a canonical representation of effective date is built in the CDM and existing effective date attributes can be re-directed here
 
 	Price:
 		+ amount
@@ -659,12 +662,12 @@ synonym source FpML_5_10 extends FpML
 			[hint "settlementDate"]
 			[value "americanExercise"]
 			[value "europeanExercise"]
-			[value "equityEuropeanExercise" path "equityExercise"]
-			[value "equityAmericanExercise" path "equityExercise"]
+            [value "equityEuropeanExercise" path "equityExercise"]
+            [value "equityAmericanExercise" path "equityExercise"]
 		+ cashSettlementTerms
 			[value "cashSettlement"]
 			[value "cashSettlementTerms"]
-			[value "settlementProvision"]
+			[value "settlementProvision" /*set when rosettaPath = Payout->interestRatePayout->settlementTerms*/]
 			[value "nonDeliverableSettlement"]
 		+ physicalSettlementTerms
 			[value "physicalSettlement"]
@@ -1151,7 +1154,7 @@ synonym source FpML_5_10 extends FpML
 		+ settlementDate
 			[value "cashSettlementPaymentDate"]
 			[value "settlementDate"]
-			[value "paymentDate"]
+			// [value "paymentDate"]
 		+ valueDate
 			[value "valueDate"]
 			[value "latestValueDate"]
@@ -2272,7 +2275,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "equityOption"]
 			[value "equityOption"]
 			[hint "brokerEquityOption"]
-			[value "brokerEquityOption"]			
+			[value "brokerEquityOption"]
 			// To handle commoditySwap:
 			[value "commoditySwap"] // hard link to CommoditySwap
 			[hint "commoditySwap"] // allows mapping of effective and termination dates to EconomicTerms
@@ -3341,7 +3344,7 @@ synonym source FpML_5_10 extends FpML
 			[value "Frequency"]
 			// For Commodity Swap Fixed Leg
 			[hint "quantityFrequency"]
-	
+
 	enums
 
 	ObligationCategoryEnum:
@@ -5784,7 +5787,7 @@ synonym source FpML_5_10 extends FpML
 			[value "PaidAmount"]
 		+ AsSpecifiedInMasterConfirmation
 			[value "AsSpecifiedInMasterConfirmation"]
-	
+
 	DividendCompositionEnum:
 		+ EquityAmountReceiverElection
 			[value "EquityAmountReceiverElection"]
@@ -6463,7 +6466,7 @@ synonym source FpML_5_10 extends FpML
 			[value "PotentialAdjustmentEvent"]
 		+ CashEquivalent
 			[value "CashEquivalent"]
-		
+
 	NotionalAdjustmentEnum:
 		+ Execution
 			[value "Execution"]
@@ -7509,7 +7512,7 @@ synonym source FpML_5_10 extends FpML
 			[value "Unweighted"]
 		+ Weighted
 			[value "Weighted"]
-	
+
 	DayDistributionEnum:
 		+ All
 			[value "All"]
@@ -7528,11 +7531,11 @@ synonym source FpML_5_12 extends FpML_5_10
 			[value "calculationParameters"]
 		+ fallbackRate
 			[value "fallbackRate"]
-	
+
 	FloatingRateCalculationParameters:
 		+ calculationMethod
 			[value "calculationMethod"]
-		+ applicableBusinessDays 
+		+ applicableBusinessDays
 			[value "applicableBusinessDays"]
 		+ observationShiftCalculation
 			[value "observationShift"]
@@ -7540,7 +7543,7 @@ synonym source FpML_5_12 extends FpML_5_10
 			[value "lookback" ]
 		+ lockoutCalculation
 			[value "lockout"]
-	
+
 	FallbackRateParameters:
 		+ floatingRateIndex
 			[value "floatingRateInde"]
@@ -7550,21 +7553,21 @@ synonym source FpML_5_12 extends FpML_5_10
 			[value "calculationParameters"]
 		+ spreadAdjustment
 			[value "spreadAdjustment"]
-	
+
 	OffsetCalculation:
-		+ offsetDays 
+		+ offsetDays
 			[value "offsetDays"]
-	
-	ObservationShiftCalculation: 
-		+ offsetDays 
+
+	ObservationShiftCalculation:
+		+ offsetDays
 			[value "offsetDays"]
 		+ calculationBase
 			[value "observationPeriodDates"]
 		+ additionalBusinessDays
-			[value "additionalBusinessDays"]		
-	
+			[value "additionalBusinessDays"]
+
 	ObservationParameters:
-		+ observationCapRate 
+		+ observationCapRate
 			[ value "observationCapRate"]
 		+ observationFloorRate
 			[value "observationFloorRate"]
@@ -7574,9 +7577,9 @@ synonym source FpML_5_12 extends FpML_5_10
 			[value "partyReference"]
 		+ legalEntity
 			[hint "identifier"]
-	
+
 	CashCollateralValuationMethod:
-		+ applicableCsa	
+		+ applicableCsa
 			[value "applicableCsa"]
 		+ cashCollateralCurrency
 			[value "cashCollateralCurrency"]
@@ -7588,7 +7591,7 @@ synonym source FpML_5_12 extends FpML_5_10
 		 	[value "partyDetermination" path "protectedParty"]
 		+ prescribedDocumentationAdjustment
 			[value "prescribedDocumentationAdjustment"]
-	
+
 	CashSettlementTerms:
 		+ cashSettlementMethod
 			[set to CashSettlementMethodEnum -> MidMarketIndicativeQuotations when "midMarketValuation->indicativeQuotations" exists]
@@ -7599,15 +7602,15 @@ synonym source FpML_5_12 extends FpML_5_10
 		+ valuationMethod
 			[value "midMarketValuation"]
 			[value "replacementValue"]
-	
+
 	LegalEntity:
 		+ name
 			[value "identifier"]
-	
+
 	ValuationSource:
 		+ dealerOrCCP
 			[value "mutuallyAgreedClearinghouse"]
-	
+
 	ValuationMethod:
     + valuationSource
       [value "indicativeQuotations"]
@@ -7621,21 +7624,21 @@ synonym source FpML_5_12 extends FpML_5_10
 			// [value "indicativeQuotationsAlternate"]
 			// [value "calculationAgentDetermination"]
 			[value "firmQuotations"]
-	
+
 	enums
-	
-	CsaTypeEnum: 
-		+ NoCSA  
+
+	CsaTypeEnum:
+		+ NoCSA
 			[value "NoCSA"]
 		+ ExistingCSA
 			[value "ExistingCSA"]
-		+ ReferenceVMCSA 
+		+ ReferenceVMCSA
 			[value "ReferenceVMCSA"]
-  
+
   CalculationMethodEnum:
 	 	+ Averaging
 			[value "Averaging"]
-		+ Compounding 
+		+ Compounding
 			[value "Compounding"]
  		+ CompoundedIndex
 			[value "CompoundedIndex"]

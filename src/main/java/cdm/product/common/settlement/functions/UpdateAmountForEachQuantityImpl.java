@@ -1,8 +1,8 @@
-package cdm.base.math.functions;
+package cdm.product.common.settlement.functions;
 
 import cdm.base.math.Quantity;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
-import cdm.observable.asset.PriceQuantity;
+import cdm.product.common.settlement.PriceQuantity;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;

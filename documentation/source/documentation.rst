@@ -41,7 +41,29 @@ A tradable product represents a financial product that is ready to be traded, me
 
 .. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
 
-The primary set of attributes represented in the ``TradableProduct`` data type are ones that are shared by all trades and transactions.  For example, every trade has a price, a quantity (treated jointly as a trade lot), and a pair of counterparties.  In some cases, there are ancillary parties, settlement terms, and an allowable adjustment to the notional quantity.  All of the other attributes required to describe a product are defined in distinct product data types.
+The primary set of attributes represented in the ``TradableProduct`` data type are ones that are shared by all trades and transactions.  For example, every trade has a price, a quantity (treated jointly as a trade lot), and a pair of counterparties. In some cases, there are ancillary parties, or an allowable adjustment to the notional quantity.  All of the other attributes required to describe a product are defined in distinct product data types.
+
+Counterparty
+""""""""""""
+
+The ``counterparty`` attribute of a ``TradableProduct`` is constrained to be exactly of cardinality 2. The CDM enforces that a transaction can only occur between a pair of counterparties, with any other party involved in the transaction represented by the ``ancillaryParty`` attribute.
+
+The ``counterparty`` attribute uses the ``Counterparty`` data type, which links a specific ``Party`` object identifying that party to its role in the transaction. The counterparty roles in the CDM are normalised to be either ``Party1`` or ``Party2`` and captured as a pair of enumerated values.
+
+.. code-block:: Haskell
+
+ type Counterparty:
+   role CounterpartyRoleEnum (1..1)
+   partyReference Party (1..1)
+     [metadata reference]
+
+.. code-block:: Haskell
+
+ enum CounterpartyRoleEnum:
+   Party1
+   Party2
+
+This design allows to use anonymised ``Party1`` and ``Party2`` values to specify the direction of flows in the definition of a tradable product without having to reference specific parties. This means that the same product can now be defined in a party-agnostic way and used to represent transactions between potentially many different parties.
 
 TradeLot
 """"""""
@@ -67,7 +89,11 @@ The ``pricequantity`` attribute is represented as an array of the ``PriceQuantit
 PriceQuantity
 """""""""""""
 
-The price and quantity attributes of a trade, or of a leg of a trade in the case of composite products, are part of a data type called ``PriceQuantity``. This data type also contains (optionally) an observable, which describes the asset or reference index to which the price and quantity are related, and a date, which indicates when these price and quantity become effective.
+The price and quantity attributes of a trade, or of a leg of a trade in the case of composite products, are part of a data type called ``PriceQuantity``. This data type also contains (optionally):
+
+- an observable, which describes the asset or reference index to which the price and quantity are related
+- settlement terms and the buyer/seller direction, in case that price and quantity are meant to be settled
+- a date, which indicates when these price and quantity become effective
 
 .. code-block:: Haskell
 
@@ -100,29 +126,33 @@ The ``price`` and ``quantity`` attributes in the ``PriceQuantity`` data type eac
 
 MeasureBase
 """""""""""
-The ``MeasureBase`` is a base data type that provides a common component that is useful in the definition of prices and quantities, as defined below:
+
+``MeasureBase`` is a base data type that consists of two mandatory attributes that define a *measure* generally. It provides a common component that is useful in the definition of price and quantity :
+
+- ``amount``, which is a number and could be a price or a quantity
+- ``unitOfAmount``, which defines the unit in which that amount is expressed
 
 .. code-block:: Haskell
 
  type MeasureBase:
-	amount number (1..1)
-	unitOfAmount UnitType (1..1)
+   amount number (1..1)
+   unitOfAmount UnitType (1..1)
 
-The ``MeasureBase`` data type consists of two mandatory attributes.  The first is ``amount``, which could be a price or a quantity, as defined by other attributes.  The second attribute is ``unitOfAmount``, which uses the ``UnitType`` data type. This data type requires the definition of units using one of five defined types:
+The ``UnitType`` data type used to defined the ``unitOfAmount`` attribute requires the definition of units using one of five defined types:
 
 .. code-block:: Haskell
 
  type UnitType:
-	capacityUnit CapacityUnitEnum (0..1)
-	weatherUnit WeatherUnitEnum (0..1)
-	financialUnit FinancialUnitEnum (0..1)
-	currency string (0..1)
-		[metadata scheme]
-        frequency cdm.base.datetime.Frequency (0..1)
+   capacityUnit CapacityUnitEnum (0..1)
+   weatherUnit WeatherUnitEnum (0..1)
+   financialUnit FinancialUnitEnum (0..1)
+   currency string (0..1)
+     [metadata scheme]
+   frequency cdm.base.datetime.Frequency (0..1)
 
-	condition:one-of
+   condition:one-of
 
-The ``Price`` and ``Quantity`` data types are both extensions of the ``MeasureBase`` data type, as shown below:
+The ``Price`` and ``Quantity`` data types are both extensions of the ``MeasureBase`` data type, as shown below.
 
 Price
 """""
@@ -131,8 +161,8 @@ The ``Price`` data type extends the ``MeasureBase`` data type with the addition 
 .. code-block:: Haskell
 
  type Price extends MeasureBase:
-	priceType PriceTypeEnum (1..1)
-	perUnitOfAmount UnitType (1..1)
+   priceType PriceTypeEnum (1..1)
+   perUnitOfAmount UnitType (1..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
 
@@ -165,7 +195,7 @@ Consider the example below for the initial price of the underlying equity in a s
             }
           ]
 
-The full form of this example can be seen in the CDM Portal Ingestion panel, products->equity->eqs-ex01-single-underlyer-execution-long-form-other-party.xml.  As can be seen in the full example, for an interest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency, (e.g. 0.002 USD per USD) and the priceType would be a Spread (in the case of a floating leg, as in this example) or an InterestRate (in the case of a fixed leg).
+The full form of this example can be seen in the CDM Portal Ingestion panel, products->equity->eqs-ex01-single-underlyer-execution-long-form-other-party.xml.  As can be seen in the full example, for an interest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency, (e.g. 0.002 USD per USD) and the ``priceType`` would be a Spread (in the case of a floating leg, as in this example) or an InterestRate (in the case of a fixed leg).
 
 Quantity
 """"""""
@@ -174,12 +204,12 @@ The ``Quantity`` data type extends the ``MeasureBase`` data type with the additi
 .. code-block:: Haskell
 
  type Quantity extends MeasureBase:
-	multiplier number (0..1)
-	multiplierUnit UnitType (0..1)
+   multiplier number (0..1)
+   multiplierUnit UnitType (0..1)
 
-	condition Quantity_multiplier:
-	    if multiplier exists
-		then multiplier >= 0.0
+   condition Quantity_multiplier:
+     if multiplier exists
+       then multiplier >= 0.0
 
 The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient to define quantity, in most cases.  The two attributes that are distinct for the ``Quantity`` data type   further qualify the ``amount``, with a multiplier, as needed for listed contracts or other purposes, as shown in the example below:
 
@@ -217,17 +247,67 @@ The Observable data type requires the specification of either a ``rateOption`` (
 .. code-block:: Haskell
 
  type Observable:
-	[metadata key]
-	rateOption FloatingRateOption (0..1)
-        [metadata location]
-	commodity Commodity (0..1)
-        [metadata location]
-	productIdentifier ProductIdentifier (0..*)
-        [metadata location]
-	currencyPair QuotedCurrencyPair (0..1)
-        [metadata location]
+   [metadata key]
+   rateOption FloatingRateOption (0..1)
+     [metadata location]
+   commodity Commodity (0..1)
+     [metadata location]
+   productIdentifier ProductIdentifier (0..*)
+     [metadata location]
+   currencyPair QuotedCurrencyPair (0..1)
+     [metadata location]
 
-	condition: one-of
+   condition: one-of
+
+SettlementTerms
+"""""""""""""""
+In both the Equity Swap and Interest Rate Swap trade cases mentioned above, there are no settlement terms attached to the price and quantity. Instead, any future settlement is driven by the product mechanics and the price and quantity are just parameters in the definition of that product.
+
+In other cases, it is necessary to define settlement terms when either the price or quantity or both are to be settled. A non-exhaustive list of cases includes:
+
+- A cash transaction, i.e. when buying a certain quantity of a security or commodity for a certain price
+- An FX spot of forward transaction
+- An option for which a premium must be paid
+- A swap transaction that involves an upfront payment, e.g. in case of unwind or novation
+
+In those cases, the corresponding ``PriceQuantity`` object also contains ``settlementTerms`` and ``buyerSeller`` attributes to define that settlement. The actual settlement amounts will use the price and quantity agreed as part of the tradable product.
+
+The ``SettlementTerms`` data type defines the basic characteristics of a settlement: the settlement date, currency, whether it will be cash or physical, and the type of transfer. For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. Those parameters that are common across all settlement methods are captured by the ``SettlementBase`` data type.
+
+Cash and physical settlement methods require different, specific parameters which are captured by the additional ``cashSettlementTerms`` and ``physicalSettlementTerms`` attributes, respectively. For instance, a non-deliverable FX forward will use the ``cashSettlementTerms`` attribute to represent the parameters of the non-deliverable settlement, such as the observable FX fixing to use.
+
+.. code-block:: Haskell
+
+ type SettlementTerms extends SettlementBase:
+   cashSettlementTerms CashSettlementTerms (0..*)
+   physicalSettlementTerms PhysicalSettlementTerms (0..1)
+
+.. code-block:: Haskell
+
+ type SettlementBase:
+   [metadata key]
+   settlementType SettlementTypeEnum (1..1)
+   transferSettlementType TransferSettlementEnum (0..1)
+   settlementCurrency string (0..1)
+     [metadata scheme]
+   settlementDate SettlementDate (0..1)
+
+BuyerSeller
+""""""""""""
+When a settlement occurs for the price and/or quantity, it is necessary to define the direction of that settlement by specifying which party pays what. That direction is captured by the ``BuyerSeller`` data type, that uses the normalised ``CounterpartyRoleEnum`` enumeration to specify who is the buyer and seller, respectively.
+
+.. code-block:: Haskell
+
+ type BuyerSeller:
+   buyer CounterpartyRoleEnum (1..1)
+   seller CounterpartyRoleEnum (1..1)
+
+By convention, the direction of the settlement flows will be inferred as follows:
+
+- the buyer receives the quantity / pays the price, and
+- the seller receives the price / pays the quantity.
+
+For instance in an FX spot or forward transaction, the respective units of the quantity and price will determine who is paying or receiving each currency.
 
 Financial Product
 """""""""""""""""
@@ -259,24 +339,6 @@ Foreign Exchange (FX) spot and forward trades (including Non-Deliverable Forward
 By contrast, in the case of the execution of a security (e.g. a listed equity), the exchange of finanical risk is a one-time event that takes place on the settlement date, which is usually within a few business days of the agreement. The other significant distinction is that securities are fungible instruments for which the terms and security identifiers are publically available.  Therefore, the terms of the security do not have to be stored in a transaction lifecycle model, but can be referenced with public identifiers.
 
 An Index product is an exception because it's not directly tradable, but is included here because it can be referenced as an underlier for a tradable product and can be identified by a public identifier.
-
-Settlement Instructions
-"""""""""""""""""""""""
-
-The ``settlementInstructions`` attribute defines how the transaction should be settled (including the settlement date). For instance, a settlement could be a *delivery-versus-payment* scenario for a cash security transaction or a *payment-versus-payment* scenario for an FX spot or forward transaction. The actual settlement amount(s) will need to use the *price* and *quantity* agreed as part of the tradable product.
-
-.. code-block:: Haskell
-
- type PayoutBase:
-   payerReceiver PayerReceiver (1..1)
-   payoutQuantity ResolvablePayoutQuantity (1..1)
-   settlementTerms SettlementTerms (1..1)
-
-.. code-block:: Haskell
-
- type SettlementTerms extends SettlementBase:
-   cashSettlementTerms CashSettlementTerms (0..*)
-   physicalSettlementTerms PhysicalSettlementTerms (0..1)
 
 Contractual Product
 ^^^^^^^^^^^^^^^^^^^
@@ -318,12 +380,12 @@ In the CDM, contractual products are represented by the ``ContractualProduct`` t
     productTaxonomy ProductTaxonomy (0..*)
     economicTerms EconomicTerms (1..1)
 
-Note that price and quantity are defined in ``TradableProduct`` as these are attributes common to all products.  The remaining economic terms of the contractual product are defined in ``EconomicTerms`` which is an encapsulated type in ``ContractualProduct`` .
+Note that price, quantity and counterparties are defined in ``TradableProduct`` as these are attributes common to all products.  The remaining economic terms of the contractual product are defined in ``EconomicTerms`` which is an encapsulated type in ``ContractualProduct`` .
 
 Economic Terms
 """"""""""""""
 
-The CDM specifies the various sets of possible remaining economic terms using the ``EconomicTerms`` type.  This type includes contractual provisions that are not specific to the type of payout, but do impact the value of the contract, such as effective date, termination date, date adjustments, and early termination provisions.  A valid population of this type is constrained by a set of conditions which are not shown here in the interests of brevity.
+The CDM specifies the various sets of possible remaining economic terms using the ``EconomicTerms`` type. This type includes contractual provisions that are not specific to the type of payout, but do impact the value of the contract, such as effective date, termination date, date adjustments, and early termination provisions. A valid population of this type is constrained by a set of conditions which are not shown here in the interests of brevity.
 
 .. code-block:: Haskell
 
@@ -356,37 +418,42 @@ The ``Payout`` type defines the composable payout types, each of which describes
    securityFinancePayout SecurityFinancePayout (0..*)
    cashflow Cashflow (0..*)
 
-The ``InterestRatePayout``, ``EquityPayout``, ``OptionPayout``, ``SecurityFinancePayout``, ``Cashflow``, and the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout`` are all extensions of the base type called ``PayoutBase``, which provides a common location for referencing payout quantities, as illustrated below:
+A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts. The list of payouts that extend ``PayoutBase` are:
+
+- ``InterestRatePayout``
+- ``EquityPayout``
+- ``OptionPayout``
+- ``SecurityFinancePayout``
+- ``Cashflow``
+- the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout``
 
 .. code-block:: Haskell
 
  type PayoutBase:
-	payerReceiver PayerReceiver (1..1)
-    payoutQuantity ResolvablePayoutQuantity (1..1)
-    settlementTerms SettlementTerms (1..1)
+   payerReceiver PayerReceiver (1..1)
+   payoutQuantity ResolvablePayoutQuantity (1..1)
+   settlementTerms SettlementTerms (1..1)
 
 .. code-block:: Haskell
 
  type ResolvablePayoutQuantity:
-	[metadata key]
-	resolvedQuantity Quantity (0..1)
-		[metadata address "pointsTo"=PriceQuantity->quantity]
-	quantitySchedule NonNegativeQuantitySchedule (0..1)
-	quantityReference ResolvablePayoutQuantity (0..1)
-		[metadata reference]
-	quantityMultiplier QuantityMultiplier (0..1)
-	reset boolean (0..1)
-	futureValueNotional FutureValueAmount (0..1)
+   [metadata key]
+   resolvedQuantity Quantity (0..1)
+     [metadata address "pointsTo"=PriceQuantity->quantity]
+   quantitySchedule NonNegativeQuantitySchedule (0..1)
+   quantityReference ResolvablePayoutQuantity (0..1)
+     [metadata reference]
+   quantityMultiplier QuantityMultiplier (0..1)
+   reset boolean (0..1)
+   futureValueNotional FutureValueAmount (0..1)
 
-Note that the code snippet above excludes the conditions in this data type for purposes of brevity.
-
-Note that the ``resolvedQuantity`` attribute has a metadata address that points to the quantity attribute in the ``PriceQuantity`` data type.  This metadata address allows for referencing a value without requiring the population of the value in the persistent object.  The other attributes in this data type support the definition of additional information such as a schedule, a reference, or the indication that the quantity is resettable.  One of the data types that extends ``PayoutBase`` is ``InterestRatePayout``, as shown below:
+An example of the payout types that extend ``PayoutBase`` is illustrated below:
 
 .. code-block:: Haskell
 
  type InterestRatePayout extends PayoutBase:
-	[metadata key]
-	rateSpecification RateSpecification (1..1)
+   [metadata key]
+   	rateSpecification RateSpecification (1..1)
 	dayCountFraction DayCountFractionEnum (0..1)
 		[metadata scheme]
 	calculationPeriodDates CalculationPeriodDates (0..1)
@@ -403,26 +470,28 @@ Note that the ``resolvedQuantity`` attribute has a metadata address that points 
 	fixedAmount calculation (0..1)
 	floatingAmount calculation (0..1)
 
-Note that the code snippet above excludes the conditions in this data type for purposes of brevity.
+.. note:: The code snippets above excludes the conditions in this data type for purposes of brevity.
+
+The ``resolvedQuantity`` attribute has a metadata address that points to the quantity attribute in the ``PriceQuantity`` data type.  This metadata address allows for referencing a value without requiring the population of the value in the persistent object.  The other attributes in this data type support the definition of additional information such as a schedule, a reference, or the indication that the quantity is resettable.  One of the data types that extends ``PayoutBase`` is ``InterestRatePayout``, as shown below:
 
 There are other addresses in the model that use the metadata address to point to ``Price`` in ``PriceQuantity``.  Examples include the ``initialValue`` attribute in the ``RateSchedule`` data type and the ``strikePrice`` attribute in the ``OptionStrike`` data type, which are illustrated below:
 
 .. code-block:: Haskell
 
  type RateSchedule:
-	initialValue Price (0..1)
-		[metadata address "pointsTo"=PriceQuantity->price]
-	step Step (0..*)
+   initialValue Price (0..1)
+     [metadata address "pointsTo"=PriceQuantity->price]
+   step Step (0..*)
 
 .. code-block:: Haskell
 
  type OptionStrike:
-	strikePrice Price (0..1)
-	strikeReference FixedRateSpecification (0..1)
-		[metadata reference]
-	referenceSwapCurve ReferenceSwapCurve (0..1)
-	averagingStrikeFeature AveragingObservation (0..1)
-	condition: one-of
+   strikePrice Price (0..1)
+   strikeReference FixedRateSpecification (0..1)
+     [metadata reference]
+   referenceSwapCurve ReferenceSwapCurve (0..1)
+   averagingStrikeFeature AveragingObservation (0..1)
+   condition: one-of
 
 Reusable Components
 """""""""""""""""""
@@ -1773,7 +1842,6 @@ Explanations of these processes are provided in the following sections.
 
 Base Libraries - Vector Math
 """"""""""""""""""""""""""""
-
 The CDM includes a very basic library for performing vector math.  This is intended to support more complex calculations such as daily compounded floating amounts.   The CDM includes a basic implementation of these functions in Java, and allows individual implementations to substitute their own more robust representations.
 
 A small library of functions for working with vectors (ordered collections of numbers) has been added to CDM to support Rosetta functions needing to perform complex mathematical operations.  Anticipated uses include averaging and compounding calculations for floating amounts, but the functions are designed to be general use.
@@ -1817,8 +1885,7 @@ Functions include:
 * ``AppendDateToList``: Add a date to a list of dates
 * ``PopOffDateList``:  Remove last element from a list of dates
 
-The following are implemented in Rosetta based on the above primitives:
-
+The following are implemented in Rosetta based on the above primitives.
 * ``IsWeekend``: returns whether the supplied date is a weekend.  This implementation currently assumes a 5 day week with Saturday and Sunday as holidays.  A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.
 * ``IsHoliday``: Returns whether a day is a holiday for the specified business centers
 * ``IsBusinessDay``: returns an indicator of whether the supplied date is a good business date given the supplied business centers.  True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday
@@ -1827,29 +1894,24 @@ The following are implemented in Rosetta based on the above primitives:
 
 Base Libraries - Daycounting
 """"""""""""""""""""""""""""
-
 The CDM includes a  library for performing day counting calculations.
 
 It includes functions as follows:
-
 * ``YearFraction``: The fraction of a year represented by a date range
 * ``YearFractionForOneDay```: Return the year fraction represented by a single day, i.e. 1 / dayCountBasis, where dayCountBasis represents the denominator of the day count fraction. This perhaps should take into account leap years, though the ISDA compounding formulas do not cover ACT basis at the moment.
 * ``DayCountBasis``: Return the day count basis (the denominator of the day count fraction) for the day count fraction
 
 Floating Rate Option/Index Features
 """""""""""""""""""""""""""""""""""
-
 The CDM includes features for retrieving information about floating rate options and for calculating custom ("modular") floating rates.
 
 Functions for retrieving information about FROs include:
-
 * ``IndexValueObservation``: Retrieve the values of the supplied index on the specified observation date.
 * ``IndexValueObservationMultiple``: Retrieve the values of the supplied index on the specified observation dates.
 * ``FloatingRateIndexMetadata``: Retrieve all available metadata for the floating rate index.
 * ``ValidateFloatingRateIndexName``: Return whether the supplied floating rate index name is valid for the supplied contractual definitions.
 
 Functions for calculating modular floating rates include:
-
 * ``EvaluateCalculatedRate``: Evaluate a calculated rate as described in the 2021 ISDA Definitions, Section 7
 * ``GenerateObservationDatesAndWeights``: Apply shifts to generate the list of observation dates and weights for each of those dates
 * ``ComputeCalculationPeriod``: Determine the calculation period to use for computing the calculated rate (it may not be the same as the normal calculation period, for instance if the rate is set in advance)
@@ -1864,11 +1926,9 @@ Functions for calculating modular floating rates include:
 
 Fixed Amount and Floating Amount Definitions
 """"""""""""""""""""""""""""""""""""""""""""
-
 The CDM includes preliminary features for calculating fixed and floating amounts for interest rate payouts.
 
 Base calculation functions include:
-
 * ``FixedAmountCalculation``: Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction
 * ``LookupFixedRate``: Look up the fixed rate for a calculation period
 * ``FloatingAmountCalculation``: Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction.  Floating amount calculations are described in the 2021 ISDA Definitions in Section 6 and 7.
@@ -1879,7 +1939,6 @@ Base calculation functions include:
 * ``CalculateYearFraction``: Calculate the year fraction for a single calculation period, by invoking the base year fraction logic
 
 Floating rate processing an calculation functions include:
-
 * ``DetermineFloatingRateReset``: Get the value of a floating rate by either observing it directly or performing a rate calculation.  This function works differently depending on the rate category and style, as described in the 2021 ISDA Definitions, Section 6.6.
 * ``GetFloatingRateProcessingType``:  Get a classification of  the floating rate is processed. This is based on FRO category, style, and calculation method, as described in the 2021 ISDA Definitions Section 6.6.  The categorization information is obtained from the FRO metadata.
 * ``ProcessFloatingRateReset``: Entry point for the function that performs the floating rate resetting operation.  There are different variations depending on the processing type (e.g. screen rate, OIS, modular calculated rate).
@@ -1911,7 +1970,7 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
 
 .. code-block:: Haskell
 
- func FloatingAmount:
+func FloatingAmount:
 	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
@@ -1947,7 +2006,7 @@ The CDM process model eliminates the need for implementators to interpret the lo
 
 .. code-block:: Haskell
 
- func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
 	[calculation]
 
 	alias startYear: calculationPeriod -> startDate -> year

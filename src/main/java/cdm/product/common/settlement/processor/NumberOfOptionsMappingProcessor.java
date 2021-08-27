@@ -1,9 +1,9 @@
-package cdm.observable.asset.processor;
+package cdm.product.common.settlement.processor;
 
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
-import cdm.observable.asset.PriceQuantity;
+import cdm.product.common.settlement.PriceQuantity;
 import com.regnosys.rosetta.common.translation.*;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
@@ -12,8 +12,8 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static cdm.observable.asset.processor.PriceQuantityHelper.incrementPathElementIndex;
-import static cdm.observable.asset.processor.PriceQuantityHelper.toReferencableQuantityBuilder;
+import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
+import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencableQuantityBuilder;
 import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 
 /**
@@ -79,8 +79,6 @@ public class NumberOfOptionsMappingProcessor extends MappingProcessor {
 	private boolean pathExists(Path endsWith) {
 		return getMappings().stream()
 				.filter(m -> m.getXmlPath().endsWith(endsWith))
-				.filter(m -> m.getXmlValue() != null)
-				.findFirst()
-				.isPresent();
+				.anyMatch(m -> m.getXmlValue() != null);
 	}
 }

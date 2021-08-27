@@ -306,8 +306,6 @@ type FxFixingDate extends Offset: <"Extends the Offset structure to specify an F
 	condition DateChoice: <"condition to represent an FpML choice construct.">
 		required choice dateRelativeToPaymentDates, dateRelativeToCalculationPeriodDates, fxFixingDate
 
-type SettlementInstructions extends PayoutBase:
-
 type PrincipalExchange: <"A data for:  defining a principal exchange amount and adjusted exchange date. This data forms:  part of the cashflow representation of a swap stream.">
 	[metadata key]
 
@@ -329,6 +327,32 @@ type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, w
 	condition PhysicalSettlementTerms: <"If the physical settlement terms are specified, then the settlementType can either be Physical, Election or CashOrPhysical">
 		if physicalSettlementTerms exists /* or fxSettlementTerms exists*/
 		then settlementType <> SettlementTypeEnum -> Cash
+
+type PriceQuantity: <"Defines a settlement as an exchange between two parties of a specified quantity of an asset (the quantity) against a specified quantity of another asset (the price). The settlement is optional and can be either cash or physical. In the case of non-cash products, the settlement of the price/quantity would not be specified here and instead would be delegated to the product mechanics, as parameterised by the price/quantity values.">
+	[metadata key]
+	price Price (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
+	    [metadata location]
+	quantity Quantity (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
+	    [metadata location]
+	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference. The cardinality is optional as some quantity / price cases have no observable (e.g. a notional and a fixed rate in a given currency).">
+	buyerSeller BuyerSeller (0..1) <"Defines the direction of the exchange. The convention is that the buyer receives the quantity / pays the price, whereas the seller receives the price / pays the quantity. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
+	settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
+	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
+	
+	condition NonNegativeQuantity:
+	    if quantity -> amount exists
+	    then quantity -> amount all >= 0
+	
+	condition:
+	    if observable -> rateOption exists and price exists
+	    then 
+			price -> priceType contains PriceTypeEnum -> Spread or
+			price -> priceType contains PriceTypeEnum -> CapRate or
+			price -> priceType contains PriceTypeEnum -> FloorRate or
+			price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
+	
+	condition ActualSettlement: <"">
+		if buyerSeller exists then settlementTerms exists
 
 type PaymentDetail:
 	[metadata key]

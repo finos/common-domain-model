@@ -1,4 +1,4 @@
-package cdm.observable.asset.functions;
+package cdm.product.common.settlement.functions;
 
 import cdm.base.datetime.Period;
 import cdm.base.math.MeasureBase;
@@ -6,9 +6,9 @@ import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.observable.asset.FloatingRateOption;
 import cdm.observable.asset.Observable;
-import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.metafields.FieldWithMetaFloatingRateOption;
 import cdm.observable.asset.metafields.FieldWithMetaPrice;
+import cdm.product.common.settlement.PriceQuantity;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 public class FilterPriceQuantityImpl extends FilterPriceQuantity {
@@ -26,7 +25,7 @@ public class FilterPriceQuantityImpl extends FilterPriceQuantity {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FilterPriceQuantityImpl.class);
 
 	@Override
-	protected PriceQuantityBuilder doEvaluate(
+	protected PriceQuantity.PriceQuantityBuilder doEvaluate(
 			List<? extends PriceQuantity> priceQuantities,
 			String currency,
 			Period rateOptionIndexTenor) {

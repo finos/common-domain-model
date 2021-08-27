@@ -1,16 +1,16 @@
 package cdm.product.asset.floatingrate.functions;
 
 import cdm.base.datetime.*;
-import cdm.base.math.RateSchedule;
 import cdm.base.math.Step;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateOption;
 import cdm.observable.asset.Price;
-import cdm.product.asset.FloatingRateSpecification;
-import cdm.product.asset.SpreadSchedule;
 import cdm.observable.asset.fro.functions.IndexValueObservationDataProvider;
 import cdm.observable.asset.fro.functions.IndexValueObservationTestDataProviderImpl;
+import cdm.product.asset.FloatingRateSpecification;
+import cdm.product.asset.SpreadSchedule;
+import cdm.product.common.schedule.RateSchedule;
 import cdm.product.common.schedule.ResetDates;
 import cdm.product.common.schedule.ResetFrequency;
 import cdm.product.common.schedule.ResetRelativeToEnum;
