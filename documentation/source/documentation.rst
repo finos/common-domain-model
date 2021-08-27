@@ -55,6 +55,7 @@ The ``counterparty`` attribute uses the ``Counterparty`` data type, which links 
  type Counterparty:
    role CounterpartyRoleEnum (1..1)
    partyReference Party (1..1)
+    [metadata reference]
 
  enum CounterpartyRoleEnum:
    Party1
@@ -284,6 +285,7 @@ Cash and physical settlement methods require different, specific parameters whic
    settlementType SettlementTypeEnum (1..1)
    transferSettlementType TransferSettlementEnum (0..1)
    settlementCurrency string (0..1)
+     [metadata scheme]
    settlementDate SettlementDate (0..1)
 
 BuyerSeller
@@ -447,22 +449,22 @@ An example of the payout types that extend ``PayoutBase`` is illustrated below:
 
  type InterestRatePayout extends PayoutBase:
    [metadata key]
-   rateSpecification RateSpecification (1..1)
-   dayCountFraction DayCountFractionEnum (0..1)
-     [metadata scheme]
-   calculationPeriodDates CalculationPeriodDates (0..1)
-   paymentDates PaymentDates (0..1)
-   paymentDate AdjustableDate (0..1)
-   paymentDelay boolean (0..1)
-   resetDates ResetDates (0..1)
-   discountingMethod DiscountingMethod (0..1)
-   compoundingMethod CompoundingMethodEnum (0..1)
-   cashflowRepresentation CashflowRepresentation (0..1)
-   principalExchanges PrincipalExchanges (0..1)
-   stubPeriod StubPeriod (0..1)
-   bondReference BondReference (0..1)
-   fixedAmount calculation (0..1
-   floatingAmount calculation (0..1)
+   	rateSpecification RateSpecification (1..1)
+	dayCountFraction DayCountFractionEnum (0..1)
+		[metadata scheme]
+	calculationPeriodDates CalculationPeriodDates (0..1)
+	paymentDates PaymentDates (0..1)
+	paymentDate AdjustableDate (0..1)
+	paymentDelay boolean (0..1)
+	resetDates ResetDates (0..1)
+	discountingMethod DiscountingMethod (0..1)
+	compoundingMethod CompoundingMethodEnum (0..1)
+	cashflowRepresentation CashflowRepresentation (0..1)
+	principalExchanges PrincipalExchanges (0..1)
+	stubPeriod StubPeriod (0..1)
+	bondReference BondReference (0..1)
+	fixedAmount calculation (0..1)
+	floatingAmount calculation (0..1)
 
 .. note:: The code snippets above excludes the conditions in this data type for purposes of brevity.
 
@@ -2000,10 +2002,10 @@ The CDM process model eliminates the need for implementators to interpret the lo
 
 .. code-block:: Haskell
 
- func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
 	[calculation]
 
-	alias startYear:  calculationPeriod -> startDate -> year
+	alias startYear: calculationPeriod -> startDate -> year
 	alias endYear: calculationPeriod -> endDate -> year
 	alias startMonth: calculationPeriod -> startDate -> month
 	alias endMonth: calculationPeriod -> endDate -> month
