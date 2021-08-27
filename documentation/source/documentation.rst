@@ -1773,6 +1773,7 @@ Explanations of these processes are provided in the following sections.
 
 Base Libraries - Vector Math
 """"""""""""""""""""""""""""
+
 The CDM includes a very basic library for performing vector math.  This is intended to support more complex calculations such as daily compounded floating amounts.   The CDM includes a basic implementation of these functions in Java, and allows individual implementations to substitute their own more robust representations.
 
 A small library of functions for working with vectors (ordered collections of numbers) has been added to CDM to support Rosetta functions needing to perform complex mathematical operations.  Anticipated uses include averaging and compounding calculations for floating amounts, but the functions are designed to be general use.
@@ -1816,7 +1817,8 @@ Functions include:
 * ``AppendDateToList``: Add a date to a list of dates
 * ``PopOffDateList``:  Remove last element from a list of dates
 
-The following are implemented in Rosetta based on the above primitives.
+The following are implemented in Rosetta based on the above primitives:
+
 * ``IsWeekend``: returns whether the supplied date is a weekend.  This implementation currently assumes a 5 day week with Saturday and Sunday as holidays.  A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.
 * ``IsHoliday``: Returns whether a day is a holiday for the specified business centers
 * ``IsBusinessDay``: returns an indicator of whether the supplied date is a good business date given the supplied business centers.  True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday
@@ -1825,24 +1827,29 @@ The following are implemented in Rosetta based on the above primitives.
 
 Base Libraries - Daycounting
 """"""""""""""""""""""""""""
+
 The CDM includes a  library for performing day counting calculations.
 
 It includes functions as follows:
+
 * ``YearFraction``: The fraction of a year represented by a date range
 * ``YearFractionForOneDay```: Return the year fraction represented by a single day, i.e. 1 / dayCountBasis, where dayCountBasis represents the denominator of the day count fraction. This perhaps should take into account leap years, though the ISDA compounding formulas do not cover ACT basis at the moment.
 * ``DayCountBasis``: Return the day count basis (the denominator of the day count fraction) for the day count fraction
 
 Floating Rate Option/Index Features
 """""""""""""""""""""""""""""""""""
+
 The CDM includes features for retrieving information about floating rate options and for calculating custom ("modular") floating rates.
 
 Functions for retrieving information about FROs include:
+
 * ``IndexValueObservation``: Retrieve the values of the supplied index on the specified observation date.
 * ``IndexValueObservationMultiple``: Retrieve the values of the supplied index on the specified observation dates.
 * ``FloatingRateIndexMetadata``: Retrieve all available metadata for the floating rate index.
 * ``ValidateFloatingRateIndexName``: Return whether the supplied floating rate index name is valid for the supplied contractual definitions.
 
 Functions for calculating modular floating rates include:
+
 * ``EvaluateCalculatedRate``: Evaluate a calculated rate as described in the 2021 ISDA Definitions, Section 7
 * ``GenerateObservationDatesAndWeights``: Apply shifts to generate the list of observation dates and weights for each of those dates
 * ``ComputeCalculationPeriod``: Determine the calculation period to use for computing the calculated rate (it may not be the same as the normal calculation period, for instance if the rate is set in advance)
@@ -1857,9 +1864,11 @@ Functions for calculating modular floating rates include:
 
 Fixed Amount and Floating Amount Definitions
 """"""""""""""""""""""""""""""""""""""""""""
+
 The CDM includes preliminary features for calculating fixed and floating amounts for interest rate payouts.
 
 Base calculation functions include:
+
 * ``FixedAmountCalculation``: Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction
 * ``LookupFixedRate``: Look up the fixed rate for a calculation period
 * ``FloatingAmountCalculation``: Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction.  Floating amount calculations are described in the 2021 ISDA Definitions in Section 6 and 7.
@@ -1870,6 +1879,7 @@ Base calculation functions include:
 * ``CalculateYearFraction``: Calculate the year fraction for a single calculation period, by invoking the base year fraction logic
 
 Floating rate processing an calculation functions include:
+
 * ``DetermineFloatingRateReset``: Get the value of a floating rate by either observing it directly or performing a rate calculation.  This function works differently depending on the rate category and style, as described in the 2021 ISDA Definitions, Section 6.6.
 * ``GetFloatingRateProcessingType``:  Get a classification of  the floating rate is processed. This is based on FRO category, style, and calculation method, as described in the 2021 ISDA Definitions Section 6.6.  The categorization information is obtained from the FRO metadata.
 * ``ProcessFloatingRateReset``: Entry point for the function that performs the floating rate resetting operation.  There are different variations depending on the processing type (e.g. screen rate, OIS, modular calculated rate).
