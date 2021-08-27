@@ -1911,7 +1911,7 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
 
 .. code-block:: Haskell
 
-func FloatingAmount:
+ func FloatingAmount:
 	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
@@ -1947,7 +1947,7 @@ The CDM process model eliminates the need for implementators to interpret the lo
 
 .. code-block:: Haskell
 
-func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
 	[calculation]
 
 	alias startYear: calculationPeriod -> startDate -> year
