@@ -23,7 +23,6 @@ type ObservationSource: <"The observation source can be composed of an curve and
 			or curve exists
 			or informationSource exists
 
-
 type SecurityValuation: <" Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
 	[deprecated]
 
@@ -123,28 +122,6 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
 
 	condition: one-of
 
-type PriceQuantity: <"Specifies the price, quantity, and optionally the observable and effective date for use in a trade or other purposes.">
-	[metadata key]
-
-	price Price (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
-	    [metadata location]
-	quantity Quantity (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
-	    [metadata location]
-	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference. The cardinality is optional as some quantity / price cases have no observable (e.g. a notional and a fixed rate in a given currency).">
-	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
-
-	condition NonNegativeQuantity:
-	    if quantity -> amount exists
-	    then quantity -> amount all >= 0
-	
-	condition:
-	    if observable -> rateOption exists and price exists
-	    then 
-			price -> priceType contains PriceTypeEnum -> Spread or
-			price -> priceType contains PriceTypeEnum -> CapRate or
-			price -> priceType contains PriceTypeEnum -> FloorRate or
-			price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
-
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
 	sourceProvider InformationProviderEnum (1..1)  <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate, etc.">
@@ -198,11 +175,6 @@ type InterestRateCurve:
 		[synonym Workflow_Event value "floatingRateIndex" meta "floatingRateIndexScheme"]
 	tenor Period (1..1)
 		[synonym Workflow_Event value "tenor"]
-
-type FixedRateSpecification: <"Type defining the specification for a fixed rate.">
-	[metadata key]
-
-	rateSchedule RateSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 
 type TransactedPrice: <" A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
 
@@ -429,29 +401,3 @@ type CashCollateralValuationMethod : <"This type is a generic structure that can
 		[metadata scheme]
 	protectedParty PartyDeterminationEnum (0..2) <"This may be used to specify which party is protected (e.g. under Replacement Value cash settlement methods).">
 	prescribedDocumentationAdjustment boolean (0..1) <"This may be used to indicate that 'prescribed documentation adjustment' is applicable.">
-
-type FloatingRateCalculationParameters: <"Defines the structures needed to represent the calculation parameters for daily averaged and compounded modular rates as defined in the 2021 ISDA Definitions in Section 7. This type is used to represent modular computed rates in interestRatePayouts.">
-	calculationMethod CalculationMethodEnum (1..1)  <"calculation type (averaging or compounding).">
-	observationShiftCalculation ObservationShiftCalculation (0..1) <"any obervation shift parameters if applicable.">
-	lookbackCalculation OffsetCalculation (0..1) <"any lookback  parameters if applicable.">
-	lockoutCalculation OffsetCalculation (0..1) <"any lockout  parameters if applicable.">
-	applicableBusinessDays BusinessCenters (0..1) <"the business days that are applicable for the calculation.">
-	observationParameters ObservationParameters (0..1) <" any applicable observation parameters, such as daily caps or floors.">
-
-type FallbackRateParameters: <"Defines the structure needed to represent fallback rate paramters. This type is used to represent modular computed rates in interestRatePayouts.">
-	floatingRateIndex FloatingRateIndexEnum(1..1) <"The floating rate index that is used as the basis of the fallback rate.">
-	effectiveDate date(0..1) <"The date the fallback rate takes effect.">
-	calculationParameters FloatingRateCalculationParameters(0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
-	spreadAdjustment number(0..1) <"The economic spread applied to the underlying fallback rate to replicate the original risky rate.">
-
-type OffsetCalculation: <"Defines business day shifts for daily componded or averaged rates.  This type is used for lookback and lockout rates. This type is used to represent modular computed rates in interestRatePayouts.">
-	offsetDays int(0..1) <"The number of business days offset.">
-
-type ObservationShiftCalculation: <"Parameters to describe the observation shift for a daily compounded or averaged floating rate. This type is used to represent modular computed rates in interestRatePayouts.">
-	offsetDays int(0..1) <"The number of days of observation shift.">
-	calculationBase ObservationPeriodDatesEnum(0..1) <"Whether the rate is calculated in advance, in arrears, or relative to a reset date.">
-	additionalBusinessDays BusinessCenters(0..1) <"Any additional business days that be applicable.">
-
-type ObservationParameters: <"Parameters on daily observed computed rates, specifically daily caps and floors. This type is used to represent modular computed rates in interestRatePayouts.">
-	observationCapRate number(0..1) <"A daily observation cap rate.">
-	observationFloorRate number(0..1) <"A daily observation floor rate.">

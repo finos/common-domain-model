@@ -3,11 +3,13 @@ version "${project.version}"
 
 import cdm.base.math.*
 import cdm.base.datetime.*
+import cdm.base.datetime.daycount.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.asset.credit.*
 
+import cdm.legalagreement.common.*
 import cdm.observable.asset.*
 import cdm.observable.event.*
 import cdm.observable.common.*
@@ -15,6 +17,7 @@ import cdm.observable.common.*
 import cdm.product.template.*
 import cdm.product.common.settlement.*
 import cdm.product.common.schedule.*
+import cdm.observable.asset.calculatedrate.*
 
 import cdm.synonyms.config.*
 
@@ -465,8 +468,8 @@ type FloatingRate: <"A class defining a floating interest rate through the speci
 
     rateOption FloatingRateOption (0..1)
         [metadata address "pointsTo"=Observable->rateOption]
-	calculationParameters FloatingRateCalculationParameters(0..1) <" Support for modular calculated rates, such such as lockout compound calculations.  ">
-	fallbackRate FallbackRateParameters(0..1) <" definition of any fallback rate that may be applicalble ">
+	calculationParameters FloatingRateCalculationParameters (0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
+	fallbackRate FallbackRateParameters (0..1) <"Definition of any fallback rate that may be applicable.">
 	floatingRateMultiplierSchedule RateSchedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
 	spreadSchedule SpreadSchedule (0..*) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
 	rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
@@ -480,6 +483,9 @@ type FloatingRateSpecification extends FloatingRate: <"A class to specify the fl
 	averagingMethod AveragingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
 	negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
 
+type FixedRateSpecification: <"Type defining the specification for a fixed rate.">
+	[metadata key]
+	rateSchedule RateSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 
 type FutureValueAmount: <"A class defining a currency and a future value date.">
     quantity Quantity (0..1)

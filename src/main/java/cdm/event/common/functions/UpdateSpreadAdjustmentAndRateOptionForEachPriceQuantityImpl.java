@@ -1,7 +1,7 @@
 package cdm.event.common.functions;
 
 import cdm.event.common.TradeState;
-import cdm.observable.asset.PriceQuantity;
+import cdm.product.common.settlement.PriceQuantity;
 
 import javax.inject.Inject;
 import java.util.List;

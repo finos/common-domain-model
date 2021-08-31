@@ -1,8 +1,6 @@
 namespace cdm.base.math : <"Basic maths concepts: quantity and unit, rounding, curve / schedule, non-negativity constraint etc.">
 version "${project.version}"
 
-import cdm.observable.asset.*
-
 import cdm.synonyms.config.*
 
 
@@ -32,16 +30,6 @@ type Quantity extends MeasureBase: <"Specifies a quantity to be associated with 
 	    if multiplier exists
 		then multiplier >= 0.0
 
-type NonNegativeQuantitySchedule: <"Class to specify a non-negative quantity schedule, which is used to define the quantity of a payout leg. This quantity cannot be negative, while direction is specified through a BuyerSeller or PayerReceiver attribute. The only available schedule implementation is a step schedule, specified as a set of date-value pairs. The non-negativity is enforced by using the non-negative quantity and step schedule classes.">
-
-	initialQuantity Quantity (0..1) <"The initial quantity of a schedule represented as a single, non-negative number. In the case where no schedule is specified, the constant quantity is specified at a higher level. Can be referenced from TradableProduct">
-		[metadata address "pointsTo"=PriceQuantity->quantity]
-	stepSchedule NonNegativeStepSchedule (0..1) <"The schedule specified as a set of date-value pairs. Attribute is optional, to represent the case where no schedule is specified so quantity is just constant over time.">
-
-	condition NonNegativeQuantity_amount: <"For a non-negative quantity, the amount attribute must be positive.">
-	    if initialQuantity exists
-		then initialQuantity->amount >= 0.0
-
 type NonNegativeQuantity extends Quantity: <" Class to specify a quantity as a non-negative number, which condition is enforced through a data rule that only applies to the extending class.">
 
 	condition NonNegativeQuantity_amount: <"For a non-negative quantity, the amount attribute must be positive.">
@@ -65,12 +53,6 @@ type Rounding: <"Defines rounding rules and precision to be used in the rounding
 	roundingDirection RoundingDirectionEnum (1..1) <"Specifies the rounding rounding rule as up, down, or nearest.">
 	precision int (0..1) <"Specifies the rounding precision in terms of a number of decimal places when the number is evaluated in decimal form (not percentage), e.g. 0.09876543 rounded to the nearest 5 decimal places is  0.0987654.">
 	
-type RateSchedule: <"A class defining a schedule of rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
-
-	initialValue Price (0..1) <"The initial rate. An initial rate of 5% would be represented as 0.05.">
-	    [metadata address "pointsTo"=PriceQuantity->price]
-	step Step (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">
-
 type Schedule: <"A class defining a schedule of rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
 
 	initialValue number (1..1) <"The initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">
@@ -83,12 +65,8 @@ type Step: <"A class defining a step date and step value pair. This step definit
 	stepValue number (1..1) <"The rate of amount which becomes effective on the associated step date. A rate of 5% would be represented as 0.05.">
 
 type QuantityGroups:
-	quantityGroups QuantityGroup(0..*)
+	quantityGroups QuantityGroup (0..*)
 
 type QuantityGroup:
-	currency string(0..1)
-	amount number(0..*)
-
-
-type Vector: <"A list of numbers to be processed as a unit.  It can contain 0 or more numbers.   It is passwed into and out of library functions to avoid Rosetta limitations with code generation for built-in types">
-    values number(0..*)
+	currency string (0..1)
+	amount number (0..*)

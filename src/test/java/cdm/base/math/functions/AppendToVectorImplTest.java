@@ -1,6 +1,5 @@
 package cdm.base.math.functions;
 
-import cdm.base.math.Vector;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -14,61 +13,55 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AppendToVectorImplTest extends AbstractFunctionTest {
 
-    @Inject
-    private AppendToVector func;
+	@Inject
+	private AppendToVector func;
 
-    @Test
-    void shouldAppend() {
-        List<BigDecimal> valueList = Arrays.asList(
-                BigDecimal.valueOf(10.0),
-                BigDecimal.valueOf(11.0),
-                BigDecimal.valueOf(12.0));
-        BigDecimal newVal = BigDecimal.valueOf(13.0);
-        List<BigDecimal> expectedList = Arrays.asList(
-                BigDecimal.valueOf(10.0),
-                BigDecimal.valueOf(11.0),
-                BigDecimal.valueOf(12.0),
-                BigDecimal.valueOf(13.0));
+	@Test
+	void shouldAppend() {
+		List<BigDecimal> valueList = Arrays.asList(
+				BigDecimal.valueOf(10.0),
+				BigDecimal.valueOf(11.0),
+				BigDecimal.valueOf(12.0));
+		BigDecimal newVal = BigDecimal.valueOf(13.0);
+		List<BigDecimal> expectedList = Arrays.asList(
+				BigDecimal.valueOf(10.0),
+				BigDecimal.valueOf(11.0),
+				BigDecimal.valueOf(12.0),
+				BigDecimal.valueOf(13.0));
 
-        Vector.VectorBuilder vb = Vector.builder();
-        vb.setValues(valueList);
-        Vector actualVector = func.evaluate(vb, newVal);
+		List<BigDecimal> actualVector = func.evaluate(valueList, newVal);
 
-        check(expectedList, actualVector.getValues());
-    }
-    @Test
-    void shouldhandleEmptyList() {
-        List<BigDecimal> valueList = new ArrayList<>();
+		check(expectedList, actualVector);
+	}
 
-        BigDecimal newVal = BigDecimal.valueOf(13.0);
-        List<BigDecimal> expectedList = Arrays.asList(
-                BigDecimal.valueOf(13.0));
-        Vector.VectorBuilder vb = Vector.builder();
-        vb.setValues(valueList);
+	@Test
+	void shouldHandleEmptyList() {
+		List<BigDecimal> valueList = new ArrayList<>();
 
+		BigDecimal newVal = BigDecimal.valueOf(13.0);
+		List<BigDecimal> expectedList = Arrays.asList(BigDecimal.valueOf(13.0));
 
-        Vector actualCVector = func.evaluate(vb, newVal);
+		List<BigDecimal> actualCVector = func.evaluate(valueList, newVal);
 
-        check(expectedList, actualCVector.getValues());
-    }
+		check(expectedList, actualCVector);
+	}
 
-    @Test
-    void shouldHandleNulls() {
-        List<BigDecimal> emptyList = new ArrayList<>();
-        List<BigDecimal> zeroList = Arrays.asList(BigDecimal.valueOf(0.0));
-        Vector.VectorBuilder vb = Vector.builder();
+	@Test
+	void shouldHandleNulls() {
+		List<BigDecimal> emptyList = new ArrayList<>();
+		check(emptyList, func.evaluate(null, null));
+		check(emptyList, func.evaluate(emptyList, null));
 
-        check(emptyList, func.evaluate(null, null).getValues());
-        check(emptyList, func.evaluate(vb, null).getValues());
-        check(zeroList, func.evaluate(null,  BigDecimal.valueOf(0.0)).getValues());
-    }
+		List<BigDecimal> zeroList = Arrays.asList(BigDecimal.valueOf(0.0));
+		check(zeroList, func.evaluate(emptyList, BigDecimal.valueOf(0.0)));
+	}
 
-    void check(List<BigDecimal> expected, List<? extends BigDecimal> actual) {
-        assertEquals(expected.size(), actual.size());
-        int n = expected.size();
-        for(int i = 0; i < n; i++) {
-            double delta = 0.00001;
-            assertEquals(expected.get(i).doubleValue(), actual.get(i).doubleValue(), delta);
-        }
-    }
+	void check(List<BigDecimal> expected, List<BigDecimal> actual) {
+		assertEquals(expected.size(), actual.size());
+		int n = expected.size();
+		for (int i = 0; i < n; i++) {
+			double delta = 0.00001;
+			assertEquals(expected.get(i).doubleValue(), actual.get(i).doubleValue(), delta);
+		}
+	}
 }
