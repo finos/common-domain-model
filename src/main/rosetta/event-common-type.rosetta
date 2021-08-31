@@ -124,13 +124,6 @@ type ContractFormationInstruction: <"Specifies instructions for transition from 
 	execution TradeState (1..1) <"Execution consisting of the economic terms which are agreed between the parties.">
 	legalAgreement LegalAgreement (0..*) <"Optional legal agreements associated to the contract being formed, for instance a master agreement.">
 
-type ContractState: <"A class to specify a contract state instantiation with respect to the before and/or after state of lifecycle events.">
-	[metadata key]
-
-	trade Trade (1..1) <"Reference to the original contract, such that the contract state can be resolved by super-imposing the updated values on top of the original contract.">
-		[synonym Workflow_Event value "trade" path "fpmlTrade" mapper "Party"]
-	updatedTrade Trade (0..1) <"The state of the contract, represented as a replica of the original contract with updated values where applicable, e.g. in the case of resets.">
-
 type Instruction: <"Instruction to a function that will be used to perform a business event">
   	instructionFunction string (0..1) <"Specifies the function that will be called">
   	allocation AllocationInstruction (0..1) <"Instruction to allocate">
@@ -575,11 +568,6 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 		[metadata reference]
 	portfolioStateReference PortfolioState (0..*) <"The refence to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
 		[metadata reference]
-
-type PostContractFormationState extends ContractState:
-
-	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information.">
-	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1) <"Information related to trade warehouse workflow.">
 
 type SecurityTransferBreakdown:
 
