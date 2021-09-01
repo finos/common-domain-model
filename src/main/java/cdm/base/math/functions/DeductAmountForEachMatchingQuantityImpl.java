@@ -2,11 +2,8 @@ package cdm.base.math.functions;
 
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
-import cdm.observable.asset.PriceQuantity;
 import org.jetbrains.annotations.NotNull;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;

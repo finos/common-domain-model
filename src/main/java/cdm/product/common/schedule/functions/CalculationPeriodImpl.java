@@ -6,10 +6,7 @@ import cdm.product.common.schedule.CalculationPeriodDates;
 import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.basics.schedule.Schedule;
-import com.opengamma.strata.basics.schedule.SchedulePeriod;
-import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.schedule.*;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +51,7 @@ public class CalculationPeriodImpl extends CalculationPeriod {
         }
 
         Optional<SchedulePeriod> optionalSchedulePeriod = getSchedulePeriod(calculationPeriodDates, date, adjustedStartDate, adjustedEndDate);
-        if (optionalSchedulePeriod.isEmpty()) {
+        if (!optionalSchedulePeriod.isPresent()) {
             LOGGER.warn("Can not build CalculationPeriodData as no targetPeriod could be found.");
             return builder;
         }

@@ -16,7 +16,7 @@ import org.isda.cdm.functions.testing.LineageUtils;
 
 import javax.inject.Inject;
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WorkflowFunctionHelper {
@@ -41,8 +41,8 @@ public class WorkflowFunctionHelper {
                 createMessageInfo(),
                 createEventTime(zonedDateTime),
                 createWorkflowIdentifier(),
-                List.of(),
-                List.of(),
+				Collections.emptyList(),
+				Collections.emptyList(),
                 null,
                 ActionEnum.NEW,
                 businessEvent);
@@ -55,8 +55,8 @@ public class WorkflowFunctionHelper {
                 createMessageInfo(),
                 createEventTime(zonedDateTime),
                 createWorkflowIdentifier(),
-                List.of(),
-                List.of(),
+                Collections.emptyList(),
+                Collections.emptyList(),
                 proposedTransferWorkflowStep,
                 transferBusinessEvent);
         return lineageUtils.withGlobalReference(WorkflowStep.class, workflowStep);
@@ -68,8 +68,8 @@ public class WorkflowFunctionHelper {
                 createMessageInfo(),
                 createEventTime(zonedDateTime),
                 createWorkflowIdentifier(),
-                List.of(),
-                List.of(),
+                Collections.emptyList(),
+                Collections.emptyList(),
                 previousWorkflowStep,
                 ActionEnum.NEW,
                 instruction);

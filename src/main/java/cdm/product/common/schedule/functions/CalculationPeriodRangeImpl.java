@@ -7,6 +7,11 @@ import com.rosetta.model.lib.records.Date;
 import java.time.LocalDate;
 import java.time.chrono.IsoChronology;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 public class CalculationPeriodRangeImpl extends CalculationPeriodRange {
     @Override
@@ -15,13 +20,14 @@ public class CalculationPeriodRangeImpl extends CalculationPeriodRange {
                 .setStartDate(startDate)
                 .setEndDate(endDate)
                 .setDaysInLeapYearPeriod(getDaysThatAreInLeapYear(startDate.toLocalDate(), endDate.toLocalDate()))
-                .setDaysInPeriod((int) ChronoUnit.DAYS.between(startDate.toLocalDate(), endDate.toLocalDate()))
+                .setDaysInPeriod((int) DAYS.between(startDate.toLocalDate(), endDate.toLocalDate()))
                 .setIsFirstPeriod(false)
                 .setIsLastPeriod(false);
     }
 
     private int getDaysThatAreInLeapYear(LocalDate periodStartDate, LocalDate periodEndDate) {
-        return (int) periodStartDate.datesUntil(periodEndDate)
+        return (int) Stream.iterate(periodStartDate, date -> date.plusDays(1))
+				.limit(DAYS.between(periodStartDate, periodEndDate))
                 .filter(d -> IsoChronology.INSTANCE.isLeapYear(d.getYear())).count();
     }
 }
