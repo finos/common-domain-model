@@ -13,7 +13,7 @@ _Details_
 - The following data types and they related synonyms have been removed:
 
   - `ContractState`
-  - `PostContractFormationState`, that inherited from `ContractState`
+  - `PostContractFormationState`, inherited from `ContractState`
 
 - The following functions have been removed:
 
