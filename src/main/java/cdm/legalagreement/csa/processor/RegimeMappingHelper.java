@@ -11,8 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
@@ -43,7 +42,7 @@ class RegimeMappingHelper {
 					mappings, path);
 
 			setValueAndUpdateMappings(regimePath.addElement(party + suffix + "_specify", index),
-					regimeTermsBuilder::setAsSpecified,
+					value -> regimeTermsBuilder.setAsSpecified(removeHtml(value)),
 					mappings, path);
 		});
 
@@ -51,7 +50,7 @@ class RegimeMappingHelper {
 		getRetrospectiveEffect(regimePath, party, index).ifPresent(regimeTermsBuilder::setRetrospectiveEffect);
 
 		setValueAndUpdateMappings(regimePath.addElement("other", index),
-				regimeTermsBuilder::setAsSpecified,
+				value -> regimeTermsBuilder.setAsSpecified(removeHtml(value)),
 				mappings, path);
 
 		return regimeTermsBuilder.hasData() ? Optional.of(regimeTermsBuilder.build()) : Optional.empty();
@@ -71,15 +70,15 @@ class RegimeMappingHelper {
 				mappings, path);
 
 		setValueAndUpdateMappings(regimePath.addElement(party + "_SIMM_specify", index),
-				simmExceptionBuilder::setAsSpecified,
+				value -> simmExceptionBuilder.setAsSpecified(removeHtml(value)),
 				mappings, path);
 
 		setValueAndUpdateMappings(regimePath.addElement(party + "_fallback_specify", index),
-				simmExceptionBuilder::setAsSpecified,
+				(value) -> simmExceptionBuilder.setAsSpecified(removeHtml(value)),
 				mappings, path);
 
 		setValueAndUpdateMappings(regimePath.addElement(party + "_SIMM_applicable_specify", index),
-				simmExceptionBuilder::setAsSpecified,
+				value -> simmExceptionBuilder.setAsSpecified(removeHtml(value)),
 				mappings, path);
 
 		return simmExceptionBuilder.hasData() ? Optional.of(simmExceptionBuilder.build()) : Optional.empty();
@@ -94,7 +93,7 @@ class RegimeMappingHelper {
 				mappings, path);
 
 		setValueAndUpdateMappings(regimePath.addElement(party + "_retrospective_specify", index),
-				retrospectiveEffectBuilder::setAsSpecified,
+				value -> retrospectiveEffectBuilder.setAsSpecified(removeHtml(value)),
 				mappings, path);
 
 		return Optional.of(retrospectiveEffectBuilder.build());

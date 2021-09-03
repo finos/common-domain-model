@@ -15,8 +15,7 @@ import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.setIsoCurrency;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
@@ -57,7 +56,7 @@ class ElectiveAmountElectionMappingHelper {
 				}, mappings, path);
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
-				electiveAmountElectionBuilder::setCustomElection, mappings, path);
+				value -> electiveAmountElectionBuilder.setCustomElection(removeHtml(value)), mappings, path);
 
 		return electiveAmountElectionBuilder.hasData() ? Optional.of(electiveAmountElectionBuilder.build()) : Optional.empty();
 	}

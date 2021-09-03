@@ -16,8 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static cdm.legalagreement.csa.CalculationDateLocationElection.builder;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.*;
 
 /**
@@ -54,7 +53,7 @@ public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 						.ifPresent(calculationDateLocationElectionBuilder::setBusinessCenter));
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
-				calculationDateLocationElectionBuilder::setCustomLocation);
+				value -> calculationDateLocationElectionBuilder.setCustomLocation(removeHtml(value)));
 
 		return calculationDateLocationElectionBuilder.hasData() ? Optional.of(calculationDateLocationElectionBuilder.build()) : Optional.empty();
 	}
