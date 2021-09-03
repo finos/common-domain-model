@@ -6,7 +6,7 @@ The `ContractState` data type and all related types, functions and synonyms are 
 
 _Background_
 
-This release follows-on from the primitive harmonisation work completed earlier, whereby the event model is now harmonised to operate on the single `TradeState` data type. All other data types to represent trade states are redundant and unused, so they can be removed from the model.
+This release follows-on from the primitive harmonisation work completed earlier, whereby the event model is now harmonised to operate on the single `TradeState` data type. All other data types to represent trade states are redundant and unused, so the related synonyms can be removed from the model.
 
 _Details_
 
