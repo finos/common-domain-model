@@ -23,3 +23,20 @@ _Details_
 _Review Directions_
 
 In the CDM Portal, select the Textual Browser and search for the relevant data types specified above.
+
+# *DSL Syntax - Synonym keyword to remove HTML formatting*
+
+_What is being released?_
+
+This release introduces the new DSL keyword `removeHtml` for synonyms to specify that all HTML tags should be removed during ingestion.
+
+In the code snippet below, the synonym will map the `ISDA_Create_1_0` attribute `specify` to CDM attribute `AdditionalRepresentation -> customElection`.  The addition of the `removeHtml` keyword means that any HTML tags contained in the data will be removed.
+
+ type AdditionalRepresentation:
+    partyElection AdditionalRepresentationElection (2..2)
+    customElection string (0..1)
+        [synonym ISDA_Create_1_0 value "specify" removeHtml]
+
+_Review Directions_
+
+In the CDM Portal, select the Ingestion view, and review the samples in `isda-create`.
