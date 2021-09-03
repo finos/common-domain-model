@@ -1157,15 +1157,9 @@ func SecurityFinanceCashSettlementAmount:
     alias securityPrice: <"Specifies the price per security.">
         FilterPrice( tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> NetPrice)
 
-	alias haircutPercentage:
-		(1.0-securityFinancePayout -> collateralProvisions -> marginPercentage -> haircutPercentage)
-
-    alias valuationPercentage:
-        (1/haircutPercentage)
-
 	alias marginRatio:
 		if securityFinancePayout -> collateralProvisions -> marginPercentage -> haircutPercentage exists
-			then valuationPercentage
+			then 1/(1.0-securityFinancePayout -> collateralProvisions -> marginPercentage -> haircutPercentage)
 		else if securityFinancePayout -> collateralProvisions -> marginPercentage -> marginPercentage exists
 			then securityFinancePayout -> collateralProvisions -> marginPercentage -> marginPercentage
 		else 1.0
