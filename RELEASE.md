@@ -30,12 +30,9 @@ _What is being released?_
 
 This release introduces the new DSL keyword `removeHtml` for synonyms to specify that all HTML tags should be removed during ingestion.
 
-In the code snippet below, the synonym will map the `ISDA_Create_1_0` attribute `specify` to CDM attribute `AdditionalRepresentation -> customElection`.  The addition of the `removeHtml` keyword means that any HTML tags contained in the data will be removed.
+In the code snippet below, the synonym will map the `ISDA_Create_1_0` attribute `specify` to a CDM attribute.  The `removeHtml` keyword means that any HTML tags contained in the data will be removed.
 
- type AdditionalRepresentation:
-    partyElection AdditionalRepresentationElection (2..2)
-    customElection string (0..1)
-        [synonym ISDA_Create_1_0 value "specify" removeHtml]
+- `[synonym ISDA_Create_1_0 value "specify" removeHtml]`
 
 _Review Directions_
 
