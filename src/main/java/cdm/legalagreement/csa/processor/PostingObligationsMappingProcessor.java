@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
@@ -34,13 +35,13 @@ public class PostingObligationsMappingProcessor extends MappingProcessor {
     private Optional<PostingObligationsElection> getPostingObligationsElectionBuilder(Path synonymPath, String party) {
         PostingObligationsElection.PostingObligationsElectionBuilder postingObligationsElectionBuilder = PostingObligationsElection.builder();
         // if we find partyX_type, then set partyX as the party
-        setValueAndUpdateMappings(synonymPath.addElement(party + "_type"), (value) -> postingObligationsElectionBuilder.setParty(toCounterpartyRoleEnum(party)));
+        setValueAndUpdateMappings(synonymPath.addElement(party + "_type"), value -> postingObligationsElectionBuilder.setParty(toCounterpartyRoleEnum(party)));
 
         // if we find additional_language, then set additional_language as the additional party
-        setValueAndUpdateMappings(synonymPath.addElement("additional_language"), postingObligationsElectionBuilder::setAdditionalLanguage);
+        setValueAndUpdateMappings(synonymPath.addElement("additional_language"), value -> postingObligationsElectionBuilder.setAdditionalLanguage(removeHtml(value)));
 
         // if we find partyX_additional_language, then set partyX_additional_language as the additional party - this overrides the non party specific additional party setting.
-        setValueAndUpdateMappings(synonymPath.addElement(party + "_additional_language"), postingObligationsElectionBuilder::setAdditionalLanguage);
+        setValueAndUpdateMappings(synonymPath.addElement(party + "_additional_language"), value -> postingObligationsElectionBuilder.setAdditionalLanguage(removeHtml(value)));
 
         // if we find partyX_type and its value is 'specify', then set to true, else false
         setValueAndUpdateMappings(synonymPath.addElement(party + "_type"), (value) -> postingObligationsElectionBuilder.setAsPermitted(!"specify".equals(value)));
