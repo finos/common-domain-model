@@ -27,6 +27,10 @@ type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcom
 	[metadata key]
 	cashflowDetails CashflowDetails (0..1) <"Specifies optional additional attributes associated to the cashflow, such as the cashflow type or the discounting. All the core economic components of the cashflow (amount, unit, settlement date and direction) are already inherited as part of the PayoutBase type">
 
+	condition CashflowAmount: <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
+		if payoutQuantity exists
+		then payoutQuantity -> resolvedQuantity -> amount >= 0.0
+	
 type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
 	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
