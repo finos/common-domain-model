@@ -25,22 +25,7 @@ type ComputedAmount: <"A class to specify the outcome of a computed amount, for 
 
 type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated globalKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
-
-	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
-	cashflowAmount Money (0..1) <"SCHEDULED FOR DEPRECATION, QUANTITY HANDLED IN PAYOUTBASE. The currency amount of the payment.">
-	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">
-	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1)
-	cashflowCalculation calculation (0..1) <"This is a conceptual placeholder for providing the breakdown into the cashflow calculation components, leveraging the fact that the CDM provides calculation components, starting with the FixedAmount and the FloatingAmount. Further evaluation of expected usage needs to take place to confirm and prioritize such implementation.">
-		[synonym Workflow_Event value "cashflowCalculation"]
-	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
-	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cashflow.">
-	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">
-	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">
-
-	condition CashflowAmount: <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
-		if cashflowAmount exists
-		then cashflowAmount -> amount >= 0.0
-
+	cashflowDetails CashflowDetails (0..1) <"Specifies optional additional attributes associated to the cashflow, such as the cashflow type or the discounting. All the core economic components of the cashflow (amount, unit, settlement date and direction) are already inherited as part of the PayoutBase type">
 
 type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
@@ -276,19 +261,21 @@ type PercentageRule: <"A class defining a content model for a calculation rule d
 type SettlementDate: <"A data defining the settlement date(s) for cash or physical settlement as either a set of explicit dates, together with applicable adjustments, or as a date relative to some other (anchor) date, or as any date in a range of contiguous business days. This data type provides a level of abstraction on top of the different legacy methods used to specify a settlement / payment date, which vary across product types, asset classes and delivery types.">
 	[metadata key]
 
-	settlementDate AdjustableOrRelativeDate (0..1) <"A single settlement date subject to adjustment or specified as relative to another date (e.g. the trade date). This attribute was formerly part of 'SettlementTerms', which is now being harmonised to include a common 'SettlementDate', as inherited from 'SettlementBase'.">
+	adjustedDate AdjustableOrAdjustedOrRelativeDate (0..1) <"A single settlement date subject to adjustment or specified as relative to another date (e.g. the trade date). This attribute was formerly part of 'SettlementTerms', which is now being harmonised to include a common 'SettlementDate', as inherited from 'SettlementBase'.">
 	valueDate date (0..1) <"The settlement date for a forward settling product. For Foreign Exchange contracts, this represents a common settlement date between both currency legs. To specify different settlement dates for each currency leg, see the ForeignExchange class. This attribute was formerly part of 'SettlementTerms', which is now being harmonised to include a common 'SettlementDate', as inherited from 'SettlementBase'.">
 	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date. This attributes was formerly part of 'CashSettlementPaymentDate' as included into 'OptionCashSettlement' (which is now merged into a unique 'CashSettlementTerms' data type.">
 	businessDateRange BusinessDateRange (0..1) <"A range of contiguous business days. This attribute is meant to be merged with the 'settlementDate' at some future point once we refactor 'Date' to use a single complex type across the model. This attributes was formerly part of 'CashSettlementPaymentDate', as included into 'OptionCashSettlement' (which is now merged into a unique 'CashSettlementTerms' data type.">
 	cashSettlementBusinessDays int (0..1) <"The number of business days used in the determination of the cash settlement payment date. If a cash settlement amount is specified, the cash settlement payment date will be this number of business days following the calculation of the final price. If a cash settlement amount is not specified, the cash settlement payment date will be this number of business days after all conditions to settlement are satisfied. ISDA 2003 Term: Cash Settlement Date. This attribute was formerly part of 'CashSettlementTerms' as used for credit event settlement, which now includes a common 'SettlementDate' attribute.">
+	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">
+	
 	condition BusinessDays: <"FpML specifies cashSettlementBusinessDays as a nonNegativeInteger. If cashSettlementBusinessDays is not specified, then another settlement date method must be specified.">
 		if cashSettlementBusinessDays exists
 			then cashSettlementBusinessDays >= 0
 		else
-			settlementDate exists or valueDate exists or adjustableDates exists or businessDateRange exists
+			adjustedDate exists or valueDate exists or adjustableDates exists or businessDateRange exists
 
 	condition DateChoice: <"Settlement date must be specified either throught the 'settlementDate' or 'valueDate' attribute. This is a temporary work-around until such time when we can retire the 'valueDate' attribute.">
-		optional choice settlementDate, valueDate, adjustableDates, businessDateRange
+		optional choice adjustedDate, valueDate, adjustableDates, businessDateRange
 
 type FxFixingDate extends Offset: <"Extends the Offset structure to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
 
@@ -328,6 +315,11 @@ type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, w
 		if physicalSettlementTerms exists /* or fxSettlementTerms exists*/
 		then settlementType <> SettlementTypeEnum -> Cash
 
+type CashflowDetails: <"Specifies additional optional attributes that can be associated to a cash payment component, such as the cashflow type or the discounting. That structure is used as part of the cash price settlement or in the dedicated cashflow payout component.">
+	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
+	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">
+	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
+
 type PriceQuantity: <"Defines a settlement as an exchange between two parties of a specified quantity of an asset (the quantity) against a specified quantity of another asset (the price). The settlement is optional and can be either cash or physical. In the case of non-cash products, the settlement of the price/quantity would not be specified here and instead would be delegated to the product mechanics, as parameterised by the price/quantity values.">
 	[metadata key]
 	price Price (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
@@ -338,12 +330,13 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
 	buyerSeller BuyerSeller (0..1) <"Defines the direction of the exchange. The convention is that the buyer receives the quantity / pays the price, whereas the seller receives the price / pays the quantity. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
 	settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
 	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
+	cashflowDetails CashflowDetails (0..1) <"Specifies optional additional attributes associated to the price, when expressed as a cash payment.">
 	
-	condition NonNegativeQuantity:
+	condition NonNegativeQuantity: <"All quantities must be positive. The direction of a leg is expressed via the payer/receiver attribute.">
 	    if quantity -> amount exists
 	    then quantity -> amount all >= 0
 	
-	condition:
+	condition: <"When the observable is a rate option, the price type must correspond to one of the interest rate price expressions.">
 	    if observable -> rateOption exists and price exists
 	    then 
 			price -> priceType contains PriceTypeEnum -> Spread or
@@ -351,7 +344,7 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
 			price -> priceType contains PriceTypeEnum -> FloorRate or
 			price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
 	
-	condition ActualSettlement: <"">
+	condition ActualSettlement: <"Settlement terms must be present when the settlement direction is specified.">
 		if buyerSeller exists then settlementTerms exists
 
 type PaymentDetail:
