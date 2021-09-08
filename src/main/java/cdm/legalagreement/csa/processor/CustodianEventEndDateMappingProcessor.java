@@ -18,8 +18,7 @@ import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 
 /**
@@ -185,7 +184,7 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 						break;
 					case "other":
 						setValueAndUpdateMappings(synonymPath.addElement(customEndDateSynonym),
-								customisableOffsetBuilder::setCustomProvision);
+								value -> customisableOffsetBuilder.setCustomProvision(removeHtml(value)));
 						break;
 					}
 				});
@@ -214,7 +213,8 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 		setValueAndOptionallyUpdateMappings(basePath.addElement(dayTypeSynonym),
 				(value) -> {
 					if ("other".equals(value)) {
-						setValueAndUpdateMappings(basePath.addElement(customEndDateSynonym), customisableOffsetBuilder::setCustomProvision);
+						setValueAndUpdateMappings(basePath.addElement(customEndDateSynonym),
+								customEndDate -> customisableOffsetBuilder.setCustomProvision(removeHtml(customEndDate)));
 						return true;
 					} else {
 						Optional<DayTypeEnum> dayType = getEnumValue(synonymToDayTypeEnumMap, value, DayTypeEnum.class);
