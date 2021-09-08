@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
 
 public class ContactElectionMappingProcessor extends MappingProcessor {
@@ -29,7 +30,10 @@ public class ContactElectionMappingProcessor extends MappingProcessor {
 
     private Optional<PartyContactInformation> getPartyContactInformation(Path synonymPath, String party) {
         PartyContactInformation.PartyContactInformationBuilder partyContactInformationBuilder = PartyContactInformation.builder();
-        setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"), address -> partyContactInformationBuilder.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(party).build()).setAddress(address));
+        setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
+                address -> partyContactInformationBuilder
+                        .setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(party).build())
+                        .setAddress(removeHtml(address)));
         return partyContactInformationBuilder.hasData() ? Optional.of(partyContactInformationBuilder.build()) : Optional.empty();
     }
 }
