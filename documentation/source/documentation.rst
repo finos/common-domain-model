@@ -2059,10 +2059,7 @@ Some of those calculations are presented below:
 	assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
 		Abs(equityPerformance)
 	assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency:
-        ResolveEquityInitialPrice(
-			tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
-			tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
-			) -> unitOfAmount -> currency
+        ResolveEquityInitialPrice( tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity ) -> unitOfAmount -> currency
 	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
 	assign-output equityCashSettlementAmount -> payerReceiver -> receiver:
