@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
 
 /**
@@ -50,10 +51,10 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 				umbrellaAgreementEntityBuilder::setNameValue);
 
 		setValueAndUpdateMappings(synonymPath.addElement("lei", index),
-				(value) -> umbrellaAgreementEntityBuilder.addEntityId(toFieldWithMetaString(value)));
+				value -> umbrellaAgreementEntityBuilder.addEntityId(toFieldWithMetaString(value)));
 
 		setValueAndUpdateMappings(synonymPath.addElement("additional", index),
-				umbrellaAgreementEntityBuilder::setTerms);
+				value -> umbrellaAgreementEntityBuilder.setTerms(removeHtml(value)));
 
 		return umbrellaAgreementEntityBuilder.hasData() ? Optional.of(umbrellaAgreementEntityBuilder.build()) : Optional.empty();
 	}

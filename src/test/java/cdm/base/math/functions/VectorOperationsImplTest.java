@@ -1,7 +1,6 @@
 package cdm.base.math.functions;
 
 import cdm.base.math.ArithmeticOperationEnum;
-import cdm.base.math.Vector;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -14,94 +13,85 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class VectorOperationsImplTest  extends AbstractFunctionTest {
+public class VectorOperationsImplTest extends AbstractFunctionTest {
 
-    @Inject
-    private VectorOperation vectorOp;
+	@Inject
+	private VectorOperation vectorOp;
 
-    @Test
-    void shouldHandleNulls() {
-        List<BigDecimal> emptyList = new ArrayList<>();
-        List<BigDecimal> shortList = Arrays.asList(BigDecimal.valueOf(10.0), BigDecimal.valueOf(20.0));
-        Vector.VectorBuilder vb = Vector.builder().setValues(shortList);
+	@Test
+	void shouldHandleNulls() {
+		List<BigDecimal> emptyList = new ArrayList<>();
+		check(emptyList, vectorOp.evaluate(ArithmeticOperationEnum.ADD, null, null));
 
-        check(emptyList, vectorOp.evaluate(ArithmeticOperationEnum.ADD, null, null).getValues());
-        check(shortList, vectorOp.evaluate(ArithmeticOperationEnum.ADD, vb, null).getValues());
-        check(shortList, vectorOp.evaluate(ArithmeticOperationEnum.ADD, null, vb).getValues());
-    }
+		List<BigDecimal> shortList = Arrays.asList(BigDecimal.valueOf(10.0), BigDecimal.valueOf(20.0));
+		check(shortList, vectorOp.evaluate(ArithmeticOperationEnum.ADD, shortList, null));
+		check(shortList, vectorOp.evaluate(ArithmeticOperationEnum.ADD, null, shortList));
+	}
 
-    @Test
-    void shouldApplyOperations() {
-        List<BigDecimal> left = Arrays.asList(
-                BigDecimal.valueOf(10.0),
-                BigDecimal.valueOf(11.0),
-                BigDecimal.valueOf(12.0));
-        List<BigDecimal> right = Arrays.asList(
-                BigDecimal.valueOf(10.0),
-                BigDecimal.valueOf(9.0),
-                BigDecimal.valueOf(8.0));
-        List<BigDecimal> shortList = Arrays.asList(
-                BigDecimal.valueOf(10.0));
-        Vector.VectorBuilder leftv = Vector.builder().setValues(left);
-        Vector.VectorBuilder rightv = Vector.builder().setValues(right);
-        Vector.VectorBuilder shortv = Vector.builder().setValues(shortList);
+	@Test
+	void shouldApplyOperations() {
+		List<BigDecimal> left = Arrays.asList(
+				BigDecimal.valueOf(10.0),
+				BigDecimal.valueOf(11.0),
+				BigDecimal.valueOf(12.0));
+		List<BigDecimal> right = Arrays.asList(
+				BigDecimal.valueOf(10.0),
+				BigDecimal.valueOf(9.0),
+				BigDecimal.valueOf(8.0));
+		List<BigDecimal> shortList = Arrays.asList(
+				BigDecimal.valueOf(10.0));
 
+		List<BigDecimal> addExpected = Arrays.asList(
+				BigDecimal.valueOf(20.0),
+				BigDecimal.valueOf(20.0),
+				BigDecimal.valueOf(20.0));
+		List<BigDecimal> subExpected = Arrays.asList(
+				BigDecimal.valueOf(0.0),
+				BigDecimal.valueOf(2.0),
+				BigDecimal.valueOf(4.0));
+		List<BigDecimal> divExpected = Arrays.asList(
+				BigDecimal.valueOf(1.0),
+				BigDecimal.valueOf(11.0).divide(BigDecimal.valueOf(9.0), 10, RoundingMode.HALF_EVEN),
+				BigDecimal.valueOf(12.0 / 8.0));
+		List<BigDecimal> mulExpected = Arrays.asList(
+				BigDecimal.valueOf(10.0 * 10.0),
+				BigDecimal.valueOf(9.0 * 11.0),
+				BigDecimal.valueOf(8.0 * 12.0));
+		List<BigDecimal> maxExpected = Arrays.asList(
+				BigDecimal.valueOf(10.0),
+				BigDecimal.valueOf(11.0),
+				BigDecimal.valueOf(12.0));
+		List<BigDecimal> minExpected = Arrays.asList(
+				BigDecimal.valueOf(10.0),
+				BigDecimal.valueOf(9.0),
+				BigDecimal.valueOf(8.0));
 
+		List<BigDecimal> addShortRightExpected = Arrays.asList(
+				BigDecimal.valueOf(20.0),
+				BigDecimal.valueOf(11.0),
+				BigDecimal.valueOf(12.0));
+		List<BigDecimal> addShortLeftExpected = Arrays.asList(
+				BigDecimal.valueOf(20.0),
+				BigDecimal.valueOf(9.0),
+				BigDecimal.valueOf(8.0));
 
-        List<BigDecimal> addExpected = Arrays.asList(
-                BigDecimal.valueOf(20.0),
-                BigDecimal.valueOf(20.0),
-                BigDecimal.valueOf(20.0));
-        List<BigDecimal> subExpected = Arrays.asList(
-                BigDecimal.valueOf(0.0),
-                BigDecimal.valueOf(2.0),
-                BigDecimal.valueOf(4.0));
-        List<BigDecimal> divExpected = Arrays.asList(
-                BigDecimal.valueOf(1.0),
-                BigDecimal.valueOf(11.0).divide(BigDecimal.valueOf(9.0), 10, RoundingMode.HALF_EVEN),
-                BigDecimal.valueOf(12.0 / 8.0));
-        List<BigDecimal> mulExpected = Arrays.asList(
-                BigDecimal.valueOf(10.0 * 10.0),
-                BigDecimal.valueOf(9.0 * 11.0),
-                BigDecimal.valueOf(8.0 * 12.0));
-        List<BigDecimal> maxExpected = Arrays.asList(
-                BigDecimal.valueOf(10.0),
-                BigDecimal.valueOf(11.0),
-                BigDecimal.valueOf(12.0));
-        List<BigDecimal> minExpected = Arrays.asList(
-                BigDecimal.valueOf(10.0),
-                BigDecimal.valueOf(9.0),
-                BigDecimal.valueOf(8.0));
+		check(addExpected, vectorOp.evaluate(ArithmeticOperationEnum.ADD, left, right));
+		check(subExpected, vectorOp.evaluate(ArithmeticOperationEnum.SUBTRACT, left, right));
+		check(mulExpected, vectorOp.evaluate(ArithmeticOperationEnum.MULTIPLY, left, right));
+		check(divExpected, vectorOp.evaluate(ArithmeticOperationEnum.DIVIDE, left, right));
+		check(maxExpected, vectorOp.evaluate(ArithmeticOperationEnum.MAX, left, right));
+		check(minExpected, vectorOp.evaluate(ArithmeticOperationEnum.MIN, left, right));
+		check(addShortLeftExpected, vectorOp.evaluate(ArithmeticOperationEnum.ADD, shortList, right));
+		check(addShortRightExpected, vectorOp.evaluate(ArithmeticOperationEnum.ADD, left, shortList));
+	}
 
-        List<BigDecimal> addShortRightExpected = Arrays.asList(
-                BigDecimal.valueOf(20.0),
-                BigDecimal.valueOf(11.0),
-                BigDecimal.valueOf(12.0));
-        List<BigDecimal> addShortLeftExpected = Arrays.asList(
-                BigDecimal.valueOf(20.0),
-                BigDecimal.valueOf(9.0),
-                BigDecimal.valueOf(8.0));
-
-        check(addExpected, vectorOp.evaluate(ArithmeticOperationEnum.ADD, leftv, rightv));
-        check(subExpected, vectorOp.evaluate(ArithmeticOperationEnum.SUBTRACT, leftv, rightv));
-        check(mulExpected, vectorOp.evaluate(ArithmeticOperationEnum.MULTIPLY, leftv, rightv));
-        check(divExpected, vectorOp.evaluate(ArithmeticOperationEnum.DIVIDE, leftv, rightv));
-        check(maxExpected, vectorOp.evaluate(ArithmeticOperationEnum.MAX, leftv, rightv));
-        check(minExpected, vectorOp.evaluate(ArithmeticOperationEnum.MIN, leftv, rightv));
-        check(addShortLeftExpected, vectorOp.evaluate(ArithmeticOperationEnum.ADD, shortv, rightv));
-        check(addShortRightExpected, vectorOp.evaluate(ArithmeticOperationEnum.ADD, leftv, shortv));
-
-    }
-    void check(List<BigDecimal> expected, Vector actual) {
-        check(expected, actual.getValues());
-    }
-    void check(List<BigDecimal> expected, List<? extends BigDecimal> actual) {
-        assertEquals(expected.size(), actual.size());
-        int n = expected.size();
-        for(int i = 0; i < n; i++) {
-            double delta = 0.00001;
-            assertEquals(expected.get(i).doubleValue(), actual.get(i).doubleValue(), delta);
-        }
-    }
+	void check(List<BigDecimal> expected, List<BigDecimal> actual) {
+		assertEquals(expected.size(), actual.size());
+		int n = expected.size();
+		for (int i = 0; i < n; i++) {
+			double delta = 0.00001;
+			assertEquals(expected.get(i).doubleValue(), actual.get(i).doubleValue(), delta);
+		}
+	}
 
 }

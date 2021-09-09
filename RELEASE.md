@@ -7,8 +7,8 @@ _What is being released?_
 _Details_
 
 - `AveragingCalculation` - New data type created to replace `AveragingObservation` & defines calculation parameters associated with Average/Asian Options. Modelled in `OptionFeature` with data attribute `averagingRateFeature`.
-- `ObservationTerms` - New data type created and included in `OptionPayout` to specify terms associated with observing a benchmark price. Contains a number of existing data types to capture; observable, pricingTime, pricingTimeType, primarySource, secondarySource, precision, observationDate & calculationPeriodDates. 
-- `AveragingStrikeFeature` - Object created to keep previous support for average strikes & replaces previous use of `AveragingObservation` in `OptionStrike`. 
+- `ObservationTerms` - New data type created and included in `OptionPayout` to specify terms associated with observing a benchmark price. Contains a number of existing data types to capture; observable, pricingTime, pricingTimeType, primarySource, secondarySource, precision, observationDate & calculationPeriodDates.
+- `AveragingStrikeFeature` - Object created to keep previous support for average strikes & replaces previous use of `AveragingObservation` in `OptionStrike`.
 - `ParametricDates` - Added to `ObservationDates` to allow specification of date terms in parametric means typically associated with commodities.
 
 Relevant synonym mappings have been updated so that linkage exists to equivalent FpML structures.

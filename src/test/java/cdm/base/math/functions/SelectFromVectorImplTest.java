@@ -1,6 +1,5 @@
 package cdm.base.math.functions;
 
-import cdm.base.math.Vector;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -15,40 +14,37 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class SelectFromVectorImplTest extends AbstractFunctionTest {
 
-    @Inject
-    private SelectFromVector func;
+	@Inject
+	private SelectFromVector func;
 
-    @Test
-    void shouldGetValueByIndex() {
-        List<BigDecimal> valueList = Arrays.asList(
-               BigDecimal.valueOf(10.0),
-                BigDecimal.valueOf(11.0),
-                BigDecimal.valueOf(12.0));
-        Vector.VectorBuilder vb = Vector.builder().setValues(valueList);
-        BigDecimal val = func.evaluate(vb, 1);
+	@Test
+	void shouldGetValueByIndex() {
+		List<BigDecimal> valueList = Arrays.asList(
+				BigDecimal.valueOf(10.0),
+				BigDecimal.valueOf(11.0),
+				BigDecimal.valueOf(12.0));
+		BigDecimal val = func.evaluate(valueList, 1);
 
-        assertEquals(BigDecimal.valueOf((11.0)), val);
-    }
-    @Test
-    void shouldHandleIndexOutOfRange() {
-        List<BigDecimal> valueList = Arrays.asList(
-                BigDecimal.valueOf(10.0),
-                BigDecimal.valueOf(11.0),
-                BigDecimal.valueOf(12.0));
-        Vector.VectorBuilder vb = Vector.builder().setValues(valueList);
-        BigDecimal value = func.evaluate(vb, 10);
+		assertEquals(BigDecimal.valueOf((11.0)), val);
+	}
 
-        assertEquals(null, value);
-    }
+	@Test
+	void shouldHandleIndexOutOfRange() {
+		List<BigDecimal> valueList = Arrays.asList(
+				BigDecimal.valueOf(10.0),
+				BigDecimal.valueOf(11.0),
+				BigDecimal.valueOf(12.0));
+		BigDecimal value = func.evaluate(valueList, 10);
 
-    @Test
-    void shouldHandleNulls() {
-        List<BigDecimal> emptyList = new ArrayList<>();
-        List<BigDecimal> zeroList = Arrays.asList(BigDecimal.valueOf(0.0));
-        Vector.VectorBuilder vb = Vector.builder();
+		assertNull(value);
+	}
 
-        assertNull(func.evaluate(null, null));
-        assertNull(func.evaluate(null,  3));
-        assertNull(func.evaluate(vb, null));
-    }
+	@Test
+	void shouldHandleNulls() {
+		List<BigDecimal> emptyList = new ArrayList<>();
+
+		assertNull(func.evaluate(null, null));
+		assertNull(func.evaluate(null, 3));
+		assertNull(func.evaluate(emptyList, null));
+	}
 }

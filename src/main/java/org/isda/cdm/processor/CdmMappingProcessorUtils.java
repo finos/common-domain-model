@@ -6,6 +6,7 @@ import com.rosetta.model.lib.annotations.RosettaSynonym;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,5 +69,10 @@ public class CdmMappingProcessorUtils {
 			LOGGER.error("Exception occurred getting synonym annotation from enum {}", enumValue, e);
 			return Collections.emptySet();
 		}
+	}
+
+	@NotNull
+	public static String removeHtml(String value) {
+		return Jsoup.parse(value).text();
 	}
 }

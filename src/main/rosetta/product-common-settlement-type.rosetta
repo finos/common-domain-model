@@ -61,7 +61,7 @@ type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be se
 type ResolvablePayoutQuantity: <"Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into a single quantity from the quantity notation which has a corresponding asset identifier. In addition to the base case, where quantity is directly specified as a number as part of the quantity notation, the other use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
 	[metadata key]
 
-	resolvedQuantity Quantity (0..1) <"A product's quantity as a single, non-negative amount.  When specified as part of a product definition, this quantity attribute would not be set.  Instead it is specified on the quantity notation along with an asset identifier matching this payout's asset identifier.  This allows the the quantity to be resolved for a payout leg, which can then be specified here for convenience during data processing.  There needs to be at least one resolvable quantity across payout legs of a product to define an anchor that other payout quantities can refer to.  This attribute is ignored when mapping existing FpML messages.">
+	resolvedQuantity Quantity (0..1) <"A product's quantity as a single, non-negative amount.  When specified as part of a product definition, this quantity attribute would not be set.  Instead it is specified on the quantity notation along with an asset identifier matching this payout's asset identifier.  This allows the quantity to be resolved for a payout leg, which can then be specified here for convenience during data processing.  There needs to be at least one resolvable quantity across payout legs of a product to define an anchor that other payout quantities can refer to.  This attribute is ignored when mapping existing FpML messages.">
 		[metadata address "pointsTo"=PriceQuantity->quantity]
 	quantitySchedule NonNegativeQuantitySchedule (0..1) <"Quantity step schedule, including an initial quantity specified as an absolute number.">
 	quantityReference ResolvablePayoutQuantity (0..1) <"Reference quantity when resolvable quantity is defined as relative to another (resolvable) quantity. A resolvable quantity needs to contain either an absolute quantity or a reference to another (resolvable) quantity. This requirement is captured by a choice rule on the class.">
@@ -296,8 +296,6 @@ type FxFixingDate extends Offset: <"Extends the Offset structure to specify an F
 	condition DateChoice: <"condition to represent an FpML choice construct.">
 		required choice dateRelativeToPaymentDates, dateRelativeToCalculationPeriodDates, fxFixingDate
 
-type SettlementInstructions extends PayoutBase:
-
 type PrincipalExchange: <"A data for:  defining a principal exchange amount and adjusted exchange date. This data forms:  part of the cashflow representation of a swap stream.">
 	[metadata key]
 
@@ -319,6 +317,32 @@ type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, w
 	condition PhysicalSettlementTerms: <"If the physical settlement terms are specified, then the settlementType can either be Physical, Election or CashOrPhysical">
 		if physicalSettlementTerms exists /* or fxSettlementTerms exists*/
 		then settlementType <> SettlementTypeEnum -> Cash
+
+type PriceQuantity: <"Defines a settlement as an exchange between two parties of a specified quantity of an asset (the quantity) against a specified quantity of another asset (the price). The settlement is optional and can be either cash or physical. In the case of non-cash products, the settlement of the price/quantity would not be specified here and instead would be delegated to the product mechanics, as parameterised by the price/quantity values.">
+	[metadata key]
+	price Price (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
+	    [metadata location]
+	quantity Quantity (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
+	    [metadata location]
+	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference. The cardinality is optional as some quantity / price cases have no observable (e.g. a notional and a fixed rate in a given currency).">
+	buyerSeller BuyerSeller (0..1) <"Defines the direction of the exchange. The convention is that the buyer receives the quantity / pays the price, whereas the seller receives the price / pays the quantity. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
+	settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
+	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
+	
+	condition NonNegativeQuantity:
+	    if quantity -> amount exists
+	    then quantity -> amount all >= 0
+	
+	condition:
+	    if observable -> rateOption exists and price exists
+	    then 
+			price -> priceType contains PriceTypeEnum -> Spread or
+			price -> priceType contains PriceTypeEnum -> CapRate or
+			price -> priceType contains PriceTypeEnum -> FloorRate or
+			price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
+	
+	condition ActualSettlement: <"">
+		if buyerSeller exists then settlementTerms exists
 
 type PaymentDetail:
 	[metadata key]
