@@ -437,9 +437,10 @@ synonym source FpML_5_10 extends FpML
 			// For FRAs:
 			[hint "fixedRate"]
 			// For Credit:
-			[value "fixedAmountCalculation" path "periodicPayment"]
-			[value "spreadSchedule" path "periodicPayment->floatingAmountCalculation->floatingRate"]
+			[value "fixedAmountCalculation"]
+			[value "spreadSchedule" path "floatingAmountCalculation->floatingRate"]
 			[value "fixedAmount"]
+			[value "paymentAmount"]
 			// For Equity Swaps:
 			[value "rateOfReturn"]
 			[value "floatingRateCalculation" path "interestCalculation"]
@@ -467,9 +468,9 @@ synonym source FpML_5_10 extends FpML
             // For FRAs:
             [value "notional"]
             // For CDS, Swaption, Index:
-            [value "calculationAmount" path "periodicPayment->fixedAmountCalculation"]
+            [value "calculationAmount" path "fixedAmountCalculation"]
             [value "calculationAmount"]
-            [value "calculationAmount" path "periodicPayment->floatingAmountCalculation"]
+            [value "calculationAmount" path "floatingAmountCalculation"]
             // For Equity Swaps:
             [value "singleUnderlyer" path "underlyer"]
             [value "notionalAmount" path "notional"]
@@ -491,8 +492,8 @@ synonym source FpML_5_10 extends FpML
 			// For FRA:
 			[hint "floatingRateIndex", "indexTenor"]
 			// For Credit:
-			[value "floatingAmountCalculation" path "periodicPayment"]
-			[value "floatingRate" path "periodicPayment->floatingAmountCalculation"]
+			[value "floatingAmountCalculation"]
+			[value "floatingRate" path "floatingAmountCalculation"]
 			// For Equity:
 			[value "singleUnderlyer" path "underlyer"]
 			[value "floatingRateCalculation" path "interestCalculation"]
@@ -507,9 +508,12 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity Swap Floating Leg
 			[hint "commodity"]
 		+ settlementTerms
-			[value "ignore"] // temporary placeholder, until cashflow settlement attribute are re-mapped here
+			[hint "paymentDelay"]
+			[hint "paymentDate"]
+			[hint "adjustablePaymentDate"]
 		+ buyerSeller
-			[value "ignore"] // temporary placeholder, until cashflow settlement attribute are re-mapped here
+			[hint "payerPartyReference"]
+			[hint "receiverPartyReference"]
 		+ effectiveDate
 			[value "ignore"] // Do not map, until a canonical representation of effective date is built in the CDM and existing effective date attributes can be re-directed here
 
@@ -669,6 +673,9 @@ synonym source FpML_5_10 extends FpML
 			[value "exercise"]
             [value "equityEuropeanExercise" path "equityExercise"]
             [value "equityAmericanExercise" path "equityExercise"]
+			[hint "paymentDelay"]
+			[hint "paymentDate"]
+			[hint "adjustablePaymentDate"]
 		+ cashSettlementTerms
 			[value "cashSettlement"]
 			[value "cashSettlementTerms"]
@@ -1170,12 +1177,13 @@ synonym source FpML_5_10 extends FpML
 	SettlementDate:
         [meta "id" path "settlementDate"]
         [meta "id" path "cashSettlementPaymentDate"]
-		+ settlementDate
+		+ adjustedDate
 			[value "cashSettlementPaymentDate"]
 			[value "settlementDate"]
 			[value "relativePaymentDates"]
 			[value "paymentDates"]
-			// [value "paymentDate"]
+			[hint "adjustablePaymentDate"]
+			[value "paymentDate" set when "paymentAmount" exists /*and rosettaPath = PriceQuantity->settlementTerms->settlementDate*/]
 		+ valueDate
 			[value "valueDate"]
 			[value "latestValueDate"]
@@ -1183,6 +1191,8 @@ synonym source FpML_5_10 extends FpML
 			[value "adjustableDates"]
 		+ businessDateRange
 			[value "businessDateRange"]
+		+ paymentDelay
+			[value "paymentDelay" set when "singlePayment" exists /*and rosettaPath = PriceQuantity->settlementTerms->settlementDate*/]
 
 	DateRelativeToCalculationPeriodDates:
 		+ calculationPeriodDatesReference
@@ -1861,20 +1871,12 @@ synonym source FpML_5_10 extends FpML
 		+ payerReceiver
 			[value "exchangedCurrency1"]
 			[value "exchangedCurrency2"]
-			[hint "payerPartyReference"]
-			[hint "receiverPartyReference"]
 			[hint "putCurrencyAmount"]
 			[hint "callCurrencyAmount"]
-		+ cashflowAmount
-			[value "fixedAmount"]
+
+	CashflowDetails:
 		+ cashflowType
 			[value "paymentType"]
-		+ discountFactor
-			[value "discountFactor"]
-		+ presentValueAmount
-			[value "presentValueAmount"]
-		+ paymentDelay
-			[value "paymentDelay" path "creditDefaultSwap->feeLeg"]
 
 	TradeState:
 		[meta "id" path "trade"]
@@ -2243,23 +2245,8 @@ synonym source FpML_5_10 extends FpML
 		+ securityPayout
 			[value "repo"]
 		+ cashflow
-			// Additional payment
-			[value "additionalPayment"]
-			[value "otherPartyPayment"]
-			[value "initialPayment" path "feeLeg"]
-			[value "singlePayment" path "feeLeg"]
-			[value "singlePayment"]
-			[hint "paymentDelay"]
-			[hint "payerReceiver"]
-			// Option premium
-			[value "premium" path "swaption"]
-			[value "premium" path "capFloor"]
-			[value "premium" path "bondOption"]
-			[value "premium" path "creditDefaultSwapOption"]
-			[value "premium" path "fxOption"]
-			[value "premium" path "fxDigitalOption"]
-			[value "equityPremium" path "equityOption"]
-			[value "equityPremium" path "brokerEquityOption"]
+			// Additional payment now handled through PriceQuantity -> Settlement
+			[value "ignore"]
 		+ commodityPayout
 			[value "commoditySwap", "floatingLeg" path "commoditySwap"]
 		+ fixedForwardPayout
@@ -2348,7 +2335,8 @@ synonym source FpML_5_10 extends FpML
 			[value "capFloorStream"]
 			[value "fra"]
 			// Credit
-			[value "feeLeg"]
+			[value "feeLeg", "singlePayment" path "feeLeg", "initialPayment" path "feeLeg"]
+			[value "periodicPayment" path "feeLeg"]
 			[value "protectionTerms"]
 			// Equity
 			[value "returnLeg"]
@@ -2365,8 +2353,6 @@ synonym source FpML_5_10 extends FpML
 			// Additional payment
 			[value "additionalPayment"]
 			[value "otherPartyPayment"]
-			[value "initialPayment" path "feeLeg"]
-			[value "singlePayment" path "feeLeg"]
 			// Options: Quantity and Observable (Except Swaption, Credit Default Swaption)
 			[hint "underlyer"] // Equity Option
 			[value "bondOption"]
@@ -2388,14 +2374,12 @@ synonym source FpML_5_10 extends FpML
 	TradableProduct:
 		+ tradeLot
 			// Rates
-			[value "swap", "swap" path "swaption"]
-			[value "swaption"]
+			[value "swap", "swap" path "swaption", "swaption"]
 			[value "capFloor"]
 			[hint "fra"]
 			[hint "bondOption"]
 			// Credit
-			[value "creditDefaultSwap", "creditDefaultSwap" path "creditDefaultSwapOption"]
-			[value "creditDefaultSwapOption"]
+			[value "creditDefaultSwap", "creditDefaultSwap" path "creditDefaultSwapOption", "creditDefaultSwapOption"]
 			// FX
 			[hint "fxSingleLeg"]
 			[value "fxSwap"]
@@ -2710,8 +2694,10 @@ synonym source FpML_5_10 extends FpML
 	BuyerSeller:
 		+ buyer
 			[value "buyerPartyReference" mapper "Buyer"]
+			[value "payerPartyReference" mapper "Buyer"]
 		+ seller
 			[value "sellerPartyReference" mapper "Seller"]
+			[value "receiverPartyReference" mapper "Seller"]
 
 	PayerReceiver:
 		+ payer
