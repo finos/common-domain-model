@@ -107,6 +107,7 @@ The price and quantity attributes of a trade, or of a leg of a trade in the case
    buyerSeller BuyerSeller (0..1)
    settlementTerms SettlementTerms (0..1)
    effectiveDate AdjustableOrRelativeDate (0..1)
+   cashflowDetails CashflowDetails (0..1)
 
 .. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
 
