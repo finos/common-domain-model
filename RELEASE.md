@@ -1,4 +1,4 @@
-# *Product Model – PriceQuantity Settlement*
+# *Product Model – Price and Quantity including Settlement Instructions*
 
 _What is being released?_
 
