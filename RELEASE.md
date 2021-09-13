@@ -8,7 +8,7 @@ _Background_
 
 Multiple inconsistencies have been identified in the current modelling of settlement terms. This leads to inefficiency in the product model and in the ability to represent functional rules for digital regulatory reporting.
 
-This release follows on recent work to implement the baseline of an atomic settlement structure in the PriceQuantity object, from which a product- and asset-agnostic functional settlement model can be built. It results that the structure of a tradable product's cashflows can be harmonised between the PriceQuantity and Cashflow components. In turns, all the cashflows that are meant to be settled as part of a trade can be extracted from the product definition and represented in PriceQuantity, for example:
+This release follows on recent work to implement the baseline of an atomic settlement structure in the PriceQuantity object, from which a product- and asset-agnostic functional settlement model can be built. It results that the structure of a tradable product cashflows can be harmonised between the PriceQuantity and Cashflow components. In turns, all the cashflows that are meant to be settled as part of a trade can be extracted from the product definition and represented in PriceQuantity, for example:
 
 - the premium of an option
 - the upfront fee of a CDS
