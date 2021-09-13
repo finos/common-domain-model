@@ -151,7 +151,8 @@ The ``UnitType`` data type used to defined the ``unitOfAmount`` attribute requir
      [metadata scheme]
    frequency cdm.base.datetime.Frequency (0..1)
 
-   condition:one-of
+   condition UnitType:
+      required choice capacityUnit, weatherUnit, financialUnit, currency
 
 The ``Price`` and ``Quantity`` data types are both extensions of the ``MeasureBase`` data type, as shown below.
 
@@ -491,7 +492,7 @@ There are other addresses in the model that use the metadata address to point to
    strikeReference FixedRateSpecification (0..1)
      [metadata reference]
    referenceSwapCurve ReferenceSwapCurve (0..1)
-   averagingStrikeFeature AveragingObservation (0..1)
+   averagingStrikeFeature AveragingStrikeFeature (0..1)
    condition: one-of
 
 Reusable Components
