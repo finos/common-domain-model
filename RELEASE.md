@@ -1,39 +1,26 @@
-# *Event Model – Contract State deprecation*
+# *Product Model - Mapping to FpML: Addition of incomplete product examples*
 
 _What is being released?_
 
-The `ContractState` data type and all related types, functions and synonyms are being retired from the model.
-
-_Background_
-
-This release follows-on from the primitive harmonisation work completed earlier, whereby the event model is now harmonised to operate on the single `TradeState` data type. All other data types to represent trade states are redundant and unused, so they can be removed from the model.
+This release includes additional FpML 5.10 data samples within the model where full synonym mapping has not been completed yet.  The new samples are included in an `fpml-5-10 -> incomplete-products` folder in order to identify them separately to samples in the `fpml-5-10 -> products` folder where CDM model components exist and synonym mappings have been created to support ingestion.  The addition of these examples gives transparency on further work required to support all products contained in the FpML 5.10 Confirmation View Examples download.
 
 _Details_
 
-- The following data types and the related synonyms have been removed:
+Examples contained in the FpML -> CDM 5.10 Confirmation View download which are not contained in the existing CDM ingestion examples have been added in the following folders:
 
-  - `ContractState`
-  - `PostContractFormationState`, inherited from `ContractState`
-
-- The following functions have been removed:
-
-  - `ContractStateFromTradeState`
-  - `TradeStateFromContractState`
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser and search for the relevant data types specified above.
-
-# *DSL Syntax - Synonym keyword to remove HTML formatting*
-
-_What is being released?_
-
-This release introduces the new DSL keyword `removeHtml` for synonyms to specify that all HTML tags should be removed during ingestion.
-
-In the code snippet below, the synonym will map the `ISDA_Create_1_0` attribute `specify` to a CDM attribute.  The `removeHtml` keyword means that any HTML tags contained in the data will be removed.
-
-- `[synonym ISDA_Create_1_0 value "specify" removeHtml]`
+- fpml-5-10 > incomplete-products > bond-options
+- fpml-5-10 > incomplete-products > commodity-derivatives
+- fpml-5-10 > incomplete-products > correlation-swaps
+- fpml-5-10 > incomplete-products > credit-derivatives
+- fpml-5-10 > incomplete-products > dividend-swaps
+- fpml-5-10 > incomplete-products > equity-options
+- fpml-5-10 > incomplete-products > equity-swaps
+- fpml-5-10 > incomplete-products > fx-derivatives
+- fpml-5-10 > incomplete-products > inflation-swaps
+- fpml-5-10 > incomplete-products > interest-rate-derivatives
+- fpml-5-10 > incomplete-products > variance-swaps
+- fpml-5-10 > incomplete-products > volatility-swaps
 
 _Review Directions_
 
-In the CDM Portal, select the Ingestion view, and review the samples in `isda-create`.
+In the CDM Portal, select the Ingestion panel and review contents of the folders specified above.
