@@ -1,42 +1,36 @@
-# *Product Model – Price and Quantity including Settlement Instructions*
+# *Product Model – Added Support for Commodity Options & Refactor of AveragingObservation*
 
 _What is being released?_
 
-Cashflow components have been harmonised such that, except for Foreign Exchange, all the cashflow attributes of an FpML trade are mapped as settlement instructions in the Price/Quantity object of a CDM trade.
-
-_Background_
-
-Multiple inconsistencies have been identified in the current modelling of settlement terms. This leads to inefficiency in the product model and in the ability to represent functional rules for digital regulatory reporting.
-
-This release follows on recent work to implement the baseline of an atomic settlement structure in the PriceQuantity object, from which a product- and asset-agnostic functional settlement model can be built. It results that the structure of a tradable product cashflows can be harmonised between the PriceQuantity and Cashflow components. In turns, all the cashflows that are meant to be settled as part of a trade can be extracted from the product definition and represented in PriceQuantity, for example:
-
-- the premium of an option
-- the upfront fee of a CDS
-- the present value of a swap in case of unwind or novation
-
-This release remaps the remaining cashflow attributes (settlement date and direction) of all FpML and related samples as settlement instructions in the PriceQuantity structure, and removes them from the Cashflow component of the Product object. The exception is Foreign Exchange products, which continue to use Cashflow components to represent the currency flows.
+`OptionPayout` has been updated to support vanilla Commodity Options (Bullet European & Asian). The release refactors the `AveragingObservation` object to `AveragingCalculation` and introduces a new property, `ObservationTerms`, to the `OptionPayout` object. The solution decouples the aspects of observing & averaging a price that were previously both contained within `AveragingObservation` and also offers support for cross product observations that are possible for Option contracts.
 
 _Details_
 
-- The following data types have been updated:
+- `AveragingCalculation` - New data type created to replace `AveragingObservation` & defines calculation parameters associated with Average/Asian Options. Modelled in `OptionFeature` with data attribute `averagingRateFeature`.
+- `ObservationTerms` - New data type created and included in `OptionPayout` to specify terms associated with observing a benchmark price. Contains a number of existing data types to capture; observable, pricingTime, pricingTimeType, primarySource, secondarySource, precision, observationDate & calculationPeriodDates.
+- `AveragingStrikeFeature` - Object created to keep previous support for average strikes & replaces previous use of `AveragingObservation` in `OptionStrike`.
+- `ParametricDates` - Added to `ObservationDates` to allow specification of date terms in parametric means typically associated with commodities.
 
-  - A new `CashflowDetails` data type has been introduced, that represents ancillary information (such as payment discounting, cashflow type etc.) that can be attached to a cashflow. This information was previously found directly on the `Cashflow` data type.
-  - The `Cashflow` data type has been simplified. It continues to extend `PayoutBase`, but now only contains one optional `cashflowDetails` attribute.
-  - The same `cashflowDetails` attribute has been added to `PriceQuantity`.
-  - The `paymentDelay` attribute (applicable to CMBS and RMBS) has been moved out of `Cashflow` and positioned in the common `SettlementDate` component.
+Relevant synonym mappings have been updated so that linkage exists to equivalent FpML structures.
 
-- All the FpML synonyms for the `cashflow` attribute in `Payout` have been removed, so that no cashflow components are being mapped as product definition.
-- The synonyms for the `cashflow` attribute of `ForeignExchange` have not been modified.
-- Synonyms have been added to the `PriceQuantity` component to populate its `buyerSeller` and `settlementTerms` attributes based on FpML samples.
-- The CDS qualification functions have been updated to account for the case where no cashflow is present, since the upfront fee is now mapped outside of the product.
-- Event model functions that were operating on the `Cashflow` component have been adjusted to effect the inherited `PayoutBase` attributes instead.
+_New Ingestion Examples_
+
+New FpML examples have been added to the CDM distribution & are available in the ingestion pack to validate the changes being made for the representation of Commodity Options and also Commodity Swaps, that was included in a previous release. The examples are:
+
+- `com-ex2-gas-swap-prices-first-day`
+- `com-ex3-gas-swap-prices-last-three-days`
+- `com-ex4-electricity-swap-hourly-off-peak`
+- `com-ex6-gas-call-option`
+- `com-ex7-gas-put-option`
+- `com-ex9-oil-put-option-american`
+- `com-ex27-wti-put-option-asian-listedoption-date`
+- `com-ex28-gas-swap-daily-delivery-prices-option-last`
+- `com-ex39-basket-option-confirmation`
+- `com-ex41-oil-asian-barrier-option-strip`
+- `com-ex46-simple-financial-put-option`
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search for the relevant data types and functions specified above.
+In the CDM Portal, select the Textual Browser and search for the relevant data types specified above.
 
-Select the Ingestion Panel and review relevant samples, for example:
-
-- `product>credit>cdindex-ex01-cdx-uti` (upfront fee example)
-- `product>equity>eqd-ex01-american-call-stock-long-form` (premium example)
-- `product>rates>GBP-OIS-uti` (additional payment example)
+Select the Ingestion view and review the samples in `fpml-5-10 > products > commodity`.
