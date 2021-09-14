@@ -528,16 +528,16 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 			interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
 			date,
 			empty)
-	assign-output cashflow -> cashflowAmount -> amount:
-		performance
-	assign-output cashflow -> cashflowAmount -> unitOfAmount -> currency:
-		interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+	 assign-output cashflow -> payoutQuantity -> resolvedQuantity -> amount:
+		 performance
+	 assign-output cashflow -> payoutQuantity -> resolvedQuantity -> unitOfAmount -> currency:
+		 interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
 	assign-output cashflow -> payerReceiver -> payer:
 	    if performance >= 0 then interestRatePayout -> payerReceiver -> payer else interestRatePayout -> payerReceiver -> receiver
 	assign-output cashflow -> payerReceiver -> receiver:
 	    if performance >= 0 then interestRatePayout -> payerReceiver -> receiver else interestRatePayout -> payerReceiver -> payer
 
-	assign-output cashflow -> cashflowDate -> adjustedDate:
+	assign-output cashflow -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
 		date
 
 func ResolveReset: <"Defines the interface for adopters to resolve a reset, given a trade state and a date.">
@@ -560,7 +560,7 @@ func ResolveEquityObservationIdentifiers: <"Defines which attributes on the Equi
 			payout -> priceReturnTerms -> valuationPriceFinal
 			else payout -> priceReturnTerms -> valuationPriceInterim
 	assign-output identifiers -> observable -> productIdentifier: <"Represents the identifer for the equity underlier.">
-		payout -> underlier -> security -> productIdentifier only-element
+		payout -> underlier -> security -> productIdentifier
 	assign-output identifiers -> observationDate: <"Specifies the date for which to retireve the market data value(s).">
 		ResolveEquityValuationDate(equityValuation, date)
 	assign-output identifiers -> observationTime: <"Specifies the time for which to retireve the market data value(s).">
@@ -614,18 +614,18 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 	alias equityPerformance:
 	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-	assign-output equityCashSettlementAmount -> cashflowAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
-		Abs(equityPerformance)
-	assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
-        ResolveEquityInitialPrice(
-			tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
-			tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
-			) -> unitOfAmount -> currency
+	 assign-output equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
+	 	Abs(equityPerformance)
+	 assign-output equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
+         ResolveEquityInitialPrice(
+	 		tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
+	 		tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
+	 		) -> unitOfAmount -> currency
 	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
 	assign-output equityCashSettlementAmount -> payerReceiver -> receiver:
 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
-    assign-output equityCashSettlementAmount -> cashflowDate -> adjustedDate:
+    assign-output equityCashSettlementAmount -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
 
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return)  Equity Notional Amount.">
@@ -1015,9 +1015,9 @@ func Create_CashTransfer: <"Defines how Transfer that represents an exchange of 
 	alias cashflow: <"Resolves the cashflow due to be transferred from the trade and associated state.">
 		ResolveCashflow(tradeState, instruction, date, quantity)
 	assign-output transfer -> quantity -> amount:
-		cashflow -> cashflowAmount -> amount
+		cashflow -> payoutQuantity -> resolvedQuantity -> amount
 	assign-output transfer -> quantity -> unitOfAmount -> currency:
-		cashflow -> cashflowAmount -> unitOfAmount-> currency
+		cashflow -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency
 	assign-output transfer -> payerReceiver -> payerPartyReference:
 		if cashflow -> payerReceiver -> payer exists
 		then ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, cashflow -> payerReceiver -> payer ) -> partyReference
@@ -1027,7 +1027,7 @@ func Create_CashTransfer: <"Defines how Transfer that represents an exchange of 
 		then ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, cashflow -> payerReceiver -> receiver ) -> partyReference
 		else ExtractAncillaryPartyByRole( tradeState -> trade -> tradableProduct -> ancillaryParty, cashflow -> payerReceiver -> receiverAncillaryRole ) -> partyReference only-element
 	assign-output transfer -> settlementDate:
-		cashflow -> cashflowDate
+		cashflow -> settlementTerms -> settlementDate -> adjustedDate
 
     assign-output transfer -> settlementOrigin -> interestRatePayout:
         if instruction -> payout -> interestRatePayout exists
@@ -1171,11 +1171,11 @@ func SecurityFinanceCashSettlementAmount:
     condition:
         tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable -> productIdentifier = securityFinancePayout -> securityInformation -> security -> productIdentifier
 
-	assign-output securityFinanceCashSettlementAmount -> cashflowAmount -> amount:
-			securityPrice -> amount * securityQuantity -> amount * marginRatio
+	assign-output securityFinanceCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount:
+	 		securityPrice -> amount * securityQuantity -> amount * marginRatio
 
-	assign-output securityFinanceCashSettlementAmount -> cashflowAmount -> unitOfAmount -> currency:
-        securityPrice -> unitOfAmount -> currency
+	assign-output securityFinanceCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount -> currency:
+         securityPrice -> unitOfAmount -> currency
 
 	assign-output securityFinanceCashSettlementAmount -> payerReceiver -> payer:
 		if payerReceiver exists then
@@ -1189,7 +1189,7 @@ func SecurityFinanceCashSettlementAmount:
 		else
 	    securityFinancePayout -> payerReceiver -> payer
 
-    assign-output securityFinanceCashSettlementAmount -> cashflowDate -> adjustedDate:
+    assign-output securityFinanceCashSettlementAmount -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
         date
 
 func Create_Allocation: <"Defines the process of taking an initial transaction, sometimes referred to as a 'Block', and booking a new set of transactions, referred to as 'Allocations', where one of the parties is replaced by one or more other parties. The total quantity / notional of the Block is split across the new parties to the transaction.">

@@ -107,6 +107,7 @@ The price and quantity attributes of a trade, or of a leg of a trade in the case
    buyerSeller BuyerSeller (0..1)
    settlementTerms SettlementTerms (0..1)
    effectiveDate AdjustableOrRelativeDate (0..1)
+   cashflowDetails CashflowDetails (0..1)
 
 .. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
 
@@ -150,7 +151,8 @@ The ``UnitType`` data type used to defined the ``unitOfAmount`` attribute requir
      [metadata scheme]
    frequency cdm.base.datetime.Frequency (0..1)
 
-   condition:one-of
+   condition UnitType:
+      required choice capacityUnit, weatherUnit, financialUnit, currency
 
 The ``Price`` and ``Quantity`` data types are both extensions of the ``MeasureBase`` data type, as shown below.
 
@@ -490,7 +492,7 @@ There are other addresses in the model that use the metadata address to point to
    strikeReference FixedRateSpecification (0..1)
      [metadata reference]
    referenceSwapCurve ReferenceSwapCurve (0..1)
-   averagingStrikeFeature AveragingObservation (0..1)
+   averagingStrikeFeature AveragingStrikeFeature (0..1)
    condition: one-of
 
 Reusable Components
@@ -2056,18 +2058,18 @@ Some of those calculations are presented below:
 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 	alias equityPerformance:
 	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-	assign-output equityCashSettlementAmount -> cashflowAmount -> amount:
-		Abs(equityPerformance)
-	assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency:
-        ResolveEquityInitialPrice(
-			tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
-			tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
-			) -> unitOfAmount -> currency
+	 assign-output equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount:
+	 	Abs(equityPerformance)
+	 assign-output equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency:
+         ResolveEquityInitialPrice(
+	 		tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
+	 		tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
+	 		) -> unitOfAmount -> currency
 	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
 	assign-output equityCashSettlementAmount -> payerReceiver -> receiver:
 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
-    assign-output equityCashSettlementAmount -> cashflowDate -> adjustedDate:
+    assign-output equityCashSettlementAmount -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
 
 .. code-block:: Haskell
@@ -2313,7 +2315,7 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
  			else payout -> priceReturnTerms -> valuationPriceInterim
 
  	assign-output identifiers -> observable -> productIdentifier:
- 		payout -> underlier -> security -> productIdentifier only-element
+ 		payout -> underlier -> security -> productIdentifier
 
  	assign-output identifiers -> observationDate:
  		ResolveEquityValuationDate(equityValuation, date)

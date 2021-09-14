@@ -6,6 +6,7 @@ import cdm.base.datetime.*
 
 import cdm.observable.asset.*
 import cdm.observable.event.*
+import cdm.observable.common.*
 
 import cdm.product.asset.*
 import cdm.product.common.settlement.*
@@ -158,6 +159,44 @@ type RateSchedule: <"A class defining a schedule of rates or amounts in terms of
 	initialValue Price (0..1) <"The initial rate. An initial rate of 5% would be represented as 0.05.">
 	    [metadata address "pointsTo"=PriceQuantity->price]
 	step Step (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">
+
+type ObservationDates: <"Describes date details for a set of observation dates in parametric or non-parametric form.">
+   observationSchedule ObservationSchedule (0..*) <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable.  When no weight is specified, then weight of each date is assumed to be 1.0">
+   periodicSchedule PeriodicDates (0..1) <"Specifies the date range and frequency on which market observations take place.  Weights can be assigned to dates in the schedule by assigning the weight and corresponding observationReference in the observationSchedule. ">
+   parametricDates ParametricDates (0..1) <"Specifies parametric terms to determine which days within a given calculation period the price would be observed. Typically associated with Commodities. ">
+
+type ObservationSchedule: <"Specifies a single date on which market observations take place and specifies optional associated weighting.">
+   date AdjustableOrAdjustedDate (0..1) <"Specifies an adjusted or unadjusted date for a market observation.">
+   weight number (0..1) <"Specifies the degree of importance of the observation.">
+   observationReference string (0..1) <"Specifies an identification key for the market observation. This attribute can be used as a reference to assign weights to a series of dates defined in a parametricSchedule.">
+
+type ObservationTerms: <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. ">
+	pricingTime BusinessCenterTime (1..1) <"Defines time in respect to a business calendar location that the price/benchmark/index is observed">
+	pricingTimeType TimeTypeEnum (0..1) <"The enumerated values to specify points in the day when option exercise and valuation can occur.">
+	informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
+	precision Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of observations.">
+	calculationPeriodDates CalculationPeriodDates (0..1) <"Defines parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
+	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+	observationDates ObservationDates (1..1) <"Describes date details for a set of observation dates in parametric or non-parametric form.">
+
+type ParametricDates: <"Defines rules for the dates on which the price will be determined.">
+	dayType DayTypeEnum (1..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">
+	dayDistribution DayDistributionEnum (0..1) <"Denotes the method by which the pricing days are distributed across the pricing period.">
+	dayOfWeek DayOfWeekEnum (0..7) <"Indicates the days of the week on which the price will be determined.">
+	dayFrequency number (0..1) <"Defines the occurrence of the dayOfWeek within the pricing period on which pricing will take place, e.g. the 3rd Friday within each Calculation Period. If omitted, every dayOfWeek will be a pricing day.">
+	lag Lag (0..1) <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
+	businessCalendar BusinessCenterEnum (1..1) <"The enumerated values to specify the business centers.">
+
+	condition ParametricDatesChoice:
+		required choice dayDistribution, dayOfWeek
+
+	condition DayOfWeekMethod:
+		if dayOfWeek exists
+		then dayFrequency exists
+
+type Lag: <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
+   lagDuration Offset (1..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
+   firstObservationDateOffset Offset (0..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
 
 type ResetDates: <"A data defining:  the parameters used to generate the reset dates schedule and associated fixing dates. The reset dates are the dates on which the new index value (which is observed on the fixing date) is applied for each period and on which the interest rate hence begins to accrue.">
 	[metadata key]
