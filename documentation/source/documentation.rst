@@ -2315,7 +2315,7 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
  			else payout -> priceReturnTerms -> valuationPriceInterim
 
  	assign-output identifiers -> observable -> productIdentifier:
- 		payout -> underlier -> security -> productIdentifier only-element
+ 		payout -> underlier -> security -> productIdentifier
 
  	assign-output identifiers -> observationDate:
  		ResolveEquityValuationDate(equityValuation, date)
