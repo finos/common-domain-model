@@ -71,7 +71,7 @@ public class FloatingRateTestHelper {
 				.addCapRateSchedule(generateStrikeSchedule(0.055, capRates))
 				.addFloorRateSchedule(generateStrikeSchedule(0.004, floorRates)
 						.build())
-				.addSpreadSchedule(generateSpreadSchedule(0.0018, spreadRates)
+				.setSpreadSchedule(generateSpreadSchedule(0.0018, spreadRates)
 						.build());
 		if (fro != null)
 			rateSpec.setRateOptionValue(fro);
