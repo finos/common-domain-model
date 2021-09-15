@@ -50,20 +50,20 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 		if payout -> creditDefaultPayout exists
 			and payout -> cashflow exists
 			and effectiveDate exists
-			and payout -> cashflow -> cashflowDate -> unadjustedDate exists
-			and payout -> cashflow -> cashflowDate -> relativeDate is absent
-		then payout -> cashflow -> cashflowDate -> unadjustedDate all > effectiveDate -> adjustableDate -> unadjustedDate
-			or payout -> cashflow -> cashflowDate -> adjustedDate all > effectiveDate -> adjustableDate -> adjustedDate
-			or payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate
+			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> unadjustedDate exists
+			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate is absent
+		then payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> unadjustedDate all > effectiveDate -> adjustableDate -> unadjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate all > effectiveDate -> adjustableDate -> adjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate
 
 	condition FpML_cd_27: <"FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 		if payout -> creditDefaultPayout exists
 			and payout -> cashflow exists
 			and terminationDate exists
-			and payout -> cashflow -> cashflowDate exists
-		then payout -> cashflow -> cashflowDate -> unadjustedDate all < terminationDate -> adjustableDate -> unadjustedDate
-			or payout -> cashflow -> cashflowDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
-			or payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
+			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate exists
+		then payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> unadjustedDate all < terminationDate -> adjustableDate -> unadjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 		if (payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate
@@ -127,6 +127,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 	underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
+	observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
 
 	condition:
 		if settlementTerms -> physicalSettlementTerms exists
@@ -367,12 +368,18 @@ type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attr
 	settlementTerms SettlementTerms (1..1) <"Settlement terms for the underlier that include the settlement date, settlement method etc.">
 
 	condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
-		if ForwardFX() exists
-		then (settlementTerms -> settlementDate -> valueDate exists
-			and ForwardFX() -> exchangedCurrency1 -> cashflowDate is absent and ForwardFX() -> exchangedCurrency2 -> cashflowDate is absent)
-			or (settlementTerms -> settlementDate -> valueDate is absent
-			and ForwardFX() -> exchangedCurrency1 -> cashflowDate exists and ForwardFX() -> exchangedCurrency2 -> cashflowDate exists and
-			ForwardFX() -> exchangedCurrency1 -> cashflowDate = ForwardFX() -> exchangedCurrency2 -> cashflowDate)
+		if ForwardFX() exists then
+		(
+			settlementTerms -> settlementDate -> valueDate exists
+			and ForwardFX() -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate is absent
+			and ForwardFX() -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate is absent
+		) or
+		(
+			settlementTerms -> settlementDate -> valueDate is absent
+			and ForwardFX() -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate exists
+			and ForwardFX() -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate exists
+			and ForwardFX() -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate = ForwardFX() -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate
+		)
 
 	condition FxSettlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
 		if ForwardFX() exists
@@ -541,6 +548,14 @@ type Asian: <"As per ISDA 2002 Definitions.">
 	averagingPeriodIn AveragingPeriod (0..1) <"The averaging in period.">
 	averagingPeriodOut AveragingPeriod (0..1) <"The averaging out period.">
 
+type AveragingCalculation: <"Defines parameters for use in cases when a valuation or other term is based on an average of market observations.">
+   calculationMethod AveragingCalculationMethodEnum (1..1) <"Specifies enumerations for the type of averaging calculation.">
+   precision Rounding (1..1) <"Rounding applied to the average calculation. ">
+
+type AveragingStrikeFeature: <"Defines the terms required to calculate the average observations associated with an averaging strike.">
+   averagingCalculation AveragingCalculation (1..1) <"Defines parameters for use in cases when a valuation or other term is based on an average of market observations.">
+   observationTerms ObservationTerms (1..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. ">
+
 type Barrier: <"As per ISDA 2002 Definitions.">
 
 	barrierCap TriggerEvent (0..1) <"A trigger level approached from beneath.">
@@ -577,7 +592,7 @@ type OptionFeature: <"Defines additional optional features that can be included 
 
 	fxFeature FxFeature (0..1) <"Describes a quanto or composite FX feature.">
 	strategyFeature StrategyFeature (0..1) <"Defines a simple strategy feature.">
-	averagingRateFeature AveragingObservation (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
+	averagingRateFeature AveragingCalculation (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
 	barrier Barrier (0..1) <"Specifies a barrier feature.">
 	knock Knock (0..1) <"Specifies a knock in or knock out feature.">
 	passThrough PassThrough (0..1) <"Specifies the rules for pass-through payments from the underlier, such as dividends.">
@@ -593,7 +608,7 @@ type OptionStrike: <"Defines the strike price of an option.">
 	strikeReference FixedRateSpecification (0..1) <"Defines the strike of an option in reference to the spread of the underlying swap (typical practice in the case of an option on a credit single name swaps).">
 		[metadata reference]
 	referenceSwapCurve ReferenceSwapCurve (0..1) <"Defines the strike of an option when expressed by reference to a swap curve (Typically the case for a convertible bond option).">
-	averagingStrikeFeature AveragingObservation (0..1) <"Defines an option strike that is calculated from an average of observed market prices.">
+	averagingStrikeFeature AveragingStrikeFeature (0..1) <"Defines an  option strike that is calculated from an average of observed market prices.">
 
 	condition: one-of
 
@@ -659,7 +674,7 @@ type BermudaExercise: <"A class defining the Bermuda option exercise dates and t
 type EuropeanExercise: <"A class defining the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[metadata key]
 
-	expirationDate AdjustableOrRelativeDate (1..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
+	expirationDate AdjustableOrRelativeDate (1..*) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
 	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.">
 	earliestExerciseTime BusinessCenterTime (0..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) on the expiration date.">
 	expirationTime BusinessCenterTime (1..1) <"The latest time for exercise on expirationDate.">

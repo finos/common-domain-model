@@ -22,7 +22,8 @@ func Qualify_CreditDefaultSwap_SingleName: <"Qualifies a product as a Credit Def
 	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
 	assign-output is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
-		((economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
+		(	economicTerms -> payout -> creditDefaultPayout only exists
+			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
             or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> cashflow) only exists
             or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> cashflow) only exists)
 
@@ -35,7 +36,8 @@ func Qualify_CreditDefaultSwap_Index: <"Qualifies a product as a Credit Default 
 	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
 	assign-output is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
-		((economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
+		(	economicTerms -> payout -> creditDefaultPayout only exists
+			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
 			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> cashflow) only exists
 			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> cashflow) only exists)
 
@@ -48,7 +50,8 @@ func Qualify_CreditDefaultSwap_IndexTranche: <"Qualifies a product as a Credit D
 	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
 	assign-output is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
-		((economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
+		(	economicTerms -> payout -> creditDefaultPayout only exists
+			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
             or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> cashflow) only exists
             or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> cashflow) only exists)
 
@@ -61,7 +64,8 @@ func Qualify_CreditDefaultSwap_Loan: <"Qualifies a product as a Credit Default S
 	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
 	assign-output is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
-		((economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
+		(	economicTerms -> payout -> creditDefaultPayout only exists
+			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
             or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> cashflow) only exists
             or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> cashflow) only exists)
 
@@ -74,7 +78,8 @@ func Qualify_CreditDefaultSwap_Basket: <"Qualifies a product as a Credit Default
 	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
 	assign-output is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
-		((economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
+		(	economicTerms -> payout -> creditDefaultPayout only exists
+			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
             or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> cashflow) only exists
             or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> cashflow) only exists)
 
@@ -89,12 +94,15 @@ func Qualify_CreditDefaultSwaption: <"This product qualification is temporary un
 		(economicTerms -> payout -> optionPayout only exists
 		    or (economicTerms -> payout -> optionPayout, economicTerms -> payout -> cashflow) only exists)
 
-		and economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout exists
-		and (economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout
-			or economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> cashflow) exists
-		and economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> equityPayout is absent
-		and economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> optionPayout is absent
-
+		and (economicTerms -> payout -> creditDefaultPayout only exists
+			or (economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout,
+				economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout) only exists
+            or (economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout,
+				economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> cashflow) only exists
+            or (economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout,
+				economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout,
+				economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> cashflow) only exists)
+		
 func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg, 2) the returnType is Price, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
@@ -612,7 +620,7 @@ func Qualify_RepurchaseAgreement:
 		economicTerms -> payout -> securityPayout -> securityLeg count >= 1 and
 		economicTerms -> payout -> interestRatePayout count = 1
 
-func Qualify_Commodity_Swap_FixedFloat: <"Qualifies a product as a Fixed Float Commodity Swap.  The determination of the qualification is based on the economic terms and the following criteria: 1) One Floating Leg represented by the CommodityPayout, with an underlier that is a commodity, 2) One Fixed Leg represented by the FixedForwardPaayoute, and 3) there are no other payout types.">
+func Qualify_Commodity_Swap_FixedFloat: <"Qualifies a product as a Fixed Float Commodity Swap.  The determination of the qualification is based on the economic terms and the following criteria: 1) One Floating Leg represented by the CommodityPayout, with an underlier that is a commodity, 2) One Fixed Leg represented by the FixedForwardPayout, and 3) there are no other payout types.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)

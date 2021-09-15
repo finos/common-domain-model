@@ -103,6 +103,16 @@ type Price extends MeasureBase: <"Specifies a price to be used for trade amounts
 		if priceType = PriceTypeEnum -> Spot
 		then amount > 0
 
+	condition: <"Requires that any price expressed as a cash price and generating a cashflow must be positive">
+		if (priceType = PriceTypeEnum -> CashPrice or
+			priceType = PriceTypeEnum -> CleanNetPrice or
+			priceType = PriceTypeEnum -> CleanPrice or
+			priceType = PriceTypeEnum -> DirtyPrice or
+			priceType = PriceTypeEnum -> GrossPrice or
+			priceType = PriceTypeEnum -> NetPrice or
+			priceType = PriceTypeEnum -> Premium)
+			then amount > 0
+
 	condition CurrencyUnitForInterestRate: <"Requires that the unit of amount for an interest rate must be a currency.">
 		if priceType = PriceTypeEnum -> InterestRate
 		then unitOfAmount -> currency exists
@@ -139,6 +149,12 @@ type Money extends Quantity: <"Defines a monetary amount in a specified currency
 type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
     [deprecated]
 	crossRate CrossRate (0..*) <"An optional element that allow for definition of the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
+
+type FxRateObservable: <"Defines foreign exchange (FX) asset class specific parameters for market observations.">
+    quotedCurrencyPair QuotedCurrencyPair (1..1) <"Describes the composition of a rate that has been quoted or is to be quoted.">
+        [metadata address "pointsTo"=Observable->currencyPair]
+    primaryFxSpotRateSource InformationSource (1..1) <"Specifies the primary source from which a rate should be observed.">
+    secondaryFxSpotRateSource InformationSource (0..1) <"Specifies an alternative, or secondary, source from which a rate should be observed.">
 
 type QuotedCurrencyPair: <"A class that describes the composition of a rate that has been quoted or is to be quoted. This includes the two currencies and the quotation relationship between the two currencies and is used as a building block throughout the FX specification.">
 
