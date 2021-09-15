@@ -516,18 +516,14 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 		if interestRatePayout -> rateSpecification -> fixedRate exists
 		then FixedAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> initialValue -> amount,
-			interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
-			date,
-			empty)
+			date, empty)
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule only-element -> initialValue -> amount,
 			resets only-element -> resetValue -> amount,
-			interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
 			date,
-			empty)
+			empty
+			)
 	assign-output cashflow -> cashflowAmount -> amount:
 		performance
 	assign-output cashflow -> cashflowAmount -> unitOfAmount -> currency:
@@ -1805,18 +1801,14 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 		if interestRatePayout -> rateSpecification -> fixedRate exists
 		then FixedAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> initialValue -> amount,
-			billingQuantity,
 			recordEndDate,
-			calculationPeriodRange)
+			ToMoney(billingQuantity))
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule only-element -> initialValue -> amount,
 			reset only-element -> resetValue -> amount,
-            billingQuantity,
 			recordEndDate,
-			calculationPeriodRange)
+            ToMoney(billingQuantity))
 
 	assign-output transfer -> quantity -> amount:
 		performance
@@ -1832,6 +1824,16 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 
 	assign-output transfer -> settlementDate -> adjustedDate:
 		transferDate
+
+func ToMoney:
+	inputs:
+		quantity Quantity(1..1)
+	output:
+		money Money(1..1)
+
+	assign-output money->unitOfAmount->currency : quantity ->unitOfAmount-> currency
+	assign-output money->amount : quantity -> amount
+
 
 func Create_BillingSummary: <"Creates a billing summary to be included in a Security Lending Billing Invoice.">
 

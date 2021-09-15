@@ -29,6 +29,7 @@ func FixedAmountCalculation: <"Calculates the fixed amount for a calculation per
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
 		calculationPeriod CalculationPeriodBase (1..1)
+		notional Money(0..1)
 	output:
 		fixedAmount number (1..1)
 
@@ -36,9 +37,10 @@ func FixedAmountCalculation: <"Calculates the fixed amount for a calculation per
 	alias calculationAmount: LookupNotionalAmount(interestRatePayout, calculationPeriod)
 	alias dcf: interestRatePayout->dayCountFraction
 	alias yearFraction: CalculateYearFraction(interestRatePayout, dcf, calculationPeriod)
+	alias calcAmt : if  notional exists  then notional->amount else calculationAmount->amount
 
 	assign-output fixedAmount:
-		calculationAmount->multiplier * fixedRate * yearFraction
+		calcAmt * fixedRate * yearFraction
 
 func LookupFixedRate: <"Look up the fixed rate for a calculation period.">
 	[calculation]
@@ -65,6 +67,8 @@ func FloatingAmountCalculation: <"Calculate a floating amount for a calculation 
 		interestRatePayout InterestRatePayout (1..1) <"The interest rate stream for which the floating amount calculation is being done.">
 		calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the floating rate calculation is being done.">
 		isInitialPeriod boolean (1..1) <"Is this the initial calculation period?.">
+		suppliedNotional Money(0..1)
+		suppliedRate number(0..1)
 	output:
 		result FloatingAmountCalculationDetails (1..1) <"The details of the floating rate calculation, including raw rate, rate treatment details, notional, and calculated cashlow amount.">
 
@@ -76,15 +80,16 @@ func FloatingAmountCalculation: <"Calculate a floating amount for a calculation 
 	alias processingParameters: GetFloatingRateProcessingParameters(interestRatePayout, calculationPeriod)
 	// TOOD: implement initial rate
 	alias processingDetails: ApplyFloatingRateProcessing(processingParameters, rawFloatingRate, calculationPeriod, isInitialPeriod)
-	alias appliedRate: processingDetails-> processedRate
+	alias appliedRate: if suppliedRate exists then suppliedRate else processingDetails-> processedRate
 	alias spreadExclusiveRate: processingDetails->spreadExclusiveRate
 
 	// determine notional, year fraction, and perform the final calculation
-	alias notional: LookupNotionalAmount(interestRatePayout, calculationPeriod)
+	alias periodNotional: LookupNotionalAmount(interestRatePayout, calculationPeriod)
+	alias notional  : if suppliedNotional exists then suppliedNotional else periodNotional
 	alias dcf: interestRatePayout->dayCountFraction
 	alias yearFraction: CalculateYearFraction(interestRatePayout, dcf, calculationPeriod)
-	alias annualAccrual: notional->multiplier * appliedRate
-	alias notionalAccrual: notional->multiplier * yearFraction
+	alias annualAccrual: notional->amount * appliedRate
+	alias notionalAccrual: notional->amount * yearFraction
 	alias cashflow: notionalAccrual * appliedRate
 	alias spreadExclusiveCashflow: notionalAccrual * spreadExclusiveRate
 
@@ -119,10 +124,10 @@ func LookupNotionalAmount: <"Look up the notional amount in effect for a calcula
 	output:
 		notional Money (1..1) <"The notional that is in effect starting from the adjusterPeriodStartDate.">
 	// look up and return the notional from the notional schedule
-	assign-output notional->multiplier: 
+	assign-output notional->amount: 
 		LookupQuantityScheduleAmount(interestRatePayout->payoutQuantity->quantitySchedule, calculationPeriod->adjustedStartDate)
-	assign-output notional->multiplierUnit->currency: 
-		interestRatePayout->payoutQuantity->quantitySchedule->initialQuantity->multiplierUnit->currency
+	assign-output notional->unitOfAmount->currency: 
+		interestRatePayout->payoutQuantity->quantitySchedule->initialQuantity->unitOfAmount->currency
 
 func LookupQuantityScheduleAmount: <"Look up a value from a quantity schedule given a supplied starting date.  It will return the value of the last step that is before the supplied starting date, or if none matches, the initial value.">
 	[calculation]
@@ -132,7 +137,7 @@ func LookupQuantityScheduleAmount: <"Look up a value from a quantity schedule gi
 	output:
 		value number (1..1)	<"The quantity in effect on the supplied date.">
 	alias stepValues: FindNonNegativeScheduleSteps(schedule->stepSchedule, periodStartDate, 0)
-	alias vals: AppendToVector(stepValues, schedule->initialQuantity->multiplier)
+	alias vals: AppendToVector(stepValues, schedule->initialQuantity->amount)
 	assign-output
 		value: SelectFromVector(vals, 0)
 
