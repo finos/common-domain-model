@@ -270,7 +270,7 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state contains ClosedStateEnum -> Novated
 		and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
 		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
-		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
+		and businessEvent -> effectiveDate all = NovatedContractEffectiveDate(businessEvent) only-element
 		
 
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
@@ -523,7 +523,7 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule only-element -> initialValue -> amount,
+			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> initialValue -> amount,
 			resets only-element -> resetValue -> amount,
 			interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
 			date,
@@ -1812,7 +1812,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule only-element -> initialValue -> amount,
+			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> initialValue -> amount,
 			reset only-element -> resetValue -> amount,
             billingQuantity,
 			recordEndDate,
