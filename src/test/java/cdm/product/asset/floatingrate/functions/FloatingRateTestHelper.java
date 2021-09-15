@@ -68,11 +68,9 @@ public class FloatingRateTestHelper {
 		double[] floorRates = { 0.005, 0.01, 0.015, 0.020 };
 		double[] spreadRates = { 0.002, 0.0021, 0.0022, 0.0023 };
 		FloatingRateSpecification.FloatingRateSpecificationBuilder rateSpec = FloatingRateSpecification.builder()
-				.addCapRateSchedule(generateStrikeSchedule(0.055, capRates))
-				.addFloorRateSchedule(generateStrikeSchedule(0.004, floorRates)
-						.build())
-				.setSpreadSchedule(generateSpreadSchedule(0.0018, spreadRates)
-						.build());
+				.setCapRateSchedule(generateStrikeSchedule(0.055, capRates))
+				.setFloorRateSchedule(generateStrikeSchedule(0.004, floorRates))
+				.setSpreadSchedule(generateSpreadSchedule(0.0018, spreadRates));
 		if (fro != null)
 			rateSpec.setRateOptionValue(fro);
 
