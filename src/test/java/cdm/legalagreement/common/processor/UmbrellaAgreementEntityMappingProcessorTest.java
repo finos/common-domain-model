@@ -8,6 +8,7 @@ import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.translation.Path.PathElement;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -32,12 +33,12 @@ class UmbrellaAgreementEntityMappingProcessorTest {
 		// set up
 		RosettaPath rosettaPath = RosettaPath.valueOf("LegalAgreement.agreementTerms.umbrellaAgreement.parties");
 		List<Mapping> mappings = new ArrayList<>();
-		mappings.add(new Mapping(getXmlPath("principal_name", 0), PRINCIPAL_NAME_0, null, null, "no destination", false, false));
-		mappings.add(new Mapping(getXmlPath("lei", 0), LEI_0, null, null, "no destination", false, false));
-		mappings.add(new Mapping(getXmlPath("additional", 0), ADDITIONAL_0, null, null, "no destination", false, false));
-		mappings.add(new Mapping(getXmlPath("principal_name", 1), PRINCIPAL_NAME_1, null, null, "no destination", false, false));
-		mappings.add(new Mapping(getXmlPath("lei", 1), LEI_1, null, null, "no destination", false, false));
-		mappings.add(new Mapping(getXmlPath("additional", 1), ADDITIONAL_1, null, null, "no destination", false, false));
+		mappings.add(getEmptyMapping(getXmlPath("principal_name", 0), PRINCIPAL_NAME_0));
+		mappings.add(getEmptyMapping(getXmlPath("lei", 0), LEI_0));
+		mappings.add(getEmptyMapping(getXmlPath("additional", 0), ADDITIONAL_0));
+		mappings.add(getEmptyMapping(getXmlPath("principal_name", 1), PRINCIPAL_NAME_1));
+		mappings.add(getEmptyMapping(getXmlPath("lei", 1), LEI_1));
+		mappings.add(getEmptyMapping(getXmlPath("additional", 1), ADDITIONAL_1));
 		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
 
 		UmbrellaAgreement.UmbrellaAgreementBuilder parent = UmbrellaAgreement.builder();
@@ -73,9 +74,9 @@ class UmbrellaAgreementEntityMappingProcessorTest {
 		// set up
 		RosettaPath rosettaPath = RosettaPath.valueOf("LegalAgreement.agreementTerms.umbrellaAgreement.parties");
 		List<Mapping> mappings = new ArrayList<>();
-		mappings.add(new Mapping(getXmlPath("principal_name"), PRINCIPAL_NAME_0, null, null, "no destination", false, false));
-		mappings.add(new Mapping(getXmlPath("lei"), LEI_0, null, null, "no destination", false, false));
-		mappings.add(new Mapping(getXmlPath("additional"), ADDITIONAL_0, null, null, "no destination", false, false));
+		mappings.add(getEmptyMapping(getXmlPath("principal_name"), PRINCIPAL_NAME_0));
+		mappings.add(getEmptyMapping(getXmlPath("lei"), LEI_0));
+		mappings.add(getEmptyMapping(getXmlPath("additional"), ADDITIONAL_0));
 		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
 
 		UmbrellaAgreement.UmbrellaAgreementBuilder parent = UmbrellaAgreement.builder();
@@ -109,5 +110,10 @@ class UmbrellaAgreementEntityMappingProcessorTest {
 	private Path getXmlPath(String attribute) {
 		return parse("answers.partyA.umbrella_agreement_and_principal_identification.principal_identification_schedule")
 				.addElement(new PathElement(attribute));
+	}
+
+	@NotNull
+	private Mapping getEmptyMapping(Path xmlPath, String xmlValue) {
+		return new Mapping(xmlPath, xmlValue, null, null, "no destination", false, false, false);
 	}
 }

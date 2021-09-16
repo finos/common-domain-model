@@ -1,26 +1,21 @@
-# *Product Model - Mapping to FpML: Addition of incomplete product examples*
+# *Product Model – Inflation Swaps*
 
 _What is being released?_
-
-This release includes additional FpML 5.10 data samples within the model where full synonym mapping has not been completed yet.  The new samples are included in an `fpml-5-10 -> incomplete-products` folder in order to identify them separately to samples in the `fpml-5-10 -> products` folder where CDM model components exist and synonym mappings have been created to support ingestion.  The addition of these examples gives transparency on further work required to support all products contained in the FpML 5.10 Confirmation View Examples download.
+Inflation Rate Indices have been added to the CDM so that Inflation Linked products can be represented.  In addition synonym mappings have been updated to support ingestion of FpML sample trades.
 
 _Details_
 
-Examples contained in the FpML -> CDM 5.10 Confirmation View download which are not contained in the existing CDM ingestion examples have been added in the following folders:
-
-- fpml-5-10 > incomplete-products > bond-options
-- fpml-5-10 > incomplete-products > commodity-derivatives
-- fpml-5-10 > incomplete-products > correlation-swaps
-- fpml-5-10 > incomplete-products > credit-derivatives
-- fpml-5-10 > incomplete-products > dividend-swaps
-- fpml-5-10 > incomplete-products > equity-options
-- fpml-5-10 > incomplete-products > equity-swaps
-- fpml-5-10 > incomplete-products > fx-derivatives
-- fpml-5-10 > incomplete-products > inflation-swaps
-- fpml-5-10 > incomplete-products > interest-rate-derivatives
-- fpml-5-10 > incomplete-products > variance-swaps
-- fpml-5-10 > incomplete-products > volatility-swaps
+- `InflationRateIndexEnum` added containing enumeration of inflation rate indices.
+- Synonym mappings added to support ingestion of FpML 5.10
+- The following trades containing in the `fpml-5-10 > incomplete-products > inflation` folder have been moved to `fpml-5-10 > products > inflation`
+  - inflation-swap-ex01-yoy
+  - inflation-swap-ex02-yoy-bond-reference
+  - inflation-swap-ex03-yoy-initial-level
+  - inflation-swap-ex04-yoy-interp
+  - inflation-swap-ex05-zc
 
 _Review Directions_
 
-In the CDM Portal, select the Ingestion panel and review contents of the folders specified above.
+In the CDM Portal, select the Textual Browser and search for the relevant enumeration specified above.
+
+In the CDM Portal, select the Ingestion panel and review sample trades specified above.
