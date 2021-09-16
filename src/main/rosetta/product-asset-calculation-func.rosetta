@@ -78,7 +78,6 @@ func FloatingAmountCalculation: <"Calculate a floating amount for a calculation 
 
 	// apply rate treatments/processing
 	alias processingParameters: GetFloatingRateProcessingParameters(interestRatePayout, calculationPeriod)
-	// TOOD: implement initial rate
 	alias processingDetails: ApplyFloatingRateProcessing(processingParameters, rawFloatingRate, calculationPeriod, isInitialPeriod)
 	alias appliedRate: if suppliedRate exists then suppliedRate else processingDetails-> processedRate
 	alias spreadExclusiveRate: processingDetails->spreadExclusiveRate
@@ -91,18 +90,22 @@ func FloatingAmountCalculation: <"Calculate a floating amount for a calculation 
 	alias annualAccrual: notional->amount * appliedRate
 	alias notionalAccrual: notional->amount * yearFraction
 	alias cashflow: notionalAccrual * appliedRate
+//	alias spreadExclusiveCashflow: if True=True then notionalAccrual * spreadExclusiveRate else notionalAccrual * spreadExclusiveRate
 	alias spreadExclusiveCashflow: notionalAccrual * spreadExclusiveRate
+	alias defaultedRate : suppliedRate exists
 
 	// record results
 	assign-output result->calculationPeriod: calculationPeriod
 	assign-output result->calculationPeriodNotionalAmount: notional
-	assign-output result->floatingRate: rawFloatingRateDetails
-	assign-output result->processingDetails: processingDetails
+
+	assign-output result->floatingRate:  if suppliedRate is absent then rawFloatingRateDetails
+
+	assign-output result->processingDetails: if suppliedRate is absent then processingDetails
 	assign-output result->appliedRate: appliedRate
 	// assign-output result->notionalAmount : notional->amount
 	assign-output result->yearFraction: yearFraction
 	assign-output result->calculatedAmount: cashflow
-	assign-output result->spreadExclusiveCalculatedAMount: spreadExclusiveCashflow
+	assign-output result->spreadExclusiveCalculatedAMount: if suppliedRate is absent then spreadExclusiveCashflow
 
 func Create_CalculationPeriodBase: <"Create a CalculationPeriodBase type from CalculationPeriodData type.">
 	inputs:

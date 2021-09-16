@@ -61,16 +61,16 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
 
 
         CalculationPeriodBase calcPeriod = period(date(2020,12,10), date(2021,3,10));
-        check(func.evaluate(interestRatePayout, calcPeriod, false), 9_000_000, 0.0118, (31+31+28)/360.0);
+        check(func.evaluate(interestRatePayout, calcPeriod, false, null, null), 9_000_000, 0.0118, (31+31+28)/360.0);
         calcPeriod = period(date(2021,9,10), date(2021,12, 10));
-        check(func.evaluate(interestRatePayout, calcPeriod, false), 12_000_000, 0.015, (30+31+30)/360.0);
+        check(func.evaluate(interestRatePayout, calcPeriod, false, null, null), 12_000_000, 0.015, (30+31+30)/360.0);
     }
 
     private void check(FloatingAmountCalculationDetails result, double expectedNotional, double expectedRate, double expectedYearFrac) {
         double expectedAmount = expectedNotional * expectedRate * expectedYearFrac;
         assertEquals(expectedRate, result.getAppliedRate().doubleValue());
         assertEquals(expectedYearFrac, result.getYearFraction().doubleValue());
-        assertEquals(expectedNotional, result.getCalculationPeriodNotionalAmount().getMultiplier().doubleValue(), 0.00001);
+        assertEquals(expectedNotional, result.getCalculationPeriodNotionalAmount().getAmount().doubleValue(), 0.00001);
         assertEquals(expectedAmount, result.getCalculatedAmount().doubleValue(), 0.00001);
     }
 
