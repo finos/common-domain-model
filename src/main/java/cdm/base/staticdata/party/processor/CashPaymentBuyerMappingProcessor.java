@@ -32,8 +32,7 @@ public class CashPaymentBuyerMappingProcessor extends BuyerMappingProcessor {
 		boolean isFixedAmount = getNonNullMappedValue(synonymPath.getParent().addElement("fixedAmount")
 				.addElement("amount"), getMappings()).isPresent();
 		if (isPaymentAmount || isFixedAmount) {
-			getNonNullMappedValue(synonymPath.getParent().addElement("paymentAmount").addElement("amount"), getMappings())
-					.ifPresent(x -> super.mapBasic(synonymPath, instance, parent));
+			super.mapBasic(synonymPath, instance, parent);
 		}
 	}
 }
