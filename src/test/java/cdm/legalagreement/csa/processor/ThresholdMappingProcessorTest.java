@@ -10,6 +10,7 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -27,10 +28,10 @@ class ThresholdMappingProcessorTest {
 		// set up
 		RosettaPath rosettaPath = RosettaPath.valueOf("LegalAgreement.csdInitialMargin2016EnglishLaw.creditSupportObligations.threshold");
 		List<Mapping> mappings = new ArrayList<>();
-		mappings.add(new Mapping(Path.parse("answers.partyA.threshold.partyA_threshold"), "specify", null, null, "no destination", false, false));
-		mappings.add(new Mapping(Path.parse("answers.partyA.threshold.partyA_amount"), "10", null, null, "no destination", false, false));
-		mappings.add(new Mapping(Path.parse("answers.partyA.threshold.partyA_currency"), "Euro", null, null, "no destination", false, false));
-		mappings.add(new Mapping(Path.parse("answers.partyA.threshold.partyB_threshold"), ZERO, null, null, "no destination", false, false));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.threshold.partyA_threshold"), "specify"));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.threshold.partyA_amount"), "10"));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.threshold.partyA_currency"), "Euro"));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.threshold.partyB_threshold"), ZERO));
 		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
 
 		ThresholdBuilder builder = Threshold.builder();
@@ -60,5 +61,10 @@ class ThresholdMappingProcessorTest {
 				.filter(e -> party == e.getParty())
 				.findFirst()
 				.orElseThrow(() -> new RuntimeException("No partyElection found for " + party));
+	}
+
+	@NotNull
+	private Mapping getEmptyMapping(Path xmlPath, String xmlValue) {
+		return new Mapping(xmlPath, xmlValue, null, null, "no destination", false, false, false);
 	}
 }
