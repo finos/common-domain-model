@@ -1,21 +1,21 @@
-# *Product Model – Inflation Swaps*
+# *Event Model – Function Documentation*
 
 _What is being released?_
-Inflation Rate Indices have been added to the CDM so that Inflation Linked products can be represented.  In addition synonym mappings have been updated to support ingestion of FpML sample trades.
+
+This release adds descriptions to the visualisation panel for all products in one of the functions: Execute Business Event.
 
 _Details_
 
-- `InflationRateIndexEnum` added containing enumeration of inflation rate indices.
-- Synonym mappings added to support ingestion of FpML 5.10
-- The following trades containing in the `fpml-5-10 > incomplete-products > inflation` folder have been moved to `fpml-5-10 > products > inflation`
-  - inflation-swap-ex01-yoy
-  - inflation-swap-ex02-yoy-bond-reference
-  - inflation-swap-ex03-yoy-initial-level
-  - inflation-swap-ex04-yoy-interp
-  - inflation-swap-ex05-zc
+Descriptions have been added for the following products:
 
-_Review Directions_
+- Functions > Execute Business Event > Basis Swap
+- Functions > Execute Business Event > Credit Default Swap
+- Functions > Execute Business Event > FX Forward
+- Functions > Execute Business Event > Fixed/Floating Single Currency Interest Rate Swap
+- Functions > Execute Business Event > Forward Rate Agreement
+- Functions > Execute Business Event > OIS Swap
+- Functions > Execute Business Event > Repo Fixed Rate
 
-In the CDM Portal, select the Textual Browser and search for the relevant enumeration specified above.
+Review Directions
 
-In the CDM Portal, select the Ingestion panel and review sample trades specified above.
+In the CDM Portal select the Visualisation panel and review contents of the folders specified above.
