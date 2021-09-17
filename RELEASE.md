@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release adds descriptions to the visualisation panel for all products in one of the functions: Execute Business Event.
+This release adds descriptions to the Visualisation panel for all products in one of the functions: Execute Business Event.
 
 _Details_
 
