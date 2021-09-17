@@ -191,12 +191,14 @@ class PartyMappingHelperTest {
 						null,
 						"no destination",
 						false,
+						false,
 						false),
 				new Mapping(receiverXmlPath,
 						receiverXmlValue,
 						null,
 						null,
 						"no destination",
+						false,
 						false,
 						false)
 		);

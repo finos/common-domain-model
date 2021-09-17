@@ -9,6 +9,7 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -26,11 +27,11 @@ class MinimumTransferAmountAmendmentMappingProcessorTest {
 		// set up
 		RosettaPath rosettaPath = RosettaPath.valueOf("LegalAgreement.csdInitialMargin2018EnglishLaw.minimumTransferAmountAmendment");
 		List<Mapping> mappings = new ArrayList<>();
-		mappings.add(new Mapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyA_amendment_to_minimum_transfer_amount"), "specify", null, null, "no destination", false, false));
-		mappings.add(new Mapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyA_amount"), "1000", null, null, "no destination", false, false));
-		mappings.add(new Mapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyA_currency"), "Japanese Yen", null, null, "no destination", false, false));
-		mappings.add(new Mapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyB_amendment_to_minimum_transfer_amount"), "other", null, null, "no destination", false, false));
-		mappings.add(new Mapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyB_specify"), "foo", null, null, "no destination", false, false));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyA_amendment_to_minimum_transfer_amount"), "specify"));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyA_amount"), "1000"));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyA_currency"), "Japanese Yen"));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyB_amendment_to_minimum_transfer_amount"), "other"));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyB_specify"), "foo"));
 		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
 
 		MinimumTransferAmountAmendment.MinimumTransferAmountAmendmentBuilder builder = MinimumTransferAmountAmendment.builder();
@@ -65,5 +66,10 @@ class MinimumTransferAmountAmendmentMappingProcessorTest {
 				.filter(e -> party == e.getParty())
 				.findFirst()
 				.orElseThrow(() -> new RuntimeException("No partyElection found for " + party));
+	}
+
+	@NotNull
+	private Mapping getEmptyMapping(Path xmlPath, String xmlValue) {
+		return new Mapping(xmlPath, xmlValue, null, null, "no destination", false, false, false);
 	}
 }

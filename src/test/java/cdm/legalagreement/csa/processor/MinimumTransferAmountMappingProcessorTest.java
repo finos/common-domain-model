@@ -10,6 +10,7 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -27,10 +28,10 @@ class MinimumTransferAmountMappingProcessorTest {
 		// set up
 		RosettaPath rosettaPath = RosettaPath.valueOf("LegalAgreement.csdInitialMargin2016EnglishLaw.creditSupportObligations.minimumTransferAmount");
 		List<Mapping> mappings = new ArrayList<>();
-		mappings.add(new Mapping(Path.parse("answers.partyA.minimum_transfer_amount.partyA_minimum_transfer_amount"), "specify", null, null, "no destination", false, false));
-		mappings.add(new Mapping(Path.parse("answers.partyA.minimum_transfer_amount.partyA_amount"), "10000", null, null, "no destination", false, false));
-		mappings.add(new Mapping(Path.parse("answers.partyA.minimum_transfer_amount.partyA_currency"), "Euro", null, null, "no destination", false, false));
-		mappings.add(new Mapping(Path.parse("answers.partyA.minimum_transfer_amount.partyB_minimum_transfer_amount"), ZERO, null, null, "no destination", false, false));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.minimum_transfer_amount.partyA_minimum_transfer_amount"), "specify"));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.minimum_transfer_amount.partyA_amount"), "10000"));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.minimum_transfer_amount.partyA_currency"), "Euro"));
+		mappings.add(getEmptyMapping(Path.parse("answers.partyA.minimum_transfer_amount.partyB_minimum_transfer_amount"), ZERO));
 		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
 
 		MinimumTransferAmountBuilder builder = MinimumTransferAmount.builder();
@@ -62,5 +63,10 @@ class MinimumTransferAmountMappingProcessorTest {
 				.filter(e -> party == e.getParty())
 				.findFirst()
 				.orElseThrow(() -> new RuntimeException("No partyElection found for " + party));
+	}
+
+	@NotNull
+	private Mapping getEmptyMapping(Path xmlPath, String xmlValue) {
+		return new Mapping(xmlPath, xmlValue, null, null, "no destination", false, false, false);
 	}
 }
