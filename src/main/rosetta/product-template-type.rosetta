@@ -46,7 +46,7 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 		then (payout -> equityPayout exists
 		or payout -> optionPayout -> underlier -> security exists)
 
-	condition FpML_cd_26_28: <"FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate. This data rule tackles those two FpML validation rules at once, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute.">
+	/*condition FpML_cd_26_28: <"FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate. This data rule tackles those two FpML validation rules at once, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute.">
 		if payout -> creditDefaultPayout exists
 			and payout -> cashflow exists
 			and effectiveDate exists
@@ -54,16 +54,16 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 			and payout -> cashflow -> cashflowDate -> relativeDate is absent
 		then payout -> cashflow -> cashflowDate -> unadjustedDate all > effectiveDate -> adjustableDate -> unadjustedDate
 			or payout -> cashflow -> cashflowDate -> adjustedDate all > effectiveDate -> adjustableDate -> adjustedDate
-			or payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate
+			or payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate*/
 
-	condition FpML_cd_27: <"FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
+	/*condition FpML_cd_27: <"FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 		if payout -> creditDefaultPayout exists
 			and payout -> cashflow exists
 			and terminationDate exists
 			and payout -> cashflow -> cashflowDate exists
 		then payout -> cashflow -> cashflowDate -> unadjustedDate all < terminationDate -> adjustableDate -> unadjustedDate
 			or payout -> cashflow -> cashflowDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
-			or payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
+			or payout -> cashflow -> cashflowDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate*/
 
 	condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 		if (payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate
@@ -369,10 +369,10 @@ type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attr
 	condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
 		if ForwardFX() exists
 		then (settlementTerms -> settlementDate -> valueDate exists
-			and ForwardFX() -> exchangedCurrency1 -> cashflowDate is absent and ForwardFX() -> exchangedCurrency2 -> cashflowDate is absent)
+			/*and ForwardFX() -> exchangedCurrency1 -> cashflowDate is absent and ForwardFX() -> exchangedCurrency2 -> cashflowDate is absent*/)
 			or (settlementTerms -> settlementDate -> valueDate is absent
-			and ForwardFX() -> exchangedCurrency1 -> cashflowDate exists and ForwardFX() -> exchangedCurrency2 -> cashflowDate exists and
-			ForwardFX() -> exchangedCurrency1 -> cashflowDate = ForwardFX() -> exchangedCurrency2 -> cashflowDate)
+			/*and ForwardFX() -> exchangedCurrency1 -> cashflowDate exists and ForwardFX() -> exchangedCurrency2 -> cashflowDate exists and
+			ForwardFX() -> exchangedCurrency1 -> cashflowDate = ForwardFX() -> exchangedCurrency2 -> cashflowDate*/)
 
 	condition FxSettlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
 		if ForwardFX() exists
@@ -741,13 +741,6 @@ type PartialExercise: <"A class defining partial exercise. As defined in the 200
 
 	condition MinimumChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice minimumNotionalAmount, minimumNumberOfOptions
-
-type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
-
-	premiumType PremiumTypeEnum (0..1) <"Forward start premium type">
-
-	pricePerOption Money (0..1) <"The amount of premium to be paid expressed as a function of the number of options.">
-	percentageOfNotional number (0..1) <"The amount of premium to be paid expressed as a percentage of the notional value of the transaction. A percentage of 5% would be expressed as 0.05.">
 
 type Strike: <"A class describing a single cap or floor rate.">
 	[metadata key]

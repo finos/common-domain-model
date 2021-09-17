@@ -22,25 +22,45 @@ type ComputedAmount: <"A class to specify the outcome of a computed amount, for 
 		[metadata scheme]
 		[synonym Workflow_Event value "currency" meta "currencyScheme"]
 
-
 type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated globalKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 
+	cashflowType CashflowType (1..1) <"">
 	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
-	cashflowAmount Money (0..1) <"SCHEDULED FOR DEPRECATION, QUANTITY HANDLED IN PAYOUTBASE. The currency amount of the payment.">
-	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">
-	cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1)
-	cashflowCalculation calculation (0..1) <"This is a conceptual placeholder for providing the breakdown into the cashflow calculation components, leveraging the fact that the CDM provides calculation components, starting with the FixedAmount and the FloatingAmount. Further evaluation of expected usage needs to take place to confirm and prioritize such implementation.">
-		[synonym Workflow_Event value "cashflowCalculation"]
-	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
-	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cashflow.">
-	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">
-	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">
 
-	condition CashflowAmount: <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
-		if cashflowAmount exists
-		then cashflowAmount -> amount >= 0.0
+	// cashflowAmount Money (0..1) <"SCHEDULED FOR DEPRECATION, QUANTITY HANDLED IN PAYOUTBASE. The currency amount of the payment.">
+	// premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">
+	// cashflowDate AdjustableOrAdjustedOrRelativeDate (0..1)
+	// cashflowCalculation calculation (0..1) <"This is a conceptual placeholder for providing the breakdown into the cashflow calculation components, leveraging the fact that the CDM provides calculation components, starting with the FixedAmount and the FloatingAmount. Further evaluation of expected usage needs to take place to confirm and prioritize such implementation.">
+	// 	[synonym Workflow_Event value "cashflowCalculation"]
+	// cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
+	// discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cashflow.">
+	// presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">
+	// paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">
 
+	// condition CashflowAmount: <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
+	// 	if cashflowAmount exists
+	// 	then cashflowAmount -> amount >= 0.0
+
+/*
+type CashflowType: <"Characterises the type of cashflow, which can result from either a scheduled or a non-scheduled lifecycle event.">
+	cashflowType CashflowTypeEnum (0..1) <"Type of cashflow corresponding to a scheduled event.">
+	cashflowPrice CashflowPrice (0..1) <"Type of cashflow corresponding to a non-scheduled event, where a price must be agreed between the parties.">
+	grossOrNet GrossOrNetEnum (0..1) <"Whether the cashflow is gross, net or a commission, if any.">
+	priceExpression PriceExpressionEnum (0..1)
+	
+	condition: <"A cashflow is either specified as a type of scheduled cashflow, or as a price agreed between parties in case of a non-scheduled cashflow.">
+	required choice cashflowType, cashflowPrice
+*/
+
+type CashflowType:
+	cashflowType CashflowTypeEnum (0..1)
+	cashflowPrice CashflowPrice (0..1)
+	grossOrNet GrossOrNetEnum (0..1)
+	priceExpression PriceExpressionEnum (0..1)
+	
+	condition:
+	required choice cashflowType, cashflowPrice
 
 type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
@@ -345,13 +365,9 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
 	
 	condition:
 	    if observable -> rateOption exists and price exists
-	    then 
-			price -> priceType contains PriceTypeEnum -> Spread or
-			price -> priceType contains PriceTypeEnum -> CapRate or
-			price -> priceType contains PriceTypeEnum -> FloorRate or
-			price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
+	    then price -> priceExpression -> interestRateType exists or price -> priceExpression -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
 	
-	condition ActualSettlement: <"">
+	condition ActualSettlement: <"When a setlement direction is specified, the price/quantity entails an actual settlement so settlement terms must exist.">
 		if buyerSeller exists then settlementTerms exists
 
 type PaymentDetail:
