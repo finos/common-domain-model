@@ -88,33 +88,63 @@ type UnitContractValuationModel: <" Unit contract model for security valuation, 
 	numberOfUnits Quantity (1..1) <"The number of units (index or securities).">
 	unitPrice Money (1..1) <"The price of each unit.">
 
+type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
+ 	premiumType PremiumTypeEnum (0..1) <"Forward start premium type">
+ 	pricePerOption Money (0..1) <"The amount of premium to be paid expressed as a function of the number of options.">
+ 	percentageOfNotional number (0..1) <"The amount of premium to be paid expressed as a percentage of the notional value of the transaction. A percentage of 5% would be expressed as 0.05.">
+
+type PriceExpression:
+	priceType PriceTypeEnum (1..1)
+ 	priceExpression PriceExpressionEnum (0..1)
+ 	grossOrNet GrossOrNetEnum (0..1)
+ 	cashPrice CashPrice (0..1)
+ 	cleanOrDirty CleanOrDirtyPriceEnum (0..1)
+	capFloor CapFloorEnum (0..1)
+	spreadType SpreadTypeEnum (0..1)
+ 	
+	condition Choice: <"The price can be specified mutually exclusively as a cashflow, an interest rate, or clean/dirty (in case it's a bond price).">
+ 		optional choice cashPrice, cleanOrDirty, capFloor
+ 	condition CashPrice: <"If a cash price type is specified, the price type must be cash.">
+ 		if cashPrice exists then priceType = PriceTypeEnum -> CashPrice
+ 	condition CleanOrDirty: <"Clean or dirty indicator only applicable for asset (bond) price.">
+ 		if cleanOrDirty exists then priceType = PriceTypeEnum -> AssetPrice
+ 	condition CapFloorPrice: <"Cap / Floor type can only be specified when the price type is a rate price.">
+ 		if capFloor exists then priceType = PriceTypeEnum -> InterestRate
+ 	condition SpreadPrice: <"A spread type can only be specified when the price type is an asset price, an exchange rate or an interest rate.">
+ 		if spreadType exists then priceType = PriceTypeEnum -> AssetPrice or priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> InterestRate
+
+type CashPrice:
+ 	cashPriceType CashPriceTypeEnum (1..1)
+ 	premiumExpression PremiumExpression (0..1) <"Forward start premium type">
+ 	feeType FeeTypeEnum (0..1)
+ 	condition PremiumType: <"Premium type can only be specified when the cash price type is a premium.">
+ 		if premiumExpression exists then cashPriceType = CashPriceTypeEnum -> Premium
+
 type Price extends MeasureBase: <"Specifies a price to be used for trade amounts and other purposes.">
 
-	priceType PriceTypeEnum (1..1) <"Provides a value for a type of price in order to explain how to interpret the amount and use it in calculations.">
-	    [synonym Workflow_Event value "priceType"]
+	priceExpression PriceExpression (1..1) <"Provides a value for the type of price expression (cash price, interest rate, gross or net, clean or dirty etc.) in order to explain how to interpret the amount and use it in calculations.">
 	perUnitOfAmount UnitType (1..1) <"Provides an attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
         [synonym Workflow_Event value "perUnitOfAmount"]
-
+	// TODO BEFORE RELEASE: This attribute is being used in static java code. To be removed before release
+ 	// priceType PriceTypeEnum (0..1)
+ 	// 	[deprecated]
+	
 	condition PositiveFXRate: <"Requires that per FpML rules, the FX rate must be a positive value.">
-		if priceType = PriceTypeEnum -> ExchangeRate
+		if priceExpression -> priceType = PriceTypeEnum -> ExchangeRate
 		then amount > 0
 
-	condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
-		if priceType = PriceTypeEnum -> Spot
-		then amount > 0
+	// condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
+	// 	if priceType = PriceTypeEnum -> Spot
+	// 	then amount > 0
 
 	condition: <"Requires that any price expressed as a cash price and generating a cashflow must be positive">
-		if (priceType = PriceTypeEnum -> CashPrice or
-			priceType = PriceTypeEnum -> CleanNetPrice or
-			priceType = PriceTypeEnum -> CleanPrice or
-			priceType = PriceTypeEnum -> DirtyPrice or
-			priceType = PriceTypeEnum -> GrossPrice or
-			priceType = PriceTypeEnum -> NetPrice or
-			priceType = PriceTypeEnum -> Premium)
+		if (priceExpression -> priceType = PriceTypeEnum -> CashPrice or
+			priceExpression -> priceType = PriceTypeEnum -> AssetPrice
+			)
 			then amount > 0
 
 	condition CurrencyUnitForInterestRate: <"Requires that the unit of amount for an interest rate must be a currency.">
-		if priceType = PriceTypeEnum -> InterestRate
+		if priceExpression -> priceType = PriceTypeEnum -> InterestRate
 		then unitOfAmount -> currency exists
 
 type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">

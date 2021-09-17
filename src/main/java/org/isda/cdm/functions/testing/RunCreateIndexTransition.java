@@ -9,10 +9,7 @@ import cdm.event.common.IndexTransitionInstruction;
 import cdm.event.common.Trade;
 import cdm.event.common.TradeState;
 import cdm.event.common.functions.Create_IndexTransition;
-import cdm.observable.asset.FloatingRateOption;
-import cdm.observable.asset.Observable;
-import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceTypeEnum;
+import cdm.observable.asset.*;
 import cdm.product.common.ProductIdentification;
 import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.template.ContractualProduct;
@@ -46,7 +43,7 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 									.setAmount(BigDecimal.valueOf(0.002))
 									.setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
 									.setPerUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-									.setPriceType(PriceTypeEnum.SPREAD)))
+									.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.SPREAD))))
 					.addPriceQuantity(PriceQuantity.builder()
 							.setObservable(Observable.builder()
 									.setRateOptionValue(FloatingRateOption.builder()
@@ -58,7 +55,7 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 									.setAmount(BigDecimal.valueOf(0.001))
 									.setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
 									.setPerUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
-									.setPriceType(PriceTypeEnum.SPREAD)))
+									.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.SPREAD))))
 					.setEffectiveDate(DateImpl.of(2018, 6, 19));
 			Date date = DateImpl.of(2018, 6, 17);
 			return func.evaluate(tradeState, instruction, date);
@@ -76,7 +73,7 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 									.setAmount(BigDecimal.valueOf(0.003))
 									.setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
 									.setPerUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
-									.setPriceType(PriceTypeEnum.SPREAD)))
+									.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.SPREAD))))
 					.setEffectiveDate(DateImpl.of(2000, 10, 3));
 			Date date = DateImpl.of(2000, 10, 1);
 			return func.evaluate(tradeState, instruction, date);

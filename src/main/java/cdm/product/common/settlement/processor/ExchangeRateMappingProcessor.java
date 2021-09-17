@@ -2,6 +2,7 @@ package cdm.product.common.settlement.processor;
 
 import cdm.base.math.UnitType;
 import cdm.observable.asset.Price;
+import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.common.settlement.PriceQuantity;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -87,7 +88,11 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 	private Optional<Price.PriceBuilder> getExchangeRatePrice(List<FieldWithMetaPriceBuilder> priceBuilders) {
 		return priceBuilders.stream()
 				.map(FieldWithMetaPriceBuilder::getValue)
-				.filter(p -> p.getPriceType() == PriceTypeEnum.EXCHANGE_RATE)
+				.filter(p -> Optional.ofNullable(p)
+						.map(Price::getPriceExpression)
+						.map(PriceExpression::getPriceType)
+						.map(PriceTypeEnum.EXCHANGE_RATE::equals)
+						.orElse(false))
 				.findFirst();
 	}
 

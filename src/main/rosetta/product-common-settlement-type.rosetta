@@ -34,11 +34,21 @@ type ComputedAmount: <"A class to specify the outcome of a computed amount, for 
 
 type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated globalKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
-	cashflowDetails CashflowDetails (0..1) <"Specifies optional additional attributes associated to the cashflow, such as the cashflow type or the discounting. All the core economic components of the cashflow (amount, unit, settlement date and direction) are already inherited as part of the PayoutBase type">
-
+	cashflowType CashflowType (1..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
+	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
+	
 	condition CashflowAmount: <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
 		if payoutQuantity exists
 		then payoutQuantity -> resolvedQuantity -> amount >= 0.0
+
+type CashflowType: <"Characterises the type of cashflow, which can result from either a scheduled or a non-scheduled lifecycle event.">
+ 	cashflowType CashflowTypeEnum (0..1) <"Type of cashflow corresponding to a scheduled event.">
+ 	cashPrice CashPrice (0..1) <"Type of cashflow corresponding to a non-scheduled event, where a price must be agreed between the parties.">
+ 	grossOrNet GrossOrNetEnum (0..1) <"Whether the cashflow is gross, net or a commission, if any.">
+ 	priceExpression PriceExpressionEnum (0..1)
+ 	
+	condition: <"A cashflow is either specified as a type of scheduled cashflow, or as a price agreed between parties in case of a non-scheduled cashflow.">
+ 	required choice cashflowType, cashPrice
 	
 type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
@@ -309,10 +319,10 @@ type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, w
 		if physicalSettlementTerms exists /* or fxSettlementTerms exists*/
 		then settlementType <> SettlementTypeEnum -> Cash
 
-type CashflowDetails: <"Specifies additional optional attributes that can be associated to a cash payment component, such as the cashflow type or the discounting. That structure is used as part of the cash price settlement or in the dedicated cashflow payout component.">
-	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
-	premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">
-	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
+// type CashflowDetails: <"Specifies additional optional attributes that can be associated to a cash payment component, such as the cashflow type or the discounting. That structure is used as part of the cash price settlement or in the dedicated cashflow payout component.">
+// 	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
+// 	// premiumExpression PremiumExpression (0..1) <"FpML specifies the Premium.model group for representing the option premium when expressed in a way other than an amount.">
+// 	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
 
 type PriceQuantity: <"Defines a settlement as an exchange between two parties of a specified quantity of an asset (the quantity) against a specified quantity of another asset (the price). The settlement is optional and can be either cash or physical. In the case of non-cash products, the settlement of the price/quantity would not be specified here and instead would be delegated to the product mechanics, as parameterised by the price/quantity values.">
 	[metadata key]
@@ -324,19 +334,17 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
 	buyerSeller BuyerSeller (0..1) <"Defines the direction of the exchange. The convention is that the buyer receives the quantity / pays the price, whereas the seller receives the price / pays the quantity. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
 	settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
 	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
-	cashflowDetails CashflowDetails (0..1) <"Specifies optional additional attributes associated to the price, when expressed as a cash payment.">
+	// cashflowDetails CashflowDetails (0..1) <"Specifies optional additional attributes associated to the price, when expressed as a cash payment.">
 	
 	condition NonNegativeQuantity: <"All quantities must be positive. The direction of a leg is expressed via the payer/receiver attribute.">
 	    if quantity -> amount exists
 	    then quantity -> amount all >= 0
 	
-	condition: <"When the observable is a rate option, the price type must correspond to one of the interest rate price expressions.">
+	condition RateOptionObservable: <"When the observable is a rate option, the price type must correspond to one of the interest rate price expressions.">
 	    if observable -> rateOption exists and price exists
 	    then 
-			price -> priceType contains PriceTypeEnum -> Spread or
-			price -> priceType contains PriceTypeEnum -> CapRate or
-			price -> priceType contains PriceTypeEnum -> FloorRate or
-			price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
+			price -> priceExpression -> priceType contains PriceTypeEnum -> InterestRate or
+			price-> priceExpression -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
 	
 	condition ActualSettlement: <"Settlement terms must be present when the settlement direction is specified.">
 		if buyerSeller exists then settlementTerms exists
@@ -349,7 +357,6 @@ type PaymentDetail:
 	paymentAmount Money (0..1) <"A fixed payment amount.">
 
 type PaymentDiscounting: <"This class corresponds to the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
-
 	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">
 	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">
 
