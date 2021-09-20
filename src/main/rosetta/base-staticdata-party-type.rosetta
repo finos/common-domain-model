@@ -140,16 +140,25 @@ type LegalEntity: <"A class to specify a legal entity, with a required name and 
 type NaturalPerson: <"A class to represent the attributes that are specific to a natural person.">
 	[metadata key]
 
+	personId string (0..*) <"The identifier associated with a person, e.g. the internal identification code.">
 	honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">
-	firstName string (1..1) <"The natural person's first name. It is optional in FpML.">
+	firstName string (0..1) <"The natural person's first name. It is optional in FpML.">
 	middleName string (0..*)
 	initial string (0..*)
-	surname string (1..1) <"The natural person's surname.">
+	surname string (0..1) <"The natural person's surname.">
 	suffix string (0..1) <"Name suffix, such as Jr., III, etc.">
 	dateOfBirth date (0..1) <"The natural person's date of birth.">
 
+	condition NameOrIdChoice: 
+        (firstName exists and surname exists) or personId exists
+
 	condition NaturalPersonChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice middleName, initial
+
+	// condition NameOrIdChoice: <"Condition that requires the choice of either First Name and Surname, or Person ID">
+    //     surname exists or personId exists
+	// condition FirstNameAndSurname:
+	// 	if surname exists then firstName exists
 
 type NaturalPersonRole: <"A class to specify the role(s) that natural person(s) may have in relation to the contract.">
 
@@ -167,6 +176,16 @@ type Party: <"A class to specify a party, without a qualification as to whether 
 		[metadata scheme]
 	person NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">
 	account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">
+	algorithm Algorithm (0..1)
+
+type Algorithm: 
+	
+	owner NaturalPerson (0..1)
+	operator NaturalPerson (0..1)
+	killSwitchOperator NaturalPerson (0..1)
+	
+
+
 
 type PartyContactInformation: <"A class to specify contact information within a party: address and, optionally, associated business unit and person. This class also supports the ISDA CSA representation as a single string, through the address attribute.">
 
