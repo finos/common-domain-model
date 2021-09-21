@@ -37,7 +37,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	public <T> void mapBasic(Path synonymPath, T instance, RosettaModelObjectBuilder parent) {
 		PriceBuilder priceBuilder = (PriceBuilder) parent;
 
-		if (Optional.ofNullable(priceBuilder.getPriceExpression()).map(PriceExpression::getPriceType).isEmpty()) {
+		if (!Optional.ofNullable(priceBuilder.getPriceExpression()).map(PriceExpression::getPriceType).isPresent()) {
 			return;
 		}
 		UnitTypeBuilder unitOfAmount = priceBuilder.getUnitOfAmount();

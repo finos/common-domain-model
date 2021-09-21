@@ -1,36 +1,48 @@
-# *Product Model – Added Support for Commodity Options & Refactor of AveragingObservation*
+# *Product Model - Mapping to FpML: Addition of incomplete product examples*
 
 _What is being released?_
 
-`OptionPayout` has been updated to support vanilla Commodity Options (Bullet European & Asian). The release refactors the `AveragingObservation` object to `AveragingCalculation` and introduces a new property, `ObservationTerms`, to the `OptionPayout` object. The solution decouples the aspects of observing & averaging a price that were previously both contained within `AveragingObservation` and also offers support for cross product observations that are possible for Option contracts.
+This release includes additional FpML 5.10 data samples within the model where full synonym mapping has not been completed yet.  The new samples are included in an `fpml-5-10 -> incomplete-products` folder in order to identify them separately to samples in the `fpml-5-10 -> products` folder where CDM model components exist and synonym mappings have been created to support ingestion.  The addition of these examples gives transparency on further work required to support all products contained in the FpML 5.10 Confirmation View Examples download.
 
 _Details_
 
-- `AveragingCalculation` - New data type created to replace `AveragingObservation` & defines calculation parameters associated with Average/Asian Options. Modelled in `OptionFeature` with data attribute `averagingRateFeature`.
-- `ObservationTerms` - New data type created and included in `OptionPayout` to specify terms associated with observing a benchmark price. Contains a number of existing data types to capture; observable, pricingTime, pricingTimeType, primarySource, secondarySource, precision, observationDate & calculationPeriodDates.
-- `AveragingStrikeFeature` - Object created to keep previous support for average strikes & replaces previous use of `AveragingObservation` in `OptionStrike`.
-- `ParametricDates` - Added to `ObservationDates` to allow specification of date terms in parametric means typically associated with commodities.
+Examples contained in the FpML -> CDM 5.10 Confirmation View download which are not contained in the existing CDM ingestion examples have been added in the following folders:
 
-Relevant synonym mappings have been updated so that linkage exists to equivalent FpML structures.
-
-_New Ingestion Examples_
-
-New FpML examples have been added to the CDM distribution & are available in the ingestion pack to validate the changes being made for the representation of Commodity Options and also Commodity Swaps, that was included in a previous release. The examples are:
-
-- `com-ex2-gas-swap-prices-first-day`
-- `com-ex3-gas-swap-prices-last-three-days`
-- `com-ex4-electricity-swap-hourly-off-peak`
-- `com-ex6-gas-call-option`
-- `com-ex7-gas-put-option`
-- `com-ex9-oil-put-option-american`
-- `com-ex27-wti-put-option-asian-listedoption-date`
-- `com-ex28-gas-swap-daily-delivery-prices-option-last`
-- `com-ex39-basket-option-confirmation`
-- `com-ex41-oil-asian-barrier-option-strip`
-- `com-ex46-simple-financial-put-option`
+- fpml-5-10 > incomplete-products > bond-options
+- fpml-5-10 > incomplete-products > commodity-derivatives
+- fpml-5-10 > incomplete-products > correlation-swaps
+- fpml-5-10 > incomplete-products > credit-derivatives
+- fpml-5-10 > incomplete-products > dividend-swaps
+- fpml-5-10 > incomplete-products > equity-options
+- fpml-5-10 > incomplete-products > equity-swaps
+- fpml-5-10 > incomplete-products > fx-derivatives
+- fpml-5-10 > incomplete-products > inflation-swaps
+- fpml-5-10 > incomplete-products > interest-rate-derivatives
+- fpml-5-10 > incomplete-products > variance-swaps
+- fpml-5-10 > incomplete-products > volatility-swaps
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search for the relevant data types specified above.
+In the CDM Portal, select the Ingestion panel and review contents of the folders specified above.
 
-Select the Ingestion view and review the samples in `fpml-5-10 > products > commodity`.
+# *Event Model – Function Documentation*
+
+_What is being released?_
+
+This release adds descriptions to the Visualisation panel for all products in one of the functions: Execute Business Event.
+
+_Details_
+
+Descriptions have been added for the following products:
+
+- Functions > Execute Business Event > Basis Swap
+- Functions > Execute Business Event > Credit Default Swap
+- Functions > Execute Business Event > FX Forward
+- Functions > Execute Business Event > Fixed/Floating Single Currency Interest Rate Swap
+- Functions > Execute Business Event > Forward Rate Agreement
+- Functions > Execute Business Event > OIS Swap
+- Functions > Execute Business Event > Repo Fixed Rate
+
+Review Directions
+
+In the CDM Portal select the Visualisation panel and review contents of the folders specified above.

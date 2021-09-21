@@ -87,7 +87,7 @@ class ExerciseNoticeGiverMappingProcessorTest {
 	private List<Mapping> getMappings(String synonymValue) {
 		return Arrays.asList(
 				// exercise notice giver mapping (initially unmapped)
-				new Mapping(SYNONYM_PATH.addElement("href"), synonymValue, null, null, "no destination", false, false),
+				new Mapping(SYNONYM_PATH.addElement("href"), synonymValue, null, null, "no destination", false, false, false),
 				// option buyer mapping
 				new Mapping(Path.parse("dataDocument.trade.bondOption.buyerPartyReference.href"),
 						"p1",
@@ -95,7 +95,8 @@ class ExerciseNoticeGiverMappingProcessorTest {
 						"p1",
 						null,
 						false,
-						true),
+						true,
+						false),
 				// option seller mapping
 				new Mapping(Path.parse("dataDocument.trade.bondOption.sellerPartyReference.href"),
 						"p2",
@@ -103,7 +104,8 @@ class ExerciseNoticeGiverMappingProcessorTest {
 						"p2",
 						null,
 						false,
-						true)
+						true,
+						false)
 
 		);
 	}
