@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release normalises the PriceType (formerly contained into a single enumeration) into a composite list of enumerations, each tackling a different dimension used to qualify the type of a price: asset price / interest rate / exchange rate / cash payment, gross / net, clean / dirty etc. This release also separates the CashflowType (formerly contained into a single enumeration) into a composite list of enumerations. Where the CashflowType corresponds to a negotiated event between parties and a fee is agreed, the same attributes used to qualify a cash payment type of price are also used to qualify that cashflow.
+This release normalises the PriceType (formerly contained into a single enumeration) into a composite list of enumerations, each tackling a different dimension used to qualify the type of a price: asset price / interest rate / exchange rate / cash payment, gross / net, clean / dirty etc. This release also separates the CashflowType (formerly contained into a single enumeration) into a composite list of enumerations. Where the CashflowType corresponds to a negotiated event between parties, a dedicated enumeration qualifies the type of lifecycle event the cashflow originates from (termination / novation etc.). This same enumeration is used in turn in PriceType, to further qualify the source of a cash payment price.
 
 _Details_
 
@@ -22,7 +22,7 @@ _Details_
 - The `Price` type is modified to encapsulate the new composite `PriceExpression` type, instead of the flat `PriceTypeEnum`.
 - The `Cashflow` type is modified to encapsulate the new composite `CashflowType`, instead of the flat `CashflowTypeEnum`.
 - FpML synonyms have been adjusted so that the FpML price or cashflow type attributes map to the new structures.
-- Functions have been modified to use the new structures.
+- Functions have been adjusted to preserve the current behaviour while using the new enumeration structures.
 
 _Review Directions_
 
