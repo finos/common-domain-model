@@ -107,7 +107,6 @@ The price and quantity attributes of a trade, or of a leg of a trade in the case
    buyerSeller BuyerSeller (0..1)
    settlementTerms SettlementTerms (0..1)
    effectiveDate AdjustableOrRelativeDate (0..1)
-   cashflowDetails CashflowDetails (0..1)
 
 .. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
 
@@ -163,7 +162,7 @@ The ``Price`` data type extends the ``MeasureBase`` data type with the addition 
 .. code-block:: Haskell
 
  type Price extends MeasureBase:
-   priceType PriceTypeEnum (1..1)
+   priceExpression PriceExpression (1..1)
    perUnitOfAmount UnitType (1..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
