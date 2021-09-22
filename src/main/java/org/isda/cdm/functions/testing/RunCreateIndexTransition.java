@@ -43,7 +43,9 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 									.setAmount(BigDecimal.valueOf(0.002))
 									.setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
 									.setPerUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-									.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.SPREAD))))
+									.setPriceExpression(PriceExpression.builder()
+											.setPriceType(PriceTypeEnum.INTEREST_RATE)
+											.setSpreadType(SpreadTypeEnum.SPREAD))))
 					.addPriceQuantity(PriceQuantity.builder()
 							.setObservable(Observable.builder()
 									.setRateOptionValue(FloatingRateOption.builder()
@@ -55,7 +57,9 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 									.setAmount(BigDecimal.valueOf(0.001))
 									.setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
 									.setPerUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
-									.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.SPREAD))))
+									.setPriceExpression(PriceExpression.builder()
+											.setPriceType(PriceTypeEnum.INTEREST_RATE)
+											.setSpreadType(SpreadTypeEnum.SPREAD))))
 					.setEffectiveDate(DateImpl.of(2018, 6, 19));
 			Date date = DateImpl.of(2018, 6, 17);
 			return func.evaluate(tradeState, instruction, date);
@@ -73,7 +77,9 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 									.setAmount(BigDecimal.valueOf(0.003))
 									.setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
 									.setPerUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
-									.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.SPREAD))))
+									.setPriceExpression(PriceExpression.builder()
+											.setPriceType(PriceTypeEnum.INTEREST_RATE)
+											.setSpreadType(SpreadTypeEnum.SPREAD))))
 					.setEffectiveDate(DateImpl.of(2000, 10, 3));
 			Date date = DateImpl.of(2000, 10, 1);
 			return func.evaluate(tradeState, instruction, date);

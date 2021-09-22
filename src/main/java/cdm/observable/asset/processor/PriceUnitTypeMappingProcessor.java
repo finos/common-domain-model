@@ -151,9 +151,9 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	}
 
 	private boolean updateFxOption(PriceBuilder builder, Path synonymPath) {
-		if (builder.getPriceExpression().getPriceType() != PriceTypeEnum.EXCHANGE_RATE && builder.getPriceExpression().getPriceType() != PriceTypeEnum.SPOT) {
-			return false;
-		}
+//		if (builder.getPriceExpression().getPriceType() == PriceTypeEnum.EXCHANGE_RATE && builder.getPriceExpression().getSpreadType() != PriceTypeEnum.SPOT) {
+//			return false;
+//		}
 		Optional<Path> subPath = subPath("fxOption", synonymPath);
 		return subPath.flatMap(p -> getValueAndUpdateMappings(p.addElement("strike").addElement("strikeQuoteBasis")))
 				.map(quoteBasis -> setFxOptionRateUnits(builder, subPath.get(), quoteBasis))

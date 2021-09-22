@@ -4,6 +4,7 @@ import cdm.base.math.UnitType;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
+import cdm.observable.asset.SpreadTypeEnum;
 import cdm.product.common.settlement.PriceQuantity;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -45,12 +46,16 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 
 		AtomicInteger priceIndex = new AtomicInteger(priceBuilders.size());
 
-		getBuilder(synonymPath.addElement("spotRate"), priceIndex, unitOfAmount, perUnitOfAmount, PriceTypeEnum.SPOT)
+		getBuilder(synonymPath.addElement("spotRate"), priceIndex, unitOfAmount, perUnitOfAmount, getPriceExpression(SpreadTypeEnum.BASE))
 				.ifPresent(priceQuantityBuilder::addPrice);
-		getBuilder(synonymPath.addElement("forwardPoints"), priceIndex, unitOfAmount, perUnitOfAmount, PriceTypeEnum.FORWARD_POINTS)
+		getBuilder(synonymPath.addElement("forwardPoints"), priceIndex, unitOfAmount, perUnitOfAmount, getPriceExpression(SpreadTypeEnum.SPREAD))
 				.ifPresent(priceQuantityBuilder::addPrice);
-		getBuilder(synonymPath.addElement("pointValue"), priceIndex, unitOfAmount, perUnitOfAmount, null)
+		getBuilder(synonymPath.addElement("pointValue"), priceIndex, unitOfAmount, perUnitOfAmount, getPriceExpression(SpreadTypeEnum.SPREAD))
 				.ifPresent(priceQuantityBuilder::addPrice);
+	}
+
+	private PriceExpression.PriceExpressionBuilder getPriceExpression(SpreadTypeEnum base) {
+		return PriceExpression.builder().setPriceType(PriceTypeEnum.EXCHANGE_RATE).setSpreadType(base);
 	}
 
 	@NotNull
@@ -58,7 +63,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 			AtomicInteger priceIndex,
 			UnitType unitOfAmount,
 			UnitTypeBuilder perUnitOfAmount,
-			PriceTypeEnum priceType) {
+			PriceExpression priceExpression) {
 		return getNonNullMapping(getMappings(), synonymPath).map(mapping -> {
 			// update price index to ensure unique model path, otherwise any references will break
 			Path baseModelPath = toPath(getModelPath()).addElement("amount");
@@ -68,7 +73,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 			return toReferencablePriceBuilder(new BigDecimal(amount),
 					unitOfAmount,
 					perUnitOfAmount,
-					priceType);
+					priceExpression);
 		});
 	}
 

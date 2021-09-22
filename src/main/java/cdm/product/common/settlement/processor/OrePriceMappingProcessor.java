@@ -38,8 +38,8 @@ public class OrePriceMappingProcessor extends MappingProcessor {
 				.ifPresent(unitType -> emptyIfNull((List<FieldWithMetaPriceBuilder>) builders).stream()
 						.map(FieldWithMetaPriceBuilder::getValue)
 						.filter(Objects::nonNull)
-						// if mapped price has priceType interestRate or Spread then update the unitOfAmount and perUnitOfAmount with currency.
-						.filter(p -> filterPriceType(p, PriceTypeEnum.INTEREST_RATE) || filterPriceType(p, PriceTypeEnum.SPREAD))
+						// if mapped price has priceType interestRate then update the unitOfAmount and perUnitOfAmount with currency.
+						.filter(p -> filterPriceType(p, PriceTypeEnum.INTEREST_RATE))
 						.forEach(priceBuilder -> priceBuilder
 								.setUnitOfAmount(unitType)
 								.setPerUnitOfAmount(unitType)));

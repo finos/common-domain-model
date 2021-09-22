@@ -254,7 +254,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreatePrice(0)
 					.getOrCreateValue()
 					.setAmount(parseDecimal(value))
-					.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.NET_PRICE))
+					.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.ASSET_PRICE))
 					.setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE));
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
