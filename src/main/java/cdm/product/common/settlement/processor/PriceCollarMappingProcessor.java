@@ -1,6 +1,8 @@
 package cdm.product.common.settlement.processor;
 
 import cdm.base.math.UnitType;
+import cdm.observable.asset.CapFloorEnum;
+import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.common.settlement.PriceQuantity;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -39,8 +41,10 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 				getNonNullMapping(getMappings(), getModelPath(), subPath, "floorRateSchedule", "initialValue").ifPresent(frm -> {
 					UnitTypeBuilder unitType = toCurrencyUnitType(subPath);
 					BigDecimal floorRate = new BigDecimal(String.valueOf(frm.getXmlValue()));
-					((PriceQuantity.PriceQuantityBuilder) parent)
-							.addPrice(toReferencablePriceBuilder(floorRate, unitType, unitType, PriceTypeEnum.FLOOR_RATE));
+					PriceExpression.PriceExpressionBuilder priceExpression = PriceExpression.builder()
+							.setPriceType(PriceTypeEnum.INTEREST_RATE)
+							.setCapFloor(CapFloorEnum.FLOOR);
+					((PriceQuantity.PriceQuantityBuilder) parent).addPrice(toReferencablePriceBuilder(floorRate, unitType, unitType, priceExpression));
 					// update price index, e.g. floorRate and capRate were previously mapped to the same field so the price index
 					// must be incremented otherwise any references will break
 					frm.setRosettaPath(incrementPathElementIndex(frm.getRosettaPath(), "price", 1));

@@ -3,6 +3,7 @@ package cdm.observable.asset.processor;
 import cdm.base.math.CapacityUnitEnum;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.UnitType;
+import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -25,6 +26,7 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 /**
  * FpML mapper to enrich the mapped price with unitOfAmount and perUnitOfAmount.
  */
+@SuppressWarnings("unused")
 public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 
 	public PriceUnitTypeMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
@@ -35,7 +37,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	public <T> void mapBasic(Path synonymPath, T instance, RosettaModelObjectBuilder parent) {
 		PriceBuilder priceBuilder = (PriceBuilder) parent;
 
-		if (priceBuilder.getPriceType() == null) {
+		if (!Optional.ofNullable(priceBuilder.getPriceExpression()).map(PriceExpression::getPriceType).isPresent()) {
 			return;
 		}
 		UnitTypeBuilder unitOfAmount = priceBuilder.getUnitOfAmount();
@@ -112,7 +114,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 		// unit of amount
 		builder.setUnitOfAmount(unitOfAmount);
 		// per unit of amount
-		if (builder.getPriceType() != PriceTypeEnum.MULTIPLIER_OF_INDEX_VALUE) {
+		if (builder.getPriceExpression().getPriceType() != PriceTypeEnum.MULTIPLIER_OF_INDEX_VALUE) {
 			builder.setPerUnitOfAmount(perUnitOfAmount);
 		}
 		return true;
@@ -149,9 +151,9 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	}
 
 	private boolean updateFxOption(PriceBuilder builder, Path synonymPath) {
-		if (builder.getPriceType() != PriceTypeEnum.EXCHANGE_RATE && builder.getPriceType() != PriceTypeEnum.SPOT) {
-			return false;
-		}
+//		if (builder.getPriceExpression().getPriceType() == PriceTypeEnum.EXCHANGE_RATE && builder.getPriceExpression().getSpreadType() != PriceTypeEnum.SPOT) {
+//			return false;
+//		}
 		Optional<Path> subPath = subPath("fxOption", synonymPath);
 		return subPath.flatMap(p -> getValueAndUpdateMappings(p.addElement("strike").addElement("strikeQuoteBasis")))
 				.map(quoteBasis -> setFxOptionRateUnits(builder, subPath.get(), quoteBasis))
