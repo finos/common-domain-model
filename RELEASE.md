@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release adds FpML Record-Keeping synonyms for before and after notional amounts for Termination events.
+This release adds FpML Record-Keeping synonyms for the notional amount of the before  and after states representing a Termination event.
 
 _Review Directions_
 
