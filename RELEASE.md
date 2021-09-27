@@ -1,29 +1,13 @@
-# *Product Model - Normalisation of the PriceType and CashflowType enumerations*
+# *Event Model - Map FpML Record-Keeping Termination Event*
 
 _What is being released?_
 
-This release normalises the PriceType (formerly contained into a single enumeration) into a composite list of enumerations, each tackling a different dimension used to qualify the type of a price: asset price / interest rate / exchange rate / cash payment, gross / net, clean / dirty etc. This release also separates the CashflowType (formerly contained into a single enumeration) into a composite list of enumerations. Where the CashflowType corresponds to a negotiated event between parties, a dedicated enumeration qualifies the type of lifecycle event the cashflow originates from (termination / novation etc.). This same enumeration is used in turn in PriceType, to further qualify the source of a cash payment price.
-
-_Details_
-
-- The list of enumerated values for `PriceTypeEnum` is reduced to only 5 values.
-- The `CashflowTypeEnum` is reduced to only qualify cashflows corresponding to scheduled events, with all fee / premium values taken out.
-- The following new enumerations are introduced to capture the other dimensions of a price type:
-
-  - `CashPriceTypeEnum`
-  - `GrossOrNetEnum`
-  - `CleanOrDirtyPriceEnum`
-  - `CapFloorEnum`
-  - `SpreadTypeEnum`
-  - `FeeTypeEnum`
-
-- New `CashPrice` and `PriceExpression` types are introduced, that use these new enumerations. `CashPrice` is encapsulated in `PriceExpression`.
-- A new `CashflowType` is introduced, that uses these enumerations. `CashPrice` is also encapsulated in `CashflowType`, with a required choice between `CashPrice` or the (reduced) `CashflowTypeEnum`.
-- The `Price` type is modified to encapsulate the new composite `PriceExpression` type, instead of the flat `PriceTypeEnum`.
-- The `Cashflow` type is modified to encapsulate the new composite `CashflowType`, instead of the flat `CashflowTypeEnum`.
-- FpML synonyms have been adjusted so that the FpML price or cashflow type attributes map to the new structures.
-- Functions have been adjusted to preserve the current behaviour while using the new enumeration structures.
+This release adds FpML Record-Keeping synonyms for before and after notional amounts for Termination events.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and review the types and enumerations specified above. Select the Ingestion Panel and review the new `Price` structure on the sample output.
+In the CDM Portal, select the Ingestion Panel and review the following samples:
+
+- fpml-5-10 > record-keeping > record-ex112-partial-termination.xml
+- fpml-5-10 > record-keeping > record-ex130-partial-termination-xccy.xml
+- fpml-5-10 > record-keeping > record-ex131-partial-termination-xccy-swap.xml
