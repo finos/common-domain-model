@@ -1,29 +1,24 @@
-# *Product Model - Normalisation of the PriceType and CashflowType enumerations*
+# *Event Model – Function Documentation*
 
 _What is being released?_
 
-This release normalises the PriceType (formerly contained into a single enumeration) into a composite list of enumerations, each tackling a different dimension used to qualify the type of a price: asset price / interest rate / exchange rate / cash payment, gross / net, clean / dirty etc. This release also separates the CashflowType (formerly contained into a single enumeration) into a composite list of enumerations. Where the CashflowType corresponds to a negotiated event between parties, a dedicated enumeration qualifies the type of lifecycle event the cashflow originates from (termination / novation etc.). This same enumeration is used in turn in PriceType, to further qualify the source of a cash payment price.
+This release adds descriptions to the Visualisation panel for all products in one of the functions: Execute Business Event.
 
 _Details_
 
-- The list of enumerated values for `PriceTypeEnum` is reduced to only 5 values.
-- The `CashflowTypeEnum` is reduced to only qualify cashflows corresponding to scheduled events, with all fee / premium values taken out.
-- The following new enumerations are introduced to capture the other dimensions of a price type:
+Descriptions have been added for the following products:
 
-  - `CashPriceTypeEnum`
-  - `GrossOrNetEnum`
-  - `CleanOrDirtyPriceEnum`
-  - `CapFloorEnum`
-  - `SpreadTypeEnum`
-  - `FeeTypeEnum`
-
-- New `CashPrice` and `PriceExpression` types are introduced, that use these new enumerations. `CashPrice` is encapsulated in `PriceExpression`.
-- A new `CashflowType` is introduced, that uses these enumerations. `CashPrice` is also encapsulated in `CashflowType`, with a required choice between `CashPrice` or the (reduced) `CashflowTypeEnum`.
-- The `Price` type is modified to encapsulate the new composite `PriceExpression` type, instead of the flat `PriceTypeEnum`.
-- The `Cashflow` type is modified to encapsulate the new composite `CashflowType`, instead of the flat `CashflowTypeEnum`.
-- FpML synonyms have been adjusted so that the FpML price or cashflow type attributes map to the new structures.
-- Functions have been adjusted to preserve the current behaviour while using the new enumeration structures.
+- Functions > Execute Business Event > Swaption
+- Functions > Execute Business Event > Interest Rate Swap with Initial Fee
+- Functions > Form Contract > Basis Swap
+- Functions > Form Contract > Credit Default Swap
+- Functions > Form Contract > FX Forward
+- Functions > Form Contract > Fixed/Floating Single Currency Interest Rate Swap
+- Functions > Form Contract > Forward Rate Agreement
+- Functions > Form Contract > OIS Swap
+- Functions > Form Contract > Swaption
+- Functions > Form Contract > Repo Fixed Rate
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and review the types and enumerations specified above. Select the Ingestion Panel and review the new `Price` structure on the sample output.
+In the CDM Portal select the Visualisation panel and review contents of the folders specified above.
