@@ -66,6 +66,9 @@ synonym source FpML_5_10_Processes extends FpML_5_10
                 [value "ignore"]
             + execution
                 [value "ignore"]
+            + contractFormation
+                [value "novation"]
+                [hint "trade"]
             + quantityChange
                 [value "termination"]
                 [value "novation"]
@@ -76,30 +79,49 @@ synonym source FpML_5_10_Processes extends FpML_5_10
             + transfer
                 [value "ignore"]
 
+    ContractFormationPrimitive:
+        + before
+            [hint "oldTrade"]
+        + after
+            [hint "oldTrade", "novationAmount"]
+            [hint "trade"]
+
     QuantityChangePrimitive:
         + before
             [hint "originalTrade"]
             [hint "newTrade"]
+            [hint "oldTrade"]
         + after
             [hint "originalTrade"]
             [hint "newTrade"]
-            [hint "outstandingNotionalAmount", "sizeChange"]
+            [hint "oldTrade"]
+            [hint "outstandingNotionalAmount", "sizeChange", "novationAmount"]
 
     TradeState:
             [meta "id" path "trade"]
             [meta "id" path "originalTrade"]
             [meta "id" path "newTrade"]
+            [meta "id" path "oldTrade"]
             - trade
             + trade
                 [value "trade" mapper "Party"]
                 [value "originalTrade" mapper "Party"]
                 [value "newTrade" mapper "Party"]
-                [hint "outstandingNotionalAmount", "sizeChange"]
+                [value "oldTrade" mapper "NovationParty"]
+                [hint "outstandingNotionalAmount", "sizeChange", "novationAmount"]
             - transferHistory
             + transferHistory
                 [value "ignore"]
 
-        TradableProduct:
-            + tradeLot
-                [value "outstandingNotionalAmount", "outstandingNotionalAmount" path "sizeChange" mapper "OutstandingNotionalAmount"]
+    TradableProduct:
+        + tradeLot
+            [value "outstandingNotionalAmount",
+                "outstandingNotionalAmount" path "sizeChange",
+                "outstandingNotionalAmount" path "novationAmount"
+                    mapper "OutstandingNotionalAmount"]
+
+    ClosedState:
+        + state
+            [set to ClosedStateEnum -> Terminated when "outstandingNotionalAmount->amount" = "0"] // TODO: add support for floating point number comparison, e.g., "amount" = 0.0
+            [set to ClosedStateEnum -> Novated when "novationDate" exists and rosettaPath = BusinessEvent -> primitives -> quantityChange]
 }
