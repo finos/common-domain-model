@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
@@ -52,9 +53,10 @@ public class OutstandingNotionalAmountMappingProcessor extends MappingProcessor 
 		}
 
 		if (isNovation(synonymPath) && isQuantityChangeAfterTrade) {
+			AtomicInteger index = new AtomicInteger(0);
 			indexedSynonymPaths.forEach(indexedSynonymPath ->
 					quantityMap.entrySet().forEach(e ->
-							setQuantityAmountToZero(indexedSynonymPath, e.getKey(), e.getValue())));
+							setQuantityAmountToZero(indexedSynonymPath, e.getKey(), e.getValue(), index.getAndIncrement())));
 		}
 
 		// Remove out-of-date mappings
@@ -126,7 +128,7 @@ public class OutstandingNotionalAmountMappingProcessor extends MappingProcessor 
 				});
 	}
 
-	private void setQuantityAmountToZero(Path synonymPath, Path modelPath, Quantity.QuantityBuilder quantity) {
+	private void setQuantityAmountToZero(Path synonymPath, Path modelPath, Quantity.QuantityBuilder quantity, int index) {
 		Optional<String> existingCurrencyValue = Optional.ofNullable(quantity)
 				.map(MeasureBase.MeasureBaseBuilder::getUnitOfAmount)
 				.map(UnitType.UnitTypeBuilder::getCurrency)
@@ -136,7 +138,7 @@ public class OutstandingNotionalAmountMappingProcessor extends MappingProcessor 
 			quantity.setAmount(new BigDecimal(amountValue));
 
 			// Update mappings
-			updateMappings(modelPath.addElement("amount"), Path.parse("dummy"), amountValue);
+			updateMappings(modelPath.addElement("amount"), new Path().addElement("dummy", index), amountValue);
 		}
 	}
 }
