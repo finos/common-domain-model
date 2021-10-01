@@ -250,18 +250,20 @@ The Observable data type requires the specification of either a ``rateOption`` (
 
 .. code-block:: Haskell
 
- type Observable:
-   [metadata key]
-   rateOption FloatingRateOption (0..1)
-     [metadata location]
-   commodity Commodity (0..1)
-     [metadata location]
-   productIdentifier ProductIdentifier (0..*)
-     [metadata location]
-   currencyPair QuotedCurrencyPair (0..1)
-     [metadata location]
+type Observable:
+    [metadata key]
+    rateOption FloatingRateOption (0..1)
+        [metadata location]
+    commodity Commodity (0..1)
+        [metadata location]
+    productIdentifier ProductIdentifier (0..*)
+        [metadata location]
+    currencyPair QuotedCurrencyPair (0..1)
+        [metadata location]
+    optionReferenceType OptionReferenceTypeEnum (0..1)
 
-   condition: one-of
+    condition ObservableChoice:
+        required choice rateOption, commodity, productIdentifier, currencyPair
 
 SettlementTerms
 """""""""""""""
