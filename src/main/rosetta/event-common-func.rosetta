@@ -272,7 +272,6 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
 		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
 		
-
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
 	inputs:
@@ -457,7 +456,7 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
 	    and before -> tradeLot -> priceQuantity -> observable -> rateOption -> floatingRateIndex disjoint after -> tradeLot -> priceQuantity -> observable -> rateOption -> floatingRateIndex
 
 	alias spread:
-		FilterPrice( after -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> Spread )
+		FilterPrice( after -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> InterestRate, empty, empty, empty, empty, empty, SpreadTypeEnum -> Spread )
 
 	alias adjustmentSpreadAdded:
 		if spread exists
@@ -1077,7 +1076,7 @@ func Create_SecurityFinanceTransfer: <"Defines how Transfer that represents an e
         else FilterQuantityByFinancialUnit(tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, FinancialUnitEnum -> Share)
 
     alias securityPrice:
-        FilterPrice(tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> NetPrice)
+        FilterPrice(tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> AssetPrice, empty, empty, empty, empty, empty, empty)
 
 	condition:
 		if quantity exists
@@ -1155,7 +1154,7 @@ func SecurityFinanceCashSettlementAmount:
         else FilterQuantityByFinancialUnit( tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, FinancialUnitEnum -> Share)
 
     alias securityPrice: <"Specifies the price per security.">
-        FilterPrice( tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> NetPrice)
+        FilterPrice( tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> AssetPrice, empty, empty, empty, empty, empty, empty)
 
 	alias marginRatio:
 		if securityFinancePayout -> collateralProvisions -> marginPercentage -> haircutPercentage exists

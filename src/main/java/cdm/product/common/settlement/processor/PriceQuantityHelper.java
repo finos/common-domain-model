@@ -4,6 +4,7 @@ import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.observable.asset.Price;
+import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import com.regnosys.rosetta.common.translation.Path;
@@ -44,11 +45,11 @@ public class PriceQuantityHelper {
 	 * Creates a Price instance that can be referenced, e.g. the meta key is added with the DOCUMENT scope.
 	 */
 	public static FieldWithMetaPriceBuilder toReferencablePriceBuilder(
-			BigDecimal price, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceTypeEnum priceType) {
+			BigDecimal price, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceExpression priceExpression) {
 		FieldWithMetaPriceBuilder priceBuilder = FieldWithMetaPrice.builder()
 				.setValue(Price.builder()
 						.setAmount(price)
-						.setPriceType(priceType)
+						.setPriceExpression(priceExpression)
 						.setUnitOfAmount(unitOfAmount)
 						.setPerUnitOfAmount(perUnitOfAmount));
 		priceBuilder.getOrCreateMeta().addKey(Key.builder().setScope("DOCUMENT"));
