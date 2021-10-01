@@ -223,8 +223,10 @@ func Qualify_Compression: <"The qualification of a compression event from the fa
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		businessEvent -> primitives -> quantityChange exists
-		and businessEvent -> primitives -> quantityChange -> before -> trade multiple exists
+		businessEvent -> primitives -> contractFormation count = 1
+        and businessEvent -> primitives -> quantityChange count > 1
+        //and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
+
 
 func Qualify_Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
 	[qualification BusinessEvent]
@@ -266,11 +268,12 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 	assign-output is_event:
 		businessEvent -> primitives -> quantityChange exists
 		and businessEvent -> primitives -> contractFormation exists
+		and businessEvent -> primitives -> quantityChange count = businessEvent -> primitives -> contractFormation count
 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state contains ClosedStateEnum -> Novated
-		and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
+		//and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
 		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
-		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
+		//and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
 		
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
@@ -280,9 +283,10 @@ func Qualify_PartialNovation: <"The qualification of a novation event from the f
 	assign-output is_event:
 		businessEvent -> primitives -> quantityChange exists
 		and businessEvent -> primitives -> contractFormation exists
-		and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
+		and businessEvent -> primitives -> quantityChange count = businessEvent -> primitives -> contractFormation count
+        //and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
 		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
-		and businessEvent -> effectiveDate all = NovatedContractEffectiveDate(businessEvent)
+		//and businessEvent -> effectiveDate all = NovatedContractEffectiveDate(businessEvent)
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
 
 func Qualify_PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
