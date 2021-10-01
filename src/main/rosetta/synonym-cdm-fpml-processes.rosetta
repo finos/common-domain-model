@@ -51,6 +51,7 @@ synonym source FpML_5_10_Processes extends FpML_5_10
         + eventDate
             [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
             [value "executionDateTime" path "novation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "novationTradeDate" path "novation" maps 2]
 
     MessageInformation:
         + messageId
@@ -101,7 +102,7 @@ synonym source FpML_5_10_Processes extends FpML_5_10
                 [value "originalTrade" mapper "Party"]
                 [value "newTrade" mapper "Party"]
                 [value "oldTrade" mapper "NovationParty"]
-                [hint "outstandingNotionalAmount", "sizeChange", "novationAmount", "novationTradeDate"]
+                [hint "outstandingNotionalAmount", "sizeChange", "novationAmount", "novatedAmount", "novationTradeDate"]
             - transferHistory
             + transferHistory
                 [value "ignore"]
@@ -114,13 +115,15 @@ synonym source FpML_5_10_Processes extends FpML_5_10
         + tradeLot
             [value "outstandingNotionalAmount",
                 "outstandingNotionalAmount" path "sizeChange",
-                "outstandingNotionalAmount" path "novationAmount"
+                "outstandingNotionalAmount" path "novationAmount",
+                "novatedAmount"
                     mapper "OutstandingNotionalAmount"]
 
     ClosedState:
         + state
             [set to ClosedStateEnum -> Terminated when "outstandingNotionalAmount->amount" = "0"] // TODO: add support for floating point number comparison, e.g., "amount" = 0.0
-            [set to ClosedStateEnum -> Novated when path = "novation" and rosettaPath = BusinessEvent -> primitives -> quantityChange -> after -> state -> closedState]
+            [set to ClosedStateEnum -> Novated when path = "novation"
+                and rosettaPath = BusinessEvent -> primitives -> quantityChange -> after -> state -> closedState]
         + activityDate
             [value "executionDateTime" dateFormat "yyyy-MM-dd'T'HH:mm:ssz" mapper "SetIfClosed"]
         + effectiveDate

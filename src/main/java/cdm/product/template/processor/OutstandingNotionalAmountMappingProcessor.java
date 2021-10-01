@@ -52,11 +52,18 @@ public class OutstandingNotionalAmountMappingProcessor extends MappingProcessor 
 							setQuantityAmountToOutstandingNotional(indexedSynonymPath, e.getKey(), e.getValue())));
 		}
 
-		if (isNovation(synonymPath) && isQuantityChangeAfterTrade) {
+		if (isFullNovation(synonymPath) && isQuantityChangeAfterTrade) {
 			AtomicInteger index = new AtomicInteger(0);
 			indexedSynonymPaths.forEach(indexedSynonymPath ->
 					quantityMap.entrySet().forEach(e ->
 							setQuantityAmountToZero(indexedSynonymPath, e.getKey(), e.getValue(), index.getAndIncrement())));
+		}
+
+		if (isPartialNovation(synonymPath) && isQuantityChangeAfterTrade) {
+			AtomicInteger index = new AtomicInteger(0);
+			indexedSynonymPaths.forEach(indexedSynonymPath ->
+					quantityMap.entrySet().forEach(e ->
+							setQuantityAmountToRemaining(indexedSynonymPath, e.getKey(), e.getValue(), index.getAndIncrement())));
 		}
 
 		// Remove out-of-date mappings
@@ -76,6 +83,14 @@ public class OutstandingNotionalAmountMappingProcessor extends MappingProcessor 
 
 	private boolean isNovation(Path synonymPath) {
 		return synonymPath.toString().contains(".novation.");
+	}
+
+	private boolean isFullNovation(Path synonymPath) {
+		return synonymPath.toString().contains(".novation.") && !synonymPath.endsWith("novatedAmount");
+	}
+
+	private boolean isPartialNovation(Path synonymPath) {
+		return synonymPath.toString().contains(".novation.") && synonymPath.endsWith("novatedAmount");
 	}
 
 	private boolean isTermination(Path synonymPath) {
@@ -134,11 +149,36 @@ public class OutstandingNotionalAmountMappingProcessor extends MappingProcessor 
 				.map(UnitType.UnitTypeBuilder::getCurrency)
 				.map(FieldWithMetaString::getValue);
 		if (existingCurrencyValue.isPresent()) {
-			String amountValue = "0.0";
+			String amountValue = "0";
 			quantity.setAmount(new BigDecimal(amountValue));
 
 			// Update mappings
-			updateMappings(modelPath.addElement("amount"), new Path().addElement("dummy", index), amountValue);
+			updateMappings(modelPath.addElement("amount"), new Path().addElement("dummy.terminated-amount", index), amountValue);
+		}
+	}
+
+	private void setQuantityAmountToRemaining(Path synonymPath, Path modelPath, Quantity.QuantityBuilder quantity, int index) {
+		Path amountSynonymPath = synonymPath.addElement("amount");
+		Optional<Mapping> afterNotionalAmount = MappingProcessorUtils.getNonNullMapping(getMappings(), amountSynonymPath);
+		Path currencySynonymPath = synonymPath.addElement("currency");
+		Optional<Mapping> afterNotionalCurrency = MappingProcessorUtils.getNonNullMapping(getMappings(), currencySynonymPath);
+
+		if (afterNotionalCurrency.isPresent() && afterNotionalAmount.isPresent() && quantity.getAmount() != null) {
+			String currencyValue = (String) afterNotionalCurrency.get().getXmlValue();
+			String existingCurrencyValue = Optional.ofNullable(quantity)
+					.map(MeasureBase.MeasureBaseBuilder::getUnitOfAmount)
+					.map(UnitType.UnitTypeBuilder::getCurrency)
+					.map(FieldWithMetaString::getValue)
+					.orElse(null);
+			if (currencyValue.equals(existingCurrencyValue)) {
+				// calculate remaining amount from novated amount
+				BigDecimal amountValue = quantity.getAmount().subtract(new BigDecimal((String) afterNotionalAmount.get().getXmlValue()));
+				quantity.setAmount(amountValue);
+
+				// Update mappings
+				updateMappings(modelPath.addElement("amount"), new Path().addElement("dummy.remaining-amount", index), amountValue.toString());
+				updateMappings(modelPath.addElement("unitOfAmount").addElement("currency").addElement("value"), new Path().addElement("dummy.remaining-currency", index), currencyValue);
+			}
 		}
 	}
 }
