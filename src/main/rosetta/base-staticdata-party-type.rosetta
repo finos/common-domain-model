@@ -140,13 +140,18 @@ type LegalEntity: <"A class to specify a legal entity, with a required name and 
 type NaturalPerson: <"A class to represent the attributes that are specific to a natural person.">
 	[metadata key]
 
+	personId string (0..*) <"The identifier associated with a person, e.g. the internal identification code.">
+		[metadata scheme]
 	honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">
-	firstName string (1..1) <"The natural person's first name. It is optional in FpML.">
-	middleName string (0..*)
-	initial string (0..*)
-	surname string (1..1) <"The natural person's surname.">
+	firstName string (0..1) <"The natural person's first name. It is optional in FpML.">
+	middleName string (0..*) <"The natural person's middle name(s). If a middle name is provided then an initial should be absent.">
+	initial string (0..*) <"The natural person's middle initial(s). If a middle initial is provided then a name should be absent.">
+	surname string (0..1) <"The natural person's surname.">
 	suffix string (0..1) <"Name suffix, such as Jr., III, etc.">
 	dateOfBirth date (0..1) <"The natural person's date of birth.">
+
+	condition NameOrIdChoice: 
+        (firstName exists and surname exists) or personId exists
 
 	condition NaturalPersonChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice middleName, initial
@@ -155,7 +160,7 @@ type NaturalPersonRole: <"A class to specify the role(s) that natural person(s) 
 
 	personReference NaturalPerson (1..1) <"A reference to the natural person to whom the role refers to.">
 		[metadata reference]
-	role NaturalPersonRoleEnum (0..1) <"FpML specifies a person role that is distinct from the party role.">
+	role NaturalPersonRoleEnum (0..*) <"FpML specifies a person role that is distinct from the party role.">
 		[metadata scheme]
 
 type Party: <"A class to specify a party, without a qualification as to whether this party is a legal entity or a natural person, although the model provides the ability to associate a person (or set of persons) to a party, which use case would imply that such party would be a legal entity (even if not formally specified as such). ">
