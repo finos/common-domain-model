@@ -2394,11 +2394,13 @@ The ``LegalEntity`` type is used when only a legal entity reference is appropria
 
  type NaturalPerson:
    [metadata key]
+   personId string (0..*)
+     [metadata scheme]
    honorific string (0..1)
-   firstName string (1..1)
+   firstName string (0..1)
    middleName string (0..*)
    initial string (0..*)
-   surname string (1..1)
+   surname string (0..1)
    suffix string (0..1)
    dateOfBirth date (0..1)
 

@@ -513,6 +513,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "paymentDelay"]
 			[hint "paymentDate"]
 			[hint "adjustablePaymentDate"]
+			[hint "adjustedPaymentDate"]
 		+ buyerSeller
 			[hint "payerPartyReference"]
 			[hint "receiverPartyReference"]
@@ -568,7 +569,8 @@ synonym source FpML_5_10 extends FpML
  			[set to PriceTypeEnum->CashPrice when path = "additionalPayment->paymentAmount"]
  			[set to PriceTypeEnum->CashPrice when path = "otherPartyPayment->paymentAmount"]
  			[set to PriceTypeEnum->CashPrice when path = "initialPayment->paymentAmount"]
- 			[set to PriceTypeEnum->CashPrice when path = "singlePayment->fixedAmount"]
+ 			[set to PriceTypeEnum->CashPrice when path = "bulletPayment->payment->paymentAmount"]
+            [set to PriceTypeEnum->CashPrice when path = "singlePayment->fixedAmount"]
  			[set to PriceTypeEnum->CashPrice when path = "premium->paymentAmount"]
  			[set to PriceTypeEnum->CashPrice when path = "equityPremium->paymentAmount"]
  			[set to PriceTypeEnum->ExchangeRate when path = "exchangeRate" and "rate" exists]
@@ -686,6 +688,7 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementCurrency" meta "currencyScheme"]
 			[value "settlementCurrency" path "settlementProvision"]
 			[value "cashSettlementCurrency" meta "currencyScheme"]
+			[value "cashSettlementCurrency" path "cashSettlement->cashPriceMethod"]
 			[value "settlementCurrency" path "cashSettlementTerms"]
 			[value "settlementCurrency" path "physicalSettlementTerms"]
 			[value "settlementCurrency" path "nonDeliverableSettlement"]
@@ -696,6 +699,7 @@ synonym source FpML_5_10 extends FpML
 	SettlementTerms:
 		+ settlementDate
 			[value "cashSettlement"]
+			[value "cashSettlementPaymentDate" path "cashSettlement"]
 			[hint "valueDate"]
 			[hint "settlementDate"]
 			[value "americanExercise"]
@@ -706,6 +710,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "paymentDelay"]
 			[hint "paymentDate"]
 			[hint "adjustablePaymentDate"]
+			[hint "adjustedPaymentDate"]
 		+ cashSettlementTerms
 			[value "cashSettlement"]
 			[value "cashSettlementTerms"]
@@ -1208,11 +1213,12 @@ synonym source FpML_5_10 extends FpML
         [meta "id" path "settlementDate"]
         [meta "id" path "cashSettlementPaymentDate"]
 		+ adjustedDate
-			[value "cashSettlementPaymentDate"]
+			[hint "relativeDate"]
 			[value "settlementDate"]
 			[value "relativePaymentDates"]
 			[value "paymentDates"]
 			[hint "adjustablePaymentDate"]
+			[hint "adjustedPaymentDate"]			
 			[value "paymentDate" set when "paymentAmount" exists /*and rosettaPath = PriceQuantity->settlementTerms->settlementDate*/]
 		+ valueDate
 			[value "valueDate"]
@@ -1257,7 +1263,7 @@ synonym source FpML_5_10 extends FpML
 	EarlyTerminationProvision:
 		[meta "id"]
 		+ mandatoryEarlyTermination
-			[value "mandatoryEarlyProvision"]
+			[value "mandatoryEarlyTermination"]
 		+ mandatoryEarlyTerminationDateTenor
 			[value "mandatoryEarlyTerminationDateTenor"]
 		+ optionalEarlyTermination
@@ -1405,7 +1411,7 @@ synonym source FpML_5_10 extends FpML
 		+ calculationAgent
 			[value "calculationAgent"]
 		+ cashSettlement
-			[value "cashSettlement"]
+			[hint "cashSettlement"]
 		+ mandatoryEarlyTerminationAdjustedDates
 			[value "mandatoryEarlyTerminationAdjustedDates"]
 
@@ -1435,7 +1441,7 @@ synonym source FpML_5_10 extends FpML
 		+ calculationAgent
 			[value "calculationAgent"]
 		+ cashSettlement
-			[value "cashSettlement"]
+			[hint "cashSettlement"]
 		+ optionalEarlyTerminationAdjustedDates
 			[value "optionalEarlyTerminationAdjustedDates"]
 
@@ -1835,6 +1841,7 @@ synonym source FpML_5_10 extends FpML
 			[value "tradeId" meta "tradeIdScheme"]
 			[value "tradeId" path "versionedTradeId" meta "tradeIdScheme"]
 			[value "businessUnitId" meta "unitScheme"]
+			[value "eventId"]
 		+ version
 			[value "version" path "versionedTradeId"]
 			[value "version"]
@@ -2365,6 +2372,7 @@ synonym source FpML_5_10 extends FpML
 			[value "swapStream"]
 			[value "capFloorStream"]
 			[value "fra"]
+			[value "payment"]
 			// Credit
 			[value "singlePayment" path "feeLeg", "initialPayment" path "feeLeg"]
 			[value "periodicPayment" path "feeLeg"]
@@ -2409,6 +2417,7 @@ synonym source FpML_5_10 extends FpML
 			[value "capFloor"]
 			[hint "fra"]
 			[hint "bondOption"]
+			[value "bulletPayment"]
 			// Credit
 			[value "creditDefaultSwap", "creditDefaultSwap" path "creditDefaultSwapOption", "creditDefaultSwapOption"]
 			// FX
@@ -2541,6 +2550,7 @@ synonym source FpML_5_10 extends FpML
 			[value "adjustedDate" path "paymentDate->adjustableDate" meta "id"]
 			[value "adjustedTerminationDate"]
 			[value "adjustedEffectiveDate"]
+			[value "adjustedPaymentDate"]			
 			//for FX Option
 			[value "expiryDate" maps 2]
 
@@ -2580,7 +2590,7 @@ synonym source FpML_5_10 extends FpML
 			[value "adjustedDate" path "paymentDate" meta "id"]
 			[value "adjustedDate" path "adjustableDate" meta "id"]
 			[value "adjustedPaymentDate" meta "id"]
-			[value "adjustedPaymentDate" path "FpML"]
+			[value "adjustedPaymentDate" path "FpML"]	
 		+ relativeDate
 			[value "relativeDate"]
 			[value "relativeDate" path "paymentDate"]
@@ -2818,6 +2828,8 @@ synonym source FpML_5_10 extends FpML
 
 	NaturalPerson:
 	 	[value "Person" meta "id"]
+		+ personId
+			[value "personId" meta "personIdScheme"]
 		+ honorific
 			[value "honorific"]
 		+ firstName
@@ -2966,6 +2978,11 @@ synonym source FpML_5_10 extends FpML
 			[set to CashSettlementMethodEnum -> ZeroCouponYieldAdjustedMethod when "zeroCouponYieldAdjustedMethod" exists]
 			[set to CashSettlementMethodEnum -> CrossCurrencyMethod when "crossCurrencyMethod" exists]
 			[set to CashSettlementMethodEnum -> CollateralizedCashPriceMethod when "collateralizedCashPriceMethod" exists]
+			[set to CashSettlementMethodEnum -> MidMarketIndicativeQuotations when "midMarketValuation->indicativeQuotations" exists]
+			[set to CashSettlementMethodEnum -> MidMarketIndicativeQuotationsAlternate when "midMarketValuation->indicativeQuotationsAlternate" exists]
+			[set to CashSettlementMethodEnum -> MidMarketCalculationAgentDetermination when "midMarketValuation->calculationAgentDetermination" exists]
+			[set to CashSettlementMethodEnum -> ReplacementValueFirmQuotations when "replacementValue->firmQuotations" exists]
+			[set to CashSettlementMethodEnum -> ReplacementValueCalculationAgentDetermination when "replacementValue->calculationAgentDetermination" exists]
 		+ valuationDate
 			[value "fixing"]
 			[value "rateSourceFixing"]
@@ -2997,6 +3014,8 @@ synonym source FpML_5_10 extends FpML
 			[value "crossCurrencyMethod"]
 			[value "collateralizedCashPriceMethod"]
             [hint "minimumQuotationAmount", "quotationAmount", "quotationMethod"]
+			[value "midMarketValuation"]
+			[value "replacementValue"]
 
     PhysicalSettlementTerms:
 		+ physicalSettlementPeriod
@@ -3146,16 +3165,6 @@ synonym source FpML_5_10 extends FpML
 			[value "businessDays"]
 		+ maximumBusinessDays
 			[value "maximumBusinessDays"]
-
-	PhysicalSettlementTerms:
-		+ physicalSettlementPeriod
-			[value "physicalSettlementPeriod"]
-		+ deliverableObligations
-			[value "deliverableObligations"]
-		+ escrow
-			[value "escrow"]
-		+ sixtyBusinessDaySettlementCap
-			[value "sixtyBusinessDaySettlementCap"]
 
 	ProtectionTerms:
 	 	[value "ProtectionTerms" meta "id"]
@@ -3384,6 +3393,7 @@ synonym source FpML_5_10 extends FpML
 			[set to FinancialUnitEnum->ContractualProduct when path = "additionalPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "otherPartyPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "initialPayment->paymentAmount->amount"]
+			[set to FinancialUnitEnum->ContractualProduct when path = "bulletPayment->payment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "singlePayment->fixedAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "premium->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "equityPremium->paymentAmount->amount"]
@@ -7826,17 +7836,6 @@ synonym source FpML_5_12 extends FpML_5_10
 		 	[value "partyDetermination" path "protectedParty"]
 		+ prescribedDocumentationAdjustment
 			[value "prescribedDocumentationAdjustment"]
-
-	CashSettlementTerms:
-		+ cashSettlementMethod
-			[set to CashSettlementMethodEnum -> MidMarketIndicativeQuotations when "midMarketValuation->indicativeQuotations" exists]
-			[set to CashSettlementMethodEnum -> MidMarketIndicativeQuotationsAlternate when "midMarketValuation->indicativeQuotationsAlternate" exists]
-			[set to CashSettlementMethodEnum -> MidMarketCalculationAgentDetermination when "midMarketValuation->calculationAgentDetermination" exists]
-			[set to CashSettlementMethodEnum -> ReplacementValueFirmQuotations when "replacementValue->firmQuotations" exists]
-			[set to CashSettlementMethodEnum -> ReplacementValueCalculationAgentDetermination when "replacementValue->calculationAgentDetermination" exists]
-		+ valuationMethod
-			[value "midMarketValuation"]
-			[value "replacementValue"]
 
 	LegalEntity:
 		+ name
