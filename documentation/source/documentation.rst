@@ -250,18 +250,22 @@ The Observable data type requires the specification of either a ``rateOption`` (
 
 .. code-block:: Haskell
 
- type Observable:
-   [metadata key]
-   rateOption FloatingRateOption (0..1)
-     [metadata location]
-   commodity Commodity (0..1)
-     [metadata location]
-   productIdentifier ProductIdentifier (0..*)
-     [metadata location]
-   currencyPair QuotedCurrencyPair (0..1)
-     [metadata location]
+type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+	[metadata key]
 
-   condition: one-of
+	rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
+		[metadata location]
+	commodity Commodity (0..1) <"Identifies a commodity by referencing a product identifier.">
+		[metadata location]
+	productIdentifier ProductIdentifier (0..*) <"Comprises of an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+		[metadata location]
+		[synonym Workflow_Event value "productIdentifier"]
+	currencyPair QuotedCurrencyPair (0..1) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
+        [metadata location]
+	optionReferenceType OptionReferenceTypeEnum (0..1) <"The underlying contract which is referenced when determining the final settlement price of the instrument. Eg. Rolling Front Month Future; Spot etc.">
+
+	condition ObservableChoice: <"An observable can only be composed of one type any time.">
+		required choice rateOption, commodity, productIdentifier, currencyPair
 
 SettlementTerms
 """""""""""""""
