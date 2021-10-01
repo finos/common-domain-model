@@ -229,7 +229,7 @@ type IndexTransitionInstruction: <"Defines the information needed to create a In
 	cashTransfer Transfer (0..1) <"Specifies the cash transfer that can optionally be tied to an index transition event.">
 
 	condition:
-		priceQuantity -> price -> priceType contains PriceTypeEnum -> Spread
+		priceQuantity -> price -> priceExpression -> priceType contains PriceTypeEnum -> InterestRate
 		and priceQuantity -> observable -> rateOption exists
 		and priceQuantity -> quantity is absent
 
@@ -825,3 +825,7 @@ type BillingSummary: <"Specifies individual summaries within a billing invoice."
             then summaryTransfer->payerReceiver->payerAccountReference exists
             and summaryTransfer->payerReceiver->receiverAccountReference exists
 
+type TradePricingReport: <"The attributes that are specific for consensus based pricing reporting.">
+   trade Trade (1..1) <"Represents the cosensus based pricing parameters on a trade basis.">
+   pricingTime TimeZone (1..1) <"The regional exchange close time for the underlying contract,including time zone, at which the trades should be priced. This provides an indication for which regional snapshot should be used for pricing primarily for Global markets where there are multiple regional close times.">
+   discountingIndex FloatingRateIndexEnum (0..1) <"It specifies the interest payable on collateral delivered under a CSA covering the trade.">

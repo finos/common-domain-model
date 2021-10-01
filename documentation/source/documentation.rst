@@ -107,7 +107,6 @@ The price and quantity attributes of a trade, or of a leg of a trade in the case
    buyerSeller BuyerSeller (0..1)
    settlementTerms SettlementTerms (0..1)
    effectiveDate AdjustableOrRelativeDate (0..1)
-   cashflowDetails CashflowDetails (0..1)
 
 .. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
 
@@ -163,7 +162,7 @@ The ``Price`` data type extends the ``MeasureBase`` data type with the addition 
 .. code-block:: Haskell
 
  type Price extends MeasureBase:
-   priceType PriceTypeEnum (1..1)
+   priceExpression PriceExpression (1..1)
    perUnitOfAmount UnitType (1..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
@@ -184,7 +183,10 @@ Consider the example below for the initial price of the underlying equity in a s
                 "perUnitOfAmount": {
                   "financialUnit": "SHARE"
                 },
-                "priceType": "NET_PRICE"
+		"priceExpression": {
+                  "priceType": "ASSET_PRICE",
+		  "grossOrNet": "NET"
+		},
               },
               "meta": {
                 "location": [
@@ -197,7 +199,7 @@ Consider the example below for the initial price of the underlying equity in a s
             }
           ]
 
-The full form of this example can be seen in the CDM Portal Ingestion panel, products->equity->eqs-ex01-single-underlyer-execution-long-form-other-party.xml.  As can be seen in the full example, for an interest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency, (e.g. 0.002 USD per USD) and the ``priceType`` would be a Spread (in the case of a floating leg, as in this example) or an InterestRate (in the case of a fixed leg).
+The full form of this example can be seen in the CDM Portal Ingestion panel, products->equity->eqs-ex01-single-underlyer-execution-long-form-other-party.xml.  As can be seen in the full example, for an interest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency (e.g. 0.002 USD per USD). The  ``priceType`` would be an InterestRate and, in the case of a floating leg, the ``spreadType`` would be a Spread.
 
 Quantity
 """"""""
@@ -248,18 +250,20 @@ The Observable data type requires the specification of either a ``rateOption`` (
 
 .. code-block:: Haskell
 
- type Observable:
-   [metadata key]
-   rateOption FloatingRateOption (0..1)
-     [metadata location]
-   commodity Commodity (0..1)
-     [metadata location]
-   productIdentifier ProductIdentifier (0..*)
-     [metadata location]
-   currencyPair QuotedCurrencyPair (0..1)
-     [metadata location]
+type Observable:
+    [metadata key]
+    rateOption FloatingRateOption (0..1)
+        [metadata location]
+    commodity Commodity (0..1)
+        [metadata location]
+    productIdentifier ProductIdentifier (0..*)
+        [metadata location]
+    currencyPair QuotedCurrencyPair (0..1)
+        [metadata location]
+    optionReferenceType OptionReferenceTypeEnum (0..1)
 
-   condition: one-of
+    condition ObservableChoice:
+        required choice rateOption, commodity, productIdentifier, currencyPair
 
 SettlementTerms
 """""""""""""""
@@ -1908,12 +1912,14 @@ Floating Rate Option/Index Features
 The CDM includes features for retrieving information about floating rate options and for calculating custom ("modular") floating rates.
 
 Functions for retrieving information about FROs include:
+
 * ``IndexValueObservation``: Retrieve the values of the supplied index on the specified observation date.
 * ``IndexValueObservationMultiple``: Retrieve the values of the supplied index on the specified observation dates.
 * ``FloatingRateIndexMetadata``: Retrieve all available metadata for the floating rate index.
 * ``ValidateFloatingRateIndexName``: Return whether the supplied floating rate index name is valid for the supplied contractual definitions.
 
 Functions for calculating modular floating rates include:
+
 * ``EvaluateCalculatedRate``: Evaluate a calculated rate as described in the 2021 ISDA Definitions, Section 7
 * ``GenerateObservationDatesAndWeights``: Apply shifts to generate the list of observation dates and weights for each of those dates
 * ``ComputeCalculationPeriod``: Determine the calculation period to use for computing the calculated rate (it may not be the same as the normal calculation period, for instance if the rate is set in advance)
@@ -1931,6 +1937,7 @@ Fixed Amount and Floating Amount Definitions
 The CDM includes preliminary features for calculating fixed and floating amounts for interest rate payouts.
 
 Base calculation functions include:
+
 * ``FixedAmountCalculation``: Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction
 * ``LookupFixedRate``: Look up the fixed rate for a calculation period
 * ``FloatingAmountCalculation``: Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction.  Floating amount calculations are described in the 2021 ISDA Definitions in Section 6 and 7.
@@ -1941,6 +1948,7 @@ Base calculation functions include:
 * ``CalculateYearFraction``: Calculate the year fraction for a single calculation period, by invoking the base year fraction logic
 
 Floating rate processing an calculation functions include:
+
 * ``DetermineFloatingRateReset``: Get the value of a floating rate by either observing it directly or performing a rate calculation.  This function works differently depending on the rate category and style, as described in the 2021 ISDA Definitions, Section 6.6.
 * ``GetFloatingRateProcessingType``:  Get a classification of  the floating rate is processed. This is based on FRO category, style, and calculation method, as described in the 2021 ISDA Definitions Section 6.6.  The categorization information is obtained from the FRO metadata.
 * ``ProcessFloatingRateReset``: Entry point for the function that performs the floating rate resetting operation.  There are different variations depending on the processing type (e.g. screen rate, OIS, modular calculated rate).
@@ -1972,30 +1980,26 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
 
 .. code-block:: Haskell
 
-func FloatingAmount:
-	[calculation]
-	inputs:
-		interestRatePayout InterestRatePayout (1..1)
-		spread number (1..1)
-		rate number (1..1)
-		quantity Quantity (1..1)
-		date date (1..1)
-		calculationPeriodData CalculationPeriodData (0..1)
-
-	output:
-	    floatingAmount number (1..1)
-
-	alias calculationAmount:
-	    quantity -> amount
-
-	alias calculationPeriod:
-		if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
-
-	alias dayCountFraction:
-	    DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date, calculationPeriod)
-
-	assign-output floatingAmount:
-	    calculationAmount * (rate + spread) * dayCountFraction
+ func FloatingAmount:
+   [calculation]
+   inputs:
+     interestRatePayout InterestRatePayout (1..1)
+     spread number (1..1)
+     rate number (1..1)
+     quantity Quantity (1..1)
+     date date (1..1)
+     calculationPeriodData CalculationPeriodData (0..1)
+   output:
+     floatingAmount number (1..1)
+   
+   alias calculationAmount:
+     quantity -> amount
+   alias calculationPeriod:
+     if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
+   alias dayCountFraction:
+     DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date, calculationPeriod)
+   assign-output floatingAmount:
+     calculationAmount * (rate + spread) * dayCountFraction
 
 Day Count Fraction
 """"""""""""""""""
@@ -2390,11 +2394,13 @@ The ``LegalEntity`` type is used when only a legal entity reference is appropria
 
  type NaturalPerson:
    [metadata key]
+   personId string (0..*)
+     [metadata scheme]
    honorific string (0..1)
-   firstName string (1..1)
+   firstName string (0..1)
    middleName string (0..*)
    initial string (0..*)
-   surname string (1..1)
+   surname string (0..1)
    suffix string (0..1)
    dateOfBirth date (0..1)
 
