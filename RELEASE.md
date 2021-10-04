@@ -2,9 +2,9 @@
 
 _What is being released?_
 
-The data type `ConcentrationLimit` has various attributes to define a concentration limit type and criteria but also provides a means for how to express the concentration limit as a number value or a percentage.  The corresponding data attributes `valueCap` and `percentageCap` only allowed for expression of a higher limit (cap). These have been renamed and refactored to `valueLimit` and `percentageLimit` and will now allow the user to express both an upper and lower limit (cap and floor) as a number value or percentage. 
+The data type `ConcentrationLimit` has various attributes to define a concentration limit by criteria but also provides a means for how to express the concentration limit as a number value or a percentage.  The corresponding data attributes `valueCap` and `percentageCap` only allowed for expression of a higher limit (cap). These have been renamed and refactored to `valueLimit` and `percentageLimit` and will now allow the user to express both an upper and lower limit (cap and floor) as a number value or percentage. 
 
-In addition to this, data attribute `ConcentrationLimitTypeEnum`, an additional option has been added to the enumeration list to specify `IssueOutstandingAmount` The user can now express concentration limits on an assets outstanding amount issued on the market.
+In addition to this, data attribute `ConcentrationLimitTypeEnum`, an additional option has been added to the enumeration list to specify `IssueOutstandingAmount` The user can now express concentration limits on an asset's outstanding amount issued on the market.
 
 
 _Review Directions_
