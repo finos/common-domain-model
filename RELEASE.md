@@ -70,4 +70,20 @@ _Review Directions_
 In the CDM Portal, select the Textual Browser and navigate to the above data type.
 In the CDM Portal, select the Ingestion panel and review sample trades specified above, specifically `ird-ex16-mand-term-swap` and `ird-ex17-opt-euro-term-swap`.
 
-# *Product Model - FINOS*
+# *Product Model - FINOS - Product Control Consensus Pricing Services*
+
+_What is being released?_
+
+A new object `TradePricingReport` and new property `optionReferenceType` has been added to support the Product Control Consensus Pricing Services on Equity Vanilla Options. The additional object and property together with the existing `OptionPayout` object will be used to form the common template data model that include all the attributes where vendors are expected to require to run valuation processes and return consensus data to the banks.
+
+_Details_
+
+- `TradePricingReport` – Object created with new data attributes `PricingTime` (data type `timezone`) and `DiscountingIndex` (data type `FloatingRateIndexEnum`) to specify the time and discounting curve used to price an option and existing attribute `Trade` to specify the option trade details.
+- `OptionReferenceType` - Added to `Observation` to allow specification of what product reference source is used to calculate the option price.
+- `OptionReferenceTypeEnum` – New enum types created and included in `OptionReferenceType` to capture the reference source type for option pricing; enums include Future and Spot.
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser and review the types and enumerations specified above.
+
+
