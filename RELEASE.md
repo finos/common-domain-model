@@ -34,3 +34,54 @@ This release adds the day count fraction `ACT/ACT.ISMA` to the model denoting a 
 _Review Directions_
 
 In the CDM Portal, select the Textual Browser and navigate to the above enumeration.
+
+
+# *Product Model - Early Termination Provisions*
+
+_What is being released?_
+
+This release adjusts data types `OptionalEarlyTermination` and `MandatoryEarlyTermination` to contain the required settlement terms data type and adds synonym mappings for Optional and Mandatory Early Termination events in the CDM.
+
+_Details_
+
+- `OptionalEarlyTermination->cashSettlement` updated to be of data type `SettlementTerms` in order to include `settlementDate`
+- `MandatoryEarlyTermination->cashSettlement` updated to be of data type `SettlementTerms` in order to include `settlementDate`
+- Synonym mappings added to support ingestion of FpML 5.10
+- The following trades contained in the `fpml-5-10 > incomplete-products > interest-rate-derivatives` folder have been moved to `fpml-5-10 > products > rates`
+    - ird-ex11-euro-swaption-partial-auto-ex
+    - ird-ex13-euro-swaption-cash-with-cfs
+    - ird-ex14-berm-swaption
+    - ird-ex15-amer-swaption
+    - ird-ex16-mand-term-swap
+    - ird-ex17-opt-euro-term-swap
+    - ird-ex18-opt-berm-term-swap
+    - ird-ex19-opt-amer-term-swap
+    - ird-ex20-euro-cancel-swap
+    - ird-ex21-euro-extend-swap
+    - ird-ex26-fxnotional-swap-with-cfs
+    - ird-ex28-bullet-payments
+    - ird-ex31-non-deliverable-settlement-swap
+    - ird-ex34-MXN-swap
+    - ird-ex35-inverse-floater-inverse-vs-floating
+    - ird-ex36-amer-swaption-pred-clearing
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser and navigate to the above data type.
+In the CDM Portal, select the Ingestion panel and review sample trades specified above, specifically `ird-ex16-mand-term-swap` and `ird-ex17-opt-euro-term-swap`.
+
+# *Product Model - FINOS - Product Control Consensus Pricing Services*
+
+_What is being released?_
+
+A new object `TradePricingReport` and new property `optionReferenceType` has been added to support the Product Control Consensus Pricing Services on Equity Vanilla Options. The additional object and property together with the existing `OptionPayout` object will be used to form the common template data model that include all the attributes where vendors are expected to require to run valuation processes and return consensus data to the banks.
+
+_Details_
+
+- `TradePricingReport` – Object created with new data attributes `PricingTime` (data type `timezone`) and `DiscountingIndex` (data type `FloatingRateIndexEnum`) to specify the time and discounting curve used to price an option and existing attribute `Trade` to specify the option trade details.
+- `OptionReferenceType` - Added to `Observation` to allow specification of what product reference source is used to calculate the option price.
+- `OptionReferenceTypeEnum` – New enum types created and included in `OptionReferenceType` to capture the reference source type for option pricing; enums include Future and Spot.
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser and review the types and enumerations specified above.
