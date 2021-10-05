@@ -1,4 +1,4 @@
-# *Concentration Limit – Refactor value and percentage cap to allow for upper and lower limit range. Addition of concentration limit type (Issue Outstanding Amount)*
+# *Concentration Limit – Refactor value and percentage cap. Addition of concentration limit type (Issue Outstanding Amount)*
 
 _What is being released?_
 
