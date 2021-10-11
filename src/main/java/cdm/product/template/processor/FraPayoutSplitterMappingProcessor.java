@@ -19,12 +19,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
+import static cdm.observable.asset.metafields.ReferenceWithMetaFloatingRateOption.ReferenceWithMetaFloatingRateOptionBuilder;
+import static cdm.product.asset.FloatingRate.FloatingRateBuilder;
+import static cdm.product.asset.RateSpecification.RateSpecificationBuilder;
 import static cdm.product.template.processor.FraHelper.getDummyFloatingLegPath;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 /**
- * FpML FRAs are represented as single leg, but in the CDM FRAs are represented with a fixed and a floating leg.
+ * FpML FRAs are represented as <fra> xml element, but in the CDM FRAs are represented with a fixed and a floating leg.
  *
  * FpML synonyms map the input FpML onto a single InterestRatePayout, then this mapper splits it into a fixed and floating InterestRatePayout.
  */
@@ -44,7 +47,7 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
 		@SuppressWarnings("unchecked")
 		List<InterestRatePayoutBuilder> interestRatePayouts = (List<InterestRatePayoutBuilder>) emptyIfNull(builder);
-		if (interestRatePayouts.size() == 1) {
+		if (interestRatePayouts.size() == 1 && interestRatePayouts.get(0).getRateSpecification() != null) {
 			InterestRatePayoutBuilder fixedLeg = interestRatePayouts.get(0);
 			InterestRatePayoutBuilder floatingLeg = interestRatePayouts.get(0).build().toBuilder();
 			interestRatePayouts.add(floatingLeg);
@@ -60,7 +63,10 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	 */
 	private void updateFixedLeg(InterestRatePayoutBuilder fixedLeg) {
 		fixedLeg.getRateSpecification().setFloatingRate(null);
-		fixedLeg.getOrCreateResetDates().setFixingDates(null).prune();
+
+		if (fixedLeg.getResetDates() != null) {
+			fixedLeg.getResetDates().setFixingDates(null);
+		}
 	}
 
 	/**
@@ -106,8 +112,14 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	}
 
 	private void updateFloatingRateIndexReference(Mapping mapping, InterestRatePayoutBuilder floatingLeg) {
+		Reference.ReferenceBuilder reference = Optional.of(floatingLeg)
+				.map(InterestRatePayoutBuilder::getRateSpecification)
+				.map(RateSpecificationBuilder::getFloatingRate)
+				.map(FloatingRateBuilder::getRateOption)
+				.map(ReferenceWithMetaFloatingRateOptionBuilder::getReference)
+				.orElse(null);
+		mapping.setRosettaValue(reference);
 		mapping.setRosettaPath(PriceQuantityHelper.incrementPathElementIndex(mapping.getRosettaPath(), "interestRatePayout", 1));
-		mapping.setRosettaValue(floatingLeg.getRateSpecification().getFloatingRate().getRateOption().getReference());
 	}
 
 	private void updateFloatingLegParties(InterestRatePayoutBuilder floatingLeg) {
