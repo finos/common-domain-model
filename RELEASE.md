@@ -1,4 +1,4 @@
-# *Product Model - FpML mapping for FRAs*
+# *Product Model - FpML Synonym Mapping for Forward Rate Agreements*
 
 _What is being released?_
 
@@ -6,7 +6,7 @@ This release updates the FpML mappings for FRAs to cover `PriceQuantity`.
 
 _Details_
 
-FpML represents FRAs in a single `<fra>` xml element which is currently mapped into separate fixed and floating `InterestRatePayout` legs.  This release adds logic to also map the `PriceQuantity` instances that correspond to the fixed and floating `InterestRatePayout` legs.  
+FpML represents FRAs in a single `<fra>` xml element which is currently mapped into separate fixed and floating `InterestRatePayout` legs.  This release adds logic to also map the `PriceQuantity` instances that correspond to the fixed and floating `InterestRatePayout` componnents of the product.  
 
 _Review Directions_
 
