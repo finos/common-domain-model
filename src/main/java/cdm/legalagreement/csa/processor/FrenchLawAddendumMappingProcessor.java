@@ -11,6 +11,7 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.util.List;
 import java.util.Optional;
 
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
@@ -29,7 +30,7 @@ public class FrenchLawAddendumMappingProcessor extends MappingProcessor {
         FrenchLawAddendumElection.FrenchLawAddendumElectionBuilder frenchLawAddendumElectionBuilder = FrenchLawAddendumElection.builder();
         setValueAndUpdateMappings(synonymPath.addElement(party + "_french_law_addendum"),
                 (value) -> frenchLawAddendumElectionBuilder.setParty(toCounterpartyRoleEnum(party)).setIsApplicable(value.equals("specify")));
-        setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"), frenchLawAddendumElectionBuilder::setAddendumLanguage);
+        setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"), value -> frenchLawAddendumElectionBuilder.setAddendumLanguage(removeHtml(value)));
         return frenchLawAddendumElectionBuilder.hasData() ? Optional.of(frenchLawAddendumElectionBuilder.build()) : Optional.empty();
     }
 }

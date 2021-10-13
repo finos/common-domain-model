@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 
 /**
@@ -114,6 +114,12 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 				"after_days_type",
 				"after_specify")
 				.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
+		getCustomisableOffset(synonymPath, "days_after_clearstream_event",
+				"after_days",
+				true,
+				"after_days_type",
+				"specify_after_days")
+				.ifPresent(endDateBuilder::setDaysAfterCustodianEvent);
 		// ReleaseDate
 		getCustomisableOffset(synonymPath, "release_date",
 				"release_days",
@@ -133,6 +139,12 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 				true,
 				"release_date_ii_type",
 				"release_date_ii_specify")
+				.ifPresent(endDateBuilder::setSafekeepingPeriodExpiry);
+		getCustomisableOffset(synonymPath, "release_date_ii",
+				"release_ii_days",
+				true,
+				"release_date_ii_type",
+				"specify_release_date_ii")
 				.ifPresent(endDateBuilder::setSafekeepingPeriodExpiry);
 		// DateOfTimelyStatement
 		getCustomisableOffset(synonymPath, "date_of_timely_statement",
@@ -168,11 +180,11 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 				(type) -> {
 					switch (type) {
 					case "days":
-						getOffset(synonymPath, numberOfDaysSynonym, after, dayTypeSynonym).ifPresent(customisableOffsetBuilder::setOffset);
+						getOffset(synonymPath, numberOfDaysSynonym, after, dayTypeSynonym, customEndDateSynonym, customisableOffsetBuilder);
 						break;
 					case "other":
 						setValueAndUpdateMappings(synonymPath.addElement(customEndDateSynonym),
-								customisableOffsetBuilder::setCustomProvision);
+								value -> customisableOffsetBuilder.setCustomProvision(removeHtml(value)));
 						break;
 					}
 				});
@@ -181,10 +193,17 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 	}
 
 	@NotNull
-	private Optional<Offset> getOffset(Path basePath, String numberOfDaysSynonym, boolean after, String dayTypeSynonym) {
+	private void getOffset(Path basePath, String numberOfDaysSynonym, boolean after, String dayTypeSynonym,  String customEndDateSynonym,
+						   CustomisableOffset.CustomisableOffsetBuilder customisableOffsetBuilder) {
 		Offset.OffsetBuilder offsetBuilder = Offset.builder();
 
-		setValueAndUpdateMappings(basePath.addElement(numberOfDaysSynonym),
+		Path numberOfDaysPath = basePath.addElement(numberOfDaysSynonym);
+		Optional<String> numberOfDaysValue = getNonNullMappedValue(numberOfDaysPath, getMappings());
+		if (!numberOfDaysValue.isPresent()) {
+			return;
+		}
+
+		setValueAndUpdateMappings(numberOfDaysPath,
 				(value) -> {
 					int numberOfDays = Integer.parseInt(value);
 					offsetBuilder.setPeriodMultiplier(after ? numberOfDays : -numberOfDays);
@@ -193,11 +212,21 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 
 		setValueAndOptionallyUpdateMappings(basePath.addElement(dayTypeSynonym),
 				(value) -> {
-					Optional<DayTypeEnum> dayType = getEnumValue(synonymToDayTypeEnumMap, value, DayTypeEnum.class);
-					dayType.ifPresent(offsetBuilder::setDayType);
-					return dayType.isPresent();
+					if ("other".equals(value)) {
+						setValueAndUpdateMappings(basePath.addElement(customEndDateSynonym),
+								customEndDate -> customisableOffsetBuilder.setCustomProvision(removeHtml(customEndDate)));
+						return true;
+					} else {
+						Optional<DayTypeEnum> dayType = getEnumValue(synonymToDayTypeEnumMap, value, DayTypeEnum.class);
+						dayType.ifPresent(offsetBuilder::setDayType);
+						return dayType.isPresent();
+					}
+
 				}, getMappings(), getModelPath());
 
-		return offsetBuilder.hasData() ? Optional.of(offsetBuilder.build()) : Optional.empty();
+
+		if (offsetBuilder.hasData()) {
+			customisableOffsetBuilder.setOffset(offsetBuilder);
+		}
 	}
 }

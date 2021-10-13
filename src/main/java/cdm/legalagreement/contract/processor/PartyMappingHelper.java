@@ -36,7 +36,7 @@ public class PartyMappingHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PartyMappingHelper.class);
 
 	static final String PARTY_MAPPING_HELPER_KEY = "PARTY_MAPPING_HELPER";
-	public static final RosettaPath PRODUCT_SUB_PATH = RosettaPath.valueOf("tradableProduct").newSubPath("product");
+	public static final RosettaPath PRODUCT_SUB_PATH = RosettaPath.valueOf("tradableProduct");
 
 	private final Map<String, CounterpartyRoleEnum> partyExternalReferenceToCounterpartyRoleEnumMap;
 	private final List<Mapping> mappings;

@@ -1,5 +1,6 @@
 namespace cdm.base.datetime : <"Basic date and time concepts: relative date, date range, offset, business centre etc.">
 version "${project.version}"
+
 import cdm.base.*
 import cdm.synonyms.config.*
 
@@ -118,7 +119,6 @@ type DateRange: <"A class defining a contiguous series of calendar dates. The da
 	unadjustedLastDate date (1..1) <"The last date of a date range.">
 
 type DateList: <"List of dates.">
-
 	date date (1..*)
 
 type DateTimeList: <"List of dateTimes.">
@@ -150,6 +150,7 @@ type CustomisableOffset: <"A class to specify an offset either as a normalized [
 
 	offset Offset (0..1)
 	customProvision string (0..1)
+		[synonym ISDA_Create_1_0 value "re_end_date__days_after_representative_event__other__specify" set when "re_end_date__days_after_representative_event" = "other__specify" removeHtml]
 
 type Period: <"A class to define recurring periods or time offsets.">
 	[metadata key]
@@ -181,15 +182,11 @@ type RelativeDateOffset extends Offset: <"A class defining a date (referred to a
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
 
 type TimeZone: <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
-
 	time time (1..1) <"The observation time.">
 		[synonym Workflow_Event value "time"]
 	location string (0..1) <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">
 		[metadata scheme]
 		[synonym Workflow_Event value "location" meta "timezoneLocationScheme"]
-
-type DateGroup:
-	dates date(0..*)
 
 type PeriodRange: <"The period range defined as either a lower and upper period bound, or both.">
 	lowerBound PeriodBound (0..1) <"The lower bound of a period range, e.g. greater than or equal to 5Y.">

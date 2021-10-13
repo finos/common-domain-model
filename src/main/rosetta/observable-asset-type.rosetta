@@ -23,7 +23,6 @@ type ObservationSource: <"The observation source can be composed of an curve and
 			or curve exists
 			or informationSource exists
 
-
 type SecurityValuation: <" Terms defining the security valuation method as part of a security leg in a securities fianncing transaction and closely modelled onto the CollateralValuation type in FpML.">
 	[deprecated]
 
@@ -89,24 +88,61 @@ type UnitContractValuationModel: <" Unit contract model for security valuation, 
 	numberOfUnits Quantity (1..1) <"The number of units (index or securities).">
 	unitPrice Money (1..1) <"The price of each unit.">
 
+type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
+ 	premiumType PremiumTypeEnum (0..1) <"Forward start premium type">
+ 	pricePerOption Money (0..1) <"The amount of premium to be paid expressed as a function of the number of options.">
+ 	percentageOfNotional number (0..1) <"The amount of premium to be paid expressed as a percentage of the notional value of the transaction. A percentage of 5% would be expressed as 0.05.">
+
+type PriceExpression:
+	priceType PriceTypeEnum (1..1)
+ 	priceExpression PriceExpressionEnum (0..1)
+ 	grossOrNet GrossOrNetEnum (0..1)
+ 	cashPrice CashPrice (0..1)
+ 	cleanOrDirty CleanOrDirtyPriceEnum (0..1)
+	capFloor CapFloorEnum (0..1)
+	spreadType SpreadTypeEnum (0..1)
+ 	
+	condition Choice: <"The price can be specified mutually exclusively as a cashflow, an interest rate, or clean/dirty (in case it's a bond price).">
+ 		optional choice cashPrice, cleanOrDirty, capFloor
+ 	condition CashPrice: <"If a cash price type is specified, the price type must be cash.">
+ 		if cashPrice exists then priceType = PriceTypeEnum -> CashPrice
+ 	condition CleanOrDirty: <"Clean or dirty indicator only applicable for asset (bond) price.">
+ 		if cleanOrDirty exists then priceType = PriceTypeEnum -> AssetPrice
+ 	condition CapFloorPrice: <"Cap / Floor type can only be specified when the price type is a rate price.">
+ 		if capFloor exists then priceType = PriceTypeEnum -> InterestRate
+ 	condition SpreadPrice: <"A spread type can only be specified when the price type is an asset price, an exchange rate or an interest rate.">
+ 		if spreadType exists then priceType = PriceTypeEnum -> AssetPrice or priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> InterestRate
+
+type CashPrice:
+ 	cashPriceType CashPriceTypeEnum (1..1)
+ 	premiumExpression PremiumExpression (0..1) <"Forward start premium type">
+ 	feeType FeeTypeEnum (0..1)
+ 	condition PremiumType: <"Premium type can only be specified when the cash price type is a premium.">
+ 		if premiumExpression exists then cashPriceType = CashPriceTypeEnum -> Premium
+
 type Price extends MeasureBase: <"Specifies a price to be used for trade amounts and other purposes.">
 
-	priceType PriceTypeEnum (1..1) <"Provides a value for a type of price in order to explain how to interpret the amount and use it in calculations.">
-	    [synonym Workflow_Event value "priceType"]
+	priceExpression PriceExpression (1..1) <"Provides a value for the type of price expression (cash price, interest rate, gross or net, clean or dirty etc.) in order to explain how to interpret the amount and use it in calculations.">
 	perUnitOfAmount UnitType (1..1) <"Provides an attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
         [synonym Workflow_Event value "perUnitOfAmount"]
 
-	condition PositiveFXRate: <"Requires that per FpML rules, the FX rate must be a positive value.">
-		if priceType = PriceTypeEnum -> ExchangeRate
-		then amount > 0
+    condition PositiveFXRate: <"Requires that per FpML rules, the FX rate must be a positive value.">
+        if ( priceExpression -> priceType = PriceTypeEnum -> ExchangeRate or priceExpression -> priceType = PriceTypeEnum -> AssetPrice )
+            and priceExpression -> spreadType is absent
+        then amount > 0
 
-	condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
-		if priceType = PriceTypeEnum -> Spot
-		then amount > 0
+    condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
+        if ( priceExpression -> priceType = PriceTypeEnum -> ExchangeRate or priceExpression -> priceType = PriceTypeEnum -> AssetPrice )
+            and priceExpression -> spreadType = SpreadTypeEnum -> Base
+        then amount > 0
 
-	condition CurrencyUnitForInterestRate: <"Requires that the unit of amount for an interest rate must be a currency.">
-		if priceType = PriceTypeEnum -> InterestRate
-		then unitOfAmount -> currency exists
+    condition: <"Requires that any price expressed as a cash price and generating a cashflow must be positive">
+        if priceExpression -> priceType = PriceTypeEnum -> CashPrice
+        then amount > 0
+
+    condition CurrencyUnitForInterestRate: <"Requires that the unit of amount for an interest rate must be a currency.">
+        if priceExpression -> priceType = PriceTypeEnum -> InterestRate
+        then unitOfAmount -> currency exists
 
 type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
 	[metadata key]
@@ -120,30 +156,10 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
 		[synonym Workflow_Event value "productIdentifier"]
 	currencyPair QuotedCurrencyPair (0..1) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
         [metadata location]
+	optionReferenceType OptionReferenceTypeEnum (0..1) <"The underlying contract which is referenced when determining the final settlement price of the instrument. Eg. Rolling Front Month Future; Spot etc.">
 
-	condition: one-of
-
-type PriceQuantity: <"Specifies the price, quantity, and optionally the observable and effective date for use in a trade or other purposes.">
-	[metadata key]
-
-	price Price (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
-	    [metadata location]
-	quantity Quantity (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
-	    [metadata location]
-	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference. The cardinality is optional as some quantity / price cases have no observable (e.g. a notional and a fixed rate in a given currency).">
-	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
-
-	condition NonNegativeQuantity:
-	    if quantity -> amount exists
-	    then quantity -> amount all >= 0
-	
-	condition:
-	    if observable -> rateOption exists and price exists
-	    then 
-			price -> priceType contains PriceTypeEnum -> Spread or
-			price -> priceType contains PriceTypeEnum -> CapRate or
-			price -> priceType contains PriceTypeEnum -> FloorRate or
-			price -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
+	condition ObservableChoice: <"An observable can only be composed of one type any time.">
+		required choice rateOption, commodity, productIdentifier, currencyPair
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
@@ -162,6 +178,12 @@ type Money extends Quantity: <"Defines a monetary amount in a specified currency
 type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
     [deprecated]
 	crossRate CrossRate (0..*) <"An optional element that allow for definition of the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
+
+type FxRateObservable: <"Defines foreign exchange (FX) asset class specific parameters for market observations.">
+    quotedCurrencyPair QuotedCurrencyPair (1..1) <"Describes the composition of a rate that has been quoted or is to be quoted.">
+        [metadata address "pointsTo"=Observable->currencyPair]
+    primaryFxSpotRateSource InformationSource (1..1) <"Specifies the primary source from which a rate should be observed.">
+    secondaryFxSpotRateSource InformationSource (0..1) <"Specifies an alternative, or secondary, source from which a rate should be observed.">
 
 type QuotedCurrencyPair: <"A class that describes the composition of a rate that has been quoted or is to be quoted. This includes the two currencies and the quotation relationship between the two currencies and is used as a building block throughout the FX specification.">
 
@@ -199,11 +221,6 @@ type InterestRateCurve:
 	tenor Period (1..1)
 		[synonym Workflow_Event value "tenor"]
 
-type FixedRateSpecification: <"Type defining the specification for a fixed rate.">
-	[metadata key]
-
-	rateSchedule RateSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
-
 type TransactedPrice: <" A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
 
 	marketFixedRate number (0..1) <"An optional element that only has meaning in a credit index trade. This element contains the credit spread ('fair value') at which the trade was executed. Unlike the fixedRate of an index, the marketFixedRate varies over the life of the index depending on market conditions. The marketFixedRate is the price of the index as quoted by trading desks.">
@@ -240,13 +257,6 @@ type EquityValuation : <"Defines how and when an equity option or equity swap is
 	valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location – e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
 	valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
 
-type FxFixing: <"A class that specifies the source for and timing of a fixing of an exchange rate. This is used in the agreement of non-deliverable forward trades as well as various types of FX OTC options that require observations against a particular rate.">
-
-	quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">
-        [metadata address "pointsTo"=Observable->currencyPair]
-	fixingDate date (0..1) <"Describes the specific date when a non-deliverable forward or cash-settled option will 'fix' against a particular rate, which will be used to compute the ultimate cash settlement. This element should be omitted where a single, discrete fixing date cannot be identified e.g. on an american option, where fixing may occur at any date on a continuous range.">
-	fxSpotRateSource FxSpotRateSource (0..1) <"Specifies the methodology (reference source and, optionally, fixing time) to be used for determining a currency conversion rate.">
-
 type FxRateSourceFixing: <"Describes a rate source to be fixed and the date the fixing occurs">
 
 	settlementRateSource FxSettlementRateSource (1..1)
@@ -278,10 +288,14 @@ type ValuationPostponement: <"Specifies how long to wait to get a quote from a s
 	maximumDaysOfPostponement int (1..1) <"The maximum number of days to wait for a quote from the disrupted settlement rate option before proceeding to the next method.">
 
 type FloatingRateOption: <"Specification of a floating rate option as a floating rate index and tenor.">
-
-	floatingRateIndex FloatingRateIndexEnum (1..1) <"The reference index that is used to specify the floating interest rate. The FpML standard maintains the list of such indices, which are positioned as enumeration values as part of the CDM.">
+	floatingRateIndex FloatingRateIndexEnum (0..1) <"The reference index that is used to specify the floating interest rate. The FpML standard maintains the list of such indices, which are positioned as enumeration values as part of the CDM.">
+		[metadata scheme]
+	inflationRateIndex InflationRateIndexEnum (0..1) <"The reference index that is used to specify the inflation interest rate. The FpML standard maintains the list of such indices, which are positioned as enumeration values as part of the CDM.">
 		[metadata scheme]
 	indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">
+
+	condition FloatingRateIndex: <"A required choice condition for either a floating rate or inflation rate index.">
+		required choice floatingRateIndex, inflationRateIndex
 
 type FxRate: <"A class describing the rate of a currency conversion: pair of currency, quotation mode and exchange rate.">
 
@@ -292,7 +306,6 @@ type FxSpotRateSource: <"A class defining the rate source and fixing time for an
 
 	primaryRateSource InformationSource (1..1) <"The primary source for where the rate observation will occur. Will typically be either a page or a reference bank published rate.">
 	secondaryRateSource InformationSource (0..1) <"An alternative, or secondary, source for where the rate observation will occur. Will typically be either a page or a reference bank published rate.">
-	fixingTime BusinessCenterTime (0..1) <"The time at which the spot currency exchange rate will be observed. It is specified as a time in a business day calendar location, e.g. 11:00am London time.">
 
 type RateObservation: <"A class defining parameters associated with an individual observation or fixing. This class forms part of the cashflow representation of a stream.">
 	[metadata key]
@@ -369,7 +382,7 @@ type FxSettlementRateSource: <"The source of the Foreign Exchange settlement rat
 type CalculationAgent: <"A class defining the ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 
 	calculationAgentParty AncillaryRoleEnum (0..1) <"Specifies the party which is the ISDA Calculation Agent for the trade. If more than one party is referenced then the parties are assumed to be co-calculation agents, i.e. they have joint responsibility.">
-	calculationAgentPartyEnum CalculationAgentPartyEnum (0..1) <"Specifies the ISDA calculation agent responsible for performing duties as defined in the applicable product definitions. For example, the Calculation Agent may be defined as being the Non-exercising Party.">
+	calculationAgentPartyEnum PartyDeterminationEnum (0..1) <"Specifies the ISDA calculation agent responsible for performing duties as defined in the applicable product definitions. For example, the Calculation Agent may be defined as being the Non-exercising Party.">
 	calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located The short-form confirm for a trade that is executed under a Sovereign or Asia Pacific Master Confirmation Agreement ( MCA ), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent City. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent City.">
 		[metadata scheme]
 
@@ -377,13 +390,11 @@ type CalculationAgent: <"A class defining the ISDA calculation agent responsible
 		optional choice calculationAgentParty, calculationAgentPartyEnum
 
 type SettlementRateOption: <"Defines the settlement rate option to use for fixing in case of cash settlement. Currently only applicable to foreign exchange fixing in case of cross-currency settlement.">
-
 	settlementRateOption SettlementRateOptionEnum (1..1) <"The rate source for the conversion to the settlement currency. This source is specified through a scheme that reflects the terms of the Annex A to the 1998 FX and Currency Option Definitions.">
 		[metadata scheme]
 	priceSourceDisruption PriceSourceDisruption (0..1) <"An attribute defining the parameters to get a new quote when a settlement rate option is disrupted.">
 
 type MultipleValuationDates extends SingleValuationDate:
-
 	businessDaysThereafter int (0..1) <"The number of business days between successive valuation dates when multiple valuation dates are applicable for cash settlement. ISDA 2003 Term: Business Days thereafter.">
 	numberValuationDates int (0..1) <"Where multiple valuation dates are specified as being applicable for cash settlement, this element specifies (a) the number of applicable valuation dates, and (b) the number of business days after satisfaction of all conditions to settlement when the first such valuation date occurs, and (c) the number of business days thereafter of each successive valuation date. ISDA 2003 Term: Multiple Valuation Dates.">
 	condition BusinessDaysThereafter: <"FpML specifies businessDaysThereafter as a PositiveInteger.">
@@ -394,39 +405,48 @@ type MultipleValuationDates extends SingleValuationDate:
 		then numberValuationDates >= 0
 
 type SingleValuationDate: <"A class to specify the number of business days after satisfaction of all conditions to settlement.">
-
 	businessDays int (0..1) <"A number of business days. Its precise meaning is dependant on the context in which this element is used. ISDA 2003 Term: Business Day.">
-
 	condition NonNegativeBusinessDays: <"FpML specifies businessDays as a NonNegativeInteger.">
 		if businessDays exists
 		then businessDays >= 0
 
 type ValuationSource: <"A class describing the method for obtaining a settlement rate, specified through either an information source (page), a settlement rate option (fixing) or by using quotes from reference banks.">
-
-	informationSource InformationSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
+	quotedCurrencyPair QuotedCurrencyPair (0..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.  This attribute was formerly part of 'fxSettlementTerms', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
+        [metadata address "pointsTo"=Observable->currencyPair]
+	informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
 	settlementRateOption SettlementRateOption (0..1) <"The rate option to use for the fixing. Currently only applicable to foreign exchange fixing in case of cross-currency settlement.">
 	referenceBanks ReferenceBanks (0..1) <"A container for a set of reference institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">
-	dealer string (0..1) <"A dealer from whom quotations are obtained by the calculation agent on the reference obligation for purposes of cash settlement. ISDA 2003 Term: Dealer.">
+	dealerOrCCP AncillaryEntity (0..1) <"Holds an identifier for the reference entity that is agreed by both parties as a basis for cash settlement calculations. This could be a dealer from whom quotations are obtained by the calculation agent on the reference obligation for purposes of cash settlement in a credit event. ISDA 2003 Term: Dealer. This could be the clearing organization (CCP, DCO) to which the trade should be cleared, as applicable for cash-settled swaptions.">
 
-	condition: one-of
+	condition InformationSource: <"An information source must be provided.">
+	    required choice informationSource, settlementRateOption, referenceBanks, dealerOrCCP
 
 type PriceSourceDisruption: <"A data defining:  the parameters used to get a price quote to replace the settlement rate option that is disrupted.">
-
 	fallbackReferencePrice FallbackReferencePrice (1..1) <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
 
 type ValuationMethod: <"Specifies the parameters required to obtain a valuation, including the source, quotation method (bid, mid etc.) and any applicable quotation amount.">
-
 	valuationSource ValuationSource (1..1) <"The source for obtaining a valuation. This may come from some information source (e.g. Reuters), from a rate option fixing (e.g. FX fixing for cross-currency settlement), or from a set of reference banks. This is a mandatory attribute as the valuation method relies on one of those sources to be specified.">
 	quotationMethod QuotationRateTypeEnum (0..1) <"The type of price quotations to be requested from dealers when determining the market value of the reference obligation for purposes of cash settlement, or which rate quote is to be observed for a fixing. For example, Bid, Offer, Mid-market or Exercising Party Pays. ISDA 2003 Term: Quotation Method. The meaning of Exercising Party Pays is defined in the 2000 ISDA Definitions, Section 17.2. Certain Definitions Relating to Cash Settlement, paragraph (j).">
 	valuationMethod ValuationMethodEnum (0..1) <"The ISDA defined methodology for determining the final price of the reference obligation for purposes of cash settlement. (ISDA 2003 Term: Valuation Method). For example, Market, Highest etc.">
 	quotationAmount Money (0..1) <"In the determination of a cash settlement amount, if weighted average quotations are to be obtained, the quotation amount specifies an upper limit to the outstanding principal balance of the reference obligation for which the quote should be obtained. If not specified, the ISDA definitions provide for a fallback amount equal to the floating rate payer calculation amount. ISDA 2003 Term: Quotation Amount.">
 	minimumQuotationAmount Money (0..1) <"In the determination of a cash settlement amount, if weighted average quotations are to be obtained, the minimum quotation amount specifies a minimum intended threshold amount of outstanding principal balance of the reference obligation for which the quote should be obtained. If not specified, the ISDA definitions provide for a fallback amount of the lower of either USD 1,000,000 (or its equivalent in the relevant obligation currency) or the quotation amount. ISDA 2003 Term: Minimum Quotation Amount.">
-	
+	cashCollateralValuationMethod CashCollateralValuationMethod (0..1) <"Specifies the parameters representing several mid-market valuation and replacement value methods.">
+
 	condition FpML_cd_37: <"FpML validation rule cd-37 - If condition quotationAmount is true, and if condition minimumQuotationAmount is true, and if both amounts have the same-currency, then quotationAmount/amount must be greater or equal to minimumQuotationAmount/amount.">
 		if (quotationAmount exists and minimumQuotationAmount exists)
 			and quotationAmount -> unitOfAmount-> currency = minimumQuotationAmount -> unitOfAmount-> currency
 		then quotationAmount -> amount > minimumQuotationAmount -> amount
-	
+
 	condition Dealer: <"When a quotation amount is specified, the dealer from which to obtain the quotation must be specified in the valuation source. This is typically applicable to determine the recovery amount in a credit event.">
 		if quotationAmount exists or minimumQuotationAmount exists
-		then valuationSource -> dealer exists
+		then valuationSource -> dealerOrCCP -> legalEntity exists
+
+type CashCollateralValuationMethod : <"This type is a generic structure that can represent the parameters of several mid-market valuation and replacement value methods described in the 2021 ISDA Definitions.">
+	applicableCsa CsaTypeEnum (0..1) <"This may be used to specify what type of CSA (credit support annex/agreement) is to be used for cash settlement purposes.">
+	cashCollateralCurrency string (0..1)<"This may be used to indicate the currency of cash collateral for cash settlement purposes.">
+	cashCollateralInterestRate string (0..1)<"This may be used to indicate the interest rate to be used for cash collateral for cash settlement purposes.">
+		[metadata scheme] 
+	agreedDiscountRate string (0..1) <"This may be used to indicate the discount rate to be used for cash collateral for cash settlement purposes.">
+		[metadata scheme]
+	protectedParty PartyDeterminationEnum (0..2) <"This may be used to specify which party is protected (e.g. under Replacement Value cash settlement methods).">
+	prescribedDocumentationAdjustment boolean (0..1) <"This may be used to indicate that 'prescribed documentation adjustment' is applicable.">

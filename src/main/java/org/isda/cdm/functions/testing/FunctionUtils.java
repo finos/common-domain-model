@@ -1,15 +1,14 @@
 package org.isda.cdm.functions.testing;
 
+import cdm.event.common.ExecutionInstruction;
+import cdm.event.common.TradeState;
+import com.google.common.collect.Lists;
+import com.rosetta.model.metafields.FieldWithMetaDate;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import cdm.event.common.ExecutionInstruction;
-import cdm.event.common.TradeState;
-import cdm.product.common.TradeLot;
-import com.google.common.collect.Lists;
-import com.rosetta.model.metafields.FieldWithMetaDate;
 
 public class FunctionUtils {
 

@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--View is confirmation--><!--Version is 5-10--><!--NS is http://www.fpml.org/FpML-5/confirmation--><!--
+  == Copyright (c) 2014-2018 All rights reserved.
+  == Financial Products Markup Language is subject to the FpML public license.
+  == A copy of this license is available at http://www.fpml.org/license/license.html
+  --><!--
+see template: fx-ex54-fx-american-keep-double-accrual-forward-multi-settlement.pdf
+-->
+<executionNotification xmlns="http://www.fpml.org/FpML-5/confirmation"
+                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                       fpmlVersion="5-10"
+                       xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-10.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+    <header>
+        <messageId messageIdScheme="http://www.executionnotificationservice.com/coding-scheme/messageId">FX456a789b</messageId>
+        <sentBy messageAddressScheme="http://www.executionnotificationservice.com/partyId">EXECSRV</sentBy>
+        <sendTo messageAddressScheme="http://www.executionnotificationservice.com/partyId">PARTYA</sendTo>
+        <creationTimestamp>2014-07-01T08:57:00Z</creationTimestamp>
+    </header>
+    <isCorrection>false</isCorrection>
+    <trade>
+        <tradeHeader>
+            <partyTradeIdentifier>
+                <partyReference href="partyA"/>
+                <tradeId tradeIdScheme="#partyA">12345</tradeId>
+            </partyTradeIdentifier>
+            <tradeDate>2014-07-01</tradeDate>
+        </tradeHeader>
+        <fxAccrualForward>
+            <productType productTypeScheme="http://www.fpml.org/coding-scheme/product-type-simple">FxAccrualForward</productType>
+            <!--Sum of all 13 periods = USD 3290625.00-->
+            <notionalAmount>
+                <initialValue>253125.00</initialValue>
+                <currency>USD</currency>
+            </notionalAmount>
+            <!--Accrual Process - describes the accrual process-->
+            <accrual>
+                <observable id="ob1">
+                    <quotedCurrencyPair>
+                        <!--what it is you are measuring. -->
+                        <currency1>GBP</currency1>
+                        <currency2>USD</currency2>
+                        <quoteBasis>Currency2PerCurrency1</quoteBasis>
+                    </quotedCurrencyPair>
+                    <!--Describes the source the accrual event based on-->
+                    <informationSource>
+                        <rateSource>Reuters</rateSource>
+                        <rateSourcePage>ECB37</rateSourcePage>
+                        <fixingTime>
+                            <hourMinuteTime>14:15:00</hourMinuteTime>
+                            <businessCenter>DEFR</businessCenter>
+                        </fixingTime>
+                    </informationSource>
+                </observable>
+                <!--Party A Buys:	a). Party A Bought Currency and Amount 1 * (the total number of Accrual Days 1 / Total Number of Fixing Days in the Observation Period); and
+                    Party B Buys: 	a). Party A Sold Currency and Amount 1 * (the total number of Accrual Days 1 / Total Number of Fixing Days in the Observation Period); -->
+                <!--"Accrual Days 1" means a Fixing Day during the relevant Accrual Period where GBPmat fixes at or above the Forward Rate, 
+                    and where GBPspot trades below the Knock Out Rate at all times from the Trade Time on the Trade Date to 02:15pm Frankfurt Time on that Euro Settlement Date -->
+                <accrualRegion>
+                    <observableReference href="ob1"/>
+                    <lowerBound>
+                        <condition>AtOrAbove</condition>
+                        <!--Forward Rate-->
+                        <level>
+                            <initialValue>1.6875</initialValue>
+                        </level>
+                    </lowerBound>
+                </accrualRegion>
+                <!--Party A Buys:	b). Party A Bought Currency and Amount 2 * (the total number of Accrual Days 2 / Total Number of Fixing Days in the Observation Period) 
+                    Party B Buys: 	b). Party A Sold Currency and Amount 2 * (the total number of Accrual Days 2 / Total Number of Fixing Days in the Observation Period)-->
+                <!--"Accrual Days 2" means a Fixing Day during the relevant Accrual Period where GBPmat fixes below the Forward Rate, 
+                    and where GBPspot trades below the Knock Out Rate at all times from the Trade Time on the Trade Date to 02:15pm Frankfurt Time on that Euro Settlement Date.-->
+                <accrualRegion>
+                    <observableReference href="ob1"/>
+                    <upperBound>
+                        <condition>Below</condition>
+                        <!--Forward Rate-->
+                        <level>
+                            <initialValue>1.6875</initialValue>
+                        </level>
+                    </upperBound>
+                    <accrualFactor>
+                        <initialValue>2</initialValue>
+                    </accrualFactor>
+                </accrualRegion>
+                <fixingSchedule>
+                    <!--the dates when you are mesuaring-->
+                    <startDate>2014-07-15</startDate>
+                    <endDate>2014-12-30</endDate>
+                    <observationFrequency>
+                        <periodMultiplier>2</periodMultiplier>
+                        <period>W</period>
+                        <periodConvention>TUE</periodConvention>
+                    </observationFrequency>
+                    <dateAdjustments>
+                        <businessDayConvention>NONE</businessDayConvention>
+                        <!--<businessCenters>
+                            <businessCenter>EUTA</businessCenter>
+                        </businessCenters>-->
+                    </dateAdjustments>
+                    <numberOfFixings>13</numberOfFixings>
+                </fixingSchedule>
+            </accrual>
+            <expirySchedule id="expSch">
+                <adjustedDate>2014-07-15</adjustedDate>
+                <adjustedDate>2014-07-29</adjustedDate>
+                <adjustedDate>2014-08-12</adjustedDate>
+                <adjustedDate>2014-08-26</adjustedDate>
+                <adjustedDate>2014-09-09</adjustedDate>
+                <adjustedDate>2014-09-23</adjustedDate>
+                <adjustedDate>2014-10-07</adjustedDate>
+                <adjustedDate>2014-10-21</adjustedDate>
+                <adjustedDate>2014-11-04</adjustedDate>
+                <adjustedDate>2014-11-18</adjustedDate>
+                <adjustedDate>2014-12-02</adjustedDate>
+                <adjustedDate>2014-12-16</adjustedDate>
+                <adjustedDate>2014-12-30</adjustedDate>
+                <finalExpiryDate>2014-12-30</finalExpiryDate>
+            </expirySchedule>
+            <!--Settlement Date:Two London and New York Business Days following the relevant Accrual Period End Date-->
+            <settlementSchedule>
+                <dateAdjustments>
+                    <businessDayConvention>FOLLOWING</businessDayConvention>
+                    <businessCenters>
+                        <businessCenter>USNY</businessCenter>
+                        <businessCenter>GBLO</businessCenter>
+                    </businessCenters>
+                </dateAdjustments>
+                <adjustedDate>2014-07-17</adjustedDate>
+                <adjustedDate>2014-07-31</adjustedDate>
+                <adjustedDate>2014-08-14</adjustedDate>
+                <adjustedDate>2014-08-28</adjustedDate>
+                <adjustedDate>2014-09-11</adjustedDate>
+                <adjustedDate>2014-09-25</adjustedDate>
+                <adjustedDate>2014-10-09</adjustedDate>
+                <adjustedDate>2014-10-23</adjustedDate>
+                <adjustedDate>2014-11-06</adjustedDate>
+                <adjustedDate>2014-11-20</adjustedDate>
+                <adjustedDate>2014-12-04</adjustedDate>
+                <adjustedDate>2014-12-18</adjustedDate>
+                <adjustedDate>2015-01-02</adjustedDate>
+                <finalSettlementDate>2015-01-02</finalSettlementDate>
+            </settlementSchedule>
+            <linearPayoffRegion>
+                <exchangedCurrency1>
+                    <payerPartyReference href="partyA"/>
+                    <receiverPartyReference href="partyB"/>
+                    <currency>GBP</currency>
+                </exchangedCurrency1>
+                <exchangedCurrency2>
+                    <payerPartyReference href="partyB"/>
+                    <receiverPartyReference href="partyA"/>
+                    <currency>USD</currency>
+                </exchangedCurrency2>
+                <strike id="str">
+                    <initialValue>1.6875</initialValue>
+                    <quoteBasis>Currency2PerCurrency1</quoteBasis>
+                </strike>
+                <!--Sum of all 13 periods = GBP 1950000.00-->
+                <counterCurrencyAmount>
+                    <initialValue>150000.00</initialValue>
+                    <currency>GBP</currency>
+                </counterCurrencyAmount>
+            </linearPayoffRegion>
+            <!-- Defines a knockout barrier level beyond which either the accrual process is terminated -->
+            <barrier>
+                <barrierType>Knockout</barrierType>
+                <!--American - should imply that it is spot-->
+                <style>American</style>
+                <scope>Global</scope>
+                <condition>AtOrAbove</condition>
+                <triggerRate>
+                    <!--Knock-Out Rate-->
+                    <initialValue>1.7470</initialValue>
+                </triggerRate>
+                <!--In this example, it doesn't matter whether you say "keep" or "lose" here because there is only one observation date in each of the period, and it accrue or it doesn't-->
+                <accrualRetention>Keep</accrualRetention>
+                <quotedCurrencyPair>
+                    <!--the spot exchange rate for USD/GBP as prevailing in the Spot Market as determined by the Calculation Agent in its sole and absolute discretion.-->
+                    <!--what it is you are measuring. -->
+                    <currency1>GBP</currency1>
+                    <currency2>USD</currency2>
+                    <quoteBasis>Currency2PerCurrency1</quoteBasis>
+                </quotedCurrencyPair>
+            </barrier>
+            <additionalPayment>
+                <payerPartyReference href="partyA"/>
+                <receiverPartyReference href="partyB"/>
+                <paymentAmount>
+                    <currency>GBP</currency>
+                    <amount>14000.00</amount>
+                </paymentAmount>
+                <paymentDate>
+                    <adjustableDate>
+                        <unadjustedDate>2014-07-03</unadjustedDate>
+                        <dateAdjustments>
+                            <businessDayConvention>FOLLOWING</businessDayConvention>
+                            <businessCenters>
+                                <businessCenter>GBLO</businessCenter>
+                            </businessCenters>
+                        </dateAdjustments>
+                    </adjustableDate>
+                </paymentDate>
+            </additionalPayment>
+            <settlementPeriodSchedule>
+                <settlementPeriod>
+                    <expiryDate>2014-07-15</expiryDate>
+                    <settlementDate>2014-07-17</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-07-15</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+                <settlementPeriod>
+                    <expiryDate>2014-07-29</expiryDate>
+                    <settlementDate>2014-07-31</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-07-29</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+                <settlementPeriod>
+                    <expiryDate>2014-08-12</expiryDate>
+                    <settlementDate>2014-08-14</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-08-12</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+                <settlementPeriod>
+                    <expiryDate>2014-08-26</expiryDate>
+                    <settlementDate>2014-08-28</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-08-26</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+                <settlementPeriod>
+                    <expiryDate>2014-09-09</expiryDate>
+                    <settlementDate>2014-09-11</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-09-09</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+                <settlementPeriod>
+                    <expiryDate>2014-09-23</expiryDate>
+                    <settlementDate>2014-09-25</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-09-23</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+                <settlementPeriod>
+                    <expiryDate>2014-10-07</expiryDate>
+                    <settlementDate>2014-10-09</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-10-07</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+                <settlementPeriod>
+                    <expiryDate>2014-10-21</expiryDate>
+                    <settlementDate>2014-10-23</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-10-21</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+                <settlementPeriod>
+                    <expiryDate>2014-11-04</expiryDate>
+                    <settlementDate>2014-11-06</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-11-04</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+                <settlementPeriod>
+                    <expiryDate>2014-11-18</expiryDate>
+                    <settlementDate>2014-11-20</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-11-18</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+                <settlementPeriod>
+                    <expiryDate>2014-12-02</expiryDate>
+                    <settlementDate>2014-12-04</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-12-02</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+                <settlementPeriod>
+                    <expiryDate>2014-12-16</expiryDate>
+                    <settlementDate>2014-12-18</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-12-16</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+                <settlementPeriod>
+                    <expiryDate>2014-12-30</expiryDate>
+                    <settlementDate>2015-01-02</settlementDate>
+                    <notionalAmount>253125.00</notionalAmount>
+                    <payoff>
+                        <strike>1.6875</strike>
+                        <counterCurrencyAmount>150000.00</counterCurrencyAmount>
+                    </payoff>
+                    <accrualFixingDates>
+                        <fixingDate>2014-12-30</fixingDate>
+                    </accrualFixingDates>
+                </settlementPeriod>
+            </settlementPeriodSchedule>
+        </fxAccrualForward>
+        <calculationAgent>
+            <calculationAgentPartyReference href="partyA"/>
+        </calculationAgent>
+    </trade>
+    <party id="partyA">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">549300SRLRVTR996F086</partyId>
+    </party>
+    <party id="partyB">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">549300RE0FSXJE8G1L65</partyId>
+    </party>
+</executionNotification>

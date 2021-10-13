@@ -3,12 +3,14 @@ version "${project.version}"
 
 import cdm.base.math.*
 import cdm.base.datetime.*
+import cdm.base.datetime.daycount.*
 import cdm.base.staticdata.asset.rates.*
 
 import cdm.observable.asset.*
 
 import cdm.product.template.*
 import cdm.product.common.schedule.*
+import cdm.legalagreement.common.*
 
 func ForwardFX:
 	inputs:
@@ -64,6 +66,9 @@ func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation o
 
 	assign-output floatingAmount:
 	    calculationAmount * (rate + spread) * dayCountFraction
+
+
+// * The following is the legacy implementation, which is dependent on the full calculation period logic
 
 func DayCountFraction: <"A description of inputs and outputs for all day count fraction calculations">
 	[calculation]
@@ -213,6 +218,7 @@ func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_365L): <
 	assign-output result:
 		daysInPeriod / daysInYear
 
+
 func ResolveRateIndex: <"The function to specify that the floating rate index enumeration will be expressed as a number once the rate is observed.">
 	inputs: index FloatingRateIndexEnum (1..1)
 	output: rate number (1..1)
@@ -220,10 +226,11 @@ func ResolveRateIndex: <"The function to specify that the floating rate index en
 func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
 	inputs:
 		equityPayout EquityPayout (1..1)
-		priceQuantity PriceQuantity (0..*)
+		price Price (0..*)
+		observable Observable (0..1)
 		date date (1..1)
 	output:
-		price Price (1..1)
+		startPrice Price (1..1)
 
 	alias priceReturnTerms:
 		equityPayout -> priceReturnTerms
@@ -231,9 +238,9 @@ func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the pre
 	alias calculationPeriod:
 		CalculationPeriod(equityPayout -> calculationPeriodDates, date)
 
-	assign-output price: <"The initial price is taken from the original contract when Resetting for the first time i.e. when the number of updated contracts is one.">
+	assign-output startPrice: <"The initial price is taken from the original contract when Resetting for the first time i.e. when the number of updated contracts is one.">
 		if calculationPeriod -> isFirstPeriod
-		then ResolveEquityInitialPrice( priceQuantity )
+		then ResolveEquityInitialPrice( price, observable )
 		else priceReturnTerms -> valuationPriceInterim -> price
 
 func ResolveEquityPeriodEndPrice:
@@ -256,7 +263,8 @@ func ResolveEquityPeriodEndPrice:
 
 func ResolveEquityInitialPrice:
 	inputs:
-		priceQuantity PriceQuantity (0..*)
+		price Price (0..*)
+		observable Observable (0..1)
 
 	output:
 		initialPrice Price (1..1)

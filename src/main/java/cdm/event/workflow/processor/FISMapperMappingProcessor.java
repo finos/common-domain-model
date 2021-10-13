@@ -13,13 +13,14 @@ import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.event.common.ExecutionTypeEnum;
 import cdm.event.workflow.EventTimestampQualificationEnum;
 import cdm.event.workflow.WorkflowStep.WorkflowStepBuilder;
+import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.common.settlement.DeliveryMethodEnum;
 import cdm.product.template.CollateralTypeEnum;
 import cdm.product.template.DurationTypeEnum;
 import cdm.product.template.EconomicTerms.EconomicTermsBuilder;
-import cdm.product.template.TradableProduct.TradableProductBuilder;
 import cdm.product.template.TradableProduct;
+import cdm.product.template.TradableProduct.TradableProductBuilder;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
@@ -38,20 +39,16 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static cdm.base.datetime.AdjustableDate.AdjustableDateBuilder;
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.base.staticdata.party.Party.PartyBuilder;
 import static cdm.event.common.TradeState.TradeStateBuilder;
-import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
 import static cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
+import static cdm.product.common.settlement.PriceQuantity.PriceQuantityBuilder;
 import static cdm.product.template.SecurityFinancePayout.SecurityFinancePayoutBuilder;
 import static com.rosetta.model.metafields.FieldWithMetaString.FieldWithMetaStringBuilder;
 
@@ -198,7 +195,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreatePrice(0)
 					.getOrCreateValue()
 					.setAmount(parseDecimal(value))
-					.setPriceType(PriceTypeEnum.INTEREST_RATE);
+					.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.INTEREST_RATE));
 			// reference
 			Reference.ReferenceBuilder reference = Reference.builder();
 			PathValue<InterestRatePayoutBuilder> irp = getIRP(tradeState);
@@ -257,9 +254,8 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreatePrice(0)
 					.getOrCreateValue()
 					.setAmount(parseDecimal(value))
-					.setPriceType(PriceTypeEnum.NET_PRICE)
-					.setPerUnitOfAmount(UnitType.builder()
-							.setFinancialUnit(FinancialUnitEnum.SHARE));
+					.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.ASSET_PRICE))
+					.setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE));
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 
@@ -318,7 +314,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getValue()
 					.getOrCreateCollateralProvisions()
 					.getOrCreateMarginPercentage()
-					.setValuationPercentage(parseDecimal(value).divide(BigDecimal.valueOf(100)));
+					.setMarginPercentage(parseDecimal(value).divide(BigDecimal.valueOf(100)));
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 

@@ -1,13 +1,13 @@
 package org.isda.cdm.processor;
 
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Singleton;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
 import com.rosetta.model.lib.process.PostProcessStep;
+
+import java.util.List;
 
 @ImplementedBy(PostProcessorProvider.Default.class)
 public interface PostProcessorProvider {
