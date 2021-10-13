@@ -19,7 +19,7 @@ import static com.rosetta.model.lib.meta.Reference.ReferenceBuilder;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 /**
- * FpML FRAs are represented as <fra> xml element, but in the CDM FRAs are represented with a fixed and a floating leg.
+ * FpML FRAs are represented as fra xml element, but in the CDM FRAs are represented with a fixed and a floating leg.
  *
  * FpML synonyms map the input FpML onto a single PriceQuantity, then this mapper splits it into a fixed and floating PriceQuantity instances.
  */
