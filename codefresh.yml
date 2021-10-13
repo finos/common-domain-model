@@ -129,15 +129,16 @@ steps:
           - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/kotlin
           - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
           - mvn -s /settings.xml -f kotlin-pom.xml clean deploy
-      BuildJavaDocs:
-        title: Javadocs build and deploy
-        fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-        working_directory: ./
-        commands:
-          - mvn -s /settings.xml javadoc:jar
-          - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-          - curl -X PUT -u ${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}} -T target/cdm-${{RELEASE_NAME}}-javadoc.jar "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar"
+
+  BuildJavaDocs:
+    title: Javadocs build and deploy
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    commands:
+      - mvn -s /settings.xml javadoc:jar
+      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - curl -X PUT -u ${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}} -T target/cdm-${{RELEASE_NAME}}-javadoc.jar "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar"
 
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
@@ -156,6 +157,8 @@ steps:
           buildCSharp8Failed: steps.BuildCSharp8.result == 'error'
           buildCSharp9Failed: steps.BuildCSharp9.result == 'error'
           buildGoFailed: steps.BuildGo.result == 'error'
+          buildKotlinFailed: steps.BuildKotlin.result == 'error'
+          buildJavaDocsFailed: steps.BuildJavaDocs.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
       - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
@@ -181,6 +184,8 @@ steps:
           cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
           cSharp9BuildFailure: steps.BuildCSharp9.result == 'failure'
           goBuildFailure: steps.BuildGo.result == 'failure'
+          kotlinBuildFailure: steps.BuildKotlin.result == 'failure'
+          javaDocsBuildFailure: steps.BuildGo.result == 'failure'
     commands:
       - exit 1
 
