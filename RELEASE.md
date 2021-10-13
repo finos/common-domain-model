@@ -31,4 +31,21 @@ In the CDM Portal, select the Textual Browser and search for the data types ment
 - To support the number (%) and money ranges, additional data types have been added to the `base-math-type` namespace. Search for data types `NumberRange`, `NumberBound`, `MoneyRange` and `MoneyBound`, and inspect the logic to support specifying a number and money range lower and upper limits with related conditions to ensure the user specifies at least one ends of the scale. Please also note each option also has a `boolean` that will indicate if the percentage or money amount inclusive or not.
 - Search for the data type `ConcentrationLimit` and within find data attribute `ConcentrationLimitTypeEnum`, inspect the additional option has been added to the enumeration list to specify `IssueOutstandingAmount` and its supporting description.
 
+# *Event Model – Function Documentation*
+
+This release updates descriptions to the Visualisation panel for a few product in the functions: Execute Business Event and Contract Formation.
+
+Descriptions have been added for the following products:
+
+- Functions > Execute Business Event > Interest Rate Swap with Other Party Payment
+
+Descriptions have been updated/expanded for the following products:
+
+- Functions > Execute Business Event > Credit Default Swap
+- Functions > Form Contract Business Event > Fixed/Floating Interest Rate Swap
+- Functions > Form Contract Business Event > Credit Default Swap
+
+_Review Directions_
+
+In the CDM Portal select the Visualisation panel and review contents of the folders specified above.
 
