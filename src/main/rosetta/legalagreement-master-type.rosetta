@@ -1,10 +1,10 @@
 namespace cdm.legalagreement.master : <"Master agreement concepts.">
 version "${project.version}"
 
-import cdm.base.math.*
-
 import cdm.base.staticdata.party.*
+import cdm.base.staticdata.asset.common.*
 import cdm.observable.asset.*
+import cdm.base.datetime.*
 
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
@@ -48,71 +48,46 @@ type EquityMasterConfirmation extends MasterConfirmationBase: <"Specification fo
 
 type MasterConfirmationBase: <"Legal agreement specification for General Terms and Elections that are applicable across multiple confirmations and are referenced by these confirmations.">
 
-type AutomaticEarlyTermination: <"A class to specify the Automatic Early Termination provision applicable to a Master Agreement.">
+type MasterAgreementSchedule: <"The set of elections or additional provisions which can be specifying within the Schedule to a Master Agreement.">
 
-	fallbackAET boolean (1..1) <"A boolean election to specify whether provided that, where a party is governed by a system of law which does not permit the termination of one or more Transactions to occur following an Event of Default specified in Section 5(a)(vii)(1), (3), (4), (5), (6) or, to extent analogous thereto, (8) ,then the Automatic Early Termination provisions of Section 6(a) shall apply to such party.">
-	indemnity boolean (1..1) <"A boolean attribute to specify whether if an Early Termination Date occurs because Automatic Early Termination applies in respect of a party, the Defaulting Party shall indemnify the Non- defaulting Party, on demand, against any losses, costs, expenses or damages that the Non- defaulting Party incurs (to the extent not already taken into account in Section 6(e)) in relation to terminating, liquidating, establishing or re- establishing any hedge or related positions as result of movements of rates, indices, prices, yields, volatilities, spreads or other market data between the Early Termination Date and the Local Business Day on which the Non-defaulting Party becomes aware that the Early Termination Date has occurred">
-	partyElection AutomaticEarlyTerminationElection (0..2) <"The party election specific to the Automatic Early Termination Clause.">
+	specifiedEntities SpecifiedEntities (0..4) <"A provision that allows each party to specify its Specified Entities for certain Events of Default and Termination Events">
+	defaultUnderSpecifiedTransaction DefaultUnderSpecifiedTransaction (0..1) <"Specifies whether the definition of Specified Transaction has been expanded.">
+	crossDefault CrossDefault (0..1) <"The specification of whether and how Cross Default applies to a party.">
+	creditEventUponMerger CreditEventUponMerger (0..1) <"The specification of whether Credit Event Upon Merger applies and whether and how certain limbs of the definition apply.">
+	automaticEarlyTermination AutomaticEarlyTermination (0..1) <"The specification of whether there is an automatic occurrence of an Early Termination Date in respect of Transactions upon the occurrence of certain bankruptcy / insolvency related events.">
+	terminationCurrency TerminationCurrency (0..1) <"Specification of the currency in which the termination payment is made (including the process by which such currency is determined).">
+	paymentMeasureMethod92 PaymentMeasureMethod92 (0..1) <"Specification of the payment measure and payment method under a 1992 ISDA Master Agreement.">
+	navDeclineATE NAVDeclineATE (0..1) <"Specification of whether a NAV decline trigger or floor Additional Termination Event applies to either party.">
+	changeOwnershipATE ChangeOwnership (0..1) <"Specification of whether a change in ownership Additional Termination Event applies to either party.">
+	failureToPay FailureToPayAmendment (0..1) <"The specification of whether the Failure to Pay Event of Default has been amended to modify the applicable grace period.">
+	addressForNotices AddressForNotices (0..1) <"Specification of the address and other details for notices.">
+	noticeModifications NoticesMasterAgreement (0..1) <"Specification of whether the notice provisions have been amended to allow for additional forms of delivery or to remove existing forms of delivery.">
+	offices10a Offices10a (0..1) <"Specification of whether Section 10(a) of the Master Agreement applies.">
+	multibranch Multibranch (0..1) <"Specification of whether the multibranch provisions apply to a party.">
+	creditSupportDocument CreditSupportDocument (0..1) <"Identification of party specific Credit Support Documents applicable to the document.">
+	creditSupportProvider CreditSupportProvider (0..1) <"Identification of party specific Credit Support Providers applicable to the document.">
+	nonContractualObligations boolean (0..1) <"Specification of whether the Governing Law clause extends to Non-Contractual Obligations or does not extend to Non-Contractual Obligations.">
+	jurisdiction Jurisdiction (1..1)
+	paymentNetting PaymentNetting (0..1) <"Specification of whether multiple transaction payment netting is applicable.">
+	affiliates Affiliates (0..1) <"Specification of whether and how the definition of Affiliate has been amended.">
+	noAgency NoAgencyMasterAgreement (0..1) <"Specification of whether the No Agency representation applies.">
+	absenceOfLitigation AbsenceofLitigationRep (0..1) <"Specification of whether and how the Absence of Litigation representation has been amended">
+	setOff SetOffMasterAgreement (0..1) <"Specifies whether obligations under the Master Agreement may be set-off, what they may be set off against and whose obligations are covered.">
+	conditionPrecedent ConditionPrecedent (0..1) <"Specification of whether the condition precedent within Section 2 of the ISDA Master Agreement has been amended to introduce a time-limit on the Non-Defaulting Party's ability to withold performance.">
+	transactionsScope TransactionScopeMasterAgreement (0..1) <"Specifies which transactions are covered by the Master Agreement.">
+	impossibilityMA92 ImpossibilityMA92 (0..1) <"Specifies where an Impossibility clause has been added to a 1992 Master Agreement.">
+	transfers TransferMasterAgreement (0..1) <"Specifies whether the Transfer provisions of the Master Agreement have been amended.">
+	illegalityClarification IllegalityClarification (0..1) <"Specifies whether the Master Agreement has been amended to clarify that a directive of a government agency or authority is a change in law.">
+	changeAccount ChangeAccountMasterAgreement (0..1) <"Specifies whether the Change of Account provisions of the Master Agreement have been amended to impose any conditions.">
+	recordingConversations RecordingConversations (0..1) <"Specifies whether recording of conversations is permitted">
+	protocols ISDAProtocols (0..1) <"Specification of whether certain ISDA Protocols apply to an agreement.">
 
-	condition fallbackAET: <"The fallback Automatic Early Termination provision can only be specified as applicable if the Automatic Early Termination Clause is not applicable to one of the parties.">
-		if fallbackAET = True
-		then partyElection->isApplicable all = False
-
-	condition indemnity: <"If Automatic Early Termination can never apply then indemnity cannot apply.">
-		if fallbackAET = False and partyElection->isApplicable all = False
-		then indemnity = False
-
-type AutomaticEarlyTerminationElection: <"A class to specify the party elections specific to the Automatic Early Termination Clause.">
-
-	party Party (1..1) <"The party for which the Automatic Early Termination provisions are being specified.">
-	isApplicable boolean (1..1) <"A boolean election to specify whether the Automatic Early Termination provisions of Section 6(a) are applicable (True) or not applicable (False).">
-
-type MasterAgreementSchedule: <"The set of elections which specify a Master Agreement.">
-
-	automaticEarlyTermination AutomaticEarlyTermination (1..1) <"The specification of whether there is an automatic occurrence of an Early Termination Date in respect of Transactions upon the occurrence of certain bankruptcy / insolvency related events.">
-	terminationCurrency TerminationCurrency (1..1) <"Specification of the currency in which the termination payment is made (including the process by which such currency is determined).">
-	addressForNotices AddressForNotices (1..1) <"Specification of the address and other details for notices.">
-	nonContractualObligations boolean (1..1) <"Specification of whether the Governing Law clause extends to Non-Contractual Obligations (True) or does not extend to Non-Contractual Obligations (False).">
-	creditSupportDocument CreditSupportDocument (1..1) <"Identification of party specific Credit Support Documents applicable to the document.">
-	creditSupportProvider CreditSupportProvider (1..1) <"Identification of party specific Credit Support Providers applicable to the document.">
-	specifiedEntities SpecifiedEntities (4..4) <"A provision that allows each party to specify its Specified Entities for certain Events of Default and Termination Events">
-	creditEventUponMerger CreditEventUponMerger (0..1) 
-
-type CreditSupportDocument: <"Identification of party specific Credit Support Documents applicable to the document.">
-
-	creditSupportDocumentElection CreditSupportDocumentElection (2..2) <"The party election of Credit Support Document(s), if any.">
-
-type CreditSupportDocumentElection: <"The party election of Credit Support Provider(s), if any.">
-	party Party (1..1) <"The elective party">
-	creditSupportDocumentTerms CreditSupportDocumentTermsEnum (1..1) <"Specification of the Credit Support Document terms.">
-	creditSupportDocument RelatedAgreement(0..*) <"The specifed Credit Support Document(s), if any.">
-	bespokeCreditSuppportDocument string (0..1) <"Specification of a document when not captured under RelatedAgreement">
-
-	condition CreditSupportDocument: <"A validation rule to ensure that a Credit Support Document is specified when required.">
-		if creditSupportDocumentTerms = CreditSupportDocumentTermsEnum->Specified
-		then creditSupportDocument exists
-
-type CreditSupportProvider: <"Identification of party specific Credit Support Providers applicable to the document.">
-
-	creditSupportProviderElection CreditSupportProviderElection (2..2) <"The party election of Credit Support Provider(s), if any.">
-
-type CreditSupportProviderElection: <"The party election of Credit Support Provider(s), if any.">
-	party Party (1..1) <"The elective party">
-	creditSupportProviderTerms CreditSupportProviderTermsEnum (1..1) <"Specification of the Credit Support Provider terms.">
-	creditSupportProvider LegalEntity (0..*) <"The specifed Credit Support Provider(s), if any.">
-	bespokeCreditSuppportProvider string (0..1) <"...">
-
-	condition CreditSupportProvider: <"A validation rule to ensure that a Credit Support Provider is specified when required.">
-		if creditSupportProviderTerms = CreditSupportProviderTermsEnum->Specified
-		then creditSupportProvider exists
-
-type SpecifiedEntities: <"A provision that allows each party to specify its Specified Entities for certain Events of Default and Termination Events">
-
+type SpecifiedEntities: <"A class to specify each party's Specified Entities for certain Events of Default and Termination Events.">
 	specifiedEntityClause SpecifiedEntityClauseEnum (1..1) <"The Event of Default or Termination event for which Specified Entities terms are being defined.">
 	specifiedEntity SpecifiedEntity (2..2) <"The party specific election of Specified Entities for the Event of Default or Termination Event specified.">
 
 type SpecifiedEntity: <"Description">
-	party Party (1..1) <"The elective party">
+	counterparty CounterpartyRoleEnum (1..1) <"The elective party">
 	specifiedEntityTerms SpecifiedEntityTermsEnum (1..1) <"The specified entity terms for the Event of Default or Termination Event specified.">
 	specifiedEntity LegalEntity (0..*) <"The specified entities for the Event of Default or Termination Event specified.">
 	materialSubsidiaryTerms string (0..1) <"The meaning of Material Subsidiary for the Event of Default or Termination Event specified.">
@@ -129,6 +104,126 @@ type SpecifiedEntity: <"Description">
 	condition OtherSpecifiedEntity: <"A validation rule to ensure that non standard Specified Entity terms are provided when required.">
 		if specifiedEntityTerms = SpecifiedEntityTermsEnum->OtherSpecifiedEntity
 		then otherSpecifiedEntityTerms exists
+
+type DefaultUnderSpecifiedTransaction: <"A type allowing for the expansion of the scope of Transactions to which the Default under Specified Transaction Event of Default applies.">
+	defaultUnderSpecifiedTransactionVersion MAClauseVersionEnum (1..1) <"An enumerated list allowing for the selection of the 1992 or 2002 definition of Specified Transaction.">
+	additionalSpecifiedTransactions AdditionalSpecifiedTransactionsEnum (0..1) <"An enumerated list allowing for the addition of certain types of transaction to the definition of Specified Transaction.">
+	alternativeSpecifiedTransactions string (0..1) <"A string attribute allowing for the selection of alternative types of transaction that should be included in the definition of Specified Transaction.">
+
+type CrossDefault: <"A type that specifies whether the Cross Default Event of Default under the ISDA Master Agreement applies to a party, whether the definition of Cross Default has been amended to cross acceleration, whether the scope of Specified Indebtedness has been expanded or restricted and the level(s) of each party's threshold.">
+	crossDefaultElection CrossDefaultElections (2..2) <"A type specifying whether Cross Default applies to a party and, if so, the level of their threshold.">
+	crossAcceleration boolean (1..1) <"A boolean election specifying whether cross acceleration applies.">
+	adminErrorCarveOut boolean (1..1) <"A boolean election specifying whether an administrative error carve-out applies when considering whether cross-default has been triggered with respect to any Specified Indebtedness.">
+	adminErrorParameters AdminErrorParameters (1..1) <"A type specifying the duration of any grace period that applies to an administrative error.">
+	specifiedIndebtednessScope	SpecifiedIndebtednessScopeEnum (1..1) <"An enumerated list with options to specify whether the standard definition of Specified Indebtedness applies or whether additional products or forms of indebtedness have been added.">
+	specifiedIndebtednessExclusions SpecifiedIndebtednessExclusions (1..1) <"A type specifying whether any exclusions to the definition of Specified Indebtedness apply.">
+	aggregation boolean (1..1) <"A boolean election to specify whether amounts under limb (i) and (ii) of the Cross Default clause should be aggregated in order to determine whether the threshold amount has been reached.">
+	
+	condition AdminError: <"A validation rule to ensure that a grace period can only be defined where an administrative error carve-out applies.">
+	if adminErrorCarveOut = True then adminErrorParameters exists else adminErrorParameters is absent
+
+type CrossDefaultElections: <"A type specifying whether Cross Default applies to a party and, if so, the threshold that applies.">
+	counterparty CounterpartyRoleEnum (1..1) <"Specifies the party to whom these elections apply">
+	crossDefaultApplicable boolean (1..1) <"A Boolean election to specify whether Cross Default applies to a party.">
+	thresholdParameters ThresholdParameters (1..1) <"A type specifying the level and type of threshold that applies.">
+
+	condition CrossDefaultApplicable: <"A validation rule to ensure that a threshold can only be included if Cross Default applies to a party.">
+	if crossDefaultApplicable = True then thresholdParameters exists else thresholdParameters is absent
+	
+type ThresholdParameters: <"A type allowing for the definition of a party's threshold amount.">
+	zeroThreshold boolean (1..1) <"A boolean election specifying whether a zero threshold does or does not apply.">
+	absoluteThresholdCurrency string (0..1) <"A string attribute to define the currency in which any absolute threshold is denominated.">
+	absoluteThresholdAmount int (0..1) <"An integer attribute to specify an absolute threshold amount.">
+	percentageThresholdParameters PercentageThresholdParameters (0..1) <"A type allowing for the specification of a relative threshold amount.">
+	thresholdCombination ThresholdCombinationEnum (1..1) <"An enumerated list with options to specify whether the greater or lesser of an absolute or relative threshold will be the applicable threshold where both an absolute and relative threshold are used in combination.">
+
+	condition ZeroThreshold: <"A validation rule to ensure that neither an absolute nor relative threshold can be included where a zero threshold applies.">
+	if zeroThreshold = True then absoluteThresholdCurrency is absent and absoluteThresholdAmount is absent and percentageThresholdParameters is absent
+
+	condition CombinedThreshold: <"A validation rule to ensure that where both an absolute and relative threshold are specified, a user must select whether the relevant threshold will be the greater or lesser of the two.">
+	if absoluteThresholdCurrency exists and percentageThresholdParameters exists then thresholdCombination exists else thresholdCombination is absent
+
+type PercentageThresholdParameters: <"A type specifying the percentage level of a relative threshold and the relevant reference point.">
+	thresholdPercentage number (1..1) <"A number attribute specifying the relevant percentage of the threshold amount.">
+	thresholdReference ThresholdReference (1..1) <"A type allowing for the specification of the relevant reference point for determining the relative threshold amount.">
+	thresholdReferenceThirdParty string (1..1) <"A string attribute allowing for the specification of a third party who is referenced in the determination of a the relative threshold amount.">
+
+type ThresholdReference: <"A type allowing for the specification of the relevant reference point for determining the relative threshold.">
+	thresholdReference ThresholdReferenceEnum (0..1) <"An enumerated list allowing for the selection of different reference points for determining the relative threshold.">
+	thresholdReferenceAlternative string (0..1) <"A string attribute allowing for the selection of an alternative reference point for determining the relative threshold.">
+
+	condition: one-of 
+
+	condition ThirdPartyReference: <"A validation rule ensuring that a third party can only be specified where a third party is referenced in the relevant reference point used for determining the relative threshold.">
+	if thresholdReference = ThresholdReferenceEnum -> Third_Party_Shareholder_Equity then PercentageThresholdParameters -> thresholdReferenceThirdParty exists else PercentageThresholdParameters -> thresholdReferenceThirdParty is absent
+
+type AdminErrorParameters: <"A type for specifying the commencement point and duration of any grace period related to an administrative error.">
+	adminErrorGraceDuration int (0..1) <"An integer value for specifying the length of the relevant grave period.">
+	adminErrorGraceCommencement AdminErrorGraceCommencementEnum (0..1) <"An enumerated list allowing for the selection of the grace period commencement time.">
+		
+type SpecifiedIndebtednessExclusions: <"A type for specifying any exclusions from the definition of Specified Indebtedness.">
+	specifiedIndebtednessCarveOuts SpecifiedIndebtednessCarveOutsEnum (0..1) <"An enumerated list allowing for the selection of carve-outs from the definitions of Specified Indebtedness.">
+	specifiedIndebtednessCarveOutsAlternative string (0..1) <"A string attribute allowing for the selection of an alternative carve-out from the definitions of Specified Indebtedness.">
+
+	condition: one-of
+
+type CreditEventUponMerger: <"Specifies the version of Credit Event upon Merger that is applicable to the Master Agreement, whether it is applicable to a party, whether an objective or reasonable text applies, and whether certain designated events within the definition have been modified.">
+	versionCEUM MAClauseVersionEnum (1..1) <"Specifies which version of the Credit Event upon Merger clause applies.">
+	partyElection CEUMElection (2..2) <"The party election specific to Credit Event upon Merger.">
+	reasonableTest boolean (0..1) <"A boolean election specifying whether a reasonableness test applies when a party is determining the definition of 'materially weaker'.">
+	designatedEvents DesignatedEvents (0..*) <"Specifies whether any existing designated events have been amended or if any additional designated events have been added.">
+	
+	condition designatedEvents: <"A validation rule to ensure that amendments to designated events can only apply to the 2002 version of Credit Event Upon Merger.">
+		if versionCEUM = MAClauseVersionEnum->Version_92 then designatedEvents is absent
+
+type CEUMElection: <"A class to specify the party elections specific to CreditEventUponMerger.">
+	counterparty CounterpartyRoleEnum (1..1) <"The party for whom Credit Event upon Merger is applicable.">
+	isApplicable boolean (1..1) <"A boolean election to specify whether Credit Event upon Merger is applicable.">
+	objectiveTest ObjectiveTestType (0..1) <"Specifies whether an objective test applies to a party when determining the definition of 'materially weaker'.">
+	
+type ObjectiveTestType: <"Specifies the type of objective test that is applied when determining the definition of materially weaker.">
+	ratingFloor RatingFloorCEUM (0..1) <"Specifies that the clause library standard rating floor for credit event upon merger applies.">
+	other string (0..1) <"Specifies that an alternative rating floor applies.">
+
+	condition: one-of
+
+type RatingFloorCEUM: <"Specifies the rating floor to be used in conjunction with the Credit Event upon Merger clause.">
+	debtType CEUMDebtType (1..1) <"Specifies the type of debt that is referenced within the Credit Event upon Merger rating floor.">
+	ratingLevel CEUMRatingLevel (1..3) <"Specifies the rating agency(ies) and rating level(s) that are referenced within the Credit Event upon Merger rating floor.">
+
+type CEUMDebtType: <"A type specifying the type of debt that is referenced within the Credit Event upon Merger rating floor.">
+	longTermUnsecuredUnsubordinated boolean (1..1) <"A boolean election speficying whether the debt type is long term, unsecured and unsubordinated debt">
+	alternativeDebtType string (0..1) <"Specifies an alternative type of debt to be referenced within the Credit Event upon Merger clause.">
+
+	condition CEUMDebtType:
+	if longTermUnsecuredUnsubordinated = False then alternativeDebtType exists else alternativeDebtType is absent
+	
+type CEUMRatingLevel: <"Specifies the Rating Agency and credit notation that applies within the Credit Event upon Merger rating floor.">
+	agency CreditRatingAgencyEnum (1..1) <"Specifies the applicable rating agency.">
+	notation string (1..1) <"Specifies the rating level for the applicable rating agency.">
+
+type DesignatedEvents: <"A class to specify which designated events are being amended or included.">
+	amendExisting AmendExistingEnum (0..1) <"Specifies whether existing designated events are being amended">
+	entryAgreement boolean (0..1) <"Specifies whether the definitions of designated events has been expanded to also capture the entry into of an agreement related to any of the designated events.">
+	other string (0..1)
+
+type AutomaticEarlyTermination: <"A class to specify the Automatic Early Termination provision applicable to a Master Agreement.">
+	fallbackAET boolean (1..1) <"A boolean election to specify whether provided that, where a party is governed by a system of law which does not permit the termination of one or more Transactions to occur following an Event of Default specified in Section 5(a)(vii)(1), (3), (4), (5), (6) or, to extent analogous thereto, (8) ,then the Automatic Early Termination provisions of Section 6(a) shall apply to such party.">
+	indemnity boolean (1..1) <"A boolean attribute to specify whether if an Early Termination Date occurs because Automatic Early Termination applies in respect of a party, the Defaulting Party shall indemnify the Non- defaulting Party, on demand, against any losses, costs, expenses or damages that the Non- defaulting Party incurs (to the extent not already taken into account in Section 6(e)) in relation to terminating, liquidating, establishing or re- establishing any hedge or related positions as result of movements of rates, indices, prices, yields, volatilities, spreads or other market data between the Early Termination Date and the Local Business Day on which the Non-defaulting Party becomes aware that the Early Termination Date has occurred">
+	partyElection AutomaticEarlyTerminationElection (0..2) <"The party election specific to the Automatic Early Termination Clause.">
+
+	condition fallbackAET: <"The fallback Automatic Early Termination provision can only be specified as applicable if the Automatic Early Termination Clause is not applicable to one of the parties.">
+		if fallbackAET = True
+		then partyElection->isApplicable all = False
+
+	condition indemnity: <"If Automatic Early Termination can never apply then indemnity cannot apply.">
+		if fallbackAET = False and partyElection->isApplicable all = False
+		then indemnity = False
+
+type AutomaticEarlyTerminationElection: <"A class to specify the party elections specific to the Automatic Early Termination Clause.">
+
+	counterparty CounterpartyRoleEnum (1..1) <"The party for which the Automatic Early Termination provisions are being specified.">
+	isApplicable boolean (1..1) <"A boolean election to specify whether the Automatic Early Termination provisions of Section 6(a) are applicable (True) or not applicable (False).">
 
 type TerminationCurrency: <"Specifies how the Termination Currency for the agreement will be determined.">
 	statedTerminationCurrency TerminationCurrencySelection (0..1) <"Allows for specific Termination Currency(ies) and a fallback Termination Currency to be selected.">
@@ -150,42 +245,363 @@ type PartyOptionTerminationCurrency: <"Specifies mechanism for Termination curre
 		then terminationCurrencySpecifiedCondition exists
 
 type PartyTerminationCurrencySelection: <"Specifies the termination currency to be used by a party when it is the Non-Defaulting Party or the Party which is not the Affected Party.">
-	party Party (1..1) <"The elective party.">
+	counterparty CounterpartyRoleEnum (1..1) <"The elective party.">
 	statedPartyCurrency string (1..1) <"Specifies termination Currency">
 
-type CreditEventUponMerger: <"Specifies the version of Credit Event upon Merger that is applicable to the Master Agreement, whether it is applicable to a party, whether an objective or reasonable text applies, and whether certain designated events within the definition have been modified.">
-	versionCEUM CEUMVersionEnum (1..1) <"Specifies which version of the Credit Event upon Merger clause applies.">
-	partyElection CEUMElection (2..2) <"The party election specific to Credit Event upon Merger.">
-	reasonableTest boolean (0..1) <"A boolean election specifying whether a reasonableness test applies when a party is determining the definition of 'materially weaker'.">
-	objectiveTest ObjectiveTestType (0..2) <"Specifies whether an objective test applies to one or both parties when determining the definition of 'materially weaker'.">
-	designatedEvents DesignatedEvents (0..*)
+type PaymentMeasureMethod92: <"A type to specify the relevant payment measure and method under the 1992 Master Agreement.">
+	firstMethod boolean (0..1) <"A boolean attribute to specify whether First Method applies under a 1992 Master Agreement. If this attribute is False or does not appear, Second Method will apply.">
+	paymentMeasure PaymentMeasureEnum (1..1) <"An enumerated list to specify the relevant payment measure.">
+	paymentMeasureProviso PaymentMeasureProviso (0..*) <"A type to specify alternative payment measures that apply to certain types of transaction.">
 
-	condition designatedEvents: <"A validation rule to ensure that amendments to designated events can only apply to the 2002 version of Credit Event Upon Merger.">
-		if versionCEUM = CEUMVersionEnum->Version_92 then designatedEvents is absent
+type PaymentMeasureProviso: <"A type to specify alternative payment measures that apply to certain types of transaction.">
+	paymentMeasureProduct string (1..1) <"A string attribute to specify the products to which an alternative payment measure is applied.">
+	paymentMeasureAlternative PaymentMeasureEnum (1..1) <"An enumerated list to specify the alternative payment measure for the specified types of transaction.">
 
-type CEUMElection: <"A class to specify the party elections specific to CreditEventUponMerger.">
-	party Party (1..1) <"The party for whom Credit Event upon Merger is applicable.">
-	isApplicable boolean (1..1) <"A boolean election to specify whether Credit Event upon Merger is applicable.">
+type NAVDeclineATE: <"Specifies whether an ISDA Master Agreement includes a clause that triggers an Additional Termination Event for Affected Transactions based on a decline in a party's net asset value.">
+	allTransactions boolean (1..1) <"A Boolean election to specify whether all Transactions will be considered to be Affected Transactions for the purposes of the NAV decline Additional Termination Event.">
+	specifiedAffectedTransactions string (0..1) <"Specifies which specific Transactions will be considered to be Affected Transactions for the purposes of the NAV decline Additional Termination Event.">
+	partyNAVElection PartyNAVElections (0..2) <"Specifies whether NAV floor mechanism or NAV decline mechanism applies to either party for the purposes of triggering an Additional Termination Event and specifies the relevant measure of Net Asset Value.">
 	
-type ObjectiveTestType: <"Specifies the type of objective test that is applied when determining the definition of materially weaker.">
-	party Party (0..1)
-	ratingFloor AgencyRatingCriteria (0..*)
-	other string (0..1)
+	condition SpecifiedTransactions: <"A validation rule to ensure that specific Affected Transactions cannot be included if all Transactions are considered to be Affected Transactions.">
+		if allTransactions = True then specifiedAffectedTransactions is absent 
 
-type DesignatedEvents: <"A class to specify which designated events are being amended or included.">
-	amendExisting AmendExistingEnum (0..1) <"Specifies whether existing designated events are being amended">
-	entryAgreement boolean (0..1) <"Specifies whether the definitions of designated events has been expanded to also capture the entry into of an agreement related to any of the designated events.">
-	other string (0..1)
+type PartyNAVElections: <"A type specifying whether (i) a NAV floor applies to either party, including the level of the floor and when it can be triggered and/or (ii) whether a NAV decline mechanism applies to either party, including the relevant lookback periods and triggers.">
+	party CounterpartyRoleEnum (1..1) <"Specifies the party to whom these elections apply">
+	navFloorApplicable boolean (1..1) <"A Boolean election to specify whether a NAV floor applies to the relevant party.">
+	navDeclineApplicable boolean (1..1) <"A Boolean election to specify whether a NAV decline applies to the relevant party.">
+	navFloorParameters NAVFloorParameters (1..1) <"A type specifying the type(s) of NAV floor that apply, when the current NAV is observed and the relative and/or absolute decline that is required in order for an Additional Termination Event to be triggered.">
+	navDeclineParameters NAVDeclineParameters (1..*) <"A type specifying for a single NAV decline test the day upon which current NAV is observed, the period within which historic NAV is observed, the day or days during that period for which historic NAV is observed and the level of the relevant decline triggers.">
+	navType NAVType (0..1) <"A type specifying the type of net asset value being referenced.">
+	shareType string (0..1) <"A string attribute specifying the definition of 'share' when the type of net asset value being referenced is net asset value per share.">
 
-enum CEUMVersionEnum: <"The enumerated values to specify which version of Credit Event upon Merger applies.">
-	Version_92 <"The version of Credit Event upon Merger set out in the 1992 ISDA Master Agreement.">
-	Version_02 <"The version of Credit Event upon Merger set out in the 2002 ISDA Master Agreement.">
+	condition NAVFloor: <"A validation rule to ensure that where a NAV Floor is not applicable, the inclusion of parameters relating to a NAV Floor is not possible.">
+		if navFloorApplicable = True then navFloorParameters exists else navFloorParameters is absent
+		
+	condition NAVDecline: <"A validation rule to ensure that where a NAV Decline is not applicable, the inclusion of parameters relating to a NAV Decline is not possible.">
+		if navDeclineApplicable = True then navDeclineParameters exists else navDeclineParameters is absent
 
-enum AmendExistingEnum: <"The enumerated values to specify which existing designated events are being amended.">
-	Exclude_Ownership <"Excluding sub-section (2) from section 5(b)(v) of the 2002 ISDA Master Agreement.">
-	Exclude_Cap_Structure <"Excluding sub-section (3) from section 5(b)(v) of the 2002 ISDA Master Agreement.">
-	Exclude_Ownership_and_Cap_Structure <"Excluding sub-sections (2) and (3) from section 5(b)(v) of the 2002 ISDA Master Agreement.">
+	condition shareType: <"A validation rule to ensure that the definition of share can't be included where the relevant measure of net asset value is not net asset value per share.">
+		if NAVType -> navTypeSpecified = NavTypeEnum -> NAV_Per_Share then shareType exists else shareType is absent
+	
+type NAVType:
+	navTypeSpecified NavTypeEnum (0..1) <"An enumerated list to specify a standard measure of the relevant party's Net Asset Value.">
+	navTypeOther string (0..1) <"A string attribute to specify an alternative measure of the relevant party's Net Asset Value.">
+
+	condition: one-of
+
+type NAVFloorParameters: <"A type specifying the various paramters relating to operation of a NAV Floor.">
+	specifiedFloor boolean (1..1) <"A boolean election to specify whether the NAV floor is determined by reference to a specified floor value.">
+	absoluteDecline boolean (1..1) <"A boolean election to specify whether the NAV floor is determined by reference to a NAV decline equal to a certain specified amount.">
+	relativeDecline boolean (1..1) <"A boolean election to specify whether the NAV floor is determined by reference to a specified percentage decline relative to the highest observed NAV of the relevant party.">
+	specifiedFloorValue int (1..1) <"An integer attribute to specify the NAV floor level at which the Additional Termination Event is triggered.">
+	absoluteDeclineValue int (1..1) <"An integer attribute to specify the amount that the NAV must decline where the Additional Termination Event is capable of being triggered by reference to an absolute decline.">
+	floorCurrency string (1..1) <"A string attribute to specify the currency in which the NAV floor level or NAV value decline is denominated.">
+	relativeDeclinePercentage number (1..1) <"A number attribute to specify the percentage decline where the Additional Termination Event is capable of being triggered by reference to a decline relative to the highest observed NAV of the relevant party.">
+	floorCalculationDate FloorCalculationDate (1..1) <"A type specifiying the day on which the calculation should take place for the purposes of determining whether the NAV floor has been breached.">
+
+	condition SpecifiedFloor: <"A validation rule to ensure that where a specified floor is included, it is not possible to also include an absolute decline or relative decline.">
+		if specifiedFloor = True then absoluteDecline and relativeDecline is absent
+
+	condition FloorDecline: <"A validation rule to ensure that where an absolute decline and/or relative decline is/are included, it is not possible to also include a specified floor.">
+		if absoluteDecline = True or relativeDecline = True then specifiedFloor is absent
+
+	condition SpecifiedFloorValue: <"A validation rule to ensure that where a specified floor is not included, it is not possible to include the level of the specified floor.">
+		if specifiedFloor = True then specifiedFloorValue exists else specifiedFloorValue is absent
+
+	condition AbsoluteDeclineValue: <"A validation rule to ensure that where an absolute decline is not included, it is not possible to include the level of absolute decline.">
+		if absoluteDecline = True then absoluteDeclineValue exists else absoluteDeclineValue is absent
+
+	condition DeclinePercentage: <"A validation rule to ensure that where the NAV floor is determined by reference to an absolute floor only, it is not possible to include data relating to a relative percentage decline.">
+		if relativeDecline = True then relativeDeclinePercentage exists else relativeDeclinePercentage is absent
+
+	condition FloorCurrency: <"A validation rule to ensure that where neither a specified floor or absolute decline are specified, it is not possible to provide a currency in which either the floor or absolute decline amount are denominated.">
+		if specifiedFloor = True or absoluteDecline = True then floorCurrency exists else floorCurrency is absent
+
+type FloorCalculationDate:
+	floorSpecifiedDate NAVObservationDateEnum (0..1) <"An enumerated list to identify the days on which current NAV is observed for the puposes of determining whether the NAV floor has been breached.">
+	floorSpecifiedDateAlternative string (0..1) <"A string attibute allowing the specification of an alternative day on which the calculation should take place for the purposes of determining whether the NAV floor has been breached.">
+
+	condition: one-of 
+
+type NAVDeclineParameters: <"A type specifying the various parameters relating to the operation of a NAV decline trigger.">
+	currentNAVObservationDays CurrentNAVObservationDays (1..1) <"A type specifying the days on which current NAV is observed.">
+	historicNAVObservationPeriod HistoricNAVObservationPeriod (1..1) <"A type specifying the period within which historic NAV is observed for the purposes of comparing with current NAV.">
+	navDeclineTrigger number (1..1) <"A number attribute to specify the percentage decrease in NAV over the specified period that would trigger the NAV decline.">
+
+type CurrentNAVObservationDays:
+	currentNAVObservationDay NAVObservationDateEnum (0..1) <"An enumerated list to identify the day on which current NAV is observed.">
+	currentNAVObservationDayAlternative string (0..1) <"A string attribute allowing the specification of an alternative day on which current NAV is observed.">
+
+	condition: one-of
+
+type HistoricNAVObservationPeriod: <"A type specifying the period within which historic NAV is observed for the purposes of comparing with current observed NAV. ">
+	historicNAVObservationDate HistoricNAVObservationDate (1..1) <"A type specifying the day or days during the historic NAV reference period for which historic NAV is observed.">
+	historicNAVReferencePeriod HistoricNAVReferencePeriod (1..1) <"A type specifying the period within which historic NAV is observed.">
+
+type HistoricNAVObservationDate:
+	historicNAVObservationDate NAVObservationDateEnum (0..1) <"An enumerated list to identify the days for which historic NAV is observed.">
+	historicNAVObservationDateAlternative string (0..1) <"A string attribute allowing the specification of an alternative day or days for which historic NAV is observed.">
+
+	condition: one-of
+
+type HistoricNAVReferencePeriod: <"A type specifying a period preceding the current NAV observation date within which historic NAV is observed.">
+	historicNAVLookbackType NAVLookbackTypeEnum (1..1) <"An enumerated list specifing the type of lookback period used to determine the period within which historic NAV is observed.">
+	historicNAVDurationLength number (1..1) <"A number attribute to specify the relevant number of weeks, months or years preceding the observation date and used for determining when the lookback period commences.">
+	historicNAVDurationType PeriodEnum (1..1) <"An enumerated list specifying whether the lookback period is comprised of a certain number of days, months or years.">
+	
+	condition NAVLookbackType: <"A validation rule to ensure that where the relevant lookback period is a specified number of months prior to the observation date, then it is not possible to select an alternative duration of time.">
+		if historicNAVLookbackType = NAVLookbackTypeEnum -> Specified_Months_Prior then historicNAVDurationType is absent
+
+type ChangeOwnership: <"A type to specify  whether a Change in Ownership clause applies to a party, whether it is triggered by a change in ownership or through the failure of a specific parent entity to maintain ownership of the relevant party and which transactions under the Master Agreement will be Affected Transactions.">
+	allTransactions boolean (1..1) <"A Boolean election to specify whether all Transactions will be considered to be Affected Transactions for the purposes of the Change of Ownership Additional Termination Event.">
+	specifiedAffectedTransactions string (0..1) <"Specifies which specific Transactions will be considered to be Affected Transactions for the purposes of the Change of Ownership Additional Termination Event.">
+	partyChangeOwenerhipElections PartyChangeOwnershipElections (0..2) <"Specifies whether a Change in Ownership clause applies to a party and whether it is triggered by a change in ownership or through the failure of a specific parent entity to maintain ownership of the relevant party.">
+
+type PartyChangeOwnershipElections:
+	party CounterpartyRoleEnum (1..1) <"Specifies the party to whom these elections apply">
+	changeOwnership boolean (1..1) <"A boolean election to specify whether an ATE will be triggered upon a change in ownership of the relevant party.">
+	maintainControl boolean (1..1) <"A boolean election to specify whether an ATE will be triggered upon the failure of a specific parent entity to maintain a specific ownership interest in the relevant party.">
+	parentEntity LegalEntity (1..1) <"A string attribute to specify the relevant parent entity that is required to maintain a minimum percentage of voting rights in the relevant party.">
+	votingRights VotingRights (1..1) <"A type to specify the minumum level of controlling interest that the parent entity is required to maintain in the relevant party.">
+
+	condition MaintainControlParameters: <"A validation rule to ensure that where an ATE is not triggered upon the failure of a specific parent entity to maintain a specific ownership interest in the relevant party it is not possible to specify the relevant parent entity or minimum level of controlling interest that the parent entity is required to maintain in the relevant party.">
+		if maintainControl = False then parentEntity is absent and votingRights is absent 
+		else parentEntity exists and votingRights exists
+	
+type VotingRights: <"A type to specify the minumum level of controlling interest that the parent entity is required to maintain in the relevant party.">
+	votingPercentage number (0..1) <"A number attribute to specify the mimimum percentage of voting rights in the relevant party that must be maintained by the parent entity.">
+	votingRights string (0..1) <"A string attribute to specify an alternative measure of the controlling interest that the parent entity is required to maintain in the relevant party.">
+
+	condition: one-of
+
+type FailureToPayAmendment: <"A type to amend the standard grace period or to include an administrative error carve-out to the Failure to Pay or Deliver Event of Default">
+	gracePeriodAmendment FTPGracePeriod (0..2) <"A type specifying whether the grace period for failure to pay or deliver has been amended, whether an additional grace period has been included for a failure to pay or deliver caused by an administrative error, and the duration of any new grace periods.">
+
+type FTPGracePeriod:
+	counterparty CounterpartyRoleEnum (1..1) <"Specifies the party to whom these elections apply">
+	gracePeriodAmendment boolean (1..1) <"A boolean election to specify whether the grace period for failure to pay or deliver has been amended.">
+	gracePeriod int (1..1) <"An integer attribute specifying an alternative grace period. ">
+	adminCarveOutApplicable boolean (1..1) <"A boolean election specifying whether an administrative error carve-out has been included.">
+	gracePeriodAdminPayments int (1..1) <"An integer attribute specifying an alternative grace period for a failure to pay caused by an administrative error.">
+	gracePeriodAdminDeliveries int (1..1) <"An integer attribute specifying an alternative grace period for a failure to deliver caused by an administrative error.">
+	
+	condition GracePeriodAmendment: <"A validation rule to ensure that if the grace period has not been amended it is not possible to specify an alternative grace period for failure to pay or deliver.">
+		if gracePeriodAmendment = True then gracePeriod is absent else gracePeriod exists
+
+	condition AdminCarveOutPayments: <"A validation rule to ensure that where a carve-out for administrative errors has not been included, it is not possible to specify an alternative grace period for failure to pay.">
+		if adminCarveOutApplicable = False then gracePeriodAdminPayments is absent else gracePeriodAdminPayments exists
+
+	condition AdminCarveOutDeliveries: <"A validation rule to ensure that where a carve-out for administrative errors has not been included, it is not possible to specify an alternative grace period for failure to deliver.">
+		if adminCarveOutApplicable = False then gracePeriodAdminDeliveries is absent else gracePeriodAdminDeliveries exists
+
+type NoticesMasterAgreement: <"A type specifying whether the standard notice provisions of the Master Agreement apply, if any methods of delivery have been excluded or added and whether a copy of any notice relating to an Event of Default or Termination Event is required to be sent in copy to an additional recipient. ">
+	noticesMasterAgreementStandard boolean (1..1) <"A boolean election specifying whether the standard Notice provision applies.">
+	noticesMasterAgreementModifications	NoticesMasterAgreementModifications (1..1) <"A type specifying which specific methods of notice apply where the standard Notice provision has been amended.">
+	noticesMasterAgreementCopy NoticesMasterAgreementCopy (0..2) <"A type specifying whether a party is requited to send any notices relating to an Event of Default or Termination Event to an additional recipient.">
+
+	condition StandardNoticesMasterAgreement: <"A validation rule to ensure that where the standard notices provisions of the Master Agreement apply, certain method of delivery can not be deleted and additional conditions cannot be specified.">
+		if noticesMasterAgreementStandard = True
+		then noticesMasterAgreementModifications is absent and noticesMasterAgreementCopy is absent
+		else noticesMasterAgreementModifications exists and noticesMasterAgreementCopy exists
+
+type NoticesMasterAgreementModifications: <"A type specifying which specific methods of notice apply where the standard Notice provision has been amended.">
+	noticesWritingRemove boolean (1..1) <"A boolean election specifying whether the ability to send notices in writing hhas been deleted from the Notices provision of the Master Agreement.">
+	noticesTelexRemove boolean (1..1) <"A boolean election specifying whether the ability to send notices by Telex has been deleted from the Notices provision of the Master Agreement.">
+	noticesFacsimileRemove boolean (1..1) <"A boolean election specifying whether the ability to send notices by facsimile has been deleted from the Notices provision of the Master Agreement.">
+	noticesCertifiedMailRemove boolean (1..1) <"A boolean election specifying whether the ability to send notices by certified mail has been deleted from the Notices provision of the Master Agreement.">
+	noticesElectronicMessagingSystemRemove boolean (1..1) <"A boolean election specifying whether the ability to send notices by electronic messaging system has been deleted from the Notices provision of the Master Agreement.">
+	noticesEmailRemove boolean (1..1) <"A boolean election specifying the ability to send notices by email has been deleted from the Notices provision of the Master Agreement.">
+
+type NoticesMasterAgreementCopy: <"A type specifying whether a party is requited to send any notices relating to an Event of Default or Termination Event to an additional recipient.">
+	party CounterpartyRoleEnum (1..1) <"Specifies the party who will be required to send a copy of any notice relating to an Event of Default or Termination Event to an additional recipient ">
+	creditSupportProviderNotice boolean (1..1) <"A boolean election specifying whether a copy of any notice relating to an Event of Default or Termination Event should be sent to the Credit Support Provider of the other party.">
+	alternativeRecipient Party (0..1) <"A type specifying any additional recipient for notices relating to an Event of Default or Termination Event.">
+
+type Offices10a: <"A type specifying whether Section 10(a) of the Master Agreement is applicable.">
+	offices10aApplicable boolean (1..1) <"A boolean election specifying whether Section 10(a) of the Master Agreement is applicable.">
+
+type Multibranch: <"A type specifying whether a party is a multibranch party and, if so, which offices it may enter into transactions through.">
+	multibranchParameters MultibranchParameters (2..2) <"A type specifying whether each party is a multibranch party and, if so, which offices it may enter into transactions through.">
+
+type MultibranchParameters:
+	counterparty CounterpartyRoleEnum (1..1) <"Specifies the party to whom these elections apply">
+	multibranchParty boolean (1..1) <"A boolean election specifying whether the party is a multibranch party.">
+	multibranchOffices string (1..*) <"A string attribute allowing the party to specify which offices it may enter into transactions through.">
+	multiBranchConfirmationOffices boolean (1..1) <"A boolean attribute specifying whether the party may enter into transactions through any other office or branch specified in a confirmation.">
+
+	condition NotMultiBranch: <"A validation rule to ensure that where a party is not a multibranch party it is not possible to specify additional offices through which transactions may be entered into.">
+		if multibranchParty = False 
+		then multibranchOffices is absent and multiBranchConfirmationOffices is absent
+		else multibranchOffices exists and multiBranchConfirmationOffices exists
+
+type CreditSupportDocument: <"Identification of party specific Credit Support Documents applicable to the document.">
+	creditSupportDocumentElection CreditSupportDocumentElection (2..2) <"The party election of Credit Support Document(s), if any.">
+
+type CreditSupportDocumentElection: <"The party election of Credit Support Provider(s), if any.">
+	party CounterpartyRoleEnum (1..1) <"The elective party">
+	creditSupportDocumentTerms CreditSupportDocumentTermsEnum (1..1) <"Specification of the Credit Support Document terms.">
+	creditSupportDocument RelatedAgreement(0..*) <"The specified Credit Support Document(s), if any.">
+	bespokeCreditSuppportDocument string (0..1) <"Specification of a document when not captured under RelatedAgreement">
+
+	condition CreditSupportDocument: <"A validation rule to ensure that a Credit Support Document is specified when required.">
+		if creditSupportDocumentTerms = CreditSupportDocumentTermsEnum->Specified
+		then creditSupportDocument exists
+
+type CreditSupportProvider: <"Identification of party specific Credit Support Providers applicable to the document.">
+	creditSupportProviderElection CreditSupportProviderElection (2..2) <"The party election of Credit Support Provider(s), if any.">
+
+type CreditSupportProviderElection: <"The party election of Credit Support Provider(s), if any.">
+	party CounterpartyRoleEnum (1..1) <"The elective party">
+	creditSupportProviderTerms CreditSupportProviderTermsEnum (1..1) <"Specification of the Credit Support Provider terms.">
+	creditSupportProvider LegalEntity (0..*) <"The specifed Credit Support Provider(s), if any.">
+	bespokeCreditSuppportProvider string (0..1) <"Specification of a particular type of entity that might act as Credit Support Provider.">
+
+	condition CreditSupportProvider: <"A validation rule to ensure that a Credit Support Provider is specified when required.">
+		if creditSupportProviderTerms = CreditSupportProviderTermsEnum->Specified
+		then creditSupportProvider exists
+
+type Jurisdiction: <"A type specifying the jurisdiction which shall be used in any legal proceedings relating to the Master agreement and whether such jurisdiction is exclusive or not.">
+	jurisdictionCourt CourtChoiceEnum (1..1) <"An enumerated list to allow for  selection of the jurisdiction which shall be used in any legal proceedings relating to the Master agreement.">
+	jurisdictionExclusive boolean (1..1) <"A boolean election to specify whether jurisdiction is exclusive or non-exclusive.">
 
 
+type PaymentNetting: <"A type specifying whether (and, if so, the manner in which) parties agree to net payments due under Transaction(s) due on a particular date.">
+	paymentNettingStartDate date (1..1) <"Specifies the date on which payment netting will start in respect of Transaction(s).">
+	paymentNettingApplication PaymentNettingApplicationEnum (1..1) <"An enumerated list to specify whether payment netting will apply to payments due on the same day, in the same currency across all Transactions, to payments under the same Transaction or to certain groups of Transactions.">
+	paymentNettingGroupTransactions ContractualDefinitionsEnum (1..*) <"An enumerated list specifying which groups of transactions will be subject to payment netting.">
+	paymentNettingExludedTransactions PaymentNettingExcludedTransactions (0..1) <"A type specifying which types of transaction will be excluded from payment netting.">
+
+	condition PaymentNettingGroupAll: <"A validation rule ensuring that where payment netting applies to all Transactions it is not possible to specify a group of Transaction to which payment netting will apply.">
+	if paymentNettingApplication=PaymentNettingApplicationEnum->All_Transactions then paymentNettingGroupTransactions is absent else paymentNettingGroupTransactions exists
+
+	condition PaymentNettingGroupSameTransaction: <"A validation rule ensuring that where payment netting applies to payments under the same Transaction only it is not possible to specify a group of Transaction to which payment netting will apply.">
+	if paymentNettingApplication=PaymentNettingApplicationEnum->Same_Transaction then paymentNettingGroupTransactions is absent else paymentNettingGroupTransactions exists
+
+	condition PaymentNettingSameTransaction: <"A validation rule ensuring that where payment netting applies to a payments under the same Transaction only it is not possible to exclude certain transactions from payment netting.">
+	if paymentNettingApplication=PaymentNettingApplicationEnum->Same_Transaction then paymentNettingExludedTransactions is absent else paymentNettingExludedTransactions exists
+	
+type PaymentNettingExcludedTransactions: <"A type specifying which types of transaction will be excluded from payment netting.">
+	excludedCreditSupportArrangement boolean (1..1) <"A boolean election specifying whether credit support arrangements will be excluded from payment netting.">
+	excludedCurrencyOptionPremium boolean (1..1) <"A boolean election specifying whether payements in respect of premiums for Currency Options will be excluded from payment netting.">
+	excludedFXCurrencyOptionsPremium boolean (1..1)	<"A boolean election specifying whether payements in respect of premiums for Currency Options and FX Transactions will be excluded from payment netting.">
+	excludedTransactions string (1..*) <"A string attribute to specify any other transactions that should be excluded from payment netting.">
+
+	condition: one-of
+
+type Affiliates: <"A type to specify whether the standard definition of Affiliate applies, whether an alternative definition of Affliate applies, whether any affiliates should be excluded from the scope of the definition of Affiliate and to which sections of the agreement the definition of Affiliates should apply.">
+	section14Def boolean (1..1) <"A boolean election specifying whether the standard Section 14 definition of Affiliate applies.">
+	alternativeDef string (1..1) <"A string attribute allowing for the specification of an alternative definition of Affiliate.">
+	affiliatesExclusions AffiliatesExclusions (0..2) <"A type allowing for each party to specify whether certain affiliates are excluded from the definition of Affiliate and to which sections of the agreement the definition of Affiliate should apply.">
+
+	condition AffiliatesDef: <"A validation rule to ensure that where the standard Section 14 definition of Affiliate is used, an alternative definition of Affiliate cannot be provided.">
+	if section14Def = True then alternativeDef is absent else alternativeDef exists
+
+type AffiliatesExclusions: <"A type allowing for each party to specify whether certain affiliates are excluded from the definition of Affiliate and to which sections of the agreement the definition of Affiliate should apply.">
+	party CounterpartyRoleEnum (1..1) <"Specifies the party to whom these elections apply">
+	noAffiliates boolean (1..1) <"A boolean election specifying whether a party should be considered to have no affiliates for the purposes of the Master Agreement.">
+	excludedAffiliates string (0..*) <"A string attribute allowing for the specification of any affiliates who should be excluded from the definition of Affiliate.">
+	affiliatesScope AffiliatesScopeEnum (0..1) <"An enumerated list allowing the scope of the Affiliates clause to be defined.">
+	affiliatesScopeAlternative string (1..1) <"A string attribute to allow for the specification of an alternative scope of the definition of Affiliate.">
+
+	condition NoAffiliates: <"A validation rule to ensure that where a party has no affiliates for the purposes of the Master Agreement, additional excluded affiliates cannot be provided.">
+		if noAffiliates = True then excludedAffiliates is absent else excludedAffiliates exists
+
+	condition AlternativeScope: <"A validation rule to ensure that where the scope of the Affiliate definition has been defined using an enumerated value, an alternative scope cannot be provided.">
+		if affiliatesScope exists then affiliatesScopeAlternative is absent else affiliatesScopeAlternative exists
+	
+type NoAgencyMasterAgreement: <"A type to specify whether the Master Agreement contains a No Agency representation.">
+	noAgency boolean (1..1) <"A boolean election to specify whether the Master Agreement contains a No Agency representation.">
+
+type AbsenceofLitigationRep: <"A type to specify any amendments to the Absence of Litigation representation within the Master Agreement.">
+	reasonableOpinionStandard boolean (1..1) <"A boolean election to specify whether the Absence of Litigation representation within the Master Agreement has been amended to specify that the determination of the effect of any action, suit or proceeding will be made in the reasonable opinion of the relevant party.">
+	removalThreatenedLitigaton boolean (1..1) <"A boolean election to specify whether the Absence of Litigation representation within the Master Agreement has been amended to remove threatened litigation from the scope of the representation.">
+
+type SetOffMasterAgreement: <"A type specifying whether obligations under the Master Agreement may be set off, what they may be set off against and whose obligations are covered.">
+	setOffApplicable boolean (1..1) <"A boolean election specifying whether set-off applies.">
+	setOffScope SetOffScope (0..1) <"A type specifying the events under the Master Agreement to which the set-off clause apply.">
+	setOffAffiliates boolean (0..1) <"A boolean election specifying whether set-off is extended to cover obligations of affiliates of the Non-defaulting or non-Affected Party.">
+	setOffAllAmounts boolean (0..1) <"A boolean election specifying whether set-off is expanded to cover all amounts owed by the Defaulting of Affected Party.">
+
+	condition SetOffApplicable: <"A validation rule to ensure that where set-off does not apply it is not possible to amend the scope of the set-off clause.">
+	if setOffApplicable = False then (setOffScope and setOffAffiliates and setOffAllAmounts) is absent
+
+	condition SetOffApplicable: <"A validation rule to ensure that where set-off does not apply it is not possible to amend the scope of the set-off clause.">
+	if setOffApplicable = True then (setOffScope and setOffAffiliates and setOffAllAmounts) exists
+	
+type SetOffScope: <"A type specifying the scope of the set-off clause.">
+	setOffEOD boolean (1..1) <"A boolean election specifying whether set-off applies when the agreement is terminated due to an Event of Default.">
+	setOffCEUM boolean (1..1) <"A boolean election specifying whether set-off applies when the agreement is terminated due to a Credit Event upon Merger.">
+	setOffTerminationEventAllTransactions boolean (1..1) <"A boolean election specifying whether set-off applies when the agreement is terminated due to a Termination Event where all Transactions are Affected Transactions.">
+	setOffOtherTermEvent string (0..*) <"A string attribute specifying any additional Termination Events where set-off may apply.">
+
+type ConditionPrecedent: <"A type specifying whether the Conditions Precedent clause of Section 2 of the 2002 Master Agreement has been amended to impose a time limit on the Non-Defaulting Partys ability to withhold performance which is initiated by the receipt of notice of the relevant default from the Defaulting Party.">
+	conditionPrecedentAmendment boolean (1..1) <"A boolean election specifying whether the Conditions Precedent clause of Section 2 of the 2 Master has been amended to impose a time limit on the Non-Defaulting Partys ability to withhold performance">
+	conditionPrecedentEndDays Offset (0..1) <"An integer attribute to specify the number of days notice given by the Defaulting Party after which a Condition End Date will occur.">
+	conditionPrecedentEndDayType DayTypeEnum (1..1) <"An enumerated list to specify the day type that applies to the notice given by the Defaulting Party.">
+
+	condition ConditionPrecedentAmendment: <"A validation rule to ensure that if the Conditions Precedent clause of Section 2 of the 2 Master has not been amended, then it is not possible to provide details relating to a notice specifying a Condition End Date.">
+	if conditionPrecedentAmendment = False then conditionPrecedentEndDays is absent
+	
+	condition ConditionPrecedentDays: <"A validation rule to ensure that the conditionPrecedentAmendment offset is defined as Days.">
+		if conditionPrecedentEndDays exists then conditionPrecedentEndDays -> period = PeriodEnum -> D
+
+type TransactionScopeMasterAgreement: <"A type to specify whether the scope of transactions governed by the Master Agreement has been expanded or limited.">
+	expandedToSpecifiedTransactions boolean (1..1) <"A boolean election specifying whether the scope of transactions under the Master Agreement has been expanded to cover all Specified Transactions.">
+	limitTransactionScope string (0..*) <"A string attribute to specify any transactions that should be excluded from the scope of the Master Agreement.">
+
+type ImpossibilityMA92: <"A type to specify whether a similar provision to the Illegality/Force Majeure provisions of the 2002 Master Agreement have been added to the 1992 Master Agreement.">
+	impossibilityApplicable boolean (1..1) <"A boolean election to specify whether a similar provision to the Illegality/Force Majeure provisions of the 2002 Master Agreement has been added to the 1992 Master Agreement.">
+
+type TransferMasterAgreement: <"A type to specify whether the Transfer provisions of the Master Agreement have been amended to expand the definition of what constitutes a transfer, to specify that consent to transfer cannot be unreasonably withheld, to give advance consent to transfers to specified transferees and/or to specify additional conditions to transfer.">
+	transferExpansion boolean (1..1) <"A boolean attribute to specify whether the Transfer provisions of the Master Agreement have been amended to clarify that a reorganization, incorporation, reincorporation, or reconstitution of a party into or as a another party will constitute a transfer.">
+	transferConsentNotUnreasonablyWitheld boolean (1..1) <"A boolean attribute to specify whether the Transfer provisions of the Master Agreement have been amended so that consent to a transfer cannot be unreasonably withheld.">
+	transferConsentConditions TransferConsentConditions (0..2) <"A type to specify certain additional conditions to transfers under the Master Agreement.">
+
+type TransferConsentConditions: <"A type to specify certain additional conditions to transfers under the Master Agreement.">
+	party CounterpartyRoleEnum (1..1) <"Specifies the party to whom these elections apply">
+	approvedTransferee ApprovedTransferee (0..1) <"A type to identify pre-approved transferees.">
+	transferorCreditSupportDocument boolean (1..1) <"A boolean attribute to specify whether the Transfer provisions of the Master Agreement have been amended to require a Transferor to enter into a Credit Support Document with the Transferee following transfer.">
+	transferEoDTax boolean (1..1) <"A boolean attribute to specify whether the Transfer provisions of the Master Agreement have been amended to restrict transfers where such a transfer would give rise to a Potential Event of Default, Event of Default or Termination Event and to ensure that the Transferor will continue to be liable for any indemnifiable Tax or withholding tax.">
+	transferConditionAlternative string (0..1) <"A string attribute to specify any further conditions to transfer.">
+	
+type ApprovedTransferee: <"A type to identify pre-approved transferees.">
+	transfereeApproved TransfereeApprovedEnum (0..1) <"An enumerated list of standard approved transferees">
+	transfereeAlternative LegalEntity (0..1) <"A string attribute to specify an alternative approved transferee.">
+
+	condition: one-of
+ 
+ type IllegalityClarification: <"A type to specify whether the Master Agreement has been amended to clarify that a directive of a government agency or authority is a change in law.">
+	illegalityClarification boolean (1..1) <"A boolean election specifying whether the Master Agreement has been amended to clarify that a directive of a government agency or authority is a change in law.">
+
+type ChangeAccountMasterAgreement: <"A type to specify whether the Change of Account provision of the Master Agreement has been amended to impose any conditions.">
+	changeAccountCondiditions ChangeAccountConditionsEnum (0..1) <"An enumerated list of standard conditions.">
+	changeAccountConditionsAlternative string (0..1) <"A string attribute allowing for specificaton of alternative conditions.">
+
+type RecordingConversations: <"A type to specify whether a clause allowing for recording of conversations is included in the Master Agreement.">
+	recordingConversationsApplicable boolean (1..1) <"A boolean election specifying whether a clause allowing for recording of conversations is included in the Master Agreement.">
+	recordingConversationsAvailable boolean (1..1) <"A boolean election specifying whether telephone recordings can be made available to the other party where they are involved in legal proceedings.">
+	recordingconversationsOtherParties LegalEntity (0..*) <"A string attribute allowing for the specification of additional parties who consent to recording of telephone conversations in connection with the Master Agreement or any transaction thereunder.">
+
+type ISDAProtocols: <"A type to specify whether the terms of an ISDA Protcol have been incorporated by reference into the Master Agreement">
+	protocolEMIRPDD boolean (1..1) <"A boolean election to specify whether the terms of the ISDA 2013 EMIR Portfolio Reconciliation, Dispute Resolution and Disclosure Protocol have been incoporated by reference into the Master Agreement.">
+	protocolEMIRPDDElections EMIRPDDElections (0..2) <"A type to specify whether an entity is a Portfolio Data Sending Entity or Receiving Entity for the purposes of the ISDA 2013 EMIR Portfolio Reconciliation, Dispute Resolution and Disclosure Protocol and whether an agent or third party service provider has been appointed.">
+	protocolSection871m boolean (1..1) <"A boolean election to specify whether the terms of the ISDA 2015 Section 871(m) Protocol have been incoporated by reference into the Master Agreement.">
+	protocol2012FATCA boolean (1..1) <"A boolean election to specify whether the terms of the 2012 ISDA FATCA Protocol have been incoporated by reference into the Master Agreement.">
+	protocol2012DF boolean (1..1) <"A boolean election to specify whether the terms of the ISDA August 2012 Dodd-Frank Protocol have been incoporated by reference into the Master Agreement.">
+	protocol2013DF boolean (1..1) <"A boolean election to specify whether the terms of the ISDA March 2013 Dodd-Frank Protocol have been incoporated by reference into the Master Agreement.">
+	protocolIllegaliltyForceMajeure boolean (1..1) <"A boolean election to specify whether the terms of the ISDA Illegality/Force Majeure Protocol have been incoporated by reference into the 1992 form of Master Agreement.">
+
+	condition EMIRPDDProtocolElections: <"A validation rule to ensure that where the terms of the ISDA 2013 EMIR Portfolio Reconciliation, Dispute Resolution and Disclosure Protocol have not been incorporated into the Master Agreement it is not possible to provide any elections relating to the ISDA 2013 EMIR Portfolio Reconciliation, Dispute Resolution and Disclosure Protocol.">
+		if protocolEMIRPDD = True then protocolEMIRPDDElections count = 2
+		else protocolEMIRPDDElections is absent
+
+type EMIRPDDElections: <"A type to specify whether an entity is a Portfolio Data Sending Entity or Receiving Entity for the purposes of the ISDA 2013 EMIR Portfolio Reconciliation, Dispute Resolution and Disclosure Protocol and whether an agent or third party service provider has been appointed.">
+	party CounterpartyRoleEnum (1..1) <"Specifies the party to whom these elections apply.">
+	portfolioSendingEntity boolean (1..1) <"Specifies whether the relevant party is a Portfolio Data Sending Entity for the purposes of the ISDA 2013 EMIR Portfolio Reconciliation, Dispute Resolution and Disclosure Protocol.">
+	portfolioReceivingEntity boolean (1..1) <"Specifies whether the relevant party is a Portfolio Data Receiving Entity for the purposes of the ISDA 2013 EMIR Portfolio Reconciliation, Dispute Resolution and Disclosure Protocol.">
+	localBusinessDays string (0..*) <"Specifies any places for the purposes of defining Local Business Day(s) under the ISDA 2013 EMIR Portfolio Reconciliation, Dispute Resolution and Disclosure Protocol.">
+	agent string (0..*) <"Specifies the name of any affiliates who will act as agents for the purposes of carrying out portfolio reconciliations.">
+	thirdPartyServiceProvider Party (0..1) <"Specifies the name of any third party servive provider for the purposes of carrying out portfolio reconciliations.">
 
 
+	

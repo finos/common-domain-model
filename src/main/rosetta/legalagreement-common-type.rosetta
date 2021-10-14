@@ -135,6 +135,60 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
 		else if agreementTerms -> agreement -> masterAgreementSchedule exists
 		then agreementType -> name = LegalAgreementNameEnum->MasterAgreement
 
+	condition CrossDefaultAggregation: <"A validation rule to ensure that where the form of Master Agreement is a 2002 ISDA Master Agreement, then amounts under limb (i) and (ii) of the Cross Default clause will always be aggregated when determining if the threshold amount has been reached.">
+		if agreementType -> name = LegalAgreementNameEnum -> MasterAgreement and
+		agreementType -> publisher = LegalAgreementPublisherEnum -> ISDA and
+		agreementType -> vintage = 2002
+			then agreementTerms->agreement->masterAgreementSchedule->crossDefault->aggregation = True
+
+	condition DUSTVersion: <"A validation rule to ensure that if the Master Agreement type is a 2002 Master Agreement, the definition of Specified Transaction will always be the 2002 version.">
+		if agreementType -> name = LegalAgreementNameEnum -> MasterAgreement and
+		agreementType -> publisher = LegalAgreementPublisherEnum -> ISDA and
+		agreementType -> vintage = 2002
+			then agreementTerms->agreement->masterAgreementSchedule->defaultUnderSpecifiedTransaction->defaultUnderSpecifiedTransactionVersion = MAClauseVersionEnum->Version_02
+
+	condition FTPAdminGracePeriod92: <"A validation rule to ensure that where a 1992 Master Agreement is being used the duration of any grace period for any failure to pay and failure to deliver caused by an administrative error are the same.">
+		if agreementType -> name = LegalAgreementNameEnum -> MasterAgreement and
+		agreementType -> publisher = LegalAgreementPublisherEnum -> ISDA and
+		agreementType -> vintage = 1992
+			then agreementTerms->agreement->masterAgreementSchedule->failureToPay->gracePeriodAmendment->gracePeriodAdminPayments = agreementTerms->agreement->masterAgreementSchedule->failureToPay->gracePeriodAmendment->gracePeriodAdminDeliveries
+
+	condition PaymentMeasureMethod: <"A validation rule to ensure that payment measure and payment method cannot be selected for the 2002 Master Agreement.">
+		if agreementType -> name = LegalAgreementNameEnum -> MasterAgreement and
+		agreementType -> publisher = LegalAgreementPublisherEnum -> ISDA and
+		agreementType -> vintage = 2002
+			then agreementTerms->agreement->masterAgreementSchedule->paymentMeasureMethod92 is absent
+			
+	condition ForceMajeureProtocol: <"A validation rule to ensure that where the parties have adhered to the ISDA Illegality/Force Majeure Protocol they cannot specify that an Impossibility clause does not apply.">
+		if ISDAProtocols -> protocolIllegaliltyForceMajeure = True
+		then ImpossibilityMA92->impossibilityApplicable = True
+
+	condition IllegalityForceMajeureProtocol92: <"A validation rule to ensure that the ISDA Illegality/Force Majeure Protocol can only be incorporated within a 1992 Master Agreement.">
+		if agreementType -> name = LegalAgreementNameEnum -> MasterAgreement and
+		agreementType -> publisher = LegalAgreementPublisherEnum -> ISDA and
+		agreementType -> vintage = 2002
+			then agreementTerms->agreement->masterAgreementSchedule->protocols->protocolIllegaliltyForceMajeure=False
+
+	condition SetOffScope02: <"A validation rule to ensure that the scope events to which the set-off provision applies cannot be amended when using a 2002 Master Agreement.">
+		if agreementType -> name = LegalAgreementNameEnum -> MasterAgreement and
+		agreementType -> publisher = LegalAgreementPublisherEnum -> ISDA and
+		agreementType -> vintage = 2002
+			then agreementTerms->agreement->masterAgreementSchedule->setOff->setOffScope is absent
+
+	condition jurisdictionMasterAgreementIrish: <"A validation rule to ensure that where the Irish law version of the Master Agreement is used, the jurisdiction must be Irish courts.">
+	if agreementType -> name = LegalAgreementNameEnum -> MasterAgreement and
+		agreementType -> publisher = LegalAgreementPublisherEnum -> ISDA and
+		agreementType -> governingLaw = GoverningLawEnum -> IE
+		then agreementTerms->agreement->masterAgreementSchedule->jurisdiction->jurisdictionCourt = CourtChoiceEnum -> Irish
+
+	condition jurisdictionMasterAgreementFrench: <"A validation rule to ensure that where the French law version of the Master Agreement is used, the jurisdiction must be French courts.">
+	if agreementType -> name = LegalAgreementNameEnum -> MasterAgreement and
+		agreementType -> publisher = LegalAgreementPublisherEnum -> ISDA and
+		agreementType -> governingLaw = GoverningLawEnum -> FR
+		then agreementTerms->agreement->masterAgreementSchedule->jurisdiction->jurisdictionCourt = CourtChoiceEnum -> French
+
+		
+
 type LegalAgreementBase: <"A class describing the legal agreement baseline information, other than the specialized elections: type of legal agreement, agreement date and effective date, parties to the agreement, ... The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalAgreement class as a way to enforce a systematic choice between its attributes.">
 
 	agreementDate date (1..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
