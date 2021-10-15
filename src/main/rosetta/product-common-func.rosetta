@@ -234,7 +234,7 @@ func Qualify_BaseProduct_IRSwap: <"Qualifies a product as having the Base Produc
 		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> paymentDates count = 2
-		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
+		and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate is absent
 
 func Qualify_BaseProduct_CrossCurrency: <"Qualifies a product as having the Base Product classification Cross Currency.">
@@ -243,7 +243,14 @@ func Qualify_BaseProduct_CrossCurrency: <"Qualifies a product as having the Base
 	assign-output is_product:
 		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
 		and economicTerms -> payout -> interestRatePayout count = 2
-	 	and economicTerms -> payout -> interestRatePayout -> principalExchanges exists
+	 	and (
+	 	    economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency distinct count = 2
+            or (
+                economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency exists
+                and economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency exists
+                and economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency <> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
+            )
+        )
 
 func Qualify_BaseProduct_Fra: <"Qualifies a product as having the Base Product classification Forward Rate Agreement">
 	inputs: economicTerms EconomicTerms (1..1)
@@ -260,7 +267,7 @@ func Qualify_BaseProduct_Inflation: <"Qualifies a product as having the Base Pro
 		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> paymentDates count = 2
-		and economicTerms -> payout -> interestRatePayout -> principalExchanges is absent
+		and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
 		and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate exists
 
 func Qualify_SubProduct_FixedFloat: <"Qualifies a product as having the Sub Product classification Fixed Float">
@@ -654,3 +661,13 @@ func Qualify_SecurityLendingAgreement: <"Qualifies a product as a Security Loan.
 	output: is_product boolean (1..1)
 	assign-output is_product:
 		economicTerms -> payout -> securityFinancePayout exists
+
+func InterestRatePayoutCurrency:
+    inputs:
+        interestRatePayouts InterestRatePayout (0..*) <"List of interest rate payouts.">
+    output:
+        currency string (0..*) <"List of currencies collected from the payouts.">
+    assign-output currency: <"Adds quantitySchedule -> initialQuantity -> unitOfAmount -> currency to the list.">
+        interestRatePayouts -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+    assign-output currency: <"Adds fxLinkedNotionalSchedule -> varyingNotionalCurrency to the list.">
+        interestRatePayouts -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
