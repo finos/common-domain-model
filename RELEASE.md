@@ -1,4 +1,4 @@
-# *DSL Syntax - Distinct keyword for filtering our repetitions in a list*
+# *DSL Syntax - Distinct keyword for filtering our duplicate in a list*
 
 _What is being released?_
 
