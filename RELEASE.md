@@ -1,14 +1,14 @@
-# *DSL Syntax - Distinct keyword*
+# *DSL Syntax - Distinct keyword for filtering our repetitions in a list*
 
 _What is being released?_
 
-This release introduces the new DSL keyword `distinct` used to remove duplicates from a list.
+This release introduces the new DSL keyword `distinct` that allows for a list to be used without any duplicates it may contain.
 
 The `distinct` keyword can appear after an attribute with multiple cardinality in a path expression, as shown in the example below.
 
 - `quantity -> unitOfAmount -> currency distinct`
 
-The operation will return a subset of the list containing only distinct elements.  It’s useful for removing duplicate elements from a list, and can be combined with other syntax features such as ``count`` to determine if all elements of a list are equal, as shown in the example below.
+The operator will return the subset of the list that contains only distinct elements.  It’s useful for dismissing the duplicate elements from a list, and can be combined with other syntax features such as ``count`` to determine if all elements of a list are equal, as shown in the example below.
 
 - `payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency distinct count = 1`
 
