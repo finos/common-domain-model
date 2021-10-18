@@ -8,7 +8,7 @@ The `distinct` keyword can appear after an attribute with multiple cardinality i
 
 - `quantity -> unitOfAmount -> currency distinct`
 
-The operation will return a subset of the list containing only distinct elements.  It’s useful for removing duplicate elements from a list, and can be combined with other syntax features such as ``count`` to determine if all elements of a list are equal, as shown in the example below.
+The operation will return a subset of the list containing only distinct elements.  It’s useful for removing duplicate elements from a list, and can be combined with other syntax features such as `count` to determine if all elements of a list are equal, as shown in the example below.
 
 - `payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency distinct count = 1`
 
