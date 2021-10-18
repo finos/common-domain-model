@@ -1,14 +1,14 @@
-# *DSL Syntax - Distinct keyword for filtering out duplicates in a list*
+# *DSL Syntax - Distinct keyword*
 
 _What is being released?_
 
-This release introduces the new DSL keyword `distinct` that allows for a list to be used without any duplicates it may contain.
+This release introduces the new DSL keyword `distinct` used to remove duplicates from a list.
 
 The `distinct` keyword can appear after an attribute with multiple cardinality in a path expression, as shown in the example below.
 
 - `quantity -> unitOfAmount -> currency distinct`
 
-The operator will return the subset of the list that contains only distinct elements.  It’s useful for dismissing the duplicate elements from a list, and can be combined with other syntax features such as ``count`` to determine if all elements of a list are equal, as shown in the example below.
+The operation will return a subset of the list containing only distinct elements.  It’s useful for removing duplicate elements from a list, and can be combined with other syntax features such as ``count`` to determine if all elements of a list are equal, as shown in the example below.
 
 - `payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency distinct count = 1`
 
@@ -26,7 +26,7 @@ func Qualify_BaseProduct_CrossCurrency:
             or (
                 economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency exists
                 and economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency exists
-                and economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency <> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
+                and economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency &lt;> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
             )
         )
 ```
