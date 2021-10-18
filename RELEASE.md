@@ -14,10 +14,10 @@ The operation will return a subset of the list containing only distinct elements
 
 The product qualification function, `Qualify_BaseProduct_CrossCurrency`, has been updated to use the distinct keyword to identify when a product has a different currency specified on each `InterestRatePayout`.
 
- func Qualify_BaseProduct_CrossCurrency: 
-      inputs: economicTerms EconomicTerms (1..1)
-      output: is_product boolean (1..1)
-      assign-output is_product:
+    func Qualify_BaseProduct_CrossCurrency: 
+        inputs: economicTerms EconomicTerms (1..1)
+        output: is_product boolean (1..1)
+        assign-output is_product:
         Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
            and economicTerms -> payout -> interestRatePayout count = 2
             and (
