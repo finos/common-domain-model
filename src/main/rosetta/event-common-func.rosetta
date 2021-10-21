@@ -341,13 +341,30 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
-	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
+	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element //no description for TransfersForDate 
+	//alias terminationDate: businessEvent -> primitives -> contractFormation -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate//create an alias for TerminationData as stipulated as part of the econimic terms of the original transaction
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
 		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
 			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+		//and terminationDate = businessEvent -> eventDate
+
+// func Qualify_EarlyTermination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
+// 	[qualification BusinessEvent]
+// 	inputs:
+// 		businessEvent BusinessEvent(1..1)
+// 	output: is_event boolean (1..1)
+// 	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element //no description for TransfersForDate
+// 	alias date: businessEvent -> primitives -> contractFormation -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate//create an alias for TerminationData as stipulated as part of the econimic terms of the original transaction
+// 	assign-output is_event:
+// 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
+// 		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
+// 			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
+// 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
+// 		and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+// 		and date > businessEvent -> eventDate
 
 
 func Qualify_TradeWarehousePositionNotification:
@@ -1829,6 +1846,37 @@ func Create_BillingSummary: <"Creates a billing summary to be included in a Secu
 //sums all billing records and assigns value to billing summary
 //sets enum to ParentTotal
 
+
+//I left the data as an input here but recommended to have the date within the instruction to keep it consistant with other instructions? as date is mandatory in Business Event, it can be pulled from the instructions=
+func Create_Termination: <"Defines the process of partially or fully termination a Transaction.">
+ 	[creation BusinessEvent]
+
+ 	inputs:
+ 		tradeState TradeState (1..1) <"Specifies a previously formed contractual product. It is required that the description of the contractual product be contained within the previous business event, i.e. its lineage must contain the formation of a contractual product.">
+ 		terminationInstruction TerminationInstruction (1..1) <"Specifies the information required to termination the trade in accordance with the economic terms of the contractual product.">
+
+  	output:
+ 		terminationEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the transfer and termination, as a result of the input termination instruction.">
+
+	alias tradableProduct:
+			tradeState -> trade -> tradableProduct
+
+	//setting primitive in Business Event object to be a quantityChange primitive which contains a before and aftrer trade state. 
+	assign-output terminationEvent -> primitives -> quantityChange: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially or fully terminate original contract, assuming there's a single transaction in the original financial contract that is part or fully terminated.">
+ 		// if termination quantity is less that current quanityt, then 
+		 Create_QuantityChangePrimitive (
+			tradeState,
+		 	DeductAmountForEachMatchingQuantity(tradableProduct -> tradeLot -> priceQuantity -> quantity, terminationInstruction -> quantity)
+		)
+		// else
+		// close trade (function closeTrade)
+
+
+	//setting eventDate in BusinessEvent object to stipulated terminationDate above
+	assign-output terminationEvent -> eventDate:
+		terminationInstruction -> terminationDate
+
+	//Fee element of the termination
 
 func Create_Return: <"Defines the process of partially or fully returning a Security Lending Transaction.">
  	[creation BusinessEvent]
