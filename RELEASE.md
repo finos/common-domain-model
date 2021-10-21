@@ -1,51 +1,42 @@
-# *Product Model - FpML Synonym Mapping for Forward Rate Agreements*
+# *DSL Syntax - Distinct keyword*
 
 _What is being released?_
 
-This release updates the FpML mappings for FRAs to cover `PriceQuantity`.
+This release introduces the new DSL keyword `distinct` used to remove duplicates from a list.
 
-_Details_
+The `distinct` keyword can appear after an attribute with multiple cardinality in a path expression, as shown in the example below.
 
-FpML represents FRAs in a single `fra` xml element which is currently mapped into separate fixed and floating `InterestRatePayout` legs.  This release adds logic to also map the `PriceQuantity` instances that correspond to the fixed and floating `InterestRatePayout` components of the product.
+- `quantity -> unitOfAmount -> currency distinct`
 
-_Review Directions_
+The operation will return a subset of the list containing only distinct elements.  It’s useful for removing duplicate elements from a list, and can be combined with other syntax features such as `count` to determine if all elements of a list are equal, as shown in the example below.
 
-In the CDM Portal, select the Ingestion Panel and review the following samples:
+- `payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency distinct count = 1`
 
-- fpml-5-10 > products > ird-ex08-fra.xml
-- fpml-5-10 > products > ird-ex08-fra-no-discounting.xml
+The product qualification function, `Qualify_BaseProduct_CrossCurrency`, has been updated to use the distinct keyword to identify when a product has a different currency specified on each `InterestRatePayout`.
 
-# *Concentration Limit – Refactor value and percentage cap. Addition of concentration limit type (Issue Outstanding Amount)*
-
-_What is being released?_
-
-The data type `ConcentrationLimit` has various attributes to define a concentration limit by criteria but also provides a means for how to express the concentration limit as a number value or a percentage.  The corresponding data attributes `valueCap` and `percentageCap` only allowed for expression of a higher limit (cap). These have been renamed and refactored to `valueLimit` and `percentageLimit` and will now allow the user to express both an upper and lower limit (cap and floor) as a number value or percentage.
-
-In addition to this, data attribute `ConcentrationLimitTypeEnum`, an additional option has been added to the enumeration list to specify `IssueOutstandingAmount` The user can now express concentration limits on an assets outstanding amount issued on the market.
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser and search for the data types mentioned above.
-
-- Search for the data type `ConcentrationLimit` and inspect the change to remove data attribute `valueCap` and `percentageCap` and replace with `valueLimit` and `percentageLimit` and changes to the description and related condition.
-- To support the number (%) and money ranges, additional data types have been added to the `base-math-type` namespace. Search for data types `NumberRange`, `NumberBound`, `MoneyRange` and `MoneyBound`, and inspect the logic to support specifying a number and money range lower and upper limits with related conditions to ensure the user specifies at least one ends of the scale. Please also note each option also has a `boolean` that will indicate if the percentage or money amount inclusive or not.
-- Search for the data type `ConcentrationLimit` and within find data attribute `ConcentrationLimitTypeEnum`, inspect the additional option has been added to the enumeration list to specify `IssueOutstandingAmount` and its supporting description.
-
-# *Event Model – Function Documentation*
-
-This release updates descriptions to the Visualisation panel for a few product in the functions: Execute Business Event and Contract Formation.
-
-Descriptions have been added for the following products:
-
-- Functions > Execute Business Event > Interest Rate Swap with Other Party Payment
-
-Descriptions have been updated/expanded for the following products:
-
-- Functions > Execute Business Event > Credit Default Swap
-- Functions > Form Contract Business Event > Fixed/Floating Interest Rate Swap
-- Functions > Form Contract Business Event > Credit Default Swap
+    func Qualify_BaseProduct_CrossCurrency: 
+        inputs: economicTerms EconomicTerms (1..1)
+        output: is_product boolean (1..1)
+        assign-output is_product:
+        Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
+           and economicTerms -> payout -> interestRatePayout count = 2
+            and (
+                economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency distinct count = 2
+             or (
+                 economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency exists
+                 and economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency exists
+                 and economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency &lt;> economicTerms -> payout -> interestRatePayout -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
+             )
+         )
 
 _Review Directions_
 
-In the CDM Portal select the Visualisation panel and review contents of the folders specified above.
+In the CDM Portal, select the Textual Browser and review the following functions:
 
+- `Qualify_BaseProduct_CrossCurrency`
+- `Qualify_BaseProduct_IRSwap`
+- `Qualify_BaseProduct_Inflation`
+
+In the CDM Portal, select the User Documentation tile and navigate to the Rosetta DSL > Expression > Rosetta Path Expressions section, or review the documentation section directly:
+
+- [DSL Documentation - Distinct](https://docs.rosetta-technology.io/dsl/expressions.html#distinct)
