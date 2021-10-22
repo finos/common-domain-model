@@ -223,6 +223,11 @@ type DecreaseInstruction: <"Instructions required to create a Decrease Business 
 	tradeLot TradeLot (1..*) <"Trade lots containing the quantity being decreased, and the price and effective date of each decrease. Attribute is of multiple cardinality, to be used to specify exactly which lots / IDs are being decreased. A client could opt not to specify this and indicate just 1 lot and no ID, and implementations should then enrich these details based on unwind method (e.g. FIFO, LIFO, etc).">
 	fee SettlementTerms (0..1) <"Fee agreed to be exchanged as part of the trade decrease (optional).">
 
+type TerminationInstruction: <"Specifies the information required to create the termination event of a trade.">
+    terminatedQuantity Quantity (1..*) <"Specifies the new quantities of the transaction as a result of the partial or full termination event.">
+	terminationFee	Transfer (0..1) <"Fee agreed to be exchanged as part of the trade termination (optional).">
+	terminationDate	date (1..1) <"date of partial or full termination">	
+ 
 type IndexTransitionInstruction: <"Defines the information needed to create a Index Transition Business Event.">
 	priceQuantity PriceQuantity (1..*) <"Specifies both new floating rate index and spread adjustment for each leg to be updated.  The spread adjustment accounts for the difference between the old floating rate index relative to the new one. This spread amount is added to the existing spread to determine the new spread, which is applied from the specified effective date forward. In the case of the IBOR Fallback Rate Adjustments, the adjustment spread (also known as the Fallback Adjustment) accounts for two distinctions: i) the fact that the replacement Risk-Free Rate is an overnight rate while IBORs have term structures (e.g., 1, 3, 6-month LIBOR); and (ii) the historical spread differential between IBORs and their term equivalent Overnight Risk-Free Rate compounded rates.">
 	effectiveDate date (1..1) <"Specifies the effective date of the index transition event. This is first date on which the floating rate calculation will use the new floating rate index and adjusted spread in the floating rate calculation.">
@@ -278,7 +283,7 @@ type Transfer: <"Defines the movement of cash, securities or commodities between
 	identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
 		[metadata scheme]
 	    [synonym Workflow_Event value "transferIdentifier"]
-	quantity Quantity (1..1) <"Represents the amount of the asset to tbe transferred.">
+	quantity Quantity (1..1) <"Represents the amount of the asset to be transferred.">
 	    [synonym Workflow_Event value "quantity"]
 	observable Observable (0..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
 		[synonym Workflow_Event value "observable"]

@@ -881,6 +881,42 @@ func SecurityTransferInstruction: <"Defines the creation of a Transfer Instructi
     output:
         instruction TransferInstruction (1..1)
 
+func Create_Termination: <"Defines the process of partially or fully termination a Transaction.">
+ 	[creation BusinessEvent]
+
+ 	inputs:
+ 		tradeState TradeState (1..1) <"Specifies a previously formed contractual product. It is required that the description of the contractual product be contained within the previous business event, i.e. its lineage must contain the formation of a contractual product.">
+ 		terminationInstruction TerminationInstruction (1..1) <"Specifies the information required to terminate the trade in accordance with the economic terms of the contractual product.">
+
+  	output:
+ 		terminationEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the transfer and termination, as a result of the input termination instruction.">
+
+	alias tradableProduct:
+			tradeState -> trade -> tradableProduct
+
+	assign-output terminationEvent -> primitives -> quantityChange -> before:
+		if terminationInstruction -> terminatedQuantity -> amount all = 0 then
+			tradeState as-key
+
+	assign-output terminationEvent -> primitives -> quantityChange -> after:
+		if terminationInstruction -> terminatedQuantity -> amount all = 0 then
+			CloseTrade(tradeState, ClosedStateEnum -> Terminated, PositionStatusEnum -> Closed)
+
+	assign-output terminationEvent -> primitives -> quantityChange: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially or fully terminate original contract, assuming there's a single transaction in the original financial contract that is part or fully terminated.">
+ 		if terminationInstruction -> terminatedQuantity -> amount all <> 0 then
+		 Create_QuantityChangePrimitive (
+			tradeState,
+			UpdateAmountForEachQuantity(tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity, terminationInstruction -> terminatedQuantity -> quantity only-element -> amount)
+
+		)
+
+	// assign-output terminationEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the termination fee where applicable.">
+ 	// 	if terminationInstruction -> terminationFee exists then
+ 	// 		Create_TransferPrimitiveFromTransfer(tradeState,terminationInstruction->terminationFee)
+
+	assign-output terminationEvent -> eventDate:
+		terminationInstruction -> terminationDate
+
 func Create_Reset: <"Defines the process of applying a reference rate (also known as fixing rate) to a transaction, usually in order to calculate the settlement value of a periodic payment schedule between two parties.">
 	[creation BusinessEvent]
 
