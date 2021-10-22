@@ -891,12 +891,12 @@ func Create_Termination: <"Defines the process of partially or fully termination
   	output:
  		terminationEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the transfer and termination, as a result of the input termination instruction.">
 
-	alias tradableProduct:
-			tradeState -> trade -> tradableProduct
+	// alias tradableProduct:
+	// 		tradeState -> trade -> tradableProduct
 
 	assign-output terminationEvent -> primitives -> quantityChange -> before:
 		if terminationInstruction -> terminatedQuantity -> amount all = 0 then
-			tradeState as-key
+			tradeState
 
 	assign-output terminationEvent -> primitives -> quantityChange -> after:
 		if terminationInstruction -> terminatedQuantity -> amount all = 0 then
@@ -906,8 +906,7 @@ func Create_Termination: <"Defines the process of partially or fully termination
  		if terminationInstruction -> terminatedQuantity -> amount all <> 0 then
 		 Create_QuantityChangePrimitive (
 			tradeState,
-			UpdateAmountForEachQuantity(tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity, terminationInstruction -> terminatedQuantity -> quantity only-element -> amount)
-
+			terminationInstruction -> terminatedQuantity
 		)
 
 	// assign-output terminationEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the termination fee where applicable.">

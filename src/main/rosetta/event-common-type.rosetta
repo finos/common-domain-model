@@ -136,8 +136,9 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 	increase IncreaseInstruction (0..1) <"Specifies the inputs needed to process a trade increase, containing the price and quantity of the new trade lot to add.">
 	decrease DecreaseInstruction (0..1) <"Specifies the inputs needed to process a trade decrease / unwind, containing the quantity of the trade lot(s) to be decreased and at what price.">
     indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
+	termination TerminationInstruction (0..1) <"Specifies inputs needed to process a Termination business event.">
 
-	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease
+	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -224,6 +225,7 @@ type DecreaseInstruction: <"Instructions required to create a Decrease Business 
 	fee SettlementTerms (0..1) <"Fee agreed to be exchanged as part of the trade decrease (optional).">
 
 type TerminationInstruction: <"Specifies the information required to create the termination event of a trade.">
+[rootType]
     terminatedQuantity Quantity (1..*) <"Specifies the new quantities of the transaction as a result of the partial or full termination event.">
 	terminationFee	Transfer (0..1) <"Fee agreed to be exchanged as part of the trade termination (optional).">
 	terminationDate	date (1..1) <"date of partial or full termination">	
