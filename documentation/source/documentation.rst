@@ -1108,8 +1108,10 @@ The list of business events for which this process is currently implemented in t
    increase IncreaseInstruction (0..1)
    decrease DecreaseInstruction (0..1)
    indexTransition IndexTransitionInstruction (0..1)
+   termination TerminationInstruction (0..1)
 
-   condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease
+   condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination
+
 
 Previous Workflow Step
 """"""""""""""""""""""
