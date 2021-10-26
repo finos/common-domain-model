@@ -96,16 +96,10 @@ public class QuantityReferenceMappingProcessor extends MappingProcessor {
     }
 
     private void mapCurrency(Path returnNotionalAmountPath, FieldWithMetaQuantityBuilder quantityBuilder) {
-        Path currencyDummyPath = returnNotionalAmountPath.addElement("currency");
+        Path currencyPath = returnNotionalAmountPath.addElement("currency");
 
         Consumer<String> currencySetter = value -> quantityBuilder.getOrCreateValue().setUnitOfAmount(UnitType.builder().setCurrencyValue(value).build());
 
-        MappingProcessorUtils.setValueAndUpdateMappings(currencyDummyPath, currencySetter, getMappings(), getModelPath());
+        MappingProcessorUtils.setValueAndUpdateMappings(currencyPath, currencySetter, getMappings(), getModelPath());
     }
-
-
-    // 1: Fix model path to have the index for quantity - done
-    // 2: Get reference object stamped onto interest rate payout - done
-    // 3: Hack synonym path so reference engine can differentiate between the two references we have now (ie quantity-3 and quantity-2) - done
-    // 4: Map the currency - done
 }
