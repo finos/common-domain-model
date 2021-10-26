@@ -1,10 +1,8 @@
 package cdm.product.common.settlement.processor;
 
+import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
-import com.regnosys.rosetta.common.translation.Mapping;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.Path;
+import com.regnosys.rosetta.common.translation.*;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.meta.Reference;
@@ -12,8 +10,7 @@ import com.rosetta.model.lib.path.RosettaPath;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMapping;
@@ -27,14 +24,15 @@ public class QuantityReferenceMappingProcessor extends MappingProcessor {
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
         //synonymPath=dataDocument.trade.returnSwap.interestLeg.notional.relativeNotionalAmount
         getNonNullMapping(getMappings(), synonymPath, "href")
-                .flatMap(hrefMapping -> getMappings().stream()
+                .flatMap(relativeNotionalAmountHrefMapping -> getMappings().stream()
                         .filter(mapping -> mapping.getXmlPath().endsWith(Path.parse("notionalAmount.id")))
-                        .filter(m -> m.getXmlValue().equals(hrefMapping.getXmlValue()))
+                        .filter(m -> m.getXmlValue().equals(relativeNotionalAmountHrefMapping.getXmlValue()))
                         .findFirst())
                 .ifPresent(notionalAmountIdMapping -> {
-                    Path amountPath = notionalAmountIdMapping.getXmlPath().getParent().addElement("amount");
-
+                    Path returnNotionalAmountPath = notionalAmountIdMapping.getXmlPath().getParent();
+                    Path amountPath = returnNotionalAmountPath.addElement("amount");
                     FieldWithMetaQuantity.FieldWithMetaQuantityBuilder quantityBuilder = (FieldWithMetaQuantity.FieldWithMetaQuantityBuilder) builder.get(0);
+
                     getNonNullMappedValue(amountPath, getMappings()).ifPresent(amount -> {
                         quantityBuilder.getOrCreateValue().setAmount(new BigDecimal(amount));
 
@@ -53,6 +51,12 @@ public class QuantityReferenceMappingProcessor extends MappingProcessor {
 
                         getMappings().add(new Mapping(dummyAmountPath, amount, modelPath, amount, null, false, true, false));
                     });
+
+                    Path currencyDummyPath = returnNotionalAmountPath.addElement("currency");
+
+                    Consumer<String> currencySetter = value -> quantityBuilder.getOrCreateValue().setUnitOfAmount(UnitType.builder().setCurrencyValue(value).build());
+
+                    MappingProcessorUtils.setValueAndUpdateMappings(currencyDummyPath, currencySetter, getMappings(), getModelPath());
                 });
     }
 
