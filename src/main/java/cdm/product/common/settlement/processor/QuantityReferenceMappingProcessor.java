@@ -1,7 +1,7 @@
 package cdm.product.common.settlement.processor;
 
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.base.math.metafields.FieldWithMetaQuantity.FieldWithMetaQuantityBuilder;
 import com.regnosys.rosetta.common.translation.*;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
@@ -48,10 +48,10 @@ public class QuantityReferenceMappingProcessor extends MappingProcessor {
                 });
     }
 
-    private Optional<FieldWithMetaQuantity.FieldWithMetaQuantityBuilder> getQuantityFromBuilder(List<? extends RosettaModelObjectBuilder> builder) {
+    private Optional<FieldWithMetaQuantityBuilder> getQuantityFromBuilder(List<? extends RosettaModelObjectBuilder> builder) {
         return builder.stream()
-                .filter(element -> element instanceof FieldWithMetaQuantity.FieldWithMetaQuantityBuilder)
-                .map(element -> (FieldWithMetaQuantity.FieldWithMetaQuantityBuilder) element)
+                .filter(element -> element instanceof FieldWithMetaQuantityBuilder)
+                .map(element -> (FieldWithMetaQuantityBuilder) element)
                 .findFirst();
     }
 
@@ -64,7 +64,16 @@ public class QuantityReferenceMappingProcessor extends MappingProcessor {
                         .findFirst());
     }
 
-    private void mapAmount(Path returnNotionalAmountPath, FieldWithMetaQuantity.FieldWithMetaQuantityBuilder quantityBuilder) {
+    /*
+     * This method is creating a completely new pair of mappings with a dummy path. One of these mappings is the new
+     * reference mapping and the other is a new amount mapping.
+     *
+     * The reason for using a dummy path is so that the
+     * reference in the interestRatePayout can be resolved directly to it's corresponding value in the TradeLot. If we
+     * did not use a dummy path then payoutQuantity reference will resolve incorrectly back to the TradeLot
+     * equity payout instead of the interest rate payout.
+     */
+    private void mapAmount(Path returnNotionalAmountPath, FieldWithMetaQuantityBuilder quantityBuilder) {
         Path amountPath = returnNotionalAmountPath.addElement("amount");
         getNonNullMappedValue(amountPath, getMappings()).ifPresent(amount -> {
             quantityBuilder.getOrCreateValue().setAmount(new BigDecimal(amount));
@@ -86,7 +95,7 @@ public class QuantityReferenceMappingProcessor extends MappingProcessor {
         });
     }
 
-    private void mapCurrency(Path returnNotionalAmountPath, FieldWithMetaQuantity.FieldWithMetaQuantityBuilder quantityBuilder) {
+    private void mapCurrency(Path returnNotionalAmountPath, FieldWithMetaQuantityBuilder quantityBuilder) {
         Path currencyDummyPath = returnNotionalAmountPath.addElement("currency");
 
         Consumer<String> currencySetter = value -> quantityBuilder.getOrCreateValue().setUnitOfAmount(UnitType.builder().setCurrencyValue(value).build());
