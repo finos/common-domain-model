@@ -40,20 +40,25 @@ public class QuantityReferenceMappingProcessor extends MappingProcessor {
 
                         Path modelPath = PriceQuantityHelper.incrementPathElementIndex(PathUtils.toPath(getModelPath()), "quantity", 0);
 
-                        Optional<Mapping> referenceMapping = getMappings()
+                        Path dummyAmountPath = Path.parse("dummy").append(amountPath);
+                        getMappings()
                                 .stream()
                                 .filter(x -> x.getXmlPath().endsWith("relativeNotionalAmount", "href"))
                                 .filter(x -> x.getRosettaValue() instanceof Reference.ReferenceBuilder)
-                                .findFirst();
+                                .findFirst()
+                                .ifPresent(reference -> {
+                                    getMappings().add(new Mapping(dummyAmountPath, amount, reference.getRosettaPath(), reference.getRosettaValue(), null, false, true, false));
+                                    getMappings().remove(reference);
+                                });
 
-                        getMappings().add(new Mapping(amountPath, amount, modelPath, amount, null, false, true, false));
+                        getMappings().add(new Mapping(dummyAmountPath, amount, modelPath, amount, null, false, true, false));
                     });
                 });
     }
 
 
     // 1: Fix model path to have the index for quantity - done
-    // 2: Get reference object stamped onto interest rate payout
-    // 3: Hack synonym path so reference engine can differentiate between the two references we have now (ie quantity-3 and quantity-2)
+    // 2: Get reference object stamped onto interest rate payout - done
+    // 3: Hack synonym path so reference engine can differentiate between the two references we have now (ie quantity-3 and quantity-2) - done
     // 4: Map the currency
 }
