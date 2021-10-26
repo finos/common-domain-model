@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release introduces creation functions for termination and partial termination events.
+This release introduces a creation function for termination and partial termination events.
 
 _Details_
 
