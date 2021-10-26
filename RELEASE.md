@@ -1,12 +1,16 @@
-# *Event Model - Create Termination Function*
+# *Product Model - FpML Mapping of Notional*
 
 _What is being released?_
 
-This release introduces a creation function for termination and partial termination events.
+This release corrects the representation of Quantity in cases where notional is being referenced between legs in FpML.
 
-_Details_
+The existing FpML synonym mapping of notionals into `PriceQuantity` is inconsistent across products, which creates challenges for creation of DRR rules.
 
-The function `Create_Termination` has inputs of type `TradeState` and `TerminationInstructions`, and an output of type `BusinessEvent` that contains a `QuantityChangePrimitive`, and optionally a `TransferPrimitive`.
+Standardise location of initial quantity within PayoutBase creating normalized location for capture of value and onward referencing.
+
+- `fxLinkedNotionalSchedule -> initialQuantity` has been moved up to `payoutQuantity -> quantitySchedule`
+- Funding leg of an Equity Swap has initial notional populated in `payoutQuantity -> quantitySchedule` with link back to single PQ
+➢ Population of PriceQuantity object does not need to change
 
 _Review Directions_
 
