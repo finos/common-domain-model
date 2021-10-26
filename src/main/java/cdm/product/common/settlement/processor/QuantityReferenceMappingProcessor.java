@@ -22,6 +22,19 @@ public class QuantityReferenceMappingProcessor extends MappingProcessor {
         super(modelPath, synonymPaths, context);
     }
 
+    /*
+     * This mapping is performing the following two tasks on equity return swap products:
+     *
+     * 1. On the TradeLot there are two PriceQuantities one for each leg. The PriceQuantity that represents
+     * the equity return leg actually has the quantities for both legs mapped to it. However, the second PriceQuantity
+     * which represents the interest rate leg only has a price with no quantity. So the first task of this mapper
+     * is to map the interest rate quantity (the currency and the amount) from the source FPML onto the interest
+     * rate leg PQ of the TradeLot.
+     *
+     * 2. In the `payout -> interestRatePayout -> payoutQuantity` we now need to add a reference to the quantity mapped
+     * in step 1 which will appear as a quantitySchedule inside payoutQuantity
+     *
+     */
     @Override
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
         //synonymPath=dataDocument.trade.returnSwap.interestLeg.notional.relativeNotionalAmount
