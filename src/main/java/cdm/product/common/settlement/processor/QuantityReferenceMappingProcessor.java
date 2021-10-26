@@ -37,16 +37,22 @@ public class QuantityReferenceMappingProcessor extends MappingProcessor {
      */
     @Override
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-        //synonymPath=dataDocument.trade.returnSwap.interestLeg.notional.relativeNotionalAmount
         getNotionalAmountIdMapping(synonymPath)
                 .ifPresent(notionalAmountIdMapping -> {
                     Path returnNotionalAmountPath = notionalAmountIdMapping.getXmlPath().getParent();
-                    FieldWithMetaQuantity.FieldWithMetaQuantityBuilder quantityBuilder = (FieldWithMetaQuantity.FieldWithMetaQuantityBuilder) builder.get(0);
+                    getQuantityFromBuilder(builder).ifPresent(quantityBuilder -> {
+                        mapAmount(returnNotionalAmountPath, quantityBuilder);
 
-                    mapAmount(returnNotionalAmountPath, quantityBuilder);
-
-                    mapCurrency(returnNotionalAmountPath, quantityBuilder);
+                        mapCurrency(returnNotionalAmountPath, quantityBuilder);
+                    });
                 });
+    }
+
+    private Optional<FieldWithMetaQuantity.FieldWithMetaQuantityBuilder> getQuantityFromBuilder(List<? extends RosettaModelObjectBuilder> builder) {
+        return builder.stream()
+                .filter(element -> element instanceof FieldWithMetaQuantity.FieldWithMetaQuantityBuilder)
+                .map(element -> (FieldWithMetaQuantity.FieldWithMetaQuantityBuilder) element)
+                .findFirst();
     }
 
     @NotNull
@@ -56,14 +62,6 @@ public class QuantityReferenceMappingProcessor extends MappingProcessor {
                         .filter(mapping -> mapping.getXmlPath().endsWith(Path.parse("notionalAmount.id")))
                         .filter(m -> m.getXmlValue().equals(relativeNotionalAmountHrefMapping.getXmlValue()))
                         .findFirst());
-    }
-
-    private void mapCurrency(Path returnNotionalAmountPath, FieldWithMetaQuantity.FieldWithMetaQuantityBuilder quantityBuilder) {
-        Path currencyDummyPath = returnNotionalAmountPath.addElement("currency");
-
-        Consumer<String> currencySetter = value -> quantityBuilder.getOrCreateValue().setUnitOfAmount(UnitType.builder().setCurrencyValue(value).build());
-
-        MappingProcessorUtils.setValueAndUpdateMappings(currencyDummyPath, currencySetter, getMappings(), getModelPath());
     }
 
     private void mapAmount(Path returnNotionalAmountPath, FieldWithMetaQuantity.FieldWithMetaQuantityBuilder quantityBuilder) {
@@ -86,6 +84,14 @@ public class QuantityReferenceMappingProcessor extends MappingProcessor {
 
             getMappings().add(new Mapping(dummyAmountPath, amount, modelPath, amount, null, false, true, false));
         });
+    }
+
+    private void mapCurrency(Path returnNotionalAmountPath, FieldWithMetaQuantity.FieldWithMetaQuantityBuilder quantityBuilder) {
+        Path currencyDummyPath = returnNotionalAmountPath.addElement("currency");
+
+        Consumer<String> currencySetter = value -> quantityBuilder.getOrCreateValue().setUnitOfAmount(UnitType.builder().setCurrencyValue(value).build());
+
+        MappingProcessorUtils.setValueAndUpdateMappings(currencyDummyPath, currencySetter, getMappings(), getModelPath());
     }
 
 
