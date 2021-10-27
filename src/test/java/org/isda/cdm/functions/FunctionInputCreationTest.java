@@ -2,9 +2,18 @@ package org.isda.cdm.functions;
 
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
+import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.PartyRole;
+import cdm.base.staticdata.party.PartyRoleEnum;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.TerminationInstruction;
 import cdm.event.common.TradeState;
 import cdm.event.workflow.WorkflowStep;
+import cdm.product.asset.InterestRatePayout;
+import cdm.product.common.schedule.CalculationPeriodDates;
+import cdm.product.common.settlement.PriceQuantity;
+import cdm.product.template.TradeLot;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +30,11 @@ import util.ResourcesUtils;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -35,7 +48,7 @@ class FunctionInputCreationTest {
     @Test
     void validateCreateTerminationWorkflowFuncInputJson() throws IOException {
         RunCreateTerminationWorkflowInput actual = new RunCreateTerminationWorkflowInput(
-                getTradeState(),
+                getTerminationTradeState(),
                 TerminationInstruction.builder()
                         .addTerminatedQuantity(Quantity.builder()
                                 .setAmount(BigDecimal.valueOf(0))
@@ -54,7 +67,7 @@ class FunctionInputCreationTest {
     @Test
     void validateCreatePartialTerminationWorkflowFuncInputJson() throws IOException {
         RunCreateTerminationWorkflowInput actual = new RunCreateTerminationWorkflowInput(
-                getTradeState(),
+                getTerminationTradeState(),
                 TerminationInstruction.builder()
                         .addTerminatedQuantity(Quantity.builder()
                                 .setAmount(BigDecimal.valueOf(3000))
@@ -70,12 +83,73 @@ class FunctionInputCreationTest {
                 "The input JSON for partial-termination-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
+    /**
+     * Use record-ex01-vanilla-swap.json sample and modify it to look exactly like CFTC example 3 (used in regs termination example)
+     */
     @NotNull
-    private TradeState.TradeStateBuilder getTradeState() throws IOException {
+    private TradeState.TradeStateBuilder getTerminationTradeState() throws IOException {
         WorkflowStep workflowStep = ResourcesUtils.getObject(WorkflowStep.class, "result-json-files/fpml-5-10/record-keeping/record-ex01-vanilla-swap.json");
-        TradeState.TradeStateBuilder tradeState = workflowStep.getBusinessEvent().getPrimitives().get(0).getContractFormation().getAfter().toBuilder();
-        tradeState.getTrade().setParty(workflowStep.getParty());
-        return tradeState;
+        // parties
+        List<Party> parties = workflowStep.getParty().stream()
+                .filter(p -> p.getName().getValue().equals("Bank X") || p.getName().getValue().equals("Bank Y"))
+                .collect(Collectors.toList());
+        TradeState tradeState = workflowStep.getBusinessEvent().getPrimitives().get(0).getContractFormation().getAfter();
+        TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
+        tradeStateBuilder.getTrade().setParty(parties);
+        // partyId
+        updatePartyId(tradeStateBuilder, "Bank X", "LEI1RPT0001");
+        updatePartyId(tradeStateBuilder, "Bank Y", "LEI2CP0002");
+        // party role
+        List<? extends PartyRole> partyRoles = tradeState.getTrade().getPartyRole();
+        PartyRole partyRole = partyRoles.get(0);
+        PartyRole.PartyRoleBuilder reportingPartyRole = partyRole.toBuilder()
+                .setPartyReference(ReferenceWithMetaParty.builder()
+                        .setGlobalReference(partyRole.getOwnershipPartyReference().getGlobalReference())
+                        .setExternalReference(partyRole.getOwnershipPartyReference().getExternalReference()))
+                .setRole(PartyRoleEnum.REPORTING_PARTY);
+        tradeStateBuilder.getTrade().addPartyRole(reportingPartyRole);
+        // effective and termination date
+        List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayouts = tradeStateBuilder.getTrade()
+                .getTradableProduct()
+                .getProduct()
+                .getContractualProduct()
+                .getEconomicTerms()
+                .getPayout()
+                .getInterestRatePayout();
+        interestRatePayouts.stream()
+                .filter(payout -> payout.getRateSpecification().getFloatingRate() != null)
+                .findFirst()
+                .ifPresent(floatingLeg -> {
+                    CalculationPeriodDates.CalculationPeriodDatesBuilder calculationPeriodDates = floatingLeg.getCalculationPeriodDates();
+                    calculationPeriodDates.getEffectiveDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2014,4, 3));
+                    calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2025,4, 1));
+                });
+        interestRatePayouts.stream()
+                .filter(payout -> payout.getRateSpecification().getFixedRate() != null)
+                .findFirst()
+                .ifPresent(fixedLeg -> {
+                    CalculationPeriodDates.CalculationPeriodDatesBuilder calculationPeriodDates = fixedLeg.getCalculationPeriodDates();
+                    calculationPeriodDates.getEffectiveDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2018,4, 3));
+                    calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2025,4, 1));
+                });
+        // quantity
+        tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().stream().map(TradeLot.TradeLotBuilder::getPriceQuantity).flatMap(Collection::stream).map(
+                PriceQuantity.PriceQuantityBuilder::getQuantity).flatMap(Collection::stream).map(FieldWithMetaQuantity.FieldWithMetaQuantityBuilder::getValue).forEach(quantity -> {
+                    quantity.setAmount(new BigDecimal(10000));
+        });
+        // trade id
+        tradeStateBuilder.getTrade().getTradeIdentifier().get(0).getAssignedIdentifier().get(0).setIdentifierValue("LEI1RPT0001KKKK");
+        // trade date
+        tradeStateBuilder.getTrade().setTradeDateValue(DateImpl.of(2018, 4, 1));
+        return tradeStateBuilder;
+    }
+
+    private void updatePartyId(TradeState.TradeStateBuilder tradeStateBuilder, String partyName, String partyId) {
+        tradeStateBuilder.getTrade().getParty().stream()
+                .filter(p -> p.getName().getValue().equals(partyName))
+                .findFirst().ifPresent(bankXParty -> bankXParty.setPartyId(Arrays.asList(FieldWithMetaString.builder()
+                        .setValue(partyId)
+                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))));
     }
 
     private static String readResource(String inputJson) throws IOException {
