@@ -70,6 +70,15 @@ class FunctionInputCreationTest {
                 "The input JSON for partial-termination-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
+    @Test
+    void validateCreateAllocationWorkflowInputJason() throws IOException {
+        TradeState.TradeStateBuilder tradeState = getTradeState();
+
+
+        String foo = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(tradeState);
+        System.out.println(foo);
+    }
+
     @NotNull
     private TradeState.TradeStateBuilder getTradeState() throws IOException {
         WorkflowStep workflowStep = ResourcesUtils.getObject(WorkflowStep.class, "result-json-files/fpml-5-10/record-keeping/record-ex01-vanilla-swap.json");
