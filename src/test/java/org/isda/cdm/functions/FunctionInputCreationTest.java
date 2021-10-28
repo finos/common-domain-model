@@ -7,6 +7,7 @@ import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.event.common.ExecutionInstruction;
 import cdm.event.common.TerminationInstruction;
 import cdm.event.common.TradeState;
 import cdm.event.workflow.WorkflowStep;
@@ -23,6 +24,7 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
+import org.isda.cdm.functions.testing.FunctionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import util.ResourcesUtils;
@@ -127,9 +129,11 @@ class FunctionInputCreationTest {
                 .getIdentifier()
                 .setValue("LEI1RPT001PREAA");
 
+        ExecutionInstruction executionInstruction = FunctionUtils.createExecutionInstructionFromTradeState(tradeStateBuilder.build());
 
-        String foo = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(tradeStateBuilder.build());
-        System.out.println(foo);
+        assertEquals(readResource("/cdm-sample-files/functions/allocation-workflow-func-input.json"),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(executionInstruction),
+                "The input JSON for allocation-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
 
