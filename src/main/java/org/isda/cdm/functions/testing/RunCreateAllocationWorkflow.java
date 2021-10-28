@@ -20,6 +20,7 @@ import com.rosetta.model.metafields.MetaFields;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import static org.isda.cdm.functions.testing.FunctionUtils.dateTime;
 
@@ -36,16 +37,9 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
     @Inject
     Create_Allocation create_allocation;
 
-//    private static final ObjectMapper STRICT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper()
-//            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
-//            .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
-//            .setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
-
-
     @Override
     public Workflow execute(ExecutionInstruction executionInstruction) {
         LocalDate tradeDate = executionInstruction.getTradeDate().toLocalDate();
-
         LocalDate returnDate = tradeDate.plusYears(1);
 
         // Execution
@@ -61,9 +55,15 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
         WorkflowStep proposedWorkflowStep = workflows.createProposedWorkflowStep(executionWorkflowStep, instruction, dateTime(returnDate, 15, 0));
 
         // Settle
+        LocalDate settlementDate = returnDate.plus(1, ChronoUnit.DAYS);
         BusinessEvent allocation = createAllocation(proposedWorkflowStep, allocationInstruction);
+        WorkflowStep acceptedWorkflowStep = workflows.createAcceptedWorkflowStep(proposedWorkflowStep, allocation, dateTime(settlementDate, 18, 0));
 
-        return null;
+        return Workflow.builder()
+                .addSteps(executionWorkflowStep)
+                .addSteps(proposedWorkflowStep)
+                .addSteps(acceptedWorkflowStep)
+                .build();
     }
 
     @Override
@@ -80,7 +80,7 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
         AllocationInstruction allocationInstructionWithRefs =
                 lineageUtils.withGlobalReference(AllocationInstruction.class, allocationInstruction);
 
-        BusinessEvent businessEvent = create_allocation.evaluate(proposedWorkflowStep.getBusinessEvent().getPrimitives().get(0).getExecution().getAfter(), allocationInstruction);
+        BusinessEvent businessEvent = create_allocation.evaluate(proposedWorkflowStep.getBusinessEvent().getPrimitives().get(0).getExecution().getAfter(), allocationInstructionWithRefs);
         return lineageUtils.withGlobalReference(BusinessEvent.class, businessEvent);
     }
 
@@ -96,12 +96,10 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
     private AllocationInstruction createAllocationInstruction(BusinessEvent executionBusinessEvent) {
         TradeState executionAfterState = executionBusinessEvent.getPrimitives().get(0).getExecution().getAfter();
         FieldWithMetaString issuerIdentifier = executionAfterState.getTrade().getTradeIdentifier().get(0).getIssuer();
-        return  AllocationInstruction.builder()
+        return AllocationInstruction.builder()
                 .addBreakdowns(createBreakdown(issuerIdentifier, "LEI1RPT001POST1", 1, "LEI2CP00A1", 7000))
                 .addBreakdowns(createBreakdown(issuerIdentifier, "LEI1RPT001POST2", 2, "LEI3CP00A2", 3000))
                 .build();
-
-
     }
 
     private AllocationBreakdown createBreakdown(FieldWithMetaString issuerIdentifier, String identifierValue, int counterpartyFundId, String partyId, int quantity) {
@@ -146,13 +144,13 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
 
     private AssignedIdentifier createAssignedIdentifier(String value, String scheme) {
         return AssignedIdentifier.builder()
-                        .setIdentifier(FieldWithMetaString.builder()
-                                .setValue(value)
-                                .setMeta(MetaFields.builder()
-                                        .setScheme(scheme)
-                                        .build())
+                .setIdentifier(FieldWithMetaString.builder()
+                        .setValue(value)
+                        .setMeta(MetaFields.builder()
+                                .setScheme(scheme)
                                 .build())
-                        .build();
+                        .build())
+                .build();
     }
 
 }
