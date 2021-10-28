@@ -5,6 +5,7 @@ import cdm.event.common.Instruction;
 import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import org.isda.cdm.functions.testing.WorkflowFunctionHelper;
 
 import javax.inject.Inject;
 import java.time.LocalDate;

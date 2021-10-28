@@ -3,6 +3,7 @@ package cdm.security.lending.functions;
 import cdm.event.common.*;
 import cdm.event.workflow.*;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import org.isda.cdm.functions.testing.WorkflowFunctionHelper;
 
 import javax.inject.Inject;
 import java.time.*;

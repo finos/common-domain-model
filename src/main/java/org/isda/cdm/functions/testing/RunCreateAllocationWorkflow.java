@@ -4,7 +4,6 @@ import cdm.event.common.BusinessEvent;
 import cdm.event.common.ExecutionInstruction;
 import cdm.event.common.functions.Create_Execution;
 import cdm.event.workflow.Workflow;
-import cdm.security.lending.functions.WorkflowFunctionHelper;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 
 import javax.inject.Inject;
