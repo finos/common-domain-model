@@ -56,7 +56,7 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
 
         // Settle
         LocalDate settlementDate = returnDate.plus(1, ChronoUnit.DAYS);
-        BusinessEvent allocation = createAllocation(proposedWorkflowStep, allocationInstruction);
+        BusinessEvent allocation = createAllocation(execution.getPrimitives().get(0).getExecution().getAfter(), allocationInstruction);
         WorkflowStep acceptedWorkflowStep = workflows.createAcceptedWorkflowStep(proposedWorkflowStep, allocation, dateTime(settlementDate, 18, 0));
 
         return Workflow.builder()
@@ -76,11 +76,11 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
         return Workflow.class;
     }
 
-    private BusinessEvent createAllocation(WorkflowStep proposedWorkflowStep, AllocationInstruction allocationInstruction) {
+    private BusinessEvent createAllocation(TradeState tradeState, AllocationInstruction allocationInstruction) {
         AllocationInstruction allocationInstructionWithRefs =
                 lineageUtils.withGlobalReference(AllocationInstruction.class, allocationInstruction);
 
-        BusinessEvent businessEvent = create_allocation.evaluate(proposedWorkflowStep.getBusinessEvent().getPrimitives().get(0).getExecution().getAfter(), allocationInstructionWithRefs);
+        BusinessEvent businessEvent = create_allocation.evaluate(tradeState, allocationInstructionWithRefs);
         return lineageUtils.withGlobalReference(BusinessEvent.class, businessEvent);
     }
 
