@@ -85,10 +85,50 @@ class FunctionInputCreationTest {
 
     @Test
     void validateCreateAllocationWorkflowInputJason() throws IOException {
-        TradeState.TradeStateBuilder tradeState = getTerminationTradeState();
+        TradeState.TradeStateBuilder tradeStateBuilder = getTerminationTradeState();
+
+        List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders = tradeStateBuilder
+                .getTrade()
+                .getTradableProduct()
+                .getProduct()
+                .getContractualProduct()
+                .getEconomicTerms()
+                .getPayout()
+                .getInterestRatePayout();
+
+        interestRatePayoutBuilders.get(0)
+                .getCalculationPeriodDates()
+                .getTerminationDate()
+                .getAdjustableDate()
+                .setUnadjustedDate(DateImpl.of(2028, 4, 1));
+
+        interestRatePayoutBuilders.get(1)
+                .getCalculationPeriodDates()
+                .getTerminationDate()
+                .getAdjustableDate()
+                .setUnadjustedDate(DateImpl.of(2028, 4, 1));
+
+        tradeStateBuilder
+                .getTrade()
+                .getParty().get(0)
+                .getPartyId().get(0)
+                .setValue("LEI1RPT001");
+
+        tradeStateBuilder
+                .getTrade()
+                .getParty().get(1)
+                .getPartyId().get(0)
+                .setValue("LEIFUNDMGR");
+
+        tradeStateBuilder
+                .getTrade()
+                .getTradeIdentifier().get(0)
+                .getAssignedIdentifier().get(0)
+                .getIdentifier()
+                .setValue("LEI1RPT001PREAA");
 
 
-        String foo = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(tradeState);
+        String foo = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(tradeStateBuilder.build());
         System.out.println(foo);
     }
 
