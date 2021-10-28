@@ -12,6 +12,8 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
+import static org.isda.cdm.functions.testing.FunctionUtils.dateTime;
+
 public class RunCreateAllocationWorkflow implements ExecutableFunction<ExecutionInstruction, Workflow> {
     @Inject
     WorkflowFunctionHelper workflows;
@@ -51,7 +53,5 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
         return lineageUtils.withGlobalReference(BusinessEvent.class, businessEvent);
     }
 
-    public ZonedDateTime dateTime(LocalDate tradeDate, int hour, int minute) {
-        return ZonedDateTime.of(tradeDate, LocalTime.of(hour, minute), ZoneOffset.UTC.normalized());
-    }
+
 }
