@@ -9,14 +9,10 @@ import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
+import cdm.event.common.functions.Create_Allocation;
 import cdm.event.common.functions.Create_Execution;
 import cdm.event.workflow.Workflow;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import cdm.event.workflow.WorkflowStep;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
@@ -37,6 +33,9 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
     @Inject
     Create_Execution create_execution;
 
+    @Inject
+    Create_Allocation create_allocation;
+
 //    private static final ObjectMapper STRICT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper()
 //            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
 //            .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
@@ -47,8 +46,22 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
     public Workflow execute(ExecutionInstruction executionInstruction) {
         LocalDate tradeDate = executionInstruction.getTradeDate().toLocalDate();
 
+        LocalDate returnDate = tradeDate.plusYears(1);
+
+        // Execution
         BusinessEvent execution = createExecution(executionInstruction);
-        workflows.createWorkflowStep(execution, dateTime(tradeDate, 9, 0));
+        WorkflowStep executionWorkflowStep = workflows.createWorkflowStep(execution, dateTime(tradeDate, 9, 0));
+
+        // Propose
+        AllocationInstruction allocationInstruction = createAllocationInstruction(executionWorkflowStep.getBusinessEvent());
+        Instruction instruction = Instruction.builder()
+                .setInstructionFunction(AllocationInstruction.class.getSimpleName())
+                .setAllocation(allocationInstruction)
+                .build();
+        WorkflowStep proposedWorkflowStep = workflows.createProposedWorkflowStep(executionWorkflowStep, instruction, dateTime(returnDate, 15, 0));
+
+        // Settle
+        BusinessEvent allocation = createAllocation(proposedWorkflowStep, allocationInstruction);
 
         return null;
     }
@@ -63,6 +76,14 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
         return Workflow.class;
     }
 
+    private BusinessEvent createAllocation(WorkflowStep proposedWorkflowStep, AllocationInstruction allocationInstruction) {
+        AllocationInstruction allocationInstructionWithRefs =
+                lineageUtils.withGlobalReference(AllocationInstruction.class, allocationInstruction);
+
+        BusinessEvent businessEvent = create_allocation.evaluate(proposedWorkflowStep.getBusinessEvent().getPrimitives().get(0).getExecution().getAfter(), allocationInstruction);
+        return lineageUtils.withGlobalReference(BusinessEvent.class, businessEvent);
+    }
+
 
     private BusinessEvent createExecution(ExecutionInstruction executionInstruction) {
         ExecutionInstruction executionInstructionWithRefs = lineageUtils
@@ -75,27 +96,23 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
     private AllocationInstruction createAllocationInstruction(BusinessEvent executionBusinessEvent) {
         TradeState executionAfterState = executionBusinessEvent.getPrimitives().get(0).getExecution().getAfter();
         FieldWithMetaString issuerIdentifier = executionAfterState.getTrade().getTradeIdentifier().get(0).getIssuer();
-
         return  AllocationInstruction.builder()
-                .addBreakdowns(AllocationBreakdown.builder()
-                        .addAllocationTradeId(Identifier.builder()
-                                .addAssignedIdentifier(createAssignedIdentifier("LEI1RPT001POST1", "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                .setIssuer(issuerIdentifier)
-                                .build())
-                        .setCounterparty(createAllocationCounterparty(1, "LEI2CP00A1", CounterpartyRoleEnum.PARTY_2))
-                        .addQuantity(createAllocationQuantity(7000, "USD"))
-                        .build())
-                .addBreakdowns(AllocationBreakdown.builder()
-                        .addAllocationTradeId(Identifier.builder()
-                                .addAssignedIdentifier(createAssignedIdentifier("LEI1RPT001POST2", "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                .setIssuer(issuerIdentifier)
-                                .build())
-                        .setCounterparty(createAllocationCounterparty(2, "LEI3CP00A2", CounterpartyRoleEnum.PARTY_2))
-                        .addQuantity(createAllocationQuantity(3000, "USD"))
-                        .build())
+                .addBreakdowns(createBreakdown(issuerIdentifier, "LEI1RPT001POST1", 1, "LEI2CP00A1", 7000))
+                .addBreakdowns(createBreakdown(issuerIdentifier, "LEI1RPT001POST2", 2, "LEI3CP00A2", 3000))
                 .build();
 
 
+    }
+
+    private AllocationBreakdown createBreakdown(FieldWithMetaString issuerIdentifier, String identifierValue, int counterpartyFundId, String partyId, int quantity) {
+        return AllocationBreakdown.builder()
+                .addAllocationTradeId(Identifier.builder()
+                        .addAssignedIdentifier(createAssignedIdentifier(identifierValue, "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
+                        .setIssuer(issuerIdentifier)
+                        .build())
+                .setCounterparty(createAllocationCounterparty(counterpartyFundId, partyId, CounterpartyRoleEnum.PARTY_2))
+                .addQuantity(createAllocationQuantity(quantity, "USD"))
+                .build();
     }
 
     private Quantity createAllocationQuantity(int amount, String currency) {
