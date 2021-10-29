@@ -7,6 +7,7 @@ import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.event.common.ExecutionInstruction;
 import cdm.event.common.TerminationInstruction;
 import cdm.event.common.TradeState;
 import cdm.event.workflow.WorkflowStep;
@@ -23,6 +24,7 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
+import org.isda.cdm.functions.testing.FunctionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import util.ResourcesUtils;
@@ -82,6 +84,58 @@ class FunctionInputCreationTest {
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for partial-termination-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
+
+    @Test
+    void validateCreateAllocationWorkflowInputJason() throws IOException {
+        TradeState.TradeStateBuilder tradeStateBuilder = getTerminationTradeState();
+
+        List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders = tradeStateBuilder
+                .getTrade()
+                .getTradableProduct()
+                .getProduct()
+                .getContractualProduct()
+                .getEconomicTerms()
+                .getPayout()
+                .getInterestRatePayout();
+
+        interestRatePayoutBuilders.get(0)
+                .getCalculationPeriodDates()
+                .getTerminationDate()
+                .getAdjustableDate()
+                .setUnadjustedDate(DateImpl.of(2028, 4, 1));
+
+        interestRatePayoutBuilders.get(1)
+                .getCalculationPeriodDates()
+                .getTerminationDate()
+                .getAdjustableDate()
+                .setUnadjustedDate(DateImpl.of(2028, 4, 1));
+
+        tradeStateBuilder
+                .getTrade()
+                .getParty().get(0)
+                .getPartyId().get(0)
+                .setValue("LEI1RPT001");
+
+        tradeStateBuilder
+                .getTrade()
+                .getParty().get(1)
+                .getPartyId().get(0)
+                .setValue("LEIFUNDMGR");
+
+        tradeStateBuilder
+                .getTrade()
+                .getTradeIdentifier().get(0)
+                .getAssignedIdentifier().get(0)
+                .getIdentifier()
+                .setValue("LEI1RPT001PREAA");
+
+        ExecutionInstruction executionInstruction = FunctionUtils.createExecutionInstructionFromTradeState(tradeStateBuilder.build());
+
+        assertEquals(readResource("/cdm-sample-files/functions/allocation-workflow-func-input.json"),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(executionInstruction),
+                "The input JSON for allocation-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
+    }
+
 
     /**
      * Use record-ex01-vanilla-swap.json sample and modify it to look exactly like CFTC example 3 (used in regs termination example)
