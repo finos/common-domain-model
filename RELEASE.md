@@ -1,8 +1,8 @@
-# *Visualise how Allocation Events*
+# *Visualise Allocation Events*
 
 _What is being released?_
 
-An Allocation visualisation workflow consisting of `Execution`, a proposed `WorkflowStep` containing an `AllocationInstruction` and finally an accepted `WorkflowStep` containing an `Allocation`. 
+An Allocation visualisation workflow consisting of an `Execution`, a proposed `WorkflowStep` containing an `AllocationInstruction` and finally an accepted `WorkflowStep` containing an `Allocation`. 
 
 _Review Directions_
 
