@@ -4,6 +4,8 @@ import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
 import cdm.base.staticdata.party.functions.*;
 import cdm.event.common.functions.*;
+import cdm.legalagreement.common.functions.Create_RelatedAgreementsWithPartyReference;
+import cdm.legalagreement.common.functions.Create_RelatedAgreementsWithPartyReferenceImpl;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.asset.functions.FilterPrice;
@@ -106,7 +108,11 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Create_BillingRecords.class).to(bindCreateBillingRecords());
 		bind(ResolveObservationAverage.class).to(bindResolveObservationAverage());
 		bind(CalculationPeriodRange.class).to(bindCalculationPeriodRange());
+		bind(Create_RelatedAgreementsWithPartyReference.class).to(bindCreateRelatedAgreementsWithPartyReference());
+	}
 
+	protected Class<? extends Create_RelatedAgreementsWithPartyReference> bindCreateRelatedAgreementsWithPartyReference() {
+		return Create_RelatedAgreementsWithPartyReferenceImpl.class;
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
