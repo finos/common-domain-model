@@ -1,11 +1,12 @@
-# *Visualise Allocation Events*
+# *Visualise Termination Events Description*
 
 _What is being released?_
 
-An Allocation workflow visualisation consisting of an `Execution`, a proposed `WorkflowStep` containing an `AllocationInstruction` and finally an accepted `WorkflowStep` containing an `Allocation` business event. 
+Descriptions for the `Full Termination` and `Partial Termination` visualisations are being included in the bottom panel under each visualisation. 
 
 _Review Directions_
 
-In the CDM Portal, select the Instance Viewer (which will redirect you to Rosetta portal {press OPEN on ISDA Common Domain Model if prompted to}) and select:
+In the CDM Portal, select the Instance Viewer (which will redirect you to Rosetta portal (press OPEN on ISDA Common Domain Model if prompted to) and select the following:
 
-- CREATE ALLOCATION BUSINESS EVENT > Vanilla Swap
+- CREATE TERMINATION BUSINESS EVENT > Full Termination - Vanilla Swap
+- CREATE TERMINATION BUSINESS EVENT > Partial Termination - Vanilla Swap
