@@ -59,7 +59,7 @@ class SecLendingFunctionExecutionTest {
                         .of(executionDescriptor.getGroup(), executionDescriptor.getName(), executionDescriptor));
     }
 
-    @ParameterizedTest(name = "{0} - {1}")
+ //   @ParameterizedTest(name = "{0} - {1}")
     @MethodSource("loadExecutionDescriptors")
     void runFunction(@VisibleForTesting String groupName, @VisibleForTesting String testName, ExecutionDescriptor executionDescriptor) throws ClassNotFoundException, IOException, InvocationTargetException, IllegalAccessException {
         LOGGER.info("Running Test: " + groupName + ":" + testName);
