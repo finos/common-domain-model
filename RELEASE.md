@@ -1,11 +1,9 @@
-# *Visualise Allocation Events*
+# Event Model - Function Update
 
 _What is being released?_
 
-An Allocation workflow visualisation consisting of an `Execution`, a proposed `WorkflowStep` containing an `AllocationInstruction` and finally an accepted `WorkflowStep` containing an `Allocation` business event. 
+This release implements underlying functionality for existing functions in the Visualization panel that have to do with associating Related Agreements.
 
 _Review Directions_
 
-In the CDM Portal, select the Instance Viewer (which will redirect you to Rosetta portal {press OPEN on ISDA Common Domain Model if prompted to}) and select:
-
-- CREATE ALLOCATION BUSINESS EVENT > Vanilla Swap
+In the CDM Portal, select the Visualization panel and review contents of the folder labeled Form Contract Business Event, and compare Fixed/Floating Single Currency Interest Rate Swap Master Agreement with Fixed/Floating Single Currency Interest Rate Swap No Legal Agreement.
