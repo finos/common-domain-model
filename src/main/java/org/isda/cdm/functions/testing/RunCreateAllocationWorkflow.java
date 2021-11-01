@@ -109,15 +109,18 @@ public class RunCreateAllocationWorkflow implements ExecutableFunction<Execution
                         .setIssuer(issuerIdentifier)
                         .build())
                 .setCounterparty(createAllocationCounterparty(counterpartyFundId, partyId, CounterpartyRoleEnum.PARTY_2))
-                .addQuantity(createAllocationQuantity(quantity, "USD"))
+                .addQuantity(createAllocationQuantity(quantity, "USD", "http://www.fpml.org/coding-scheme/external/iso4217"))
                 .build();
     }
 
-    private Quantity createAllocationQuantity(int amount, String currency) {
+    private Quantity createAllocationQuantity(int amount, String currency, String scheme) {
         return Quantity.builder()
                 .setAmount(BigDecimal.valueOf(amount))
                 .setUnitOfAmount(UnitType.builder()
-                        .setCurrencyValue(currency)
+                        .setCurrency(FieldWithMetaString.builder()
+                                .setMeta(MetaFields.builder().setScheme(scheme).build())
+                                .setValue(currency)
+                                .build())
                         .build())
                 .build();
     }
