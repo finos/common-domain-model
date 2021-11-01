@@ -1,8 +1,8 @@
-# Event Model - Function Update
+# *Event Model - Function Update*
 
 _What is being released?_
 
-This release implements underlying functionality for existing functions in the Visualization panel that have to do with associating Related Agreements.
+This release fixes the `Create_ContractFormation` function for the use case where the instructions include a `LegalAgreement`.  By adding a Java implementation for the `Create_RelatedAgreementsWithPartyReference`, the provided `LegalAgreement` is now added to contract formation output `Trade->contractDetails->documentation` attribute.
 
 _Review Directions_
 
