@@ -10,3 +10,5 @@ In the CDM Portal, select the Instance Viewer (which will redirect you to Rosett
 
 - CREATE TERMINATION BUSINESS EVENT > Full Termination - Vanilla Swap
 - CREATE TERMINATION BUSINESS EVENT > Partial Termination - Vanilla Swap
+
+The descriptions are also available in the CDM distributions.
