@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-Descriptions for the `Full Termination` and `Partial Termination` visualisations are being included in the bottom panel under each visualisation. 
+Descriptions for the `Full Termination` and `Partial Termination` CDM event visualisations. 
 
 _Review Directions_
 
