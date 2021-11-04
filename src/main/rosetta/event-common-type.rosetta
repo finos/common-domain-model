@@ -133,12 +133,10 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
   	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
   	reset ResetInstruction (0..1) <"Specifies inputs needed to process a Reset business event.">
     transfer TransferInstruction (0..1) <"Specifies inputs needed to process a Transfer business event.">
-	increase IncreaseInstruction (0..1) <"Specifies the inputs needed to process a trade increase, containing the price and quantity of the new trade lot to add.">
-	decrease DecreaseInstruction (0..1) <"Specifies the inputs needed to process a trade decrease / unwind, containing the quantity of the trade lot(s) to be decreased and at what price.">
     indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
-	termination TerminationInstruction (0..1) <"Specifies inputs needed to process a Termination business event.">
+	quantityChange QuantityChangeInstruction (0..1) <"Instructions required to create an Increase or Decrease Business Event. An increases adds a new tradelot to the orignal trade. A decrease effectively decreases one or more trade lots contained in the original trade.">
 
-	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination
+	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, quantityChange
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -212,17 +210,23 @@ type TransferInstruction: <"Defines the payout on which to create a Transfer alo
 	payerReceiver PayerReceiver (0..1)
 	quantity Quantity (0..1) <"Specifies quantity amount returned if not the full amount from the TradeState, e.g. partial return">
 
-type IncreaseInstruction: <"Instructions required to create an Increase Business Event. An increase effectively adds a new trade lot to the original trade.">
-	tradeState TradeState (1..1) <"Reference to the trade that is being increased.">
-		[metadata reference]
-	tradeLot TradeLot (1..1) <"Trade lot containing the quantity by which the trade is being increased, and the price and effective date of that increase.">
-	fee SettlementTerms (0..1) <"Fee agreed to be exchanged as part of the trade increase (optional).">
+// type IncreaseInstruction extends QuantityChangeInstruction: <"Instructions required to create an Increase Business Event. An increase effectively adds a new trade lot to the original trade.">
+	
+	// condition:
+	// QuantityChangeInstruction -> tradeLot count = 1
 
-type DecreaseInstruction: <"Instructions required to create a Decrease Business Event (i.e. Partial or Full Termination). A decrease effectively decreases one or more trade lots contained in the original trade.">
-	tradeState TradeState (1..1) <"Reference to the trade that is being decreased.">
+// type DecreaseInstruction extends QuantityChangeInstruction: <"Instructions required to create a Decrease Business Event (i.e. Partial or Full Termination). A decrease effectively decreases one or more trade lots contained in the original trade.">
+// 	// tradeState TradeState (1..1) <"Reference to the trade that is being decreased.">
+// 	// 	[metadata reference]
+// 	// tradeLot TradeLot (1..*) <"Trade lots containing the quantity being decreased, and the price and effective date of each decrease. Attribute is of multiple cardinality, to be used to specify exactly which lots / IDs are being decreased. A client could opt not to specify this and indicate just 1 lot and no ID, and implementations should then enrich these details based on unwind method (e.g. FIFO, LIFO, etc).">
+// 	// fee Transfer (0..1) <"Fee agreed to be exchanged as part of the trade decrease (optional).">
+
+type QuantityChangeInstruction: <"Instructions required to create an Increase or Decrease Business Event. An increases adds a new tradelot to the orignal trade. A decrease effectively decreases one or more trade lots contained in the original trade.">
+	tradeState TradeState (1..1) <"Reference to the trade whose quantity is being increased/decreased.">
 		[metadata reference]
-	tradeLot TradeLot (1..*) <"Trade lots containing the quantity being decreased, and the price and effective date of each decrease. Attribute is of multiple cardinality, to be used to specify exactly which lots / IDs are being decreased. A client could opt not to specify this and indicate just 1 lot and no ID, and implementations should then enrich these details based on unwind method (e.g. FIFO, LIFO, etc).">
-	fee SettlementTerms (0..1) <"Fee agreed to be exchanged as part of the trade decrease (optional).">
+	change PriceQuantity (1..*) <"Quantity by which the Trade is being increased or decreased, and the price at which such quantity change is agreed. The quantity change should always be specified as positive number, with direction (increase/decrease) being specified by the direction enumeration. A fee can also be associated with to the quantity change by specifying a Price component of type CashPrice, including the corresponding settlement date and direction.">
+	direction QuantityChangeDirectionEnum (1..1) <"Direction of quantity change specified as either an increase or decrease">
+	lotIdentifier Identifier (0..1) <"Identifier for the new lot (in case of increase) or for the existing lot that is to be decreased (in case of decrease). this optinal attribute is mandatory in case of a decrease when the initial trade state contains multiple trade lots.">
 
 type IndexTransitionInstruction: <"Defines the information needed to create a Index Transition Business Event.">
 	priceQuantity PriceQuantity (1..*) <"Specifies both new floating rate index and spread adjustment for each leg to be updated.  The spread adjustment accounts for the difference between the old floating rate index relative to the new one. This spread amount is added to the existing spread to determine the new spread, which is applied from the specified effective date forward. In the case of the IBOR Fallback Rate Adjustments, the adjustment spread (also known as the Fallback Adjustment) accounts for two distinctions: i) the fact that the replacement Risk-Free Rate is an overnight rate while IBORs have term structures (e.g., 1, 3, 6-month LIBOR); and (ii) the historical spread differential between IBORs and their term equivalent Overnight Risk-Free Rate compounded rates.">
@@ -238,6 +242,11 @@ type TerminationInstruction: <"Specifies the information required to create the 
     terminatedQuantity Quantity (1..*) <"Specifies the new quantities of the transaction as a result of the partial or full termination event.">
 	terminationFee Transfer (0..1) <"Fee agreed to be exchanged as part of the trade termination (optional).">
 	terminationDate	date (1..1) <"Date of partial or full termination">
+
+type CompressionInstruction: <"Specifies instructions for compression of a portfolio of transactions consisting of the transactions to be compressed, any replacement trades, and any mark to market compensation fee.">
+	quantityChangeInstruction QuantityChangeInstruction (2..*) <"Instructions required to create an Increase or Decrease Business Event. An increases adds a new tradelot to the orignal trade. A decrease effectively decreases one or more trade lots contained in the original trade.">
+	contractFormationInstruction ContractFormationInstruction (0..*) <"Instructions required to create a fully formed contract, consisting of an execution and an optional legal agreement.">
+	compressionFee Transfer(0..*) <"Optional compression fee.">
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
@@ -656,7 +665,7 @@ type PrimitiveEvent: <"A primitive event is defined by one and only one atomic c
 	termsChange TermsChangePrimitive (0..1)
 		[synonym Workflow_Event value "termsChange" path "primitive"]
 	transfer TransferPrimitive (0..1)
-		[synonym Workflow_Event value "transfer" path "primitive"]
+		[synonym Workflow_Event value "transfer" path "primitive"]	
 	condition PrimitiveEvent: one-of
 
 type ExecutionPrimitive: <"Defines the primitive event for an execution, with 'after' attribute being a TradeState and the 'before' attribute being Null. It is expected that the 'before' attribute will be adjusted or deprecated once the CDM scope is extended to include pre-trade.">
