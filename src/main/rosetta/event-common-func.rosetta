@@ -755,20 +755,31 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 func Create_ContractFormation: <"Creates the fully formed business event of affirming (confirming) a transaction based on contract formation instructions. The formed contract can reference a legal agreement, for instance a master agreement, by using the optional legalAgreement input.">
 	[creation BusinessEvent]
 	inputs:
-        contractFormationInstruction ContractFormationInstruction (1..1) <"Specifies the Contract Formation instructions to be applied.">
+        contractFormationInstruction ContractFormationInstruction (0..1) <"Specifies the Contract Formation instructions to be applied on an existing TradeState.">
+		executionInstruction ExecutionInstruction (0..1) <"Specifies the Execution instructions for creation of a TradeState that will then have a contract formed.">
         contractFormationDate date (1..1) <"Specifies the event date of the contract formation.">
 
 	output:
 		contractFormationEvent BusinessEvent (1..1) <"Qualified contract formation business event.">
 
-    alias execution:
-        contractFormationInstruction -> execution
+	alias newExecution:
+		if executionInstruction exists then
+		Create_ExecutionPrimitive(executionInstruction->product,executionInstruction->priceQuantity,executionInstruction->counterparty,executionInstruction->ancillaryParty,executionInstruction->parties,executionInstruction->partyRoles,executionInstruction->executionDetails,executionInstruction->tradeDate,executionInstruction->tradeIdentifier)
 
-	condition: <"Input event must be an execution must be on a contractual product.">
-      		execution exists and
-      		execution -> trade -> tradableProduct -> product -> contractualProduct exists and
+    alias execution:
+       if contractFormationInstruction -> execution exists then contractFormationInstruction -> execution
+	   else if executionInstruction exists then newExecution -> after
+
+	condition: contractFormationInstruction exists or executionInstruction exists
+
+	condition: <"Input event must be an execution and must be on a contractual product.">
+      		if execution exists then
+			(execution -> trade -> tradableProduct -> product -> contractualProduct exists and
       		execution -> trade -> contractDetails is absent and
-      		execution -> state -> positionState = PositionStatusEnum -> Executed
+      		execution -> state -> positionState = PositionStatusEnum -> Executed)
+			else if newExecution exists then
+			newExecution -> after -> trade -> tradableProduct -> product -> contractualProduct exists
+
 	condition: <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided.">
         if contractFormationInstruction -> legalAgreement exists then contractFormationInstruction -> legalAgreement -> contractualParty contains execution -> trade -> party
 
