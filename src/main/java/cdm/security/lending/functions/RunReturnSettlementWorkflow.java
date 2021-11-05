@@ -5,6 +5,8 @@ import cdm.event.common.Instruction;
 import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import org.isda.cdm.functions.testing.FunctionUtils;
+import org.isda.cdm.functions.testing.WorkflowFunctionHelper;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
@@ -24,16 +26,16 @@ public class RunReturnSettlementWorkflow implements ExecutableFunction<RunReturn
 
         // step 1 on return date AM
         BusinessEvent returnBusinessEvent = settlements.createReturn(input.getTradeState(), input.getReturnInstruction(), input.getReturnDate());
-        WorkflowStep returnWorkflowStep = workflows.createWorkflowStep(returnBusinessEvent, settlements.dateTime(returnDate, 9, 0));
+        WorkflowStep returnWorkflowStep = workflows.createWorkflowStep(returnBusinessEvent, FunctionUtils.dateTime(returnDate, 9, 0));
 
         // step 2 on return date PM
         Instruction transferInstruction = settlements.createReturnTransferInstruction(returnWorkflowStep.getBusinessEvent(), input.getReturnInstruction().getQuantity());
-        WorkflowStep proposedTransferWorkflowStep = workflows.createProposedWorkflowStep(returnWorkflowStep, transferInstruction, settlements.dateTime(returnDate, 15, 0));
+        WorkflowStep proposedTransferWorkflowStep = workflows.createProposedWorkflowStep(returnWorkflowStep, transferInstruction, FunctionUtils.dateTime(returnDate, 15, 0));
 
         // step 3 on settle date
         LocalDate settlementDate = returnDate.plus(1, ChronoUnit.DAYS);
         BusinessEvent transferBusinessEvent = settlements.createTransferBusinessEvent(returnWorkflowStep, proposedTransferWorkflowStep, settlementDate);
-        WorkflowStep acceptedTransferWorkflowStep = workflows.createAcceptedWorkflowStep(proposedTransferWorkflowStep, transferBusinessEvent, settlements.dateTime(settlementDate, 18, 0));
+        WorkflowStep acceptedTransferWorkflowStep = workflows.createAcceptedWorkflowStep(proposedTransferWorkflowStep, transferBusinessEvent, FunctionUtils.dateTime(settlementDate, 18, 0));
 
         return Workflow.builder()
                 .addSteps(returnWorkflowStep)

@@ -13,6 +13,7 @@ import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.event.common.ExecutionTypeEnum;
 import cdm.event.workflow.EventTimestampQualificationEnum;
 import cdm.event.workflow.WorkflowStep.WorkflowStepBuilder;
+import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.common.settlement.DeliveryMethodEnum;
 import cdm.product.template.CollateralTypeEnum;
@@ -194,7 +195,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreatePrice(0)
 					.getOrCreateValue()
 					.setAmount(parseDecimal(value))
-					.setPriceType(PriceTypeEnum.INTEREST_RATE);
+					.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.INTEREST_RATE));
 			// reference
 			Reference.ReferenceBuilder reference = Reference.builder();
 			PathValue<InterestRatePayoutBuilder> irp = getIRP(tradeState);
@@ -253,9 +254,8 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreatePrice(0)
 					.getOrCreateValue()
 					.setAmount(parseDecimal(value))
-					.setPriceType(PriceTypeEnum.NET_PRICE)
-					.setPerUnitOfAmount(UnitType.builder()
-							.setFinancialUnit(FinancialUnitEnum.SHARE));
+					.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.ASSET_PRICE))
+					.setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE));
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 

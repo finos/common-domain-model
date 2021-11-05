@@ -6,6 +6,7 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,12 +38,12 @@ class TradeSideToPartyMappingProcessorTest {
     @BeforeEach
     void setUp() {
         List<Mapping> mappings = Arrays.asList(
-                new Mapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].payerPartyReference.href"), TRADE_SIDE_1, null, null, NOT_MAPPED_ERROR, false, false),
-                new Mapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].receiverPartyReference.href"), TRADE_SIDE_2, null, null, NOT_MAPPED_ERROR, false, false),
-                new Mapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.tradeSide[0].id"), TRADE_SIDE_1, null, null, NOT_MAPPED_ERROR, false, false),
-                new Mapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.tradeSide[1].id"), TRADE_SIDE_2, null, null, NOT_MAPPED_ERROR, false, false),
-                new Mapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.tradeSide[0].orderer.party.href"), PARTY_A, null, PARTY_A, NOT_MAPPED_ERROR, false, false),
-                new Mapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.tradeSide[1].orderer.party.href"), PARTY_B, null, PARTY_B, NOT_MAPPED_ERROR, false, false));
+                getErrorMapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].payerPartyReference.href"), TRADE_SIDE_1, null, NOT_MAPPED_ERROR),
+                getErrorMapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].receiverPartyReference.href"), TRADE_SIDE_2, null, NOT_MAPPED_ERROR),
+                getErrorMapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.tradeSide[0].id"), TRADE_SIDE_1, null, NOT_MAPPED_ERROR),
+                getErrorMapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.tradeSide[1].id"), TRADE_SIDE_2, null, NOT_MAPPED_ERROR),
+                getErrorMapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.tradeSide[0].orderer.party.href"), PARTY_A, PARTY_A, NOT_MAPPED_ERROR),
+                getErrorMapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.tradeSide[1].orderer.party.href"), PARTY_B, PARTY_B, NOT_MAPPED_ERROR));
         mappingContext = new MappingContext(mappings, Collections.emptyMap());
     }
 
@@ -80,5 +81,10 @@ class TradeSideToPartyMappingProcessorTest {
         processor.map(synonymPath, Optional.empty(), parent);
 
         assertNull(parent.getExternalReference());
+    }
+
+    @NotNull
+    private Mapping getErrorMapping(Path xmlPath, String xmlValue, Object rosettaValue, String error) {
+        return new Mapping(xmlPath, xmlValue, null, rosettaValue, error, false, false, false);
     }
 }

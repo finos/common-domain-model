@@ -223,8 +223,10 @@ func Qualify_Compression: <"The qualification of a compression event from the fa
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		businessEvent -> primitives -> quantityChange exists
-		and businessEvent -> primitives -> quantityChange -> before -> trade multiple exists
+		businessEvent -> primitives -> contractFormation count = 1
+        and businessEvent -> primitives -> quantityChange count > 1
+        //and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
+
 
 func Qualify_Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
 	[qualification BusinessEvent]
@@ -266,13 +268,13 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 	assign-output is_event:
 		businessEvent -> primitives -> quantityChange exists
 		and businessEvent -> primitives -> contractFormation exists
+		and businessEvent -> primitives -> quantityChange count = businessEvent -> primitives -> contractFormation count
 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state contains ClosedStateEnum -> Novated
-		and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
+		//and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
 		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
-		and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
+		//and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
 		
-
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
 	inputs:
@@ -281,9 +283,10 @@ func Qualify_PartialNovation: <"The qualification of a novation event from the f
 	assign-output is_event:
 		businessEvent -> primitives -> quantityChange exists
 		and businessEvent -> primitives -> contractFormation exists
-		and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
+		and businessEvent -> primitives -> quantityChange count = businessEvent -> primitives -> contractFormation count
+        //and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
 		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
-		and businessEvent -> effectiveDate all = NovatedContractEffectiveDate(businessEvent)
+		//and businessEvent -> effectiveDate all = NovatedContractEffectiveDate(businessEvent)
 		and QuantityDecreased(businessEvent -> primitives -> quantityChange) = True
 
 func Qualify_PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
@@ -457,7 +460,7 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
 	    and before -> tradeLot -> priceQuantity -> observable -> rateOption -> floatingRateIndex disjoint after -> tradeLot -> priceQuantity -> observable -> rateOption -> floatingRateIndex
 
 	alias spread:
-		FilterPrice( after -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> Spread )
+		FilterPrice( after -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> InterestRate, empty, empty, empty, empty, empty, SpreadTypeEnum -> Spread )
 
 	alias adjustmentSpreadAdded:
 		if spread exists
@@ -523,21 +526,21 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule only-element -> initialValue -> amount,
+			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> initialValue -> amount,
 			resets only-element -> resetValue -> amount,
 			interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
 			date,
 			empty)
-	assign-output cashflow -> cashflowAmount -> amount:
-		performance
-	assign-output cashflow -> cashflowAmount -> unitOfAmount -> currency:
-		interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+	 assign-output cashflow -> payoutQuantity -> resolvedQuantity -> amount:
+		 performance
+	 assign-output cashflow -> payoutQuantity -> resolvedQuantity -> unitOfAmount -> currency:
+		 interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
 	assign-output cashflow -> payerReceiver -> payer:
 	    if performance >= 0 then interestRatePayout -> payerReceiver -> payer else interestRatePayout -> payerReceiver -> receiver
 	assign-output cashflow -> payerReceiver -> receiver:
 	    if performance >= 0 then interestRatePayout -> payerReceiver -> receiver else interestRatePayout -> payerReceiver -> payer
 
-	assign-output cashflow -> cashflowDate -> adjustedDate:
+	assign-output cashflow -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
 		date
 
 func ResolveReset: <"Defines the interface for adopters to resolve a reset, given a trade state and a date.">
@@ -560,7 +563,7 @@ func ResolveEquityObservationIdentifiers: <"Defines which attributes on the Equi
 			payout -> priceReturnTerms -> valuationPriceFinal
 			else payout -> priceReturnTerms -> valuationPriceInterim
 	assign-output identifiers -> observable -> productIdentifier: <"Represents the identifer for the equity underlier.">
-		payout -> underlier -> security -> productIdentifier only-element
+		payout -> underlier -> security -> productIdentifier
 	assign-output identifiers -> observationDate: <"Specifies the date for which to retireve the market data value(s).">
 		ResolveEquityValuationDate(equityValuation, date)
 	assign-output identifiers -> observationTime: <"Specifies the time for which to retireve the market data value(s).">
@@ -614,18 +617,18 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 	alias equityPerformance:
 	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-	assign-output equityCashSettlementAmount -> cashflowAmount -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
-		Abs(equityPerformance)
-	assign-output equityCashSettlementAmount -> cashflowAmount -> unitOfAmount-> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
-        ResolveEquityInitialPrice(
-			tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
-			tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
-			) -> unitOfAmount -> currency
+	 assign-output equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
+	 	Abs(equityPerformance)
+	 assign-output equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
+         ResolveEquityInitialPrice(
+	 		tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
+	 		tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
+	 		) -> unitOfAmount -> currency
 	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
 	assign-output equityCashSettlementAmount -> payerReceiver -> receiver:
 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
-    assign-output equityCashSettlementAmount -> cashflowDate -> adjustedDate:
+    assign-output equityCashSettlementAmount -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
 
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return)  Equity Notional Amount.">
@@ -878,6 +881,37 @@ func SecurityTransferInstruction: <"Defines the creation of a Transfer Instructi
     output:
         instruction TransferInstruction (1..1)
 
+func Create_Termination: <"Defines the process of partially or fully termination a Transaction.">
+ 	[creation BusinessEvent]
+
+ 	inputs:
+ 		tradeState TradeState (1..1) <"Specifies a previously formed contractual product. It is required that the description of the contractual product be contained within the previous business event, i.e. its lineage must contain the formation of a contractual product.">
+ 		terminationInstruction TerminationInstruction (1..1) <"Specifies the information required to terminate the trade in accordance with the economic terms of the contractual product.">
+
+  	output:
+ 		terminationEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the transfer and termination, as a result of the input termination instruction.">
+
+	assign-output terminationEvent -> primitives -> quantityChange: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially or fully terminate original contract, assuming there's a single transaction in the original financial contract that is part or fully terminated.">
+        Create_QuantityChangePrimitive(
+            tradeState,
+            terminationInstruction -> terminatedQuantity
+        )
+
+    assign-output terminationEvent -> primitives -> quantityChange -> after -> state -> closedState -> state:
+        if terminationInstruction -> terminatedQuantity -> amount all = 0 then
+            ClosedStateEnum -> Terminated
+
+    assign-output terminationEvent -> primitives -> quantityChange -> after -> state -> positionState:
+        if terminationInstruction -> terminatedQuantity -> amount all = 0 then
+            PositionStatusEnum -> Closed
+
+	assign-output terminationEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the termination fee where applicable.">
+ 	 	if terminationInstruction -> terminationFee exists then
+ 	 		Create_TransferPrimitiveFromTransfer( tradeState, terminationInstruction -> terminationFee )
+
+	assign-output terminationEvent -> eventDate:
+		terminationInstruction -> terminationDate
+
 func Create_Reset: <"Defines the process of applying a reference rate (also known as fixing rate) to a transaction, usually in order to calculate the settlement value of a periodic payment schedule between two parties.">
 	[creation BusinessEvent]
 
@@ -1015,9 +1049,9 @@ func Create_CashTransfer: <"Defines how Transfer that represents an exchange of 
 	alias cashflow: <"Resolves the cashflow due to be transferred from the trade and associated state.">
 		ResolveCashflow(tradeState, instruction, date, quantity)
 	assign-output transfer -> quantity -> amount:
-		cashflow -> cashflowAmount -> amount
+		cashflow -> payoutQuantity -> resolvedQuantity -> amount
 	assign-output transfer -> quantity -> unitOfAmount -> currency:
-		cashflow -> cashflowAmount -> unitOfAmount-> currency
+		cashflow -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency
 	assign-output transfer -> payerReceiver -> payerPartyReference:
 		if cashflow -> payerReceiver -> payer exists
 		then ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, cashflow -> payerReceiver -> payer ) -> partyReference
@@ -1027,7 +1061,7 @@ func Create_CashTransfer: <"Defines how Transfer that represents an exchange of 
 		then ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, cashflow -> payerReceiver -> receiver ) -> partyReference
 		else ExtractAncillaryPartyByRole( tradeState -> trade -> tradableProduct -> ancillaryParty, cashflow -> payerReceiver -> receiverAncillaryRole ) -> partyReference only-element
 	assign-output transfer -> settlementDate:
-		cashflow -> cashflowDate
+		cashflow -> settlementTerms -> settlementDate -> adjustedDate
 
     assign-output transfer -> settlementOrigin -> interestRatePayout:
         if instruction -> payout -> interestRatePayout exists
@@ -1077,7 +1111,7 @@ func Create_SecurityFinanceTransfer: <"Defines how Transfer that represents an e
         else FilterQuantityByFinancialUnit(tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, FinancialUnitEnum -> Share)
 
     alias securityPrice:
-        FilterPrice(tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> NetPrice)
+        FilterPrice(tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> AssetPrice, empty, empty, empty, empty, empty, empty)
 
 	condition:
 		if quantity exists
@@ -1155,17 +1189,11 @@ func SecurityFinanceCashSettlementAmount:
         else FilterQuantityByFinancialUnit( tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, FinancialUnitEnum -> Share)
 
     alias securityPrice: <"Specifies the price per security.">
-        FilterPrice( tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> NetPrice)
-
-	alias haircutPercentage:
-		(1.0-securityFinancePayout -> collateralProvisions -> marginPercentage -> haircutPercentage)
-
-    alias valuationPercentage:
-        (1/haircutPercentage)
+        FilterPrice( tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> AssetPrice, empty, empty, empty, empty, empty, empty)
 
 	alias marginRatio:
 		if securityFinancePayout -> collateralProvisions -> marginPercentage -> haircutPercentage exists
-			then valuationPercentage
+			then 1/(1.0-securityFinancePayout -> collateralProvisions -> marginPercentage -> haircutPercentage)
 		else if securityFinancePayout -> collateralProvisions -> marginPercentage -> marginPercentage exists
 			then securityFinancePayout -> collateralProvisions -> marginPercentage -> marginPercentage
 		else 1.0
@@ -1177,11 +1205,11 @@ func SecurityFinanceCashSettlementAmount:
     condition:
         tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable -> productIdentifier = securityFinancePayout -> securityInformation -> security -> productIdentifier
 
-	assign-output securityFinanceCashSettlementAmount -> cashflowAmount -> amount:
-			securityPrice -> amount * securityQuantity -> amount * marginRatio
+	assign-output securityFinanceCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount:
+	 		securityPrice -> amount * securityQuantity -> amount * marginRatio
 
-	assign-output securityFinanceCashSettlementAmount -> cashflowAmount -> unitOfAmount -> currency:
-        securityPrice -> unitOfAmount -> currency
+	assign-output securityFinanceCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount -> currency:
+         securityPrice -> unitOfAmount -> currency
 
 	assign-output securityFinanceCashSettlementAmount -> payerReceiver -> payer:
 		if payerReceiver exists then
@@ -1195,7 +1223,7 @@ func SecurityFinanceCashSettlementAmount:
 		else
 	    securityFinancePayout -> payerReceiver -> payer
 
-    assign-output securityFinanceCashSettlementAmount -> cashflowDate -> adjustedDate:
+    assign-output securityFinanceCashSettlementAmount -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
         date
 
 func Create_Allocation: <"Defines the process of taking an initial transaction, sometimes referred to as a 'Block', and booking a new set of transactions, referred to as 'Allocations', where one of the parties is replaced by one or more other parties. The total quantity / notional of the Block is split across the new parties to the transaction.">
@@ -1391,7 +1419,7 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 		tradeState -> trade -> tradableProduct
 
 	assign-output quantityChangePrimitive -> before:
-		tradeState as-key
+		tradeState
 
 	assign-output quantityChangePrimitive -> after:
 		tradeState
@@ -1561,18 +1589,6 @@ func ExtractTradeState: <"Extracts a single Contract State, given an Event. This
 	assign-output tradeState:
 		if primitive -> contractFormation exists then primitive -> contractFormation -> after
 		else if primitive -> reset exists then primitive -> reset -> after
-
-func ContractStateFromTradeState:
-	inputs:
-		contractState TradeState (1..1)
-	output:
-		tradeState ContractState (1..1)
-
-func TradeStateFromContractState:
-	inputs:
-		contractState ContractState (1..1)
-	output:
-		tradeState TradeState (1..1)
 
 func NewEquitySwapProduct: <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">
 	inputs:
@@ -1812,7 +1828,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule only-element -> initialValue -> amount,
+			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> initialValue -> amount,
 			reset only-element -> resetValue -> amount,
             billingQuantity,
 			recordEndDate,
