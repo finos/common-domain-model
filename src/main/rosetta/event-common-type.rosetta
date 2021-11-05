@@ -81,45 +81,6 @@ type AllocationBreakdown:
 	account Account (0..1)<"The account to allocate the trade into">
 	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
 
-type CashTransferBreakdown extends TransferBreakdown:
-
-	payerReceiver PartyReferencePayerReceiver (1..1) <"The payer and receiver party information.">
-	amount Money (1..1) <"The currency amount of the payment.">
-		[synonym Workflow_Event value "amount"]
-	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">
-		[synonym Workflow_Event value "cashflowType"]
-
-type CashTransferComponent extends TransferBase:
-
-	payerReceiver PartyReferencePayerReceiver (1..1) <"The payer and receiver party information.">
-	amount Money (1..1) <"The currency amount.">
-		[synonym Workflow_Event value "amount"]
-	cashflowType CashflowTypeEnum (0..1) <"The qualification of the type of cashflow, when not inferred from a derived through lineage e.g. brokerage fee, premium, upfront fee etc.">
-		[synonym Workflow_Event value "cashflowType"]
-	breakdown CashTransferBreakdown (0..*) <"The cash transfer breakdown, when the transfer corresponds to a net amount across several components which breakdown is deemed relevant (e.g. the net cash transfer related to several contracts, or to the net proceeds across several payout components).">
-		[synonym Workflow_Event value "breakdown"]
-
-type CommodityTransferBreakdown extends TransferBreakdown:
-
-	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
-	commodity Commodity (1..1)
-	quantity number (1..1)
-		[synonym Workflow_Event value "quantity"]
-	unit CapacityUnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
-	timeUnit TimeUnitEnum (0..1)
-
-type CommodityTransferComponent extends TransferBase:
-
-	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
-	commodity Commodity (1..1)
-	quantity number (1..1)
-		[synonym Workflow_Event value "quantity"]
-	unit CapacityUnitEnum (1..1) <"The unit of measure, applicable to physical assets.">
-	timeUnit TimeUnitEnum (0..1)
-	assetTransferType AssetTransferTypeEnum (0..1) <"The type of transfer, e.g. Free of Payment.">
-	breakdown CommodityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
-		[synonym Workflow_Event value "breakdown"]
-
 type ContractFormationInstruction: <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
 	execution TradeState (1..1) <"Execution consisting of the economic terms which are agreed between the parties.">
 	legalAgreement LegalAgreement (0..*) <"Optional legal agreements associated to the contract being formed, for instance a master agreement.">
@@ -281,23 +242,10 @@ type State: <"Defines the state of a trade at a point in the Trade's life cycle.
 	    if positionState = PositionStatusEnum -> Closed then
 		    closedState exists
 
-type Transfer: <"Defines the movement of cash, securities or commodities between two parties on a date.">
-	identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
-		[metadata scheme]
-	    [synonym Workflow_Event value "transferIdentifier"]
-	quantity Quantity (1..1) <"Represents the amount of the asset to tbe transferred.">
-	    [synonym Workflow_Event value "quantity"]
-	observable Observable (0..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
-		[synonym Workflow_Event value "observable"]
-	payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
-	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
+type Transfer extends TransferBase: <"Defines the movement of cash, securities or commodities between two parties on a date.">
 	settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
 
-	condition:
-		if observable exists
-		then quantity -> unitOfAmount -> financialUnit exists
-
-type SettlementOrigin: <"Defines the various model elements where transfers can arrise.">
+	type SettlementOrigin: <"Defines the various model elements where transfers can arrise.">
 	interestRatePayout InterestRatePayout (0..1) <"Represents a reference to an Interest Rate Payout.">
 		[metadata reference]
 	equityPayout EquityPayout (0..1) <"Represents a reference to an Equity Payout.">
@@ -580,26 +528,6 @@ type PostContractFormationState extends ContractState:
 	creditLimitInformation CreditLimitInformation (0..1) <"Credit limit utilization information.">
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1) <"Information related to trade warehouse workflow.">
 
-type SecurityTransferBreakdown:
-
-	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
-	security Security (1..*) <"The securities that are being transfered">
-		[synonym Workflow_Event value "security"]
-	quantity number (1..1)
-		[synonym Workflow_Event value "quantity"]
-
-type SecurityTransferComponent extends TransferBase:
-
-	transferorTransferee TransferorTransferee (1..1) <"The transferee and transferor party information.">
-	security Security (1..1) <"The security that is being transfered">
-		[synonym Workflow_Event value "security"]
-	quantity number (1..1)
-		[synonym Workflow_Event value "quantity"]
-	assetTransferType AssetTransferTypeEnum (0..1)
-		[synonym Workflow_Event value "assetTransferType"]
-	breakdown SecurityTransferBreakdown (0..*) <"The security transfer breakdown, when the transfer corresponds to a net transfer across several components which breakdown is deemed relevant (e.g. the net security transfer related to several contracts).">
-		[synonym Workflow_Event value "breakdown"]
-
 type StockSplitInstruction: <"Data required to perform a stock split business event.">
 
 	tradeState TradeState (1..1) <"Contract to be split.">
@@ -608,34 +536,19 @@ type StockSplitInstruction: <"Data required to perform a stock split business ev
 
 type TransferBase:
 
-	identifier string (0..1) <"The identifier that can be associated with each of the transfer components">
+	identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
 		[metadata scheme]
-	transferCalculation TransferCalculation (0..1) <"The calculation details underlying the transfer amount, when applicable.">
-
-type TransferCalculation:
-
-	period CalculationPeriodBase (0..1 ) <"The period adjusted start and end dates.">
-	lineage Lineage (0..*) <"The lineage into the components used for the calculation.">
-	calculationOutcome calculation (0..1) <"This is a conceptual placeholder for providing the breakdown into the cashflow calculation components, leveraging the fact that the CDM provides calculation components, starting with the FixedAmount and the FloatingAmount. Further evaluation of expected usage needs to take place to confirm and prioritize such implementation.">
-		[synonym Workflow_Event value "transferCalculation"]
-
-type TransferBreakdown extends TransferBase:
-
-	lineage Lineage (0..*) <"The lineage into the transfer components that might be associated with each of the transfer components.">
-		[synonym Workflow_Event value "lineage"]
-
-type TransferorTransferee: <"A class mimicking the PartyReferencePayerReceiver, which is itself derived from the FpML PayerReceiver.model, to represent the transferee and transferor party information in relation to the transfer of security or commodities.">
-
-	transferorPartyReference Party (1..1) <"A reference to the party responsible for making the payments defined by this structure.">
-		[metadata reference]
-	transferorAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
-		[metadata reference]
-		[synonym Workflow_Event value "payerAccountReference" meta "href"]
-	transfereePartyReference Party (1..1) <"A reference to the party that receives the payments corresponding to this structure.">
-		[metadata reference]
-	transfereeAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
-		[metadata reference]
-		[synonym Workflow_Event value "receiverAccountReference" meta "href"]
+	    [synonym Workflow_Event value "transferIdentifier"]
+	quantity Quantity (1..1) <"Represents the amount of the asset to be transferred.">
+	    [synonym Workflow_Event value "quantity"]
+	observable Observable (0..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
+		[synonym Workflow_Event value "observable"]
+	payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
+	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
+	
+	condition:
+		if observable exists
+		then quantity -> unitOfAmount -> financialUnit exists
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
 	alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
