@@ -1,9 +1,14 @@
-# *Event Model - Function Update*
+# *Visualise Termination Events Description*
 
 _What is being released?_
 
-This release fixes the `Create_ContractFormation` function for the use case where the instructions include a `LegalAgreement`.  By adding a Java implementation for the `Create_RelatedAgreementsWithPartyReference`, the provided `LegalAgreement` is now added to contract formation output `Trade->contractDetails->documentation` attribute.
+Descriptions added to the `Full Termination` and `Partial Termination` CDM event visualisations. 
 
 _Review Directions_
 
-In the CDM Portal, select the Visualization panel and review contents of the folder labeled Form Contract Business Event, and compare Fixed/Floating Single Currency Interest Rate Swap Master Agreement with Fixed/Floating Single Currency Interest Rate Swap No Legal Agreement.
+In the CDM Portal, select the Instance Viewer (which will redirect you to Rosetta portal (press OPEN on ISDA Common Domain Model if prompted to) and select the following:
+
+- CREATE TERMINATION BUSINESS EVENT > Full Termination - Vanilla Swap
+- CREATE TERMINATION BUSINESS EVENT > Partial Termination - Vanilla Swap
+
+The descriptions are also available in the CDM distributions.
