@@ -913,14 +913,18 @@ The *transfer* process creates instances of the ``Transfer`` data type, which ar
 
 .. code-block:: Haskell
 
- type Transfer:
-   identifier Identifier (0..*)
-     [metadata scheme]
-   quantity Quantity (1..1)
-   observable Observable (0..1)
-   payerReceiver PartyReferencePayerReceiver (1..1)
-   settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
+ type Transfer extends TransferBase:
    settlementOrigin SettlementOrigin (0..1)
+
+.. code-block:: Haskell
+
+ type TransferBase:
+	identifier Identifier (0..*)
+		[metadata scheme]
+	quantity Quantity (1..1)
+	observable Observable (0..1)
+	payerReceiver PartyReferencePayerReceiver (1..1)
+	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
 
 By design, the CDM treats the reset and the transfer primitive events separately because there is no one-to-one relationship between reset and transfer.
 
