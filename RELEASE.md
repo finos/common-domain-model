@@ -12,7 +12,8 @@ In addition the `Create_ContractFormation` business event creation function has 
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Viewer and see that the above mentioned data types have been removed.
+In the CDM Portal, select the Textual Viewer and see the data types and functions mentioned above.
+
 
 # *Event Model - Transfer: Remove unused Transfer sub-types*
 
@@ -35,6 +36,7 @@ The following data types and their corresponding synonyms have been removed:
 _Review Directions_
 
 In the CDM Portal, select the Textual Viewer and see that the above mentioned data types have been removed.
+
 
 # *DSL Syntax - Digital Regulatory Reporting Report Definition*
 
