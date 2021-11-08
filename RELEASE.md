@@ -12,7 +12,7 @@ In addition the `Create_ContractFormation` business event creation function has 
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Viewer and see the data types and functions mentioned above.
+In the CDM Portal, select the Textual Viewer and review the data types and functions mentioned above.
 
 
 # *Event Model - Transfer: Remove unused Transfer sub-types*
