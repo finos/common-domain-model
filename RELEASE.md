@@ -1,3 +1,19 @@
+# *Event Model - ContractFormationInstruction*
+
+_What is being released?_
+
+The ContractFormationInstruction data type has been updated to optionally take an `executionInstruction` as an input to be used in events which need to create an execution and fully formed contract in
+
+_Details_
+
+`ContractFormationInstruction` can now be defined using an `execution` or `executionInstructions` as input.  A `required choice` condition validates that one of the attributes is provided along with an optional `legalAgreement`.
+
+In addition the `Create_ContractFormation` business event creation function has been adjusted to use the `executionInstruction` attribute when defined.
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Viewer and see that the above mentioned data types have been removed.
+
 # *Event Model - Transfer: Remove unused Transfer sub-types*
 
 _What is being released?_
