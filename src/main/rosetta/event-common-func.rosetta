@@ -349,6 +349,15 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 
+func Qualify_Renegotiation: <"Qualifies a business event as a renegotiation from the fact that i) a termsChange primitive exists and ii) the intent is renegotiation.">
+	[qualification BusinessEvent]
+	inputs:
+		businessEvent BusinessEvent(1..1)
+	output: is_event boolean (1..1)
+	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
+	assign-output is_event:
+		businessEvent -> intent = IntentEnum -> Renegotiation
+		and businessEvent -> primitives -> termsChange exists 
 
 func Qualify_TradeWarehousePositionNotification:
 	[qualification BusinessEvent]
@@ -1455,6 +1464,46 @@ func Create_TerminationQuantityChangePrimitive: <"A specification for terminatin
 	assign-output quantityChangePrimitive -> after: <"Correctly populate the after attributes on the Primitive Event">
 		CloseTrade( contract, ClosedStateEnum -> Terminated, PositionStatusEnum -> Closed )
 
+func Create_TermsChangePrimitive: <"Function specification for changing terms of a contract where the after state to be updated.">
+	[creation PrimitiveEvent]
+	inputs:
+		tradeState TradeState (1..1) <"Formed contract to be renegotiated.">
+		tradeLot TradeLot (0..*) <"tradelots to be changed.">
+		product Product (0..1) <"product to be changed">
+		ancillaryParty AncillaryParty (0..*) <"ancillary party to be changed">
+		adjustment NotionalAdjustmentEnum (0..1)
+		effectiveDate date (1..1) <"date of which the renegotionation takes effect.">
+
+	output:
+		termsChangePrimitive TermsChangePrimitive (1..1)
+
+	assign-output termsChangePrimitive -> before: <"Correctly populate the before attributes on the Primitive Event">
+		tradeState
+
+	assign-output termsChangePrimitive -> after: <"Correctly populate the after attributes on the Primitive Event. It updates the trade based on each element that has been renegotiated.">
+		tradeState
+
+	//iterated throught tradelots
+	assign-output termsChangePrimitive -> after -> trade -> tradableProduct -> tradeLot: <"Price and Quantity of contract to be updated based on the optional tradelot(s) input.">
+		if tradeLot exists then
+			tradeLot
+
+	assign-output termsChangePrimitive -> after -> trade -> tradableProduct -> product: <"Optional input to updated Product elements of the contract.">
+		if product exists then
+			product
+
+	//iterated throught ancillaryParties
+	assign-output termsChangePrimitive -> after -> trade -> tradableProduct -> ancillaryParty: <"Optional input to update ancillary party information of contract.">
+		if ancillaryParty exists then
+			ancillaryParty
+						
+	assign-output termsChangePrimitive -> after -> trade -> tradableProduct -> adjustment: <"Optional input to update Adjustments of the contract.">
+		if adjustment exists then
+			adjustment
+
+	assign-output termsChangePrimitive -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate: <"Effective date of the contract to be updated based on the effectiveDate input.">
+		effectiveDate
+
 func CloseTrade: <"Function specification for a contract termination where the closed state and position state are updated, and all quantity amounts are set to 0.">
 	inputs:
 		tradeState TradeState (1..1) <"Formed contract in non-terminated state.">
@@ -1638,6 +1687,24 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 		if masterConfirmation exists
 		then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod
 			and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
+
+func Create_Renegotiation: <"Creates the fully-formed business event of renegotiating the terms of a transaction based on renegotiation instructions.">
+	[creation BusinessEvent]
+	inputs:
+		renegotiationInstruction RenegotiationInstruction (1..1) <"Specifies instructions for renegotiation of a transaction consisting of the trade to be renegotiated, the renegotiation terms, effective date and an optional renegotiation fee.">
+		renegotiationDate date (1..1) <"Specifies the event date.">
+
+	output:
+		renegotiationEvent BusinessEvent (1..1) <"Specifies the resulting business event which will be composed of a terms change primitive event.">
+
+	assign-output renegotiationEvent -> primitives -> termsChange: <"Function specification to create a terms change primitive based on inputs."> 
+		Create_TermsChangePrimitive(renegotiationInstruction -> tradeState, renegotiationInstruction -> tradeLot, renegotiationInstruction -> product, renegotiationInstruction -> ancillaryParty, renegotiationInstruction -> adjustment, renegotiationInstruction -> effectiveDate)
+
+	assign-output renegotiationEvent -> intent: <"The intent is set to renegotiation enum.">
+		IntentEnum -> Renegotiation
+
+	assign-output renegotiationEvent -> eventDate: <"event date is set to renegotiation date.">
+		renegotiationDate
 
 func Create_IndexTransition: <"Function specification to create the business event which represents an Index Transition on a Derivatives contract. The function adjust updates the floating rate index and adds the spread adjustment to any existing spread.">
 	[creation BusinessEvent]

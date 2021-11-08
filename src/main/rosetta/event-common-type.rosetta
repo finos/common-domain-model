@@ -137,8 +137,9 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 	decrease DecreaseInstruction (0..1) <"Specifies the inputs needed to process a trade decrease / unwind, containing the quantity of the trade lot(s) to be decreased and at what price.">
     indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
 	termination TerminationInstruction (0..1) <"Specifies inputs needed to process a Termination business event.">
+	renegotiation ReallocationInstruction (0..1) <"Specifies inputs needed to process a renegotiation business event">
 
-	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination
+	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination, renegotiation
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -238,6 +239,17 @@ type TerminationInstruction: <"Specifies the information required to create the 
     terminatedQuantity Quantity (1..*) <"Specifies the new quantities of the transaction as a result of the partial or full termination event.">
 	terminationFee Transfer (0..1) <"Fee agreed to be exchanged as part of the trade termination (optional).">
 	terminationDate	date (1..1) <"Date of partial or full termination">
+
+type RenegotiationInstruction: 	<"Specifies instructions for renegotiation of a transaction consisting of the new transaction terms, and the renegotiation fee.">
+	tradeState TradeState (1..1) <"Reference to the trade that is being renegotiated.">
+	tradeLot TradeLot (0..*) <"tradelots to be changed.">
+	product Product (0..1) <"product to be changed">
+	ancillaryParty AncillaryParty (0..*) <"ancillary party to be changed">
+	adjustment NotionalAdjustmentEnum (0..1)
+	effectiveDate date (1..1) <"date of which the renegotionation takes effect.">
+	renegotiationFee Transfer (0..1) <"fee associated with renegotiation">
+
+	condition: (tradeLot or product or ancillaryParty or adjustment) exists   
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
