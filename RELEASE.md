@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-The ContractFormationInstruction data type has been updated to optionally take an `executionInstruction` as an input to be used in events which need to create an execution and fully formed contract in
+The `ContractFormationInstruction` data type has been updated to optionally take an `executionInstruction` as an input to be used in events which need to create an execution and fully formed contract in
 
 _Details_
 
