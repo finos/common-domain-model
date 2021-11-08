@@ -135,8 +135,9 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
     transfer TransferInstruction (0..1) <"Specifies inputs needed to process a Transfer business event.">
     indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
 	quantityChange QuantityChangeInstruction (0..1) <"Instructions required to create an Increase or Decrease Business Event. An increases adds a new tradelot to the orignal trade. A decrease effectively decreases one or more trade lots contained in the original trade.">
+	compression CompressionInstruction (0..1) <"Instructions required to create a compression busines event.">
 
-	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, quantityChange
+	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, quantityChange, compression
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -244,8 +245,8 @@ type TerminationInstruction: <"Specifies the information required to create the 
 	terminationDate	date (1..1) <"Date of partial or full termination">
 
 type CompressionInstruction: <"Specifies instructions for compression of a portfolio of transactions consisting of the transactions to be compressed, any replacement trades, and any mark to market compensation fee.">
-	quantityChangeInstruction QuantityChangeInstruction (2..*) <"Instructions required to create an Increase or Decrease Business Event. An increases adds a new tradelot to the orignal trade. A decrease effectively decreases one or more trade lots contained in the original trade.">
-	contractFormationInstruction ContractFormationInstruction (0..*) <"Instructions required to create a fully formed contract, consisting of an execution and an optional legal agreement.">
+	compressedTrade QuantityChangeInstruction (2..*) <"Instructions required to compress trades through quantity change.">
+	replacementTrade ContractFormationInstruction (0..*) <"Instructions required for the replacement trade by creating a fully formed contract, consisting of an execution and an optional legal agreement.">
 	compressionFee Transfer(0..*) <"Optional compression fee.">
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
