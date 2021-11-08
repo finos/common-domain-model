@@ -32,4 +32,4 @@ Specifying the `report` as a `type` allows the cardinality and type to be specif
 
 _Review Directions_
 
-Changes to report syntax will be made in an upcoming Digtial Regulatory Reporting release.
+Changes to report syntax will be made in an upcoming Digital Regulatory Reporting release.
