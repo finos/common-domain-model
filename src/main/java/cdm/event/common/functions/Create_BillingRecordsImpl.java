@@ -2,7 +2,7 @@ package cdm.event.common.functions;
 
 import cdm.event.common.BillingRecord;
 import cdm.event.common.BillingRecordInstruction;
-import cdm.event.common.Transfer;
+import cdm.event.common.TransferBase;
 
 import javax.inject.Inject;
 import java.math.RoundingMode;
@@ -30,7 +30,7 @@ public class Create_BillingRecordsImpl extends Create_BillingRecords {
 		BillingRecord.BillingRecordBuilder billingRecordBuilder = billingRecord.toBuilder();
 		Optional.ofNullable(billingRecordBuilder)
 				.map(BillingRecord.BillingRecordBuilder::getRecordTransfer)
-				.map(Transfer.TransferBuilder::getQuantity)
+				.map(TransferBase.TransferBaseBuilder::getQuantity)
 				.ifPresent(q -> q.setAmount(q.getAmount().setScale(2, RoundingMode.CEILING)));
 		return billingRecordBuilder;
 	}
