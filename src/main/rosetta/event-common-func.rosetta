@@ -354,10 +354,11 @@ func Qualify_Renegotiation: <"Qualifies a business event as a renegotiation from
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
-	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
+	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate) -> transfers only-element
 	assign-output is_event:
 		businessEvent -> intent = IntentEnum -> Renegotiation
 		and businessEvent -> primitives -> termsChange exists 
+		and Qualify_IndexTransition(businessEvent) = False
 
 func Qualify_TradeWarehousePositionNotification:
 	[qualification BusinessEvent]
@@ -1472,7 +1473,6 @@ func Create_TermsChangePrimitive: <"Function specification for changing terms of
 		product Product (0..1) <"product to be changed">
 		ancillaryParty AncillaryParty (0..*) <"ancillary party to be changed">
 		adjustment NotionalAdjustmentEnum (0..1)
-		effectiveDate date (1..1) <"date of which the renegotionation takes effect.">
 
 	output:
 		termsChangePrimitive TermsChangePrimitive (1..1)
@@ -1500,9 +1500,6 @@ func Create_TermsChangePrimitive: <"Function specification for changing terms of
 	assign-output termsChangePrimitive -> after -> trade -> tradableProduct -> adjustment: <"Optional input to update Adjustments of the contract.">
 		if adjustment exists then
 			adjustment
-
-	assign-output termsChangePrimitive -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate: <"Effective date of the contract to be updated based on the effectiveDate input.">
-		effectiveDate
 
 func CloseTrade: <"Function specification for a contract termination where the closed state and position state are updated, and all quantity amounts are set to 0.">
 	inputs:
@@ -1698,9 +1695,9 @@ func Create_Renegotiation: <"Creates the fully-formed business event of renegoti
 		renegotiationEvent BusinessEvent (1..1) <"Specifies the resulting business event which will be composed of a terms change primitive event.">
 
 	assign-output renegotiationEvent -> primitives -> termsChange: <"Function specification to create a terms change primitive based on inputs."> 
-		Create_TermsChangePrimitive(renegotiationInstruction -> tradeState, renegotiationInstruction -> tradeLot, renegotiationInstruction -> product, renegotiationInstruction -> ancillaryParty, renegotiationInstruction -> adjustment, renegotiationInstruction -> effectiveDate)
+		Create_TermsChangePrimitive(renegotiationInstruction -> tradeState, renegotiationInstruction -> tradeLot, renegotiationInstruction -> product, renegotiationInstruction -> ancillaryParty, renegotiationInstruction -> adjustment)
 
-	assign-output renegotiationEvent -> intent: <"The intent is set to renegotiation enum.">
+	assign-output renegotiationEvent -> intent: <"The intent is set to renegotiation.">
 		IntentEnum -> Renegotiation
 
 	assign-output renegotiationEvent -> eventDate: <"event date is set to renegotiation date.">

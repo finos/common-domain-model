@@ -137,7 +137,7 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 	decrease DecreaseInstruction (0..1) <"Specifies the inputs needed to process a trade decrease / unwind, containing the quantity of the trade lot(s) to be decreased and at what price.">
     indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
 	termination TerminationInstruction (0..1) <"Specifies inputs needed to process a Termination business event.">
-	renegotiation ReallocationInstruction (0..1) <"Specifies inputs needed to process a renegotiation business event">
+	renegotiation RenegotiationInstruction (0..1) <"Specifies inputs needed to process a renegotiation business event">
 
 	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination, renegotiation
 
@@ -246,10 +246,11 @@ type RenegotiationInstruction: 	<"Specifies instructions for renegotiation of a 
 	product Product (0..1) <"product to be changed">
 	ancillaryParty AncillaryParty (0..*) <"ancillary party to be changed">
 	adjustment NotionalAdjustmentEnum (0..1)
-	effectiveDate date (1..1) <"date of which the renegotionation takes effect.">
+	//effectiveDate date (1..1) <"date of which the renegotionation takes effect.">
 	renegotiationFee Transfer (0..1) <"fee associated with renegotiation">
 
-	condition: (tradeLot or product or ancillaryParty or adjustment) exists   
+	condition: (tradeLot or product or ancillaryParty or adjustment) exists 
+	// Condition to ensure that instructions are not increase or decrese instruntions.
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
