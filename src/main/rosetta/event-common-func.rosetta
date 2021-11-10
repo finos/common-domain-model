@@ -223,9 +223,10 @@ func Qualify_Compression: <"Qualifies a business event as a compression from the
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-        businessEvent -> primitives -> quantityChange count > 1 or (businessEvent -> primitives -> contractFormation exists 
-		and businessEvent -> primitives -> quantityChange count > 1)
-        and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state all = ClosedStateEnum -> Compressed
+        businessEvent -> primitives -> quantityChange count > 1 
+			or (businessEvent -> primitives -> contractFormation exists and businessEvent -> primitives -> quantityChange count > 1)
+        and if businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state exists then
+			businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state all = ClosedStateEnum -> Compressed
 		and businessEvent -> intent = IntentEnum -> Compression
 
 func Qualify_Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
@@ -920,7 +921,7 @@ func Create_Compression: <"Creates the fully-formed business event of compressin
 	compressionDate date (1..1) <"Compression Date">
 
 	output:
-	compressionEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the transfer and termination, as a result of the input termination instruction.">
+	compressionEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the compression and creation of the replacement trade(s), as a result of the input termination instruction.">
 
 	//loop over all of quantity change Instructions and New Trade Instructions
 	alias compressedTrade: //loop
@@ -929,8 +930,8 @@ func Create_Compression: <"Creates the fully-formed business event of compressin
 	alias replacementTrade: //loop
 		compressionInstruction -> replacementTrade only-element
 
-	alias compressionFee: //loop
-		compressionInstruction -> compressionFee only-element		
+	// alias compressionFee: //loop
+	// 	compressionInstruction -> compressionFee only-element		
 	
 	assign-output compressionEvent -> intent: <"The intent is set to compression.">
 		IntentEnum -> Compression
