@@ -892,6 +892,9 @@ func Create_Termination: <"Defines the process of partially or fully termination
 
   	output:
  		terminationEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the transfer and termination, as a result of the input termination instruction.">
+	
+	alias CashPrice: <"Extract the termination fee from the termination price, if it exists.">
+		FilterPrice( terminationInstruction -> terminatedPriceQuantity -> price, PriceTypeEnum -> CashPrice, empty, empty, empty, empty, empty, empty )
 
 	assign-output terminationEvent -> primitives -> quantityChange: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially or fully terminate original contract, assuming there's a single transaction in the original financial contract that is part or fully terminated.">
         Create_QuantityChangePrimitive(
@@ -909,10 +912,17 @@ func Create_Termination: <"Defines the process of partially or fully termination
         if terminationInstruction -> terminatedPriceQuantity -> quantity -> amount all = 0 then
             PositionStatusEnum -> Closed
 
-	// TODO: Adjust logic to work off transfer components as found in the terminatedPriceQuantity, instead of directly passing in a terminationFee
-	assign-output terminationEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the termination fee where applicable.">
- 	 	if terminationInstruction -> terminationFee exists then
- 	 		Create_TransferPrimitiveFromTransfer( tradeState, terminationInstruction -> terminationFee )
+	assign-output terminationEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the termination fee, where applicable.">
+ 	 	if CashPrice exists then
+ 	 		Create_TransferPrimitiveFromTransfer(
+				tradeState,
+				Create_TransferFromCashPrice(
+					CashPrice,
+					terminationInstruction -> terminatedPriceQuantity -> settlementTerms only-element -> settlementDate -> adjustedDate,
+					terminationInstruction -> terminatedPriceQuantity -> buyerSeller only-element,
+					tradeState -> trade -> tradableProduct -> counterparty
+					)
+				)
 
 	assign-output terminationEvent -> eventDate:
 		terminationInstruction -> terminationDate
@@ -1431,12 +1441,13 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 	alias tradableProduct:
 		tradeState -> trade -> tradableProduct
 
-	assign-output quantityChangePrimitive -> before:
-		tradeState
+	condition: <"Only termination where the termination price is specified as a cash price is supported for now.">
+		if direction = QuantityChangeDirectionEnum -> Decrease and change -> price exists
+		then change -> price -> priceExpression -> priceType all = PriceTypeEnum -> CashPrice
 
-	assign-output quantityChangePrimitive -> after:
-		tradeState
-
+	assign-output quantityChangePrimitive -> before: tradeState
+	assign-output quantityChangePrimitive -> after: tradeState
+	
 	assign-output quantityChangePrimitive -> after -> trade -> tradableProduct:
 		Create_TradableProduct(
 			tradableProduct -> product,
@@ -1925,3 +1936,24 @@ func Qualify_Reallocation: <"The qualification of a reallocation event from the 
 		businessEvent -> primitives -> split count = 1
 		and businessEvent -> primitives -> split -> before -> state -> closedState -> state all = ClosedStateEnum -> Allocated
 		and businessEvent -> primitives -> quantityChange exists
+
+func Create_TransferFromCashPrice:
+	inputs:
+		price Price (1..1)
+		settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
+		buyerSeller BuyerSeller (1..1)
+		counterparty Counterparty (2..2)
+	output:
+		transfer Transfer (1..1)
+	
+	condition: <"Price type must be cash price.">
+		price -> priceExpression -> priceType = PriceTypeEnum -> CashPrice
+	
+	assign-output transfer -> quantity -> amount: price -> amount
+	assign-output transfer -> quantity -> unitOfAmount: price -> unitOfAmount
+	assign-output transfer -> settlementDate: settlementDate
+
+	assign-output transfer -> payerReceiver -> payerPartyReference: <"Extract buyer from trade counterparties. The buyer pays the cash price.">
+		ExtractCounterpartyByRole( counterparty, buyerSeller -> buyer) -> partyReference
+	assign-output transfer -> payerReceiver -> receiverPartyReference: <"Extract seller from trade counterparties. The seller receives the cash price.">
+		ExtractCounterpartyByRole( counterparty, buyerSeller -> seller) -> partyReference
