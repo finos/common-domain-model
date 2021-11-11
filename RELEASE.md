@@ -1,27 +1,40 @@
-# *Product Model - FpML Mapping of Notional*
+# *Legal Agreement Model - ISDA Create Document Schema Update*
 
 _What is being released?_
 
-This release corrects the representation of `Quantity` in cases where notional is referenced between legs in FpML.
+This release contains an update to the JSON schemas used to translate `ISDA Create` documents to CDM.  The `ISDA Create` schema version changes are detailed below:
 
-The existing FpML synonym mapping of notionals into `PriceQuantity` is inconsistent across products, which creates challenges for creation of DRR rules.
+- isda-create > test-pack > production
+  - 2018-im-csa-ny-law from 1.2 to 2.2
+  - 2019-clearstream-cta to 1.2 to 2.2
+  - 2019-isda-bank-custodian-cta to 1.1 to 2.1
+  - 2019-isda-bank-custodian-sa-ny-law from 0.3 to 1.1
 
-The following changes standardise location of initial quantity within `PayoutBase` creating normalized location for capture of value and onward referencing:
 
-- `fxLinkedNotionalSchedule -> initialQuantity` has been moved up to `payoutQuantity -> quantitySchedule`.
-- Funding leg of an Equity Swap has initial notional populated in `payoutQuantity -> quantitySchedule` with reference to the only `PriceQuantity -> quantity`.
-- Population of `PriceQuantity` is unchanged.
+- isda-create > test-pack > sandbox
+  - 2018-im-csa-ny-law from 1.4 to 2.4
+  - 2018-im-csd-eng-law from 1.4 to 2.4
+  - 2019-clearstream-cta to 1.2 to 3.2
+  - 2019-euroclear-cta to 1.2 to 3.2
+  - 2019-isda-bank-custodian-cta to 1.3 to 3.3
+  - 2019-isda-bank-custodian-sa-eng-law from 0.7 to 2.1
+  - 2019-isda-bank-custodian-sa-ny-law from 0.7 to 1.3
+
+
+- isda-create > other > sandbox
+  - 2016-clearstream-cta-eng-law from 0.7 to 1.4
+  - 2016-clearstream-cta-ny-law from 0.7 to 1.4
+  - 2016-im-csa-jpn-law from 0.6 to 1.4
+  - 2016-im-csd-eng-law from 0.9 to 2.3
+  - 2017-euroclear-cta-eng-law from 0.7 to 1.4
+  - 2017-euroclear-cta-ny-law from 0.8 to 1.4
+  - 2018-euroclear-cta-ny-law from 0.12 to 3.7
+  - 2018-euroclear-sa-bel-law from 0.14 to 1.12
 
 _Review Directions_
 
-In the CDM Portal, select the Ingestion Panel and review the following samples:
+In the CDM Portal, select the Ingestion panel and review folders below:
 
-- fpml-5-10 > products > rates > cdm-xccy-swap-after-usi-uti.xml
-- fpml-5-10 > products > rates > cdm-xccy-swap-before-usi-uti.xml
-- fpml-5-10 > products > equity > eqs-ex01-single-underlyer-execution-long-form.xml
-- fpml-5-10 > products > equity > eqs-ex01-single-underlyer-execution-long-form-other-party.xml
-- fpml-5-10 > products > equity > eqs-ex06-single-index-long-form.xml
-- fpml-5-10 > products > equity > eqs-ex09-compounding-swap.xml
-- fpml-5-10 > products > equity > eqs-ex10-short-form-interestLeg-driving-schedule-dates.xml
-- fpml-5-10 > products > equity > eqs-ex11-on-european-single-stock-underlyer-short-form.xml
-
+- isda-create > test-pack > production
+- isda-create > test-pack > sandbox
+- isda-create > other > sandbox

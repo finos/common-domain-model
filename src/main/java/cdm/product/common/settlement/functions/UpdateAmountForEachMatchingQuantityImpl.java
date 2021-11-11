@@ -31,28 +31,18 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 				.map(FieldWithMetaQuantity::getValue)
 				.filter(Objects::nonNull)
 				.map(Quantity::toBuilder)
-				.map(quantityToUpdate -> {
-					filterQuantityByUnitOfAmount(newQuantityAmounts, quantityToUpdate.getUnitOfAmount())
-							.ifPresent(filteredQuantity -> quantityToUpdate.setAmount(filteredQuantity.getAmount()));
-					return quantityToUpdate;
-				})
+				.peek(quantityToUpdate -> filterQuantityByUnitOfAmount(newQuantityAmounts, quantityToUpdate.getUnitOfAmount())
+						.forEach(filteredQuantity -> quantityToUpdate.setAmount(filteredQuantity.getAmount())))
 				.collect(Collectors.toList());
 	}
 
 	@NotNull
-	private Optional<? extends Quantity> filterQuantityByUnitOfAmount(List<? extends Quantity> quantities, UnitType unitOfAmount) {
-		List<? extends Quantity> filteredQuantity = emptyIfNull(quantities)
+	private List<? extends Quantity> filterQuantityByUnitOfAmount(List<? extends Quantity> quantities, UnitType unitOfAmount) {
+		return emptyIfNull(quantities)
 				.stream()
 				.filter(quantity -> Objects.nonNull(quantity.getUnitOfAmount()))
 				.filter(quantity -> Objects.equals(quantity.getUnitOfAmount().toBuilder().prune(), unitOfAmount.toBuilder().prune()))
 				.collect(Collectors.toList());
 
-		if (filteredQuantity.isEmpty()) {
-			return Optional.empty();
-		} else if (filteredQuantity.size() == 1) {
-			return Optional.of(filteredQuantity.get(0));
-		} else {
-			throw new IllegalArgumentException("Multiple quantities with same unit of amount " + unitOfAmount);
-		}
 	}
 }
