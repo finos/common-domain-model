@@ -685,7 +685,7 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 	inputs:
 		instruction StockSplitInstruction (1..1)
 	output:
-		businessEvent BusinessEvent (1..1)
+		businessEvent BusinessEvent (1..1)	
 	alias preSplitNumberOfShares: <"Only works in the case of a single trade lot.">
 		NoOfUnits(instruction -> tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity)
 	alias postSplitNumberOfShares: <"The adjustment ratio is be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.">
@@ -815,19 +815,20 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
 
  	inputs:
  		tradeState TradeState (1..1) <"Specifies a previously formed contractual product with an option payout. It is required that the description of the contractual product be contained within the previous business event, i.e. its lineage must contain the formation of a contractual product.">
- 		exerciseInstruction ExerciseInstruction (1..1) <"Specifies the information required to communicate the choices made by the exercising party in accordance with the economic terms of the contractual product.">
-
+ 		// TODO: Replace the arguments as commented-out - currently can't be replaced as it creates a static compile issue. The exercise date should be passed-in straight from the BusinessEvent, rather than be part of the instruction object. All business events contain an event date, so attribute is not specific to any instruction.
+		exerciseInstruction ExerciseInstruction (1..1) /*Instruction (1..*)*/ <"Specifies the information required to communicate the choices made by the exercising party in accordance with the economic terms of the contractual product.">
+		// exerciseDate AdjustableOrAdjustedDate (0..1) <"Specifies the date on which an option contained within the financial product would be exercised. The date may be omitted if the contractual product allows for only a single date of exercise (European exercise).">
+	
   	output:
  		exerciseEvent BusinessEvent(1..1) <"Produces the business event composed of primitive events describing the transfer, termination, or formation of new contracts as a result of the input exercise instruction.">
 
     alias transferInstruction:
-     		SecurityTransferInstruction(tradeState)
+     	SecurityTransferInstruction(tradeState)
 
   	alias tradableProduct: <"Extracts the originally traded product.">
  		tradeState -> trade -> tradableProduct
 
   	alias optionPayout: <"Extracts the option payout.">
-
  		tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> optionPayout only-element
 
   	alias exerciseTerms: <"Extracts the exercise terms provided as part of the original contract. Requires that the original contract contains an option payout.">
@@ -856,24 +857,29 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
   	condition: <"Requires that the original contract contains an option payout.">
  		optionPayout exists
 
-  	assign-output exerciseEvent -> primitives -> quantityChange -> before: <"Creates a quantity change primitive indicating that the original contract's optionality has been exhausted. Note that this currently assumes there is a single option in the contractual product that is fully exercised.">
- 		tradeState
-
-  	assign-output exerciseEvent -> primitives -> quantityChange -> after: <"Creates a new contract within the quantity change primitive's after state equivalent to the original contract with the quantity set to zero, assuming there's a single option in the original financial contract that is fully exercised.">
- 		CloseTrade( tradeState, ClosedStateEnum -> Exercised, PositionStatusEnum -> Closed )
-	assign-output exerciseEvent -> primitives -> quantityChange -> after -> state -> positionState:
-		PositionStatusEnum -> Closed
-
+  	assign-output exerciseEvent -> primitives -> quantityChange:
+		Create_QuantityChangePrimitive(
+			tradeState,
+			// TODO: replace the empty argument by the 3 arguments below once STORY-464 has been releaed and merged in
+			empty
+			/*
+			exerciseInstruction -> primitiveInstruction -> quantityChangeInstruction -> change,
+			exerciseInstruction -> primitiveInstruction -> quantityChangeInstruction -> direction,
+			exerciseInstruction -> primitiveInstruction -> quantityChangeInstruction -> lotIdentifier
+			*/
+			)
+	
 	assign-output exerciseEvent -> primitives -> quantityChange -> after -> state -> closedState -> state:
 		ClosedStateEnum -> Exercised
 
-	assign-output exerciseEvent -> primitives -> contractFormation: <"Creates a new contract formation primitive delivering the underlying financial product to the exercising party if physical settlement was mandated by the contract.">
+	assign-output exerciseEvent -> primitives -> contractFormation: <"Forms a new contract delivering the underlying financial product to the exercising party, if physical settlement was mandated by the contract. The original trade documentation is used as the legal agreement governing the new contract.">
  		if settlementTerms -> physicalSettlementTerms exists then
- 			Create_ContractFormationPrimitive( execution -> trade, empty  )
+ 			Create_ContractFormationPrimitive( execution -> trade, tradeState -> trade -> contractDetails -> documentation -> legalAgreement )
 
-  	assign-output exerciseEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the underlying financial product to the exercising party if cash settlement was mandated by the contract.">
+  	assign-output exerciseEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the cash settlement amount to the exercising party, if cash settlement was mandated by the contract.">
  		if settlementTerms -> cashSettlementTerms exists then
- 			Create_TransferPrimitive( execution, transferInstruction, exerciseInstruction -> exerciseDate -> adjustedDate)
+		 	// TODO: replace argument once static compile issue has been resolved.
+ 			Create_TransferPrimitive( execution, transferInstruction, exerciseInstruction -> exerciseDate -> adjustedDate /*exerciseDate*/ )
 
 func SecurityTransferInstruction: <"Defines the creation of a Transfer Instruction from a Trade State.">
     inputs:
@@ -1261,7 +1267,7 @@ func Create_Reallocation: <"Defines the process of reallocating a Transaction.">
 
 	alias decreases:
 		Create_DecreasedTradeQuantityChangePrimitives(reallocationInstruction-> decrease)
-
+		
 	assign-output reallocationEvent -> primitives -> split -> before: <"Assigns the original Block trade as the before state of a split primitive">
 		originalBlock
 
@@ -1284,7 +1290,6 @@ func Create_DecreasedTradeQuantityChangePrimitive:
 
 	assign-output quantityChangePrimitive:
 		Create_QuantityChangePrimitive(decrease -> tradeState, decrease -> quantity)
-
 
 func Create_DecreasedTradeQuantityChangePrimitives:
 	inputs:
@@ -1411,7 +1416,11 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 	[creation PrimitiveEvent]
 	inputs:
 		tradeState TradeState (1..1)
+		// Just to work around static compile - The quantity argument will be replaced by the 3 arguments below when STORY-464 gets released
 		quantity Quantity (0..*)
+		// change PriceQuantity (1..*)
+ 		// direction QuantityChangeDirectionEnum (1..1)
+ 		// lotIdentifier Identifier (0..*)
 	output:
 		quantityChangePrimitive QuantityChangePrimitive (1..1)
 
@@ -1427,7 +1436,8 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 	assign-output quantityChangePrimitive -> after -> trade -> tradableProduct:
 		Create_TradableProduct(
 			tradableProduct -> product,
-			UpdateAmountForEachMatchingQuantity( tradableProduct -> tradeLot -> priceQuantity, quantity ),
+			// To be updated as part of STORY-464
+			UpdateAmountForEachMatchingQuantity( tradableProduct -> tradeLot -> priceQuantity, quantity /*change -> quantity*/ ),
 			tradableProduct -> counterparty,
 			tradableProduct -> ancillaryParty,
 			tradableProduct -> adjustment )
@@ -1443,17 +1453,6 @@ func Create_PriceChangePrimitive:
 		cashPrice number (1..1)
 	output:
 		termsChangePrimitive TermsChangePrimitive (1..1)
-
-func Create_TerminationQuantityChangePrimitive: <"A specification for terminating a contract. A QuantityChangePrimitive is created with the after set with quantity of 0, and the closed state to be Terminated.">
-	[creation PrimitiveEvent]
-	inputs:
-		contract TradeState (1..1)
-	output:
-		quantityChangePrimitive QuantityChangePrimitive (1..1)
-	assign-output quantityChangePrimitive -> before: <"Correctly populate the before attributes on the Primitive Event">
-		contract
-	assign-output quantityChangePrimitive -> after: <"Correctly populate the after attributes on the Primitive Event">
-		CloseTrade( contract, ClosedStateEnum -> Terminated, PositionStatusEnum -> Closed )
 
 func CloseTrade: <"Function specification for a contract termination where the closed state and position state are updated, and all quantity amounts are set to 0.">
 	inputs:
@@ -1479,6 +1478,8 @@ func CloseTrade: <"Function specification for a contract termination where the c
 
 	assign-output closedTrade -> state -> positionState:
     	positionStatus
+
+// Utility functions to create a Primitive Event from a Primitive
 
 func NewExecutionPrimitiveEvent: <"Constructs a primitive event from a fully formed execution primitive.">
 	inputs:
@@ -1515,7 +1516,9 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 	output:
 		clearedEvent BusinessEvent (1..1) <"Business event qualified as a cleared trade consisting of five primitive events; terminated alpha contract, new beta execution, beta contract formation, new gamma execution and gamma contract formation">
 	alias alphaTerminated: <"Terminated alpha primitive event represented as a quantity change event with the after quantity set to 0. The before state is a reference to the original alpha contract.">
-		Create_TerminationQuantityChangePrimitive(clearingInstruction -> alphaContract)
+		// Create_TerminationQuantityChangePrimitive(clearingInstruction -> alphaContract)
+		// TODO: arguments to be adjusted once STORY-464 gets released and merged in
+		Create_QuantityChangePrimitive(clearingInstruction -> alphaContract, empty /*, empty, empty*/)
 	alias alphaTerminatedPrimitives: NewQuantityChangePrimitiveEvent(alphaTerminated)
 	alias clearerRole: <"The clearing party (CCP) role set to ClearingOrganization.">
 		Create_PartyRole(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
@@ -1859,7 +1862,6 @@ func Create_BillingSummary: <"Creates a billing summary to be included in a Secu
 
 //sums all billing records and assigns value to billing summary
 //sets enum to ParentTotal
-
 
 func Create_Return: <"Defines the process of partially or fully returning a Security Lending Transaction.">
  	[creation BusinessEvent]
