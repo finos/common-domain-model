@@ -102,7 +102,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(FilterOpenTradeStates.class).to(bindFilterOpenTradeStates());
 		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
 		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
-		bind(DeductAmountForEachMatchingQuantity.class).to(bindDeductAmountForEachMatchingQuantity());
 		bind(Create_DecreasedTradeQuantityChangePrimitives.class).to(bindCreateDecreasedTradeQuantityChangePrimitives());
 		bind(ReplaceParty.class).to(bindReplaceParty());
 		bind(Create_BillingRecords.class).to(bindCreateBillingRecords());
@@ -347,10 +346,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends UpdateAmountForEachMatchingQuantity> bindUpdateAmountForEachMatchingQuantity() {
 		return UpdateAmountForEachMatchingQuantityImpl.class;
-	}
-
-	protected Class<? extends DeductAmountForEachMatchingQuantity> bindDeductAmountForEachMatchingQuantity() {
-		return DeductAmountForEachMatchingQuantityImpl.class;
 	}
 
 	protected Class<? extends Create_DecreasedTradeQuantityChangePrimitives> bindCreateDecreasedTradeQuantityChangePrimitives() {

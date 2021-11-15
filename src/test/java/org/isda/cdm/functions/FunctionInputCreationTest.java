@@ -52,14 +52,16 @@ class FunctionInputCreationTest {
         RunCreateTerminationWorkflowInput actual = new RunCreateTerminationWorkflowInput(
                 getTerminationTradeState(),
                 TerminationInstruction.builder()
-                        .addTerminatedQuantity(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(0))
-                                .setUnitOfAmount(UnitType.builder().setCurrency(FieldWithMetaString.builder()
-                                        .setValue("USD")
-                                        .setMeta(MetaFields.builder()
-                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))).build())
-                                .build())
-                        .setTerminationDate(DateImpl.of(2019, 12, 12)).build());
+                        .addTerminatedPriceQuantity(PriceQuantity.builder()
+                                .addQuantity(FieldWithMetaQuantity.builder()
+                                        .setValue(Quantity.builder()
+                                                .setAmount(BigDecimal.valueOf(0))
+                                                .setUnitOfAmount(UnitType.builder().setCurrency(FieldWithMetaString.builder()
+                                                        .setValue("USD")
+                                                        .setMeta(MetaFields.builder()
+                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217")))))))
+                        .setTerminationDate(DateImpl.of(2019, 12, 12))
+                        .build());
 
         assertEquals(readResource("/cdm-sample-files/functions/termination-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
@@ -71,14 +73,16 @@ class FunctionInputCreationTest {
         RunCreateTerminationWorkflowInput actual = new RunCreateTerminationWorkflowInput(
                 getTerminationTradeState(),
                 TerminationInstruction.builder()
-                        .addTerminatedQuantity(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(3000))
-                                .setUnitOfAmount(UnitType.builder().setCurrency(FieldWithMetaString.builder()
-                                        .setValue("USD")
-                                        .setMeta(MetaFields.builder()
-                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))).build())
-                                .build())
-                        .setTerminationDate(DateImpl.of(2019, 12, 12)).build());
+                        .addTerminatedPriceQuantity(PriceQuantity.builder()
+                                .addQuantity(FieldWithMetaQuantity.builder()
+                                        .setValue(Quantity.builder()
+                                                .setAmount(BigDecimal.valueOf(3000))
+                                                .setUnitOfAmount(UnitType.builder().setCurrency(FieldWithMetaString.builder()
+                                                        .setValue("USD")
+                                                        .setMeta(MetaFields.builder()
+                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217")))))))
+                        .setTerminationDate(DateImpl.of(2019, 12, 12))
+                        .build());
 
         assertEquals(readResource("/cdm-sample-files/functions/partial-termination-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
