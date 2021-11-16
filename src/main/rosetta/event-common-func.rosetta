@@ -1475,18 +1475,18 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 	output:
 		quantityChangePrimitive QuantityChangePrimitive (1..1)
 
-    alias tradeStateTradableProduct:
+    alias tradeStateTradableProduct: <"TradableProduct from the input TradeState">
         tradeState -> trade -> tradableProduct
 
-    alias tradeStateTradeLots:
+    alias tradeStateTradeLots: <"TradeLot from the input TradeState, with filtered to input lot identifier if provided.">
         if lotIdentifier exists
         then FilterTradeLot( tradeStateTradableProduct -> tradeLot, lotIdentifier )
         else tradeStateTradableProduct -> tradeLot
 
-    alias updatedTradeStatePriceQuantity:
+    alias updatedTradeStatePriceQuantity: <"Update PriceQuantity based on change and direction inputs.">
         UpdateAmountForEachMatchingQuantity( tradeStateTradeLots only-element -> priceQuantity, change, direction )
 
-    alias updatedTradeStateTradeLots:
+    alias updatedTradeStateTradeLots: <"Add or merge updated TradeLot.">
         if direction = QuantityChangeDirectionEnum -> Increase
         then AddTradeLot( tradeStateTradableProduct -> tradeLot, Create_TradeLot( lotIdentifier, updatedTradeStatePriceQuantity ) )
         else MergeTradeLot( tradeStateTradableProduct -> tradeLot, Create_TradeLot( lotIdentifier, updatedTradeStatePriceQuantity ) )
@@ -1498,7 +1498,7 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 	assign-output quantityChangePrimitive -> before: tradeState
 	assign-output quantityChangePrimitive -> after: tradeState
 
-	assign-output quantityChangePrimitive -> after -> trade -> tradableProduct:
+	assign-output quantityChangePrimitive -> after -> trade -> tradableProduct: <"Update QuantityChangePrimitive after trade with new TradableProduct.">
 		Create_TradableProduct(
 			tradeStateTradableProduct -> product,
 			updatedTradeStateTradeLots,
