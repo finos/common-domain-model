@@ -1482,10 +1482,10 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
         if direction <> QuantityChangeDirectionEnum -> Increase
         then if lotIdentifier exists then FilterTradeLot( tradableProduct -> tradeLot, lotIdentifier ) else tradableProduct -> tradeLot
 
-    alias newPriceQuantity: <"Update PriceQuantity based on change and direction inputs.">
+    alias newPriceQuantity: <"Update PriceQuantity based on change and direction inputs. For an Increase, the change PriceQuantity will be added to the list of TradeLots. For a Decrease or Replace, apply the changes to the existing PriceQuantity.">
         if direction = QuantityChangeDirectionEnum -> Increase
-        then change // for an Increase, the change PriceQuantity will be added to the list of TradeLots
-        else UpdateAmountForEachMatchingQuantity( tradeLots only-element -> priceQuantity, change, direction ) // for a Decrease / Replace, apply the changes to the existing PriceQuantity
+        then change
+        else UpdateAmountForEachMatchingQuantity( tradeLots only-element -> priceQuantity, change, direction )
 
     alias newTradeLots: <"Add or merge updated TradeLot.">
         if direction = QuantityChangeDirectionEnum -> Increase
