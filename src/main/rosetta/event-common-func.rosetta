@@ -1475,21 +1475,22 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 	output:
 		quantityChangePrimitive QuantityChangePrimitive (1..1)
 
-    alias tradeStateTradableProduct: <"TradableProduct from the input TradeState">
+    alias tradableProduct: <"TradableProduct from the input TradeState">
         tradeState -> trade -> tradableProduct
 
-    alias tradeStateTradeLots: <"TradeLot from the input TradeState, with filtered to input lot identifier if provided.">
-        if lotIdentifier exists
-        then FilterTradeLot( tradeStateTradableProduct -> tradeLot, lotIdentifier )
-        else tradeStateTradableProduct -> tradeLot
+    alias tradeLots: <"For direction Decrease or Replace, get the TradeLot to update.">
+        if direction <> QuantityChangeDirectionEnum -> Increase
+        then if lotIdentifier exists then FilterTradeLot( tradableProduct -> tradeLot, lotIdentifier ) else tradableProduct -> tradeLot
 
-    alias updatedTradeStatePriceQuantity: <"Update PriceQuantity based on change and direction inputs.">
-        UpdateAmountForEachMatchingQuantity( tradeStateTradeLots only-element -> priceQuantity, change, direction )
-
-    alias updatedTradeStateTradeLots: <"Add or merge updated TradeLot.">
+    alias newPriceQuantity: <"Update PriceQuantity based on change and direction inputs.">
         if direction = QuantityChangeDirectionEnum -> Increase
-        then AddTradeLot( tradeStateTradableProduct -> tradeLot, Create_TradeLot( lotIdentifier, updatedTradeStatePriceQuantity ) )
-        else MergeTradeLot( tradeStateTradableProduct -> tradeLot, Create_TradeLot( lotIdentifier, updatedTradeStatePriceQuantity ) )
+        then change // for an Increase, the change PriceQuantity will be added to the list of TradeLots
+        else UpdateAmountForEachMatchingQuantity( tradeLots only-element -> priceQuantity, change, direction ) // for a Decrease / Replace, apply the changes to the existing PriceQuantity
+
+    alias newTradeLots: <"Add or merge updated TradeLot.">
+        if direction = QuantityChangeDirectionEnum -> Increase
+        then AddTradeLot( tradableProduct -> tradeLot, Create_TradeLot( lotIdentifier, newPriceQuantity ) )
+        else MergeTradeLot( tradableProduct -> tradeLot, Create_TradeLot( lotIdentifier, newPriceQuantity ) )
 
 	condition: <"Only termination where the termination price is specified as a cash price is supported for now.">
 		if direction = QuantityChangeDirectionEnum -> Decrease and change -> price exists
@@ -1500,11 +1501,11 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 
 	assign-output quantityChangePrimitive -> after -> trade -> tradableProduct: <"Update QuantityChangePrimitive after trade with new TradableProduct.">
 		Create_TradableProduct(
-			tradeStateTradableProduct -> product,
-			updatedTradeStateTradeLots,
-			tradeStateTradableProduct -> counterparty,
-			tradeStateTradableProduct -> ancillaryParty,
-			tradeStateTradableProduct -> adjustment )
+			tradableProduct -> product,
+			newTradeLots,
+			tradableProduct -> counterparty,
+			tradableProduct -> ancillaryParty,
+			tradableProduct -> adjustment )
 
 	post-condition: <"The input and output types need to be consistent, if we started with an Execution, we should end with an Execution, likewise with Contract.">
 		if quantityChangePrimitive -> before -> trade -> executionDetails exists

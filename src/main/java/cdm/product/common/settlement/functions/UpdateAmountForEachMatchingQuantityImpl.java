@@ -23,17 +23,10 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 	protected List<PriceQuantity.PriceQuantityBuilder> doEvaluate(List<? extends PriceQuantity> priceQuantity,
 			List<? extends PriceQuantity> change,
 			QuantityChangeDirectionEnum direction) {
-		return direction == QuantityChangeDirectionEnum.INCREASE ?
-				toBuilders(change) :
-				update(toBuilders(priceQuantity), change, direction);
+		List<PriceQuantity.PriceQuantityBuilder> priceQuantityBuilders = emptyIfNull(priceQuantity).stream().map(PriceQuantity::toBuilder).collect(Collectors.toList());
+		return update(priceQuantityBuilders, change, direction);
 	}
 
-	@NotNull
-	private List<PriceQuantity.PriceQuantityBuilder> toBuilders(List<? extends PriceQuantity> pq) {
-		return emptyIfNull(pq).stream()
-				.map(PriceQuantity::toBuilder)
-				.collect(Collectors.toList());
-	}
 
 	@NotNull
 	private List<PriceQuantity.PriceQuantityBuilder> update(List<PriceQuantity.PriceQuantityBuilder> priceQuantity,
