@@ -9,12 +9,36 @@ import cdm.observable.asset.*
 import cdm.product.common.*
 import cdm.product.common.settlement.*
 
+func Create_TradeLot:
+    inputs:
+        lotIdentifier Identifier (0..*) <"The lot Identifiers.">
+        priceQuantity PriceQuantity (1..*) <"List of PriceQuantity.">
+    output:
+        tradeLot TradeLot (1..1)
+
+    assign-output tradeLot -> lotIdentifier: lotIdentifier
+    assign-output tradeLot -> priceQuantity: priceQuantity
+
 func FilterTradeLot: <"Filter list of TradeLot based on TradeLot->lotIdentifier.">
 	inputs:
 		tradeLots TradeLot (0..*) <"List of TradeLots to filter.">
 		lotIdentifier Identifier (0..*) <"The lot Identifiers to filter by.">
 	output:
-		filteredTradeLots TradeLot (0..1)
+		filteredTradeLots TradeLot (0..*)
+
+func AddTradeLot: <"Filter list of TradeLot based on TradeLot->lotIdentifier.">
+	inputs:
+		tradeLots TradeLot (0..*) <"List of TradeLots to filter.">
+		tradeLot TradeLot (1..1) <"The lot Identifiers to filter by.">
+	output:
+		updatedTradeLots TradeLot (0..*)
+
+func MergeTradeLot: <"Filter list of TradeLot based on TradeLot->lotIdentifier.">
+	inputs:
+		tradeLots TradeLot (0..*) <"List of TradeLots to filter.">
+		tradeLot TradeLot (1..1) <"The lot Identifiers to filter by.">
+	output:
+		mergedTradeLots TradeLot (0..*)
 
 func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
 	inputs:
@@ -26,7 +50,7 @@ func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as 
 func Create_TradableProduct: <"Creates a new TradableProduct with the given inputs.">
 	inputs:
 		product Product (1..1) <"The product to set.">
-		priceQuantity PriceQuantity (1..*) <"The settlement instructions to set, including price, quantity and settlement terms (if any).">
+		tradeLot TradeLot (1..*) <"The settlement instructions to set, including price, quantity and settlement terms (if any).">
 		counterparty Counterparty (2..2) <"The counterparties to set.">
 		ancillaryParty AncillaryParty (0..*) <"The ancillary parties to set.">
 		adjustment NotionalAdjustmentEnum (0..1) <"The adjustment to set.">
@@ -36,8 +60,8 @@ func Create_TradableProduct: <"Creates a new TradableProduct with the given inpu
 	assign-output tradableProduct -> product:
          product
 
-    assign-output tradableProduct -> tradeLot -> priceQuantity:
-        priceQuantity
+    assign-output tradableProduct -> tradeLot:
+        tradeLot
 
     assign-output tradableProduct -> counterparty:
         counterparty
