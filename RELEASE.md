@@ -12,7 +12,7 @@ Following recent normalisation of `SettlementTerms` and the adition of price set
 
 This reference uniquely points to the `SettlementTerms` object embedded in the trade component generating that transfer, since all transfer-generating components must contain settlement terms.
 
-In turn, the purpose-built `SettlementOrigin` data type which was previously used to provide this reference (as a switch between all the different transfer-generating components) can be deprecated.
+In turn, the purpose-built `SettlementOrigin` data type, which was previously used to provide this reference (as a switch between all the different transfer-generating components), is no longer used and has been deprecated.
 
 _Review Directions_
 
