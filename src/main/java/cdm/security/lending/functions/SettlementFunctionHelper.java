@@ -87,10 +87,6 @@ public class SettlementFunctionHelper {
                 .orElse(LocalDate.now());
     }
 
-    public ZonedDateTime dateTime(LocalDate tradeDate, int hour, int minute) {
-        return ZonedDateTime.of(tradeDate, LocalTime.of(hour, minute), ZoneOffset.UTC.normalized());
-    }
-
     public Instruction createTransferInstruction(BusinessEvent executionBusinessEvent) {
         Payout payout = getSecurityPayout(executionBusinessEvent).orElse(null);
         return Instruction.builder()

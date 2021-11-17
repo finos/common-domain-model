@@ -1,27 +1,19 @@
-# *Product Model - FpML Mapping of Notional*
+# *Event Model - Settlement Origin of a Transfer*
 
 _What is being released?_
 
-This release corrects the representation of `Quantity` in cases where notional is referenced between legs in FpML.
+This release normalises the settlement origin attribute of a transfer, that provides lineage to the trade component that generated that transfer.
 
-The existing FpML synonym mapping of notionals into `PriceQuantity` is inconsistent across products, which creates challenges for creation of DRR rules.
+_Details_
 
-The following changes standardise location of initial quantity within `PayoutBase` creating normalized location for capture of value and onward referencing:
+Following recent normalisation of `SettlementTerms` and the adition of price settlement cashflows to the `PriceQuantity` object, the origin of a transfer can be normalised to simply point to `SettlementTerms` object. This settlement origin attribute is now being expressed in the `Transfer` data type as:
 
-- `fxLinkedNotionalSchedule -> initialQuantity` has been moved up to `payoutQuantity -> quantitySchedule`.
-- Funding leg of an Equity Swap has initial notional populated in `payoutQuantity -> quantitySchedule` with reference to the only `PriceQuantity -> quantity`.
-- Population of `PriceQuantity` is unchanged.
+> settlementOrigin SettlementTerms (0..1) [metadata reference]
+
+This reference uniquely points to the `SettlementTerms` object embedded in the trade component generating that transfer, since all transfer-generating components must contain settlement terms.
+
+In turn, the purpose-built `SettlementOrigin` data type, which was previously used to provide this reference (as a switch between all the different transfer-generating components), is no longer used and has been deprecated.
 
 _Review Directions_
 
-In the CDM Portal, select the Ingestion Panel and review the following samples:
-
-- fpml-5-10 > products > rates > cdm-xccy-swap-after-usi-uti.xml
-- fpml-5-10 > products > rates > cdm-xccy-swap-before-usi-uti.xml
-- fpml-5-10 > products > equity > eqs-ex01-single-underlyer-execution-long-form.xml
-- fpml-5-10 > products > equity > eqs-ex01-single-underlyer-execution-long-form-other-party.xml
-- fpml-5-10 > products > equity > eqs-ex06-single-index-long-form.xml
-- fpml-5-10 > products > equity > eqs-ex09-compounding-swap.xml
-- fpml-5-10 > products > equity > eqs-ex10-short-form-interestLeg-driving-schedule-dates.xml
-- fpml-5-10 > products > equity > eqs-ex11-on-european-single-stock-underlyer-short-form.xml
-
+In the CDM Portal, select the Textual Browser and review the above data types.

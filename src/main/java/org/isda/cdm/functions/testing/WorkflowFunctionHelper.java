@@ -1,4 +1,4 @@
-package cdm.security.lending.functions;
+package org.isda.cdm.functions.testing;
 
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
