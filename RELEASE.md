@@ -1,8 +1,8 @@
-# *Event Model - Normalisation of the Quantity Change Primitive*
+# *Event Model - Normalisation of the Create Function for Quantity Change Primitive *
 
 _What is being released?_
 
-This release develops a normalised functional expression of the quantity change primitive event.
+This release develops a normalised functional expression of the Create_ function for a quantity change primitive event.
 
 _Details_
 
@@ -14,7 +14,7 @@ Following the addition of price settlement cashflows to the PriceQuantity struct
 
 These attributes have been assembled to form a new `QuantityChangeInstruction` data type, which has been added to `Instruction`. That single data type supersedes the previously separate `IncreaseInstruction` and `DecreaseInstruction` data types, where the increase/decrease direction is now handled via an enumeration.
 
-The normalised quantity change primitive function is now being utilised in a number of event functions:
+The normalised Create_ function for quantity change primitive event is now being utilised in a number of Create_ event functions:
 
 - `Create_StockSplit`
 - `Create_Termination`
