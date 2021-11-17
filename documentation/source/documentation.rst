@@ -914,7 +914,8 @@ The *transfer* process creates instances of the ``Transfer`` data type, which ar
 .. code-block:: Haskell
 
  type Transfer extends TransferBase:
-   settlementOrigin SettlementOrigin (0..1)
+   	settlementOrigin SettlementTerms (0..1)
+        [metadata reference]
 
 .. code-block:: Haskell
 
