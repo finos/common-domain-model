@@ -1107,17 +1107,14 @@ func Create_CashTransfer: <"Defines how Transfer that represents an exchange of 
 	assign-output transfer -> settlementDate:
 		cashflow -> settlementTerms -> settlementDate -> adjustedDate
 
-    assign-output transfer -> settlementOrigin -> interestRatePayout:
+    assign-output transfer -> settlementOrigin:
         if instruction -> payout -> interestRatePayout exists
-        then instruction -> payout -> interestRatePayout only-element as-key
-
-    assign-output transfer -> settlementOrigin -> equityPayout:
-        if instruction -> payout -> equityPayout exists
-        then instruction -> payout -> equityPayout only-element as-key
-
-    assign-output transfer -> settlementOrigin -> securityFinancePayout:
-        if instruction -> payout -> securityFinancePayout exists
-        then instruction -> payout -> securityFinancePayout only-element as-key
+        	then instruction -> payout -> interestRatePayout -> settlementTerms only-element
+        else if instruction -> payout -> equityPayout exists
+        	then instruction -> payout -> equityPayout -> settlementTerms only-element
+        else if instruction -> payout -> securityFinancePayout exists
+        	then instruction -> payout -> securityFinancePayout -> settlementTerms only-element
+		as-key
 
 func Create_SecurityTransfer: <"Defines the creation of a Transfer, given a Trade State and date.">
 	inputs:
@@ -1146,10 +1143,7 @@ func Create_SecurityFinanceTransfer: <"Defines how Transfer that represents an e
 	alias securityFinancePayout:
 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout only-element
 
-	alias securityFinanceLeg:
-        securityFinancePayout -> securityFinanceLeg only-element
-
-    alias securityQuantity:
+	alias securityQuantity:
 		if quantity exists
 		then quantity
         else FilterQuantityByFinancialUnit(tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, FinancialUnitEnum -> Share)
@@ -1184,9 +1178,10 @@ func Create_SecurityFinanceTransfer: <"Defines how Transfer that represents an e
 	assign-output transfer -> settlementDate -> adjustedDate:
         date
 
-    assign-output transfer -> settlementOrigin -> securityFinancePayout:
+    assign-output transfer -> settlementOrigin:
 		if tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout exists
-		then tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout only-element as-key
+		then tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout -> settlementTerms only-element
+		as-key
 
 func ResolveCashflow: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
 	inputs:
@@ -1224,10 +1219,7 @@ func SecurityFinanceCashSettlementAmount:
 	alias securityFinancePayout:
 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout only-element
 
-	alias securityFinanceLeg:
-        securityFinancePayout -> securityFinanceLeg only-element
-
-    alias securityQuantity: <"Specifies the number of securities.">
+	alias securityQuantity: <"Specifies the number of securities.">
 		if quantity exists
 		then quantity
         else FilterQuantityByFinancialUnit( tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, FinancialUnitEnum -> Share)
