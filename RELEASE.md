@@ -1,4 +1,4 @@
-# *Event Model - Transfer Settlement Origin*
+# *Event Model - Settlement Origin of a Transfer*
 
 _What is being released?_
 
