@@ -1110,12 +1110,11 @@ The list of business events for which this process is currently implemented in t
    exercise ExerciseInstruction (0..1)
    reset ResetInstruction (0..1)
    transfer TransferInstruction (0..1)
-   increase IncreaseInstruction (0..1)
-   decrease DecreaseInstruction (0..1)
+   quantityChange QuantityChangeInstruction (0..1)
    indexTransition IndexTransitionInstruction (0..1)
    termination TerminationInstruction (0..1)
 
-   condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination
+   condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, quantityChange, termination
 
 
 Previous Workflow Step

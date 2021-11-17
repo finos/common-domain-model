@@ -686,20 +686,23 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 		instruction StockSplitInstruction (1..1)
 	output:
 		businessEvent BusinessEvent (1..1)
+	
 	alias preSplitNumberOfShares: <"Only works in the case of a single trade lot.">
 		NoOfUnits(instruction -> tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity)
 	alias postSplitNumberOfShares: <"The adjustment ratio is be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.">
 		Create_Quantity( preSplitNumberOfShares * instruction -> adjustmentRatio, Create_UnitType( empty, FinancialUnitEnum -> Share ))
-	alias preSplitPrices:
-		instruction -> tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> amount
-	alias postSplitPrice: <"The pre-split price is be divided by the adjustment ratio to determine the post-split price. Only works in the case of a single trade lot.">
-		preSplitPrices only-element / instruction -> adjustmentRatio
+	alias preSplitPrice: <"Only works in the case of a single trade lot with a single price object.">
+		instruction -> tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price only-element
+	alias postSplitPrice: <"The pre-split price is divided by the adjustment ratio to determine the post-split price.">
+		Create_Price( preSplitPrice -> amount / instruction -> adjustmentRatio, preSplitPrice -> unitOfAmount, preSplitPrice -> perUnitOfAmount, preSplitPrice -> priceExpression )
+	alias postSplitPriceQuantity:
+		Create_PriceQuantity( [postSplitPrice],[postSplitNumberOfShares] )
+	
 	condition:
 		instruction -> tradeState -> trade -> contractDetails exists
-	assign-output businessEvent -> primitives -> quantityChange: <"Build QuantityChangePrimitive and add to WorkflowStep.">
-		Create_QuantityChangePrimitive(instruction -> tradeState, [postSplitNumberOfShares])
-	assign-output businessEvent -> primitives -> termsChange: <"Build TermsChangePrimitive (for price) and add to WorkflowStep.">
-		Create_PriceChangePrimitive(instruction -> tradeState, postSplitPrice)
+
+	assign-output businessEvent -> primitives -> quantityChange: <"Build the QuantityChangePrimitive containig both the adjusted Price and Quantity, and add to WorkflowStep.">
+		Create_QuantityChangePrimitive( instruction -> tradeState, [postSplitPriceQuantity], QuantityChangeDirectionEnum -> Replace, empty )
 
 func Create_Execution: <"Creates the fully formed business event of executing a transaction based on execution instructions, representing the instantiation of a transaction between two parties on a financial product for a given price, quantity and settlement terms. The business event is constructed to contain a single execution primitive event, and no other primitive event.">
 	[creation BusinessEvent]
@@ -829,7 +832,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
  		exerciseInstruction ExerciseInstruction (1..1) <"Specifies the information required to communicate the choices made by the exercising party in accordance with the economic terms of the contractual product.">
 
   	output:
- 		exerciseEvent BusinessEvent(1..1) <"Produces the business event composed of primitive events describing the transfer, termination, or formation of new contracts as a result of the input exercise instruction.">
+ 		exerciseEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the transfer, termination, or formation of new contracts as a result of the input exercise instruction.">
 
     alias transferInstruction:
      		SecurityTransferInstruction(tradeState)
@@ -892,6 +895,19 @@ func SecurityTransferInstruction: <"Defines the creation of a Transfer Instructi
     output:
         instruction TransferInstruction (1..1)
 
+func Create_TerminationInstruction:
+    inputs:
+        terminatedPriceQuantity PriceQuantity (1..*)
+        terminationDate	date (1..1)
+    output:
+        terminationInstruction TerminationInstruction (1..1)
+
+    assign-output terminationInstruction -> terminatedPriceQuantity:
+        terminatedPriceQuantity
+
+    assign-output terminationInstruction -> terminationDate:
+        terminationDate
+
 func Create_Termination: <"Defines the process of partially or fully termination a Transaction.">
  	[creation BusinessEvent]
 
@@ -902,23 +918,40 @@ func Create_Termination: <"Defines the process of partially or fully termination
   	output:
  		terminationEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the transfer and termination, as a result of the input termination instruction.">
 
-	assign-output terminationEvent -> primitives -> quantityChange: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially or fully terminate original contract, assuming there's a single transaction in the original financial contract that is part or fully terminated.">
+    alias quantityChangePrimitive:
         Create_QuantityChangePrimitive(
             tradeState,
-            terminationInstruction -> terminatedQuantity
+            terminationInstruction -> terminatedPriceQuantity,
+            QuantityChangeDirectionEnum -> Decrease,
+            empty
         )
 
+    alias isTermination:
+        quantityChangePrimitive -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount all = 0
+
+    alias cashPrice: <"Extract the termination fee from the termination price, if it exists.">
+		FilterPrice( terminationInstruction -> terminatedPriceQuantity -> price, PriceTypeEnum -> CashPrice, empty, empty, empty, empty, empty, empty )
+
+	assign-output terminationEvent -> primitives -> quantityChange: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially or fully terminate original contract, assuming there's a single transaction in the original financial contract that is part or fully terminated.">
+        quantityChangePrimitive
+
     assign-output terminationEvent -> primitives -> quantityChange -> after -> state -> closedState -> state:
-        if terminationInstruction -> terminatedQuantity -> amount all = 0 then
-            ClosedStateEnum -> Terminated
+        if isTermination then ClosedStateEnum -> Terminated
 
     assign-output terminationEvent -> primitives -> quantityChange -> after -> state -> positionState:
-        if terminationInstruction -> terminatedQuantity -> amount all = 0 then
-            PositionStatusEnum -> Closed
+        if isTermination then PositionStatusEnum -> Closed
 
-	assign-output terminationEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the termination fee where applicable.">
- 	 	if terminationInstruction -> terminationFee exists then
- 	 		Create_TransferPrimitiveFromTransfer( tradeState, terminationInstruction -> terminationFee )
+	assign-output terminationEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the termination fee, where applicable.">
+ 	 	if cashPrice exists then
+ 	 		Create_TransferPrimitiveFromTransfer(
+				tradeState,
+				Create_TransferFromCashPrice(
+					cashPrice,
+					terminationInstruction -> terminatedPriceQuantity -> settlementTerms only-element -> settlementDate -> adjustedDate,
+					terminationInstruction -> terminatedPriceQuantity -> buyerSeller only-element,
+					tradeState -> trade -> tradableProduct -> counterparty
+                )
+            )
 
 	assign-output terminationEvent -> eventDate:
 		terminationInstruction -> terminationDate
@@ -1285,9 +1318,16 @@ func Create_DecreasedTradeQuantityChangePrimitive:
 	output:
 		quantityChangePrimitive QuantityChangePrimitive (1..1)
 
-	assign-output quantityChangePrimitive:
-		Create_QuantityChangePrimitive(decrease -> tradeState, decrease -> quantity)
+    alias changePriceQuantity:
+        Create_PriceQuantity( empty, decrease -> quantity )
 
+	assign-output quantityChangePrimitive:
+		Create_QuantityChangePrimitive(
+			decrease -> tradeState,
+			[ changePriceQuantity ],
+			QuantityChangeDirectionEnum -> Replace,
+			empty
+        )
 
 func Create_DecreasedTradeQuantityChangePrimitives:
 	inputs:
@@ -1363,6 +1403,9 @@ func Create_SplitTrade:
     alias partyToRemove:
         ExtractCounterpartyByRole( blockTradeState -> trade -> tradableProduct -> counterparty, breakdown -> counterparty -> role ) -> partyReference
 
+    alias breakdownPriceQuantity:
+        Create_PriceQuantity( empty, breakdown -> quantity )
+
     assign-output splitTrade -> trade -> executionDetails -> executionType:
             blockTradeState -> trade -> executionDetails -> executionType
 
@@ -1379,7 +1422,11 @@ func Create_SplitTrade:
 		blockTradeState -> trade -> tradableProduct -> product
 
 	assign-output splitTrade -> trade -> tradableProduct -> tradeLot -> priceQuantity: <"Assigns the new quantity amounts.">
-		UpdateAmountForEachMatchingQuantity( blockTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity, breakdown -> quantity )
+		UpdateAmountForEachMatchingQuantity(
+		    blockTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity,
+		    [ breakdownPriceQuantity ],
+		    QuantityChangeDirectionEnum -> Replace
+        )
 
 	assign-output splitTrade -> trade -> party: <"Removes the existing party, and adds the new party.">
 		ReplaceParty( blockTradeState -> trade -> party,
@@ -1414,30 +1461,49 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 	[creation PrimitiveEvent]
 	inputs:
 		tradeState TradeState (1..1)
-		quantity Quantity (0..*)
+		change PriceQuantity (1..*)
+		direction QuantityChangeDirectionEnum (1..1)
+		lotIdentifier Identifier (0..*)
 	output:
 		quantityChangePrimitive QuantityChangePrimitive (1..1)
 
-	alias tradableProduct:
-		tradeState -> trade -> tradableProduct
+    alias tradableProduct: <"TradableProduct from the input TradeState">
+        tradeState -> trade -> tradableProduct
 
-	assign-output quantityChangePrimitive -> before:
-		tradeState
+    alias tradeLots: <"For direction Decrease or Replace, get the TradeLot to update.">
+        if direction <> QuantityChangeDirectionEnum -> Increase
+        then if lotIdentifier exists then FilterTradeLot( tradableProduct -> tradeLot, lotIdentifier ) else tradableProduct -> tradeLot
 
-	assign-output quantityChangePrimitive -> after:
-		tradeState
+    alias newPriceQuantity: <"Update PriceQuantity based on change and direction inputs. For an Increase, the change PriceQuantity will be added to the list of TradeLots. For a Decrease or Replace, apply the changes to the existing PriceQuantity.">
+        if direction = QuantityChangeDirectionEnum -> Increase
+        then change
+        else UpdateAmountForEachMatchingQuantity( tradeLots only-element -> priceQuantity, change, direction )
 
-	assign-output quantityChangePrimitive -> after -> trade -> tradableProduct:
+    alias newTradeLots: <"Add or merge updated TradeLot.">
+        if direction = QuantityChangeDirectionEnum -> Increase
+        then AddTradeLot( tradableProduct -> tradeLot, Create_TradeLot( lotIdentifier, newPriceQuantity ) )
+        else MergeTradeLot( tradableProduct -> tradeLot, Create_TradeLot( lotIdentifier, newPriceQuantity ) )
+
+	condition: <"Only termination where the termination price is specified as a cash price is supported for now.">
+		if direction = QuantityChangeDirectionEnum -> Decrease and change -> price exists
+		then change -> price -> priceExpression -> priceType all = PriceTypeEnum -> CashPrice
+
+	assign-output quantityChangePrimitive -> before: tradeState
+	assign-output quantityChangePrimitive -> after: tradeState
+
+	assign-output quantityChangePrimitive -> after -> trade -> tradableProduct: <"Update QuantityChangePrimitive after trade with new TradableProduct.">
 		Create_TradableProduct(
 			tradableProduct -> product,
-			UpdateAmountForEachMatchingQuantity( tradableProduct -> tradeLot -> priceQuantity, quantity ),
+			newTradeLots,
 			tradableProduct -> counterparty,
 			tradableProduct -> ancillaryParty,
 			tradableProduct -> adjustment )
 
 	post-condition: <"The input and output types need to be consistent, if we started with an Execution, we should end with an Execution, likewise with Contract.">
-		if quantityChangePrimitive -> before -> trade -> executionDetails exists then quantityChangePrimitive -> after -> trade -> executionDetails exists
-			and if quantityChangePrimitive -> before -> trade -> contractDetails exists then quantityChangePrimitive -> after -> trade -> contractDetails exists
+		if quantityChangePrimitive -> before -> trade -> executionDetails exists
+		then quantityChangePrimitive -> after -> trade -> executionDetails exists
+			and if quantityChangePrimitive -> before -> trade -> contractDetails exists
+			then quantityChangePrimitive -> after -> trade -> contractDetails exists
 
 func Create_PriceChangePrimitive:
 	[creation PrimitiveEvent]
@@ -1447,17 +1513,6 @@ func Create_PriceChangePrimitive:
 	output:
 		termsChangePrimitive TermsChangePrimitive (1..1)
 
-func Create_TerminationQuantityChangePrimitive: <"A specification for terminating a contract. A QuantityChangePrimitive is created with the after set with quantity of 0, and the closed state to be Terminated.">
-	[creation PrimitiveEvent]
-	inputs:
-		contract TradeState (1..1)
-	output:
-		quantityChangePrimitive QuantityChangePrimitive (1..1)
-	assign-output quantityChangePrimitive -> before: <"Correctly populate the before attributes on the Primitive Event">
-		contract
-	assign-output quantityChangePrimitive -> after: <"Correctly populate the after attributes on the Primitive Event">
-		CloseTrade( contract, ClosedStateEnum -> Terminated, PositionStatusEnum -> Closed )
-
 func CloseTrade: <"Function specification for a contract termination where the closed state and position state are updated, and all quantity amounts are set to 0.">
 	inputs:
 		tradeState TradeState (1..1) <"Formed contract in non-terminated state.">
@@ -1466,13 +1521,16 @@ func CloseTrade: <"Function specification for a contract termination where the c
 	output:
 		closedTrade TradeState (1..1) <"Trade in closed state with quantity amount set to 0.">
 
+    alias tradeLot:
+        Create_TradeLot( empty, UpdateAmountForEachQuantity( tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity, 0.0 ) )
+
 	assign-output closedTrade:
 		tradeState
 
 	assign-output closedTrade -> trade -> tradableProduct:
         Create_TradableProduct(
             tradeState -> trade -> tradableProduct -> product,
-	        UpdateAmountForEachQuantity( tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity, 0.0 ),
+            [ tradeLot ],
 	        tradeState -> trade -> tradableProduct -> counterparty,
             tradeState -> trade -> tradableProduct -> ancillaryParty,
             tradeState -> trade -> tradableProduct -> adjustment )
@@ -1500,26 +1558,20 @@ func NewContractFormationPrimitiveEvent: <"Constructs a primitive event from a f
 	assign-output primitiveEvent -> contractFormation:
 	    contractFormation
 
-func NewQuantityChangePrimitiveEvent: <"Constructs a primitive event from a fully formed quantity change primitive event.">
-	inputs:
-		quantityChangePrimitive QuantityChangePrimitive (0..1)
-	output:
-		primitiveEvent PrimitiveEvent (0..1)
-
-	assign-output primitiveEvent -> quantityChange:
-	    quantityChangePrimitive
-
 func Create_ClearedTrade: <"Function supporting direct principal and agency clearing model that takes the clearing instruction as an input and results in the cleared trade BusinessEvent. Direct clearing is when the risk party to the trade is facing the CCP, either through its own account or its clearing member acting as agent. In the direct clearing agency model, the party facing the CCP is acting as clearing member for another party. If the clearing instructions contains clearerParty1 or clearerParty2, then it should be used as the party facing the CCP in the beta or gamma contracts respectively. The resulting beta and gamma trades should have the same tradable product as the alpha referencing the risk parties however, the current state of the model does not allow parties to be aliased efficiently which will be resolved by Trello task https://trello.com/c/q8S3w2Rz.">
 	[creation BusinessEvent]
 	inputs:
-		clearingInstruction ClearingInstruction(1..1) <"Clearing Instruction with all party information required to clear the trade.">
+		clearingInstruction ClearingInstruction (1..1) <"Clearing Instruction with all party information required to clear the trade.">
 		tradeDate date (1..1) <"Denotes the trade/execution date.">
 		identifier Identifier (1..1) <"Denotes one or more identifiers associated with the transaction.">
 	output:
 		clearedEvent BusinessEvent (1..1) <"Business event qualified as a cleared trade consisting of five primitive events; terminated alpha contract, new beta execution, beta contract formation, new gamma execution and gamma contract formation">
-	alias alphaTerminated: <"Terminated alpha primitive event represented as a quantity change event with the after quantity set to 0. The before state is a reference to the original alpha contract.">
-		Create_TerminationQuantityChangePrimitive(clearingInstruction -> alphaContract)
-	alias alphaTerminatedPrimitives: NewQuantityChangePrimitiveEvent(alphaTerminated)
+	alias alphaTerminationPriceQuantity:
+       Create_PriceQuantity( empty, clearingInstruction -> alphaContract -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity )
+	alias alphaTerminationInstruction:
+        Create_TerminationInstruction( [ alphaTerminationPriceQuantity ], tradeDate )
+	alias alphaTerminatedPrimitives: <"Terminated alpha primitive event represented as a quantity change event with the after quantity set to 0. The before state is a reference to the original alpha contract.">
+		Create_Termination( clearingInstruction -> alphaContract, alphaTerminationInstruction ) -> primitives only-element
 	alias clearerRole: <"The clearing party (CCP) role set to ClearingOrganization.">
 		Create_PartyRole(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
 	alias betaClearerCounterparty:
@@ -1878,12 +1930,11 @@ func Create_Return: <"Defines the process of partially or fully returning a Secu
 	alias tradableProduct:
 			tradeState -> trade -> tradableProduct
 
+	alias changePriceQuantity:
+	    Create_PriceQuantity( empty, returnInstruction -> quantity )
 
 	assign-output returnEvent -> primitives -> quantityChange: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially returned original contract, assuming there's a single security finance transaction in the original financial contract that is part returned.">
- 		Create_QuantityChangePrimitive(
-			tradeState,
-		 	DeductAmountForEachMatchingQuantity(tradableProduct -> tradeLot -> priceQuantity -> quantity, returnInstruction -> quantity)
-		)
+ 		Create_QuantityChangePrimitive( tradeState, [ changePriceQuantity ], QuantityChangeDirectionEnum -> Decrease, empty )
 
 	assign-output returnEvent -> eventDate:
 		returnDate
@@ -1912,3 +1963,24 @@ func Qualify_Reallocation: <"The qualification of a reallocation event from the 
 		businessEvent -> primitives -> split count = 1
 		and businessEvent -> primitives -> split -> before -> state -> closedState -> state all = ClosedStateEnum -> Allocated
 		and businessEvent -> primitives -> quantityChange exists
+
+func Create_TransferFromCashPrice:
+	inputs:
+		price Price (1..1)
+		settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
+		buyerSeller BuyerSeller (1..1)
+		counterparty Counterparty (2..2)
+	output:
+		transfer Transfer (1..1)
+	
+	condition: <"Price type must be cash price.">
+		price -> priceExpression -> priceType = PriceTypeEnum -> CashPrice
+	
+	assign-output transfer -> quantity -> amount: price -> amount
+	assign-output transfer -> quantity -> unitOfAmount: price -> unitOfAmount
+	assign-output transfer -> settlementDate: settlementDate
+
+	assign-output transfer -> payerReceiver -> payerPartyReference: <"Extract buyer from trade counterparties. The buyer pays the cash price.">
+		ExtractCounterpartyByRole( counterparty, buyerSeller -> buyer) -> partyReference
+	assign-output transfer -> payerReceiver -> receiverPartyReference: <"Extract seller from trade counterparties. The seller receives the cash price.">
+		ExtractCounterpartyByRole( counterparty, buyerSeller -> seller) -> partyReference
