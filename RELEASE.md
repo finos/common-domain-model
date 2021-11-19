@@ -1,4 +1,4 @@
-# *DSL Syntax - Invoke Function from Filter When*
+# *DSL Syntax - DRR - Invoke Function from Filter When*
 
 _What is being released?_
 
