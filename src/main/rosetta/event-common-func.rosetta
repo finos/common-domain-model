@@ -374,7 +374,13 @@ func Qualify_ContractFormation: <"Qualifies a business event as a contract forma
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists
+		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists or
+		(businessEvent ->instruction -> primitiveInstruction count = 1 and
+		businessEvent ->instruction -> primitiveInstruction -> contractFormation exists) or
+		(businessEvent ->instruction -> primitiveInstruction count = 2 and
+		businessEvent ->instruction -> primitiveInstruction -> contractFormation exists and
+		businessEvent ->instruction -> primitiveInstruction -> execution exists)
+
 		and businessEvent -> tradeWarehouseWorkflow is absent
 
 func Qualify_StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
@@ -1920,3 +1926,83 @@ func Qualify_Reallocation: <"The qualification of a reallocation event from the 
 		businessEvent -> primitives -> split count = 1
 		and businessEvent -> primitives -> split -> before -> state -> closedState -> state all = ClosedStateEnum -> Allocated
 		and businessEvent -> primitives -> quantityChange exists
+
+// New Content
+func Create_BusinessEvent: <"Creates a business event from instructions containing primitive instructions and optionally a trade state.">
+[creation BusinessEvent]
+	inputs:
+		instruction Instruction (1..*)
+		instructionFunction InstructionFunctionEnum (1..1)
+		eventDate date (1..1)
+
+	output:
+		businessEvent BusinessEvent (1..1)
+
+	// condition:
+	// if instructionFunction = InstructionFunctionEnum -> Execution then
+	// instruction -> primitiveInstruction -> executionInstruction only exists and instruction -> primitiveInstruction -> executionInstruction count = 1
+
+	assign-output businessEvent -> instruction:	
+	instruction
+
+	assign-output businessEvent -> instructionFunction:	
+	instructionFunction
+
+	assign-output businessEvent->eventDate:	
+	eventDate
+
+	assign-output businessEvent -> after:
+		Create_TradeState(instruction->primitiveInstruction,instruction->before only-element)
+
+func Create_TradeState: <"Creates a trade state from primitive instructions and optionally a trade state.">
+	inputs:
+		primitiveInstruction PrimitiveInstruction (1..*)
+		before TradeState (0..1)
+
+	output:
+		tradeState TradeState (1..1)
+
+	alias after:
+		if before exists then before
+		else if primitiveInstruction->execution only exists then
+// 	// // Strategic approach 
+// 	// // Create_ExecutionPrimitive(instruction -> primitiveInstruction -> executionInstruction only-element)
+		Create_ExecutionPrimitive(
+			primitiveInstruction -> execution only-element -> product, 
+			primitiveInstruction -> execution only-element -> priceQuantity, 
+			primitiveInstruction -> execution only-element -> counterparty, 
+			primitiveInstruction -> execution only-element -> ancillaryParty, 
+			primitiveInstruction -> execution only-element -> parties, 
+			primitiveInstruction -> execution only-element -> partyRoles, 
+			primitiveInstruction -> execution only-element -> executionDetails, 
+			primitiveInstruction -> execution only-element -> tradeDate, 
+			primitiveInstruction -> execution only-element -> tradeIdentifier
+			) -> after
+
+	assign-output tradeState:
+		if primitiveInstruction -> contractFormation exists then 
+// 	// Strategic approach 
+// 	// Create_ContractFormationPrimitive(instruction -> primitiveInstruction -> contractFormationInstruction only-element, instruction -> tradeState)
+		Create_ContractFormationPrimitive(
+			after -> trade,
+			primitiveInstruction -> contractFormation -> legalAgreement
+			) -> after
+
+		// else if primitiveInstruction -> quantityChange exists then
+
+		// else if primitiveInstruction -> termsChange exists then
+
+		
+
+// // 	// else 
+// // 	// if (instruction -> primitiveInstruction -> quantityChangeInstruction, instruction -> tradeState) only exists then
+// // 	// 	Create_QuantityChangePrimitive(
+// // 	// 		instruction -> primitiveInstruction -> quantityChangeInstruction,
+// // 	// 		instruction -> tradeState
+// // 	// 		) -> after
+
+// // assign-output businessEvent -> after -> state -> closedState -> state:	
+// // 	if instructionFunction = InstructionFunctionEnum -> QuantityChange and businessEvent -> after -> state -> positionState = PositionStatusEnum -> Closed then
+// // 	 	ClosedStateEnum -> Terminated
+// // 	else if instructionFunction = InstructionFunctionEnum -> Compression and businessEvent -> after -> state -> positionState = PositionStatusEnum -> Closed then 
+// // 		ClosedStateEnum -> Compressed

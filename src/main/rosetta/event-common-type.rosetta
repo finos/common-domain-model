@@ -103,7 +103,23 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
     indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
 	termination TerminationInstruction (0..1) <"Specifies inputs needed to process a Termination business event.">
 
-	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination
+
+	// New Content
+
+	primitiveInstruction PrimitiveInstruction (1..*)
+	before TradeState (0..1) <"The trade that is being in the primitive function.">
+
+//	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination, termsChange
+
+type PrimitiveInstruction: <"description">
+	execution ExecutionInstruction (0..1)
+	contractFormation ContractFormationInstruction (0..1)
+	quantityChange QuantityChangeInstruction (0..1)
+//	termsChange TermsChangeInstruction (0..1)
+
+	condition: one-of
+
+	// condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -123,6 +139,11 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 		[deprecated]
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
+
+			// New Content
+	instruction Instruction (1..*) <"">
+	instructionFunction InstructionFunctionEnum (1..1) <"">
+	after TradeState (1..*) <"">
 
 	condition Intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 		if (primitives -> split exists
@@ -198,6 +219,11 @@ type IndexTransitionInstruction: <"Defines the information needed to create a In
 		priceQuantity -> price -> priceExpression -> priceType contains PriceTypeEnum -> InterestRate
 		and priceQuantity -> observable -> rateOption exists
 		and priceQuantity -> quantity is absent
+
+type QuantityChangeInstruction: <"Instructions required to create an Increase or Decrease Business Event. An increases adds a new tradelot to the orignal trade. A decrease effectively decreases one or more trade lots contained in the original trade.">
+	change PriceQuantity (1..*) <"Quantity by which the Trade is being increased or decreased, and the price at which such quantity change is agreed. The quantity change should always be specified as positive number, with direction (increase/decrease) being specified by the direction enumeration. A fee can also be associated with to the quantity change by specifying a Price component of type CashPrice, including the corresponding settlement date and direction.">
+	direction QuantityChangeDirectionEnum (1..1) <"Direction of quantity change specified as either an increase or decrease">
+	lotIdentifier Identifier (0..1) <"Identifier for the new lot (in case of increase) or for the existing lot that is to be decreased (in case of decrease). this optinal attribute is mandatory in case of a decrease when the initial trade state contains multiple trade lots.">
 
 type TerminationInstruction: <"Specifies the information required to create the termination event of a trade.">
     terminatedQuantity Quantity (1..*) <"Specifies the new quantities of the transaction as a result of the partial or full termination event.">
