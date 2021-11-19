@@ -366,7 +366,8 @@ func Qualify_Execution: <"The qualification of an execution event from the fact 
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		businessEvent -> primitives count = 1 and businessEvent -> primitives -> execution exists
+		businessEvent -> primitives count = 1 and businessEvent -> primitives -> execution exists or
+		businessEvent -> instruction -> primitiveInstruction -> execution only exists
 
 func Qualify_ContractFormation: <"Qualifies a business event as a contract formation from the fact that the only component is a single Contract Formation Primitive.">
 	[qualification BusinessEvent]
@@ -1980,7 +1981,9 @@ func Create_TradeState: <"Creates a trade state from primitive instructions and 
 			) -> after
 
 	assign-output tradeState:
-		if primitiveInstruction -> contractFormation exists then 
+		if primitiveInstruction -> execution exists then
+			after
+		else if primitiveInstruction -> contractFormation exists then 
 // 	// Strategic approach 
 // 	// Create_ContractFormationPrimitive(instruction -> primitiveInstruction -> contractFormationInstruction only-element, instruction -> tradeState)
 		Create_ContractFormationPrimitive(
@@ -1992,7 +1995,8 @@ func Create_TradeState: <"Creates a trade state from primitive instructions and 
 
 		// else if primitiveInstruction -> termsChange exists then
 
-		
+	// assign-output tradeState -> state -> previousTrade:
+	// 	before
 
 // // 	// else 
 // // 	// if (instruction -> primitiveInstruction -> quantityChangeInstruction, instruction -> tradeState) only exists then
@@ -2006,3 +2010,6 @@ func Create_TradeState: <"Creates a trade state from primitive instructions and 
 // // 	 	ClosedStateEnum -> Terminated
 // // 	else if instructionFunction = InstructionFunctionEnum -> Compression and businessEvent -> after -> state -> positionState = PositionStatusEnum -> Closed then 
 // // 		ClosedStateEnum -> Compressed
+
+	// assign-output tradeState -> state -> previousTradeState:
+	// 	before
