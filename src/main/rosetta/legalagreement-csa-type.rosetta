@@ -32,12 +32,12 @@ type IndependentAmount extends PartyReferencePayerReceiver: <"A class specifying
 
 	paymentDetail PaymentDetail (1..*) <"An attribute that specifies a payment as the combination of a payment amount, a payment date and an associated payment calculation rule.">
 
-type AgencyRatingCriteria: <"A class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
+type AgencyRatingCriteria: <"Represents a class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
 
 	qualifier QuantifierEnum (1..1) <"Indicates whether all or any agency ratings apply.">
 	creditNotation CreditNotation (1..*) <"Indicates the agency rating criteria specified for the asset or issuer.">
 	mismatchResolution CreditNotationMismatchResolutionEnum (0..1) <"Indicator for options to be used if several agency ratings (>1) are specified and its necessary to identify specific charateristics. i.e (lowest or highest).">
-	referenceAgency CreditRatingAgencyEnum (0..1) <"To identify The dominant reference agency if there is a missmatch and several reference agencies exsist.">
+	referenceAgency CreditRatingAgencyEnum (0..1) <"identifies the dominant reference agency if there is a missmatch and several reference agencies exsist.">
 	boundary CreditNotationBoundaryEnum (0..1) <"Indicates the boundary of a credit agency rating i.e minimum or maximum.">
 
 	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
@@ -46,10 +46,10 @@ type AgencyRatingCriteria: <"A class to specify multiple credit notations alongs
 
 type CollateralValuationTreatment: <"Specification of the valuation treatment for the specified collateral.">
 
-	haircutPercentage number (0..1) <"Haircut percentage to be applied to the value of asset and used as a discount factor to the value of the collateral asset,expressed as a percentage in decimal terms. As an example a 0.5% haircut would be represented as a decimal number 0.005">
-	marginPercentage number (0..1) <"Percentage value of transaction needing to be posted as collateral expressed as a valuation. As an example a 104% requirement would be represented as a decimal number 1.04">
-	fxHaircutPercentage number (0..1) <"FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin).The percentage value is expressed as the discount haircut to the value of the collateral- as an example an 8% FX haircut would be expressed as 0.08.">
-	additionalHaircutPercentage number (0..1) <"Percentage value of any additional haircut to be applied to a collateral asset,the percentage value is expressed as the discount haircut to the value of the collateral- as an example a 5% haircut would be expressed as 0.05. ">
+	haircutPercentage number (0..1) <"Specifies a haircut percentage to be applied to the value of asset and used as a discount factor to the value of the collateral asset,expressed as a percentage in decimal terms. As an example a 0.5% haircut would be represented as a decimal number 0.005.">
+	marginPercentage number (0..1) <"Specifies a percentage value of transaction needing to be posted as collateral expressed as a valuation. As an example a 104% requirement would be represented as a decimal number 1.04.">
+	fxHaircutPercentage number (0..1) <"Specifies an FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin).The percentage value is expressed as the discount haircut to the value of the collateral- as an example an 8% FX haircut would be expressed as 0.08.">
+	additionalHaircutPercentage number (0..1) <"Specifies a percentage value of any additional haircut to be applied to a collateral asset,the percentage value is expressed as the discount haircut to the value of the collateral- as an example a 5% haircut would be expressed as 0.05. ">
 
 	condition HaircutPercentage: <"A data rule to validate that if a Valuation Percentage is specified it should be between 0 and 1.">
 		if haircutPercentage exists
@@ -70,51 +70,53 @@ type CollateralValuationTreatment: <"Specification of the valuation treatment fo
 	condition HaircutPercentageOrMarginPercentage: <"Choice rule requiring that either a haircut percentage or margin percentage is specified.">
 		required choice haircutPercentage, marginPercentage
 
-type EligibleCollateralSchedule: <"Set of criteria used to specify an eligible collateral schedule.">
+type EligibleCollateralSchedule: <"Represents a set of criteria used to specify an eligible collateral schedule.">
 	[rootType]
 	[metadata key]
 
-	scheduleIdentifier Identifier (0..*) <"Represents the identifier(s) that uniquely identify an eligible collateral schedule for an identity issuer.">
-	criteria EligibleCollateralCriteria (1..*) <"Criteria used to specify eligible collateral.">
+	scheduleIdentifier Identifier (0..*) <"Specifies the identifier(s) to uniquely identify an eligible collateral schedule for an identity issuer.">
+	criteria EligibleCollateralCriteria (1..*) <"Represents a set of criteria used to specify eligible collateral.">
 
-type EligibleCollateralCriteria: <"Criteria used to specify eligible collateral.">
+type CollateralCriteriaBase: <"Represents a set of criteria used to specify and desribe collateral.">
 
-	issuer IssuerCriteria (0..*) <"Filter based on the issuer.">
-	asset AssetCriteria (0..*) <"Filter based on the asset.">
-	treatment CollateralTreatment (1..1) <"Treatment of described collateral">
+	issuer IssuerCriteria (0..*) <"Represents a filter based criterai related to the issuer.">
+	asset AssetCriteria (0..*) <"Represents a filter based on the criteria realted to the asset.">
+
+type EligibleCollateralCriteria extends CollateralCriteriaBase: <"Represents a set of criteria used to specify eligible collateral.">
+
+	treatment CollateralTreatment (1..1) <"Identifies the treatment of specified collateral, e.g., haircuts,holding limits or exclusions.">
 
 type CollateralTreatment: <"Specifies the treatment terms for the eligible collateral criteria specified.">
 
 	valuationTreatment CollateralValuationTreatment (0..1) <"Specification of the valuation treatment for the specified collateral.">
 	concentrationLimit ConcentrationLimit (0..*) <"Specification of concentration limits applicable to the collateral criteria.">
-	isIncluded boolean (1..1) <"A boolean attribute to specify whether collateral critieria are inclusion (True) or exclusion (False) criteria">
+	isIncluded boolean (1..1) <"A boolean attribute to specify whether collateral critieria are inclusion (True) or exclusion (False) criteria.">
 
-type ConcentrationLimit: <"A class to describe concentration limits that may be applicable to eligible collateral criteria.">
-
-	concentrationLimitType ConcentrationLimitTypeEnum (0..1) <"The type of concentration limit to be applied.">
-	concentrationLimitCriteria ConcentrationLimitCriteria (0..*) <"A set of criteria to describe specific assets that the concentration limits apply to.">	
-	valueLimit MoneyRange (0..1) <"Value of collateral limit represented as a range">
-	percentageLimit NumberRange (0..1) <"Perecentage of collateral limit cap-represented as a decimal number - example 25% is 0.25">
-	condition ConcentrationLimitValueChoice: <"Either a value cap or percentage cap concentration limit must be specified.">
+type ConcentrationLimit: <"Represents a class to describe concentration limits that may be applicable to eligible collateral criteria.">
+	
+	concentrationLimitCriteria ConcentrationLimitCriteria (0..*) <"Specifies a set of criteria to describe the assets that the concentration limits apply to.">	
+	valueLimit MoneyRange (0..1) <"Specifies the value of collateral limit represented as a range.">
+	percentageLimit NumberRange (0..1) <"Specifies the perecentage of collateral limit represented as a decimal number - example 25% is 0.25.">
+	
+	condition ConcentrationLimitValueChoice: <"Either a value or percentage concentration limit must be specified.">
         required choice valueLimit, percentageLimit
- 
-    condition ConcentrationLimitTypeChoice: <"Either a limit type or limit criteria must be specified.">
-        required choice concentrationLimitType, concentrationLimitCriteria
+  
+type ConcentrationLimitCriteria extends CollateralCriteriaBase: <"Respresents a class to describe a set of criteria to describe specific assets that the concentration limits apply to.">
 
-type ConcentrationLimitCriteria: <"A class to describe a set of criteria to describe specific assets that the concentration limits apply to.">
+concentrationLimitType ConcentrationLimitTypeEnum (0..1) <"Specifies the type of concentration limit to be applied.">
 
-	issuer IssuerCriteria (0..*) <"Filter based on the issuer.">
-	asset AssetCriteria (0..*) <"Filter based on the asset.">
+condition ConcentrationLimitTypeChoice: <"Either a limit type or limit criteria must be specified.">
+        required choice concentrationLimitType, issuer, asset
 
-type IssuerCriteria: <"Criteria used to specify eligible collateral issuers.">
+type IssuerCriteria: <"Represents a criteria used to specify eligible collateral issuers.">
 
-	issuerType CollateralIssuerType (0..*) <"Filter based on the type of entity issuing the asset.">
-	issuerCountryOfOrigin string (0..*) <"Filter based on the issuing entity country of origin, which is the same as filtering by eligible Sovereigns."> 
+	issuerType CollateralIssuerType (0..*) <"Represents a filter based on the type of entity issuing the asset.">
+	issuerCountryOfOrigin string (0..*) <"Represents a filter based on the issuing entity country of origin, which is the same as filtering by eligible Sovereigns."> 
 		[metadata scheme]
-	issuerName LegalEntity (0..*) <"Filter based on the issuing entity name or LEI.">
-	issuerAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk and creditors claim in event of default associated with asset issuer.">
-	sovereignAgencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk of country.">
-	counterpartyOwnIssuePermitted boolean (0..1) <"Filter based on whether it is permitted for the underlying asset to be issued by the posting entity or part of their corporate family.">
+	issuerName LegalEntity (0..*) <"Specifies the issuing entity name or LEI.">
+	issuerAgencyRating AgencyRatingCriteria (0..*) <"Represents an agency rating based on default risk and creditors claim in event of default associated with asset issuer.">
+	sovereignAgencyRating AgencyRatingCriteria (0..*) <"Represents an agency rating based on default risk of the country of the issuer.">
+	counterpartyOwnIssuePermitted boolean (0..1) <"Represents a filter based on whether it is permitted for the underlying asset to be issued by the posting entity or part of their corporate family.">
 
 type PostedCreditSupportItem: <"Posted Credit Support item with corresponding Valuation Percentage, FX Haircut Percentage and any related disputed Posted Credit Support valuation.">
 	cashOrSecurityValue Money (1..1) <"The Base Currency Equivalent of Cash or Security.">
@@ -1349,17 +1351,17 @@ type CreditSupportObligations: <"A class to specify the Credit Support Obligatio
 		[synonym ISDA_Create_1_0 value "transfer_timing"]
 	creditSupportObligationsVariationMargin CreditSupportObligationsVariationMargin (0..1) <"The specification of Credit Support Obligations applicable to Variation Margin agreements.">
 
-type AssetCriteria: <"Criteria used to specify eligible collateral assets.">
+type AssetCriteria: <"Represents a set of criteria used to specify eligible collateral assets.">
 
-	collateralAssetType AssetType (0..*) <"Filter based on the asset product type.">
-	assetCountryOfOrigin string (0..*) <"Filter based on the issuing entity country of origin."> 
+	collateralAssetType AssetType (0..*) <"Represents a filter based on the asset product type.">
+	assetCountryOfOrigin string (0..*) <"Represents a filter based on the asset country of origin."> 
 		[metadata scheme]
-	denominatedCurrency string (0..*) <"Filter based on the underlying asset denominated currency.">
+	denominatedCurrency string (0..*) <"Represents a filter based on the underlying asset denominated currency.">
 		[metadata scheme]
-	agencyRating AgencyRatingCriteria (0..*) <"Agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
+	agencyRating AgencyRatingCriteria (0..*) <"Represents an agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
 	maturityType MaturityTypeEnum (0..1) <"Specifies whether the maturity range is the remaining or original maturity.">
-	maturityRange PeriodRange (0..1) <"Filter based on the underlying asset maturity.">
-	productIdentifier ProductIdentifier (0..*) <"Filter based on specific instrument identifiers (e.g. specific ISINs, CUSIPs etc).">
+	maturityRange PeriodRange (0..1) <"Represents a filter based on the underlying asset maturity.">
+	productIdentifier ProductIdentifier (0..*) <"Represents a filter based on specific instrument identifiers (e.g. specific ISINs, CUSIPs etc).">
 	collateralTaxonomy CollateralTaxonomy (0..*) <"Specifies the collateral taxonomy,which is composed of a taxonomy value and a taxonomy source.">
 	domesticCurrencyIssued boolean (0..1) <"Identifies that the Security must be denominated in the domestic currency of the issuer.">
 	listing ListingType (0..1) <"Specifies the exchange, index or sector specific to listing of a security.">
@@ -1367,9 +1369,9 @@ type AssetCriteria: <"Criteria used to specify eligible collateral assets.">
 	condition AssetCriteriaChoice: <"If any are specified, only one of AssetType, ProductTaxonomy or ProductIdentifer should exist.">
 		optional choice collateralAssetType, collateralTaxonomy, productIdentifier
 
-type ListingType: <"Filter based on an underlying corporate financial official listing defined at a stock exchange.">
-	exchange string (0..1) <"Filter based on the Primary Stock Exchange facilitating the listing of companies, exchange of Stocks, Exchange traded Derivatives, Bonds, and other Securities expressed in ISO standard 10383.">
+type ListingType: <"Specifies a filter based on an underlying corporate financial official listing defined at a stock exchange.">
+	exchange string (0..1) <"Represents a filter based on the Primary Stock Exchange facilitating the listing of companies, exchange of Stocks, Exchange traded Derivatives, Bonds, and other Securities expressed in ISO standard 10383.">
 		[metadata scheme]
-	sector string (0..1) <"Filter based on an industry sector defined under a system for classifying industry types such as ‘Global Industry Classification Standard (GICS)’ and ‘North American Industry Classification System (NAICS)’">
+	sector string (0..1) <"Reprsesents a filter based on an industry sector defined under a system for classifying industry types such as ‘Global Industry Classification Standard (GICS)’ and ‘North American Industry Classification System (NAICS)’">
 		[metadata scheme]
-	index Index (0..1) <"Filter based on an index that measures a stock market, or a subset of a stock market.">
+	index Index (0..1) <"Represents a filter based on an index that measures a stock market, or a subset of a stock market.">
