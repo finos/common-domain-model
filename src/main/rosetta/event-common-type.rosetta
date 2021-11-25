@@ -102,7 +102,29 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 	indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
 	termination TerminationInstruction (0..1) <"Specifies inputs needed to process a Termination business event.">
 
-	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, quantityChange, termination
+	
+	// New Content
+
+	primitiveInstruction PrimitiveInstruction (1..*)
+	before TradeState (0..1) <"The trade that is being in the primitive function.">
+
+//	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination, termsChange
+
+type PrimitiveInstruction: <"description">
+	execution ExecutionInstruction (0..1)
+	contractFormation ContractFormationInstruction (0..1)
+	quantityChange QuantityChangeInstruction (0..1)
+	termsChange TermsChangeInstruction (0..1)
+	compression CompressionInstruction (0..1)
+	// duplicate	DuplicateInstruction (0..1)
+	// partyChange PartyChangeInstruction (0..1)
+	// split SplitInstruction (0..1)
+	// exercise ExerciseInstruction (0..1)
+
+	condition: one-of
+
+	// condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination
+
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -122,6 +144,11 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 		[deprecated]
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
+
+	// New Content
+	instruction Instruction (1..*) <"">
+	instructionFunction InstructionFunctionEnum (1..1) <"">
+	after TradeState (1..*) <"">
 
 	condition Intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 		if (primitives -> split exists
@@ -192,6 +219,19 @@ type IndexTransitionInstruction: <"Defines the information needed to create a In
 		priceQuantity -> price -> priceExpression -> priceType contains PriceTypeEnum -> InterestRate
 		and priceQuantity -> observable -> rateOption exists
 		and priceQuantity -> quantity is absent
+
+type TermsChangeInstruction: <"Specifies instructions for terms change consisting of the new transaction terms, and the renegotiation fee.">
+	product Product (0..1) <"product to be changed">
+	ancillaryParty AncillaryParty (0..*) <"ancillary party to be changed">
+	adjustment NotionalAdjustmentEnum (0..1)
+
+	condition: (product or ancillaryParty or adjustment) exists 
+	// Condition to ensure that instructions are not increase or decrese instruntions.
+
+type CompressionInstruction: <"Specifies instructions for compression of a portfolio of transactions consisting of the transactions to be compressed, any replacement trades, and any mark to market compensation fee.">
+	compressedTrade QuantityChangeInstruction (2..*) <"Instructions required to compress trades through quantity change.">
+	replacementTrade ContractFormationInstruction (0..*) <"Instructions required for the replacement trade(s) by creating a fully formed contract, consisting of an execution and an optional legal agreement.">
+	compressionFee Transfer(0..*) <"Optional compression fee.">
 
 type TerminationInstruction: <"Specifies the information required to create the termination event of a trade.">
     terminatedPriceQuantity PriceQuantity (1..*) <"Specifies the quantities of the transaction as a result of the partial or full termination event, including the fee agreed to be exchanged as part of the trade termination (optional).">
