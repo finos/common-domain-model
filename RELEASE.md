@@ -1,4 +1,4 @@
-# *CDM Enumeration Referencing FpML Scheme*
+# *Product Model - Enumeration Referencing FpML Scheme*
 
 _What is being released?_
 
