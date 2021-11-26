@@ -1,13 +1,15 @@
-# *Trade Model - Identification of the nature of a Trade Identifier*
+# *FpML Enumeration Scheme Referencing*
 
 _What is being released?_
 
-This release contains an updated `TradeIdentifier` data and a new enumeration `TradeIdentifierTypeEnum` in order to enumerate the nature of a Trade Identifier.  Previously this has only been possible through the inclusion of a `metadata scheme`.
+This release provides the abillity to reference FpML Schemes when modelling enumerutions. Upon contribution the enumeration values can then be automatically generated.
 
-- The enumeration list `TradeIdentifierTypeEnum` contains two values: `UniqueTransactionIdentifier` and `UniqueSwapIdentifier`
+An scheme reference is made of a `docReference` with a `body`, `corpus` and a `schemeLocation`. An example of this is as follows:
+```
+[docReference ISDA FpML_Coding_Scheme schemeLocation "http://www.fpml.org/coding-scheme/floating-rate-index-3-2"]
+```
+
 
 _Review Directions_
 
-In CDM Portal Ingestion tab review sample trade:
-
-fpml-5-10 > products > rates > cdm-xccy-swap-after-usi-uti
+In CDM Portal Textual Browser search for `FloatingRateIndexEnum` to see an example of an enumeration populated using a reference.
