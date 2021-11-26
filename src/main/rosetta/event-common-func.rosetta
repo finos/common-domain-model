@@ -144,31 +144,40 @@ func Qualify_CashAndSecurityTransfer: <"The qualification of a security settleme
 	output: is_event boolean (1..1)
 	alias transfersForDate: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate )
 	assign-output is_event:
-		transfersForDate -> transfers -> quantity -> unitOfAmount -> currency exists
-		and transfersForDate -> transfers -> quantity -> unitOfAmount -> financialUnit exists
-		and transfersForDate -> transfers count = 2
-
-func LatestTransfers:
-	inputs: transfers Transfer (1..*)
-	output: transfer Transfers (1..1)
+		transfersForDate -> quantity -> unitOfAmount -> currency exists
+		and transfersForDate -> quantity -> unitOfAmount -> financialUnit exists
+		and transfersForDate count = 2
 
 func TransfersForDate:
 	inputs: 
-		transfers Transfer (1..*)
+		transfers Transfer (0..*)
 		date date (1..1)
 	output:
-		transfersForDate Transfers (1..1)
+		transfersForDate Transfer (0..*)
+
+	set transfersForDate:
+	    transfers
+	        filter [ item -> settlementDate -> adjustedDate = date ]
 
 func FilterCashTransfers:
-	inputs: transfers Transfer (1..*)
-	output: cashTransfers Transfers (1..1)
+	inputs:
+	    transfers Transfer (0..*)
+	output:
+	    cashTransfers Transfer (0..*)
+
+    set cashTransfers:
+        transfers
+            filter [ item -> quantity -> unitOfAmount -> currency exists ]
 
 func FilterSecurityTransfers:
-	inputs: transfers Transfer (1..*)
-	output: cashTransfers Transfers (1..1)
+	inputs:
+	    transfers Transfer (0..*)
+	output:
+	    securityTransfers Transfer (0..*)
 
-type Transfers:
-	transfers Transfer (1..*)
+    set securityTransfers:
+        transfers
+            filter [ item -> observable -> productIdentifier exists ]
 
 func Qualify_ClearedTrade:
 	[qualification BusinessEvent]
@@ -243,7 +252,7 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
-	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate) -> transfers only-element
+	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate)
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Increase)
 		and (
@@ -294,7 +303,7 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
-	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers
+	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate )
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> PartialTermination)
 		and (businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
@@ -316,7 +325,7 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
-	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
+	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
 	assign-output is_event:
 		businessEvent -> primitives count = 1
 		and transfer -> observable -> productIdentifier exists
@@ -328,12 +337,12 @@ func Qualify_SecuritySettlement: <"The qualification of a security settlement fr
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
-	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers
+	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate )
 	assign-output is_event:
 		transfers -> observable -> productIdentifier only exists
 		and transfers -> quantity -> unitOfAmount -> currency only exists
-		and FilterCashTransfers(transfers) -> transfers only-element -> payerReceiver -> payerPartyReference =
-			FilterSecurityTransfers(transfers) -> transfers only-element -> payerReceiver -> receiverPartyReference
+		and FilterCashTransfers( transfers ) only-element -> payerReceiver -> payerPartyReference =
+			FilterSecurityTransfers( transfers ) only-element -> payerReceiver -> receiverPartyReference
 		and businessEvent -> primitives -> quantityChange is absent
 
 func Qualify_Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
@@ -341,7 +350,7 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
-	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
+	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
 		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
@@ -388,22 +397,22 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 	
 	alias beforeNoOfUnits:
 		if beforeQuantity exists
-		then NoOfUnits( beforeQuantity )
+		then FilterQuantityByFinancialUnit( beforeQuantity, FinancialUnitEnum -> Share ) only-element -> amount
 	
 	alias afterQuantity:
 		businessEvent -> primitives -> quantityChange -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity
 	
 	alias afterNoOfUnits:
 		if afterQuantity exists
-		then NoOfUnits( afterQuantity )
+		then FilterQuantityByFinancialUnit( afterQuantity, FinancialUnitEnum -> Share ) only-element -> amount
 
 	alias beforeCurrencyAmount:
 		if beforeQuantity exists
-		then CurrencyAmount( beforeQuantity, empty )
+		then FilterQuantityByCurrencyExists( beforeQuantity ) distinct only-element -> amount
 	
 	alias afterCurrencyAmount:
 		if afterQuantity exists
-		then CurrencyAmount( afterQuantity, empty )
+		then FilterQuantityByCurrencyExists( afterQuantity ) distinct only-element -> amount
 	
 	alias beforeCashPrices:
 		businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> amount
@@ -688,7 +697,7 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 		businessEvent BusinessEvent (1..1)
 	
 	alias preSplitNumberOfShares: <"Only works in the case of a single trade lot.">
-		NoOfUnits(instruction -> tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity)
+		FilterQuantityByFinancialUnit( instruction -> tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity, FinancialUnitEnum -> Share ) only-element -> amount
 	alias postSplitNumberOfShares: <"The adjustment ratio is be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.">
 		Create_Quantity( preSplitNumberOfShares * instruction -> adjustmentRatio, Create_UnitType( empty, FinancialUnitEnum -> Share ))
 	alias preSplitPrice: <"Only works in the case of a single trade lot with a single price object.">
@@ -1944,7 +1953,7 @@ func Qualify_FullReturn: <"The qualification of a full return event from the fac
 	inputs:
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
-	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
+	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
 		and businessEvent -> primitives -> quantityChange -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout exists

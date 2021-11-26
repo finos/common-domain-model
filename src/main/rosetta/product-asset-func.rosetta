@@ -15,8 +15,10 @@ import cdm.legalagreement.common.*
 func ForwardFX:
 	inputs:
 		forwardPayout ForwardPayout(1..1)
-	output: result ForeignExchange (1..1)
-	assign-output result: forwardPayout -> underlier -> foreignExchange
+	output:
+	    result ForeignExchange (1..1)
+	assign-output result:
+	    forwardPayout -> underlier -> foreignExchange
 
 func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
 	[calculation]
@@ -281,9 +283,16 @@ func DividendCashSettlementAmount: <"Based on the following legal text: means, i
 	assign-output dividendCashSettlementAmount:
 		declaredDividend * numberOfSecurities
 
-func ExtractFixedLeg:
+func ExtractFixedLeg: <"Extract interest rate payout containing fix rate specification.">
     inputs:
         interestRatePayouts InterestRatePayout (0..*)
-
     output:
         fixedRatePayout InterestRatePayout (0..1)
+
+    alias fixedRatePayouts:
+        interestRatePayouts
+            filter [ item -> rateSpecification -> fixedRate exists ]
+
+    assign-output fixedRatePayout:
+        fixedRatePayouts only-element
+

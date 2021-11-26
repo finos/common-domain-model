@@ -19,10 +19,10 @@ func FxMarkToMarket: <"Representation of sample mark to market calculation provi
         trade -> tradableProduct -> tradeLot -> priceQuantity only-element -> observable -> currencyPair
 	
 	alias currency1Quantity: <"Quantity amount for currency 1. Only works in the case of a single trade lot.">
-		FilterQuantity( trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity, currencyPair -> currency1 ) -> amount
+		FilterQuantityByCurrency( trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity, currencyPair -> currency1 ) only-element -> amount
 	
 	alias currency2Quantity: <"Quantity amount for currency 2. Only works in the case of a single trade lot.">
-		FilterQuantity( trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity, currencyPair -> currency2 ) -> amount
+		FilterQuantityByCurrency( trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity, currencyPair -> currency2 ) only-element -> amount
 	
 	 alias quotedQuantity: <"The quoted currency amount.">
 		if currencyPair -> quoteBasis = QuoteBasisEnum -> Currency1PerCurrency2
@@ -50,7 +50,6 @@ func InterpolateForwardRate:
 func EvaluatePortfolioState: <"Function specification to evaluate a portfolio's aggregation parameters and return a new portfolio state containing aggregated positions.">
 	inputs:
 		portfolio Portfolio (1..1) <"Portfolio containing the aggregation parameters to be used to calculate the new portfolio state.">
-
 	output:
 		portfolioState PortfolioState (1..1) <"Portfolio state containing the aggregated positions based on the input aggregation parameters.">
 

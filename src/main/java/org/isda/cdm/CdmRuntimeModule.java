@@ -2,27 +2,20 @@ package org.isda.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
-import cdm.base.staticdata.party.functions.*;
+import cdm.base.staticdata.party.functions.ReplaceParty;
+import cdm.base.staticdata.party.functions.ReplacePartyImpl;
 import cdm.event.common.functions.*;
 import cdm.legalagreement.common.functions.Create_RelatedAgreementsWithPartyReference;
 import cdm.legalagreement.common.functions.Create_RelatedAgreementsWithPartyReferenceImpl;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.asset.fro.functions.*;
-import cdm.observable.asset.functions.FilterPrice;
-import cdm.observable.asset.functions.FilterPriceImpl;
-import cdm.observable.common.functions.CurrencyAmount;
-import cdm.observable.common.functions.CurrencyAmountImpl;
-import cdm.observable.common.functions.NoOfUnits;
-import cdm.observable.common.functions.NoOfUnitsImpl;
 import cdm.observable.event.functions.ResolveObservationAverage;
 import cdm.observable.event.functions.ResolveObservationAverageImpl;
 import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStep;
 import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStepImpl;
 import cdm.product.asset.floatingrate.functions.SelectScheduleStep;
 import cdm.product.asset.floatingrate.functions.SelectScheduleStepImpl;
-import cdm.product.asset.functions.ExtractFixedLeg;
-import cdm.product.asset.functions.ExtractFixedLegImpl;
 import cdm.product.asset.functions.ResolveEquityInitialPrice;
 import cdm.product.asset.functions.ResolveEquityInitialPriceImpl;
 import cdm.product.common.schedule.functions.CalculationPeriod;
@@ -62,20 +55,10 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
 
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
-		bind(NoOfUnits.class).to(bindNoOfUnits());
-		bind(CurrencyAmount.class).to(bindCurrencyAmount());
-		bind(TransfersForDate.class).to(bindTransfersForDate());
-		bind(FilterCashTransfers.class).to(bindFilterCashTransfers());
-		bind(FilterSecurityTransfers.class).to(bindFilterSecurityTransfers());
 		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(RoundToPrecision.class).to(bindRoundToPrecision());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
-		bind(ExtractCounterpartyByRole.class).to(bindExtractCounterpartyByRole());
-		bind(ExtractAncillaryPartyByRole.class).to(bindExtractAncillaryPartyByRole());
-		bind(FilterPartyRole.class).to(bindFilterPartyRole());
-		bind(FilterPrice.class).to(bindFilterPrice());
-		bind(FilterQuantity.class).to(bindFilterQuantity());
 		bind(FilterPriceQuantity.class).to(bindFilterPriceQuantity());
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
@@ -99,8 +82,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 		bind(Create_SplitTrades.class).to(bindCreateSplitTrades());
 		bind(Create_ContractFormationPrimitives.class).to(bindCreateContractFormationPrimitives());
-		bind(ExtractFixedLeg.class).to(bindExtractFixedLeg());
-		bind(FilterQuantityByFinancialUnit.class).to(bindFilterQuantityByFinancialUnit());
 		bind(FilterOpenTradeStates.class).to(bindFilterOpenTradeStates());
 		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
 		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
@@ -127,18 +108,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends Create_BillingRecords> bindCreateBillingRecords() {
 		return Create_BillingRecordsImpl.class;
-	}
-
-	protected Class<? extends FilterSecurityTransfers> bindFilterSecurityTransfers() {
-		return FilterSecurityTransfersImpl.class;
-	}
-
-	protected Class<? extends FilterCashTransfers> bindFilterCashTransfers() {
-		return FilterCashTransfersImpl.class;
-	}
-
-	protected Class<? extends TransfersForDate> bindTransfersForDate() {
-		return TransfersForDateImpl.class;
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -199,14 +168,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		return ResolveEquityInitialPriceImpl.class;
 	}
 
-	protected Class<? extends NoOfUnits> bindNoOfUnits() {
-		return NoOfUnitsImpl.class;
-	}
-
-	protected Class<? extends CurrencyAmount> bindCurrencyAmount() {
-		return CurrencyAmountImpl.class;
-	}
-
 	protected Class<? extends SumPostedCreditSupportItemAmounts> bindSumPostedCreditSupportItemAmounts() {
 		return SumPostedCreditSupportItemAmountsImpl.class;
 	}
@@ -221,26 +182,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends FpmlIrd8> bindFpmlIrd8() {
 		return FpmlIrd8Impl.class;
-	}
-
-	protected Class<? extends ExtractCounterpartyByRole> bindExtractCounterpartyByRole() {
-		return ExtractCounterpartyByRoleImpl.class;
-	}
-
-	protected Class<? extends ExtractAncillaryPartyByRole> bindExtractAncillaryPartyByRole() {
-		return ExtractAncillaryPartyByRoleImpl.class;
-	}
-
-	protected Class<? extends FilterPartyRole> bindFilterPartyRole() {
-		return FilterPartyRoleImpl.class;
-	}
-
-	protected Class<? extends FilterPrice> bindFilterPrice() {
-		return FilterPriceImpl.class;
-	}
-
-	protected Class<? extends FilterQuantity> bindFilterQuantity() {
-		return FilterQuantityImpl.class;
 	}
 
 	protected Class<? extends FilterPriceQuantity> bindFilterPriceQuantity() {
@@ -329,14 +270,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends Create_ContractFormationPrimitives> bindCreateContractFormationPrimitives() {
 		return Create_ContractFormationPrimitivesImpl.class;
-	}
-
-	protected Class<? extends ExtractFixedLeg> bindExtractFixedLeg() {
-		return ExtractFixedLegImpl.class;
-	}
-
-	protected Class<? extends FilterQuantityByFinancialUnit> bindFilterQuantityByFinancialUnit() {
-		return FilterQuantityByFinancialUnitImpl.class;
 	}
 
 	protected Class<? extends FilterOpenTradeStates> bindFilterOpenTradeStates() {

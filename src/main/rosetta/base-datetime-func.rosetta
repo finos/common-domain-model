@@ -99,14 +99,12 @@ func Now: <"Current date time.">
 func Today: <"Current date.">
 	output: today date (1..1)
 
-/* added by BALynn to support calculated rates */
-// the following are primitive functions that need to be implemented by an implementation
-
-func CombineBusinessCenters: <"Creates a BusinessCenters object that includes the union of business centers in the two supplied lists">
+func CombineBusinessCenters: <"Creates a BusinessCenters object that includes the union of business centers in the two supplied lists.">
 	inputs:
-		list1 BusinessCenters (1..1) <"First list of business centers">
-		list2 BusinessCenters (1..1) <"Second list of business centers">
-	output: combinedList BusinessCenters (1..1) <" resulting merged list of business centers">
+		list1 BusinessCenters (1..1) <"First list of business centers.">
+		list2 BusinessCenters (1..1) <"Second list of business centers.">
+	output:
+	    combinedList BusinessCenters (1..1) <"Resulting merged list of business centers.">
 
 func BusinessCenterHolidays: <"Returns a merged list of holidays for the supplied business centers.">
 	inputs:
@@ -118,14 +116,14 @@ func DayOfWeek: <"Returns the day of week corresponding to the supplied date.">
 	inputs:
 		date date (1..1) <"The date for which the weekday is needed.">
 	output:
-		dayOfWeek DayOfWeekEnum(1..1) <"The day of the week as an enumerated value.">
+		dayOfWeek DayOfWeekEnum (1..1) <"The day of the week as an enumerated value.">
 
 func AddDays: <"Adds the specified number of calendar days to the supplied date.  A negative number will generate a date before the supplied date.">
 	inputs:
-		inputDate date (1..1) <"The base date for the calculation">
-		numDays int (1..1) <"The number of days to add">
+		inputDate date (1..1) <"The base date for the calculation.">
+		numDays int (1..1) <"The number of days to add.">
 	output:
-		resultDate date (1..1) <"The date shifted by the specified number of days">
+		resultDate date (1..1) <"The date shifted by the specified number of days.">
 
 func DateDifference: <"Subtracts the two supplied dates to return the number of calendar days between them.  A negative number implies first is after second.">
 	inputs:
@@ -134,41 +132,38 @@ func DateDifference: <"Subtracts the two supplied dates to return the number of 
 	output:
 		difference int (1..1) <"The number of calendar days second date is after firstDate. Negative means secondDate is before firstDate.">
 
-func LeapYearDateDifference: <"subtracts the two supplied dates to return the number of leap year calendar days between them. A negative number implies firstDate is after secondDate.">
+func LeapYearDateDifference: <"Subtracts the two supplied dates to return the number of leap year calendar days between them. A negative number implies firstDate is after secondDate.">
 	inputs:
 		firstDate date (1..1) <"The left side of the subtraction.">
-		secondDate date (1..1) <"The right side of the subtraction">
+		secondDate date (1..1) <"The right side of the subtraction.">
 	output:
 		difference int (1..1) <"The number of leap year calendar days secondDate is after firstDate. Negative means secondDate is before firstDate.">
 
-func SelectDate: <"Select a date from a list of dates based on index. If not found return nothing.">
+func SelectDate: <"Select a date from a list of dates based on index. If not found, return nothing.">
 	inputs:
-		dates date (0..*) <"list to select from">
-		position int (1..1)	<"Index to look up">
+		dates date (0..*) <"List to select from.">
+		position int (1..1) <"Index to look up.">
 	output:
-		date date (0..1) <"The selected date">
+		date date (0..1) <"The selected date.">
 
-func LastInDateList: <"Return the last date in a list of dates">
+func LastInDateList: <"Return the last date in a list of dates.">
 	inputs:
-		dateList date (0..*) <"Supplied list of dates">
+		dateList date (0..*) <"Supplied list of dates.">
 	output:
-		lastDate date (0..1) <"The last date in the list">
+		lastDate date (0..1) <"The last date in the list.">
 
-func AppendDateToList: <"Add a date to a list of dates">
+func AppendDateToList: <"Add a date to a list of dates.">
 	inputs:
-		origDates date (0..*) <"list of dates">
-		newDate date (1..1)	<"Date to add to the list">
+		origDates date (0..*) <"List of dates.">
+		newDate date (1..1) <"Date to add to the list.">
 	output:
-		newList date (0..*) <"The newly increased list">
+		newList date (0..*) <"The newly increased list.">
 
-func PopOffDateList: <"Remove last element from a list of dates">
+func PopOffDateList: <"Remove last element from a list of dates.">
 	inputs:
-		dates date (0..*) <"List of dates">
+		dates date (0..*) <"List of dates.">
 	output:
-		newList date (0..*) <"The newly created list, omitting the last element of the original list">
-
-
-// the following are implemented in Rosetta based on the above primitives
+		newList date (0..*) <"The newly created list, omitting the last element of the original list.">
 
 func IsWeekend: <"returns whether the supplied date is a weekend. This assumes a 5 day week with Saturday and Sunday as holidays. A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.">
 	[calculation]
@@ -217,7 +212,7 @@ func AddBusinessDays: <"Returns a good business date that has been offset by the
 	alias isGoodBusinessDay: IsBusinessDay(originalDate, businessCenters) //check if a good business day
 	alias shift: if offsetBusinessDays < 0 then -1 else 1 // determine the direction of shifting, earlier or later
 	// calculate the new offset: if we're at a good business day, reduce by one, else keep it //
-	alias shiftedByOne: AddDays(originalDate, shift) // add/substract one calendar day
+	alias shiftedByOne: AddDays(originalDate, shift) // add/subtract one calendar day
 	alias isShiftedGood: IsBusinessDay(shiftedByOne, businessCenters)
 	alias newShift: if isShiftedGood then shift else 0
 	alias newOffset: if offsetBusinessDays = 0 then 0 else offsetBusinessDays - newShift
@@ -231,7 +226,7 @@ func GenerateDateList: <"Creates a list of good business days starting from the 
 	inputs:
 		startDate date (1..1) <"Start of the date range to be generated.">
 		endDate date (1..1) <"End of the date range to be generated">
-		businessCenters BusinessCenters (1..1)	<"Business centers to be used to generate the list of good business days">
+		businessCenters BusinessCenters (1..1) <"Business centers to be used to generate the list of good business days">
 	output:
 		dateList date (0..*) <"Resulting list of good business days.">
 	alias active: startDate <= endDate // do we have anything to do? Nothing to do if start date is after end date

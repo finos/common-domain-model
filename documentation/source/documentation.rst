@@ -1227,7 +1227,7 @@ One distinction with the product approach is that the ``intent`` qualification i
      businessEvent BusinessEvent(1..1)
    output: is_event boolean (1..1)
    
-   alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
+   alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
    assign-output is_event:
      (businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
      and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
