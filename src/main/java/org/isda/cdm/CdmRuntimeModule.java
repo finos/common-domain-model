@@ -59,7 +59,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(RoundToPrecision.class).to(bindRoundToPrecision());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
-		bind(FilterPriceQuantity.class).to(bindFilterPriceQuantity());
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
 		bind(SelectDate.class).to(bindSelectDate());
@@ -87,7 +86,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
 		bind(Create_DecreasedTradeQuantityChangePrimitives.class).to(bindCreateDecreasedTradeQuantityChangePrimitives());
 		bind(ReplaceParty.class).to(bindReplaceParty());
-		bind(Create_BillingRecords.class).to(bindCreateBillingRecords());
 		bind(ResolveObservationAverage.class).to(bindResolveObservationAverage());
 		bind(CalculationPeriodRange.class).to(bindCalculationPeriodRange());
 		bind(Create_RelatedAgreementsWithPartyReference.class).to(bindCreateRelatedAgreementsWithPartyReference());
@@ -104,10 +102,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends ResolveObservationAverage> bindResolveObservationAverage() {
 		return ResolveObservationAverageImpl.class;
-	}
-
-	protected Class<? extends Create_BillingRecords> bindCreateBillingRecords() {
-		return Create_BillingRecordsImpl.class;
 	}
 
 	protected Class<? extends ListsCompare> bindListsCompare() {
@@ -182,10 +176,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends FpmlIrd8> bindFpmlIrd8() {
 		return FpmlIrd8Impl.class;
-	}
-
-	protected Class<? extends FilterPriceQuantity> bindFilterPriceQuantity() {
-		return FilterPriceQuantityImpl.class;
 	}
 
 	protected Class<? extends Now> bindNow() {
