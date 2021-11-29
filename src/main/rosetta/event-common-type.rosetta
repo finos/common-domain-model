@@ -90,6 +90,7 @@ type ContractFormationInstruction: <"Specifies instructions for transition from 
 	    required choice execution, executionInstruction
 
 type Instruction: <"Instruction to a function that will be used to perform a business event">
+	[rootType]
   	instructionFunction string (0..1) <"Specifies the function that will be called">
   	allocation AllocationInstruction (0..1) <"Instruction to allocate">
   	clearing ClearingInstruction (0..1) <"Instruction to clear">
@@ -102,13 +103,26 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 	indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
 	termination TerminationInstruction (0..1) <"Specifies inputs needed to process a Termination business event.">
 
-	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, quantityChange, termination
+	// New Content
+
+	primitiveInstruction PrimitiveInstruction (1..*)
+	before TradeState (0..1) <"The trade that is being in the primitive function.">
+
+//	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination, termsChange
+
+type PrimitiveInstruction: <"description">
+	execution ExecutionInstruction (0..1)
+	contractFormation ContractFormationInstruction (0..1)
+	quantityChange QuantityChangeInstruction (0..1)
+	termsChange TermsChangeInstruction (0..1)
+
+	condition: one-of
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
 	[rootType]
 
-	primitives PrimitiveEvent (1..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
+	primitives PrimitiveEvent (0..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
 	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
 		[synonym Workflow_Event value "intent"]
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
@@ -122,6 +136,11 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 		[deprecated]
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
+
+  // New Content
+	instruction Instruction (1..*) <"">
+	instructionFunction InstructionFunctionEnum (1..1) <"">
+	after TradeState (1..*) <"">
 
 	condition Intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 		if (primitives -> split exists
@@ -197,6 +216,13 @@ type TerminationInstruction: <"Specifies the information required to create the 
     terminatedPriceQuantity PriceQuantity (1..*) <"Specifies the quantities of the transaction as a result of the partial or full termination event, including the fee agreed to be exchanged as part of the trade termination (optional).">
 	terminationDate	date (1..1) <"Date of partial or full termination">
 
+type TermsChangeInstruction: <"Specifies instructions for terms change consisting of the new transaction terms, and the renegotiation fee.">
+	product Product (0..1) <"product to be changed">
+	ancillaryParty AncillaryParty (0..*) <"ancillary party to be changed">
+	adjustment NotionalAdjustmentEnum (0..1)
+
+	condition: (product or ancillaryParty or adjustment) exists 
+
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
 	[rootType]
@@ -234,6 +260,7 @@ type State: <"Defines the state of a trade at a point in the Trade's life cycle.
 	positionState PositionStatusEnum (0..1) <"Identifies the state of the position, to distinguish if just executed, formed, already settled, closed, etc.">
 	    [synonym Workflow_Event value "positionStatus"]
 
+
 	condition: <"When the position state is identified as closed, the closed state must also be specified.">
 	    if positionState = PositionStatusEnum -> Closed then
 		    closedState exists
@@ -258,6 +285,8 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
     collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
 	account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
 	    [deprecated]
+	previousTradeState TradeState (0..1) <"Identifies the previous TradeState for lineage purposes.">
+		// [metadata reference]
 
 	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
 		if tradableProduct -> product -> security exists
