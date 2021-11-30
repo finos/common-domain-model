@@ -2,11 +2,7 @@ package org.isda.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
-import cdm.base.staticdata.party.functions.ReplaceParty;
-import cdm.base.staticdata.party.functions.ReplacePartyImpl;
 import cdm.event.common.functions.*;
-import cdm.legalagreement.common.functions.Create_RelatedAgreementsWithPartyReference;
-import cdm.legalagreement.common.functions.Create_RelatedAgreementsWithPartyReferenceImpl;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.asset.fro.functions.*;
@@ -22,11 +18,12 @@ import cdm.product.common.schedule.functions.CalculationPeriod;
 import cdm.product.common.schedule.functions.CalculationPeriodImpl;
 import cdm.product.common.schedule.functions.CalculationPeriodRange;
 import cdm.product.common.schedule.functions.CalculationPeriodRangeImpl;
-import cdm.product.common.settlement.functions.*;
+import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantity;
+import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantityImpl;
+import cdm.product.common.settlement.functions.UpdateAmountForEachQuantity;
+import cdm.product.common.settlement.functions.UpdateAmountForEachQuantityImpl;
 import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
-import cdm.product.template.functions.MergeTradeLot;
-import cdm.product.template.functions.MergeTradeLotImpl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
@@ -85,15 +82,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
 		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
 		bind(Create_DecreasedTradeQuantityChangePrimitives.class).to(bindCreateDecreasedTradeQuantityChangePrimitives());
-		bind(ReplaceParty.class).to(bindReplaceParty());
 		bind(ResolveObservationAverage.class).to(bindResolveObservationAverage());
 		bind(CalculationPeriodRange.class).to(bindCalculationPeriodRange());
-		bind(Create_RelatedAgreementsWithPartyReference.class).to(bindCreateRelatedAgreementsWithPartyReference());
-		bind(MergeTradeLot.class).to(bindMergeTradeLot());
-	}
-
-	protected Class<? extends Create_RelatedAgreementsWithPartyReference> bindCreateRelatedAgreementsWithPartyReference() {
-		return Create_RelatedAgreementsWithPartyReferenceImpl.class;
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
@@ -276,13 +266,5 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends Create_DecreasedTradeQuantityChangePrimitives> bindCreateDecreasedTradeQuantityChangePrimitives() {
 		return Create_DecreasedTradeQuantityChangePrimitivesImpl.class;
-	}
-
-	protected Class<? extends ReplaceParty> bindReplaceParty() {
-		return ReplacePartyImpl.class;
-	}
-
-	protected Class<? extends MergeTradeLot> bindMergeTradeLot() {
-		return MergeTradeLotImpl.class;
 	}
 }
