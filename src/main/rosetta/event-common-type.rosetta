@@ -105,10 +105,11 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 
 	// New Content
 
-	primitiveInstruction PrimitiveInstruction (1..*)
-	before TradeState (0..1) <"The trade that is being in the primitive function.">
+	primitiveInstruction PrimitiveInstruction (1..*) <"Specifies the primitive instructions that will be used to call primitive event functions.">
+	before TradeState (0..1) <"Specifies the trade state that will be acted on by the primitive event functions.">
 
-//	condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination, termsChange
+	condition ExecutionPrimitive:
+		if primitiveInstruction -> execution exists then primitiveInstruction -> execution count = 1
 
 type PrimitiveInstruction: <"description">
 	execution ExecutionInstruction (0..1)
@@ -285,8 +286,6 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
     collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
 	account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
 	    [deprecated]
-	previousTradeState TradeState (0..1) <"Identifies the previous TradeState for lineage purposes.">
-		// [metadata reference]
 
 	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
 		if tradableProduct -> product -> security exists
