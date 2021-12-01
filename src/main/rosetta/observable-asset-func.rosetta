@@ -2,6 +2,7 @@ namespace cdm.observable.asset : <"Observable concepts applicable to assets: pri
 version "${project.version}"
 
 import cdm.base.datetime.*
+import cdm.base.math.*
 
 func FilterPrice: <"Filter list of prices based on price type.">
     inputs:
@@ -15,3 +16,29 @@ func FilterPrice: <"Filter list of prices based on price type.">
  	    spreadType SpreadTypeEnum (0..1) <"Optionally filter by type of spread / base price.">
     output:
         price Price (0..1)
+
+    alias filteredPrices: <"Filter list of prices to a sublist.">
+        prices
+            filter [ item -> priceExpression -> priceType = priceType ]
+            filter [ if priceExpression exists then item -> priceExpression -> priceExpression = priceExpression else True ]
+            filter [ if grossOrNet exists then item -> priceExpression -> grossOrNet = grossOrNet else True ]
+            filter [ if cashPriceType exists then item -> priceExpression -> cashPrice -> cashPriceType = cashPriceType else True ]
+            filter [ if cleanOrDirty exists then item -> priceExpression -> cleanOrDirty = cleanOrDirty else True ]
+            filter [ if capFloor exists then item -> priceExpression -> capFloor = capFloor else True ]
+            filter [ if spreadType exists then item -> priceExpression -> spreadType = spreadType else True ]
+
+    set price: <"Return as single element rather than a list.">
+        filteredPrices only-element
+
+func Create_Price: <"Populates a price object based on inputs.">
+	inputs:
+		amount number (1..1)
+		unitOfAmount UnitType (1..1)
+		perUnitOfAmount UnitType (1..1)
+		priceExpression PriceExpression (1..1)
+	output:
+		price Price (1..1)
+	assign-output price -> amount: amount
+	assign-output price -> unitOfAmount: unitOfAmount
+	assign-output price -> perUnitOfAmount: perUnitOfAmount
+	assign-output price -> priceExpression: priceExpression
