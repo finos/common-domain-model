@@ -1599,10 +1599,14 @@ The following code snippets represent these three components of the eligible col
 
 .. code-block:: Haskell
 
- type EligibleCollateralCriteria:
-   issuer IssuerCriteria (0..*)
-   asset AssetCriteria (0..*)
-   treatment CollateralTreatment (1..1)
+ type EligibleCollateralCriteria extends CollateralCriteriaBase:
+	treatment CollateralTreatment (1..1)
+
+.. code-block:: Haskell
+
+ type CollateralCriteriaBase:
+	issuer IssuerCriteria (0..*)
+	asset AssetCriteria (0..*)
 
 .. code-block:: Haskell
 
