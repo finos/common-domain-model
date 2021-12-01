@@ -1,4 +1,4 @@
-# *DSL Syntax - List Iterator Syntax*
+# *DSL Syntax - Filter and Map Keywords for Extracting or Modifying the Items of a List*
 
 _What is being released?_
 
