@@ -4,6 +4,7 @@ import cdm.base.datetime.Period;
 import cdm.base.datetime.PeriodEnum;
 import cdm.base.math.UnitType;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
+import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.event.common.BusinessEvent;
 import cdm.event.common.IndexTransitionInstruction;
 import cdm.event.common.Trade;
@@ -18,6 +19,7 @@ import cdm.product.template.TradableProduct;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.metafields.MetaFields;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -35,7 +37,9 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 					.addPriceQuantity(PriceQuantity.builder()
 							.setObservable(Observable.builder()
 									.setRateOptionValue(FloatingRateOption.builder()
-											.setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_ISDA)
+											.setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
+													.setValue(FloatingRateIndexEnum.USD_LIBOR_ISDA)
+													.setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
 											.setIndexTenor(Period.builder()
 													.setPeriod(PeriodEnum.M)
 													.setPeriodMultiplier(3))))
@@ -49,7 +53,10 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 					.addPriceQuantity(PriceQuantity.builder()
 							.setObservable(Observable.builder()
 									.setRateOptionValue(FloatingRateOption.builder()
-											.setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
+											.setFloatingRateIndex(
+													FieldWithMetaFloatingRateIndexEnum.builder()
+															.setValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
+															.setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
 											.setIndexTenor(Period.builder()
 													.setPeriod(PeriodEnum.M)
 													.setPeriodMultiplier(3))))

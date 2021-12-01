@@ -246,7 +246,6 @@ func SpreadAmount: <"Look up the spread amount for a calculation period.">
 	assign-output spread: 
 		LookupRateScheduleAmount(interestRatePayout->rateSpecification->floatingRate->spreadSchedule, startDate)
 
-
 func MultiplierAmount: <"Look up the multiplier amount for a calculation period.">
 	[calculation]
 	inputs:
@@ -322,7 +321,7 @@ func FindScheduleSteps: <"Find all rate schedule step values whose stepDate is b
 	assign-output vector:
 		if (startingStep < steps count) then appendIfInTimeRange
 
-func SelectScheduleStep: <"Retrieve a single step from a  schedule given a step number.">
+func SelectScheduleStep: <"Retrieve a single step from a schedule given a step number.">
 	inputs:
 		steps Step (0..*) <"The quantity schedule bein looked up from.">
 		stepNo int (1..1) <"The  step to return.">
@@ -358,10 +357,10 @@ func ApplyFloatingRateProcessing: <"Perform rate treatments on floating rates, s
 	alias spreadRate: processing -> spread
 	alias added: negativeTreatedRate + spreadRate
 	alias ratePlusSpread: if spreadRate exists then added else negativeTreatedRate
-	// the following linne addresses section 6.8.4.  If the rate is negative after the spread, set it to 0
+	// the following line addresses section 6.8.4.  If the rate is negative after the spread, set it to 0
 	alias negativeTreatedRatePlusSpread: if (negativeTreatment = NegativeInterestRateTreatmentEnum->ZeroInterestRateMethod) then Max(0.0, ratePlusSpread) else ratePlusSpread
 
-	// initia lrate - if the initial rate is specified and it is the initial (first) period, use the initial rate instead.  This sets up aliases to support that
+	// initial rate - if the initial rate is specified and it is the initial (first) period, use the initial rate instead.  This sets up aliases to support that
 	alias doInitialRate: if (isInitialPeriod = True and processing->initialRate exists) then True else False
 	alias initialRate: processing->initialRate->amount
 	alias initialRatePluSpread: initialRate + spreadRate

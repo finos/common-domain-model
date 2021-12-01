@@ -914,17 +914,18 @@ The *transfer* process creates instances of the ``Transfer`` data type, which ar
 .. code-block:: Haskell
 
  type Transfer extends TransferBase:
-   settlementOrigin SettlementOrigin (0..1)
+   settlementOrigin SettlementTerms (0..1)
+     [metadata reference]
 
 .. code-block:: Haskell
 
  type TransferBase:
-	identifier Identifier (0..*)
-		[metadata scheme]
-	quantity Quantity (1..1)
-	observable Observable (0..1)
-	payerReceiver PartyReferencePayerReceiver (1..1)
-	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
+   identifier Identifier (0..*)
+     [metadata scheme]
+   quantity Quantity (1..1)
+   observable Observable (0..1)
+   payerReceiver PartyReferencePayerReceiver (1..1)
+   settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
 
 By design, the CDM treats the reset and the transfer primitive events separately because there is no one-to-one relationship between reset and transfer.
 
@@ -952,7 +953,7 @@ A Business Event represents a transaction lifecycle event and is built according
    effectiveDate date (0..1)
    eventEffect EventEffect (0..1)
    workflowEventState WorkflowStepState (0..1)
-   [deprecated]
+     [deprecated]
 
 As can be observed in the definition above, the only mandatory attributes of a business event are the ones listed below:
 
@@ -1109,12 +1110,11 @@ The list of business events for which this process is currently implemented in t
    exercise ExerciseInstruction (0..1)
    reset ResetInstruction (0..1)
    transfer TransferInstruction (0..1)
-   increase IncreaseInstruction (0..1)
-   decrease DecreaseInstruction (0..1)
+   quantityChange QuantityChangeInstruction (0..1)
    indexTransition IndexTransitionInstruction (0..1)
    termination TerminationInstruction (0..1)
 
-   condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, increase, decrease, termination
+   condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, quantityChange, termination
 
 
 Previous Workflow Step
@@ -1222,17 +1222,18 @@ One distinction with the product approach is that the ``intent`` qualification i
 .. code-block:: Haskell
 
  func Qualify_Termination:
- 	[qualification BusinessEvent]
- 	inputs:
- 		businessEvent BusinessEvent(1..1)
- 	output: is_event boolean (1..1)
- 	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) -> transfers only-element
- 	assign-output is_event:
- 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
- 		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
- 			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
- 		and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
- 		and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+   [qualification BusinessEvent]
+   inputs:
+     businessEvent BusinessEvent(1..1)
+   output: is_event boolean (1..1)
+   
+   alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
+   assign-output is_event:
+     (businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
+     and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
+       or (businessEvent -> primitives -> quantityChange exists and transfer exists))
+     and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
+     and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 

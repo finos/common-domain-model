@@ -55,26 +55,37 @@ func RoundToPrecision: <"Round a rate to the suplied precision, using the suppli
 	condition:
 		precision >= 0
 
-func FilterQuantity: <"Filter list of quantities based on unit type.">
+func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
     inputs:
         quantities Quantity (0..*) <"List of quantities to filter.">
         currency string (1..1) <"Currency unit type.">
     output:
-        quantity Quantity (0..1)
+        filteredQuantities Quantity (0..*)
+
+    set filteredQuantities:
+        quantities
+            filter [ item -> unitOfAmount -> currency = currency ]
+
+func FilterQuantityByCurrencyExists: <"Filter list of quantities based on unit type.">
+    inputs:
+        quantities Quantity (0..*) <"List of quantities to filter.">
+    output:
+        filteredQuantities Quantity (0..*)
+
+    set filteredQuantities:
+        quantities
+            filter [ item -> unitOfAmount -> currency exists ]
 
 func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit type.">
     inputs:
         quantities Quantity (0..*) <"List of quantities to filter.">
         financialUnit FinancialUnitEnum (1..1) <"FinancialUnitEnum unit type.">
     output:
-        quantity Quantity (0..1)
+        filteredQuantities Quantity (0..1)
 
-func DeductAmountForEachMatchingQuantity: <"Deducts the amount for any quantity from the list of new quantities if the unit of amount matches.">
-	inputs:
-		quantity Quantity (0..*) <"List of quantities to update.">
-		quantityDeducted Quantity (0..*) <"The quantities to be deducted from the quantity input.">
-	output:
-		updatedQuantity Quantity (0..*) <"List of  quantities with quantity amounts updated.">
+    set filteredQuantities:
+        quantities
+            filter [ item -> unitOfAmount -> financialUnit = financialUnit ]
 
 func Create_Quantity: <"Create Quantity with given amount and unit of amount.">
 	inputs:
@@ -105,14 +116,6 @@ func Create_UnitType: <"Create UnitType with given currency or financial unit.">
 
 	assign-output unitType -> financialUnit:
 		financialUnit
-
-func ToVector: <"Create a vector from a list of numbers.">
-    [calculation]
-    inputs:
-        vals number (0..*)
-    output:
-        vect number (0..*)
-    assign-output vect : vals
 
 func SelectFromVector: <"Selects a single value from a vector (list of numbers), i.e. result = val[index].  Returns null if the supplied vector is empty or if the supplied index is out of range.  Returns the element of the vector at the supplied index.">
 	inputs:
