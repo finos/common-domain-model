@@ -1,51 +1,36 @@
-# *Legal Agreement Model - Eligible Collateral Schedule: Description Updates and Refactored Criteria *
+# *Product Model - Representation of Package Transactions*
 
 _What is being released_
 
-The eligible collateral schedules (ECS) representation, related data types and associated descriptions have been enhanced or refined with additional features: In addition the higher level ECS data structure has been refactored.
+Modelling components for the representation of package transactions have been added to the product model and mapped from FpML
 
-1.	ECS representation and related data missing descriptions added 
-2.	Description of the ECS related data types and attributes updated for consistency.
-3.	All descriptions across ECS representation related data reviewed and corrected as per style guide
-4.	Data attribute within `DebtInterestEnum` realigned as not correctly positions in data list 
-5.	New attribute `otherAssetType` to data type `AssetType` for specifying other asset types, with a condition to ensure it exists if other asset types are specified under   AssetTypeEnum 
-6.	Changes to the higher-level data structure `EligibleCollateralCriteria` and `ConcentrationLimitCriteria`: 
+_Background_
 
-    •	`EligibleCollateralCriteria` becomes an extension of newly named `CollateralCriteriaBase`
+A package transaction consists of several trades which, even though they may be represented separately, are tied into a single package and typically executed together. Executing trades as a package has implications for post-trade processes such as reporting or confirmation and therefore requires specific package attributes to be captured.
 
-    •	`CollateralCriteriaBase` contains `IssuerCriteria` and `AssetCriteria`
+This capture has 2 components:
 
-    •	`EligibleCollateralCriteria` still connects to `IssuerCriteria` and `AssetCriteria` but additionally has `CollateralTreatment`
+1. When separate trades are executed together as part of a single package, the atomic business event representing such bundled execution needs to record the attributes of that package - i.e. at minimum, an identifier for the package
+2. Individual trades that are part of a package must each refer to such package
 
-    •	Within `CollateralTreatment`, `ConcentrationLimitType` has been moved to sit within `ConcentrationLimitCriteria` which also references `CollateralCriteriaBase`
+_Details_
 
-    •	Amendments have been made to the related condition `ConcentrationLimitTypeChoice`
+The package representation is achieved by introducing the following:
+
+- A new `IdentifiedList` data type is designed to represent any list of objects as a list of identifiers (when those objects have an identifier), with an identifier for the list itself. While this data type can be used to represent a package as a list of trade identifiers, the naming is generic to allow potential re-use for other use cases. The identifier attributes use the generic `Identifier` data type.
+- A new `packageInformation` attribute of type `IdentifiedList` has been added to `BusinessEvent`, to represent a single execution with multiple trades as a package.
+- A new `packageReference` attribute, also of type `IdentifiedList` has been added to `ExecutionDetails` (as contained in a standalone `Trade`), to provide a reference to the package when that trade was executed as part of a package.
+
+The latter attribute is handled as a reference to preserve referential integrity. The package object, represented as a simple list of trade identifiers, should exists independently of the underlying trades and those trades simply make reference to it.
+
+Several FpML samples representing package transactions (either the packages themselves, or single underlying trades) have been used to test the model and synonym mappings updated accordingly. Those samples are:
+
+- `pkg-ex02-swap-spread-single-trade-execution-notification`
+- `pkg-ex55-execution-notification`
+- `pkg-ex60-request-clearing`
+- `pkg-ex61-clearing-confirmed`
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the ECS data CDM model mentioned above. Review and inspect all updated descriptions, these include missing, re written descriptions and any updates needed to be in line with the Rosetta style guide. These changes span across the following namespaces: 
-  
-    •	base-datetime-type
-    
-    •	base-math-enum
-  
-    •	base-staticdata-asset-common-enum
-  
-    •	base-staticdata-asset-common-type
-  
-    •	legalagreement-csa-enum
-  
-    •	legalagreement-csa-type
-  
-    •	observable-asset-enum
-  
-    •	observable-asset-type
-
-Search for the `DebtInterestEnum` list, please inspect the re alignment of  `OtherStructured` which was originally not properly listed and appeared to follow on from the line above `InterestOnly` this has now been correctly positioned beneath.
-
-Search for data type `AssetType` and inspect the changes, an additional attribute has been added to this type called `otherAssetType` this is represented as a data `string` with an unlimited cardinality to allow you to represent various other asset types if needed. A related condition is also added beneath that so that if you identify `other` from the `AssetTypeEnum` options `otherAssetType` must exist.
-
-Search for the data type `CollateralCriteriaBase` and inspect the changes, it has been modified so that `EligibleCollateralCriteria` extends `CollateralCriteriaBase` and now only contains the attributes `treatment`. `CollateralCriteriaBase` now only houses attributes `issuer` and `asset`.
-
-Search for the data type `ConcentrationLimit`, and inspect the changes. The attribute `ConcentrationLimitCriteria` has been refactored to extend `CollateralCriteriaBase` that houses the relevant attributes to define asset and issuer criteria specifically. The data type still contains the attribute `ConcentrationLimitType` to allow a more generic specification of concentration limits. The related conditions have also been updated to reflect these changes. 
-
+In the CDM Portal, select the Textual Browser and search for the above mentioned data types.
+Select the Ingestion Viewer and review the above samples.
