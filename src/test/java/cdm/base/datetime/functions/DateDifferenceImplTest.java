@@ -26,6 +26,39 @@ public class DateDifferenceImplTest extends AbstractFunctionTest {
 	}
 
 	@Test
+	void shouldSubtractDaysMultipleYearsNoLeapYear() {
+		Date first = DateImpl.of(2022, 7, 1);
+		Date second = DateImpl.of(2023, 7, 1);
+		int res1 = func.evaluate(first, second);
+		int res2 = func.evaluate(second, first);
+
+		assertEquals(365, res1);
+		assertEquals(-365, res2);
+	}
+
+	@Test
+	void shouldSubtractDaysMultipleYearsIncludingLeapYear() {
+		Date first = DateImpl.of(2023, 7, 1);
+		Date second = DateImpl.of(2024, 7, 1);
+		int res1 = func.evaluate(first, second);
+		int res2 = func.evaluate(second, first);
+
+		assertEquals(366, res1);
+		assertEquals(-366, res2);
+	}
+
+	@Test
+	void shouldSubtractDaysMultipleYearsIncludingLeapYear2() {
+		Date first = DateImpl.of(2023, 7, 1);
+		Date second = DateImpl.of(2025, 7, 1);
+		int res1 = func.evaluate(first, second);
+		int res2 = func.evaluate(second, first);
+
+		assertEquals(731, res1);
+		assertEquals(-731, res2);
+	}
+
+	@Test
 	void shouldHandleNulls() {
 		Date baseDate = DateImpl.of(1, 1, 2020);
 

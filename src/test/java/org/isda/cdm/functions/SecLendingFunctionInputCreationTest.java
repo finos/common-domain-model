@@ -230,14 +230,14 @@ class SecLendingFunctionInputCreationTest {
                 .get("reallocationInstruction"), ReallocationInstruction.class);
 
         assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Stream
-						.of(new AbstractMap.SimpleEntry<>("originalBlock", closedBlockTradeState),
-								new AbstractMap.SimpleEntry<>("reallocationInstruction", actualReallocationInstruction)
-						)
-						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Stream
 						.of(new AbstractMap.SimpleEntry<>("originalBlock", expectedTradeState),
 								new AbstractMap.SimpleEntry<>("reallocationInstruction", expectedReallocationInstruction))
 						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Stream
+                        .of(new AbstractMap.SimpleEntry<>("originalBlock", closedBlockTradeState),
+                                new AbstractMap.SimpleEntry<>("reallocationInstruction", actualReallocationInstruction)
+                        )
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))),
                 "The input JSON for create-reallocation-pre-settled-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 

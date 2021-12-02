@@ -9,6 +9,10 @@ func Create_RelatedAgreementsWithPartyReference: <"Constructs a Related Legal Ag
 		legalAgreement LegalAgreement (1..*)
 	output:
 		legalAgreementWithPartyReference RelatedAgreement (1..*)
+
+    set legalAgreementWithPartyReference:
+        legalAgreement
+            map [ Create_RelatedAgreement( item, empty ) ]
 		
 func Create_LegalAgreementWithPartyReference: <"Constructs a Legal Agreement using a reference to the contractual parties">
 	inputs:
@@ -42,7 +46,15 @@ func Create_LegalAgreementWithPartyReference: <"Constructs a Legal Agreement usi
 		contractualParty as-key
 
 	assign-output legalAgreement -> otherParty:
-	otherParty
+	    otherParty
 
+func Create_RelatedAgreement:
+    inputs:
+        legalAgreement LegalAgreement (0..1)
+        documentationIdentification DocumentationIdentification (0..1)
+    output:
+        relatedAgreement RelatedAgreement (1..1)
 
+    assign-output relatedAgreement -> legalAgreement: legalAgreement
+    assign-output relatedAgreement -> documentationIdentification: documentationIdentification
 
