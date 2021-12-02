@@ -2,7 +2,7 @@
 
 _What is being released_
 
-Cardinality inconsistencies are being addressed. These inconsistencies are identified across payouts in the CDM model in particular within `EquityPayout` and `CommodityPayout`.
+This release addresses inconsistencies identified in the cardinality of `CalculationPeriodDates` across different Payouts. These inconsistencies are identified across `EquityPayout` and `CommodityPayout`.
 
 _Review Directions_
 
