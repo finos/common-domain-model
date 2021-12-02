@@ -474,7 +474,7 @@ synonym source FpML_5_10 extends FpML
             [value "calculationAmount"]
             [value "calculationAmount" path "floatingAmountCalculation"]
             // For Equity Swaps:
-            [value "singleUnderlyer" path "underlyer"]
+            [value "underlyer"]
 			[value "constituentWeight"]
             [value "notionalAmount" path "notional"]
             // For FX:
@@ -1659,12 +1659,15 @@ synonym source FpML_5_10 extends FpML
 		+ amount
 			[value "initialValue" maps 2]
 			[value "amount" maps 2]
-			[value "openUnits" maps 2]
+			[value "openUnits" path "singleUnderlyer" maps 2]
+			[value "openUnits" path "basket" maps 2]
 			[value "numberOfOptions" maps 2]
 			[value "basketPercentage" maps 2]
 			// For Commodity Swap
 			[value "quantity" maps 2]
-
+        + unitOfAmount
+            [value "singleUnderlyer"]
+            [value "basket"]
 		+ multiplier
 			[value "optionEntitlement"]
 		+ multiplierUnit
@@ -3416,8 +3419,9 @@ synonym source FpML_5_10 extends FpML
 			// [value "priceUnit" set when rosettaPath = Price->perUnitOfAmount]
 		+ financialUnit
 			[value "quantityUnit"]
-			[set to FinancialUnitEnum->Share when path = "singleUnderlyer->openUnits"]
-			[set to FinancialUnitEnum->IndexUnit when path = "basket->openUnits"]
+			[value "openUnits"]
+			[set to FinancialUnitEnum->Share when path = "singleUnderlyer"]
+			[set to FinancialUnitEnum->IndexUnit when path = "basket"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "additionalPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "otherPartyPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "initialPayment->paymentAmount->amount"]
