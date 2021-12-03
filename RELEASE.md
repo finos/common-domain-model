@@ -1,51 +1,39 @@
-# *Legal Agreement Model - Eligible Collateral Schedule: Description Updates and Refactored Criteria *
+# *Business Event model - Composable Event model *
+
+_Background_
+
+Business events in the CDM are currently described using separate instructions and functions to create each potential business event, and those functions are not composable.  The various instructions captured in the `Instruction` data type are not structured consistently with some instructions referencing the `before` trade state, where as others do not.  This contravenes the principle of composability and nullifies the benefit of defining primitive events.
+
+The CDM event model is therefore being refactored based on three principles:
+- Develop a standardised functional logic for each primitive event, leveraging the existing functional logic developed for business events.
+- Define a set of primitive instructions to be used as inputs in each primitive event function – those primitive instructions should set a consistent treatment of the before trade state.
+- Rewrite the functional logic of business events by composition in terms of those primitive events’ logic.
+
+Following the refactoring Business Events will be described in terms of the instructions used to create the events and the after TradeState(s) created.  The Primitive Event functions will describe the transformations that occur when the instructions are applied to create a business event.
 
 _What is being released_
 
-The eligible collateral schedules (ECS) representation, related data types and associated descriptions have been enhanced or refined with additional features: In addition the higher level ECS data structure has been refactored.
+This release introduces core components required to develop the composable event model in the CDM. Changes are described based on the data types, enumerations and functions impacted:
 
-1.	ECS representation and related data missing descriptions added 
-2.	Description of the ECS related data types and attributes updated for consistency.
-3.	All descriptions across ECS representation related data reviewed and corrected as per style guide
-4.	Data attribute within `DebtInterestEnum` realigned as not correctly positions in data list 
-5.	New attribute `otherAssetType` to data type `AssetType` for specifying other asset types, with a condition to ensure it exists if other asset types are specified under   AssetTypeEnum 
-6.	Changes to the higher-level data structure `EligibleCollateralCriteria` and `ConcentrationLimitCriteria`: 
+_Data types_
+`BusinessEvent` - new attributes `instruction`, `instructionFunction` and `after` added to describe the instructions that were used to create the event; the functional event defined by the set of instructions; and the after TradeState(s) created, respectively.
+`PrimitiveInstruction` - a new data type containing the list of PrimitiveEvent instructions needed to pass into a PrimitiveEvent function
+`Instruction` - new attributes `primitiveInstruction` and `before` added to describe inputs required to pass into a BusinessEvent described using the composable model.
+`TermsChangeInstruction` - a new data type containing the instructions required to pass into the Terms Change primitive event function.
 
-    •	`EligibleCollateralCriteria` becomes an extension of newly named `CollateralCriteriaBase`
+_Enumerations_
+`InstructionFunctionEnum` - enumeration values indicating the Business Event defined by the set of PrimitiveInstructions provided.
 
-    •	`CollateralCriteriaBase` contains `IssuerCriteria` and `AssetCriteria`
-
-    •	`EligibleCollateralCriteria` still connects to `IssuerCriteria` and `AssetCriteria` but additionally has `CollateralTreatment`
-
-    •	Within `CollateralTreatment`, `ConcentrationLimitType` has been moved to sit within `ConcentrationLimitCriteria` which also references `CollateralCriteriaBase`
-
-    •	Amendments have been made to the related condition `ConcentrationLimitTypeChoice`
+_Functions_
+`Create_BusinessEvent` - a new composable function that creates a business event from instructions containing primitive instructions and optionally a trade state.
+`Create_TradeState` - a new composable function that creates a trade state from instructions containing primitive instructions and optionally a trade state.
+`Qualify_ContractFormation` - qualification function updated to qualify a business event created using the composable model as contract formation.
+`Qualify_Execution` - qualification function updated to qualify a business event created using the composable model as execution.
+`Qualify_Partial Termination` - qualification function updated to qualify a business event created using the composable model as partial termination.
+`Qualify_Termination` - qualification function updated to qualify a business event created using the composable model as termination.
+`Qualify_Renegotiation` - qualification function updated to qualify a business event created using the composable model as renegotiation.
+`QuantityDecreased`,`QuantityIncreased`,`QuantityDecreasedToZero` - compares quantities on a before and after `TradeState`.
+`QuantityDecreasedPrimitive`,`QuantityIncreasedPrimitive`,`QuantityDecreasedToZeroPrimitive` - compares before and after quantities on a `QuantityChangePrimitive`.
 
 _Review Directions_
-
-In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the ECS data CDM model mentioned above. Review and inspect all updated descriptions, these include missing, re written descriptions and any updates needed to be in line with the Rosetta style guide. These changes span across the following namespaces: 
-  
-    •	base-datetime-type
-    
-    •	base-math-enum
-  
-    •	base-staticdata-asset-common-enum
-  
-    •	base-staticdata-asset-common-type
-  
-    •	legalagreement-csa-enum
-  
-    •	legalagreement-csa-type
-  
-    •	observable-asset-enum
-  
-    •	observable-asset-type
-
-Search for the `DebtInterestEnum` list, please inspect the re alignment of  `OtherStructured` which was originally not properly listed and appeared to follow on from the line above `InterestOnly` this has now been correctly positioned beneath.
-
-Search for data type `AssetType` and inspect the changes, an additional attribute has been added to this type called `otherAssetType` this is represented as a data `string` with an unlimited cardinality to allow you to represent various other asset types if needed. A related condition is also added beneath that so that if you identify `other` from the `AssetTypeEnum` options `otherAssetType` must exist.
-
-Search for the data type `CollateralCriteriaBase` and inspect the changes, it has been modified so that `EligibleCollateralCriteria` extends `CollateralCriteriaBase` and now only contains the attributes `treatment`. `CollateralCriteriaBase` now only houses attributes `issuer` and `asset`.
-
-Search for the data type `ConcentrationLimit`, and inspect the changes. The attribute `ConcentrationLimitCriteria` has been refactored to extend `CollateralCriteriaBase` that houses the relevant attributes to define asset and issuer criteria specifically. The data type still contains the attribute `ConcentrationLimitType` to allow a more generic specification of concentration limits. The related conditions have also been updated to reflect these changes. 
 
