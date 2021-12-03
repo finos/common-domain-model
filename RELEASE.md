@@ -16,24 +16,24 @@ _What is being released_
 This release introduces core components required to develop the composable event model in the CDM. Changes are described based on the data types, enumerations and functions impacted:
 
 _Data types_
-`BusinessEvent` - new attributes `instruction`, `instructionFunction` and `after` added to describe the instructions that were used to create the event; the functional event defined by the set of instructions; and the after TradeState(s) created, respectively.
-`PrimitiveInstruction` - a new data type containing the list of PrimitiveEvent instructions needed to pass into a PrimitiveEvent function
-`Instruction` - new attributes `primitiveInstruction` and `before` added to describe inputs required to pass into a BusinessEvent described using the composable model.
-`TermsChangeInstruction` - a new data type containing the instructions required to pass into the Terms Change primitive event function.
+- `BusinessEvent` - new attributes `instruction`, `instructionFunction` and `after` added to describe the instructions that were used to create the event; the functional event defined by the set of instructions; and the after TradeState(s) created, respectively.
+- `PrimitiveInstruction` - a new data type containing the list of PrimitiveEvent instructions needed to pass into a PrimitiveEvent function
+- `Instruction` - new attributes `primitiveInstruction` and `before` added to describe inputs required to pass into a BusinessEvent described using the composable model.
+- `TermsChangeInstruction` - a new data type containing the instructions required to pass into the Terms Change primitive event function.
 
 _Enumerations_
-`InstructionFunctionEnum` - enumeration values indicating the Business Event defined by the set of PrimitiveInstructions provided.
+- `InstructionFunctionEnum` - enumeration values indicating the Business Event defined by the set of PrimitiveInstructions provided.
 
 _Functions_
-`Create_BusinessEvent` - a new composable function that creates a business event from instructions containing primitive instructions and optionally a trade state.
-`Create_TradeState` - a new composable function that creates a trade state from instructions containing primitive instructions and optionally a trade state.
-`Qualify_ContractFormation` - qualification function updated to qualify a business event created using the composable model as contract formation.
-`Qualify_Execution` - qualification function updated to qualify a business event created using the composable model as execution.
-`Qualify_Partial Termination` - qualification function updated to qualify a business event created using the composable model as partial termination.
-`Qualify_Termination` - qualification function updated to qualify a business event created using the composable model as termination.
-`Qualify_Renegotiation` - qualification function updated to qualify a business event created using the composable model as renegotiation.
-`QuantityDecreased`,`QuantityIncreased`,`QuantityDecreasedToZero` - compares quantities on a before and after `TradeState`.
-`QuantityDecreasedPrimitive`,`QuantityIncreasedPrimitive`,`QuantityDecreasedToZeroPrimitive` - compares before and after quantities on a `QuantityChangePrimitive`.
+- `Create_BusinessEvent` - a new composable function that creates a business event from instructions containing primitive instructions and optionally a trade state.
+- `Create_TradeState` - a new composable function that creates a trade state from instructions containing primitive instructions and optionally a trade state.
+- `Qualify_ContractFormation` - qualification function updated to qualify a business event created using the composable model as contract formation.
+- `Qualify_Execution` - qualification function updated to qualify a business event created using the composable model as execution.
+- `Qualify_Partial Termination` - qualification function updated to qualify a business event created using the composable model as partial termination.
+- `Qualify_Termination` - qualification function updated to qualify a business event created using the composable model as termination.
+- `Qualify_Renegotiation` - qualification function updated to qualify a business event created using the composable model as renegotiation.
+- `QuantityDecreased`,`QuantityIncreased`,`QuantityDecreasedToZero` - compares quantities on a before and after `TradeState`.
+- `QuantityDecreasedPrimitive`,`QuantityIncreasedPrimitive`,`QuantityDecreasedToZeroPrimitive` - compares before and after quantities on a `QuantityChangePrimitive`.
 
 _Review Directions_
 In the CDM Portal, select the Textual Browser and search for the data types, enumerations and functions above.
