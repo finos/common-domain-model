@@ -38,10 +38,10 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 		success boolean (1..1)
 
 	alias notional:
-		CurrencyAmount(quantity, empty)
+		FilterQuantityByCurrencyExists( quantity ) distinct only-element -> amount
 
 	alias noOfUnits:
-		NoOfUnits(quantity)
+		FilterQuantityByFinancialUnit( quantity, FinancialUnitEnum -> Share ) only-element -> amount
 
 	alias cashPrices:
 		price -> amount
@@ -52,47 +52,3 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 	assign-output success:
 		if (cashPrice and noOfUnits and notional) exists
 		then cashPrice * noOfUnits = notional
-
-func NoOfUnits: <"Get quantity associated with product identifier.">
-	inputs:
-		quantity Quantity (0..*)
-
-	output:
-		noOfUnits number (1..1)
-
-
-func CurrencyAmount: <"Get quantity associated with currency.">
-	inputs:
-		quantity Quantity (0..*)
-		currency string (0..1)
-
-	output:
-		currencyAmount number (1..1)
-
-func Plus:
-	inputs:
-		q1 Quantity (1..1)
-		q2 Quantity (1..1)
-	output:
-		result Quantity (1..1)
-
-func Equals:
-	inputs:
-		quantity Quantity (1..*)
-		scalar number (1..1)
-	output:
-		result boolean (1..1)
-
-func GreaterThan:
-	inputs:
-		quantity Quantity (1..*)
-		scalar number (1..1)
-	output:
-		result boolean (1..1)
-
-func GreaterThanEquals:
-	inputs:
-		quantity Quantity (1..*)
-		scalar number (1..1)
-	output:
-		result boolean (1..1)

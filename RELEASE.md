@@ -1,9 +1,14 @@
-# *Event Model - Function Update*
+# *Product Model - Calculation Period Dates for Equity and Commodity Products *
 
-_What is being released?_
+_What is being released_
 
-This release fixes the `Create_ContractFormation` function for the use case where the instructions include a `LegalAgreement`.  By adding a Java implementation for the `Create_RelatedAgreementsWithPartyReference`, the provided `LegalAgreement` is now added to contract formation output `Trade->contractDetails->documentation` attribute.
+This release addresses inconsistencies identified in the cardinality of `CalculationPeriodDates` across different Payouts. These inconsistencies are identified across `EquityPayout` and `CommodityPayout`.
 
 _Review Directions_
 
-In the CDM Portal, select the Visualization panel and review contents of the folder labeled Form Contract Business Event, and compare Fixed/Floating Single Currency Interest Rate Swap Master Agreement with Fixed/Floating Single Currency Interest Rate Swap No Legal Agreement.
+In the CDM Portal, select the Textual Browser and search for the `EquityPayout`, `ObservationPayout` and review `CalculationPeriodDates`. Review and inspect all updated cardinalities. These changes span across the following namespaces: 
+
+- product-common-settlement-type
+- product-template-type
+  
+

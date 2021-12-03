@@ -2,12 +2,9 @@ package cdm.event.position.functions;
 
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.event.common.Trade;
-import cdm.observable.asset.Observable;
+import cdm.observable.asset.*;
 import cdm.product.common.settlement.PriceQuantity;
-import cdm.observable.asset.QuoteBasisEnum;
-import cdm.observable.asset.QuotedCurrencyPair;
 import cdm.product.template.TradeLot;
 import cdm.product.template.*;
 import com.google.inject.Binder;
@@ -45,7 +42,7 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
      */
     @Test
     void shouldCalculate() {
-        BigDecimal result = markToMarket.evaluate(createFxContract("EUR", "USD", 10_000_000, 12_500_000, QuoteBasisEnum.CURRENCY_2_PER_CURRENCY_1));
+        BigDecimal result = markToMarket.evaluate(createFxFwdContract("USD", "EUR", 12_500_000, 10_000_000));
         assertThat(result, closeTo(BigDecimal.valueOf(-2_500_000), BigDecimal.valueOf(0.000001)));
     }
 
@@ -55,11 +52,11 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
      */
     @Test
     void shouldRespectBaseVsQuotedCurrency() {
-        BigDecimal result = markToMarket.evaluate(createFxContract("EUR", "USD", 10_000_000, 12_500_000, QuoteBasisEnum.CURRENCY_1_PER_CURRENCY_2));
+        BigDecimal result = markToMarket.evaluate(createFxFwdContract("EUR", "USD", 10_000_000, 12_500_000));
         assertThat(result, closeTo(BigDecimal.valueOf(-8_750_000), BigDecimal.valueOf(0.000001)));
     }
 
-    private static Trade createFxContract(String curr1, String curr2, int quantityAmount1, int quantityAmount2, QuoteBasisEnum basisEnum) {
+    private static Trade createFxFwdContract(String curr1, String curr2, int quantityAmount1, int quantityAmount2) {
         Quantity.QuantityBuilder quantity1 = Quantity.builder()
                 .setAmount(BigDecimal.valueOf(quantityAmount1))
                 .setUnitOfAmount(UnitType.builder()
@@ -79,15 +76,14 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
 		                                        .addForwardPayout(ForwardPayout.builder())))))
                         .addTradeLot(TradeLot.builder()
                                 .addPriceQuantity(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaQuantity.builder()
-                                            .setValue(quantity1))
-                                        .addQuantity(FieldWithMetaQuantity.builder()
-                                                .setValue(quantity2))
-                                        .setObservable(Observable.builder()
-                                            .setCurrencyPairValue(QuotedCurrencyPair.builder()
-                                                    .setCurrency1(FieldWithMetaString.builder().setValue(curr1).build())
-                                                    .setCurrency2(FieldWithMetaString.builder().setValue(curr2).build())
-                                                    .setQuoteBasis(basisEnum))))))
+                                        .addQuantityValue(quantity1)
+                                        .addQuantityValue(quantity2)
+                                        .addPriceValue(Price.builder()
+                                                .setAmount(BigDecimal.valueOf(1.234))
+                                                .setUnitOfAmount(UnitType.builder().setCurrencyValue(curr1))
+                                                .setPerUnitOfAmount(UnitType.builder().setCurrencyValue(curr2))
+                                                .setPriceExpression(PriceExpression.builder()
+                                                        .setPriceType(PriceTypeEnum.EXCHANGE_RATE))))))
                 .build();
     }
 
