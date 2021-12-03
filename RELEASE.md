@@ -36,4 +36,4 @@ _Functions_
 `QuantityDecreasedPrimitive`,`QuantityIncreasedPrimitive`,`QuantityDecreasedToZeroPrimitive` - compares before and after quantities on a `QuantityChangePrimitive`.
 
 _Review Directions_
-
+In the CDM Portal, select the Textual Browser and search for the data types, enumerations and functions above.
