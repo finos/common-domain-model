@@ -5,9 +5,9 @@ _Background_
 Business events in the CDM are currently described using separate instructions and functions to create each potential business event, and those functions are not composable.  The various instructions captured in the `Instruction` data type are not structured consistently with some instructions referencing the `before` trade state, where as others do not.  This contravenes the principle of composability and nullifies the benefit of defining primitive events.
 
 The CDM event model is therefore being refactored based on three principles:
-- Develop a standardised functional logic for each primitive event, leveraging the existing functional logic developed for business events.
+- Develop a standardised functional logic for each primitive event function, leveraging the existing functional logic developed for business events.
 - Define a set of primitive instructions to be used as inputs in each primitive event function – those primitive instructions should set a consistent treatment of the before trade state.
-- Rewrite the functional logic of business events by composition in terms of those primitive events’ logic.
+- Rewrite the functional logic of business events by composition in terms of those primitive event functions’ logic.
 
 Following the refactoring Business Events will be described in terms of the instructions used to create the events and the after TradeState(s) created.  The Primitive Event functions will describe the transformations that occur when the instructions are applied to create a business event.
 
