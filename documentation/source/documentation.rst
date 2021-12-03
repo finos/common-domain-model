@@ -331,6 +331,7 @@ A financial product is an instrument that is used to transfer financial risk bet
    commodity Commodity (0..1)
      [metadata address "pointsTo"=Observable->commodity]
    security Security (0..1)
+   basket Basket (0..1)
 
    condition: one-of
 
