@@ -1,4 +1,4 @@
-# *Product Model - Calculation Period Dates *
+# *Product Model - Calculation Period Dates for Equity and Commodity Products *
 
 _What is being released_
 
