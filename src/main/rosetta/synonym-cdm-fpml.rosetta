@@ -448,6 +448,7 @@ synonym source FpML_5_10 extends FpML
 			[value "floatingRateCalculation" path "interestCalculation"]
 			[value "spreadSchedule" path "interestCalculation->floatingRateCalculation"]
 			[value "floatingRateMultiplierSchedule" path "interestCalculation->floatingRateCalculation"]
+			// [value "underlyerPrice"]
 			// For FX:
 			[hint "spotRate"]
 			[value "exchangeRate" mapper "ExchangeRate"]
@@ -475,6 +476,8 @@ synonym source FpML_5_10 extends FpML
             [value "calculationAmount" path "floatingAmountCalculation"]
             // For Equity Swaps:
             [value "singleUnderlyer" path "underlyer"]
+			// [value "basket" path "underlyer"]
+			[value "constituentWeight"]
             [value "notionalAmount" path "notional"]
             // For FX:
             [value "paymentAmount" path "exchangedCurrency1"]
@@ -499,7 +502,9 @@ synonym source FpML_5_10 extends FpML
 			// For Equity:
 			[value "singleUnderlyer" path "underlyer"]
 			[value "floatingRateCalculation" path "interestCalculation"]
-			// For FX:
+			[hint "equity"]
+			[hint "index"]
+				// For FX:
 			[value "fixing" path "nonDeliverableSettlement"]
 			[value "fixing" path "cashSettlement"]
 			[hint "features", "putCurrencyAmount", "callCurrencyAmount"]
@@ -1657,9 +1662,11 @@ synonym source FpML_5_10 extends FpML
 			[value "initialValue" maps 2]
 			[value "amount" maps 2]
 			[value "openUnits" maps 2]
+			[value "numberOfOptions" maps 2]
+			[value "basketPercentage" maps 2]
 			// For Commodity Swap
 			[value "quantity" maps 2]
-			[value "numberOfOptions" maps 2]
+
 		+ multiplier
 			[value "optionEntitlement"]
 		+ multiplierUnit
@@ -1748,6 +1755,7 @@ synonym source FpML_5_10 extends FpML
 	DividendReturnTerms:
 		+ dividendPayout
 			[value "dividendPayout"]
+			[value "basketConstituent"]
 			[hint "declaredCashDividendPercentage"]
 			[hint "declaredCashEquivalentDividendPercentage"]
 		+ dividendReinvestment
@@ -1975,6 +1983,7 @@ synonym source FpML_5_10 extends FpML
 		[meta "id" path "calculationAmount"]
 		+ resolvedQuantity
 			[value "singleUnderlyer" meta "openUnits"]
+			// [value "basket" meta "openUnits"]
 			[value "paymentAmount" path "exchangedCurrency1" meta "amount"]
 			[value "paymentAmount" path "exchangedCurrency2" meta "amount"]
 			[value "putCurrencyAmount" meta "amount"]
@@ -2031,17 +2040,17 @@ synonym source FpML_5_10 extends FpML
 			[hint "calculationAgentBusinessCenter"]
 
 	EquityPayout:
-		[meta "id"]
-		+ underlier
-			[value "singleUnderlyer" path "underlyer", "basket" path "underlyer"]
-		+ returnType
-			[value "returnType" path "return"]
-		+ dividendReturnTerms
-			[value "dividendConditions" path "return", "singleUnderlyer" path "underlyer"]
-		+ fxFeature
-			[value "fxFeature"]
-		+ paymentDates
-			[value "paymentDates" path "rateOfReturn"]
+	[meta "id"]
+	+ underlier
+		[value "singleUnderlyer" path "underlyer","basket" path "underlyer"/*, "basketConstituent" path "underlyer->basket"*/]
+	+ returnType
+		[value "returnType" path "return"]
+	+ dividendReturnTerms
+		[value "dividendConditions" path "return", "singleUnderlyer" path "underlyer","basket" path "underlyer"]
+	+ fxFeature
+		[value "fxFeature"]
+	+ paymentDates
+		[value "paymentDates" path "rateOfReturn"]
 
 	GeneralTerms:
 		+ referenceInformation
@@ -2359,6 +2368,8 @@ synonym source FpML_5_10 extends FpML
 			[value "commodity" meta "instrumentId"]
 		+ security
 			[hint "bond", "equity", "mortgage", "convertibleBond"]
+		+ basket
+			[value "basketConstituent"]
 
     Index:
         + productIdentifier
@@ -2392,6 +2403,7 @@ synonym source FpML_5_10 extends FpML
 			[value "protectionTerms"]
 			// Equity
 			[value "returnLeg"]
+			[value "basketConstituent" path "returnLeg->underlyer->basket"]
 			[value "interestLeg"]
 			// FX
 			[value "nearLeg"]
@@ -2411,6 +2423,7 @@ synonym source FpML_5_10 extends FpML
 			[value "fxOption"]
 			[value "fxDigitalOption"]
 			[value "equityOption"]
+			[value "basketConstituent" path "equityOption->underlyer->basket"]
 			[hint "commodity", "notionalQuantity"] // Commodity Option
 			[value "commodityOption"] // Commodity Option
 			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"] // For Equity / Bond Option
@@ -2735,9 +2748,12 @@ synonym source FpML_5_10 extends FpML
 		+ basketPercentage
 			[value "basketPercentage"]
 
-	DividendPayout:
+	DividendPayoutRatio:
+		+ underlier
+			[hint "equity"]
 		+ dividendPayoutRatio
 			[value "dividendPayoutRatio"]
+			[value "dividendPayoutRatio" path "dividendPayout"]
 		+ dividendPayoutRatioCash
 			[value "dividendPayoutRatioCash"]
 			[value "declaredCashDividendPercentage"]
@@ -3402,7 +3418,8 @@ synonym source FpML_5_10 extends FpML
 			// [value "priceUnit" set when rosettaPath = Price->perUnitOfAmount]
 		+ financialUnit
 			[value "quantityUnit"]
-			[set to FinancialUnitEnum->Share when "openUnits" exists]
+			[set to FinancialUnitEnum->Share when path = "singleUnderlyer->openUnits"]
+			[set to FinancialUnitEnum->IndexUnit when path = "basket->openUnits"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "additionalPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "otherPartyPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "initialPayment->paymentAmount->amount"]
@@ -3410,6 +3427,8 @@ synonym source FpML_5_10 extends FpML
 			[set to FinancialUnitEnum->ContractualProduct when path = "singlePayment->fixedAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "premium->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "equityPremium->paymentAmount->amount"]
+			[set to FinancialUnitEnum->Weight when path = "basketPercentage"]
+			[set to FinancialUnitEnum->Weight when path = "constituentWeight->openUnits"]			
 		+ currency
 			[value "currency" maps 2 meta "currencyScheme"]
 			[value "varyingNotionalCurrency" maps 2 meta "currencyScheme"]
