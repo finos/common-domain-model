@@ -111,13 +111,13 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 	condition ExecutionPrimitive:
 		if primitiveInstruction -> execution exists then primitiveInstruction -> execution count = 1
 
-type PrimitiveInstruction: <"description">
-	execution ExecutionInstruction (0..1)
-	contractFormation ContractFormationInstruction (0..1)
-	quantityChange QuantityChangeInstruction (0..1)
-	termsChange TermsChangeInstruction (0..1)
+type PrimitiveInstruction: <"A Primitive Instruction describes the inputs required to pass into the corresponding PrimitiveEvent function.">
+	execution ExecutionInstruction (0..1) <"Specifies instructions describing an execution primitive event.">
+	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions describing an contract formation primitive event.">
+	quantityChange QuantityChangeInstruction (0..1) <"Specifies instructions describing an quantity change primitive event.">
+	termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing an terms change primitive event.">
 
-	condition: one-of
+    condition: one-of
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -138,10 +138,12 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 		[deprecated]
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
 
-  // New Content
-	instruction Instruction (1..*) <"">
-	instructionFunction InstructionFunctionEnum (1..1) <"">
-	after TradeState (1..*) <"">
+    // New Content
+    instruction Instruction (1..*) <"Specifies the instructions that were used to create the Business Event.">
+        [synonym Workflow_Event value "ignore"]
+    instructionFunction InstructionFunctionEnum (1..1) <"Specifies the functional event defined by the set of instructions.">
+    after TradeState (1..*) <"Specifies the after trade state(s) created.">
+        [synonym Workflow_Event value "ignore"]
 
 	condition Intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 		if (primitives -> split exists
