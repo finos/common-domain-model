@@ -52,67 +52,117 @@ func NovatedContractEffectiveDate:
 			equityPayoutDate -> relativeDate -> adjustedDate
 	]
 
-func QuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
+func QuantityIncreased: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is greater than the Quantity (with the same unit of amount) in the before TradeState.  If all quantities are greater then the function returns true.">
 	inputs:
-		trade Trade (1..*)
-
+		quantityChangePrimitives QuantityChangePrimitive (1..*) <"List of QuantityChangePrimitive to be compared.">
 	output:
-		quantityChange QuantityGroups(1..1)
-
-	assign-output quantityChange -> quantityGroups -> amount: <"Only works in the case of a single trade lot.">
-	[
-		( trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity  group by unitOfAmount -> currency ) -> amount
-	]
-
-func QuantityIncreased:
-	inputs:
-		quantityChangePrimitive QuantityChangePrimitive(1..*)
-
-	output: result boolean(1..1)
-
-	alias beforeQuantity:
-		QuantityChange(quantityChangePrimitive -> before -> trade)
-	alias afterQuantity:
-		QuantityChange(quantityChangePrimitive -> after -> trade)
+		result boolean (1..1) <"Returns true if the Quantity has increased in all QuantityChangePrimitives.">
 
 	assign-output result:
-		ListsCompare(CompareOp -> Greater, afterQuantity -> quantityGroups -> amount, beforeQuantity -> quantityGroups -> amount, empty)
+		CompareQuantityChangePrimitives( quantityChangePrimitives, CompareOp -> GreaterThan )
 
-func QuantityDecreased:
+func QuantityDecreased: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is less than the Quantity (with the same unit of amount) in the before TradeState, but not decreased to zero.">
 	inputs:
-		quantityChangePrimitive QuantityChangePrimitive(1..*)
-	output: result boolean(1..1)
-	alias beforeQuantity:
-		QuantityChange(quantityChangePrimitive -> before -> trade)
-	alias afterQuantity:
-		QuantityChange(quantityChangePrimitive -> after -> trade)
-	assign-output result:
-		ListsCompare(CompareOp -> Greater, beforeQuantity -> quantityGroups -> amount, afterQuantity -> quantityGroups -> amount, empty) = True
-		and ListsCompare(CompareOp -> Greater, afterQuantity -> quantityGroups -> amount, empty, 0.0) = True
-
-func QuantityDecreasedToZero:
-	inputs:
-		quantityChangePrimitive QuantityChangePrimitive(1..*)
-	output: result boolean(1..1)
-	alias beforeQuantity:
-		QuantityChange(quantityChangePrimitive -> before -> trade)
-	alias afterQuantity:
-		QuantityChange(quantityChangePrimitive -> after -> trade)
-	assign-output result:
-		ListsCompare(CompareOp -> Greater, beforeQuantity -> quantityGroups -> amount, empty, 0.0) = True
-		and ListsCompare(CompareOp -> Equal, afterQuantity -> quantityGroups -> amount, empty, 0.0) = True
-
-func NoQuantityChange:
-	inputs:
-		quantityChangePrimitive QuantityChangePrimitive(1..*)
+		quantityChangePrimitives QuantityChangePrimitive (1..*) <"List of QuantityChangePrimitive to be compared.">
 	output:
-		result boolean(1..1)
-	alias beforeQuantity:
-		QuantityChange(quantityChangePrimitive -> before -> trade)
-	alias afterQuantity:
-		QuantityChange(quantityChangePrimitive -> after -> trade)
+		result boolean (1..1) <"Returns true if the Quantity has decreased, but not to zero, in all QuantityChangePrimitives.">
+
 	assign-output result:
-		ListsCompare(CompareOp -> Equal, beforeQuantity -> quantityGroups -> amount, beforeQuantity -> quantityGroups -> amount, empty) = True
+		CompareQuantityChangePrimitives( quantityChangePrimitives, CompareOp -> LessThan ) = True
+		    and CompareTradeLot( quantityChangePrimitives -> after -> trade -> tradableProduct -> tradeLot only-element, CompareOp -> GreaterThan, 0.0 ) = True
+
+func NoQuantityChange: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is equal to the Quantity (with the same unit of amount) in the before TradeState.">
+	inputs:
+		quantityChangePrimitives QuantityChangePrimitive (1..*) <"List of QuantityChangePrimitive to be compared.">
+	output:
+		result boolean (1..1) <"Returns true if the Quantity has not changed in all QuantityChangePrimitives.">
+
+	assign-output result:
+		CompareQuantityChangePrimitives( quantityChangePrimitives, CompareOp -> Equals )
+
+func QuantityDecreasedToZero: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is equal to zero.">
+	inputs:
+		quantityChangePrimitives QuantityChangePrimitive (1..*) <"List of QuantityChangePrimitive to be compared.">
+	output:
+		result boolean (1..1) <"Returns true if the after Quantity is zero in all QuantityChangePrimitives.">
+
+	alias afterTradeLot:
+		quantityChangePrimitives -> after -> trade -> tradableProduct -> tradeLot only-element
+
+	assign-output result:
+		CompareTradeLot( afterTradeLot, CompareOp -> Equals, 0.0 )
+
+func CompareQuantityChangePrimitives: <"For each QuantityChangePrimitive, compare the Quantity in the after TradeState to the Quantity (with the same unit of amount) in the before TradeState, based on the CompareOp enum.">
+	inputs:
+		quantityChangePrimitives QuantityChangePrimitive (1..*) <"List of QuantityChangePrimitive to be compared.">
+		op CompareOp (1..1) <"Comparison operation to use.">
+	output:
+		result boolean (1..1)
+
+	alias results:
+		quantityChangePrimitives
+			map [ CompareQuantityChangePrimitive( item, op ) ]
+
+	assign-output result:
+		results all = True
+
+func CompareQuantityChangePrimitive: <"For the QuantityChangePrimitive, compare the Quantity in the after TradeState to the Quantity (with the same unit of amount) in the before TradeState, based on the CompareOp enum.">
+	inputs:
+		quantityChangePrimitive QuantityChangePrimitive (1..1) <"QuantityChangePrimitive to be compared.">
+		op CompareOp (1..1) <"Comparison operation to use.">
+	output:
+		result boolean (1..1)
+
+	assign-output result:
+		CompareTradeLots(
+		    quantityChangePrimitive -> after -> trade -> tradableProduct -> tradeLot only-element,
+		    op,
+		    quantityChangePrimitive -> before -> trade -> tradableProduct -> tradeLot only-element )
+
+func CompareTradeLots: <"Compare the Quantity in TradeLot 1 to the Quantity (with the same unit of amount) in TradeLot 2, based on the CompareOp enum.">
+	inputs:
+		tradeLot1 TradeLot (1..1)
+        op CompareOp (1..1)
+		tradeLot2 TradeLot (1..1)
+	output:
+		result boolean (1..1)
+
+	alias unitOfAmounts:
+		tradeLot2 -> priceQuantity -> quantity -> unitOfAmount distinct
+
+	alias results:
+		unitOfAmounts
+		    // for each unit of amount
+			map unitOfAmount [
+			    // get quantities from tradeLot 1 with the given unit of amount
+				FilterQuantity( tradeLot1 -> priceQuantity -> quantity, unitOfAmount )
+					map quantity1 [
+						// get quantities from tradeLot 2 with the given unit of amount
+                        FilterQuantity( tradeLot2 -> priceQuantity -> quantity, unitOfAmount )
+							map quantity2 [
+							    // compare quantity 1 with each quantity 2
+							    CompareNumbers( quantity1 -> amount, op, quantity2 -> amount )
+                            ]
+					] flatten
+			] flatten
+
+	assign-output result:
+		results all = True
+
+func CompareTradeLot: <"Compare the Quantity amount in TradeLot to the given amount (regardless of unit of amount), based on the CompareOp enum.">
+	inputs:
+		tradeLot TradeLot (1..1)
+		op CompareOp (1..1)
+		amount number (1..1)
+	output:
+		result boolean (1..1)
+
+	alias results:
+		tradeLot -> priceQuantity -> quantity
+			map [ CompareNumbers( item -> amount, op, amount ) ]
+
+	assign-output result:
+		results all = True
 
 func Qualify_Allocation: <"The qualification of allocation event from the fact that (i) the only primitives are split and contract formation (ii) the number of split executions and the number of contract formations are equal.  Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.  Also note that it is expected that an allocation can result in a single contract.">
 	[qualification BusinessEvent]

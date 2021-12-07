@@ -1,6 +1,27 @@
 namespace cdm.base.math : <"Basic maths concepts: quantity and unit, rounding, curve / schedule, non-negativity constraint etc.">
 version "${project.version}"
 
+func CompareNumbers:
+	inputs:
+		n1 number (1..1)
+        op CompareOp (1..1)
+		n2 number (1..1)
+	output:
+		result boolean (1..1)
+
+	assign-output result:
+		if op = CompareOp -> GreaterThan
+		then n1 > n2 = True
+		else if op = CompareOp -> GreaterThanOrEquals
+        then n1 >= n2 = True
+		else if op = CompareOp -> Equals
+		then n1 = n2 = True
+		else if op = CompareOp -> LessThanOrEquals
+		then n1 <= n2 = True
+		else if op = CompareOp -> LessThan
+        then n1 < n2 = True
+        else False
+
 func Abs:
 	inputs: x number (1..1)
 	output: result number (1..1)
@@ -8,14 +29,6 @@ func Abs:
 func Sum: <"generates the scalar sum (total) of all of the supplied values">
 	inputs: x number (0..*)
 	output: sum number (1..1)
-
-func ListsCompare:
-	inputs:
-		compareOp CompareOp (1..1)
-		left number (1..*)
-		right number (0..*)
-		rightNumber number (0..1)
-	output: result boolean (1..1)
 
 func Max:
 	inputs:
@@ -54,6 +67,17 @@ func RoundToPrecision: <"Round a rate to the suplied precision, using the suppli
 		roundedValue number (1..1) <"The value to the desired precision">
 	condition:
 		precision >= 0
+
+func FilterQuantity: <"Filter list of quantities based on unit type.">
+    inputs:
+        quantities Quantity (0..*) <"List of quantities to filter.">
+        unitOfAmount UnitType (1..1) <"Currency unit type.">
+    output:
+        filteredQuantities Quantity (0..*)
+
+    set filteredQuantities:
+        quantities
+            filter [ item -> unitOfAmount = unitOfAmount ]
 
 func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
     inputs:
