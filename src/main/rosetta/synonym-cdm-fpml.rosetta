@@ -448,7 +448,7 @@ synonym source FpML_5_10 extends FpML
 			[value "floatingRateCalculation" path "interestCalculation"]
 			[value "spreadSchedule" path "interestCalculation->floatingRateCalculation"]
 			[value "floatingRateMultiplierSchedule" path "interestCalculation->floatingRateCalculation"]
-			// [value "underlyerPrice"]
+			[value "underlyerPrice"]
 			// For FX:
 			[hint "spotRate"]
 			[value "exchangeRate" mapper "ExchangeRate"]
@@ -475,7 +475,9 @@ synonym source FpML_5_10 extends FpML
             [value "calculationAmount"]
             [value "calculationAmount" path "floatingAmountCalculation"]
             // For Equity Swaps:
-            [value "singleUnderlyer" path "underlyer"]
+			[value "singleUnderlyer" path "underlyer"]
+            [value "basket" path "underlyer"]
+			[value "underlyer"]
 			// [value "basket" path "underlyer"]
 			[value "constituentWeight"]
             [value "notionalAmount" path "notional"]
@@ -589,7 +591,7 @@ synonym source FpML_5_10 extends FpML
  		+ spreadType
  			[set to SpreadTypeEnum->Spread when "spread" exists]
  			[set to SpreadTypeEnum->Spread when "floatingRateCalculation->spread" exists]
- 			[set to SpreadTypeEnum->Spread when path = "spreadSchedule"]
+ 			[set to SpreadTypeEnum->Spread when path = "spreadSchedule->initialValue"]
  			[set to SpreadTypeEnum->Spread when path = "floatingRateIndex"]
  			[set to SpreadTypeEnum->Spread when path = "calculation->spread"]
  			// FX: SpreadTypeEnum->Spread when "spotRate" exists is set by ExchangeRate mapper
@@ -1555,7 +1557,7 @@ synonym source FpML_5_10 extends FpML
 		 	[value "instrumentId" path "equity" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "index" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "loan" maps 2 meta "instrumentIdScheme"]
-			[value "instrumentId" maps 2 meta "instrumentIdScheme"]
+			// [value "instrumentId" maps 2 meta "instrumentIdScheme"]
 			[value "productId" maps 2 meta "productIdScheme"]
 		+ source
 		    // Bond
@@ -1564,6 +1566,7 @@ synonym source FpML_5_10 extends FpML
 			[set to ProductIdTypeEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
 			[set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "ISIN"]
             [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0"]
+            [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-ISIN-1-0"]
             [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
             [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN-1-0"]
             [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN"]
@@ -1593,9 +1596,11 @@ synonym source FpML_5_10 extends FpML
             [set to ProductIdTypeEnum -> ISIN when "index->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
             [set to ProductIdTypeEnum -> RIC when "index->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-Reuters-RIC-1-0"]
             [set to ProductIdTypeEnum -> RIC when "index->instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-Reuters-RIC-1-0"]
+            [set to ProductIdTypeEnum -> BBGID when "index->instrumentId->instrumentIdScheme" = "http://www.bloomberg.com"]
             [set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" = "http://www.example.com/instrumentId"]
             [set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" = "http://www.fpml.org/instrument-id"]
             [set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" = "http://www.fpml.org/schemes/4.1/instrumentId"]
+            [set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
             [set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" exists]
             // Loan
             [set to ProductIdTypeEnum -> CUSIP when "loan->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
@@ -1661,12 +1666,18 @@ synonym source FpML_5_10 extends FpML
 		+ amount
 			[value "initialValue" maps 2]
 			[value "amount" maps 2]
+			[value "openUnits" path "singleUnderlyer" maps 2]
+			[value "openUnits" path "basket" maps 2]
 			[value "openUnits" maps 2]
 			[value "numberOfOptions" maps 2]
 			[value "basketPercentage" maps 2]
 			// For Commodity Swap
 			[value "quantity" maps 2]
-
+		+ unitOfAmount
+			[value "singleUnderlyer"]
+			[value "basket"]
+			[value "basketPercentage"]
+			[value "openUnits"]
 		+ multiplier
 			[value "optionEntitlement"]
 		+ multiplierUnit
@@ -1754,7 +1765,7 @@ synonym source FpML_5_10 extends FpML
 
 	DividendReturnTerms:
 		+ dividendPayout
-			[value "dividendPayout"]
+			[hint "dividendPayout"]
 			[value "basketConstituent"]
 			[hint "declaredCashDividendPercentage"]
 			[hint "declaredCashEquivalentDividendPercentage"]
@@ -2042,7 +2053,7 @@ synonym source FpML_5_10 extends FpML
 	EquityPayout:
 	[meta "id"]
 	+ underlier
-		[value "singleUnderlyer" path "underlyer","basket" path "underlyer"/*, "basketConstituent" path "underlyer->basket"*/]
+		[value "singleUnderlyer" path "underlyer","underlyer"]
 	+ returnType
 		[value "returnType" path "return"]
 	+ dividendReturnTerms
@@ -2093,6 +2104,7 @@ synonym source FpML_5_10 extends FpML
 			[value "cashflows"]
 		+ stubPeriod
 			[value "stubCalculationPeriodAmount"]
+			[value "stubCalculationPeriod"]
 		+ bondReference
 			[value "bondReference"]
 		+ rateSpecification
@@ -2126,7 +2138,7 @@ synonym source FpML_5_10 extends FpML
 			[value "feature"]
 			[value "features"]
 		+ underlier
-			[value "singleUnderlyer" path "underlyer", "basket" path "underlyer"]
+			[value "singleUnderlyer" path "underlyer"]
 			[hint "bond", "equity", "mortgage", "convertibleBond"]
 			[hint "swap"]
 			[hint "creditDefaultSwap"]
@@ -2369,12 +2381,16 @@ synonym source FpML_5_10 extends FpML
 		+ security
 			[hint "bond", "equity", "mortgage", "convertibleBond"]
 		+ basket
-			[value "basketConstituent"]
+			[value "basket"]
 
     Index:
         + productIdentifier
             [value "index" meta "instrumentId"]
 	        [hint "index"]
+
+	Basket:
+		+ basketConstituent
+			[value "basketConstituent"]
 
 	Commodity:
 	    + productIdentifier
@@ -2403,7 +2419,7 @@ synonym source FpML_5_10 extends FpML
 			[value "protectionTerms"]
 			// Equity
 			[value "returnLeg"]
-			[value "basketConstituent" path "returnLeg->underlyer->basket"]
+			[value "basketConstituent"]
 			[value "interestLeg"]
 			// FX
 			[value "nearLeg"]
@@ -2423,7 +2439,6 @@ synonym source FpML_5_10 extends FpML
 			[value "fxOption"]
 			[value "fxDigitalOption"]
 			[value "equityOption"]
-			[value "basketConstituent" path "equityOption->underlyer->basket"]
 			[hint "commodity", "notionalQuantity"] // Commodity Option
 			[value "commodityOption"] // Commodity Option
 			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"] // For Equity / Bond Option
@@ -2452,6 +2467,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "fxOption", "fxDigitalOption"]
 			// Equity
 			[value "returnSwap", "equitySwapTransactionSupplement"]
+			[value "basket" path "returnSwap->returnLeg->underlyer"]
 			[hint "equityOption"]
 			[value "brokerEquityOption"]
 			// Other
@@ -2752,7 +2768,6 @@ synonym source FpML_5_10 extends FpML
 		+ underlier
 			[hint "equity"]
 		+ dividendPayoutRatio
-			[value "dividendPayoutRatio"]
 			[value "dividendPayoutRatio" path "dividendPayout"]
 		+ dividendPayoutRatioCash
 			[value "dividendPayoutRatioCash"]
@@ -3418,8 +3433,10 @@ synonym source FpML_5_10 extends FpML
 			// [value "priceUnit" set when rosettaPath = Price->perUnitOfAmount]
 		+ financialUnit
 			[value "quantityUnit"]
-			[set to FinancialUnitEnum->Share when path = "singleUnderlyer->openUnits"]
-			[set to FinancialUnitEnum->IndexUnit when path = "basket->openUnits"]
+			[value "openUnits"]
+			[set to FinancialUnitEnum->Share when "equity" exists]
+			[set to FinancialUnitEnum->IndexUnit when "index" exists]
+			[set to FinancialUnitEnum->IndexUnit when "basket" exists]
 			[set to FinancialUnitEnum->ContractualProduct when path = "additionalPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "otherPartyPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "initialPayment->paymentAmount->amount"]
