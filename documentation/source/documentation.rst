@@ -13,7 +13,7 @@ The Common Domain Model
 
 The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure. All the Rosetta DSL modelling components that are used to express the CDM are described in the `Rosetta DSL Documentation`_
 
-The complete model definition, including descriptions and other details can be viewed in the `Textual Browser <https://portal.cdm.rosetta-technology.io/#/text-browser>`_ on the ISDA CDM Portal.
+The complete model definition, including descriptions and other details can be viewed in the `Textual Browser`_ on the ISDA CDM Portal.
 
 Product Model
 -------------
@@ -544,7 +544,7 @@ Financial markets often trade a high volume of trades with near identical contra
 
 For instance, Equity Swaps used by Equity Financing desks sometimes refer to a *Master Confirmation* agreement, which is an overall agreement that specifies all the standard Equity Swap terms that do not need to be renegotiated on each trade. Each contractual product would only specify the unique product details (such as start and end date, underlier, price and spread) together with a reference to the Master Confirmation containing the template product details.
 
-Code libraries, written in Java and distributed with the CDM, contain tools to merge CDM objects together.  Implementors may extend these merging tools to change the merging strategy to suit their requirements.  The CDM Java Examples download, available via the `CDM Portal Downloads page <https://portal.cdm.rosetta-technology.io/#/downloads>`_, contains a example demonstrating usage of a data template and the merging tools. See ``com.regnosys.cdm.example.template.TemplateExample``.
+Code libraries, written in Java and distributed with the CDM, contain tools to merge CDM objects together.  Implementors may extend these merging tools to change the merging strategy to suit their requirements.  The CDM Java Examples download, available via the `CDM Portal Downloads page`_, contains a example demonstrating usage of a data template and the merging tools. See ``com.regnosys.cdm.example.template.TemplateExample``.
 
 
 Products with Identifiers
@@ -579,15 +579,15 @@ The data types that extend from ProductBase are Index, Commodity, Loan, and Secu
    fundType FundProductTypeEnum (0..1)
 
  condition DebtSubType:
-   if securityType <> SecurityTypeEnum -> Debt
+   if securityType Debt
    then debtType is absent
 
  condition EquitySubType:
-   if securityType <> SecurityTypeEnum -> Equity
+   if securityType Equity
    then equityType is absent
 
  condition FundSubType:
-   if securityType <> SecurityTypeEnum -> Fund
+   if securityType Fund
    then fundType is absent
 
 The product identifier will uniquely identify the security.  The ``securityType`` is required for specific purposes in the model, for example for validation as a valid reference obligation for a Credit Default Swap.  The additional security details are optional as these could be determined from a reference database using the product identifier as a key
@@ -1101,18 +1101,24 @@ The list of business events for which this process is currently implemented in t
 
 .. code-block:: Haskell
 
- type Instruction:
-   instructionFunction string (0..1)
-   allocation AllocationInstruction (0..1)
-   clearing ClearingInstruction (0..1)
-   contractFormation ContractFormationInstruction (0..1)
-   execution ExecutionInstruction (0..1)
-   exercise ExerciseInstruction (0..1)
-   reset ResetInstruction (0..1)
-   transfer TransferInstruction (0..1)
-   quantityChange QuantityChangeInstruction (0..1)
-   indexTransition IndexTransitionInstruction (0..1)
-   termination TerminationInstruction (0..1)
+  type Instruction:
+	[rootType]
+  	instructionFunction string (0..1)
+  	allocation AllocationInstruction (0..1)
+  	clearing ClearingInstruction (0..1)
+	contractFormation ContractFormationInstruction (0..1)
+  	execution ExecutionInstruction (0..1)
+  	exercise ExerciseInstruction (0..1)
+  	reset ResetInstruction (0..1)
+    transfer TransferInstruction (0..1)
+	quantityChange QuantityChangeInstruction (0..1)
+	indexTransition IndexTransitionInstruction (0..1)
+	termination TerminationInstruction (0..1)
+	primitiveInstruction PrimitiveInstruction (1..*)
+	before TradeState (0..1)
+
+	condition ExecutionPrimitive:
+		if primitiveInstruction -> execution exists then primitiveInstruction -> execution count = 1
 
 Previous Workflow Step
 """"""""""""""""""""""
@@ -1218,33 +1224,18 @@ One distinction with the product approach is that the ``intent`` qualification i
 
 .. code-block:: Haskell
 
- func Qualify_Termination:
-   [qualification BusinessEvent]
-   inputs:
-     businessEvent BusinessEvent(1..1)
-   output: is_event boolean (1..1)
-   
-   alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
-   assign-output is_event:
-     (businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
-     and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
-       or (businessEvent -> primitives -> quantityChange exists and transfer exists))
-     and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
-     and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
-
-  func Qualify_Termination: 
-    [qualification BusinessEvent]
-    inputs:
-      businessEvent BusinessEvent(1..1)
-    output: is_event boolean (1..1)
-    
-    alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
-    assign-output is_event:
-      (businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
-      and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
-        or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-	or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction count = 1))
-    and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
+func Qualify_Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
+	[qualification BusinessEvent]
+	inputs:
+		businessEvent BusinessEvent(1..1)
+	output: is_event boolean (1..1)
+	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
+	assign-output is_event:
+		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
+		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
+			or (businessEvent -> primitives -> quantityChange exists and transfer exists)
+			or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction count = 1))
+		and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
@@ -1779,7 +1770,7 @@ How Does It Work
 
 The data and proces model definitions of the CDM are systematically translated into executable code using purpose-built code generation technology. The CDM executable code is available in a number of modern, widely adopted and freely available programming languages and is systematically distributed as part of the CDM release.
 
-The code generation process is based on the Rosetta DSL and is further described in the `Code Generation Section`_, including an up-to-date `list of available languages <https://docs.rosetta-technology.io/dsl/codegen-readme.html#what-code-generators-are-available>`_. Support for further languages can be added as required by market participants.
+The code generation process is based on the Rosetta DSL and is further described in the `Code Generation Section`_, including an up-to-date `list of available languages`_. Support for further languages can be added as required by market participants.
 
 Scope
 ^^^^^
@@ -1848,15 +1839,15 @@ As an example, the *FpML ird validation rule #57*, states that if the calculatio
 
  condition FpML_ird_57:
    if period = PeriodExtendedEnum -> M or period = PeriodExtendedEnum -> Y
-   then rollConvention <> RollConventionEnum -> NONE
-     or rollConvention <> RollConventionEnum -> SFE
-     or rollConvention <> RollConventionEnum -> MON
-     or rollConvention <> RollConventionEnum -> TUE
-     or rollConvention <> RollConventionEnum -> WED
-     or rollConvention <> RollConventionEnum -> THU
-     or rollConvention <> RollConventionEnum -> FRI
-     or rollConvention <> RollConventionEnum -> SAT
-     or rollConvention <> RollConventionEnum -> SUN
+   then rollConvention NONE
+     or rollConvention SFE
+     or rollConvention MON
+     or rollConvention TUE
+     or rollConvention WED
+     or rollConvention THU
+     or rollConvention FRI
+     or rollConvention SAT
+     or rollConvention SUN
 
 
 Calculation Process
@@ -2223,13 +2214,13 @@ The data type and function to generate a Security Lending Invoice:
     billingSummary BillingSummary (1..*)
     
 .. code-block:: Haskell
-  func Create_SecurityLendingInvoice: <"Defines the process of calculating and creating a Security Lending Invoice.">
+  func Create_SecurityLendingInvoice:
 
     inputs:
-      instruction BillingInstruction (1..1) <"Specifies the instructions for creation of a Security Lending billing invoice.">
+      instruction BillingInstruction (1..1)
 
     output:
-      invoice SecurityLendingInvoice (1..1) <"Produces the Security Lending Invoice">
+      invoice SecurityLendingInvoice (1..1)
 
       assign-output invoice->sendingParty:
         instruction->sendingParty
