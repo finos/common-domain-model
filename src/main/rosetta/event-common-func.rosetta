@@ -350,8 +350,12 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate )
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> PartialTermination)
-		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
-			or (businessEvent -> primitives -> quantityChange exists and transfers exists)) or (businessEvent -> instruction -> primitiveInstruction -> quantityChange only exists and businessEvent -> instruction -> primitiveInstruction count = 1))
+		and (
+			(businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
+			or (businessEvent -> primitives -> quantityChange exists and transfers exists)
+			)
+		or (businessEvent -> instruction -> primitiveInstruction -> quantityChange only exists and businessEvent -> instruction -> primitiveInstruction count = 1)
+		)
 		and (QuantityDecreasedPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreased(businessEvent -> instruction -> before, businessEvent -> after) = True)
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
 		and businessEvent -> after -> state -> closedState is absent
@@ -414,8 +418,8 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 			or (businessEvent -> primitives -> quantityChange exists and transfer exists)
 			or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction count = 1))
 		and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
-		// and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated or
-		// 	businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
+		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated or
+	  	    businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
 func Qualify_TradeWarehousePositionNotification:
 	[qualification BusinessEvent]
