@@ -945,7 +945,7 @@ A Business Event represents a transaction lifecycle event and is built according
  type BusinessEvent:
    [metadata key]
    [rootType]
-   primitives PrimitiveEvent (1..*)
+   primitives PrimitiveEvent (0..*)
    intent IntentEnum (0..1)
    functionCall string (0..1)
    eventQualifier eventType (0..1)
@@ -1103,20 +1103,24 @@ The list of business events for which this process is currently implemented in t
 
 .. code-block:: Haskell
 
- type Instruction:
-   instructionFunction string (0..1)
-   allocation AllocationInstruction (0..1)
-   clearing ClearingInstruction (0..1)
-   contractFormation ContractFormationInstruction (0..1)
-   execution ExecutionInstruction (0..1)
-   exercise ExerciseInstruction (0..1)
-   reset ResetInstruction (0..1)
-   transfer TransferInstruction (0..1)
-   quantityChange QuantityChangeInstruction (0..1)
-   indexTransition IndexTransitionInstruction (0..1)
-   termination TerminationInstruction (0..1)
+ type Instruction: 
+    [rootType]
+    instructionFunction string (0..1)
+    allocation AllocationInstruction (0..1)
+    clearing ClearingInstruction (0..1)
+    contractFormation ContractFormationInstruction (0..1)
+    execution ExecutionInstruction (0..1)
+    exercise ExerciseInstruction (0..1)
+    reset ResetInstruction (0..1)
+    transfer TransferInstruction (0..1)
+    quantityChange QuantityChangeInstruction (0..1)
+    indexTransition IndexTransitionInstruction (0..1)
+    termination TerminationInstruction (0..1)
+    primitiveInstruction PrimitiveInstruction (1..*)
+    before TradeState (0..1)
 
-   condition OneOfInstruction: required choice allocation, clearing, contractFormation, execution, exercise, reset, transfer, indexTransition, quantityChange, termination
+    condition ExecutionPrimitive:
+        if primitiveInstruction -> execution exists then primitiveInstruction -> execution count = 1
 
 
 Previous Workflow Step
@@ -1224,18 +1228,19 @@ One distinction with the product approach is that the ``intent`` qualification i
 .. code-block:: Haskell
 
  func Qualify_Termination:
-   [qualification BusinessEvent]
-   inputs:
-     businessEvent BusinessEvent(1..1)
-   output: is_event boolean (1..1)
-   
-   alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
-   assign-output is_event:
-     (businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
-     and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
-       or (businessEvent -> primitives -> quantityChange exists and transfer exists))
-     and QuantityDecreasedToZero(businessEvent -> primitives -> quantityChange) = True
-     and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent(1..1)
+    output: is_event boolean (1..1)
+    alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
+    assign-output is_event:
+        (businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
+        and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
+            or (businessEvent -> primitives -> quantityChange exists and transfer exists)
+            or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction count = 1))
+        and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
+		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated or
+	  	    businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
