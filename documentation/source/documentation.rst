@@ -954,6 +954,8 @@ A Business Event represents a transaction lifecycle event and is built according
    eventEffect EventEffect (0..1)
    workflowEventState WorkflowStepState (0..1)
      [deprecated]
+   tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
+   packageInformation IdentifiedList (0..1)
 
 As can be observed in the definition above, the only mandatory attributes of a business event are the ones listed below:
 

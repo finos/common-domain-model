@@ -118,9 +118,16 @@ func QuantityDecreasedToZeroPrimitive: <"For each QuantityChangePrimitive, check
 	output:
 		result boolean (1..1) <"Returns true if the after Quantity is zero in all QuantityChangePrimitives.">
 
+    alias beforeGreaterThanZero:
+        if quantityChangePrimitives -> before exists
+        then CompareTradeStatesToAmount( quantityChangePrimitives -> before, CompareOp -> GreaterThan, 0.0 ) = True
+        else True
+
+	alias afterEqualToZero:
+	    CompareTradeStatesToAmount( quantityChangePrimitives -> after, CompareOp -> Equals, 0.0 )
+
 	assign-output result:
-	    CompareTradeStatesToAmount( quantityChangePrimitives -> before, CompareOp -> GreaterThan, 0.0 ) = True
-		and CompareTradeStatesToAmount( quantityChangePrimitives -> after, CompareOp -> Equals, 0.0 ) = True
+	    beforeGreaterThanZero = True and afterEqualToZero = True
 
 func QuantityDecreasedToZero:
 	inputs:
@@ -129,9 +136,16 @@ func QuantityDecreasedToZero:
 	output:
 	    result boolean (1..1)
 
+    alias beforeGreaterThanZero:
+            if before exists
+            then CompareTradeLotToAmount( before -> trade -> tradableProduct -> tradeLot only-element, CompareOp -> GreaterThan, 0.0 ) = True
+            else True
+
+    alias afterEqualToZero:
+        CompareTradeStatesToAmount( after, CompareOp -> Equals, 0.0 )
+
 	assign-output result:
-	    CompareTradeLotToAmount( before -> trade -> tradableProduct -> tradeLot only-element, CompareOp -> GreaterThan, 0.0 ) = True
-		and CompareTradeStatesToAmount( after, CompareOp -> Equals, 0.0 ) = True
+	    beforeGreaterThanZero = True and afterEqualToZero = True
 
 func NoQuantityChange: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is equal to the Quantity (with the same unit of amount) in the before TradeState.">
 	inputs:

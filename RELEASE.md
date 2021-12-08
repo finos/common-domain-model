@@ -1,40 +1,36 @@
-# *Business Event model - Composable Event model *
-
-_Background_
-
-Business events in the CDM are currently described using separate instructions and functions to create each potential business event, and those functions are not composable.  The various instructions captured in the `Instruction` data type are not structured consistently with some instructions referencing the `before` trade state, where as others do not.  This contravenes the principle of composability and nullifies the benefit of defining primitive events.
-
-The CDM event model is therefore being refactored based on three principles:
-- Develop a standardised functional logic for each primitive event function, leveraging the existing functional logic developed for business events.
-- Define a set of primitive instructions to be used as inputs in each primitive event function – those primitive instructions should set a consistent treatment of the before trade state.
-- Rewrite the functional logic of business events by composition in terms of those primitive event functions’ logic.
-
-Following the refactoring Business Events will be described in terms of the instructions used to create the events and the after TradeState(s) created.  The Primitive Event functions will describe the transformations that occur when the instructions are applied to create a business event.
+# *Product Model - Representation of Package Transactions*
 
 _What is being released_
 
-This release introduces core components required to develop the composable event model in the CDM. Changes are described based on the data types, enumerations and functions impacted:
+Modelling components for the representation of package transactions have been added to the product model and mapped from FpML
 
-_Data types_
-- `BusinessEvent` - new attributes `instruction`, `instructionFunction` and `after` added to describe the instructions that were used to create the event; the functional event defined by the set of instructions; and the after TradeState(s) created, respectively.
-- `PrimitiveInstruction` - a new data type containing the list of PrimitiveEvent instructions needed to pass into a PrimitiveEvent function
-- `Instruction` - new attributes `primitiveInstruction` and `before` added to describe inputs required to pass into a BusinessEvent described using the composable model.
-- `TermsChangeInstruction` - a new data type containing the instructions required to pass into the Terms Change primitive event function.
+_Background_
 
-_Enumerations_
-- `InstructionFunctionEnum` - enumeration values indicating the Business Event defined by the set of PrimitiveInstructions provided.
+A package transaction consists of several trades which, even though they may be represented separately, are tied into a single package and typically executed together. Executing trades as a package has implications for post-trade processes such as reporting or confirmation and therefore requires specific package attributes to be captured.
 
-_Functions_
-- `Create_BusinessEvent` - a new composable function that creates a business event from instructions containing primitive instructions and optionally a trade state.
-- `Create_TradeState` - a new composable function that creates a trade state from instructions containing primitive instructions and optionally a trade state.
-- `Qualify_ContractFormation` - qualification function updated to qualify a business event created using the composable model as contract formation.
-- `Qualify_Execution` - qualification function updated to qualify a business event created using the composable model as execution.
-- `Qualify_Partial Termination` - qualification function updated to qualify a business event created using the composable model as partial termination.
-- `Qualify_Termination` - qualification function updated to qualify a business event created using the composable model as termination.
-- `Qualify_Renegotiation` - qualification function updated to qualify a business event created using the composable model as renegotiation.
-- `QuantityDecreased`,`QuantityIncreased`,`QuantityDecreasedToZero` - compares quantities on a before and after `TradeState`.
-- `QuantityDecreasedPrimitive`,`QuantityIncreasedPrimitive`,`QuantityDecreasedToZeroPrimitive` - compares before and after quantities on a `QuantityChangePrimitive`.
+This capture has 2 components:
+
+1. When separate trades are executed together as part of a single package, the atomic business event representing such bundled execution needs to record the attributes of that package - i.e. at minimum, an identifier for the package
+2. Individual trades that are part of a package must each refer to such package
+
+_Details_
+
+The package representation is achieved by introducing the following:
+
+- A new `IdentifiedList` data type is designed to represent any list of objects as a list of identifiers (when those objects have an identifier), with an identifier for the list itself. While this data type can be used to represent a package as a list of trade identifiers, the naming is generic to allow potential re-use for other use cases. The identifier attributes use the generic `Identifier` data type.
+- A new `packageInformation` attribute of type `IdentifiedList` has been added to `BusinessEvent`, to represent a single execution with multiple trades as a package.
+- A new `packageReference` attribute, also of type `IdentifiedList` has been added to `ExecutionDetails` (as contained in a standalone `Trade`), to provide a reference to the package when that trade was executed as part of a package.
+
+The latter attribute is handled as a reference to preserve referential integrity. The package object, represented as a simple list of trade identifiers, should exists independently of the underlying trades and those trades simply make reference to it.
+
+Several FpML samples representing package transactions (either the packages themselves, or single underlying trades) have been used to test the model and synonym mappings updated accordingly. Those samples are:
+
+- `pkg-ex02-swap-spread-single-trade-execution-notification`
+- `pkg-ex55-execution-notification`
+- `pkg-ex60-request-clearing`
+- `pkg-ex61-clearing-confirmed`
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search for the data types, enumerations and functions above.
+In the CDM Portal, select the Textual Browser and search for the above mentioned data types.
+Select the Ingestion Viewer and review the above samples.
