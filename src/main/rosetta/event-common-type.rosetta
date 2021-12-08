@@ -137,6 +137,7 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	workflowEventState WorkflowStepState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 		[deprecated]
 	tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
+	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
 
     // New Content
     instruction Instruction (0..*) <"Specifies the instructions that were used to create the Business Event.">
@@ -288,7 +289,7 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
     collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
 	account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
 	    [deprecated]
-
+	
 	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
 		if tradableProduct -> product -> security exists
 		then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
@@ -304,6 +305,10 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
 		if tradableProduct -> product -> security exists
 		then tradableProduct -> tradeLot only-element -> priceQuantity -> settlementTerms exists
+
+	condition PackageTrade: <"When the trade is part of a package as specified in the execution details, the trade identifier must be found as one of the package components.">
+		if executionDetails -> packageReference exists
+		then executionDetails -> packageReference -> componentId contains tradeIdentifier
 
 	condition DeliverableObligationsPhysicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
 		if (contractDetails -> documentation -> documentationIdentification -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
@@ -408,9 +413,6 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 		if clearedDate exists
 		then clearedDate >= tradeDate
 
-	condition ContractualProductExists:
-		tradableProduct -> product -> contractualProduct only exists
-
 	condition FpML_cd_1: <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
 		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
 		then tradeDate < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
@@ -488,6 +490,8 @@ type ExecutionDetails: <"Defines specific attributes that relate to trade execut
 	executionType ExecutionTypeEnum (1..1) <"Identifies the type of execution, e.g. via voice, electronically...">
 		[synonym Workflow_Event value "executionType"]
 	executionVenue LegalEntity (0..1) <"Represents the venue on which a trade was executed.">
+	packageReference IdentifiedList (0..1) <"A reference to the package linking the trade with other trades, in case the trade was executed as part of a package (hence this attribute is optional).">
+		[metadata reference]
 
 	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
 		if executionType = ExecutionTypeEnum -> Electronic
@@ -675,13 +679,6 @@ type TransferPrimitive: <"A class to specify the transfer of assets between part
 	    [synonym Workflow_Event value "fpmlTrade" path "before"]
 	after TradeState (1..1)
 	    [synonym Workflow_Event value "fpmlTrade" path "after"]
-
-type PackageInformation: <"A class defining additional information that may be recorded alongside a transaction package.">
-	[deprecated]
-	relatedParty RelatedParty (0..*) <"This may be used to identify one or more parties that perform a role as part of the transaction.">
-	category CategoryEnum (0..*)
-
-	intentToAllocate boolean (0..1) <"specifies whether the transaction package is anticipated to be allocated.">
 
 type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
 	[deprecated]
