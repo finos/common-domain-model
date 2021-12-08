@@ -41,7 +41,7 @@ type ProductBase: <"Serves as an abstract class to specify a product using a pro
         [metadata address "pointsTo"=Observable->productIdentifier]
 
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
-	indexType IndexTypeEnum (1..1)
+	indexType IndexTypeEnum (1..1) <"Indentifies the index product type.">
 
 type Commodity extends ProductBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
 	commodityProductDefinition CommodityProductDefinition (0..1)  <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
@@ -91,12 +91,12 @@ type Loan extends ProductBase: <"Identifies a loan by referencing a product iden
 
 
 type ProductTaxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-	taxonomyValue string (1..1) <"The taxonomy value.">
-	taxonomySource TaxonomySourceEnum (1..1) <"The taxonomy source.">
+	taxonomyValue string (1..1) <"Specifies the taxonomy value.">
+	taxonomySource TaxonomySourceEnum (1..1) <"Specifies the taxonomy source.">
 
 type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-    taxonomyValue CollateralTaxonomyValue (1..1) <"The taxonomy value.">
-    taxonomySource TaxonomySourceEnum (1..1) <"The taxonomy source.">
+    taxonomyValue CollateralTaxonomyValue (1..1) <"Specifies the taxonomy value.">
+    taxonomySource TaxonomySourceEnum (1..1) <"Specifies the taxonomy source.">
     
 	condition Eu_EligibleCollateralTaxonomy: <"If the Taxonomy Source is specified as EU EMIR Eligible Collateral then the enumeration must be EU EMIR Eligible Collateral.">
 		if taxonomySource = TaxonomySourceEnum -> EU_EMIR_EligibleCollateralAssetClass
@@ -119,8 +119,8 @@ type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed 
 type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either as a specified enumeration or as a string.">
 	eu_EMIR_EligibleCollateral EU_EMIR_EligibleCollateralEnum (0..*) <"Identifies European Union Eligible Collateral Assets classification categories based on EMIR Uncleared Margin Rules. Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM">
 	uk_EMIR_EligibleCollateral UK_EMIR_EligibleCollateralEnum (0..*) <"Identifies United Kingdom Eligible Collateral Assets classification categories based on UK Onshored EMIR Uncleared Margin Rules Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: UK EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM.">
-	us_CFTC_PR_EligibleCollateral US_CFTC_PR_EligibleCollateralEnum (0..*) <"Identifies US Eligible Collateral Assets classification categories based on Uncleared Margin Rules published by the CFTC and the US Prudential Regulator. Note: While the same basic categories exist in the CFTC and US Prudential Regulators’ margin rules, the precise definitions or application of those rules could differ between the two rules ">
-	nonEnumeratedTaxonomyValue string (0..*) <"The taxonomy value when not specified as an enumeration.">
+	us_CFTC_PR_EligibleCollateral US_CFTC_PR_EligibleCollateralEnum (0..*) <"Identifies US Eligible Collateral Assets classification categories based on Uncleared Margin Rules published by the CFTC and the US Prudential Regulator. Note: While the same basic categories exist in the CFTC and US Prudential Regulators’ margin rules, the precise definitions or application of those rules could differ between the two rules.">
+	nonEnumeratedTaxonomyValue string (0..*) <"Identifies the taxonomy value when not specified as an enumeration.">
 	    [metadata scheme]
 
     condition: one-of
@@ -152,13 +152,13 @@ type DebtEconomics: <"Specifies selected economics of a debt instrument.">
 	debtInterest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
 	debtPrincipal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
 
-type CollateralIssuerType: <"A class to allow specification of the type of entity issuing the collateral.">
+type CollateralIssuerType: <"Represents a class to allow specification of the type of entity issuing the collateral.">
 
-	issuerType IssuerTypeEnum (1..1) <"Origin of entity issuing the collateral.">
-	supraNationalType SupraNationalIssuerTypeEnum (0..1) <"Debt issued by international organisations and multilateral banks.">
-	quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government">
-	regionalGovernmentType RegionalGovernmentIssuerType (0..1) <"Regional government, local authority or municipal.">
-	specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1)
+	issuerType IssuerTypeEnum (1..1) <"Specifies the origin of entity issuing the collateral.">
+	supraNationalType SupraNationalIssuerTypeEnum (0..1) <"Specifies debt issued by international organisations and multilateral banks.">
+	quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Specifies debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government.">
+	regionalGovernmentType RegionalGovernmentIssuerType (0..1) <"Specifies Regional government, local authority or municipal.">
+	specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1) <"Specifies a subsidiary company that is formed to undertake a specific business purpose of acquisition and financing of specific assets on a potentially limited recourse basis dependent of how it is designed. E.g. asset backed securities, including securitisations.">
 
 	condition SupraNationalSubType:
 		if issuerType <> IssuerTypeEnum -> SupraNational
@@ -176,7 +176,7 @@ type CollateralIssuerType: <"A class to allow specification of the type of entit
 		if issuerType <> IssuerTypeEnum -> SpecialPurposeVehicle
 		then specialPurposeVehicleType is absent
 
-type QuasiGovernmentIssuerType: <"A class to allow specification of different types of Quasi Government collateral.">
+type QuasiGovernmentIssuerType: <"Represents a class to allow specification of different types of Quasi Government collateral.">
 
 	sovereignEntity boolean (1..1) <"True if sovereign entity (e.g. not separate legal personality from sovereign) or false if non-sovereign entity (e.g. separate legal personality from sovereign).">
 	sovereignRecourse boolean (0..1) <"Applies to non-sovereign entity (e.g. separate legal personality from sovereign).  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
@@ -184,25 +184,26 @@ type QuasiGovernmentIssuerType: <"A class to allow specification of different ty
 	condition NonSovereignEntityRecourse:
 		if sovereignRecourse exists then sovereignEntity = False
 
-type RegionalGovernmentIssuerType: <"A class to allow specification of different type of Regional government collateral.">
+type RegionalGovernmentIssuerType: <"Represents a class to allow specification of different type of Regional government collateral.">
 
 	sovereignRecourse boolean (1..1) <"Applies to regional governments, local authorities or municipals.  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
 	
-type SpecialPurposeVehicleIssuerType: <"A class to allow specification of different types of special purpose vehicle (SPV) collateral.">
-	creditRisk CreditRiskEnum (0..1) <"Tranched or untranched credit risk."> 
+type SpecialPurposeVehicleIssuerType: <"Represents a class to allow specification of different types of special purpose vehicle (SPV) collateral.">
+	creditRisk CreditRiskEnum (0..1) <"Indicates tranched or untranched credit risk."> 
 	
 type ExternalProductType: <"Provides a classification of the type of product that is external to the product qualifications used in the CDM. Product types mapped from external models are mapped to this data type.">
 	value string (1..1) <"Stores the product type value.">
 	    [metadata scheme]
 	externalProductTypeSource ExternalProductTypeSourceEnum (1..1) <"Denotes the enumerated value to identify the source for the specified product type.">
 
-type AssetType: <"A class to allow specification of the asset product type.">
-	assetType AssetTypeEnum (1..1) <"The type of collateral asset.">
-	securityType SecurityTypeEnum (0..1) <"Filter based on the type of security.">
-	debtType DebtType (0..1) <"Filter based on the type of bond.">
-	equityType EquityTypeEnum (0..1) <"Filter based on the type of equity.">
-	fundType FundProductTypeEnum (0..1) <"Filter based on the type of fund.">
-	
+type AssetType: <"Represents a class to allow specification of the asset product type.">
+	assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
+	securityType SecurityTypeEnum (0..1) <"Represents a filter based on the type of security.">
+	debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
+	equityType EquityTypeEnum (0..1) <"Represents a filter based on the type of equity.">
+	fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
+	otherAssetType string (0..*) <"Specifies the eligible asset type when not enumerated.">
+
 	condition SecuritySubType:
 		if assetType <> AssetTypeEnum -> Security
 		then ( securityType and debtType and equityType ) is absent
@@ -219,6 +220,9 @@ type AssetType: <"A class to allow specification of the asset product type.">
 		if securityType <> SecurityTypeEnum -> Fund
 		then fundType is absent
 
+	condition OtherAssetSubType:
+		if assetType <> AssetTypeEnum -> Other 
+		then otherAssetType exists
 		
 type PriceSource: <"Specifies a publication that provides the commodity price, including, where applicable, the details of where in the publication the price is published.">
 	pricePublisher string (1..1)<"Defines a publication in which the price can be found. (e.g Gas Daily, Platts Bloomberg. Commodity publishers can be found at this URL:  http://www.fpml.org/coding-scheme/commodity-information-provider>">

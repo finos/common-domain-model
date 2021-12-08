@@ -1,6 +1,7 @@
 namespace cdm.product.template : <"Template feature concepts to define payouts.">
 version "${project.version}"
 
+import cdm.base.math.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
 
@@ -55,6 +56,51 @@ func MergeTradeLot: <"Replace TradeLot in with matching TradeLot->lotIdentifier.
 	            then newTradeLot
 	            else item
             ]
+
+func CompareTradeLots: <"Compare the Quantity in TradeLot 1 to the Quantity (with the same unit of amount) in TradeLot 2, based on the CompareOp enum.">
+	inputs:
+		tradeLot1 TradeLot (1..1)
+        op CompareOp (1..1)
+		tradeLot2 TradeLot (1..1)
+	output:
+		result boolean (1..1)
+
+	alias unitOfAmounts:
+		tradeLot2 -> priceQuantity -> quantity -> unitOfAmount distinct
+
+	alias results:
+		unitOfAmounts
+		    // for each unit of amount
+			map unitOfAmount [
+			    // get quantities from tradeLot 1 with the given unit of amount
+				FilterQuantity( tradeLot1 -> priceQuantity -> quantity, unitOfAmount )
+					map quantity1 [
+						// get quantities from tradeLot 2 with the given unit of amount
+                        FilterQuantity( tradeLot2 -> priceQuantity -> quantity, unitOfAmount )
+							map quantity2 [
+							    // compare quantity 1 with each quantity 2
+							    CompareNumbers( quantity1 -> amount, op, quantity2 -> amount )
+                            ]
+					] flatten
+			] flatten
+
+	assign-output result:
+		results all = True
+
+func CompareTradeLot: <"Compare the Quantity amount in TradeLot to the given amount (regardless of unit of amount), based on the CompareOp enum.">
+	inputs:
+		tradeLot TradeLot (1..1)
+		op CompareOp (1..1)
+		amount number (1..1)
+	output:
+		result boolean (1..1)
+
+	alias results:
+		tradeLot -> priceQuantity -> quantity
+			map [ CompareNumbers( item -> amount, op, amount ) ]
+
+	assign-output result:
+		results all = True
 
 func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
 	inputs:
