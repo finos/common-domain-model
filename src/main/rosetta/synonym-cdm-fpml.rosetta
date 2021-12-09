@@ -478,8 +478,8 @@ synonym source FpML_5_10 extends FpML
 			[value "singleUnderlyer" path "underlyer"]
             [value "basket" path "underlyer"]
 			[value "underlyer"]
-			// [value "basket" path "underlyer"]
 			[value "constituentWeight"]
+			[hint "constituentWeight"]
             [value "notionalAmount" path "notional"]
             // For FX:
             [value "paymentAmount" path "exchangedCurrency1"]
@@ -1666,8 +1666,6 @@ synonym source FpML_5_10 extends FpML
 		+ amount
 			[value "initialValue" maps 2]
 			[value "amount" maps 2]
-			[value "openUnits" path "singleUnderlyer" maps 2]
-			[value "openUnits" path "basket" maps 2]
 			[value "openUnits" maps 2]
 			[value "numberOfOptions" maps 2]
 			[value "basketPercentage" maps 2]
@@ -1864,8 +1862,7 @@ synonym source FpML_5_10 extends FpML
 			[value "businessUnitId" meta "unitScheme"]
 			[value "eventId"]
 		+ identifierType
-			// [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when
-			// 	"tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier" and "issuer->issuerIdScheme" = "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"]
+			// [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier" and "issuer->issuerIdScheme" = "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"]
 			[set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/uti"]
 			[set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"]
 			[set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/usi"]
@@ -1996,7 +1993,6 @@ synonym source FpML_5_10 extends FpML
 		[meta "id" path "calculationAmount"]
 		+ resolvedQuantity
 			[value "singleUnderlyer" meta "openUnits"]
-			// [value "basket" meta "openUnits"]
 			[value "paymentAmount" path "exchangedCurrency1" meta "amount"]
 			[value "paymentAmount" path "exchangedCurrency2" meta "amount"]
 			[value "putCurrencyAmount" meta "amount"]
@@ -2141,6 +2137,7 @@ synonym source FpML_5_10 extends FpML
 			[value "features"]
 		+ underlier
 			[value "singleUnderlyer" path "underlyer"]
+			[value "basket" path "underlyer"]
 			[hint "bond", "equity", "mortgage", "convertibleBond"]
 			[hint "swap"]
 			[hint "creditDefaultSwap"]
@@ -2287,7 +2284,6 @@ synonym source FpML_5_10 extends FpML
 		+ interestRatePayout
 			// For Swap Stream
 			[value "swapStream"]
-			// [value "additionalTerms"]
 			// For CapFloor:
 			[value "capFloorStream"]
 			// For FRA:
@@ -2368,7 +2364,7 @@ synonym source FpML_5_10 extends FpML
 			[value "equityOption"]
 			[hint "brokerEquityOption"]
 			[value "brokerEquityOption"]
-			// To handle commoditySwap:
+			// For Commodity Swap
 			[value "commoditySwap"]
 			[hint "commoditySwap"]
 			// For Commodity Option
@@ -2471,6 +2467,7 @@ synonym source FpML_5_10 extends FpML
 			[value "returnSwap", "equitySwapTransactionSupplement"]
 			[value "basket" path "returnSwap->returnLeg->underlyer"]
 			[hint "equityOption"]
+			[value "basket" path "equityOption->underlyer"]
 			[value "brokerEquityOption"]
 			// Other
 			[value "commoditySwap"]
@@ -3435,10 +3432,8 @@ synonym source FpML_5_10 extends FpML
 			// [value "priceUnit" set when rosettaPath = Price->perUnitOfAmount]
 		+ financialUnit
 			[value "quantityUnit"]
-			[value "openUnits"]
-			[set to FinancialUnitEnum->Share when "equity" exists]
-			[set to FinancialUnitEnum->IndexUnit when "index" exists]
-			[set to FinancialUnitEnum->IndexUnit when "basket" exists]
+			// [value "openUnits"]
+			[set to FinancialUnitEnum->Share when "equity" exists /* and "openUnits" exists*/]
 			[set to FinancialUnitEnum->ContractualProduct when path = "additionalPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "otherPartyPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "initialPayment->paymentAmount->amount"]
@@ -3447,7 +3442,8 @@ synonym source FpML_5_10 extends FpML
 			[set to FinancialUnitEnum->ContractualProduct when path = "premium->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "equityPremium->paymentAmount->amount"]
 			[set to FinancialUnitEnum->Weight when path = "basketPercentage"]
-			[set to FinancialUnitEnum->Weight when path = "constituentWeight->openUnits"]			
+			[set to FinancialUnitEnum->IndexUnit when path = "constituentWeight->openUnits"]			
+			[set to FinancialUnitEnum->Weight when path = "basketConstituent->constituentWeight"]			
 		+ currency
 			[value "currency" maps 2 meta "currencyScheme"]
 			[value "varyingNotionalCurrency" maps 2 meta "currencyScheme"]
