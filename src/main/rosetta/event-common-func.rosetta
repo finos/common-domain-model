@@ -1625,6 +1625,135 @@ func Create_TermsChangePrimitive: <"A specification of the inputs, outputs and c
 			newAdjustment
 			)
 
+
+//new content
+// func Create_ExecutionInstruction: <"create execution instruction">
+// 	inputs:
+// 		product Product (1..1) <"Defines the financial product to be executed and contract formed.">
+// 		priceQuantity PriceQuantity (1..*) <"Defines the prices (e.g. spread, equity price, FX rate), quantities (e.g. currency amount, no. shares) and settlement terms (e.g. initial fee, broker fee, up-front cds payment or option premium settlement) associated with the constituents of the transacted product.">
+// 		counterparty  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
+// 		ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
+// 		parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
+// 		partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
+// 		executionDetails ExecutionDetails (1..1) <"Specifies the type and venue of execution, e.g. via voice, or electronically.">
+// 		tradeDate date (1..1) <"Denotes the trade/execution date.">
+// 		tradeIdentifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
+
+// 	output:
+// 		instruction ExecutionInstruction (1..1)	//or type  Instruction?
+
+
+// 	assign-output instruction -> product:
+//          product
+
+//     assign-output instruction -> priceQuantity:
+//         priceQuantity
+
+//     assign-output instruction -> counterparty:
+//         counterparty
+
+//     assign-output instruction -> ancillaryParty:
+//         ancillaryParty
+
+//     assign-output instruction -> parties:
+//         parties
+
+// 	assign-output instruction -> partyRoles:
+//         partyRoles	
+
+// 	assign-output instruction -> tradeDate:
+//         tradeDate		
+
+// 	assign-output instruction -> tradeIdentifier:
+//         tradeIdentifier
+
+// func Create_ContractFormationInstruction:
+// 	inputs:
+// 		execution TradeState (0..1) <"Execution consisting of the economic terms which are agreed between the parties.">
+// 		executionInstruction ExecutionInstruction (0..1) <"Specifies the Execution instructions for creation of a TradeState that will then have a contract formed.">
+// 		legalAgreement LegalAgreement (0..*)
+// 	output:
+// 		instruction	ContractFormationInstruction (1..1)
+
+// 	assign-output instruction -> execution:
+//         execution
+
+//     assign-output instruction -> executionInstruction:
+//         executionInstruction
+
+//     assign-output instruction -> legalAgreement:
+//         legalAgreement
+
+func Create_ExercisePrimitive: <"description">
+	inputs:	
+		exercise ExerciseInstruction (1..1)
+		tradeState TradeState (1..1)
+
+	output: 
+		newTrade TradeState (1..2)
+
+	alias optionPayout:
+		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> optionPayout only-element
+
+	alias exercisedOption:
+		Create_QuantityChangePrimitive(
+			tradeState,
+			exercise -> quantityChange -> change,
+			exercise -> quantityChange -> direction,
+			exercise -> quantityChange -> lotIdentifier
+			) -> after
+
+	// alias executionInstruction:
+	// 	if tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> optionPayout -> settlementTerms -> physicalSettlementTerms exists then
+	// 		Create_ExecutionInstruction(
+	// 			optionPayout -> underlier,
+	// 			exercise -> quantityChange -> change,
+	// 			tradeState -> trade -> tradableProduct -> counterparty,
+	// 			tradeState -> trade -> tradableProduct -> ancillaryParty,
+	// 			tradeState -> trade -> party,
+	// 			tradeState -> trade -> partyRole,
+	// 			tradeState -> trade -> executionDetails,
+	// 			tradeState -> trade -> tradeDate,
+	// 			tradeState -> trade -> tradeIdentifier
+	// 		)
+	
+	// alias transferInstruction:
+	// 	if tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> optionPayout -> settlementTerms -> physicalSettlementTerms exists then
+	// 		Create_TransferInstructino(
+	// 			ResolveCashflow(OptionCashSettlementAmount)
+	// 			)
+
+	// alias contractFormationInstruction:
+	// 	if tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> optionPayout -> settlementTerms -> physicalSettlementTerms exists then
+	// 		Create_ContractFormationInstruction(
+	// 			empty,
+	// 			empty,
+	// 			tradeState -> trade -> contractDetails -> documentation -> legalAgreement
+	// 		)
+
+	alias legalAgreement:	
+		tradeState -> trade -> contractDetails -> documentation -> legalAgreement	
+
+	assign-output newTrade: <"Creates a new trade as the outcome of physical exercise.">
+		Create_ContractFormationPrimitive(
+			Create_ExecutionPrimitive(
+				optionPayout -> underlier,
+				exercise -> quantityChange -> change,
+				tradeState -> trade -> tradableProduct -> counterparty,
+				tradeState -> trade -> tradableProduct -> ancillaryParty,
+				tradeState -> trade -> party,
+				tradeState -> trade -> partyRole,
+				tradeState -> trade -> executionDetails,
+				tradeState -> trade -> tradeDate,
+				tradeState -> trade -> tradeIdentifier
+				) -> after -> trade,
+			legalAgreement
+			) -> after
+
+	// assign-output newTrade: <"Reduces Options by the quantity/notional exercised.">
+	// 	exercisedOption
+
+
 func CloseTrade: <"Function specification for a contract termination where the closed state and position state are updated, and all quantity amounts are set to 0.">
 	inputs:
 		tradeState TradeState (1..1) <"Formed contract in non-terminated state.">
