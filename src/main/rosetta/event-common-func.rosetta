@@ -2133,6 +2133,7 @@ func Create_TransferFromCashPrice:
 	assign-output transfer -> payerReceiver -> receiverPartyReference: <"Extract seller from trade counterparties. The seller receives the cash price.">
 		ExtractCounterpartyByRole( counterparty, buyerSeller -> seller) -> partyReference
 
+/*
     func Create_BusinessEvent: <"Creates a business event from instructions containing primitive instructions and optionally a trade state.">
     [creation BusinessEvent]
     	inputs:
@@ -2234,3 +2235,101 @@ func Create_TransferFromCashPrice:
 		// 	if (primitiveInstruction -> quantityChange only exists and primitiveInstruction count = 1) and
 		// 		tradeState -> state -> positionState all = PositionStatusEnum -> Closed then
 		// 		ClosedStateEnum -> Terminated
+*/
+
+/*
+use-cases:
+1. execution
+2. contract formation
+3. execution and contract formation
+4. termination (quantity change)
+5. increase (quantity change)
+6. partial termination (quantity change)
+7. compression (list of execution and contract formation)
+8. renegotiation (quantity change and terms change)
+*/
+
+func Create_BusinessEvent: <"Creates a business event from instructions containing primitive instructions and optionally a trade state.">
+    [creation BusinessEvent]
+    inputs:
+        instructions Instruction (1..*)
+        instructionFunction InstructionFunctionEnum (1..1)
+        eventDate date (1..1)
+    output:
+        businessEvent BusinessEvent (1..1)
+
+    assign-output businessEvent -> instruction:
+        instructions
+
+    assign-output businessEvent -> instructionFunction:
+        instructionFunction
+
+    assign-output businessEvent -> eventDate:
+        eventDate
+
+    assign-output businessEvent -> after:
+        instructions
+            map [ Create_TradeState(
+				item -> primitiveInstruction,
+				item -> before ) ]
+			flatten
+
+func Create_TradeState: <"Creates a trade state from primitive instructions and optionally a trade state.">
+    inputs:
+        primitiveInstructions PrimitiveInstruction (0..*)
+        before TradeState (0..1)
+    output:
+        tradeState TradeState (1..*)
+
+	assign-output tradeState:
+		ProcessPrimitiveInstruction( FindNextPrimitiveInstruction( primitiveInstructions ), before, primitiveInstructions )
+
+func ProcessPrimitiveInstruction: <"Process single PrimitiveInstruction, then if there are any remaining PrimitiveInstruction, initiate the processing of the next one.">
+    inputs:
+        primitiveInstruction PrimitiveInstruction (1..1) <"PrimitiveInstruction to process.">
+        tradeState TradeState (0..1) <"TradeState to process. Output of previous PrimitiveInstruction process step.">
+        remainingPrimitiveInstructions PrimitiveInstruction (0..*)
+    output:
+        updatedTradeStates TradeState (1..*)
+
+    alias after: <"TradeState result from primitive instruction.  The order of these if/else statements does not matter; the order of processing is determined by FindNextPrimitiveInstruction">
+        if primitiveInstruction -> execution exists
+        then Create_ExecutionPrimitive( empty, empty, empty, empty, empty, empty, empty, empty, empty ) -> after
+        else if primitiveInstruction -> quantityChange exists
+        then Create_QuantityChangePrimitive( empty, empty, empty, empty ) -> after
+        else if primitiveInstruction -> termsChange exists
+        then Create_TermsChangePrimitive( primitiveInstruction -> termsChange, tradeState )
+        else if primitiveInstruction -> contractFormation exists
+        then Create_ContractFormationPrimitive( empty, empty ) -> after
+
+    alias updatedRemainingPrimitiveInstructions:
+        remainingPrimitiveInstructions
+            filter [ item <> primitiveInstruction ]
+
+    assign-output updatedTradeState:
+        if remainingPrimitiveInstructions count > 0
+        then ProcessPrimitiveInstruction(
+			FindNextPrimitiveInstruction( remainingPrimitiveInstructions ),
+			after, // after is the before of the next primitive instruction
+			updatedRemainingPrimitiveInstructions
+		)
+        else after
+
+func FindNextPrimitiveInstruction:
+    inputs:
+        primitiveInstructions PrimitiveInstruction (0..*)
+    output:
+        nextPrimitiveInstruction PrimitiveInstruction (1..1)
+
+    alias nextPrimitiveInstructions:
+		if primitiveInstructions -> execution exists
+		then primitiveInstructions filter [ item -> execution exists ]
+		else if primitiveInstructions -> quantityChange exists
+		then primitiveInstructions filter [ item -> quantityChange exists ]
+		else if primitiveInstructions -> termsChange exists
+		then primitiveInstructions filter [ item -> termsChange exists ]
+		else if primitiveInstructions -> contractFormation exists
+		then primitiveInstructions filter [ item -> contractFormation exists ]
+
+	assign-output nextPrimitiveInstruction:
+		nextPrimitiveInstructions only-element
