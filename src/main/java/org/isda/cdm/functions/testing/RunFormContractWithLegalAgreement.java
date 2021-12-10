@@ -35,11 +35,10 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Tra
         tradeStateBuilder.getOrCreateState().setPositionState(PositionStatusEnum.EXECUTED);
 
         ContractFormationInstruction contractFormationInstruction = ContractFormationInstruction.builder()
-                .setExecution(tradeStateBuilder)
                 .addLegalAgreement(legalAgreement)
                 .build();
 
-        return formContract.evaluate(contractFormationInstruction, new DateImpl(1, 12, 1994));
+        return formContract.evaluate(contractFormationInstruction, tradeStateBuilder, new DateImpl(1, 12, 1994));
     }
 
 
