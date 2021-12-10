@@ -1574,6 +1574,53 @@ func Create_SplitTrade:
 	assign-output splitTrade -> trade -> partyRole: <"Add ancillary party role">
 		ancillaryParty
 
+func Create_Split: <"Defines the logic for splitting a trade into separate copies. The split instruction contains a breakdown into N set of primitive instructions. Each set contains the primitive instructions to be applied to each post-split trade, eventually producing N trades. The split function underpins a number of business events such as clearing or allocation.">
+	inputs:
+		breakdown PrimitiveInstructionList (1..*) <"Each primitive instruction list contains the set of instruction to be applied to each post-split trade.">
+		originalTrade TradeState (1..1) <"The original trade to be split, which must be of single cardinality.">
+	output:
+		splitTrade TradeState (1..*)
+
+	set splitTrade: <"Iterate over each breakdown and apply the set of primitive instructions to each copy of the original trade.">
+		breakdown
+			map [ Create_TradeState( item -> primitiveInstruction, originalTrade ) ]
+
+func Create_PartyChange: <"Defines the logic for changing one of the counterparties on a trade. A new trade identifier must be specified as a change of party results in a new trade. An ancillary party can also be specified, for instance to refer to the original executing party on the new trade.">
+	inputs:
+		counterparty Counterparty (1..1) <"The counterparty to change and the role it plays in the transaction.">
+		ancillaryParty AncillaryParty (0..1) <"Optional ancillary party, which can be used to keep a reference to the original executing party, for instance.">
+		tradeId Identifier (1..*) <"A mandatory trade identifier must be specified, as the chnage of party results in a new trade.">
+		originalTrade TradeState (1..1) <"The original trade on which to update the counterparty. The original trade will be terminated.">
+	output:
+		newTrade TradeState (1..1)
+
+	// The content of this function is copied from 'Create_SplitTrade' as used in the current Allocation function
+
+	alias counterparty1:
+		if counterparty -> role = CounterpartyRoleEnum -> Party1
+		then Create_Counterparty( counterparty -> partyReference, counterparty -> role )
+		else ExtractCounterpartyByRole( originalTrade -> trade -> tradableProduct -> counterparty, CounterpartyRoleEnum -> Party1 )
+	alias counterparty2:
+		if counterparty -> role = CounterpartyRoleEnum -> Party2
+		then Create_Counterparty( counterparty -> partyReference, counterparty -> role)
+		else ExtractCounterpartyByRole( originalTrade -> trade -> tradableProduct -> counterparty, CounterpartyRoleEnum -> Party2 )
+	alias partyToRemove:
+        ExtractCounterpartyByRole( originalTrade -> trade -> tradableProduct -> counterparty, counterparty -> role ) -> partyReference
+
+	assign-output newTrade: <"Copy the original trade.">
+		originalTrade
+	assign-output newTrade -> trade -> tradableProduct -> counterparty: <"Assigns the new counterparties.">
+		[counterparty1, counterparty2]
+	assign-output newTrade -> trade -> party: <"Removes the existing party, and adds the new party.">
+		ReplaceParty( originalTrade -> trade -> party,
+		    partyToRemove,
+		    counterparty -> partyReference )
+
+	assign-output newTrade -> trade -> party: <"Add ancillary party as an additional party">
+		ancillaryParty -> partyReference
+	assign-output newTrade -> trade -> tradableProduct -> ancillaryParty: <"Add ancillary party role">
+		ancillaryParty
+
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
 	inputs:
 		tradeState TradeState (1..1) <"Execution to be settled.">
@@ -2186,95 +2233,82 @@ func Create_TransferFromCashPrice:
 	assign-output transfer -> payerReceiver -> receiverPartyReference: <"Extract seller from trade counterparties. The seller receives the cash price.">
 		ExtractCounterpartyByRole( counterparty, buyerSeller -> seller) -> partyReference
 
-    func Create_BusinessEvent: <"Creates a business event from instructions containing primitive instructions and optionally a trade state.">
+func Create_BusinessEvent: <"Creates a business event from instructions containing primitive instructions and optionally a trade state.">
     [creation BusinessEvent]
-    	inputs:
-    		instruction Instruction (1..*)
-    		instructionFunction InstructionFunctionEnum (1..1)
-    		eventDate date (1..1)
+	inputs:
+		instruction Instruction (1..*)
+		instructionFunction InstructionFunctionEnum (1..1)
+		eventDate date (1..1)
 
-    	output:
-    		businessEvent BusinessEvent (1..1)
+	output:
+		businessEvent BusinessEvent (1..1)
 
-    	assign-output businessEvent -> instruction:
-    	instruction
+	assign-output businessEvent -> instruction:
+	    instruction
 
-    	assign-output businessEvent -> instructionFunction:
-    	instructionFunction
+	assign-output businessEvent -> instructionFunction:
+	    instructionFunction
 
-    	assign-output businessEvent->eventDate:
-    	eventDate
+	assign-output businessEvent->eventDate:
+	    eventDate
 
 	//TODO: This is where the iterator must be built and replace the only-element restriction
-    	assign-output businessEvent -> after:
-    		Create_TradeState(instruction->primitiveInstruction,instruction->before only-element)
+	assign-output businessEvent -> after:
+		if instruction -> primitiveInstruction -> split exists then
+			Create_Split( instruction -> primitiveInstruction -> split -> breakdown, instruction->before only-element)
+		else
+			Create_TradeState(instruction->primitiveInstruction,instruction->before only-element)
 
-    func Create_TradeState: <"Creates a trade state from primitive instructions and optionally a trade state.">
-    	inputs:
-    		primitiveInstruction PrimitiveInstruction (1..*)
-    		before TradeState (0..1)
+	// TODO: we should have a condition to ensure that no trade is 'lost' between the before(s) and the after(s).
+	// This can be implemented by looking at the trade identifier attribute on the before state, and making sure it exists in the after state.
+	// So for instance where there is a party change (which results in a different trade with a different trade id), the original trade should be split first, and one of the copies should 'close' the trade.
 
-    	output:
-    		tradeState TradeState (1..*)
+func Create_TradeState: <"Creates a single trade state by applying primitive instructions to an existing trade state (optional in case an execution instruction is included).">
+	inputs:
+		primitiveInstruction PrimitiveInstruction (1..*) <"The set of primitive instructions to apply to the trade.">
+		before TradeState (0..1) <"The original trade on which the primitive instructions are applied">
 
-    	alias execution:
-    		if before exists then before
-    		else if primitiveInstruction->execution only exists then
-    		Create_ExecutionPrimitive(
-    		    Create_ExecutionInstruction(
-                    primitiveInstruction -> execution only-element -> product,
-                    primitiveInstruction -> execution only-element -> priceQuantity,
-                    primitiveInstruction -> execution only-element -> counterparty,
-                    primitiveInstruction -> execution only-element -> ancillaryParty,
-                    primitiveInstruction -> execution only-element -> parties,
-                    primitiveInstruction -> execution only-element -> partyRoles,
-                    primitiveInstruction -> execution only-element -> executionDetails,
-                    primitiveInstruction -> execution only-element -> tradeDate,
-                    primitiveInstruction -> execution only-element -> tradeIdentifier
-                )
-            ) -> after
-		// Strategic approach
-    	// Create_ExecutionPrimitive(instruction -> primitiveInstruction -> execution only-element)
+	output:
+		after TradeState (1..1) <"The returned trade state must be of single cardinality. Where a different trade is created and the original trade must be persisted (for instance showing as 'closed'), it should be preceded by a split instruction.">
 
-		alias quantityChange:
-			if (primitiveInstruction -> quantityChange count = 1)
-			then Create_QuantityChangePrimitive( primitiveInstruction -> quantityChange only-element, before ) -> after
-		// Strategic approach
-		// Create_QuantityChangePrimitive(instruction -> primitiveInstruction -> quantityChange only-element, instruction -> tradeState)
+	// PROPOSED: Applying the primitive instructions in the right order (and possibly more elegant using only the new 'set' syntax)
+	//
+	// - execution, if it exists, otherwise a before state must be provided [ALWAYS FIRST]
+	// [
+	//		Those 3 can be executed in any order, because they touch separate components of the trade:
+	// 		- quantity change
+	// 		- terms change
+	// 		- party change
+	// ]
+	// - contract formation [ALWAYS LAST (otherwise the contract could be invalid)]
 
-		// alias isClosed:
-        // 	tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount all = 0
+	alias execution:
+		if before exists then before
+		else Create_ExecutionPrimitive( primitiveInstruction -> execution only-element ) -> after
 
-		alias renegotiation:
-			if (primitiveInstruction -> termsChange only exists and primitiveInstruction count = 1)
-		then Create_TermsChangePrimitive(
-			primitiveInstruction -> termsChange only-element,
-			before)
-		else if
-		(primitiveInstruction -> termsChange exists and primitiveInstruction -> quantityChange exists and primitiveInstruction count = 2)
-		then Create_TermsChangePrimitive(
-			primitiveInstruction -> termsChange only-element,
-			Create_QuantityChangePrimitive( primitiveInstruction -> quantityChange only-element, before ) -> after
+	alias quantityChange:
+		if primitiveInstruction -> quantityChange is absent then execution
+		else Create_QuantityChangePrimitive( primitiveInstruction -> quantityChange only-element, execution /*after*/ ) -> after
+
+	alias termsChange:
+		if primitiveInstruction -> termsChange is absent then quantityChange
+		else Create_TermsChangePrimitive( primitiveInstruction -> termsChange only-element, quantityChange /*after*/ )
+
+	alias partyChange:
+		if primitiveInstruction -> partyChange is absent then termsChange
+		else Create_PartyChange(
+			primitiveInstruction -> partyChange only-element -> counterparty,
+			primitiveInstruction -> partyChange only-element -> ancillaryParty,
+			primitiveInstruction -> partyChange only-element -> tradeId,
+			termsChange /*after*/
         )
 
-		alias contractFormation:
-    		if primitiveInstruction -> contractFormation exists then
-    		Create_ContractFormationPrimitive( primitiveInstruction -> contractFormation only-element, execution ) -> after
-		// Strategic approach
-    	// Create_ContractFormationPrimitive(instruction -> primitiveInstruction -> contractFormation only-element, instruction -> tradeState)
+	alias contractFormation:
+		if primitiveInstruction -> contractFormation is absent then partyChange
+		else Create_ContractFormationPrimitive( primitiveInstruction -> contractFormation only-element, partyChange /*after*/ ) -> after
 
-    	assign-output tradeState:
-    		if (primitiveInstruction -> execution only exists and primitiveInstruction count = 1) then
-    			execution
-			else if (primitiveInstruction -> quantityChange only exists and primitiveInstruction count = 1) then
-				quantityChange
-			else if ((primitiveInstruction -> termsChange only exists and primitiveInstruction count = 1) or
-					 (primitiveInstruction -> termsChange exists and primitiveInstruction -> quantityChange exists and primitiveInstruction count = 2)) then
-				renegotiation
-			else if (primitiveInstruction -> contractFormation only exists and primitiveInstruction count = 1) then
-    			contractFormation
+	condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
+		primitiveInstruction -> split is absent
 
-		// assign-output tradeState -> state -> closedState -> state:
-		// 	if (primitiveInstruction -> quantityChange only exists and primitiveInstruction count = 1) and
-		// 		tradeState -> state -> positionState all = PositionStatusEnum -> Closed then
-		// 		ClosedStateEnum -> Terminated
+	set after:
+		contractFormation
