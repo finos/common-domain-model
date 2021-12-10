@@ -2252,12 +2252,15 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
 	assign-output businessEvent->eventDate:
 	    eventDate
 
-	//TODO: This is where the iterator must be built and replace the only-element restriction
 	assign-output businessEvent -> after:
-		if instruction -> primitiveInstruction -> split exists then
-			Create_Split( instruction -> primitiveInstruction -> split -> breakdown, instruction->before only-element)
-		else
-			Create_TradeState(instruction->primitiveInstruction,instruction->before only-element)
+	    instruction
+	        map [
+	            if item -> primitiveInstruction -> split exists then
+                    Create_Split( item -> primitiveInstruction -> split -> breakdown, item -> before )
+                else
+                    [ Create_TradeState( item -> primitiveInstruction , item -> before ) ]
+	        ] flatten
+
 
 	// TODO: we should have a condition to ensure that no trade is 'lost' between the before(s) and the after(s).
 	// This can be implemented by looking at the trade identifier attribute on the before state, and making sure it exists in the after state.
