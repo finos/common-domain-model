@@ -800,7 +800,7 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 		instruction -> tradeState -> trade -> contractDetails exists
 
 	assign-output businessEvent -> primitives -> quantityChange: <"Build the QuantityChangePrimitive containig both the adjusted Price and Quantity, and add to WorkflowStep.">
-		Create_QuantityChangePrimitive( instruction -> tradeState, [postSplitPriceQuantity], QuantityChangeDirectionEnum -> Replace, empty )
+		Create_QuantityChangePrimitive( Create_QuantityChangeInstruction( [postSplitPriceQuantity], QuantityChangeDirectionEnum -> Replace, empty ), instruction -> tradeState )
 
 func Create_Execution: <"Creates the fully formed business event of executing a transaction based on execution instructions, representing the instantiation of a transaction between two parties on a financial product for a given price, quantity and settlement terms. The business event is constructed to contain a single execution primitive event, and no other primitive event.">
 	[creation BusinessEvent]
@@ -1051,10 +1051,12 @@ func Create_Termination: <"Defines the process of partially or fully termination
 
     alias quantityChangePrimitive:
         Create_QuantityChangePrimitive(
-            tradeState,
-            terminationInstruction -> terminatedPriceQuantity,
-            QuantityChangeDirectionEnum -> Decrease,
-            empty
+            Create_QuantityChangeInstruction(
+                terminationInstruction -> terminatedPriceQuantity,
+                QuantityChangeDirectionEnum -> Decrease,
+                empty
+            ),
+            tradeState
         )
 
     alias isTermination:
@@ -1454,10 +1456,12 @@ func Create_DecreasedTradeQuantityChangePrimitive:
 
 	assign-output quantityChangePrimitive:
 		Create_QuantityChangePrimitive(
-			decrease -> tradeState,
-			[ changePriceQuantity ],
-			QuantityChangeDirectionEnum -> Replace,
-			empty
+		    Create_QuantityChangeInstruction(
+                [ changePriceQuantity ],
+                QuantityChangeDirectionEnum -> Replace,
+                empty
+            ),
+			decrease -> tradeState
         )
 
 func Create_DecreasedTradeQuantityChangePrimitives:
@@ -1588,13 +1592,23 @@ func Settle: <"Function specification to create the Transfer event based on an e
 	assign-output transferEvent -> lineage -> tradeReference:
 		tradeState -> trade as-key
 
+func Create_QuantityChangeInstruction:
+    inputs:
+        change PriceQuantity (1..*)
+        direction QuantityChangeDirectionEnum (1..1)
+        lotIdentifier Identifier (0..*)
+    output:
+        instruction QuantityChangeInstruction (1..1)
+
+    assign-output instruction -> change: change
+    assign-output instruction -> direction: direction
+    assign-output instruction -> lotIdentifier: lotIdentifier
+
 func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs and constraints when calculating the after state of a Quantity Change Primitive Event">
 	[creation PrimitiveEvent]
 	inputs:
+	    instruction QuantityChangeInstruction (1..1)
 		tradeState TradeState (1..1)
-		change PriceQuantity (1..*)
-		direction QuantityChangeDirectionEnum (1..1)
-		lotIdentifier Identifier (0..*)
 	output:
 		quantityChangePrimitive QuantityChangePrimitive (1..1)
 
@@ -1602,25 +1616,25 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
         tradeState -> trade -> tradableProduct
 
     alias tradeLots: <"For direction Decrease or Replace, get the TradeLot to update.">
-        if direction <> QuantityChangeDirectionEnum -> Increase
-        then if lotIdentifier exists then FilterTradeLot( tradableProduct -> tradeLot, lotIdentifier ) else tradableProduct -> tradeLot
+        if instruction -> direction <> QuantityChangeDirectionEnum -> Increase
+        then if instruction -> lotIdentifier exists then FilterTradeLot( tradableProduct -> tradeLot, instruction -> lotIdentifier ) else tradableProduct -> tradeLot
 
     alias newPriceQuantity: <"Update PriceQuantity based on change and direction inputs. For an Increase, the change PriceQuantity will be added to the list of TradeLots. For a Decrease or Replace, apply the changes to the existing PriceQuantity.">
-        if direction = QuantityChangeDirectionEnum -> Increase
-        then change
-        else UpdateAmountForEachMatchingQuantity( tradeLots only-element -> priceQuantity, change, direction )
+        if instruction -> direction = QuantityChangeDirectionEnum -> Increase
+        then instruction -> change
+        else UpdateAmountForEachMatchingQuantity( tradeLots only-element -> priceQuantity, instruction -> change, instruction -> direction )
 
     alias newTradeLots: <"Add or merge updated TradeLot.">
-        if direction = QuantityChangeDirectionEnum -> Increase
-        then AddTradeLot( tradableProduct -> tradeLot, Create_TradeLot( lotIdentifier, newPriceQuantity ) )
-        else MergeTradeLot( tradableProduct -> tradeLot, Create_TradeLot( lotIdentifier, newPriceQuantity ) )
+        if instruction -> direction = QuantityChangeDirectionEnum -> Increase
+        then AddTradeLot( tradableProduct -> tradeLot, Create_TradeLot( instruction -> lotIdentifier, newPriceQuantity ) )
+        else MergeTradeLot( tradableProduct -> tradeLot, Create_TradeLot( instruction -> lotIdentifier, newPriceQuantity ) )
 
 	// alias isClosed:
     //     quantityChangePrimitive -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount
 
 	condition: <"Only termination where the termination price is specified as a cash price is supported for now.">
-		if direction = QuantityChangeDirectionEnum -> Decrease and change -> price exists
-		then change -> price -> priceExpression -> priceType all = PriceTypeEnum -> CashPrice
+		if instruction -> direction = QuantityChangeDirectionEnum -> Decrease and instruction -> change -> price exists
+		then instruction -> change -> price -> priceExpression -> priceType all = PriceTypeEnum -> CashPrice
 
 	assign-output quantityChangePrimitive -> before: tradeState
 	assign-output quantityChangePrimitive -> after: tradeState
@@ -2121,7 +2135,7 @@ func Create_Return: <"Defines the process of partially or fully returning a Secu
 	    Create_PriceQuantity( empty, returnInstruction -> quantity, empty )
 
 	assign-output returnEvent -> primitives -> quantityChange: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially returned original contract, assuming there's a single security finance transaction in the original financial contract that is part returned.">
- 		Create_QuantityChangePrimitive( tradeState, [ changePriceQuantity ], QuantityChangeDirectionEnum -> Decrease, empty )
+ 		Create_QuantityChangePrimitive( Create_QuantityChangeInstruction( [ changePriceQuantity ], QuantityChangeDirectionEnum -> Decrease, empty ), tradeState )
 
 	assign-output returnEvent -> eventDate:
 		returnDate
@@ -2223,13 +2237,8 @@ func Create_TransferFromCashPrice:
     	// Create_ExecutionPrimitive(instruction -> primitiveInstruction -> execution only-element)
 
 		alias quantityChange:
-			if (primitiveInstruction -> quantityChange only exists and primitiveInstruction count = 1)
-			then Create_QuantityChangePrimitive(
-				before,
-				primitiveInstruction -> quantityChange -> change,
-				primitiveInstruction -> quantityChange only-element -> direction,
-				primitiveInstruction -> quantityChange -> lotIdentifier
-				) -> after
+			if (primitiveInstruction -> quantityChange count = 1)
+			then Create_QuantityChangePrimitive( primitiveInstruction -> quantityChange only-element, before ) -> after
 		// Strategic approach
 		// Create_QuantityChangePrimitive(instruction -> primitiveInstruction -> quantityChange only-element, instruction -> tradeState)
 
@@ -2245,11 +2254,8 @@ func Create_TransferFromCashPrice:
 		(primitiveInstruction -> termsChange exists and primitiveInstruction -> quantityChange exists and primitiveInstruction count = 2)
 		then Create_TermsChangePrimitive(
 			primitiveInstruction -> termsChange only-element,
-			Create_QuantityChangePrimitive(
-				before, primitiveInstruction -> quantityChange -> change,
-				primitiveInstruction -> quantityChange only-element -> direction,
-				primitiveInstruction -> quantityChange -> lotIdentifier
-				)->after)
+			Create_QuantityChangePrimitive( primitiveInstruction -> quantityChange only-element, before ) -> after
+        )
 
 		alias contractFormation:
     		if primitiveInstruction -> contractFormation exists then
