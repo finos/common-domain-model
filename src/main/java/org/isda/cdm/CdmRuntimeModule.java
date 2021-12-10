@@ -46,7 +46,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(AppendToVector.class).to(bindAppendToVector());
 		bind(SelectFromVector.class).to(bindSelectFromVector());
 		bind(LastInVector.class).to(bindLastInVector());
-		bind(ListsCompare.class).to(bindListsCompare());
 		bind(VectorOperation.class).to(bindVectorOperation());
 		bind(VectorScalarOperation.class).to(bindVectorScalarOperation());
 		bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
@@ -92,10 +91,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends ResolveObservationAverage> bindResolveObservationAverage() {
 		return ResolveObservationAverageImpl.class;
-	}
-
-	protected Class<? extends ListsCompare> bindListsCompare() {
-		return ListsCompareImpl.class;
 	}
 
 	protected Class<? extends SelectFromVector> bindSelectFromVector() {

@@ -28,10 +28,8 @@ import cdm.event.position.*
 isEvent root BusinessEvent;
 
 func NovatedContractEffectiveDate:
-
 	inputs:
 		businessEvent BusinessEvent (1..1)
-
 	output:
 		result date (0..*)
 
@@ -41,122 +39,150 @@ func NovatedContractEffectiveDate:
 	alias equityPayoutDate: eTerms only-element-> payout -> equityPayout -> calculationPeriodDates -> effectiveDate
 
 	assign-output result: [
-			effectiveDate -> adjustableDate -> adjustedDate,
-			effectiveDate -> adjustableDate -> unadjustedDate,
-			effectiveDate -> relativeDate -> adjustedDate,
-			interestRatePayoutDate -> adjustableDate -> adjustedDate,
-			interestRatePayoutDate -> adjustableDate -> unadjustedDate,
-			interestRatePayoutDate -> relativeDate -> adjustedDate,
-			equityPayoutDate -> adjustableDate -> adjustedDate,
-			equityPayoutDate -> adjustableDate -> unadjustedDate,
-			equityPayoutDate -> relativeDate -> adjustedDate
+        effectiveDate -> adjustableDate -> adjustedDate,
+        effectiveDate -> adjustableDate -> unadjustedDate,
+        effectiveDate -> relativeDate -> adjustedDate,
+        interestRatePayoutDate -> adjustableDate -> adjustedDate,
+        interestRatePayoutDate -> adjustableDate -> unadjustedDate,
+        interestRatePayoutDate -> relativeDate -> adjustedDate,
+        equityPayoutDate -> adjustableDate -> adjustedDate,
+        equityPayoutDate -> adjustableDate -> unadjustedDate,
+        equityPayoutDate -> relativeDate -> adjustedDate
 	]
 
-func QuantityChange: <"The alias to represent the quantity or notional amount in terms of number of units (i.e. ignoring the currency or units denomination) before a quantity change primitive.">
+func QuantityIncreasedPrimitive: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is greater than the Quantity (with the same unit of amount) in the before TradeState.  If all quantities are greater then the function returns true.">
 	inputs:
-		trade Trade (1..*)
-
+		quantityChangePrimitives QuantityChangePrimitive (0..*) <"List of QuantityChangePrimitive to be compared.">
 	output:
-		quantityChange QuantityGroups(1..1)
-
-	assign-output quantityChange -> quantityGroups -> amount: <"Only works in the case of a single trade lot.">
-	[
-		( trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity  group by unitOfAmount -> currency ) -> amount
-	]
-
-func QuantityIncreasedPrimitive:
-	inputs:
-		quantityChangePrimitive QuantityChangePrimitive(1..*)
-
-	output: result boolean(1..1)
-
-	alias beforeQuantity:
-		QuantityChange(quantityChangePrimitive -> before -> trade)
-	alias afterQuantity:
-		QuantityChange(quantityChangePrimitive -> after -> trade)
+		result boolean (1..1) <"Returns true if the Quantity has increased in all QuantityChangePrimitives.">
 
 	assign-output result:
-		ListsCompare(CompareOp -> Greater, afterQuantity -> quantityGroups -> amount, beforeQuantity -> quantityGroups -> amount, empty)
+		CompareQuantityChangePrimitives( quantityChangePrimitives, CompareOp -> GreaterThan )
 
 func QuantityIncreased:
 	inputs:
-		before TradeState (1..*)
-		after TradeState (1..*)
+		before TradeState (1..1)
+		after TradeState (0..*)
+    output:
+        result boolean (1..1)
 
-	output: result boolean(1..1)
-
-	alias beforeQuantity:
-		QuantityChange(before -> trade)
-	alias afterQuantity:
-		QuantityChange(after -> trade)
+    alias results: <"Check each after (list item) is greater than before (func input).">
+        after
+            map [ CompareTradeLot(
+                    item -> trade -> tradableProduct -> tradeLot only-element,
+                    CompareOp -> GreaterThan,
+                    before -> trade -> tradableProduct -> tradeLot only-element ) = True ]
 
 	assign-output result:
-		ListsCompare(CompareOp -> Greater, afterQuantity -> quantityGroups -> amount, beforeQuantity -> quantityGroups -> amount, empty)
+		results all = True
 
-func QuantityDecreasedPrimitive:
+func QuantityDecreasedPrimitive: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is less than the Quantity (with the same unit of amount) in the before TradeState, but not decreased to zero.">
 	inputs:
-		quantityChangePrimitive QuantityChangePrimitive(1..*)
-	output: result boolean(1..1)
-	alias beforeQuantity:
-		QuantityChange(quantityChangePrimitive -> before -> trade)
-	alias afterQuantity:
-		QuantityChange(quantityChangePrimitive -> after -> trade)
+		quantityChangePrimitives QuantityChangePrimitive (0..*) <"List of QuantityChangePrimitive to be compared.">
+	output:
+		result boolean (1..1) <"Returns true if the Quantity has decreased, but not to zero, in all QuantityChangePrimitives.">
+
 	assign-output result:
-		ListsCompare(CompareOp -> Greater, beforeQuantity -> quantityGroups -> amount, afterQuantity -> quantityGroups -> amount, empty) = True
-		and ListsCompare(CompareOp -> Greater, afterQuantity -> quantityGroups -> amount, empty, 0.0) = True
+		CompareQuantityChangePrimitives( quantityChangePrimitives, CompareOp -> LessThan ) = True
+		    and CompareTradeStatesToAmount( quantityChangePrimitives -> after, CompareOp -> GreaterThan, 0.0 ) = True
 
 func QuantityDecreased:
 	inputs:
-		before TradeState (1..*)
-		after TradeState (1..*)
+		before TradeState (1..1)
+		after TradeState (0..*)
+	output:
+	    result boolean (1..1)
 
-	output: result boolean(1..1)
-
-	alias beforeQuantity:
-		QuantityChange(before -> trade)
-	alias afterQuantity:
-		QuantityChange(after -> trade)
+    alias results:
+        after
+            map [
+                // check each after (item) is less than before (input)
+                CompareTradeLot(
+                    item -> trade -> tradableProduct -> tradeLot only-element,
+                    CompareOp -> LessThan,
+                    before -> trade -> tradableProduct -> tradeLot only-element ) = True
+                and
+                // check each after (item) is greater than zero
+                CompareTradeLotToAmount(
+                    item -> trade -> tradableProduct -> tradeLot only-element,
+                    CompareOp -> GreaterThan,
+                    0.0 ) = True
+            ]
 
 	assign-output result:
-		ListsCompare(CompareOp -> Greater, beforeQuantity -> quantityGroups -> amount, afterQuantity -> quantityGroups -> amount, empty) = True
-		and ListsCompare(CompareOp -> Greater, afterQuantity -> quantityGroups -> amount, empty, 0.0) = True
+		results all = True
 
-func QuantityDecreasedToZeroPrimitive:
+func QuantityDecreasedToZeroPrimitive: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is equal to zero.">
 	inputs:
-		quantityChangePrimitive QuantityChangePrimitive(1..*)
-	output: result boolean(1..1)
-	alias beforeQuantity:
-		QuantityChange(quantityChangePrimitive -> before -> trade)
-	alias afterQuantity:
-		QuantityChange(quantityChangePrimitive -> after -> trade)
+		quantityChangePrimitives QuantityChangePrimitive (0..*) <"List of QuantityChangePrimitive to be compared.">
+	output:
+		result boolean (1..1) <"Returns true if the after Quantity is zero in all QuantityChangePrimitives.">
+
 	assign-output result:
-		ListsCompare(CompareOp -> Greater, beforeQuantity -> quantityGroups -> amount, empty, 0.0) = True
-		and ListsCompare(CompareOp -> Equal, afterQuantity -> quantityGroups -> amount, empty, 0.0) = True
+	    CompareTradeStatesToAmount( quantityChangePrimitives -> before, CompareOp -> GreaterThan, 0.0 ) = True
+	    and CompareTradeStatesToAmount( quantityChangePrimitives -> after, CompareOp -> Equals, 0.0 ) = True
 
 func QuantityDecreasedToZero:
 	inputs:
-		before TradeState (1..*)
-		after TradeState (1..*)
-	output: result boolean(1..1)
-	alias beforeQuantity:
-		QuantityChange(before -> trade)
-	alias afterQuantity:
-		QuantityChange(after -> trade)
-	assign-output result:
-		ListsCompare(CompareOp -> Greater, beforeQuantity -> quantityGroups -> amount, empty, 0.0) = True
-		and ListsCompare(CompareOp -> Equal, afterQuantity -> quantityGroups -> amount, empty, 0.0) = True
-
-func NoQuantityChange:
-	inputs:
-		quantityChangePrimitive QuantityChangePrimitive(1..*)
+		before TradeState (0..*)
+		after TradeState (0..*)
 	output:
-		result boolean(1..1)
-	alias beforeQuantity:
-		QuantityChange(quantityChangePrimitive -> before -> trade)
-	alias afterQuantity:
-		QuantityChange(quantityChangePrimitive -> after -> trade)
+	    result boolean (1..1)
+
+    assign-output result:
+	    CompareTradeLotToAmount( before -> trade -> tradableProduct -> tradeLot only-element, CompareOp -> GreaterThan, 0.0 ) = True
+	    and CompareTradeStatesToAmount( after, CompareOp -> Equals, 0.0 ) = True
+
+func NoQuantityChange: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is equal to the Quantity (with the same unit of amount) in the before TradeState.">
+	inputs:
+		quantityChangePrimitives QuantityChangePrimitive (0..*) <"List of QuantityChangePrimitive to be compared.">
+	output:
+		result boolean (1..1) <"Returns true if the Quantity has not changed in all QuantityChangePrimitives.">
+
 	assign-output result:
-		ListsCompare(CompareOp -> Equal, beforeQuantity -> quantityGroups -> amount, beforeQuantity -> quantityGroups -> amount, empty) = True
+		CompareQuantityChangePrimitives( quantityChangePrimitives, CompareOp -> Equals )
+
+func CompareQuantityChangePrimitives: <"For each QuantityChangePrimitive, compare the Quantity in the after TradeState to the Quantity (with the same unit of amount) in the before TradeState, based on the CompareOp enum.">
+	inputs:
+		quantityChangePrimitives QuantityChangePrimitive (0..*) <"List of QuantityChangePrimitive to be compared.">
+		op CompareOp (1..1) <"Comparison operation to use.">
+	output:
+		result boolean (1..1)
+
+	alias results:
+		quantityChangePrimitives
+			map [ CompareQuantityChangePrimitive( item, op ) ]
+
+	assign-output result:
+		results all = True
+
+func CompareQuantityChangePrimitive: <"For the QuantityChangePrimitive, compare the Quantity in the after TradeState to the Quantity (with the same unit of amount) in the before TradeState, based on the CompareOp enum.">
+	inputs:
+		quantityChangePrimitive QuantityChangePrimitive (1..1) <"QuantityChangePrimitive to be compared.">
+		op CompareOp (1..1) <"Comparison operation to use.">
+	output:
+		result boolean (1..1)
+
+	assign-output result:
+		CompareTradeLot(
+		    quantityChangePrimitive -> after -> trade -> tradableProduct -> tradeLot only-element,
+		    op,
+		    quantityChangePrimitive -> before -> trade -> tradableProduct -> tradeLot only-element )
+
+func CompareTradeStatesToAmount: <"For each TradeState, compare the Quantity amounts in each TradeState to the given amount (regardless of unit of amount), based on the CompareOp enum.">
+	inputs:
+		tradeStates TradeState (0..*) <"List of TradeState to be compared.">
+		op CompareOp (1..1) <"Comparison operation to use.">
+		amount number (1..1) <"Quantity amount to use.">
+	output:
+		result boolean (1..1)
+
+	alias results:
+	    tradeStates
+	        map [ CompareTradeLotToAmount( item -> trade -> tradableProduct -> tradeLot only-element, op, amount ) ]
+
+	assign-output result:
+        results all = True
 
 func Qualify_Allocation: <"The qualification of allocation event from the fact that (i) the only primitives are split and contract formation (ii) the number of split executions and the number of contract formations are equal.  Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.  Also note that it is expected that an allocation can result in a single contract.">
 	[qualification BusinessEvent]
@@ -356,7 +382,7 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 			)
 		or (businessEvent -> instruction -> primitiveInstruction -> quantityChange only exists and businessEvent -> instruction -> primitiveInstruction count = 1)
 		)
-		and (QuantityDecreasedPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreased(businessEvent -> instruction -> before, businessEvent -> after) = True)
+		and (QuantityDecreasedPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreased(businessEvent -> instruction -> before only-element, businessEvent -> after) = True)
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
 		and businessEvent -> after -> state -> closedState is absent
 
@@ -1520,7 +1546,7 @@ func Create_Split: <"Defines the logic for splitting a trade into separate copie
 		originalTrade TradeState (1..1) <"The original trade to be split, which must be of single cardinality.">
 	output:
 		splitTrade TradeState (1..*)
-	
+
 	set splitTrade: <"Iterate over each breakdown and apply the set of primitive instructions to each copy of the original trade.">
 		breakdown
 			map [ Create_TradeState( item -> primitiveInstruction, originalTrade ) ]
@@ -1533,7 +1559,7 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
 		originalTrade TradeState (1..1) <"The original trade on which to update the counterparty. The original trade will be terminated.">
 	output:
 		newTrade TradeState (1..1)
-	
+
 	// The content of this function is copied from 'Create_SplitTrade' as used in the current Allocation function
 
 	alias counterparty1:
@@ -1546,7 +1572,7 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
 		else ExtractCounterpartyByRole( originalTrade -> trade -> tradableProduct -> counterparty, CounterpartyRoleEnum -> Party2 )
 	alias partyToRemove:
         ExtractCounterpartyByRole( originalTrade -> trade -> tradableProduct -> counterparty, counterparty -> role ) -> partyReference
-	
+
 	assign-output newTrade: <"Copy the original trade.">
 		originalTrade
 	assign-output newTrade -> trade -> tradableProduct -> counterparty: <"Assigns the new counterparties.">
@@ -1651,16 +1677,16 @@ func Create_TermsChangePrimitive: <"A specification of the inputs, outputs and c
 		tradeState TradeState (1..1)
 
 	alias newProduct:
-		if termsChange -> product exists then termsChange -> product 
+		if termsChange -> product exists then termsChange -> product
 		else before -> trade -> tradableProduct -> product
 
 	alias newAncillaryParty:
-		if termsChange -> ancillaryParty exists then termsChange -> ancillaryParty 
+		if termsChange -> ancillaryParty exists then termsChange -> ancillaryParty
 		else before -> trade -> tradableProduct -> ancillaryParty
 
 	alias newAdjustment:
 		if termsChange -> adjustment exists then termsChange -> adjustment
-		else before -> trade -> tradableProduct -> adjustment	
+		else before -> trade -> tradableProduct -> adjustment
 
 	assign-output tradeState: before
 
@@ -2165,14 +2191,14 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
 	output:
 		businessEvent BusinessEvent (1..1)
 
-	assign-output businessEvent -> instruction:	
-	instruction
+	assign-output businessEvent -> instruction:
+	    instruction
 
-	assign-output businessEvent -> instructionFunction:	
-	instructionFunction
+	assign-output businessEvent -> instructionFunction:
+	    instructionFunction
 
-	assign-output businessEvent->eventDate:	
-	eventDate
+	assign-output businessEvent->eventDate:
+	    eventDate
 
 	//TODO: This is where the iterator must be built and replace the only-element restriction
 	assign-output businessEvent -> after:
@@ -2196,8 +2222,8 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 	// PROPOSED: Applying the primitive instructions in the right order (and possibly more elegant using only the new 'set' syntax)
 	//
 	// - execution, if it exists, otherwise a before state must be provided [ALWAYS FIRST]
-	// [	
-	//		Those 3 can be executed in any order, because they touch separate components of the trade:		
+	// [
+	//		Those 3 can be executed in any order, because they touch separate components of the trade:
 	// 		- quantity change
 	// 		- terms change
 	// 		- party change
@@ -2207,17 +2233,17 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 	alias execution:
 		if before exists then before
 		else Create_ExecutionPrimitive(
-			primitiveInstruction -> execution only-element -> product, 
-			primitiveInstruction -> execution only-element -> priceQuantity, 
-			primitiveInstruction -> execution only-element -> counterparty, 
-			primitiveInstruction -> execution only-element -> ancillaryParty, 
-			primitiveInstruction -> execution only-element -> parties, 
-			primitiveInstruction -> execution only-element -> partyRoles, 
-			primitiveInstruction -> execution only-element -> executionDetails, 
-			primitiveInstruction -> execution only-element -> tradeDate, 
+			primitiveInstruction -> execution only-element -> product,
+			primitiveInstruction -> execution only-element -> priceQuantity,
+			primitiveInstruction -> execution only-element -> counterparty,
+			primitiveInstruction -> execution only-element -> ancillaryParty,
+			primitiveInstruction -> execution only-element -> parties,
+			primitiveInstruction -> execution only-element -> partyRoles,
+			primitiveInstruction -> execution only-element -> executionDetails,
+			primitiveInstruction -> execution only-element -> tradeDate,
 			primitiveInstruction -> execution only-element -> tradeIdentifier
 			) -> after
-	// Strategic approach 
+	// Strategic approach
 	// Create_ExecutionPrimitive(instruction -> primitiveInstruction -> execution only-element)
 
 	alias quantityChange:
@@ -2228,9 +2254,9 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 			primitiveInstruction -> quantityChange only-element -> direction,
 			primitiveInstruction -> quantityChange /*only-element*/ -> lotIdentifier
 			) -> after
-	// Strategic approach 
+	// Strategic approach
 	// Create_QuantityChangePrimitive(instruction -> primitiveInstruction -> quantityChange only-element, instruction -> tradeState)
-	
+
 	alias termsChange:
 		if primitiveInstruction -> termsChange is absent then quantityChange
 		else Create_TermsChangePrimitive(
@@ -2246,14 +2272,14 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 			primitiveInstruction -> partyChange only-element -> tradeId,
 			termsChange /*after*/
 			)
-	
+
 	alias contractFormation:
 		if primitiveInstruction -> contractFormation is absent then partyChange
 		else Create_ContractFormationPrimitive(
 			partyChange /*after*/ -> trade,
 			primitiveInstruction -> contractFormation only-element -> legalAgreement
 			) -> after
-	// Strategic approach 
+	// Strategic approach
 	// Create_ContractFormationPrimitive(instruction -> primitiveInstruction -> contractFormation only-element, instruction -> tradeState)
 
 	condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
@@ -2261,4 +2287,3 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 
 	set after:
 		contractFormation
-	
