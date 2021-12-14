@@ -70,19 +70,14 @@ func CompareTradeLot: <"Compare the Quantity in TradeLot 1 to the Quantity (with
 
 	alias results:
 		unitOfAmounts
-		    // for each unit of amount
-			map unitOfAmount [
-			    // get quantities from tradeLot 1 with the given unit of amount
-				FilterQuantity( tradeLot1 -> priceQuantity -> quantity, unitOfAmount )
-					map quantity1 [
-						// get quantities from tradeLot 2 with the given unit of amount
-                        FilterQuantity( tradeLot2 -> priceQuantity -> quantity, unitOfAmount )
-							map quantity2 [
-							    // compare quantity 1 with each quantity 2
-							    CompareNumbers( quantity1 -> amount, op, quantity2 -> amount )
-                            ]
-					] flatten
-			] flatten
+		    map unitOfAmount [
+			    CompareQuantityByUnitOfAmount(
+                    tradeLot1 -> priceQuantity -> quantity,
+                    op,
+                    tradeLot2 -> priceQuantity -> quantity,
+                    unitOfAmount
+                )
+			]
 
 	assign-output result:
 		results all = True
