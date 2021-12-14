@@ -1,5 +1,6 @@
 package cdm.event.common.functions;
 
+import cdm.event.common.ContractFormationInstruction;
 import cdm.event.common.PrimitiveEvent;
 import cdm.event.common.TradeState;
 import com.google.inject.Inject;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
+// TODO
 public class Create_ContractFormationPrimitivesImpl extends Create_ContractFormationPrimitives {
 
 	@Inject
@@ -18,7 +20,7 @@ public class Create_ContractFormationPrimitivesImpl extends Create_ContractForma
 	@Override
 	protected List<PrimitiveEvent.PrimitiveEventBuilder> doEvaluate(List<? extends TradeState> tradeStates) {
 		return emptyIfNull(tradeStates).stream()
-				.map(tradeState -> func.evaluate(tradeState.getTrade(), null))
+				.map(tradeState -> func.evaluate(ContractFormationInstruction.builder(), tradeState))
 				.map(contractFormationPrimitive -> PrimitiveEvent.builder().setContractFormation(contractFormationPrimitive))
 				.collect(Collectors.toList());
 	}
