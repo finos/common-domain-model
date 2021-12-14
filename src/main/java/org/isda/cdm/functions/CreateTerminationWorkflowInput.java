@@ -4,7 +4,7 @@ import cdm.event.common.TerminationInstruction;
 import cdm.event.common.TradeState;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class RunCreateTerminationWorkflowInput {
+public class CreateTerminationWorkflowInput {
 
     @JsonProperty
     private TradeState tradeState;
@@ -12,10 +12,10 @@ public class RunCreateTerminationWorkflowInput {
     @JsonProperty
     private TerminationInstruction terminationInstruction;
 
-    public RunCreateTerminationWorkflowInput() {
+    public CreateTerminationWorkflowInput() {
     }
 
-    public RunCreateTerminationWorkflowInput(TradeState tradeState, TerminationInstruction terminationInstruction) {
+    public CreateTerminationWorkflowInput(TradeState tradeState, TerminationInstruction terminationInstruction) {
         this.tradeState = tradeState;
         this.terminationInstruction = terminationInstruction;
     }
