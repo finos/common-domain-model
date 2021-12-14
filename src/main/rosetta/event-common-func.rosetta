@@ -2261,12 +2261,20 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
                     [ Create_TradeState( item -> primitiveInstruction , item -> before ) ]
 	        ] flatten
 
-
 	// TODO: we should have a condition to ensure that no trade is 'lost' between the before(s) and the after(s).
 	// This can be implemented by looking at the trade identifier attribute on the before state, and making sure it exists in the after state.
 	// So for instance where there is a party change (which results in a different trade with a different trade id), the original trade should be split first, and one of the copies should 'close' the trade.
 
-func Create_TradeState: <"Creates a single trade state by applying primitive instructions to an existing trade state (optional in case an execution instruction is included).">
+func Create_TradeState: <"Creates a single trade state by applying primitive instructions to an existing trade state (optional in case an execution instruction is included).
+    The primitive instructions are applied in the following order:
+        Always first:
+            - execution, if it exists, otherwise a before state must be provided
+        The following 3 can be executed in any order, because they touch separate components of the trade:
+            - quantity change
+            - terms change
+            - party change
+        Always last:
+            - contract formation, otherwise the contract could be invalid.">
 	inputs:
 		primitiveInstruction PrimitiveInstruction (1..*) <"The set of primitive instructions to apply to the trade.">
 		before TradeState (0..1) <"The original trade on which the primitive instructions are applied">
@@ -2274,30 +2282,19 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 	output:
 		after TradeState (1..1) <"The returned trade state must be of single cardinality. Where a different trade is created and the original trade must be persisted (for instance showing as 'closed'), it should be preceded by a split instruction.">
 
-	// PROPOSED: Applying the primitive instructions in the right order (and possibly more elegant using only the new 'set' syntax)
-	//
-	// - execution, if it exists, otherwise a before state must be provided [ALWAYS FIRST]
-	// [
-	//		Those 3 can be executed in any order, because they touch separate components of the trade:
-	// 		- quantity change
-	// 		- terms change
-	// 		- party change
-	// ]
-	// - contract formation [ALWAYS LAST (otherwise the contract could be invalid)]
-
-	alias execution:
+	alias execution: <"Create execution if no before exists.">
 		if before exists then before
 		else Create_ExecutionPrimitive( primitiveInstruction -> execution only-element ) -> after
 
-	alias quantityChange:
+	alias quantityChange: <"Apply quantity change if instructions exist.">
 		if primitiveInstruction -> quantityChange is absent then execution
 		else Create_QuantityChangePrimitive( primitiveInstruction -> quantityChange only-element, execution /*after*/ ) -> after
 
-	alias termsChange:
+	alias termsChange: <"Apply terms change if instructions exist.">
 		if primitiveInstruction -> termsChange is absent then quantityChange
 		else Create_TermsChangePrimitive( primitiveInstruction -> termsChange only-element, quantityChange /*after*/ )
 
-	alias partyChange:
+	alias partyChange: <"Apply party change if instructions exist.">
 		if primitiveInstruction -> partyChange is absent then termsChange
 		else Create_PartyChange(
 			primitiveInstruction -> partyChange only-element -> counterparty,
@@ -2306,12 +2303,12 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 			termsChange /*after*/
         )
 
-	alias contractFormation:
+	alias contractFormation: <"Create contract formation if instructions exist.">
 		if primitiveInstruction -> contractFormation is absent then partyChange
 		else Create_ContractFormationPrimitive( primitiveInstruction -> contractFormation only-element, partyChange /*after*/ ) -> after
 
 	condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
 		primitiveInstruction -> split is absent
 
-	set after:
+	set after: <"Initiate applying primitive instructions.">
 		contractFormation
