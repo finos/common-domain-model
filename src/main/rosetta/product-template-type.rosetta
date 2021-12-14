@@ -66,8 +66,7 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
-		if (payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate
-			and terminationDate) exists
+		if payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate exists and terminationDate exists
 		then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> unadjustedDate
 
 	condition IndependentCalculationAgent:
@@ -454,14 +453,13 @@ type EarlyTerminationProvision: <"A data defining:  an early termination provisi
 
 	condition MandatoryEarlyTermination: <"The FpML MandatoryEarlyTermination.model specifies a required choice node. The choice node associated with the FpML EarlyTerminationProvision is quite complex and using the data rule provides a more flexible approach than adding complexity to the condition grammar.">
 		if EarlyTerminationProvision exists
-		then (mandatoryEarlyTermination or optionalEarlyTermination) exists
-			or (mandatoryEarlyTermination and optionalEarlyTermination) exists
+		then (mandatoryEarlyTermination exists or optionalEarlyTermination exists)
+			or (mandatoryEarlyTermination exists and optionalEarlyTermination exists)
 
 type ExercisePeriod: <"This defines the time interval to the start of the exercise period, i.e. the earliest exercise date, and the frequency of subsequent exercise dates (if any).">
 	[metadata key]
 
 	earliestExerciseDateTenor Period (1..1) <"The time interval to the first (and possibly only) exercise date in the exercise period.">
-
 	exerciseFrequency Period (0..1) <"The frequency of subsequent exercise dates in the exercise period following the earliest exercise date. An interval of 1 day should be used to indicate an American style exercise period.">
 
 type ExtendibleProvision extends BuyerSeller: <"A data defining:  an option to extend an existing swap transaction on the specified exercise dates for a term ending on the specified new termination date. As a difference from FpML, it extends the BuyerSeller class, which represents the BuyerSeller.model.">
