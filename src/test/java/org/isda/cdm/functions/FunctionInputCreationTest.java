@@ -1,15 +1,15 @@
 package org.isda.cdm.functions;
 
+import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.Quantity;
+import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import cdm.event.common.ExecutionInstruction;
-import cdm.event.common.TerminationInstruction;
-import cdm.event.common.TradeState;
+import cdm.event.common.*;
 import cdm.event.workflow.WorkflowStep;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.records.DateImpl;
@@ -50,7 +51,7 @@ class FunctionInputCreationTest {
     @Test
     void validateCreateTerminationWorkflowFuncInputJson() throws IOException {
         RunCreateTerminationWorkflowInput actual = new RunCreateTerminationWorkflowInput(
-                getTerminationTradeState(),
+                createInterestRateSwapTerminationTradeState(),
                 TerminationInstruction.builder()
                         .addTerminatedPriceQuantity(PriceQuantity.builder()
                                 .addQuantity(FieldWithMetaQuantity.builder()
@@ -71,7 +72,7 @@ class FunctionInputCreationTest {
     @Test
     void validateCreatePartialTerminationWorkflowFuncInputJson() throws IOException {
         RunCreateTerminationWorkflowInput actual = new RunCreateTerminationWorkflowInput(
-                getTerminationTradeState(),
+                createInterestRateSwapTerminationTradeState(),
                 TerminationInstruction.builder()
                         .addTerminatedPriceQuantity(PriceQuantity.builder()
                                 .addQuantity(FieldWithMetaQuantity.builder()
@@ -90,8 +91,59 @@ class FunctionInputCreationTest {
     }
 
     @Test
+    void validateCreateFullTerminationEquitySwapFuncInputJson() throws IOException {
+        RunCreateBusinessEventInput actual = new RunCreateBusinessEventInput(
+                getFullTerminationEquitySwapInstruction(),
+                InstructionFunctionEnum.QUANTITY_CHANGE,
+                new DateImpl(11, 11, 2021)
+        );
+
+        assertEquals(readResource("/cdm-sample-files/functions/full-termination-equity-swap-func-input.json"),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for full-termination-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
+    }
+
+    private List<? extends Instruction> getFullTerminationEquitySwapInstruction() throws IOException {
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder();
+
+        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeBuilder =
+                instructionBuilder.getOrCreatePrimitiveInstruction(0)
+                .getOrCreateQuantityChange();
+
+        quantityChangeBuilder.setDirection(QuantityChangeDirectionEnum.DECREASE);
+
+        PriceQuantity.PriceQuantityBuilder changeBuilder = quantityChangeBuilder
+                .getOrCreateChange(0);
+
+        changeBuilder.getOrCreateQuantity(0)
+                .setValue(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(760400))
+                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
+                        .build());
+
+        changeBuilder.getOrCreateQuantity(1)
+                .setValue(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(28469376))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD").build())
+                        .build());
+
+        instructionBuilder
+                .setBefore(createEquitySwapTerminationTradeState().build());
+
+        return Lists.newArrayList(instructionBuilder.build());
+    }
+
+    private TradeState.TradeStateBuilder createEquitySwapTerminationTradeState() throws IOException {
+        TradeState.TradeStateBuilder tradeStateBuilder = createGenericSwapTerminationTradeState();
+
+        //TODO: make an irs payout and aan equity payout
+
+        return tradeStateBuilder;
+    }
+
+    @Test
     void validateCreateAllocationWorkflowInputJason() throws IOException {
-        TradeState.TradeStateBuilder tradeStateBuilder = getTerminationTradeState();
+        TradeState.TradeStateBuilder tradeStateBuilder = createInterestRateSwapTerminationTradeState();
 
         List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders = tradeStateBuilder
                 .getTrade()
@@ -145,27 +197,8 @@ class FunctionInputCreationTest {
      * Use record-ex01-vanilla-swap.json sample and modify it to look exactly like CFTC example 3 (used in regs termination example)
      */
     @NotNull
-    private TradeState.TradeStateBuilder getTerminationTradeState() throws IOException {
-        WorkflowStep workflowStep = ResourcesUtils.getObject(WorkflowStep.class, "result-json-files/fpml-5-10/record-keeping/record-ex01-vanilla-swap.json");
-        // parties
-        List<Party> parties = workflowStep.getParty().stream()
-                .filter(p -> p.getName().getValue().equals("Bank X") || p.getName().getValue().equals("Bank Y"))
-                .collect(Collectors.toList());
-        TradeState tradeState = workflowStep.getBusinessEvent().getPrimitives().get(0).getContractFormation().getAfter();
-        TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
-        tradeStateBuilder.getTrade().setParty(parties);
-        // partyId
-        updatePartyId(tradeStateBuilder, "Bank X", "LEI1RPT0001");
-        updatePartyId(tradeStateBuilder, "Bank Y", "LEI2CP0002");
-        // party role
-        List<? extends PartyRole> partyRoles = tradeState.getTrade().getPartyRole();
-        PartyRole partyRole = partyRoles.get(0);
-        PartyRole.PartyRoleBuilder reportingPartyRole = partyRole.toBuilder()
-                .setPartyReference(ReferenceWithMetaParty.builder()
-                        .setGlobalReference(partyRole.getOwnershipPartyReference().getGlobalReference())
-                        .setExternalReference(partyRole.getOwnershipPartyReference().getExternalReference()))
-                .setRole(PartyRoleEnum.REPORTING_PARTY);
-        tradeStateBuilder.getTrade().addPartyRole(reportingPartyRole);
+    private TradeState.TradeStateBuilder createInterestRateSwapTerminationTradeState() throws IOException {
+        TradeState.TradeStateBuilder tradeStateBuilder = createGenericSwapTerminationTradeState();
         // effective and termination date
         List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayouts = tradeStateBuilder.getTrade()
                 .getTradableProduct()
@@ -190,15 +223,43 @@ class FunctionInputCreationTest {
                     calculationPeriodDates.getEffectiveDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2018,4, 3));
                     calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2025,4, 1));
                 });
+
+        return tradeStateBuilder;
+    }
+
+    @NotNull
+    private TradeState.TradeStateBuilder createGenericSwapTerminationTradeState() throws IOException {
+        WorkflowStep workflowStep = ResourcesUtils.getObject(WorkflowStep.class, "result-json-files/fpml-5-10/record-keeping/record-ex01-vanilla-swap.json");
+        // parties
+        List<Party> parties = workflowStep.getParty().stream()
+                .filter(p -> p.getName().getValue().equals("Bank X") || p.getName().getValue().equals("Bank Y"))
+                .collect(Collectors.toList());
+        TradeState tradeState = workflowStep.getBusinessEvent().getPrimitives().get(0).getContractFormation().getAfter();
+        TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
+        tradeStateBuilder.getTrade().setParty(parties);
+        // partyId
+        updatePartyId(tradeStateBuilder, "Bank X", "LEI1RPT0001");
+        updatePartyId(tradeStateBuilder, "Bank Y", "LEI2CP0002");
+        // party role
+        List<? extends PartyRole> partyRoles = tradeState.getTrade().getPartyRole();
+        PartyRole partyRole = partyRoles.get(0);
+        PartyRole.PartyRoleBuilder reportingPartyRole = partyRole.toBuilder()
+                .setPartyReference(ReferenceWithMetaParty.builder()
+                        .setGlobalReference(partyRole.getOwnershipPartyReference().getGlobalReference())
+                        .setExternalReference(partyRole.getOwnershipPartyReference().getExternalReference()))
+                .setRole(PartyRoleEnum.REPORTING_PARTY);
+        tradeStateBuilder.getTrade().addPartyRole(reportingPartyRole);
+
         // quantity
         tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().stream().map(TradeLot.TradeLotBuilder::getPriceQuantity).flatMap(Collection::stream).map(
                 PriceQuantity.PriceQuantityBuilder::getQuantity).flatMap(Collection::stream).map(FieldWithMetaQuantity.FieldWithMetaQuantityBuilder::getValue).forEach(quantity -> {
-                    quantity.setAmount(new BigDecimal(10000));
+            quantity.setAmount(new BigDecimal(10000));
         });
         // trade id
         tradeStateBuilder.getTrade().getTradeIdentifier().get(0).getAssignedIdentifier().get(0).setIdentifierValue("LEI1RPT0001KKKK");
         // trade date
         tradeStateBuilder.getTrade().setTradeDateValue(DateImpl.of(2018, 4, 1));
+
         return tradeStateBuilder;
     }
 
