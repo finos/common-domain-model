@@ -104,14 +104,20 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 	primitiveInstruction PrimitiveInstruction (1..*) <"Specifies the primitive instructions that will be used to call primitive event functions.">
 	before TradeState (0..1) <"Specifies the trade state that will be acted on by the primitive event functions.">
 
-	condition ExecutionPrimitive:
+	condition ExecutionPrimitive: <"There can only be at most 1 execution instruction. An instruction only handles 1 trade at a time.">
 		if primitiveInstruction -> execution exists then primitiveInstruction -> execution count = 1
+
+	condition NewTrade: <"There must be no before trade state if the primitive instructions contain an execution, and vice versa. An instruction only handles 1 trade at a time.">
+		( if primitiveInstruction -> execution exists then before is absent ) and
+		( if before is absent then primitiveInstruction -> execution exists )
 
 type PrimitiveInstruction: <"A Primitive Instruction describes the inputs required to pass into the corresponding PrimitiveEvent function.">
 	execution ExecutionInstruction (0..1) <"Specifies instructions describing an execution primitive event.">
 	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions describing an contract formation primitive event.">
 	quantityChange QuantityChangeInstruction (0..1) <"Specifies instructions describing an quantity change primitive event.">
-	termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing an terms change primitive event.">
+	termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing a terms change primitive event.">
+	partyChange PartyChangeInstruction (0..1) <"Specifies instructions describing a party change primitive event.">
+	split SplitInstruction (0..1) <"Specifies instructions to split a trade into multiple branches.">
 
     condition: one-of
 
@@ -220,6 +226,21 @@ type TermsChangeInstruction: <"Specifies instructions for terms change consistin
 	adjustment NotionalAdjustmentEnum (0..1)
 
 	condition: (product exists or ancillaryParty exists or adjustment exists)
+
+type SplitInstruction: <"Specifies instructions for a split, consisting of a breakdown of instructions to be applied to each branch of the split. This instruction can be used to duplicate a trade, as in a clearing scenario, or to split a trade into smaller quantities (in which case each breakdown instruction needs to include a quantity change), as in an allocation.">
+	// Should cardinality be (2..*)?
+	breakdown PrimitiveInstructionList (1..*) <"Each split breakdown specifies the set of primitive instructions to be applied to a single branch of that split. N split breakdowns result in N output trades, which include the original trade. Instructions for how to handle the original trade (e.g. if it must be closed) must be specified in one of the breakdowns.">
+
+type PartyChangeInstruction: <"Specifies instruction to change the party on a trade. This primitive instruction is used in a number of scenarios including: clearing, allocation and novation. The instrution must include a trade identifier, because a change of party effectively results in a different trade.">
+	counterparty Counterparty (1..1) <"The new counterparty who is stepping into the trade. The stepping out counterparty is inferred based on the counterparty role that is being updated.">
+	ancillaryParty AncillaryParty (0..1) <"Specifies an ancillary party to be added onto the new transaction, e.g. the original executing party in an allocation.">
+	tradeId Identifier (1..*) <"The identifier to be assigned to the new trade post change of party.">
+
+type PrimitiveInstructionList: <"Specifies a list of primitive instructions to be applied to a single trade. This data type includes a number of constraints to regulate how primitive instructions are allowed to be combined.">
+	primitiveInstruction PrimitiveInstruction (1..*) <"The set of primitive instructions to be applied to a single trade.">
+
+	condition ExclusiveSplitPrimitive: <"A split primitive is exclusive and cannot be combined with other primitives. Instead, the primitive instructions to be applied to each branch of the split must be specified as breakdowns in the split instruction itself.">
+		if primitiveInstruction -> split exists then primitiveInstruction count = 1
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
