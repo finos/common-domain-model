@@ -51,7 +51,7 @@ class FunctionInputCreationTest {
 
     @Test
     void validateCreateTerminationWorkflowFuncInputJson() throws IOException {
-        RunCreateTerminationWorkflowInput actual = new RunCreateTerminationWorkflowInput(
+        CreateTerminationWorkflowInput actual = new CreateTerminationWorkflowInput(
                 createInterestRateSwapTerminationTradeState(),
                 TerminationInstruction.builder()
                         .addTerminatedPriceQuantity(PriceQuantity.builder()
@@ -72,7 +72,7 @@ class FunctionInputCreationTest {
 
     @Test
     void validateCreatePartialTerminationWorkflowFuncInputJson() throws IOException {
-        RunCreateTerminationWorkflowInput actual = new RunCreateTerminationWorkflowInput(
+        CreateTerminationWorkflowInput actual = new CreateTerminationWorkflowInput(
                 createInterestRateSwapTerminationTradeState(),
                 TerminationInstruction.builder()
                         .addTerminatedPriceQuantity(PriceQuantity.builder()
@@ -160,7 +160,7 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateCreateAllocationWorkflowInputJason() throws IOException {
+    void validateCreateAllocationWorkflowInputJson() throws IOException {
         TradeState.TradeStateBuilder tradeStateBuilder = createInterestRateSwapTerminationTradeState();
 
         List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders = tradeStateBuilder
@@ -208,6 +208,40 @@ class FunctionInputCreationTest {
         assertEquals(readResource("/cdm-sample-files/functions/allocation-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(executionInstruction),
                 "The input JSON for allocation-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
+    }
+
+    @Test
+    void validateQuantityChangeIncreaseWorkflowFuncInputJson() throws IOException {
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
+
+        List<? extends PriceQuantity> priceQuantities =
+                tradeState.getTrade().getTradableProduct().getTradeLot().get(0).getPriceQuantity();
+        // equity payout price quantity
+        PriceQuantity.PriceQuantityBuilder equityPriceQuantity = priceQuantities.get(0).toBuilder();
+        // Asset Price
+        equityPriceQuantity.getPrice().get(0).getValue().setAmount(BigDecimal.valueOf(30));
+        // Shares
+        equityPriceQuantity.getQuantity().get(0).getValue().setAmount(BigDecimal.valueOf(250000));
+        // Notional
+        equityPriceQuantity.getQuantity().get(1).getValue().setAmount(BigDecimal.valueOf(7500000));
+        // interest rate payout price quantity
+        PriceQuantity.PriceQuantityBuilder interestRatePriceQuantity = priceQuantities.get(1).toBuilder();
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Arrays.asList(
+                        Instruction.builder()
+                                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                                        .setQuantityChange(QuantityChangeInstruction.builder()
+                                                .addChange(equityPriceQuantity)
+                                                .addChange(interestRatePriceQuantity)
+                                                .setDirection(QuantityChangeDirectionEnum.INCREASE)))
+                                .setBefore(tradeState)),
+                InstructionFunctionEnum.QUANTITY_CHANGE,
+                DateImpl.of(2021, 11, 11));
+
+        assertEquals(readResource("/cdm-sample-files/functions/quantity-change-increase-workflow-func-input.json"),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for quantity-change-increase-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
 
