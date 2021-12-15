@@ -1,4 +1,4 @@
-# *Product Model - Multiple Underliers*
+# *Product Model - Enhancements for Multiple Underliers*
 
 _What is being released_
 
@@ -6,6 +6,7 @@ This release adds support for multiple underlier products represented through a 
 
 The new `Basket` product type allows the representation of a list of `BasketConstituent` which are represented using the CDM Product type.
 The Weight and Observable for each basket constituent can be represented through the `PriceQuantity` element in the model, with the addition of a `Weight` financial unit enumeration.
+
 Specific to `EquityPayout`:
 - The cardinality of `dividendPayout` within `DividendReturnTerms` has been updated from single to multiple to allow a `DividendPayoutRatio` to be defined for each `BasketConstituent`.
 - The naming of the data type `DividendPayout` has also been updated to `DividendPayoutRatio`, and an `underlier` attribute has been added to associate each DividendPayoutRatio with its corresponding basket component.
@@ -49,7 +50,7 @@ In the CDM Portal, select the Textual Browser and search for the data types and 
 
 In Rosetta, use the Visualisation panel to view `Quantity Change - Increase` function which invokes the `Create_BusinessEvent` function to create an `Increase` business event.
 
-# *DSL Syntax - List Syntax Validation and List Item Cardinality*
+# *DSL Syntax - Flatten Keyword for Collapsing lists and Syntax Validation with List Item Cardinality enhancements for Filter and Map keywords *
 
 _What is being released_
 
