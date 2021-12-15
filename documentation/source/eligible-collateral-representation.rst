@@ -297,6 +297,18 @@ types, for example:
 The data type IssuerCriteria is used to specify the issuer of a
 collateral asset, this includes the following data attributes:
 
+.. code-block:: Haskal
+
+ type IssuerCriteria: <"Criteria used to specify eligible collateral issuers.">
+
+	issuerType CollateralIssuerType (0..*) 
+	issuerCountryOfOrigin string (0..*) 
+		[metadata scheme]
+	issuerName LegalEntity (0..*) 
+	issuerAgencyRating AgencyRatingCriteria (0..*) 
+	sovereignAgencyRating AgencyRatingCriteria (0..*) 
+	counterpartyOwnIssuePermitted boolean (0..1) 
+	
 -  issuerType CollateralIssuerType (0..*) Represents a filter based on
    the type of entity issuing the asset.
 
