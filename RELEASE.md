@@ -1,51 +1,58 @@
-# *Legal Agreement Model - Eligible Collateral Schedule: Description Updates and Refactored Criteria *
+# *CapacityUnitEnum*
 
-_What is being released_
+_What is being released?_
 
-The eligible collateral schedules (ECS) representation, related data types and associated descriptions have been enhanced or refined with additional features: In addition the higher level ECS data structure has been refactored.
+This release updates the existing `CapacityUnitEnum`. The ISDA DRR CFTC Peer Review Group developed a gap analysis between the capacity codes being used by CME, ISO 20022, and CDM. The analysis included a gap analysis with the capacity codes being used by CME in trading OTC products, including commodities, and ISO 20022 codes being requested by CFTC for reporting. 
 
-1.	ECS representation and related data missing descriptions added 
-2.	Description of the ECS related data types and attributes updated for consistency.
-3.	All descriptions across ECS representation related data reviewed and corrected as per style guide
-4.	Data attribute within `DebtInterestEnum` realigned as not correctly positions in data list 
-5.	New attribute `otherAssetType` to data type `AssetType` for specifying other asset types, with a condition to ensure it exists if other asset types are specified under   AssetTypeEnum 
-6.	Changes to the higher-level data structure `EligibleCollateralCriteria` and `ConcentrationLimitCriteria`: 
+In a high-level view, there are two types of proposed changes:
 
-    •	`EligibleCollateralCriteria` becomes an extension of newly named `CollateralCriteriaBase`
+- Distinction between US and GB codes to improve clarity of the units being used.
+- Addition of new codes that were not supported by the CapacityUnitEnum
 
-    •	`CollateralCriteriaBase` contains `IssuerCriteria` and `AssetCriteria`
+The following units have been removed:
 
-    •	`EligibleCollateralCriteria` still connects to `IssuerCriteria` and `AssetCriteria` but additionally has `CollateralTreatment`
+- CWT
+- GAL
+- T
+- ST
 
-    •	Within `CollateralTreatment`, `ConcentrationLimitType` has been moved to sit within `ConcentrationLimitCriteria` which also references `CollateralCriteriaBase`
+The following new units have been added:
 
-    •	Amendments have been made to the related condition `ConcentrationLimitTypeChoice`
+- UST - "Denotes a US Ton as a standard unit" replaces "ST"
+- GBT - "Denotes GB Ton as a standard unit" replaces "T"
+
+- USCWT -  "Denotes US Hundredweight unit as a standard unit" replaces CWT"
+- GBCWT - "Denotes a GB Hundredweight as a standard unit"
+
+- USGAL - "Denotes a US Gallon as a standard unit" replaces GAL
+- GBGAL -  "Denotes a GB Gallon unit as standard unit"
+
+Weight and volume units:
+
+- BDFT - "Denotes Board Feet as a standard unit"
+- CBM - "Denotes Cubic Meters as a standard unit"
+- MMBBL - "Denotes a Million Barrels as a standard unit"
+- G - "Denotes a Gram as a standard unit"
+
+Environmental units:
+
+- CRT - "Denotes Climate Reserve Tonnes as a standard unit"
+- ENVCRD - "Denotes Environmental Credit as a standard unit"
+- ENVOFST - "Denotes a Environmental Offset as a standard unit"
+
+Energy units
+
+- KWDC -  "Denotes a Kilowatt Day Capacity as a standard unit"
+- KWHC - "Denotes a Kilowatt Hours Capacity as a standard unit"
+- KWMC - "Denotes a Kilowatt Month Capacity as a standard unit"
+- KWMINC - "Denotes a Kilowatt Minute Capacity as a standard unit"
+- KWYC - "Denotes a Kilowatt Year Capacity as a standard unit"
+- MWDC - "Denotes a Megawatt Day Capacity as a standard unit"
+- MWHC - "Denotes a Megawatt HoursCapacity as a standard unit"
+- MWMC - "Denotes a Megawatt Month Capacity as a standard unit"
+- MWINC - "Denotes a Megawatt Minute Capacity as a standard unit"
+- MWYC - "Denotes a Megawatt Year Capacity as a standard unit"
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the ECS data CDM model mentioned above. Review and inspect all updated descriptions, these include missing, re written descriptions and any updates needed to be in line with the Rosetta style guide. These changes span across the following namespaces: 
-  
-    •	base-datetime-type
-    
-    •	base-math-enum
-  
-    •	base-staticdata-asset-common-enum
-  
-    •	base-staticdata-asset-common-type
-  
-    •	legalagreement-csa-enum
-  
-    •	legalagreement-csa-type
-  
-    •	observable-asset-enum
-  
-    •	observable-asset-type
-
-Search for the `DebtInterestEnum` list, please inspect the re alignment of  `OtherStructured` which was originally not properly listed and appeared to follow on from the line above `InterestOnly` this has now been correctly positioned beneath.
-
-Search for data type `AssetType` and inspect the changes, an additional attribute has been added to this type called `otherAssetType` this is represented as a data `string` with an unlimited cardinality to allow you to represent various other asset types if needed. A related condition is also added beneath that so that if you identify `other` from the `AssetTypeEnum` options `otherAssetType` must exist.
-
-Search for the data type `CollateralCriteriaBase` and inspect the changes, it has been modified so that `EligibleCollateralCriteria` extends `CollateralCriteriaBase` and now only contains the attributes `treatment`. `CollateralCriteriaBase` now only houses attributes `issuer` and `asset`.
-
-Search for the data type `ConcentrationLimit`, and inspect the changes. The attribute `ConcentrationLimitCriteria` has been refactored to extend `CollateralCriteriaBase` that houses the relevant attributes to define asset and issuer criteria specifically. The data type still contains the attribute `ConcentrationLimitType` to allow a more generic specification of concentration limits. The related conditions have also been updated to reflect these changes. 
-
+In the CDM Portal Textual Browser search for `CapacityUnitEnum` to see the updated list of values.
