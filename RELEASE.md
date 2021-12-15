@@ -50,7 +50,7 @@ In the CDM Portal, select the Textual Browser and search for the data types and 
 
 In Rosetta, use the Visualisation panel to view `Quantity Change - Increase` function which invokes the `Create_BusinessEvent` function to create an `Increase` business event.
 
-# *DSL Syntax - Flatten Keyword for Collapsing lists and Syntax Validation with List Item Cardinality enhancements for Filter and Map keywords *
+# *DSL Syntax - Flatten Keyword for Collapsing lists and Syntax Validation with List Item Cardinality enhancements for Filter and Map keywords*
 
 _What is being released_
 
