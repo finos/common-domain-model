@@ -1,7 +1,14 @@
 **CDM – User Documentation – Eligible Collateral Representation -
 Version 1 (3rd November 2021)**
 
-**INTRODUCTION**
+INTRODUCTION
+============
+
+Sub Heading
+-----------
+
+sub sub heading
+^^^^^^^^^^^^^^^
 
 Within collateral documentation, it is common to detail what assets you
 will exchange with your counterparties, i.e., what you deem eligible
@@ -200,8 +207,7 @@ collateral types to be represented and structure can be used to identify
 individual collateral types or a group of collateral assets for
 inclusion in an eligible collateral schedule.
 
-**OVERVIEW - IDENTIFYING ELIGIBLE COLLATERAL USING THE CDM DATA
-STRUCTURE**
+**OVERVIEW - IDENTIFYING ELIGIBLE COLLATERAL USING THE CDM DATA STRUCTURE**
 
 A combination of data types can be used to describe the collateral
 asset, its origin and its issuer. Data type ``EligibleCollateralCriteria``
@@ -212,6 +218,24 @@ define collateral Asset and Issuer characterises
 
 The data type AssetCriteria is used to specify the definition of the
 collateral asset, this includes the following data attributes:
+
+
+.. code-block:: Haskal
+
+ type AssetCriteria:
+	collateralAssetType AssetType (0..*)
+	assetCountryOfOrigin string (0..*)
+	denominatedCurrency string (0..*)
+	agencyRating AgencyRatingCriteria (0..*)
+	maturityType MaturityTypeEnum (0..1) 
+	maturityRange PeriodRange (0..1)
+	productIdentifier ProductIdentifier (0..*)
+	collateralTaxonomy CollateralTaxonomy (0..*)
+	domesticCurrencyIssued boolean (0..1)
+	listing ListingType (0..1)
+
+-  ``collateralAssetType`` represents a filter based on the asset product type.
+
 
 -  collateralAssetType AssetType (0..*) Represents a filter based on the
    asset product type.
@@ -244,6 +268,9 @@ collateral asset, this includes the following data attributes:
 
 -  ListingType ListingType (0..1) Specifies the exchange, index or
    sector specific to listing of a security.
+
+
+
 
 Each of the AssetCriteria data attributes in the model provides further
 granularity to describe the asset, either as basic types or complex
@@ -914,34 +941,22 @@ HAIRCUT
 To extend this example further a digital JSON output extract of the same
 details is show here:
 
-**{**
+.. code-block:: Javascript
 
-**"criteria": [{**
+ {
+ "criteria": [{
+    "asset": [{
+          "collateralAssetType": [{
+            	"assetType": "CASH"
+ 				}],
+          "denominatedCurrency": [{
+            	"value": "USD"
+ }]
+          }],
+        "treatment": {
+            "haircutPercentage": {
+                "haircutPercentage": 0.005
+                },
+            "isIncluded": true
+            }		
 
-**"asset": [{**
-
-**"collateralAssetType": [{**
-
-**"assetType": "CASH"**
-
-**}],**
-
-**"denominatedCurrency": [{**
-
-**"value": "USD"**
-
-**}]**
-
-**}],**
-
-**"treatment": {**
-
-**"haircutPercentage": {**
-
-**"haircutPercentage": 0.005**
-
-**},**
-
-**"isIncluded": true**
-
-**}**
