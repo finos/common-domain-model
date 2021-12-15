@@ -152,7 +152,7 @@ similar types.
 
 An illustrative example for understanding the principle is shown here:
 
-.. image:: e58b5998a2a94be591459c700bdd42ee/media/image1.png
+.. image:: collateral-asset-identifier-tree.png
    :width: 6.85159in
    :height: 3.24844in
 
@@ -178,7 +178,7 @@ or CUSIP or a standard taxonomy source.
 The foundational data structure from the highest level allows firstly to
 represent eligibility through specification of *criteria*:
 
-.. image:: e58b5998a2a94be591459c700bdd42ee/media/image2.png
+.. image:: cdm-graphical-ecs.png
    :width: 6.26806in
    :height: 1.1083in
 
