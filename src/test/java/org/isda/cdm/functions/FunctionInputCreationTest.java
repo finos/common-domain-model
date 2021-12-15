@@ -1,15 +1,15 @@
 package org.isda.cdm.functions;
 
+import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.Quantity;
+import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import cdm.event.common.ExecutionInstruction;
-import cdm.event.common.TerminationInstruction;
-import cdm.event.common.TradeState;
+import cdm.event.common.*;
 import cdm.event.workflow.WorkflowStep;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.records.DateImpl;
@@ -49,7 +50,7 @@ class FunctionInputCreationTest {
 
     @Test
     void validateCreateTerminationWorkflowFuncInputJson() throws IOException {
-        RunCreateTerminationWorkflowInput actual = new RunCreateTerminationWorkflowInput(
+        CreateTerminationWorkflowInput actual = new CreateTerminationWorkflowInput(
                 getTerminationTradeState(),
                 TerminationInstruction.builder()
                         .addTerminatedPriceQuantity(PriceQuantity.builder()
@@ -70,7 +71,7 @@ class FunctionInputCreationTest {
 
     @Test
     void validateCreatePartialTerminationWorkflowFuncInputJson() throws IOException {
-        RunCreateTerminationWorkflowInput actual = new RunCreateTerminationWorkflowInput(
+        CreateTerminationWorkflowInput actual = new CreateTerminationWorkflowInput(
                 getTerminationTradeState(),
                 TerminationInstruction.builder()
                         .addTerminatedPriceQuantity(PriceQuantity.builder()
@@ -90,7 +91,51 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateCreateAllocationWorkflowInputJason() throws IOException {
+    void validateCreateFullTerminationEquitySwapFuncInputJson() throws IOException {
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                getFullTerminationEquitySwapInstruction(),
+                InstructionFunctionEnum.QUANTITY_CHANGE,
+                new DateImpl(11, 11, 2021)
+        );
+
+        assertEquals(readResource("/cdm-sample-files/functions/full-termination-equity-swap-func-input.json"),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for full-termination-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
+    }
+
+    private List<Instruction> getFullTerminationEquitySwapInstruction() throws IOException {
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder();
+
+        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeBuilder =
+                instructionBuilder.getOrCreatePrimitiveInstruction(0)
+                .getOrCreateQuantityChange();
+
+        quantityChangeBuilder.setDirection(QuantityChangeDirectionEnum.DECREASE);
+
+        PriceQuantity.PriceQuantityBuilder changeBuilder = quantityChangeBuilder
+                .getOrCreateChange(0);
+
+        changeBuilder.getOrCreateQuantity(0)
+                .setValue(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(760400))
+                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
+                        .build());
+
+        changeBuilder.getOrCreateQuantity(1)
+                .setValue(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(28469376))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD").build())
+                        .build());
+
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
+        instructionBuilder
+                .setBefore(tradeState);
+
+        return Lists.newArrayList(instructionBuilder.build());
+    }
+
+    @Test
+    void validateCreateAllocationWorkflowInputJson() throws IOException {
         TradeState.TradeStateBuilder tradeStateBuilder = getTerminationTradeState();
 
         List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders = tradeStateBuilder
@@ -138,6 +183,40 @@ class FunctionInputCreationTest {
         assertEquals(readResource("/cdm-sample-files/functions/allocation-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(executionInstruction),
                 "The input JSON for allocation-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
+    }
+
+    @Test
+    void validateQuantityChangeIncreaseWorkflowFuncInputJson() throws IOException {
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
+
+        List<? extends PriceQuantity> priceQuantities =
+                tradeState.getTrade().getTradableProduct().getTradeLot().get(0).getPriceQuantity();
+        // equity payout price quantity
+        PriceQuantity.PriceQuantityBuilder equityPriceQuantity = priceQuantities.get(0).toBuilder();
+        // Asset Price
+        equityPriceQuantity.getPrice().get(0).getValue().setAmount(BigDecimal.valueOf(30));
+        // Shares
+        equityPriceQuantity.getQuantity().get(0).getValue().setAmount(BigDecimal.valueOf(250000));
+        // Notional
+        equityPriceQuantity.getQuantity().get(1).getValue().setAmount(BigDecimal.valueOf(7500000));
+        // interest rate payout price quantity
+        PriceQuantity.PriceQuantityBuilder interestRatePriceQuantity = priceQuantities.get(1).toBuilder();
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Arrays.asList(
+                        Instruction.builder()
+                                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                                        .setQuantityChange(QuantityChangeInstruction.builder()
+                                                .addChange(equityPriceQuantity)
+                                                .addChange(interestRatePriceQuantity)
+                                                .setDirection(QuantityChangeDirectionEnum.INCREASE)))
+                                .setBefore(tradeState)),
+                InstructionFunctionEnum.QUANTITY_CHANGE,
+                DateImpl.of(2021, 11, 11));
+
+        assertEquals(readResource("/cdm-sample-files/functions/quantity-change-increase-workflow-func-input.json"),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for quantity-change-increase-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
 
@@ -193,7 +272,7 @@ class FunctionInputCreationTest {
         // quantity
         tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().stream().map(TradeLot.TradeLotBuilder::getPriceQuantity).flatMap(Collection::stream).map(
                 PriceQuantity.PriceQuantityBuilder::getQuantity).flatMap(Collection::stream).map(FieldWithMetaQuantity.FieldWithMetaQuantityBuilder::getValue).forEach(quantity -> {
-                    quantity.setAmount(new BigDecimal(10000));
+            quantity.setAmount(new BigDecimal(10000));
         });
         // trade id
         tradeStateBuilder.getTrade().getTradeIdentifier().get(0).getAssignedIdentifier().get(0).setIdentifierValue("LEI1RPT0001KKKK");

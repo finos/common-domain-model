@@ -20,11 +20,7 @@ public class RunFormContract implements ExecutableFunction<TradeState, BusinessE
         tradeStateBuilder.getTrade().setContractDetails(ContractDetails.builder());
         tradeStateBuilder.prune();
 
-        ContractFormationInstruction contractFormationInstruction = ContractFormationInstruction.builder()
-                .setExecution(tradeStateBuilder)
-                .build();
-
-        return formContract.evaluate(contractFormationInstruction, new DateImpl(15, 3, 2021));
+        return formContract.evaluate(ContractFormationInstruction.builder(), tradeStateBuilder, new DateImpl(15, 3, 2021));
     }
 
     @Override
