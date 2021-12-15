@@ -204,7 +204,7 @@ inclusion in an eligible collateral schedule.
 STRUCTURE**
 
 A combination of data types can be used to describe the collateral
-asset, its origin and its issuer. Data type EligibleCollateralCriteria
+asset, its origin and its issuer. Data type ``EligibleCollateralCriteria``
 extends CollateralCriteriaBase and contains data types to enable to
 define collateral Asset and Issuer characterises
 
