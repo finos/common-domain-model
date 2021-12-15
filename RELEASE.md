@@ -49,7 +49,7 @@ In the CDM Portal, select the Textual Browser and search for the data types and 
 
 In Rosetta, use the Visualisation panel to view `Quantity Change - Increase` function which invokes the `Create_BusinessEvent` function to create an `Increase` business event.
 
-# *DSL Syntax - Common Business Event Creation Function*
+# *DSL Syntax - List Syntax Validation and List Item Cardinality*
 
 _What is being released_
 
