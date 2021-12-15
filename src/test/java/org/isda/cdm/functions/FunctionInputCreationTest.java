@@ -1,5 +1,6 @@
 package org.isda.cdm.functions;
 
+import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.Quantity;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.records.DateImpl;
@@ -86,6 +88,50 @@ class FunctionInputCreationTest {
         assertEquals(readResource("/cdm-sample-files/functions/partial-termination-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for partial-termination-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
+    }
+
+    @Test
+    void validateCreateFullTerminationEquitySwapFuncInputJson() throws IOException {
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                getFullTerminationEquitySwapInstruction(),
+                InstructionFunctionEnum.QUANTITY_CHANGE,
+                new DateImpl(11, 11, 2021)
+        );
+
+        assertEquals(readResource("/cdm-sample-files/functions/full-termination-equity-swap-func-input.json"),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for full-termination-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
+    }
+
+    private List<Instruction> getFullTerminationEquitySwapInstruction() throws IOException {
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder();
+
+        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeBuilder =
+                instructionBuilder.getOrCreatePrimitiveInstruction(0)
+                .getOrCreateQuantityChange();
+
+        quantityChangeBuilder.setDirection(QuantityChangeDirectionEnum.DECREASE);
+
+        PriceQuantity.PriceQuantityBuilder changeBuilder = quantityChangeBuilder
+                .getOrCreateChange(0);
+
+        changeBuilder.getOrCreateQuantity(0)
+                .setValue(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(760400))
+                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
+                        .build());
+
+        changeBuilder.getOrCreateQuantity(1)
+                .setValue(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(28469376))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD").build())
+                        .build());
+
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
+        instructionBuilder
+                .setBefore(tradeState);
+
+        return Lists.newArrayList(instructionBuilder.build());
     }
 
     @Test
@@ -226,7 +272,7 @@ class FunctionInputCreationTest {
         // quantity
         tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().stream().map(TradeLot.TradeLotBuilder::getPriceQuantity).flatMap(Collection::stream).map(
                 PriceQuantity.PriceQuantityBuilder::getQuantity).flatMap(Collection::stream).map(FieldWithMetaQuantity.FieldWithMetaQuantityBuilder::getValue).forEach(quantity -> {
-                    quantity.setAmount(new BigDecimal(10000));
+            quantity.setAmount(new BigDecimal(10000));
         });
         // trade id
         tradeStateBuilder.getTrade().getTradeIdentifier().get(0).getAssignedIdentifier().get(0).setIdentifierValue("LEI1RPT0001KKKK");

@@ -2,14 +2,15 @@ package cdm.base.math.processor;
 
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.UnitType;
-import com.regnosys.rosetta.common.translation.*;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMapping;
