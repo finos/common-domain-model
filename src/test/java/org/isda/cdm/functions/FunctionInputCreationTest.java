@@ -14,6 +14,7 @@ import cdm.event.workflow.WorkflowStep;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
+import cdm.product.template.Payout;
 import cdm.product.template.TradeLot;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -135,6 +136,23 @@ class FunctionInputCreationTest {
 
     private TradeState.TradeStateBuilder createEquitySwapTerminationTradeState() throws IOException {
         TradeState.TradeStateBuilder tradeStateBuilder = createGenericSwapTerminationTradeState();
+
+        Payout.PayoutBuilder payout = tradeStateBuilder.getTrade()
+                .getTradableProduct()
+                .getProduct()
+                .getContractualProduct()
+                .getEconomicTerms()
+                .getPayout();
+
+        payout.getInterestRatePayout()
+                .stream()
+                .filter(irPayout -> irPayout.getRateSpecification().getFloatingRate() != null)
+                .findFirst()
+                .ifPresent(floatingLeg -> {
+                    CalculationPeriodDates.CalculationPeriodDatesBuilder calculationPeriodDates = floatingLeg.getCalculationPeriodDates();
+                    calculationPeriodDates.getEffectiveDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2014, 4, 3));
+                    calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2025, 4, 1));
+                });
 
         //TODO: make an irs payout and aan equity payout
 
