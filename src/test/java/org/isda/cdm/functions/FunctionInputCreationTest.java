@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
@@ -92,18 +93,6 @@ class FunctionInputCreationTest {
 
     @Test
     void validateCreateFullTerminationEquitySwapFuncInputJson() throws IOException {
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
-                getFullTerminationEquitySwapInstruction(),
-                InstructionFunctionEnum.QUANTITY_CHANGE,
-                new DateImpl(11, 11, 2021)
-        );
-
-        assertEquals(readResource("/cdm-sample-files/functions/full-termination-equity-swap-func-input.json"),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for full-termination-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
-    }
-
-    private List<Instruction> getFullTerminationEquitySwapInstruction() throws IOException {
         Instruction.InstructionBuilder instructionBuilder = Instruction.builder();
 
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeBuilder =
@@ -131,7 +120,58 @@ class FunctionInputCreationTest {
         instructionBuilder
                 .setBefore(tradeState);
 
-        return Lists.newArrayList(instructionBuilder.build());
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                InstructionFunctionEnum.QUANTITY_CHANGE,
+                new DateImpl(11, 11, 2021)
+        );
+
+        assertEquals(readResource("/cdm-sample-files/functions/full-termination-equity-swap-func-input.json"),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for full-termination-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
+    }
+
+    @Test
+    void validateCreatePartialTerminationEquitySwapFuncInputJson() throws IOException {
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder();
+
+        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeBuilder =
+                instructionBuilder.getOrCreatePrimitiveInstruction(0)
+                        .getOrCreateQuantityChange();
+
+        quantityChangeBuilder.setDirection(QuantityChangeDirectionEnum.DECREASE);
+
+        PriceQuantity.PriceQuantityBuilder changeBuilder = quantityChangeBuilder
+                .getOrCreateChange(0);
+
+        changeBuilder.getOrCreateQuantity(0)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-2")))
+                .setValue(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(300000))
+                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
+                        .build());
+
+        changeBuilder.getOrCreateQuantity(1)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-1")))
+                .setValue(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(9600000))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD").build())
+                        .build());
+
+        // TODO: add trade lots to the trade state
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
+        instructionBuilder
+                .setBefore(tradeState);
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                InstructionFunctionEnum.QUANTITY_CHANGE,
+                new DateImpl(11, 11, 2021)
+        );
+
+        assertEquals(readResource("/cdm-sample-files/functions/partial-termination-equity-swap-func-input.json"),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for partial-termination-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
     @Test
