@@ -1,4 +1,4 @@
-# *CapacityUnitEnum*
+# *Product Model - Enhancement for Enumerated Values for Capacity Units*
 
 _What is being released?_
 
