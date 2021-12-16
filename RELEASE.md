@@ -2,9 +2,7 @@
 
 _What is being released?_
 
-This release updates the existing `CapacityUnitEnum`. The ISDA DRR CFTC Peer Review Group developed a gap analysis between the capacity codes being used by CME, ISO 20022, and CDM. The analysis included a gap analysis with the capacity codes being used by CME in trading OTC products, including commodities, and ISO 20022 codes being requested by CFTC for reporting. 
-
-In a high-level view, there are two types of proposed changes:
+This release updates the existing `CapacityUnitEnum`. This follows a gap analysis completed on the additional capacity codes being used in the industry for OTC products, including commodities, and ISO 20022 codes. There are two types of proposed changes:
 
 - Distinction between US and GB codes to improve clarity of the units being used.
 - Addition of new codes that were not supported by the CapacityUnitEnum
