@@ -75,8 +75,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(IndexValueObservationMultiple.class).to(bindIndexValueObservationMultiple());
 		bind(UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity.class).to(bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity());
 
-		bind(Create_SplitTrades.class).to(bindCreateSplitTrades());
-		bind(Create_ContractFormationPrimitives.class).to(bindCreateContractFormationPrimitives());
 		bind(FilterOpenTradeStates.class).to(bindFilterOpenTradeStates());
 		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
 		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
@@ -237,14 +235,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity> bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity() {
 		return UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl.class;
-	}
-
-	protected Class<? extends Create_SplitTrades> bindCreateSplitTrades() {
-		return Create_SplitTradesImpl.class;
-	}
-
-	protected Class<? extends Create_ContractFormationPrimitives> bindCreateContractFormationPrimitives() {
-		return Create_ContractFormationPrimitivesImpl.class;
 	}
 
 	protected Class<? extends FilterOpenTradeStates> bindFilterOpenTradeStates() {
