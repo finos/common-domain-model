@@ -720,7 +720,7 @@ type ElectiveAmountElection: <"A class to specify the party elective amounts whi
 	customElection string (0..1) <"The elective amount when expressed as a custom election by the party.">
 
 	condition NonZeroAmount: <"When the elective amount is not zero either a currency amount or a custom election must exist.">
-		if electiveAmount is absent then (amount or customElection) exists
+		if electiveAmount is absent then amount exists or customElection exists
 
 type EligibilityToHoldCollateral: <"A class to specify the conditions under which a party and its custodian(s) are entitled to hold collateral. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (h)(i): Eligibility to Hold Posted Collateral (VM) Custodians (VM).">
 
@@ -1097,7 +1097,7 @@ type PledgeeRepresentativeRider: <"The terms of the Rider for the ISDA Euroclear
 
 	condition representativeParty: <"A data rule to enforce that representative terms and a represented party are specified when representative provisions are applicable.">
 		if isApplicable = True
-		then (party and representativeTerms and representativeEvent and representativeEndDate) exists
+		then party exists and representativeTerms exists and representativeEvent exists and representativeEndDate exists
 
 	condition representativeEventTerms: <"A data rule to enforce that representative event terms are specified when applicable.">
 		if representativeEvent = ExceptionEnum->Other
@@ -1296,8 +1296,8 @@ type TerminationCurrencyAmendment: <"A class to specify the Amendment to Termina
 
 	condition Applicablity: <"The Amendment to Termination Currency elections only apply when the Amendment to Termination Currency is deemed applicable by the parties.">
 		if isApplicable = False
-		then ( effectiveDate
-		and partyElection) is absent 
+		then effectiveDate is absent and partyElection is absent
+
 
 type TerminationCurrencyElection: <"A class to specify the Amendment to Termination Currency election by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (t) (A) & (B).">
 
