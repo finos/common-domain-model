@@ -459,7 +459,7 @@ constrain choices to:
 Inclusion Rules
 ^^^^^^^^^^^^^^^
 
-The collateral treatment function isIncluded can be used as a treatment
+The collateral treatment function ``isIncluded`` can be used as a treatment
 term for the eligible collateral criteria specified and indicate if the
 collateral is eligible or not. Therefore a Boolean data attribute is
 applied using one of the following:
@@ -474,27 +474,27 @@ ADDITIONAL GRANULAR INFORMATION FOR ELIGIBLE COLLATERAL DATA CONSTRUCTION
 
 The CDM data structure to express collateral eligibility has been
 explored in more detail and it has been demonstrated where the
-EligibleCollateralCriteria can be broken down into data related to
-IssuerCriteria and AssetCriteria and rules can be applied using data for
+``EligibleCollateralCriteria`` can be broken down into data related to
+``IssuerCriteria`` and ``AssetCriteria`` and rules can be applied using data for
 CollateralTreatment.
 
 The following section focuses on the more granular details of the
-various data attributes available through IssuerCriteria and
-AssetCriteria.
+various data attributes available through ``IssuerCriteria`` and
+``AssetCriteria``.
 
 Collateral Asset and Issuer Types
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Under data types for both IssuerCriteria and AssetCriteria the first
-data attributes available to detail collateral are issuerType and
-collateralAssetType these will offer additional data.
+Under data types for both ``IssuerCriteria`` and ``AssetCriteria`` the first
+data attributes available to detail collateral are ``issuerType`` and
+``collateralAssetType`` these will offer additional data.
 
 **Defining Collateral Issuers:**
 
-issuerType allows for multiple expressions of data related to the issuer
-using CollateralIssuerType (0..*)containing data attributes as follows:
+``issuerType`` allows for multiple expressions of data related to the issuer
+using ``CollateralIssuerType`` containing data attributes as follows:
 
-issuerType IssuerTypeEnum (1..1) Origin of entity issuing the collateral
+``issuerType IssuerTypeEnum`` Specifies the origin of entity issuing the collateral
 with the following enumerations shown as examples but not limited to:
 
 -  SupraNational
@@ -508,7 +508,7 @@ with the following enumerations shown as examples but not limited to:
 Some attributes are extended to allow further granularity as shown in
 the examples below:
 
-supraNationalType SupraNationalIssuerTypeEnum (0..1) Represents types of
+``supraNationalType`` Represents types of
 supranational entity issuing the asset, such as international
 organisations and multilateral banks – with enumerations to define:
 
@@ -518,12 +518,11 @@ organisations and multilateral banks – with enumerations to define:
 
 **Defining Collateral Assets:**
 
-collateralAssetType allows for multiple expressions of data related to
-the collateral asset using AssetType (0..*) which has further data
+``collateralAssetType`` allows for multiple expressions of data related to
+the collateral asset using ``AssetType`` which has further data
 attributes as follows:
 
-assetType AssetTypeEnum (1..1)- Represents the type of collateral asset
-with data attributes to define
+assetType - Represents the type of collateral asset with data attributes as enumerations to define
 
 -  Security
 
@@ -533,8 +532,7 @@ with data attributes to define
 
 -  Other Collateral Products
 
-securityType SecurityTypeEnum (0..1) - Represents the type of security-
-with data attributes to define, as examples:
+``securityType`` - Represents the type of security with data attributes to define, as examples:
 
 -  Debt
 
@@ -542,7 +540,7 @@ with data attributes to define, as examples:
 
 -  Fund
 
-debtType DebtType (0..1)- Represents a filter based on the type of bond
+``debtType`` - Represents a filter based on the type of bond
 which includes further optional granularity for certain characteristics
 that may be required to define specific details related to debt type
 assets such but not limited to as follows:
