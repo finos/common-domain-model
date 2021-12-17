@@ -152,29 +152,26 @@ class FunctionInputCreationTest {
         PriceQuantity.PriceQuantityBuilder changeBuilder = quantityChangeBuilder
                 .getOrCreateChange(0);
 
+        changeBuilder.getOrCreateObservable()
+                .getOrCreateProductIdentifier(0)
+                .getOrCreateValue()
+                .setSource(ProductIdTypeEnum.OTHER)
+                .setIdentifier(FieldWithMetaString.builder()
+                        .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
+                        .setValue("SHPGY.O")
+                );
+
         changeBuilder.getOrCreateQuantity(0)
-                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-2")))
                 .setValue(Quantity.builder()
                         .setAmount(BigDecimal.valueOf(300000))
                         .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
                         .build());
 
         changeBuilder.getOrCreateQuantity(1)
-                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-1")))
                 .setValue(Quantity.builder()
                         .setAmount(BigDecimal.valueOf(9600000))
                         .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD").build())
                         .build());
-
-        //TODO: pick this back up after Nigel's review, probable need to remove this price
-        changeBuilder.getOrCreatePrice(0)
-                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("price-2")))
-                .setValue(Price.builder()
-                        .setAmount(BigDecimal.valueOf(32))
-                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-                        .setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
-                        .setPriceExpression(PriceExpression.builder().setGrossOrNet(GrossOrNetEnum.NET).setPriceType(PriceTypeEnum.ASSET_PRICE))
-                );
 
         FieldWithMetaProductIdentifier.FieldWithMetaProductIdentifierBuilder productIdentifier = changeBuilder.getOrCreateObservable()
                 .getOrCreateProductIdentifier(0);
@@ -192,7 +189,11 @@ class FunctionInputCreationTest {
                 .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
                 .setValue("SHPGY.O");
 
+        quantityChangeBuilder.getOrCreateLotIdentifier(0)
+                .getOrCreateAssignedIdentifier(0)
+                .setIdentifierValue("LOT-1");
 
+        // Build up TradeState with additional TradeLot
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
         TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
         TradableProduct.TradableProductBuilder tradableProduct = tradeStateBuilder
