@@ -20,6 +20,7 @@ import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
+import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -180,20 +181,32 @@ class FunctionInputCreationTest {
                 .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("productIdentifier-1")));
 
         productIdentifier
-                .getValue()
+                .getOrCreateValue()
                 .setSource(ProductIdTypeEnum.OTHER);
 
         productIdentifier
                 .getValue()
-                .getIdentifier()
+                .getOrCreateIdentifier()
                 .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
                 .setValue("SHPGY.O");
 
 
         // TODO: add trade lots to the trade state
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
+        TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
+        TradableProduct.TradableProductBuilder tradableProduct = tradeStateBuilder
+                .getTrade()
+                .getTradableProduct();
+
+        tradableProduct
+                .getOrCreateTradeLot(0)
+                .getOrCreateLotIdentifier(0)
+                .getOrCreateAssignedIdentifier(0)
+                .setIdentifierValue("LOT-1");
+
+
         instructionBuilder
-                .setBefore(tradeState);
+                .setBefore(tradeStateBuilder.build());
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
