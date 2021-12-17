@@ -784,7 +784,7 @@ these are selected as taxonomy sources through TaxonomySourceEnum it is
 required to specify details from the related unlimited enumeration lists that
 exist under data type CollateralTaxonomyValue, these are shown below:
 
-- ``eu_EMIR_EligibleCollateral`` 
+-  ``eu_EMIR_EligibleCollateral`` 
 
 -  ``uk_EMIR_EligibleCollateral`` 
 
