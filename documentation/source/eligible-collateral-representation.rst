@@ -555,6 +555,7 @@ assets such but not limited to as follows:
 
    -  Structured
 
+
 -  DebtEconomics
 
    -  Debt Seniority
@@ -583,7 +584,7 @@ assets such but not limited to as follows:
 
       -  *Amortising*
 
-A similar structure exists for equityType and fundType and other
+A similar structure exists for ``equityType`` and ``fundType`` and other
 collateral assets types.
 
 As well as defining the details of the asset and issuer of collateral
@@ -611,60 +612,78 @@ notations alongside a conditional 'any' or 'all' qualifier.
 For the purpose of use in defining eligible collateral this can be
 applied to the following data attributes:
 
--  IssuerCriteria > issuerAgencyRating - Represents an agency rating
+-  ``IssuerCriteria`` > ``issuerAgencyRating`` - Represents an agency rating
    based on default risk and creditors claim in event of default
    associated with asset issuer
 
--  IssuerCriteria > sovereignAgencyRating - Represents an agency rating
+-  ``IssuerCriteria`` > ``sovereignAgencyRating`` - Represents an agency rating
    based on default risk of the country of the issuer
 
--  AssetCriteria > agencyRating - Represents an agency rating based on
+-  ``AssetCriteria`` > ``agencyRating`` - Represents an agency rating based on
    default risk and creditors claim in event of default associated with
    specific instrument
 
-Data type AgencyRatingCriteria Allows specification of the following
+Data type ``AgencyRatingCriteria`` Allows specification of the following
 related information to eligible collateral
 
--  qualifier QuantifierEnum (1..1) Indicator for whether *all or any* of
+.. code-block:: Haskal
+
+ type AgencyRatingCriteria: 
+   qualifier QuantifierEnum (1..1)
+   creditNotation CreditNotation (1..*) 
+   mismatchResolution CreditNotationMismatchResolutionEnum (0..1)  
+   referenceAgency CreditRatingAgencyEnum (0..1)
+   boundary CreditNotationBoundaryEnum (0..1) 
+
+-  ''qualifier'' Indicator for whether *all or any* of
    the agency ratings specified apply using the All or Any enumeration
    contained within QuantifierEnum
 
--  creditNotation CreditNotation (1..*)Indicates the agency rating
+-  ``creditNotation`` Indicates the agency rating
    criteria specified for the asset or issuer. This expands to offer
-   further granularity for details relating to the credit details as
-   follows:
+   further granularity for details relating to the credit details 
+   
+.. code-block:: Haskal
+   
+ type CreditNotation: 
+  agency CreditRatingAgencyEnum (1..1) 
+  notation string (1..1) 
+  scale string (0..1) 	
+  debt CreditRatingDebt (0..1) 
+  outlook CreditRatingOutlookEnum (0..1)  
+  creditWatch CreditRatingCreditWatchEnum (0..1)  
 
-   1. CreditRatingAgencyEnum A list of enumerated values to specify the
+   1. ``CreditRatingAgencyEnum`` A list of enumerated values to specify the
       rating agency or agencies, (all major rating agencies are
       supported)
 
-   2. notation string (1..1) Specifies the credit rating notation. As it
+   2. ``notation`` Specifies the credit rating notation. As it
       varies among credit rating agencies, the CDM does not currently
       specify each specific rating listed by each agency. The data
       ‘string’ allows the free format field to be populated with a
       rating , such as ‘AAA’
 
-   3. scale string (0..1) Specifies the credit rating scale, with a
+   3. ``scale`` Specifies the credit rating scale, with a
       typical distinction between short term, long term. The data
       ‘string’ allows the free format field to be populated with a scale
       indicator such as ‘long term’, ‘short term
 
-   4. debt CreditRatingDebt (0..1) Specifies the credit rating debt type
+   4. ``debt CreditRatingDebt`` Specifies the credit rating debt type
       is for any credit notation associated debt related credit
       attributes if needed. This gives the additional flexibility option
       to identify amongst the credit criteria debt characteristics such
       as (high yield, deposits, investments grade) The data type extends
       to offer two options
 
-      -  debtType string (0..1) This attribute is free format and used
+      -  ``debtType`` This attribute is free format 'string' and used
          when only one debt type is specified
 
-      -  debtTypes MultipleDebtTypes (0..1)This allows you to specify
+      -  ``debtTypes`` This allows you to specify
          for than one multiple debt type characteristics and has a
          qualifying conditions to specify if you wish to include ‘All’
          or ‘Any’ of the elements listed in scope
 
-   5. outlook CreditRatingOutlookEnum (0..1) This data attributes allows
+    5. ``outlook`` This data attributes allows
       you to specify the a credit rating outlook assessment that is
       commonly determine by rating agencies. It is an indication of the
       potential direction of a long-term credit rating over the
@@ -681,7 +700,7 @@ related information to eligible collateral
 
       -  Developing (A rating may be raised, lowered, or affirmed)
 
-   6. creditWatch CreditRatingCreditWatchEnum (0..1) Similar to
+     6. ``creditWatch`` Similar to
       detailing a type of credit outlook, credit agencies will also
       identify individual credit by a means of a monitoring (watch)
       status for an undefined period. This watch status can be expressed
@@ -693,8 +712,7 @@ related information to eligible collateral
 
       -  Developing (A rating may be raised, lowered, or affirmed)
 
--  mismatchResolution CreditNotationMismatchResolutionEnum (0..1)If
-   several agency issue ratings are being specified that are not
+-  ``mismatchResolution``If several agency issue ratings are being specified that are not
    necessarily equivalent of each, this data attribute allows you to
    label which one has certain characteristics amongst the others, such
    as lowest or highest etc, the following enumerations are available:
@@ -709,23 +727,23 @@ related information to eligible collateral
 
    -  Second Best
 
--  referenceAgency CreditRatingAgencyEnum (0..1)This part of the agency
+-  ``referenceAgency`` This part of the agency
    rating criteria again allows you to specify from the list of
    enumerated values for the rating agency. But in this case it is to
    identify the rating agency if you need to determine one from others
    if you used the data attribute referenceAgency in the
    CreditNotationMismatchResolutionEnum as outlined above.
 
--  boundary CreditNotationBoundaryEnum (0..1) Indicates the boundary of
+- ``boundary`` Indicates the boundary of
    a credit agency rating i.e minimum or maximum.
 
 A condition exists If the mismatch resolution choice is
-ReferenceAgency,you must ensure that the reference agency is specified
-through the CreditRatingAgencyEnum (0..1)
+``ReferenceAgency``, you must ensure that the reference agency is specified
+through the ``CreditRatingAgencyEnum``
 
 *For example:*
 
-Through CreditNotation the following data has been specified:
+Through ``CreditNotation`` the following data has been specified:
 
 S&P AAA
 
@@ -734,10 +752,10 @@ Moodys Aaa
 Fitch AAA
 
 Then one of these needed to be specified as the dominant rating as an
-example (Moodys), you would express mismatchResolution>
-CreditNotationMismatchResolutionEnum> **ReferenceAgency**
+example (Moodys), you would express ``mismatchResolution`` >
+``CreditNotationMismatchResolutionEnum`` > **ReferenceAgency**
 
-referenceAgency> CreditRatingAgencyEnum> **Moodys**
+``referenceAgency`` > ``CreditRatingAgencyEnum`` > **Moodys**
 
 Collateral Taxonomy (Used within Asset Criteria)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -754,15 +772,15 @@ taxonomy sources can be referenced in a consistent representation.
 The CDM allows the definition of, and reference to, certain taxonomy
 sources to be used to express details for eligibility. These can be used
 as an additional means of expressing asset types outside of the
-descriptions tree or alongside it. Under data type AssetCriteria there
+descriptions tree or alongside it. Under data type ``AssetCriteria`` there
 are data attributes to reference collateral related taxonomy sources as
 follows:
 
-Data Type collateralTaxonomy CollateralTaxonomy (0..*) will allow for
+Data Type ``collateralTaxonomy`` will allow for
 specification of the collateral taxonomy, which is composed of a
 taxonomy value and a taxonomy source.
 
--  The data attribute taxonomySource TaxonomySourceEnum (1..1) must be
+-  The data attribute ``taxonomySource`` must be
    specified and will provide the following options through the
    enumerations list:
 
@@ -786,62 +804,61 @@ taxonomy value and a taxonomy source.
 
 The options CFI, ISDA and ICAD would be further expressed with the
 flexible data *‘string’* representation through data type
-ProductTaxonomy.
+``ProductTaxonomy``.
 
 However the regulatory ‘Eligible Collateral Asset Class’ rules have
 individual enumeration lists unique to their asset class categories
 identified under each of the respective regulatory bodies. Therefore if
 these are selected as taxonomy sources through TaxonomySourceEnum it is
-required to specify details from the related enumeration lists that
+required to specify details from the related unlimited enumeration lists that
 exist under data type CollateralTaxonomyValue, these are shown below:
 
--  eu_EMIR_EligibleCollateral EU_EMIR_EligibleCollateralEnum (0..*)
+- ``eu_EMIR_EligibleCollateral`` 
 
--  uk_EMIR_EligibleCollateral UK_EMIR_EligibleCollateralEnum (0..*)
+-  ``uk_EMIR_EligibleCollateral`` 
 
--  us_CFTC_PR_EligibleCollateral US_CFTC_PR_EligibleCollateralEnum
-   (0..*)
-
--  nonEnumeratedTaxonomyValue string (0..*)
+-  ``us_CFTC_PR_EligibleCollateral`` 
+   
+-  ``nonEnumeratedTaxonomyValue``
 
 Please note: The regime codes are not mandatory and are based on
 reference to the regulatory eligible categories, but do not qualify the
 regulations. The CDM only provides a standard data representation so
-that institutions can recognize the same information.
+that institutions can recognise the same information.
 
 Each enumeration has a full description of what regulatory published
 rules the list of eligible collateral assets classification
 codes/categories are based on. Under each enumeration list there are a
 number of categorised eligible asset groups which have been identified
 under each set of regulatory rules. Some limited examples of these are
-shown below which are contained in the EU_EMIR_EligibleCollateralEnum
+shown below which are contained in the ``EU_EMIR_EligibleCollateralEnum``
 list:
 
--  EU_EMIRTypeA -Denotes Cash in the form of money credited to an
+-  ``EU_EMIRTypeA`` -Denotes Cash in the form of money credited to an
    account in any currency, or similar claims for the repayment of
    money, such as money market deposits.
 
--  EU_EMIRTypeB - Denotes gold in the form of allocated pure gold
+-  ``EU_EMIRTypeB`` - Denotes gold in the form of allocated pure gold
    bullion of recognised good delivery.
 
--  EU_EMIRTypeC -Denotes debt securities issued by Member States'
+-  ``EU_EMIRTypeC`` -Denotes debt securities issued by Member States'
    central governments or central banks.
 
 The cardinality for these enumeration lists (0..*) denotes that multiple
 values can be provided so several categories can be applied to a line of
 data expressed in an eligibility schedules/ profile.
 
-The final attribute in CollateralTaxonomyValue,
-nonEnumeratedTaxonomyValue string (0..*), offers additional data
+The final attribute in ``CollateralTaxonomyValue``,
+``nonEnumeratedTaxonomyValue``, offers additional data
 expression outside of the listed taxonomy values, for use when a
 taxonomy value is not enumerated in the model.
 
 There are conditions associated to the use of the data attributes within
-CollateralTaxonomyValue to ensure correct use of the data. These
+``CollateralTaxonomyValue`` to ensure correct use of the data. These
 conditions enforce the specified regulatory enumerated list to match the
 taxonomy source. Therefore as an example you can only specify a category
 from the EMIR enumerations list if the taxonomy source is
-EU_EMIR_EligibleCollateralAssetClass
+``EU_EMIR_EligibleCollateralAssetClass``
 
 Maturity Profiles (Used within Asset Criteria)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -850,9 +867,9 @@ The expression of collateral life span periods and specific maturity
 dates is a common eligibility characteristic and may be needed for
 determining other key collateral treatments such as haircut percentages.
 The CDM has various approaches for representing assets maturities, they
-are data attributes within the data type AssetCriteria as follows:
+are data attributes within the data type ``AssetCriteria`` as follows:
 
--  maturityType MaturityTypeEnum (0..1)- Allows specification of the
+-  ``maturityType`` - Allows specification of the
    type of maturity range and has the following enumerated values:
 
    -  Remaining Maturity
@@ -861,20 +878,18 @@ are data attributes within the data type AssetCriteria as follows:
 
    -  From Issuance
 
--  maturityRange PeriodRange (0..1) Allows filtering on the underlying
+-  ``maturityRange``  Allows filtering on the underlying
    asset maturity through definition of a lower and upper bound range
-   using data type PeriodRange. Using Period Bound (1..1) for both ends
+   using data type ``PeriodRange``. Using ``PeriodBound`` for both ends
    of the scale you would need to specify the period, for example:
 
-   -  ‘lower bound’ 1Y , representing one year using the Period>
-      periodMultiplier int (1..1)\ **1** and period PeriodEnum
-      (1..1)\ **Y**
+   -  ``lowerBound`` 1Y , representing one year using the ``Period`` >
+      ``periodMultiplier`` **1** and period ``PeriodEnum`` **Y**
 
-   -  ‘upper bound’ 5Y, representing 5 years using the Period>
-      periodMultiplier int (1..1)\ **5** and period PeriodEnum
-      (1..1)\ **Y**
+   -  ``upper bound`` 5Y, representing 5 years using the ``Period`` >
+      ``periodMultiplier`` **5** and period ``PeriodEnum`` **Y**
 
-   -  In addition Period Bound (1..1)has the inclusive boolean (1..1) to
+   -  In addition ``PeriodBound`` has the inclusive boolean to
       indicate whether the period bound is inclusive, e.g. for a lower
       bound, false would indicate greater than, whereas true would
       indicate greater than or equal to.
@@ -893,10 +908,10 @@ Product Identifier (Used within Asset Criteria)
 
 The CDM model as described throughout this guide will allow the user to
 define collateral assets through the granular structure of the
-AssetCriteria, but we must understand that expression of asset details
+``AssetCriteria``, but we must understand that expression of asset details
 for eligibility purposes can take other forms across the universe of
 collateral, for some processes there is a requirement to use certain
-product identifiers. Data type productIdentifier can be used to express
+product identifiers. Data type ``productIdentifier`` can be used to express
 specific instrument identifiers such as ISINs, CUSIPs etc. There is a
 section within the CDM documentation that covers this area of the model,
 this can be found in the following link
