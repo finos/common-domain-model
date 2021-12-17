@@ -166,6 +166,7 @@ class FunctionInputCreationTest {
                         .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD").build())
                         .build());
 
+        //TODO: pick this back up after Nigel's review, probable need to remove this price
         changeBuilder.getOrCreatePrice(0)
                 .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("price-2")))
                 .setValue(Price.builder()
