@@ -1,22 +1,23 @@
 package org.isda.cdm.functions;
 
+import cdm.base.datetime.Period;
+import cdm.base.datetime.PeriodEnum;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.Quantity;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
+import cdm.base.staticdata.asset.common.ProductIdentifier;
 import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
+import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.event.workflow.WorkflowStep;
-import cdm.observable.asset.GrossOrNetEnum;
-import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceExpression;
-import cdm.observable.asset.PriceTypeEnum;
+import cdm.observable.asset.*;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
@@ -104,7 +105,7 @@ class FunctionInputCreationTest {
 
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeBuilder =
                 instructionBuilder.getOrCreatePrimitiveInstruction(0)
-                .getOrCreateQuantityChange();
+                        .getOrCreateQuantityChange();
 
         quantityChangeBuilder.setDirection(QuantityChangeDirectionEnum.DECREASE);
 
@@ -191,7 +192,6 @@ class FunctionInputCreationTest {
                 .setValue("SHPGY.O");
 
 
-        // TODO: add trade lots to the trade state
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
         TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
         TradableProduct.TradableProductBuilder tradableProduct = tradeStateBuilder
@@ -204,6 +204,67 @@ class FunctionInputCreationTest {
                 .getOrCreateAssignedIdentifier(0)
                 .setIdentifierValue("LOT-1");
 
+        TradeLot.TradeLotBuilder tradeLot2 = tradableProduct
+                .getOrCreateTradeLot(1);
+
+        tradeLot2
+                .getOrCreateLotIdentifier(0)
+                .getOrCreateAssignedIdentifier(0)
+                .setIdentifierValue("LOT-2");
+
+        PriceQuantity.PriceQuantityBuilder tradeLot2Pq1 = tradeLot2
+                .getOrCreatePriceQuantity(0);
+
+        tradeLot2Pq1
+                .getOrCreateObservable()
+                .getOrCreateProductIdentifier(0)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("productIdentifier-1")))
+                .setValue(ProductIdentifier.builder()
+                        .setIdentifier(FieldWithMetaString.builder().setValue("SHPGY.O").setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId")))
+                        .setSource(ProductIdTypeEnum.OTHER)
+                );
+
+        tradeLot2Pq1
+                .getOrCreatePrice(0)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("price-2")))
+                .setValue(Price.builder()
+                        .setAmount(BigDecimal.valueOf(30))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                        .setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
+                        .setPriceExpression(PriceExpression.builder().setGrossOrNet(GrossOrNetEnum.NET).setPriceType(PriceTypeEnum.ASSET_PRICE))
+                );
+
+        tradeLot2Pq1
+                .getOrCreateQuantity(0)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-2")))
+                .setValue(Quantity.builder().setAmount(BigDecimal.valueOf(250000)).setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)));
+
+        tradeLot2Pq1
+                .getOrCreateQuantity(1)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-1")))
+                .setValue(Quantity.builder().setAmount(BigDecimal.valueOf(7500000)).setUnitOfAmount(UnitType.builder().setCurrencyValue("USD")));
+
+        PriceQuantity.PriceQuantityBuilder tradeLot2Pq2 = tradeLot2
+                .getOrCreatePriceQuantity(1);
+
+        tradeLot2Pq2
+                .getOrCreateObservable()
+                .getOrCreateRateOption()
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("rateOption-1")))
+                .setValue(FloatingRateOption.builder()
+                        .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
+                        .setIndexTenor(Period.builder().setPeriod(PeriodEnum.M).setPeriodMultiplier(1))
+                );
+
+        tradeLot2Pq2
+                .getOrCreatePrice(0)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("price-1")))
+                .setValue(Price.builder()
+                        .setAmount(BigDecimal.valueOf(0.002))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                        .setPerUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                        .setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.INTEREST_RATE).setSpreadType(SpreadTypeEnum.SPREAD))
+                );
 
         instructionBuilder
                 .setBefore(tradeStateBuilder.build());
@@ -343,16 +404,16 @@ class FunctionInputCreationTest {
                 .findFirst()
                 .ifPresent(floatingLeg -> {
                     CalculationPeriodDates.CalculationPeriodDatesBuilder calculationPeriodDates = floatingLeg.getCalculationPeriodDates();
-                    calculationPeriodDates.getEffectiveDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2014,4, 3));
-                    calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2025,4, 1));
+                    calculationPeriodDates.getEffectiveDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2014, 4, 3));
+                    calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2025, 4, 1));
                 });
         interestRatePayouts.stream()
                 .filter(payout -> payout.getRateSpecification().getFixedRate() != null)
                 .findFirst()
                 .ifPresent(fixedLeg -> {
                     CalculationPeriodDates.CalculationPeriodDatesBuilder calculationPeriodDates = fixedLeg.getCalculationPeriodDates();
-                    calculationPeriodDates.getEffectiveDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2018,4, 3));
-                    calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2025,4, 1));
+                    calculationPeriodDates.getEffectiveDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2018, 4, 3));
+                    calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2025, 4, 1));
                 });
         // quantity
         tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().stream().map(TradeLot.TradeLotBuilder::getPriceQuantity).flatMap(Collection::stream).map(
