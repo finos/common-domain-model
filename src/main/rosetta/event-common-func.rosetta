@@ -1422,6 +1422,7 @@ func Create_Allocation: <"Defines the process of taking an initial transaction, 
 		allocationInstruction AllocationInstruction (1..1) <"Represents the allocation instructions to be applied.">
 	output:
 		businessEvent BusinessEvent (1..1) <"Represents the Allocation Business Event containing both the original block trade (with it's status set to Allocated) and the set of breakdown trades.">
+
 	alias splitPrimitive: <"Create the Split Primitive.">
 		Create_SplitPrimitive(tradeState, allocationInstruction -> breakdowns, ClosedStateEnum -> Allocated, PositionStatusEnum -> Closed)
 
@@ -1431,6 +1432,7 @@ func Create_Allocation: <"Defines the process of taking an initial transaction, 
 
 	assign-output businessEvent -> primitives -> split: <"Assign the Split Primitive to the Business Event.">
 		splitPrimitive
+
 	assign-output businessEvent -> primitives: <"Creates and assigns the Contract Formation Primitives that represents the affirmed breakdown trades.">
 		FilterOpenTradeStates(splitPrimitive -> after)
             map [ Create_ContractFormationPrimitive( Create_ContractFormationInstruction( empty ), item ) ]
@@ -1452,7 +1454,9 @@ func Create_Reallocation: <"Defines the process of reallocating a Transaction.">
 	        map [ Create_SplitTrade( originalBlock, item ) ]
 
 	alias decreases:
-		Create_DecreasedTradeQuantityChangePrimitives(reallocationInstruction-> decrease)
+		reallocationInstruction -> decrease
+    	        map [ Create_DecreasedTradeQuantityChangePrimitive( item ) ]
+    	        map [ Create_PrimitiveEvent( empty, empty, empty, item, empty, empty, empty ) ]
 
 	assign-output reallocationEvent -> primitives -> split -> before: <"Assigns the original Block trade as the before state of a split primitive">
 		originalBlock
@@ -1465,7 +1469,7 @@ func Create_Reallocation: <"Defines the process of reallocating a Transaction.">
 
 	assign-output reallocationEvent -> primitives: <"Creates and assigns the Contract Formation Primitives that represents the affirmed breakdown trades.">
 	    newAllocations
-	        map [ Create_ContractFormationPrimitive( empty, item ) ] //Create_ContractFormationInstruction( empty )
+	        map [ Create_ContractFormationPrimitive( Create_ContractFormationInstruction( empty ), item ) ]
 	        map [ Create_PrimitiveEvent( empty, item, empty, empty, empty, empty, empty ) ]
 
 	// condition: sum of decrease quantities (financial unit enum = share only) must = sum of increase quantities + sum of breakdowns quantities
@@ -1488,12 +1492,6 @@ func Create_DecreasedTradeQuantityChangePrimitive:
             ),
 			decrease -> tradeState
         )
-
-func Create_DecreasedTradeQuantityChangePrimitives:
-	inputs:
-		decrease DecreasedTrade (1..*)
-	output:
-		primitives PrimitiveEvent (1..*)
 
 func Create_SplitPrimitive: <"Defines how to create the Split Primitive according to a description of breakdowns.">
 	[creation PrimitiveEvent]
