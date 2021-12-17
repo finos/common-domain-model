@@ -5,12 +5,18 @@ import cdm.base.math.Quantity;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
+import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.event.workflow.WorkflowStep;
+import cdm.observable.asset.GrossOrNetEnum;
+import cdm.observable.asset.Price;
+import cdm.observable.asset.PriceExpression;
+import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
@@ -157,6 +163,32 @@ class FunctionInputCreationTest {
                         .setAmount(BigDecimal.valueOf(9600000))
                         .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD").build())
                         .build());
+
+        changeBuilder.getOrCreatePrice(0)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("price-2")))
+                .setValue(Price.builder()
+                        .setAmount(BigDecimal.valueOf(32))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                        .setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
+                        .setPriceExpression(PriceExpression.builder().setGrossOrNet(GrossOrNetEnum.NET).setPriceType(PriceTypeEnum.ASSET_PRICE))
+                );
+
+        FieldWithMetaProductIdentifier.FieldWithMetaProductIdentifierBuilder productIdentifier = changeBuilder.getOrCreateObservable()
+                .getOrCreateProductIdentifier(0);
+
+        productIdentifier
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("productIdentifier-1")));
+
+        productIdentifier
+                .getValue()
+                .setSource(ProductIdTypeEnum.OTHER);
+
+        productIdentifier
+                .getValue()
+                .getIdentifier()
+                .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
+                .setValue("SHPGY.O");
+
 
         // TODO: add trade lots to the trade state
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
