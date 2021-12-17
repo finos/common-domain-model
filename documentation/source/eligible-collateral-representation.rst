@@ -407,9 +407,16 @@ Concentration Limits
 attributes which allow concentration limits to be defined in two
 alternative ways using ``ConcentrationLimitCriteria``
 
+.. code-block:: Haskal
+
+ type ConcentrationLimit: 
+    concentrationLimitCriteria ConcentrationLimitCriteria (0..*) 
+    valueLimit MoneyRange (0..1) 
+    percentageLimit NumberRange (0..1) 
+	
 *Generic method* : If you wish to apply a concentration limit to a set
 of pre-defined eligible collateral details in the CDM, you would use
-``ConcentrationLimitType``,``ConcentrationLimitTypeEnum`` which allows you to
+``ConcentrationLimitType``, ``ConcentrationLimitTypeEnum`` which allows you to
 define which existing details to apply the concentration limit to from
 an enumeration list including (Asset, Base currency, Issuer, Primary
 Exchange, Sector.. etc)
@@ -427,10 +434,17 @@ floor (lower bound) to the identified asset, issuer or attributes. There
 are two options that allow this to be represented in value or percentage
 terms as follows:
 
--  valueLimit MoneyRange (0..1) Specifies the value of collateral limit
+.. code-block:: Haskal
+
+  type ConcentrationLimit: 
+    concentrationLimitCriteria ConcentrationLimitCriteria (0..*) 
+    valueLimit MoneyRange (0..1) 
+    percentageLimit NumberRange (0..1) 
+		
+-  ``ValueLimit`` Specifies the value of collateral limit
    represented as a range
 
--  percentageLimit MoneyRange (0..1) Specifies the percentage of
+-  ``percentageLimit`` Specifies the percentage of
    collateral limit represented as a decimal number
 
 There are conditions in the CDM when applying concentration limits that
