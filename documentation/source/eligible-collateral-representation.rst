@@ -245,13 +245,13 @@ collateral asset, this includes the following data attributes:
 -  ``collateralAssetType`` Represents a filter based on the
    asset product type.
 
--  ``assetCountryOfOrigin``Represents a filter based on the
+-  ``assetCountryOfOrigin`` Represents a filter based on the
    issuing entity country of origin.
 
 -  ``denominatedCurrency`` Represents a filter based on the
    underlying asset denominated currency.
 
--  ``agencyRating``Represents an agency rating
+-  ``agencyRating`` Represents an agency rating
    based on default risk and creditors claim in event of default
    associated with specific instrument.
 
@@ -278,26 +278,26 @@ Each of the ``AssetCriteria`` data attributes in the model provides further
 granularity to describe the asset, either as basic types or complex
 types, for example:
 
--  collateralAssetType can be used to define further by AssetType such
-   as securityType, debtType, equityType, or fundType. Each of these can
+-  ``collateralAssetType`` can be used to define further by ``AssetType`` such
+   as ``securityType``, ``debtType``, ``equityType``, or ``fundType``. Each of these can
    be used to represent data in further granularity if required
    providing more enumeration options. These are covered in further
    examples throughout this guide.
 
--  assetCountryOfOrigin and denominatedCurrency are ‘string’ basic types
+-  ``assetCountryOfOrigin`` and ``denominatedCurrency`` are ‘string’ basic types
    and can be populated by a country name, code or currency
    abbreviations.
 
--  domesticCurrencyIssued is a Boolean data attribute option to specify
+-  ``domesticCurrencyIssued`` is a Boolean data attribute option to specify
    True or False.
 
--  AgencyRatingCriteria and maturityType are explained in more detail in
+-  ``AgencyRatingCriteria`` and maturityType are explained in more detail in
    further examples throughout this guide.
 
 Issuer Criteria
 ^^^^^^^^^^^^^^^
 
-The data type IssuerCriteria is used to specify the issuer of a
+The data type ``IssuerCriteria`` is used to specify the issuer of a
 collateral asset, this includes the following data attributes:
 
 .. code-block:: Haskal
@@ -312,45 +312,45 @@ collateral asset, this includes the following data attributes:
 	sovereignAgencyRating AgencyRatingCriteria (0..*) 
 	counterpartyOwnIssuePermitted boolean (0..1) 
 	
--  issuerType CollateralIssuerType (0..*) Represents a filter based on
+-  ``issuerType`` Represents a filter based on
    the type of entity issuing the asset.
 
--  issuerCountryOfOrigin string (0..*) Represents a filter based on the
+-  ``issuerCountryOfOrigin`` Represents a filter based on the
    issuing entity country of origin, which is the same as filtering by
    eligible Sovereigns.
 
--  issuerName LegalEntity (0..*) Specifies the issuing entity name or
+-  ``issuerName`` Specifies the issuing entity name or
    LEI.
 
--  issuerAgencyRating AgencyRatingCriteria (0..*) Represents an agency
+-  ``issuerAgencyRating`` Represents an agency
    rating based on default risk and creditors claim in event of default
    associated with asset issuer.
 
--  sovereignAgencyRating AgencyRatingCriteria (0..*) Represents an
+-  ``sovereignAgencyRating`` Represents an
    agency rating based on default risk of country.
 
--  counterpartyOwnIssuePermitted boolean (0..1) Represents a filter
+-  ``counterpartyOwnIssuePermitted`` Represents a filter
    based on whether it is permitted for the underlying asset to be
    issued by the posting entity or part of their corporate family.
 
 For each of the IssuerCriteria options, the model will provide further
-options of granularity; for example issuerType will allow you to define
+options of granularity; for example ``issuerType`` will allow you to define
 further express data for the detail to be more specific to the type of
-issuer for example: SovereignCentralBank, QuasiGovernment,
-RegionalGovernment and so on., If necessary, each will offer further
+issuer for example: ``SovereignCentralBank``, ``QuasiGovernment``,
+``RegionalGovernment`` and so on., If necessary, each will offer further
 levels of granularity relevant to each issuer type. These will be
 covered in more detail and in further examples throughout this guide.
 
-Other attributes of IssuerCriteria can be used and added to your issuer
+Other attributes of ``IssuerCriteria`` can be used and added to your issuer
 description, if required, and will give various levels of granularity
 dependent on their nature and purpose in describing the issuer. For
-example issuerCountryOfOrigin is a free format ‘string’ representation
+example ``issuerCountryOfOrigin`` is a free format ‘string’ representation
 to be populated by a country name, code.
 
-counterpartyOwnIssuePermitted is a Boolean data option to specify Y/N.
+``counterpartyOwnIssuePermitted`` is a Boolean data option to specify Y/N.
 issuerName is used to express a legal entity id as a ‘string’. Whereas,
 other attributes will have more detailed options such as
-IssuerAgencyRating These will be covered in more detail and in further
+``IssuerAgencyRating`` These will be covered in more detail and in further
 examples throughout this guide.
 
 
@@ -358,17 +358,17 @@ TREATMENT FUNCTIONS
 -------------------
 
 Treatment rules can be applied to eligible collateral in several ways
-using data type CollateralTreatment which specifies the treatment terms
+using data type ``CollateralTreatment`` which specifies the treatment terms
 for the eligible collateral criteria specified . This includes a number
 of options which are listed below:
 
--  ValuationTreatment Specification of the valuation treatment for the
+-  ``ValuationTreatment`` Specification of the valuation treatment for the
    specified collateral, such as haircuts percentages.
 
--  concentrationLimit Specification of concentration limits applicable
+-  ``concentrationLimit`` Specification of concentration limits applicable
    to the collateral criteria.
 
--  isIncluded A boolean attribute to specify whether collateral criteria
+-  ``isIncluded`` A boolean attribute to specify whether collateral criteria
    are inclusion (True) or exclusion (False) criteria\ **.**
 
 The CDM model is flexible so that these treatment rules can be applied
@@ -380,22 +380,22 @@ options and the model will provide further options of granularity.
 Valuation Treatments
 ^^^^^^^^^^^^^^^^^^^^
 
-CollateralValuationTreatment will allow for representation of different
+``CollateralValuationTreatment`` will allow for representation of different
 types of haircuts, as follows . Please note: data expression for
 percentages is a number with a condition to be expressed as a decimal
 between 0 and 1.
 
--  haircutPercentage Specifies a haircut percentage to be applied to the
+-  ``haircutPercentage`` Specifies a haircut percentage to be applied to the
    value of asset and used as a discount factor to the value of the
    collateral asset, expressed as a percentage in decimal terms.
 
--  marginPercentage Specifies a percentage value of transaction needing
+-  ``marginPercentage`` Specifies a percentage value of transaction needing
    to be posted as collateral expressed as a valuation.
 
--  fxHaircutPercentage Specifies an FX haircut applied to a specific
+-  ``fxHaircutPercentage`` Specifies an FX haircut applied to a specific
    asset which is agreed between the parties.
 
--  AdditionalHaircutPercentage Specifies a percentage value of any
+-  ``AdditionalHaircutPercentage`` Specifies a percentage value of any
    additional haircut to be applied to a collateral asset, the
    percentage value is expressed as the discount haircut to the value of
    the collateral.
@@ -403,22 +403,22 @@ between 0 and 1.
 Concentration Limits
 ^^^^^^^^^^^^^^^^^^^^
 
-ConcentrationLimit,is another form of treatment which has a set of
+``ConcentrationLimit``,is another form of treatment which has a set of
 attributes which allow concentration limits to be defined in two
-alternative ways using ConcentrationLimitCriteria
+alternative ways using ``ConcentrationLimitCriteria``
 
 *Generic method* : If you wish to apply a concentration limit to a set
 of pre-defined eligible collateral details in the CDM, you would use
-ConcentrationLimitType, ConcentrationLimitTypeEnum which allows you to
+``ConcentrationLimitType``,``ConcentrationLimitTypeEnum`` which allows you to
 define which existing details to apply the concentration limit to from
 an enumeration list including (Asset, Base currency, Issuer, Primary
 Exchange, Sector.. etc)
 
 *Specific method* : If you wish to apply a concentration limit to a
 specific asset or issuer of asset, you would use the
-ConcentrationLimitCriteria. This extends CollateralCriteriaBase and
+``ConcentrationLimitCriteria``. This extends ``CollateralCriteriaBase`` and
 allows you be more specific using the granular structures of the
-IssuerCriteria and AssetCriteria to specify the details of the issuer or
+``IssuerCriteria`` and ``AssetCriteria`` to specify the details of the issuer or
 asset you want to apply the concentration limit.
 
 In addition, you would need to specify the form of the Concentration
