@@ -2,13 +2,6 @@ CDM – User Documentation – Eligible Collateral Representation -Version 2 (De
 ============================================================================================
 
 
-
-Sub Heading
------------
-
-sub sub heading
-^^^^^^^^^^^^^^^
-
 INTRODUCTION
 ------------
 
@@ -43,6 +36,7 @@ and application of specified haircuts and concentration limits. Having
 no common standards in place to represent the key data has led to
 lengthy negotiation, misinterpretation, lack of interoperability and
 downstream operational inefficiency.
+
 
 ELIGIBLE COLLATERAL IN THE CDM
 ------------------------------
@@ -99,6 +93,7 @@ this digital representation are summarized below:
    exported to other systems such as credit, treasury, trade reporting
    and custodian platforms, providing a full workflow solution from
    negotiation, execution through to optimisation and settlement.
+
 
 MODELLING APPROACH
 ------------------
@@ -214,18 +209,19 @@ collateral types to be represented and structure can be used to identify
 individual collateral types or a group of collateral assets for
 inclusion in an eligible collateral schedule.
 
+
 OVERVIEW - IDENTIFYING ELIGIBLE COLLATERAL USING THE CDM DATA STRUCTURE
 -----------------------------------------------------------------------
 
 A combination of data types can be used to describe the collateral
 asset, its origin and its issuer. Data type ``EligibleCollateralCriteria``
-extends CollateralCriteriaBase and contains data types to enable to
+extends ``CollateralCriteriaBase`` and contains data types to enable to
 define collateral Asset and Issuer characterises
 
 Asset Criteria
 ^^^^^^^^^^^^^^
 
-The data type AssetCriteria is used to specify the definition of the
+The data type ``AssetCriteria`` is used to specify the definition of the
 collateral asset, this includes the following data attributes:
 
 
@@ -243,45 +239,42 @@ collateral asset, this includes the following data attributes:
 	domesticCurrencyIssued boolean (0..1)
 	listing ListingType (0..1)
 
--  ``collateralAssetType`` represents a filter based on the asset product type.
+-  ``collateralAssetType`` Represents a filter based on the asset product type.
 
 
--  collateralAssetType AssetType (0..*) Represents a filter based on the
+-  ``collateralAssetType`` Represents a filter based on the
    asset product type.
 
--  assetCountryOfOrigin string (0..*)Represents a filter based on the
+-  ``assetCountryOfOrigin``Represents a filter based on the
    issuing entity country of origin.
 
--  denominatedCurrency string (0..*) Represents a filter based on the
+-  ``denominatedCurrency`` Represents a filter based on the
    underlying asset denominated currency.
 
--  agencyRating AgencyRatingCriteria (0..*) Represents an agency rating
+-  ``agencyRating``Represents an agency rating
    based on default risk and creditors claim in event of default
    associated with specific instrument.
 
--  maturityType MaturityTypeEnum (0..1) Specifies whether the maturity
+-  ``maturityType`` Specifies whether the maturity
    range is the remaining or original maturity.
 
--  maturityRange PeriodRange (0..1) Represents a filter based on the
+-  ``maturityRange`` Represents a filter based on the
    underlying asset maturity.
 
--  productIdentifier ProductIdentifier (0..*) Represents a filter based
+-  ``productIdentifier`` Represents a filter based
    on specific instrument identifiers (e.g. specific ISINs, CUSIPs etc)
 
--  collateralTaxonomy CollateralTaxonomy (0..*) Specifies the collateral
+-  ``collateralTaxonomy`` Specifies the collateral
    taxonomy, which is composed of a taxonomy value and a taxonomy
    source.
 
--  domesticCurrencyIssued boolean (0..1) Identifies that the Security
+-  ``domesticCurrencyIssued`` Identifies that the Security
    must be denominated in the domestic currency of the issuer.
 
--  ListingType ListingType (0..1) Specifies the exchange, index or
+-  ``ListingType`` Specifies the exchange, index or
    sector specific to listing of a security.
 
-
-
-
-Each of the AssetCriteria data attributes in the model provides further
+Each of the ``AssetCriteria`` data attributes in the model provides further
 granularity to describe the asset, either as basic types or complex
 types, for example:
 
@@ -359,6 +352,7 @@ issuerName is used to express a legal entity id as a ‘string’. Whereas,
 other attributes will have more detailed options such as
 IssuerAgencyRating These will be covered in more detail and in further
 examples throughout this guide.
+
 
 TREATMENT FUNCTIONS
 -------------------
@@ -459,6 +453,7 @@ applied using one of the following:
 -  (True) Collateral Inclusion
 
 -  (False) Collateral Exclusion
+
 
 ADDITIONAL GRANULAR INFORMATION FOR ELIGIBLE COLLATERAL DATA CONSTRUCTION
 -------------------------------------------------------------------------
@@ -921,6 +916,7 @@ individually or together :
    data type can be used in the CDM to define an index in terms of a
    \`ProductIdentifier’ and an enumeration identifying the index
    constituent type.
+
 
 USING THE CDM DATA REPRESENTATION TO CONSTRUCT ELIGIBLE COLLATERAL INFORMATION
 ------------------------------------------------------------------------------
