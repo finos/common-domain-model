@@ -333,7 +333,7 @@ collateral asset, this includes the following data attributes:
    based on whether it is permitted for the underlying asset to be
    issued by the posting entity or part of their corporate family.
 
-For each of the IssuerCriteria options, the model will provide further
+For each of the ``IssuerCriteria`` options, the model will provide further
 options of granularity; for example ``issuerType`` will allow you to define
 further express data for the detail to be more specific to the type of
 issuer for example: ``SovereignCentralBank``, ``QuasiGovernment``,
@@ -348,7 +348,7 @@ example ``issuerCountryOfOrigin`` is a free format ‘string’ representation
 to be populated by a country name, code.
 
 ``counterpartyOwnIssuePermitted`` is a Boolean data option to specify Y/N.
-issuerName is used to express a legal entity id as a ‘string’. Whereas,
+``issuerName`` is used to express a legal entity id as a ‘string’. Whereas,
 other attributes will have more detailed options such as
 ``IssuerAgencyRating`` These will be covered in more detail and in further
 examples throughout this guide.
@@ -606,7 +606,7 @@ parties and those defined under regulatory rules for posting certain
 margin types.
 
 The model components are specified in the CDM using data type
-AgencyRatingCriteria: - Represents class to specify multiple credit
+``AgencyRatingCriteria`` : - Represents class to specify multiple credit
 notations alongside a conditional 'any' or 'all' qualifier.
 
 For the purpose of use in defining eligible collateral this can be
@@ -689,7 +689,7 @@ related information to eligible collateral
 	Average 
 	SecondBest 
 
--  ``mismatchResolution``If several agency issue ratings are being specified that are not
+-  ``mismatchResolution`` If several agency issue ratings are being specified that are not
    necessarily equivalent of each, this data attribute allows you to
    label which one has certain characteristics amongst the others, such
    as lowest or highest etc, the following enumerations are available:
@@ -894,8 +894,8 @@ Listing (Used within Asset Criteria)
 Additional details may be required to describe asset characteristics
 related to a securities financial listing, exchange, sector or specified
 indices, if relevant these are used to express eligibility details in
-documentation and collateral profiles. The data type listing ListingType
-(0..1) contained within AssetCriteria can be used to specification such
+documentation and collateral profiles. The data type listing ``ListingType``
+contained within ``AssetCriteria`` can be used to specification such
 listing criteria. This expands to three attributes that can be used
 individually or together :
 
@@ -935,7 +935,7 @@ the same level in the CDM are defined as an ‘and’ relationship. However,
 opportunities exist in the CDM data structure to extended lists within a
 list and add another level to both asset and issuer criteria which will
 operate as an ‘or’ relationship. An example of this would be within data
-type AssetCriteria there is an option to define a denominatedCurrency
+type ``AssetCriteria`` there is an option to define a ``denominatedCurrency`` 
 (0..*); this data attribute with an open cardinality allows for a
 definition of a list of currencies and describes where a ‘or’
 relationship exists.
