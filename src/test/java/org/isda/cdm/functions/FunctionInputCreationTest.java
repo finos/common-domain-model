@@ -1,27 +1,26 @@
 package org.isda.cdm.functions;
 
-import cdm.base.datetime.Period;
-import cdm.base.datetime.PeriodEnum;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.Quantity;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
-import cdm.base.staticdata.asset.common.ProductIdentifier;
 import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
-import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
+import cdm.event.common.functions.Create_BusinessEvent;
 import cdm.event.workflow.WorkflowStep;
-import cdm.observable.asset.*;
+import cdm.observable.asset.GrossOrNetEnum;
+import cdm.observable.asset.Price;
+import cdm.observable.asset.PriceExpression;
+import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
-import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -29,14 +28,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.meta.Key;
+import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.validation.ModelObjectValidator;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
+import org.isda.cdm.CdmRuntimeModule;
 import org.isda.cdm.functions.testing.FunctionUtils;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import util.ResourcesUtils;
 
 import java.io.IOException;
@@ -51,11 +60,26 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FunctionInputCreationTest {
+    private static Injector injector;
+
 
     private static final ObjectMapper STRICT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
             .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
             .setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
+
+    @BeforeAll
+    static void setup() {
+        Module module = Modules.override(new CdmRuntimeModule())
+                .with(new AbstractModule() {
+                    @Override
+                    protected void configure() {
+                        bind(PostProcessor.class).to(GlobalKeyProcessRunner.class);
+                        bind(ModelObjectValidator.class).toInstance(Mockito.mock(ModelObjectValidator.class));
+                    }
+                });
+        injector = Guice.createInjector(module);
+    }
 
     @Test
     void validateCreateTerminationWorkflowFuncInputJson() throws IOException {
@@ -193,84 +217,17 @@ class FunctionInputCreationTest {
                 .getOrCreateAssignedIdentifier(0)
                 .setIdentifierValue("LOT-1");
 
-        // Build up TradeState with additional TradeLot
         //TODO: call create_BusinessEvent function using the "increase-equity-swap-func" as input, take the after from that and use as before here
-        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
-        TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
-        TradableProduct.TradableProductBuilder tradableProduct = tradeStateBuilder
-                .getTrade()
-                .getTradableProduct();
+        CreateBusinessEventWorkflowInput increaseEquitySwapInput = generateIncreaseEquitySwapInput();
+        Create_BusinessEvent createBusinessEvent = injector.getInstance(Create_BusinessEvent.class);
+        BusinessEvent increaseOutput = createBusinessEvent.evaluate(increaseEquitySwapInput.getInstruction(),
+                increaseEquitySwapInput.getInstructionFunction(),
+                increaseEquitySwapInput.getEventDate());
 
-        tradableProduct
-                .getOrCreateTradeLot(0)
-                .getOrCreateLotIdentifier(0)
-                .getOrCreateAssignedIdentifier(0)
-                .setIdentifierValue("LOT-1");
-
-        TradeLot.TradeLotBuilder tradeLot2 = tradableProduct
-                .getOrCreateTradeLot(1);
-
-        tradeLot2
-                .getOrCreateLotIdentifier(0)
-                .getOrCreateAssignedIdentifier(0)
-                .setIdentifierValue("LOT-2");
-
-        PriceQuantity.PriceQuantityBuilder tradeLot2Pq1 = tradeLot2
-                .getOrCreatePriceQuantity(0);
-
-        tradeLot2Pq1
-                .getOrCreateObservable()
-                .getOrCreateProductIdentifier(0)
-                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("productIdentifier-1")))
-                .setValue(ProductIdentifier.builder()
-                        .setIdentifier(FieldWithMetaString.builder().setValue("SHPGY.O").setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId")))
-                        .setSource(ProductIdTypeEnum.OTHER)
-                );
-
-        tradeLot2Pq1
-                .getOrCreatePrice(0)
-                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("price-2")))
-                .setValue(Price.builder()
-                        .setAmount(BigDecimal.valueOf(30))
-                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-                        .setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
-                        .setPriceExpression(PriceExpression.builder().setGrossOrNet(GrossOrNetEnum.NET).setPriceType(PriceTypeEnum.ASSET_PRICE))
-                );
-
-        tradeLot2Pq1
-                .getOrCreateQuantity(0)
-                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-2")))
-                .setValue(Quantity.builder().setAmount(BigDecimal.valueOf(250000)).setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)));
-
-        tradeLot2Pq1
-                .getOrCreateQuantity(1)
-                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-1")))
-                .setValue(Quantity.builder().setAmount(BigDecimal.valueOf(7500000)).setUnitOfAmount(UnitType.builder().setCurrencyValue("USD")));
-
-        PriceQuantity.PriceQuantityBuilder tradeLot2Pq2 = tradeLot2
-                .getOrCreatePriceQuantity(1);
-
-        tradeLot2Pq2
-                .getOrCreateObservable()
-                .getOrCreateRateOption()
-                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("rateOption-1")))
-                .setValue(FloatingRateOption.builder()
-                        .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
-                        .setIndexTenor(Period.builder().setPeriod(PeriodEnum.M).setPeriodMultiplier(1))
-                );
-
-        tradeLot2Pq2
-                .getOrCreatePrice(0)
-                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("price-1")))
-                .setValue(Price.builder()
-                        .setAmount(BigDecimal.valueOf(0.002))
-                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-                        .setPerUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-                        .setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.INTEREST_RATE).setSpreadType(SpreadTypeEnum.SPREAD))
-                );
+        TradeState increaseAfterState = increaseOutput.getAfter().get(0);
 
         instructionBuilder
-                .setBefore(tradeStateBuilder.build());
+                .setBefore(increaseAfterState);
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
@@ -285,6 +242,15 @@ class FunctionInputCreationTest {
 
     @Test
     void validateCreateIncreaseEquitySwapFuncInputJson() throws IOException {
+        CreateBusinessEventWorkflowInput actual = generateIncreaseEquitySwapInput();
+
+        assertEquals(readResource("/cdm-sample-files/functions/increase-equity-swap-func-input.json"),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for increase-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
+    }
+
+    @NotNull
+    private CreateBusinessEventWorkflowInput generateIncreaseEquitySwapInput() throws IOException {
         Instruction.InstructionBuilder instructionBuilder = Instruction.builder();
 
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeBuilder =
@@ -338,15 +304,11 @@ class FunctionInputCreationTest {
         instructionBuilder
                 .setBefore(tradeState);
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        return new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 InstructionFunctionEnum.QUANTITY_CHANGE,
                 new DateImpl(11, 11, 2021)
         );
-
-        assertEquals(readResource("/cdm-sample-files/functions/increase-equity-swap-func-input.json"),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for increase-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
     @Test
