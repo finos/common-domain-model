@@ -2,7 +2,8 @@ package org.isda.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
-import cdm.event.common.functions.*;
+import cdm.event.common.functions.UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity;
+import cdm.event.common.functions.UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
 import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.asset.fro.functions.*;
@@ -75,12 +76,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(IndexValueObservationMultiple.class).to(bindIndexValueObservationMultiple());
 		bind(UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity.class).to(bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity());
 
-		bind(Create_SplitTrades.class).to(bindCreateSplitTrades());
-		bind(Create_ContractFormationPrimitives.class).to(bindCreateContractFormationPrimitives());
-		bind(FilterOpenTradeStates.class).to(bindFilterOpenTradeStates());
 		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
 		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
-		bind(Create_DecreasedTradeQuantityChangePrimitives.class).to(bindCreateDecreasedTradeQuantityChangePrimitives());
 		bind(ResolveObservationAverage.class).to(bindResolveObservationAverage());
 		bind(CalculationPeriodRange.class).to(bindCalculationPeriodRange());
 	}
@@ -239,27 +236,11 @@ public class CdmRuntimeModule extends AbstractModule {
 		return UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl.class;
 	}
 
-	protected Class<? extends Create_SplitTrades> bindCreateSplitTrades() {
-		return Create_SplitTradesImpl.class;
-	}
-
-	protected Class<? extends Create_ContractFormationPrimitives> bindCreateContractFormationPrimitives() {
-		return Create_ContractFormationPrimitivesImpl.class;
-	}
-
-	protected Class<? extends FilterOpenTradeStates> bindFilterOpenTradeStates() {
-		return FilterOpenTradeStatesImpl.class;
-	}
-
 	protected Class<? extends UpdateAmountForEachQuantity> bindUpdateAmountForEachQuantity() {
 		return UpdateAmountForEachQuantityImpl.class;
 	}
 
 	protected Class<? extends UpdateAmountForEachMatchingQuantity> bindUpdateAmountForEachMatchingQuantity() {
 		return UpdateAmountForEachMatchingQuantityImpl.class;
-	}
-
-	protected Class<? extends Create_DecreasedTradeQuantityChangePrimitives> bindCreateDecreasedTradeQuantityChangePrimitives() {
-		return Create_DecreasedTradeQuantityChangePrimitivesImpl.class;
 	}
 }
