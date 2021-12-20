@@ -293,8 +293,22 @@ class FunctionInputCreationTest {
 
         quantityChangeBuilder.setDirection(QuantityChangeDirectionEnum.INCREASE);
 
+        quantityChangeBuilder.getOrCreateLotIdentifier(0)
+                .getOrCreateAssignedIdentifier(0)
+                .setIdentifierValue("LOT-2");
+
         PriceQuantity.PriceQuantityBuilder changeBuilder = quantityChangeBuilder
                 .getOrCreateChange(0);
+
+        changeBuilder.getOrCreateObservable()
+                .getOrCreateProductIdentifier(0)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("productIdentifier-1")))
+                .getOrCreateValue()
+                .setSource(ProductIdTypeEnum.OTHER)
+                .setIdentifier(FieldWithMetaString.builder()
+                        .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
+                        .setValue("SHPGY.O")
+                );
 
         changeBuilder.getOrCreateQuantity(0)
                 .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-2")))
