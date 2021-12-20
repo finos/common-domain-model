@@ -324,6 +324,16 @@ class FunctionInputCreationTest {
                         .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD").build())
                         .build());
 
+        changeBuilder.getOrCreatePrice(0)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("price-2")))
+                .setValue(
+                        Price.builder()
+                                .setAmount(BigDecimal.valueOf(30))
+                                .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                                .setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
+                                .setPriceExpression(PriceExpression.builder().setGrossOrNet(GrossOrNetEnum.NET).setPriceType(PriceTypeEnum.ASSET_PRICE))
+                );
+
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
         instructionBuilder
                 .setBefore(tradeState);
@@ -336,7 +346,7 @@ class FunctionInputCreationTest {
 
         assertEquals(readResource("/cdm-sample-files/functions/increase-equity-swap-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for partial-termination-increase-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
+                "The input JSON for increase-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
     @Test
