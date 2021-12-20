@@ -6,7 +6,6 @@ import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
-import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
@@ -173,51 +172,27 @@ class FunctionInputCreationTest {
 
         quantityChangeBuilder.setDirection(QuantityChangeDirectionEnum.DECREASE);
 
-        PriceQuantity.PriceQuantityBuilder changeBuilder = quantityChangeBuilder
-                .getOrCreateChange(0);
-
-        changeBuilder.getOrCreateObservable()
-                .getOrCreateProductIdentifier(0)
-                .getOrCreateValue()
-                .setSource(ProductIdTypeEnum.OTHER)
-                .setIdentifier(FieldWithMetaString.builder()
-                        .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
-                        .setValue("SHPGY.O")
-                );
-
-        changeBuilder.getOrCreateQuantity(0)
-                .setValue(Quantity.builder()
-                        .setAmount(BigDecimal.valueOf(300000))
-                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
-                        .build());
-
-        changeBuilder.getOrCreateQuantity(1)
-                .setValue(Quantity.builder()
-                        .setAmount(BigDecimal.valueOf(9600000))
-                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD").build())
-                        .build());
-
-        FieldWithMetaProductIdentifier.FieldWithMetaProductIdentifierBuilder productIdentifier = changeBuilder.getOrCreateObservable()
-                .getOrCreateProductIdentifier(0);
-
-        productIdentifier
-                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("productIdentifier-1")));
-
-        productIdentifier
-                .getOrCreateValue()
-                .setSource(ProductIdTypeEnum.OTHER);
-
-        productIdentifier
-                .getValue()
-                .getOrCreateIdentifier()
-                .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
-                .setValue("SHPGY.O");
-
         quantityChangeBuilder.getOrCreateLotIdentifier(0)
                 .getOrCreateAssignedIdentifier(0)
                 .setIdentifierValue("LOT-1");
 
-        //TODO: call create_BusinessEvent function using the "increase-equity-swap-func" as input, take the after from that and use as before here
+        PriceQuantity.PriceQuantityBuilder changeBuilder = quantityChangeBuilder
+                .getOrCreateChange(0);
+
+        changeBuilder.getOrCreateQuantity(0)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-2")))
+                .setValue(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(760400))
+                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
+                        .build());
+
+        changeBuilder.getOrCreateQuantity(1)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-1")))
+                .setValue(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(28469376))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD").build())
+                        .build());
+
         CreateBusinessEventWorkflowInput increaseEquitySwapInput = generateIncreaseEquitySwapInput();
         Create_BusinessEvent createBusinessEvent = injector.getInstance(Create_BusinessEvent.class);
         BusinessEvent increaseOutput = createBusinessEvent.evaluate(increaseEquitySwapInput.getInstruction(),
