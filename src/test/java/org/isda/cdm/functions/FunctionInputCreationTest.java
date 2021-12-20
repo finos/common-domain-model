@@ -194,6 +194,7 @@ class FunctionInputCreationTest {
                 .setIdentifierValue("LOT-1");
 
         // Build up TradeState with additional TradeLot
+        //TODO: call create_BusinessEvent function using the "increase-equity-swap-func" as input, take the after from that and use as before here
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
         TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
         TradableProduct.TradableProductBuilder tradableProduct = tradeStateBuilder
@@ -280,6 +281,48 @@ class FunctionInputCreationTest {
         assertEquals(readResource("/cdm-sample-files/functions/partial-termination-equity-swap-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for partial-termination-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
+    }
+
+    @Test
+    void validateCreateIncreaseEquitySwapFuncInputJson() throws IOException {
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder();
+
+        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeBuilder =
+                instructionBuilder.getOrCreatePrimitiveInstruction(0)
+                        .getOrCreateQuantityChange();
+
+        quantityChangeBuilder.setDirection(QuantityChangeDirectionEnum.INCREASE);
+
+        PriceQuantity.PriceQuantityBuilder changeBuilder = quantityChangeBuilder
+                .getOrCreateChange(0);
+
+        changeBuilder.getOrCreateQuantity(0)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-2")))
+                .setValue(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(250000))
+                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
+                        .build());
+
+        changeBuilder.getOrCreateQuantity(1)
+                .setMeta(MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue("quantity-1")))
+                .setValue(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(7500000))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD").build())
+                        .build());
+
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
+        instructionBuilder
+                .setBefore(tradeState);
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                InstructionFunctionEnum.QUANTITY_CHANGE,
+                new DateImpl(11, 11, 2021)
+        );
+
+        assertEquals(readResource("/cdm-sample-files/functions/increase-equity-swap-func-input.json"),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for partial-termination-increase-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
     @Test
