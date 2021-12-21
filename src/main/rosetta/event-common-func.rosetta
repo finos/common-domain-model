@@ -302,9 +302,8 @@ func Qualify_Compression: <"The qualification of a compression event from the fa
 		businessEvent BusinessEvent(1..1)
 	output: is_event boolean (1..1)
 	assign-output is_event:
-		businessEvent -> primitives -> contractFormation count = 1
-        and businessEvent -> primitives -> quantityChange count > 1
-        //and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
+		businessEvent -> instruction -> primitiveInstruction -> execution count = 1
+        and businessEvent -> instruction -> primitiveInstruction -> quantityChange count > 1
 
 
 func Qualify_Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
@@ -325,11 +324,19 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate)
 	assign-output is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Increase)
-		and (
-			businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
+		and 
+		(
+		(businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
 			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
 		and QuantityIncreasedPrimitive(businessEvent -> primitives -> quantityChange) = True
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
+		)
+		or
+		(
+		businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and 
+		(QuantityIncreased(businessEvent->instruction->before only-element,businessEvent->after) = True or
+		businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
+		)
 
 func Qualify_MultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
 	[qualification BusinessEvent]
@@ -463,7 +470,8 @@ func Qualify_Execution: <"The qualification of an execution event from the fact 
 	output: is_event boolean (1..1)
 	assign-output is_event:
 		businessEvent -> primitives count = 1 and businessEvent -> primitives -> execution exists or
-		businessEvent -> instruction -> primitiveInstruction -> execution only exists
+		(businessEvent -> instruction count = 1 and
+		businessEvent -> instruction -> primitiveInstruction -> execution only exists)
 
 func Qualify_ContractFormation: <"Qualifies a business event as a contract formation from the fact that the only component is a single Contract Formation Primitive.">
 	[qualification BusinessEvent]
@@ -1684,9 +1692,6 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
         then AddTradeLot( tradableProduct, Create_TradeLot( instruction -> lotIdentifier, newPriceQuantity ) ) -> tradeLot
         else MergeTradeLot( tradableProduct -> tradeLot, Create_TradeLot( instruction -> lotIdentifier, newPriceQuantity ) )
 
-	// alias isClosed:
-    //     quantityChangePrimitive -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount
-
 	condition: <"Only termination where the termination price is specified as a cash price is supported for now.">
 		if instruction -> direction = QuantityChangeDirectionEnum -> Decrease and instruction -> change -> price exists
 		then instruction -> change -> price -> priceExpression -> priceType all = PriceTypeEnum -> CashPrice
@@ -1702,9 +1707,9 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 			tradableProduct -> ancillaryParty,
 			tradableProduct -> adjustment )
 
-    // assign-output quantityChangePrimitive -> after -> state -> positionState:
-    //     if isClosed
-	// 		then PositionStatusEnum -> Closed
+    assign-output quantityChangePrimitive -> after -> state -> positionState:
+        if quantityChangePrimitive -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount all = 0
+			then PositionStatusEnum -> Closed
 
 	post-condition: <"The input and output types need to be consistent, if we started with an Execution, we should end with an Execution, likewise with Contract.">
 		if quantityChangePrimitive -> before -> trade -> executionDetails exists
