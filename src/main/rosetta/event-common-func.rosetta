@@ -66,15 +66,13 @@ func QuantityIncreased:
     output:
         result boolean (1..1)
 
-    alias results: <"Check each after (list item) is greater than before (func input).">
-        after
+    assign-output result: <"Check each after (list item) is greater than before (func input).">
+		after
             map [ CompareTradeLot(
                     item -> trade -> tradableProduct -> tradeLot only-element,
                     CompareOp -> GreaterThan,
                     before -> trade -> tradableProduct -> tradeLot only-element ) = True ]
-
-	assign-output result:
-		results all = True
+		    all = True
 
 func QuantityDecreasedPrimitive: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is less than the Quantity (with the same unit of amount) in the before TradeState, but not decreased to zero.">
 	inputs:
@@ -93,8 +91,8 @@ func QuantityDecreased:
 	output:
 	    result boolean (1..1)
 
-    alias results:
-        after
+    assign-output result:
+		after
             map [
                 // check each after (item) is less than before (input)
                 CompareTradeLot(
@@ -108,9 +106,7 @@ func QuantityDecreased:
                     CompareOp -> GreaterThan,
                     0.0 ) = True
             ]
-
-	assign-output result:
-		results all = True
+		    all = True
 
 func QuantityDecreasedToZeroPrimitive: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is equal to zero.">
 	inputs:
@@ -149,12 +145,10 @@ func CompareQuantityChangePrimitives: <"For each QuantityChangePrimitive, compar
 	output:
 		result boolean (1..1)
 
-	alias results:
-		quantityChangePrimitives
-			map [ CompareQuantityChangePrimitive( item, op ) ]
-
 	assign-output result:
-		results all = True
+		quantityChangePrimitives
+            map [ CompareQuantityChangePrimitive( item, op ) ]
+		    all = True
 
 func CompareQuantityChangePrimitive: <"For the QuantityChangePrimitive, compare the Quantity in the after TradeState to the Quantity (with the same unit of amount) in the before TradeState, based on the CompareOp enum.">
 	inputs:
@@ -177,12 +171,10 @@ func CompareTradeStatesToAmount: <"For each TradeState, compare the Quantity amo
 	output:
 		result boolean (1..1)
 
-	alias results:
-	    tradeStates
-	        map [ CompareTradeLotToAmount( item -> trade -> tradableProduct -> tradeLot only-element, op, amount ) ]
-
 	assign-output result:
-        results all = True
+        tradeStates
+            map [ CompareTradeLotToAmount( item -> trade -> tradableProduct -> tradeLot only-element, op, amount ) ]
+            all = True
 
 func Qualify_Allocation: <"The qualification of allocation event from the fact that (i) the only primitives are split and contract formation (ii) the number of split executions and the number of contract formations are equal.  Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.  Also note that it is expected that an allocation can result in a single contract.">
 	[qualification BusinessEvent]

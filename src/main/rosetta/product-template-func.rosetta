@@ -68,19 +68,17 @@ func CompareTradeLot: <"Compare the Quantity in TradeLot 1 to the Quantity (with
 	alias unitOfAmounts:
 		tradeLot2 -> priceQuantity -> quantity -> unitOfAmount distinct
 
-	alias results:
+	assign-output result:
 		unitOfAmounts
-		    map unitOfAmount [
-			    CompareQuantityByUnitOfAmount(
+            map unitOfAmount [
+                CompareQuantityByUnitOfAmount(
                     tradeLot1 -> priceQuantity -> quantity,
                     op,
                     tradeLot2 -> priceQuantity -> quantity,
                     unitOfAmount
                 )
-			]
-
-	assign-output result:
-		results all = True
+            ]
+		    all = True
 
 func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the given amount (regardless of unit of amount), based on the CompareOp enum.">
 	inputs:
@@ -90,12 +88,10 @@ func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the g
 	output:
 		result boolean (1..1)
 
-	alias results:
-		tradeLot -> priceQuantity -> quantity
-			map [ CompareNumbers( item -> amount, op, amount ) ]
-
 	assign-output result:
-		results all = True
+		tradeLot -> priceQuantity -> quantity
+            map [ CompareNumbers( item -> amount, op, amount ) ]
+		    all = True
 
 func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
 	inputs:
