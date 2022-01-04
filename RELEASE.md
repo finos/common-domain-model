@@ -12,3 +12,9 @@ _Review Directions_
 
 In the CDM Portal, select the Textual Browser and search for `WorkflowStep` and review the attributes above.
 Select the Ingestion Viewer and review the sample fpml-5-10 > record-keeping > record-ex02-vanilla-swap-datadoc containing the Intent to Clear.
+
+# *Termination Visualisations*
+
+_What is being released?_
+
+- STORY-458: A CDM user can visualise how Full and Partial Termination Events work when multiple Trade Lots exist
