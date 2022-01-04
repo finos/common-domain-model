@@ -19,23 +19,22 @@ func FxMarkToMarket: <"Representation of sample mark to market calculation provi
         trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> unitOfAmount -> currency distinct only-element
 
     alias baseCurrency: <"The base currency.">
-            trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> perUnitOfAmount -> currency distinct only-element
+        trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> perUnitOfAmount -> currency distinct only-element
 
     alias quantities: <"Quantity list. Only works in the case of a single trade lot.">
-        trade -> tradableProduct -> tradeLot
-            only-element
-            map [ item -> priceQuantity -> quantity ]
-            flatten
+        //trade -> tradableProduct -> tradeLot
+        //    only-element
+        //    map [ item -> priceQuantity -> quantity ]
+        //    flatten
+        trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity
 
 	alias quotedQuantity: <"Quoted quantity amount.">
 		FilterQuantityByCurrency( quantities, quotedCurrency )
-		    only-element
-		    map [ item -> amount ]
+		    only-element -> amount
 	
 	alias baseQuantity: <"Base quantity amount.">
 		FilterQuantityByCurrency( quantities, baseCurrency )
-		    only-element
-		    map [ item -> amount ]
+		    only-element -> amount
 
 	alias interpolatedRate:
 		InterpolateForwardRate(forwardPayout)
@@ -48,7 +47,7 @@ func FxMarkToMarket: <"Representation of sample mark to market calculation provi
 
 func InterpolateForwardRate:
 	inputs: forward ForwardPayout (1..1)
-	output: result number(1..1)
+	output: result number (1..1)
 
 func EvaluatePortfolioState: <"Function specification to evaluate a portfolio's aggregation parameters and return a new portfolio state containing aggregated positions.">
 	inputs:

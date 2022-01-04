@@ -659,11 +659,16 @@ type SplitPrimitive: <"Defines splitting of a single trade into one or more trad
 	condition: <"Ensure the quantities of each split trade totals that of the single trade.">
 		Sum( FilterOpenTradeStates(after) -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount ) = Sum( before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount )
 
-func FilterOpenTradeStates: <"Outlines inputs and outputs required to filter only 'open' Trade States.">
+func FilterOpenTradeStates: <"Filter to only 'open' TradeState - where both the closedState and positionState are not set.">
 	inputs:
-		tradeStates TradeState (2..*)
+		tradeStates TradeState (0..*)
 	output:
-		filteredTradeStates TradeState (0..*)
+		openTradeStates TradeState (0..*)
+
+	set openTradeStates:
+	    tradeStates
+	        filter [ item -> state -> closedState is absent ]
+	        filter [ item -> state -> positionState is absent ]
 
 type QuantityChangePrimitive: <"Defines the primitive event to represent a change in quantity, which includes notional. For details of how the TradeState is changed between the `before` and `after` TradeStates, see the corresponding Create_QuantityChangePrimitive function.">
 
