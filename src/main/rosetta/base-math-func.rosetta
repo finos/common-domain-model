@@ -1,6 +1,27 @@
 namespace cdm.base.math : <"Basic maths concepts: quantity and unit, rounding, curve / schedule, non-negativity constraint etc.">
 version "${project.version}"
 
+func CompareNumbers:
+	inputs:
+        n1 number (1..1)
+        op CompareOp (1..1)
+        n2 number (1..1)
+	output:
+        result boolean (1..1)
+
+	assign-output result:
+        if op = CompareOp -> GreaterThan
+        then n1 > n2 = True
+        else if op = CompareOp -> GreaterThanOrEquals
+        then n1 >= n2 = True
+        else if op = CompareOp -> Equals
+        then n1 = n2 = True
+        else if op = CompareOp -> LessThanOrEquals
+        then n1 <= n2 = True
+        else if op = CompareOp -> LessThan
+        then n1 < n2 = True
+        else False
+
 func Abs:
 	inputs: x number (1..1)
 	output: result number (1..1)
@@ -8,14 +29,6 @@ func Abs:
 func Sum: <"generates the scalar sum (total) of all of the supplied values">
 	inputs: x number (0..*)
 	output: sum number (1..1)
-
-func ListsCompare:
-	inputs:
-		compareOp CompareOp (1..1)
-		left number (1..*)
-		right number (0..*)
-		rightNumber number (0..1)
-	output: result boolean (1..1)
 
 func Max:
 	inputs:
@@ -55,6 +68,36 @@ func RoundToPrecision: <"Round a rate to the suplied precision, using the suppli
 	condition:
 		precision >= 0
 
+func CompareQuantityByUnitOfAmount:
+    inputs:
+        quantity1 Quantity (0..*)
+        op CompareOp (1..1)
+        quantity2 Quantity (0..*)
+        unitOfAmount UnitType (1..1)
+    output:
+        result boolean (1..1)
+
+    alias results:
+        FilterQuantity( quantity1, unitOfAmount )
+            map q1 [
+                FilterQuantity( quantity2, unitOfAmount )
+                    map q2 [ CompareNumbers( q1 -> amount, op, q2 -> amount ) ]
+            ] flatten
+
+    assign-output result:
+        results all = True
+
+func FilterQuantity: <"Filter list of quantities based on unit type.">
+    inputs:
+        quantities Quantity (0..*) <"List of quantities to filter.">
+        unitOfAmount UnitType (1..1) <"Currency unit type.">
+    output:
+        filteredQuantities Quantity (0..*)
+
+    set filteredQuantities:
+        quantities
+            filter [ item -> unitOfAmount = unitOfAmount ]
+
 func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
     inputs:
         quantities Quantity (0..*) <"List of quantities to filter.">
@@ -81,7 +124,7 @@ func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit ty
         quantities Quantity (0..*) <"List of quantities to filter.">
         financialUnit FinancialUnitEnum (1..1) <"FinancialUnitEnum unit type.">
     output:
-        filteredQuantities Quantity (0..1)
+        filteredQuantities Quantity (0..*)
 
     set filteredQuantities:
         quantities
@@ -109,7 +152,7 @@ func Create_UnitType: <"Create UnitType with given currency or financial unit.">
 		unitType UnitType (1..1)
 
 	condition:
-		( currency or financialUnit ) exists
+		currency exists or financialUnit exists
 
 	assign-output unitType -> currency:
 		currency

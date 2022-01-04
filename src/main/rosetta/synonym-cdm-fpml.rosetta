@@ -448,6 +448,7 @@ synonym source FpML_5_10 extends FpML
 			[value "floatingRateCalculation" path "interestCalculation"]
 			[value "spreadSchedule" path "interestCalculation->floatingRateCalculation"]
 			[value "floatingRateMultiplierSchedule" path "interestCalculation->floatingRateCalculation"]
+			[value "underlyerPrice"]
 			// For FX:
 			[hint "spotRate"]
 			[value "exchangeRate" mapper "ExchangeRate"]
@@ -474,7 +475,11 @@ synonym source FpML_5_10 extends FpML
             [value "calculationAmount"]
             [value "calculationAmount" path "floatingAmountCalculation"]
             // For Equity Swaps:
-            [value "singleUnderlyer" path "underlyer"]
+			[value "singleUnderlyer" path "underlyer"]
+            [value "basket" path "underlyer"]
+			[value "underlyer"]
+			[value "constituentWeight"]
+			[hint "constituentWeight"]
             [value "notionalAmount" path "notional"]
             // For FX:
             [value "paymentAmount" path "exchangedCurrency1"]
@@ -499,7 +504,9 @@ synonym source FpML_5_10 extends FpML
 			// For Equity:
 			[value "singleUnderlyer" path "underlyer"]
 			[value "floatingRateCalculation" path "interestCalculation"]
-			// For FX:
+			[hint "equity"]
+			[hint "index"]
+				// For FX:
 			[value "fixing" path "nonDeliverableSettlement"]
 			[value "fixing" path "cashSettlement"]
 			[hint "features", "putCurrencyAmount", "callCurrencyAmount"]
@@ -1550,7 +1557,7 @@ synonym source FpML_5_10 extends FpML
 		 	[value "instrumentId" path "equity" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "index" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "loan" maps 2 meta "instrumentIdScheme"]
-			[value "instrumentId" maps 2 meta "instrumentIdScheme"]
+			// [value "instrumentId" maps 2 meta "instrumentIdScheme"]
 			[value "productId" maps 2 meta "productIdScheme"]
 		+ source
 		    // Bond
@@ -1559,6 +1566,7 @@ synonym source FpML_5_10 extends FpML
 			[set to ProductIdTypeEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
 			[set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "ISIN"]
             [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0"]
+            [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-ISIN-1-0"]
             [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
             [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN-1-0"]
             [set to ProductIdTypeEnum -> ISIN when "bond->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN"]
@@ -1588,9 +1596,11 @@ synonym source FpML_5_10 extends FpML
             [set to ProductIdTypeEnum -> ISIN when "index->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN"]
             [set to ProductIdTypeEnum -> RIC when "index->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrument-id-Reuters-RIC-1-0"]
             [set to ProductIdTypeEnum -> RIC when "index->instrumentId->instrumentIdScheme" = "http://www.example.com/instrument-id-Reuters-RIC-1-0"]
+            [set to ProductIdTypeEnum -> BBGID when "index->instrumentId->instrumentIdScheme" = "http://www.bloomberg.com"]
             [set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" = "http://www.example.com/instrumentId"]
             [set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" = "http://www.fpml.org/instrument-id"]
             [set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" = "http://www.fpml.org/schemes/4.1/instrumentId"]
+            [set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
             [set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" exists]
             // Loan
             [set to ProductIdTypeEnum -> CUSIP when "loan->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
@@ -1657,11 +1667,18 @@ synonym source FpML_5_10 extends FpML
 			[value "initialValue" maps 2]
 			[value "amount" maps 2]
 			[value "openUnits" maps 2]
+			[value "numberOfOptions" maps 2]
+			[value "basketPercentage" maps 2]
 			// For Commodity Swap
 			[value "quantity" maps 2]
-			[value "numberOfOptions" maps 2]
+		+ unitOfAmount
+			[value "singleUnderlyer"]
+			[value "basket"]
+			[value "basketPercentage"]
+			[value "openUnits"]
 		+ multiplier
 			[value "optionEntitlement"]
+			[value "indexFactor"]
 		+ multiplierUnit
 			[hint "quantityFrequency"] //To be removed
 			[hint "entitlementCurrency"]
@@ -1747,7 +1764,8 @@ synonym source FpML_5_10 extends FpML
 
 	DividendReturnTerms:
 		+ dividendPayout
-			[value "dividendPayout"]
+			[hint "dividendPayout"]
+			[value "basketConstituent"]
 			[hint "declaredCashDividendPercentage"]
 			[hint "declaredCashEquivalentDividendPercentage"]
 		+ dividendReinvestment
@@ -1845,8 +1863,7 @@ synonym source FpML_5_10 extends FpML
 			[value "businessUnitId" meta "unitScheme"]
 			[value "eventId"]
 		+ identifierType
-			// [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when
-			// 	"tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier" and "issuer->issuerIdScheme" = "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"]
+			// [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier" and "issuer->issuerIdScheme" = "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"]
 			[set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/uti"]
 			[set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"]
 			[set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/usi"]
@@ -2033,17 +2050,17 @@ synonym source FpML_5_10 extends FpML
 			[hint "calculationAgentBusinessCenter"]
 
 	EquityPayout:
-		[meta "id"]
-		+ underlier
-			[value "singleUnderlyer" path "underlyer", "basket" path "underlyer"]
-		+ returnType
-			[value "returnType" path "return"]
-		+ dividendReturnTerms
-			[value "dividendConditions" path "return", "singleUnderlyer" path "underlyer"]
-		+ fxFeature
-			[value "fxFeature"]
-		+ paymentDates
-			[value "paymentDates" path "rateOfReturn"]
+	[meta "id"]
+	+ underlier
+		[value "singleUnderlyer" path "underlyer","underlyer"]
+	+ returnType
+		[value "returnType" path "return"]
+	+ dividendReturnTerms
+		[value "dividendConditions" path "return", "singleUnderlyer" path "underlyer","basket" path "underlyer"]
+	+ fxFeature
+		[value "fxFeature"]
+	+ paymentDates
+		[value "paymentDates" path "rateOfReturn"]
 
 	GeneralTerms:
 		+ referenceInformation
@@ -2086,6 +2103,7 @@ synonym source FpML_5_10 extends FpML
 			[value "cashflows"]
 		+ stubPeriod
 			[value "stubCalculationPeriodAmount"]
+			[value "stubCalculationPeriod"]
 		+ bondReference
 			[value "bondReference"]
 		+ rateSpecification
@@ -2119,7 +2137,8 @@ synonym source FpML_5_10 extends FpML
 			[value "feature"]
 			[value "features"]
 		+ underlier
-			[value "singleUnderlyer" path "underlyer", "basket" path "underlyer"]
+			[value "singleUnderlyer" path "underlyer"]
+			[value "basket" path "underlyer"]
 			[hint "bond", "equity", "mortgage", "convertibleBond"]
 			[hint "swap"]
 			[hint "creditDefaultSwap"]
@@ -2266,7 +2285,6 @@ synonym source FpML_5_10 extends FpML
 		+ interestRatePayout
 			// For Swap Stream
 			[value "swapStream"]
-			// [value "additionalTerms"]
 			// For CapFloor:
 			[value "capFloorStream"]
 			// For FRA:
@@ -2347,7 +2365,7 @@ synonym source FpML_5_10 extends FpML
 			[value "equityOption"]
 			[hint "brokerEquityOption"]
 			[value "brokerEquityOption"]
-			// To handle commoditySwap:
+			// For Commodity Swap
 			[value "commoditySwap"]
 			[hint "commoditySwap"]
 			// For Commodity Option
@@ -2361,11 +2379,17 @@ synonym source FpML_5_10 extends FpML
 			[value "commodity" meta "instrumentId"]
 		+ security
 			[hint "bond", "equity", "mortgage", "convertibleBond"]
+		+ basket
+			[value "basket"]
 
     Index:
         + productIdentifier
             [value "index" meta "instrumentId"]
 	        [hint "index"]
+
+	Basket:
+		+ basketConstituent
+			[value "basketConstituent"]
 
 	Commodity:
 	    + productIdentifier
@@ -2394,6 +2418,7 @@ synonym source FpML_5_10 extends FpML
 			[value "protectionTerms"]
 			// Equity
 			[value "returnLeg"]
+			[value "basketConstituent"]
 			[value "interestLeg"]
 			// FX
 			[value "nearLeg"]
@@ -2441,7 +2466,9 @@ synonym source FpML_5_10 extends FpML
 			[hint "fxOption", "fxDigitalOption"]
 			// Equity
 			[value "returnSwap", "equitySwapTransactionSupplement"]
+			[value "basket" path "returnSwap->returnLeg->underlyer"]
 			[hint "equityOption"]
+			[value "basket" path "equityOption->underlyer"]
 			[value "brokerEquityOption"]
 			// Other
 			[value "commoditySwap"]
@@ -2737,9 +2764,11 @@ synonym source FpML_5_10 extends FpML
 		+ basketPercentage
 			[value "basketPercentage"]
 
-	DividendPayout:
+	DividendPayoutRatio:
+		+ underlier
+			[hint "equity"]
 		+ dividendPayoutRatio
-			[value "dividendPayoutRatio"]
+			[value "dividendPayoutRatio" path "dividendPayout"]
 		+ dividendPayoutRatioCash
 			[value "dividendPayoutRatioCash"]
 			[value "declaredCashDividendPercentage"]
@@ -3404,7 +3433,9 @@ synonym source FpML_5_10 extends FpML
 			// [value "priceUnit" set when rosettaPath = Price->perUnitOfAmount]
 		+ financialUnit
 			[value "quantityUnit"]
-			[set to FinancialUnitEnum->Share when "openUnits" exists]
+			// [value "openUnits"]
+			// [set to FinancialUnitEnum->Share when "equity" exists and "openUnits" exists]
+			[value "openUnits" mapper "OpenEquityFinancialUnits"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "additionalPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "otherPartyPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "initialPayment->paymentAmount->amount"]
@@ -3412,6 +3443,9 @@ synonym source FpML_5_10 extends FpML
 			[set to FinancialUnitEnum->ContractualProduct when path = "singlePayment->fixedAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "premium->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "equityPremium->paymentAmount->amount"]
+			[set to FinancialUnitEnum->Weight when path = "basketPercentage"]
+			[set to FinancialUnitEnum->IndexUnit when path = "constituentWeight->openUnits"]			
+			[set to FinancialUnitEnum->Weight when path = "basketConstituent->constituentWeight"]			
 		+ currency
 			[value "currency" maps 2 meta "currencyScheme"]
 			[value "varyingNotionalCurrency" maps 2 meta "currencyScheme"]
@@ -7678,13 +7712,14 @@ synonym source FpML_5_10 extends FpML
 			[value "Term"]
 
 	CapacityUnitEnum:
+	//to be reviewed when FpML updates the priceQuoteUnits coding scheme
 		+ BBL
 		[value "BBL"]
 		+ BSH
 		[value "BSH"]
 		+ BTU
 		[value "BTU"]
-		+ CWT
+		+ USCWT
 		[value "CWT"]
 		+ DAG
 		[value "dag"]
@@ -7696,7 +7731,7 @@ synonym source FpML_5_10 extends FpML
 		[value "DTH"]
 		+ FEU
 		[value "FEU"]
-		+ GAL
+		+ USGAL
 		[value "GAL"]
 		+ GJ
 		[value "GJ"]
@@ -7740,9 +7775,9 @@ synonym source FpML_5_10 extends FpML
 		[value "MWh"]
 		+ OZT
 		[value "ozt"]
-		+ ST
+		+ UST
 		[value "st"]
-		+ T
+		+ GBT
 		[value "t"]
 		+ TEU
 		[value "TEU"]
