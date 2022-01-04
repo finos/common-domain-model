@@ -491,21 +491,17 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 
 	alias beforeCurrencyAmount:
 		if beforeQuantity exists
-		then FilterQuantityByCurrencyExists( beforeQuantity ) distinct only-element -> amount
+		then FilterQuantityByCurrencyExists( beforeQuantity ) -> amount distinct only-element
 	
 	alias afterCurrencyAmount:
 		if afterQuantity exists
-		then FilterQuantityByCurrencyExists( afterQuantity ) distinct only-element -> amount
+		then FilterQuantityByCurrencyExists( afterQuantity ) -> amount distinct only-element
 	
-	alias beforeCashPrices:
-		businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> amount
 	alias beforeCashPrice: <"Only works in the case of a single trade lot and price.">
-		beforeCashPrices only-element 
+		businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> amount only-element
 
-	alias afterCashPrices:
-		businessEvent -> primitives -> termsChange -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> amount
 	alias afterCashPrice: <"Only works in the case of a single trade lot and price.">
-		afterCashPrices only-element
+		businessEvent -> primitives -> termsChange -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> amount only-element
 
 	alias currencyAmountUnchanged:
 		if beforeCurrencyAmount exists and afterCurrencyAmount exists
