@@ -91,7 +91,7 @@ Three visualisation examples can now be reviewed demonstrating how a Quantity Ch
 - `Create Increase Business Event` - increases the quantity and notional on an existing Equity Swap through the addition of a new `TradeLot`.
 - `Create Partial Termination Business Event` - decreases the quantity and notional on an existing Equity Swap by changing the quantity of one `TradeLot` only.
 - `Create Full Termination Business Event`- fully terminates an Equity Swap through the reduction of all notionals to zero.
-- 
+
 _Review Directions_
 
 In the CDM Portal, select the Instance Viewer, navigate to the `Create Termination Business Event` folder and review the examples above.
