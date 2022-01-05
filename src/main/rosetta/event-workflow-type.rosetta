@@ -44,6 +44,7 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
 		[metadata reference]
 		[synonym Workflow_Event value "previousWorkflowStep"]
+	nextWorkflowStep NextWorkflowStep (0..1) <"Optional next workflow step that defines the intended business event and optional instructions.">
 	messageInformation MessageInformation (0..1) <"Contains all information pertaining the FpML messaging header ">
 	timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
 		[synonym Workflow_Event value "timestamp"]
@@ -64,15 +65,23 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
         [synonym Workflow_Event value "creditLimitInformation" path "primitive->contractFormation->after"]
 
 	condition WorkflowStepStatus:
-		(WorkflowStep -> businessEvent exists and WorkflowStep -> proposedInstruction is absent and WorkflowStep -> rejected is absent)
+		(WorkflowStep -> businessEvent exists and WorkflowStep -> nextWorkflowStep -> proposedInstruction is absent and WorkflowStep -> rejected is absent)
 		or
-		(WorkflowStep -> proposedInstruction exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> rejected is absent)
+		(WorkflowStep -> nextWorkflowStep -> proposedInstruction exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> rejected is absent)
 		or
-		(WorkflowStep -> rejected exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> proposedInstruction is absent)
+		(WorkflowStep -> rejected exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> nextWorkflowStep is absent)
 
 type Workflow: <"A collection of workflow steps which together makeup an entire workflow sequence.">
 
 	steps WorkflowStep (1..*)
+
+type NextWorkflowStep: <"Optional next workflow step defined as an intended BusinessEvent or Instructions.">
+
+	nextIntendedEvent IntentEnum (0..1) <"The intended next BusinessEvent">
+	proposedInstruction Instruction (0..1) <"The proposed business event instructions for creation of the next workflow step.">
+        [synonym Workflow_Event value "ignore"]
+
+	condition: one-of
 
 type EventTimestamp: <"A class to represent the various set of timestamps that can be associated with lifecycle events, as a collection of [dateTime, qualifier].">
 

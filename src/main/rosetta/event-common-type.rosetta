@@ -778,3 +778,91 @@ type TradePricingReport: <"The attributes that are specific for consensus based 
    trade Trade (1..1) <"Represents the cosensus based pricing parameters on a trade basis.">
    pricingTime TimeZone (1..1) <"The regional exchange close time for the underlying contract,including time zone, at which the trades should be priced. This provides an indication for which regional snapshot should be used for pricing primarily for Global markets where there are multiple regional close times.">
    discountingIndex FloatingRateIndexEnum (0..1) <"It specifies the interest payable on collateral delivered under a CSA covering the trade.">
+
+
+type MarginCallBase: <"Represents common attributes required for Issuance and Response to a Margin Call action as a result of a demand for delivery or return of collateral determined under a legal agreement such as a credit support document or equivalent.">
+	instructionType MarginCallInstructionType (1..1) <"Identifies the enumeration values to specify the call notification type, direction, specific action type.">
+	party Party (0..*) <"Represents the parties to the margin call. The cardinality is optional to address the case where both parties of the event are specified and a third party if applicable.">
+	partyRole PartyRole (0..*) <"Represents the role each specified party takes in the margin call. further to the principal roles, payer and receiver.">
+	clearingBroker Party (0..1) <"Indicates the name of the Clearing Broker FCM/DCM.">
+	callIdentifier Identifier (0..1) <"Represents a unique Identifier for a margin call message, that can be referenced throughout all points of the process.">
+	callAgreementType LegalAgreementType (1..1) <"Specifies the legal agreement type the margin call is generated from and governed by.">
+	agreementMinumumTransferAmount Money (0..1)<"Specifies the collateral legal agreement minimum transfer amount in base currency.">
+	agreementThreshold Money (0..1) <"Specifies the collateral legal agreement threshold amount in base currency.">
+	agreementRounding Money (0..1) <"Specifies the collateral legal agreement rounding in base currency.">
+	regMarginType RegMarginTypeEnum (1..1) <"Identifies margin type and if related regulatory mandate">
+	regIMRole RegIMRoleEnum (0..1) <"Indicates the role of the party in an regulatory initial margin call instruction (i.e Pledgor party or Secured party).">
+	baseCurrencyExposure MarginCallExposure (0..1) <"Represents the current mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency), to be referenced in a margin call.">
+	collateralPortfolio CollateralPortfolio (0..1) <"Represents attributes to define the details of collateral assets within a collateral portfolio to be used in margin call messaging and contribute to collateral balances e.g securities in a collateral account recorded by the principal as held or posted.">
+		[metadata reference]
+	independentAmountBalance CollateralBalance (0..1) <"Represents additional credit support amount over and above mark to market value.">
+
+	condition RegIMRoleIMOnly: <"Specifies a condition to ensure that RegIMRole (Pledgor or Secured Party)is only applicable if the Reg margin type is defined as RegIM (Regulatory Initial Margin).">
+		if regIMRole exists
+			then regMarginType = RegMarginTypeEnum -> RegIM
+
+type Exposure: <"Represents the current mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency).">
+	tradePortfolio PortfolioState (1..1) <"Represents a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state.">
+		[metadata reference]
+	aggregateValue Money (1..1) <"Represents the aggregate value of the portfolio in base currency.">
+	calculationDateTime zonedDateTime (0..1) <"Indicates the date when the exposure is calculated if different from valuation date.">
+	valuationDateTime zonedDateTime (1..1) <"Indicates the valuation date of the exposure underlying the calculation.">
+	// possible function/instructions needed for calculation of portfolio and aggregating to a base currency value//
+
+type MarginCallExposure: <"Represents attributes required for mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency).">
+	overallExposure Exposure (1..1) <"Represents the whole overall mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency).">
+	simmIMExposure Exposure (0..1) <"Represents Initial Margin (IM) exposure derived from ISDA SIMM calculation.">
+	scheduleGridIMExposure Exposure (0..1) <"Represents Initial Margin (IM) exposure derived from schedule or Grid calculation."> 
+
+	condition OverallExposureSumOfSimmAndScheduleIM: <"Represents a condition to ensure that if Simm IM exposure and Schedule/Grid IM exposure are specified the sum value must equate to overall exposure amount.">
+		if simmIMExposure exists and scheduleGridIMExposure exists
+			then (overallExposure -> aggregateValue -> amount = simmIMExposure -> aggregateValue -> amount + scheduleGridIMExposure -> aggregateValue -> amount) 
+				and (overallExposure -> aggregateValue -> unitOfAmount -> currency = simmIMExposure -> aggregateValue -> unitOfAmount -> currency) 
+				and (overallExposure -> aggregateValue -> unitOfAmount -> currency = scheduleGridIMExposure -> aggregateValue -> unitOfAmount -> currency)
+
+	// TODO: DSL fix required to use super-class attributes in conditions
+	// condition ExposureSimmAndScheduleIMOnly: <"Specifies a condition to ensure that if margin exposure is defined as Simm IM and Schedule/Grid IM Exposure this is only applicable if the Reg margin type is defined as RegIM (Regulatory Initial Margin).">
+	// 	if simmIMExposure exists and scheduleGridIMExposure exists
+	// 		then regMarginType = RegMarginTypeEnum -> RegIM
+
+type CollateralBalance: <"Represents common attributes to define a collateral balance recorded by the principal as held or posted.">
+	collateralBalanceStatus CollateralStatusEnum (0..1) <"Defines the collateral balance breakdown of settlement status.">
+	haircutindicator HaircutIndicatorEnum (0..1) <"Indicates if the collateral balance amount is based on pre or post haircut, if a haircut is associated with the collateral asset">
+	amountBaseCurrency Money (1..1) <"Specifies the collateral balance amount in base currency determined within a collateral legal agreement, or defined for reporting purposes.">
+
+type CollateralPortfolio: <"Represents common attributes to define the details of collateral assets, to be used in margin call messaging and contribute to collateral balances e.g securities in a collateral account.">
+	[metadata key]
+	portfolioIdentifier Identifier (0..1) <"Specifies a unique identifier for a set of collateral positions in a portfolio.">
+	collateralPosition CollateralPosition (0..*) <"Specifies the individual components of the collateral positions in the collateral portfolio.">
+	collateralbalance CollateralBalance (0..*) <"Represents the populated or calculated collateral aggregate balance amount for the collateral portfolio.">
+
+type CollateralPosition extends Position: <"Specifies the individual components of collateral positions.">
+	
+	treatment CollateralTreatment (0..1) <"Specifies if there is any treatment to be applied to collateral, such as percentage discount which will impact collateral value.">
+	collateralPositionStatus CollateralStatusEnum (0..1) <"Indicates the collateral positions settlement status.">
+
+	condition CollateralPositionStatusSettledOrIntransitOnly : <"Represents a condition to ensure that if a status is defined for a collateral position you must only indicate 'Settled Amount' or 'In Transit' amount from the available enumerations.">
+		if collateralPositionStatus exists
+			then collateralPositionStatus = CollateralStatusEnum -> SettledAmount or collateralPositionStatus = CollateralStatusEnum -> InTransitAmount 
+
+type MarginCallIssuance extends MarginCallBase: <"Represents common attributes required for a Margin Call Issuance under a legal agreement such as a credit support document or equivalent.">	callAmountinBaseCurrency Money (1..1) <"Specifies the amount of margin being called for which accounts for margin calculation inclusive of exposure, independent amount,threshold,collateral balance, MTA, rounding increments (in base currency detailed in supporting collateral agreement).">	
+	recallNonCashCollateralDescription EligibleCollateralCriteria (0..*) <"Specifies the details to describe or identify non-cash collateral eligible assets for recall purposes.">
+
+type MarginCallInstructionType: <"Represents enumeration values to specify the call notification type, direction, specific action type.">
+    callType CallTypeEnum (1..1) <"Indicates the status of the call message type, such as expected call, notification of a call or an actionable margin call.">
+	visibilityindicator boolean (0..1) <"Indicates the choice if the call instruction is visible or not to the other party.">
+
+	condition CallTypeExpectedVisibility: <"Represents a condition to ensure that a visibility indicator is specifies then the call type must be an expected call.">
+        if callType = CallTypeEnum -> ExpectedCall 
+        then visibilityindicator exists
+
+type MarginCallResponseAction: <"Specifies the margin call action details, including collateral to be moved and its direction.">
+	
+	collateralPositionComponent CollateralPosition (1..*) <"Specifies the collateral to be moved and its direction.">
+    marginCallAction MarginCallActionEnum (1..1) <"Specifies the margin call action details, specified as either Delivery or Return.">   
+
+type MarginCallResponse extends MarginCallBase: <"Represents common attributes required for a Margin Call Response under a legal agreement such as a credit support document or equivalent.">
+	
+	marginCallResponseAction MarginCallResponseAction (1..*) <"Specifies the margin call action details, including collateral to be moved and direction.">
+	marginResponseType MarginCallResponseTypeEnum (1..1) <"Indicates the response type, such as, is the margin call response a 'full' 'part' agreement or 'dispute'.">
+	agreedAmountBaseCurrency Money (1..1) <"Indicates the amount that posting entity agrees to remit in response to margin call (in base currency).">   
