@@ -35,8 +35,8 @@ In the name space event-common-type, review the following conditions:
 
 1.  condition `RegIMRoleIMOnly` Found in relation to data type `MarginCallBase`  - Specifies a condition to ensure that RegIMRole (Pledgor or Secured Party) is only applicable if the Reg margin type is defined as RegIM (Regulatory Initial Margin)
 2. condition `OverallExposureSumOfSimmAndScheduleIM` Found in relation to data type `MarginCallExposure` - Represents a condition to ensure that if Simm IM exposure and Schedule/Grid IM exposure are specified the sum value must equate to overall exposure amount
-3.	condition `CollateralPositionStatusSettledOrIntransitOnly` Found in relation to data type `CollateralPosition` - Represents a condition to ensure that if a status is defined for a collateral position you must only indicate 'Settled Amount' or 'In Transit' amount from the available enumerations.
-4.	condition `CallTypeExpectedVisibility` Found in relation to data type `MarginCallInstructionType` -Represents a condition to ensure that a visibility indicator is specifies then the call type must be an expected call.
+3.	condition `CollateralPositionStatusSettledOrIntransitOnly` Found in relation to data type `CollateralPosition` - Represents a condition to ensure that if a status is defined for a collateral position you must only indicate `Settled Amount` or `In Transit` amount from the available enumerations.
+4.	condition `CallTypeExpectedVisibility` Found in relation to data type `MarginCallInstructionType` - Represents a condition to ensure that a visibility indicator is specifies then the call type must be an expected call.
 
 In the name space event-common-enum please review and inspect each of the enumerations, their values and descriptions as listed below:
 
