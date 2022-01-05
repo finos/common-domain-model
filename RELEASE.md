@@ -51,15 +51,15 @@ In the name space event-common-enum please review and inspect each of the enumer
 Within the name space (event-position-type), the following changes have been made, please inspect the following: 
 
 1.	Data type `Position` has had the following attributes removed 
-  o	`product`
-  o	`quantity`
-  o	`postionStatus`
+-	`product`
+-	`quantity`
+-	`postionStatus`
 These have been replaced with a new attribute
-  o	`positionComponent` which uses `PriceQuantity` for representation of positions with many price quantities 
+-	`positionComponent` which uses `PriceQuantity` for representation of positions with many price quantities 
 2.	The attribute `tradeReference` has been renamed to reference `TradeState` instead of  `Trade`
 3.	Minor spacing issues have been rectified in the descriptions for the following data types:
-  o	`Position` 
-  o	`PortoflioState`
+-	`Position` 
+-	`PortoflioState`
 
 
 # *Workflow Model - Intended BusinessEvent of next WorkflowStep*
@@ -77,8 +77,21 @@ _Review Directions_
 In the CDM Portal, select the Textual Browser and search for `WorkflowStep` and review the attributes above.
 Select the Ingestion Viewer and review the sample fpml-5-10 > record-keeping > record-ex02-vanilla-swap-datadoc containing the Intent to Clear.
 
-# *Termination Visualisations*
 
-_What is being released?_
+# *Event Model - Equity Swap Quantity Change Visualisations*
 
-- STORY-458: A CDM user can visualise how Full and Partial Termination Events work when multiple Trade Lots exist
+_What is being released_
+
+Visualisation examples have been added to demonstrate how an Increase, Partial Termination and Termination of an Equity Swap would be represented in the CDM.
+
+_Details_
+
+Three visualisation examples can now be reviewed demonstrating how a Quantity Change would be represented for an Equity Swap including representation of multiple `TradeLot`.
+
+- `Create Increase Business Event` - increases the quantity and notional on an existing Equity Swap through the addition of a new `TradeLot`.
+- `Create Partial Termination Business Event` - decreases the quantity and notional on an existing Equity Swap by changing the quantity of one `TradeLot` only.
+- `Create Full Termination Business Event`- fully terminates an Equity Swap through the reduction of all notionals to zero.
+- 
+_Review Directions_
+
+In the CDM Portal, select the Instance Viewer, navigate to the `Create Termination Business Event` folder and review the examples above.
