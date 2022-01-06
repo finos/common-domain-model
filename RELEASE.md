@@ -18,18 +18,7 @@ New data types and attributed are proposed to represent margin calls for collate
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search and inspect each of the below data types, their attributes and descriptions. They  are all in the event-common-type name space:  
-
-1.  `MarginCallBase` 
-2.	`Exposure`
-3.	`MarginCallExposure` 
-4.	`CollateralBalance` 
-5.	`CollateralPortfolio` 
-6.	`CollateralPosition` 
-7.	`MarginCallIssuance`  
-8.	`MarginCallInstructionType` 
-9.	`MarginCallResponseAction`  
-10.	`MarginCallResponse`
+In the CDM Portal, select the Textual Browser and inspect each of the data types mentioned above, their attributes and descriptions. They  are all in the event-common-type name space.
 
 In the name space event-common-type, review the following conditions:
 
@@ -38,7 +27,7 @@ In the name space event-common-type, review the following conditions:
 3.	condition `CollateralPositionStatusSettledOrIntransitOnly` Found in relation to data type `CollateralPosition` - Represents a condition to ensure that if a status is defined for a collateral position you must only indicate 'Settled Amount' or 'In Transit' amount from the available enumerations.
 4.	condition `CallTypeExpectedVisibility` Found in relation to data type `MarginCallInstructionType` -Represents a condition to ensure that a visibility indicator is specifies then the call type must be an expected call.
 
-In the name space event-common-enum please review and inspect each of the enumerations, their values and descriptions as listed below:
+In the name space event-common-enum review each of the following enumerations, their values and descriptions:
 
 1.	`CallTypeEnum` - Represents the enumeration values that indicate the intended status of message type, such as expected call, notification of a call or a margin call.
 2.	`MarginCallActionEnum` - Represents the enumeration values to identify the collateral action instruction.
@@ -48,7 +37,7 @@ In the name space event-common-enum please review and inspect each of the enumer
 6.	`RegIMRoleEnum` - Represents the enumeration values to specify the role of the party in relation to a regulatory initial margin call.
 7.	`HaircutIndicatorEnum` - Represents the enumeration indicators to specify if an asset or group of assets valuation is based on any valuation treatment haircut.
 
-Within the name space (event-position-type), the following changes have been made, please inspect the following: 
+Within the name space (event-position-type), the following changes have been made: 
 
 1.	Data type `Position` has had the following attributes removed 
   o	`product`
