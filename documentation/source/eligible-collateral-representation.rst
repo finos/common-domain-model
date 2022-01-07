@@ -653,32 +653,36 @@ related information to eligible collateral
   outlook CreditRatingOutlookEnum (0..1)  
   creditWatch CreditRatingCreditWatchEnum (0..1)  
 
+
 - ``CreditRatingAgencyEnum`` A list of enumerated values to specify the rating agency or agencies, (all major rating agencies are supported)
 
-- ``notation`` Specifies the credit rating notation. As itvaries among credit rating agencies, the CDM does not currently specify each specific rating listed by each 		agency. The data‘string’ allows the free format field to be populated with a rating , such as ‘AAA’
+- ``notation`` Specifies the credit rating notation. As itvaries among credit rating agencies, the CDM does not currently specify each specific rating listed by each agency. The data‘string’ allows the free format field to be populated with a rating , such as ‘AAA’
 
 - ``scale`` Specifies the credit rating scale, with a typical distinction between short term, long term. The data ‘string’ allows the free format field to be populated 	with a scale indicator such as ‘long term’, ‘short term'.
 
-- ``debt`` Specifies the credit rating debt type is for any credit notation associated debt related credit attributes if needed. This gives the additional flexibility 		option to identify amongst the credit criteria debt characteristics such as (high yield, deposits, investments grade) The data type extends to offer two options
-    - ``debtType`` This attribute is free format 'string' and used when only one debt type is specified
+- ``debt`` Specifies the credit rating debt type is for any credit notation associated debt related credit attributes if needed. This gives the additional flexibility option to identify amongst the credit criteria debt characteristics such as (high yield, deposits, investments grade) The data type extends to offer two options
+  
+  - ``debtType`` This attribute is free format 'string' and used when only one debt type is specified
 
-    - ``debtTypes`` This allows you to specify for than one multiple debt type characteristics and has a qualifying conditions to specify if you wish to include 			‘All’ or ‘Any’ of the elements listed in scope
+  - ``debtTypes`` This allows you to specify for than one multiple debt type characteristics and has a qualifying conditions to specify if you wish to include ‘All’ or ‘Any’ of the elements listed in scope
 
 - ``outlook`` This data attributes allows you to specify the a credit rating outlook assessment that is commonly determine by rating agencies. It is an indication of the 	  potential direction of a long-term credit rating over the intermediate term, which is generally up to two years for investment grade and generally up to one year for 	speculative grade. The enumeration list allows you to specify if required one of the following outlook terminology
-    -  Positive (A rating may be raised)
+   
+  -  Positive (A rating may be raised)
+  
+  -  Negative (A rating may be lowered)
+  
+  -  Stable (A rating is not likely to change)
+  
+  -  Developing (A rating may be raised, lowered, or affirmed)
 
-    -  Negative (A rating may be lowered)
+- ``creditWatch`` Similar to detailing a type of credit outlook, credit agencies will also identify individual credit by a means of a monitoring (watch) status for an undefined period. This watch status can be expressed using the following data terminology under this enumeration list.
+   
+  -  Positive (A rating may be raised)
 
-    -  Stable (A rating is not likely to change)
+  -  Negative (A rating may be lowered)
 
-    -  Developing (A rating may be raised, lowered, or affirmed)
-
-- ``creditWatch`` Similar to detailing a type of credit outlook, credit agencies will also identify individual credit by a means of a monitoring (watch) status for an 		undefined period. This watch status can be expressed using the following data terminology under this enumeration list.
-    -  Positive (A rating may be raised)
-
-    -  Negative (A rating may be lowered)
-
-    -  Developing (A rating may be raised, lowered, or affirmed)
+  -  Developing (A rating may be raised, lowered, or affirmed)
 
 .. code-block:: Haskal
 
@@ -972,7 +976,7 @@ details is show here:
     "asset": [{
           "collateralAssetType": [{
             	"assetType": "CASH"
- 				}],
+      		}],
           "denominatedCurrency": [{
             	"value": "USD"
  }]
