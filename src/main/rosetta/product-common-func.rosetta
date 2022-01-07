@@ -20,7 +20,7 @@ isProduct root EconomicTerms;
 func Qualify_CreditDefaultSwap_SingleName: <"Qualifies a product as a Credit Default Swap which provides protection relative to defaults of a reference entity that could be a corporate, municipal, sovererign, or special purpose vehicle issuer of publically traded debt.  The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is corporate, municipal, or sovererign issuer of debt, 3) the reference obligation is not a loan, and 4) there are no opton features.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
 		(	economicTerms -> payout -> creditDefaultPayout only exists
 			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
@@ -34,7 +34,7 @@ func Qualify_CreditDefaultSwap_SingleName: <"Qualifies a product as a Credit Def
 func Qualify_CreditDefaultSwap_Index: <"Qualifies a product as a Credit Default Swap which provides protection relative to the performance of an index. The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is an index, and 3) there are no opton features.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
 		(	economicTerms -> payout -> creditDefaultPayout only exists
 			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
@@ -48,7 +48,7 @@ func Qualify_CreditDefaultSwap_Index: <"Qualifies a product as a Credit Default 
 func Qualify_CreditDefaultSwap_IndexTranche: <"Qualifies a product as a Credit Default Swap which provides protection relative to the performance of an index. The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is an index, and 3) there are no opton features.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
 		(	economicTerms -> payout -> creditDefaultPayout only exists
 			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
@@ -62,7 +62,7 @@ func Qualify_CreditDefaultSwap_IndexTranche: <"Qualifies a product as a Credit D
 func Qualify_CreditDefaultSwap_Loan: <"Qualifies a product as a Credit Default Swap which provides protection relative to defaults of a reference entity that is a loan. The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is a loan, and there are no opton features.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
 		(	economicTerms -> payout -> creditDefaultPayout only exists
 			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
@@ -76,7 +76,7 @@ func Qualify_CreditDefaultSwap_Loan: <"Qualifies a product as a Credit Default S
 func Qualify_CreditDefaultSwap_Basket: <"Qualifies a product as a Credit Default Swap which provides protection relative to defaults of a reference entity that is a loan. The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is a loan, and there are no opton features.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
 		(	economicTerms -> payout -> creditDefaultPayout only exists
 			or (economicTerms -> payout -> creditDefaultPayout, economicTerms -> payout -> interestRatePayout) only exists
@@ -90,7 +90,7 @@ func Qualify_CreditDefaultSwaption: <"This product qualification is temporary un
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		(economicTerms -> payout -> optionPayout only exists
 		    or (economicTerms -> payout -> optionPayout, economicTerms -> payout -> cashflow) only exists)
 
@@ -110,7 +110,7 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a pr
 		[synonym ISDA_Taxonomy_v1 value "EquitySwap_PriceReturnBasicPerformance_SingleName"]
 		[synonym ISDA_Taxonomy_v2 value "EquitySwap_PriceReturnBasicPerformance_SingleName"]
 	alias equityPayout: economicTerms -> payout -> equityPayout only-element
-	assign-output is_product:
+	set is_product:
 	    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> equityPayout) only exists
 
@@ -129,7 +129,7 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a pr
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 	alias equityPayout: economicTerms -> payout -> equityPayout only-element
-	assign-output is_product:
+	set is_product:
 	    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> equityPayout) only exists
 
@@ -150,7 +150,7 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_Index: <"Qualifies a product
 		[synonym ISDA_Taxonomy_v1 value "EquitySwap_PriceReturnBasicPerformance_Index"]
 		[synonym ISDA_Taxonomy_v2 value "EquitySwap_PriceReturnBasicPerformance_Index"]
 	alias equityPayout: economicTerms -> payout -> equityPayout only-element
-	assign-output is_product:
+	set is_product:
 	    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> equityPayout) only exists
 
@@ -163,7 +163,7 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_Index: <"Qualifies a product
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 	alias equityPayout: economicTerms -> payout -> equityPayout only-element
-	assign-output is_product:
+	set is_product:
 	    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> equityPayout) only exists
 
@@ -178,7 +178,7 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_Basket: <"Qualifies a produc
 		[synonym ISDA_Taxonomy_v1 value "EquitySwap_PriceReturnBasicPerformance_Basket"]
 		[synonym ISDA_Taxonomy_v2 value "EquitySwap_PriceReturnBasicPerformance_Basket"]
 	alias equityPayout: economicTerms -> payout -> equityPayout only-element
-	assign-output is_product:
+	set is_product:
 	    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> equityPayout) only exists
 
@@ -191,7 +191,7 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_Basket: <"Qualifies a produc
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 	alias equityPayout: economicTerms -> payout -> equityPayout only-element
-	assign-output is_product:
+	set is_product:
 	    // qualifies that  only the equity payout and interest rate payout exist and all other payouts are absent
 	 	(economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> equityPayout) only exists
 
@@ -205,7 +205,7 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a 
 	output: is_product boolean (1..1)
 	[synonym ISDA_Taxonomy_v1 value "EquityOption_PriceReturnBasicPerformance_SingleName"]
 	[synonym ISDA_Taxonomy_v2 value "EquityOption_PriceReturnBasicPerformance_SingleName"]
-	assign-output is_product:
+	set is_product:
 	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
 	 	(economicTerms -> payout -> optionPayout only exists
 			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
@@ -231,7 +231,7 @@ func Qualify_IndexVanillaOption: <"Qualifies a product as a plain vanilla Index 
 	output: is_product boolean (1..1)
 	[synonym ISDA_Taxonomy_v1 value "EquityOption_PriceReturnBasicPerformance_Index"]
 	[synonym ISDA_Taxonomy_v2 value "EquityOption_PriceReturnBasicPerformance_Index"]
-	assign-output is_product:
+	set is_product:
 	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
 	 	(economicTerms -> payout -> optionPayout only exists
 			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
@@ -250,7 +250,7 @@ func Qualify_AssetClass_InterestRate_Swap: <"Qualifies a product as having the A
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 
-	assign-output is_product:
+	set is_product:
 	 	(economicTerms -> payout -> interestRatePayout only exists
 			or (economicTerms -> payout -> interestRatePayout,  economicTerms -> payout -> cashflow) only exists)
 
@@ -258,7 +258,7 @@ func Qualify_BaseProduct_IRSwap: <"Qualifies a product as having the Base Produc
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 
-	assign-output is_product:
+	set is_product:
 		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> paymentDates count = 2
@@ -268,7 +268,7 @@ func Qualify_BaseProduct_IRSwap: <"Qualifies a product as having the Base Produc
 func Qualify_BaseProduct_CrossCurrency: <"Qualifies a product as having the Base Product classification Cross Currency.">
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
 		and economicTerms -> payout -> interestRatePayout count = 2
 	 	and (
@@ -283,7 +283,7 @@ func Qualify_BaseProduct_CrossCurrency: <"Qualifies a product as having the Base
 func Qualify_BaseProduct_Fra: <"Qualifies a product as having the Base Product classification Forward Rate Agreement">
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 	Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
 		and economicTerms -> payout -> interestRatePayout count = 2
 	 	and economicTerms -> payout -> interestRatePayout -> paymentDate count = 2
@@ -291,7 +291,7 @@ func Qualify_BaseProduct_Fra: <"Qualifies a product as having the Base Product c
 func Qualify_BaseProduct_Inflation: <"Qualifies a product as having the Base Product classification Inflation Swap">
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> paymentDates count = 2
@@ -302,7 +302,7 @@ func Qualify_SubProduct_FixedFloat: <"Qualifies a product as having the Sub Prod
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 
-	assign-output is_product:
+	set is_product:
 	 	(economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1)
 		or
@@ -313,13 +313,13 @@ func Qualify_SubProduct_FixedFloat: <"Qualifies a product as having the Sub Prod
 func Qualify_SubProduct_FixedFixed: <"Qualifies a product as having the Sub Product classification Fixed Float">
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 	 	economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 2
 
 func Qualify_SubProduct_Basis: <"Qualifies a product as having the Sub Product classification Fixed Float">
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 	 	economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 2
 		or
 		(economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1
@@ -328,14 +328,14 @@ func Qualify_SubProduct_Basis: <"Qualifies a product as having the Sub Product c
 func Qualify_Transaction_ZeroCoupon: <"Qualifies a product as having the Transaction classification Zero Coupon">
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 	 	economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> T
 
 func Qualify_Transaction_YoY: <"Qualifies a product as having the Transaction classification Year on Year">
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> periodMultiplier all = 1
 		and economicTerms -> payout -> interestRatePayout -> paymentDates -> paymentFrequency -> period all = PeriodExtendedEnum -> Y
 
@@ -346,7 +346,7 @@ func Qualify_Transaction_OIS: <"Qualifies a product as having the Transaction cl
 	alias floatingRateIndex:
 		economicTerms -> payout -> interestRatePayout  -> rateSpecification -> floatingRate -> rateOption ->floatingRateIndex
 
-	assign-output is_product:
+	set is_product:
 		floatingRateIndex any = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
 		or floatingRateIndex any = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND_SwapMarker
 		or floatingRateIndex any = FloatingRateIndexEnum -> CAD_CORRA_OIS_COMPOUND
@@ -396,7 +396,7 @@ func Qualify_InterestRate_IRSwap_FixedFloat: <"Qualifies a product as a Fixed-Fl
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFloat"]
         [synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_FixedFloat"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_IRSwap(economicTerms) = True
 		and Qualify_SubProduct_FixedFloat(economicTerms) = True
 		and Qualify_Transaction_ZeroCoupon(economicTerms) = False
@@ -408,7 +408,7 @@ func Qualify_InterestRate_IRSwap_FixedFixed: <"Qualifies a product as a Fixed-Fi
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_FixedFixed"]
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_FixedFixed"]
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_IRSwap(economicTerms) = True
 		and Qualify_SubProduct_FixedFixed(economicTerms) = True
 
@@ -419,7 +419,7 @@ func Qualify_InterestRate_IRSwap_Basis: <"Qualifies a product as a Basis (Float-
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Basis"]
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Basis"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_IRSwap(economicTerms) = True
 		and Qualify_SubProduct_Basis(economicTerms) = True
 		and Qualify_Transaction_OIS(economicTerms) = False
@@ -430,7 +430,7 @@ func Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon: <"Qualifies a product as
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_FixedFloat_ZeroCoupon"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_IRSwap(economicTerms) = True
 		and Qualify_SubProduct_FixedFloat(economicTerms) = True
 		and Qualify_Transaction_ZeroCoupon(economicTerms) = True
@@ -442,7 +442,7 @@ func Qualify_InterestRate_IRSwap_FixedFloat_OIS: <"Qualifies a product as a Fixe
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_FixedFloat_OIS"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_IRSwap(economicTerms) = True
 		and Qualify_SubProduct_FixedFloat(economicTerms) = True
 		and Qualify_Transaction_OIS(economicTerms) = True
@@ -453,7 +453,7 @@ func Qualify_InterestRate_IRSwap_Basis_OIS: <"Qualifies a product as a Basis (Fi
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Basis"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_IRSwap(economicTerms) = True
 		and Qualify_SubProduct_Basis(economicTerms) = True
 		and Qualify_Transaction_OIS(economicTerms) = True
@@ -465,7 +465,7 @@ func Qualify_InterestRate_CrossCurrency_FixedFloat: <"Qualifies a product as a F
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_CrossCurrency_FixedFloat"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_CrossCurrency(economicTerms) = True
 		and Qualify_SubProduct_FixedFloat(economicTerms) = True
 
@@ -477,7 +477,7 @@ func Qualify_InterestRate_CrossCurrency_Basis: <"Qualifies a product as a Basis 
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_CrossCurrency_Basis"]
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_CrossCurrency_Basis"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_CrossCurrency(economicTerms) = True
 		and Qualify_SubProduct_Basis(economicTerms) = True
 
@@ -489,7 +489,7 @@ func Qualify_InterestRate_CrossCurrency_FixedFixed: <"Qualifies a product as a F
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_CrossCurrency_FixedFixed"]
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_CrossCurrency_FixedFixed"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_CrossCurrency(economicTerms) = True
 		and Qualify_SubProduct_FixedFixed(economicTerms) = True
 
@@ -500,7 +500,7 @@ func Qualify_InterestRate_InflationSwap_FixedFloat_YearOn_Year: <"Qualifies a pr
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Inflation"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_Inflation(economicTerms) = True
 		and Qualify_SubProduct_FixedFloat(economicTerms) = True
 		and Qualify_Transaction_YoY(economicTerms) = True
@@ -512,7 +512,7 @@ func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon: <"Qualifies a pro
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Inflation"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_Inflation(economicTerms) = True
 		and Qualify_SubProduct_FixedFloat(economicTerms) = True
 		and Qualify_Transaction_ZeroCoupon(economicTerms) = True
@@ -524,7 +524,7 @@ func Qualify_InterestRate_InflationSwap_Basis_YearOn_Year: <"Qualifies a product
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_Inflation(economicTerms) = True
 		and Qualify_SubProduct_Basis(economicTerms) = True
 		and Qualify_Transaction_YoY(economicTerms) = True
@@ -536,7 +536,7 @@ func Qualify_InterestRate_InflationSwap_Basis_ZeroCoupon: <"Qualifies a product 
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_IRSwap_Inflation"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_Inflation(economicTerms) = True
 		and Qualify_SubProduct_Basis(economicTerms) = True
 		and Qualify_Transaction_ZeroCoupon(economicTerms) = True
@@ -549,7 +549,7 @@ func Qualify_InterestRate_Fra: <"Qualifies the product as a Floating Rate Agreem
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_Fra"]
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_Fra"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
 			and economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 		    and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
@@ -563,7 +563,7 @@ func Qualify_InterestRate_CapFloor:	<"Qualifies a product as an interest rate ca
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_CapFloor"]
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_CapFloor"]
 
-	assign-output is_product:
+	set is_product:
 		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
 		and economicTerms -> payout -> interestRatePayout count = 1
 
@@ -577,7 +577,7 @@ func Qualify_InterestRate_Option_Swaption: <"Qualifies a product as a Swaption t
     output: is_product boolean (1..1)
             [synonym ISDA_Taxonomy_v1 value "InterestRate_Option_Swaption"]
             [synonym ISDA_Taxonomy_v2 value "InterestRate_Option_Swaption"]
-    assign-output is_product:
+    set is_product:
 		// qualifies that either only the option rate payout exists, or the option payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> optionPayout only exists
             or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
@@ -592,7 +592,7 @@ func Qualify_InterestRate_Option_DebtOption: <"Qualifies a product as a Option t
 		[synonym ISDA_Taxonomy_v1 value "InterestRate_Option_DebtOption"]
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_Option_DebtOption"]
 	alias optionPayout: economicTerms -> payout -> optionPayout
-	assign-output is_product:
+	set is_product:
 		// qualifies that either only the option rate payout exists, or the option payout exists and the cashflow exists and all other payouts are absent
 	 	(economicTerms -> payout -> optionPayout only exists
             or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
@@ -608,7 +608,7 @@ func Qualify_ForeignExchange_Spot_Forward: <"Qualifies a product as Foreign Exch
 		[synonym ISDA_Taxonomy_v1 value "ForeignExchange_Spot"]
 		[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Forward"]
 		[synonym ISDA_Taxonomy_v2 value "ForeignExchange_Spot"]
-	assign-output is_product:
+	set is_product:
 		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange only exists
 		and economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange count = 1
 		and economicTerms -> payout -> forwardPayout -> settlementTerms -> cashSettlementTerms is absent
@@ -617,7 +617,7 @@ func Qualify_ForeignExchange_Swap: <"Qualifies a product as Foreign Exchange Swa
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange only exists
 		and economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange count = 2
 		and economicTerms -> payout -> forwardPayout -> settlementTerms -> cashSettlementTerms is absent
@@ -628,7 +628,7 @@ func Qualify_ForeignExchange_NDF: <"Qualifies a product as Foreign Exchange Non-
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "ForeignExchange_NDF"]
 		[synonym ISDA_Taxonomy_v2 value "ForeignExchange_NDF"]
-	assign-output is_product:
+	set is_product:
 		economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange only exists
 		and economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange count = 1
 		and economicTerms -> payout -> forwardPayout -> settlementTerms -> cashSettlementTerms exists
@@ -639,7 +639,7 @@ func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Va
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v1 value "ForeignExchange_VanillaOption"]
 		[synonym ISDA_Taxonomy_v2 value "ForeignExchange_VanillaOption"]
-	assign-output is_product:
+	set is_product:
 		economicTerms -> payout -> optionPayout exists
 		and economicTerms -> payout -> optionPayout -> underlier -> foreignExchange only exists
 		and	(economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
@@ -651,7 +651,7 @@ func Qualify_RepurchaseAgreement:
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		economicTerms -> payout -> securityPayout -> securityLeg count >= 1 and
 		economicTerms -> payout -> interestRatePayout count = 1
 
@@ -659,7 +659,7 @@ func Qualify_Commodity_Swap_FixedFloat: <"Qualifies a product as a Fixed Float C
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		((economicTerms -> payout -> commodityPayout, economicTerms -> payout -> fixedForwardPayout) only exists
 		    or (economicTerms -> payout -> commodityPayout, economicTerms -> payout -> fixedForwardPayout, economicTerms -> payout -> cashflow) only exists)
 		and economicTerms -> payout -> commodityPayout -> underlier -> commodity exists
@@ -668,7 +668,7 @@ func Qualify_Commodity_Swap_Basis: <"Qualifies a product as a Basis Commodity Sw
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 	    (economicTerms -> payout -> commodityPayout only exists
 	        or (economicTerms -> payout -> commodityPayout, economicTerms -> payout -> cashflow) only exists)
 		and economicTerms -> payout -> commodityPayout count = 2
@@ -678,7 +678,7 @@ func Qualify_Commodity_Option:
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		(economicTerms -> payout -> optionPayout only exists
 		    or (economicTerms -> payout -> optionPayout, economicTerms -> payout -> cashflow) only exists)
 		and economicTerms -> payout -> optionPayout -> underlier -> commodity exists
@@ -687,7 +687,7 @@ func Qualify_SecurityLendingAgreement: <"Qualifies a product as a Security Loan.
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		economicTerms -> payout -> securityFinancePayout exists
 
 func InterestRatePayoutCurrency:
@@ -695,7 +695,8 @@ func InterestRatePayoutCurrency:
         interestRatePayouts InterestRatePayout (0..*) <"List of interest rate payouts.">
     output:
         currency string (0..*) <"List of currencies collected from the payouts.">
-    assign-output currency: <"Adds quantitySchedule -> initialQuantity -> unitOfAmount -> currency to the list.">
+
+    add currency: <"Adds quantitySchedule -> initialQuantity -> unitOfAmount -> currency to the list.">
         interestRatePayouts -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
-    assign-output currency: <"Adds fxLinkedNotionalSchedule -> varyingNotionalCurrency to the list.">
+    add currency: <"Adds fxLinkedNotionalSchedule -> varyingNotionalCurrency to the list.">
         interestRatePayouts -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency

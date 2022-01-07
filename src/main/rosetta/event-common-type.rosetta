@@ -579,12 +579,12 @@ type TransferBase:
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
 	alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
 
-	clearingParty Party(1..1) <"The Central Counter party (CCP) that the contract will be submitted to for clearing.">
-	party1 Party(1..1) <"First party facing the CCP if it is clearing for its own account.">
-	party2 Party(1..1) <"Second party facing the CCP if it is clearing for its own account.">
+	clearingParty Party (1..1) <"The Central Counter party (CCP) that the contract will be submitted to for clearing.">
+	party1 Party (1..1) <"First party facing the CCP if it is clearing for its own account.">
+	party2 Party (1..1) <"Second party facing the CCP if it is clearing for its own account.">
 
-	clearerParty1 Party(0..1) <"Optional party facing the CCP, acting as clearing member for party1.">
-	clearerParty2 Party(0..1) <"Optional party facing the CCP, acting as clearing member for party2.">
+	clearerParty1 Party (0..1) <"Optional party facing the CCP, acting as clearing member for party1.">
+	clearerParty2 Party (0..1) <"Optional party facing the CCP, acting as clearing member for party2.">
 
 type PrimitiveEvent: <"A primitive event is defined by one and only one atomic change in state of a trade. An example of this is a contract formation where the legal terms of the contact are added to the trade. A Primitive event contains a before and after state where the before is a reference to another after state of a primitive event in order to preserve lineage.">
 
@@ -658,17 +658,6 @@ type SplitPrimitive: <"Defines splitting of a single trade into one or more trad
     // TODO sum quantities with matching unitOfAmounts
 	condition: <"Ensure the quantities of each split trade totals that of the single trade.">
 		Sum( FilterOpenTradeStates(after) -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount ) = Sum( before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount )
-
-func FilterOpenTradeStates: <"Filter to only 'open' TradeState - where both the closedState and positionState are not set.">
-	inputs:
-		tradeStates TradeState (0..*)
-	output:
-		openTradeStates TradeState (0..*)
-
-	set openTradeStates:
-	    tradeStates
-	        filter [ item -> state -> closedState is absent ]
-	        filter [ item -> state -> positionState is absent ]
 
 type QuantityChangePrimitive: <"Defines the primitive event to represent a change in quantity, which includes notional. For details of how the TradeState is changed between the `before` and `after` TradeStates, see the corresponding Create_QuantityChangePrimitive function.">
 
