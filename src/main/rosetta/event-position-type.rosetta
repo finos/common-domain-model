@@ -7,21 +7,20 @@ import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
 
 import cdm.observable.asset.*
+import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import cdm.legalagreement.contract.*
 import cdm.event.common.*
 
-type Position: <" A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
-
-	product Product (1..1) <"The product underlying the position, which can either be a contractual product or securities.">
-	quantity Quantity (1..1) <"The quantity of the product, which can be a negative number in case of a short position.">
+type Position: <"A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
+	
+	positionComponent PriceQuantity (1..*) <"Position with many price quantities.">
 	cashBalance Money (0..1) <"The aggregate cost of proceeds">
-	positionStatus PositionStatusEnum (1..1) <"Qualifier for the state of the Position, to distinguish if just executed, formed, already settled, closed etc.">
-	tradeReference Trade (1..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
+	tradeReference TradeState (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
 		[metadata reference]
 
-type PortfolioState: <" State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
+type PortfolioState: <"State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
 	[metadata key]
 
 	positions Position (0..*) <"The list of positions, each containing a Quantity and a Product.">

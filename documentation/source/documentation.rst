@@ -1080,6 +1080,7 @@ A *workflow* represents a set of actions or steps that are required to trigger a
    rejected boolean (0..1)
    previousWorkflowStep WorkflowStep (0..1)
      [metadata reference]
+   nextWorkflowStep NextWorkflowStep (0..1)
    messageInformation MessageInformation (0..1)
    timestamp EventTimestamp (1..*)
    eventIdentifier Identifier (1..*)
@@ -1087,6 +1088,7 @@ A *workflow* represents a set of actions or steps that are required to trigger a
    party Party (0..*)
    account Account (0..*)
    lineage Lineage (0..1)
+   creditLimitInformation CreditLimitInformation (0..1)
 
 The different attributes of a workflow step are detailed in the sections below.
 
