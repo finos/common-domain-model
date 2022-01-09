@@ -17,7 +17,7 @@ func FilterPrice: <"Filter list of prices based on price type.">
     output:
         price Price (0..1)
 
-    alias filteredPrices: <"Filter list of prices to a sublist.">
+    set price: <"Return as single element rather than a list.">
         prices
             filter [ item -> priceExpression -> priceType = priceType ]
             filter [ if priceExpression exists then item -> priceExpression -> priceExpression = priceExpression else True ]
@@ -26,9 +26,7 @@ func FilterPrice: <"Filter list of prices based on price type.">
             filter [ if cleanOrDirty exists then item -> priceExpression -> cleanOrDirty = cleanOrDirty else True ]
             filter [ if capFloor exists then item -> priceExpression -> capFloor = capFloor else True ]
             filter [ if spreadType exists then item -> priceExpression -> spreadType = spreadType else True ]
-
-    set price: <"Return as single element rather than a list.">
-        filteredPrices only-element
+            only-element
 
 func Create_Price: <"Populates a price object based on inputs.">
 	inputs:
@@ -38,6 +36,7 @@ func Create_Price: <"Populates a price object based on inputs.">
 		priceExpression PriceExpression (1..1)
 	output:
 		price Price (1..1)
+
 	set price -> amount: amount
 	set price -> unitOfAmount: unitOfAmount
 	set price -> perUnitOfAmount: perUnitOfAmount
