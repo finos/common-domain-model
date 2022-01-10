@@ -32,7 +32,7 @@ func DetermineFloatingRateReset: <"Get the value of a floating rate by either ob
 	alias rateDef: interestRatePayout->rateSpecification->floatingRate
 	alias processingType: GetFloatingRateProcessingType(rateDef) // get a processing category that will be used to dermine how to process the rate, based on the rate category, style, and calculation method
 	// perform the relevant operation (look up a term rate or do the rate calculation for a calculated rate)
-	assign-output floatingRate: ProcessFloatingRateReset(interestRatePayout, calcPeriod, processingType)
+	set floatingRate: ProcessFloatingRateReset(interestRatePayout, calcPeriod, processingType)
 
 func GetFloatingRateProcessingType: <"Get a classification of  the floating rate is processed. This is based on FRO category, style, and calculation method, as described in the 2021 ISDA Definitions Section 6.6.  The categorization information is obtained from the FRO metadata. .">
 	[calculation]
@@ -64,7 +64,7 @@ func GetFloatingRateProcessingType: <"Get a classification of  the floating rate
 			else FloatingRateIndexProcessingTypeEnum->Screen)
 
 	//return the processing category
-	assign-output processingType: processingCategory
+	set processingType: processingCategory
 
 func ProcessFloatingRateReset: <"Entry point for the function that performs the floating rate resetting operation.  There are different variations depending on the processing type (e.g. screen rate, OIS, modular calculated rate. .">
 	[calculation]
@@ -82,7 +82,7 @@ func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnu
 	alias resetDates: interestRatePayout->resetDates
 	alias rateDef: interestRatePayout->rateSpecification->floatingRate
 
-	assign-output 
+	set
 		floatingRate: EvaluateScreenRate(rateDef, resetDates, calcPeriod) // Call the screen rate evaluation logic
 
 func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->Modular): <"Evaluate the rate for a modular calculated rate.  Call the calculated rate calculation logic to determine the value of the reset.">
@@ -98,7 +98,7 @@ func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnu
 	alias priorCalculationPeriod: Create_CalculationPeriodBase(CalculationPeriod(interestRatePayout -> calculationPeriodDates, calcPeriod->adjustedStartDate))
 
 	// call the calculated rate evaluation logic
-	assign-output floatingRate: 
+	set floatingRate:
 		EvaluateCalculatedRate(fro, calcParams, resetDates, calcPeriod, priorCalculationPeriod, dayCount)
 
 func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->OIS): <"Evaluate the rate for an OIS calculated rate. Call the calculated rate calculation logic to determine the value of the reset.  See the 2021 ISDA Definitions Section 6.6.3.">
@@ -112,7 +112,7 @@ func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnu
 	alias calcParams: GetCalculatedFROCalculationParameters(resetDates, CalculationMethodEnum->Compounding)
 
 	// call the calculated rate evaluation logic to evaluate the OIS rate
-	assign-output floatingRate: 
+	set floatingRate:
 		EvaluateCalculatedRate(fro, calcParams, resetDates, calcPeriod, calcPeriod, dayCount)
 
 func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->OvernightAvg): <"Evaluate the rate for a daily average calculated FRO. Call the calculated rate calculation logic to determine the value of the reset. See the 2021 ISDA Definitions Section 6.6.3.">
@@ -126,7 +126,7 @@ func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnu
 	alias calcParams: GetCalculatedFROCalculationParameters(resetDates, CalculationMethodEnum->Averaging)
 
 	// call the calculated rate evaluation logic to evaluate the daily average rate
-	assign-output floatingRate: 
+	set floatingRate:
 		EvaluateCalculatedRate(rateOption, calcParams, resetDates, calcPeriod, calcPeriod, dayCount)
 
 func GetCalculatedFROCalculationParameters: <"Initialize a calculation parameters block for an OIS or a daily average rate. Used to support FROs that include an embedded calculation.">
@@ -137,8 +137,8 @@ func GetCalculatedFROCalculationParameters: <"Initialize a calculation parameter
 		calcParams FloatingRateCalculationParameters (1..1) <"A calculation parameters block.">
 
 	// generate and output the required type
-	assign-output calcParams->calculationMethod: calcMethod
-	assign-output calcParams->applicableBusinessDays: resetDates->fixingDates ->businessCenters
+	set calcParams->calculationMethod: calcMethod
+	set calcParams->applicableBusinessDays: resetDates->fixingDates ->businessCenters
 
 
 func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum->CompoundIndex): <"Call the compounded index processing logic to calculate the reset.">
@@ -165,9 +165,9 @@ func EvaluateScreenRate: <"Evaluate/lookup the value of a screen rate.">
 	// look up the rate on that date
 	alias observedRate: IndexValueObservation(fixingDate, rateDef->rateOption)
 	// record relevant dates and observed rate
-	assign-output details->resetDate: resetDate
-	assign-output details->observationDate: fixingDate
-	assign-output details->floatingRate: observedRate
+	set details->resetDate: resetDate
+	set details->observationDate: fixingDate
+	set details->floatingRate: observedRate
 
 
 func DetermineResetDate: <"Determine the value of the reset date given a reset dates structure and a calculation paeriod for which it's needed. Reset dates are defined in the 2021 ISDA Definition in Section 6.5.5.">
@@ -182,7 +182,7 @@ func DetermineResetDate: <"Determine the value of the reset date given a reset d
 	alias isStart: resetRelativeTo = ResetRelativeToEnum->CalculationPeriodStartDate
 	alias reset: if (isStart) then calculationPeriod->adjustedStartDate else calculationPeriod->adjustedEndDate
 
-	assign-output resetDate: reset
+	set resetDate: reset
 
 func DetermineFixingDate: <"Determine the observation (fixing) date needed given a reset dates structure and a reset date.">
 	[calculation]
@@ -195,7 +195,7 @@ func DetermineFixingDate: <"Determine the observation (fixing) date needed given
 	alias fixingOffsetDays: resetDates->fixingDates->periodMultiplier
 	alias fixDate: AddBusinessDays(resetDate, fixingOffsetDays, resetDates->fixingDates->businessCenters)
 
-	assign-output fixingDate: fixDate
+	set fixingDate: fixDate
 
 // =====================================================================
 //
@@ -226,14 +226,14 @@ func GetFloatingRateProcessingParameters: <"Determine the processing parameters 
 	alias negativeTreatment: interestRatePayout->rateSpecification->floatingRate->negativeInterestRateTreatment
 	alias treatment: interestRatePayout->rateSpecification->floatingRate->rateTreatment
 
-	assign-output processingParameters->initialRate: interestRatePayout->rateSpecification->floatingRate->initialRate
-	assign-output processingParameters->spread: spreadRate
-	assign-output processingParameters->multiplier: multiplier
-	assign-output processingParameters->treatment: treatment
-	assign-output processingParameters->capRate: cap
-	assign-output processingParameters->floorRate: floor
-	assign-output processingParameters->rounding: rounding
-	assign-output processingParameters->negativeTreatment: negativeTreatment
+	set processingParameters->initialRate: interestRatePayout->rateSpecification->floatingRate->initialRate
+	set processingParameters->spread: spreadRate
+	set processingParameters->multiplier: multiplier
+	set processingParameters->treatment: treatment
+	set processingParameters->capRate: cap
+	set processingParameters->floorRate: floor
+	set processingParameters->rounding: rounding
+	set processingParameters->negativeTreatment: negativeTreatment
 
 func SpreadAmount: <"Look up the spread amount for a calculation period.">
 	[calculation]
@@ -243,7 +243,7 @@ func SpreadAmount: <"Look up the spread amount for a calculation period.">
 	output:
 		spread number (0..1) <"the spread value for the period.">
 	alias startDate: calculationPeriod->adjustedStartDate
-	assign-output spread: 
+	set spread:
 		LookupRateScheduleAmount(interestRatePayout->rateSpecification->floatingRate->spreadSchedule, startDate)
 
 func MultiplierAmount: <"Look up the multiplier amount for a calculation period.">
@@ -253,7 +253,7 @@ func MultiplierAmount: <"Look up the multiplier amount for a calculation period.
 		calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which you want the multiplier.">
 	output:
 		multiplier number (0..1) <"The multiplier in effect from the calculation period start date.">
-	assign-output multiplier: 
+	set multiplier:
 		LookupRateScheduleAmount(interestRatePayout->rateSpecification->floatingRate->floatingRateMultiplierSchedule, calculationPeriod->adjustedStartDate)
 
 func CapRateAmount: <"Look up the cap rate amount for a calculation period.">
@@ -264,7 +264,7 @@ func CapRateAmount: <"Look up the cap rate amount for a calculation period.">
 	output:
 		capRate number (0..1) <"The cap rate in effect from the calculation period start date.">
 	// look up and return the amount from the cap rate schedule
-	assign-output capRate: 
+	set capRate:
 		LookupRateScheduleAmount(interestRatePayout->rateSpecification->floatingRate->capRateSchedule, calculationPeriod->adjustedStartDate)
 
 func FloorRateAmount: <"Look up the floor rate amount for a calculation period.">
@@ -275,7 +275,7 @@ func FloorRateAmount: <"Look up the floor rate amount for a calculation period."
 	output:
 		floorRate number (0..1) <"The cap rate in effect from the calculation period start date.">
 	// look up and return the amount
-	assign-output floorRate: 
+	set floorRate:
 		LookupRateScheduleAmount(interestRatePayout->rateSpecification->floatingRate->floorRateSchedule, calculationPeriod->adjustedStartDate)
 
 func LookupRateScheduleAmount: <"Look up an amount for a calculation period from a rate schedule.">
@@ -292,7 +292,7 @@ func LookupRateScheduleAmount: <"Look up an amount for a calculation period from
 	alias vals: AppendToVector (stepValues, schedule->initialValue->amount)
 
 	// return the first from the list (which is the latest aplicable value)
-	assign-output value: 
+	set value:
 		SelectFromVector(vals, 0)
 
 func FindScheduleSteps: <"Find all rate schedule step values whose stepDate is before or equal to the supplied periodStartDate, starting from supplied startingStep number.  Returns a list of step values starting from the last matching one and going in reverse order.  Done this slightly odd way for efficiency and simplicity in code generation.  Assumes scehdule stesp are in ascending date order.">
@@ -318,7 +318,7 @@ func FindScheduleSteps: <"Find all rate schedule step values whose stepDate is b
 	alias appendIfInTimeRange: if (periodStartDate >= stepDate) then append
 
 	// check that we haven't fallen off the end of the schedule.  If not, check if in time range and if so append current step value to the list of matching values
-	assign-output vector:
+	add vector:
 		if (startingStep < steps count) then appendIfInTimeRange
 
 func SelectScheduleStep: <"Retrieve a single step from a schedule given a step number.">
@@ -367,13 +367,13 @@ func ApplyFloatingRateProcessing: <"Perform rate treatments on floating rates, s
 	alias initialRatePlusSpread: if (spreadRate exists) then initialRatePluSpread else initialRate
 
 	// return the key inputs
-	assign-output details -> processingParameters: processing
-	assign-output details->rawRate: rawRate
+	set details -> processingParameters: processing
+	set details->rawRate: rawRate
 
 	// calculate and return the processes rate, both including and excluding the spread
-	assign-output details->processedRate: 
+	set details->processedRate:
 		if (doInitialRate = True) then initialRatePluSpread else ApplyFloatingRatePostSpreadProcessing(ratePlusSpread, processing)
-	assign-output details->spreadExclusiveRate: 
+	set details->spreadExclusiveRate:
 		if (doInitialRate = True) then initialRate else ApplyFloatingRatePostSpreadProcessing(negativeTreatedRate, processing)
 
 func ApplyFloatingRatePostSpreadProcessing: <"Perform post-spread rate treatments on floating rates, such as applying caps and floors, rounding, and negative interest treatment.  TODOO:  initialRate needs to be supported.  Also, to support compounding methods, it may be necessary to split the before spread and after spread values and return both, so that cashflows can be computed both ways.  This may require this function to be redesigned or split into pieces (e.g. factor out the post-spread processing).">
@@ -386,7 +386,7 @@ func ApplyFloatingRatePostSpreadProcessing: <"Perform post-spread rate treatment
 	// apply any caps and floors on the rate
 	alias cappedAndFlooredRate: ApplyCapsAndFloors(processing, inputRate)
 	// calculate and output the rounded rate
-	assign-output processedRate: 
+	set processedRate:
 		ApplyFinalRateRounding(cappedAndFlooredRate, processing->rounding)
 
 func ApplyCapsAndFloors: <"Apply any cap or floor rate as a constraint on a regular swap rate, as discussed in the 2021 ISDA Definitions, section 6.5.8 and 6.5.9.">
@@ -400,7 +400,7 @@ func ApplyCapsAndFloors: <"Apply any cap or floor rate as a constraint on a regu
 	alias floor: processing -> floorRate
 	alias cappedRate: if cap exists and inputRate > cap then cap else inputRate
 	alias flooredRate: if floor exists and cappedRate < floor then floor else cappedRate
-	assign-output cappedAndFlooredRate: flooredRate
+	set cappedAndFlooredRate: flooredRate
 
 func ApplyUSRateTreatment: <"Apply the US rate treatment logic where applicable (Bond Equivalent Yield, Money Market Yield, as described in the 2021 ISDA Definitions, section 6.9.">
 	inputs:
@@ -409,7 +409,7 @@ func ApplyUSRateTreatment: <"Apply the US rate treatment logic where applicable 
 		calculationPeriod CalculationPeriodBase (1..1) <"The calculation period over which the rate is computed.">
 	output:
 		treatedRate number (1..1) <"rate after treatment.">
-	assign-output treatedRate: baseRate // temporary, stub definition until support is added
+	set treatedRate: baseRate // temporary, stub definition until support is added
 
 func ApplyFinalRateRounding: <"Apply the final rate rounding treatment logic as described in the 2021 ISDA Definitions, section 4.8.1.">
 	[calculation]
@@ -422,4 +422,4 @@ func ApplyFinalRateRounding: <"Apply the final rate rounding treatment logic as 
 	alias precision: if finalRateRounding->precision exists then finalRateRounding->precision else 7
 	alias direction: if finalRateRounding->roundingDirection exists then finalRateRounding->roundingDirection else RoundingDirectionEnum->Nearest
 
-	assign-output roundedRate: RoundToPrecision(baseRate, precision, direction)
+	set roundedRate: RoundToPrecision(baseRate, precision, direction)

@@ -43,28 +43,28 @@ func Create_WorkflowStep: <"Function to create a workflow step with a business e
 		if (previousWorkflowStep is absent or previousWorkflowStep -> action is absent)
 		then (action = ActionEnum -> New)
 
-	assign-output workflowStep -> action: <"Assign the workflowStep action.">
+	set workflowStep -> action: <"Assign the workflowStep action.">
 		action
 
-	assign-output workflowStep -> messageInformation: <"Assign the workflowStep action.">
+	set workflowStep -> messageInformation: <"Assign the workflowStep action.">
 		messageInformation
 
-	assign-output workflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
+	add workflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
 		timestamp
 
-	assign-output workflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
+	add workflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
 		eventIdentifier
 
-	assign-output workflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
+	add workflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
 		party
 
-	assign-output workflowStep -> account: <"Assign the account information that could be associated to the event.">
+	add workflowStep -> account: <"Assign the account information that could be associated to the event.">
 		account
 
-	assign-output workflowStep -> previousWorkflowStep: <"Assign the key of the previous step to resulting step providing lineage.">
+	set workflowStep -> previousWorkflowStep: <"Assign the key of the previous step to resulting step providing lineage.">
 		previousWorkflowStep as-key
 
-	assign-output workflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
+	set workflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
 		businessEvent
 
 func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed instruction that results in a workflow step containing a business event, message details, identifiers, event timestamps, parties and accounts. The previous workflow step input must exist to provide workflow lineage. The instruction from the previous workflow step should be used with a [creation BusinessEvent] function to create the input business event passed into this function e.g. AllocationInstruction from the previous step is used with Create_Allocation to produce the business event which should used as an input to this step.">
@@ -90,25 +90,25 @@ func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed inst
 	condition: <"The previous step cannot be rejected.">
 		previousWorkflowStep -> rejected <> True
 
-	assign-output acceptedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
+	set acceptedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
 		messageInformation
 
-	assign-output acceptedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
+	add acceptedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
 		timestamp
 
-	assign-output acceptedWorkflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
+	add acceptedWorkflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
 		eventIdentifier
 
-	assign-output acceptedWorkflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
+	add acceptedWorkflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
 		party
 
-	assign-output acceptedWorkflowStep -> account: <"Assign the account information that could be associated to the event.">
+	add acceptedWorkflowStep -> account: <"Assign the account information that could be associated to the event.">
 		account
 
-	assign-output acceptedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
+	set acceptedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
 		previousWorkflowStep as-key
 
-	assign-output acceptedWorkflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
+	set acceptedWorkflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
 		businessEvent
 
 func Create_ProposedWorkflowStep: <"Represents the proposal to create a business event that results in a workflow step containing an instruction, message details, identifiers, event timestamps, parties and accounts. The optional previous workflow step input provides workflow lineage to where there has been a correction or cancellation to the proposed step. The action is constrained so that when a previous workflow step is specified, the valid actions are as follows; New -> Correct and Correct -> Cancel. When a previous workflow is not specified, the action must be New.">
@@ -134,26 +134,26 @@ func Create_ProposedWorkflowStep: <"Represents the proposal to create a business
 		if (previousWorkflowStep is absent or previousWorkflowStep -> businessEvent exists)
 		then action = ActionEnum -> New
 
-	assign-output proposedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
+	set proposedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
 		messageInformation
 
-	assign-output proposedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
+	add proposedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
 		timestamp
 
-	assign-output proposedWorkflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
+	add proposedWorkflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
 		eventIdentifier
 
-	assign-output proposedWorkflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
+	add proposedWorkflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
 		party
 
-	assign-output proposedWorkflowStep -> account: <"Assign the account information that could be associated to the event.">
+	add proposedWorkflowStep -> account: <"Assign the account information that could be associated to the event.">
 		account
 
-	assign-output proposedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
+	set proposedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
 		previousWorkflowStep as-key
 
-	assign-output proposedWorkflowStep -> proposedInstruction:
-	proposedInstruction
+	set proposedWorkflowStep -> proposedInstruction:
+	    proposedInstruction
 
 func Create_RejectedWorkflowStep: <"Represents the rejection of a proposed instruction that results in a workflow step containing the rejection flag, message details, identifiers, event timestamps, parties and accounts involved in the step. The previous workflow step input must exist to provide workflow lineage. This function will be further developed to provide the reasons for rejection.">
 	[creation WorkflowStep]
@@ -169,17 +169,17 @@ func Create_RejectedWorkflowStep: <"Represents the rejection of a proposed instr
 	condition: <"The previous proposed step being rejected must exist">
 		previousWorkflowStep -> proposedInstruction exists
 	
-	assign-output rejectedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
+	set rejectedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
 		messageInformation
 
-	assign-output rejectedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
+	add rejectedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
 		timestamp
 
-	assign-output rejectedWorkflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
+	add rejectedWorkflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
 		eventIdentifier
 
-	assign-output rejectedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
+	set rejectedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
 		previousWorkflowStep as-key
 
-	assign-output rejectedWorkflowStep -> rejected: <"Set the rejected flag to True">
+	set rejectedWorkflowStep -> rejected: <"Set the rejected flag to True">
 		True
