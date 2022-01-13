@@ -227,17 +227,21 @@ collateral asset, this includes the following data attributes:
 
 .. code-block:: Haskal
 
- type AssetCriteria:
-	collateralAssetType AssetType (0..*)
-	assetCountryOfOrigin string (0..*)
+type AssetCriteria: 
+
+	collateralAssetType AssetType (0..*) 
+	assetCountryOfOrigin string (0..*) 
 	denominatedCurrency string (0..*)
 	agencyRating AgencyRatingCriteria (0..*)
 	maturityType MaturityTypeEnum (0..1) 
-	maturityRange PeriodRange (0..1)
-	productIdentifier ProductIdentifier (0..*)
-	collateralTaxonomy CollateralTaxonomy (0..*)
-	domesticCurrencyIssued boolean (0..1)
-	listing ListingType (0..1)
+	maturityRange PeriodRange (0..1) 
+	productIdentifier ProductIdentifier (0..*) 
+	collateralTaxonomy CollateralTaxonomy (0..*) 
+	domesticCurrencyIssued boolean (0..1) 
+	listing ListingType (0..1) 
+
+	condition AssetCriteriaChoice: 
+		optional choice collateralAssetType, collateralTaxonomy, productIdentifier
 
 -  ``collateralAssetType`` Represents a filter based on the asset product type.
 
@@ -302,7 +306,7 @@ collateral asset, this includes the following data attributes:
 
 .. code-block:: Haskal
 
- type IssuerCriteria: <"Criteria used to specify eligible collateral issuers.">
+type IssuerCriteria: 
 
 	issuerType CollateralIssuerType (0..*) 
 	issuerCountryOfOrigin string (0..*) 
@@ -311,7 +315,7 @@ collateral asset, this includes the following data attributes:
 	issuerAgencyRating AgencyRatingCriteria (0..*) 
 	sovereignAgencyRating AgencyRatingCriteria (0..*) 
 	counterpartyOwnIssuePermitted boolean (0..1) 
-	
+
 -  ``issuerType`` Represents a filter based on
    the type of entity issuing the asset.
 
@@ -409,11 +413,11 @@ alternative ways using ``ConcentrationLimitCriteria``
 
 .. code-block:: Haskal
 
- type ConcentrationLimit: 
-    concentrationLimitCriteria ConcentrationLimitCriteria (0..*) 
-    valueLimit MoneyRange (0..1) 
-    percentageLimit NumberRange (0..1) 
-	
+ type ConcentrationLimit:
+    concentrationLimitCriteria ConcentrationLimitCriteria (0..*)
+    valueLimit MoneyRange (0..1)
+    percentageLimit NumberRange (0..1)
+
 *Generic method* : If you wish to apply a concentration limit to a set
 of pre-defined eligible collateral details in the CDM, you would use
 ``ConcentrationLimitType``, ``ConcentrationLimitTypeEnum`` which allows you to
@@ -436,11 +440,11 @@ terms as follows:
 
 .. code-block:: Haskal
 
-  type ConcentrationLimit: 
-    concentrationLimitCriteria ConcentrationLimitCriteria (0..*) 
-    valueLimit MoneyRange (0..1) 
-    percentageLimit NumberRange (0..1) 
-		
+  type ConcentrationLimit:
+    concentrationLimitCriteria ConcentrationLimitCriteria (0..*)
+    valueLimit MoneyRange (0..1)
+    percentageLimit NumberRange (0..1)
+
 -  ``ValueLimit`` Specifies the value of collateral limit
    represented as a range
 
@@ -628,12 +632,12 @@ related information to eligible collateral
 
 .. code-block:: Haskal
 
- type AgencyRatingCriteria: 
+ type AgencyRatingCriteria:
    qualifier QuantifierEnum (1..1)
-   creditNotation CreditNotation (1..*) 
-   mismatchResolution CreditNotationMismatchResolutionEnum (0..1)  
+   creditNotation CreditNotation (1..*)
+   mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
    referenceAgency CreditRatingAgencyEnum (0..1)
-   boundary CreditNotationBoundaryEnum (0..1) 
+   boundary CreditNotationBoundaryEnum (0..1)
 
 -  ``qualifier`` Indicator for whether *all or any* of
    the agency ratings specified apply using the All or Any enumeration
@@ -641,17 +645,17 @@ related information to eligible collateral
 
 -  ``creditNotation`` Indicates the agency rating
    criteria specified for the asset or issuer. This expands to offer
-   further granularity for details relating to the credit details 
-   
+   further granularity for details relating to the credit details
+
 .. code-block:: Haskal
-   
- type CreditNotation: 
-  agency CreditRatingAgencyEnum (1..1) 
-  notation string (1..1) 
-  scale string (0..1) 	
-  debt CreditRatingDebt (0..1) 
-  outlook CreditRatingOutlookEnum (0..1)  
-  creditWatch CreditRatingCreditWatchEnum (0..1)  
+
+type CreditNotation: 
+	agency CreditRatingAgencyEnum (1..1)
+	notation string (1..1)
+	scale string (0..1)
+	debt CreditRatingDebt (0..1)
+	outlook CreditRatingOutlookEnum (0..1) 
+	creditWatch CreditRatingCreditWatchEnum (0..1)  
 
 
 - ``CreditRatingAgencyEnum`` A list of enumerated values to specify the rating agency or agencies, (all major rating agencies are supported)
