@@ -462,6 +462,9 @@ synonym source FpML_5_10 extends FpML
 			[value "spread" path "calculation"] // Commodity Swap Floating Leg
 			// Premium (for all Options) / Additional payment
 			[value "paymentAmount"]
+			// Generic Product
+			[value "fixedRate" path "underlyer"]
+			// [value "exchangeRate" path "underlyer" mapper "ExchangeRate"]
     	+ quantity
 		    // For Swap Stream
 			[value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule"]
@@ -516,6 +519,9 @@ synonym source FpML_5_10 extends FpML
             [hint "bond", "convertibleBond"]
 			// For Commodity Swap Floating Leg
 			[hint "commodity"]
+			// Generic Product
+			[value "floatingRate"]
+			[hint "equity"]
 		+ settlementTerms
 			[hint "paymentDelay"]
 			[hint "paymentDate"]
@@ -1509,6 +1515,7 @@ synonym source FpML_5_10 extends FpML
 			[value "resetCutOffDaysOffset" path "resetDates"]
 		+ resetFrequency
 			[value "resetFrequency" path "resetDates", "resetFrequency" path "interestLegCalculationPeriodDates->interestLegResetDates"]
+			[value "resetFrequency"]
 		+ resetDatesAdjustments
 			[value "resetDatesAdjustments" path "resetDates"]
 
@@ -1682,6 +1689,8 @@ synonym source FpML_5_10 extends FpML
 		+ multiplierUnit
 			[hint "quantityFrequency"] //To be removed
 			[hint "entitlementCurrency"]
+		+ unitOfAmount
+			[hint "units"]
 
 	NonNegativeQuantitySchedule:
 		+ initialQuantity
@@ -2132,7 +2141,7 @@ synonym source FpML_5_10 extends FpML
 		[meta "id"]
 		+ optionType
 			[value "optionType"]
-			[set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
+			// [set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
 		+ feature
 			[value "feature"]
 			[value "features"]
@@ -2324,6 +2333,22 @@ synonym source FpML_5_10 extends FpML
 			[value "fixedLeg" path "commoditySwap"]
 		+ securityFinancePayout
 			[value "ignore"]
+	// 	+ genericPayout
+	// 		[value "genericProduct"]
+
+	// GenericPayout:
+	// 	+ optionType
+	// 		[value "optionType"]
+	// 	+ underlier
+	// 		[value "underlyer"]
+	// 	+ expirationDate
+	// 		[value "expirationDate"]
+	// 	+ rateSpecification
+	// 		[value "floatingRate" path "underlyer"]
+	// 	+ resetDates
+	// 		[hint "resetFrequency"]
+	// 	+ primaryAssetData
+	// 		[value "primaryAssetClass" maps 2 meta "assetClassScheme"]
 
 	Product:
 		+ contractualProduct
@@ -2371,6 +2396,9 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity Option
 			[hint "commodityOption"]
 			[value "commodityOption"]
+			// For Generic Product
+       		[hint "genericProduct"]
+			[value "genericProduct"]
 		+ index
 			[hint "index"]
 		+ loan
@@ -2447,6 +2475,12 @@ synonym source FpML_5_10 extends FpML
 			[value "premium" path "bondOption"]
 			[value "premium" path "fxOption"]
 			[value "premium" path "fxDigitalOption"]
+			// Generic Product
+			[value "genericProduct"]
+			[value "underlyer" path "genericProduct"]
+			// [value "underlyer" set when path = "genericProduct"]
+			// [hint "notional"]
+			[value "premium" path "genericProduct"]
 		+ lotIdentifier
 			[value "ignore"]
 
@@ -2477,6 +2511,9 @@ synonym source FpML_5_10 extends FpML
 			[hint "commodityOption"]
 			[hint "repo"]
 			[hint "otherPartyPayment"]
+			// Generic Product
+        	[hint "genericProduct"]
+			// [value "genericProduct"]
 		+ adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
@@ -2492,6 +2529,7 @@ synonym source FpML_5_10 extends FpML
 			// For Credit:
 			[value "floatingAmountCalculation"]
 			[value "floatingRate" path "floatingAmountCalculation"]
+			[value "floatingRate"]
 		+ inflationRate
 			[value "inflationRateCalculation"]
 
@@ -3427,6 +3465,7 @@ synonym source FpML_5_10 extends FpML
 			[value "quantityUnit" maps 2]
 			// For Commodity Swap Fixed Leg
 			[value "priceUnit" maps 2 set when rosettaPath = Price->perUnitOfAmount]
+			[value "units" maps 2]
 		+ weatherUnit
 			[value "quantityUnit"]
 			// For Commodity Swap Fixed Leg
@@ -6752,8 +6791,8 @@ synonym source FpML_5_10 extends FpML
 			[value "Payer"]
 		+ Receiver
 			[value "Receiver"]
-		+ Straddle
-			[value "Straddle"]
+		+ Chooser
+			[value "Chooser"]
 
 	PayRelativeToEnum:
 		+ CalculationPeriodStartDate

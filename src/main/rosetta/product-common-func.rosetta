@@ -19,7 +19,8 @@ isProduct root EconomicTerms;
 
 func Qualify_CreditDefaultSwap_SingleName: <"Qualifies a product as a Credit Default Swap which provides protection relative to defaults of a reference entity that could be a corporate, municipal, sovererign, or special purpose vehicle issuer of publically traded debt.  The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is corporate, municipal, or sovererign issuer of debt, 3) the reference obligation is not a loan, and 4) there are no opton features.">
 	[qualification Product]
-	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
 	assign-output is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
 		(	economicTerms -> payout -> creditDefaultPayout only exists
@@ -33,7 +34,8 @@ func Qualify_CreditDefaultSwap_SingleName: <"Qualifies a product as a Credit Def
 
 func Qualify_CreditDefaultSwap_Index: <"Qualifies a product as a Credit Default Swap which provides protection relative to the performance of an index. The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is an index, and 3) there are no opton features.">
 	[qualification Product]
-	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
 	assign-output is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
 		(	economicTerms -> payout -> creditDefaultPayout only exists
@@ -47,7 +49,8 @@ func Qualify_CreditDefaultSwap_Index: <"Qualifies a product as a Credit Default 
 
 func Qualify_CreditDefaultSwap_IndexTranche: <"Qualifies a product as a Credit Default Swap which provides protection relative to the performance of an index. The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is an index, and 3) there are no opton features.">
 	[qualification Product]
-	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
 	assign-output is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
 		(	economicTerms -> payout -> creditDefaultPayout only exists
@@ -61,7 +64,8 @@ func Qualify_CreditDefaultSwap_IndexTranche: <"Qualifies a product as a Credit D
 
 func Qualify_CreditDefaultSwap_Loan: <"Qualifies a product as a Credit Default Swap which provides protection relative to defaults of a reference entity that is a loan. The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is a loan, and there are no opton features.">
 	[qualification Product]
-	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
 	assign-output is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
 		(	economicTerms -> payout -> creditDefaultPayout only exists
@@ -75,7 +79,8 @@ func Qualify_CreditDefaultSwap_Loan: <"Qualifies a product as a Credit Default S
 
 func Qualify_CreditDefaultSwap_Basket: <"Qualifies a product as a Credit Default Swap which provides protection relative to defaults of a reference entity that is a loan. The determination of the qualification is based on the economic terms and the following criteria: 1) A product with one credit deault leg and one interest leg or cashflow leg, 2) the reference entity is a loan, and there are no opton features.">
 	[qualification Product]
-	inputs: economicTerms EconomicTerms (1..1)	output: is_product boolean (1..1)
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
 	assign-output is_product:
 		// qualifies that  only the credit default payout and interest rate payout or cash flow exist and all other payouts are absent
 		(	economicTerms -> payout -> creditDefaultPayout only exists
@@ -572,18 +577,39 @@ func Qualify_InterestRate_CapFloor:	<"Qualifies a product as an interest rate ca
 		or economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate -> floorRateSchedule exists
 
 func Qualify_InterestRate_Option_Swaption: <"Qualifies a product as a Swaption that can be exercised into an Interest Rate Swap, which could be any type of interest rate product with two legs based on the economic terms.">
-    [qualification Product]
-    inputs: economicTerms EconomicTerms (1..1)
-    output: is_product boolean (1..1)
-            [synonym ISDA_Taxonomy_v1 value "InterestRate_Option_Swaption"]
-            [synonym ISDA_Taxonomy_v2 value "InterestRate_Option_Swaption"]
-    assign-output is_product:
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_Option_Swaption"]
+			[synonym ISDA_Taxonomy_v2 value "InterestRate_Option_Swaption"]
+	assign-output is_product:
 		// qualifies that either only the option rate payout exists, or the option payout exists and the cashflow exists and all other payouts are absent
-	 	(economicTerms -> payout -> optionPayout only exists
-            or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+		((economicTerms -> payout -> optionPayout only exists
+			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+			and economicTerms -> payout -> optionPayout count = 1)
 
 		// qualifies that the underlier is an interest rate product with two legs
-		and	economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
+		and Qualify_AssetClass_InterestRate_Swap(economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element) = True
+		// and	economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
+
+func Qualify_InterestRate_Option_Swaption_Straddle: <"Qualifies a product as a Swaption Straddle that can be contingently exercised into either a Payer or Receiver Interest Rate Swap, which could be any type of interest rate product with two legs based on the economic terms.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+			[synonym ISDA_Taxonomy_v1 value "InterestRate_Option_Swaption"]
+			[synonym ISDA_Taxonomy_v2 value "InterestRate_Option_Swaption"]
+
+	alias optionIRSQualification:
+		economicTerms -> payout -> optionPayout
+			map [Qualify_AssetClass_InterestRate_Swap(item -> underlier -> contractualProduct -> economicTerms)]
+
+	assign-output is_product:
+		// qualifies that either only two option rate payout exists, or two option payout exists and the cashflow exists and all other payouts are absent
+		(economicTerms -> payout -> optionPayout only exists
+			and economicTerms -> payout -> optionPayout count = 2)
+		// qualifies that the underlier is an interest rate product with two legs
+		and optionIRSQualification all = True
+		//and determination that payers on Fixed Leg of each swap are different
 
 func Qualify_InterestRate_Option_DebtOption: <"Qualifies a product as a Option that can be exercised into an Debt Product based on the economic terms.">
 	[qualification Product]
@@ -699,3 +725,11 @@ func InterestRatePayoutCurrency:
         interestRatePayouts -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
     assign-output currency: <"Adds fxLinkedNotionalSchedule -> varyingNotionalCurrency to the list.">
         interestRatePayouts -> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
+
+// func Qualify_ForeignExchangeComplexExotic: <"Qualifies a product as FX Complex Exotic based on economic terms and product identification, which is defined as one where 1) generic payout exists], and 2) primary asset class is Foreign Exchange.">
+// 	[qualification Product]
+// 	inputs: economicTerms EconomicTerms (1..1)
+// 	output: is_product boolean (1..1)
+// 	assign-output is_product:
+// 		economicTerms -> payout -> genericPayout exists and
+// 		economicTerms -> payout -> genericPayout -> primaryAssetData = AssetClassEnum -> ForeignExchange

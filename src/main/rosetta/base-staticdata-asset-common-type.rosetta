@@ -39,6 +39,7 @@ type IdentifiedProduct: <"An abstract class to specify a product which terms are
 type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
 	productIdentifier ProductIdentifier (1..*)
         [metadata address "pointsTo"=Observable->productIdentifier]
+	economicTerms cdm.product.template.EconomicTerms (0..1)
 
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
 	indexType IndexTypeEnum (1..1) <"Indentifies the index product type.">
@@ -89,10 +90,13 @@ type Loan extends ProductBase: <"Identifies a loan by referencing a product iden
 	tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
 		[metadata scheme]
 
-
 type ProductTaxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-	taxonomyValue string (1..1) <"Specifies the taxonomy value.">
+	taxonomyValue string (0..1) <"Specifies the taxonomy value.">
 	taxonomySource TaxonomySourceEnum (1..1) <"Specifies the taxonomy source.">
+	productQualifier productType (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features.">
+
+	condition:
+		required choice taxonomyValue, productQualifier
 
 type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     taxonomyValue CollateralTaxonomyValue (1..1) <"Specifies the taxonomy value.">
