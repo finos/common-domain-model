@@ -14,7 +14,6 @@ import cdm.product.template.*
 func Create_SecurityFinanceTradeStateWithObservations: <"Attaches a set of Observations to a Security Finance Transaction.">
 	inputs:
 		billingInstruction BillingRecordInstruction (1..1)
-
 	output:
 		tradeState TradeState (1..1)
 
@@ -24,10 +23,10 @@ func Create_SecurityFinanceTradeStateWithObservations: <"Attaches a set of Obser
 	alias date:
 		billingInstruction -> recordEndDate
 
-	assign-output tradeState:
+	set tradeState:
 		billingInstruction -> tradeState
 
-	assign-output tradeState -> resetHistory:
+	add tradeState -> resetHistory:
 		Create_SecurityFinanceReset (securityFinancePayout, billingInstruction -> observation, date)
 
 func Create_SecurityFinanceReset: <"Defines how to resolve the reset value for an equity payout.">
@@ -35,26 +34,24 @@ func Create_SecurityFinanceReset: <"Defines how to resolve the reset value for a
 		securityFinancePayout SecurityFinancePayout (1..1) <"Represents the SecurityFinancePayout to which the reset will apply.">
 		observation Observation (1..*) <"Represents the observations that will be used to compute the reset value.">
 		resetDate date (1..1) <"Specifies the date of the reset.">
-
 	output:
 		reset Reset (1..1)
 
-	assign-output reset -> resetValue: <"Assigns the observed value to the reset value. In the case of EquityPayout, the observed value represents the price of the underlying at the end of the period and no further manupulation of that value is required.">
+	set reset -> resetValue: <"Assigns the observed value to the reset value. In the case of EquityPayout, the observed value represents the price of the underlying at the end of the period and no further manupulation of that value is required.">
 		ResolveObservationAverage(observation)
 		// work out the average as the value to be used in the calculation
 
-	assign-output reset -> resetDate:
+	set reset -> resetDate:
 		resetDate
 
-	assign-output reset -> observations: <"Assigns the observation required to compute the rest value as audit.">
+	add reset -> observations: <"Assigns the observation required to compute the rest value as audit.">
 		observation
 
-	assign-output reset -> aggregationMethodology -> averagingCalculationMethod: AveragingCalculationMethodEnum -> Arithmetic
+	set reset -> aggregationMethodology -> averagingCalculationMethod: AveragingCalculationMethodEnum -> Arithmetic
 
 func ResolveObservationAverage: <"Specifies the interface that should be used by implementors to resolve a single observation when provided many, applying the averaging method, if one is provided.">
 	inputs:
 		observations Observation (1..*)
-
 	output:
 		resetValue Price (1..1)
 

@@ -9,7 +9,7 @@ func CompareNumbers:
 	output:
         result boolean (1..1)
 
-	assign-output result:
+	set result:
         if op = CompareOp -> GreaterThan
         then n1 > n2 = True
         else if op = CompareOp -> GreaterThanOrEquals
@@ -37,7 +37,7 @@ func Max:
 	output:
 		max number (1..1)
 
-	assign-output max:
+	set max:
 		if a > b
 		then a
 		else b
@@ -77,15 +77,13 @@ func CompareQuantityByUnitOfAmount:
     output:
         result boolean (1..1)
 
-    alias results:
+    set result:
         FilterQuantity( quantity1, unitOfAmount )
             map q1 [
                 FilterQuantity( quantity2, unitOfAmount )
                     map q2 [ CompareNumbers( q1 -> amount, op, q2 -> amount ) ]
             ] flatten
-
-    assign-output result:
-        results all = True
+            all = True
 
 func FilterQuantity: <"Filter list of quantities based on unit type.">
     inputs:
@@ -94,7 +92,7 @@ func FilterQuantity: <"Filter list of quantities based on unit type.">
     output:
         filteredQuantities Quantity (0..*)
 
-    set filteredQuantities:
+    add filteredQuantities:
         quantities
             filter [ item -> unitOfAmount = unitOfAmount ]
 
@@ -105,7 +103,7 @@ func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
     output:
         filteredQuantities Quantity (0..*)
 
-    set filteredQuantities:
+    add filteredQuantities:
         quantities
             filter [ item -> unitOfAmount -> currency = currency ]
 
@@ -115,7 +113,7 @@ func FilterQuantityByCurrencyExists: <"Filter list of quantities based on unit t
     output:
         filteredQuantities Quantity (0..*)
 
-    set filteredQuantities:
+    add filteredQuantities:
         quantities
             filter [ item -> unitOfAmount -> currency exists ]
 
@@ -126,7 +124,7 @@ func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit ty
     output:
         filteredQuantities Quantity (0..*)
 
-    set filteredQuantities:
+    add filteredQuantities:
         quantities
             filter [ item -> unitOfAmount -> financialUnit = financialUnit ]
 
@@ -137,10 +135,10 @@ func Create_Quantity: <"Create Quantity with given amount and unit of amount.">
 	output:
 		quantity Quantity (1..1)
 
-	assign-output quantity -> amount:
+	set quantity -> amount:
 		amount
 
-	assign-output quantity -> unitOfAmount:
+	set quantity -> unitOfAmount:
 		unitOfAmount
 
 func Create_UnitType: <"Create UnitType with given currency or financial unit.">
@@ -154,10 +152,10 @@ func Create_UnitType: <"Create UnitType with given currency or financial unit.">
 	condition:
 		currency exists or financialUnit exists
 
-	assign-output unitType -> currency:
+	set unitType -> currency:
 		currency
 
-	assign-output unitType -> financialUnit:
+	set unitType -> financialUnit:
 		financialUnit
 
 func SelectFromVector: <"Selects a single value from a vector (list of numbers), i.e. result = val[index].  Returns null if the supplied vector is empty or if the supplied index is out of range.  Returns the element of the vector at the supplied index.">

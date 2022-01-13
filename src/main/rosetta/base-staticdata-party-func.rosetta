@@ -8,23 +8,23 @@ func Create_Counterparty: <"Constructs a Counterparty given a party and a counte
 	output:
 		counterparty Counterparty (1..1)
 
-	assign-output counterparty -> partyReference: <"Party serves the role of a key.">
+	set counterparty -> partyReference: <"Party serves the role of a key.">
 		party 
 
-	assign-output counterparty -> role:
+	set counterparty -> role:
 		role
 
 func Create_PartyRole: <"Constructs a PartyRole given a party and party role enumeration value.">
 	inputs:
-		party Party(1..1)
-		role PartyRoleEnum(1..1)
+		party Party (1..1)
+		role PartyRoleEnum (1..1)
 	output:
 		partyRole PartyRole (1..1)
 
-	assign-output partyRole -> partyReference:
+	set partyRole -> partyReference:
 		party
 
-	assign-output partyRole -> role:
+	set partyRole -> role:
 		role
 
 func ExtractCounterpartyByRole: <"Extracts from a list of Counterparty data types, the Counterparty that corresponds to the role i.e. Party1 or Party2.">
@@ -34,12 +34,10 @@ func ExtractCounterpartyByRole: <"Extracts from a list of Counterparty data type
 	output:
 		counterparty Counterparty (0..1) <"The counterparty with specified counterparty role.">
 
-    alias filteredCounterparties:
+    set counterparty:
         counterparties
             filter [ item -> role = roleEnumToExtract ]
-
-    assign-output counterparty:
-        filteredCounterparties only-element
+            only-element
 
 func ExtractAncillaryPartyByRole: <"Extracts from a list of AncillaryParty data types, the AncillaryParty that corresponds to the AncillaryRoleEnum.">
 	inputs:
@@ -48,12 +46,10 @@ func ExtractAncillaryPartyByRole: <"Extracts from a list of AncillaryParty data 
 	output:
 		ancillaryParty AncillaryParty (0..1) <"The ancillary party with specified ancillary role.">
 
-    alias filteredAncillaryParties:
+    set ancillaryParty:
         ancillaryParties
             filter [ item -> role = roleEnumToExtract ]
-
-    assign-output ancillaryParty:
-        ancillaryParties only-element
+            only-element
 
 func ReplaceParty: <"Removes the old party, and adds the new party.">
 	inputs:
@@ -63,7 +59,7 @@ func ReplaceParty: <"Removes the old party, and adds the new party.">
 	output:
 		updatedParties Party (0..*) <"The updated list of parties.">
 
-    set updatedParties:
+    add updatedParties:
         parties
             map [ if item = oldParty then newParty else item ]
 
@@ -74,11 +70,8 @@ func Create_PayerReceiver:
 	output:
 		payerReceiver PayerReceiver (1..1)
 
-	assign-output payerReceiver -> payer:
-		payer
-
-	assign-output payerReceiver -> receiver:
-		receiver
+	set payerReceiver -> payer: payer
+	set payerReceiver -> receiver: receiver
 
 func FilterPartyRole: <"Filters the list of partyRoles based on the provided partyRoleEnum.">
 	inputs:
@@ -87,6 +80,6 @@ func FilterPartyRole: <"Filters the list of partyRoles based on the provided par
 	output:
 		filteredPartyRoles PartyRole (0..*)
 
-	set filteredPartyRoles:
+	add filteredPartyRoles:
 	    partyRoles
 	        filter [ item -> role = partyRoleEnum ]

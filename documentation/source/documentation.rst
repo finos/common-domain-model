@@ -608,7 +608,7 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	assign-output is_product:
+	set is_product:
 		Qualify_BaseProduct_Inflation(economicTerms) = True
 		and Qualify_SubProduct_FixedFloat(economicTerms) = True
 		and Qualify_Transaction_ZeroCoupon(economicTerms) = True
@@ -1236,7 +1236,7 @@ One distinction with the product approach is that the ``intent`` qualification i
         businessEvent BusinessEvent(1..1)
     output: is_event boolean (1..1)
     alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
-    assign-output is_event:
+    set is_event:
         (businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
         and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
             or (businessEvent -> primitives -> quantityChange exists and transfer exists)
@@ -2020,7 +2020,7 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
      if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
    alias dayCountFraction:
      DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date, calculationPeriod)
-   assign-output floatingAmount:
+   set floatingAmount:
      calculationAmount * (rate + spread) * dayCountFraction
 
 Day Count Fraction
@@ -2044,7 +2044,7 @@ The CDM process model eliminates the need for implementators to interpret the lo
 	alias endDay: Min(calculationPeriod -> endDate -> day, 30)
 	alias startDay: Min(calculationPeriod -> startDate -> day, 30)
 
-	assign-output result:
+	set result:
 		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
 Utility Function
@@ -2084,18 +2084,18 @@ Some of those calculations are presented below:
 		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
 	alias equityPerformance:
 	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-	 assign-output equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount:
+	 set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount:
 	 	Abs(equityPerformance)
-	 assign-output equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency:
+	 set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency:
          ResolveEquityInitialPrice(
 	 		tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
 	 		tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
 	 		) -> unitOfAmount -> currency
-	assign-output equityCashSettlementAmount -> payerReceiver -> payer:
+	set equityCashSettlementAmount -> payerReceiver -> payer:
 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
-	assign-output equityCashSettlementAmount -> payerReceiver -> receiver:
+	set equityCashSettlementAmount -> payerReceiver -> receiver:
 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
-    assign-output equityCashSettlementAmount -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
+    set equityCashSettlementAmount -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
 
 .. code-block:: Haskell
@@ -2111,7 +2111,7 @@ Some of those calculations are presented below:
 		initialPrice->amount
 	alias finalPriceValue:
 		finalPrice->amount
-	assign-output rateOfReturn:
+	set rateOfReturn:
 		(finalPriceValue - initialPriceValue) / initialPriceValue
 
 Initial Margin
@@ -2158,12 +2158,12 @@ Some of those calculations are presented below:
       (baseCurrency = minimumTransferAmount -> unitOfAmount -> currency
       and (baseCurrency = disputedDeliveryAmount -> unitOfAmount -> currency))
 
-    assign-output result -> amount:
+    set result -> amount:
       if undisputedDeliveryAmount >= minimumTransferAmount -> amount
       then RoundToNearest(undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up)
       else 0.0
 
-    assign-output result -> unitOfAmount -> currency:
+    set result -> unitOfAmount -> currency:
       baseCurrency
 
 .. code-block:: Haskell
@@ -2199,11 +2199,11 @@ Some of those calculations are presented below:
          ( baseCurrency = minimumTransferAmount -> currency )
 	   and ( baseCurrency = disputedReturnAmount -> currency )
 
-       assign-output result -> amount:
+       set result -> amount:
          if undisputedReturnAmount >= minimumTransferAmount -> amount
 	 then RoundToNearest( undisputedReturnAmount, rounding -> returnAmount, RoundingModeEnum -> Down )
 	 else 0.0
-       assign-output result -> currency:
+       set result -> currency:
          baseCurrency
 	 
 Billing
@@ -2231,17 +2231,17 @@ The data type and function to generate a Security Lending Invoice:
     output:
       invoice SecurityLendingInvoice (1..1) <"Produces the Security Lending Invoice">
 
-      assign-output invoice->sendingParty:
+      set invoice->sendingParty:
         instruction->sendingParty
-      assign-output invoice->receivingParty:
+      set invoice->receivingParty:
 	instruction->receivingParty	
-      assign-output invoice->billingStartDate:
+      set invoice->billingStartDate:
 	instruction->billingStartDate
-      assign-output invoice->billingEndDate:
+      set invoice->billingEndDate:
 	instruction->billingEndDate
-      assign-output invoice -> billingRecord:
+      set invoice -> billingRecord:
 	Create_BillingRecords (instruction -> billingRecordInstruction)
-      assign-output invoice->billingSummary:
+      set invoice->billingSummary:
 	Create_BillingSummary (invoice -> billingRecord)
 
 
@@ -2308,13 +2308,13 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
 	alias observation:
 		ResolveObservation([observationIdentifiers], empty)
 
-	assign-output resetPrimitive -> before:
+	set resetPrimitive -> before:
 		tradeState
 
-	assign-output resetPrimitive -> after:
+	set resetPrimitive -> after:
 		tradeState
 
-	assign-output resetPrimitive -> after -> resetHistory:
+	add resetPrimitive -> after -> resetHistory:
     	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate)
 		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
 
@@ -2340,16 +2340,16 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
  			payout -> priceReturnTerms -> valuationPriceFinal
  			else payout -> priceReturnTerms -> valuationPriceInterim
 
- 	assign-output identifiers -> observable -> productIdentifier:
+ 	add identifiers -> observable -> productIdentifier:
  		payout -> underlier -> security -> productIdentifier
 
- 	assign-output identifiers -> observationDate:
+ 	set identifiers -> observationDate:
  		ResolveEquityValuationDate(equityValuation, date)
 
- 	assign-output identifiers -> observationTime:
+ 	set identifiers -> observationTime:
  		ResolveEquityValuationTime(equityValuation, identifiers -> observable -> productIdentifier only-element)
 
- 	assign-output identifiers -> determinationMethodology -> determinationMethod:
+ 	set identifiers -> determinationMethodology -> determinationMethod:
  		equityValuation -> determinationMethod
 
 ``ResolveObservation`` provides an interface for adopters to integrate their market data systems. It specifies the input types and the output type, which ensures the integrity of the observed value.
@@ -2375,13 +2375,13 @@ The construction of the ``Reset`` in our scenario then becomes trivial, once the
  	output:
  		reset Reset (1..1)
 
- 	assign-output reset -> resetValue:
+ 	set reset -> resetValue:
  		observation -> observedValue
 
- 	assign-output reset -> resetDate:
+ 	set reset -> resetDate:
  		date
 
- 	assign-output reset -> observations:
+ 	add reset -> observations:
  		observation
 
 Workflow Step Creation
