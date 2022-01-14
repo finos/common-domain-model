@@ -225,7 +225,7 @@ The data type ``AssetCriteria`` is used to specify the definition of the
 collateral asset, this includes the following data attributes:
 
 
-.. code-block:: Haskal
+.. code-block:: Haskell
 
 type AssetCriteria: 
 
@@ -304,7 +304,7 @@ Issuer Criteria
 The data type ``IssuerCriteria`` is used to specify the issuer of a
 collateral asset, this includes the following data attributes:
 
-.. code-block:: Haskal
+.. code-block:: Haskell
 
 type IssuerCriteria: 
 
@@ -411,7 +411,7 @@ Concentration Limits
 attributes which allow concentration limits to be defined in two
 alternative ways using ``ConcentrationLimitCriteria``
 
-.. code-block:: Haskal
+.. code-block:: Haskell
 
  type ConcentrationLimit:
     concentrationLimitCriteria ConcentrationLimitCriteria (0..*)
@@ -438,7 +438,7 @@ floor (lower bound) to the identified asset, issuer or attributes. There
 are two options that allow this to be represented in value or percentage
 terms as follows:
 
-.. code-block:: Haskal
+.. code-block:: Haskell
 
   type ConcentrationLimit:
     concentrationLimitCriteria ConcentrationLimitCriteria (0..*)
@@ -630,7 +630,7 @@ applied to the following data attributes:
 Data type ``AgencyRatingCriteria`` Allows specification of the following
 related information to eligible collateral
 
-.. code-block:: Haskal
+.. code-block:: Haskell
 
  type AgencyRatingCriteria:
    qualifier QuantifierEnum (1..1)
@@ -647,7 +647,7 @@ related information to eligible collateral
    criteria specified for the asset or issuer. This expands to offer
    further granularity for details relating to the credit details
 
-.. code-block:: Haskal
+.. code-block:: Haskell
 
 type CreditNotation: 
 	agency CreditRatingAgencyEnum (1..1)
@@ -688,7 +688,7 @@ type CreditNotation:
 
   -  Developing (A rating may be raised, lowered, or affirmed)
 
-.. code-block:: Haskal
+.. code-block:: Haskell
 
  enum CreditNotationMismatchResolutionEnum:  
 	Lowest 
