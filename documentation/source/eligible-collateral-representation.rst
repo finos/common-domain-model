@@ -224,21 +224,19 @@ Asset Criteria
 The data type ``AssetCriteria`` is used to specify the definition of the
 collateral asset, this includes the following data attributes:
 
-
 .. code-block:: Haskell
 
-type AssetCriteria: 
-
-	collateralAssetType AssetType (0..*) 
-	assetCountryOfOrigin string (0..*) 
-	denominatedCurrency string (0..*)
-	agencyRating AgencyRatingCriteria (0..*)
-	maturityType MaturityTypeEnum (0..1) 
-	maturityRange PeriodRange (0..1) 
-	productIdentifier ProductIdentifier (0..*) 
-	collateralTaxonomy CollateralTaxonomy (0..*) 
-	domesticCurrencyIssued boolean (0..1) 
-	listing ListingType (0..1) 
+ type AssetCriteria:
+   collateralAssetType AssetType (0..*)
+   assetCountryOfOrigin string (0..*)
+   denominatedCurrency string (0..*)
+   agencyRating AgencyRatingCriteria (0..*)
+   maturityType MaturityTypeEnum (0..1)
+   maturityRange PeriodRange (0..1)
+   productIdentifier ProductIdentifier (0..*)
+   collateralTaxonomy CollateralTaxonomy (0..*)
+   domesticCurrencyIssued boolean (0..1)
+   listing ListingType (0..1)
 
 	condition AssetCriteriaChoice: 
 		optional choice collateralAssetType, collateralTaxonomy, productIdentifier
@@ -306,15 +304,13 @@ collateral asset, this includes the following data attributes:
 
 .. code-block:: Haskell
 
-type IssuerCriteria: 
-
-	issuerType CollateralIssuerType (0..*) 
-	issuerCountryOfOrigin string (0..*) 
-		[metadata scheme]
-	issuerName LegalEntity (0..*) 
-	issuerAgencyRating AgencyRatingCriteria (0..*) 
-	sovereignAgencyRating AgencyRatingCriteria (0..*) 
-	counterpartyOwnIssuePermitted boolean (0..1) 
+ type IssuerCriteria:
+   issuerType CollateralIssuerType (0..*)
+   issuerCountryOfOrigin string (0..*)
+   issuerName LegalEntity (0..*)
+   issuerAgencyRating AgencyRatingCriteria (0..*)
+   sovereignAgencyRating AgencyRatingCriteria (0..*)
+   counterpartyOwnIssuePermitted boolean (0..1)
 
 -  ``issuerType`` Represents a filter based on
    the type of entity issuing the asset.
@@ -414,9 +410,9 @@ alternative ways using ``ConcentrationLimitCriteria``
 .. code-block:: Haskell
 
  type ConcentrationLimit:
-    concentrationLimitCriteria ConcentrationLimitCriteria (0..*)
-    valueLimit MoneyRange (0..1)
-    percentageLimit NumberRange (0..1)
+   concentrationLimitCriteria ConcentrationLimitCriteria (0..*)
+   valueLimit MoneyRange (0..1)
+   percentageLimit NumberRange (0..1)
 
 *Generic method* : If you wish to apply a concentration limit to a set
 of pre-defined eligible collateral details in the CDM, you would use
@@ -440,10 +436,10 @@ terms as follows:
 
 .. code-block:: Haskell
 
-  type ConcentrationLimit:
-    concentrationLimitCriteria ConcentrationLimitCriteria (0..*)
-    valueLimit MoneyRange (0..1)
-    percentageLimit NumberRange (0..1)
+ type ConcentrationLimit:
+   concentrationLimitCriteria ConcentrationLimitCriteria (0..*)
+   valueLimit MoneyRange (0..1)
+   percentageLimit NumberRange (0..1)
 
 -  ``ValueLimit`` Specifies the value of collateral limit
    represented as a range
@@ -649,13 +645,13 @@ related information to eligible collateral
 
 .. code-block:: Haskell
 
-type CreditNotation: 
-	agency CreditRatingAgencyEnum (1..1)
-	notation string (1..1)
-	scale string (0..1)
-	debt CreditRatingDebt (0..1)
-	outlook CreditRatingOutlookEnum (0..1) 
-	creditWatch CreditRatingCreditWatchEnum (0..1)  
+ type CreditNotation:
+   agency CreditRatingAgencyEnum (1..1)
+   notation string (1..1)
+   scale string (0..1)
+   debt CreditRatingDebt (0..1)
+   outlook CreditRatingOutlookEnum (0..1)
+   creditWatch CreditRatingCreditWatchEnum (0..1)
 
 
 - ``CreditRatingAgencyEnum`` A list of enumerated values to specify the rating agency or agencies, (all major rating agencies are supported)
@@ -691,11 +687,11 @@ type CreditNotation:
 .. code-block:: Haskell
 
  enum CreditNotationMismatchResolutionEnum:  
-	Lowest 
-	Highest 
-	ReferenceAgency 
-	Average 
-	SecondBest 
+   Lowest
+   Highest
+   ReferenceAgency
+   Average
+   SecondBest
 
 -  ``mismatchResolution`` If several agency issue ratings are being specified that are not
    necessarily equivalent of each, this data attribute allows you to
