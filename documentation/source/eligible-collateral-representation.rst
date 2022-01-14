@@ -1,5 +1,5 @@
-CDM – User Documentation – Eligible Collateral Representation -Version 2 (December 2021)
-============================================================================================
+Eligible Collateral Representation
+==================================
 
 
 INTRODUCTION
