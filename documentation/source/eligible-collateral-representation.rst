@@ -410,13 +410,6 @@ Concentration Limits
 attributes which allow concentration limits to be defined in two
 alternative ways using ``ConcentrationLimitCriteria``
 
-.. code-block:: Haskell
-
- type ConcentrationLimit:
-   concentrationLimitCriteria ConcentrationLimitCriteria (0..*)
-   valueLimit MoneyRange (0..1)
-   percentageLimit NumberRange (0..1)
-
 *Generic method* : If you wish to apply a concentration limit to a set
 of pre-defined eligible collateral details in the CDM, you would use
 ``ConcentrationLimitType``, ``ConcentrationLimitTypeEnum`` which allows you to
@@ -689,15 +682,6 @@ related information to eligible collateral
 
   -  Developing (A rating may be raised, lowered, or affirmed)
 
-.. code-block:: Haskell
-
- enum CreditNotationMismatchResolutionEnum:  
-   Lowest
-   Highest
-   ReferenceAgency
-   Average
-   SecondBest
-
 -  ``mismatchResolution`` If several agency issue ratings are being specified that are not
    necessarily equivalent of each, this data attribute allows you to
    label which one has certain characteristics amongst the others, such
@@ -712,6 +696,15 @@ related information to eligible collateral
    -  Average
 
    -  Second Best
+
+.. code-block:: Haskal
+
+ enum CreditNotationMismatchResolutionEnum:
+	Lowest
+	Highest
+	ReferenceAgency
+	Average
+	SecondBest
 
 -  ``referenceAgency`` This part of the agency rating criteria again allows you to specify from the list of enumerated values for the rating agency. But in this case it is to identify the rating agency if you need to determine one from others if you used the data attribute referenceAgency in the ``CreditNotationMismatchResolutionEnum`` as outlined above.
 
