@@ -2,7 +2,7 @@ Eligible Collateral Representation
 ==================================
 
 
-INTRODUCTION
+Introduction
 ------------
 
 Within collateral documentation, it is common to detail what assets you
@@ -38,7 +38,7 @@ lengthy negotiation, misinterpretation, lack of interoperability and
 downstream operational inefficiency.
 
 
-ELIGIBLE COLLATERAL IN THE CDM
+Eligible Collateral in the CDM
 ------------------------------
 
 The CDM provides a standard digital representation of the data required
@@ -95,7 +95,7 @@ this digital representation are summarized below:
    negotiation, execution through to optimisation and settlement.
 
 
-MODELLING APPROACH
+Modelling Approach
 ------------------
 
 Scope
@@ -210,8 +210,8 @@ individual collateral types or a group of collateral assets for
 inclusion in an eligible collateral schedule.
 
 
-OVERVIEW - IDENTIFYING ELIGIBLE COLLATERAL USING THE CDM DATA STRUCTURE
------------------------------------------------------------------------
+Identifying Eligible Collateral using the CDM Data Structure
+------------------------------------------------------------
 
 A combination of data types can be used to describe the collateral
 asset, its origin and its issuer. Data type ``EligibleCollateralCriteria``
@@ -229,7 +229,9 @@ collateral asset, this includes the following data attributes:
  type AssetCriteria:
    collateralAssetType AssetType (0..*)
    assetCountryOfOrigin string (0..*)
+     [metadata scheme]
    denominatedCurrency string (0..*)
+     [metadata scheme]
    agencyRating AgencyRatingCriteria (0..*)
    maturityType MaturityTypeEnum (0..1)
    maturityRange PeriodRange (0..1)
@@ -307,6 +309,7 @@ collateral asset, this includes the following data attributes:
  type IssuerCriteria:
    issuerType CollateralIssuerType (0..*)
    issuerCountryOfOrigin string (0..*)
+     [metadata scheme]
    issuerName LegalEntity (0..*)
    issuerAgencyRating AgencyRatingCriteria (0..*)
    sovereignAgencyRating AgencyRatingCriteria (0..*)
@@ -354,7 +357,7 @@ other attributes will have more detailed options such as
 examples throughout this guide.
 
 
-TREATMENT FUNCTIONS
+Treatment Functions
 -------------------
 
 Treatment rules can be applied to eligible collateral in several ways
@@ -469,7 +472,7 @@ applied using one of the following:
 -  (False) Collateral Exclusion
 
 
-ADDITIONAL GRANULAR INFORMATION FOR ELIGIBLE COLLATERAL DATA CONSTRUCTION
+Additional Granular Information for Eligible Collateral Data Construction
 -------------------------------------------------------------------------
 
 The CDM data structure to express collateral eligibility has been
@@ -648,7 +651,9 @@ related information to eligible collateral
  type CreditNotation:
    agency CreditRatingAgencyEnum (1..1)
    notation string (1..1)
+     [metadata scheme]
    scale string (0..1)
+     [metadata scheme]
    debt CreditRatingDebt (0..1)
    outlook CreditRatingOutlookEnum (0..1)
    creditWatch CreditRatingCreditWatchEnum (0..1)
@@ -920,7 +925,7 @@ individually or together :
    constituent type.
 
 
-USING THE CDM DATA REPRESENTATION TO CONSTRUCT ELIGIBLE COLLATERAL INFORMATION
+Using The CDM Data Representation to Construct Eligible Collateral Information
 ------------------------------------------------------------------------------
 
 This user guide provides an overview of the data available to represent
