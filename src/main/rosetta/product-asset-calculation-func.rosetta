@@ -31,7 +31,7 @@ func FixedAmountCalculation: <"Calculates the fixed amount for a calculation per
 		calculationPeriod CalculationPeriodBase (1..1)
 		notional number(0..1)
 	output:
-		fixedAmount number (1..1)
+		fixedAmountDetails FixedAmountCalculationDetails (1..1)
 
 	alias fixedRate: LookupFixedRate(interestRatePayout, calculationPeriod)
 	alias calculationAmount: LookupNotionalAmount(interestRatePayout, calculationPeriod)
@@ -39,7 +39,12 @@ func FixedAmountCalculation: <"Calculates the fixed amount for a calculation per
 	alias yearFraction: CalculateYearFraction(interestRatePayout, dcf, calculationPeriod)
 	alias calcAmt : if  notional exists  then notional else calculationAmount->amount
 
-	set fixedAmount:
+    set fixedAmountDetails->calculationPeriod : calculationPeriod
+    set fixedAmountDetails->calculationPeriodNotionalAmount -> amount : calcAmt
+    set fixedAmountDetails->calculationPeriodNotionalAmount -> unitOfAmount -> currency : calculationAmount-> unitOfAmount -> currency
+    set fixedAmountDetails->fixedRate : fixedRate
+    set fixedAmountDetails->yearFraction : yearFraction
+	set fixedAmountDetails->calculatedAmount:
 		calcAmt * fixedRate * yearFraction
 
 func LookupFixedRate: <"Look up the fixed rate for a calculation period.">
