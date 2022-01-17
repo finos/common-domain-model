@@ -70,7 +70,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
         double expectedAmount = expectedNotional * expectedRate * expectedYearFrac;
         assertEquals(expectedRate, result.getAppliedRate().doubleValue());
         assertEquals(expectedYearFrac, result.getYearFraction().doubleValue());
-        assertEquals(expectedNotional, result.getCalculationPeriodNotionalAmount().getMultiplier().doubleValue(), 0.00001);
+        assertEquals(expectedNotional, result.getCalculationPeriodNotionalAmount().getAmount().doubleValue(), 0.00001);
         assertEquals(expectedAmount, result.getCalculatedAmount().doubleValue(), 0.00001);
     }
 

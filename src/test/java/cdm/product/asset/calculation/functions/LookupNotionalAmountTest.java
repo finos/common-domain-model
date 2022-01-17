@@ -46,20 +46,20 @@ public class LookupNotionalAmountTest extends AbstractFunctionTest {
 				.setAdjustedEndDate(DateImpl.of(2022, 3, 10)).build();
 
 		Money nineMillion = Money.builder()
-				.setMultiplierUnit(UnitType.builder().setCurrencyValue("USD"))
-				.setMultiplier(BigDecimal.valueOf(9_000_000));
+				.setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+				.setAmount(BigDecimal.valueOf(9_000_000));
 		Money tenMillion = Money.builder()
-				.setMultiplierUnit(UnitType.builder().setCurrencyValue("USD"))
-				.setMultiplier(BigDecimal.valueOf(10_000_000));
+				.setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+				.setAmount(BigDecimal.valueOf(10_000_000));
 		Money elevenMillion = Money.builder()
-				.setMultiplierUnit(UnitType.builder().setCurrencyValue("USD"))
-				.setMultiplier(BigDecimal.valueOf(11_000_000));
+				.setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+				.setAmount(BigDecimal.valueOf(11_000_000));
 		Money twelveMillion = Money.builder()
-				.setMultiplierUnit(UnitType.builder().setCurrencyValue("USD"))
-				.setMultiplier(BigDecimal.valueOf(12_000_000));
+				.setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+				.setAmount(BigDecimal.valueOf(12_000_000));
 		Money thirteenMillion = Money.builder()
-				.setMultiplierUnit(UnitType.builder().setCurrencyValue("USD"))
-				.setMultiplier(BigDecimal.valueOf(13_000_000));
+				.setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+				.setAmount(BigDecimal.valueOf(13_000_000));
 
 		assertEquals(thirteenMillion, func.evaluate(interestRatePayout, dec1));
 		assertEquals(elevenMillion, func.evaluate(interestRatePayout, jun1));
@@ -73,8 +73,8 @@ public class LookupNotionalAmountTest extends AbstractFunctionTest {
 				.setQuantitySchedule(NonNegativeQuantitySchedule.builder()
 						.setInitialQuantity(ReferenceWithMetaQuantity.builder()
 								.setValue(Quantity.builder()
-										.setMultiplier(BigDecimal.valueOf(9_000_000))
-										.setMultiplierUnit(UnitType.builder()
+										.setAmount(BigDecimal.valueOf(9_000_000))
+										.setUnitOfAmount(UnitType.builder()
 												.setCurrency(FieldWithMetaString.builder()
 														.setValue("USD").build())
 												.build())
