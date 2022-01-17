@@ -4,9 +4,17 @@ import cdm.base.datetime.*;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.NonNegativeQuantity;
 import cdm.base.datetime.daycount.DayCountFractionEnum;
+import cdm.base.math.UnitType;
+import cdm.observable.asset.Money;
+import cdm.observable.asset.Price;
+import cdm.observable.asset.metafields.ReferenceWithMetaPrice;
+import cdm.product.asset.FixedRateSpecification;
 import cdm.product.asset.InterestRatePayout;
 import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
+import cdm.product.asset.RateSpecification;
 import cdm.product.common.schedule.CalculationPeriodDates;
+import cdm.product.common.schedule.RateSchedule;
+import cdm.product.common.settlement.ResolvablePayoutQuantity;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -25,9 +33,13 @@ class FixedAmountTest extends AbstractFunctionTest {
     void shouldCalculate() {
 		BigDecimal price = BigDecimal.valueOf(0.06);
         
-		NonNegativeQuantity quantity = NonNegativeQuantity.builder()
-        		.setAmount(BigDecimal.valueOf(50_000_000))
-        		.build();
+//		NonNegativeQuantity quantity = NonNegativeQuantity.builder()
+//        		.setAmount(BigDecimal.valueOf(50_000_000))
+//       		.build();
+		Money notional = Money.builder()
+				.setAmount(BigDecimal.valueOf(50_000_000))
+				.setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+				.build();
         
         InterestRatePayout interestRatePayout = InterestRatePayout.builder()
                 .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build())
@@ -67,8 +79,10 @@ class FixedAmountTest extends AbstractFunctionTest {
                                         .build())
                                 .build())
                         .build())
+				.setRateSpecification(RateSpecification.builder().setFixedRate(FixedRateSpecification.builder()
+						.setRateSchedule(RateSchedule.builder().setInitialValue(ReferenceWithMetaPrice.builder().setValue(Price.builder().setAmount(price))))))
                 .build();
         
-        assertThat(fixedAmount.evaluate(interestRatePayout, price, quantity, DateImpl.of(2018, 8, 22), null), is(new BigDecimal("750000.0000")));
+        assertThat(fixedAmount.evaluate(interestRatePayout, DateImpl.of(2018, 8, 22), notional), is(new BigDecimal("750000.0000")));
     }
 }

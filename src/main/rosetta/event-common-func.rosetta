@@ -316,7 +316,7 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate)
 	set is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Increase)
-		and 
+		and
 		(
 		(businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
 			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
@@ -325,7 +325,7 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 		)
 		or
 		(
-		businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and 
+		businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and
 		(QuantityIncreased(businessEvent->instruction->before only-element,businessEvent->after) = True or
 		businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
 		)
@@ -352,7 +352,7 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 		//and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
 		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
 		//and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
-		
+
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
 	inputs:
@@ -504,7 +504,7 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 	alias afterCurrencyAmount:
 		if afterQuantity exists
 		then FilterQuantityByCurrencyExists( afterQuantity ) -> amount distinct only-element
-	
+
 	alias beforeCashPrice: <"Only works in the case of a single trade lot and price.">
 		businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> amount only-element
 
@@ -619,23 +619,21 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 		if interestRatePayout -> rateSpecification -> fixedRate exists
 		then FixedAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> initialValue -> amount,
-			interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
 			date,
 			empty)
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> initialValue -> amount,
+			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule only-element -> initialValue -> amount,
 			resets only-element -> resetValue -> amount,
 			interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
 			date,
 			empty)
-	 set cashflow -> payoutQuantity -> resolvedQuantity -> amount:
-		 performance
-	 set cashflow -> payoutQuantity -> resolvedQuantity -> unitOfAmount -> currency:
-		 interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
-	set cashflow -> payerReceiver -> payer:
+	assign-output cashflow -> cashflowAmount -> amount:
+		performance
+	assign-output cashflow -> cashflowAmount -> unitOfAmount -> currency:
+		interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+	assign-output cashflow -> payerReceiver -> payer:
 	    if performance >= 0 then interestRatePayout -> payerReceiver -> payer else interestRatePayout -> payerReceiver -> receiver
 	set cashflow -> payerReceiver -> receiver:
 	    if performance >= 0 then interestRatePayout -> payerReceiver -> receiver else interestRatePayout -> payerReceiver -> payer
@@ -797,7 +795,7 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 		Create_Price( preSplitPrice -> amount / instruction -> adjustmentRatio, preSplitPrice -> unitOfAmount, preSplitPrice -> perUnitOfAmount, preSplitPrice -> priceExpression )
 	alias postSplitPriceQuantity:
 		Create_PriceQuantity( [postSplitPrice],[postSplitNumberOfShares], empty )
-	
+
 	condition:
 		instruction -> tradeState -> trade -> contractDetails exists
 
@@ -2151,15 +2149,17 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 			interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> initialValue -> amount,
 			billingQuantity,
 			recordEndDate,
-			calculationPeriodRange)
+			calculationPeriodRange
+			ToMoney(billingQuantity))
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> initialValue -> amount,
-			reset -> resetValue -> amount,
+			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule only-element -> initialValue -> amount,
+			reset only-element -> resetValue -> amount,
             billingQuantity,
 			recordEndDate,
-			calculationPeriodRange)
+			calculationPeriodRange
+			ToMoney(billingQuantity))
 
 	set transfer -> quantity -> amount:
 		performance
@@ -2175,6 +2175,16 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 
 	set transfer -> settlementDate -> adjustedDate:
 		transferDate
+
+func ToMoney:
+	inputs:
+		quantity Quantity(1..1)
+	output:
+		money Money(1..1)
+
+	assign-output money->unitOfAmount->currency : quantity ->unitOfAmount-> currency
+	assign-output money->amount : quantity -> amount
+
 
 func Create_BillingSummary: <"Creates a billing summary to be included in a Security Lending Billing Invoice.">
 
@@ -2244,10 +2254,10 @@ func Create_TransferFromCashPrice:
 		counterparty Counterparty (2..2)
 	output:
 		transfer Transfer (1..1)
-	
+
 	condition: <"Price type must be cash price.">
 		price -> priceExpression -> priceType = PriceTypeEnum -> CashPrice
-	
+
 	set transfer -> quantity -> amount: price -> amount
 	set transfer -> quantity -> unitOfAmount: price -> unitOfAmount
 	set transfer -> settlementDate: settlementDate

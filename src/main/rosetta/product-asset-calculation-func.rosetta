@@ -29,6 +29,7 @@ func FixedAmountCalculation: <"Calculates the fixed amount for a calculation per
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
 		calculationPeriod CalculationPeriodBase (1..1)
+		notional Money(0..1)
 	output:
 		fixedAmount number (1..1)
 
@@ -36,9 +37,10 @@ func FixedAmountCalculation: <"Calculates the fixed amount for a calculation per
 	alias calculationAmount: LookupNotionalAmount(interestRatePayout, calculationPeriod)
 	alias dcf: interestRatePayout->dayCountFraction
 	alias yearFraction: CalculateYearFraction(interestRatePayout, dcf, calculationPeriod)
+	alias calcAmt : if  notional exists  then notional->amount else calculationAmount->amount
 
 	set fixedAmount:
-		calculationAmount->amount * fixedRate * yearFraction
+		calcAmt * fixedRate * yearFraction
 
 func LookupFixedRate: <"Look up the fixed rate for a calculation period.">
 	[calculation]
@@ -65,6 +67,8 @@ func FloatingAmountCalculation: <"Calculate a floating amount for a calculation 
 		interestRatePayout InterestRatePayout (1..1) <"The interest rate stream for which the floating amount calculation is being done.">
 		calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the floating rate calculation is being done.">
 		isInitialPeriod boolean (1..1) <"Is this the initial calculation period?.">
+		suppliedNotional Money(0..1)
+		suppliedRate number(0..1)
 	output:
 		result FloatingAmountCalculationDetails (1..1) <"The details of the floating rate calculation, including raw rate, rate treatment details, notional, and calculated cashlow amount.">
 
@@ -74,34 +78,37 @@ func FloatingAmountCalculation: <"Calculate a floating amount for a calculation 
 
 	// apply rate treatments/processing
 	alias processingParameters: GetFloatingRateProcessingParameters(interestRatePayout, calculationPeriod)
-	// TOOD: implement initial rate
 	alias processingDetails: ApplyFloatingRateProcessing(processingParameters, rawFloatingRate, calculationPeriod, isInitialPeriod)
-	alias appliedRate: processingDetails-> processedRate
+	alias appliedRate: if suppliedRate exists then suppliedRate else processingDetails-> processedRate
 	alias spreadExclusiveRate: processingDetails->spreadExclusiveRate
 
 	// determine notional, year fraction, and perform the final calculation
-	alias notional: LookupNotionalAmount(interestRatePayout, calculationPeriod)
+	alias periodNotional: LookupNotionalAmount(interestRatePayout, calculationPeriod)
+	alias notional  : if suppliedNotional exists then suppliedNotional else periodNotional
 	alias dcf: interestRatePayout->dayCountFraction
 	alias yearFraction: CalculateYearFraction(interestRatePayout, dcf, calculationPeriod)
 	alias annualAccrual: notional->amount * appliedRate
 	alias notionalAccrual: notional->amount * yearFraction
 	alias cashflow: notionalAccrual * appliedRate
 	alias spreadExclusiveCashflow: notionalAccrual * spreadExclusiveRate
+	alias defaultedRate : suppliedRate exists
 
 	// record results
 	set result->calculationPeriod: calculationPeriod
 	set result->calculationPeriodNotionalAmount: notional
-	set result->floatingRate: rawFloatingRateDetails
-	set result->processingDetails: processingDetails
+
+	set result->floatingRate:  if suppliedRate is absent then rawFloatingRateDetails
+
+	set result->processingDetails: if suppliedRate is absent then processingDetails
 	set result->appliedRate: appliedRate
 	// set result->notionalAmount : notional->amount
 	set result->yearFraction: yearFraction
 	set result->calculatedAmount: cashflow
-	set result->spreadExclusiveCalculatedAMount: spreadExclusiveCashflow
+	set result->spreadExclusiveCalculatedAMount: if suppliedRate is absent then spreadExclusiveCashflow
 
 func Create_CalculationPeriodBase: <"Create a CalculationPeriodBase type from CalculationPeriodData type.">
 	inputs:
-		calcPeriodData CalculationPeriodData (1..1) <"A supplied CalculationPeriodData structure.">
+		calcPeriodData CalculationPeriodData(1..1) <"A supplied CalculationPeriodData structure.">
 	output:
 		calcPeriod CalculationPeriodBase (1..1) <"The corresponding CalculationPeriodBase structure.">
 
