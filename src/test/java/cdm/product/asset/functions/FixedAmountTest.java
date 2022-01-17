@@ -65,7 +65,7 @@ class FixedAmountTest extends AbstractFunctionTest {
                         						.build())
                         				.build())
                         		.build())
-                        .setCalculationPeriodFrequency((CalculationPeriodFrequency) CalculationPeriodFrequency.builder()
+                        .setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
                                 .setRollConvention(RollConventionEnum._3)
                                 .setPeriodMultiplier(3)
                                 .setPeriod(PeriodExtendedEnum.M)
@@ -83,6 +83,6 @@ class FixedAmountTest extends AbstractFunctionTest {
 						.setRateSchedule(RateSchedule.builder().setInitialValue(ReferenceWithMetaPrice.builder().setValue(Price.builder().setAmount(price))))))
                 .build();
         
-        assertThat(fixedAmount.evaluate(interestRatePayout, DateImpl.of(2018, 8, 22), notional), is(new BigDecimal("750000.0000")));
+        assertThat(fixedAmount.evaluate(interestRatePayout, null, notional, DateImpl.of(2018, 8, 22), null), is(new BigDecimal("750000.0000")));
     }
 }

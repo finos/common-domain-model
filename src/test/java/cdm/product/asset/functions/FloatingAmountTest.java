@@ -61,7 +61,7 @@ class FloatingAmountTest extends AbstractFunctionTest{
                                             .build())
                                     .build())
                             .build())
-                    .setCalculationPeriodFrequency((CalculationPeriodFrequency) CalculationPeriodFrequency.builder()
+                    .setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
                             .setRollConvention(RollConventionEnum._3)
                             .setPeriodMultiplier(3)
                             .setPeriod(PeriodExtendedEnum.M)
@@ -80,7 +80,7 @@ class FloatingAmountTest extends AbstractFunctionTest{
     @Test
     void shouldApplyMultiplication() {
     	FloatingAmount floatingAmount = this.floatingAmount.get();
-        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, RATE,  DateImpl.of(2018, 1, 3), QUANTITY);
+        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, null,   RATE, QUANTITY, DateImpl.of(2018, 1, 3), null);
         assertThat(result, closeTo(BigDecimal.valueOf(1093750), BigDecimal.valueOf(0.0000001)));
     }
 

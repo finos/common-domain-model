@@ -619,21 +619,23 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 		if interestRatePayout -> rateSpecification -> fixedRate exists
 		then FixedAmount(
 			interestRatePayout,
+			interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> initialValue -> amount,
+            interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
 			date,
 			empty)
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule only-element -> initialValue -> amount,
+			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> initialValue -> amount,
 			resets only-element -> resetValue -> amount,
 			interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
 			date,
 			empty)
-	assign-output cashflow -> cashflowAmount -> amount:
+	set cashflow -> payoutQuantity -> resolvedQuantity -> amount:
 		performance
-	assign-output cashflow -> cashflowAmount -> unitOfAmount -> currency:
+	set cashflow -> payoutQuantity -> resolvedQuantity  -> unitOfAmount -> currency:
 		interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
-	assign-output cashflow -> payerReceiver -> payer:
+	set cashflow -> payerReceiver -> payer:
 	    if performance >= 0 then interestRatePayout -> payerReceiver -> payer else interestRatePayout -> payerReceiver -> receiver
 	set cashflow -> payerReceiver -> receiver:
 	    if performance >= 0 then interestRatePayout -> payerReceiver -> receiver else interestRatePayout -> payerReceiver -> payer
@@ -2146,20 +2148,18 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 		if interestRatePayout -> rateSpecification -> fixedRate exists
 		then FixedAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> initialValue -> amount,
+			interestRatePayout -> rateSpecification -> fixedRate ->  rateSchedule -> initialValue -> amount,
 			billingQuantity,
 			recordEndDate,
-			calculationPeriodRange
-			ToMoney(billingQuantity))
+			calculationPeriodRange)
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule only-element -> initialValue -> amount,
-			reset only-element -> resetValue -> amount,
+			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule  -> initialValue -> amount,
+			reset  -> resetValue -> amount,
             billingQuantity,
 			recordEndDate,
-			calculationPeriodRange
-			ToMoney(billingQuantity))
+			calculationPeriodRange)
 
 	set transfer -> quantity -> amount:
 		performance
