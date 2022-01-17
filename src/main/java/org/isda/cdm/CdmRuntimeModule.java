@@ -4,8 +4,6 @@ import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
 import cdm.event.common.functions.UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity;
 import cdm.event.common.functions.UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl;
-import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmounts;
-import cdm.legalagreement.csa.functions.SumPostedCreditSupportItemAmountsImpl;
 import cdm.observable.asset.fro.functions.*;
 import cdm.observable.event.functions.ResolveObservationAverage;
 import cdm.observable.event.functions.ResolveObservationAverageImpl;
@@ -41,25 +39,19 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ValidatorFactory.class).to(bindValidatorFactory());
 
 		// functions
-		bind(Abs.class).to(bindAbs());
 		bind(CalculationPeriod.class).to(bindCalculationPeriod());
-		bind(Sum.class).to(bindSum());
-		bind(AppendToVector.class).to(bindAppendToVector());
 		bind(SelectFromVector.class).to(bindSelectFromVector());
 		bind(LastInVector.class).to(bindLastInVector());
 		bind(VectorOperation.class).to(bindVectorOperation());
-		bind(VectorScalarOperation.class).to(bindVectorScalarOperation());
 		bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
 
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
-		bind(SumPostedCreditSupportItemAmounts.class).to(bindSumPostedCreditSupportItemAmounts());
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(RoundToPrecision.class).to(bindRoundToPrecision());
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
 		bind(SelectDate.class).to(bindSelectDate());
-		bind(AppendDateToList.class).to(bindAppendDateToList());
 		bind(LastInDateList.class).to(bindLastInDateList());
 		bind(AddDays.class).to(bindAddDays());
 		bind(PopOffDateList.class).to(bindPopOffDateList());
@@ -98,16 +90,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		return LastInVectorImpl.class;
 	}
 
-	protected Class<? extends AppendToVector> bindAppendToVector() {
-		return AppendToVectorImpl.class;
-	}
-
 	protected Class<? extends VectorOperation> bindVectorOperation() {
 		return VectorOperationImpl.class;
-	}
-
-	protected Class<? extends VectorScalarOperation> bindVectorScalarOperation() {
-		return VectorScalarOperationImpl.class;
 	}
 
 	protected Class<? extends VectorGrowthOperation> bindVectorGrowthOperation() {
@@ -128,24 +112,12 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	// Functions
 
-	protected Class<? extends Abs> bindAbs() {
-		return AbsImpl.class;
-	}
-
 	protected Class<? extends CalculationPeriod> bindCalculationPeriod() {
 		return CalculationPeriodImpl.class;
 	}
 
-	protected Class<? extends Sum> bindSum() {
-		return SumImpl.class;
-	}
-
 	protected Class<? extends ResolveEquityInitialPrice> bindResolveEquityInitialPrice() {
 		return ResolveEquityInitialPriceImpl.class;
-	}
-
-	protected Class<? extends SumPostedCreditSupportItemAmounts> bindSumPostedCreditSupportItemAmounts() {
-		return SumPostedCreditSupportItemAmountsImpl.class;
 	}
 
 	protected Class<? extends RoundToNearest> bindRoundToNearest() {
@@ -166,10 +138,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends SelectDate> bindSelectDate() {
 		return SelectDateImpl.class;
-	}
-
-	protected Class<? extends AppendDateToList> bindAppendDateToList() {
-		return AppendDateToListImpl.class;
 	}
 
 	protected Class<? extends LastInDateList> bindLastInDateList() {

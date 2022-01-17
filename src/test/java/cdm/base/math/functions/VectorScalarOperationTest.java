@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class VectorScalarOperationsImplTest extends AbstractFunctionTest {
+public class VectorScalarOperationTest extends AbstractFunctionTest {
 
 	@Inject
 	private VectorScalarOperation vectorScalarOp;
