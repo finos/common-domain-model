@@ -55,7 +55,7 @@ In the example below, the input list of strings are concatenated together along 
 
 _Example_
 
-In the example below, the input list of numbers are aggregated to find the maximum number.
+In the example below, the input list of numbers are aggregated to find the maximum number.  Given two list items, `n1` and `n2`; keep the greater item and discard the lesser item. 
 
 ```
  func FindMaxNumber: 
