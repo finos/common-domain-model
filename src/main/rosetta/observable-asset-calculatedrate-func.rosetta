@@ -94,12 +94,14 @@ func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of 
 	alias observationDates: GenerateObservationDates(observationPeriod, businessDays, lockoutDays)
 
 	// work out the date list for calculating weights, then calculate the weights
-	alias weightingDates: DetermineWeightingDates(calculationParams, observationDates, observationPeriod, adjustedCalculationPeriod, lockoutDays)
-	alias weights: GenerateWeights(weightingDates)
+//	alias weightingDates: DetermineWeightingDates(calculationParams, observationDates, observationPeriod, adjustedCalculationPeriod, lockoutDays)
+//	alias weights: GenerateWeights(weightingDates)
 
 	// record the results
 	add results->observationDates: observationDates
-	add results->weights: weights
+//	add results->weights: weights
+    add results->weights: GenerateWeightings(calculationParams, results->observationDates, observationPeriod, adjustedCalculationPeriod, lockoutDays)
+
 
 // possibly record some other intermediate results to aid debugging/understanding?
 func ComputeCalculationPeriod: <"Determine the calculation period to use for computing the calculated rate (it may not be the same as the normal calculation period, for instance if the rate is set in advance.">
@@ -190,12 +192,27 @@ func GenerateObservationDates: <"Generate the list of observation dates given an
 
 	add observationDates: obsDates
 
+func GenerateWeightings: <"Determine the weighting dates and the corresponding weights to be used for weighting observation.">
+	[calculation]
+	inputs:
+		calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
+		observationDates date (0..*)
+		observationPeriod CalculationPeriodBase (1..1) <"The resulting observation period.">
+		adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being comnputed, after any adjustment.">
+		lockoutDays int (1..1) <"The number of lockout day.">
+	output:
+		weights number (0..*) <"A vector of weights, typically numbers between 1 and 3.">
+
+	alias weightingDates: DetermineWeightingDates(calculationParams, observationDates, observationPeriod, adjustedCalculationPeriod, lockoutDays)
+
+	set weights:  GenerateWeights(weightingDates)
+
 func DetermineWeightingDates: <"Determine the dates to be used for weighting observation.">
 	[calculation]
 	inputs:
 		calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
 		observationDates date (0..*)
-		observationPeriod CalculationPeriodBase (1..1) <"The resulting observation perio.">
+		observationPeriod CalculationPeriodBase (1..1) <"The resulting observation period.">
 		adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being comnputed, after any adjustment.">
 		lockoutDays int (1..1) <"The number of lockout day.">
 	output:

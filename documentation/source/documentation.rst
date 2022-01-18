@@ -2002,7 +2002,7 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
 
 .. code-block:: Haskell
 
- func FloatingAmount:
+func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if 'Compounding' is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
    [calculation]
    inputs:
      interestRatePayout InterestRatePayout (1..1)
@@ -2023,7 +2023,7 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
    set floatingAmount:
      calculationAmount * (rate + spread) * dayCountFraction
 
-Day Count Fraction
+Year Fraction
 """"""""""""""""""
 
 The CDM process model incorporates calculations that represent the set of day count fraction rules specified as part of the ISDA 2006 Definitions, e.g. the *ACT/365.FIXED* and the *30E/360* day count fraction rules. Although these rules are widely accepted in international markets, many of them have complex nuances which can lead to inconsistent implementations and potentially mismatched settlements.
@@ -2034,16 +2034,26 @@ The CDM process model eliminates the need for implementators to interpret the lo
 
 .. code-block:: Haskell
 
- func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
+unc YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
 	[calculation]
 
-	alias startYear: calculationPeriod -> startDate -> year
-	alias endYear: calculationPeriod -> endDate -> year
-	alias startMonth: calculationPeriod -> startDate -> month
-	alias endMonth: calculationPeriod -> endDate -> month
-	alias endDay: Min(calculationPeriod -> endDate -> day, 30)
-	alias startDay: Min(calculationPeriod -> startDate -> day, 30)
+	alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
+		startDate -> year
 
+	alias endYear: <"The year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
+		endDate -> year
+
+	alias startMonth: <"The calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
+		startDate -> month
+
+	alias endMonth: <"The calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
+		endDate -> month
+
+	alias endDay: <"The first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30.">
+		Min(endDate -> day, 30)
+
+	alias startDay: <"The calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30.">
+		Min(startDate -> day, 30)
 	set result:
 		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
