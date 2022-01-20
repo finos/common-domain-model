@@ -24,12 +24,11 @@ func ForwardFX:
 func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
 	[calculation]
 	inputs:
-		interestRatePayout InterestRatePayout (1..1)
-		fixedRate number (1..1)
-		quantity Quantity (1..1)
-		date date (1..1)
-		calculationPeriodData CalculationPeriodData (0..1)
-
+		interestRatePayout InterestRatePayout (1..1) <"description of the interest rate payout">
+		fixedRate number (1..1)  <"This is currently ignored and retrieved from the interest rate payout">
+		quantity Quantity (0..1) <"The notional quantity to use">
+		date date (0..1) <"The date to use to obtain the calculation period">
+		calculationPeriodData CalculationPeriodData (0..1) <"full details of the calculation period">
 	output:
 		fixedAmount number (1..1)
 
@@ -48,12 +47,12 @@ func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a
 func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if 'Compounding' is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
 	[calculation]
 	inputs:
-		interestRatePayout InterestRatePayout (1..1)
-		spread number (1..1)
-		rate number (1..1)
-		quantity Quantity (1..1)
-		date date (1..1)
-		calculationPeriodData CalculationPeriodData (0..1)
+		interestRatePayout InterestRatePayout (1..1) <"full description of the interest rate payout">
+		spread number (1..1)    <"the spread on the floating rate, currently unused and retrieved from the payout">
+		rate number  (0..1)      <"the floating rate to use; if omitted it is retrieved/calculated based on the interest rate payout and floating index ">
+		quantity Quantity (0..1)  <"the notional; if omitted it is obtained from the payout">
+		date date (0..1) <"The date to use to obtain the calculation period">
+		calculationPeriodData CalculationPeriodData (0..1) <"full details of the calculation period">
 	output:
 	    floatingAmount number (1..1)
 

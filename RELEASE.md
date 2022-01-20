@@ -4,7 +4,13 @@ _What is being released?_
 
 The FixedAmount and FloatingAmount functions have been updated to leverage the FixedAmountCalculation and FloatingAmountCalculation functions releaseed in 2.120.1.
 
-The DayCountFraction function has been retired; it is replaced by YearFraction (from releasee 2.120.1), which is less dependent on InterestRatePayout structures and so is more generally usable. 
+The DayCountFraction function has been retired; it is replaced by YearFraction (from releasee 2.120.1), which is less dependent on InterestRatePayout structures and so is more generally usable.
+
+The FixedAmountCalculation function has been enhanced to return detailed intermediate results.
+
+A few bugs in the floating amount calculations have bee corrected, including
+- Handling of the notional was incorrect in a couple of functions 
+- Handling of daily caps and floors on daily calculated (average and compound) was incorrect
 
 _Background_
 
