@@ -1230,20 +1230,22 @@ One distinction with the product approach is that the ``intent`` qualification i
 
 .. code-block:: Haskell
 
- func Qualify_Termination:
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent(1..1)
-    output: is_event boolean (1..1)
-    alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
-    set is_event:
-        (businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
+func Qualify_Termination:
+	[qualification BusinessEvent]
+	inputs:
+		businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
+	set is_event:
+		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
         and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
             or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-            or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction count = 1))
-        and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
+            or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
+                and businessEvent -> instruction -> primitiveInstruction count = 1))
+		and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
+		    or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
 		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated or
-	  	    businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
+	  	    businessEvent -> instructionFunction = InstructionFunctionEnum -> QuantityChange or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
