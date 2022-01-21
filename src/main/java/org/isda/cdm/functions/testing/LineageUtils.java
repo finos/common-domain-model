@@ -1,16 +1,15 @@
 package org.isda.cdm.functions.testing;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+import cdm.event.common.Lineage;
+import cdm.event.workflow.WorkflowStep;
+import cdm.event.workflow.metafields.ReferenceWithMetaWorkflowStep;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.process.PostProcessor;
 
-import cdm.event.common.Lineage;
-import cdm.event.workflow.WorkflowStep;
-import cdm.event.workflow.metafields.ReferenceWithMetaWorkflowStep;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class LineageUtils {
 

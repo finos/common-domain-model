@@ -1,7 +1,6 @@
 package cdm.base.math.functions;
 
 import cdm.base.math.RoundingDirectionEnum;
-import cdm.base.math.RoundingModeEnum;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

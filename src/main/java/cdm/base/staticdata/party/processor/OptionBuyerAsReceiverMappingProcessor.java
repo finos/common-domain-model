@@ -1,6 +1,5 @@
 package cdm.base.staticdata.party.processor;
 
-import cdm.base.staticdata.party.PayerReceiver;
 import cdm.legalagreement.contract.processor.PartyMappingHelper;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -13,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
-import static cdm.base.staticdata.party.PayerReceiver.*;
+import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 
 /**
  * FpML mapping processor.

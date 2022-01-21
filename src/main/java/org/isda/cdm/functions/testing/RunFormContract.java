@@ -1,6 +1,9 @@
 package org.isda.cdm.functions.testing;
 
-import cdm.event.common.*;
+import cdm.event.common.BusinessEvent;
+import cdm.event.common.ContractDetails;
+import cdm.event.common.ContractFormationInstruction;
+import cdm.event.common.TradeState;
 import cdm.event.common.functions.Create_ContractFormation;
 import cdm.event.position.PositionStatusEnum;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;

@@ -1,6 +1,5 @@
 package cdm.product.common.settlement.processor;
 
-import cdm.base.math.UnitType;
 import cdm.observable.asset.CapFloorEnum;
 import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
@@ -16,7 +15,8 @@ import com.rosetta.model.metafields.MetaFields;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static cdm.base.math.UnitType.*;
+import static cdm.base.math.UnitType.UnitTypeBuilder;
+import static cdm.base.math.UnitType.builder;
 import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
 import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencablePriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;

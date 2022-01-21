@@ -17,7 +17,7 @@ public class CtaSubstitutedRegimeMappingProcessor extends MappingProcessor {
 
 	public CtaSubstitutedRegimeMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);
-		this.helper = new SubstitutedRegimeHelper(modelPath, mappingContext.getMappings());
+		this.helper = new SubstitutedRegimeHelper(modelPath, mappingContext.getMappings(), mappingContext.getSynonymToEnumMap());
 	}
 
 	@Override

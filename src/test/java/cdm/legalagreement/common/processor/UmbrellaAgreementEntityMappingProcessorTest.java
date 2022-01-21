@@ -39,7 +39,7 @@ class UmbrellaAgreementEntityMappingProcessorTest {
 		mappings.add(getEmptyMapping(getXmlPath("principal_name", 1), PRINCIPAL_NAME_1));
 		mappings.add(getEmptyMapping(getXmlPath("lei", 1), LEI_1));
 		mappings.add(getEmptyMapping(getXmlPath("additional", 1), ADDITIONAL_1));
-		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
+		MappingContext context = new MappingContext(mappings, Collections.emptyMap(), null, null);
 
 		UmbrellaAgreement.UmbrellaAgreementBuilder parent = UmbrellaAgreement.builder();
 		List<UmbrellaAgreementEntityBuilder> builders = Collections.singletonList(mock(UmbrellaAgreementEntityBuilder.class));
@@ -77,7 +77,7 @@ class UmbrellaAgreementEntityMappingProcessorTest {
 		mappings.add(getEmptyMapping(getXmlPath("principal_name"), PRINCIPAL_NAME_0));
 		mappings.add(getEmptyMapping(getXmlPath("lei"), LEI_0));
 		mappings.add(getEmptyMapping(getXmlPath("additional"), ADDITIONAL_0));
-		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
+		MappingContext context = new MappingContext(mappings, Collections.emptyMap(), null, null);
 
 		UmbrellaAgreement.UmbrellaAgreementBuilder parent = UmbrellaAgreement.builder();
 		List<UmbrellaAgreementEntityBuilder> builders = Collections.singletonList(mock(UmbrellaAgreementEntityBuilder.class));
