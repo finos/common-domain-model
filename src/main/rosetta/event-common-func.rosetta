@@ -445,8 +445,8 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
                 and businessEvent -> instruction -> primitiveInstruction count = 1))
 		and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
 		    or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
-		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
-		    or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
+		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated or
+	  	    businessEvent -> instructionFunction = InstructionFunctionEnum -> QuantityChange or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
 func Qualify_TradeWarehousePositionNotification:
 	[qualification BusinessEvent]
@@ -2312,11 +2312,11 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 
 	alias quantityChange: <"Apply quantity change if instructions exist.">
 		if primitiveInstruction -> quantityChange is absent then execution
-		else Create_QuantityChangePrimitive( primitiveInstruction -> quantityChange only-element, execution /*after*/ ) -> after
+		else Create_QuantityChangePrimitive( primitiveInstruction -> quantityChange only-element, execution) -> after
 
 	alias termsChange: <"Apply terms change if instructions exist.">
 		if primitiveInstruction -> termsChange is absent then quantityChange
-		else Create_TermsChangePrimitive( primitiveInstruction -> termsChange only-element, quantityChange /*after*/ )
+		else Create_TermsChangePrimitive( primitiveInstruction -> termsChange only-element, quantityChange)
 
 	alias partyChange: <"Apply party change if instructions exist.">
 		if primitiveInstruction -> partyChange is absent then termsChange
@@ -2329,10 +2329,14 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 
 	alias contractFormation: <"Create contract formation if instructions exist.">
 		if primitiveInstruction -> contractFormation is absent then partyChange
-		else Create_ContractFormationPrimitive( primitiveInstruction -> contractFormation only-element, partyChange /*after*/ ) -> after
+		else Create_ContractFormationPrimitive( primitiveInstruction -> contractFormation only-element, partyChange) -> after
 
 	condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
 		primitiveInstruction -> split is absent
 
 	set after: <"Initiate applying primitive instructions.">
 		contractFormation
+
+	set after -> state -> closedState -> state:
+		if contractFormation -> state -> positionState = PositionStatusEnum -> Closed
+			then ClosedStateEnum -> Terminated
