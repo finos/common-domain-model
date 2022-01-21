@@ -31,7 +31,7 @@ class SumTest extends AbstractFunctionTest {
 	void shouldSumEmptyList() {
 		BigDecimal total = sum.evaluate(Collections.emptyList());
 
-		assertEquals(BigDecimal.valueOf(0), total);
+		assertEquals(BigDecimal.valueOf(0.0), total);
 	}
 
 

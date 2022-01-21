@@ -276,9 +276,8 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 	ancillaryParty AncillaryParty (0..*) <"Specifies the parties with ancillary roles in the transaction. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this AncillaryParty type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
 	adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
 
-	// TODO: this should be able to iterate on each trade lot
-	condition PriceQuantityTriangulation:
-		PriceQuantityTriangulation(tradeLot -> priceQuantity -> quantity, tradeLot -> priceQuantity -> price) = True
+	condition PriceQuantityTriangulation: <"Check PriceQuantity triangulation for each TradeLot.">
+	   PriceQuantityTriangulation( tradeLot ) = True
 
 	condition NotionalAdjustment: <"As the adjustment attribute applies to return swaps, the equity payout needs to be present alongside it.">
 		if adjustment exists

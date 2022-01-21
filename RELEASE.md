@@ -1,74 +1,90 @@
-# *DSL Syntax - List syntax compatibility for only-element and distinct*
+# *User Documentation - CDM Eligible Collateral Representation*
 
 _What is being released_
 
-This release adds list syntax compatibility for the existing keywords `only-element` and `distinct`.  Previously the list operation (e.g. `map`, `filter` etc) had to be used in a separate function step.  All applicable `distinct` and `only-element` usages in the model have been updated.
+This release adds Eligible Collateral Representation user documentation to the documentation website.  For reference, the document has already had a peer review and has previously been published as a PDF to ISDA members.
+
+_Review Directions_
+
+- [Eligible Collateral Representation - Documentation](https://docs.rosetta-technology.io/cdm/documentation/source/eligible-collateral-representation.html)
+
+# *DSL Syntax - Reduce keyword to merge or aggregate a list*
+
+_What is being released_
+
+This release introduces the `reduce` keyword to merge or aggregate the items of a list into a single item based on an expression.  The `reduce` keyword can be used to implement simple operations such as summing a list of numbers, joining a list of strings, or finding a maximum or minimum value in a list, and well as operations on complex objects.
+
+Upcoming releases will contain additional syntax to more concisely specify simple operations `sum`, `join`, `min` and `max`.
+
+_Syntax_
+
+```reduce <parameter1>, <parameter1> [ <expression to merge or aggregate any two list items, parameter1 and parameter2> ]```
 
 _Example_
 
+In the example below, the input list of numbers are combined by addition.
+
 ```
- func GetDrivingLicence: 
+ func SumNumbers: 
     inputs:
-        drivingLicences DrivingLicence (0..*)
-        licenceNumber string (1..1)
+        numbers number (0..*)
     output:
-        drivingLicence DrivingLicence (0..1)
- 
-    set drivingLicence:
-        drivingLicences
-            filter [ item -> licenceNumber = licenceNumber ]
-            only-element
+        total number (1..1)
+
+    set total:
+        numbers 
+            reduce a, b [ a + b ]
+```
+
+_Example_
+
+In the example below, the input list of strings are concatenated together along with a delimiter.  Given a list "a", "b", "c", and a delimiter ",", the resulting string would be "a,b,c".
+
+```
+ func JoinStrings: 
+    inputs:
+        strings string (0..*)
+        delimiter string (1..1)
+    output:
+        result string (1..1)
+
+    set result:
+        strings 
+            reduce a, b [ a + delimiter + b ]
+```
+
+_Example_
+
+In the example below, the input list of numbers are aggregated to find the maximum number.  Given two list items, `n1` and `n2`; keep the greater item and discard the lesser item. 
+
+```
+ func FindMaxNumber: 
+    inputs:
+        numbers number (0..*)
+    output:
+        max number (1..1)
+
+    set max:
+        numbers 
+            reduce n1, n2 [ if n1 > n2 then n1 else n2 ]
+```
+
+_Example_
+
+In the example below, the input list of `Vehicle` are aggregated to find the vehicle with the most powerful engine.
+
+```
+ func FindVehicleWithMaxPower: 
+    inputs:
+        vehicles Vehicle (0..*)
+    output:
+        vehicleWithMaxPower Vehicle (1..1)
+
+    set vehicleWithMaxPower:
+        vehicles 
+            reduce v1, v2 [ if v1 -> specification -> engine -> power > v2 -> specification -> engine -> power then v1 else v2 ]
 ```
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser, and search for usages such as `ExtractCounterpartyByRole` and `ExtractAncillaryPartyByRole`.
-
-# *DSL Syntax - Function output assignment syntax*
-
-The existing function syntax `assign-output` appends list items to any existing list items.  However, it is often necessary to replace the items of the list, and this requires a new syntax to differentiate the two use-cases.  New keywords `set` and `add` have been introduced for function output assignment, which replace the existing `assign-output` functionality.  
-All functions have been updated to use the new syntax.
-
-_Example_
-
-```
- func AddDrivingLicenceToVehicleOwnership:
-    inputs:
-        vehicleOwnership VehicleOwnership (1..1)
-        newDrivingLicence DrivingLicence (1..1)
-    output:
-        updatedVehicleOwnership VehicleOwnership (1..1)
-
-    set updatedVehicleOwnership: vehicleOwnership
-    
-    // add newDrivingLicence to existing list of driving licences
-    add updatedVehicleOwnership -> drivingLicence: newDrivingLicence
-```
-
-_Example_
-
-``` 
- func UpdateDateOfRenewal:
-    inputs:
-        vehicleOwnership VehicleOwnership (1..1)
-        newDateOfRenewal date (1..1)
-    output:
-        updatedVehicleOwnership VehicleOwnership (1..1)
-
-    set updatedVehicleOwnership: vehicleOwnership
-    
-    // overwrite existing list with an updated list of driving licences
-    set updatedVehicleOwnership -> drivingLicence: 
-        vehicleOwnership -> drivingLicence
-            map [ Create_DrivingLicence( 
-                        item -> countryofIssuance,
-                        item -> licenceNumber,
-                        item -> dateofIssuance,
-                        newDateOfRenewal,
-                        item -> vehicleEntitlement,
-                        item -> penaltyPoints ) ]
-```
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser, and review all functions.
+In the CDM Portal, select the Textual Browser, and search for usages such as `Sum`.
