@@ -33,7 +33,7 @@ type RelatedAgreement: <"A class for specifying the legal agreements that govern
 	legalAgreement LegalAgreement (0..1) <"The legal agreement(s) that govern the contract, when such agreement is specified as a reference part of the CDM.">
         [synonym Workflow_Event value "legalAgreement"]
 	documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">
-		[synonym ISDA_Create_1_0 value "ignore"]
+		
 
 type DocumentationIdentification: <"A class for defining the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">
 
@@ -60,7 +60,7 @@ type OtherAgreement: <"A class for defining an agreement executed between partie
 	version string (0..1) <"The version of the agreement.">
 		[metadata scheme]
 	date date (0..1) <"The date on which the agreement was signed.">
-		[synonym ISDA_Create_1_0 value "collateral_transfer_agreement_date" path "collateral_transfer_agreement"]
+		
 
 type Resource: <"Describes the resource that contains the media representation of a business event (i.e used for stating the Publicly Available Information). For example, can describe a file or a URL that represents the event. This type is an extended version of a type defined by RIXML (www.rixml.org).  Rosetta restricts the FpML implementation by not providing the ability to associated a document in hexadecimalBinary or base64Binary until such time that actual use cases will come up.">
 
@@ -90,14 +90,14 @@ type ResourceLength: <"A class to indicate the length of the resource.">
 type Agreement: <"Specification of the standard set of terms that define a legal agreement.">
 
 	creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Elections to specify a Credit Support Annex or Credit Support Deed for Intial or Variation Margin.">
-		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->documentType" = "Credit Support Annex"]
-		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->documentType" = "Credit Support Deed"]
+		
+		
 	collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">
-		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->documentType" = "Collateral Transfer Agreement"]
+		
 	securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">
-		[synonym ISDA_Create_1_0 value "partyA" path "answers" set when "document->documentType" = "Security Agreement"]
+		
 	masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
-		[synonym ISDA_Create_1_0 value "ignore"]
+		
 		
 	condition: one-of
 
@@ -105,7 +105,7 @@ type AgreementTerms: <"Specification of the content of a legal agreement.">
 
 	agreement Agreement (1..1) <"Specification of the standard set of terms that define a legal agreement.">
 	counterparty Counterparty (2..2)
-		[synonym ISDA_Create_1_0 value "partyA" mapper "AgreementTermsParty"]
+		
 
 type LegalAgreement extends LegalAgreementBase: <"The specification of a legal agreement between two parties, including the baseline information and the optional specification of agreement terms allowing .">
 	[metadata key]
@@ -122,7 +122,7 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
 			mapper "RelatedAgreement"
 		]
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
-		[synonym ISDA_Create_1_0 value "umbrella_agreement_and_principal_identification", "umbrella_agreement_and_principal_identification" path "answers->partyA"]
+		
 	
 	condition agreementVerification: <"A validation rule to ensure that the agreement elections are associated with the correct legal agreement type as specified.">
 		if agreementTerms -> agreement -> securityAgreementElections exists
@@ -138,38 +138,38 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
 type LegalAgreementBase: <"A class describing the legal agreement baseline information, other than the specialized elections: type of legal agreement, agreement date and effective date, parties to the agreement, ... The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalAgreement class as a way to enforce a systematic choice between its attributes.">
 
 	agreementDate date (1..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
-		[synonym ISDA_Create_1_0 value "executionDate" path "answers->partyA->execution_date"]
+		
 	effectiveDate date (0..1) <"The date on which, or as of which, the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">
 	identifier Identifier (0..*) <"The legal agreement identifier. Several identifiers can be specified.">
 	agreementType LegalAgreementType (1..1) <"The type of legal agreement, identified via a set of distinct attributes: name, publisher, governing law and version, e.g. ISDA 2013 Standard Credit Support Annex English Law.">
 	contractualParty Party (2..2)  <"The two contractual parties to the legal agreement, which reference information is positioned as part of the partyInformation attribute.">
 		[metadata reference]
-		[synonym ISDA_Create_1_0 value "partyA" mapper "ContractualParty"]
+		
 	otherParty PartyRole (0..*) <"The role(s) that other party(ies) may have in relation to the legal agreement, further to the contractual parties.">
 
 type LegalAgreementType: <"A class to specify the type of legal agreement, which is extended by each legal agreement instance, such as the ISDA 2016 CSA for Initial Margin.">
 
 	name LegalAgreementNameEnum (1..1) <"The legal agreement name, e.g. Credit Support Annex for Variation Margin.">
 		[synonym AcadiaSoft_AM_1_0 value "documentName"]
-		[synonym ISDA_Create_1_0 value "documentType" path "document"]
+		
 	publisher LegalAgreementPublisherEnum (1..1) <"The legal agreement publisher, e.g. ISDA.">
 		[synonym AcadiaSoft_AM_1_0 value "publisher"]
-		[synonym ISDA_Create_1_0 value "publisher" path "document"]
+		
 	governingLaw GoverningLawEnum (0..1) <"The law governing the legal agreement, e.g. English Law, New York Law or Japanese Law.">
 		[synonym AcadiaSoft_AM_1_0 value "governingLaw"]
-		[synonym ISDA_Create_1_0 value "governingLaw" path "document"]
+		
 	vintage int (0..1) <"In the case where successive definitions of the legal agreement have been developed, the vintage identification. This is typically (but not necessarily) done by referencing the year, e.g. 2013 in the case of the ISDA 2013 Standard Credit Support Annex.">
 		[synonym AcadiaSoft_AM_1_0 value "csaVersion"]
-		[synonym ISDA_Create_1_0 value "year" path "document"]
+		
 
 type UmbrellaAgreement: <"A class to specify a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement. This data representation reflects the ISDA Create representation.">
 
 	isApplicable boolean (1..1) <"The determination of whether Umbrella Agreement terms are Applicable (True), or Not Applicable (False)">
-		[synonym ISDA_Create_1_0 set to True when "is_applicable" = "applicable", set to False when "is_applicable" = "not_applicable"]
+		
 	language string (0..1) <"The language associated with the umbrella agreement, and which applies to all the parties to the umbrella agreement.">
-		[synonym ISDA_Create_1_0 value "language" maps 2 removeHtml]
+		
 	parties UmbrellaAgreementEntity (0..*) <"Underlying principals to the umbrella agreement.">
-		[synonym ISDA_Create_1_0 value "principal_identification_schedule" mapper "UmbrellaAgreementEntity"]
+		
 
 	condition UmbrellaAgreementExists: <"Umbrella Agreement language and parties should not exist when Umbrella Agreement terms are Not Applicable.">
 		if isApplicable = True
@@ -186,10 +186,10 @@ type AddressForNotices: <"Specification of the address and other details for not
 type OtherAgreementTerms: <"A class to specify a related legal agreement. For example, ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (s): Other CSA and Japanese Law CSA (VM). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (o): Other CSA.">
 
 	isSpecified boolean (1..1) <"The qualification of whether some other related agreement is specified (True) or not (False).">
-		[synonym ISDA_Create_1_0 set to True when "specify_japanese_law_csa_vm" = "true", set to False when "specify_japanese_law_csa_vm" = "false"]
-		[synonym ISDA_Create_1_0 set to True when "specify_other_csa" = "true", set to False when "specify_other_csa" = "false"]
+		
+		
 	legalDocument string (0..1) <"The specification of this other agreement, when the qualification is True.">
-		[synonym ISDA_Create_1_0 value "specify"]
+		
 
 	condition LegalDocumentNotSpecified: <"A data rule to enforce that the related legal agreement should not be referenced if it is deemed as not specified as part of the boolean attribute.">
 		if isSpecified = False
