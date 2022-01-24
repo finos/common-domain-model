@@ -1,13 +1,13 @@
 package org.isda.cdm.globalkey;
 
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep.KeyPostProcessReport;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GlobalKeyHashCalculator {
 	private GlobalKeyProcessStep processor;

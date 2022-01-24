@@ -1,17 +1,12 @@
 package cdm.base.staticdata.party.processor;
 
-import cdm.base.staticdata.party.BuyerSeller;
-import cdm.base.staticdata.party.CounterpartyRoleEnum;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
 import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 

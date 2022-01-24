@@ -12,7 +12,6 @@ import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_AcceptedWorkflowStep;
 import cdm.event.workflow.functions.Create_ProposedWorkflowStep;
 import cdm.event.workflow.functions.Create_WorkflowStep;
-import org.isda.cdm.functions.testing.LineageUtils;
 
 import javax.inject.Inject;
 import java.time.ZonedDateTime;

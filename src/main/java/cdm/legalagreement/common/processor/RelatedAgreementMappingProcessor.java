@@ -1,6 +1,9 @@
 package cdm.legalagreement.common.processor;
 
-import cdm.legalagreement.common.*;
+import cdm.legalagreement.common.LegalAgreement;
+import cdm.legalagreement.common.LegalAgreementNameEnum;
+import cdm.legalagreement.common.LegalAgreementPublisherEnum;
+import cdm.legalagreement.common.RelatedAgreement;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;

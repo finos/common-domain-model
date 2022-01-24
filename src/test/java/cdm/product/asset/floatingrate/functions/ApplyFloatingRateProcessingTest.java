@@ -4,9 +4,10 @@ import cdm.product.asset.floatingrate.FloatingRateProcessingParameters;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ApplyFloatingRateProcessingTest extends AbstractFunctionTest {
 

@@ -8,11 +8,7 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;

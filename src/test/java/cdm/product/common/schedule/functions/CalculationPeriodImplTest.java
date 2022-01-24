@@ -1,31 +1,21 @@
 package cdm.product.common.schedule.functions;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.AllOf.allOf;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import org.isda.cdm.functions.AbstractFunctionTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-
-import com.google.inject.Inject;
-import com.opengamma.strata.basics.schedule.ScheduleException;
-import com.rosetta.model.lib.records.DateImpl;
-
-import cdm.base.datetime.AdjustableDate;
-import cdm.base.datetime.AdjustableOrRelativeDate;
-import cdm.base.datetime.BusinessCenterEnum;
-import cdm.base.datetime.BusinessCenters;
-import cdm.base.datetime.BusinessDayAdjustments;
-import cdm.base.datetime.BusinessDayConventionEnum;
-import cdm.base.datetime.CalculationPeriodFrequency;
-import cdm.base.datetime.PeriodExtendedEnum;
-import cdm.base.datetime.RollConventionEnum;
+import cdm.base.datetime.*;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
+import com.google.inject.Inject;
+import com.opengamma.strata.basics.schedule.ScheduleException;
+import com.rosetta.model.lib.records.DateImpl;
+import org.isda.cdm.functions.AbstractFunctionTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CalculationPeriodImplTest extends AbstractFunctionTest {
 	

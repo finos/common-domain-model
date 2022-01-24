@@ -1,14 +1,12 @@
 package org.isda.cdm.functions.example.services.identification;
 
-
-import java.util.TreeSet;
-
-import com.google.inject.Singleton;
-import com.rosetta.model.metafields.FieldWithMetaString;
-
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import com.google.inject.Singleton;
+import com.rosetta.model.metafields.FieldWithMetaString;
+
+import java.util.TreeSet;
 
 /**
  * An example id service that helps get and increment identifiers

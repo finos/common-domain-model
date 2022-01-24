@@ -6,17 +6,17 @@ import cdm.legalagreement.csa.ElectiveAmountEnum;
 import cdm.observable.asset.Money;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
+import com.regnosys.rosetta.common.translation.SynonymToEnumMap;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.setIsoCurrency;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
 class ElectiveAmountElectionMappingHelper {
@@ -25,12 +25,12 @@ class ElectiveAmountElectionMappingHelper {
 
 	private final RosettaPath path;
 	private final List<Mapping> mappings;
-	private final Map<String, ISOCurrencyCodeEnum> synonymToIsoCurrencyCodeEnumMap;
+	private final SynonymToEnumMap synonymToEnumMap;
 
-	ElectiveAmountElectionMappingHelper(RosettaPath path, List<Mapping> mappings) {
+	ElectiveAmountElectionMappingHelper(RosettaPath path, List<Mapping> mappings, SynonymToEnumMap synonymToEnumMap) {
 		this.path = path;
 		this.mappings = mappings;
-		this.synonymToIsoCurrencyCodeEnumMap = synonymToEnumValueMap(ISOCurrencyCodeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
+		this.synonymToEnumMap = synonymToEnumMap;
 	}
 
 	Optional<ElectiveAmountElection> getElectiveAmountElection(Path synonymPath, String party) {
@@ -41,7 +41,10 @@ class ElectiveAmountElectionMappingHelper {
 				(value) -> moneyBuilder.setAmount(new BigDecimal(value)), mappings, path);
 
 		setValueAndOptionallyUpdateMappings(synonymPath.addElement(party + "_currency"),
-				(value) -> setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, cur -> moneyBuilder.getOrCreateUnitOfAmount().setCurrency(cur), value), mappings, path);
+				(value) -> setIsoCurrency(synonymToEnumMap.getEnumValue(ISOCurrencyCodeEnum.class, value),
+						cur -> moneyBuilder.getOrCreateUnitOfAmount().setCurrency(cur)),
+				mappings,
+				path);
 
 		if (moneyBuilder.hasData()) {
 			electiveAmountElectionBuilder.setAmount(moneyBuilder);

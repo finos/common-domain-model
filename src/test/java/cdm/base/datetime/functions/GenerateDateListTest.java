@@ -12,7 +12,6 @@ import java.util.List;
 
 import static cdm.base.datetime.functions.BusinessCenterHolidaysTestData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class GenerateDateListTest extends AbstractFunctionTest {
 

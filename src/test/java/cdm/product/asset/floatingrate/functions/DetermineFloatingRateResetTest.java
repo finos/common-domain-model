@@ -2,11 +2,11 @@ package cdm.product.asset.floatingrate.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.observable.asset.FloatingRateOption;
+import cdm.observable.asset.fro.functions.IndexValueObservationDataProvider;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.asset.calculation.functions.LookupNotionalAmountTest;
 import cdm.product.asset.floatingrate.FloatingRateSettingDetails;
-import cdm.observable.asset.fro.functions.IndexValueObservationDataProvider;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.schedule.ResetDates;
 import com.google.inject.Binder;

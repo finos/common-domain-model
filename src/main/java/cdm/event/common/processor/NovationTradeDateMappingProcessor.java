@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappingForModelPath;
 
 @SuppressWarnings("unused")
 public class NovationTradeDateMappingProcessor extends MappingProcessor {

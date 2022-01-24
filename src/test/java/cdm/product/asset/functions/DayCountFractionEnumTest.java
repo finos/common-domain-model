@@ -4,7 +4,6 @@ import cdm.base.datetime.daycount.DayCountFractionEnum;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
-import cdm.product.common.schedule.functions.TestableCalculationPeriod;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;

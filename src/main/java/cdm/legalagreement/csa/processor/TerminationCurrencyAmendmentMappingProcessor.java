@@ -12,13 +12,16 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.isda.cdm.processor.IsdaCreateMappingProcessorUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.setIsoCurrency;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.*;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
 /**
  * ISDA Create mapping processor.
@@ -26,11 +29,8 @@ import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.*;
 @SuppressWarnings("unused")
 public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcessor {
 
-	private final Map<String, ISOCurrencyCodeEnum> synonymToIsoCurrencyCodeEnumMap;
-
 	public TerminationCurrencyAmendmentMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);
-		this.synonymToIsoCurrencyCodeEnumMap = synonymToEnumValueMap(ISOCurrencyCodeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
 	@Override
@@ -39,9 +39,7 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 				"_amendment_to_termination_currency", "two_affected_parties");
 
 		if (!notApplicableSubMappings.isEmpty()) {
-			notApplicableSubMappings.forEach(m -> {
-				setValueAndUpdateMappings(m.getXmlPath(), x -> {});
-			});
+			notApplicableSubMappings.forEach(m -> setValueAndUpdateMappings(m.getXmlPath(), x -> {}));
 			return;
 		}
 
@@ -77,9 +75,10 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 		setValueAndOptionallyUpdateMappings(basePath.addElement(currencySynonym),
 				(value) -> {
 					terminationCurrencyElectionBuilder.addParty(parties).setIsSpecified(true);
-					return setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, terminationCurrencyElectionBuilder::setCurrency, value);
+					return setIsoCurrency(getSynonymToEnumMap().getEnumValue(ISOCurrencyCodeEnum.class, value), terminationCurrencyElectionBuilder::setCurrency);
 				},
-				getMappings(), getModelPath());
+				getMappings(),
+				getModelPath());
 
 		return terminationCurrencyElectionBuilder.hasData() ? Optional.of(terminationCurrencyElectionBuilder.build()) : Optional.empty();
 	}
@@ -91,7 +90,7 @@ public class TerminationCurrencyAmendmentMappingProcessor extends MappingProcess
 				(value) -> terminationCurrencyElectionBuilder.addParty(parties).setIsSpecified("specify".equals(value)));
 
 		setValueAndOptionallyUpdateMappings(basePath.addElement(currencySynonym),
-				(value) -> setIsoCurrency(synonymToIsoCurrencyCodeEnumMap, terminationCurrencyElectionBuilder::setCurrency, value),
+				(value) -> setIsoCurrency(getSynonymToEnumMap().getEnumValue(ISOCurrencyCodeEnum.class, value), terminationCurrencyElectionBuilder::setCurrency),
 				getMappings(), getModelPath());
 
 		return terminationCurrencyElectionBuilder.hasData() ? Optional.of(terminationCurrencyElectionBuilder.build()) : Optional.empty();
