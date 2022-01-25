@@ -48,7 +48,6 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "capFloorStream", "notionalSchedule", "notionalStepSchedule", "currency")
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "bondOption", "notionalAmount", "currency")
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "fra", "notional", "currency")
-				|| updateCurrencyUnits(priceBuilder, synonymPath, "equityOption", "equityExercise", "settlementCurrency")
 				// Credit
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "fixedAmountCalculation", "calculationAmount", "currency")
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
@@ -58,6 +57,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
 				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", Arrays.asList("currency"), FinancialUnitEnum.SHARE)
 				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", Arrays.asList("notional", "notionalAmount", "currency"), FinancialUnitEnum.SHARE)
+				|| updatePriceUnits(priceBuilder, synonymPath, "equityOption", Arrays.asList("equityExercise", "settlementCurrency"), FinancialUnitEnum.SHARE)
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
 				// Repo
