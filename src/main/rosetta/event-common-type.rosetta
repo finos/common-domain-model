@@ -776,7 +776,7 @@ type MarginCallBase: <"Represents common attributes required for Issuance and Re
 	clearingBroker Party (0..1) <"Indicates the name of the Clearing Broker FCM/DCM.">
 	callIdentifier Identifier (0..1) <"Represents a unique Identifier for a margin call message, that can be referenced throughout all points of the process.">
 	callAgreementType LegalAgreementType (1..1) <"Specifies the legal agreement type the margin call is generated from and governed by.">
-	agreementMinumumTransferAmount Money (0..1)<"Specifies the collateral legal agreement minimum transfer amount in base currency.">
+	agreementMinimumTransferAmount Money (0..1)<"Specifies the collateral legal agreement minimum transfer amount in base currency.">
 	agreementThreshold Money (0..1) <"Specifies the collateral legal agreement threshold amount in base currency.">
 	agreementRounding Money (0..1) <"Specifies the collateral legal agreement rounding in base currency.">
 	regMarginType RegMarginTypeEnum (1..1) <"Identifies margin type and if related regulatory mandate">
@@ -815,34 +815,35 @@ type MarginCallExposure extends MarginCallBase: <"Represents attributes required
 
 type CollateralBalance: <"Represents common attributes to define a collateral balance recorded by the principal as held or posted.">
 	collateralBalanceStatus CollateralStatusEnum (0..1) <"Defines the collateral balance breakdown of settlement status.">
-	haircutindicator HaircutIndicatorEnum (0..1) <"Indicates if the collateral balance amount is based on pre or post haircut, if a haircut is associated with the collateral asset">
+	haircutIndicator HaircutIndicatorEnum (0..1) <"Indicates if the collateral balance amount is based on pre or post haircut, if a haircut is associated with the collateral asset">
 	amountBaseCurrency Money (1..1) <"Specifies the collateral balance amount in base currency determined within a collateral legal agreement, or defined for reporting purposes.">
 
 type CollateralPortfolio: <"Represents common attributes to define the details of collateral assets, to be used in margin call messaging and contribute to collateral balances e.g securities in a collateral account.">
 	[metadata key]
 	portfolioIdentifier Identifier (0..1) <"Specifies a unique identifier for a set of collateral positions in a portfolio.">
 	collateralPosition CollateralPosition (0..*) <"Specifies the individual components of the collateral positions in the collateral portfolio.">
-	collateralbalance CollateralBalance (0..*) <"Represents the populated or calculated collateral aggregate balance amount for the collateral portfolio.">
+	collateralBalance CollateralBalance (0..*) <"Represents the populated or calculated collateral aggregate balance amount for the collateral portfolio.">
 
 type CollateralPosition extends Position: <"Specifies the individual components of collateral positions.">
 	
 	treatment CollateralTreatment (0..1) <"Specifies if there is any treatment to be applied to collateral, such as percentage discount which will impact collateral value.">
 	collateralPositionStatus CollateralStatusEnum (0..1) <"Indicates the collateral positions settlement status.">
 
-	condition CollateralPositionStatusSettledOrIntransitOnly : <"Represents a condition to ensure that if a status is defined for a collateral position you must only indicate 'Settled Amount' or 'In Transit' amount from the available enumerations.">
+	condition CollateralPositionStatusSettledOrInTransitOnly : <"Represents a condition to ensure that if a status is defined for a collateral position you must only indicate 'Settled Amount' or 'In Transit' amount from the available enumerations.">
 		if collateralPositionStatus exists
 			then collateralPositionStatus = CollateralStatusEnum -> SettledAmount or collateralPositionStatus = CollateralStatusEnum -> InTransitAmount 
 
-type MarginCallIssuance extends MarginCallBase: <"Represents common attributes required for a Margin Call Issuance under a legal agreement such as a credit support document or equivalent.">	callAmountinBaseCurrency Money (1..1) <"Specifies the amount of margin being called for which accounts for margin calculation inclusive of exposure, independent amount,threshold,collateral balance, MTA, rounding increments (in base currency detailed in supporting collateral agreement).">	
+type MarginCallIssuance extends MarginCallBase: <"Represents common attributes required for a Margin Call Issuance under a legal agreement such as a credit support document or equivalent.">
+    callAmountInBaseCurrency Money (1..1) <"Specifies the amount of margin being called for which accounts for margin calculation inclusive of exposure, independent amount,threshold,collateral balance, MTA, rounding increments (in base currency detailed in supporting collateral agreement).">
 	recallNonCashCollateralDescription EligibleCollateralCriteria (0..*) <"Specifies the details to describe or identify non-cash collateral eligible assets for recall purposes.">
 
 type MarginCallInstructionType: <"Represents enumeration values to specify the call notification type, direction, specific action type.">
     callType CallTypeEnum (1..1) <"Indicates the status of the call message type, such as expected call, notification of a call or an actionable margin call.">
-	visibilityindicator boolean (0..1) <"Indicates the choice if the call instruction is visible or not to the other party.">
+	visibilityIndicator boolean (0..1) <"Indicates the choice if the call instruction is visible or not to the other party.">
 
 	condition CallTypeExpectedVisibility: <"Represents a condition to ensure that a visibility indicator is specifies then the call type must be an expected call.">
         if callType = CallTypeEnum -> ExpectedCall 
-        then visibilityindicator exists
+        then visibilityIndicator exists
 
 type MarginCallResponseAction: <"Specifies the margin call action details, including collateral to be moved and its direction.">
 	
