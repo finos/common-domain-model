@@ -798,7 +798,7 @@ type Exposure: <"Represents the current mark to market value or IM calculation v
 	valuationDateTime zonedDateTime (1..1) <"Indicates the valuation date of the exposure underlying the calculation.">
 	// possible function/instructions needed for calculation of portfolio and aggregating to a base currency value//
 
-type MarginCallExposure: <"Represents attributes required for mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency).">
+type MarginCallExposure extends MarginCallBase: <"Represents attributes required for mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency).">
 	overallExposure Exposure (1..1) <"Represents the whole overall mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency).">
 	simmIMExposure Exposure (0..1) <"Represents Initial Margin (IM) exposure derived from ISDA SIMM calculation.">
 	scheduleGridIMExposure Exposure (0..1) <"Represents Initial Margin (IM) exposure derived from schedule or Grid calculation."> 
@@ -809,10 +809,9 @@ type MarginCallExposure: <"Represents attributes required for mark to market val
 				and (overallExposure -> aggregateValue -> unitOfAmount -> currency = simmIMExposure -> aggregateValue -> unitOfAmount -> currency) 
 				and (overallExposure -> aggregateValue -> unitOfAmount -> currency = scheduleGridIMExposure -> aggregateValue -> unitOfAmount -> currency)
 
-	// TODO: DSL fix required to use super-class attributes in conditions
-	// condition ExposureSimmAndScheduleIMOnly: <"Specifies a condition to ensure that if margin exposure is defined as Simm IM and Schedule/Grid IM Exposure this is only applicable if the Reg margin type is defined as RegIM (Regulatory Initial Margin).">
-	// 	if simmIMExposure exists and scheduleGridIMExposure exists
-	// 		then regMarginType = RegMarginTypeEnum -> RegIM
+	condition ExposureSimmAndScheduleIMOnly: <"Specifies a condition to ensure that if margin exposure is defined as Simm IM and Schedule/Grid IM Exposure this is only applicable if the Reg margin type is defined as RegIM (Regulatory Initial Margin).">
+		if simmIMExposure exists and scheduleGridIMExposure exists
+			then regMarginType = RegMarginTypeEnum -> RegIM
 
 type CollateralBalance: <"Represents common attributes to define a collateral balance recorded by the principal as held or posted.">
 	collateralBalanceStatus CollateralStatusEnum (0..1) <"Defines the collateral balance breakdown of settlement status.">
