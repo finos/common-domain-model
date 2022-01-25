@@ -7,3 +7,11 @@ This release moves the `ISDA_Create_1_0` synonym mappings into a separate file, 
 _Review Directions_
 
 In the CDM Portal, select the Textual Browser and search for the `ISDA_Create_1_0` synonyms.
+
+# *Event Model - Composable Event Model - Qualification of Full Termination*
+
+The Business Event qualification function `Qualify_Termination` has been updated to qualify a Full Termination of a business event generated using the new composable event model.
+
+_Review Directions_
+
+In the CDM Portal, select Instance Viewer, and navigate to the `Create Termination Business Event -> Full Termination - Equity Swap` sample.
