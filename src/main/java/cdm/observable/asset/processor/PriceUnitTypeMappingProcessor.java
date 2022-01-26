@@ -57,7 +57,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
 				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", Arrays.asList("currency"), FinancialUnitEnum.SHARE)
 				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", Arrays.asList("notional", "notionalAmount", "currency"), FinancialUnitEnum.SHARE)
-				|| updatePriceUnits(priceBuilder, synonymPath, "equityOption", Arrays.asList("equityExercise", "settlementCurrency"), FinancialUnitEnum.SHARE)
+				|| updatePriceUnits(priceBuilder, synonymPath, "equityOption", Arrays.asList("equityExercise", "settlementCurrency"), exists(Arrays.asList("underlyer", "singleUnderlyer", "index", "instrumentId")) ? FinancialUnitEnum.INDEX_UNIT : FinancialUnitEnum.SHARE)
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
 				// Repo
@@ -148,6 +148,13 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				.filter(m -> m.getXmlPath().endsWith("id"))
 				.filter(m -> id.equals(m.getXmlValue()))
 				.findFirst();
+	}
+
+	private boolean exists(List<String> pathEndsWith) {
+		return getMappings().stream()
+				.filter(m -> m.getXmlPath().endsWith(toArray(pathEndsWith)))
+				.filter(m -> m.getXmlValue() != null)
+				.findFirst().isPresent();
 	}
 
 	private boolean updateFxOption(PriceBuilder builder, Path synonymPath) {
