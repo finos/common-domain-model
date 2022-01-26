@@ -439,7 +439,7 @@ A number of payout types extend a common data type called ``PayoutBase``. This d
  type PayoutBase:
    payerReceiver PayerReceiver (1..1)
    payoutQuantity ResolvablePayoutQuantity (1..1)
-   settlementTerms SettlementTerms (1..1)
+   settlementTerms SettlementTerms (0..1)
 
 .. code-block:: Haskell
 
