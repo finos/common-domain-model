@@ -63,7 +63,8 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 		[synonym Workflow_Event value "lineage"]
 	creditLimitInformation CreditLimitInformation (0..1)
         [synonym Workflow_Event value "creditLimitInformation" path "primitive->contractFormation->after"]
-
+	workflowState WorkflowState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
+		
 	condition WorkflowStepStatus:
 		(WorkflowStep -> businessEvent exists and WorkflowStep -> nextWorkflowStep -> proposedInstruction is absent and WorkflowStep -> rejected is absent)
 		or
@@ -94,13 +95,13 @@ type EventTimestamp: <"A class to represent the various set of timestamps that c
 		[synonym Workflow_Event set to EventTimestampQualificationEnum -> clearingSubmissionDateTime when "submittedForClearing" exists]
 
 
-type WorkflowStepState: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
+type WorkflowState: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
 
-	workflowStatus WorkflowStatusEnum (0..*) <"The workflow status indicator, e.g. Accepted, Rejected, ...">
+	workflowStatus WorkflowStatusEnum (1..1) <"The workflow status indicator, e.g. Accepted, Rejected, ...">
 		[synonym Workflow_Event value "workflowStatus"]
 	comment string (0..1) <"A comment field to be associated with the workflow, e.g. to specify why a transaction event was rejected by a party.">
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Workflow data that is specific to certain market participants and is expressed as part of the CDM in a very generic manner, which can be party-specific. The initial use cases have been derived from the CME clearing and the DTCC TIW submissions.">
-
+	warehouseIdentity WarehouseIdentityEnum (0..1) <"The identity of the warehouse, if any, that is executing that workflow step.">
 
 type LimitApplicable:
 
@@ -154,13 +155,6 @@ type PartyCustomisedWorkflow: <"A class to specify a party-related, non-standard
 
 	condition PartyCustomisedWorkflowChoice: <"The identification of the party to which the PartyCustomisedWorkflow pertains to can be done through either a party reference or the party name.">
 		required choice partyName, partyReference
-
-type TradeWarehouseWorkflow: <"A class to specify trade warehouse workflow information: the identity of the trade warehouse, the contract status at the warehouse and party-specific workflow information.">
-
-	warehouseIdentity WarehouseIdentityEnum (1..1)
-	warehouseStatus WorkflowStatusEnum (1..1)
-	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Non-standardized workflow data related to a party.">
-
 
 type Velocity:
 
