@@ -44,7 +44,7 @@ class TradeSideToPartyMappingProcessorTest {
                 getErrorMapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.tradeSide[1].id"), TRADE_SIDE_2, null, NOT_MAPPED_ERROR),
                 getErrorMapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.tradeSide[0].orderer.party.href"), PARTY_A, PARTY_A, NOT_MAPPED_ERROR),
                 getErrorMapping(Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.tradeSide[1].orderer.party.href"), PARTY_B, PARTY_B, NOT_MAPPED_ERROR));
-        mappingContext = new MappingContext(mappings, Collections.emptyMap());
+        mappingContext = new MappingContext(mappings, Collections.emptyMap(), null, null);
     }
 
     @Test

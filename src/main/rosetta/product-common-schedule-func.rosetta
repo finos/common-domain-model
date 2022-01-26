@@ -12,44 +12,27 @@ func EffectiveDateContainsPaymentDate:
 		result boolean (1..1)
 
 	alias paymentDate: PaymentDate(economicTerms)
+    alias interestRatePayout: economicTerms -> payout -> interestRatePayout only-element
+    alias equityPayout: economicTerms -> payout -> equityPayout only-element
 
 	alias effectiveDates: [
 			economicTerms -> effectiveDate -> adjustableDate -> adjustedDate,
 			economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate,
 			economicTerms -> effectiveDate -> relativeDate -> adjustedDate,
-			economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
-			economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
-			economicTerms -> payout -> interestRatePayout only-element-> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate,
-			economicTerms -> payout -> equityPayout only-element -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
-			economicTerms -> payout -> equityPayout only-element-> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
-			economicTerms -> payout -> equityPayout only-element-> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+			interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
+			interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
+			interestRatePayout-> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate,
+			equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
+			equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
+			equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
 	]
-	assign-output result:
+	set result:
 		effectiveDates exists and effectiveDates contains paymentDate
 
 func PaymentDate: 
 	inputs: economicTerms EconomicTerms (1..1)
 	output: result date (0..1)
-	assign-output result: economicTerms -> payout -> interestRatePayout only-element -> paymentDate -> adjustedDate
-
-func TerminationDate:
-	inputs: economicTerms EconomicTerms(1..1)
-	output: result date (0..*)
-	alias interestRateTerminationDate: economicTerms -> payout -> interestRatePayout only-element -> calculationPeriodDates -> terminationDate
-	alias equityPayoutTerminationDate: economicTerms -> payout -> equityPayout only-element -> calculationPeriodDates -> terminationDate
-
-	assign-output result:
-		[
-			economicTerms -> terminationDate -> adjustableDate -> adjustedDate,
-			economicTerms -> terminationDate -> adjustableDate -> unadjustedDate,
-			economicTerms -> terminationDate -> relativeDate -> adjustedDate,
-			interestRateTerminationDate -> adjustableDate -> adjustedDate,
-			interestRateTerminationDate -> adjustableDate -> unadjustedDate,
-			interestRateTerminationDate -> relativeDate -> adjustedDate,
-			equityPayoutTerminationDate -> adjustableDate -> adjustedDate,
-			equityPayoutTerminationDate -> adjustableDate -> unadjustedDate,
-			equityPayoutTerminationDate -> relativeDate -> adjustedDate
-		]
+	set result: economicTerms -> payout -> interestRatePayout only-element -> paymentDate -> adjustedDate
 
 func PeriodsInYear:
 	inputs: frequency CalculationPeriodFrequency (1..1)

@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class VectorOperationsImplTest extends AbstractFunctionTest {
+public class VectorOperationImplTest extends AbstractFunctionTest {
 
 	@Inject
 	private VectorOperation vectorOp;

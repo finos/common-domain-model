@@ -23,34 +23,34 @@ func ConvertToAdjustableOrRelativeDate: <"Utility function to convert from Adjus
 	alias relativeDate:
 		adjustableOrAdjustedOrRelativeDate -> relativeDate
 
-	assign-output adjustableOrRelativeDate -> adjustableDate -> adjustedDate:
+	set adjustableOrRelativeDate -> adjustableDate -> adjustedDate:
 		adjustableOrAdjustedOrRelativeDate -> adjustedDate
 
-	assign-output adjustableOrRelativeDate -> adjustableDate -> unadjustedDate:
+	set adjustableOrRelativeDate -> adjustableDate -> unadjustedDate:
 		adjustableOrAdjustedOrRelativeDate -> unadjustedDate
 
-	assign-output adjustableOrRelativeDate -> adjustableDate -> dateAdjustments:
+	set adjustableOrRelativeDate -> adjustableDate -> dateAdjustments:
 		adjustableOrAdjustedOrRelativeDate -> dateAdjustments
 
-	assign-output adjustableOrRelativeDate -> relativeDate -> adjustedDate:
+	set adjustableOrRelativeDate -> relativeDate -> adjustedDate:
 		if relativeDate exists then relativeDate -> adjustedDate
 
-	assign-output adjustableOrRelativeDate -> relativeDate -> businessCenters:
+	set adjustableOrRelativeDate -> relativeDate -> businessCenters:
 		if relativeDate exists then relativeDate -> businessCenters
 
-	assign-output adjustableOrRelativeDate -> relativeDate -> businessDayConvention:
+	set adjustableOrRelativeDate -> relativeDate -> businessDayConvention:
 		if relativeDate exists then relativeDate -> businessDayConvention
 
-	assign-output adjustableOrRelativeDate -> relativeDate -> dateRelativeTo:
+	set adjustableOrRelativeDate -> relativeDate -> dateRelativeTo:
 		if relativeDate exists then relativeDate -> dateRelativeTo
 
-	assign-output adjustableOrRelativeDate -> relativeDate -> dayType:
+	set adjustableOrRelativeDate -> relativeDate -> dayType:
 		if relativeDate exists then relativeDate -> dayType
 
-	assign-output adjustableOrRelativeDate -> relativeDate -> period:
+	set adjustableOrRelativeDate -> relativeDate -> period:
 		if relativeDate exists then relativeDate -> period
 
-	assign-output adjustableOrRelativeDate -> relativeDate -> periodMultiplier:
+	set adjustableOrRelativeDate -> relativeDate -> periodMultiplier:
 		if relativeDate exists then relativeDate -> periodMultiplier
 
 func ConvertToAdjustableOrAdjustedOrRelativeDate: <"Utility function to convert from AdjustableOrAdjustedOrRelativeDate to AdjustableOrAdjustedOrRelativeDate">
@@ -63,34 +63,34 @@ func ConvertToAdjustableOrAdjustedOrRelativeDate: <"Utility function to convert 
 	alias relativeDate:
 		adjustableOrRelativeDate -> relativeDate
 
-	assign-output adjustableOrAdjustedOrRelativeDate -> adjustedDate:
+	set adjustableOrAdjustedOrRelativeDate -> adjustedDate:
 		adjustableOrRelativeDate -> adjustableDate -> adjustedDate
 
-	assign-output adjustableOrAdjustedOrRelativeDate -> unadjustedDate:
+	set adjustableOrAdjustedOrRelativeDate -> unadjustedDate:
 		adjustableOrRelativeDate -> adjustableDate -> unadjustedDate
 
-	assign-output adjustableOrAdjustedOrRelativeDate -> dateAdjustments:
+	set adjustableOrAdjustedOrRelativeDate -> dateAdjustments:
 		adjustableOrRelativeDate -> adjustableDate -> dateAdjustments
 
-	assign-output adjustableOrAdjustedOrRelativeDate -> relativeDate -> adjustedDate:
+	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> adjustedDate:
 		if relativeDate exists then relativeDate -> adjustedDate
 
-	assign-output adjustableOrAdjustedOrRelativeDate -> relativeDate -> businessCenters:
+	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> businessCenters:
 		if relativeDate exists then relativeDate -> businessCenters
 
-	assign-output adjustableOrAdjustedOrRelativeDate -> relativeDate -> businessDayConvention:
+	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> businessDayConvention:
 		if relativeDate exists then relativeDate -> businessDayConvention
 
-	assign-output adjustableOrAdjustedOrRelativeDate -> relativeDate -> dateRelativeTo:
+	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> dateRelativeTo:
 		if relativeDate exists then relativeDate -> dateRelativeTo
 
-	assign-output adjustableOrAdjustedOrRelativeDate -> relativeDate -> dayType:
+	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> dayType:
 		if relativeDate exists then relativeDate -> dayType
 
-	assign-output adjustableOrAdjustedOrRelativeDate -> relativeDate -> period:
+	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> period:
 		if relativeDate exists then relativeDate -> period
 
-	assign-output adjustableOrAdjustedOrRelativeDate -> relativeDate -> periodMultiplier:
+	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> periodMultiplier:
 		if relativeDate exists then relativeDate -> periodMultiplier
 
 func Now: <"Current date time.">
@@ -159,6 +159,9 @@ func AppendDateToList: <"Add a date to a list of dates.">
 	output:
 		newList date (0..*) <"The newly increased list.">
 
+	set newList: origDates
+	add newList: newDate
+
 func PopOffDateList: <"Remove last element from a list of dates.">
 	inputs:
 		dates date (0..*) <"List of dates.">
@@ -172,21 +175,23 @@ func IsWeekend: <"returns whether the supplied date is a weekend. This assumes a
 		businessCenters BusinessCenters (0..1) <"Not needed for the current implementation so ignored, but kept for future extensibility">
 	output:
 		isWeekend boolean (1..1)
+
 	alias dayOfWeek: DayOfWeek(date) // determine the day of the week
 	// output whether the date is on a weekend by comparing against SAT or SUN
-	assign-output isWeekend: dayOfWeek = DayOfWeekEnum->SAT or dayOfWeek = DayOfWeekEnum->SUN
+	set isWeekend: dayOfWeek = DayOfWeekEnum->SAT or dayOfWeek = DayOfWeekEnum->SUN
 
 func IsHoliday: <"Returns whether a day is a holiday for the specified business centers">
 	inputs:
 		checkDate date (1..1) <"The date being tested">
 		businessCenters BusinessCenters (1..1) <"The business centers for which the test is required">
 	output:
-		isHoliday boolean(1..1) <"true if the supplied date is a holiday">
+		isHoliday boolean (1..1) <"true if the supplied date is a holiday">
+
 	// get the combined list of holidays for the supplied business centers
 	alias holidays: BusinessCenterHolidays(businessCenters)
 	
 	// check if the supplied date is contained in the holiday list
-	assign-output isHoliday: holidays contains checkDate
+	set isHoliday: holidays contains checkDate
 
 func IsBusinessDay: <"returns an indicator of whether the supplied date is a good business date given the supplied business centers. True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday">
 	[calculation]
@@ -194,12 +199,13 @@ func IsBusinessDay: <"returns an indicator of whether the supplied date is a goo
 		date date (1..1) <"The date for which we want to determine whether it's a good business day">
 		businessCenters BusinessCenters (1..1) <"The list of business centers to use">
 	output:
-		isGoodBusinessDay boolean(1..1) <"True if a good business day, false if a weekend or holiday">
+		isGoodBusinessDay boolean (1..1) <"True if a good business day, false if a weekend or holiday">
+
 	// determine if a weekend or holiday
 	alias weekend: IsWeekend(date, businessCenters)
 	alias holiday: IsHoliday(date, businessCenters)
 	// return whether it's a good business day
-	assign-output isGoodBusinessDay: if weekend then False else if holiday then False else True
+	set isGoodBusinessDay: if weekend then False else if holiday then False else True
 
 func AddBusinessDays: <"Returns a good business date that has been offset by the given number of business days given the supplied business centers. A negative value implies an earlier date (before the supplied originalDate), and a positive value a later date (after the supplied date).">
 	[calculation]
@@ -209,6 +215,7 @@ func AddBusinessDays: <"Returns a good business date that has been offset by the
 		businessCenters BusinessCenters (1..1) <"business centers to use in the shifting">
 	output:
 		shiftedDate date (1..1)
+
 	alias isGoodBusinessDay: IsBusinessDay(originalDate, businessCenters) //check if a good business day
 	alias shift: if offsetBusinessDays < 0 then -1 else 1 // determine the direction of shifting, earlier or later
 	// calculate the new offset: if we're at a good business day, reduce by one, else keep it //
@@ -219,7 +226,7 @@ func AddBusinessDays: <"Returns a good business date that has been offset by the
 	alias done: offsetBusinessDays = 0 and isGoodBusinessDay = True // we're done if the offsetBusinessDays is 0 and it's a good business day
 	// calculate the shifted date: if we're done, return the supplied date, else recursively try after having shifted by one day (recursion because iteration isn't supported by the Rosetta DSL)
 	alias newDate: if done then originalDate else AddBusinessDays(shiftedByOne, newOffset, businessCenters)
-	assign-output shiftedDate: newDate
+	set shiftedDate: newDate
 
 func GenerateDateList: <"Creates a list of good business days starting from the startDate and going to the end date, inclusive, omitting any days that are weekends or holidays according to the supplied business centers.">
     [calculation]
@@ -229,10 +236,11 @@ func GenerateDateList: <"Creates a list of good business days starting from the 
 		businessCenters BusinessCenters (1..1) <"Business centers to be used to generate the list of good business days">
 	output:
 		dateList date (0..*) <"Resulting list of good business days.">
+
 	alias active: startDate <= endDate // do we have anything to do? Nothing to do if start date is after end date
 	alias isGoodBusinessDay: IsBusinessDay(endDate, businessCenters) // is endDate a good business day?
 	alias priorDate: AddBusinessDays (endDate, -1, businessCenters) // find the previous good business day before the endDate
 	alias priorList: GenerateDateList (startDate, priorDate, businessCenters) // recursively find the list of dates from the start to the prior business day
 	// add the current end date to the previous list if it is a good business day (the test handles the case when the first supplied end date is not a business day)
 	alias newList: if isGoodBusinessDay then AppendDateToList(priorList, endDate) else priorList
-	assign-output dateList: if active then newList
+	add dateList: if active then newList

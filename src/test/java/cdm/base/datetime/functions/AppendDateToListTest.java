@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AppendDateToListImplTest extends AbstractFunctionTest {
+public class AppendDateToListTest extends AbstractFunctionTest {
 
 	@Inject
 	private AppendDateToList func;

@@ -1,7 +1,9 @@
 package cdm.base.staticdata.party.processor;
 
 import cdm.base.staticdata.party.AncillaryRoleEnum;
-import com.regnosys.rosetta.common.translation.*;
+import com.regnosys.rosetta.common.translation.MappingContext;
+import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +16,8 @@ import java.util.stream.Collectors;
 
 import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import static cdm.legalagreement.contract.processor.PartyMappingHelper.PRODUCT_SUB_PATH;
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 
 /**
  * FpML mapping processor.

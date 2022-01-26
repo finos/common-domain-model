@@ -52,7 +52,8 @@ type CommodityProductDefinition: <"Specifies the commodity underlier in the even
 	referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
 	priceSource PriceSource (0..1) <"Specifies a publication that provides the commodity price, including, where applicable the details of where in the publication the price is published.  Applicable when the commodity reference price is not a futures contract">
 	exchangeId string (1..1) <" Identifies the exchange from which the reference price should be sourced, using the scheme at the following url: http://www.fpml.org/coding-scheme/external/exchange-id-MIC-1-0">
-	[metadata scheme]
+	    [metadata scheme]
+
 	condition CommodityProductDefinitionChoice: <"Requires the definition of either delivery date parameters or non-exchange price source.">
 		optional choice exchangeId, priceSource
 
@@ -62,19 +63,20 @@ type DeliveryDateParameters: <"Specifies a specific date or the parameters for i
 	deliveryDate cdm.base.datetime.AdjustableDate (0..1) <"Specifies the specific contract date for the contract that should be referenced for a price.">
 	deliveryDateRollConvention cdm.base.datetime.Offset (0..1) <"Specifies, for a Commodity Transaction that references a listed future, the day on which the specified future will roll to the next nearby month prior to the expiration of the referenced future. If the future will not roll at all - i.e. the price will be taken from the expiring contract, 0 days should be specified here. If the future will roll to the next nearby on the last trading day - i.e. the price will be taken from the next nearby on the last trading day, then 1 business day should be specified and so on.">
 	deliveryDateExpirationConvention cdm.base.datetime.Offset (0..1)<"Specifies, for a Commodity Transaction that references a listed future, the day on which the specified future will expire ahead of the actual expiration of the referenced future. For example: Z21 Contract expires on 19Nov21, with an adjust of 2D the 'expire' will be 16Nov21. DeliveryDateRollConvention takes precedence. Example: Pricing on the Z21 Contract with NearbyContractDay and a deliveryDateRoll of 10D, Sampling of the F22 Contract will occur on 8Nov21 through the last Date of the Z21 Contract. With an ExpConvention of 5D, the last sampling date on the F22 contract will be 12Nov21.">
-		condition DeliveryDateParametersChoice: <"Requires definition of a delivery date or delieryNearby parameters.">
+
+    condition DeliveryDateParametersChoice: <"Requires definition of a delivery date or delieryNearby parameters.">
 		optional choice deliveryNearby, deliveryDate
 	
 type CommodityReferenceFramework: <"Specifies the type of commodity.">
 	commodityBase string (1..1) <"Identifies the base type of the commodity being traded, using the names defined in the ISDA 2005 Commodity Definitions SubAnnex A where possible, e.g. AgriculturalProducts, CommodityCompositeIndices, Energy, Freight, Metals, or PaperAndPlastic. Implementors can define their own scheme with additional values.">
-	[metadata scheme]
+	    [metadata scheme]
 	subCommodity string (1..1) <"Identifies the sub product type of the commodity being traded, using the names defined in the ISDA 2005 Commodity Definitions SubAnnex A where possible, e.g. under Energy, the possible values are Benzene, Coal, DieselFuel, Electricity, FuelOil, GasOil, Gasoline, HeatingOil, JetFuelKerosene, Methanol, Naphtha, NaturalGas, NaturalGasLiquids, Oil, and UltraLowSulpherDiesel. Implementors can define their own scheme with additional values.">
-	[metadata scheme]
+	    [metadata scheme]
 	commodityName string (1..1) <"Identifies the commodity more specifically. Where possible, this should follow the naming convention used in the 2005 ISDA Commodity Definitions SubAnnex A, including the subCommodity and additional qualifiers, but should be limited to 256 characters or less.">
 	capacityUnit cdm.base.math.CapacityUnitEnum (0..1) <"Provides an enumerated value for a capacity unit, generally used in the context of defining quantities for commodities.">
 	weatherUnit cdm.base.math.WeatherUnitEnum (0..1) <"Provides an enumerated values for a weather unit, generally used in the context of defining quantities for commodities.">
 	currency string (1..1) <"Defines the currency in which the commodity is priced.">
-	[metadata scheme]
+	    [metadata scheme]
 	
 	condition CommodityReferenceFrameworkChoice: <"Requires that either the capacity unit or weather unit is populated.">
 		optional choice capacityUnit, weatherUnit
@@ -88,7 +90,6 @@ type Loan extends ProductBase: <"Identifies a loan by referencing a product iden
 	creditAgreementDate date (0..1) <"Specifies the credit agreement date is the closing date (the date where the agreement has been signed) for the loans in the credit agreement. Funding of the facilities occurs on (or sometimes a little after) the Credit Agreement date. This underlier attribute is used to help identify which of the company's outstanding loans are being referenced by knowing to which credit agreement it belongs. ISDA Standards Terms Supplement term: Date of Original Credit Agreement.">
 	tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
 		[metadata scheme]
-
 
 type ProductTaxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 	taxonomyValue string (1..1) <"Specifies the taxonomy value.">

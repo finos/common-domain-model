@@ -21,7 +21,7 @@ public class MinimumTransferAmountMappingProcessor extends MappingProcessor {
 
 	public MinimumTransferAmountMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);
-		this.helper = new ElectiveAmountElectionMappingHelper(getModelPath(), getMappings());
+		this.helper = new ElectiveAmountElectionMappingHelper(getModelPath(), getMappings(), mappingContext.getSynonymToEnumMap());
 	}
 
 	@Override

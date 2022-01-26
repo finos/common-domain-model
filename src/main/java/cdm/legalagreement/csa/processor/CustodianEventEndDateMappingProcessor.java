@@ -10,16 +10,13 @@ import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
 
 /**
  * "Days after Custodian Event" ( "days_after_custodian_event" / "days_after_collateral_manager_event" / "days_after_euroclear_event")
@@ -79,11 +76,8 @@ import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE
 @SuppressWarnings("unused")
 public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 
-	private final Map<String, DayTypeEnum> synonymToDayTypeEnumMap;
-
 	public CustodianEventEndDateMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);
-		this.synonymToDayTypeEnumMap = synonymToEnumValueMap(DayTypeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
 	@Override
@@ -192,7 +186,6 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 		return customisableOffsetBuilder.hasData() ? Optional.of(customisableOffsetBuilder.build()) : Optional.empty();
 	}
 
-	@NotNull
 	private void getOffset(Path basePath, String numberOfDaysSynonym, boolean after, String dayTypeSynonym,  String customEndDateSynonym,
 						   CustomisableOffset.CustomisableOffsetBuilder customisableOffsetBuilder) {
 		Offset.OffsetBuilder offsetBuilder = Offset.builder();
@@ -217,7 +210,7 @@ public class CustodianEventEndDateMappingProcessor extends MappingProcessor {
 								customEndDate -> customisableOffsetBuilder.setCustomProvision(removeHtml(customEndDate)));
 						return true;
 					} else {
-						Optional<DayTypeEnum> dayType = getEnumValue(synonymToDayTypeEnumMap, value, DayTypeEnum.class);
+						Optional<DayTypeEnum> dayType = getSynonymToEnumMap().getEnumValueOptional(DayTypeEnum.class, value);
 						dayType.ifPresent(offsetBuilder::setDayType);
 						return dayType.isPresent();
 					}

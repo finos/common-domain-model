@@ -1,9 +1,9 @@
 package org.isda.cdm;
 
-import java.util.List;
-
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
+
+import java.util.List;
 
 /**
  * Dummy impl that does nothing to get tests running. Remove binding from

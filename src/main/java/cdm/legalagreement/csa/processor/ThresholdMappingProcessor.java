@@ -21,7 +21,7 @@ public class ThresholdMappingProcessor extends MappingProcessor {
 
 	public ThresholdMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);
-		this.helper = new ElectiveAmountElectionMappingHelper(getModelPath(), getMappings());
+		this.helper = new ElectiveAmountElectionMappingHelper(getModelPath(), getMappings(), getSynonymToEnumMap());
 	}
 
 	@Override

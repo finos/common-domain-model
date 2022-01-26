@@ -3,7 +3,6 @@ package cdm.legalagreement.common.processor;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.legalagreement.common.AgreementTerms;
-import cdm.legalagreement.common.LegalAgreement;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;

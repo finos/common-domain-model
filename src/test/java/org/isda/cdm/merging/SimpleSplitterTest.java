@@ -1,14 +1,12 @@
 package org.isda.cdm.merging;
 
 import cdm.base.staticdata.party.Party;
-import cdm.product.template.Product;
 import com.regnosys.rosetta.common.merging.SimpleSplitter;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static cdm.base.staticdata.party.Party.PartyBuilder;
-import static cdm.product.template.Product.ProductBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static util.ResourcesUtils.getObject;
 

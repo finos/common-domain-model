@@ -1,13 +1,16 @@
 package cdm.legalagreement.csa.processor;
 
+import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.legalagreement.csa.CollateralTransferAgreementElections;
 import cdm.legalagreement.csa.ElectiveAmountElection;
 import cdm.legalagreement.csa.MinimumTransferAmountAmendment;
 import cdm.observable.asset.Money;
+import com.google.common.collect.ImmutableMap;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
+import com.regnosys.rosetta.common.translation.SynonymToEnumMap;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -15,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -32,7 +36,12 @@ class MinimumTransferAmountAmendmentMappingProcessorTest {
 		mappings.add(getEmptyMapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyA_currency"), "Japanese Yen"));
 		mappings.add(getEmptyMapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyB_amendment_to_minimum_transfer_amount"), "other"));
 		mappings.add(getEmptyMapping(Path.parse("answers.partyA.amendment_to_minimum_transfer_amount.partyB_specify"), "foo"));
-		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
+		Map<Class<?>, Map<String, Enum<?>>> synonymToEnumMap = ImmutableMap.<Class<?>, Map<String, Enum<?>>>builder()
+				.put(ISOCurrencyCodeEnum.class, ImmutableMap.<String, Enum<?>>builder()
+						.put("Japanese Yen", ISOCurrencyCodeEnum.JPY)
+						.build())
+				.build();
+		MappingContext context = new MappingContext(mappings, Collections.emptyMap(), synonymToEnumMap);
 
 		MinimumTransferAmountAmendment.MinimumTransferAmountAmendmentBuilder builder = MinimumTransferAmountAmendment.builder();
 		CollateralTransferAgreementElections.CollateralTransferAgreementElectionsBuilder parent =

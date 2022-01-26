@@ -1,10 +1,10 @@
 package cdm.security.lending.processor;
 
-import java.util.List;
-
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
+
+import java.util.List;
 
 /**
  * FpML mapping processor.

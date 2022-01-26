@@ -3,16 +3,15 @@ package cdm.legalagreement.csa.processor;
 import cdm.legalagreement.csa.*;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
+import com.regnosys.rosetta.common.translation.SynonymToEnumMap;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
 class RegimeMappingHelper {
@@ -21,14 +20,12 @@ class RegimeMappingHelper {
 
 	private final RosettaPath path;
 	private final List<Mapping> mappings;
-	private final Map<String, SimmExceptionApplicableEnum> synonymToSimmExceptionApplicableEnumMap;
-	private final Map<String, ExceptionEnum> synonymToExceptionEnumMap;
+	private final SynonymToEnumMap synonymToEnumMap;
 
-	RegimeMappingHelper(RosettaPath path, List<Mapping> mappings) {
+	RegimeMappingHelper(RosettaPath path, List<Mapping> mappings, SynonymToEnumMap synonymToEnumMap) {
 		this.path = path;
 		this.mappings = mappings;
-		this.synonymToSimmExceptionApplicableEnumMap = synonymToEnumValueMap(SimmExceptionApplicableEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
-		this.synonymToExceptionEnumMap = synonymToEnumValueMap(ExceptionEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
+		this.synonymToEnumMap = synonymToEnumMap;
 	}
 
 	Optional<RegimeTerms> getRegimeTerms(Path regimePath, String party, Integer index) {
@@ -37,8 +34,8 @@ class RegimeMappingHelper {
 		// only one suffix should exist
 		SUFFIXES.forEach(suffix -> {
 			setValueAndUpdateMappings(regimePath.addElement(party + suffix, index),
-					(value) -> getEnumValue(synonymToExceptionEnumMap, value, ExceptionEnum.class).ifPresent(
-							enumValue -> regimeTermsBuilder.setParty(toCounterpartyRoleEnum(party)).setIsApplicable(enumValue)),
+					(value) -> synonymToEnumMap.getEnumValueOptional(ExceptionEnum.class, value)
+							.ifPresent(enumValue -> regimeTermsBuilder.setParty(toCounterpartyRoleEnum(party)).setIsApplicable(enumValue)),
 					mappings, path);
 
 			setValueAndUpdateMappings(regimePath.addElement(party + suffix + "_specify", index),
@@ -60,12 +57,12 @@ class RegimeMappingHelper {
 		SimmException.SimmExceptionBuilder simmExceptionBuilder = SimmException.builder();
 
 		setValueAndUpdateMappings(regimePath.addElement(party + "_SIMM", index),
-				(value) -> getEnumValue(synonymToExceptionEnumMap, value, ExceptionEnum.class)
+				(value) -> synonymToEnumMap.getEnumValueOptional(ExceptionEnum.class, value)
 						.ifPresent(simmExceptionBuilder::setStandardisedException),
 				mappings, path);
 
 		setValueAndUpdateMappings(regimePath.addElement(party + "_fallback", index),
-				(value) -> getEnumValue(synonymToSimmExceptionApplicableEnumMap, value, SimmExceptionApplicableEnum.class)
+				(value) -> synonymToEnumMap.getEnumValueOptional(SimmExceptionApplicableEnum.class, value)
 						.ifPresent(simmExceptionBuilder::setSimmExceptionApplicable),
 				mappings, path);
 
@@ -88,7 +85,7 @@ class RegimeMappingHelper {
 		RetrospectiveEffect.RetrospectiveEffectBuilder retrospectiveEffectBuilder = RetrospectiveEffect.builder();
 
 		setValueAndUpdateMappings(regimePath.addElement(party + "_retrospective", index),
-				(value) -> getEnumValue(synonymToExceptionEnumMap, value, ExceptionEnum.class)
+				(value) -> synonymToEnumMap.getEnumValueOptional(ExceptionEnum.class, value)
 						.ifPresent(retrospectiveEffectBuilder::setStandardisedException),
 				mappings, path);
 

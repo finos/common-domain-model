@@ -12,12 +12,12 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static cdm.legalagreement.csa.CalculationDateLocationElection.builder;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.*;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.*;
+import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
 /**
  * ISDA Create mapping processor.
@@ -25,11 +25,8 @@ import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.*;
 @SuppressWarnings("unused")
 public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 
-	private final Map<String, BusinessCenterEnum> synonymToBusinessCenterEnumMap;
-
 	public CalculationDateLocationMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);
-		this.synonymToBusinessCenterEnumMap = synonymToEnumValueMap(BusinessCenterEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
 	@Override
@@ -48,7 +45,7 @@ public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 				(value) -> calculationDateLocationElectionBuilder.setParty(toCounterpartyRoleEnum(party)));
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_location"),
-				(value) -> getEnumValue(synonymToBusinessCenterEnumMap, value, BusinessCenterEnum.class)
+				(value) -> getSynonymToEnumMap().getEnumValueOptional(BusinessCenterEnum.class, value)
 						.map(enumValue -> FieldWithMetaBusinessCenterEnum.builder().setValue(enumValue).build())
 						.ifPresent(calculationDateLocationElectionBuilder::setBusinessCenter));
 

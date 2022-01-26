@@ -1,13 +1,13 @@
 package cdm.base.staticdata.party.processor;
 
+import com.google.common.collect.MoreCollectors;
+import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.Path;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import com.google.common.collect.MoreCollectors;
-import com.regnosys.rosetta.common.translation.Mapping;
-import com.regnosys.rosetta.common.translation.Path;
 
 /**
  * Helper class to translate TradeSide.id to TradeSide.orderer.party.id for CME Submission mapping processors.
