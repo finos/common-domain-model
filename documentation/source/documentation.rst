@@ -1089,6 +1089,7 @@ A *workflow* represents a set of actions or steps that are required to trigger a
    account Account (0..*)
    lineage Lineage (0..1)
    creditLimitInformation CreditLimitInformation (0..1)
+   workflowState WorkflowState (0..1)
 
 The different attributes of a workflow step are detailed in the sections below.
 
