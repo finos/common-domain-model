@@ -1,22 +1,20 @@
 package org.isda.cdm.workflows;
 
-import java.util.Objects;
-
-import cdm.event.common.*;
-import org.isda.cdm.functions.example.services.identification.IdentifierService;
-
-import com.rosetta.model.lib.process.PostProcessor;
-import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.metafields.FieldWithMetaString;
-
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.event.common.*;
 import cdm.event.common.functions.Create_ClearedTrade;
 import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.metafields.ReferenceWithMetaWorkflowStep;
+import com.rosetta.model.lib.process.PostProcessor;
+import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.metafields.FieldWithMetaString;
+import org.isda.cdm.functions.example.services.identification.IdentifierService;
+
+import java.util.Objects;
 
 public class ClearingUtils {
 

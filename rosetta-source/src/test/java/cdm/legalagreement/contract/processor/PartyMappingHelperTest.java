@@ -8,6 +8,7 @@ import cdm.product.template.TradableProduct;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
+import com.regnosys.rosetta.common.translation.SynonymToEnumMap;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 class PartyMappingHelperTest {
 
@@ -48,7 +50,9 @@ class PartyMappingHelperTest {
 
 	@BeforeEach
 	void setUp() {
-		context = new MappingContext(getMappings(PAYER_XML_PATH, PAYER_PARTY_REF, RECEIVER_XML_PATH, RECEIVER_PARTY_REF), Collections.emptyMap());
+		context = new MappingContext(getMappings(PAYER_XML_PATH, PAYER_PARTY_REF, RECEIVER_XML_PATH, RECEIVER_PARTY_REF),
+				Collections.emptyMap(),
+				Collections.emptyMap());
 		tradableProductBuilder = TradableProduct.builder();
 	}
 

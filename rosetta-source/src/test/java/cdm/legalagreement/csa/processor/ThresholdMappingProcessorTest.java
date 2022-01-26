@@ -1,11 +1,13 @@
 package cdm.legalagreement.csa.processor;
 
+import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.legalagreement.csa.ElectiveAmountElection;
 import cdm.legalagreement.csa.ElectiveAmountEnum;
 import cdm.legalagreement.csa.Threshold;
 import cdm.legalagreement.csa.Threshold.ThresholdBuilder;
 import cdm.observable.asset.Money;
+import com.google.common.collect.ImmutableMap;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -16,8 +18,10 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ThresholdMappingProcessorTest {
 
@@ -32,7 +36,12 @@ class ThresholdMappingProcessorTest {
 		mappings.add(getEmptyMapping(Path.parse("answers.partyA.threshold.partyA_amount"), "10"));
 		mappings.add(getEmptyMapping(Path.parse("answers.partyA.threshold.partyA_currency"), "Euro"));
 		mappings.add(getEmptyMapping(Path.parse("answers.partyA.threshold.partyB_threshold"), ZERO));
-		MappingContext context = new MappingContext(mappings, Collections.emptyMap());
+		Map<Class<?>, Map<String, Enum<?>>> synonymToEnumMap = ImmutableMap.<Class<?>, Map<String, Enum<?>>>builder()
+				.put(ISOCurrencyCodeEnum.class, ImmutableMap.<String, Enum<?>>builder()
+						.put("Euro", ISOCurrencyCodeEnum.EUR)
+						.build())
+				.build();
+		MappingContext context = new MappingContext(mappings, Collections.emptyMap(), synonymToEnumMap);
 
 		ThresholdBuilder builder = Threshold.builder();
 

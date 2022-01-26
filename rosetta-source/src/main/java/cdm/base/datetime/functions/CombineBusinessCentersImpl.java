@@ -3,9 +3,11 @@ package cdm.base.datetime.functions;
 import cdm.base.datetime.BusinessCenters;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
-import cdm.event.common.functions.FilterCashTransfers;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class CombineBusinessCentersImpl extends CombineBusinessCenters {
 

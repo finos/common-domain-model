@@ -13,7 +13,6 @@ import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
-
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.workflows.ClearingUtils;
 import org.junit.jupiter.api.Test;

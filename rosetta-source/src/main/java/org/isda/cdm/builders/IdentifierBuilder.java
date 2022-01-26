@@ -1,10 +1,9 @@
 package org.isda.cdm.builders;
 
-import com.rosetta.model.metafields.FieldWithMetaString;
-
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import com.rosetta.model.metafields.FieldWithMetaString;
 
 public class IdentifierBuilder {
 

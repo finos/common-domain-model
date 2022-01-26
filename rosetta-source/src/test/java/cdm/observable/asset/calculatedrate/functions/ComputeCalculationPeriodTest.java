@@ -8,7 +8,8 @@ import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
-import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.*;
+import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.date;
+import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.period;
 import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.initResetDates;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

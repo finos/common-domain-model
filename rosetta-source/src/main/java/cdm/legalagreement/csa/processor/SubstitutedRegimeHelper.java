@@ -5,29 +5,29 @@ import cdm.legalagreement.csa.SubstitutedRegime;
 import cdm.legalagreement.csa.SubstitutedRegimeTerms;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
+import com.regnosys.rosetta.common.translation.SynonymToEnumMap;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.*;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
 public class SubstitutedRegimeHelper {
 
 	private final RosettaPath path;
 	private final List<Mapping> mappings;
-	private final Map<String, RegulatoryRegimeEnum> synonymToRegulatoryRegimeEnumMap;
+	private final SynonymToEnumMap synonymToEnumMap;
 
-	SubstitutedRegimeHelper(RosettaPath path, List<Mapping> mappings) {
+	SubstitutedRegimeHelper(RosettaPath path, List<Mapping> mappings, SynonymToEnumMap synonymToEnumMap) {
 		this.path = path;
 		this.mappings = mappings;
-		this.synonymToRegulatoryRegimeEnumMap = synonymToEnumValueMap(RegulatoryRegimeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
+		this.synonymToEnumMap = synonymToEnumMap;
 	}
 
 	@NotNull
@@ -68,10 +68,9 @@ public class SubstitutedRegimeHelper {
 
 		Path additionalSubstitutedRegimePath = additionalRegimeNameMapping.getXmlPath().getParent();
 
-		PARTIES.forEach(party -> {
-			getSubstitutedRegimeTerms(additionalSubstitutedRegimePath, party, "additional_substituted_regime[" + index + "]")
-					.ifPresent(substitutedRegimeBuilder::addRegimeTerms);
-		});
+		PARTIES.forEach(party ->
+				getSubstitutedRegimeTerms(additionalSubstitutedRegimePath, party, "additional_substituted_regime[" + index + "]")
+						.ifPresent(substitutedRegimeBuilder::addRegimeTerms));
 
 		return substitutedRegimeBuilder.build();
 	}
@@ -84,7 +83,7 @@ public class SubstitutedRegimeHelper {
 				.ifPresent(substitutedRegimeBuilder::addRegimeTerms));
 
 		if (substitutedRegimeBuilder.hasData()) {
-			RegulatoryRegimeEnum regulatoryRegimeEnum = synonymToRegulatoryRegimeEnumMap.get(regulatoryRegime);
+			RegulatoryRegimeEnum regulatoryRegimeEnum = synonymToEnumMap.getEnumValue(RegulatoryRegimeEnum.class, regulatoryRegime);
 			if (regulatoryRegimeEnum != null) {
 				substitutedRegimeBuilder.setRegime(regulatoryRegimeEnum);
 			} else {

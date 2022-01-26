@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class OutstandingNotionalAmountMappingProcessorTest {
@@ -91,7 +91,7 @@ class OutstandingNotionalAmountMappingProcessorTest {
 								.addQuantityValue(Quantity.builder()
 										.setAmount(new BigDecimal(CALL_AMOUNT))
 										.setUnitOfAmount(UnitType.builder().setCurrencyValue(CALL_CURRENCY)))));
-		MappingContext context = new MappingContext(MAPPINGS, Collections.emptyMap(), null);
+		MappingContext context = new MappingContext(MAPPINGS, Collections.emptyMap(), null, null);
 		RosettaPath modelPath = RosettaPath.valueOf("WorkflowStep.businessEvent.primitives(0).quantityChange.after.trade.tradableProduct.tradeLot");
 		Path synonymPath = Path.parse("nonpublicExecutionReport.termination.outstandingNotionalAmount");
 

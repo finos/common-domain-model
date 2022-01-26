@@ -11,13 +11,9 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 
 import java.util.List;
-import java.util.Map;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappingFail;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE_SYNONYM_SOURCE;
 
 /**
  * ISDA Create mapping processor.
@@ -25,11 +21,8 @@ import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.ISDA_CREATE
 @SuppressWarnings("unused")
 public class IsoCurrencyMappingProcessor extends MappingProcessor {
 
-	private final Map<String, ISOCurrencyCodeEnum> synonymToIsoCurrencyCodeEnumMap;
-
 	public IsoCurrencyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);
-		this.synonymToIsoCurrencyCodeEnumMap = synonymToEnumValueMap(ISOCurrencyCodeEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
 	}
 
 	@Override
@@ -38,8 +31,9 @@ public class IsoCurrencyMappingProcessor extends MappingProcessor {
 			FieldWithMetaString.FieldWithMetaStringBuilder currencyBuilder = (FieldWithMetaString.FieldWithMetaStringBuilder) parent;
 			String currencyValue = (String) value;
 			// Currency value should either already be a ISO Currency Code or maps to one via synonym
-			if (setCurrency(currencyBuilder, getEnumValue(synonymToIsoCurrencyCodeEnumMap, currencyValue, ISOCurrencyCodeEnum.class)
-					.orElse(Enums.getIfPresent(ISOCurrencyCodeEnum.class, currencyValue).orNull()))) {
+			if (setCurrency(currencyBuilder, getSynonymToEnumMap().getEnumValueOptional(ISOCurrencyCodeEnum.class, currencyValue)
+					.orElse(Enums.getIfPresent(ISOCurrencyCodeEnum.class, currencyValue)
+							.orNull()))) {
 				return;
 			}
 		}

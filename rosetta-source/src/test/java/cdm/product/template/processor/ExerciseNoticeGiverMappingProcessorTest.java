@@ -25,7 +25,7 @@ class ExerciseNoticeGiverMappingProcessorTest {
 
 	@Test
 	void shouldMapExerciseNoticeGiverToBuyer() {
-		MappingContext context = new MappingContext(getMappings("p1"), Collections.emptyMap());
+		MappingContext context = new MappingContext(getMappings("p1"), Collections.emptyMap(), null, null);
 
 		// test
 		ExerciseNoticeGiverMappingProcessor mapper = new ExerciseNoticeGiverMappingProcessor(MODEL_PATH, Arrays.asList(SYNONYM_PATH), context);
@@ -45,7 +45,7 @@ class ExerciseNoticeGiverMappingProcessorTest {
 
 	@Test
 	void shouldMapExerciseNoticeGiverToSeller() {
-		MappingContext context = new MappingContext(getMappings("p2"), Collections.emptyMap());
+		MappingContext context = new MappingContext(getMappings("p2"), Collections.emptyMap(), null, null);
 
 		// test
 		ExerciseNoticeGiverMappingProcessor mapper = new ExerciseNoticeGiverMappingProcessor(MODEL_PATH, Arrays.asList(SYNONYM_PATH), context);
@@ -65,7 +65,7 @@ class ExerciseNoticeGiverMappingProcessorTest {
 
 	@Test
 	void shouldFailToMapExerciseNoticeGiver() {
-		MappingContext context = new MappingContext(getMappings("p3"), Collections.emptyMap());
+		MappingContext context = new MappingContext(getMappings("p3"), Collections.emptyMap(), null, null);
 
 		// test
 		ExerciseNoticeGiverMappingProcessor mapper = new ExerciseNoticeGiverMappingProcessor(MODEL_PATH, Arrays.asList(SYNONYM_PATH), context);

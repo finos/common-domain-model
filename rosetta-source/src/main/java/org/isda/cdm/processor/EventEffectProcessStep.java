@@ -1,13 +1,16 @@
 package org.isda.cdm.processor;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
-
+import cdm.base.staticdata.asset.common.ProductIdentifier.ProductIdentifierBuilder;
+import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
+import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
+import cdm.event.common.BusinessEvent.BusinessEventBuilder;
+import cdm.event.common.EventEffect.EventEffectBuilder;
 import cdm.event.common.TradeState.TradeStateBuilder;
+import cdm.event.common.TransferPrimitive.TransferPrimitiveBuilder;
 import cdm.event.common.metafields.ReferenceWithMetaTradeState;
 import cdm.event.common.metafields.ReferenceWithMetaTradeState.ReferenceWithMetaTradeStateBuilder;
+import cdm.event.common.metafields.ReferenceWithMetaTransferPrimitive;
+import cdm.event.common.metafields.ReferenceWithMetaTransferPrimitive.ReferenceWithMetaTransferPrimitiveBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep.KeyPostProcessReport;
@@ -21,14 +24,10 @@ import com.rosetta.model.lib.process.AttributeMeta;
 import com.rosetta.model.lib.process.BuilderProcessor.Report;
 import com.rosetta.model.lib.process.PostProcessStep;
 
-import cdm.base.staticdata.asset.common.ProductIdentifier.ProductIdentifierBuilder;
-import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
-import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier.ReferenceWithMetaProductIdentifierBuilder;
-import cdm.event.common.BusinessEvent.BusinessEventBuilder;
-import cdm.event.common.EventEffect.EventEffectBuilder;
-import cdm.event.common.TransferPrimitive.TransferPrimitiveBuilder;
-import cdm.event.common.metafields.ReferenceWithMetaTransferPrimitive;
-import cdm.event.common.metafields.ReferenceWithMetaTransferPrimitive.ReferenceWithMetaTransferPrimitiveBuilder;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 
 public class EventEffectProcessStep implements PostProcessStep{
 	

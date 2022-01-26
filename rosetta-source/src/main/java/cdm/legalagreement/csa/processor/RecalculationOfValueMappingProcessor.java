@@ -11,24 +11,19 @@ import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.getEnumValue;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.synonymToEnumValueMap;
-import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.*;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
+import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.toCounterpartyRoleEnum;
 
+@SuppressWarnings("unused")
 public class RecalculationOfValueMappingProcessor extends MappingProcessor {
 
     private static final List<String> SUFFIXES = Arrays.asList("_recalculation_of_market_value", "_recalculation_of_value");
     private static final List<String> TERMS_SUFFIXES = Arrays.asList("_recalculation_of_value_terms", "_recalculation_of_market_value_terms");
 
-    private final Map<String, RecalculationOfValueElectionEnum> recalculationOfValueElectionEnumMap;
-
-    public RecalculationOfValueMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths,
-                                                MappingContext mappingContext) {
+    public RecalculationOfValueMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
         super(modelPath, synonymPaths, mappingContext);
-        this.recalculationOfValueElectionEnumMap = synonymToEnumValueMap(RecalculationOfValueElectionEnum.values(), ISDA_CREATE_SYNONYM_SOURCE);
     }
 
     @Override
@@ -48,7 +43,7 @@ public class RecalculationOfValueMappingProcessor extends MappingProcessor {
                         TERMS_SUFFIXES.forEach(termSuffix -> setValueAndUpdateMappings(synonymPath.addElement(party + termSuffix),
                                 (terms) -> recalculationOfValueElectionBuilder.setRecalculationOfValueTerms(value)));
                     } else {
-                        getEnumValue(recalculationOfValueElectionEnumMap, value, RecalculationOfValueElectionEnum.class)
+                        getSynonymToEnumMap().getEnumValueOptional(RecalculationOfValueElectionEnum.class, value)
                                 .ifPresent(recalculationOfValueElectionBuilder::setRecalculationOfValueElection);
                     }
                 });

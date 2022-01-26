@@ -1,11 +1,10 @@
 package org.isda.cdm.documentation;
 
+import com.google.common.collect.Streams;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-
-import com.google.common.collect.Streams;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -14,14 +13,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class DocumentationCodeValidator {
 	
