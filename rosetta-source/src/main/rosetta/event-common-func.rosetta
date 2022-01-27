@@ -255,6 +255,8 @@ func Qualify_ClearedTrade:
 		and businessEvent -> primitives -> execution -> after = businessEvent -> primitives -> contractFormation -> before
 		and businessEvent -> primitives -> contractFormation -> after -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
 
+// TODO: Submission / Rejection / Acceptance should be a workflow step qualification, independent from the event qualification.
+// The event still uniquely qualifies as clearing
 func Qualify_ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
 	[qualification BusinessEvent]
 	inputs:
@@ -263,7 +265,7 @@ func Qualify_ClearingRejection: <"The rejection of an alpha trade submission by 
 	set is_event:
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> termsChange exists
-		and businessEvent -> workflowEventState -> workflowStatus contains WorkflowStatusEnum -> Rejected
+		// and businessEvent -> workflowEventState -> workflowStatus contains WorkflowStatusEnum -> Rejected
 		and (businessEvent -> primitives -> termsChange -> before -> trade -> partyRole is absent
 			or businessEvent -> primitives -> termsChange -> before -> trade -> partyRole -> role all <> PartyRoleEnum -> ClearingOrganization)
 		and (businessEvent -> primitives -> termsChange -> before -> trade -> contractDetails -> partyContractInformation -> relatedParty -> role is absent
@@ -280,7 +282,7 @@ func Qualify_ClearingSubmission: <"The submission of a contract to a CCP, which 
 	set is_event:
 		businessEvent -> primitives count = 1
 		and businessEvent -> primitives -> termsChange exists
-		and businessEvent -> workflowEventState -> workflowStatus contains WorkflowStatusEnum -> Submitted
+		// and businessEvent -> workflowEventState -> workflowStatus contains WorkflowStatusEnum -> Submitted
 		and (businessEvent -> primitives -> termsChange -> before -> trade -> partyRole is absent
 			or businessEvent -> primitives -> termsChange -> before -> trade -> partyRole -> role all <> PartyRoleEnum -> ClearingOrganization)
 		and (businessEvent -> primitives -> termsChange -> before -> trade -> contractDetails -> partyContractInformation -> relatedParty -> role is absent
@@ -448,6 +450,8 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated or
 	  	    businessEvent -> instructionFunction = InstructionFunctionEnum -> QuantityChange or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
+/*
+// TODO: This should be a workflow step qualification, rather than an event qualification. The event is still a contract formation
 func Qualify_TradeWarehousePositionNotification:
 	[qualification BusinessEvent]
 	inputs:
@@ -455,7 +459,8 @@ func Qualify_TradeWarehousePositionNotification:
 	output: is_event boolean (1..1)
 	set is_event:
 		businessEvent -> primitives -> contractFormation exists
-		and businessEvent -> tradeWarehouseWorkflow exists
+		// and businessEvent -> tradeWarehouseWorkflow exists
+*/
 
 func Qualify_Execution: <"The qualification of an execution event from the fact that the only component is an execution.">
 	[qualification BusinessEvent]
@@ -475,7 +480,7 @@ func Qualify_ContractFormation: <"Qualifies a business event as a contract forma
 	set is_event:
 		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists or
 		(businessEvent -> instruction -> primitiveInstruction -> contractFormation only exists or (businessEvent -> instruction -> primitiveInstruction -> execution,businessEvent -> instruction -> primitiveInstruction -> contractFormation) only exists)
-		and businessEvent -> tradeWarehouseWorkflow is absent
+		// and businessEvent -> tradeWarehouseWorkflow is absent
 
 func Qualify_StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
 	[qualification BusinessEvent]

@@ -953,10 +953,10 @@ A Business Event represents a transaction lifecycle event and is built according
    eventDate date (1..1)
    effectiveDate date (0..1)
    eventEffect EventEffect (0..1)
-   workflowEventState WorkflowStepState (0..1)
-     [deprecated]
-   tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
    packageInformation IdentifiedList (0..1)
+   instruction Instruction (0..*)
+   instructionFunction InstructionFunctionEnum (0..1)
+   after TradeState (0..*)
 
 As can be observed in the definition above, the only mandatory attributes of a business event are the ones listed below:
 
@@ -1089,6 +1089,7 @@ A *workflow* represents a set of actions or steps that are required to trigger a
    account Account (0..*)
    lineage Lineage (0..1)
    creditLimitInformation CreditLimitInformation (0..1)
+   workflowState WorkflowState (0..1)
 
 The different attributes of a workflow step are detailed in the sections below.
 
