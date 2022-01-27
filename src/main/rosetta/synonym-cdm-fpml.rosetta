@@ -488,6 +488,7 @@ synonym source FpML_5_10 extends FpML
             [value "settlementAmount" path "nearLeg"]
 			// For Commodity
 			[value "notionalQuantity"]
+			[value "totalNotionalQuantity" mapper "TotalNotionalQuantity"]
 			// For Equity / Bond Option
 			[value "numberOfOptions" mapper "NumberOfOptions"]
 		+ observable
@@ -1678,14 +1679,15 @@ synonym source FpML_5_10 extends FpML
 			[value "optionEntitlement"]
 			[value "indexFactor"]
 		+ multiplierUnit
-			[hint "quantityFrequency"] //To be removed
+			[hint "quantityFrequency"] // To be removed
 			[hint "entitlementCurrency"]
 
 	NonNegativeQuantitySchedule:
 		+ initialQuantity
 			[meta "initialValue"]
 			[meta "amount"]
-			[value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
+			[meta "quantity"]
+            [value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
 
 	NonNegativeStepSchedule:
 		+ step
@@ -1997,7 +1999,7 @@ synonym source FpML_5_10 extends FpML
 			[value "putCurrencyAmount" meta "amount"]
 			[value "callCurrencyAmount" meta "amount"]
 			[meta "numberOfOptions"]
-			[value "notionalQuantity" meta "quantity"]
+			[meta "totalNotionalQuantity"]
 		+ quantityMultiplier
 			[value "fxLinkedNotionalSchedule"]
 		+ quantityReference
@@ -2014,6 +2016,7 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementAmount"]
 			[value "fxLinkedNotionalSchedule"]
 			[value "constantNotionalScheduleReference" path "fxLinkedNotionalSchedule" meta "href"]
+			[value "notionalQuantity"]
 
 		+ reset
 			[value "notionalReset"]
@@ -2048,17 +2051,17 @@ synonym source FpML_5_10 extends FpML
 			[hint "calculationAgentBusinessCenter"]
 
 	EquityPayout:
-	[meta "id"]
-	+ underlier
-		[value "singleUnderlyer" path "underlyer","underlyer"]
-	+ returnType
-		[value "returnType" path "return"]
-	+ dividendReturnTerms
-		[value "dividendConditions" path "return", "singleUnderlyer" path "underlyer","basket" path "underlyer"]
-	+ fxFeature
-		[value "fxFeature"]
-	+ paymentDates
-		[value "paymentDates" path "rateOfReturn"]
+        [meta "id"]
+        + underlier
+            [value "singleUnderlyer" path "underlyer","underlyer"]
+        + returnType
+            [value "returnType" path "return"]
+        + dividendReturnTerms
+            [value "dividendConditions" path "return", "singleUnderlyer" path "underlyer","basket" path "underlyer"]
+        + fxFeature
+            [value "fxFeature"]
+        + paymentDates
+            [value "paymentDates" path "rateOfReturn"]
 
 	GeneralTerms:
 		+ referenceInformation
@@ -2278,6 +2281,7 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity
 			[value "commodity"]
 			[hint "notionalQuantity"]
+			[hint "totalNotionalQuantity"]
 
 	Payout:
 		+ interestRatePayout
