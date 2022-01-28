@@ -184,7 +184,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 
 		commonMappings.put("Effective_Date", (indexes, value, tradeState) -> {
 			AdjustableDateBuilder orCreateAdjustableDate = getEcTerms(tradeState).getValue().getOrCreateEffectiveDate().getOrCreateAdjustableDate();
-			orCreateAdjustableDate.setUnadjustedDate(Date.parse(value));
+			orCreateAdjustableDate.setUnadjustedDate(parseISODate(value));
 			orCreateAdjustableDate.getOrCreateDateAdjustments().setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING);
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
@@ -286,7 +286,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getValue()
 					.getOrCreateCalculationPeriodDates()
 					.getOrCreateEffectiveDate().getOrCreateAdjustableDate();
-			adjDate.setAdjustedDateValue(Date.parse(value));
+			adjDate.setAdjustedDateValue(parseISODate(value));
 			adjDate.getOrCreateMeta().setExternalKey("Effective_Date");
 			adjDate.getOrCreateDateAdjustments().setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING);
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
@@ -376,7 +376,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreateSecurityFinanceLeg(0)
 					.getOrCreateSettlementDate()
 					.getOrCreateAdjustableDate()
-					.setAdjustedDateValue(Date.parse(value));
+					.setAdjustedDateValue(parseISODate(value));
 			getSecPO(tradeState)
 					.getValue()
 					.getOrCreateSecurityFinanceLeg(0)
@@ -392,7 +392,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getValue()
 					.getOrCreateTrade()
 					.getOrCreateTradeDate()
-					.setValue(Date.parse(value));
+					.setValue(parseISODate(value));
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 
@@ -446,7 +446,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		buildTradeStateMapping("Trade_Date", (indexes, value, workflow) -> {
 			workflow.getValue()
 					.getBusinessEvent()
-					.setEventDate(Date.parse(value));
+					.setEventDate(parseISODate(value));
 			return Collections.singletonList(new PathValue<>(workflow.getModelPath(), value));
 		});
 	}
