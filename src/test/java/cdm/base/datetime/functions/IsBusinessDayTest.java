@@ -1,7 +1,7 @@
 package cdm.base.datetime.functions;
 
 import com.google.inject.Inject;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -16,11 +16,11 @@ public class IsBusinessDayTest extends AbstractFunctionTest {
 
     @Test
     void shouldGetResult() {
-        assertEquals(Boolean.TRUE, func.evaluate(DateImpl.of(2021,12, 20), LONDON_TARGET_BC));
-        assertEquals(Boolean.FALSE, func.evaluate(DateImpl.of(2021,12, 19), LONDON_TARGET_BC));
-        assertEquals(Boolean.FALSE, func.evaluate(DateImpl.of(2021,12, 27), LONDON_TARGET_BC));
-        assertEquals(Boolean.FALSE, func.evaluate(DateImpl.of(2021,12, 28), LONDON_TARGET_BC));
-        assertEquals(Boolean.TRUE, func.evaluate(DateImpl.of(2021,12, 27), TARGET_BC));
+        assertEquals(Boolean.TRUE, func.evaluate(Date.of(2021,12, 20), LONDON_TARGET_BC));
+        assertEquals(Boolean.FALSE, func.evaluate(Date.of(2021,12, 19), LONDON_TARGET_BC));
+        assertEquals(Boolean.FALSE, func.evaluate(Date.of(2021,12, 27), LONDON_TARGET_BC));
+        assertEquals(Boolean.FALSE, func.evaluate(Date.of(2021,12, 28), LONDON_TARGET_BC));
+        assertEquals(Boolean.TRUE, func.evaluate(Date.of(2021,12, 27), TARGET_BC));
 
     }
 

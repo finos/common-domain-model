@@ -4,7 +4,6 @@ import cdm.observable.asset.FloatingRateOption;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -29,12 +28,12 @@ public class IndexValueObservationMultipleTest extends AbstractFunctionTest {
 	@Test
 	void shouldGetValues() {
 		List<Date> dates = Arrays.asList(
-				DateImpl.of(2021, 7, 31),
-				DateImpl.of(2021, 7, 30),
-				DateImpl.of(2021, 8, 1),
-				DateImpl.of(2021, 1, 1),
-				DateImpl.of(2021, 6, 1),
-				DateImpl.of(2021, 7, 1));
+				Date.of(2021, 7, 31),
+				Date.of(2021, 7, 30),
+				Date.of(2021, 8, 1),
+				Date.of(2021, 1, 1),
+				Date.of(2021, 6, 1),
+				Date.of(2021, 7, 1));
 
 		List<BigDecimal> expected = Arrays.asList(
 				BigDecimal.valueOf(0.033),

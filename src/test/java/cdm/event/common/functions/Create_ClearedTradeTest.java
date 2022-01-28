@@ -10,7 +10,6 @@ import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -52,7 +51,7 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 				.setParty2(counterparty2)
 				.setClearingParty(clearingParty)
 				.build();
-		Date tradeDate = DateImpl.of(2020, 8, 28);
+		Date tradeDate = Date.of(2020, 8, 28);
 
 		BusinessEvent businessEvent = func.evaluate(clearingInstruction, tradeDate, null);
 

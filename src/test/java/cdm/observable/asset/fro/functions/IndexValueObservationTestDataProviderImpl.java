@@ -4,7 +4,6 @@ import cdm.base.datetime.Period;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateOption;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -36,7 +35,7 @@ public class IndexValueObservationTestDataProviderImpl implements IndexValueObse
 		LocalDate start = startingDate.toLocalDate();
 		for (int i = 0; i < numDays; i++) {
 			LocalDate dt = start.plusDays(i);
-			Date date = DateImpl.of(dt);
+			Date date = Date.of(dt);
 			double val = observedValue + increment * i;
 			setValue(fro, date, val);
 

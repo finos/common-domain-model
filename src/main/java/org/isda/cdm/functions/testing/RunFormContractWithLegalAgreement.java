@@ -8,7 +8,7 @@ import cdm.event.position.PositionStatusEnum;
 import cdm.legalagreement.common.*;
 import cdm.legalagreement.common.LegalAgreement.LegalAgreementBuilder;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 
 import javax.inject.Inject;
 
@@ -24,7 +24,7 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Tra
     public BusinessEvent execute(TradeState tradeState) {
         LegalAgreementBuilder legalAgreement = LegalAgreement.builder()
                 .addContractualPartyValue(guard(tradeState.getTrade().getParty()))
-                .setAgreementDate(DateImpl.of(1994, 12, 01))
+                .setAgreementDate(Date.of(1994, 12, 01))
                 .setAgreementType(LegalAgreementType.builder()
                         .setName(LegalAgreementNameEnum.MASTER_AGREEMENT)
                         .setPublisher(LegalAgreementPublisherEnum.ISDA)
@@ -38,7 +38,7 @@ public class RunFormContractWithLegalAgreement implements ExecutableFunction<Tra
                 .addLegalAgreement(legalAgreement)
                 .build();
 
-        return formContract.evaluate(contractFormationInstruction, tradeStateBuilder, new DateImpl(1, 12, 1994));
+        return formContract.evaluate(contractFormationInstruction, tradeStateBuilder, Date.of(1994, 12, 1));
     }
 
 

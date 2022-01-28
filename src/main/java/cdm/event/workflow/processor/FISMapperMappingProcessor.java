@@ -32,6 +32,7 @@ import com.regnosys.rosetta.common.translation.flat.FlatFileMappingProcessor;
 import com.regnosys.rosetta.common.translation.flat.IndexCapturePath;
 import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.path.RosettaPath;
+import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
 import java.math.BigDecimal;
@@ -183,7 +184,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 
 		commonMappings.put("Effective_Date", (indexes, value, tradeState) -> {
 			AdjustableDateBuilder orCreateAdjustableDate = getEcTerms(tradeState).getValue().getOrCreateEffectiveDate().getOrCreateAdjustableDate();
-			orCreateAdjustableDate.setUnadjustedDate(parseISODate(value));
+			orCreateAdjustableDate.setUnadjustedDate(Date.parse(value));
 			orCreateAdjustableDate.getOrCreateDateAdjustments().setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING);
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
@@ -285,7 +286,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getValue()
 					.getOrCreateCalculationPeriodDates()
 					.getOrCreateEffectiveDate().getOrCreateAdjustableDate();
-			adjDate.setAdjustedDateValue(parseISODate(value));
+			adjDate.setAdjustedDateValue(Date.parse(value));
 			adjDate.getOrCreateMeta().setExternalKey("Effective_Date");
 			adjDate.getOrCreateDateAdjustments().setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING);
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
@@ -375,7 +376,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreateSecurityFinanceLeg(0)
 					.getOrCreateSettlementDate()
 					.getOrCreateAdjustableDate()
-					.setAdjustedDateValue(parseISODate(value));
+					.setAdjustedDateValue(Date.parse(value));
 			getSecPO(tradeState)
 					.getValue()
 					.getOrCreateSecurityFinanceLeg(0)
@@ -391,7 +392,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getValue()
 					.getOrCreateTrade()
 					.getOrCreateTradeDate()
-					.setValue(parseISODate(value));
+					.setValue(Date.parse(value));
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 
@@ -445,7 +446,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		buildTradeStateMapping("Trade_Date", (indexes, value, workflow) -> {
 			workflow.getValue()
 					.getBusinessEvent()
-					.setEventDate(parseISODate(value));
+					.setEventDate(Date.parse(value));
 			return Collections.singletonList(new PathValue<>(workflow.getModelPath(), value));
 		});
 	}

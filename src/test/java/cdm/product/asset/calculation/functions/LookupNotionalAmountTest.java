@@ -12,7 +12,7 @@ import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.schedule.NonNegativeQuantitySchedule;
 import cdm.product.common.settlement.ResolvablePayoutQuantity;
 import com.google.inject.Inject;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -33,20 +33,20 @@ public class LookupNotionalAmountTest extends AbstractFunctionTest {
 				.build();
 
 		CalculationPeriodBase dec1_2020 = CalculationPeriod.builder()
-				.setAdjustedStartDate(DateImpl.of(2020, 12, 10))
-				.setAdjustedEndDate(DateImpl.of(2021, 3, 10)).build();
+				.setAdjustedStartDate(Date.of(2020, 12, 10))
+				.setAdjustedEndDate(Date.of(2021, 3, 10)).build();
 		CalculationPeriodBase mar1 = CalculationPeriod.builder()
-				.setAdjustedStartDate(DateImpl.of(2021, 3, 10))
-				.setAdjustedEndDate(DateImpl.of(2021, 6, 10)).build();
+				.setAdjustedStartDate(Date.of(2021, 3, 10))
+				.setAdjustedEndDate(Date.of(2021, 6, 10)).build();
 		CalculationPeriodBase jun1 = CalculationPeriod.builder()
-				.setAdjustedStartDate(DateImpl.of(2021, 6, 10))
-				.setAdjustedEndDate(DateImpl.of(2021, 9, 10)).build();
+				.setAdjustedStartDate(Date.of(2021, 6, 10))
+				.setAdjustedEndDate(Date.of(2021, 9, 10)).build();
 		CalculationPeriodBase sep1 = CalculationPeriod.builder()
-				.setAdjustedStartDate(DateImpl.of(2021, 9, 10))
-				.setAdjustedEndDate(DateImpl.of(2021, 12, 10)).build();
+				.setAdjustedStartDate(Date.of(2021, 9, 10))
+				.setAdjustedEndDate(Date.of(2021, 12, 10)).build();
 		CalculationPeriodBase dec1 = CalculationPeriod.builder()
-				.setAdjustedStartDate(DateImpl.of(2021, 12, 10))
-				.setAdjustedEndDate(DateImpl.of(2022, 3, 10)).build();
+				.setAdjustedStartDate(Date.of(2021, 12, 10))
+				.setAdjustedEndDate(Date.of(2022, 3, 10)).build();
 
 		Money nineMillion = Money.builder()
 				.setMultiplierUnit(UnitType.builder().setCurrencyValue("USD"))
@@ -85,19 +85,19 @@ public class LookupNotionalAmountTest extends AbstractFunctionTest {
 								.build())
 						.setStepSchedule(NonNegativeStepSchedule.builder()
 								.addStep(NonNegativeStep.builder()
-										.setStepDate(DateImpl.of(2021, 3, 10))
+										.setStepDate(Date.of(2021, 3, 10))
 										.setStepValue(BigDecimal.valueOf(10_000_000))
 										.build())
 								.addStep(NonNegativeStep.builder()
-										.setStepDate(DateImpl.of(2021, 6, 10))
+										.setStepDate(Date.of(2021, 6, 10))
 										.setStepValue(BigDecimal.valueOf(11_000_000))
 										.build())
 								.addStep(NonNegativeStep.builder()
-										.setStepDate(DateImpl.of(2021, 9, 10))
+										.setStepDate(Date.of(2021, 9, 10))
 										.setStepValue(BigDecimal.valueOf(12_000_000))
 										.build())
 								.addStep(NonNegativeStep.builder()
-										.setStepDate(DateImpl.of(2021, 12, 10))
+										.setStepDate(Date.of(2021, 12, 10))
 										.setStepValue(BigDecimal.valueOf(13_000_000))
 										.build())
 								.build())

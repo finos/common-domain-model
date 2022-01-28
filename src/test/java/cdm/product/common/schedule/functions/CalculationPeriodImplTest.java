@@ -7,7 +7,7 @@ import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import com.google.inject.Inject;
 import com.opengamma.strata.basics.schedule.ScheduleException;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -24,7 +24,7 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
     private final CalculationPeriodDates calculationPeriodDates = CalculationPeriodDates.builder()
             .setEffectiveDate((AdjustableOrRelativeDate.builder()
         			.setAdjustableDate(AdjustableDate.builder()
-        					.setUnadjustedDate(DateImpl.of(2018, 1, 3))
+        					.setUnadjustedDate(Date.of(2018, 1, 3))
         					.setDateAdjustments(BusinessDayAdjustments.builder()
         							.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
         							.build())
@@ -32,7 +32,7 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
         			.build()))
             .setTerminationDate(AdjustableOrRelativeDate.builder()
             		.setAdjustableDate(AdjustableDate.builder()
-            				.setUnadjustedDate(DateImpl.of(2020, 1, 3))
+            				.setUnadjustedDate(Date.of(2020, 1, 3))
             				.setDateAdjustments(BusinessDayAdjustments.builder()
             						.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
             						.setBusinessCenters(BusinessCenters.builder()
@@ -61,7 +61,7 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
 	private final CalculationPeriodDates calculationPeriodDates2 = CalculationPeriodDates.builder()
 			.setEffectiveDate((AdjustableOrRelativeDate.builder()
 					.setAdjustableDate(AdjustableDate.builder()
-							.setUnadjustedDate(DateImpl.of(2020, 4, 27))
+							.setUnadjustedDate(Date.of(2020, 4, 27))
 							.setDateAdjustments(BusinessDayAdjustments.builder()
 									.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
 									.build())
@@ -69,7 +69,7 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
 					.build()))
 			.setTerminationDate(AdjustableOrRelativeDate.builder()
 					.setAdjustableDate(AdjustableDate.builder()
-							.setUnadjustedDate(DateImpl.of(2022, 4, 27))
+							.setUnadjustedDate(Date.of(2022, 4, 27))
 							.setDateAdjustments(BusinessDayAdjustments.builder()
 									.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
 									.setBusinessCenters(BusinessCenters.builder()
@@ -97,13 +97,13 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
 
     @Test
     void shouldReturnStartAndEndDateOfFirstPeriod() {
-        CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 1, 3));
+        CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates, Date.of(2018, 1, 3));
 
-        assertThat(usingStartDate.getStartDate(), is(DateImpl.of(2018, 1, 3)));
-        assertThat(usingStartDate.getEndDate(), is(DateImpl.of(2018, 4, 3)));
+        assertThat(usingStartDate.getStartDate(), is(Date.of(2018, 1, 3)));
+        assertThat(usingStartDate.getEndDate(), is(Date.of(2018, 4, 3)));
 
-        CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 2, 14));
-        CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 3, 31));
+        CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates, Date.of(2018, 2, 14));
+        CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates, Date.of(2018, 3, 31));
 
         assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
     }
@@ -118,7 +118,7 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
                 .setCalculationPeriodFrequency(frequency)
                 .build();
 
-        Executable result = () -> calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2018, 4, 23));
+        Executable result = () -> calculationPeriod.evaluate(calculationPeriodDates, Date.of(2018, 4, 23));
 
         assertThrows(ScheduleException.class, result, "Date '2018-01-03' does not match roll convention 'Day1' when starting to roll forwards");
     }
@@ -126,16 +126,16 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
     @Test
     void shouldReturnCorrectDaysInPeriodWhenOverlappingPeriods() {
     	//day before endDate
-    	CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2021, 2, 26));
+    	CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, Date.of(2021, 2, 26));
         assertThat(usingStartDate.getDaysInPeriod(), is(62));
 
         //on overlapping endDate
-        usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2021, 2, 27));
+        usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, Date.of(2021, 2, 27));
         assertThat(usingStartDate.getDaysInPeriod(), is(59));
         
         
         //day after endDate
-        usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, DateImpl.of(2021, 2, 28));
+        usingStartDate = calculationPeriod.evaluate(calculationPeriodDates2, Date.of(2021, 2, 28));
         assertThat(usingStartDate.getDaysInPeriod(), is(59));
     }
 }

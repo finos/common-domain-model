@@ -2,7 +2,6 @@ package cdm.base.datetime.functions;
 
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -20,41 +19,41 @@ public class GenerateDateListTest extends AbstractFunctionTest {
 
 	@Test
 	void shouldGenerateList() {
-		Date first = DateImpl.of(2021, 12, 20);
-		Date last = DateImpl.of(2021, 12, 30);
+		Date first = Date.of(2021, 12, 20);
+		Date last = Date.of(2021, 12, 30);
 
 		List<Date> targetExpected = Arrays.asList(
-				DateImpl.of(2021, 12, 20),
-				DateImpl.of(2021, 12, 21),
-				DateImpl.of(2021, 12, 22),
-				DateImpl.of(2021, 12, 23),
-				DateImpl.of(2021, 12, 24),
-				DateImpl.of(2021, 12, 27),
-				DateImpl.of(2021, 12, 28),
-				DateImpl.of(2021, 12, 29),
-				DateImpl.of(2021, 12, 30));
+				Date.of(2021, 12, 20),
+				Date.of(2021, 12, 21),
+				Date.of(2021, 12, 22),
+				Date.of(2021, 12, 23),
+				Date.of(2021, 12, 24),
+				Date.of(2021, 12, 27),
+				Date.of(2021, 12, 28),
+				Date.of(2021, 12, 29),
+				Date.of(2021, 12, 30));
 
 		List<Date> londonTargetExpected = Arrays.asList(
-				DateImpl.of(2021, 12, 20),
-				DateImpl.of(2021, 12, 21),
-				DateImpl.of(2021, 12, 22),
-				DateImpl.of(2021, 12, 23),
-				DateImpl.of(2021, 12, 24),
-				DateImpl.of(2021, 12, 29),
-				DateImpl.of(2021, 12, 30));
+				Date.of(2021, 12, 20),
+				Date.of(2021, 12, 21),
+				Date.of(2021, 12, 22),
+				Date.of(2021, 12, 23),
+				Date.of(2021, 12, 24),
+				Date.of(2021, 12, 29),
+				Date.of(2021, 12, 30));
 
 		List<Date> londonTargetUsExpected = Arrays.asList(
-				DateImpl.of(2021, 12, 20),
-				DateImpl.of(2021, 12, 21),
-				DateImpl.of(2021, 12, 22),
-				DateImpl.of(2021, 12, 23),
-				DateImpl.of(2021, 12, 29),
-				DateImpl.of(2021, 12, 30));
+				Date.of(2021, 12, 20),
+				Date.of(2021, 12, 21),
+				Date.of(2021, 12, 22),
+				Date.of(2021, 12, 23),
+				Date.of(2021, 12, 29),
+				Date.of(2021, 12, 30));
 
 		assertEquals(Collections.emptyList(), func.evaluate(last, first, TARGET_BC));
 		assertEquals(targetExpected, func.evaluate(first, last, TARGET_BC));
 		assertEquals(londonTargetExpected, func.evaluate(first, last, LONDON_TARGET_BC));
 		assertEquals(londonTargetUsExpected, func.evaluate(first, last, LONDON_TARGET_US_BC));
-		assertEquals(londonTargetUsExpected, func.evaluate(DateImpl.of(2021, 12, 20), DateImpl.of(2021, 12, 30), LONDON_TARGET_US_BC));
+		assertEquals(londonTargetUsExpected, func.evaluate(Date.of(2021, 12, 20), Date.of(2021, 12, 30), LONDON_TARGET_US_BC));
 	}
 }
