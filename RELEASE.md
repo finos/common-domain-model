@@ -16,7 +16,7 @@ The following types and attributes have been modified:
   - `warehouseStatus`
   - `partyCustomisedWorkflow`
 
-- The `TradeWarehouseWorkflow` type has been deprecated as it is not used any more.
+- The `TradeWarehouseWorkflow` type has been deprecated as it is no longer used.
 
 The qualification functions for `ClearingSubmission` and `ClearingRejection` have been adjusted to reflect the new structure. These two functions are not tested with sample messages as part of the CDM. In future, the qualification of Rejection / Submission shall operate at the `WorkflowStep` level rather than the `BusinessEvent`.
 
@@ -60,6 +60,8 @@ This release contains a bug fix related to validation of data types that inherit
 Previously, any super type validation failures, such as cardinality or condition failures, were not included in the validation diagnostics.
 
 - E.g. when validating an `InterestRatePayout`, validation failures from `PayoutBase` were ignored.
+
+The super type validation failures are now included in the validation diagnostics.
 
 _Review Directions_
 
