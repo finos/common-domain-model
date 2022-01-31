@@ -16,7 +16,6 @@ import cdm.product.common.schedule.ResetFrequency;
 import cdm.product.common.schedule.ResetRelativeToEnum;
 import cdm.product.template.StrikeSchedule;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -27,8 +26,8 @@ public class FloatingRateTestHelper {
 	public static IndexValueObservationDataProvider initIndexData(FloatingRateOption fro) {
 		IndexValueObservationTestDataProviderImpl testDataProvider = new IndexValueObservationTestDataProviderImpl();
 		testDataProvider.setDefaultValue(0.01);
-		testDataProvider.setValue(fro, DateImpl.of(2021,6,1), 0.02);
-		testDataProvider.setValues(fro, DateImpl.of(2021,7,1), 31,0.03, 0.0001);
+		testDataProvider.setValue(fro, Date.of(2021,6,1), 0.02);
+		testDataProvider.setValues(fro, Date.of(2021,7,1), 31,0.03, 0.0001);
 		return testDataProvider;
 	}
 
@@ -87,10 +86,10 @@ public class FloatingRateTestHelper {
 
 	private static RateSchedule initSchedule(RateSchedule.RateScheduleBuilder scheduleBuilder, double initVal, double[] sched) {
 		List<Date> dates = Arrays.asList(
-				DateImpl.of(2021, 3, 10),
-				DateImpl.of(2021, 6, 10),
-				DateImpl.of(2021, 9, 10),
-				DateImpl.of(2021, 12, 10));
+				Date.of(2021, 3, 10),
+				Date.of(2021, 6, 10),
+				Date.of(2021, 9, 10),
+				Date.of(2021, 12, 10));
 		scheduleBuilder.setInitialValueValue(Price.builder().setAmount(BigDecimal.valueOf(initVal))).build();
 		for (int i = 0; i < sched.length; i++) {
 			scheduleBuilder.addStep(Step.builder()

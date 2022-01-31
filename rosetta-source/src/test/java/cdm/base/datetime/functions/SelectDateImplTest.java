@@ -2,7 +2,6 @@ package cdm.base.datetime.functions;
 
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -21,19 +20,19 @@ class SelectDateImplTest extends AbstractFunctionTest {
 	@Test
 	void shouldGetDateByIndex() {
 		List<Date> dateList = Arrays.asList(
-				DateImpl.of(2021, 5, 12),
-				DateImpl.of(2021, 5, 13),
-				DateImpl.of(2021, 5, 14));
+				Date.of(2021, 5, 12),
+				Date.of(2021, 5, 13),
+				Date.of(2021, 5, 14));
 		Date date = func.evaluate(dateList, 1);
 
-		assertEquals(DateImpl.of(2021, 5, 13), date);
+		assertEquals(Date.of(2021, 5, 13), date);
 	}
 	@Test
 	void shouldHandleIndexOutOfRange() {
 		List<Date> dateList = Arrays.asList(
-				DateImpl.of(2021, 5, 12),
-				DateImpl.of(2021, 5, 13),
-				DateImpl.of(2021, 5, 14));
+				Date.of(2021, 5, 12),
+				Date.of(2021, 5, 13),
+				Date.of(2021, 5, 14));
 		Date date = func.evaluate(dateList, 10);
 
 		assertNull(date);

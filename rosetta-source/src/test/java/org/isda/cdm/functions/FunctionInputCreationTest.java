@@ -35,7 +35,7 @@ import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.process.PostProcessor;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
@@ -93,7 +93,7 @@ class FunctionInputCreationTest {
                                                         .setValue("USD")
                                                         .setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso4217")))))))
-                        .setTerminationDate(DateImpl.of(2019, 12, 12))
+                        .setTerminationDate(Date.of(2019, 12, 12))
                         .build());
 
         assertEquals(readResource("/cdm-sample-files/functions/termination-workflow-func-input.json"),
@@ -114,7 +114,7 @@ class FunctionInputCreationTest {
                                                         .setValue("USD")
                                                         .setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso4217")))))))
-                        .setTerminationDate(DateImpl.of(2019, 12, 12))
+                        .setTerminationDate(Date.of(2019, 12, 12))
                         .build());
 
         assertEquals(readResource("/cdm-sample-files/functions/partial-termination-workflow-func-input.json"),
@@ -154,7 +154,7 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 InstructionFunctionEnum.QUANTITY_CHANGE,
-                new DateImpl(11, 11, 2021)
+                Date.of(2021, 11, 11)
         );
 
         assertEquals(readResource("/cdm-sample-files/functions/full-termination-equity-swap-func-input.json"),
@@ -207,7 +207,7 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 InstructionFunctionEnum.QUANTITY_CHANGE,
-                new DateImpl(11, 11, 2021)
+                Date.of(2021, 11, 11)
         );
 
         assertEquals(readResource("/cdm-sample-files/functions/partial-termination-equity-swap-func-input.json"),
@@ -282,7 +282,7 @@ class FunctionInputCreationTest {
         return new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 InstructionFunctionEnum.QUANTITY_CHANGE,
-                new DateImpl(11, 11, 2021)
+                Date.of(2021, 11, 11)
         );
     }
 
@@ -303,13 +303,13 @@ class FunctionInputCreationTest {
                 .getCalculationPeriodDates()
                 .getTerminationDate()
                 .getAdjustableDate()
-                .setUnadjustedDate(DateImpl.of(2028, 4, 1));
+                .setUnadjustedDate(Date.of(2028, 4, 1));
 
         interestRatePayoutBuilders.get(1)
                 .getCalculationPeriodDates()
                 .getTerminationDate()
                 .getAdjustableDate()
-                .setUnadjustedDate(DateImpl.of(2028, 4, 1));
+                .setUnadjustedDate(Date.of(2028, 4, 1));
 
         tradeStateBuilder
                 .getTrade()
@@ -364,7 +364,7 @@ class FunctionInputCreationTest {
                                                 .setDirection(QuantityChangeDirectionEnum.INCREASE)))
                                 .setBefore(tradeState)),
                 InstructionFunctionEnum.QUANTITY_CHANGE,
-                DateImpl.of(2021, 11, 11));
+                Date.of(2021, 11, 11));
 
         assertEquals(readResource("/cdm-sample-files/functions/quantity-change-increase-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
@@ -410,16 +410,16 @@ class FunctionInputCreationTest {
                 .findFirst()
                 .ifPresent(floatingLeg -> {
                     CalculationPeriodDates.CalculationPeriodDatesBuilder calculationPeriodDates = floatingLeg.getCalculationPeriodDates();
-                    calculationPeriodDates.getEffectiveDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2014, 4, 3));
-                    calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2025, 4, 1));
+                    calculationPeriodDates.getEffectiveDate().getAdjustableDate().setUnadjustedDate(Date.of(2014, 4, 3));
+                    calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(Date.of(2025, 4, 1));
                 });
         interestRatePayouts.stream()
                 .filter(payout -> payout.getRateSpecification().getFixedRate() != null)
                 .findFirst()
                 .ifPresent(fixedLeg -> {
                     CalculationPeriodDates.CalculationPeriodDatesBuilder calculationPeriodDates = fixedLeg.getCalculationPeriodDates();
-                    calculationPeriodDates.getEffectiveDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2018, 4, 3));
-                    calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(DateImpl.of(2025, 4, 1));
+                    calculationPeriodDates.getEffectiveDate().getAdjustableDate().setUnadjustedDate(Date.of(2018, 4, 3));
+                    calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(Date.of(2025, 4, 1));
                 });
         // quantity
         tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().stream().map(TradeLot.TradeLotBuilder::getPriceQuantity).flatMap(Collection::stream).map(
@@ -429,7 +429,7 @@ class FunctionInputCreationTest {
         // trade id
         tradeStateBuilder.getTrade().getTradeIdentifier().get(0).getAssignedIdentifier().get(0).setIdentifierValue("LEI1RPT0001KKKK");
         // trade date
-        tradeStateBuilder.getTrade().setTradeDateValue(DateImpl.of(2018, 4, 1));
+        tradeStateBuilder.getTrade().setTradeDateValue(Date.of(2018, 4, 1));
         return tradeStateBuilder;
     }
 

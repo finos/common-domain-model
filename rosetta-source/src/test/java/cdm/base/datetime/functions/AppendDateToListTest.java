@@ -2,7 +2,6 @@ package cdm.base.datetime.functions;
 
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -21,17 +20,17 @@ public class AppendDateToListTest extends AbstractFunctionTest {
 	@Test
 	void shouldAppend() {
 		List<Date> dateList = Arrays.asList(
-				DateImpl.of(2021, 5, 12),
-				DateImpl.of(2021, 5, 13),
-				DateImpl.of(2021, 5, 14));
+				Date.of(2021, 5, 12),
+				Date.of(2021, 5, 13),
+				Date.of(2021, 5, 14));
 
-		Date newVal = DateImpl.of(2021, 5, 15);
+		Date newVal = Date.of(2021, 5, 15);
 
 		List<Date> expectedList = Arrays.asList(
-				DateImpl.of(2021, 5, 12),
-				DateImpl.of(2021, 5, 13),
-				DateImpl.of(2021, 5, 14),
-				DateImpl.of(2021, 5, 15));
+				Date.of(2021, 5, 12),
+				Date.of(2021, 5, 13),
+				Date.of(2021, 5, 14),
+				Date.of(2021, 5, 15));
 
 		List<Date> actualList = func.evaluate(dateList, newVal);
 
@@ -40,10 +39,10 @@ public class AppendDateToListTest extends AbstractFunctionTest {
 
 	@Test
 	void shouldHandleEmptyList() {
-		Date newVal = DateImpl.of(2021, 5, 15);
+		Date newVal = Date.of(2021, 5, 15);
 		List<Date> actualList = func.evaluate(new ArrayList<>(), newVal);
 
-		assertEquals(Collections.singletonList(DateImpl.of(2021, 5, 15)), actualList);
+		assertEquals(Collections.singletonList(Date.of(2021, 5, 15)), actualList);
 	}
 
 	@Test
@@ -51,7 +50,7 @@ public class AppendDateToListTest extends AbstractFunctionTest {
 		assertEquals(Collections.emptyList(), func.evaluate(null, null));
 		assertEquals(Collections.emptyList(), func.evaluate(new ArrayList<>(), null));
 
-		List<Date> zeroList = Collections.singletonList(DateImpl.of(1, 1, 2020));
-		assertEquals(zeroList, func.evaluate(null, DateImpl.of(1, 1, 2020)));
+		List<Date> zeroList = Collections.singletonList(Date.of(1, 1, 2020));
+		assertEquals(zeroList, func.evaluate(null, Date.of(1, 1, 2020)));
 	}
 }

@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.date;
 import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.period;
 import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,9 +35,9 @@ public class EvaluateScreenRateTest extends AbstractFunctionTest {
         FloatingRate rate = initFloatingRate(fro);
         ResetDates resetDates = initResetDates(BusinessCenterEnum.GBLO, 3, 2, false);
 
-        CalculationPeriodBase dec2020 = period(date(2020, 12, 10), date(2021, 3, 10));
+        CalculationPeriodBase dec2020 = period(Date.of(2020, 12, 10), Date.of(2021, 3, 10));
         FloatingRateSettingDetails result = func.evaluate(rate, resetDates, dec2020);
-        check(result, 0.01, date(2021, 3, 8));
+        check(result, 0.01, Date.of(2021, 3, 8));
     }
 
     private void check(FloatingRateSettingDetails result, double finalRate, Date fixingDate) {

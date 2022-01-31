@@ -32,6 +32,7 @@ import com.regnosys.rosetta.common.translation.flat.FlatFileMappingProcessor;
 import com.regnosys.rosetta.common.translation.flat.IndexCapturePath;
 import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.path.RosettaPath;
+import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
 import java.math.BigDecimal;

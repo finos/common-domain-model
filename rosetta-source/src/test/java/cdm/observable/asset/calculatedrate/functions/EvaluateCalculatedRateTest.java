@@ -42,8 +42,8 @@ public class EvaluateCalculatedRateTest extends AbstractFunctionTest {
 	@Test
 	void shouldHandleBasicOISStyle() {
 		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.OIS, 0, null, false, false, false);
-		Date st = date(2021, 9, 10);
-		Date end = date(2021, 12, 10);
+		Date st = Date.of(2021, 9, 10);
+		Date end = Date.of(2021, 12, 10);
 		CalculationPeriodBase calculationPeriod = period(st, end);
 		DayCountFractionEnum dcf = DayCountFractionEnum.ACT_360;
 		FloatingRateOption.FloatingRateOptionBuilder fro = FloatingRateOption.builder().

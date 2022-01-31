@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.date;
 import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.period;
 import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,11 +35,11 @@ public class DetermineFloatingRateResetTest extends AbstractFunctionTest {
 	void shouldEvaluateRate() {
 		InterestRatePayout interestRatePayout = initInterestPayout(initFro());
 
-		CalculationPeriodBase calcPeriod = period(date(2020, 12, 10), date(2021, 3, 10));
-		check(func.evaluate(interestRatePayout, calcPeriod), 0.01, date(2021, 3, 8));
+		CalculationPeriodBase calcPeriod = period(Date.of(2020, 12, 10), Date.of(2021, 3, 10));
+		check(func.evaluate(interestRatePayout, calcPeriod), 0.01, Date.of(2021, 3, 8));
 
-		calcPeriod = period(date(2021, 9, 29), date(2021, 12, 29));
-		check(func.evaluate(interestRatePayout, calcPeriod), 0.01, date(2021, 12, 23));
+		calcPeriod = period(Date.of(2021, 9, 29), Date.of(2021, 12, 29));
+		check(func.evaluate(interestRatePayout, calcPeriod), 0.01, Date.of(2021, 12, 23));
 	}
 
 	private void check(FloatingRateSettingDetails result, double expectedRate, Date fixingDate) {

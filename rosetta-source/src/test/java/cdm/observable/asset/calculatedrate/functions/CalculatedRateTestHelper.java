@@ -5,7 +5,6 @@ import cdm.base.datetime.BusinessCenters;
 import cdm.observable.asset.calculatedrate.*;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
@@ -32,10 +31,6 @@ public class CalculatedRateTestHelper {
 				.build();
 	}
 
-	public static Date date(int yy, int mm, int dd) {
-		return DateImpl.of(yy, mm, dd);
-	}
-
 	static List<Date> dateList(CalculationPeriodBase period) {
 		return dateList(period.getAdjustedStartDate(), period.getAdjustedEndDate());
 	}
@@ -47,7 +42,7 @@ public class CalculatedRateTestHelper {
 		for (LocalDate dt = startDate; dt.isBefore(endDate) || dt.isEqual(endDate); dt = dt.plusDays(1)) {
 			DayOfWeek dow = dt.getDayOfWeek();
 			if (dow != DayOfWeek.SATURDAY && dow != DayOfWeek.SUNDAY)
-				result.add(DateImpl.of(dt));
+				result.add(Date.of(dt));
 		}
 		return result;
 	}

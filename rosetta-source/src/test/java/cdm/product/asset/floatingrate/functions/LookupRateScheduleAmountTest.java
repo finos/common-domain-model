@@ -5,7 +5,7 @@ import cdm.observable.asset.Price;
 import cdm.observable.asset.metafields.ReferenceWithMetaPrice;
 import cdm.product.common.schedule.RateSchedule;
 import com.google.inject.Inject;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -29,34 +29,34 @@ public class LookupRateScheduleAmountTest extends AbstractFunctionTest {
 
 		Step.StepBuilder stepBuilder = Step.builder();
 
-		stepBuilder.setStepDate(DateImpl.of(2021, 03, 01));
+		stepBuilder.setStepDate(Date.of(2021, 03, 01));
 		stepBuilder.setStepValue(BigDecimal.valueOf(0.0101));
 		builder.addStep(stepBuilder);
 
 		stepBuilder = Step.builder();
-		stepBuilder.setStepDate(DateImpl.of(2021, 06, 01));
+		stepBuilder.setStepDate(Date.of(2021, 06, 01));
 		stepBuilder.setStepValue(BigDecimal.valueOf(0.0102));
 		builder.addStep(stepBuilder);
 
 		stepBuilder = Step.builder();
-		stepBuilder.setStepDate(DateImpl.of(2021, 9, 01));
+		stepBuilder.setStepDate(Date.of(2021, 9, 01));
 		stepBuilder.setStepValue(BigDecimal.valueOf(0.0103));
 		builder.addStep(stepBuilder);
 
 		stepBuilder = Step.builder();
-		stepBuilder.setStepDate(DateImpl.of(2021, 12, 01));
+		stepBuilder.setStepDate(Date.of(2021, 12, 01));
 		stepBuilder.setStepValue(BigDecimal.valueOf(0.0104));
 		builder.addStep(stepBuilder);
 		builder.build();
 
-		check(0.01, func.evaluate(builder, DateImpl.of(2021, 01, 01)));
-		check(0.0101, func.evaluate(builder, DateImpl.of(2021, 04, 01)));
-		check(0.0101, func.evaluate(builder, DateImpl.of(2021, 03, 01)));
-		check(0.0102, func.evaluate(builder, DateImpl.of(2021, 06, 01)));
-		check(0.0103, func.evaluate(builder, DateImpl.of(2021, 9, 01)));
-		check(0.0103, func.evaluate(builder, DateImpl.of(2021, 11, 30)));
-		check(0.0104, func.evaluate(builder, DateImpl.of(2021, 12, 1)));
-		check(0.0104, func.evaluate(builder, DateImpl.of(2021, 12, 31)));
+		check(0.01, func.evaluate(builder, Date.of(2021, 01, 01)));
+		check(0.0101, func.evaluate(builder, Date.of(2021, 04, 01)));
+		check(0.0101, func.evaluate(builder, Date.of(2021, 03, 01)));
+		check(0.0102, func.evaluate(builder, Date.of(2021, 06, 01)));
+		check(0.0103, func.evaluate(builder, Date.of(2021, 9, 01)));
+		check(0.0103, func.evaluate(builder, Date.of(2021, 11, 30)));
+		check(0.0104, func.evaluate(builder, Date.of(2021, 12, 1)));
+		check(0.0104, func.evaluate(builder, Date.of(2021, 12, 31)));
 
 	}
 

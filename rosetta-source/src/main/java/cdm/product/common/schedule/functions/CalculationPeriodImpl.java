@@ -11,7 +11,6 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +62,8 @@ public class CalculationPeriodImpl extends CalculationPeriod {
         int daysThatAreInLeapYear = getDaysThatAreInLeapYear(targetPeriod);
 
         return builder
-                .setStartDate(new DateImpl(targetPeriod.getStartDate()))
-                .setEndDate(new DateImpl(targetPeriod.getEndDate()))
+                .setStartDate(Date.of(targetPeriod.getStartDate()))
+                .setEndDate(Date.of(targetPeriod.getEndDate()))
                 .setDaysInLeapYearPeriod(daysThatAreInLeapYear)
                 .setDaysInPeriod((int) ChronoUnit.DAYS.between(targetPeriod.getStartDate(), targetPeriod.getEndDate()))
                 .setIsFirstPeriod(false)

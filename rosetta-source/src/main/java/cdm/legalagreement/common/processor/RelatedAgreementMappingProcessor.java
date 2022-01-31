@@ -9,10 +9,9 @@ import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -84,7 +83,7 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
     @NotNull
     private Boolean setAgreementDetails(Path synonymPath, RelatedAgreement.RelatedAgreementBuilder relatedAgreementBuilder, String date) {
         LegalAgreement.LegalAgreementBuilder legalAgreementBuilder = relatedAgreementBuilder.getOrCreateLegalAgreement();
-        legalAgreementBuilder.setAgreementDate(DateImpl.of(LocalDate.parse(date)));
+        legalAgreementBuilder.setAgreementDate(Date.parse(date));
         switch (synonymPath.getLastElement().getPathName()) {
             case "collateral_transfer_agreement":
             case "date_of_collateral_transfer_agreement":

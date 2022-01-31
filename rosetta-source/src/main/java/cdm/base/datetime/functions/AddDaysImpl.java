@@ -2,7 +2,6 @@ package cdm.base.datetime.functions;
 
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 
 import java.time.LocalDate;
 
@@ -17,6 +16,6 @@ public class AddDaysImpl extends AddDays {
         if (inputDate == null || numDays == null) return null;
         LocalDate date = inputDate.toLocalDate();
         LocalDate newDate = date.plusDays(numDays);
-        return DateImpl.of(newDate);
+        return Date.of(newDate);
     }
 }

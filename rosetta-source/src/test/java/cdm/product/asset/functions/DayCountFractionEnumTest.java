@@ -5,7 +5,7 @@ import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import com.google.inject.Inject;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -70,8 +70,8 @@ public class DayCountFractionEnumTest extends AbstractFunctionTest {
 	private BigDecimal calculateAct360(LocalDate startDate, LocalDate endDate, int days, DayCountFractionEnum dcf) {
 		CalculationPeriodData calculationPeriodData = 
     			CalculationPeriodData.builder()
-    				.setStartDate(new DateImpl(startDate))
-    				.setEndDate(new DateImpl(endDate))
+    				.setStartDate(Date.of(startDate))
+    				.setEndDate(Date.of(endDate))
     				.setDaysInPeriod(days)
     				.build();
 		
@@ -83,17 +83,17 @@ public class DayCountFractionEnumTest extends AbstractFunctionTest {
 			}
 		});
 
-		return dayCountFraction.evaluate(interestRatePayout, dcf, DateImpl.of(2017, 10, 20), calculationPeriodData);
+		return dayCountFraction.evaluate(interestRatePayout, dcf, Date.of(2017, 10, 20), calculationPeriodData);
 	}
 
     private BigDecimal calculate30360(LocalDate startDate, LocalDate endDate, DayCountFractionEnum dcf) {
     	CalculationPeriodData calculationPeriodResult =
     			CalculationPeriodData.builder()
-    				.setStartDate(new DateImpl(startDate))
-    				.setEndDate(new DateImpl(endDate))
+    				.setStartDate(Date.of(startDate))
+    				.setEndDate(Date.of(endDate))
     				.build();
 		InterestRatePayout interestRatePayout =InterestRatePayout.builder().setCalculationPeriodDates(CalculationPeriodDates.builder().build()).build();
 		
-        return  dayCountFraction.evaluate(interestRatePayout, dcf, DateImpl.of(2017, 10, 20), calculationPeriodResult);
+        return  dayCountFraction.evaluate(interestRatePayout, dcf, Date.of(2017, 10, 20), calculationPeriodResult);
     }
 }

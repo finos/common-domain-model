@@ -6,12 +6,12 @@ import cdm.product.asset.calculation.functions.LookupNotionalAmountTest;
 import cdm.product.asset.floatingrate.FloatingRateProcessingParameters;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import com.google.inject.Inject;
+import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.date;
 import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.period;
 import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.initFloatingRate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,8 +25,8 @@ public class GetFloatingRateConditionParametersTest extends AbstractFunctionTest
 	void shouldInitializeValues() {
 		InterestRatePayout interestRatePayout = initInterestPayout();
 
-		CalculationPeriodBase dec2020 = period(date(2020, 12, 10), date(2020, 12, 10));
-		CalculationPeriodBase dec2021 = period(date(2021, 12, 10), date(2021, 12, 10));
+		CalculationPeriodBase dec2020 = period(Date.of(2020, 12, 10), Date.of(2020, 12, 10));
+		CalculationPeriodBase dec2021 = period(Date.of(2021, 12, 10), Date.of(2021, 12, 10));
 
 		check(expectedParams(0.075, 0.020, 0.0023), func.evaluate(interestRatePayout, dec2021));
 		check(expectedParams(0.055, 0.004, 0.0018), func.evaluate(interestRatePayout, dec2020));
