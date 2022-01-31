@@ -15,13 +15,12 @@ import cdm.product.common.schedule.ResetDates;
 import cdm.product.common.schedule.functions.CalculationPeriod;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.date;
 import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.period;
 import static cdm.product.asset.floatingrate.functions.FloatingRateTestHelper.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -46,13 +45,13 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
         InterestRatePayout interestRatePayout = initInterestPayout(initFro(), DayCountFractionEnum.ACT_360);
         CalculationPeriodDates calculationPeriodDates = interestRatePayout.getCalculationPeriodDates();
 
-        CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates, date(2020, 12, 10));
+        CalculationPeriodData usingStartDate = calculationPeriod.evaluate(calculationPeriodDates, Date.of(2020, 12, 10));
 
-        assertThat(usingStartDate.getStartDate(), is(date(2020, 12, 10)));
-        assertThat(usingStartDate.getEndDate(), is(date(2021, 3, 10)));
+        assertThat(usingStartDate.getStartDate(), is(Date.of(2020, 12, 10)));
+        assertThat(usingStartDate.getEndDate(), is(Date.of(2021, 3, 10)));
 
-        CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2021, 2, 14));
-        CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates, DateImpl.of(2021, 3, 9));
+        CalculationPeriodData usingAnyDate = calculationPeriod.evaluate(calculationPeriodDates, Date.of(2021, 2, 14));
+        CalculationPeriodData usingEndDate = calculationPeriod.evaluate(calculationPeriodDates, Date.of(2021, 3, 9));
 
         CalculationPeriodBase period = createCalculationPeriodBase.evaluate(usingStartDate);
         assertThat(usingStartDate, allOf(is(usingAnyDate), is(usingEndDate)));
@@ -60,9 +59,9 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
         assertEquals(BigDecimal.valueOf((31+31+28)/360.0), calculateYearFraction.evaluate(interestRatePayout, interestRatePayout.getDayCountFraction().getValue(), period));
 
 
-        CalculationPeriodBase calcPeriod = period(date(2020,12,10), date(2021,3,10));
+        CalculationPeriodBase calcPeriod = period(Date.of(2020,12,10), Date.of(2021,3,10));
         check(func.evaluate(interestRatePayout, calcPeriod, false), 9_000_000, 0.0118, (31+31+28)/360.0);
-        calcPeriod = period(date(2021,9,10), date(2021,12, 10));
+        calcPeriod = period(Date.of(2021,9,10), Date.of(2021,12, 10));
         check(func.evaluate(interestRatePayout, calcPeriod, false), 12_000_000, 0.015, (30+31+30)/360.0);
     }
 
@@ -92,14 +91,14 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
         return CalculationPeriodDates.builder()
                 .setEffectiveDate(AdjustableOrRelativeDate.builder()
                         .setAdjustableDate(AdjustableDate.builder()
-                                .setUnadjustedDate(DateImpl.of(2020,12, 10))
+                                .setUnadjustedDate(Date.of(2020,12, 10))
                                 .setDateAdjustments(BusinessDayAdjustments.builder()
                                         .setBusinessDayConvention(BusinessDayConventionEnum.NONE)
                                         .build())
                                 .build()))
                 .setTerminationDate(AdjustableOrRelativeDate.builder()
                         .setAdjustableDate(AdjustableDate.builder()
-                                .setUnadjustedDate(DateImpl.of(2022,3, 10))
+                                .setUnadjustedDate(Date.of(2022,3, 10))
                                 .setDateAdjustments(BusinessDayAdjustments.builder()
                                         .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                                         .setBusinessCenters(BusinessCenters.builder()

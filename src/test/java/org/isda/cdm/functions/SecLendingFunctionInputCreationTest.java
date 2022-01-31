@@ -38,7 +38,6 @@ import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
@@ -119,7 +118,7 @@ class SecLendingFunctionInputCreationTest {
                                         .setCurrency(FieldWithMetaString.builder().setValue("USD").build()).build())
                                 .build())
                         .build(),
-                DateImpl.of(2020, 10, 8)
+                Date.of(2020, 10, 8)
         );
 
         assertEquals(readResource("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json"),
@@ -143,7 +142,7 @@ class SecLendingFunctionInputCreationTest {
                                         .setCurrency(FieldWithMetaString.builder().setValue("USD").build()).build())
                                 .build())
                         .build(),
-                DateImpl.of(2020, 10, 21)
+                Date.of(2020, 10, 21)
         );
 
         assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
@@ -266,13 +265,13 @@ class SecLendingFunctionInputCreationTest {
         BillingInstruction actualBillingInstruction = BillingInstruction.builder()
                 .setSendingParty(getParty(partReturnAfterTradeState, CounterpartyRoleEnum.PARTY_1))
                 .setReceivingParty(getParty(partReturnAfterTradeState, CounterpartyRoleEnum.PARTY_2))
-                .setBillingStartDate(DateImpl.of(2020, 10, 1))
-                .setBillingEndDate(DateImpl.of(2020, 10, 31))
+                .setBillingStartDate(Date.of(2020, 10, 1))
+                .setBillingEndDate(Date.of(2020, 10, 31))
 
                 .addBillingRecordInstruction(createBillingRecordInstruction(fullReturnAfterTradeState,
-                        DateImpl.of(2020, 10, 1),
-                        DateImpl.of(2020, 10, 22),
-                        DateImpl.of(2020, 11, 10), Arrays.asList(
+                        Date.of(2020, 10, 1),
+                        Date.of(2020, 10, 22),
+                        Date.of(2020, 11, 10), Arrays.asList(
                                 obs("2020-10-22", 28.18, "USD"),
                                 obs("2020-10-21", 28.34, "USD"),
                                 obs("2020-10-20", 30.72, "USD"),
@@ -297,9 +296,9 @@ class SecLendingFunctionInputCreationTest {
                                 obs("2020-10-01", 26.87, "USD")
                         )))
                 .addBillingRecordInstruction(createBillingRecordInstruction(partReturnBeforeTradeState,
-                        DateImpl.of(2020, 10, 1),
-                        DateImpl.of(2020, 10, 9),
-                        DateImpl.of(2020, 11, 10), Arrays.asList(
+                        Date.of(2020, 10, 1),
+                        Date.of(2020, 10, 9),
+                        Date.of(2020, 11, 10), Arrays.asList(
                                 obs("2020-10-09", 30.03, "USD"),
                                 obs("2020-10-08", 29.53, "USD"),
                                 obs("2020-10-07", 28.72, "USD"),
@@ -311,9 +310,9 @@ class SecLendingFunctionInputCreationTest {
                                 obs("2020-10-01", 26.87, "USD")
                         )))
                 .addBillingRecordInstruction(createBillingRecordInstruction(partReturnAfterTradeState,
-                        DateImpl.of(2020, 10, 10),
-                        DateImpl.of(2020, 10, 22),
-                        DateImpl.of(2020, 11, 10), Arrays.asList(
+                        Date.of(2020, 10, 10),
+                        Date.of(2020, 10, 22),
+                        Date.of(2020, 11, 10), Arrays.asList(
                                 obs("2020-10-22", 28.18, "USD"),
                                 obs("2020-10-21", 28.34, "USD"),
                                 obs("2020-10-20", 30.72, "USD"),
@@ -350,7 +349,7 @@ class SecLendingFunctionInputCreationTest {
     private Observation obs(String date, double price, @SuppressWarnings("SameParameterValue") String currency) {
         return Observation.builder()
                 .setObservationIdentifier(ObservationIdentifier.builder()
-                        .setObservationDate(DateImpl.of(LocalDate.parse(date)))
+                        .setObservationDate(Date.of(LocalDate.parse(date)))
                         .build())
                 .setObservedValue(Price.builder()
                         .setAmount(BigDecimal.valueOf(price))

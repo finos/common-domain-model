@@ -13,7 +13,7 @@ import cdm.product.asset.RateSpecification;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +41,7 @@ class FloatingAmountTest extends AbstractFunctionTest{
             .setCalculationPeriodDates(CalculationPeriodDates.builder()
                     .setEffectiveDate((AdjustableOrRelativeDate.builder()
                             .setAdjustableDate(AdjustableDate.builder()
-                                    .setUnadjustedDate(DateImpl.of(2018, 1, 3))
+                                    .setUnadjustedDate(Date.of(2018, 1, 3))
                                     .setDateAdjustments(BusinessDayAdjustments.builder()
                                             .setBusinessDayConvention(BusinessDayConventionEnum.NONE)
                                             .build())
@@ -49,7 +49,7 @@ class FloatingAmountTest extends AbstractFunctionTest{
                             .build()))
                     .setTerminationDate(AdjustableOrRelativeDate.builder()
                             .setAdjustableDate(AdjustableDate.builder()
-                                    .setUnadjustedDate(DateImpl.of(2020, 1, 3))
+                                    .setUnadjustedDate(Date.of(2020, 1, 3))
                                     .setDateAdjustments(BusinessDayAdjustments.builder()
                                             .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                                             .setBusinessCenters(BusinessCenters.builder()
@@ -79,7 +79,7 @@ class FloatingAmountTest extends AbstractFunctionTest{
     @Test
     void shouldApplyMultiplication() {
     	FloatingAmount floatingAmount = this.floatingAmount.get();
-        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, SPREAD, RATE, QUANTITY, DateImpl.of(2018, 1, 3), null);
+        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, SPREAD, RATE, QUANTITY, Date.of(2018, 1, 3), null);
         assertThat(result, closeTo(BigDecimal.valueOf(1093750), BigDecimal.valueOf(0.0000001)));
     }
 

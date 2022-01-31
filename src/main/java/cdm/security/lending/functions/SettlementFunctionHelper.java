@@ -15,7 +15,6 @@ import cdm.event.workflow.WorkflowStep;
 import cdm.product.template.*;
 import com.google.common.collect.Iterables;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 import org.isda.cdm.functions.testing.LineageUtils;
 
@@ -57,7 +56,7 @@ public class SettlementFunctionHelper {
         BusinessEvent transferBusinessEvent = create_transfer.evaluate(
                 getAfterState(executionWorkflowStep.getBusinessEvent()).orElse(null),
                 proposedTransferWorkflowStep.getProposedInstruction().getTransfer(),
-                DateImpl.of(settlementDate));
+                Date.of(settlementDate));
         return lineageUtils.withGlobalReference(BusinessEvent.class, transferBusinessEvent);
     }
 

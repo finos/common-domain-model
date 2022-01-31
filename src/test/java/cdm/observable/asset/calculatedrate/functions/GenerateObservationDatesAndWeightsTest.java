@@ -26,8 +26,8 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 	@Test
 	void shouldHandleBasicOISStyle() {
 		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.OIS, 0, null, false, false, false);
-		Date st = date(2021, 9, 10);
-		Date end = date(2021, 12, 10);
+		Date st = Date.of(2021, 9, 10);
+		Date end = Date.of(2021, 12, 10);
 		CalculationPeriodBase calculationPeriod = period(st, end);
 
 		List<Date> calcDates = dateList(st, end);
@@ -44,8 +44,8 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 	void shouldHandleLockout() {
 		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.Lockout, 2, null, false, false,
 				false);
-		Date st = date(2021, 9, 10);
-		Date end = date(2021, 12, 10);
+		Date st = Date.of(2021, 9, 10);
+		Date end = Date.of(2021, 12, 10);
 		CalculationPeriodBase calculationPeriod = period(st, end);
 
 		List<Date> wtDates = dateList(st, end);
@@ -66,12 +66,12 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 	void shouldHandleLookback() {
 		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.Lookback, 2, null, false, false,
 				false);
-		Date st = date(2021, 9, 10);
-		Date end = date(2021, 12, 10);
+		Date st = Date.of(2021, 9, 10);
+		Date end = Date.of(2021, 12, 10);
 		CalculationPeriodBase calculationPeriod = period(st, end);
 
 		List<Date> wtDates = dateList(st, end);
-		List<Date> obsDate = dateList(date(2021, 9, 8), date(2021, 12, 8));
+		List<Date> obsDate = dateList(Date.of(2021, 9, 8), Date.of(2021, 12, 8));
 
 		obsDate.remove(obsDate.size() - 1);     // remove the last day
 		List<Integer> wts = weights(wtDates);
@@ -85,10 +85,10 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 	void shouldHandleObsShiftNormal() {
 		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.ObsShift, 2, BusinessCenterEnum.USGS,
 				false, false, false);
-		Date st = date(2021, 9, 10);
-		Date shifst = date(2021, 9, 8);
-		Date end = date(2021, 12, 10);
-		Date shiftend = date(2021, 12, 8);
+		Date st = Date.of(2021, 9, 10);
+		Date shifst = Date.of(2021, 9, 8);
+		Date end = Date.of(2021, 12, 10);
+		Date shiftend = Date.of(2021, 12, 8);
 
 		CalculationPeriodBase calculationPeriod = period(st, end);
 
@@ -108,14 +108,14 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 	void shouldHandleObsShiftSetInAdvance() {
 		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.ObsShift, 2, null, false, true,
 				false);
-		CalculationPeriodBase calcPeriod = period(date(2021, 9, 10), date(2021, 12, 10));
-		CalculationPeriodBase priorPeriod = period(date(2021, 6, 10), date(2021, 9, 10));
-		CalculationPeriodBase obsPeriod = period(date(2021, 6, 8), date(2021, 9, 8));
+		CalculationPeriodBase calcPeriod = period(Date.of(2021, 9, 10), Date.of(2021, 12, 10));
+		CalculationPeriodBase priorPeriod = period(Date.of(2021, 6, 10), Date.of(2021, 9, 10));
+		CalculationPeriodBase obsPeriod = period(Date.of(2021, 6, 8), Date.of(2021, 9, 8));
 
 		List<Date> wtDates = dateList(obsPeriod);
 		List<Date> obsDate = dateList(obsPeriod);
-		wtDates.remove(date(2021, 8, 30));
-		obsDate.remove(date(2021, 8, 30));
+		wtDates.remove(Date.of(2021, 8, 30));
+		obsDate.remove(Date.of(2021, 8, 30));
 
 		obsDate.remove(obsDate.size() - 1);     // remove the last day
 
@@ -131,14 +131,14 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.ObsShift, 2, null, false, true,
 				true);
 		ResetDates resetDate = initResetDates(BusinessCenterEnum.GBLO, 3, 2, true);
-		CalculationPeriodBase calcPeriod = period(date(2021, 9, 10), date(2021, 12, 10));
-		CalculationPeriodBase priorPeriod = period(date(2021, 6, 10), date(2021, 9, 10));
-		CalculationPeriodBase obsPeriod = period(date(2021, 6, 4), date(2021, 9, 6));
+		CalculationPeriodBase calcPeriod = period(Date.of(2021, 9, 10), Date.of(2021, 12, 10));
+		CalculationPeriodBase priorPeriod = period(Date.of(2021, 6, 10), Date.of(2021, 9, 10));
+		CalculationPeriodBase obsPeriod = period(Date.of(2021, 6, 4), Date.of(2021, 9, 6));
 
 		List<Date> wtDates = dateList(obsPeriod);
 		List<Date> obsDate = dateList(obsPeriod);
-		wtDates.remove(date(2021, 8, 30));
-		obsDate.remove(date(2021, 8, 30));
+		wtDates.remove(Date.of(2021, 8, 30));
+		obsDate.remove(Date.of(2021, 8, 30));
 
 		obsDate.remove(obsDate.size() - 1);     // remove the last day
 

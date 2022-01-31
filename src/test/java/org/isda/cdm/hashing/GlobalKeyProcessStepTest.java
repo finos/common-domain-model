@@ -6,7 +6,7 @@ import cdm.event.common.Trade;
 import cdm.event.common.TradeState;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 import com.rosetta.model.metafields.FieldWithMetaDate.FieldWithMetaDateBuilder;
 import com.rosetta.model.metafields.FieldWithMetaString;
@@ -19,7 +19,7 @@ public class GlobalKeyProcessStepTest {
 
 	@Test
 	public void shouldNotSetGlobalKeyOnFieldWithMetaBuilderWithoutMetadataId() {
-		FieldWithMetaDateBuilder tradeDate = FieldWithMetaDate.builder().setValue(DateImpl.of(2020, 1, 1));
+		FieldWithMetaDateBuilder tradeDate = FieldWithMetaDate.builder().setValue(Date.of(2020, 1, 1));
 
 		new GlobalKeyProcessStep(NonNullHashCollector::new).runProcessStep(FieldWithMetaDate.class, tradeDate);
 
@@ -30,7 +30,7 @@ public class GlobalKeyProcessStepTest {
 	@Test
 	public void shouldSetGlobalKeyOnFieldWithMetaBuilderWithMetadataId() {
 		Trade.TradeBuilder contract = Trade.builder()
-				.setTradeDate(FieldWithMetaDate.builder().setValue(DateImpl.of(2020, 1, 1)).build());
+				.setTradeDate(FieldWithMetaDate.builder().setValue(Date.of(2020, 1, 1)).build());
 
 		new GlobalKeyProcessStep(NonNullHashCollector::new).runProcessStep(TradeState.class, contract);
 

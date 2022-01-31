@@ -8,7 +8,7 @@ import cdm.base.math.NonNegativeQuantity;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import com.google.inject.Inject;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +34,7 @@ class FixedAmountTest extends AbstractFunctionTest {
                 .setCalculationPeriodDates(CalculationPeriodDates.builder()
                         .setEffectiveDate((AdjustableOrRelativeDate.builder()
                     			.setAdjustableDate(AdjustableDate.builder()
-                    					.setUnadjustedDate(DateImpl.of(2018, 1, 3))
+                    					.setUnadjustedDate(Date.of(2018, 1, 3))
                     					.setDateAdjustments(BusinessDayAdjustments.builder()
                     							.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
                     							.build())
@@ -42,7 +42,7 @@ class FixedAmountTest extends AbstractFunctionTest {
                     			.build()))
                         .setTerminationDate(AdjustableOrRelativeDate.builder()
                         		.setAdjustableDate(AdjustableDate.builder()
-                        				.setUnadjustedDate(DateImpl.of(2020, 1, 3))
+                        				.setUnadjustedDate(Date.of(2020, 1, 3))
                         				.setDateAdjustments(BusinessDayAdjustments.builder()
                         						.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                         						.setBusinessCenters(BusinessCenters.builder()
@@ -69,6 +69,6 @@ class FixedAmountTest extends AbstractFunctionTest {
                         .build())
                 .build();
         
-        assertThat(fixedAmount.evaluate(interestRatePayout, price, quantity, DateImpl.of(2018, 8, 22), null), is(new BigDecimal("750000.0000")));
+        assertThat(fixedAmount.evaluate(interestRatePayout, price, quantity, Date.of(2018, 8, 22), null), is(new BigDecimal("750000.0000")));
     }
 }

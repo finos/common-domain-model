@@ -2,7 +2,6 @@ package cdm.base.datetime.functions;
 
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -21,13 +20,13 @@ public class PopOffDateListImplTest extends AbstractFunctionTest {
 	@Test
 	void shouldRemove() {
 		List<Date> dates = Arrays.asList(
-				DateImpl.of(2021, 5, 12),
-				DateImpl.of(2021, 5, 13),
-				DateImpl.of(2021, 5, 14));
+				Date.of(2021, 5, 12),
+				Date.of(2021, 5, 13),
+				Date.of(2021, 5, 14));
 
 		List<Date> expectedList = Arrays.asList(
-				DateImpl.of(2021, 5, 12),
-				DateImpl.of(2021, 5, 13));
+				Date.of(2021, 5, 12),
+				Date.of(2021, 5, 13));
 
 		List<Date> actualList = func.evaluate(dates);
 

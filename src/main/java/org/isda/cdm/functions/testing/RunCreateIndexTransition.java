@@ -18,7 +18,6 @@ import cdm.product.template.Product;
 import cdm.product.template.TradableProduct;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import com.rosetta.model.metafields.MetaFields;
 
 import javax.inject.Inject;
@@ -67,8 +66,8 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 									.setPriceExpression(PriceExpression.builder()
 											.setPriceType(PriceTypeEnum.INTEREST_RATE)
 											.setSpreadType(SpreadTypeEnum.SPREAD))))
-					.setEffectiveDate(DateImpl.of(2018, 6, 19));
-			Date date = DateImpl.of(2018, 6, 17);
+					.setEffectiveDate(Date.of(2018, 6, 19));
+			Date date = Date.of(2018, 6, 17);
 			return func.evaluate(tradeState, instruction, date);
 		}
 		else if (isProductQualifier(tradeState, "InterestRate_IRSwap_FixedFloat")) {
@@ -87,8 +86,8 @@ public class RunCreateIndexTransition  implements ExecutableFunction<TradeState,
 									.setPriceExpression(PriceExpression.builder()
 											.setPriceType(PriceTypeEnum.INTEREST_RATE)
 											.setSpreadType(SpreadTypeEnum.SPREAD))))
-					.setEffectiveDate(DateImpl.of(2000, 10, 3));
-			Date date = DateImpl.of(2000, 10, 1);
+					.setEffectiveDate(Date.of(2000, 10, 3));
+			Date date = Date.of(2000, 10, 1);
 			return func.evaluate(tradeState, instruction, date);
 		}
 		else {

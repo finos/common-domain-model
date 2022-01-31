@@ -5,7 +5,6 @@ import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -21,8 +20,8 @@ public class DaysInPeriodImplTest extends AbstractFunctionTest {
 
     @Test
     void shouldReturnDaysInPeriodBetweenDates22Mar18To22Jun18() {
-        Date effectiveDate = DateImpl.of(2018, 3, 22);
-        Date terminationDate = DateImpl.of(2018, 6, 22);
+        Date effectiveDate = Date.of(2018, 3, 22);
+        Date terminationDate = Date.of(2018, 6, 22);
 
         CalculationPeriodDates calculationPeriodDates = getCalculationPeriodDates(effectiveDate, terminationDate, RollConventionEnum._22);
         Integer daysInPeriod = calculationPeriod.evaluate(calculationPeriodDates, effectiveDate).getDaysInPeriod();
@@ -33,8 +32,8 @@ public class DaysInPeriodImplTest extends AbstractFunctionTest {
 
     @Test
     void shouldReturnDaysInPeriodBetweenDates29Dec17To29Mar18() {
-        Date effectiveDate = new DateImpl(LocalDate.of(2017, 12, 29));
-        Date terminationDate = new DateImpl(LocalDate.of(2018, 3, 29));
+        Date effectiveDate = Date.of(LocalDate.of(2017, 12, 29));
+        Date terminationDate = Date.of(LocalDate.of(2018, 3, 29));
 
         CalculationPeriodDates calculationPeriodDates = getCalculationPeriodDates(effectiveDate, terminationDate, RollConventionEnum._29);
 

@@ -2,7 +2,7 @@ package cdm.base.datetime.functions;
 
 import cdm.base.datetime.DayOfWeekEnum;
 import com.google.inject.Inject;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -16,13 +16,13 @@ public class DayOfWeekImplTest extends AbstractFunctionTest {
 
 	@Test
 	void shouldGetDow() {
-		assertEquals(DayOfWeekEnum.MON, func.evaluate(DateImpl.of(2021, 5, 17)));
-		assertEquals(DayOfWeekEnum.TUE, func.evaluate(DateImpl.of(2021, 5, 18)));
-		assertEquals(DayOfWeekEnum.WED, func.evaluate(DateImpl.of(2021, 5, 19)));
-		assertEquals(DayOfWeekEnum.THU, func.evaluate(DateImpl.of(2021, 5, 20)));
-		assertEquals(DayOfWeekEnum.FRI, func.evaluate(DateImpl.of(2021, 5, 21)));
-		assertEquals(DayOfWeekEnum.SAT, func.evaluate(DateImpl.of(2021, 5, 22)));
-		assertEquals(DayOfWeekEnum.SUN, func.evaluate(DateImpl.of(2021, 5, 23)));
+		assertEquals(DayOfWeekEnum.MON, func.evaluate(Date.of(2021, 5, 17)));
+		assertEquals(DayOfWeekEnum.TUE, func.evaluate(Date.of(2021, 5, 18)));
+		assertEquals(DayOfWeekEnum.WED, func.evaluate(Date.of(2021, 5, 19)));
+		assertEquals(DayOfWeekEnum.THU, func.evaluate(Date.of(2021, 5, 20)));
+		assertEquals(DayOfWeekEnum.FRI, func.evaluate(Date.of(2021, 5, 21)));
+		assertEquals(DayOfWeekEnum.SAT, func.evaluate(Date.of(2021, 5, 22)));
+		assertEquals(DayOfWeekEnum.SUN, func.evaluate(Date.of(2021, 5, 23)));
 	}
 
 	@Test

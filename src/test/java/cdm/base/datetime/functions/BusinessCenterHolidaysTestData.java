@@ -3,7 +3,6 @@ package cdm.base.datetime.functions;
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenters;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.records.DateImpl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,94 +14,94 @@ class BusinessCenterHolidaysTestData {
 	static final BusinessCenterEnum US = BusinessCenterEnum.USGS;
 
 	static final List<Date> LONDON_HOLIDAYS_2021 = Arrays.asList(
-			DateImpl.of(2020, 12, 25),
-			DateImpl.of(2020, 12, 28),
-			DateImpl.of(2021, 1, 1),
-			DateImpl.of(2021, 4, 2),
-			DateImpl.of(2021, 4, 5),
-			DateImpl.of(2021, 5, 3),
-			DateImpl.of(2021, 5, 31),
-			DateImpl.of(2021, 8, 30),
-			DateImpl.of(2021, 12, 27),
-			DateImpl.of(2021, 12, 28)
+			Date.of(2020, 12, 25),
+			Date.of(2020, 12, 28),
+			Date.of(2021, 1, 1),
+			Date.of(2021, 4, 2),
+			Date.of(2021, 4, 5),
+			Date.of(2021, 5, 3),
+			Date.of(2021, 5, 31),
+			Date.of(2021, 8, 30),
+			Date.of(2021, 12, 27),
+			Date.of(2021, 12, 28)
 	);
 
 	static final List<Date> US_GS_HOLIDAYS_2021 = Arrays.asList(
-			DateImpl.of(2021, 1, 1),
-			DateImpl.of(2021, 1, 18),
-			DateImpl.of(2021, 2, 15),
-			//           DateImpl.of(2021,04,02),
-			DateImpl.of(2021, 5, 31),
-			DateImpl.of(2021, 7, 4),
-			DateImpl.of(2021, 9, 6),
-			DateImpl.of(2021, 10, 11),
-			DateImpl.of(2021, 11, 11),
-			DateImpl.of(2021, 11, 25),
-			DateImpl.of(2021, 12, 24)
+			Date.of(2021, 1, 1),
+			Date.of(2021, 1, 18),
+			Date.of(2021, 2, 15),
+			//           Date.of(2021,04,02),
+			Date.of(2021, 5, 31),
+			Date.of(2021, 7, 4),
+			Date.of(2021, 9, 6),
+			Date.of(2021, 10, 11),
+			Date.of(2021, 11, 11),
+			Date.of(2021, 11, 25),
+			Date.of(2021, 12, 24)
 	);
 
 	static final List<Date> TARGET_HOLIDAYS_2021 = Arrays.asList(
-			DateImpl.of(2021, 1, 1),
-			DateImpl.of(2021, 4, 2),
-			DateImpl.of(2021, 4, 5),
-			DateImpl.of(2021, 5, 1)
+			Date.of(2021, 1, 1),
+			Date.of(2021, 4, 2),
+			Date.of(2021, 4, 5),
+			Date.of(2021, 5, 1)
 	);
 
 	static final List<Date> LONDON_AND_US_GS_HOLIDAYS_2021 = Arrays.asList(
-			DateImpl.of(2020, 12, 25),
-			DateImpl.of(2020, 12, 28),
-			DateImpl.of(2021, 1, 1),
-			DateImpl.of(2021, 1, 18),
-			DateImpl.of(2021, 2, 15),
-			DateImpl.of(2021, 4, 2),
-			DateImpl.of(2021, 4, 5),
-			DateImpl.of(2021, 5, 3),
-			DateImpl.of(2021, 5, 31),
-			DateImpl.of(2021, 7, 4),
-			DateImpl.of(2021, 8, 30),
-			DateImpl.of(2021, 9, 6),
-			DateImpl.of(2021, 10, 11),
-			DateImpl.of(2021, 11, 11),
-			DateImpl.of(2021, 11, 25),
-			DateImpl.of(2021, 12, 24),
-			DateImpl.of(2021, 12, 27),
-			DateImpl.of(2021, 12, 28)
+			Date.of(2020, 12, 25),
+			Date.of(2020, 12, 28),
+			Date.of(2021, 1, 1),
+			Date.of(2021, 1, 18),
+			Date.of(2021, 2, 15),
+			Date.of(2021, 4, 2),
+			Date.of(2021, 4, 5),
+			Date.of(2021, 5, 3),
+			Date.of(2021, 5, 31),
+			Date.of(2021, 7, 4),
+			Date.of(2021, 8, 30),
+			Date.of(2021, 9, 6),
+			Date.of(2021, 10, 11),
+			Date.of(2021, 11, 11),
+			Date.of(2021, 11, 25),
+			Date.of(2021, 12, 24),
+			Date.of(2021, 12, 27),
+			Date.of(2021, 12, 28)
 	);
 
 	static final List<Date> LONDON_AND_US_GS_AND_TARGET_HOLIDAYS_2021 = Arrays.asList(
-			DateImpl.of(2020, 12, 25),
-			DateImpl.of(2020, 12, 28),
-			DateImpl.of(2021, 1, 1),
-			DateImpl.of(2021, 1, 18),
-			DateImpl.of(2021, 2, 15),
-			DateImpl.of(2021, 4, 2),
-			DateImpl.of(2021, 4, 5),
-			DateImpl.of(2021, 5, 1),
-			DateImpl.of(2021, 5, 3),
-			DateImpl.of(2021, 5, 31),
-			DateImpl.of(2021, 7, 4),
-			DateImpl.of(2021, 8, 30),
-			DateImpl.of(2021, 9, 6),
-			DateImpl.of(2021, 10, 11),
-			DateImpl.of(2021, 11, 11),
-			DateImpl.of(2021, 11, 25),
-			DateImpl.of(2021, 12, 24),
-			DateImpl.of(2021, 12, 27),
-			DateImpl.of(2021, 12, 28)
+			Date.of(2020, 12, 25),
+			Date.of(2020, 12, 28),
+			Date.of(2021, 1, 1),
+			Date.of(2021, 1, 18),
+			Date.of(2021, 2, 15),
+			Date.of(2021, 4, 2),
+			Date.of(2021, 4, 5),
+			Date.of(2021, 5, 1),
+			Date.of(2021, 5, 3),
+			Date.of(2021, 5, 31),
+			Date.of(2021, 7, 4),
+			Date.of(2021, 8, 30),
+			Date.of(2021, 9, 6),
+			Date.of(2021, 10, 11),
+			Date.of(2021, 11, 11),
+			Date.of(2021, 11, 25),
+			Date.of(2021, 12, 24),
+			Date.of(2021, 12, 27),
+			Date.of(2021, 12, 28)
 	);
 
 	static final List<Date> LONDON_AND_TARGET_HOLIDAYS_2021 = Arrays.asList(
-			DateImpl.of(2020, 12, 25),
-			DateImpl.of(2020, 12, 28),
-			DateImpl.of(2021, 1, 1),
-			DateImpl.of(2021, 4, 2),
-			DateImpl.of(2021, 4, 5),
-			DateImpl.of(2021, 5, 1),
-			DateImpl.of(2021, 5, 3),
-			DateImpl.of(2021, 5, 31),
-			DateImpl.of(2021, 8, 30),
-			DateImpl.of(2021, 12, 27),
-			DateImpl.of(2021, 12, 28)
+			Date.of(2020, 12, 25),
+			Date.of(2020, 12, 28),
+			Date.of(2021, 1, 1),
+			Date.of(2021, 4, 2),
+			Date.of(2021, 4, 5),
+			Date.of(2021, 5, 1),
+			Date.of(2021, 5, 3),
+			Date.of(2021, 5, 31),
+			Date.of(2021, 8, 30),
+			Date.of(2021, 12, 27),
+			Date.of(2021, 12, 28)
 	);
 
 	static final BusinessCenters LONDON_BC = toBusinessCenters(LONDON);
