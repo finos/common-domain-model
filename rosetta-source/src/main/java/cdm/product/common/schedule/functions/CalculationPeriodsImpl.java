@@ -4,7 +4,6 @@ import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodData.CalculationPeriodDataBuilder;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
@@ -21,22 +20,14 @@ import java.time.chrono.IsoChronology;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BiPredicate;
-import java.util.stream.Collectors;
 
 import static cdm.product.common.schedule.functions.AdjustableDateUtils.adjustDate;
 import static cdm.product.common.schedule.functions.CdmToStrataMapper.getFrequency;
 import static cdm.product.common.schedule.functions.CdmToStrataMapper.getRollConvention;
 
-/**
- * TODO - Move this to the CDM
- */
 public class CalculationPeriodsImpl extends CalculationPeriods {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(CalculationPeriod.class);
-
-    private final BiPredicate<Date, SchedulePeriod> STARTDATE_EQ_OR_AFTER = (date, period) -> toLocalDate(date).isEqual(period.getStartDate()) || toLocalDate(date).isAfter(period.getStartDate());
+    private static final Logger LOGGER = LoggerFactory.getLogger(CalculationPeriod.class);
 
     @Override
     protected List<CalculationPeriodData.CalculationPeriodDataBuilder> doEvaluate(CalculationPeriodDates calculationPeriodDates) {
@@ -64,10 +55,9 @@ public class CalculationPeriodsImpl extends CalculationPeriods {
         }
 
         return returnVal;
-
     }
 
-    private CalculationPeriodData.CalculationPeriodDataBuilder getCalcPeriod (SchedulePeriod targetPeriod) {
+    private CalculationPeriodData.CalculationPeriodDataBuilder getCalcPeriod(SchedulePeriod targetPeriod) {
         CalculationPeriodDataBuilder builder = CalculationPeriodData.builder();
         int daysThatAreInLeapYear = getDaysThatAreInLeapYear(targetPeriod);
 
@@ -78,7 +68,6 @@ public class CalculationPeriodsImpl extends CalculationPeriods {
                 .setDaysInPeriod((int) ChronoUnit.DAYS.between(targetPeriod.getStartDate(), targetPeriod.getEndDate()))
                 .setIsFirstPeriod(false)
                 .setIsLastPeriod(false);
-
     }
 
     private int getDaysThatAreInLeapYear(SchedulePeriod targetPeriod) {
@@ -91,11 +80,9 @@ public class CalculationPeriodsImpl extends CalculationPeriods {
         return daysThatAreInLeapYear;
     }
 
-
-
     @NotNull
     private Schedule getSchedule(CalculationPeriodDates calculationPeriodDates, LocalDate adjustedStartDate, LocalDate adjustedEndDate) {
-        // The api expects unadjusted dates but we are passing in adjusted dates and using BusinessDayAdjustment.NONE.
+        // The api expects unadjusted dates, but we are passing in adjusted dates and using BusinessDayAdjustment.NONE.
         PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
                 adjustedStartDate,
                 adjustedEndDate,
@@ -104,11 +91,6 @@ public class CalculationPeriodsImpl extends CalculationPeriods {
                 StubConvention.NONE,
                 getRollConvention(calculationPeriodDates));
 
-        Schedule schedule = periodicSchedule.createSchedule(ReferenceData.minimal());
-        return schedule;
-    }
-
-    private LocalDate toLocalDate(Date date) {
-        return LocalDate.of(date.getYear(), date.getMonth(), date.getDay());
+        return periodicSchedule.createSchedule(ReferenceData.minimal());
     }
 }
