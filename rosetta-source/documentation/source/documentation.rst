@@ -2183,29 +2183,29 @@ Some of those calculations are presented below:
      rounding CollateralRounding (1..1)
      disputedReturnAmount Money (1..1)
      baseCurrency string (1..1)
-
    output:
      result Money (1..1)
 
-       alias undisputedAdjustedPostedCreditSupportAmount:
-         UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency )
-       alias creditSupportAmount:
-         CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
-       alias returnAmount:
-         Max( undisputedAdjustedPostedCreditSupportAmount -> amount - creditSupportAmount -> amount, 0.0 )
-       alias undisputedReturnAmount:
-         Max( returnAmount - disputedReturnAmount -> amount, 0.0 )
+   alias undisputedAdjustedPostedCreditSupportAmount:
+     UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency )
+   alias creditSupportAmount:
+     CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
+   alias returnAmount:
+     Max( undisputedAdjustedPostedCreditSupportAmount -> amount - creditSupportAmount -> amount, 0.0 )
+   alias undisputedReturnAmount:
+     Max( returnAmount - disputedReturnAmount -> amount, 0.0 )
 
-       condition:
-         ( baseCurrency = minimumTransferAmount -> currency )
-       and ( baseCurrency = disputedReturnAmount -> currency )
+   condition:
+     (baseCurrency = minimumTransferAmount -> unitOfAmount->currency)
+       and (baseCurrency = disputedReturnAmount -> unitOfAmount->currency)
 
-       set result -> amount:
-         if undisputedReturnAmount >= minimumTransferAmount -> amount
+   set result -> amount:
+     if undisputedReturnAmount >= minimumTransferAmount -> amount
      then RoundToNearest( undisputedReturnAmount, rounding -> returnAmount, RoundingModeEnum -> Down )
      else 0.0
-       set result -> currency:
-         baseCurrency
+
+   set result -> unitOfAmount->currency:
+     baseCurrency
      
 Billing
 """""""
@@ -2215,7 +2215,10 @@ The CDM process model includes calculations to support the billing event consist
 The data type and function to generate a Security Lending Invoice:
 
 .. code-block:: Haskell
+
   type SecurityLendingInvoice:
+    [rootType]
+    [metadata key]
     sendingParty Party (1..1)
     receivingParty Party (1..1)
     billingStartDate date (1..1)
@@ -2224,27 +2227,25 @@ The data type and function to generate a Security Lending Invoice:
     billingSummary BillingSummary (1..*)
     
 .. code-block:: Haskell
-  func Create_SecurityLendingInvoice: <"Defines the process of calculating and creating a Security Lending Invoice.">
 
+ func Create_SecurityLendingInvoice:
     inputs:
-      instruction BillingInstruction (1..1) <"Specifies the instructions for creation of a Security Lending billing invoice.">
-
+      instruction BillingInstruction (1..1)
     output:
-      invoice SecurityLendingInvoice (1..1) <"Produces the Security Lending Invoice">
+      invoice SecurityLendingInvoice (1..1)
 
-      set invoice->sendingParty:
-        instruction->sendingParty
-      set invoice->receivingParty:
-    instruction->receivingParty    
-      set invoice->billingStartDate:
-    instruction->billingStartDate
-      set invoice->billingEndDate:
-    instruction->billingEndDate
-      set invoice -> billingRecord:
-    Create_BillingRecords (instruction -> billingRecordInstruction)
-      set invoice->billingSummary:
-    Create_BillingSummary (invoice -> billingRecord)
-
+    set invoice -> sendingParty:
+      instruction -> sendingParty
+    set invoice -> receivingParty:
+      instruction -> receivingParty
+    set invoice -> billingStartDate:
+      instruction -> billingStartDate
+    set invoice -> billingEndDate:
+      instruction -> billingEndDate
+    add invoice -> billingRecord:
+      Create_BillingRecords( instruction -> billingRecordInstruction )
+    add invoice -> billingSummary:
+      Create_BillingSummary( invoice -> billingRecord )
 
 
 Lifecycle Event Process
