@@ -2035,7 +2035,7 @@ The CDM process model eliminates the need for implementators to interpret the lo
 
 .. code-block:: Haskell
 
-unc YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
+ func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.">
 	[calculation]
 
 	alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
