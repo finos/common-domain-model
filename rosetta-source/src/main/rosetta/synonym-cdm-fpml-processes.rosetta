@@ -1,0 +1,165 @@
+namespace cdm.synonyms.fpml.processes
+version "${project.version}"
+
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.party.*
+import cdm.base.staticdata.identifier.*
+
+import cdm.observable.asset.*
+
+import cdm.product.template.*
+import cdm.product.asset.*
+import cdm.product.common.settlement.*
+import cdm.legalagreement.contract.*
+import cdm.legalagreement.common.*
+
+import cdm.synonyms.fpml.*
+import org.isda.cdm.*
+
+import cdm.event.workflow.*
+import cdm.event.common.*
+
+synonym source FpML_5_10_Processes extends FpML_5_10
+{
+   WorkflowStep:
+        + action
+            [set to ActionEnum -> New when "isCorrection" = False,
+             set to ActionEnum -> Correct when "isCorrection" = True]
+        + messageInformation
+            [value "header"]
+        + party
+            [value "party"]
+        + eventIdentifier
+            [value "header"]
+            [value "eventIdentifier" path "tradingEvent"]
+        + action
+            [set to ActionEnum -> New]
+        + proposedInstruction
+            [value "ignore"]
+        + nextWorkflowStep
+            [value "partyTradeInformation" path "trade->tradeHeader"]
+        + businessEvent
+            [value "tradePackage"]
+            [hint "trade", "novation", "termination", "tradingEvent", "originatingEvent"]
+
+    NextWorkflowStep:
+        + nextIntendedEvent
+            [set to IntentEnum -> Allocation when "intentToAllocate" = True]
+            [set to IntentEnum -> Clearing when "intentToClear" = True]
+        + proposedInstruction
+            [value "ignore"]
+
+    WorkflowState:
+		+ workflowStatus
+			[set to WorkflowStatusEnum->Cleared when "originatingEvent" = "Clearing"]
+
+    EventTimestamp:
+        + dateTime
+            [value "creationTimestamp" path "header"]
+            [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation"]
+            [value "executionDateTime" path "termination"]
+            [value "submittedForClearing" path "trade->tradeHeader->partyTradeInformation->timestamps"]
+            [value "cleared" path "trade->tradeHeader->partyTradeInformation->timestamps"]
+        + qualification
+            [set to EventTimestampQualificationEnum -> eventCreationDateTime when path = "header->creationTimestamp"]
+            [set to EventTimestampQualificationEnum -> clearingSubmissionDateTime when path = "trade->tradeHeader->partyTradeInformation->timestamps->submittedForClearing"]
+            [set to EventTimestampQualificationEnum -> clearingDateTime when path = "trade->tradeHeader->partyTradeInformation->timestamps->cleared"]
+            [set to EventTimestampQualificationEnum -> executionDateTime when path = "trade->tradeHeader->partyTradeInformation->executionDateTime"]
+            [set to EventTimestampQualificationEnum -> executionDateTime when path = "termination"]
+
+    BusinessEvent:
+        + eventDate
+            [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "executionDateTime" path "novation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "novationTradeDate" path "novation" maps 2]
+            // [value "agreementDate" path "tradingEvent"]
+        + effectiveDate
+            [value "effectiveDate" path "tradingEvent"]
+        + packageInformation
+            [value "packageHeader"]
+            [hint "trade"]
+        + instruction
+            [value "ignore"]
+        + after
+            [value "ignore"]
+
+    MessageInformation:
+        + messageId
+            [value "messageId" maps 2 meta "messageIdScheme"]
+        + sentBy
+            [value "systemId" path "sentBy"]
+            [value "sentBy"]
+        + sentTo
+            [value "systemId" path "sendTo"]
+            [value "sendTo"]
+        + copyTo
+            [value "copyTo"]
+
+    PrimitiveEvent:
+            + split
+                [value "ignore"]
+            + execution
+                [value "ignore"]
+            + contractFormation
+                [value "novation"]
+                [hint "trade"]
+            + quantityChange
+                [value "termination"]
+                [value "novation"]
+            + reset
+                [value "ignore"]
+            + termsChange
+                [value "ignore"]
+            + transfer
+                [value "ignore"]
+
+    ContractFormationPrimitive:
+        + before
+            [hint "oldTrade"]
+
+    QuantityChangePrimitive:
+        + before
+            [hint "originalTrade"]
+            [hint "newTrade"]
+            [hint "oldTrade"]
+
+    TradeState:
+            [meta "id" path "trade"]
+            [meta "id" path "originalTrade"]
+            [meta "id" path "newTrade"]
+            [meta "id" path "oldTrade"]
+            - trade
+            + trade
+                [value "trade" mapper "Party"]
+                [value "originalTrade" mapper "Party"]
+                [value "newTrade" mapper "Party"]
+                [value "oldTrade" mapper "NovationParty"]
+                [hint "outstandingNotionalAmount", "sizeChange", "novationAmount", "novatedAmount", "novationTradeDate"]
+            - transferHistory
+            + transferHistory
+                [value "ignore"]
+
+    Trade:
+        + tradeDate
+            [value "novationTradeDate" mapper "NovationTradeDate"]
+
+    TradableProduct:
+        + tradeLot
+            [value "outstandingNotionalAmount",
+                "outstandingNotionalAmount" path "sizeChange",
+                "outstandingNotionalAmount" path "novationAmount",
+                "novatedAmount"
+                    mapper "OutstandingNotionalAmount"]
+
+    ClosedState:
+        + state
+            [set to ClosedStateEnum -> Terminated when "outstandingNotionalAmount->amount" = "0"] // TODO: add support for floating point number comparison, e.g., "amount" = 0.0
+            [set to ClosedStateEnum -> Novated when path = "novation"
+                and rosettaPath = BusinessEvent -> primitives -> quantityChange -> after -> state -> closedState]
+        + activityDate
+            [value "executionDateTime" dateFormat "yyyy-MM-dd'T'HH:mm:ssz" mapper "SetIfClosed"]
+        + effectiveDate
+            [value "effectiveDate" mapper "SetIfClosed"]
+            [value "novationDate" mapper "SetIfClosed"]
+}
