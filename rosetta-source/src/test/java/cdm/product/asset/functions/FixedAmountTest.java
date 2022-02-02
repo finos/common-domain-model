@@ -29,44 +29,42 @@ import static org.hamcrest.core.Is.is;
 
 class FixedAmountTest extends AbstractFunctionTest {
 
-    @Inject private FixedAmount fixedAmount;
-    
+    @Inject
+    private FixedAmount fixedAmount;
+
     @Test
     void shouldCalculate() {
-		BigDecimal price = BigDecimal.valueOf(0.06);
-        
-//		NonNegativeQuantity quantity = NonNegativeQuantity.builder()
-//        		.setAmount(BigDecimal.valueOf(50_000_000))
-//       		.build();
-		Money notional = Money.builder()
-				.setAmount(BigDecimal.valueOf(50_000_000))
-				.setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-				.build();
-        
+        BigDecimal price = BigDecimal.valueOf(0.06);
+
+        Money notional = Money.builder()
+                .setAmount(BigDecimal.valueOf(50_000_000))
+                .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                .build();
+
         InterestRatePayout interestRatePayout = InterestRatePayout.builder()
                 .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build())
                 .setCalculationPeriodDates(CalculationPeriodDates.builder()
                         .setEffectiveDate((AdjustableOrRelativeDate.builder()
-                    			.setAdjustableDate(AdjustableDate.builder()
-                    					.setUnadjustedDate(Date.of(2018, 1, 3))
-                    					.setDateAdjustments(BusinessDayAdjustments.builder()
-                    							.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
-                    							.build())
-                    					.build())
-                    			.build()))
+                                .setAdjustableDate(AdjustableDate.builder()
+                                        .setUnadjustedDate(Date.of(2018, 1, 3))
+                                        .setDateAdjustments(BusinessDayAdjustments.builder()
+                                                .setBusinessDayConvention(BusinessDayConventionEnum.NONE)
+                                                .build())
+                                        .build())
+                                .build()))
                         .setTerminationDate(AdjustableOrRelativeDate.builder()
-                        		.setAdjustableDate(AdjustableDate.builder()
-                        				.setUnadjustedDate(Date.of(2020, 1, 3))
-                        				.setDateAdjustments(BusinessDayAdjustments.builder()
-                        						.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
-                        						.setBusinessCenters(BusinessCenters.builder()
-                        								.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
-                        										.setExternalReference("primaryBusinessCenters")
-                        										.build())
-                        								.build())
-                        						.build())
-                        				.build())
-                        		.build())
+                                .setAdjustableDate(AdjustableDate.builder()
+                                        .setUnadjustedDate(Date.of(2020, 1, 3))
+                                        .setDateAdjustments(BusinessDayAdjustments.builder()
+                                                .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
+                                                .setBusinessCenters(BusinessCenters.builder()
+                                                        .setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
+                                                                .setExternalReference("primaryBusinessCenters")
+                                                                .build())
+                                                        .build())
+                                                .build())
+                                        .build())
+                                .build())
                         .setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
                                 .setRollConvention(RollConventionEnum._3)
                                 .setPeriodMultiplier(3)
@@ -75,16 +73,16 @@ class FixedAmountTest extends AbstractFunctionTest {
                         .setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
                                 .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                                 .setBusinessCenters(BusinessCenters.builder()
-                                		.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
-                                        		.setExternalReference("primaryBusinessCenters")
-                                        		.build())
+                                        .setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
+                                                .setExternalReference("primaryBusinessCenters")
+                                                .build())
                                         .build())
                                 .build())
                         .build())
-				.setRateSpecification(RateSpecification.builder().setFixedRate(FixedRateSpecification.builder()
-						.setRateSchedule(RateSchedule.builder().setInitialValue(ReferenceWithMetaPrice.builder().setValue(Price.builder().setAmount(price))))))
+                .setRateSpecification(RateSpecification.builder().setFixedRate(FixedRateSpecification.builder()
+                        .setRateSchedule(RateSchedule.builder().setInitialValue(ReferenceWithMetaPrice.builder().setValue(Price.builder().setAmount(price))))))
                 .build();
-        
+
         assertThat(fixedAmount.evaluate(interestRatePayout, notional, Date.of(2018, 8, 22), null), is(new BigDecimal("750000.0000")));
     }
 }

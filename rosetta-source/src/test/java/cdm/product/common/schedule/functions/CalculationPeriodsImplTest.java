@@ -6,45 +6,41 @@ import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import com.google.inject.Inject;
-import com.opengamma.strata.basics.schedule.ScheduleException;
-import com.rosetta.model.lib.records.DateImpl;
+import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class CalculationPeriodsImplTest extends CalculationPeriodImplTest {
-	
-	@Inject CalculationPeriods calculationPeriods;
+class CalculationPeriodsImplTest extends AbstractFunctionTest {
+
+    @Inject CalculationPeriods calculationPeriods;
 
     private final CalculationPeriodDates calculationPeriodDates = CalculationPeriodDates.builder()
             .setEffectiveDate((AdjustableOrRelativeDate.builder()
-        			.setAdjustableDate(AdjustableDate.builder()
-        					.setUnadjustedDate(DateImpl.of(2018, 1, 3))
-        					.setDateAdjustments(BusinessDayAdjustments.builder()
-        							.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
-        							.build())
-        					.build())
-        			.build()))
+                    .setAdjustableDate(AdjustableDate.builder()
+                            .setUnadjustedDate(Date.of(2018, 1, 3))
+                            .setDateAdjustments(BusinessDayAdjustments.builder()
+                                    .setBusinessDayConvention(BusinessDayConventionEnum.NONE)
+                                    .build())
+                            .build())
+                    .build()))
             .setTerminationDate(AdjustableOrRelativeDate.builder()
-            		.setAdjustableDate(AdjustableDate.builder()
-            				.setUnadjustedDate(DateImpl.of(2020, 1, 3))
-            				.setDateAdjustments(BusinessDayAdjustments.builder()
-            						.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
-            						.setBusinessCenters(BusinessCenters.builder()
-            								.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
-            										.setExternalReference("primaryBusinessCenters")
-            										.build())
-            								.build())
-            						.build())
-            				.build())
+                    .setAdjustableDate(AdjustableDate.builder()
+                            .setUnadjustedDate(Date.of(2020, 1, 3))
+                            .setDateAdjustments(BusinessDayAdjustments.builder()
+                                    .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
+                                    .setBusinessCenters(BusinessCenters.builder()
+                                            .setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
+                                                    .setExternalReference("primaryBusinessCenters")
+                                                    .build())
+                                            .build())
+                                    .build())
+                            .build())
                     .build())
             .setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
                     .setRollConvention(RollConventionEnum._3)
@@ -55,58 +51,57 @@ class CalculationPeriodsImplTest extends CalculationPeriodImplTest {
                     .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                     .setBusinessCenters(BusinessCenters.builder()
                             .setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
-                            		.setExternalReference("primaryBusinessCenters")
-                            		.build())
+                                    .setExternalReference("primaryBusinessCenters")
+                                    .build())
                             .build())
                     .build())
             .build();
 
-	private final CalculationPeriodDates calculationPeriodDates2 = CalculationPeriodDates.builder()
-			.setEffectiveDate((AdjustableOrRelativeDate.builder()
-					.setAdjustableDate(AdjustableDate.builder()
-							.setUnadjustedDate(DateImpl.of(2020, 4, 27))
-							.setDateAdjustments(BusinessDayAdjustments.builder()
-									.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
-									.build())
-							.build())
-					.build()))
-			.setTerminationDate(AdjustableOrRelativeDate.builder()
-					.setAdjustableDate(AdjustableDate.builder()
-							.setUnadjustedDate(DateImpl.of(2022, 4, 27))
-							.setDateAdjustments(BusinessDayAdjustments.builder()
-									.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
-									.setBusinessCenters(BusinessCenters.builder()
-											.addBusinessCenter(FieldWithMetaBusinessCenterEnum.builder()
-													.setValue(BusinessCenterEnum.EUTA)
-													.build())
-											.build())
-									.build())
-							.build())
-					.build())
-			.setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
-					.setRollConvention(RollConventionEnum._27)
-					.setPeriod(PeriodExtendedEnum.M)
-					.setPeriodMultiplier(2)
-					.build())
-			.setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
-					.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
-					.setBusinessCenters(BusinessCenters.builder()
-							.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
-									.setExternalReference("primaryBusinessCenters")
-									.build())
-							.build())
-					.build())
-			.build();
+    private final CalculationPeriodDates calculationPeriodDates2 = CalculationPeriodDates.builder()
+            .setEffectiveDate((AdjustableOrRelativeDate.builder()
+                    .setAdjustableDate(AdjustableDate.builder()
+                            .setUnadjustedDate(Date.of(2020, 4, 27))
+                            .setDateAdjustments(BusinessDayAdjustments.builder()
+                                    .setBusinessDayConvention(BusinessDayConventionEnum.NONE)
+                                    .build())
+                            .build())
+                    .build()))
+            .setTerminationDate(AdjustableOrRelativeDate.builder()
+                    .setAdjustableDate(AdjustableDate.builder()
+                            .setUnadjustedDate(Date.of(2022, 4, 27))
+                            .setDateAdjustments(BusinessDayAdjustments.builder()
+                                    .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
+                                    .setBusinessCenters(BusinessCenters.builder()
+                                            .addBusinessCenter(FieldWithMetaBusinessCenterEnum.builder()
+                                                    .setValue(BusinessCenterEnum.EUTA)
+                                                    .build())
+                                            .build())
+                                    .build())
+                            .build())
+                    .build())
+            .setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
+                    .setRollConvention(RollConventionEnum._27)
+                    .setPeriod(PeriodExtendedEnum.M)
+                    .setPeriodMultiplier(2)
+                    .build())
+            .setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
+                    .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
+                    .setBusinessCenters(BusinessCenters.builder()
+                            .setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
+                                    .setExternalReference("primaryBusinessCenters")
+                                    .build())
+                            .build())
+                    .build())
+            .build();
 
     @Test
     void shouldReturnStartAndEndDateOfFirstPeriod() {
-		List<? extends CalculationPeriodData> periods = calculationPeriods.evaluate(calculationPeriodDates);
+        List<? extends CalculationPeriodData> periods = calculationPeriods.evaluate(calculationPeriodDates);
 
-		CalculationPeriodData usingStartDate = periods.get(0);
-		assertThat(usingStartDate.getStartDate(), is(DateImpl.of(2018, 1, 3)));
-		assertThat(usingStartDate.getEndDate(), is(DateImpl.of(2018, 4, 3)));
-		assertEquals(periods.size(), 8);
-	}
-
+        CalculationPeriodData usingStartDate = periods.get(0);
+        assertThat(usingStartDate.getStartDate(), is(Date.of(2018, 1, 3)));
+        assertThat(usingStartDate.getEndDate(), is(Date.of(2018, 4, 3)));
+        assertEquals(periods.size(), 8);
     }
+}
 

@@ -76,7 +76,7 @@ func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of 
 		calculationPeriod CalculationPeriodBase (1..1) <"Calculation period for which we want to determine the rate.">
 		priorCalculationPeriod CalculationPeriodBase (0..1) <"The prior calculation period (needed only for set in advance observation shift rate.">
 	output:
-		results CalculatedRateObservationDatesAndWeights (1..1) <"observation dates and corresonding weight.">
+		results CalculatedRateObservationDatesAndWeights (1..1) <"observation dates and corresponding weight.">
 
 	// set up some convenience accessors
 	alias obsShift: calculationParams->observationShiftCalculation
@@ -93,13 +93,8 @@ func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of 
 	alias observationPeriod: DetermineObservationPeriod(adjustedCalculationPeriod, calculationParams)
 	alias observationDates: GenerateObservationDates(observationPeriod, businessDays, lockoutDays)
 
-	// work out the date list for calculating weights, then calculate the weights
-//	alias weightingDates: DetermineWeightingDates(calculationParams, observationDates, observationPeriod, adjustedCalculationPeriod, lockoutDays)
-//	alias weights: GenerateWeights(weightingDates)
-
 	// record the results
 	add results->observationDates: observationDates
-//	add results->weights: weights
     add results->weights: GenerateWeightings(calculationParams, results->observationDates, observationPeriod, adjustedCalculationPeriod, lockoutDays)
 
 
@@ -148,12 +143,11 @@ func DetermineObservationPeriod: <"Determine any applicable offsets/shifts for t
 
 	// determine the shift amount
 	alias shift: if (obsShift exists) then obsShift->offsetDays else if lookback exists then lookback->offsetDays else 0 // shift amount
-		// default to 5 days if not specified (this is the default value from the 2021 Definitions)
+    // default to 5 days if not specified (this is the default value from the 2021 Definitions)
 	alias shiftDefaulted: if shift exists then shift else 5
 
-		// calculate and return the shifted observation period
-	alias obsPeriod: GenerateObservationPeriod(adjustedCalculationPeriod, allBusinessDays, shiftDefaulted)
-	set observationPeriod: obsPeriod
+    // calculate and return the shifted observation period
+	set observationPeriod: GenerateObservationPeriod(adjustedCalculationPeriod, allBusinessDays, shiftDefaulted)
 
 func GenerateObservationPeriod: <"Generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shifts.">
 	[calculation]
@@ -188,9 +182,7 @@ func GenerateObservationDates: <"Generate the list of observation dates given an
 	alias endDate: AddBusinessDays(observationPeriod->adjustedEndDate, -1 * days, bc)
 
 	// create the list of observation dates - all business days between the start and end dates
-	alias obsDates: GenerateDateList(observationPeriod->adjustedStartDate, endDate, bc)
-
-	add observationDates: obsDates
+	add observationDates: GenerateDateList(observationPeriod->adjustedStartDate, endDate, bc)
 
 func GenerateWeightings: <"Determine the weighting dates and the corresponding weights to be used for weighting observation.">
 	[calculation]

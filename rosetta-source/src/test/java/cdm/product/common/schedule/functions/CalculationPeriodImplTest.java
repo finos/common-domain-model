@@ -21,7 +21,7 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
 	
 	@Inject CalculationPeriod calculationPeriod;
 
-    protected final CalculationPeriodDates calculationPeriodDates = CalculationPeriodDates.builder()
+    private final CalculationPeriodDates calculationPeriodDates = CalculationPeriodDates.builder()
             .setEffectiveDate((AdjustableOrRelativeDate.builder()
         			.setAdjustableDate(AdjustableDate.builder()
         					.setUnadjustedDate(Date.of(2018, 1, 3))
@@ -58,7 +58,7 @@ class CalculationPeriodImplTest extends AbstractFunctionTest {
                     .build())
             .build();
 
-	protected final CalculationPeriodDates calculationPeriodDates2 = CalculationPeriodDates.builder()
+	private final CalculationPeriodDates calculationPeriodDates2 = CalculationPeriodDates.builder()
 			.setEffectiveDate((AdjustableOrRelativeDate.builder()
 					.setAdjustableDate(AdjustableDate.builder()
 							.setUnadjustedDate(Date.of(2020, 4, 27))
