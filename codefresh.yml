@@ -59,29 +59,29 @@ steps:
         title: DAML build and deploy
         fail_fast: false
         image: digitalasset/daml-sdk:1.3.0
-        working_directory: ./rosetta-source/
+        working_directory: ./codefresh/volume/rosetta-cdm/
         shell: bash
         commands:
           - daml build -o target/cdm-daml-${{RELEASE_NAME}}.dar
-          - cd /codefresh/volume/rosetta-cdm/rosetta-source/target
+          - cd /codefresh/volume/rosetta-cdm/target
           - tar -cvzf cdm-daml.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.tar.gz" -T cdm-daml.tar.gz
       BuildScala:
         title: Scala build and deploy
         fail_fast: false
         image: mozilla/sbt
-        working_directory: ./rosetta-source/target/classes/cdm/scala
+        working_directory: ./target/classes/cdm/scala
         shell: bash
         commands:
           - sbt compile
           - sbt package
-          - cd /codefresh/volume/rosetta-cdm/rosetta-source/target/classes/cdm/scala/target/scala-2.12
+          - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/scala/target/scala-2.12
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-scala/${{RELEASE_NAME}}/cdm-scala-${{RELEASE_NAME}}.jar" -T cdm-scala_2.12-0.0.0.snapshot.jar
       BuildCSharp8:
         title: CSharp8 build and deploy
         fail_fast: false
         image: mcr.microsoft.com/dotnet/core/sdk:3.1
-        working_directory: ./rosetta-source/target/classes/cdm/csharp8/NetStandard.2.1
+        working_directory: ./target/classes/cdm/csharp8/NetStandard.2.1
         shell: bash
         commands:
           - dotnet build Cdm/Cdm.csproj
@@ -93,7 +93,7 @@ steps:
         title: CSharp9 build and deploy
         fail_fast: false
         image: mcr.microsoft.com/dotnet/sdk:5.0
-        working_directory: ./rosetta-source/target/classes/cdm/csharp9/Net.5.0
+        working_directory: ./target/classes/cdm/csharp9/Net.5.0
         shell: bash
         commands:
           - dotnet build Cdm/Cdm.csproj
@@ -105,7 +105,7 @@ steps:
         title: TypeScript build and deploy
         fail_fast: false
         image: spotify/alpine
-        working_directory: ./rosetta-source/target/classes/cdm
+        working_directory: ./target/classes/cdm
         shell: bash
         commands:
           - tar -cvzf cdm-typescript.zip typescript
@@ -114,7 +114,7 @@ steps:
         title: Go build and deploy
         fail_fast: false
         image: spotify/alpine
-        working_directory: ./rosetta-source/target/classes/cdm
+        working_directory: ./target/classes/cdm
         shell: bash
         commands:
           - tar -cvzf cdm-golang.tar.gz golang
@@ -123,10 +123,10 @@ steps:
         title: Kotlin build and deploy
         fail_fast: false
         image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-        working_directory: ./rosetta-source/
+        working_directory: ./
         shell: bash
         commands:
-          - cd /codefresh/volume/rosetta-cdm/rosetta-source/target/classes/cdm/kotlin
+          - cd /codefresh/volume/rosetta-cdm/target/classes/cdm/kotlin
           - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
           - mvn -s /settings.xml -f kotlin-pom.xml clean deploy
 
@@ -138,7 +138,7 @@ steps:
     commands:
       - mvn -s /settings.xml javadoc:jar
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - curl -X PUT -u ${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}} -T rosetta-source/target/cdm-${{RELEASE_NAME}}-javadoc.jar "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar"
+      - curl -X PUT -u ${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}} -T target/cdm-${{RELEASE_NAME}}-javadoc.jar "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar"
 
   NotifySlackOnFail:
     title: Trigger Slack dev channel notification if master build failed
