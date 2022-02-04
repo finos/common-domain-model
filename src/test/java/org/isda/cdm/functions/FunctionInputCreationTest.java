@@ -50,6 +50,7 @@ import util.ResourcesUtils;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -78,6 +79,106 @@ class FunctionInputCreationTest {
                     }
                 });
         injector = Guice.createInjector(module);
+    }
+
+    // Execution
+
+
+    @Test
+    void validateExecutionIrSwap() throws IOException {
+        validateExecution(
+                "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json",
+                Date.parse("1994-12-12"),
+                "/cdm-sample-files/functions/execute-business-event/execution-ir-swap-func-input.json");
+    }
+
+    @Test
+    void validateExecutionIrSwapWithInitialFee() throws IOException {
+        validateExecution(
+                "result-json-files/fpml-5-10/products/rates/ird-initial-fee.json",
+                Date.parse("2018-02-20"),
+                "/cdm-sample-files/functions/execute-business-event/execution-ir-swap-with-fee-func-input.json");
+    }
+
+    @Test
+    void validateExecutionIrSwapWithOtherPartyPayment() throws IOException {
+        validateExecution(
+                "result-json-files/fpml-5-10/products/rates/swap-with-other-party-payment.json",
+                Date.parse("1994-12-12"),
+                "/cdm-sample-files/functions/execute-business-event/execution-ir-swap-with-other-party-payment-func-input.json");
+    }
+
+    @Test
+    void validateExecutionFra() throws IOException {
+        validateExecution(
+                "result-json-files/fpml-5-10/products/rates/ird-ex08-fra.json",
+                Date.parse("1991-05-14"),
+                "/cdm-sample-files/functions/execute-business-event/execution-fra-func-input.json");
+    }
+
+    @Test
+    void validateExecutionBasisSwap() throws IOException {
+        validateExecution(
+                "result-json-files/fpml-5-10/products/rates/CAD-Long-Initial-Stub-versioned.json",
+                Date.parse("2017-12-18"),
+                "/cdm-sample-files/functions/execute-business-event/execution-basis-swap-func-input.json");
+    }
+
+    @Test
+    void validateExecutionOisSwap() throws IOException {
+        validateExecution(
+                "result-json-files/fpml-5-10/products/rates/ird-ex07-ois-swap-uti.json",
+                Date.parse("2001-01-25"),
+                "/cdm-sample-files/functions/execute-business-event/execution-ois-swap-func-input.json");
+    }
+
+    @Test
+    void validateExecutionCreditDefaultSwap() throws IOException {
+        validateExecution(
+                "result-json-files/fpml-5-10/products/credit/cd-ex01-long-asia-corp-fixreg-versioned.json",
+                Date.parse("2002-12-04"),
+                "/cdm-sample-files/functions/execute-business-event/execution-credit-default-swap-func-input.json");
+    }
+
+    @Test
+    void validateExecutionFxForward() throws IOException {
+        validateExecution(
+                "result-json-files/fpml-5-10/products/fx/fx-ex03-fx-fwd.json",
+                Date.parse("2001-11-19"),
+                "/cdm-sample-files/functions/execute-business-event/execution-fx-forward-func-input.json");
+    }
+
+    @Test
+    void validateExecutionRepoFixedRate() throws IOException {
+        validateExecution(
+                "result-json-files/fpml-5-10/products/repo/repo-ex01-repo-fixed-rate.json",
+                Date.parse("2013-10-29"),
+                "/cdm-sample-files/functions/execute-business-event/execution-repo-fixed-rate-func-input.json");
+    }
+
+    @Test
+    void validateExecutionSwaption() throws IOException {
+        validateExecution(
+                "result-json-files/fpml-5-10/products/rates/ird-ex09-euro-swaption-explicit-versioned.json",
+                Date.parse("2000-08-30"),
+                "/cdm-sample-files/functions/execute-business-event/execution-swaption-func-input.json");
+    }
+
+    private void validateExecution(String tradeStatePath, Date eventDate, String expectedJsonPath) throws IOException {
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
+
+        Instruction instructionBuilder = Instruction.builder()
+                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setExecution(FunctionUtils.createExecutionInstructionFromTradeState(tradeState)));
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                InstructionFunctionEnum.EXECUTION,
+                eventDate);
+
+        assertEquals(readResource(expectedJsonPath),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for "+ Paths.get(expectedJsonPath).getFileName() +" has been updated (probably due to a model change). Update the input file");
     }
 
     @Test
