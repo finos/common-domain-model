@@ -478,8 +478,10 @@ func Qualify_ContractFormation: <"Qualifies a business event as a contract forma
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 	set is_event:
-		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists or
-		(businessEvent -> instruction -> primitiveInstruction -> contractFormation only exists or (businessEvent -> instruction -> primitiveInstruction -> execution,businessEvent -> instruction -> primitiveInstruction -> contractFormation) only exists)
+		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists
+		    or (businessEvent -> instruction -> primitiveInstruction -> contractFormation only exists
+		        or (businessEvent -> instruction -> primitiveInstruction -> execution, businessEvent -> instruction -> primitiveInstruction -> contractFormation) only exists)
+		    or (businessEvent -> instruction -> primitiveInstruction is absent and businessEvent -> instructionFunction = InstructionFunctionEnum -> ContractFormation)
 		// and businessEvent -> tradeWarehouseWorkflow is absent
 
 func Qualify_StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">

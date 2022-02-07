@@ -13,6 +13,7 @@ import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.event.common.functions.Create_BusinessEvent;
 import cdm.event.workflow.WorkflowStep;
+import cdm.legalagreement.common.*;
 import cdm.observable.asset.GrossOrNetEnum;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceExpression;
@@ -57,6 +58,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FunctionInputCreationTest {
@@ -174,6 +176,118 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 InstructionFunctionEnum.EXECUTION,
+                eventDate);
+
+        assertEquals(readResource(expectedJsonPath),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for "+ Paths.get(expectedJsonPath).getFileName() +" has been updated (probably due to a model change). Update the input file");
+    }
+
+    @Test
+    void validateContractFormationIrSwap() throws IOException {
+        validateContractFormation(
+                "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json",
+                Date.parse("1994-12-12"),
+                "/cdm-sample-files/functions/form-contract-business-event/contract-formation-ir-swap-func-input.json",
+                null);
+    }
+
+    @Test
+    void validateContractFormationIrSwapWithLegalAgreement() throws IOException {
+        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json";
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
+        Date date = Date.parse("1994-12-12");
+
+        LegalAgreement.LegalAgreementBuilder legalAgreement = LegalAgreement.builder()
+                .addContractualPartyValue(guard(tradeState.getTrade().getParty()))
+                .setAgreementDate(date)
+                .setAgreementType(LegalAgreementType.builder()
+                        .setName(LegalAgreementNameEnum.MASTER_AGREEMENT)
+                        .setPublisher(LegalAgreementPublisherEnum.ISDA)
+                        .setGoverningLaw(GoverningLawEnum.AS_SPECIFIED_IN_MASTER_AGREEMENT)
+                        .build());
+
+        validateContractFormation(
+                tradeStatePath,
+                date,
+                "/cdm-sample-files/functions/form-contract-business-event/contract-formation-ir-swap-with-legal-agreement-func-input.json",
+                legalAgreement);
+    }
+
+    @Test
+    void validateContractFormationFra() throws IOException {
+        validateContractFormation(
+                "result-json-files/fpml-5-10/products/rates/ird-ex08-fra.json",
+                Date.parse("1991-05-14"),
+                "/cdm-sample-files/functions/form-contract-business-event/contract-formation-fra-func-input.json",
+                null);
+    }
+
+    @Test
+    void validateContractFormationBasisSwap() throws IOException {
+        validateContractFormation(
+                "result-json-files/fpml-5-10/products/rates/CAD-Long-Initial-Stub-versioned.json",
+                Date.parse("2017-12-18"),
+                "/cdm-sample-files/functions/form-contract-business-event/contract-formation-basis-swap-func-input.json",
+                null);
+    }
+
+    @Test
+    void validateContractFormationOisSwap() throws IOException {
+        validateContractFormation(
+                "result-json-files/fpml-5-10/products/rates/ird-ex07-ois-swap-uti.json",
+                Date.parse("2001-01-25"),
+                "/cdm-sample-files/functions/form-contract-business-event/contract-formation-ois-swap-func-input.json",
+                null);
+    }
+
+    @Test
+    void validateContractFormationSwaption() throws IOException {
+        validateContractFormation(
+                "result-json-files/fpml-5-10/products/rates/ird-ex09-euro-swaption-explicit-versioned.json",
+                Date.parse("2000-08-30"),
+                "/cdm-sample-files/functions/form-contract-business-event/contract-formation-swaption-func-input.json",
+                null);
+    }
+
+    @Test
+    void validateContractFormationCreditDefaultSwap() throws IOException {
+        validateContractFormation(
+                "result-json-files/fpml-5-10/products/credit/cd-ex01-long-asia-corp-fixreg-versioned.json",
+                Date.parse("2002-12-04"),
+                "/cdm-sample-files/functions/form-contract-business-event/contract-formation-credit-default-swap-func-input.json",
+                null);
+    }
+
+    @Test
+    void validateContractFormationFxForward() throws IOException {
+        validateContractFormation(
+                "result-json-files/fpml-5-10/products/fx/fx-ex03-fx-fwd.json",
+                Date.parse("2001-11-19"),
+                "/cdm-sample-files/functions/form-contract-business-event/contract-formation-fx-forward-func-input.json",
+                null);
+    }
+
+    @Test
+    void validateContractFormationRepoFixedRate() throws IOException {
+        validateContractFormation(
+                "result-json-files/fpml-5-10/products/repo/repo-ex01-repo-fixed-rate.json",
+                Date.parse("2013-10-29"),
+                "/cdm-sample-files/functions/form-contract-business-event/contract-formation-repo-fixed-rate-func-input.json",
+                null);
+    }
+
+    private void validateContractFormation(String tradeStatePath, Date eventDate, String expectedJsonPath, LegalAgreement legalAgreement) throws IOException {
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
+
+        Instruction instructionBuilder = Instruction.builder()
+                .setBefore(tradeState)
+                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setContractFormation(ContractFormationInstruction.builder().addLegalAgreement(legalAgreement)));
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                InstructionFunctionEnum.CONTRACT_FORMATION,
                 eventDate);
 
         assertEquals(readResource(expectedJsonPath),
