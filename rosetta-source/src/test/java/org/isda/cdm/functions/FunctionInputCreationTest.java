@@ -83,9 +83,6 @@ class FunctionInputCreationTest {
         injector = Guice.createInjector(module);
     }
 
-    // Execution
-
-
     @Test
     void validateExecutionIrSwap() throws IOException {
         validateExecution(
