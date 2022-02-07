@@ -308,7 +308,7 @@ class FunctionInputCreationTest {
                         .setTerminationDate(Date.of(2019, 12, 12))
                         .build());
 
-        assertEquals(readResource("/cdm-sample-files/functions/termination-workflow-func-input.json"),
+        assertEquals(readResource("/cdm-sample-files/functions/termination-business-event/termination-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for termination-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -329,7 +329,7 @@ class FunctionInputCreationTest {
                         .setTerminationDate(Date.of(2019, 12, 12))
                         .build());
 
-        assertEquals(readResource("/cdm-sample-files/functions/partial-termination-workflow-func-input.json"),
+        assertEquals(readResource("/cdm-sample-files/functions/termination-business-event/partial-termination-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for partial-termination-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -369,7 +369,7 @@ class FunctionInputCreationTest {
                 Date.of(2021, 11, 11)
         );
 
-        assertEquals(readResource("/cdm-sample-files/functions/full-termination-equity-swap-func-input.json"),
+        assertEquals(readResource("/cdm-sample-files/functions/termination-business-event/full-termination-equity-swap-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for full-termination-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -422,7 +422,7 @@ class FunctionInputCreationTest {
                 Date.of(2021, 11, 11)
         );
 
-        assertEquals(readResource("/cdm-sample-files/functions/partial-termination-equity-swap-func-input.json"),
+        assertEquals(readResource("/cdm-sample-files/functions/termination-business-event/partial-termination-equity-swap-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for partial-termination-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
     }
