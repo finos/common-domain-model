@@ -84,86 +84,86 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateExecutionIrSwap() throws IOException {
-        validateExecution(
+    void validateExecutionIrSwapFuncInputJson() throws IOException {
+        validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json",
                 Date.parse("1994-12-12"),
                 "/cdm-sample-files/functions/execution-business-event/execution-ir-swap-func-input.json");
     }
 
     @Test
-    void validateExecutionIrSwapWithInitialFee() throws IOException {
-        validateExecution(
+    void validateExecutionIrSwapWithInitialFeeFuncInputJson() throws IOException {
+        validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-initial-fee.json",
                 Date.parse("2018-02-20"),
                 "/cdm-sample-files/functions/execution-business-event/execution-ir-swap-with-fee-func-input.json");
     }
 
     @Test
-    void validateExecutionIrSwapWithOtherPartyPayment() throws IOException {
-        validateExecution(
+    void validateExecutionIrSwapWithOtherPartyPaymentFuncInputJson() throws IOException {
+        validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/swap-with-other-party-payment.json",
                 Date.parse("1994-12-12"),
                 "/cdm-sample-files/functions/execution-business-event/execution-ir-swap-with-other-party-payment-func-input.json");
     }
 
     @Test
-    void validateExecutionFra() throws IOException {
-        validateExecution(
+    void validateExecutionFraFuncInputJson() throws IOException {
+        validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex08-fra.json",
                 Date.parse("1991-05-14"),
                 "/cdm-sample-files/functions/execution-business-event/execution-fra-func-input.json");
     }
 
     @Test
-    void validateExecutionBasisSwap() throws IOException {
-        validateExecution(
+    void validateExecutionBasisSwapFuncInputJson() throws IOException {
+        validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/CAD-Long-Initial-Stub-versioned.json",
                 Date.parse("2017-12-18"),
                 "/cdm-sample-files/functions/execution-business-event/execution-basis-swap-func-input.json");
     }
 
     @Test
-    void validateExecutionOisSwap() throws IOException {
-        validateExecution(
+    void validateExecutionOisSwapFuncInputJson() throws IOException {
+        validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex07-ois-swap-uti.json",
                 Date.parse("2001-01-25"),
                 "/cdm-sample-files/functions/execution-business-event/execution-ois-swap-func-input.json");
     }
 
     @Test
-    void validateExecutionCreditDefaultSwap() throws IOException {
-        validateExecution(
+    void validateExecutionCreditDefaultSwapFuncInputJson() throws IOException {
+        validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/credit/cd-ex01-long-asia-corp-fixreg-versioned.json",
                 Date.parse("2002-12-04"),
                 "/cdm-sample-files/functions/execution-business-event/execution-credit-default-swap-func-input.json");
     }
 
     @Test
-    void validateExecutionFxForward() throws IOException {
-        validateExecution(
+    void validateExecutionFxForwardFuncInputJson() throws IOException {
+        validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/fx/fx-ex03-fx-fwd.json",
                 Date.parse("2001-11-19"),
                 "/cdm-sample-files/functions/execution-business-event/execution-fx-forward-func-input.json");
     }
 
     @Test
-    void validateExecutionRepoFixedRate() throws IOException {
-        validateExecution(
+    void validateExecutionRepoFixedRateFuncInputJson() throws IOException {
+        validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/repo/repo-ex01-repo-fixed-rate.json",
                 Date.parse("2013-10-29"),
                 "/cdm-sample-files/functions/execution-business-event/execution-repo-fixed-rate-func-input.json");
     }
 
     @Test
-    void validateExecutionSwaption() throws IOException {
-        validateExecution(
+    void validateExecutionSwaptionFuncInputJson() throws IOException {
+        validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex09-euro-swaption-explicit-versioned.json",
                 Date.parse("2000-08-30"),
                 "/cdm-sample-files/functions/execution-business-event/execution-swaption-func-input.json");
     }
 
-    private void validateExecution(String tradeStatePath, Date eventDate, String expectedJsonPath) throws IOException {
+    private void validateExecutionFuncInputJson(String tradeStatePath, Date eventDate, String expectedJsonPath) throws IOException {
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
         Instruction instructionBuilder = Instruction.builder()
@@ -181,8 +181,8 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateContractFormationIrSwap() throws IOException {
-        validateContractFormation(
+    void validateContractFormationIrSwapFuncInputJson() throws IOException {
+        validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json",
                 Date.parse("1994-12-12"),
                 "/cdm-sample-files/functions/contract-formation-business-event/contract-formation-ir-swap-func-input.json",
@@ -190,7 +190,7 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateContractFormationIrSwapWithLegalAgreement() throws IOException {
+    void validateContractFormationIrSwapWithLegalAgreementFuncInputJson() throws IOException {
         String tradeStatePath = "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json";
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
         Date date = Date.parse("1994-12-12");
@@ -204,7 +204,7 @@ class FunctionInputCreationTest {
                         .setGoverningLaw(GoverningLawEnum.AS_SPECIFIED_IN_MASTER_AGREEMENT)
                         .build());
 
-        validateContractFormation(
+        validateContractFormationFuncInputJson(
                 tradeStatePath,
                 date,
                 "/cdm-sample-files/functions/contract-formation-business-event/contract-formation-ir-swap-with-legal-agreement-func-input.json",
@@ -212,8 +212,8 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateContractFormationFra() throws IOException {
-        validateContractFormation(
+    void validateContractFormationFraFuncInputJson() throws IOException {
+        validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex08-fra.json",
                 Date.parse("1991-05-14"),
                 "/cdm-sample-files/functions/contract-formation-business-event/contract-formation-fra-func-input.json",
@@ -221,8 +221,8 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateContractFormationBasisSwap() throws IOException {
-        validateContractFormation(
+    void validateContractFormationBasisSwapFuncInputJson() throws IOException {
+        validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/CAD-Long-Initial-Stub-versioned.json",
                 Date.parse("2017-12-18"),
                 "/cdm-sample-files/functions/contract-formation-business-event/contract-formation-basis-swap-func-input.json",
@@ -230,8 +230,8 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateContractFormationOisSwap() throws IOException {
-        validateContractFormation(
+    void validateContractFormationOisSwapFuncInputJson() throws IOException {
+        validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex07-ois-swap-uti.json",
                 Date.parse("2001-01-25"),
                 "/cdm-sample-files/functions/contract-formation-business-event/contract-formation-ois-swap-func-input.json",
@@ -239,8 +239,8 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateContractFormationSwaption() throws IOException {
-        validateContractFormation(
+    void validateContractFormationSwaptionFuncInputJson() throws IOException {
+        validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex09-euro-swaption-explicit-versioned.json",
                 Date.parse("2000-08-30"),
                 "/cdm-sample-files/functions/contract-formation-business-event/contract-formation-swaption-func-input.json",
@@ -248,8 +248,8 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateContractFormationCreditDefaultSwap() throws IOException {
-        validateContractFormation(
+    void validateContractFormationCreditDefaultSwapFuncInputJson() throws IOException {
+        validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/credit/cd-ex01-long-asia-corp-fixreg-versioned.json",
                 Date.parse("2002-12-04"),
                 "/cdm-sample-files/functions/contract-formation-business-event/contract-formation-credit-default-swap-func-input.json",
@@ -257,8 +257,8 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateContractFormationFxForward() throws IOException {
-        validateContractFormation(
+    void validateContractFormationFxForwardFuncInputJson() throws IOException {
+        validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/fx/fx-ex03-fx-fwd.json",
                 Date.parse("2001-11-19"),
                 "/cdm-sample-files/functions/contract-formation-business-event/contract-formation-fx-forward-func-input.json",
@@ -266,15 +266,15 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateContractFormationRepoFixedRate() throws IOException {
-        validateContractFormation(
+    void validateContractFormationRepoFixedRateFuncInputJson() throws IOException {
+        validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/repo/repo-ex01-repo-fixed-rate.json",
                 Date.parse("2013-10-29"),
                 "/cdm-sample-files/functions/contract-formation-business-event/contract-formation-repo-fixed-rate-func-input.json",
                 null);
     }
 
-    private void validateContractFormation(String tradeStatePath, Date eventDate, String expectedJsonPath, LegalAgreement legalAgreement) throws IOException {
+    private void validateContractFormationFuncInputJson(String tradeStatePath, Date eventDate, String expectedJsonPath, LegalAgreement legalAgreement) throws IOException {
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
         Instruction instructionBuilder = Instruction.builder()
@@ -293,30 +293,87 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateCreateTerminationWorkflowFuncInputJson() throws IOException {
-        CreateTerminationWorkflowInput actual = new CreateTerminationWorkflowInput(
-                getTerminationTradeState(),
-                TerminationInstruction.builder()
-                        .addTerminatedPriceQuantity(PriceQuantity.builder()
-                                .addQuantity(FieldWithMetaQuantity.builder()
-                                        .setValue(Quantity.builder()
-                                                .setAmount(BigDecimal.valueOf(10000))
-                                                .setUnitOfAmount(UnitType.builder().setCurrency(FieldWithMetaString.builder()
-                                                        .setValue("USD")
-                                                        .setMeta(MetaFields.builder()
-                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217")))))))
-                        .setTerminationDate(Date.of(2019, 12, 12))
-                        .build());
+    void validateFullTerminationEquitySwapFuncInputJson() throws IOException {
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
 
-        assertEquals(readResource("/cdm-sample-files/functions/termination-business-event/termination-workflow-func-input.json"),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for termination-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
+        QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
+                .setDirection(QuantityChangeDirectionEnum.DECREASE)
+                .addChange(PriceQuantity.builder()
+                        .addQuantityValue(Quantity.builder()
+                                .setAmount(BigDecimal.valueOf(760400))
+                                .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))
+                        .addQuantityValue(Quantity.builder()
+                                .setAmount(BigDecimal.valueOf(28469376))
+                                .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))));
+
+        validateQuantityChangeFuncInputJson(
+                tradeState,
+                Date.of(2021, 11, 11),
+                "/cdm-sample-files/functions/quantity-change-business-event/full-termination-equity-swap-func-input.json",
+                quantityChangeInstruction);
     }
+
+    @Test
+    void validateFullTerminationVanillaSwapFuncInputJson() throws IOException {
+        QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
+                .setDirection(QuantityChangeDirectionEnum.DECREASE)
+                .addChange(PriceQuantity.builder()
+                        .addQuantityValue(Quantity.builder()
+                                .setAmount(BigDecimal.valueOf(10000))
+                                .setUnitOfAmount(UnitType.builder()
+                                        .setCurrency(FieldWithMetaString.builder()
+                                                .setValue("USD")
+                                                .setMeta(MetaFields.builder()
+                                                        .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))))));
+
+        validateQuantityChangeFuncInputJson(
+                getTerminationVanillaSwapTradeState(),
+                Date.of(2019, 12, 12),
+                "/cdm-sample-files/functions/quantity-change-business-event/full-termination-vanilla-swap-func-input.json",
+                quantityChangeInstruction);
+    }
+
+    private void validateQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, String expectedJsonPath, QuantityChangeInstruction quantityChangeInstruction) throws IOException {
+        Instruction instructionBuilder = Instruction.builder()
+                .setBefore(tradeState)
+                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(quantityChangeInstruction));
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                InstructionFunctionEnum.QUANTITY_CHANGE,
+                eventDate);
+
+        assertEquals(readResource(expectedJsonPath),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for "+ Paths.get(expectedJsonPath).getFileName() +" has been updated (probably due to a model change). Update the input file");
+    }
+
+//    @Test
+//    void validateCreateTerminationWorkflowFuncInputJson() throws IOException {
+//        CreateTerminationWorkflowInput actual = new CreateTerminationWorkflowInput(
+//                getTerminationTradeState(),
+//                TerminationInstruction.builder()
+//                        .addTerminatedPriceQuantity(PriceQuantity.builder()
+//                                .addQuantity(FieldWithMetaQuantity.builder()
+//                                        .setValue(Quantity.builder()
+//                                                .setAmount(BigDecimal.valueOf(10000))
+//                                                .setUnitOfAmount(UnitType.builder().setCurrency(FieldWithMetaString.builder()
+//                                                        .setValue("USD")
+//                                                        .setMeta(MetaFields.builder()
+//                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217")))))))
+//                        .setTerminationDate(Date.of(2019, 12, 12))
+//                        .build());
+//
+//        assertEquals(readResource("/cdm-sample-files/functions/termination-business-event/termination-workflow-func-input.json"),
+//                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+//                "The input JSON for termination-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
+//    }
 
     @Test
     void validateCreatePartialTerminationWorkflowFuncInputJson() throws IOException {
         CreateTerminationWorkflowInput actual = new CreateTerminationWorkflowInput(
-                getTerminationTradeState(),
+                getTerminationVanillaSwapTradeState(),
                 TerminationInstruction.builder()
                         .addTerminatedPriceQuantity(PriceQuantity.builder()
                                 .addQuantity(FieldWithMetaQuantity.builder()
@@ -329,50 +386,11 @@ class FunctionInputCreationTest {
                         .setTerminationDate(Date.of(2019, 12, 12))
                         .build());
 
-        assertEquals(readResource("/cdm-sample-files/functions/termination-business-event/partial-termination-workflow-func-input.json"),
+        assertEquals(readResource("/cdm-sample-files/functions/quantity-change-business-event/partial-termination-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for partial-termination-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
-    @Test
-    void validateCreateFullTerminationEquitySwapFuncInputJson() throws IOException {
-        Instruction.InstructionBuilder instructionBuilder = Instruction.builder();
-
-        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeBuilder =
-                instructionBuilder.getOrCreatePrimitiveInstruction(0)
-                        .getOrCreateQuantityChange();
-
-        quantityChangeBuilder.setDirection(QuantityChangeDirectionEnum.DECREASE);
-
-        PriceQuantity.PriceQuantityBuilder changeBuilder = quantityChangeBuilder
-                .getOrCreateChange(0);
-
-        changeBuilder.getOrCreateQuantity(0)
-                .setValue(Quantity.builder()
-                        .setAmount(BigDecimal.valueOf(760400))
-                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
-                        .build());
-
-        changeBuilder.getOrCreateQuantity(1)
-                .setValue(Quantity.builder()
-                        .setAmount(BigDecimal.valueOf(28469376))
-                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD").build())
-                        .build());
-
-        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
-        instructionBuilder
-                .setBefore(tradeState);
-
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
-                Lists.newArrayList(instructionBuilder.build()),
-                InstructionFunctionEnum.QUANTITY_CHANGE,
-                Date.of(2021, 11, 11)
-        );
-
-        assertEquals(readResource("/cdm-sample-files/functions/termination-business-event/full-termination-equity-swap-func-input.json"),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for full-termination-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
-    }
 
     @Test
     void validateCreatePartialTerminationEquitySwapFuncInputJson() throws IOException {
@@ -422,7 +440,7 @@ class FunctionInputCreationTest {
                 Date.of(2021, 11, 11)
         );
 
-        assertEquals(readResource("/cdm-sample-files/functions/termination-business-event/partial-termination-equity-swap-func-input.json"),
+        assertEquals(readResource("/cdm-sample-files/functions/quantity-change-business-event/partial-termination-equity-swap-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for partial-termination-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -431,7 +449,7 @@ class FunctionInputCreationTest {
     void validateCreateIncreaseEquitySwapFuncInputJson() throws IOException {
         CreateBusinessEventWorkflowInput actual = generateIncreaseEquitySwapInput();
 
-        assertEquals(readResource("/cdm-sample-files/functions/increase-equity-swap-func-input.json"),
+        assertEquals(readResource("/cdm-sample-files/functions/quantity-change-business-event/increase-equity-swap-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for increase-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -500,7 +518,7 @@ class FunctionInputCreationTest {
 
     @Test
     void validateCreateAllocationWorkflowInputJson() throws IOException {
-        TradeState.TradeStateBuilder tradeStateBuilder = getTerminationTradeState();
+        TradeState.TradeStateBuilder tradeStateBuilder = getTerminationVanillaSwapTradeState();
 
         List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders = tradeStateBuilder
                 .getTrade()
@@ -578,7 +596,7 @@ class FunctionInputCreationTest {
                 InstructionFunctionEnum.QUANTITY_CHANGE,
                 Date.of(2021, 11, 11));
 
-        assertEquals(readResource("/cdm-sample-files/functions/quantity-change-increase-workflow-func-input.json"),
+        assertEquals(readResource("/cdm-sample-files/functions/quantity-change-business-event/quantity-change-increase-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for quantity-change-increase-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -588,7 +606,7 @@ class FunctionInputCreationTest {
      * Use record-ex01-vanilla-swap.json sample and modify it to look exactly like CFTC example 3 (used in regs termination example)
      */
     @NotNull
-    private TradeState.TradeStateBuilder getTerminationTradeState() throws IOException {
+    private TradeState.TradeStateBuilder getTerminationVanillaSwapTradeState() throws IOException {
         WorkflowStep workflowStep = ResourcesUtils.getObject(WorkflowStep.class, "result-json-files/fpml-5-10/record-keeping/record-ex01-vanilla-swap.json");
         // parties
         List<Party> parties = workflowStep.getParty().stream()
@@ -634,10 +652,13 @@ class FunctionInputCreationTest {
                     calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(Date.of(2025, 4, 1));
                 });
         // quantity
-        tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().stream().map(TradeLot.TradeLotBuilder::getPriceQuantity).flatMap(Collection::stream).map(
-                PriceQuantity.PriceQuantityBuilder::getQuantity).flatMap(Collection::stream).map(FieldWithMetaQuantity.FieldWithMetaQuantityBuilder::getValue).forEach(quantity -> {
-            quantity.setAmount(new BigDecimal(10000));
-        });
+        tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().stream()
+                .map(TradeLot.TradeLotBuilder::getPriceQuantity)
+                .flatMap(Collection::stream)
+                .map(PriceQuantity.PriceQuantityBuilder::getQuantity)
+                .flatMap(Collection::stream)
+                .map(FieldWithMetaQuantity.FieldWithMetaQuantityBuilder::getValue)
+                .forEach(quantity -> quantity.setAmount(new BigDecimal(10000)));
         // trade id
         tradeStateBuilder.getTrade().getTradeIdentifier().get(0).getAssignedIdentifier().get(0).setIdentifierValue("LEI1RPT0001KKKK");
         // trade date
