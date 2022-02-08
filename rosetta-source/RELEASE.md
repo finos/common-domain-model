@@ -2,7 +2,7 @@
 
 _What is being released_
 
-Following the recent work to build a common business event creation function, `Create_BusinessEvent`, this release updates the existing visualisation examples to use the function for business events; execution, contract formation, and quantity change.
+Following the recent work to build a common business event creation function, `Create_BusinessEvent`, this release updates the existing visualisation examples to use the new function for the business events; execution, contract formation, and quantity change.
 
 _Review Directions_
 
