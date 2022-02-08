@@ -1,9 +1,9 @@
-# *Infrastructure - Restructure CDM Repository*
+# *Legal Agreement Model - Workflow Event mappings*
 
 _What is being released_
 
-This release restructures the CDM GitHub repository placing the source under it's own seperate sub module. This work facillitates the isolation of the CDM testing framework and the Rosetta source.
+This release moves the `Workflow_Event` synonym mappings into a separate file, synonym-cdm-event.rosetta. Separating the model and synonym mappings improves readability and maintenance, and is consistent with other mappings, such as `FpML_5_10`.
 
 _Review Directions_
 
-There is no functional impact on any systems or services from this change.
+In the CDM Portal, select the Textual Browser and search for the `Workflow_Event` synonyms.
