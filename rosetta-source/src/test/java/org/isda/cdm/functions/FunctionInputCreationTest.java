@@ -1,5 +1,7 @@
 package org.isda.cdm.functions;
 
+import cdm.base.datetime.Period;
+import cdm.base.datetime.PeriodEnum;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.Quantity;
 import cdm.base.math.QuantityChangeDirectionEnum;
@@ -8,6 +10,7 @@ import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
 import cdm.base.staticdata.asset.common.ProductIdentifier;
 import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
+import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Party;
@@ -19,6 +22,7 @@ import cdm.event.common.functions.Create_BusinessEvent;
 import cdm.event.workflow.WorkflowStep;
 import cdm.legalagreement.common.*;
 import cdm.observable.asset.*;
+import cdm.observable.asset.metafields.FieldWithMetaFloatingRateOption;
 import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
@@ -64,8 +68,8 @@ import static org.isda.cdm.functions.testing.FunctionUtils.guard;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FunctionInputCreationTest {
-    private static Injector injector;
 
+    private static Injector injector;
 
     private static final ObjectMapper STRICT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
@@ -360,15 +364,16 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateCreatePartialTerminationEquitySwapFuncInputJson() throws IOException {
-        // Input to partial termination is output from increase
-        CreateBusinessEventWorkflowInput increaseEquitySwapInput = generateIncreaseEquitySwapInput();
+    void validatePartialTerminationEquitySwapFuncInputJson() throws IOException {
+        // The tradeState input to partial termination is output from increase event
+        CreateBusinessEventWorkflowInput increaseEquitySwapInput = getIncreaseEquitySwapFuncInputJson();
         Create_BusinessEvent createBusinessEvent = injector.getInstance(Create_BusinessEvent.class);
         BusinessEvent increaseOutput = createBusinessEvent.evaluate(increaseEquitySwapInput.getInstruction(),
                 increaseEquitySwapInput.getInstructionFunction(),
                 increaseEquitySwapInput.getEventDate());
-        TradeState increaseAfterState = increaseOutput.getAfter().get(0);
+        TradeState increaseTradeState = increaseOutput.getAfter().get(0);
 
+        // Quantity change to terminate tradeLot LOT-1.  Quantity in tradeLot LOT-2 remains unchanged.
         QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addLotIdentifier(Identifier.builder()
@@ -385,13 +390,92 @@ class FunctionInputCreationTest {
                                         .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD")))));
 
         validateQuantityChangeFuncInputJson(
-                increaseAfterState,
+                increaseTradeState,
                 Date.of(2021, 11, 11),
                 "/cdm-sample-files/functions/quantity-change-business-event/partial-termination-equity-swap-func-input.json",
                 quantityChangeInstruction);
     }
 
+    @Test
+    void validateIncreaseEquitySwapFuncInputJson() throws IOException {
+        CreateBusinessEventWorkflowInput actual = getIncreaseEquitySwapFuncInputJson();
 
+        assertEquals(readResource("/cdm-sample-files/functions/quantity-change-business-event/increase-equity-swap-func-input.json"),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                "The input JSON for increase-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
+    }
+
+    /**
+     * This is in a separate method because it is used by validateIncreaseEquitySwapFuncInputJson (to validate input),
+     * and validatePartialTerminationEquitySwapFuncInputJson (as the input uses the output of the increase func).
+     */
+    @NotNull
+    private CreateBusinessEventWorkflowInput getIncreaseEquitySwapFuncInputJson() throws IOException {
+        QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
+                .setDirection(QuantityChangeDirectionEnum.INCREASE)
+                .addLotIdentifier(Identifier.builder()
+                        .addAssignedIdentifier(AssignedIdentifier.builder()
+                                .setIdentifierValue("LOT-2")))
+                // equity payout PQ
+                .addChange(PriceQuantity.builder()
+                        .setObservable(Observable.builder()
+                                .addProductIdentifier(FieldWithMetaProductIdentifier.builder()
+                                        .setMeta(createKey("productIdentifier-1"))
+                                        .setValue(ProductIdentifier.builder()
+                                                .setSource(ProductIdTypeEnum.OTHER)
+                                                .setIdentifier(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
+                                                        .setValue("SHPGY.O")))))
+                        .addQuantity(FieldWithMetaQuantity.builder()
+                                .setMeta(createKey("quantity-2"))
+                                .setValue(Quantity.builder()
+                                        .setAmount(BigDecimal.valueOf(250000))
+                                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
+                        .addPrice(FieldWithMetaPrice.builder()
+                                .setMeta(createKey("price-2"))
+                                .setValue(Price.builder()
+                                        .setAmount(BigDecimal.valueOf(30))
+                                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                                        .setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
+                                        .setPriceExpression(PriceExpression.builder()
+                                                .setPriceType(PriceTypeEnum.ASSET_PRICE)
+                                                .setGrossOrNet(GrossOrNetEnum.NET)))))
+                // interest rate payout PQ
+                .addChange(PriceQuantity.builder()
+                        .setObservable(Observable.builder()
+                                .setRateOption(FieldWithMetaFloatingRateOption.builder()
+                                        .setMeta(createKey("rateOption-1"))
+                                        .setValue(FloatingRateOption.builder()
+                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
+                                                .setIndexTenor(Period.builder()
+                                                        .setPeriod(PeriodEnum.M)
+                                                        .setPeriodMultiplier(1)))))
+                        .addQuantity(FieldWithMetaQuantity.builder()
+                                .setMeta(createKey("quantity-1"))
+                                .setValue(Quantity.builder()
+                                        .setAmount(BigDecimal.valueOf(7500000))
+                                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))))
+                        .addPrice(FieldWithMetaPrice.builder()
+                                .setMeta(createKey("price-1"))
+                                .setValue(Price.builder()
+                                        .setAmount(BigDecimal.valueOf(0.0020))
+                                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                                        .setPerUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                                        .setPriceExpression(PriceExpression.builder()
+                                                .setPriceType(PriceTypeEnum.INTEREST_RATE)
+                                                .setSpreadType(SpreadTypeEnum.SPREAD)))));
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBefore(getQuantityChangeEquitySwapTradeState())
+                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(quantityChangeInstructions));
+
+        return new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                InstructionFunctionEnum.QUANTITY_CHANGE,
+                Date.of(2021, 11, 11)
+        );
+    }
 
     private void validateQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, String expectedJsonPath, QuantityChangeInstruction quantityChangeInstruction) throws IOException {
         Instruction instructionBuilder = Instruction.builder()
@@ -407,74 +491,6 @@ class FunctionInputCreationTest {
         assertEquals(readResource(expectedJsonPath),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for "+ Paths.get(expectedJsonPath).getFileName() +" has been updated (probably due to a model change). Update the input file");
-    }
-
-    @Test
-    void validateCreateIncreaseEquitySwapFuncInputJson() throws IOException {
-        CreateBusinessEventWorkflowInput actual = generateIncreaseEquitySwapInput();
-
-        assertEquals(readResource("/cdm-sample-files/functions/quantity-change-business-event/increase-equity-swap-func-input.json"),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for increase-equity-swap-func-input.json has been updated (probably due to a model change). Update the input file");
-    }
-
-    @NotNull
-    private CreateBusinessEventWorkflowInput generateIncreaseEquitySwapInput() throws IOException {
-        QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
-                .setDirection(QuantityChangeDirectionEnum.INCREASE)
-                .addLotIdentifier(Identifier.builder()
-                        .addAssignedIdentifier(AssignedIdentifier.builder()
-                                .setIdentifierValue("LOT-2")))
-                .addChange(PriceQuantity.builder()
-                        .setObservable(Observable.builder()
-                                .addProductIdentifier(FieldWithMetaProductIdentifier.builder()
-                                        .setMeta(createKey("productIdentifier-1"))
-                                        .setValue(ProductIdentifier.builder()
-                                                .setSource(ProductIdTypeEnum.OTHER)
-                                                .setIdentifier(FieldWithMetaString.builder()
-                                                        .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
-                                                        .setValue("SHPGY.O")))))
-                        .addQuantity(FieldWithMetaQuantity.builder()
-                                .setMeta(createKey("quantity-2"))
-                                .setValue(Quantity.builder()
-                                        .setAmount(BigDecimal.valueOf(250000))
-                                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
-                        .addQuantity(FieldWithMetaQuantity.builder()
-                                .setMeta(createKey("quantity-1"))
-                                .setValue(Quantity.builder()
-                                        .setAmount(BigDecimal.valueOf(7500000))
-                                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))))
-                        .addPrice(FieldWithMetaPrice.builder()
-                                .setMeta(createKey("price-2"))
-                                .setValue(Price.builder()
-                                        .setAmount(BigDecimal.valueOf(30))
-                                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-                                        .setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
-                                        .setPriceExpression(PriceExpression.builder()
-                                                .setPriceType(PriceTypeEnum.ASSET_PRICE)
-                                                .setGrossOrNet(GrossOrNetEnum.NET)))));
-
-
-        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
-        TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().get(0);
-        tradeLotBuilder.addLotIdentifier(Identifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue("LOT-1")));
-
-        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
-                .setBefore(tradeStateBuilder)
-                .addPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(quantityChangeInstructions));
-
-        return new CreateBusinessEventWorkflowInput(
-                Lists.newArrayList(instructionBuilder.build()),
-                InstructionFunctionEnum.QUANTITY_CHANGE,
-                Date.of(2021, 11, 11)
-        );
-    }
-
-    private MetaFields.MetaFieldsBuilder createKey(String s) {
-        return MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue(s));
     }
 
     @Test
@@ -527,41 +543,6 @@ class FunctionInputCreationTest {
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(executionInstruction),
                 "The input JSON for allocation-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
-
-    @Test
-    void validateQuantityChangeIncreaseWorkflowFuncInputJson() throws IOException {
-        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
-
-        List<? extends PriceQuantity> priceQuantities =
-                tradeState.getTrade().getTradableProduct().getTradeLot().get(0).getPriceQuantity();
-        // equity payout price quantity
-        PriceQuantity.PriceQuantityBuilder equityPriceQuantity = priceQuantities.get(0).toBuilder();
-        // Asset Price
-        equityPriceQuantity.getPrice().get(0).getValue().setAmount(BigDecimal.valueOf(30));
-        // Shares
-        equityPriceQuantity.getQuantity().get(0).getValue().setAmount(BigDecimal.valueOf(250000));
-        // Notional
-        equityPriceQuantity.getQuantity().get(1).getValue().setAmount(BigDecimal.valueOf(7500000));
-        // interest rate payout price quantity
-        PriceQuantity.PriceQuantityBuilder interestRatePriceQuantity = priceQuantities.get(1).toBuilder();
-
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
-                Arrays.asList(
-                        Instruction.builder()
-                                .addPrimitiveInstruction(PrimitiveInstruction.builder()
-                                        .setQuantityChange(QuantityChangeInstruction.builder()
-                                                .addChange(equityPriceQuantity)
-                                                .addChange(interestRatePriceQuantity)
-                                                .setDirection(QuantityChangeDirectionEnum.INCREASE)))
-                                .setBefore(tradeState)),
-                InstructionFunctionEnum.QUANTITY_CHANGE,
-                Date.of(2021, 11, 11));
-
-        assertEquals(readResource("/cdm-sample-files/functions/quantity-change-business-event/quantity-change-increase-workflow-func-input.json"),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for quantity-change-increase-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
-    }
-
 
     /**
      * Use record-ex01-vanilla-swap.json sample and modify it to look exactly like CFTC example 3 (used in regs termination example)
@@ -625,6 +606,23 @@ class FunctionInputCreationTest {
         // trade date
         tradeStateBuilder.getTrade().setTradeDateValue(Date.of(2018, 4, 1));
         return tradeStateBuilder;
+    }
+
+    /**
+     * eqs-ex01-single-underlyer-execution-long-form.json with LOT-1 trade lot identifier
+     */
+    @NotNull
+    private TradeState getQuantityChangeEquitySwapTradeState() throws IOException {
+        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
+        TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().get(0);
+        tradeLotBuilder.addLotIdentifier(Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue("LOT-1")));
+        return tradeStateBuilder.build();
+    }
+
+    private MetaFields.MetaFieldsBuilder createKey(String s) {
+        return MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue(s));
     }
 
     private void updatePartyId(TradeState.TradeStateBuilder tradeStateBuilder, String partyName, String partyId) {
