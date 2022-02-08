@@ -317,7 +317,7 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 	output: is_event boolean (1..1)
 	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate)
 	set is_event:
-		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Increase)
+		(businessEvent -> intent is absent)
 		and 
 		(
 		(businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
@@ -376,7 +376,7 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 	output: is_event boolean (1..1)
 	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate )
 	set is_event:
-		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> PartialTermination)
+		(businessEvent -> intent is absent)
 		and (
 			(businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
 			or (businessEvent -> primitives -> quantityChange exists and transfers exists)
@@ -394,7 +394,7 @@ func Qualify_Renegotiation: <"The qualification of a renegotiation event from th
 	output: is_event boolean (1..1)
 	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate )
 	set is_event:
-		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Renegotiation)
+		(businessEvent -> intent is absent or businessEvent -> intent = EventIntentEnum -> Renegotiation)
 		and (businessEvent -> instruction -> primitiveInstruction -> termsChange only exists or (businessEvent -> instruction -> primitiveInstruction -> termsChange,businessEvent -> instruction -> primitiveInstruction -> quantityChange) only exists)
 		and (QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = False)
 		and businessEvent -> after -> state -> closedState is absent
@@ -440,15 +440,15 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 	output: is_event boolean (1..1)
 	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
 	set is_event:
-		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
+		(businessEvent -> intent is absent)
         and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
             or (businessEvent -> primitives -> quantityChange exists and transfer exists)
             or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
                 and businessEvent -> instruction -> primitiveInstruction count = 1))
 		and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
 		    or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
-		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated or
-	  	    businessEvent -> instructionFunction = InstructionFunctionEnum -> QuantityChange or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
+		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+			or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
 /*
 // TODO: This should be a workflow step qualification, rather than an event qualification. The event is still a contract formation
@@ -569,7 +569,7 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
 		else True
 
 	set is_event:
-		( businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> IndexTransition )
+		( businessEvent -> intent is absent or businessEvent -> intent = EventIntentEnum -> IndexTransition )
 		and businessEvent -> primitives -> termsChange count = 1
 		and businessEvent -> primitives -> execution is absent
 		and businessEvent -> primitives -> contractFormation is absent
@@ -1982,7 +1982,7 @@ func Create_IndexTransition: <"Function specification to create the business eve
 		then Create_TransferPrimitiveFromTransfer( termsChangePrimitive -> after, instruction -> cashTransfer )
 
 	set businessEvent -> intent:
-		IntentEnum -> IndexTransition
+		EventIntentEnum -> IndexTransition
 
 	set businessEvent -> eventDate:
 		// To review following the increase / decrease discussions
@@ -2223,7 +2223,7 @@ func Qualify_FullReturn: <"The qualification of a full return event from the fac
 	output: is_event boolean (1..1)
 	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
 	set is_event:
-		(businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
+		(businessEvent -> intent is absent)
 		and businessEvent -> primitives -> quantityChange -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout exists
 		and (businessEvent -> primitives count = 1
 			and businessEvent -> primitives -> quantityChange exists
@@ -2266,7 +2266,7 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
     [creation BusinessEvent]
 	inputs:
 		instruction Instruction (1..*)
-		instructionFunction InstructionFunctionEnum (1..1)
+		intent EventIntentEnum (1..1)
 		eventDate date (1..1)
 
 	output:
@@ -2275,8 +2275,8 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
 	add businessEvent -> instruction:
 	    instruction
 
-	set businessEvent -> instructionFunction:
-	    instructionFunction
+	set businessEvent -> intent:
+	    intent
 
 	set businessEvent -> eventDate:
 	    eventDate

@@ -87,7 +87,7 @@ type ContractFormationInstruction: <"Specifies instructions for transition from 
 
 type Instruction: <"Instruction to a function that will be used to perform a business event">
 	[rootType]
-  	instructionFunction string (0..1) <"Specifies the function that will be called">
+  	instructionFunction string (0..1) <"Specifies the function that will be called.">
   	allocation AllocationInstruction (0..1) <"Instruction to allocate">
   	clearing ClearingInstruction (0..1) <"Instruction to clear">
 	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
@@ -126,7 +126,7 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	[rootType]
 
 	primitives PrimitiveEvent (0..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
-	intent IntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
+	intent EventIntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
 		[synonym Workflow_Event value "intent"]
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
 		[synonym Workflow_Event value "functionCall"]
@@ -141,7 +141,6 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
     // New Content
     instruction Instruction (0..*) <"Specifies the instructions that were used to create the Business Event.">
         [synonym Workflow_Event value "ignore"]
-    instructionFunction InstructionFunctionEnum (0..1) <"Specifies the functional event defined by the set of instructions.">
     after TradeState (0..*) <"Specifies the after trade state(s) created.">
         [synonym Workflow_Event value "ignore"]
 
