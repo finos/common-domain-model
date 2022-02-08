@@ -906,44 +906,6 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
 		executionPrimitive -> before is absent
 
-func Create_ContractFormation: <"Creates the fully formed business event of affirming (confirming) a transaction based on contract formation instructions. The formed contract can reference a legal agreement, for instance a master agreement, by using the optional legalAgreement input.">
-	[creation BusinessEvent]
-	inputs:
-        instruction ContractFormationInstruction (1..1) <"Specifies the Contract Formation instructions to be applied on an existing TradeState.">
-        before TradeState (0..1)
-        contractFormationDate date (1..1) <"Specifies the event date of the contract formation.">
-	output:
-		contractFormationEvent BusinessEvent (1..1) <"Qualified contract formation business event.">
-
-	alias executionInstruction:
-		instruction -> executionInstruction
-
-	alias execution:
-	    if before exists then before
-	    else Create_ExecutionPrimitive( instruction -> executionInstruction ) -> after
-
-	condition: <"Input event must be an execution and must be on a contractual product.">
-        execution -> trade -> tradableProduct -> product -> contractualProduct exists and
-        execution -> trade -> contractDetails is absent and
-        execution -> state -> positionState = PositionStatusEnum -> Executed
-
-	condition: <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided.">
-        if instruction -> legalAgreement exists
-        then instruction -> legalAgreement -> contractualParty contains execution -> trade -> party
-
-	set contractFormationEvent -> primitives -> contractFormation: <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
-        Create_ContractFormationPrimitive( instruction, execution )
-	add contractFormationEvent -> eventEffect -> trade: <"The event effect of the business event points to the contract object, i.e. the after state of the contract formation primitive event.">
-		contractFormationEvent -> primitives -> contractFormation -> after
-	add contractFormationEvent -> eventEffect -> effectedTrade: <"The event effect of the business event points to the execution object, i.e. the before state of the contract formation primitive event.">
-		contractFormationEvent -> primitives -> contractFormation -> before
-    set contractFormationEvent -> eventDate: <"The event date of the contract formation points to the contractFormationDate.">
-        contractFormationDate
-
-	post-condition: <"Event effect must point to the new execution and contract, and exclude other effects.">
-		contractFormationEvent -> eventEffect -> productIdentifier is absent
-		and contractFormationEvent -> eventEffect -> transfer is absent
-
 func Create_ContractFormationInstruction:
     inputs:
         legalAgreement LegalAgreement (0..*)
