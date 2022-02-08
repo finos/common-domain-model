@@ -947,7 +947,7 @@ A Business Event represents a transaction lifecycle event and is built according
    [metadata key]
    [rootType]
    primitives PrimitiveEvent (0..*)
-   intent IntentEnum (0..1)
+   intent EventIntentEnum (0..1)
    functionCall string (0..1)
    eventQualifier eventType (0..1)
    eventDate date (1..1)
@@ -955,7 +955,6 @@ A Business Event represents a transaction lifecycle event and is built according
    eventEffect EventEffect (0..1)
    packageInformation IdentifiedList (0..1)
    instruction Instruction (0..*)
-   instructionFunction InstructionFunctionEnum (0..1)
    after TradeState (0..*)
 
 As can be observed in the definition above, the only mandatory attributes of a business event are the ones listed below:
