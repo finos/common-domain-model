@@ -1,9 +1,9 @@
-# *Infrastructure - Restructure CDM Repository*
+# *Event Model - Execution, Contract Formation and Quantity Change Visualisations*
 
 _What is being released_
 
-This release restructures the CDM GitHub repository placing the source under it's own seperate sub module. This work facillitates the isolation of the CDM testing framework and the Rosetta source.
+Following the recent work to build a common business event creation function, `Create_BusinessEvent`, this release updates the existing visualisation examples to use the function for business events; execution, contract formation, and quantity change.
 
 _Review Directions_
 
-There is no functional impact on any systems or services from this change.
+In the CDM Portal, select the Instance Viewer, and review the visualisation examples in the Execution Business Event, Contract Formation Business Event and Quantity Change Business Event folders.
