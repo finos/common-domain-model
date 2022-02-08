@@ -153,7 +153,7 @@ class FunctionInputCreationTest {
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
-                InstructionFunctionEnum.QUANTITY_CHANGE,
+                null,
                 Date.of(2021, 11, 11)
         );
 
@@ -196,7 +196,7 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput increaseEquitySwapInput = generateIncreaseEquitySwapInput();
         Create_BusinessEvent createBusinessEvent = injector.getInstance(Create_BusinessEvent.class);
         BusinessEvent increaseOutput = createBusinessEvent.evaluate(increaseEquitySwapInput.getInstruction(),
-                increaseEquitySwapInput.getInstructionFunction(),
+                increaseEquitySwapInput.getIntent(),
                 increaseEquitySwapInput.getEventDate());
 
         TradeState increaseAfterState = increaseOutput.getAfter().get(0);
@@ -206,7 +206,7 @@ class FunctionInputCreationTest {
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
-                InstructionFunctionEnum.QUANTITY_CHANGE,
+                null,
                 Date.of(2021, 11, 11)
         );
 
@@ -281,7 +281,7 @@ class FunctionInputCreationTest {
 
         return new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
-                InstructionFunctionEnum.QUANTITY_CHANGE,
+                null,
                 Date.of(2021, 11, 11)
         );
     }
@@ -363,7 +363,7 @@ class FunctionInputCreationTest {
                                                 .addChange(interestRatePriceQuantity)
                                                 .setDirection(QuantityChangeDirectionEnum.INCREASE)))
                                 .setBefore(tradeState)),
-                InstructionFunctionEnum.QUANTITY_CHANGE,
+                null,
                 Date.of(2021, 11, 11));
 
         assertEquals(readResource("/cdm-sample-files/functions/quantity-change-increase-workflow-func-input.json"),

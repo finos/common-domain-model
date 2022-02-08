@@ -1,7 +1,8 @@
 package org.isda.cdm.functions;
 
+import cdm.event.common.EventIntentEnum;
 import cdm.event.common.Instruction;
-import cdm.event.common.InstructionFunctionEnum;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rosetta.model.lib.records.Date;
 
@@ -13,7 +14,8 @@ public class CreateBusinessEventWorkflowInput {
 	private List<Instruction> instruction;
 
 	@JsonProperty
-	private InstructionFunctionEnum instructionFunction;
+	@JsonInclude
+	private EventIntentEnum intent;
 
 	@JsonProperty
 	private Date eventDate;
@@ -21,9 +23,9 @@ public class CreateBusinessEventWorkflowInput {
 	public CreateBusinessEventWorkflowInput() {
 	}
 
-	public CreateBusinessEventWorkflowInput(List<Instruction> instruction, InstructionFunctionEnum instructionFunction, Date eventDate) {
+	public CreateBusinessEventWorkflowInput(List<Instruction> instruction, EventIntentEnum intent, Date eventDate) {
 		this.instruction = instruction;
-		this.instructionFunction = instructionFunction;
+		this.intent = intent;
 		this.eventDate = eventDate;
 	}
 
@@ -31,8 +33,8 @@ public class CreateBusinessEventWorkflowInput {
 		return instruction;
 	}
 
-	public InstructionFunctionEnum getInstructionFunction() {
-		return instructionFunction;
+	public EventIntentEnum getIntent() {
+		return intent;
 	}
 
 	public Date getEventDate() {
