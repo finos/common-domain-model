@@ -183,10 +183,10 @@ Consider the example below for the initial price of the underlying equity in a s
                 "perUnitOfAmount": {
                   "financialUnit": "SHARE"
                 },
-        "priceExpression": {
+                "priceExpression": {
                   "priceType": "ASSET_PRICE",
-          "grossOrNet": "NET"
-        },
+                  "grossOrNet": "NET"
+                },
               },
               "meta": {
                 "location": [
@@ -226,8 +226,8 @@ The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient t
                 "unitOfAmount": {
                   "financialUnit": "CONTRACT"
                 },
-        "multiplier": 1000,
-        "multiplierUnit": "BBL"
+                "multiplier": 1000,
+                "multiplierUnit": "BBL"
               },
               "meta": {
                 "location": [
@@ -459,8 +459,8 @@ An example of the payout types that extend ``PayoutBase`` is illustrated below:
 .. code-block:: Haskell
 
  type InterestRatePayout extends PayoutBase:
-   [metadata key]
-       rateSpecification RateSpecification (1..1)
+    [metadata key]
+    rateSpecification RateSpecification (1..1)
     dayCountFraction DayCountFractionEnum (0..1)
         [metadata scheme]
     calculationPeriodDates CalculationPeriodDates (0..1)
@@ -947,7 +947,7 @@ A Business Event represents a transaction lifecycle event and is built according
    [metadata key]
    [rootType]
    primitives PrimitiveEvent (0..*)
-   intent IntentEnum (0..1)
+   intent EventIntentEnum (0..1)
    functionCall string (0..1)
    eventQualifier eventType (0..1)
    eventDate date (1..1)
@@ -955,7 +955,6 @@ A Business Event represents a transaction lifecycle event and is built according
    eventEffect EventEffect (0..1)
    packageInformation IdentifiedList (0..1)
    instruction Instruction (0..*)
-   instructionFunction InstructionFunctionEnum (0..1)
    after TradeState (0..*)
 
 As can be observed in the definition above, the only mandatory attributes of a business event are the ones listed below:
@@ -1232,19 +1231,21 @@ One distinction with the product approach is that the ``intent`` qualification i
 .. code-block:: Haskell
 
  func Qualify_Termination:
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent(1..1)
-    output: is_event boolean (1..1)
-    alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
-    set is_event:
-        (businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
+	[qualification BusinessEvent]
+	inputs:
+		businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
+	set is_event:
+		businessEvent -> intent is absent
         and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
             or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-            or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction count = 1))
-        and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
-        and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated or
-              businessEvent -> instructionFunction = InstructionFunctionEnum -> QuantityChange or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
+            or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
+                and businessEvent -> instruction -> primitiveInstruction count = 1))
+		and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
+		    or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
+		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+			or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
@@ -1375,8 +1376,8 @@ The ``LegalAgreement`` data type represents the highest-level data type for defi
 .. code-block:: Haskell
 
   type LegalAgreement extends LegalAgreementBase:
-    [metadata key]
-     [rootType]
+	[metadata key]
+ 	[rootType]
     agreementTerms AgreementTerms (0..1)
     relatedAgreements RelatedAgreement (0..*)
     umbrellaAgreement UmbrellaAgreement (0..1)
@@ -2197,7 +2198,7 @@ Some of those calculations are presented below:
 
    set result -> unitOfAmount->currency:
      baseCurrency
-     
+
 Billing
 """""""
 

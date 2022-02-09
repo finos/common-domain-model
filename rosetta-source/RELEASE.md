@@ -52,8 +52,22 @@ In the CDM Portal, select the Instance Viewer, review the visualisation examples
 
 _What is being released_
 
-This release moves the `Workflow_Event` synonym mappings into a separate namespace, synonym-cdm-event.rosetta. Separating the model and synonym mappings improves readability and maintenance, and is consistent with other mappings, such as `FpML_5_10`.
+This release restructures the CDM GitHub repository placing the source under it's own seperate sub module. This work facillitates the isolation of the CDM testing framework and the Rosetta source.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search for the `Workflow_Event` synonyms.
+There is no functional impact on any systems or services from this change.
+
+# *Event Model - Business Event Intent*
+
+_What is being released_
+
+This release normalises the representation of intent on a `BusinessEvent`, as well as on the `Instruction` passed into the `Create_BusinessEvent` function. Intent is required  when a BusinessEvent cannot be qualified solely with the resulting TradeState and instructions used.
+
+- The enumeration `InstructionFunctionEnum` has been removed from the model as it duplicates the functionality of `IntentEnum`.
+- The enumeration `IntentEnum` has been renamed `EventIntentEnum` and been updated to contain a simplified list only containing enumerations which are needed to uniquely qualify a `BusinessEven`t.
+- BusinessEvent qualification functions have been updated to reflect the refactoring above.
+
+_Review Directions_
+
+In the CDM Portal, select Textual Browser and review `EventIntentEnum`.
