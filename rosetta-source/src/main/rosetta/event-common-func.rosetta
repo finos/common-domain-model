@@ -317,19 +317,19 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 	output: is_event boolean (1..1)
 	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate)
 	set is_event:
-		(businessEvent -> intent is absent)
-		and 
-		(
-		(businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
-			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
-		and QuantityIncreasedPrimitive(businessEvent -> primitives -> quantityChange) = True
-		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
-		)
+		businessEvent -> intent is absent
+            and
+            (
+                (businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
+                    or (businessEvent -> primitives -> quantityChange exists and transfer exists))
+                and QuantityIncreasedPrimitive(businessEvent -> primitives -> quantityChange) = True
+                and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
+            )
 		or
 		(
-		businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and 
-		(QuantityIncreased(businessEvent->instruction->before only-element,businessEvent->after) = True or
-		businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
+			businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
+			and (QuantityIncreased(businessEvent->instruction->before only-element,businessEvent->after) = True
+			    or businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
 		)
 
 func Qualify_MultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
@@ -354,7 +354,7 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 		//and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
 		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
 		//and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
-		
+
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
 	inputs:
@@ -440,7 +440,7 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 	output: is_event boolean (1..1)
 	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
 	set is_event:
-		(businessEvent -> intent is absent)
+		businessEvent -> intent is absent
         and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
             or (businessEvent -> primitives -> quantityChange exists and transfer exists)
             or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
@@ -478,8 +478,10 @@ func Qualify_ContractFormation: <"Qualifies a business event as a contract forma
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 	set is_event:
-		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists or
-		(businessEvent -> instruction -> primitiveInstruction -> contractFormation only exists or (businessEvent -> instruction -> primitiveInstruction -> execution,businessEvent -> instruction -> primitiveInstruction -> contractFormation) only exists)
+		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists
+		    or (businessEvent -> instruction -> primitiveInstruction -> contractFormation only exists
+		        or (businessEvent -> instruction -> primitiveInstruction -> execution, businessEvent -> instruction -> primitiveInstruction -> contractFormation) only exists)
+		    or (businessEvent -> instruction -> primitiveInstruction is absent and businessEvent -> intent = EventIntentEnum -> ContractFormation)
 		// and businessEvent -> tradeWarehouseWorkflow is absent
 
 func Qualify_StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
@@ -509,7 +511,7 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 	alias afterCurrencyAmount:
 		if afterQuantity exists
 		then FilterQuantityByCurrencyExists( afterQuantity ) -> amount distinct only-element
-	
+
 	alias beforeCashPrice: <"Only works in the case of a single trade lot and price.">
 		businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> amount only-element
 
@@ -624,22 +626,20 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 		if interestRatePayout -> rateSpecification -> fixedRate exists
 		then FixedAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> initialValue -> amount,
-			interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
+            interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
 			date,
 			empty)
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> initialValue -> amount,
 			resets only-element -> resetValue -> amount,
 			interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
 			date,
 			empty)
-	 set cashflow -> payoutQuantity -> resolvedQuantity -> amount:
-		 performance
-	 set cashflow -> payoutQuantity -> resolvedQuantity -> unitOfAmount -> currency:
-		 interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+	set cashflow -> payoutQuantity -> resolvedQuantity -> amount:
+		performance
+	set cashflow -> payoutQuantity -> resolvedQuantity  -> unitOfAmount -> currency:
+		interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
 	set cashflow -> payerReceiver -> payer:
 	    if performance >= 0 then interestRatePayout -> payerReceiver -> payer else interestRatePayout -> payerReceiver -> receiver
 	set cashflow -> payerReceiver -> receiver:
@@ -802,7 +802,7 @@ func StockSplit: <"Function specification to create the fully-formed business ev
 		Create_Price( preSplitPrice -> amount / instruction -> adjustmentRatio, preSplitPrice -> unitOfAmount, preSplitPrice -> perUnitOfAmount, preSplitPrice -> priceExpression )
 	alias postSplitPriceQuantity:
 		Create_PriceQuantity( [postSplitPrice],[postSplitNumberOfShares], empty )
-	
+
 	condition:
 		instruction -> tradeState -> trade -> contractDetails exists
 
@@ -903,44 +903,6 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 
 	post-condition: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
 		executionPrimitive -> before is absent
-
-func Create_ContractFormation: <"Creates the fully formed business event of affirming (confirming) a transaction based on contract formation instructions. The formed contract can reference a legal agreement, for instance a master agreement, by using the optional legalAgreement input.">
-	[creation BusinessEvent]
-	inputs:
-        instruction ContractFormationInstruction (1..1) <"Specifies the Contract Formation instructions to be applied on an existing TradeState.">
-        before TradeState (0..1)
-        contractFormationDate date (1..1) <"Specifies the event date of the contract formation.">
-	output:
-		contractFormationEvent BusinessEvent (1..1) <"Qualified contract formation business event.">
-
-	alias executionInstruction:
-		instruction -> executionInstruction
-
-	alias execution:
-	    if before exists then before
-	    else Create_ExecutionPrimitive( instruction -> executionInstruction ) -> after
-
-	condition: <"Input event must be an execution and must be on a contractual product.">
-        execution -> trade -> tradableProduct -> product -> contractualProduct exists and
-        execution -> trade -> contractDetails is absent and
-        execution -> state -> positionState = PositionStatusEnum -> Executed
-
-	condition: <"Ensures that parties to the Contract are defined in the Legal Agreement, if one is provided.">
-        if instruction -> legalAgreement exists
-        then instruction -> legalAgreement -> contractualParty contains execution -> trade -> party
-
-	set contractFormationEvent -> primitives -> contractFormation: <"Event must contain a contract formation primitive based on the execution primitive and an optional legal agreement.">
-        Create_ContractFormationPrimitive( instruction, execution )
-	add contractFormationEvent -> eventEffect -> trade: <"The event effect of the business event points to the contract object, i.e. the after state of the contract formation primitive event.">
-		contractFormationEvent -> primitives -> contractFormation -> after
-	add contractFormationEvent -> eventEffect -> effectedTrade: <"The event effect of the business event points to the execution object, i.e. the before state of the contract formation primitive event.">
-		contractFormationEvent -> primitives -> contractFormation -> before
-    set contractFormationEvent -> eventDate: <"The event date of the contract formation points to the contractFormationDate.">
-        contractFormationDate
-
-	post-condition: <"Event effect must point to the new execution and contract, and exclude other effects.">
-		contractFormationEvent -> eventEffect -> productIdentifier is absent
-		and contractFormationEvent -> eventEffect -> transfer is absent
 
 func Create_ContractFormationInstruction:
     inputs:
@@ -2153,15 +2115,13 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 		if interestRatePayout -> rateSpecification -> fixedRate exists
 		then FixedAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule -> initialValue -> amount,
 			billingQuantity,
 			recordEndDate,
 			calculationPeriodRange)
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			interestRatePayout -> rateSpecification -> floatingRate -> spreadSchedule -> initialValue -> amount,
-			reset -> resetValue -> amount,
+			reset  -> resetValue -> amount,
             billingQuantity,
 			recordEndDate,
 			calculationPeriodRange)
@@ -2180,6 +2140,15 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 
 	set transfer -> settlementDate -> adjustedDate:
 		transferDate
+
+func ToMoney:
+	inputs:
+		quantity Quantity (1..1)
+	output:
+		money Money (1..1)
+
+	assign-output money -> amount: quantity -> amount
+    assign-output money -> unitOfAmount -> currency: quantity -> unitOfAmount -> currency
 
 func Create_BillingSummary: <"Creates a billing summary to be included in a Security Lending Billing Invoice.">
 
@@ -2249,10 +2218,10 @@ func Create_TransferFromCashPrice:
 		counterparty Counterparty (2..2)
 	output:
 		transfer Transfer (1..1)
-	
+
 	condition: <"Price type must be cash price.">
 		price -> priceExpression -> priceType = PriceTypeEnum -> CashPrice
-	
+
 	set transfer -> quantity -> amount: price -> amount
 	set transfer -> quantity -> unitOfAmount: price -> unitOfAmount
 	set transfer -> settlementDate: settlementDate

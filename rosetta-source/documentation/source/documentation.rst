@@ -183,10 +183,10 @@ Consider the example below for the initial price of the underlying equity in a s
                 "perUnitOfAmount": {
                   "financialUnit": "SHARE"
                 },
-		"priceExpression": {
+                "priceExpression": {
                   "priceType": "ASSET_PRICE",
-		  "grossOrNet": "NET"
-		},
+                  "grossOrNet": "NET"
+                },
               },
               "meta": {
                 "location": [
@@ -226,8 +226,8 @@ The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient t
                 "unitOfAmount": {
                   "financialUnit": "CONTRACT"
                 },
-		"multiplier": 1000,
-		"multiplierUnit": "BBL"
+                "multiplier": 1000,
+                "multiplierUnit": "BBL"
               },
               "meta": {
                 "location": [
@@ -459,23 +459,23 @@ An example of the payout types that extend ``PayoutBase`` is illustrated below:
 .. code-block:: Haskell
 
  type InterestRatePayout extends PayoutBase:
-   [metadata key]
-   	rateSpecification RateSpecification (1..1)
-	dayCountFraction DayCountFractionEnum (0..1)
-		[metadata scheme]
-	calculationPeriodDates CalculationPeriodDates (0..1)
-	paymentDates PaymentDates (0..1)
-	paymentDate AdjustableDate (0..1)
-	paymentDelay boolean (0..1)
-	resetDates ResetDates (0..1)
-	discountingMethod DiscountingMethod (0..1)
-	compoundingMethod CompoundingMethodEnum (0..1)
-	cashflowRepresentation CashflowRepresentation (0..1)
-	principalExchanges PrincipalExchanges (0..1)
-	stubPeriod StubPeriod (0..1)
-	bondReference BondReference (0..1)
-	fixedAmount calculation (0..1)
-	floatingAmount calculation (0..1)
+    [metadata key]
+    rateSpecification RateSpecification (1..1)
+    dayCountFraction DayCountFractionEnum (0..1)
+        [metadata scheme]
+    calculationPeriodDates CalculationPeriodDates (0..1)
+    paymentDates PaymentDates (0..1)
+    paymentDate AdjustableDate (0..1)
+    paymentDelay boolean (0..1)
+    resetDates ResetDates (0..1)
+    discountingMethod DiscountingMethod (0..1)
+    compoundingMethod CompoundingMethodEnum (0..1)
+    cashflowRepresentation CashflowRepresentation (0..1)
+    principalExchanges PrincipalExchanges (0..1)
+    stubPeriod StubPeriod (0..1)
+    bondReference BondReference (0..1)
+    fixedAmount calculation (0..1)
+    floatingAmount calculation (0..1)
 
 .. note:: The code snippets above excludes the conditions in this data type for purposes of brevity.
 
@@ -605,13 +605,13 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
 .. code-block:: Haskell
 
  func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
-	[qualification Product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-	set is_product:
-		Qualify_BaseProduct_Inflation(economicTerms) = True
-		and Qualify_SubProduct_FixedFloat(economicTerms) = True
-		and Qualify_Transaction_ZeroCoupon(economicTerms) = True
+    [qualification Product]
+    inputs: economicTerms EconomicTerms (1..1)
+    output: is_product boolean (1..1)
+    set is_product:
+        Qualify_BaseProduct_Inflation(economicTerms) = True
+        and Qualify_SubProduct_FixedFloat(economicTerms) = True
+        and Qualify_Transaction_ZeroCoupon(economicTerms) = True
 
 If all the statements above are true, then the function evaluates to True, and the product is determined to be qualified as the product type referenced by the function name.
 
@@ -626,13 +626,13 @@ The ``productIdentification`` data structure and an instance of a CDM object (`s
 .. code-block:: Haskell
 
  type ProductIdentification:
- 	productQualifier productType (0..1)
- 	primaryAssetData AssetClassEnum (0..1)
- 		[metadata scheme]
- 	secondaryAssetData AssetClassEnum (0..*)
- 		[metadata scheme]
- 	externalProductType ExternalProductType (0..*)
- 	productIdentifier ProductIdentifier (0..*)
+     productQualifier productType (0..1)
+     primaryAssetData AssetClassEnum (0..1)
+         [metadata scheme]
+     secondaryAssetData AssetClassEnum (0..*)
+         [metadata scheme]
+     externalProductType ExternalProductType (0..*)
+     productIdentifier ProductIdentifier (0..*)
 
 .. code-block:: Javascript
 
@@ -1596,10 +1596,10 @@ The development of a digital data standard for representation of eligible collat
 .. code-block:: Haskell
 
  type EligibleCollateralSchedule:
-	[rootType]
-	[metadata key]
-	scheduleIdentifier Identifier (0..*)
-	criteria EligibleCollateralCriteria (1..*)
+    [rootType]
+    [metadata key]
+    scheduleIdentifier Identifier (0..*)
+    criteria EligibleCollateralCriteria (1..*)
 
 The ``EligibleCollateralCriteria`` data type contains the following key components to allow the digital representation of the detailed criteria reflected in the legal agreement:
 
@@ -1612,13 +1612,13 @@ The following code snippets represent these three components of the eligible col
 .. code-block:: Haskell
 
  type EligibleCollateralCriteria extends CollateralCriteriaBase:
-	treatment CollateralTreatment (1..1)
+    treatment CollateralTreatment (1..1)
 
 .. code-block:: Haskell
 
  type CollateralCriteriaBase:
-	issuer IssuerCriteria (0..*)
-	asset AssetCriteria (0..*)
+    issuer IssuerCriteria (0..*)
+    asset AssetCriteria (0..*)
 
 .. code-block:: Haskell
 
@@ -1743,15 +1743,6 @@ Linking Legal Agreements to Contracts
 Financial transactions defined in CDM can be referenced in the ``ContractTradeDetails`` data type.  This represents the transaction confirmation that is the legally binding agreement between two parties for an execution of a specified tradable product.  The ``documentation`` attribute uses the ``RelatedAgreement`` data type, which can be populated with the details for a relevant agreement that has been defined in the CDM.  For OTC derivatives, this attribute will contain a reference to the ISDA Master Agreement that governs any derivative transaction between the parties.
 
 Similarly, the ``ContractFormation`` business event that creates the legally binding agreement between the parties can reference a ``LegalAgreement`` governing the transaction.
-
-.. code-block:: Haskell
-
- func Create_ContractFormation:
-    [creation BusinessEvent]
-    inputs:
-        instruction ContractFormationInstruction (1..1)
-        before TradeState (0..1)
-        contractFormationDate date (1..1)
 
 .. note:: The functions to create such business events are further detailed in the `Lifecycle Event Process Section`_ of the documentation.
 
@@ -2007,47 +1998,46 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
  func FloatingAmount:
    [calculation]
    inputs:
-     interestRatePayout InterestRatePayout (1..1)
-     spread number (1..1)
-     rate number (1..1)
-     quantity Quantity (1..1)
-     date date (1..1)
-     calculationPeriodData CalculationPeriodData (0..1)
+       interestRatePayout InterestRatePayout (1..1)
+       rate number (0..1)
+       quantity Quantity (0..1)
+       date date (0..1)
+       calculationPeriodData CalculationPeriodData (0..1)
    output:
-     floatingAmount number (1..1)
-   
-   alias calculationAmount:
-     quantity -> amount
-   alias calculationPeriod:
-     if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
-   alias dayCountFraction:
-     DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date, calculationPeriod)
-   set floatingAmount:
-     calculationAmount * (rate + spread) * dayCountFraction
+       floatingAmount number (1..1)
 
-Day Count Fraction
+   alias notional:
+       if quantity exists then quantity -> amount
+   alias calculationPeriod:
+       if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
+   alias calcPeriodBase : Create_CalculationPeriodBase(calculationPeriod)
+   alias floatingCalc : FloatingAmountCalculation(interestRatePayout, calcPeriodBase, False, notional, rate)
+
+   set floatingAmount : floatingCalc-> calculatedAmount
+
+Year Fraction
 """"""""""""""""""
 
 The CDM process model incorporates calculations that represent the set of day count fraction rules specified as part of the ISDA 2006 Definitions, e.g. the *ACT/365.FIXED* and the *30E/360* day count fraction rules. Although these rules are widely accepted in international markets, many of them have complex nuances which can lead to inconsistent implementations and potentially mismatched settlements.
 
-For example, there are three distinct rule sets in which the length of each month is generally assumed to be 30 days for accrual purposes (and each year is assumed to be 360 days). However there are nuances in the rule sets that distinquish the resulting calculations under different circumstances, such as when the last day of the period is the last day of February. These distinct rule sets are defined by ISDA as 30/360 (also known as 30/360 US), 30E/360 (formerly known as 30/360 ICMA or 30/360 Eurobond), and the 30E/360.ISDA.
+For example, there are three distinct rule sets in which the length of each month is generally assumed to be 30 days for accrual purposes (and each year is assumed to be 360 days). However there are nuances in the rule sets that distinguish the resulting calculations under different circumstances, such as when the last day of the period is the last day of February. These distinct rule sets are defined by ISDA as 30/360 (also known as 30/360 US), 30E/360 (formerly known as 30/360 ICMA or 30/360 Eurobond), and the 30E/360.ISDA.
 
-The CDM process model eliminates the need for implementators to interpret the logic and write unique code for these rules. Instead, it provides a machine-readable expression that generates executable code, such as the example below:
+The CDM process model eliminates the need for implementors to interpret the logic and write unique code for these rules. Instead, it provides a machine-readable expression that generates executable code, such as the example below:
 
 .. code-block:: Haskell
 
- func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
-	[calculation]
+ func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
+    [calculation]
 
-	alias startYear: calculationPeriod -> startDate -> year
-	alias endYear: calculationPeriod -> endDate -> year
-	alias startMonth: calculationPeriod -> startDate -> month
-	alias endMonth: calculationPeriod -> endDate -> month
-	alias endDay: Min(calculationPeriod -> endDate -> day, 30)
-	alias startDay: Min(calculationPeriod -> startDate -> day, 30)
+    alias startYear: startDate -> year
+    alias endYear: endDate -> year
+    alias startMonth: startDate -> month
+    alias endMonth: endDate -> month
+    alias endDay: Min(endDate -> day, 30)
+    alias startDay: Min(startDate -> day, 30)
 
-	set result:
-		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+    set result:
+        (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
 Utility Function
 """"""""""""""""
@@ -2077,44 +2067,44 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
  func EquityCashSettlementAmount:
-	inputs:
-		tradeState TradeState (1..1)
-		date date (1..1)
-	output:
-		equityCashSettlementAmount Cashflow (1..1)
-	alias equityPayout:
-		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-	alias equityPerformance:
-	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-	 set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount:
-	 	Abs(equityPerformance)
-	 set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency:
+    inputs:
+        tradeState TradeState (1..1)
+        date date (1..1)
+    output:
+        equityCashSettlementAmount Cashflow (1..1)
+    alias equityPayout:
+        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+    alias equityPerformance:
+        EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
+     set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount:
+         Abs(equityPerformance)
+     set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency:
          ResolveEquityInitialPrice(
-	 		tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
-	 		tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
-	 		) -> unitOfAmount -> currency
-	set equityCashSettlementAmount -> payerReceiver -> payer:
-	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
-	set equityCashSettlementAmount -> payerReceiver -> receiver:
-	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
+             tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
+             tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
+             ) -> unitOfAmount -> currency
+    set equityCashSettlementAmount -> payerReceiver -> payer:
+        if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
+    set equityCashSettlementAmount -> payerReceiver -> receiver:
+        if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
     set equityCashSettlementAmount -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
 
 .. code-block:: Haskell
 
  func RateOfReturn:
-	inputs:
-		initialPrice Price (1..1)
-		finalPrice Price (1..1)
-	output:
-		rateOfReturn number (1..1)
+    inputs:
+        initialPrice Price (1..1)
+        finalPrice Price (1..1)
+    output:
+        rateOfReturn number (1..1)
 
-	alias initialPriceValue:
-		initialPrice->amount
-	alias finalPriceValue:
-		finalPrice->amount
-	set rateOfReturn:
-		(finalPriceValue - initialPriceValue) / initialPriceValue
+    alias initialPriceValue:
+        initialPrice->amount
+    alias finalPriceValue:
+        finalPrice->amount
+    set rateOfReturn:
+        (finalPriceValue - initialPriceValue) / initialPriceValue
 
 Initial Margin
 """"""""""""""""""
@@ -2126,7 +2116,7 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
   func DeliveryAmount:
-	[calculation]
+    [calculation]
     inputs:
       postedCreditSupportItems PostedCreditSupportItem (0..*)
       priorDeliveryAmountAdjustment Money (1..1)
@@ -2169,6 +2159,7 @@ Some of those calculations are presented below:
       baseCurrency
 
 .. code-block:: Haskell
+
  func ReturnAmount:
    [calculation]
    inputs:
@@ -2184,39 +2175,42 @@ Some of those calculations are presented below:
      rounding CollateralRounding (1..1)
      disputedReturnAmount Money (1..1)
      baseCurrency string (1..1)
-
    output:
      result Money (1..1)
 
-       alias undisputedAdjustedPostedCreditSupportAmount:
-         UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency )
-       alias creditSupportAmount:
-         CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
-       alias returnAmount:
-         Max( undisputedAdjustedPostedCreditSupportAmount -> amount - creditSupportAmount -> amount, 0.0 )
-       alias undisputedReturnAmount:
-         Max( returnAmount - disputedReturnAmount -> amount, 0.0 )
+   alias undisputedAdjustedPostedCreditSupportAmount:
+     UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency )
+   alias creditSupportAmount:
+     CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
+   alias returnAmount:
+     Max( undisputedAdjustedPostedCreditSupportAmount -> amount - creditSupportAmount -> amount, 0.0 )
+   alias undisputedReturnAmount:
+     Max( returnAmount - disputedReturnAmount -> amount, 0.0 )
 
-       condition:
-         ( baseCurrency = minimumTransferAmount -> currency )
-	   and ( baseCurrency = disputedReturnAmount -> currency )
+   condition:
+     (baseCurrency = minimumTransferAmount -> unitOfAmount->currency)
+       and (baseCurrency = disputedReturnAmount -> unitOfAmount->currency)
 
-       set result -> amount:
-         if undisputedReturnAmount >= minimumTransferAmount -> amount
-	 then RoundToNearest( undisputedReturnAmount, rounding -> returnAmount, RoundingModeEnum -> Down )
-	 else 0.0
-       set result -> currency:
-         baseCurrency
-	 
+   set result -> amount:
+     if undisputedReturnAmount >= minimumTransferAmount -> amount
+     then RoundToNearest( undisputedReturnAmount, rounding -> returnAmount, RoundingModeEnum -> Down )
+     else 0.0
+
+   set result -> unitOfAmount->currency:
+     baseCurrency
+
 Billing
-"""""""""
+"""""""
 
 The CDM process model includes calculations to support the billing event consisting of the individual amounts that need to be settled in relation to a portfolio of Security Loans.  These calculations leverage the `FixedAmount`, `FloatingAmount` and `Day Count Fraction` calculations described earlier in the documentation.  A functional model is provided to populate the `SecurityLendingInvoice` data type following the definitions as normalised in the *ISLA best practice handbook*
 
 The data type and function to generate a Security Lending Invoice:
 
 .. code-block:: Haskell
+
   type SecurityLendingInvoice:
+    [rootType]
+    [metadata key]
     sendingParty Party (1..1)
     receivingParty Party (1..1)
     billingStartDate date (1..1)
@@ -2225,27 +2219,25 @@ The data type and function to generate a Security Lending Invoice:
     billingSummary BillingSummary (1..*)
     
 .. code-block:: Haskell
-  func Create_SecurityLendingInvoice: <"Defines the process of calculating and creating a Security Lending Invoice.">
 
+ func Create_SecurityLendingInvoice:
     inputs:
-      instruction BillingInstruction (1..1) <"Specifies the instructions for creation of a Security Lending billing invoice.">
-
+      instruction BillingInstruction (1..1)
     output:
-      invoice SecurityLendingInvoice (1..1) <"Produces the Security Lending Invoice">
+      invoice SecurityLendingInvoice (1..1)
 
-      set invoice->sendingParty:
-        instruction->sendingParty
-      set invoice->receivingParty:
-	instruction->receivingParty	
-      set invoice->billingStartDate:
-	instruction->billingStartDate
-      set invoice->billingEndDate:
-	instruction->billingEndDate
-      set invoice -> billingRecord:
-	Create_BillingRecords (instruction -> billingRecordInstruction)
-      set invoice->billingSummary:
-	Create_BillingSummary (invoice -> billingRecord)
-
+    set invoice -> sendingParty:
+      instruction -> sendingParty
+    set invoice -> receivingParty:
+      instruction -> receivingParty
+    set invoice -> billingStartDate:
+      instruction -> billingStartDate
+    set invoice -> billingEndDate:
+      instruction -> billingEndDate
+    add invoice -> billingRecord:
+      Create_BillingRecords( instruction -> billingRecordInstruction )
+    add invoice -> billingSummary:
+      Create_BillingSummary( invoice -> billingRecord )
 
 
 Lifecycle Event Process
@@ -2287,38 +2279,38 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
 .. code-block:: Haskell
 
  func Create_ResetPrimitive:
- 	[creation PrimitiveEvent]
- 	inputs:
- 		tradeState TradeState (1..1)
- 		instruction ResetInstruction (1..1)
- 		resetDate date (1..1)
- 	output:
- 		resetPrimitive ResetPrimitive (1..1)
+     [creation PrimitiveEvent]
+     inputs:
+         tradeState TradeState (1..1)
+         instruction ResetInstruction (1..1)
+         resetDate date (1..1)
+     output:
+         resetPrimitive ResetPrimitive (1..1)
 
- 	alias payout:
-		instruction -> payout
+     alias payout:
+        instruction -> payout
 
-	alias observationDate:
-		if instruction -> rateRecordDate exists
-		then instruction -> rateRecordDate
-		else resetDate
+    alias observationDate:
+        if instruction -> rateRecordDate exists
+        then instruction -> rateRecordDate
+        else resetDate
 
-	alias observationIdentifiers:
-		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, resetDate)
-		else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
+    alias observationIdentifiers:
+        if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, resetDate)
+        else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
 
-	alias observation:
-		ResolveObservation([observationIdentifiers], empty)
+    alias observation:
+        ResolveObservation([observationIdentifiers], empty)
 
-	set resetPrimitive -> before:
-		tradeState
+    set resetPrimitive -> before:
+        tradeState
 
-	set resetPrimitive -> after:
-		tradeState
+    set resetPrimitive -> after:
+        tradeState
 
-	add resetPrimitive -> after -> resetHistory:
-    	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate)
-		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
+    add resetPrimitive -> after -> resetHistory:
+        if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate)
+        else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
 
 
 First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
@@ -2328,63 +2320,63 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
 .. code-block:: Haskell
 
  func ResolveEquityObservationIdentifiers:
- 	inputs:
- 		payout EquityPayout (1..1)
- 		date date (1..1)
- 	output:
- 		identifiers ObservationIdentifier (1..1)
+     inputs:
+         payout EquityPayout (1..1)
+         date date (1..1)
+     output:
+         identifiers ObservationIdentifier (1..1)
 
- 	alias periodEndDate:
- 		CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
+     alias periodEndDate:
+         CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
 
- 	alias equityValuation:
- 		if CalculationPeriod( payout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then
- 			payout -> priceReturnTerms -> valuationPriceFinal
- 			else payout -> priceReturnTerms -> valuationPriceInterim
+     alias equityValuation:
+         if CalculationPeriod( payout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then
+             payout -> priceReturnTerms -> valuationPriceFinal
+             else payout -> priceReturnTerms -> valuationPriceInterim
 
- 	add identifiers -> observable -> productIdentifier:
- 		payout -> underlier -> security -> productIdentifier
+     add identifiers -> observable -> productIdentifier:
+         payout -> underlier -> security -> productIdentifier
 
- 	set identifiers -> observationDate:
- 		ResolveEquityValuationDate(equityValuation, date)
+     set identifiers -> observationDate:
+         ResolveEquityValuationDate(equityValuation, date)
 
- 	set identifiers -> observationTime:
- 		ResolveEquityValuationTime(equityValuation, identifiers -> observable -> productIdentifier only-element)
+     set identifiers -> observationTime:
+         ResolveEquityValuationTime(equityValuation, identifiers -> observable -> productIdentifier only-element)
 
- 	set identifiers -> determinationMethodology -> determinationMethod:
- 		equityValuation -> determinationMethod
+     set identifiers -> determinationMethodology -> determinationMethod:
+         equityValuation -> determinationMethod
 
 ``ResolveObservation`` provides an interface for adopters to integrate their market data systems. It specifies the input types and the output type, which ensures the integrity of the observed value.
 
 .. code-block:: Haskell
 
  func ResolveObservation:
- 	inputs:
- 		identifiers ObservationIdentifier (1..*)
- 		averagingMethod AveragingMethodEnum (0..1)
- 	output:
- 		observation Observation (1..1)
+     inputs:
+         identifiers ObservationIdentifier (1..*)
+         averagingMethod AveragingMethodEnum (0..1)
+     output:
+         observation Observation (1..1)
 
 The construction of the ``Reset`` in our scenario then becomes trivial, once the equity price has been retrieved, as the equity price and reset date are simply assigned to the corresponding attributes on the ``Reset``.
 
 .. code-block:: Haskell
 
  func ResolveEquityReset:
- 	inputs:
- 		equityPayout EquityPayout (1..1)
- 		observation Observation (1..1)
- 		date date (1..1)
- 	output:
- 		reset Reset (1..1)
+     inputs:
+         equityPayout EquityPayout (1..1)
+         observation Observation (1..1)
+         date date (1..1)
+     output:
+         reset Reset (1..1)
 
- 	set reset -> resetValue:
- 		observation -> observedValue
+     set reset -> resetValue:
+         observation -> observedValue
 
- 	set reset -> resetDate:
- 		date
+     set reset -> resetDate:
+         date
 
- 	add reset -> observations:
- 		observation
+     add reset -> observations:
+         observation
 
 Workflow Step Creation
 """"""""""""""""""""""
@@ -2482,13 +2474,13 @@ Hierarchy Structure
 
 The namespace hierarchy in the CDM contains 7 components
 
-•	Base – contains basic concepts used across the model: date, time, maths, static data
-•	Event – contains business event concepts: primitive, contract state, and associated state transition function specifications
-•	Legal Agreement – contains generic documentation concepts: legal agreement, contract, and credit support specifications
-•	Observable – contains observable concepts: market data, holiday calendars, asset class specific specifications
-•	Product – contains generic product concepts: quantity, price, economic terms and payout, that are built using template features
-•	Regulation – contains regulation concepts: regulatory bodies, corpus, report definitions and field rules
-•	Synonym – contains model to model synonym mappings
+•    Base – contains basic concepts used across the model: date, time, maths, static data
+•    Event – contains business event concepts: primitive, contract state, and associated state transition function specifications
+•    Legal Agreement – contains generic documentation concepts: legal agreement, contract, and credit support specifications
+•    Observable – contains observable concepts: market data, holiday calendars, asset class specific specifications
+•    Product – contains generic product concepts: quantity, price, economic terms and payout, that are built using template features
+•    Regulation – contains regulation concepts: regulatory bodies, corpus, report definitions and field rules
+•    Synonym – contains model to model synonym mappings
 
 
 .. _Portal: https://portal.cdm.rosetta-technology.io

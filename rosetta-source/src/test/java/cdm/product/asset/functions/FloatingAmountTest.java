@@ -7,6 +7,7 @@ import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.NonNegativeQuantity;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateOption;
+import cdm.observable.asset.Money;
 import cdm.product.asset.FloatingRateSpecification;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
@@ -22,20 +23,20 @@ import java.math.BigDecimal;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.BigDecimalCloseTo.closeTo;
 
-class FloatingAmountTest extends AbstractFunctionTest{
+class FloatingAmountTest extends AbstractFunctionTest {
 
-	@Inject Provider<FloatingAmount> floatingAmount;
+    @Inject
+    Provider<FloatingAmount> floatingAmount;
 
-	private static final BigDecimal SPREAD = BigDecimal.ZERO;
-	private static final BigDecimal RATE = BigDecimal.valueOf(0.0875);
-	private static final NonNegativeQuantity QUANTITY = NonNegativeQuantity.builder().setAmount(BigDecimal.valueOf(50_000_000)).build();
-	
-	private static final InterestRatePayout INTEREST_RATE_PAYOUT = InterestRatePayout.builder()
+    private static final BigDecimal RATE = BigDecimal.valueOf(0.0875);
+    private static final Money QUANTITY = Money.builder().setAmount(BigDecimal.valueOf(50_000_000)).build();
+
+    private static final InterestRatePayout INTEREST_RATE_PAYOUT = InterestRatePayout.builder()
             .setRateSpecification(RateSpecification.builder()
                     .setFloatingRate(FloatingRateSpecification.builder()
-                    				.setRateOptionValue(FloatingRateOption.builder()
-                                          .setFloatingRateIndexValue(FloatingRateIndexEnum.GBP_LIBOR_BBA))
-                    		.build())
+                            .setRateOptionValue(FloatingRateOption.builder()
+                                    .setFloatingRateIndexValue(FloatingRateIndexEnum.GBP_LIBOR_BBA))
+                            .build())
                     .build())
             .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build())
             .setCalculationPeriodDates(CalculationPeriodDates.builder()
@@ -60,7 +61,7 @@ class FloatingAmountTest extends AbstractFunctionTest{
                                             .build())
                                     .build())
                             .build())
-                    .setCalculationPeriodFrequency((CalculationPeriodFrequency) CalculationPeriodFrequency.builder()
+                    .setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
                             .setRollConvention(RollConventionEnum._3)
                             .setPeriodMultiplier(3)
                             .setPeriod(PeriodExtendedEnum.M)
@@ -78,10 +79,8 @@ class FloatingAmountTest extends AbstractFunctionTest{
 
     @Test
     void shouldApplyMultiplication() {
-    	FloatingAmount floatingAmount = this.floatingAmount.get();
-        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, SPREAD, RATE, QUANTITY, Date.of(2018, 1, 3), null);
+        FloatingAmount floatingAmount = this.floatingAmount.get();
+        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, RATE, QUANTITY, Date.of(2018, 1, 3), null);
         assertThat(result, closeTo(BigDecimal.valueOf(1093750), BigDecimal.valueOf(0.0000001)));
     }
-
-
 }
