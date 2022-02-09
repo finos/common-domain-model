@@ -47,3 +47,13 @@ This release follows the recent work to compose business events with a list of i
 _Review Directions_
 
 In the CDM Portal, select the Instance Viewer, review the visualisation examples in the Execution Business Event, Contract Formation Business Event and Quantity Change Business Event folders and inspect how the representation of the input instructions has been embedded in each business event.
+
+# *Legal Agreement Model - Workflow Event Synonym Mappings*
+
+_What is being released_
+
+This release moves the `Workflow_Event` synonym mappings into a separate namespace, synonym-cdm-event.rosetta. Separating the model and synonym mappings improves readability and maintenance, and is consistent with other mappings, such as `FpML_5_10`.
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser and search for the `Workflow_Event` synonyms.
