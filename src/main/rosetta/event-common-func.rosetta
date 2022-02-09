@@ -843,7 +843,7 @@ func Create_Execution: <"Creates the fully formed business event of executing a 
 func Create_ExecutionInstruction:
     inputs:
         product Product (1..1) <"Defines the financial product to be executed and contract formed.">
-        priceQuantity PriceQuantity (1..*) <"Specifies the price, quantity, and optionally the observable and settlement terms for use in a trade or other purposes.">
+        tradeLot TradeLot (1..*) <"Specifies the price, quantity, and optionally the observable and settlement terms for use in a trade or other purposes.">
         counterparty Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
         ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
         parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
@@ -856,8 +856,8 @@ func Create_ExecutionInstruction:
 
     set instruction -> product: <"Assign the product input to the tradable product of the execution object.">
 		product
-	add instruction -> priceQuantity: <"Assign the prices and quantities input to the tradable product of the execution object.">
-		priceQuantity
+	add instruction -> tradeLot: <"Assign the prices and quantities input to the tradable product of the execution object.">
+		tradeLot
 	add instruction -> counterparty: <"Assign the counterparty input to the tradable product of the execution object.">
 		counterparty
 	add instruction -> ancillaryParty: <"Assign the ancillaryRole input to the tradable product of the execution object.">
@@ -882,8 +882,8 @@ func Create_ExecutionPrimitive: <"Specifies the function to compose an execution
 
 	set executionPrimitive -> after -> trade -> tradableProduct -> product: <"Assign the product input to the tradable product of the execution object.">
 		instruction -> product
-	add executionPrimitive -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity: <"Assign the prices and quantities input to the tradable product of the execution object.">
-		instruction -> priceQuantity
+	add executionPrimitive -> after -> trade -> tradableProduct -> tradeLot: <"Assign the prices and quantities input to the tradable product of the execution object.">
+		instruction -> tradeLot
 	add executionPrimitive -> after -> trade -> tradableProduct -> counterparty: <"Assign the counterparty input to the tradable product of the execution object.">
 		instruction -> counterparty
 	add executionPrimitive -> after -> trade -> tradableProduct -> ancillaryParty: <"Assign the ancillaryRole input to the tradable product of the execution object.">
@@ -1010,7 +1010,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
  		Create_ExecutionPrimitive(
  		    Create_ExecutionInstruction(
                 underlier,
-                tradableProduct -> tradeLot only-element -> priceQuantity,
+                tradableProduct -> tradeLot only-element,
                 tradableProduct -> counterparty,
                 tradableProduct -> ancillaryParty,
                 tradeState -> trade -> party,
@@ -1829,7 +1829,7 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 		Create_ExecutionPrimitive(
 		    Create_ExecutionInstruction(
 		        clearingInstruction -> alphaContract -> trade -> tradableProduct -> product,
-                clearingInstruction -> alphaContract -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
+                clearingInstruction -> alphaContract -> trade -> tradableProduct -> tradeLot,
                 [betaCounterparty, betaClearerCounterparty],
                 clearingInstruction -> alphaContract -> trade -> tradableProduct -> ancillaryParty,
                 [betaParty, clearingInstruction -> clearingParty],
@@ -1855,7 +1855,7 @@ func Create_ClearedTrade: <"Function supporting direct principal and agency clea
 		Create_ExecutionPrimitive(
 		    Create_ExecutionInstruction(
 		        clearingInstruction -> alphaContract -> trade -> tradableProduct -> product,
-                clearingInstruction -> alphaContract -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
+                clearingInstruction -> alphaContract -> trade -> tradableProduct -> tradeLot,
                 [gammaCounterparty, gammaClearerCounterparty],
                 clearingInstruction -> alphaContract -> trade -> tradableProduct -> ancillaryParty,
                 [gammaParty, clearingInstruction -> clearingParty],
