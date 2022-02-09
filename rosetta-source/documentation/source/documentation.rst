@@ -1743,15 +1743,6 @@ Financial transactions defined in CDM can be referenced in the ``ContractTradeDe
 
 Similarly, the ``ContractFormation`` business event that creates the legally binding agreement between the parties can reference a ``LegalAgreement`` governing the transaction.
 
-.. code-block:: Haskell
-
- func Create_ContractFormation:
-    [creation BusinessEvent]
-    inputs:
-        instruction ContractFormationInstruction (1..1)
-        before TradeState (0..1)
-        contractFormationDate date (1..1)
-
 .. note:: The functions to create such business events are further detailed in the `Lifecycle Event Process Section`_ of the documentation.
 
 
