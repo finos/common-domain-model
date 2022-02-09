@@ -127,22 +127,16 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 
 	primitives PrimitiveEvent (0..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
 	intent EventIntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
-		[synonym Workflow_Event value "intent"]
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
-		[synonym Workflow_Event value "functionCall"]
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
 	eventDate date (1..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
-		[synonym Workflow_Event value "eventDate"]
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
-		[synonym Workflow_Event value "effectiveDate"]
 	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of globalKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
 	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
 
     // New Content
     instruction Instruction (0..*) <"Specifies the instructions that were used to create the Business Event.">
-        [synonym Workflow_Event value "ignore"]
     after TradeState (0..*) <"Specifies the after trade state(s) created.">
-        [synonym Workflow_Event value "ignore"]
 
 	condition Intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 		if (primitives -> split exists
@@ -165,9 +159,7 @@ type EventEffect: <"The set of operational and positional effects associated wit
 type EventTestBundle: <"Combines several events for testing purposes, intended to be used in downstream processes.">
 
 	event WorkflowStep (2..*)
-		[synonym Workflow_Event value "event"]
 	computedAmount ComputedAmount (0..*)
-		[synonym Workflow_Event value "computedAmount"]
 
 type ExecutionInstruction: <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, execution details, and settlement terms.">
 	product Product (1..1) <"Defines the financial product to be executed and contract formed.">
@@ -242,21 +234,14 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	[metadata key]
 	[rootType]
 	trade Trade (1..1) <"Represents the Trade that has been effected by a business or life-cycle event.">
-	    [synonym Workflow_Event hint "trade"]
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
-	    [synonym Workflow_Event value "state"]
 	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
-	    [synonym Workflow_Event value "resetHistory"]
 	transferHistory Transfer (0..*)
-	    [synonym Workflow_Event value "transferHistory"]
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
 	resetValue Price (1..1) <"Specifies the reset or fixing value. The fixing value could be a cash price, interest rate, or other value.">
-	    [synonym Workflow_Event value "resetValue"]
 	resetDate date (1..1) <"Specifies the date on which the reset occurred.">
-	    [synonym Workflow_Event value "resetDate"]
 	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
-	    [synonym Workflow_Event value "rateRecordDate"]
 	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
 		[metadata reference]
 	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value and the method is not defined in a payout.">
@@ -271,10 +256,7 @@ type AggregationMethod: <"Defines the ways in which multiple values can be aggre
 
 type State: <"Defines the state of a trade at a point in the Trade's life cycle. Trades have many state dimensions, all of which are represented here. For example, states useful for position keeping are represented alongside those needed for regulatory reporting.">
 	closedState ClosedState (0..1) <"Represents the qualification of what led to the trade's closure alongside the dates on which this closure took effect.">
-	    [synonym Workflow_Event value "closedState"]
 	positionState PositionStatusEnum (0..1) <"Identifies the state of the position, to distinguish if just executed, formed, already settled, closed, etc.">
-	    [synonym Workflow_Event value "positionStatus"]
-
 
 	condition: <"When the position state is identified as closed, the closed state must also be specified.">
 	    if positionState = PositionStatusEnum -> Closed then
@@ -294,7 +276,6 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 	partyRole PartyRole (0..*) <"Represents the role each specified party takes in the trade. further to the principal roles, payer and receiver.">
 	executionDetails ExecutionDetails (0..1) <"Represents information specific to trades that arose from executions.">
 	contractDetails ContractDetails (0..1) <"Represents information specific to trades involving contractual products.">
-	    [synonym Workflow_Event value "trade" set when "trade->executionVenue" is absent]
     clearedDate date (0..1) <"Specifies the date on which a trade is cleared (novated) through a central counterparty clearing service.">
         [deprecated]
     collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
@@ -503,7 +484,6 @@ type ExecutionDetails: <"Defines specific attributes that relate to trade execut
 	[metadata key]
 
 	executionType ExecutionTypeEnum (1..1) <"Identifies the type of execution, e.g. via voice, electronically...">
-		[synonym Workflow_Event value "executionType"]
 	executionVenue LegalEntity (0..1) <"Represents the venue on which a trade was executed.">
 	packageReference IdentifiedList (0..1) <"A reference to the package linking the trade with other trades, in case the trade was executed as part of a package (hence this attribute is optional).">
 		[metadata reference]
@@ -522,29 +502,20 @@ type ContractDetails: <"Defines specific attributes that relate to contractual d
 type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an contractFormation event is corrected, the correction event will have a lineage into the initial event, which takes the form of a globalKey into that initial contract formation event. Two referencing mechanisms are provided as part of the CDM: either the globalKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the globalKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.globalKey.GlobalKeyHashCalculator. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
     tradeReference Trade (0..*)
         [metadata reference]
-        [synonym Workflow_Event value "contractReference" meta "href"]
-        [synonym Workflow_Event value "executionReference" meta "href"]
 	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a globalKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Workflow_Event value "eventReference" meta "href"]
 	cashflowReference Cashflow (0..*) <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Workflow_Event value "cashflowReference" meta "href"]
 	creditDefaultPayoutReference CreditDefaultPayout (0..*) <"The reference to the instantiation of a CreditdefaultPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Workflow_Event value "creditDefaultReference" meta "href"]
 	interestRatePayoutReference InterestRatePayout (0..*) <"The reference to the instantiation of a InterestRatePayout component object. An expected typical usage is to provide lineage for the payment of, say, an interest rate swap reset, with the ability to relate the gross cashflow amounts to the respective payout components. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Workflow_Event value "interestRatePayoutReference" meta "href"]
 	optionPayoutReference OptionPayout (0..*) <"The reference to the instantiation of a OptionPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Workflow_Event value "optionPayoutReference" meta "href"]
 	equityPayoutReference EquityPayout (0..*) <"The reference to the instantiation of a EquityPayout object. An expected typical usage is to provide lineage for the payment of, say, an equity dividend. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-		[synonym Workflow_Event value "equityPayoutReference" meta "href"]
 	transferReference TransferPrimitive (0..*) <"The reference to the instantiation of a TransferPrimitive object.">
 		[metadata reference]
-		[synonym Workflow_Event value "transferReference" meta "href"]
 	legalAgreement LegalAgreement (0..*) <"The reference to the instantiation of a Legal Agreement object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
 	portfolioStateReference PortfolioState (0..*) <"The refence to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
@@ -560,11 +531,8 @@ type TransferBase:
 
 	identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
 		[metadata scheme]
-	    [synonym Workflow_Event value "transferIdentifier"]
 	quantity Quantity (1..1) <"Represents the amount of the asset to be transferred.">
-	    [synonym Workflow_Event value "quantity"]
 	observable Observable (0..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
-		[synonym Workflow_Event value "observable"]
 	payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
 	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
 
@@ -585,28 +553,20 @@ type ClearingInstruction: <"All information required to perform the clear life c
 type PrimitiveEvent: <"A primitive event is defined by one and only one atomic change in state of a trade. An example of this is a contract formation where the legal terms of the contact are added to the trade. A Primitive event contains a before and after state where the before is a reference to another after state of a primitive event in order to preserve lineage.">
 
 	execution ExecutionPrimitive (0..1)
-		[synonym Workflow_Event value "executionPrimitive" path "primitive"]
 	contractFormation ContractFormationPrimitive (0..1)
-		[synonym Workflow_Event value "contractFormation" path "primitive"]
 	split SplitPrimitive (0..1)
-		[synonym Workflow_Event value "split" path "primitive"]
 	quantityChange QuantityChangePrimitive (0..1)
-		[synonym Workflow_Event value "quantityChange" path "primitive"]
 	reset ResetPrimitive (0..1)
-		[synonym Workflow_Event value "reset" path "primitive"]
 	termsChange TermsChangePrimitive (0..1)
-		[synonym Workflow_Event value "termsChange" path "primitive"]
 	transfer TransferPrimitive (0..1)
-		[synonym Workflow_Event value "transfer" path "primitive"]
+
 	condition PrimitiveEvent: one-of
 
 type ExecutionPrimitive: <"Defines the primitive event for an execution, with 'after' attribute being a TradeState and the 'before' attribute being Null. It is expected that the 'before' attribute will be adjusted or deprecated once the CDM scope is extended to include pre-trade.">
 
 	before TradeState (0..0) <"Represents the connection point between pre and post trade life-cycle events. The TradeState associated to the 'before' attribute represents the final step of any pre-trade workflow. CDM scope does not include pre-trade and so cardinality of this attribute is specified as exactly 0, which enforces the absence of the 'before' attribute.">
 		[metadata reference]
-		[synonym Workflow_Event value "before"]
 	after TradeState (1..1) <"Represents an execution between parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">
-		[synonym Workflow_Event value "after"]
 
 	condition:
 		after -> trade -> executionDetails exists
@@ -615,10 +575,7 @@ type ContractFormationPrimitive: <"Defines the primitive event that represents a
 
 	before TradeState (0..1) <"Represents the output of an execution between the parties.">
 		[metadata reference]
-		[synonym Workflow_Event value "fpmlTrade" path "before"]
-		[synonym Workflow_Event value "fpmlExecution" path "before"]
 	after TradeState (1..1) <"Represents the new contract being formed between the parties.">
-		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
 	condition: <"The underlying product should be unchanged.">
 		if before exists then
@@ -632,9 +589,7 @@ type SplitPrimitive: <"Defines splitting of a single trade into one or more trad
 
 	before TradeState (1..1) <"Represents the single trade to be split.">
 		[metadata reference]
-		[synonym Workflow_Event value "fpmlTrade" path "before"]
 	after TradeState (2..*) <"Represents the outcome of the split. Includes the single trade (referenced in the 'before' attribute) with its Position State updated to closed, along with a reason.">
-		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
 	condition: <"Ensure Execution Details are not lost in the split process.">
 		if before -> trade -> executionDetails exists
@@ -659,17 +614,14 @@ type QuantityChangePrimitive: <"Defines the primitive event to represent a chang
 
 	before TradeState (1..1) <"Represents the state of the trade before the event.">
 		[metadata reference]
-		[synonym Workflow_Event value "fpmlTrade" path "before"]
 	after TradeState (1..1) <"Represents the state of the trade as a follow-up from the event.">
-		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
 type ResetPrimitive: <"Defines the primitive event to represent a reset. For details of how the TradeState is changed between the `before` and `after` TradeStates, see the corresponding Create_ResetPrimitive function.">
 
 	before TradeState (1..1) <"Represents the TradeState prior applying the Reset primitive.">
 		[metadata reference]
-		[synonym Workflow_Event value "fpmlTrade" path "before"]
 	after TradeState (1..1) <"Represents the TradeState after to applying the Reset primitive.">
-		[synonym Workflow_Event value "fpmlTrade" path "after"]
+
 	condition Trade: <"The original trade in the before/after state of a reset should match.">
 		before -> trade = after -> trade
 
@@ -677,17 +629,13 @@ type TermsChangePrimitive: <"Defines the primitive event to represent changes to
 
 	before TradeState (1..1) <"Represents the TradeState prior to applying the TermsChange primitive.">
 		[metadata reference]
-		[synonym Workflow_Event value "fpmlTrade" path "before"]
 	after TradeState (1..1) <"Represents the TradeState after to applying the TermsChange primitive. ">
-		[synonym Workflow_Event value "fpmlTrade" path "after"]
 
 type TransferPrimitive: <"A class to specify the transfer of assets between parties, those assets being either cash, securities or physical assets. This class combines components that are cross-assets (settlement date, settlement type, status, ...) and some other which are specialized by asset class (e.g. the payer/receiver amount and cashflow type for a cash transfer, the transferor/transferee, security indication, quantity, and asset transfer type qualification for the case of a security). The associated globalKey denotes the ability to associate a hash value to the respective Execution instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 	before TradeState (1..1)
 	    [metadata reference]
-	    [synonym Workflow_Event value "fpmlTrade" path "before"]
 	after TradeState (1..1)
-	    [synonym Workflow_Event value "fpmlTrade" path "after"]
 
 type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
 	[deprecated]

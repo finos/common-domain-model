@@ -12,7 +12,6 @@ import cdm.synonyms.config.*
 type CreditLimitInformation: <"A class to represent the credit limit utilisation information.">
 
 	limitApplicable LimitApplicableExtended (1..*)
-		[synonym Workflow_Event value "limitApplicable"]
 
 type CreditLimitUtilisation: <"Credit limit utilisation breakdown by executed trades and pending orders.">
 
@@ -34,35 +33,21 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedInstruction is present and is rejected if the rejected flag is set.">
 	[metadata key]
 	[rootType]
-	[synonym Workflow_Event meta "id"]
 
 	businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedInstruction or rejection are present.">
 	proposedInstruction Instruction (0..1) <"The proposed instruction for the next workflow step. The proposedInstruction is optional when the businessEvent or rejection are present">
-		[synonym Workflow_Event value "proposedInstruction"]
 	rejected boolean (0..1) <"Flags this step as rejected.">
-		[synonym Workflow_Event value "rejected"]
 	previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
 		[metadata reference]
-		[synonym Workflow_Event value "previousWorkflowStep"]
 	nextWorkflowStep NextWorkflowStep (0..1) <"Optional next workflow step that defines the intended business event and optional instructions.">
 	messageInformation MessageInformation (0..1) <"Contains all information pertaining the FpML messaging header ">
 	timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
-		[synonym Workflow_Event value "timestamp"]
 	eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">
-		[synonym Workflow_Event value "eventIdentifier"]
 	action ActionEnum (0..1) <"Specifies whether the event is a new, a correction or a cancellation.">
-		[synonym Workflow_Event
-			set to ActionEnum -> New when "isCorrection" = False,
-			set to ActionEnum -> Correct when "isCorrection" = True,
-			set to ActionEnum -> Cancel when "isRetraction" = True]
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">
-		[synonym Workflow_Event value "party"]
 	account Account (0..*) <"Optional account information that could be associated to the event.">
-		[synonym Workflow_Event value "account"]
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the globalKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
-		[synonym Workflow_Event value "lineage"]
 	creditLimitInformation CreditLimitInformation (0..1)
-        [synonym Workflow_Event value "creditLimitInformation" path "primitive->contractFormation->after"]
 	workflowState WorkflowState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 		
 	condition WorkflowStepStatus:
@@ -80,25 +65,17 @@ type NextWorkflowStep: <"Optional next workflow step defined as an intended Busi
 
 	nextIntendedEvent EventIntentEnum (0..1) <"The intended next BusinessEvent">
 	proposedInstruction Instruction (0..1) <"The proposed business event instructions for creation of the next workflow step.">
-        [synonym Workflow_Event value "ignore"]
 
 	condition: one-of
 
 type EventTimestamp: <"A class to represent the various set of timestamps that can be associated with lifecycle events, as a collection of [dateTime, qualifier].">
 
 	dateTime zonedDateTime (1..1) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">
-		[synonym Workflow_Event value "creationTimestamp"]
-		[synonym Workflow_Event value "expiryTimestamp"]
 	qualification EventTimestampQualificationEnum (1..1) <"The timestamp qualifier is specified through an enumeration because the experience of integrating the DTCC and CME data representations suggests that a wide set of timestamps are currently utilized among service providers, while there is not at present an objective set of criteria that could help suggest a defined set of timestamps as part of the CDM. At some future point, one possible baseline could be developed from the review of the set of timestamps specified across regulatory regimes and regulations (incl. regulations such as high frequency trading). Also, the integration with a further set of implementations and the specification of business workflows such as clearing as part of the CDM development should help confirm the implementation approach in this respect.">
-		[synonym Workflow_Event set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
-		[synonym Workflow_Event set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
-		[synonym Workflow_Event set to EventTimestampQualificationEnum -> clearingSubmissionDateTime when "submittedForClearing" exists]
-
 
 type WorkflowState: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
 
 	workflowStatus WorkflowStatusEnum (1..1) <"The workflow status indicator, e.g. Accepted, Rejected, ...">
-		[synonym Workflow_Event value "workflowStatus"]
 	comment string (0..1) <"A comment field to be associated with the workflow, e.g. to specify why a transaction event was rejected by a party.">
 	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Workflow data that is specific to certain market participants and is expressed as part of the CDM in a very generic manner, which can be party-specific. The initial use cases have been derived from the CME clearing and the DTCC TIW submissions.">
 	warehouseIdentity WarehouseIdentityEnum (0..1) <"The identity of the warehouse, if any, that is executing that workflow step.">
@@ -107,16 +84,12 @@ type LimitApplicable:
 
 	limitType CreditLimitTypeEnum (0..1) <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">
 		[metadata scheme]
-		[synonym Workflow_Event value "limitType" meta "creditLimitTypeScheme"]
 	clipSize int (0..1) <"This element is required in FpML, optional in CDM for the purpose of accommodating the CME data representation while making reference to the FpML one.">
 	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym Workflow_Event value "amountUtilized"]
 	utilization CreditLimitUtilisation (0..1)
 	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym Workflow_Event value "amountRemaining"]
 	currency string (0..1) <"The currency in which the applicable limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
-		[synonym Workflow_Event value "currency" meta "currencyScheme"]
 	velocity Velocity (0..1)
 
 	condition LimitApplicableChoice: <"Choice rule to represent an FpML choice construct.">
@@ -126,23 +99,17 @@ type LimitApplicableExtended extends LimitApplicable: <"A class to represent the
 
 	limitLevel LimitLevelEnum (0..1) <"The level at which the limit is set: customer business, proprietary business or account level. This attribute is specified as a string as part of the CME clearing confirmation specification.">
 		[metadata scheme]
-		[synonym Workflow_Event value "level" meta "creditLimitLevelScheme"]
 	limitAmount number (0..1) <"The total limit available for the limit level and limit type. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym Workflow_Event value "limitAmount"]
 	limitImpactDueToTrade number (0..1) <"The limit utilized by this specific trade. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-		[synonym Workflow_Event value "limitImpactDueToTrade"]
 
 type MessageInformation: <"This class corresponds to the components of the FpML MessageHeader.model.">
 
 	messageId string (1..1) <"A unique identifier assigned to the message.">
 		[metadata scheme]
-		[synonym Workflow_Event value "messageId" path "messageInformation" meta "messageIdScheme"]
 	sentBy string (0..1) <"The identifier for the originator of a message instance.">
 		[metadata scheme]
-		[synonym Workflow_Event value "sentBy" path "messageInformation" meta "messageAddressScheme"]
 	sentTo string (0..*) <"The identifier(s) for the recipient(s) of a message instance.">
 		[metadata scheme]
-		[synonym Workflow_Event value "sentTo" path "messageInformation" meta "messageAddressScheme"]
 	copyTo string (0..*) <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">
 		[metadata scheme]
 
