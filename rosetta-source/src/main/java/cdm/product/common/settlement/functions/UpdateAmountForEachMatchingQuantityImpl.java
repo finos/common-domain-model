@@ -43,7 +43,7 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 		// Update matching quantities for each price quantity
 		List<PriceQuantity.PriceQuantityBuilder> updatedPriceQuantity = emptyIfNull(priceQuantity)
 				.stream()
-				.map(pq -> pq.setQuantityValue(updateAmountForEachMatchingQuantity(pq.getQuantity(), newQuantities, direction)))
+				.map(pq -> pq.setQuantity(updateAmountForEachMatchingQuantity(pq.getQuantity(), newQuantities, direction)))
 				.collect(Collectors.toList());
 		// Get new cash price
 		List<? extends Price.PriceBuilder> newCashPrice = change.stream()
@@ -67,17 +67,17 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 	}
 
 	@NotNull
-	private List<? extends Quantity> updateAmountForEachMatchingQuantity(List<? extends FieldWithMetaQuantity> quantitiesToUpdate,
+	private List<? extends FieldWithMetaQuantity> updateAmountForEachMatchingQuantity(List<? extends FieldWithMetaQuantity> quantitiesToUpdate,
 			Set<? extends Quantity> newQuantities,
 			QuantityChangeDirectionEnum direction) {
 		return emptyIfNull(quantitiesToUpdate)
 				.stream()
-				.map(FieldWithMetaQuantity::getValue)
 				.filter(Objects::nonNull)
-				.map(Quantity::toBuilder)
+				.filter(fieldWithMeta -> fieldWithMeta.getValue() != null)
+				.map(FieldWithMetaQuantity::toBuilder)
 				.peek(quantityToUpdate ->
-						filterQuantityByUnitOfAmount(newQuantities, quantityToUpdate.getUnitOfAmount())
-								.forEach(newQuantityWithMatchingUnitOfAmount -> updateAmount(quantityToUpdate, newQuantityWithMatchingUnitOfAmount, direction)))
+						filterQuantityByUnitOfAmount(newQuantities, quantityToUpdate.getValue().getUnitOfAmount())
+								.forEach(newQuantityWithMatchingUnitOfAmount -> updateAmount(quantityToUpdate.getValue(), newQuantityWithMatchingUnitOfAmount, direction)))
 				.collect(Collectors.toList());
 	}
 

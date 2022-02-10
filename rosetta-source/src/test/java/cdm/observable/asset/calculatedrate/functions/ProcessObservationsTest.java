@@ -28,8 +28,8 @@ public class ProcessObservationsTest extends AbstractFunctionTest {
 		double[] expected = { 0.02, 0.02, 0.03, 0.04, 0.04 };
 		FloatingRateCalculationParameters params = FloatingRateCalculationParameters.builder()
 				.setObservationParameters(ObservationParameters.builder()
-						.setObservationCapRate(BigDecimal.valueOf(0.02))
-						.setObservationFloorRate(BigDecimal.valueOf(0.04))
+						.setObservationCapRate(BigDecimal.valueOf(0.04))
+						.setObservationFloorRate(BigDecimal.valueOf(0.02))
 						.build())
 				.build();
 		check(expected, func.evaluate(params, observations));

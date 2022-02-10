@@ -13,10 +13,7 @@ import cdm.product.asset.floatingrate.functions.SelectScheduleStep;
 import cdm.product.asset.floatingrate.functions.SelectScheduleStepImpl;
 import cdm.product.asset.functions.ResolveEquityInitialPrice;
 import cdm.product.asset.functions.ResolveEquityInitialPriceImpl;
-import cdm.product.common.schedule.functions.CalculationPeriod;
-import cdm.product.common.schedule.functions.CalculationPeriodImpl;
-import cdm.product.common.schedule.functions.CalculationPeriodRange;
-import cdm.product.common.schedule.functions.CalculationPeriodRangeImpl;
+import cdm.product.common.schedule.functions.*;
 import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantity;
 import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantityImpl;
 import cdm.product.common.settlement.functions.UpdateAmountForEachQuantity;
@@ -40,6 +37,7 @@ public class CdmRuntimeModule extends AbstractModule {
 
 		// functions
 		bind(CalculationPeriod.class).to(bindCalculationPeriod());
+		bind(CalculationPeriods.class).to (bindCalculationPeriods());
 		bind(SelectFromVector.class).to(bindSelectFromVector());
 		bind(LastInVector.class).to(bindLastInVector());
 		bind(VectorOperation.class).to(bindVectorOperation());
@@ -114,6 +112,10 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends CalculationPeriod> bindCalculationPeriod() {
 		return CalculationPeriodImpl.class;
+	}
+
+	protected Class<? extends CalculationPeriods> bindCalculationPeriods() {
+		return CalculationPeriodsImpl.class;
 	}
 
 	protected Class<? extends ResolveEquityInitialPrice> bindResolveEquityInitialPrice() {

@@ -13,9 +13,7 @@ import cdm.synonyms.config.*
 type ObservationSource: <"The observation source can be composed of an curve and/or and information source.">
 
 	curve Curve (0..1)
-		[synonym Workflow_Event value "curve"]
 	informationSource InformationSource (0..1)
-		[synonym Workflow_Event value "informationSource"]
 
 	condition CurveInformationSource: <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
 		if ObservationSource exists
@@ -124,7 +122,6 @@ type Price extends MeasureBase: <"Specifies a price to be used for trade amounts
 
 	priceExpression PriceExpression (1..1) <"Provides a value for the type of price expression (cash price, interest rate, gross or net, clean or dirty etc.) in order to explain how to interpret the amount and use it in calculations.">
 	perUnitOfAmount UnitType (1..1) <"Provides an attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
-        [synonym Workflow_Event value "perUnitOfAmount"]
 
     condition PositiveFXRate: <"Requires that per FpML rules, the FX rate must be a positive value.">
         if ( priceExpression -> priceType = PriceTypeEnum -> ExchangeRate or priceExpression -> priceType = PriceTypeEnum -> AssetPrice )
@@ -153,7 +150,6 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
 		[metadata location]
 	productIdentifier ProductIdentifier (0..*) <"Comprises of an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 		[metadata location]
-		[synonym Workflow_Event value "productIdentifier"]
 	currencyPair QuotedCurrencyPair (0..1) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
         [metadata location]
 	optionReferenceType OptionReferenceTypeEnum (0..1) <"The underlying contract which is referenced when determining the final settlement price of the instrument. Eg. Rolling Front Month Future; Spot etc.">
@@ -206,10 +202,8 @@ type CrossRate extends QuotedCurrencyPair: <"A class that is used for including 
 type Curve:
 
 	interestRateCurve InterestRateCurve (0..1)
-		[synonym Workflow_Event value "interestRateCurve"]
 	commodityCurve CommodityReferencePriceEnum (0..1)
 		[metadata scheme]
-		[synonym Workflow_Event value "commodityCurve" meta "commodityReferencePriceScheme"]
 
 	condition Curve: one-of
 
@@ -217,9 +211,7 @@ type InterestRateCurve:
 
 	floatingRateIndex FloatingRateIndexEnum (1..1)
 		[metadata scheme]
-		[synonym Workflow_Event value "floatingRateIndex" meta "floatingRateIndexScheme"]
 	tenor Period (1..1)
-		[synonym Workflow_Event value "tenor"]
 
 type TransactedPrice: <" A class to represent the transacted price attributes that are positioned as part of the FpML FeeLeg.">
 
