@@ -236,8 +236,14 @@ func ProcessObservations: <"Apply daily observation parameters to rate observati
 	alias floor: if params exists then params->observationFloorRate
 
 	// apply the daily cap and floor rates using vector math operations
-	alias cappedObservations: if cap exists then VectorScalarOperation(ArithmeticOperationEnum->Min, rawObservations, cap) else rawObservations
-	alias flooredObservations: if floor exists then VectorScalarOperation(ArithmeticOperationEnum->Max, cappedObservations, floor) else cappedObservations
+	alias cappedObservations:
+	    if cap exists then
+	        rawObservations map [ Min( item, cap ) ]
+        else rawObservations
+	alias flooredObservations:
+	    if floor exists then
+	        cappedObservations map [ Max( item, floor ) ]
+        else cappedObservations
 
 	add processedObservations: flooredObservations
 
@@ -277,10 +283,10 @@ func ApplyCompoundingFormula: <"Implements the compounding formula:   Product of
 	alias weightedObservations: VectorOperation(ArithmeticOperationEnum->Multiply, observations, weights)
 
 	// scale the weighted observations based on the basis
-	alias scaledAndWeightedObservations: VectorScalarOperation(ArithmeticOperationEnum->Multiply, weightedObservations, yearFrac)
+	alias scaledAndWeightedObservations: weightedObservations map [ item * yearFrac ]
 
 	// compute series of growth factors by adding 1 to the scaled and weighted observations
-	alias growthFactors: VectorScalarOperation(ArithmeticOperationEnum->Add, scaledAndWeightedObservations, 1.0)
+	alias growthFactors: scaledAndWeightedObservations map [ item + 1.0 ]
 
 	// compute a growth curve by successively applying the growth factors
 	alias growthCurve: VectorGrowthOperation(1.0, growthFactors)
@@ -289,7 +295,7 @@ func ApplyCompoundingFormula: <"Implements the compounding formula:   Product of
 	alias finalValue: LastInVector(growthCurve)
 
 	// find the values to scale by to compute the rate
-	alias totalWeight: Sum(weights)
+	alias totalWeight: weights sum
 	alias overallYearFrac: totalWeight * yearFrac
 
 	// compute the final calculated rate
@@ -315,10 +321,10 @@ func ApplyAveragingFormula: <"Implements the weighted arithmetic averaging formu
 	alias weightedObservations: VectorOperation(ArithmeticOperationEnum->Multiply, observations, weights)
 
 	// sum the weighted observations
-	alias totalWeightedObservations: Sum(weightedObservations)
+	alias totalWeightedObservations: weightedObservations sum
 
 	// sum the weights
-	alias totalWeight: Sum(weights)
+	alias totalWeight: weights sum
 
 	// compute the final calculated rate
 	alias calculatedRate: totalWeightedObservations / totalWeight
