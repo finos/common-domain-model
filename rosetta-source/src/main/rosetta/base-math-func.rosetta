@@ -22,28 +22,6 @@ func CompareNumbers:
         then n1 < n2 = True
         else False
 
-func ArithmeticOperation:
-	inputs:
-        n1 number (1..1)
-        op ArithmeticOperationEnum (1..1)
-        n2 number (1..1)
-	output:
-        result number (1..1)
-
-	set result:
-        if op = ArithmeticOperationEnum -> Add then
-            n1 + n2
-        else if op = ArithmeticOperationEnum -> Subtract then
-            n1 - n2
-        else if op = ArithmeticOperationEnum -> Multiply then
-            n1 * n2
-        else if op = ArithmeticOperationEnum -> Divide then
-            n1 / n2
-        else if op = ArithmeticOperationEnum -> Max then
-            Max( n1, n2 )
-        else if op = ArithmeticOperationEnum -> Min then
-            Min( n1, n2 )
-
 func Abs: <"Returns the absolute value of a number. If the argument is not negative, the argument is returned. If the argument is negative, the negation of the argument is returned.">
 	inputs:
 	    arg number (1..1)
@@ -52,25 +30,23 @@ func Abs: <"Returns the absolute value of a number. If the argument is not negat
 	set result:
 	    if arg < 0 then -1 * arg else arg
 
-func Sum: <"Returns the scalar sum (total) of all of the supplied numbers.">
-	inputs:
-	    args number (0..*)
-	output:
-	    result number (1..1)
-	set result:
-	    if args exists then
-	        args
-                reduce a, b [ a + b ]
-	    else 0.0
-
 func Max: <"Returns the greater number of two supplied numbers.">
 	inputs:
 		a number (1..1)
 		b number (1..1)
 	output:
-		max number (1..1)
-	set max:
+		result number (1..1)
+	set result:
 		if a > b then a else b
+
+func Min: <"Returns the lesser number of two supplied numbers.">
+	inputs:
+		a number (1..1)
+		b number (1..1)
+	output:
+		result number (1..1)
+	set result:
+		if a > b then b else a
 
 func RoundToNearest:
 	inputs:
@@ -162,6 +138,7 @@ func Create_Quantity: <"Create Quantity with given amount and unit of amount.">
 	set quantity -> amount: amount
 	set quantity -> unitOfAmount: unitOfAmount
 
+
 func Create_UnitType: <"Create UnitType with given currency or financial unit.">
 	inputs:
 		currency string (0..1)
@@ -175,19 +152,6 @@ func Create_UnitType: <"Create UnitType with given currency or financial unit.">
 
 	set unitType -> currency: currency
 	set unitType -> financialUnit: financialUnit
-
-func SelectFromVector: <"Selects a single value from a vector (list of numbers), i.e. result = val[index].  Returns null if the supplied vector is empty or if the supplied index is out of range.  Returns the element of the vector at the supplied index.">
-	inputs:
-		vector number (0..*) <"Input vector.">
-		index int (1..1) <"List index of the value to select.">
-	output:
-	    result number (1..1) <"Selected value.">
-
-func LastInVector: <"Return the last value in a vector.">
-	inputs:
-		vector number (0..*) <"Input vector.">
-	output:
-	    lastValue number (0..1) <"Last value in the vector.">
 
 func AppendToVector: <"Append a single value to a vector (list of numbers).">
     inputs:
@@ -230,3 +194,26 @@ func VectorGrowthOperation: <"Generates a result vector by starting with the sup
 		factor number (0..*) <"vector of growth factions, which are all typically slightly greater than 1.0">
     output:
         result number (0..*) <"result vector, showing all of the interim growth values">
+
+func ArithmeticOperation:
+	inputs:
+        n1 number (1..1)
+        op ArithmeticOperationEnum (1..1)
+        n2 number (1..1)
+	output:
+        result number (1..1)
+
+	set result:
+        if op = ArithmeticOperationEnum -> Add then
+            n1 + n2
+        else if op = ArithmeticOperationEnum -> Subtract then
+            n1 - n2
+        else if op = ArithmeticOperationEnum -> Multiply then
+            n1 * n2
+        else if op = ArithmeticOperationEnum -> Divide then
+            n1 / n2
+        else if op = ArithmeticOperationEnum -> Max then
+            Max( n1, n2 )
+        else if op = ArithmeticOperationEnum -> Min then
+            Min( n1, n2 )
+

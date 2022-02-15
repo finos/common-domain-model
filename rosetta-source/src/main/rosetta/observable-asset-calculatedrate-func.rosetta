@@ -76,7 +76,7 @@ func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of 
 		calculationPeriod CalculationPeriodBase (1..1) <"Calculation period for which we want to determine the rate.">
 		priorCalculationPeriod CalculationPeriodBase (0..1) <"The prior calculation period (needed only for set in advance observation shift rate.">
 	output:
-		results CalculatedRateObservationDatesAndWeights (1..1) <"observation dates and corresonding weight.">
+		results CalculatedRateObservationDatesAndWeights (1..1) <"observation dates and corresponding weight.">
 
 	// set up some convenience accessors
 	alias obsShift: calculationParams->observationShiftCalculation
@@ -93,13 +93,10 @@ func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of 
 	alias observationPeriod: DetermineObservationPeriod(adjustedCalculationPeriod, calculationParams)
 	alias observationDates: GenerateObservationDates(observationPeriod, businessDays, lockoutDays)
 
-	// work out the date list for calculating weights, then calculate the weights
-	alias weightingDates: DetermineWeightingDates(calculationParams, observationDates, observationPeriod, adjustedCalculationPeriod, lockoutDays)
-	alias weights: GenerateWeights(weightingDates)
-
 	// record the results
 	add results->observationDates: observationDates
-	add results->weights: weights
+    add results->weights: GenerateWeightings(calculationParams, results->observationDates, observationPeriod, adjustedCalculationPeriod, lockoutDays)
+
 
 // possibly record some other intermediate results to aid debugging/understanding?
 func ComputeCalculationPeriod: <"Determine the calculation period to use for computing the calculated rate (it may not be the same as the normal calculation period, for instance if the rate is set in advance.">
@@ -146,12 +143,11 @@ func DetermineObservationPeriod: <"Determine any applicable offsets/shifts for t
 
 	// determine the shift amount
 	alias shift: if (obsShift exists) then obsShift->offsetDays else if lookback exists then lookback->offsetDays else 0 // shift amount
-		// default to 5 days if not specified (this is the default value from the 2021 Definitions)
+    // default to 5 days if not specified (this is the default value from the 2021 Definitions)
 	alias shiftDefaulted: if shift exists then shift else 5
 
-		// calculate and return the shifted observation period
-	alias obsPeriod: GenerateObservationPeriod(adjustedCalculationPeriod, allBusinessDays, shiftDefaulted)
-	set observationPeriod: obsPeriod
+    // calculate and return the shifted observation period
+	set observationPeriod: GenerateObservationPeriod(adjustedCalculationPeriod, allBusinessDays, shiftDefaulted)
 
 func GenerateObservationPeriod: <"Generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shifts.">
 	[calculation]
@@ -186,16 +182,29 @@ func GenerateObservationDates: <"Generate the list of observation dates given an
 	alias endDate: AddBusinessDays(observationPeriod->adjustedEndDate, -1 * days, bc)
 
 	// create the list of observation dates - all business days between the start and end dates
-	alias obsDates: GenerateDateList(observationPeriod->adjustedStartDate, endDate, bc)
+	add observationDates: GenerateDateList(observationPeriod->adjustedStartDate, endDate, bc)
 
-	add observationDates: obsDates
+func GenerateWeightings: <"Determine the weighting dates and the corresponding weights to be used for weighting observation.">
+	[calculation]
+	inputs:
+		calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
+		observationDates date (0..*)
+		observationPeriod CalculationPeriodBase (1..1) <"The resulting observation period.">
+		adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being comnputed, after any adjustment.">
+		lockoutDays int (1..1) <"The number of lockout day.">
+	output:
+		weights number (0..*) <"A vector of weights, typically numbers between 1 and 3.">
+
+	alias weightingDates: DetermineWeightingDates(calculationParams, observationDates, observationPeriod, adjustedCalculationPeriod, lockoutDays)
+
+	set weights:  GenerateWeights(weightingDates)
 
 func DetermineWeightingDates: <"Determine the dates to be used for weighting observation.">
 	[calculation]
 	inputs:
 		calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
 		observationDates date (0..*)
-		observationPeriod CalculationPeriodBase (1..1) <"The resulting observation perio.">
+		observationPeriod CalculationPeriodBase (1..1) <"The resulting observation period.">
 		adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being comnputed, after any adjustment.">
 		lockoutDays int (1..1) <"The number of lockout day.">
 	output:
@@ -227,8 +236,8 @@ func ProcessObservations: <"Apply daily observation parameters to rate observati
 	alias floor: if params exists then params->observationFloorRate
 
 	// apply the daily cap and floor rates using vector math operations
-	alias cappedObservations: if cap exists then VectorScalarOperation(ArithmeticOperationEnum->Max, rawObservations, cap) else rawObservations
-	alias flooredObservations: if floor exists then VectorScalarOperation(ArithmeticOperationEnum->Min, cappedObservations, floor) else cappedObservations
+	alias cappedObservations: if cap exists then VectorScalarOperation( ArithmeticOperationEnum->Min, rawObservations, cap ) else rawObservations
+	alias flooredObservations: if floor exists then VectorScalarOperation( ArithmeticOperationEnum->Max, cappedObservations, floor ) else cappedObservations
 
 	add processedObservations: flooredObservations
 
@@ -240,9 +249,9 @@ func GenerateWeights: <"Recursively creates a list of weights based on the date 
 		weights number (0..*) <"A vector of weights, typically numbers between 1 and 3.">
 
 	alias active: weightingDates count > 1 // do we still have more than one date in the list?
-	alias refDate: LastInDateList(weightingDates) // find the last date in the supplied list of dates
+	alias refDate: weightingDates last // find the last date in the supplied list of dates
 	alias remainingDates: PopOffDateList(weightingDates) // determine the prior list of dates, i.e. omitting the last in the list
-	alias prevDate: LastInDateList(remainingDates) // find the second to last date in the supplied list of dates
+	alias prevDate: remainingDates last // find the second to last date in the supplied list of dates
 	alias diff: DateDifference(prevDate, refDate) // the weight is the date difference between the supplied ref date and the last one in the list
 	alias remainingWeights: GenerateWeights(remainingDates) // recursively generate weights for earlier part of the list
 
@@ -277,10 +286,10 @@ func ApplyCompoundingFormula: <"Implements the compounding formula:   Product of
 	alias growthCurve: VectorGrowthOperation(1.0, growthFactors)
 
 	// find the final value of the growth curve (the product of all the growth factors times)
-	alias finalValue: LastInVector(growthCurve)
+	alias finalValue: growthCurve last
 
 	// find the values to scale by to compute the rate
-	alias totalWeight: Sum(weights)
+	alias totalWeight: weights sum
 	alias overallYearFrac: totalWeight * yearFrac
 
 	// compute the final calculated rate
@@ -306,10 +315,10 @@ func ApplyAveragingFormula: <"Implements the weighted arithmetic averaging formu
 	alias weightedObservations: VectorOperation(ArithmeticOperationEnum->Multiply, observations, weights)
 
 	// sum the weighted observations
-	alias totalWeightedObservations: Sum(weightedObservations)
+	alias totalWeightedObservations: weightedObservations sum
 
 	// sum the weights
-	alias totalWeight: Sum(weights)
+	alias totalWeight: weights sum
 
 	// compute the final calculated rate
 	alias calculatedRate: totalWeightedObservations / totalWeight
