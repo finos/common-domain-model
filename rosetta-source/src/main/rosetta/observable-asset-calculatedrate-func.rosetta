@@ -236,8 +236,8 @@ func ProcessObservations: <"Apply daily observation parameters to rate observati
 	alias floor: if params exists then params->observationFloorRate
 
 	// apply the daily cap and floor rates using vector math operations
-	alias cappedObservations: if cap exists then VectorScalarOperation(ArithmeticOperationEnum->Min, rawObservations, cap) else rawObservations
-	alias flooredObservations: if floor exists then VectorScalarOperation(ArithmeticOperationEnum->Max, cappedObservations, floor) else cappedObservations
+	alias cappedObservations: if cap exists then VectorScalarOperation( ArithmeticOperationEnum->Min, rawObservations, cap ) else rawObservations
+	alias flooredObservations: if floor exists then VectorScalarOperation( ArithmeticOperationEnum->Max, cappedObservations, floor ) else cappedObservations
 
 	add processedObservations: flooredObservations
 
@@ -249,9 +249,9 @@ func GenerateWeights: <"Recursively creates a list of weights based on the date 
 		weights number (0..*) <"A vector of weights, typically numbers between 1 and 3.">
 
 	alias active: weightingDates count > 1 // do we still have more than one date in the list?
-	alias refDate: LastInDateList(weightingDates) // find the last date in the supplied list of dates
+	alias refDate: weightingDates last // find the last date in the supplied list of dates
 	alias remainingDates: PopOffDateList(weightingDates) // determine the prior list of dates, i.e. omitting the last in the list
-	alias prevDate: LastInDateList(remainingDates) // find the second to last date in the supplied list of dates
+	alias prevDate: remainingDates last // find the second to last date in the supplied list of dates
 	alias diff: DateDifference(prevDate, refDate) // the weight is the date difference between the supplied ref date and the last one in the list
 	alias remainingWeights: GenerateWeights(remainingDates) // recursively generate weights for earlier part of the list
 
@@ -286,10 +286,10 @@ func ApplyCompoundingFormula: <"Implements the compounding formula:   Product of
 	alias growthCurve: VectorGrowthOperation(1.0, growthFactors)
 
 	// find the final value of the growth curve (the product of all the growth factors times)
-	alias finalValue: LastInVector(growthCurve)
+	alias finalValue: growthCurve last
 
 	// find the values to scale by to compute the rate
-	alias totalWeight: Sum(weights)
+	alias totalWeight: weights sum
 	alias overallYearFrac: totalWeight * yearFrac
 
 	// compute the final calculated rate
@@ -315,10 +315,10 @@ func ApplyAveragingFormula: <"Implements the weighted arithmetic averaging formu
 	alias weightedObservations: VectorOperation(ArithmeticOperationEnum->Multiply, observations, weights)
 
 	// sum the weighted observations
-	alias totalWeightedObservations: Sum(weightedObservations)
+	alias totalWeightedObservations: weightedObservations sum
 
 	// sum the weights
-	alias totalWeight: Sum(weights)
+	alias totalWeight: weights sum
 
 	// compute the final calculated rate
 	alias calculatedRate: totalWeightedObservations / totalWeight

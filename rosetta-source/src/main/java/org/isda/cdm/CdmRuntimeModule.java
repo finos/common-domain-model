@@ -30,46 +30,55 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		// create bindings here
 		bind(ModelObjectValidator.class).to(bindModelObjectValidator());
 		bind(QualifyFunctionFactory.class).to(bindQualifyFunctionFactory());
 		bind(ValidatorFactory.class).to(bindValidatorFactory());
 
-		// functions
-		bind(CalculationPeriod.class).to(bindCalculationPeriod());
-		bind(CalculationPeriods.class).to (bindCalculationPeriods());
-		bind(SelectFromVector.class).to(bindSelectFromVector());
-		bind(LastInVector.class).to(bindLastInVector());
+		// Functions (should be refactored into rosetta)
+		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
+		bind(ResolveObservationAverage.class).to(bindResolveObservationAverage());
 		bind(VectorOperation.class).to(bindVectorOperation());
 		bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
+		bind(BusinessCenterHolidays.class).to(bindBusinessCenterHolidays());
+		bind(CombineBusinessCenters.class).to(bindCombineBusinessCenters());
+		bind(IndexValueObservation.class).to(bindIndexValueObservation());
+		bind(IndexValueObservationMultiple.class).to(bindIndexValueObservationMultiple());
 
-		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
+		// Requires DSL get-item(index)
+		bind(SelectScheduleStep.class).to(bindSelectScheduleStep());
+		bind(SelectNonNegativeScheduleStep.class).to(bindSelectNonNegativeScheduleStep());
+
+		// Requires DSL remove-item(index)
+		bind(PopOffDateList.class).to(bindPopOffDateList());
+
+		// Re-assign variable in loop (not supported in DSL)
+		bind(UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity.class).to(bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity());
+
+		// Access to reference metadata (not supported in DSL)
+		bind(FpmlIrd8.class).to(bindFpmlIrd8());
+
+		// Rounding (not supported in DSL)
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(RoundToPrecision.class).to(bindRoundToPrecision());
-		bind(FpmlIrd8.class).to(bindFpmlIrd8());
+
+		// Data providers (external data)
+		bind(BusinessCenterHolidaysDataProvider.class).to(bindBusinessCenterHolidaysDataProvider()).asEagerSingleton();
+		bind(IndexValueObservationDataProvider.class).to(bindIndexValueObservationDataProvider()).asEagerSingleton();
+
+		// Require DSL changes to prevent overwriting of reference metadata  (not supported in DSL)
+		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
+		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
+
+		// Date functions (not supported in DSL)
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
-		bind(SelectDate.class).to(bindSelectDate());
-		bind(LastInDateList.class).to(bindLastInDateList());
 		bind(AddDays.class).to(bindAddDays());
-		bind(PopOffDateList.class).to(bindPopOffDateList());
-		bind(BusinessCenterHolidays.class).to(bindBusinessCenterHolidays());
-		bind(BusinessCenterHolidaysDataProvider.class).to(bindBusinessCenterHolidaysDataProvider()).asEagerSingleton();
-		bind(CombineBusinessCenters.class).to(bindCombineBusinessCenters());
+		bind(CalculationPeriodRange.class).to(bindCalculationPeriodRange());
 		bind(DateDifference.class).to(bindDateDifference());
 		bind(LeapYearDateDifference.class).to(bindLeapYearDateDiff());
 		bind(DayOfWeek.class).to(bindDayOfWeek());
-		bind(SelectScheduleStep.class).to(bindSelectScheduleStep());
-		bind(SelectNonNegativeScheduleStep.class).to(bindSelectNonNegativeScheduleStep());
-		bind(IndexValueObservationDataProvider.class).to(bindIndexValueObservationDataProvider()).asEagerSingleton();
-		bind(IndexValueObservation.class).to(bindIndexValueObservation());
-		bind(IndexValueObservationMultiple.class).to(bindIndexValueObservationMultiple());
-		bind(UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity.class).to(bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity());
-
-		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
-		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
-		bind(ResolveObservationAverage.class).to(bindResolveObservationAverage());
-		bind(CalculationPeriodRange.class).to(bindCalculationPeriodRange());
+		bind(CalculationPeriod.class).to(bindCalculationPeriod());
+		bind(CalculationPeriods.class).to (bindCalculationPeriods());
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
@@ -78,14 +87,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends ResolveObservationAverage> bindResolveObservationAverage() {
 		return ResolveObservationAverageImpl.class;
-	}
-
-	protected Class<? extends SelectFromVector> bindSelectFromVector() {
-		return SelectFromVectorImpl.class;
-	}
-
-	protected Class<? extends LastInVector> bindLastInVector() {
-		return LastInVectorImpl.class;
 	}
 
 	protected Class<? extends VectorOperation> bindVectorOperation() {
@@ -136,14 +137,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends Now> bindNow() {
 		return NowImpl.class;
-	}
-
-	protected Class<? extends SelectDate> bindSelectDate() {
-		return SelectDateImpl.class;
-	}
-
-	protected Class<? extends LastInDateList> bindLastInDateList() {
-		return LastInDateListImpl.class;
 	}
 
 	protected Class<? extends AddDays> bindAddDays() {
