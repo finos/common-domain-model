@@ -231,6 +231,8 @@ type IndexReferenceInformation: <"A class defining a Credit Default Swap Index."
 	excludedReferenceEntity LegalEntity (0..*) <"Excluded reference entity.">
 	tranche Tranche (0..1) <"This element contains CDS tranche terms.">
 	settledEntityMatrix SettledEntityMatrix (0..1) <"Used to specify the Relevant Settled Entity Matrix when there are settled entities at the time of the trade.">
+	indexFactor number (0..1) <"Index Factor is the index version factor or percent, expressed as an absolute decimal value between 0 and 1, that multiplied by the original notional amount yields the notional amount covered by the seller of protection.">
+	seniority CreditSeniorityEnum (0..1) <"Seniority of debt instruments comprising the index.">
 
 	condition IndexSeries: <"FpML specifies the type associated to indexSeries as a positive integer.">
 		if indexSeries exists
@@ -239,6 +241,11 @@ type IndexReferenceInformation: <"A class defining a Credit Default Swap Index."
 	condition IndexAnnexVersion: <"FpML specifies the type associated to indexVersion as a positive integer.">
 		if indexAnnexVersion exists
 		then indexAnnexVersion >= 0
+
+	condition IndexFactor: <"Index factor is expressed as a decimal and should be a positive number between o and 1.">
+		if indexFactor exists
+		then indexFactor >= 0 and
+			indexFactor <= 1
 
 type InterestShortFall: <"A class to specify the interest shortfall floating rate payment event.">
 
