@@ -1,25 +1,13 @@
-# *Infrastructure - Serialise dates to ISO-8601 format*
+# *Product Model - CreditDefaultPayout Index Factor and Seniority*
 
 _What is being released_
 
-This release changes the Java to JSON serialisation format for dates to ISO-8601 format, so that it represents a date starting with the year, followed by the month, and day.  For example, "2022-01-31" represents the 31st January 2022.
+Data type `IndexReferenceInformation` has been extended to include `indexFactor` and `seniority`.
 
-Previously, the serialised format contained separate fields for day, month and year.
-
-```
-"unadjustedDate" : {
-    "day": 31,
-    "month": 1,
-    "year": 2022
-}
-```
-
-Now, the serialised format is an ISO-8601 date string.
-
-```
-"unadjustedDate" : "2022-01-31"
-```
+- `indexFactor` - represents the index version factor
+- `seniority` - Defines the seniority of debt instruments comprising the index.  The enumerated values in the CDM have been populated with linkage to the FpML scheme Credit Seniority Scheme (http://www.fpml.org/coding-scheme/credit-seniority-2-3.xml)
+- FpML mappings have been updated to reflect the above
 
 _Review Directions_
 
-In the CDM Portal, select Ingestion and review any sample.
+In the CDM Portal, select Textual Browser, and review the data type and attributes above.
