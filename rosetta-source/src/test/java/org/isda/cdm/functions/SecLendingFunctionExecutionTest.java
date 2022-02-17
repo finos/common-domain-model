@@ -13,6 +13,7 @@ import com.regnosys.rosetta.common.testing.FunctionRunner;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
 import org.isda.cdm.CdmRuntimeModule;
+import org.isda.cdm.processor.CdmReferenceResolverConfig;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -63,8 +64,11 @@ class SecLendingFunctionExecutionTest {
     @MethodSource("loadExecutionDescriptors")
     void runFunction(@VisibleForTesting String groupName, @VisibleForTesting String testName, ExecutionDescriptor executionDescriptor) throws ClassNotFoundException, IOException, InvocationTargetException, IllegalAccessException {
         LOGGER.info("Running Test: " + groupName + ":" + testName);
-        FunctionRunner functionRunner = new FunctionRunner(executionDescriptor, injector::getInstance, this.getClass()
-                .getClassLoader(), ROSETTA_OBJECT_MAPPER);
+        FunctionRunner functionRunner = new FunctionRunner(executionDescriptor,
+                injector::getInstance,
+                this.getClass().getClassLoader(),
+                ROSETTA_OBJECT_MAPPER,
+                CdmReferenceResolverConfig.get());
         FunctionRunner.FunctionRunnerResult<Object, Object> run = functionRunner.run();
         if (!run.isSuccess()) {
             assertEquals(Optional.ofNullable(run.getJsonExpected()).map(s -> s.replace("\r", "")).orElse(null), run
