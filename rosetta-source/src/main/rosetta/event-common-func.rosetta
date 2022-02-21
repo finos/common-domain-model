@@ -1986,18 +1986,25 @@ func UpdateSpreadAdjustmentAndRateOption: <"Function that loops through each ins
 	set updatedTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity:
 	    tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity
             map [
-                if UnitOfAmountAndRateOptionMatches( item, instructionPriceQuantity )
-                then Create_PriceQuantity(
-                    [ Create_Price( item -> price only-element -> amount + instructionPriceQuantity -> price only-element -> amount,
-                        item -> price only-element -> unitOfAmount,
-                        item -> price only-element -> perUnitOfAmount,
-                        item -> price only-element -> priceExpression
-                    ) ],
-                    item -> quantity,
-                    instructionPriceQuantity -> observable
-                )
+                if UnitOfAmountAndRateOptionMatches( item, instructionPriceQuantity ) then
+                    UpdateIndexTransitionPriceAndRateOption( item, instructionPriceQuantity )
                 else item
             ]
+
+func UpdateIndexTransitionPriceAndRateOption:
+    inputs:
+        priceQuantity PriceQuantity (1..1)
+        instructionPriceQuantity PriceQuantity (1..1)
+    output:
+        updatedPriceQuantity PriceQuantity (1..1)
+
+    set updatedPriceQuantity: priceQuantity
+
+    set updatedPriceQuantity -> price -> amount:
+        priceQuantity -> price only-element -> amount + instructionPriceQuantity -> price only-element -> amount
+
+    set updatedPriceQuantity -> observable -> rateOption:
+         instructionPriceQuantity -> observable -> rateOption
 
 func UnitOfAmountAndRateOptionMatches: <"Checks whether the price or quantity unit of amount and rate option matches.">
     inputs:
