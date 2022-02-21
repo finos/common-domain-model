@@ -547,12 +547,11 @@ class FunctionInputCreationTest {
      */
     @NotNull
     private TradeState.TradeStateBuilder getTerminationVanillaSwapTradeState() throws IOException {
-        WorkflowStep workflowStep = ResourcesUtils.getObject(WorkflowStep.class, "result-json-files/fpml-5-10/record-keeping/record-ex01-vanilla-swap.json");
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json");
         // parties
-        List<Party> parties = workflowStep.getParty().stream()
+        List<Party> parties = tradeState.getTrade().getParty().stream()
                 .filter(p -> p.getName().getValue().equals("Bank X") || p.getName().getValue().equals("Bank Y"))
                 .collect(Collectors.toList());
-        TradeState tradeState = workflowStep.getBusinessEvent().getPrimitives().get(0).getContractFormation().getAfter();
         TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
         tradeStateBuilder.getTrade().setParty(parties);
         // partyId
