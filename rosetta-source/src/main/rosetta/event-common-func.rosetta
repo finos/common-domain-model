@@ -318,18 +318,20 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate)
 	set is_event:
 		businessEvent -> intent is absent
-            and
+        and
+        (
             (
                 (businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
                     or (businessEvent -> primitives -> quantityChange exists and transfer exists))
                 and QuantityIncreasedPrimitive(businessEvent -> primitives -> quantityChange) = True
                 and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
             )
-		or
-		(
-			businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
-			and (QuantityIncreased(businessEvent->instruction->before only-element,businessEvent->after) = True
-			    or businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
+            or
+            (
+                businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
+                and (QuantityIncreased(businessEvent->instruction->before only-element,businessEvent->after) = True
+                    or businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
+            )
 		)
 
 func Qualify_MultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
