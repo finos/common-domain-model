@@ -33,13 +33,13 @@ author = 'REGnosys'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
+extensions = ['myst_parser']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
@@ -72,7 +72,7 @@ html_favicon = 'favicon.ico'
 html_theme_options = {
 
     # Set the name of the project to appear in the navigation.
-    'nav_title': 'Rosetta Documentation',
+    'nav_title': 'CDM Documentation',
 
     'color_primary': 'blue',
     'color_accent': 'light-blue',
@@ -96,7 +96,7 @@ html_theme_options = {
     #         "title": "Material for MkDocs",
     #     },
     # ],
-    "logo": "https://ui.rosetta-technology.io/assets/images/logos/rosetta_full_logo_black.svg",
+    "logo": "https://cdn.aws.isda.org/a/fGWTE/CDM-hoz-logo-print.png",
 
     "version_dropdown": True,
     # "version_json": "_static/versions.json",

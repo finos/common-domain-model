@@ -1,25 +1,15 @@
-
-.. Rosetta-docs documentation master file, created by
-   sphinx-quickstart on Fri Jul 26 12:02:25 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-CDM
-===
-
-.. image:: CDM-hoz-logo-print.png
+.. image:: docs/CDM-hoz-logo-print.png
   :width: 400px
   :alt: ISDA CDM
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 4
 
-   ../readme
-   source/documentation
-   source/eligible-collateral-representation
-   source/cdm-guidelines
-   ../contributing
-   source/documentation-style-guide
+   README
+   docs/README
+   docs/eligible-collateral-representation
+   docs/cdm-guidelines
+   CONTRIBUTION
+   docs/documentation-style-guide
    releases/latest
-   releases/all
+   releases/*
