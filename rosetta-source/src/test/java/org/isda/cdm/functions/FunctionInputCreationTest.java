@@ -666,12 +666,11 @@ class FunctionInputCreationTest {
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
-                null,
+                EventIntentEnum.NOVATION,
                 Date.of(2018, 4, 3));
 
         assertJsonEquals("cdm-sample-files/functions/novation-func-input.json", actual);
     }
-
 
     @Test
     void validateCreateAllocationWorkflowInputJson() throws IOException {

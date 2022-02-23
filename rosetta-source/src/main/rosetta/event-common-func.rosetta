@@ -363,10 +363,11 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
         )
         or
         (
-            closedTradeState exists
-            and openTradeState exists
-            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeState -> trade -> tradableProduct -> counterparty -> partyReference
-            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference <> openTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+            businessEvent -> intent = EventIntentEnum -> Novation
+            and closedTradeState count = 1
+            and openTradeState count = 1
+            and beforeTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference
+            and beforeTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference <> openTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference
         )
 
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
@@ -1484,6 +1485,7 @@ func Create_SplitPrimitive: <"Defines how to create the Split Primitive accordin
 		positionStatus PositionStatusEnum (1..1) <"Represents the change to the position status.">
 	output:
 		primitive SplitPrimitive (1..1) <"Split primitive containing both the original block trade (with the status set to Split) and the set of split trades.">
+
 	set primitive -> before:
 		singleTrade
 
@@ -1534,7 +1536,7 @@ func Create_SplitTrade:
     set splitTrade -> trade -> executionDetails -> executionType:
         blockTradeState -> trade -> executionDetails -> executionType
 
-	add splitTrade -> trade -> tradeIdentifier: <"Assigns the new trade identifiers.">
+	set splitTrade -> trade -> tradeIdentifier: <"Assigns the new trade identifiers.">
 		breakdown -> allocationTradeId
 
 	set splitTrade -> trade -> tradeDate:
