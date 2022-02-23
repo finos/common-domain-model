@@ -70,6 +70,7 @@ echo ${LATEST_EXTRACT//\\n/} > build/releases/latest.html
 
 # all releases
 curl -sX GET "${CORE_URL}/api/scm/releases/all" > build/releases/all.json
+ALL_CLEANED=$(jq  '"<h4>" + .tag + "</h4>", .bodyAsHtml' build/releases/all.json  | rev | cut -c2- | rev | cut -c2-)
 echo ${ALL_CLEANED//\\n/} > build/releases/all.html
 
 PORT=8659
