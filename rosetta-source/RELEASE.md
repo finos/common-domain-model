@@ -36,9 +36,6 @@ The following product qualification rules have been updated to leverage the new 
 - Qualify_EquitySwap_PriceReturnBasicPerformance_Basket
 - Qualify_EquitySwap_TotalReturnBasicPerformance_Basket
 - Qualify_EquityOption_PriceReturnBasicPerformance_SingleName
-- 
-
-
 
 _Review Directions_
 
