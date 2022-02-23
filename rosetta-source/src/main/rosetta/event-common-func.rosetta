@@ -344,18 +344,30 @@ func Qualify_MultipleTransfers: <"The qualification an event that combines multi
 
 func Qualify_Novation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and a contract formation exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent (1..1)
+	inputs: businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
+
+	alias beforeTradeState: businessEvent -> instruction -> before
+    alias closedTradeState: FilterClosedTradeStates( businessEvent -> after )
+	alias openTradeState: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
-		businessEvent -> primitives -> quantityChange exists
-		and businessEvent -> primitives -> contractFormation exists
-		and businessEvent -> primitives -> quantityChange count = businessEvent -> primitives -> contractFormation count
-		and QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
-		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state contains ClosedStateEnum -> Novated
-		//and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
-		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
-		//and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
+	    (
+            businessEvent -> primitives -> quantityChange exists
+            and businessEvent -> primitives -> contractFormation exists
+            and businessEvent -> primitives -> quantityChange count = businessEvent -> primitives -> contractFormation count
+            and QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
+            and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state contains ClosedStateEnum -> Novated
+            //and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
+            and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
+            //and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
+        )
+        or
+        (
+            closedTradeState exists
+            and openTradeState exists
+            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference <> openTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+        )
 
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
@@ -1862,6 +1874,16 @@ func FilterOpenTradeStates: <"Filter to only 'open' TradeState - where both the 
 	    tradeStates
 	        filter [ item -> state -> closedState is absent ]
 	        filter [ item -> state -> positionState is absent ]
+
+func FilterClosedTradeStates: <"Filter to only 'closed' TradeState - where either the closedState or positionState are set.">
+	inputs:
+		tradeStates TradeState (0..*)
+	output:
+		closedTradeStates TradeState (0..*)
+
+	add closedTradeStates:
+	    tradeStates
+	        filter [ item -> state -> closedState exists or item -> state -> positionState exists ]
 
 func ExtractTradeState: <"Extracts a single Contract State, given an Event. This function navigates all the possible paths to product and extracts a single value.">
 	inputs: event BusinessEvent (1..1)

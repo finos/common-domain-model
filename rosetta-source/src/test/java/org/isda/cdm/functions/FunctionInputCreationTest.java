@@ -643,24 +643,24 @@ class FunctionInputCreationTest {
                                                         .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
                                                 .setIssuer(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
-                                                        .setValue("LEI3RPT0003")))))));
-
-        QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
-                .setDirection(QuantityChangeDirectionEnum.REPLACE)
-                .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaQuantity.builder()
-                                .setValue(Quantity.builder()
-                                        .setAmount(BigDecimal.valueOf(0.0))
-                                        .setUnitOfAmount(UnitType.builder()
-                                                .setCurrency(FieldWithMetaString.builder()
-                                                        .setMeta(MetaFields.builder()
-                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
-                                                        .setValue("USD"))))));
+                                                        .setValue("LEI3RPT0003")))))))
+                .addBreakdown(PrimitiveInstructionList.builder()
+                        .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                                .setQuantityChange(QuantityChangeInstruction.builder()
+                                        .setDirection(QuantityChangeDirectionEnum.REPLACE)
+                                        .addChange(PriceQuantity.builder()
+                                                .addQuantity(FieldWithMetaQuantity.builder()
+                                                        .setValue(Quantity.builder()
+                                                                .setAmount(BigDecimal.valueOf(0.0))
+                                                                .setUnitOfAmount(UnitType.builder()
+                                                                        .setCurrency(FieldWithMetaString.builder()
+                                                                                .setMeta(MetaFields.builder()
+                                                                                        .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
+                                                                                .setValue("USD")))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
                 .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-04-Submission-1.json"))
-                .addPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction))
-                .addPrimitiveInstruction(PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction));
+                .addPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
 
