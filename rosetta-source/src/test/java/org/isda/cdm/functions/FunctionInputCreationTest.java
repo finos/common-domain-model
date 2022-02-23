@@ -13,9 +13,8 @@ import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifie
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
-import cdm.base.staticdata.party.Party;
-import cdm.base.staticdata.party.PartyRole;
-import cdm.base.staticdata.party.PartyRoleEnum;
+import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
+import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.event.common.functions.Create_BusinessEvent;
@@ -28,13 +27,13 @@ import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
+import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -59,7 +58,6 @@ import util.ResourcesUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -491,6 +489,187 @@ class FunctionInputCreationTest {
                 eventDate);
 
         assertJsonEquals(expectedJsonPath, actual);
+    }
+
+    @Test
+    void validateCompressionFuncInputJson() throws IOException {
+        List<Instruction> instructions = new ArrayList<>();
+        QuantityChangeInstruction terminateInstructions = QuantityChangeInstruction.builder()
+                .setDirection(QuantityChangeDirectionEnum.REPLACE)
+                .addChange(PriceQuantity.builder()
+                        .addQuantity(FieldWithMetaQuantity.builder()
+                                .setValue(Quantity.builder()
+                                        .setAmount(BigDecimal.valueOf(0.0))
+                                        .setUnitOfAmount(UnitType.builder()
+                                                .setCurrency(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
+                                                        .setValue("USD"))))));
+
+
+        instructions.add(Instruction.builder()
+                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-1.json"))
+                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(terminateInstructions))
+                .build());
+
+        instructions.add(Instruction.builder()
+                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-2.json"))
+                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(terminateInstructions))
+                .build());
+
+        instructions.add(Instruction.builder()
+                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-3.json"))
+                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(terminateInstructions))
+                .build());
+
+        instructions.add(Instruction.builder()
+                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setExecution(getCompressionExecutionInstructionInputJson()))
+                .build());
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                instructions,
+                EventIntentEnum.COMPRESSION,
+                Date.of(2018, 4, 3));
+
+        assertJsonEquals("cdm-sample-files/functions/compression-func-input.json", actual);
+    }
+
+    private ExecutionInstruction getCompressionExecutionInstructionInputJson() throws IOException {
+        TradeState.TradeStateBuilder tradeStateBuilder =
+                ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json").toBuilder();
+
+        Trade.TradeBuilder tradeBuilder = tradeStateBuilder.getTrade();
+        TradableProduct.TradableProductBuilder tradableProductBuilder = tradeBuilder.getTradableProduct();
+
+        TradeLot.TradeLotBuilder tradeLotBuilder = tradableProductBuilder.getTradeLot().get(0);
+        tradeLotBuilder
+                .getPriceQuantity().get(0)
+                .getQuantity().get(0)
+                .getValue().setAmount(BigDecimal.valueOf(16000.00));
+        tradeLotBuilder
+                .getPriceQuantity().get(1)
+                .getQuantity().get(0)
+                .getValue().setAmount(BigDecimal.valueOf(16000.00));
+
+        List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders = tradableProductBuilder
+                .getProduct()
+                .getContractualProduct()
+                .getEconomicTerms()
+                .getPayout()
+                .getInterestRatePayout();
+
+        Date effectiveDate = Date.of(2018, 4, 3);
+        Date terminationDate = Date.of(2026, 2, 8);
+
+        setDates(interestRatePayoutBuilders.get(0), effectiveDate, terminationDate);
+        setDates(interestRatePayoutBuilders.get(1), effectiveDate, terminationDate);
+
+        tradeBuilder
+                .getParty().get(0)
+                .getPartyId().get(0)
+                .setValue("LEI1RPT0001");
+
+        tradeBuilder
+                .getParty().get(1)
+                .getPartyId().get(0)
+                .setValue("LEI2CP0002");
+
+        Identifier tradeIdentifier = Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifier(FieldWithMetaString.builder()
+                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/uti"))
+                                .setValue("LEI1RPT0003EFG"))
+                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                        .setIssuer(FieldWithMetaString.builder()
+                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
+                                .setValue("LEI1RPT0001"));
+        tradeBuilder
+                .setTradeIdentifier(Lists.newArrayList(tradeIdentifier.build()))
+                .setTradeDateValue(effectiveDate);
+
+        ResourcesUtils.reKey(tradeStateBuilder);
+
+        return FunctionUtils.createExecutionInstructionFromTradeState(tradeStateBuilder.build());
+    }
+
+    private void setDates(InterestRatePayout.InterestRatePayoutBuilder payout, Date effectiveDate, Date terminationDate) {
+        CalculationPeriodDates.CalculationPeriodDatesBuilder floatingLegCalcDates = payout
+                .getCalculationPeriodDates();
+        floatingLegCalcDates
+                .getEffectiveDate()
+                .getAdjustableDate()
+                .setUnadjustedDate(effectiveDate);
+        floatingLegCalcDates
+                .getTerminationDate()
+                .getAdjustableDate()
+                .setUnadjustedDate(terminationDate);
+    }
+
+    private TradeState getWorkflowStepAfter(String resourceName) throws IOException {
+        WorkflowStep workflowStep = ResourcesUtils.getObject(WorkflowStep.class, resourceName);
+        // Get after TradeState
+        TradeState.TradeStateBuilder tradeStateBuilder = workflowStep.getBusinessEvent().getPrimitives().stream()
+                .map(PrimitiveEvent::getContractFormation)
+                .map(ContractFormationPrimitive::getAfter)
+                .findFirst().orElse(null).toBuilder();
+        // Set Trade.party
+        tradeStateBuilder.getTrade().setParty(workflowStep.getParty());
+        return tradeStateBuilder.build();
+    }
+
+    @Test
+    void validateNovationFuncInputJson() throws IOException {
+        SplitInstruction splitInstruction = SplitInstruction.builder()
+                .addBreakdown(PrimitiveInstructionList.builder()
+                        .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                                .setPartyChange(PartyChangeInstruction.builder()
+                                        .setCounterparty(Counterparty.builder()
+                                                .setPartyReferenceValue(Party.builder()
+                                                                .setMeta(MetaFields.builder().setExternalKey("party3"))
+                                                                .setNameValue("Bank Z")
+                                                                .addPartyId(FieldWithMetaString.builder()
+                                                                        .setMeta(MetaFields.builder()
+                                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
+                                                                        .setValue("LEI3RPT0003")))
+                                                .setRole(CounterpartyRoleEnum.PARTY_1))
+                                        .setTradeId(Lists.newArrayList(Identifier.builder()
+                                                .addAssignedIdentifier(AssignedIdentifier.builder()
+                                                        .setIdentifier(FieldWithMetaString.builder()
+                                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
+                                                                .setValue("LEI3RPT0003CCC"))
+                                                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                                .setIssuer(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
+                                                        .setValue("LEI3RPT0003")))))))
+                .addBreakdown(PrimitiveInstructionList.builder()
+                        .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                                .setQuantityChange(QuantityChangeInstruction.builder()
+                                        .setDirection(QuantityChangeDirectionEnum.REPLACE)
+                                        .addChange(PriceQuantity.builder()
+                                                .addQuantity(FieldWithMetaQuantity.builder()
+                                                        .setValue(Quantity.builder()
+                                                                .setAmount(BigDecimal.valueOf(0.0))
+                                                                .setUnitOfAmount(UnitType.builder()
+                                                                        .setCurrency(FieldWithMetaString.builder()
+                                                                                .setMeta(MetaFields.builder()
+                                                                                        .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
+                                                                                .setValue("USD")))))))));
+
+        Instruction.InstructionBuilder instructions = Instruction.builder()
+                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-04-Submission-1.json"))
+                .addPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
+
+        ResourcesUtils.reKey(instructions);
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructions.build()),
+                EventIntentEnum.NOVATION,
+                Date.of(2018, 4, 3));
+
+        assertJsonEquals("cdm-sample-files/functions/novation-func-input.json", actual);
     }
 
     @Test

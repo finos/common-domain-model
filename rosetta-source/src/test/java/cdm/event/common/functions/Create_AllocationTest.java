@@ -13,6 +13,7 @@ import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
 import com.google.inject.Inject;
+import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +28,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static util.ResourcesUtils.getInputObject;
+import static util.ResourcesUtils.getInputObjectAndResolveReferences;
 
 public class Create_AllocationTest extends AbstractFunctionTest {
 
@@ -39,7 +41,7 @@ public class Create_AllocationTest extends AbstractFunctionTest {
 	@Test
 	void shouldInvokeFunc() throws IOException {
 		TradeState blockTradeState = getInputObject(FUNC_INPUT_JSON, "tradeState", TradeState.class);
-		AllocationInstruction allocationInstruction = getInputObject(FUNC_INPUT_JSON, "allocationInstruction", AllocationInstruction.class);
+		AllocationInstruction allocationInstruction = getInputObjectAndResolveReferences(FUNC_INPUT_JSON, "allocationInstruction", AllocationInstruction.class);
 
 		BusinessEvent allocationBusinessEvent = allocationFunc.evaluate(blockTradeState, allocationInstruction).build();
 		assertNotNull(allocationBusinessEvent);
@@ -158,23 +160,20 @@ public class Create_AllocationTest extends AbstractFunctionTest {
 		// counterparties
 		assertThat(splitTrade.getTradableProduct().getCounterparty(), hasSize(2));
 		assertEquals(CounterpartyRoleEnum.PARTY_1, allocationBreakdown.getCounterparty().getRole());
-		Party expectedLender = allocationBreakdown.getCounterparty().getPartyReference().getValue();
-		assertEquals(expectedLender, getParty(CounterpartyRoleEnum.PARTY_1, splitTradableProduct.getCounterparty()));
-		Party expectedBorrower = blockTradeState.getTrade().getParty().get(1);
-		assertEquals(expectedBorrower, getParty(CounterpartyRoleEnum.PARTY_2, splitTradableProduct.getCounterparty()));
+		String expectedLender = allocationBreakdown.getCounterparty().getPartyReference().getValue().getMeta().getExternalKey();
+		assertEquals(expectedLender, getPartyReference(CounterpartyRoleEnum.PARTY_1, splitTradableProduct.getCounterparty()).getExternalReference());
+		String expectedBorrower = blockTradeState.getTrade().getParty().get(1).getMeta().getExternalKey();
+		assertEquals(expectedBorrower, getPartyReference(CounterpartyRoleEnum.PARTY_2, splitTradableProduct.getCounterparty()).getValue().getMeta().getExternalKey());
 		// parties
 		assertThat(splitTrade.getParty(), hasSize(3));
-		assertThat(new ArrayList<>(splitTrade.getParty()), hasItems( expectedLender, expectedBorrower));
+		assertThat(splitTrade.getParty().stream().map(Party::getMeta).map(MetaFields::getExternalKey).collect(Collectors.toList()), hasItems( expectedLender, expectedBorrower));
 	}
 
-	private Party getParty(CounterpartyRoleEnum counterpartyRoleEnum, List<? extends Counterparty> counterparties) {
+	private ReferenceWithMetaParty getPartyReference(CounterpartyRoleEnum counterpartyRoleEnum, List<? extends Counterparty> counterparties) {
 		return counterparties.stream()
 				.filter(c -> c.getRole() == counterpartyRoleEnum)
 				.map(Counterparty::getPartyReference)
 				.filter(Objects::nonNull)
-				.map(ReferenceWithMetaParty::getValue)
-				.filter(Objects::nonNull)
-				.map(this::removeGlobalKey)
 				.findFirst()
 				.orElse(null);
 	}
