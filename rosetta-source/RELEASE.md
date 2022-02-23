@@ -40,3 +40,13 @@ The following product qualification rules have been updated to leverage the new 
 _Review Directions_
 
 In the CDM Portal, select the Textual Browser and review the functions detailed above.
+
+# *Event Model - Compression and Novation Visualisation Samples*
+
+_What is being released_
+
+This release follows the recent work on the composable business event model and the corresponding creation function, `Create_BusinessEvent`. Visualisation examples have been created for compression and novation business events.
+
+_Review Directions_
+
+In the CDM Portal, select the Instance Viewer, review the visualisation examples in the Compression Business Event and Novation Business Event folders.
