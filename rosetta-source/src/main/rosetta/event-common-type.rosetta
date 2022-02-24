@@ -114,10 +114,12 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 type PrimitiveInstruction: <"A Primitive Instruction describes the inputs required to pass into the corresponding PrimitiveEvent function.">
 	execution ExecutionInstruction (0..1) <"Specifies instructions describing an execution primitive event.">
 	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions describing an contract formation primitive event.">
-	quantityChange QuantityChangeInstruction (0..1) <"Specifies instructions describing an quantity change primitive event.">
-	termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing a terms change primitive event.">
 	partyChange PartyChangeInstruction (0..1) <"Specifies instructions describing a party change primitive event.">
+	quantityChange QuantityChangeInstruction (0..1) <"Specifies instructions describing an quantity change primitive event.">
+	reset ResetInstruction (0..1) <"Specifies instructions describing a reset event.">
 	split SplitInstruction (0..1) <"Specifies instructions to split a trade into multiple branches.">
+	termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing a terms change primitive event.">
+	transfer TransferInstruction (0..1) <"Specifies instructions describing a transfer primitive event.">
 
     condition: one-of
 
@@ -182,12 +184,25 @@ type ResetInstruction: <"Defines the information needed to create a Reset Busine
  		[metadata reference]
 	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
 
-type TransferInstruction: <"Defines the payout on which to create a Transfer along with all necessary resets.">
- 	payout Payout (1..1)
+type CalculateTransferInstruction: <"Defines the tradeState or payout on which to create a Transfer along with all necessary resets.">
+	tradeState TradeState (0..1)
+	payout Payout (0..1)
  		[metadata reference]
  	resets Reset (0..*)
 	payerReceiver PayerReceiver (0..1)
 	quantity Quantity (0..1) <"Specifies quantity amount returned if not the full amount from the TradeState, e.g. partial return">
+	date date (0..1)
+
+	condition TradeOrPayout: <"Requires that either a TradeState or a Payout must be specified on the CalculateTransferInstruction.">
+		required choice tradeState, payout
+
+type TransferInstruction: <"Defines the payout on which to create a Transfer along with all necessary resets.">
+ 	payout Payout (1..1) // REMOVE
+ 		[metadata reference] // REMOVE
+ 	resets Reset (0..*) // REMOVE
+	payerReceiver PayerReceiver (0..1) // REMOVE
+	quantity Quantity (0..1) <"Specifies quantity amount returned if not the full amount from the TradeState, e.g. partial return"> // REMOVE
+	transfer TransferState (0..1) <"Specifies the terms and state of a transfer.">
 
 type QuantityChangeInstruction: <"Instructions required to create a Quantity Change Primitive Event, which can be either an increase, a decrease or a replacement. An increase adds a new trade lot to the original trade, whereas a decrease subtracts from an existing trade lot's quantity. A replacement updates the quantity of an existing trade lot to the new value.">
 	change PriceQuantity (1..*) <"Quantity by which the trade is being increased, decreased or replaced, and the price at which such quantity change is agreed. The quantity change should always be specified as a positive number, with the direction (increase/decrease/replacement) being specified by the direction enumeration. A fee can also be associated to the quantity change by specifying a Price component of type CashPrice, including the corresponding settlement date and direction.">
@@ -236,9 +251,10 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	trade Trade (1..1) <"Represents the Trade that has been effected by a business or life-cycle event.">
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
 	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
-	transferHistory Transfer (0..*)
+	transferHistory TransferState (0..*) <"Represents the updated Trade attributes which can change as the result of a transfer event.">
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
+	[metadata key]
 	resetValue Price (1..1) <"Specifies the reset or fixing value. The fixing value could be a cash price, interest rate, or other value.">
 	resetDate date (1..1) <"Specifies the date on which the reset occurred.">
 	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
@@ -262,9 +278,52 @@ type State: <"Defines the state of a trade at a point in the Trade's life cycle.
 	    if positionState = PositionStatusEnum -> Closed then
 		    closedState exists
 
+type TransferState: <"Defines the fundamental financial information associated with a Transfer event. Each TransferState specifies where a Transfer is in its life-cycle. TransferState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
+	[metadata key]
+	[rootType]
+	transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
+	transferStatus TransferStatusEnum (1..1) <"Represents the State of the Transfer through its life-cycle.">
+
 type Transfer extends TransferBase: <"Defines the movement of cash, securities or commodities between two parties on a date.">
-	settlementOrigin SettlementTerms (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+	settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+	resetOrigin Reset (0..1) <"Represents the reset and observation values that were used to determine the transfer amount.">
 		[metadata reference]
+	transferExpression TransferExpression (1..1) <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
+
+type TransferExpression: <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
+	priceTransfer FeeTypeEnum (0..1) <"Specifies a transfer amount exchanged as a price or fee for entering into a Business Event, e.g. Premium, Termination fee, Novation fee.">
+	scheduledTransfer ScheduledTransfer (0..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
+
+	condition: one-of
+
+type ScheduledTransfer:
+	transferType TransferTypeEnum (1..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
+	corporateActionTransferType CorporateActionTypeEnum (0..1)
+
+	condition: <"When transfer type is Performance or Transfer then the type of event must be specified.">
+		if transferType = TransferTypeEnum -> CorporateAction then corporateActionTransferType exists
+
+type SettlementOrigin: <"Defines the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+
+	commodityPayout CommodityPayout (0..1) <"Represents a reference to an Commodity Payout.">
+	    [metadata reference]
+	creditDefaultPayout CreditDefaultPayout (0..1) <"Represents a reference to a Credit Default Payout.">
+	    [metadata reference]
+	equityPayout EquityPayout (0..1) <"Represents a reference to an Equity Payout.">
+	    [metadata reference]
+	fixedForwardPayout FixedForwardPayout (0..1) <"Represents a reference to a Fixed Forward Payout.">
+	    [metadata reference]
+	forwardPayout ForwardPayout (0..1) <"Represents a reference to a Forward Payout.">
+	    [metadata reference]
+	interestRatePayout InterestRatePayout (0..1) <"Represents a reference to an Interest Rate Payout.">
+		[metadata reference]
+	optionPayout OptionPayout (0..1) <"Represents a reference to an Option Payout.">
+		[metadata reference]
+	securityFinancePayout SecurityFinancePayout (0..1) <"Represents a reference to a Security Lending Payout.">
+    	[metadata reference]
+	settlementTerms SettlementTerms (0..1) <"Represents a reference to settlement terms, which may have been specified at execution.">
+		[metadata reference]
+	condition: one-of	
 
 type Trade: <"Defines the output of a financial transaction between parties - a Business Event. A Trade impacts the financial position (i.e. the balance sheet) of involved parties.">
 	[metadata key]
