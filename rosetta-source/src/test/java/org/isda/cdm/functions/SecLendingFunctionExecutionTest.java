@@ -13,7 +13,6 @@ import com.regnosys.rosetta.common.testing.FunctionRunner;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
 import org.isda.cdm.CdmRuntimeModule;
-import org.isda.cdm.processor.CdmReferenceResolverConfig;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
