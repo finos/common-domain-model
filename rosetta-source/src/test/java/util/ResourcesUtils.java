@@ -12,6 +12,7 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.process.PostProcessStep;
+import org.isda.cdm.processor.CdmReferenceConfig;
 
 import java.io.IOException;
 import java.net.URL;
@@ -26,6 +27,11 @@ public class ResourcesUtils {
 		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, clazz);
 	}
 
+	public static <T extends RosettaModelObject> T getObjectAndResolveReferences(Class<T> clazz, String resourceName) throws IOException {
+		T object = getObject(clazz, resourceName);
+		return resolveReferences(object);
+	}
+
 	public static String getJson(String resourceName) throws IOException {
 		URL url = Resources.getResource(resourceName);
 		String json = Resources.toString(url, Charset.defaultCharset());
@@ -38,9 +44,7 @@ public class ResourcesUtils {
 		String json = jsonNode.get(funcInputName).toString();
 		T object = RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, funcInputType);
 		if (object instanceof RosettaModelObject) {
-			RosettaModelObject builder = ((RosettaModelObject) object).toBuilder();
-			new ReferenceResolverProcessStep().runProcessStep(builder.getType(), builder);
-			return (T) builder.build();
+			return (T) resolveReferences((RosettaModelObject) object);
 		}
 		return object;
 	}
@@ -48,11 +52,15 @@ public class ResourcesUtils {
 	public static <T> T getInputObjectAndResolveReferences(String funcInputFile, String funcInputName, Class<T> funcInputType) throws IOException {
 		T object = getInputObject(funcInputFile, funcInputName, funcInputType);
 		if (object instanceof RosettaModelObject) {
-			RosettaModelObject builder = ((RosettaModelObject) object).toBuilder();
-			new ReferenceResolverProcessStep().runProcessStep(builder.getType(), builder);
-			return (T) builder.build();
+			return (T) resolveReferences((RosettaModelObject) object);
 		}
 		return object;
+	}
+
+	private static <T extends RosettaModelObject> T resolveReferences(T object) {
+		RosettaModelObject builder = object.toBuilder();
+		new ReferenceResolverProcessStep(CdmReferenceConfig.get()).runProcessStep(builder.getType(), builder);
+		return (T) builder.build();
 	}
 
 	@SuppressWarnings("unused")

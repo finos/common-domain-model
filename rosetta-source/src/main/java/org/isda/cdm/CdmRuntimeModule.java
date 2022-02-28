@@ -21,10 +21,12 @@ import cdm.product.common.settlement.functions.UpdateAmountForEachQuantityImpl;
 import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
+import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ModelObjectValidator;
 import com.rosetta.model.lib.validation.ValidatorFactory;
+import org.isda.cdm.processor.CdmReferenceConfig;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -33,6 +35,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ModelObjectValidator.class).to(bindModelObjectValidator());
 		bind(QualifyFunctionFactory.class).to(bindQualifyFunctionFactory());
 		bind(ValidatorFactory.class).to(bindValidatorFactory());
+		bind(ReferenceConfig.class).toInstance(CdmReferenceConfig.get());
 
 		// Functions (should be refactored into rosetta)
 		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());

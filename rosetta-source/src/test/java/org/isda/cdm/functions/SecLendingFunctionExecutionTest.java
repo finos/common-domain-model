@@ -63,8 +63,10 @@ class SecLendingFunctionExecutionTest {
     @MethodSource("loadExecutionDescriptors")
     void runFunction(@VisibleForTesting String groupName, @VisibleForTesting String testName, ExecutionDescriptor executionDescriptor) throws ClassNotFoundException, IOException, InvocationTargetException, IllegalAccessException {
         LOGGER.info("Running Test: " + groupName + ":" + testName);
-        FunctionRunner functionRunner = new FunctionRunner(executionDescriptor, injector::getInstance, this.getClass()
-                .getClassLoader(), ROSETTA_OBJECT_MAPPER);
+        FunctionRunner functionRunner = new FunctionRunner(executionDescriptor,
+                injector::getInstance,
+                this.getClass().getClassLoader(),
+                ROSETTA_OBJECT_MAPPER);
         FunctionRunner.FunctionRunnerResult<Object, Object> run = functionRunner.run();
         if (!run.isSuccess()) {
             assertEquals(Optional.ofNullable(run.getJsonExpected()).map(s -> s.replace("\r", "")).orElse(null), run
