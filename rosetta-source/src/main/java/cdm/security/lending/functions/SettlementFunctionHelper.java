@@ -6,11 +6,7 @@ import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.MeasureBase;
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
-import cdm.base.staticdata.party.Counterparty;
-import cdm.base.staticdata.party.CounterpartyRoleEnum;
-import cdm.base.staticdata.party.PartyReferencePayerReceiver;
 import cdm.base.staticdata.party.PayerReceiver;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.event.common.functions.CalculateTransfer;
 import cdm.event.common.functions.Create_Execution;
@@ -82,7 +78,7 @@ public class SettlementFunctionHelper {
                 .map(Payout::getSecurityFinancePayout)
                 .filter(x -> !x.isEmpty()).map(Iterables::getLast)
                 .map(SecurityFinancePayout::getSecurityFinanceLeg)
-                .filter(x -> !x.isEmpty()).map(financeLegSelector::apply)
+                .filter(x -> !x.isEmpty()).map(financeLegSelector)
                 .map(SecurityFinanceLeg::getSettlementDate)
                 .map(AdjustableOrRelativeDate::getAdjustableDate)
                 .map(AdjustableDate::getAdjustedDate)
@@ -158,21 +154,6 @@ public class SettlementFunctionHelper {
                 .setPayer(payerReceiver.getReceiver())
                 .setReceiver(payerReceiver.getPayer())
                 .build();
-    }
-
-    private PartyReferencePayerReceiver toPartyReferencePayerReceiver(PayerReceiver payerReceiver, List<? extends Counterparty> counterparties) {
-        return PartyReferencePayerReceiver.builder()
-                .setPayerPartyReference(getPartyReference(payerReceiver.getPayer(), counterparties))
-                .setReceiverPartyReference(getPartyReference(payerReceiver.getReceiver(), counterparties))
-                .build();
-    }
-
-    private ReferenceWithMetaParty getPartyReference(CounterpartyRoleEnum role, List<? extends Counterparty> counterparties) {
-        return counterparties.stream()
-                .filter(c -> c.getRole() == role)
-                .map(Counterparty::getPartyReference)
-                .findFirst()
-                .orElse(null);
     }
 
     private Optional<Payout> getPayout(BusinessEvent executionBusinessEvent) {
