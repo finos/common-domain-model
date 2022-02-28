@@ -981,7 +981,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
  		exerciseEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the transfer, termination, or formation of new contracts as a result of the input exercise instruction.">
 
     alias transferInstruction:
-     		SecurityTransferInstruction(tradeState)
+        SecurityTransferInstruction(tradeState)
 
   	alias tradableProduct: <"Extracts the originally traded product.">
  		tradeState -> trade -> tradableProduct
@@ -1185,19 +1185,18 @@ func Create_Transfer: <"Function specification to build a transfer event followi
 func CalculateTransfer: <"Function specification to calculate a transfer, e.g. following a reset on a contract">
 	inputs:
 		instruction CalculateTransferInstruction (1..1)
-
 	output:
-		transfer Transfer (1..1)
+		transfer Transfer (0..*)
 
-	set transfer: <"Assigns the result of the Create_Transfer function to the transferHistory attribute.">
+	add transfer: <"Assigns the result of the Create_Transfer function to the transferHistory attribute.">
 		if instruction -> payout -> interestRatePayout exists or instruction -> payout -> equityPayout exists or instruction -> payout -> securityFinancePayout exists then
 			Create_CashTransfer( instruction )
 
-	set transfer: <"Assigns the result of the Create_SecurityTransfer function to the transferHistory attribute.">
+	add transfer: <"Assigns the result of the Create_SecurityTransfer function to the transferHistory attribute.">
         if instruction -> payout -> securityPayout exists then
             Create_SecurityTransfer( instruction -> tradeState, instruction -> date, instruction->quantity )
 
-    set transfer: <"Assigns the result of the Create_SecurityFinanceTransfer function to the transferHistory attribute.">
+    add transfer: <"Assigns the result of the Create_SecurityFinanceTransfer function to the transferHistory attribute.">
         if instruction -> payout -> securityFinancePayout exists then
             Create_SecurityFinanceTransfer( instruction -> tradeState, instruction, instruction -> date, instruction->quantity )
 
@@ -1209,8 +1208,11 @@ func Create_TransferPrimitive: <"Defines how a transfer primitive should be cons
 	output:
 		transfer TransferPrimitive (1..1)
 
+    set transfer -> before: tradeState
+	set transfer -> after: tradeState
+
 	add transfer -> after -> transferHistory: <"Assigns the transfer contained in the transfer instruction to the transferHistory attribute.">
-			instruction -> transfer
+		instruction -> transferState
 
 func Create_TransferPrimitiveFromTransfer:
 	[creation PrimitiveEvent]

@@ -6,8 +6,13 @@ import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.MeasureBase;
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
+import cdm.base.staticdata.party.Counterparty;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
+import cdm.base.staticdata.party.PartyReferencePayerReceiver;
 import cdm.base.staticdata.party.PayerReceiver;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
+import cdm.event.common.functions.CalculateTransfer;
 import cdm.event.common.functions.Create_Execution;
 import cdm.event.common.functions.Create_Return;
 import cdm.event.common.functions.Create_Transfer;
@@ -38,6 +43,9 @@ public class SettlementFunctionHelper {
 
     @Inject
     LineageUtils lineageUtils;
+
+    @Inject
+    CalculateTransfer calculateTransfer;
 
     public BusinessEvent createExecution(ExecutionInstruction executionInstruction) {
         ExecutionInstruction executionInstructionWithRefs = lineageUtils
@@ -83,26 +91,42 @@ public class SettlementFunctionHelper {
                 .orElse(LocalDate.now());
     }
 
-    public Instruction createTransferInstruction(BusinessEvent executionBusinessEvent) {
+    public Instruction createTransferInstruction(BusinessEvent executionBusinessEvent, LocalDate transferDate) {
         Payout payout = getSecurityPayout(executionBusinessEvent).orElse(null);
-        return Instruction.builder()
-                .setInstructionFunction(Create_Transfer.class.getSimpleName())
-                .setTransfer(TransferInstruction.builder()
-                        .setPayoutValue(payout)
-                        .setPayerReceiver(getPayerReceiver(payout).orElse(null))
-                        .build()).build();
+        CalculateTransferInstruction calculateTransferInstruction = CalculateTransferInstruction.builder()
+                .setTradeState(getAfterState(executionBusinessEvent).orElse(null))
+                .setPayoutValue(payout)
+                .setPayerReceiver(getPayerReceiver(payout).orElse(null))
+                .setDate(Date.of(transferDate))
+                .build();
+        List<? extends Transfer> transfers = calculateTransfer.evaluate(calculateTransferInstruction);
+        return createTransferInstruction(transfers);
     }
 
-    public Instruction createReturnTransferInstruction(BusinessEvent executionBusinessEvent, List<? extends Quantity> quantities) {
+    public Instruction createReturnTransferInstruction(BusinessEvent executionBusinessEvent,
+                                                       List<? extends Quantity> quantities,
+                                                       LocalDate transferDate) {
         Payout payout = getSecurityPayout(executionBusinessEvent).orElse(null);
         Quantity shareQuantity = getShareQuantity(quantities);
+        CalculateTransferInstruction calculateTransferInstruction = CalculateTransferInstruction.builder()
+                .setTradeState(getAfterState(executionBusinessEvent).orElse(null))
+                .setPayoutValue(payout)
+                .setPayerReceiver(getReturnPayerReceiver(payout).orElse(null))
+                .setQuantity(shareQuantity)
+                .setDate(Date.of(transferDate))
+                .build();
+        List<? extends Transfer> transfers = calculateTransfer.evaluate(calculateTransferInstruction);
+        return createTransferInstruction(transfers);
+    }
+
+    private Instruction createTransferInstruction(List<? extends Transfer> transfers) {
+        List<TransferState> transferStates = transfers.stream()
+                .map(t -> TransferState.builder().setTransfer(t).build())
+                .collect(Collectors.toList());
         return Instruction.builder()
                 .setInstructionFunction(Create_Transfer.class.getSimpleName())
-                .setTransfer(TransferInstruction.builder()
-                        .setPayoutValue(payout)
-                        .setPayerReceiver(getReturnPayerReceiver(payout).orElse(null))
-                        .setQuantity(shareQuantity)
-                        .build()).build();
+                .setTransfer(TransferInstruction.builder().setTransferState(transferStates))
+                .build();
     }
 
     private Quantity getShareQuantity(List<? extends Quantity> quantities) {
@@ -134,6 +158,21 @@ public class SettlementFunctionHelper {
                 .setPayer(payerReceiver.getReceiver())
                 .setReceiver(payerReceiver.getPayer())
                 .build();
+    }
+
+    private PartyReferencePayerReceiver toPartyReferencePayerReceiver(PayerReceiver payerReceiver, List<? extends Counterparty> counterparties) {
+        return PartyReferencePayerReceiver.builder()
+                .setPayerPartyReference(getPartyReference(payerReceiver.getPayer(), counterparties))
+                .setReceiverPartyReference(getPartyReference(payerReceiver.getReceiver(), counterparties))
+                .build();
+    }
+
+    private ReferenceWithMetaParty getPartyReference(CounterpartyRoleEnum role, List<? extends Counterparty> counterparties) {
+        return counterparties.stream()
+                .filter(c -> c.getRole() == role)
+                .map(Counterparty::getPartyReference)
+                .findFirst()
+                .orElse(null);
     }
 
     private Optional<Payout> getPayout(BusinessEvent executionBusinessEvent) {

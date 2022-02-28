@@ -1,8 +1,6 @@
 package cdm.security.lending.functions;
 
-import cdm.event.common.BusinessEvent;
-import cdm.event.common.ExecutionInstruction;
-import cdm.event.common.Instruction;
+import cdm.event.common.*;
 import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
@@ -29,11 +27,11 @@ public class RunNewSettlementWorkflow implements ExecutableFunction<ExecutionIns
         WorkflowStep executionWorkflowStep = workflows.createWorkflowStep(executionBusinessEvent, dateTime(tradeDate, 9, 0));
 
         // step 2 on trade date PM
-        Instruction transferInstruction = settlements.createTransferInstruction(executionWorkflowStep.getBusinessEvent());
+        LocalDate settlementDate = settlements.nearSettlementDate(executionWorkflowStep.getBusinessEvent());
+        Instruction transferInstruction = settlements.createTransferInstruction(executionWorkflowStep.getBusinessEvent(), settlementDate);
         WorkflowStep proposedTransferWorkflowStep = workflows.createProposedWorkflowStep(executionWorkflowStep, transferInstruction, dateTime(tradeDate, 15, 0));
 
         // step 3 on settle date
-        LocalDate settlementDate = settlements.nearSettlementDate(executionWorkflowStep.getBusinessEvent());
         BusinessEvent transferBusinessEvent = settlements.createTransferBusinessEvent(executionWorkflowStep, proposedTransferWorkflowStep, settlementDate);
         WorkflowStep acceptedTransferWorkflowStep = workflows.createAcceptedWorkflowStep(proposedTransferWorkflowStep, transferBusinessEvent, dateTime(settlementDate, 18, 0));
 
