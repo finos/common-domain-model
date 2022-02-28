@@ -1,15 +1,15 @@
-.. image:: docs/CDM-hoz-logo-print.png
+.. image:: source/CDM-hoz-logo-print.png
   :width: 400px
   :alt: ISDA CDM
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
-   README
-   docs/README
-   docs/eligible-collateral-representation
-   docs/cdm-guidelines
-   CONTRIBUTION
-   docs/documentation-style-guide
+   source/cdm-overview
+   source/documentation
+   source/eligible-collateral-representation
+   source/cdm-guidelines
+   source/contribution
+   source/documentation-style-guide
    releases/latest
-   releases/*
+   releases/all
