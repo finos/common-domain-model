@@ -15,6 +15,7 @@ import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.isda.cdm.workflows.ClearingUtils;
 import org.junit.jupiter.api.Test;
+import util.ResourcesUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -34,6 +35,8 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 		Party counterparty1 = ClearingUtils.getParty(alphaContract, CounterpartyRoleEnum.PARTY_1);
 		Party counterparty2 = ClearingUtils.getParty(alphaContract, CounterpartyRoleEnum.PARTY_2);
 		Party clearingParty = Party.builder()
+				.setMeta(MetaFields.builder()
+						.setExternalKey("pc"))
 				.setName(FieldWithMetaString.builder()
 						.setValue("Clearing Party")
 						.build())
@@ -45,17 +48,20 @@ class Create_ClearedTradeTest extends AbstractFunctionTest {
 						.build())
 				.build();
 
-		ClearingInstruction clearingInstruction = ClearingInstruction.builder()
+		ClearingInstruction.ClearingInstructionBuilder clearingInstruction = ClearingInstruction.builder()
 				.setAlphaContract(alphaContract)
 				.setParty1(counterparty1)
 				.setParty2(counterparty2)
-				.setClearingParty(clearingParty)
-				.build();
+				.setClearingParty(clearingParty);
 		Date tradeDate = Date.of(2020, 8, 28);
 
-		BusinessEvent businessEvent = func.evaluate(clearingInstruction, tradeDate, null);
+		ResourcesUtils.reKey(clearingInstruction);
 
-		String businessEventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
+		BusinessEvent businessEvent = func.evaluate(clearingInstruction.build(), tradeDate, null);
+
+		String businessEventJson = RosettaObjectMapper.getNewRosettaObjectMapper()
+				.writerWithDefaultPrettyPrinter()
+				.writeValueAsString(businessEvent);
 		businessEventJson = businessEventJson.replace("\r", "");
 		assertEquals(getJson("expected-cleared-trade-business-event.json"), businessEventJson);
 	}

@@ -318,18 +318,20 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate)
 	set is_event:
 		businessEvent -> intent is absent
-            and
+        and
+        (
             (
                 (businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
                     or (businessEvent -> primitives -> quantityChange exists and transfer exists))
                 and QuantityIncreasedPrimitive(businessEvent -> primitives -> quantityChange) = True
                 and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
             )
-		or
-		(
-			businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
-			and (QuantityIncreased(businessEvent->instruction->before only-element,businessEvent->after) = True
-			    or businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
+            or
+            (
+                businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
+                and (QuantityIncreased(businessEvent->instruction->before only-element,businessEvent->after) = True
+                    or businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
+            )
 		)
 
 func Qualify_MultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
@@ -342,18 +344,31 @@ func Qualify_MultipleTransfers: <"The qualification an event that combines multi
 
 func Qualify_Novation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and a contract formation exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent (1..1)
+	inputs: businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
+
+	alias beforeTradeState: businessEvent -> instruction -> before
+    alias closedTradeState: FilterClosedTradeStates( businessEvent -> after )
+	alias openTradeState: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
-		businessEvent -> primitives -> quantityChange exists
-		and businessEvent -> primitives -> contractFormation exists
-		and businessEvent -> primitives -> quantityChange count = businessEvent -> primitives -> contractFormation count
-		and QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
-		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state contains ClosedStateEnum -> Novated
-		//and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
-		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
-		//and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
+	    (
+            businessEvent -> primitives -> quantityChange exists
+            and businessEvent -> primitives -> contractFormation exists
+            and businessEvent -> primitives -> quantityChange count = businessEvent -> primitives -> contractFormation count
+            and QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
+            and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state contains ClosedStateEnum -> Novated
+            //and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
+            and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
+            //and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
+        )
+        or
+        (
+            businessEvent -> intent = EventIntentEnum -> Novation
+            and closedTradeState count = 1
+            and openTradeState count = 1
+            and beforeTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference
+            and beforeTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference <> openTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference
+        )
 
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
@@ -1470,6 +1485,7 @@ func Create_SplitPrimitive: <"Defines how to create the Split Primitive accordin
 		positionStatus PositionStatusEnum (1..1) <"Represents the change to the position status.">
 	output:
 		primitive SplitPrimitive (1..1) <"Split primitive containing both the original block trade (with the status set to Split) and the set of split trades.">
+
 	set primitive -> before:
 		singleTrade
 
@@ -1518,21 +1534,21 @@ func Create_SplitTrade:
         Create_PriceQuantity( empty, breakdown -> quantity, empty )
 
     set splitTrade -> trade -> executionDetails -> executionType:
-            blockTradeState -> trade -> executionDetails -> executionType
+        blockTradeState -> trade -> executionDetails -> executionType
 
-	add splitTrade -> trade -> tradeIdentifier: <"Assigns the new trade identifiers.">
+	set splitTrade -> trade -> tradeIdentifier: <"Assigns the new trade identifiers.">
 		breakdown -> allocationTradeId
 
 	set splitTrade -> trade -> tradeDate:
 		blockTradeState -> trade -> tradeDate
 
-	add splitTrade -> trade -> tradableProduct -> counterparty: <"Assigns the new counterparty.">
+	set splitTrade -> trade -> tradableProduct -> counterparty: <"Assigns the new counterparty.">
 		[counterparty1, counterparty2]
 
 	set splitTrade -> trade -> tradableProduct -> product:
 		blockTradeState -> trade -> tradableProduct -> product
 
-	add splitTrade -> trade -> tradableProduct -> tradeLot -> priceQuantity: <"Assigns the new quantity amounts.">
+	set splitTrade -> trade -> tradableProduct -> tradeLot -> priceQuantity: <"Assigns the new quantity amounts.">
 		UpdateAmountForEachMatchingQuantity(
 		    blockTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity,
 		    [ breakdownPriceQuantity ],
@@ -1585,7 +1601,7 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
 
 	set newTrade: <"Copy the original trade.">
 		originalTrade
-	add newTrade -> trade -> tradableProduct -> counterparty: <"Assigns the new counterparties.">
+	set newTrade -> trade -> tradableProduct -> counterparty: <"Assigns the new counterparties.">
 		[counterparty1, counterparty2]
 	set newTrade -> trade -> party: <"Removes the existing party, and adds the new party.">
 		ReplaceParty( originalTrade -> trade -> party,
@@ -1861,6 +1877,16 @@ func FilterOpenTradeStates: <"Filter to only 'open' TradeState - where both the 
 	        filter [ item -> state -> closedState is absent ]
 	        filter [ item -> state -> positionState is absent ]
 
+func FilterClosedTradeStates: <"Filter to only 'closed' TradeState - where either the closedState or positionState are set.">
+	inputs:
+		tradeStates TradeState (0..*)
+	output:
+		closedTradeStates TradeState (0..*)
+
+	add closedTradeStates:
+	    tradeStates
+	        filter [ item -> state -> closedState exists or item -> state -> positionState exists ]
+
 func ExtractTradeState: <"Extracts a single Contract State, given an Event. This function navigates all the possible paths to product and extracts a single value.">
 	inputs: event BusinessEvent (1..1)
 	output: tradeState TradeState (1..1)
@@ -1986,18 +2012,25 @@ func UpdateSpreadAdjustmentAndRateOption: <"Function that loops through each ins
 	set updatedTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity:
 	    tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity
             map [
-                if UnitOfAmountAndRateOptionMatches( item, instructionPriceQuantity )
-                then Create_PriceQuantity(
-                    [ Create_Price( item -> price only-element -> amount + instructionPriceQuantity -> price only-element -> amount,
-                        item -> price only-element -> unitOfAmount,
-                        item -> price only-element -> perUnitOfAmount,
-                        item -> price only-element -> priceExpression
-                    ) ],
-                    item -> quantity,
-                    instructionPriceQuantity -> observable
-                )
+                if UnitOfAmountAndRateOptionMatches( item, instructionPriceQuantity ) then
+                    UpdateIndexTransitionPriceAndRateOption( item, instructionPriceQuantity )
                 else item
             ]
+
+func UpdateIndexTransitionPriceAndRateOption:
+    inputs:
+        priceQuantity PriceQuantity (1..1)
+        instructionPriceQuantity PriceQuantity (1..1)
+    output:
+        updatedPriceQuantity PriceQuantity (1..1)
+
+    set updatedPriceQuantity: priceQuantity
+
+    set updatedPriceQuantity -> price -> amount:
+        priceQuantity -> price only-element -> amount + instructionPriceQuantity -> price only-element -> amount
+
+    set updatedPriceQuantity -> observable -> rateOption:
+         instructionPriceQuantity -> observable -> rateOption
 
 func UnitOfAmountAndRateOptionMatches: <"Checks whether the price or quantity unit of amount and rate option matches.">
     inputs:
