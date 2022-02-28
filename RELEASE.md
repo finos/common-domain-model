@@ -1,11 +1,17 @@
-# *Migrate Record Keeping Test Packs*
+# *Infrastructure – Source enums from FpML scheme where specified*
 
 _What is being released?_
 
-The FpML 5-10 Recordkeeping Translate samples are being moved to the Digital Regulatory Reporting model so that model-to-model mappings can be created and managed next to other regulatory related artefacts.
+This release adds additional enumerations to CDM sourced from FpML scheme where there is a 1:1 mapping possible. The following four files are enhanced:
 
-This release removes the Record Keeping test packs from the CDM model.  These test packs are being migrated to the Digital Regulatory Reporting model.
+- legalagreement-csa-enum
+- legalagreement-master-enum
+- observable-asset-enum
+- observable-common-enum
+
+with enums sourced from FpML for the following: `IndependentAmountEligibilityEnum`, `HoldingPostedCollateralEnum`, `MasterAgreementTypeEnum`, `MasterConfirmationAnnexTypeEnum`, `MasterConfirmationTypeEnum`, `InterpolationMethodEnum`, `SettlementRateOptionEnum`, `DeterminationMethodEnum`.
 
 _Review Directions_
 
-The Recordkeeping Translate test pack is no longer available when reviewing Ingestion in the CDM Portal
+In the CDM Portal select the bases listed above and view added docReference for the enums detailed.
+

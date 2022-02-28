@@ -12,7 +12,7 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.process.PostProcessStep;
-import org.isda.cdm.processor.CdmReferenceResolverConfig;
+import org.isda.cdm.processor.CdmReferenceConfig;
 
 import java.io.IOException;
 import java.net.URL;
@@ -59,7 +59,7 @@ public class ResourcesUtils {
 
 	private static <T extends RosettaModelObject> T resolveReferences(T object) {
 		RosettaModelObject builder = object.toBuilder();
-		new ReferenceResolverProcessStep(CdmReferenceResolverConfig.get()).runProcessStep(builder.getType(), builder);
+		new ReferenceResolverProcessStep(CdmReferenceConfig.get()).runProcessStep(builder.getType(), builder);
 		return (T) builder.build();
 	}
 
