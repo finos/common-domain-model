@@ -1,10 +1,7 @@
 package cdm.security.lending.functions;
 
 import cdm.event.common.BusinessEvent;
-import cdm.event.common.CalculateTransferInstruction;
 import cdm.event.common.Instruction;
-import cdm.event.common.Transfer;
-import cdm.event.common.functions.CalculateTransfer;
 import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
@@ -14,18 +11,13 @@ import org.isda.cdm.functions.testing.WorkflowFunctionHelper;
 import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 public class RunReturnSettlementWorkflow implements ExecutableFunction<RunReturnSettlementWorkflowInput, Workflow> {
 
     @Inject
     SettlementFunctionHelper settlements;
-
     @Inject
     WorkflowFunctionHelper workflows;
-
-    @Inject
-    CalculateTransfer calculateTransfer;
 
     @Override
     public Workflow execute(RunReturnSettlementWorkflowInput input) {
