@@ -1,7 +1,7 @@
 package org.isda.cdm.processor;
 
 import cdm.event.common.TradeState;
-import com.regnosys.rosetta.common.hashing.ReferenceResolverConfig;
+import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.Arrays;
@@ -9,10 +9,10 @@ import java.util.Arrays;
 /**
  * Reference resolver config for CDM use-case.  All scope references are unique within a TradeState.
  */
-public class CdmReferenceResolverConfig {
+public class CdmReferenceConfig {
 
-    public static ReferenceResolverConfig get() {
-        return new ReferenceResolverConfig(
+    public static ReferenceConfig get() {
+        return new ReferenceConfig(
                 TradeState.class,
                 Arrays.asList(RosettaPath.valueOf("lineage"), RosettaPath.valueOf("eventEffect")));
     }
