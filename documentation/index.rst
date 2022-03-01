@@ -1,5 +1,8 @@
+Welcome to the ISDA CDM documentation
+=====================================
+
 .. image:: source/CDM-hoz-logo-print.png
-  :width: 400px
+  :width: 200px
   :alt: ISDA CDM
 
 .. toctree::
