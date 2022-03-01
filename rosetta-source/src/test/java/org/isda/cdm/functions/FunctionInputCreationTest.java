@@ -27,6 +27,7 @@ import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
+import cdm.product.common.settlement.SettlementTerms;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -105,10 +106,51 @@ class FunctionInputCreationTest {
 
     @Test
     void validateExecutionIrSwapWithInitialFeeFuncInputJson() throws IOException {
+        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/ird-initial-fee.json";
+        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, tradeStatePath).toBuilder();
+
+        // Remove the fee PQ
+        TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder
+                .getTrade()
+                .getTradableProduct()
+                .getTradeLot()
+                .get(0);
+        List<? extends PriceQuantity.PriceQuantityBuilder> priceQuantityBuilders = tradeLotBuilder.getPriceQuantity();
+        PriceQuantity.PriceQuantityBuilder fixedLegPQ = priceQuantityBuilders.get(0);
+        PriceQuantity.PriceQuantityBuilder floatingLegPQ = priceQuantityBuilders.get(1);
+        tradeLotBuilder.setPriceQuantity(Lists.newArrayList(fixedLegPQ, floatingLegPQ));
+
+        // Copy the fee PQ into a transferState
+        PriceQuantity cashPricePQ = priceQuantityBuilders.get(2);
+        Price cashPrice = cashPricePQ.getPrice().get(0).getValue();
+        BuyerSeller buyerSeller = cashPricePQ.getBuyerSeller();
+        SettlementTerms settlementTerms = cashPricePQ.getSettlementTerms();
+        TransferState transferState = TransferState.builder()
+                .setTransfer(Transfer.builder()
+                        .setTransferExpression(TransferExpression.builder().setPriceTransfer(FeeTypeEnum.UPFRONT))
+                        .setPayerReceiver(PartyReferencePayerReceiver.builder()
+                                .setPayerPartyReference(getPartyReference(tradeStateBuilder, buyerSeller.getBuyer()))
+                                .setReceiverPartyReference(getPartyReference(tradeStateBuilder, buyerSeller.getSeller())))
+                        .setQuantity(Quantity.builder()
+                                .setAmount(cashPrice.getAmount())
+                                .setUnitOfAmount(cashPrice.getUnitOfAmount()))
+                        .setSettlementDate(settlementTerms.getSettlementDate().getAdjustedDate()));
+
         validateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/ird-initial-fee.json",
+                tradeStateBuilder.build(),
+                transferState,
                 Date.parse("2018-02-20"),
                 "cdm-sample-files/functions/execution-business-event/execution-ir-swap-with-fee-func-input.json");
+    }
+
+    private ReferenceWithMetaParty getPartyReference(TradeState tradeState, CounterpartyRoleEnum role) {
+        return tradeState.getTrade().getTradableProduct().getCounterparty().stream()
+                .filter(c -> c.getRole() == role)
+                        .map(c -> c.getPartyReference())
+                                .map(p -> ReferenceWithMetaParty.builder()
+                                        .setExternalReference(p.getExternalReference())
+                                        .setGlobalReference(p.getGlobalReference()))
+                                        .findFirst().get();
     }
 
     @Test
@@ -178,9 +220,17 @@ class FunctionInputCreationTest {
     private void validateExecutionFuncInputJson(String tradeStatePath, Date eventDate, String expectedJsonPath) throws IOException {
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
+        validateExecutionFuncInputJson(tradeState, null, eventDate, expectedJsonPath);
+    }
+
+    private void validateExecutionFuncInputJson(TradeState tradeState, TransferState transferState, Date eventDate, String expectedJsonPath) throws IOException {
         Instruction instructionBuilder = Instruction.builder()
                 .addPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setExecution(FunctionUtils.createExecutionInstructionFromTradeState(tradeState)));
+                        .setExecution(FunctionUtils.createExecutionInstructionFromTradeState(tradeState)))
+                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setTransfer(TransferInstruction.builder()
+                                .addTransferState(transferState)))
+                .prune();
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),

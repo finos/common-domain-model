@@ -1171,12 +1171,14 @@ func Create_Transfer: <"Function specification to build a transfer event followi
 		date date (1..1)
 	output:
 		transferEvent BusinessEvent (1..1)
+
 	set transferEvent -> primitives -> transfer:
 		Create_TransferPrimitive(instruction, tradeState)
 	add transferEvent -> eventEffect -> effectedTrade:
 	    tradeState
 	set transferEvent -> eventDate:
 		date
+
 	post-condition: <"Event must contain a transfer primitive populated with the cashflow, and no other primitive.">
 		transferEvent -> primitives -> transfer only exists
 	post-condition: <"Event effect must include the contract generating the cashflow.">
@@ -1198,7 +1200,7 @@ func CalculateTransfer: <"Function specification to calculate a transfer, e.g. f
 
     add transfer: <"Assigns the result of the Create_SecurityFinanceTransfer function to the transferHistory attribute.">
         if instruction -> payout -> securityFinancePayout exists then
-            Create_SecurityFinanceTransfer( instruction -> tradeState, instruction, instruction -> date, instruction->quantity )
+            Create_SecurityFinanceTransfer( instruction )
 
 func Create_TransferPrimitive: <"Defines how a transfer primitive should be constructed, when representing the exchange of cash between parties.">
 	[creation PrimitiveEvent]
@@ -1233,16 +1235,12 @@ func Create_TransferPrimitiveFromTransfer:
 
 func Create_CashTransfer: <"Defines how Transfer that represents an exchange of cash, should be constructed.">
 	inputs:
-		// tradeState TradeState (1..1) <"Represents the trade and associated state on which to construct the Transfer data type.">
 		instruction CalculateTransferInstruction (1..1)
-		// date date (1..1) <"Specifies the date the transfer is to take place.">
-		// quantity Quantity (0..1) <"Specifies quantity amount returned if not the full amount from the TradeState, e.g. partial return">
-
 	output:
 		transfer Transfer (1..1)
 
 	set transfer: <"Resolves the cashflow due to be transferred from the trade and associated state.">
-		ResolveTransfer(instruction)
+		ResolveTransfer( instruction )
 
 func Create_SecurityTransfer: <"Defines the creation of a Transfer, given a Trade State and date.">
 	inputs:
@@ -1260,28 +1258,24 @@ func Create_SecurityTransfer: <"Defines the creation of a Transfer, given a Trad
 
 func Create_SecurityFinanceTransfer: <"Defines how Transfer that represents an exchange of security based on a security finance payout, should be constructed.">
 	inputs:
-		tradeState TradeState (1..1) <"Represents the trade and associated state on which to construct the Transfer data type.">
 		instruction CalculateTransferInstruction (1..1)
-		date date (1..1) <"Specifies the date the transfer is to take place.">
-		quantity Quantity (0..1) <"Specifies quantity amount returned if not the full amount from the TradeState, e.g. partial return">
-
 	output:
 		transfer Transfer (1..1)
 
 	alias securityFinancePayout:
-		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout only-element
+		instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout only-element
 
 	alias securityQuantity:
-		if quantity exists
-		then quantity
-        else FilterQuantityByFinancialUnit(tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, FinancialUnitEnum -> Share) only-element
+		if instruction -> quantity exists
+		then instruction -> quantity
+        else FilterQuantityByFinancialUnit(instruction -> tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, FinancialUnitEnum -> Share) only-element
 
     alias securityPrice:
-        FilterPrice(tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> AssetPrice, empty, empty, empty, empty, empty, empty)
+        FilterPrice(instruction -> tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> AssetPrice, empty, empty, empty, empty, empty, empty)
 
 	condition:
-		if quantity exists
-		then quantity -> unitOfAmount -> financialUnit = FinancialUnitEnum -> Share
+		if instruction -> quantity exists
+		then instruction -> quantity -> unitOfAmount -> financialUnit = FinancialUnitEnum -> Share
 
 	set transfer -> quantity:
 		securityQuantity
@@ -1291,45 +1285,25 @@ func Create_SecurityFinanceTransfer: <"Defines how Transfer that represents an e
 
 	set transfer -> payerReceiver -> payerPartyReference:
 		if instruction -> payerReceiver -> payer exists
-		then ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, instruction -> payerReceiver -> payer ) -> partyReference
+		then ExtractCounterpartyByRole( instruction -> tradeState -> trade -> tradableProduct -> counterparty, instruction -> payerReceiver -> payer ) -> partyReference
 		else if securityFinancePayout -> payerReceiver -> payer exists
-		then ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, securityFinancePayout -> payerReceiver -> payer ) -> partyReference
-		else ExtractAncillaryPartyByRole( tradeState -> trade -> tradableProduct -> ancillaryParty, securityFinancePayout -> payerReceiver -> payerAncillaryRole ) -> partyReference only-element
+		then ExtractCounterpartyByRole( instruction -> tradeState -> trade -> tradableProduct -> counterparty, securityFinancePayout -> payerReceiver -> payer ) -> partyReference
+		else ExtractAncillaryPartyByRole( instruction -> tradeState -> trade -> tradableProduct -> ancillaryParty, securityFinancePayout -> payerReceiver -> payerAncillaryRole ) -> partyReference only-element
 
 	set transfer -> payerReceiver -> receiverPartyReference:
 		if instruction -> payerReceiver -> payer exists
-		then ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, instruction -> payerReceiver -> receiver ) -> partyReference
+		then ExtractCounterpartyByRole( instruction -> tradeState -> trade -> tradableProduct -> counterparty, instruction -> payerReceiver -> receiver ) -> partyReference
 		else if securityFinancePayout -> payerReceiver -> receiver exists
-		then ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, securityFinancePayout -> payerReceiver -> receiver ) -> partyReference
-		else ExtractAncillaryPartyByRole( tradeState -> trade -> tradableProduct -> ancillaryParty, securityFinancePayout -> payerReceiver -> receiverAncillaryRole ) -> partyReference only-element
+		then ExtractCounterpartyByRole( instruction -> tradeState -> trade -> tradableProduct -> counterparty, securityFinancePayout -> payerReceiver -> receiver ) -> partyReference
+		else ExtractAncillaryPartyByRole( instruction -> tradeState -> trade -> tradableProduct -> ancillaryParty, securityFinancePayout -> payerReceiver -> receiverAncillaryRole ) -> partyReference only-element
 
 	set transfer -> settlementDate -> adjustedDate:
-        date
+        instruction -> date
 
     set transfer -> settlementOrigin -> securityFinancePayout:
-		if tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout exists
-		then tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout only-element
+		if instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout exists
+		then instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout only-element
 		as-key
-
-// func ResolveCashflow: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
-// 	inputs:
-// 		// tradeState TradeState (1..1) <"Represents the trade and associated state on which to construct the Transfer data type.">
-// 		instruction CalculateTransferInstruction (1..1)
-// 		// date date (1..1) <"Specifies the date the cashflow is to take place.">
-// 		// quantity Quantity (0..1) <"Specifies quantity amount returned if not the full amount from the TradeState, e.g. partial return">
-// 	output:
-// 		cashflow Cashflow (1..1)
-// 	alias payout:
-// 		instruction -> payout
-// 	set cashflow:
-// 	    if payout -> securityFinancePayout exists
-//             then SecurityFinanceCashSettlementAmount(instruction -> tradeState, instruction -> date, instruction -> quantity, instruction -> payerReceiver)
-// 		else if payout -> equityPayout exists
-// 			then EquityCashSettlementAmount(instruction -> tradeState, instruction -> date)
-// 		else if payout -> interestRatePayout -> rateSpecification -> floatingRate exists
-// 				or payout -> interestRatePayout -> rateSpecification -> fixedRate exists
-// 			then InterestCashSettlementAmount(instruction -> tradeState, payout -> interestRatePayout only-element, instruction -> resets, instruction -> date)
-
 
 func ResolveTransfer: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
 	inputs:
@@ -1627,23 +1601,26 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
 	add newTrade -> trade -> tradableProduct -> ancillaryParty: <"Add ancillary party role">
 		ancillaryParty
 
-// func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
-// 	inputs:
-// 		tradeState TradeState (1..1) <"Execution to be settled.">
-// 		previousEvent WorkflowStep (1..1) <"Previous event for lineage purposes.">
-// 		date date (1..1)
-// 	output:
-// 		transferEvent WorkflowStep (1..1) <"Transfer event composed of cash and security components created from a security settled via delivery vs payment.">
-// 	alias transferInstruction:
-// 		SecurityTransferInstruction(tradeState)
-// 	condition:
-// 		tradeState -> trade -> tradableProduct -> product -> security exists
-// 	set transferEvent -> businessEvent -> primitives -> transfer:
-// 		Create_TransferPrimitive(tradeState, transferInstruction, date)
-// 	add transferEvent -> lineage -> eventReference:
-// 		previousEvent as-key
-// 	add transferEvent -> lineage -> tradeReference:
-// 		tradeState -> trade as-key
+func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
+	inputs:
+		tradeState TradeState (1..1) <"Execution to be settled.">
+		previousEvent WorkflowStep (1..1) <"Previous event for lineage purposes.">
+		date date (1..1)
+	output:
+		transferEvent WorkflowStep (1..1) <"Transfer event composed of cash and security components created from a security settled via delivery vs payment.">
+
+	alias transferInstruction:
+		SecurityTransferInstruction(tradeState)
+
+	condition:
+		tradeState -> trade -> tradableProduct -> product -> security exists
+
+	set transferEvent -> businessEvent -> primitives -> transfer:
+		Create_TransferPrimitive(transferInstruction, tradeState)
+	add transferEvent -> lineage -> eventReference:
+		previousEvent as-key
+	add transferEvent -> lineage -> tradeReference:
+		tradeState -> trade as-key
 
 func Create_QuantityChangeInstruction:
     inputs:
@@ -1745,8 +1722,7 @@ func Create_TermsChangePrimitive: <"A specification of the inputs, outputs and c
 			tradeState -> trade -> tradableProduct -> tradeLot,
 			tradeState -> trade -> tradableProduct -> counterparty,
 			newAncillaryParty,
-			newAdjustment
-			)
+			newAdjustment )
 
 func CloseTrade: <"Function specification for a contract termination where the closed state and position state are updated, and all quantity amounts are set to 0.">
 	inputs:
