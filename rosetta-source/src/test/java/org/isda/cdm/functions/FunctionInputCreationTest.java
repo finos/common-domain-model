@@ -1,5 +1,6 @@
 package org.isda.cdm.functions;
 
+import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
 import cdm.base.datetime.Period;
 import cdm.base.datetime.PeriodEnum;
 import cdm.base.math.FinancialUnitEnum;
@@ -147,10 +148,7 @@ class FunctionInputCreationTest {
         return tradeState.getTrade().getTradableProduct().getCounterparty().stream()
                 .filter(c -> c.getRole() == role)
                         .map(c -> c.getPartyReference())
-                                .map(p -> ReferenceWithMetaParty.builder()
-                                        .setExternalReference(p.getExternalReference())
-                                        .setGlobalReference(p.getGlobalReference()))
-                                        .findFirst().get();
+                        .findFirst().get();
     }
 
     @Test
@@ -515,10 +513,14 @@ class FunctionInputCreationTest {
                                                 .setPriceType(PriceTypeEnum.INTEREST_RATE)
                                                 .setSpreadType(SpreadTypeEnum.SPREAD)))));
 
+        TradeState tradeState = getQuantityChangeEquitySwapTradeState();
+
         Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
-                .setBefore(getQuantityChangeEquitySwapTradeState())
+                .setBefore(tradeState)
                 .addPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(quantityChangeInstructions));
+                        .setQuantityChange(quantityChangeInstructions))
+                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setTransfer(getTransferInstruction(tradeState)));
 
         return new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
@@ -531,7 +533,9 @@ class FunctionInputCreationTest {
         Instruction instructionBuilder = Instruction.builder()
                 .setBefore(tradeState)
                 .addPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(quantityChangeInstruction));
+                        .setQuantityChange(quantityChangeInstruction))
+                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setTransfer(getTransferInstruction(tradeState)));
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
@@ -539,6 +543,34 @@ class FunctionInputCreationTest {
                 eventDate);
 
         assertJsonEquals(expectedJsonPath, actual);
+    }
+
+    @NotNull
+    private TransferInstruction.TransferInstructionBuilder getTransferInstruction(TradeState tradeState) {
+        Trade trade = tradeState.getTrade();
+        List<? extends Counterparty> counterparties = trade.getTradableProduct().getCounterparty();
+        UnitType currencyUnitType = trade.getTradableProduct().getTradeLot().stream()
+                .map(TradeLot::getPriceQuantity)
+                .flatMap(Collection::stream)
+                .map(PriceQuantity::getQuantity)
+                .flatMap(Collection::stream)
+                .map(FieldWithMetaQuantity::getValue)
+                .map(Quantity::getUnitOfAmount)
+                .filter(unit -> unit.getCurrency() != null)
+                .findFirst()
+                .orElse(null);
+        return TransferInstruction.builder()
+                .addTransferState(TransferState.builder()
+                        .setTransfer(Transfer.builder()
+                                .setTransferExpression(TransferExpression.builder().setPriceTransfer(FeeTypeEnum.UPFRONT))
+                                .setPayerReceiver(PartyReferencePayerReceiver.builder()
+                                        .setPayerPartyReference(counterparties.get(0).getPartyReference())
+                                        .setReceiverPartyReference(counterparties.get(1).getPartyReference()))
+                                .setQuantity(Quantity.builder()
+                                        .setAmount(BigDecimal.valueOf(2000.00))
+                                        .setUnitOfAmount(currencyUnitType))
+                                .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
+                                        .setAdjustedDateValue(trade.getTradeDate().getValue()))));
     }
 
     @Test
