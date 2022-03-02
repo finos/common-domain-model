@@ -697,7 +697,7 @@ The representation of state transitions in the CDM event model is based on the f
 
 The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below.
 
-.. figure:: event-model-overview.png
+.. figure:: images/event-model-overview.png
 
 * **Trade state** represents the state in the lifecycle that the trade is in, from execution to settlement and maturity.
 * **Primitive event** is a building block component used to specify business events in the CDM. Each primitive event describes a fundamental state-transition component that impacts the trade state during its lifecycle.
@@ -2465,7 +2465,7 @@ Namespaces are organised into a hierarchy, with layers going from in to out. The
 
 Example – the base namespace
 
-.. figure:: cdm-namespace.png
+.. figure:: images/cdm-namespace.png
 
 In the example above the layers of the “base” namespace can be observed. There are four layers to the namespace. The outer layer “base” contains one file and three namespaces. The next layer contains three siblings, “datetime”, “math”, and “staticdata”. A third and fourth layer is contained within the “staticdata” namespace.
 

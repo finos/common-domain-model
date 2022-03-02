@@ -1,7 +1,7 @@
 Welcome to the ISDA CDM documentation
 =====================================
 
-.. image:: source/CDM-hoz-logo-print.png
+.. image:: source/images/CDM-hoz-logo-print.png
   :width: 200px
   :alt: ISDA CDM
 
@@ -16,3 +16,4 @@ Welcome to the ISDA CDM documentation
    source/documentation-style-guide
    releases/latest
    releases/all
+   source/rosetta

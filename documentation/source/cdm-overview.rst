@@ -34,7 +34,7 @@ The CDM Components
 * The ISDA CDM Distribution
 * CDM Application
 
-.. figure:: cdm-components-diagram.png
+.. figure:: images/cdm-components-diagram.png
 
 The Rosetta DSL
 ^^^^^^^^^^^^^^^
@@ -160,7 +160,7 @@ Modularisation into logical layers
 
 **The set of files that define the CDM data structures and functions are organised into a hierarchy of namespaces**. The first level in the namespace hierarchy corresponds to the layer of the CDM that the components belong to, and those CDM layers are organised from inner- to outer-most as follows:
 
-.. figure:: namespaces.png
+.. figure:: images/namespaces.png
 
 Namespaces have many benefits:
 
@@ -171,7 +171,7 @@ Namespaces have many benefits:
 
 Each of these higher-level namespaces is further divided into lower-level namespaces. The independent components in each namespace are organised according to their core purpose but can be referenced from anywhere in the model to allow all the components to work together for a complete modelling solution. E.g. below is the *product* namespace:
 
-.. figure:: product-namespace.png
+.. figure:: images/product-namespace.png
 
 **When developing new CDM components, the positioning of those components in the namespace hierarchy is critical** as part of the design (or potentially the re-organising of the hierarchy following the new development), to ensure the CDM remains well organised.
 
@@ -188,7 +188,7 @@ The CDM governance framework regulates the development of the open source CDM st
 
 The on-going development of the CDM is organised in accordance with the following process:
 
-.. figure:: CDM-Development-Process.png
+.. figure:: images/CDM-Development-Process.png
 
 Committee members or any user of CDM within the community can propose amendments to the CDM. The proposals can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM design principles and submitted to ISDA staff and the Architecture & Review Committee for approval. If approved, the amendment will be merged with the CDM master code branch. In some instances, the proposal may not be immediately approved, but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
 
