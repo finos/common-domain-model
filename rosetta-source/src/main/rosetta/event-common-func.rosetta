@@ -328,7 +328,8 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
             )
             or
             (
-                Qualify_QuantityChangeInstruction( businessEvent -> instruction ) = True
+                //Qualify_QuantityChangeInstruction( businessEvent -> instruction ) = True
+                (businessEvent -> instruction -> primitiveInstruction -> quantityChange count = 1 and Qualify_InstructionOnlyExists( businessEvent -> instruction ) = True)
                 and (QuantityIncreased(businessEvent->instruction->before only-element, businessEvent->after) = True
                     or businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
             )
@@ -394,7 +395,8 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 		businessEvent -> intent is absent
 		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
 			    or (businessEvent -> primitives -> quantityChange exists and transfers exists))
-		    or (Qualify_QuantityChangeInstruction( businessEvent -> instruction ) = True))
+		    //or (Qualify_QuantityChangeInstruction( businessEvent -> instruction ) = True))
+		    or (businessEvent -> instruction -> primitiveInstruction -> quantityChange count = 1 and Qualify_InstructionOnlyExists( businessEvent -> instruction ) = True))
 		and (QuantityDecreasedPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreased(businessEvent -> instruction -> before only-element, businessEvent -> after) = True)
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
 		and businessEvent -> after -> state -> closedState is absent
@@ -455,7 +457,8 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 		businessEvent -> intent is absent
         and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
             or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-            or (Qualify_QuantityChangeInstruction( businessEvent -> instruction ) = True))
+            //or (Qualify_QuantityChangeInstruction( businessEvent -> instruction ) = True))
+            or (businessEvent -> instruction -> primitiveInstruction -> quantityChange count = 1 and Qualify_InstructionOnlyExists( businessEvent -> instruction ) = True))
         and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
 		    or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
 		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
@@ -476,6 +479,19 @@ func Qualify_QuantityChangeInstruction: <"The qualification of a QuantityChangeI
         and quantityChangeCount = 1
         and quantityChangeCount + transferCount = primitiveInstructionCount
 
+func Qualify_InstructionOnlyExists: <"The qualification of a QuantityChangeInstruction.  Returns true if single QuantityChangeInstruction exists, and optionally any TransferInstructions, and no other instructions.">
+    inputs:
+        instruction Instruction (0..*)
+    output:
+        result boolean (1..1)
+
+    alias transferCount: instruction -> primitiveInstruction -> transfer count
+    alias primitiveInstructionCount: instruction -> primitiveInstruction count
+
+    set result:
+        instruction count = 1
+        and primitiveInstructionCount - transferCount = 1
+
 /*
 // TODO: This should be a workflow step qualification, rather than an event qualification. The event is still a contract formation
 func Qualify_TradeWarehousePositionNotification:
@@ -495,8 +511,8 @@ func Qualify_Execution: <"The qualification of an execution event from the fact 
 	output: is_event boolean (1..1)
 	set is_event:
 		businessEvent -> primitives count = 1 and businessEvent -> primitives -> execution exists or
-		(businessEvent -> instruction count = 1 and
-		businessEvent -> instruction -> primitiveInstruction -> execution only exists)
+		//(businessEvent -> instruction count = 1 and businessEvent -> instruction -> primitiveInstruction -> execution only exists)
+		(businessEvent -> instruction -> primitiveInstruction -> execution count = 1 and Qualify_InstructionOnlyExists( businessEvent -> instruction ) = True)
 
 func Qualify_ContractFormation: <"Qualifies a business event as a contract formation from the fact that the only component is a single Contract Formation Primitive.">
 	[qualification BusinessEvent]
