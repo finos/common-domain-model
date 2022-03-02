@@ -315,6 +315,7 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
+	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
 	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate)
 	set is_event:
 		businessEvent -> intent is absent
@@ -328,9 +329,9 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
             )
             or
             (
-                //Qualify_QuantityChangeInstruction( businessEvent -> instruction ) = True
-                (businessEvent -> instruction -> primitiveInstruction -> quantityChange count = 1 and Qualify_InstructionOnlyExists( businessEvent -> instruction ) = True)
-                and (QuantityIncreased(businessEvent->instruction->before only-element, businessEvent->after) = True
+                (primitiveInstruction -> quantityChange only exists
+                    or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
+                and (QuantityIncreased(businessEvent -> instruction -> before only-element, businessEvent -> after) = True
                     or businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
             )
 		)
@@ -390,13 +391,14 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory  -> transfer, businessEvent -> eventDate )
+	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
+    alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory  -> transfer, businessEvent -> eventDate )
 	set is_event:
 		businessEvent -> intent is absent
 		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
 			    or (businessEvent -> primitives -> quantityChange exists and transfers exists))
-		    //or (Qualify_QuantityChangeInstruction( businessEvent -> instruction ) = True))
-		    or (businessEvent -> instruction -> primitiveInstruction -> quantityChange count = 1 and Qualify_InstructionOnlyExists( businessEvent -> instruction ) = True))
+		    or (primitiveInstruction -> quantityChange only exists
+                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
 		and (QuantityDecreasedPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreased(businessEvent -> instruction -> before only-element, businessEvent -> after) = True)
 		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
 		and businessEvent -> after -> state -> closedState is absent
@@ -452,45 +454,18 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
+	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
+    alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
 	set is_event:
 		businessEvent -> intent is absent
         and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
             or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-            //or (Qualify_QuantityChangeInstruction( businessEvent -> instruction ) = True))
-            or (businessEvent -> instruction -> primitiveInstruction -> quantityChange count = 1 and Qualify_InstructionOnlyExists( businessEvent -> instruction ) = True))
+            or (primitiveInstruction -> quantityChange only exists
+                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
         and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
 		    or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
 		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 			or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
-
-func Qualify_QuantityChangeInstruction: <"The qualification of a QuantityChangeInstruction.  Returns true if single QuantityChangeInstruction exists, and optionally any TransferInstructions, and no other instructions.">
-    inputs:
-        instruction Instruction (0..*)
-    output:
-        result boolean (1..1)
-
-    alias quantityChangeCount: instruction -> primitiveInstruction -> quantityChange count
-    alias transferCount: instruction -> primitiveInstruction -> transfer count
-    alias primitiveInstructionCount: instruction -> primitiveInstruction count
-
-    set result:
-        instruction count = 1
-        and quantityChangeCount = 1
-        and quantityChangeCount + transferCount = primitiveInstructionCount
-
-func Qualify_InstructionOnlyExists: <"The qualification of a QuantityChangeInstruction.  Returns true if single QuantityChangeInstruction exists, and optionally any TransferInstructions, and no other instructions.">
-    inputs:
-        instruction Instruction (0..*)
-    output:
-        result boolean (1..1)
-
-    alias transferCount: instruction -> primitiveInstruction -> transfer count
-    alias primitiveInstructionCount: instruction -> primitiveInstruction count
-
-    set result:
-        instruction count = 1
-        and primitiveInstructionCount - transferCount = 1
 
 /*
 // TODO: This should be a workflow step qualification, rather than an event qualification. The event is still a contract formation
@@ -509,21 +484,23 @@ func Qualify_Execution: <"The qualification of an execution event from the fact 
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
+	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
 	set is_event:
-		businessEvent -> primitives count = 1 and businessEvent -> primitives -> execution exists or
-		//(businessEvent -> instruction count = 1 and businessEvent -> instruction -> primitiveInstruction -> execution only exists)
-		(businessEvent -> instruction -> primitiveInstruction -> execution count = 1 and Qualify_InstructionOnlyExists( businessEvent -> instruction ) = True)
+		businessEvent -> primitives count = 1 and businessEvent -> primitives -> execution exists
+		or (primitiveInstruction -> execution only exists
+            or (primitiveInstruction -> execution, primitiveInstruction -> transfer) only exists)
 
 func Qualify_ContractFormation: <"Qualifies a business event as a contract formation from the fact that the only component is a single Contract Formation Primitive.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	set is_event:
+	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
+    set is_event:
 		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists
-		    or (businessEvent -> instruction -> primitiveInstruction -> contractFormation only exists
-		        or (businessEvent -> instruction -> primitiveInstruction -> execution, businessEvent -> instruction -> primitiveInstruction -> contractFormation) only exists)
-		    or (businessEvent -> instruction -> primitiveInstruction is absent and businessEvent -> intent = EventIntentEnum -> ContractFormation)
+		    or (primitiveInstruction -> contractFormation only exists
+		        or (primitiveInstruction -> execution, primitiveInstruction -> contractFormation) only exists)
+		    or (primitiveInstruction is absent and businessEvent -> intent = EventIntentEnum -> ContractFormation)
 		// and businessEvent -> tradeWarehouseWorkflow is absent
 
 func Qualify_StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
@@ -1583,14 +1560,14 @@ func Create_SplitTrade:
 
 func Create_Split: <"Defines the logic for splitting a trade into separate copies. The split instruction contains a breakdown into N set of primitive instructions. Each set contains the primitive instructions to be applied to each post-split trade, eventually producing N trades. The split function underpins a number of business events such as clearing or allocation.">
 	inputs:
-		breakdown PrimitiveInstructionList (1..*) <"Each primitive instruction list contains the set of instruction to be applied to each post-split trade.">
+		breakdown PrimitiveInstruction (1..*) <"Each primitive instruction contains the set of instructions to be applied to each post-split trade.">
 		originalTrade TradeState (1..1) <"The original trade to be split, which must be of single cardinality.">
 	output:
 		splitTrade TradeState (1..*)
 
 	add splitTrade: <"Iterate over each breakdown and apply the set of primitive instructions to each copy of the original trade.">
 		breakdown
-			map [ Create_TradeState( item -> primitiveInstruction, originalTrade ) ]
+			map [ Create_TradeState( item, originalTrade ) ]
 
 func Create_PartyChange: <"Defines the logic for changing one of the counterparties on a trade. A new trade identifier must be specified as a change of party results in a new trade. An ancillary party can also be specified, for instance to refer to the original executing party on the new trade.">
 	inputs:
@@ -2324,7 +2301,7 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
         Always last:
             - contract formation, otherwise the contract could be invalid.">
 	inputs:
-		primitiveInstruction PrimitiveInstruction (1..*) <"The set of primitive instructions to apply to the trade.">
+		primitiveInstruction PrimitiveInstruction (0..1) <"The set of primitive instructions to apply to the trade.">
 		before TradeState (0..1) <"The original trade on which the primitive instructions are applied">
 
 	output:
@@ -2332,32 +2309,32 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 
 	alias execution: <"Create execution if no before exists.">
 		if before exists then before
-		else Create_ExecutionPrimitive( primitiveInstruction -> execution only-element ) -> after
+		else Create_ExecutionPrimitive( primitiveInstruction -> execution ) -> after
 
 	alias quantityChange: <"Apply quantity change if instructions exist.">
 		if primitiveInstruction -> quantityChange is absent then execution
-		else Create_QuantityChangePrimitive( primitiveInstruction -> quantityChange only-element, execution) -> after
+		else Create_QuantityChangePrimitive( primitiveInstruction -> quantityChange, execution) -> after
 
 	alias termsChange: <"Apply terms change if instructions exist.">
 		if primitiveInstruction -> termsChange is absent then quantityChange
-		else Create_TermsChangePrimitive( primitiveInstruction -> termsChange only-element, quantityChange)
+		else Create_TermsChangePrimitive( primitiveInstruction -> termsChange, quantityChange)
 
 	alias partyChange: <"Apply party change if instructions exist.">
 		if primitiveInstruction -> partyChange is absent then termsChange
 		else Create_PartyChange(
-			primitiveInstruction -> partyChange only-element -> counterparty,
-			primitiveInstruction -> partyChange only-element -> ancillaryParty,
-			primitiveInstruction -> partyChange only-element -> tradeId,
+			primitiveInstruction -> partyChange -> counterparty,
+			primitiveInstruction -> partyChange -> ancillaryParty,
+			primitiveInstruction -> partyChange -> tradeId,
 			termsChange /*after*/
         )
 
 	alias contractFormation: <"Create contract formation if instructions exist.">
-		if primitiveInstruction -> contractFormation is absent then partyChange
-		else Create_ContractFormationPrimitive( primitiveInstruction -> contractFormation only-element, partyChange) -> after
+		if primitiveInstruction exists and primitiveInstruction -> contractFormation is absent then partyChange
+		else Create_ContractFormationPrimitive( primitiveInstruction -> contractFormation, partyChange) -> after
 
 	alias transfer:
 		if primitiveInstruction -> transfer is absent then contractFormation
-		else Create_TransferPrimitive( primitiveInstruction -> transfer only-element, contractFormation) -> after
+		else Create_TransferPrimitive( primitiveInstruction -> transfer, contractFormation) -> after
 
 	condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
 		primitiveInstruction -> split is absent

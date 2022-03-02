@@ -1121,11 +1121,11 @@ The list of business events for which this process is currently implemented in t
     quantityChange QuantityChangeInstruction (0..1)
     indexTransition IndexTransitionInstruction (0..1)
     termination TerminationInstruction (0..1)
-    primitiveInstruction PrimitiveInstruction (1..*)
+    primitiveInstruction PrimitiveInstruction (0..1)
     before TradeState (0..1)
 
-    condition ExecutionPrimitive:
-        if primitiveInstruction -> execution exists then primitiveInstruction -> execution count = 1
+    condition ExclusiveSplitPrimitive:
+       if primitiveInstruction -> split exists then primitiveInstruction -> split only exists
 
 
 Previous Workflow Step
@@ -1237,13 +1237,14 @@ One distinction with the product approach is that the ``intent`` qualification i
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
+	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
+    alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
 	set is_event:
 		businessEvent -> intent is absent
         and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
-            or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-            or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
-                and businessEvent -> instruction -> primitiveInstruction count = 1))
+		    or (businessEvent -> primitives -> quantityChange exists and transfer exists)
+		    or (primitiveInstruction -> quantityChange only exists
+		        or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
 		and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
 		    or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
 		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
