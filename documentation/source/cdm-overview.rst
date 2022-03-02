@@ -39,7 +39,7 @@ The CDM Components
 The Rosetta DSL
 ^^^^^^^^^^^^^^^
 
-The CDM is a domain model written in a Domain-Specific Language (DSL) called the *Rosetta DSL*, comprising a syntax and code generators.
+The CDM is a `domain model <https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353>`_ written in a Domain-Specific Language (DSL) called the *Rosetta DSL*, comprising a syntax and code generators.
 
 The `Rosetta DSL documentation <https://docs.rosetta-technology.io/dsl/index.html>`_ details all the modelling components available in the syntax and their purpose. It also describes the mechanism to write and use code generators.
 
