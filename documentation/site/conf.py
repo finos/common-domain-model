@@ -96,7 +96,7 @@ html_theme_options = {
     #         "title": "Material for MkDocs",
     #     },
     # ],
-    "logo": "https://cdn.aws.isda.org/a/fGWTE/CDM-hoz-logo-print.png",
+    # "logo": "https://cdn.aws.isda.org/a/fGWTE/CDM-hoz-logo-print.png",
 
     "version_dropdown": True,
     # "version_json": "_static/versions.json",

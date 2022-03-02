@@ -160,7 +160,7 @@ similar types.
 
 An illustrative example for understanding the principle is shown here:
 
-.. image:: collateral-asset-identifier-tree.png
+.. image:: images/collateral-asset-identifier-tree.png
    :width: 6.85159in
    :height: 3.24844in
 
@@ -187,7 +187,7 @@ High Level Design Principles
 The foundational data structure from the highest level allows firstly to
 represent eligibility through specification of *criteria*:
 
-.. image:: cdm-graphical-ecs.png
+.. image:: images/cdm-graphical-ecs.png
    :width: 6.26806in
    :height: 1.1083in
 
