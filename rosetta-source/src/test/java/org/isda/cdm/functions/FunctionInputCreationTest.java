@@ -368,7 +368,7 @@ class FunctionInputCreationTest {
                 getTerminationVanillaSwapTradeState(),
                 Date.of(2019, 12, 12),
                 "cdm-sample-files/functions/quantity-change-business-event/full-termination-vanilla-swap-func-input.json",
-                quantityChangeInstruction);
+                quantityChangeInstruction, FeeTypeEnum.TERMINATION);
     }
 
     @Test
@@ -391,7 +391,7 @@ class FunctionInputCreationTest {
                 tradeState,
                 Date.of(2021, 11, 11),
                 "cdm-sample-files/functions/quantity-change-business-event/full-termination-equity-swap-func-input.json",
-                quantityChangeInstruction);
+                quantityChangeInstruction, FeeTypeEnum.TERMINATION);
     }
 
     @Test
@@ -412,7 +412,7 @@ class FunctionInputCreationTest {
                 getTerminationVanillaSwapTradeState(),
                 Date.of(2019, 12, 12),
                 "cdm-sample-files/functions/quantity-change-business-event/partial-termination-vanilla-swap-func-input.json",
-                quantityChangeInstruction);
+                quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
     }
 
     @Test
@@ -445,7 +445,7 @@ class FunctionInputCreationTest {
                 increaseTradeState,
                 Date.of(2021, 11, 11),
                 "cdm-sample-files/functions/quantity-change-business-event/partial-termination-equity-swap-func-input.json",
-                quantityChangeInstruction);
+                quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
     }
 
     @Test
@@ -521,7 +521,7 @@ class FunctionInputCreationTest {
                 .setBefore(tradeState)
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(quantityChangeInstructions))
-                        .setTransfer(getTransferInstruction(tradeState));
+                        .setTransfer(getTransferInstruction(tradeState, FeeTypeEnum.INCREASE));
 
         return new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
@@ -530,12 +530,12 @@ class FunctionInputCreationTest {
         );
     }
 
-    private void validateQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, String expectedJsonPath, QuantityChangeInstruction quantityChangeInstruction) throws IOException {
+    private void validateQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, String expectedJsonPath, QuantityChangeInstruction quantityChangeInstruction, FeeTypeEnum feeType) throws IOException {
         Instruction instructionBuilder = Instruction.builder()
                 .setBefore(tradeState)
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(quantityChangeInstruction))
-                        .setTransfer(getTransferInstruction(tradeState));
+                        .setTransfer(getTransferInstruction(tradeState, feeType));
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
@@ -546,7 +546,7 @@ class FunctionInputCreationTest {
     }
 
     @NotNull
-    private TransferInstruction.TransferInstructionBuilder getTransferInstruction(TradeState tradeState) {
+    private TransferInstruction.TransferInstructionBuilder getTransferInstruction(TradeState tradeState, FeeTypeEnum feeType) {
         Trade trade = tradeState.getTrade();
         List<? extends Counterparty> counterparties = trade.getTradableProduct().getCounterparty();
         UnitType currencyUnitType = trade.getTradableProduct().getTradeLot().stream()
@@ -562,7 +562,7 @@ class FunctionInputCreationTest {
         return TransferInstruction.builder()
                 .addTransferState(TransferState.builder()
                         .setTransfer(Transfer.builder()
-                                .setTransferExpression(TransferExpression.builder().setPriceTransfer(FeeTypeEnum.UPFRONT))
+                                .setTransferExpression(TransferExpression.builder().setPriceTransfer(feeType))
                                 .setPayerReceiver(PartyReferencePayerReceiver.builder()
                                         .setPayerPartyReference(counterparties.get(0).getPartyReference())
                                         .setReceiverPartyReference(counterparties.get(1).getPartyReference()))
