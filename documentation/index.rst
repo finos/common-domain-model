@@ -16,4 +16,4 @@ Welcome to the ISDA CDM documentation
    source/documentation-style-guide
    releases/latest
    releases/all
-   source/rosetta
+   
