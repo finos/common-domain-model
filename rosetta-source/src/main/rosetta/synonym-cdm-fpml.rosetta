@@ -439,8 +439,6 @@ synonym source FpML_5_10 extends FpML
 			// For Credit:
 			[value "fixedAmountCalculation"]
 			[value "spreadSchedule" path "floatingAmountCalculation->floatingRate"]
-			[value "fixedAmount"]
-			[value "paymentAmount"]
 			// For Equity Swaps:
 			[value "rateOfReturn"]
 			[value "floatingRateCalculation" path "interestCalculation"]
@@ -458,7 +456,7 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity:
 			[value "fixedPrice"] // Commodity Swap Fixed Leg
 			[value "spread" path "calculation"] // Commodity Swap Floating Leg
-			// Premium (for all Options) / Additional payment
+			// For bullet payments
 			[value "paymentAmount"]
     	+ quantity
 		    // For Swap Stream
@@ -572,14 +570,8 @@ synonym source FpML_5_10 extends FpML
  			[set to PriceTypeEnum->AssetPrice when "referencePrice" exists]
  			[set to PriceTypeEnum->AssetPrice when "strikePrice" exists]
  			[set to PriceTypeEnum->AssetPrice when "initialPrice->netPrice->amount" exists]
- 			[set to PriceTypeEnum->CashPrice when path = "additionalPayment->paymentAmount"]
- 			[set to PriceTypeEnum->CashPrice when path = "otherPartyPayment->paymentAmount"]
- 			[set to PriceTypeEnum->CashPrice when path = "initialPayment->paymentAmount"]
  			[set to PriceTypeEnum->CashPrice when path = "bulletPayment->payment->paymentAmount"]
-            [set to PriceTypeEnum->CashPrice when path = "singlePayment->fixedAmount"]
- 			[set to PriceTypeEnum->CashPrice when path = "premium->paymentAmount"]
- 			[set to PriceTypeEnum->CashPrice when path = "equityPremium->paymentAmount"]
- 			[set to PriceTypeEnum->ExchangeRate when path = "exchangeRate" and "rate" exists]
+            [set to PriceTypeEnum->ExchangeRate when path = "exchangeRate" and "rate" exists]
  			[set to PriceTypeEnum->ExchangeRate when path = "fxOption->strike"]
  			[set to PriceTypeEnum->ExchangeRate when path = "fxOption" and "spotRate" exists]
  			// For Commodity Swaps
@@ -605,14 +597,8 @@ synonym source FpML_5_10 extends FpML
 
 	 CashPrice:
  		+ cashPriceType
- 			[set to CashPriceTypeEnum->Fee when path = "additionalPayment->paymentAmount"]
- 			[set to CashPriceTypeEnum->Fee when path = "otherPartyPayment->paymentAmount"]
- 			[set to CashPriceTypeEnum->Fee when path = "initialPayment->paymentAmount"]
- 			[set to CashPriceTypeEnum->Fee when path = "singlePayment->fixedAmount"]
  			[set to CashPriceTypeEnum->Fee when path = "fixedLeg->fixedPrice"]
  			[set to CashPriceTypeEnum->Fee when path = "bulletPayment->payment->paymentAmount"]
- 			[set to CashPriceTypeEnum->Premium when path = "premium->paymentAmount"]
- 			[set to CashPriceTypeEnum->Premium when path = "equityPremium->paymentAmount"]
  		+ feeType
             [value "paymentType"]
 
@@ -1668,13 +1654,16 @@ synonym source FpML_5_10 extends FpML
 			[value "openUnits" maps 2]
 			[value "numberOfOptions" maps 2]
 			[value "basketPercentage" maps 2]
-			// For Commodity Swap
 			[value "quantity" maps 2]
+			[value "amount" path "paymentAmount"]
+			[value "amount" path "fixedAmount"]
 		+ unitOfAmount
 			[value "singleUnderlyer"]
 			[value "basket"]
 			[value "basketPercentage"]
 			[value "openUnits"]
+			[value "paymentAmount"]
+			[value "fixedAmount"]
 		+ multiplier
 			[value "optionEntitlement"]
 		+ multiplierUnit
@@ -1947,6 +1936,23 @@ synonym source FpML_5_10 extends FpML
 			[hint "account"]
 		+ resetHistory
 			[value "ignore"]
+        + transferHistory
+            // premium
+            [value "bondOption" path "trade"]
+            [value "swaption" path "trade"]
+            [value "fxOption" path "trade"]
+            [value "fxDigitalOption" path "trade"]
+            [value "creditDefaultSwapOption" path "trade"]
+            [value "commodityOption" path "trade"]
+            [value "commodityBasketOption" path "trade"]
+            // equityPremium
+            [value "equityOption" path "trade"]
+            // initialPayment / singlePayment
+            [value "feeLeg" path "trade->creditDefaultSwap"]
+            // additionalPayment
+            [value "swap" path "trade"]
+            // otherPartyPayment
+            [value "trade"]
 
 	Trade:
 		+ tradeIdentifier
@@ -1965,6 +1971,32 @@ synonym source FpML_5_10 extends FpML
 			[value "collateral"]
 		+ account
 			[value "account"]
+
+    TransferState:
+        + transfer
+            [value "premium"]
+            [value "equityPremium"]
+            [value "initialPayment"]
+            [value "singlePayment"]
+            [value "additionalPayment"]
+            [value "otherPartyPayment"]
+
+    Transfer:
+        + identifier
+            [value "ignore"]
+        + settlementOrigin
+            [value "ignore"]
+        + resetOrigin
+            [value "ignore"]
+
+    TransferExpression:
+        + priceTransfer
+            [set to FeeTypeEnum->Upfront when path = "additionalPayment"]
+            [set to FeeTypeEnum->Upfront when path = "otherPartyPayment"]
+            [set to FeeTypeEnum->Upfront when path = "initialPayment"]
+            [set to FeeTypeEnum->Upfront when path = "singlePayment->fixedAmount"]
+	        [set to FeeTypeEnum->Premium when path = "premium"]
+ 			[set to FeeTypeEnum->Premium when path = "equityPremium"]
 
 	ContractDetails:
 		+ documentation
@@ -2016,7 +2048,6 @@ synonym source FpML_5_10 extends FpML
 			[value "fxLinkedNotionalSchedule"]
 			[value "constantNotionalScheduleReference" path "fxLinkedNotionalSchedule" meta "href"]
 			[value "notionalQuantity"]
-
 		+ reset
 			[value "notionalReset"]
 		+ futureValueNotional
@@ -2359,7 +2390,6 @@ synonym source FpML_5_10 extends FpML
 			[value "fxSwap"]
 			// For Repo:
 			[hint "repo"]
-			[hint "otherPartyPayment"]
 			[hint "calculationAgent", "calculationAgentBusinessCenter"]
 			// For Equity Options:
 			[hint "equityOption"]
@@ -2414,7 +2444,6 @@ synonym source FpML_5_10 extends FpML
 			[value "fra" mapper "FraPriceQuantitySplitter"]
 			[value "payment"]
 			// Credit
-			[value "singlePayment" path "feeLeg", "initialPayment" path "feeLeg"]
 			[value "periodicPayment" path "feeLeg"]
 			[value "protectionTerms"]
 			// Equity
@@ -2431,8 +2460,6 @@ synonym source FpML_5_10 extends FpML
 			[value "fixedLeg"]
 			[value "floatingLeg"]
 			// Additional payment
-			[value "additionalPayment"]
-			[value "otherPartyPayment"]
 			// Options: Quantity and Observable (Except Swaption, Credit Default Swaption)
 			[hint "underlyer"] // Equity Option
 			[value "bondOption"]
@@ -2442,12 +2469,6 @@ synonym source FpML_5_10 extends FpML
 			[hint "commodity", "notionalQuantity"] // Commodity Option
 			[value "commodityOption"] // Commodity Option
 			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"] // For Equity / Bond Option
-			// Options: Premium
-			[value "premium", "equityPremium"]
-			[value "equityPremium" path "equityOption"]
-			[value "premium" path "bondOption"]
-			[value "premium" path "fxOption"]
-			[value "premium" path "fxDigitalOption"]
 		+ lotIdentifier
 			[value "ignore"]
 
@@ -2477,7 +2498,6 @@ synonym source FpML_5_10 extends FpML
 			[value "commodityOption"]
 			[hint "commodityOption"]
 			[hint "repo"]
-			[hint "otherPartyPayment"]
 		+ adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
@@ -3441,13 +3461,7 @@ synonym source FpML_5_10 extends FpML
 			// [value "openUnits"]
 			// [set to FinancialUnitEnum->Share when "equity" exists and "openUnits" exists]
 			[value "openUnits" mapper "OpenEquityFinancialUnits"]
-			[set to FinancialUnitEnum->ContractualProduct when path = "additionalPayment->paymentAmount->amount"]
-			[set to FinancialUnitEnum->ContractualProduct when path = "otherPartyPayment->paymentAmount->amount"]
-			[set to FinancialUnitEnum->ContractualProduct when path = "initialPayment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "bulletPayment->payment->paymentAmount->amount"]
-			[set to FinancialUnitEnum->ContractualProduct when path = "singlePayment->fixedAmount->amount"]
-			[set to FinancialUnitEnum->ContractualProduct when path = "premium->paymentAmount->amount"]
-			[set to FinancialUnitEnum->ContractualProduct when path = "equityPremium->paymentAmount->amount"]
 			[set to FinancialUnitEnum->Weight when path = "basketPercentage"]
 			[set to FinancialUnitEnum->IndexUnit when path = "constituentWeight->openUnits"]			
 			[set to FinancialUnitEnum->Weight when path = "basketConstituent->constituentWeight"]			
