@@ -4,7 +4,8 @@ import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
 import cdm.event.common.functions.UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity;
 import cdm.event.common.functions.UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl;
-import cdm.observable.asset.fro.functions.*;
+import cdm.observable.asset.fro.functions.IndexValueObservation;
+import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
 import cdm.observable.event.functions.ResolveObservationAverage;
 import cdm.observable.event.functions.ResolveObservationAverageImpl;
 import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStep;
@@ -42,10 +43,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveObservationAverage.class).to(bindResolveObservationAverage());
 		bind(VectorOperation.class).to(bindVectorOperation());
 		bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
-		bind(BusinessCenterHolidays.class).to(bindBusinessCenterHolidays());
 		bind(CombineBusinessCenters.class).to(bindCombineBusinessCenters());
-		bind(IndexValueObservation.class).to(bindIndexValueObservation());
-		bind(IndexValueObservationMultiple.class).to(bindIndexValueObservationMultiple());
 
 		// Requires DSL get-item(index)
 		bind(SelectScheduleStep.class).to(bindSelectScheduleStep());
@@ -65,8 +63,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(RoundToPrecision.class).to(bindRoundToPrecision());
 
 		// Data providers (external data)
-		bind(BusinessCenterHolidaysDataProvider.class).to(bindBusinessCenterHolidaysDataProvider()).asEagerSingleton();
-		bind(IndexValueObservationDataProvider.class).to(bindIndexValueObservationDataProvider()).asEagerSingleton();
+		bind(BusinessCenterHolidays.class).to(bindBusinessCenterHolidays()).asEagerSingleton();
+		bind(IndexValueObservation.class).to(bindIndexValueObservation()).asEagerSingleton();
 
 		// Require DSL changes to prevent overwriting of reference metadata  (not supported in DSL)
 		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
@@ -151,7 +149,7 @@ public class CdmRuntimeModule extends AbstractModule {
 	}
 
 	protected Class<? extends BusinessCenterHolidays> bindBusinessCenterHolidays() {
-		return BusinessCenterHolidaysImpl.class;
+		return BusinessCenterHolidaysEmptyDataProvider.class;
 	}
 
 	protected Class<? extends CombineBusinessCenters> bindCombineBusinessCenters() {
@@ -178,20 +176,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		return SelectNonNegativeScheduleStepImpl.class;
 	}
 
-	protected Class<? extends IndexValueObservationDataProvider> bindIndexValueObservationDataProvider() {
-		return IndexValueObservationEmptyDataProviderImpl.class;
-	}
-
 	protected Class<? extends IndexValueObservation> bindIndexValueObservation() {
-		return IndexValueObservationImpl.class;
-	}
-
-	protected Class<? extends IndexValueObservationMultiple> bindIndexValueObservationMultiple() {
-		return IndexValueObservationMultipleImpl.class;
-	}
-
-	protected Class<? extends BusinessCenterHolidaysDataProvider> bindBusinessCenterHolidaysDataProvider() {
-		return BusinessCenterHolidaysEmptyDataProviderImpl.class;
+		return IndexValueObservationEmptyDataProvider.class;
 	}
 
 	protected Class<? extends Today> bindToday() {

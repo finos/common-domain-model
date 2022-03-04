@@ -2,7 +2,7 @@ package cdm.product.asset.floatingrate.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.observable.asset.FloatingRateOption;
-import cdm.observable.asset.fro.functions.IndexValueObservationDataProvider;
+import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.asset.calculation.functions.LookupNotionalAmountTest;
@@ -28,7 +28,7 @@ public class DetermineFloatingRateResetTest extends AbstractFunctionTest {
 
 	@Override
 	protected void bindTestingMocks(Binder binder) {
-		binder.bind(IndexValueObservationDataProvider.class).toInstance(initIndexData(initFro()));
+		binder.bind(IndexValueObservation.class).toInstance(initIndexData(initFro()));
 	}
 
 	@Test

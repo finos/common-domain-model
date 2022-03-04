@@ -2,6 +2,7 @@ package cdm.observable.asset.fro.functions;
 
 import cdm.base.datetime.Period;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
+import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateOption;
 import com.rosetta.model.lib.records.Date;
 
@@ -13,13 +14,18 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class IndexValueObservationTestDataProviderImpl implements IndexValueObservationDataProvider {
+public class IndexValueObservationTestDataProvider extends IndexValueObservation {
 
 	private final AtomicReference<BigDecimal> defaultValue = new AtomicReference<>();
 	private final Map<FloatingRateIndexTenor, Map<Date, BigDecimal>> cache = new HashMap<>();
 
 	@Override
-	public BigDecimal getObservedValue(Date observationDate, FloatingRateIndexEnum floatingRateIndex, Period indexTenor) {
+	protected BigDecimal doEvaluate(Date observationDate, FloatingRateOption floatingRateOption) {
+		FloatingRateIndexEnum floatingRateIndex = Optional.ofNullable(floatingRateOption)
+				.map(FloatingRateOption::getFloatingRateIndex)
+				.map(FieldWithMetaFloatingRateIndexEnum::getValue)
+				.orElse(null);
+		Period indexTenor = floatingRateOption.getIndexTenor();
 		return Optional.ofNullable(cache.get(new FloatingRateIndexTenor(floatingRateIndex, indexTenor)))
 				.flatMap(dateObservedValueMap -> Optional.ofNullable(dateObservedValueMap.get(observationDate)))
 				.orElse(defaultValue.get());
@@ -38,7 +44,6 @@ public class IndexValueObservationTestDataProviderImpl implements IndexValueObse
 			Date date = Date.of(dt);
 			double val = observedValue + increment * i;
 			setValue(fro, date, val);
-
 		}
 	}
 

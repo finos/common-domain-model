@@ -106,11 +106,33 @@ func CombineBusinessCenters: <"Creates a BusinessCenters object that includes th
 	output:
 	    combinedList BusinessCenters (1..1) <"Resulting merged list of business centers.">
 
-func BusinessCenterHolidays: <"Returns a merged list of holidays for the supplied business centers.">
+func BusinessCentersHolidays: <"Returns a merged list of holidays for the supplied business centers.">
 	inputs:
 		businessCenters BusinessCenters (1..1) <"The business centers for which the holiday list is required.">
 	output:
-		holidays date (0..*) <"The combined list of holidays in all of the supplied business centers.">
+		holidayDates date (0..*) <"The combined list of holidays in all of the supplied business centers.">
+
+    add holidayDates: <"Holiday dates from list of BusinessCenterEnum.">
+        businessCenters -> businessCenter
+            map [ BusinessCenterHolidays( item ) ]
+            flatten
+            distinct
+
+    add holidayDates: <"Holiday dates from referenced BusinessCenters.">
+        businessCenters -> businessCentersReference -> businessCenter
+            map [ BusinessCenterHolidays( item ) ]
+            flatten
+            distinct
+
+    set holidayDates: <"Sort combined list of dates.">
+        holidayDates sort
+
+func BusinessCenterHolidays:
+    // data provider - implementation provides data
+    inputs:
+        businessCenter BusinessCenterEnum (1..1)
+    output:
+        holidayDates date (0..*)
 
 func DayOfWeek: <"Returns the day of week corresponding to the supplied date.">
 	inputs:
@@ -175,7 +197,7 @@ func IsHoliday: <"Returns whether a day is a holiday for the specified business 
 		isHoliday boolean (1..1) <"true if the supplied date is a holiday">
 
 	// get the combined list of holidays for the supplied business centers
-	alias holidays: BusinessCenterHolidays(businessCenters)
+	alias holidays: BusinessCentersHolidays(businessCenters)
 	
 	// check if the supplied date is contained in the holiday list
 	set isHoliday: holidays contains checkDate
