@@ -31,7 +31,7 @@ _Data Types_
 
 _Enumerations_
 
-- 'FeeTypeEnum' - updated to be an attribute within `TransferExpression` defining a transfer amount in terms of a fee type.
+- `FeeTypeEnum` - updated to be an attribute within `TransferExpression` defining a transfer amount in terms of a fee type.
 
 _Functions_
 
