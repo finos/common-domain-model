@@ -35,8 +35,8 @@ A tradable product represents a financial product that is ready to be traded, me
  type TradableProduct:
     product Product (1..1)
     tradeLot TradeLot (1..*)
-    counterparty Counterparty (2..2) 
-    ancillaryParty AncillaryParty (0..*) 
+    counterparty Counterparty (2..2)
+    ancillaryParty AncillaryParty (0..*)
     adjustment NotionalAdjustmentEnum (0..1)
 
 .. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
@@ -425,7 +425,7 @@ The ``Payout`` type defines the composable payout types, each of which describes
    securityFinancePayout SecurityFinancePayout (0..*)
    cashflow Cashflow (0..*)
 
-A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts. The list of payouts that extend ``PayoutBase` are:
+A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts. The list of payouts that extend `PayoutBase` are:
 
 - ``InterestRatePayout``
 - ``EquityPayout``
@@ -1106,7 +1106,7 @@ The list of business events for which this process is currently implemented in t
 
 .. code-block:: Haskell
 
- type Instruction: 
+ type Instruction:
     [rootType]
     instructionFunction string (0..1)
     allocation AllocationInstruction (0..1)
@@ -2217,7 +2217,7 @@ The data type and function to generate a Security Lending Invoice:
     billingEndDate date (1..1)
     billingRecord BillingRecord (1..*)
     billingSummary BillingSummary (1..*)
-    
+
 .. code-block:: Haskell
 
  func Create_SecurityLendingInvoice:
@@ -2461,7 +2461,7 @@ Model artifacts are organised into a directory hierarchy that is exposed in the 
 Organising Principles
 ^^^^^^^^^^^^^^^^^^^^^
 
-Namespaces are organised into a hierarchy, with layers going from in to out. The hierarchy contains an intrinsic inheritance structure where each layer has access to (“imports”) the layer outside, and is designed to be usable without any of its inner layers. Layers can contain several namespaces (“siblings”), which can also refer to each other. 
+Namespaces are organised into a hierarchy, with layers going from in to out. The hierarchy contains an intrinsic inheritance structure where each layer has access to (“imports”) the layer outside, and is designed to be usable without any of its inner layers. Layers can contain several namespaces (“siblings”), which can also refer to each other.
 
 Example – the base namespace
 
@@ -2495,14 +2495,14 @@ The namespace hierarchy in the CDM contains 7 components
 .. _Special Syntax Section: https://docs.rosetta-technology.io/dsl/documentation.html#special-syntax
 .. _Meta-Data Section: https://docs.rosetta-technology.io/dsl/documentation.html#meta-data-and-reference
 
-.. _Event Model Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#event-model
-.. _Event Qualification Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#event-qualification
-.. _Validation Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#validation-process
-.. _Calculation Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#calculation-process
-.. _Workflow Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#workflow
-.. _Product Model Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#product-model
-.. _Tradable Product Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#tradable-product
-.. _Lifecycle Event Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#lifecycle-event-process
+.. _Event Model Section: documentation.html#event-model
+.. _Event Qualification Section: documentation.html#event-qualification
+.. _Validation Process Section: documentation.html#validation-process
+.. _Calculation Process Section: documentation.html#calculation-process
+.. _Workflow Section: documentation.html#workflow
+.. _Product Model Section: documentation.html#product-model
+.. _Tradable Product Section: documentation.html#tradable-product
+.. _Lifecycle Event Process Section: documentation.html#lifecycle-event-process
 
 .. _serialised: https://en.wikipedia.org/wiki/Serialization
 .. _data modelling: https://en.wikipedia.org/wiki/Cardinality_(data_modeling)#Application_program_modeling_approaches

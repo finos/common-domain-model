@@ -52,14 +52,14 @@ The ISDA CDM Distribution
 
 * The ISDA CDM distribution is openly accessible to all industry participants and can be downloaded from the `CDM Portal <https://portal.cdm.rosetta-technology.io>`_. The ISDA CDM is distributed subject to the ISDA CDM open source licence.
 
-* Information on how to access the CDM Java distribution can be found here: `CDM Java Distribution Guidelines <https://docs.rosetta-technology.io/cdm/documentation/source/cdm-guidelines.html>`_
+* Information on how to access the CDM Java distribution can be found here: `CDM Java Distribution Guidelines <cdm-guidelines.html>`_
 
 Components
 """"""""""
 
 The ISDA CDM distribution comprises three main sets of components:
 
-* **Model definition**, which corresponds to the model as expressed in the Rosetta DSL syntax and contained into a set of *.rosetta* files organised as *namespaces*. The primary dimensions of the model are listed below and further described in the `Common Domain Model Section <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html>`_ of the documentation.
+* **Model definition**, which corresponds to the model as expressed in the Rosetta DSL syntax and contained into a set of *.rosetta* files organised as *namespaces*. The primary dimensions of the model are listed below and further described in the `Common Domain Model Section <documentation.html>`_ of the documentation.
 
   * Product
   * Event
@@ -76,7 +76,7 @@ The ISDA CDM distribution comprises three main sets of components:
 Versioning
 """"""""""
 
-The CDM is developed, built and released using standard software source-control management. Each new released version is announced to users via a *release note* that describes the change introduced by that new version. The CDM release history is available in the `Release Section <https://docs.rosetta-technology.io/cdm/releases/all.html>`_ of the CDM documentation.
+The CDM is developed, built and released using standard software source-control management. Each new released version is announced to users via a *release note* that describes the change introduced by that new version. The CDM release history is available in the `Release Section <../releases/all.html>`_ of the CDM documentation.
 
 The CDM is released using the semantic versioning system. The format of a version number is MAJOR.MINOR.PATCH (e.g. ``1.23.456``), where the:
 
@@ -205,6 +205,6 @@ The Java distribution of the CDM is designed to be built and used with Maven.
 
 It depends on some open source java artifacts which are freely available from an artifact repository. Maven can be configured to use this repository using the repository settings contained in the ``settings.xml`` file in the CDM jar.
 
-For more details, please follow the `CDM Java Distribution Guidelines <https://docs.rosetta-technology.io/cdm/documentation/source/cdm-guidelines.html>`_.
+For more details, please follow the `CDM Java Distribution Guidelines <cdm-guidelines.html>`_.
 
 .. note:: These guidelines are intended as a technical documentation for developers to make use of the Java distribution in their implementation.

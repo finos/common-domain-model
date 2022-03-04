@@ -10,7 +10,7 @@ bin=$(cd "$bin"; pwd)
 
 PORT=8659
 printf "Preparing Docker image...\n"
-docker build --no-cache -t nginx-sphinx-docs .
+docker build -t nginx-sphinx-docs .
 if [ $? -ne 0 ]
 then
   printf "Failed to build Docker image. Exiting... \n"

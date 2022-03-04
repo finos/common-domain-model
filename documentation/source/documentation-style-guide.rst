@@ -27,7 +27,7 @@ Terminology
 The CDM
 ^^^^^^^
 
-The model should be referred to as *the CDM*, without any ownership mention. The only exception is the `Overview of the ISDA CDM <https://docs.rosetta-technology.io/cdm/readme.html>`_ section at the beginning of the user documentation when the CDM is introduced as *the ISDA CDM*.
+The model should be referred to as *the CDM*, without any ownership mention. The only exception is the `Overview of the ISDA CDM <cdm-overview.html>`_ section at the beginning of the user documentation when the CDM is introduced as *the ISDA CDM*.
 
 General data definition components
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -50,8 +50,8 @@ Specific components
 Product
 """""""
 
-#. *Financial Product*. The user documentation defines `Financial Product <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#financial-product>`_ as the highest level of the hierarchy of the universe of products. The term *Financial Product* should be used consistently throughout the documentation and wherever applicable in the model descriptions when describing the broad set of products.
-#. *Contractual Product*. Similarly, `Contractual Product <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#contractual-product>`_ is defined as a subset of Financial Products and should be used consistently in any documentation.
+#. *Financial Product*. The user documentation defines `Financial Product <documentation.html#financial-product>`_ as the highest level of the hierarchy of the universe of products. The term *Financial Product* should be used consistently throughout the documentation and wherever applicable in the model descriptions when describing the broad set of products.
+#. *Contractual Product*. Similarly, `Contractual Product <documentation.html#contractual-product>`_ is defined as a subset of Financial Products and should be used consistently in any documentation.
 
    #. Not *Derivatives*.
    #. Not *OTC*. Contractual Product is at a higher hierarchy level than OTC Derivatives because it can include other types of products such as Security Financing.
@@ -59,11 +59,11 @@ Product
 Event
 """""
 
-#. *Business Event*. In the CDM, a `Business Event <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#business-event>`_ represents an event that may occur during the lifecycle of a trade, such as an amendment, a termination, a reset or a payment.
+#. *Business Event*. In the CDM, a `Business Event <documentation.html#business-event>`_ represents an event that may occur during the lifecycle of a trade, such as an amendment, a termination, a reset or a payment.
 
    #. Not *Lifecycle Event*. the term *Business Event* should be consistently used when referring to these data structures in the CDM documentation.
-  
-#. *Primitive Event*. In the CDM, a `Primitive Event <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#primitive-event>`_ represents a building block component used to specify business events in the CDM.
+
+#. *Primitive Event*. In the CDM, a `Primitive Event <documentation.html#primitive-event>`_ represents a building block component used to specify business events in the CDM.
 
    #. Not *Primitive* (stand-alone). In the CDM documentation, the word *Primitive* always needs to be qualified with *Event*, because the word *Primitive* may be associated to very different meanings, e.g. in computing.
 
@@ -106,7 +106,7 @@ General guidelines
    #. Attribute description should articulate the use of the type in the context of the attribute.
    #. The description should not be tautological, e.g. PartyRole <defines the party role> is not compliant with these guidelines.
    #. References to a similar attribute in  FpML should not be used as a crutch in place of explaining a data type, attribute, etc.
-   #. In most cases, where a reference to FpML is considered useful, it should be placed at the end of a description in the logical model, or in a note at the end of a section in the user documentation.  In the case of the logical model, note that synonyms for FpML are provided, therefore it should not be necessary to reference FpML in every case.  
+   #. In most cases, where a reference to FpML is considered useful, it should be placed at the end of a description in the logical model, or in a note at the end of a section in the user documentation.  In the case of the logical model, note that synonyms for FpML are provided, therefore it should not be necessary to reference FpML in every case.
 
 Example of a non-compliant description:
 
@@ -151,19 +151,19 @@ Heading styles and flow in the user documentation
    * - 1
      - `===============`
      - XL font and bold
-     - `The Common Domain Model <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#>`_
+     - `The Common Domain Model <documentation.html#>`_
    * - 2
      - `---------------`
      - L font and bold
-     - `Product Model <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#product-model>`_, `Legal Agreements <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#legal-agreements>`_
+     - `Product Model <documentation.html#product-model>`_, `Legal Agreements <documentation.html#legal-agreements>`_
    * - 3
      - `^^^^^^^^^^^^^^^`
      - M font and bold
-     - `Tradable Product <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#tradableproduct>`_
+     - `Tradable Product <documentation.html#tradableproduct>`_
    * - 4
      - `"""""""""""""""`
      - S font (same as content), but bold
-     - `Price Quantity <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#pricequantity>`_
+     - `Price Quantity <documentation.html#pricequantity>`_
 
 The RST editing syntax in which the user documentation is written is a standard web mark-up language, for which a reference guide can be found at: https://sublime-and-sphinx-guide.readthedocs.io
 
@@ -175,19 +175,19 @@ The RST editing syntax in which the user documentation is written is a standard 
 3. Define business terms and CDM terminology early in a section so that the broader audience understands the model.
 4. Details about a topic should be presented in the section for that topic:
 
-   #. In the case of a model component, the description of the component should always be followed by an example.  
+   #. In the case of a model component, the description of the component should always be followed by an example.
    #. Most or all of the explanation should occur before the example, not after, unless the example was needed as context for an explanation.
    #. Transitions from one topic to another should be used to help guide the user through the model.
 
 Content of Release Notes
 """"""""""""""""""""""""
 
-Release notes are text describing the content of any new CDM release and are a critical component of the distribution of that release. Release notes are edited in the *Mark-Down (MD)* syntax, which is then rendered into Html in the various channels where the release is published. 
+Release notes are text describing the content of any new CDM release and are a critical component of the distribution of that release. Release notes are edited in the *Mark-Down (MD)* syntax, which is then rendered into Html in the various channels where the release is published.
 
 1. release notes should begin with a high-level headline of the part of the model being changed, followed by "–" and a short headline description
 
    #. For example: "# Legal Agreement Model - Collateral Agreement Elections"
-   
+
 2. They should provide enough detail for a reviewer or other interested parties to be able to find and evaluate the change. For a data model change, for example, the data type and attributes should be named and the before/after states of the model explained, along with a justification in which the issue is summarised.
 3.	If the release notes describe mapping rules, there should be explicit information about the examples affected and the change in resulting values for those examples.
 4. If the release is documentation, it should specify exactly where the document was changed and why.
@@ -198,21 +198,21 @@ Release notes are text describing the content of any new CDM release and are a c
    #. ``_`` before and after text (no space) for italics
    #. ``–`` (plus a space) for bullets
    #. Backticks ````` before and after model components, e.g. data types, attributes, enums, function names, etc. for special code-style formatting
-   
+
 Example release notes formatted in MD:
 
 .. code-block:: MD
 
   # *CDM Model: Expanded set of enumerations in RegulatoryRegimeEnum*
-  
-  _What is being released_ 
 
-  Additional regimes have been added to the `RegulatoryRegimeEnum` which is used to express the required regimes for initial margin documentation. The `RegulatoryRegimeEnum` is used as an enumeration for attributes in the `ApplicableRegime` and `SubstitutedRegime` data types within the legal agreements model.  
-  
+  _What is being released_
+
+  Additional regimes have been added to the `RegulatoryRegimeEnum` which is used to express the required regimes for initial margin documentation. The `RegulatoryRegimeEnum` is used as an enumeration for attributes in the `ApplicableRegime` and `SubstitutedRegime` data types within the legal agreements model.
+
   The new enumerated values are `BrazilMarginRules`, `UnitedKingdomMarginRules`, `SouthAfricaMarginRules`, `SouthKoreaMarginRules`, and `HongKongSFCMarginRules`, all of which have come into force in January 2021.  Each of these enumerated values has a complete description that uses the text provided in the relevant regulatory supplement.
 
   _Review directions_
-  
+
   In the CDM Portal select the Textual Browser, search for ‘ApplicableRegime’ and ‘SubstitutedRegime’, click on the ‘RegulatoryRegimeEnum’ next to the ‘regime’ attribute and observe the expanded list of regimes, including the ones noted above.
 
 The MD editing syntax in which release notes are written is a standard web mark-up language, for which a reference guide can be found at: https://www.markdownguide.org/cheat-sheet/
@@ -229,7 +229,7 @@ Content style
 
    #. Grammatical agreement, e.g. data types need, not data types needs
    #. Punctuation:
-   
+
       #. etc. requires a period.
       #. Complete sentences should end with a period or colon (there should be no need for a question mark or exclamation point in these artefacts).
       #. Incomplete sentences cannot end with a punctuation.  For example, “Through the ``legalAgreement`` attribute the CDM provides support for implementors to:" is an incomplete sentence and cannot end in a punctuation. This can be fixed by adding a few words, e .g. “Through the ``legalAgreement`` attribute the CDM provides support for implementors to do the following:"
@@ -239,7 +239,7 @@ Content style
 
    #. Agreement of numbers:  For example, if one sentence reads “the following initiatives…” , then it should be followed by more than one.
    #. Sentences should not end with a preposition
-   
+
       #. Non-compliant example: “..to represent the party that the election terms are being defined for.”
       #. Compliant: “...to represent the party or parties for which the election terms are being defined.”
 
@@ -251,7 +251,7 @@ Content style
 
    #. For example, "the model looks to use strong data type attributes such as numbers, boolean or enumerations whenever possible."
    #. Either the object works as designed or it does not. This expression might be used in a bug report when describing a function not working as intended but not to describe a production data model.
-   
+
 8.	Explain the CDM objects in an honest and transparent manner, but without criticism of the model. Sentences such as: "...which firms may deem inappropriate and may replace by..." or "the model is incomplete with regards to..." are unnecessary in a documentation. Rather, issues which may be identified in the CDM should be raised and addressed via the CDM governance structure.
 
 Special format for CDM objects
@@ -269,7 +269,7 @@ Example of how a code snippet should be edited in the documentation:
 .. code-block:: MD
 
  .. code-block:: Haskell
- 
+
   type EventEffect:
     effectedTrade TradeState (0..*)
       [metadata reference]
@@ -279,7 +279,7 @@ Example of how a code snippet should be edited in the documentation:
       [metadata reference]
     transfer TransferPrimitive (0..*)
       [metadata reference]
-    
+
 And the result will be rendered as:
 
 .. code-block:: Haskell
@@ -300,15 +300,15 @@ Fonts, Text Styles, and Spaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. Bold should be used sparingly:
-   
+
    #. Only in the beginning of a section when there is a salient point to emphasize, like a tag line - the bold line should be syntactically complete and correct.
    #. In the editor, bold is specified with double asterisks before and after the word or phrase.
 
 #. Italics
-   
+
    #. Italics should be used when defining an unusual term for the first time rather than using quotes, for example to identify something CDM specific, such as the concept of Primitive Events.
    #. In the editor, italics is specified with a single asterisk ``*`` before and after the word or phrase.
-   
+
 #. Single space should be used in-between sentences, not double space.
 
 Style references for additional guidance

@@ -888,7 +888,7 @@ product identifiers. Data type ``productIdentifier`` can be used to express
 specific instrument identifiers such as ISINs, CUSIPs etc. There is a
 section within the CDM documentation that covers this area of the model,
 this can be found in the following link
-https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#products-with-identifiers
+documentation.html#products-with-identifiers
 
 Listing (Used within Asset Criteria)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
