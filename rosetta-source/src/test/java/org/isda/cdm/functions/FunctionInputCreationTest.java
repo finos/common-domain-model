@@ -108,48 +108,10 @@ class FunctionInputCreationTest {
 
     @Test
     void validateExecutionIrSwapWithInitialFeeFuncInputJson() throws IOException {
-        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/ird-initial-fee.json";
-        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, tradeStatePath).toBuilder();
-
-        // Remove the fee PQ
-        TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder
-                .getTrade()
-                .getTradableProduct()
-                .getTradeLot()
-                .get(0);
-        List<? extends PriceQuantity.PriceQuantityBuilder> priceQuantityBuilders = tradeLotBuilder.getPriceQuantity();
-        PriceQuantity.PriceQuantityBuilder fixedLegPQ = priceQuantityBuilders.get(0);
-        PriceQuantity.PriceQuantityBuilder floatingLegPQ = priceQuantityBuilders.get(1);
-        tradeLotBuilder.setPriceQuantity(Lists.newArrayList(fixedLegPQ, floatingLegPQ));
-
-        // Copy the fee PQ into a transferState
-        PriceQuantity cashPricePQ = priceQuantityBuilders.get(2);
-        Price cashPrice = cashPricePQ.getPrice().get(0).getValue();
-        BuyerSeller buyerSeller = cashPricePQ.getBuyerSeller();
-        SettlementTerms settlementTerms = cashPricePQ.getSettlementTerms();
-        TransferState transferState = TransferState.builder()
-                .setTransfer(Transfer.builder()
-                        .setTransferExpression(TransferExpression.builder().setPriceTransfer(FeeTypeEnum.UPFRONT))
-                        .setPayerReceiver(PartyReferencePayerReceiver.builder()
-                                .setPayerPartyReference(getPartyReference(tradeStateBuilder, buyerSeller.getBuyer()))
-                                .setReceiverPartyReference(getPartyReference(tradeStateBuilder, buyerSeller.getSeller())))
-                        .setQuantity(Quantity.builder()
-                                .setAmount(cashPrice.getAmount())
-                                .setUnitOfAmount(cashPrice.getUnitOfAmount()))
-                        .setSettlementDate(settlementTerms.getSettlementDate().getAdjustedDate()));
-
         validateExecutionFuncInputJson(
-                tradeStateBuilder.build(),
-                transferState,
+                "result-json-files/fpml-5-10/products/rates/ird-initial-fee.json",
                 Date.parse("2018-02-20"),
                 "cdm-sample-files/functions/execution-business-event/execution-ir-swap-with-fee-func-input.json");
-    }
-
-    private ReferenceWithMetaParty getPartyReference(TradeState tradeState, CounterpartyRoleEnum role) {
-        return tradeState.getTrade().getTradableProduct().getCounterparty().stream()
-                .filter(c -> c.getRole() == role)
-                        .map(Counterparty::getPartyReference)
-                        .findFirst().get();
     }
 
     @Test
@@ -217,21 +179,25 @@ class FunctionInputCreationTest {
     }
 
     private void validateExecutionFuncInputJson(String tradeStatePath, Date eventDate, String expectedJsonPath) throws IOException {
-        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
+        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, tradeStatePath).toBuilder();
 
-        validateExecutionFuncInputJson(tradeState, null, eventDate, expectedJsonPath);
-    }
+        // Get the TransferStates from the transferHistory
+        List<? extends TransferState.TransferStateBuilder> transferState =
+                new ArrayList<>(tradeStateBuilder.getTransferHistory());
+        // Clear the transferHistory, so the adding of Transfer in the Instructions can be demonstrated
+        tradeStateBuilder.getTransferHistory().clear();
 
-    private void validateExecutionFuncInputJson(TradeState tradeState, TransferState transferState, Date eventDate, String expectedJsonPath) throws IOException {
-        Instruction instructionBuilder = Instruction.builder()
-                .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setExecution(FunctionUtils.createExecutionInstructionFromTradeState(tradeState))
-                        .setTransfer(TransferInstruction.builder()
-                                .addTransferState(transferState)))
-                .prune();
+        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder =
+                PrimitiveInstruction.builder()
+                        .setExecution(FunctionUtils.createExecutionInstructionFromTradeState(tradeStateBuilder));
+
+        if (!transferState.isEmpty()) {
+            primitiveInstructionBuilder
+                    .setTransfer(TransferInstruction.builder().setTransferState(transferState));
+        }
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
-                Lists.newArrayList(instructionBuilder.build()),
+                Lists.newArrayList(Instruction.builder().setPrimitiveInstruction(primitiveInstructionBuilder)),
                 null,
                 eventDate);
 
@@ -696,7 +662,9 @@ class FunctionInputCreationTest {
         TradeState.TradeStateBuilder tradeStateBuilder = workflowStep.getBusinessEvent().getPrimitives().stream()
                 .map(PrimitiveEvent::getContractFormation)
                 .map(ContractFormationPrimitive::getAfter)
-                .findFirst().orElse(null).toBuilder();
+                .map(TradeState::toBuilder)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No ContractFormationPrimitive.after found"));
         // Set Trade.party
         tradeStateBuilder.getTrade().setParty(workflowStep.getParty());
         return tradeStateBuilder.build();
@@ -884,9 +852,11 @@ class FunctionInputCreationTest {
     private void updatePartyId(TradeState.TradeStateBuilder tradeStateBuilder, String partyName, String partyId) {
         tradeStateBuilder.getTrade().getParty().stream()
                 .filter(p -> p.getName().getValue().equals(partyName))
-                .findFirst().ifPresent(bankXParty -> bankXParty.setPartyId(Arrays.asList(FieldWithMetaString.builder()
-                        .setValue(partyId)
-                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))));
+                .findFirst().ifPresent(party ->
+                        party.setPartyId(Collections.singletonList(FieldWithMetaString.builder()
+                                .setValue(partyId)
+                                .setMeta(MetaFields.builder()
+                                        .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))));
     }
 
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {

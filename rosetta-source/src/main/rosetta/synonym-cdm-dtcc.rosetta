@@ -1,6 +1,7 @@
 namespace cdm.synonyms.dtcc
 version "${project.version}"
 
+import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.identifier.*
 
@@ -36,6 +37,10 @@ synonym source DTCC_11_0 extends DTCC_BASE
 
 synonym source DTCC_BASE extends FpML_5_10
 {
+    AdjustableOrAdjustedOrRelativeDate:
+        + adjustedDate
+            [value "adjustedPaymentDate"]
+
     BusinessEvent:
         + instruction
             [value "ignore"]
@@ -50,6 +55,13 @@ synonym source DTCC_BASE extends FpML_5_10
         + trade
             [value "TradeMsg"]
             [value "ReportingJurisdiction"]
+        + transferHistory
+            [value "FpML"]
+
+    TransferState:
+        + transfer
+           [value "payment"]
+           [hint "adjustedPaymentDate"]
 
 	Trade:
 		- tradeIdentifier
@@ -93,10 +105,6 @@ synonym source DTCC_BASE extends FpML_5_10
 		+ transfer
 			[value "Payment" path "Body->OTC_Matching"]
 
-	Transfer:
-		+ identifier
-			[value "tradeCashflowsId" path "FpML" meta "tradeCashflowsIdScheme"]
-		
 	Observable:
 		+ productIdentifier
 			[value "ignore"]
@@ -112,7 +120,7 @@ synonym source DTCC_BASE extends FpML_5_10
 			 set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "TradeRefNbr" and rosettaPath = Trade -> tradeIdentifier -> assignedIdentifier -> identifier meta "tradeIdScheme"]
 			[value "USITradeId" meta "tradeIdScheme"]
 			[value "UTITradeId" meta "tradeIdScheme"]
-			[value "identifier" path "payment" meta "paymentIdScheme"]
+			[value "identifier" meta "paymentIdScheme"]
 
 	Identifier:
 		+ issuerReference
