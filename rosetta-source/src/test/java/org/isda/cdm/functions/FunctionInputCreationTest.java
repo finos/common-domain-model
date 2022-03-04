@@ -1,5 +1,6 @@
 package org.isda.cdm.functions;
 
+import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
 import cdm.base.datetime.Period;
 import cdm.base.datetime.PeriodEnum;
 import cdm.base.math.FinancialUnitEnum;
@@ -27,6 +28,7 @@ import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
+import cdm.product.common.settlement.SettlementTerms;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -69,10 +71,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FunctionInputCreationTest {
 
-    private static boolean WRITE_EXPECTATIONS = Optional.ofNullable(System.getenv("WRITE_EXPECTATIONS"))
-            .map(Boolean::parseBoolean).orElse(false);
-    private static Optional<Path> TEST_WRITE_BASE_PATH = Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH"))
-            .map(Paths::get);
+    private static boolean WRITE_EXPECTATIONS =
+            Optional.ofNullable(System.getenv("WRITE_EXPECTATIONS"))
+                    .map(Boolean::parseBoolean).orElse(false);
+    private static final Optional<Path> TEST_WRITE_BASE_PATH =
+            Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get);
     private static final Logger LOGGER = LoggerFactory.getLogger(FunctionInputCreationTest.class);
 
     private static Injector injector;
@@ -105,10 +108,48 @@ class FunctionInputCreationTest {
 
     @Test
     void validateExecutionIrSwapWithInitialFeeFuncInputJson() throws IOException {
+        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/ird-initial-fee.json";
+        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, tradeStatePath).toBuilder();
+
+        // Remove the fee PQ
+        TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder
+                .getTrade()
+                .getTradableProduct()
+                .getTradeLot()
+                .get(0);
+        List<? extends PriceQuantity.PriceQuantityBuilder> priceQuantityBuilders = tradeLotBuilder.getPriceQuantity();
+        PriceQuantity.PriceQuantityBuilder fixedLegPQ = priceQuantityBuilders.get(0);
+        PriceQuantity.PriceQuantityBuilder floatingLegPQ = priceQuantityBuilders.get(1);
+        tradeLotBuilder.setPriceQuantity(Lists.newArrayList(fixedLegPQ, floatingLegPQ));
+
+        // Copy the fee PQ into a transferState
+        PriceQuantity cashPricePQ = priceQuantityBuilders.get(2);
+        Price cashPrice = cashPricePQ.getPrice().get(0).getValue();
+        BuyerSeller buyerSeller = cashPricePQ.getBuyerSeller();
+        SettlementTerms settlementTerms = cashPricePQ.getSettlementTerms();
+        TransferState transferState = TransferState.builder()
+                .setTransfer(Transfer.builder()
+                        .setTransferExpression(TransferExpression.builder().setPriceTransfer(FeeTypeEnum.UPFRONT))
+                        .setPayerReceiver(PartyReferencePayerReceiver.builder()
+                                .setPayerPartyReference(getPartyReference(tradeStateBuilder, buyerSeller.getBuyer()))
+                                .setReceiverPartyReference(getPartyReference(tradeStateBuilder, buyerSeller.getSeller())))
+                        .setQuantity(Quantity.builder()
+                                .setAmount(cashPrice.getAmount())
+                                .setUnitOfAmount(cashPrice.getUnitOfAmount()))
+                        .setSettlementDate(settlementTerms.getSettlementDate().getAdjustedDate()));
+
         validateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/ird-initial-fee.json",
+                tradeStateBuilder.build(),
+                transferState,
                 Date.parse("2018-02-20"),
                 "cdm-sample-files/functions/execution-business-event/execution-ir-swap-with-fee-func-input.json");
+    }
+
+    private ReferenceWithMetaParty getPartyReference(TradeState tradeState, CounterpartyRoleEnum role) {
+        return tradeState.getTrade().getTradableProduct().getCounterparty().stream()
+                .filter(c -> c.getRole() == role)
+                        .map(Counterparty::getPartyReference)
+                        .findFirst().get();
     }
 
     @Test
@@ -178,9 +219,16 @@ class FunctionInputCreationTest {
     private void validateExecutionFuncInputJson(String tradeStatePath, Date eventDate, String expectedJsonPath) throws IOException {
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
+        validateExecutionFuncInputJson(tradeState, null, eventDate, expectedJsonPath);
+    }
+
+    private void validateExecutionFuncInputJson(TradeState tradeState, TransferState transferState, Date eventDate, String expectedJsonPath) throws IOException {
         Instruction instructionBuilder = Instruction.builder()
-                .addPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setExecution(FunctionUtils.createExecutionInstructionFromTradeState(tradeState)));
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setExecution(FunctionUtils.createExecutionInstructionFromTradeState(tradeState))
+                        .setTransfer(TransferInstruction.builder()
+                                .addTransferState(transferState)))
+                .prune();
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
@@ -289,8 +337,10 @@ class FunctionInputCreationTest {
 
         Instruction instructionBuilder = Instruction.builder()
                 .setBefore(tradeState)
-                .addPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setContractFormation(ContractFormationInstruction.builder().addLegalAgreement(legalAgreement)));
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setContractFormation(ContractFormationInstruction.builder()
+                                .addLegalAgreement(legalAgreement)))
+                .prune();
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
@@ -318,7 +368,7 @@ class FunctionInputCreationTest {
                 getTerminationVanillaSwapTradeState(),
                 Date.of(2019, 12, 12),
                 "cdm-sample-files/functions/quantity-change-business-event/full-termination-vanilla-swap-func-input.json",
-                quantityChangeInstruction);
+                quantityChangeInstruction, FeeTypeEnum.TERMINATION);
     }
 
     @Test
@@ -341,7 +391,7 @@ class FunctionInputCreationTest {
                 tradeState,
                 Date.of(2021, 11, 11),
                 "cdm-sample-files/functions/quantity-change-business-event/full-termination-equity-swap-func-input.json",
-                quantityChangeInstruction);
+                quantityChangeInstruction, FeeTypeEnum.TERMINATION);
     }
 
     @Test
@@ -362,7 +412,7 @@ class FunctionInputCreationTest {
                 getTerminationVanillaSwapTradeState(),
                 Date.of(2019, 12, 12),
                 "cdm-sample-files/functions/quantity-change-business-event/partial-termination-vanilla-swap-func-input.json",
-                quantityChangeInstruction);
+                quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
     }
 
     @Test
@@ -395,7 +445,7 @@ class FunctionInputCreationTest {
                 increaseTradeState,
                 Date.of(2021, 11, 11),
                 "cdm-sample-files/functions/quantity-change-business-event/partial-termination-equity-swap-func-input.json",
-                quantityChangeInstruction);
+                quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
     }
 
     @Test
@@ -465,10 +515,13 @@ class FunctionInputCreationTest {
                                                 .setPriceType(PriceTypeEnum.INTEREST_RATE)
                                                 .setSpreadType(SpreadTypeEnum.SPREAD)))));
 
+        TradeState tradeState = getQuantityChangeEquitySwapTradeState();
+
         Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
-                .setBefore(getQuantityChangeEquitySwapTradeState())
-                .addPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(quantityChangeInstructions));
+                .setBefore(tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(quantityChangeInstructions))
+                        .setTransfer(getTransferInstruction(tradeState, FeeTypeEnum.INCREASE));
 
         return new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
@@ -477,11 +530,12 @@ class FunctionInputCreationTest {
         );
     }
 
-    private void validateQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, String expectedJsonPath, QuantityChangeInstruction quantityChangeInstruction) throws IOException {
+    private void validateQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, String expectedJsonPath, QuantityChangeInstruction quantityChangeInstruction, FeeTypeEnum feeType) throws IOException {
         Instruction instructionBuilder = Instruction.builder()
                 .setBefore(tradeState)
-                .addPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(quantityChangeInstruction));
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(quantityChangeInstruction))
+                        .setTransfer(getTransferInstruction(tradeState, feeType));
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
@@ -489,6 +543,34 @@ class FunctionInputCreationTest {
                 eventDate);
 
         assertJsonEquals(expectedJsonPath, actual);
+    }
+
+    @NotNull
+    private TransferInstruction.TransferInstructionBuilder getTransferInstruction(TradeState tradeState, FeeTypeEnum feeType) {
+        Trade trade = tradeState.getTrade();
+        List<? extends Counterparty> counterparties = trade.getTradableProduct().getCounterparty();
+        UnitType currencyUnitType = trade.getTradableProduct().getTradeLot().stream()
+                .map(TradeLot::getPriceQuantity)
+                .flatMap(Collection::stream)
+                .map(PriceQuantity::getQuantity)
+                .flatMap(Collection::stream)
+                .map(FieldWithMetaQuantity::getValue)
+                .map(Quantity::getUnitOfAmount)
+                .filter(unit -> unit.getCurrency() != null)
+                .findFirst()
+                .orElse(null);
+        return TransferInstruction.builder()
+                .addTransferState(TransferState.builder()
+                        .setTransfer(Transfer.builder()
+                                .setTransferExpression(TransferExpression.builder().setPriceTransfer(feeType))
+                                .setPayerReceiver(PartyReferencePayerReceiver.builder()
+                                        .setPayerPartyReference(counterparties.get(0).getPartyReference())
+                                        .setReceiverPartyReference(counterparties.get(1).getPartyReference()))
+                                .setQuantity(Quantity.builder()
+                                        .setAmount(BigDecimal.valueOf(2000.00))
+                                        .setUnitOfAmount(currencyUnitType))
+                                .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
+                                        .setAdjustedDateValue(trade.getTradeDate().getValue()))));
     }
 
     @Test
@@ -508,24 +590,24 @@ class FunctionInputCreationTest {
 
         instructions.add(Instruction.builder()
                 .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-1.json"))
-                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
 
         instructions.add(Instruction.builder()
                 .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-2.json"))
-                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
 
         instructions.add(Instruction.builder()
                 .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-3.json"))
-                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
 
         instructions.add(Instruction.builder()
-                .addPrimitiveInstruction(PrimitiveInstruction.builder()
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setExecution(getCompressionExecutionInstructionInputJson()))
                 .build());
 
@@ -623,44 +705,42 @@ class FunctionInputCreationTest {
     @Test
     void validateNovationFuncInputJson() throws IOException {
         SplitInstruction splitInstruction = SplitInstruction.builder()
-                .addBreakdown(PrimitiveInstructionList.builder()
-                        .addPrimitiveInstruction(PrimitiveInstruction.builder()
-                                .setPartyChange(PartyChangeInstruction.builder()
-                                        .setCounterparty(Counterparty.builder()
-                                                .setPartyReferenceValue(Party.builder()
-                                                                .setMeta(MetaFields.builder().setExternalKey("party3"))
-                                                                .setNameValue("Bank Z")
-                                                                .addPartyId(FieldWithMetaString.builder()
+                .addBreakdown(PrimitiveInstruction.builder()
+                        .setPartyChange(PartyChangeInstruction.builder()
+                                .setCounterparty(Counterparty.builder()
+                                        .setPartyReferenceValue(Party.builder()
+                                                .setMeta(MetaFields.builder().setExternalKey("party3"))
+                                                .setNameValue("Bank Z")
+                                                .addPartyId(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder()
+                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
+                                                        .setValue("LEI3RPT0003")))
+                                        .setRole(CounterpartyRoleEnum.PARTY_1))
+                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                        .addAssignedIdentifier(AssignedIdentifier.builder()
+                                                .setIdentifier(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
+                                                        .setValue("LEI3RPT0003CCC"))
+                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                        .setIssuer(FieldWithMetaString.builder()
+                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
+                                                .setValue("LEI3RPT0003"))))))
+                .addBreakdown(PrimitiveInstruction.builder()
+                        .setQuantityChange(QuantityChangeInstruction.builder()
+                                .setDirection(QuantityChangeDirectionEnum.REPLACE)
+                                .addChange(PriceQuantity.builder()
+                                        .addQuantity(FieldWithMetaQuantity.builder()
+                                                .setValue(Quantity.builder()
+                                                        .setAmount(BigDecimal.valueOf(0.0))
+                                                        .setUnitOfAmount(UnitType.builder()
+                                                                .setCurrency(FieldWithMetaString.builder()
                                                                         .setMeta(MetaFields.builder()
-                                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                                        .setValue("LEI3RPT0003")))
-                                                .setRole(CounterpartyRoleEnum.PARTY_1))
-                                        .setTradeId(Lists.newArrayList(Identifier.builder()
-                                                .addAssignedIdentifier(AssignedIdentifier.builder()
-                                                        .setIdentifier(FieldWithMetaString.builder()
-                                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                                .setValue("LEI3RPT0003CCC"))
-                                                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
-                                                .setIssuer(FieldWithMetaString.builder()
-                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
-                                                        .setValue("LEI3RPT0003")))))))
-                .addBreakdown(PrimitiveInstructionList.builder()
-                        .addPrimitiveInstruction(PrimitiveInstruction.builder()
-                                .setQuantityChange(QuantityChangeInstruction.builder()
-                                        .setDirection(QuantityChangeDirectionEnum.REPLACE)
-                                        .addChange(PriceQuantity.builder()
-                                                .addQuantity(FieldWithMetaQuantity.builder()
-                                                        .setValue(Quantity.builder()
-                                                                .setAmount(BigDecimal.valueOf(0.0))
-                                                                .setUnitOfAmount(UnitType.builder()
-                                                                        .setCurrency(FieldWithMetaString.builder()
-                                                                                .setMeta(MetaFields.builder()
-                                                                                        .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
-                                                                                .setValue("USD")))))))));
+                                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
+                                                                        .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
                 .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-04-Submission-1.json"))
-                .addPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
+                .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
 

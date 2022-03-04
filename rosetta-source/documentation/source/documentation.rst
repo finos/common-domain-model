@@ -721,7 +721,7 @@ The trade state is defined in CDM by the ``TradeState`` data type and represents
    trade Trade (1..1)
    state State (0..1)
    resetHistory Reset (0..*)
-   transferHistory Transfer (0..*)
+   transferHistory TransferState (0..*)
 
 While many different types of events may occur through the trade lifecycle, the ``trade``, ``state``, ``resetHistory`` and ``transferHistory`` attributes are deemed sufficient to describe all of the possible (post-trade) states which may result from lifecycle events. The ``Trade`` data type contains the tradable product, which defines all of the economic terms of the transaction as agreed between the parties.
 
@@ -888,6 +888,7 @@ The *reset* process creates instances of the ``Reset`` data type, which are adde
 .. code-block:: Haskell
 
  type Reset:
+   [metadata key]
    resetValue Price (1..1)
    resetDate date (1..1)
    rateRecordDate date (0..1)
@@ -915,8 +916,9 @@ The *transfer* process creates instances of the ``Transfer`` data type, which ar
 .. code-block:: Haskell
 
  type Transfer extends TransferBase:
-   settlementOrigin SettlementTerms (0..1)
-     [metadata reference]
+   settlementOrigin SettlementOrigin (0..1)
+   resetOrigin Reset (0..1)
+   transferExpression TransferExpression (1..1)
 
 .. code-block:: Haskell
 
@@ -1119,11 +1121,11 @@ The list of business events for which this process is currently implemented in t
     quantityChange QuantityChangeInstruction (0..1)
     indexTransition IndexTransitionInstruction (0..1)
     termination TerminationInstruction (0..1)
-    primitiveInstruction PrimitiveInstruction (1..*)
+    primitiveInstruction PrimitiveInstruction (0..1)
     before TradeState (0..1)
 
-    condition ExecutionPrimitive:
-        if primitiveInstruction -> execution exists then primitiveInstruction -> execution count = 1
+    condition ExclusiveSplitPrimitive:
+       if primitiveInstruction -> split exists then primitiveInstruction -> split only exists
 
 
 Previous Workflow Step
@@ -1235,13 +1237,14 @@ One distinction with the product approach is that the ``intent`` qualification i
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
+	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
+    alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
 	set is_event:
 		businessEvent -> intent is absent
         and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
-            or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-            or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
-                and businessEvent -> instruction -> primitiveInstruction count = 1))
+		    or (businessEvent -> primitives -> quantityChange exists and transfer exists)
+		    or (primitiveInstruction -> quantityChange only exists
+		        or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
 		and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
 		    or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
 		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
@@ -2067,28 +2070,36 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
  func EquityCashSettlementAmount:
-    inputs:
-        tradeState TradeState (1..1)
-        date date (1..1)
-    output:
-        equityCashSettlementAmount Cashflow (1..1)
-    alias equityPayout:
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-    alias equityPerformance:
-        EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-     set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount:
-         Abs(equityPerformance)
-     set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency:
+	inputs:
+		tradeState TradeState (1..1)
+		date date (1..1)
+	output:
+		equityCashSettlementAmount Transfer (1..1)
+
+	alias equityPayout:
+		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+	alias equityPerformance:
+	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
+	alias payer:
+		ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPayout -> payerReceiver -> payer ) -> partyReference
+	alias receiver:
+		ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPayout -> payerReceiver -> receiver ) -> partyReference
+
+	set equityCashSettlementAmount -> quantity -> amount:
+	 	Abs(equityPerformance)
+	set equityCashSettlementAmount -> quantity -> unitOfAmount-> currency:
          ResolveEquityInitialPrice(
-             tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
-             tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
-             ) -> unitOfAmount -> currency
-    set equityCashSettlementAmount -> payerReceiver -> payer:
-        if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
-    set equityCashSettlementAmount -> payerReceiver -> receiver:
-        if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
-    set equityCashSettlementAmount -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
+	 		tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
+	 		tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
+	 		) -> unitOfAmount -> currency
+	set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
+	    if equityPerformance >= 0 then payer else receiver
+	set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
+	    if equityPerformance >= 0 then receiver else payer
+    set equityCashSettlementAmount -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
+	set equityCashSettlementAmount -> settlementOrigin -> equityPayout:
+		equityPayout as-key
 
 .. code-block:: Haskell
 
