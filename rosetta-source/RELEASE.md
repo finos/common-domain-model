@@ -2,7 +2,7 @@
 
 _Background_
 
-Transfers components are not represented consistently in the CDM for post-trade events.  Initiation trade event generated transfers are represented in a `PriceQuantity` object attached to a `Trade`, where as post trade event generated transfers are represented as a `Transfer` object embedded in a business event instruction.  This inconsistency creates ambiguity for implementors and creates complexity when defining functional reporting rules.  In addition, for post trade events a Transfer can only be defined in terms that require the CDM functional model to calculate the Transfer amount, implementors cannot provide a pre-determined amount.
+Transfer components are not represented consistently in the CDM for post-trade events.  Initiation trade event generated transfers are represented in a `PriceQuantity` object attached to a `Trade`, where as post trade event generated transfers are represented as a `Transfer` object embedded in a business event instruction.  This inconsistency creates ambiguity for implementors and creates complexity when defining functional reporting rules.  In addition, for post trade events a Transfer can only be defined in terms that require the CDM functional model to calculate the Transfer amount, implementors cannot provide a pre-determined amount.
 
 The CDM Transfer model is therefore being refactored based on three principles:
 
@@ -23,11 +23,11 @@ _Data Types_
 - `Transfer` – updated to define a movement of assets between two parties, information about the `settlementOrigin` and `resetOrigin` of the transfer, and a `transferExpression` defining the nature of the transfer amount and its source.
 - `TransferStatus` – new data type that defines where a `Transfer` is in its lifecycle.
 - `SettlementOrigin` - updated data type containing a reference to the payout that was the origin of the transfer amount, where applicable.
-- `TransferExpression` - Defines the nature of the transfer amount in terms of a fee type (e.g. Premium, Termination) or transfer associated with a scheduled or contingent event on a contract (e.g. Exercise, Performance, Credit Event)
+- `TransferExpression` - defines the nature of the transfer amount in terms of a fee type (e.g. Premium, Termination) or transfer associated with a scheduled or contingent event on a contract (e.g. Exercise, Performance, Credit Event)
 - `TransferInstruction` – updated to contain a list of defined `TransferState` to be added to a `TradeState`
 - `CalculateTransferInstruction` – contains instructions for calculating a transfer associated with a TradeState with reference to a payout and any necessary resets.
 - `Instruction` – attribute `primitiveInstruction` has been updated from multiple to single cardinality so that an instruction is defined in terms of a single primitiveInstruction containing a list of basic primitive instruction attributes.
-- `PrimitiveInstruction` – has been updated to remove the `one-of` condition allowing a list of primitive instruction attributes to be defined. `transfer` has been added allowing a `TransferInstruction` to be specified.
+- `PrimitiveInstruction` – has been updated to remove the `one-of` condition allowing a list of primitive instruction attributes to be defined. A new attribute `transfer` has been added allowing a `TransferInstruction` to be specified.
 
 _Enumerations_
 
@@ -35,7 +35,7 @@ _Enumerations_
 
 _Functions_
 
-- `Create_TradeState` - updated function to add `TransferHistory` to a `TradeState` when 
+- `Create_TradeState` - updated function to add `TransferHistory` to a `TradeState` when input `Instruction` contains a transfer.
 - `Create_TransferPrimitive` – updated to take input of a `TransferInstruction` containing a list of `TransferState`, and creates a `TradeState` with updated `TransferHistory`.
 - `CalculateTransfer` – new function that takes input of a `CalculateTransferInstruction`, calculates a Transfer amount and creates output of a `Transfer`.
 - `Create_CashTransfer` – takes input of a `CalculateTransferInstruction`, calculates a Transfer amount using function `ResolveTransfer` and creates output of a `Transfer`.
@@ -60,8 +60,9 @@ Model to model mappings have been updated to reflect the above model refactoring
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search for the data types, enumerations and functions listed above.
-In the CDM Portal, select the Instance Viewer and review the Visualisation samples above.
-In the CDM Portal, select Ingestion and review the following example transactions:
-- fpml-5-10 > products > equity > eqd-ex01-american-call-stock-long-form
-- fpml-5-10 > products > rates > ird-initial-fee
+In the CDM Portal:
+- Select the Textual Browser and search for the data types, enumerations and functions listed above.
+- Select the Instance Viewer and review the Visualisation samples above.
+- Select Ingestion and review the following example transactions:
+  - fpml-5-10 > products > equity > eqd-ex01-american-call-stock-long-form
+  - fpml-5-10 > products > rates > ird-initial-fee
