@@ -61,6 +61,7 @@ Model to model mappings have been updated to reflect the above model refactoring
 _Review Directions_
 
 In the CDM Portal:
+
 - Select the Textual Browser and search for the data types, enumerations and functions listed above.
 - Select the Instance Viewer and review the Visualisation samples above.
 - Select Ingestion and review the following example transactions:
