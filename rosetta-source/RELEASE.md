@@ -27,7 +27,7 @@ _Data Types_
 - `TransferInstruction` – updated to contain a list of defined `TransferState` to be added to a `TradeState`
 - `CalculateTransferInstruction` – contains instructions for calculating a transfer associated with a TradeState with reference to a payout and any necessary resets.
 - `Instruction` – attribute `primitiveInstruction` has been updated from multiple to single cardinality so that an instruction is defined in terms of a single primitiveInstruction containing a list of basic primitive instruction attributes.
-- `PrimitiveInstruction` – has been updated to remove the `one-of` condition allowing a list of primitive instruction attributes to be defined. A new attribute `transfer` has been added allowing a `TransferInstruction` to be specified.
+- `PrimitiveInstruction` – has been updated to remove the `one-of` condition allowing a list of primitive instruction attributes to be defined. A new attribute `transfer` has been added allowing a list of `TransferInstruction` to be specified.
 
 _Enumerations_
 
