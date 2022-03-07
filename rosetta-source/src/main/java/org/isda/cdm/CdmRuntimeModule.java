@@ -43,7 +43,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveObservationAverage.class).to(bindResolveObservationAverage());
 		bind(VectorOperation.class).to(bindVectorOperation());
 		bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
-		bind(CombineBusinessCenters.class).to(bindCombineBusinessCenters());
 
 		// Requires DSL get-item(index)
 		bind(SelectScheduleStep.class).to(bindSelectScheduleStep());
@@ -150,10 +149,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends BusinessCenterHolidays> bindBusinessCenterHolidays() {
 		return BusinessCenterHolidaysEmptyDataProvider.class;
-	}
-
-	protected Class<? extends CombineBusinessCenters> bindCombineBusinessCenters() {
-		return CombineBusinessCentersImpl.class;
 	}
 
 	protected Class<? extends DateDifference> bindDateDifference() {

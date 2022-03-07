@@ -1,9 +1,13 @@
 package cdm.base.datetime.functions;
 
+import cdm.base.datetime.BusinessCenterEnum;
+import cdm.base.datetime.BusinessCenters;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static cdm.base.datetime.functions.BusinessCenterHolidaysTestData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,17 +15,52 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AddBusinessDaysImplTest extends AbstractFunctionTest {
 
     @Inject
-    private AddBusinessDays func;
+    private GetBusinessCenters businessCentersFunc;
+
+    @Inject
+    private AddBusinessDays addBusinessDaysFunc;
 
     @Test
-    void shouldAddDays() {
-        Date first = Date.of(2021, 12, 20);
-
-        Date actual = func.evaluate(Date.of(2021, 12, 27), -1, TARGET_BC);
+    void shouldAddDays1() {
+        Date first = Date.of(2021, 12, 27);
+        List<BusinessCenterEnum> targetBc = getBusinessCenters(TARGET_BC);
+        Date actual = addBusinessDaysFunc.evaluate(first, -1, targetBc);
         assertEquals(Date.of(2021, 12, 24), actual);
-        assertEquals(Date.of(2021, 12, 27), func.evaluate(first, 5, TARGET_BC));
-        assertEquals(Date.of(2021, 12, 29), func.evaluate(first, 5, LONDON_TARGET_BC));
-        assertEquals(Date.of(2021, 12, 30), func.evaluate(first, 5, LONDON_TARGET_US_BC));
-        assertEquals(Date.of(2021, 12, 13), func.evaluate(first, -5, LONDON_TARGET_BC));
+    }
+
+    @Test
+    void shouldAddDays2() {
+        Date first = Date.of(2021, 12, 20);
+        List<BusinessCenterEnum> targetBc = getBusinessCenters(TARGET_BC);
+        Date actual = addBusinessDaysFunc.evaluate(first, 5, targetBc);
+        assertEquals(Date.of(2021, 12, 27), actual);
+    }
+
+    @Test
+    void shouldAddDays3() {
+        Date first = Date.of(2021, 12, 20);
+        List<BusinessCenterEnum> londonTargetBc = getBusinessCenters(LONDON_TARGET_BC);
+        Date actual = addBusinessDaysFunc.evaluate(first, 5, londonTargetBc);
+        assertEquals(Date.of(2021, 12, 29), actual);
+    }
+
+    @Test
+    void shouldAddDays4() {
+        Date first = Date.of(2021, 12, 20);
+        List<BusinessCenterEnum> londonTargetUsBc = getBusinessCenters(LONDON_TARGET_US_BC);
+        Date actual = addBusinessDaysFunc.evaluate(first, 5, londonTargetUsBc);
+        assertEquals(Date.of(2021, 12, 30), actual);
+    }
+
+    @Test
+    void shouldAddDays5() {
+        Date first = Date.of(2021, 12, 20);
+        List<BusinessCenterEnum> londonTargetBc = getBusinessCenters(LONDON_TARGET_BC);
+        Date actual = addBusinessDaysFunc.evaluate(first, -5, londonTargetBc);
+        assertEquals(Date.of(2021, 12, 13), actual);
+    }
+
+    private List<BusinessCenterEnum> getBusinessCenters(BusinessCenters businessCenters) {
+        return businessCentersFunc.evaluate(businessCenters);
     }
 }
