@@ -2,7 +2,7 @@
 
 _Background_
 
-The CDM and its underlying technology (Rosetta) currently share the same documentation site. As the CDM and Rosetta mature, the documentation sites should be split to separate the concerns and allow for flexibility and to show appropriating branding.
+The CDM and its underlying technology (Rosetta) currently share the same documentation site. As the CDM and Rosetta mature, the documentation sites should be split to separate the concerns and show appropriate branding.
 
 _What is being released?_
 
