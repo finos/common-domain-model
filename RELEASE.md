@@ -6,13 +6,13 @@ The CDM and its underlying technology (Rosetta) currently share the same documen
 
 _What is being released?_
 
-With this release, the CDM documentation will move to its own dedicated [site](https://cdm.docs.rosetta-technology.io). The Rosetta documentation will remain at the existing URL and will link to the CDM documentation.
+With this release, the [CDM documentation](https://cdm.docs.rosetta-technology.io) will move to its own dedicated site. The [Rosetta documentation](https://docs.rosetta-technology.io) will remain at the existing URL and will link to the CDM documentation.
 
 _Review Directions_
 
 To view the CDM documentation:
 
-- In the CDM Portal, select the Documentation to navigate to the new CDM Docs URL
+- In the [CDM Portal](https://portal.cdm.rosetta-technology.io/), select the Documentation to navigate to the new CDM Docs URL
 - From any browser, Navigate to https://cdm.docs.rosetta-technology.io
 
 To view the Rosetta documentation:
