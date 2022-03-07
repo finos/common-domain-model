@@ -12,7 +12,7 @@ _Review Directions_
 
 To view the CDM documentation:
 
-- In the [CDM Portal](https://portal.cdm.rosetta-technology.io/), select the Documentation to navigate to the new CDM Docs URL
+- In the [CDM Portal](https://portal.cdm.rosetta-technology.io/), select Documentation and follow the link to navigate to the new CDM Docs URL
 - From any browser, Navigate to https://cdm.docs.rosetta-technology.io
 
 To view the Rosetta documentation:
