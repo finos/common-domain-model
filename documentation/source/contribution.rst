@@ -7,14 +7,14 @@ The purpose of this section is to provide guidance for accepting contributions i
 - What a Reviewer should do to review the changes
 - How to release a new CDM version once changes have been approved
 
-The CDM is an open source project and any contribution to its on-going development is governed by the `CDM Governance Principles <https://docs.rosetta-technology.io/cdm/readme.html#the-cdm-governance>`_.
+The CDM is an open source project and any contribution to its on-going development is governed by the `CDM Governance Principles <cdm-overview.html#the-cdm-governance>`_.
 
 Before you start modelling
 --------------------------
 
 Before you start modelling, please make sure you have gone through the following pre-modelling checklist:
 
-- Review the `CDM Design Principles <https://docs.rosetta-technology.io/cdm/readme.html#the-cdm-design-principles>`_
+- Review the `CDM Design Principles <cdm-overview.html#the-cdm-design-principles>`_
 - Get approval of your conceptual design from stakeholders (for large model change)
 - Review the `Rosetta Starter Guide <https://docs.rosetta-technology.io/core/0-welcome-to-rosetta.html>`_
 
@@ -27,7 +27,7 @@ For large model changes, or changes to core data types, it is recommended that t
   - CDM Owners (ISDA and other involved Trade Associations, where applicable)
   - CDM Sub-Working Group, if applicable
   - CDM Architecture and Review Committee
-  
+
 - **Quality Assurance**: Seek the early appointment of at least one CDM reviewer who can assist modelling discussions and provide early feedback. CDM Reviewers are appointed by the CDM Owners as and when relevant. Please contact `cdmInfo@isda.org <cdminfo@isda.org>`_.
 
 Editing the model
@@ -36,7 +36,7 @@ Editing the model
 Modelling checklist
 ^^^^^^^^^^^^^^^^^^^
 
-The CDM can be edited using a modelling platform called `Rosetta <https://ui.rosetta-technology.io>`_, which is accessible via a web browser.
+The CDM can be edited using a modelling platform called `Rosetta <https://rosetta-technology.io>`_, which is accessible via a web browser.
 
 Before you start editing the CDM using Rosetta, please go through the following modelling checklist:
 
@@ -87,12 +87,12 @@ Namespace
 
 All model components should be positioned appropriately in the existing namespace hierarchy. If the proposed contribution includes changes to the namespace hierarchy, those changes should be justified and documented. Any new namespace should have an associated description, and be imported where required.
 
-Please refer to the `Namespace documentation <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#namespace>`_ for more details.
+Please refer to the `Namespace documentation <documentation.html#namespace>`_ for more details.
 
 All model components have descriptions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-All model components (e.g. types, attributes, conditions, functions etc.) should be specified with descriptions in accordance with the `CDM Style Guide <https://docs.rosetta-technology.io/cdm/documentation/source/documentation-style-guide.html>`_.
+All model components (e.g. types, attributes, conditions, functions etc.) should be specified with descriptions in accordance with the `CDM Style Guide <documentation-style-guide.html>`_.
 
 Contributing model changes
 --------------------------
@@ -133,7 +133,7 @@ The documentation includes *.rosetta* code snippets that directly illustrate exp
 Release note
 ^^^^^^^^^^^^
 
-A release note should be provided with the proposed model change that concisely describes the high-level conceptual design, model changes and how to review. Please refer to the `Release Note Style Guide <https://docs.rosetta-technology.io/cdm/documentation/source/documentation-style-guide.html#content-of-release-notes>`_ for further guidance on editing release notes.
+A release note should be provided with the proposed model change that concisely describes the high-level conceptual design, model changes and how to review. Please refer to the `Release Note Style Guide <documentation-style-guide.html#content-of-release-notes>`_ for further guidance on editing release notes.
 
 Reviewing model changes
 -----------------------
@@ -149,8 +149,8 @@ Before starting to review a contribution, the CDM Reviewer should go through the
   - Synonyms have been updated and output (JSON) looks correct
   - Contributed model version is not stale and does not conflict with any recent changes
   - Changes are in accordance with the CDM governance guidelines
-  
-.. note:: It is not yet possible to verify that mapping, validation and qualification expectations have been maintained by looking at the output of the GitHub Pull Request and CDM build only. Please refer to the `downstream dependencies <https://docs.rosetta-technology.io/cdm/contributing.html#id1>`_ section for more details.
+
+.. note:: It is not yet possible to verify that mapping, validation and qualification expectations have been maintained by looking at the output of the GitHub Pull Request and CDM build only. Please refer to the `downstream dependencies <contribution.html#id1>`_ section for more details.
 
 - CDM build process completed with no errors or test failures
 - Review additional samples provided (if use-case is not covered by existing samples)
@@ -198,7 +198,7 @@ Once the contributed model change has been merged, a new release can be built, t
 
 The following release checklist should be verified before deploying a new model:
 
-- Update CDM version, which uses the semantic version format (see `CDM Versioning Documentation <https://docs.rosetta-technology.io/cdm/readme.html#versioning>`_)
+- Update CDM version, which uses the semantic version format (see `CDM Versioning Documentation <cdm-overview.html#versioning>`_)
 - Build release candidate, and test
 - Build documentation website release candidate, and test
 - Deploy release candidate and notify channels if need be
