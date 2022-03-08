@@ -19,4 +19,3 @@ To view the Rosetta documentation:
 
 - In the [Rosetta Application](https://ui.rosetta-technology.io), select the Documentation from the top right menu
 - From any browser, Navigate to https://docs.rosetta-technology.io
-![image](https://user-images.githubusercontent.com/19842097/157029940-41c0acfa-e50d-4ef1-b286-a781f4b5be18.png)
