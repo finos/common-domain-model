@@ -32,8 +32,8 @@ type ContractualProduct: <" A class to specify the contractual products' economi
 
 type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification.">
 
-	effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">
-	terminationDate AdjustableOrRelativeDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention. It can also be specified in relation to another scheduled date (e.g. the last payment date).">
+	effectiveDate GenericDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">
+	terminationDate GenericDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention. It can also be specified in relation to another scheduled date (e.g. the last payment date).">
 	dateAdjustments BusinessDayAdjustments (0..1) <"The business day adjustment convention when it applies across all the payout components. This specification of the business day convention and financial business centers is used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
 	payout Payout (1..1) <"The payout specifies the future cashflow computation methodology which characterizes a financial product.">
 	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">
@@ -54,7 +54,7 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate is absent
 		then payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> unadjustedDate all > effectiveDate -> adjustableDate -> unadjustedDate
 			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate all > effectiveDate -> adjustableDate -> adjustedDate
-			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> offsetAnchorDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_27: <"FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 		if payout -> creditDefaultPayout exists
@@ -73,6 +73,39 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 		if calculationAgent -> calculationAgentParty exists
 		then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> CalculationAgentIndependent
 
+type PerformancePayout extends GenericObservationPayout : <" The generic Performance Payout specification terms. The associated globalKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+	[metadata key]
+
+	returnTerms GenericReturn (1..1)
+
+type PriceReturn: <"..............">
+	[metadata key]
+
+	returnType ReturnTypeEnum (1..1) <"..............">
+	notionalReset boolean (0..1) <"..............">
+
+//	condition WeightsExistInTradeLotCondition:
+//	if returnType = ReturnTypeEnum -> WeightedPriceReturn or returnType = ReturnTypeEnum -> WeightedSumOfPriceReturns or returnType = ReturnTypeEnum -> WorstOfPriceReturn or returnType = ReturnTypeEnum -> BestOfPriceReturn
+//	then tradableProduct -> tradeLot -> priceQuantity -> quantity -> unitOfAmount = FinancialUnitEnum -> Weight
+
+//	condition TotalReturn: <"An equity total return specifies price return as well as dividend terms.">
+	//	if returnType = ReturnTypeEnum -> TotalReturn
+		//then priceReturnTerms exists
+		//	and dividendReturnTerms exists
+
+	//condition ResetRequiresSevralDates: <".....................">
+		//if only 1 valuation date exists => draft in accordance with GenericObservationPayout .....
+		//then notionalReset is false
+
+type VarianceReturn: <"..............">
+	[metadata key]
+
+type VolatilityReturn: <"..............">
+	[metadata key]
+
+type CorrelationReturn: <"..............">
+	[metadata key]
+
 type EquityPayout extends PayoutBase: <" The equity payout specification terms. The associated globalKey denotes the ability to associate a hash value to the EquityPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 
@@ -86,20 +119,20 @@ type EquityPayout extends PayoutBase: <" The equity payout specification terms. 
 	rateOfReturn number (0..1) <"Rate of Return calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return'.">
 	performance number (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
 
-	condition PriceReturn: <"An equity price return specifies price return terms, but no dividend terms.">
-		if returnType = ReturnTypeEnum -> Price
-		then priceReturnTerms exists
-			and dividendReturnTerms is absent
+	//condition PriceReturn: <"An equity price return specifies price return terms, but no dividend terms.">
+	//	if returnType = ReturnTypeEnum -> Price
+		//then priceReturnTerms exists
+		//	and dividendReturnTerms is absent
 
-	condition DividendReturn: <"An equity dividend return specifies dividend return terms, but no price terms.">
-		if returnType = ReturnTypeEnum -> Dividend
-		then dividendReturnTerms exists
-			and priceReturnTerms is absent
+	//condition DividendReturn: <"An equity dividend return specifies dividend return terms, but no price terms.">
+	//	if returnType = ReturnTypeEnum -> Dividend
+		//then dividendReturnTerms exists
+		//	and priceReturnTerms is absent
 
-	condition TotalReturn: <"An equity total return specifies price return as well as dividend terms.">
-		if returnType = ReturnTypeEnum -> Total
-		then priceReturnTerms exists
-			and dividendReturnTerms exists
+	//condition TotalReturn: <"An equity total return specifies price return as well as dividend terms.">
+	//	if returnType = ReturnTypeEnum -> Total
+		//then priceReturnTerms exists
+			//and dividendReturnTerms exists
 
 	condition SingleUnderlier: <"In the case of an equity payout with a single underlier, that underlier needs to be an equity product.">
 		if underlier exists
@@ -138,11 +171,11 @@ type SecurityLeg: <" Terms defining a security leg in a securities financing tra
 	[metadata key]
 
 	buyerSeller BuyerSeller (1..1) <"Whether the leg is a buyer or seller of security">
-	settlementDate AdjustableOrRelativeDate (1..1) <"Settlement or Payment Date for the security leg">
+	settlementDate GenericDate (1..1) <"Settlement or Payment Date for the security leg">
 	settlementAmount Money (0..1) <"Settlement amount for the security leg">
 	settlementCurrency string (0..1) <"Settlement Currency for use where the Settlement Amount cannot be known in advance.">
 	fxRate ExchangeRate (0..1) <"FX rate in case when cash settlement amount is in a different currency to the security.">
-	deliveryDate AdjustableOrRelativeDate (0..1) <"Delivery Date for the transaction. Delivery Date can be populated when it is not equal to the Settlement Date.">
+	deliveryDate GenericDate (0..1) <"Delivery Date for the transaction. Delivery Date can be populated when it is not equal to the Settlement Date.">
 	deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security transaction.">
 
 	condition SecurityLegChoice:
@@ -187,12 +220,14 @@ type InitialMarginCalculation: <" Defines the initial margin calculation applica
 type Payout: <" A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
     [metadata key]
 
+	performancePayout PerformancePayout (0..*) <"T........................">
 	interestRatePayout InterestRatePayout (0..*) <"All of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate. The interest rate payout can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg).">
 	creditDefaultPayout CreditDefaultPayout (0..1) <"The credit default payout, which provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms.">
 	equityPayout EquityPayout (0..*) <"The equity payout, which encompasses the equity price returns, dividend returns, volatility and variance return provisions.">
 	optionPayout OptionPayout (0..*) <"The option payout.">
 	commodityPayout CommodityPayout (0..*) <"Defines the payout for the floating leg of a Commodity Swap.">
 	forwardPayout ForwardPayout (0..*) <"Represents a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this component.">
+	fixedPricePayout FixedPricePayout (0..*) <".....................">
 	fixedForwardPayout FixedForwardPayout (0..*)<"Defines a payout in which one or more forward payouts are defined as a fixed price.">
 	securityPayout SecurityPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
 	securityFinancePayout SecurityFinancePayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
@@ -264,6 +299,10 @@ type Product: <"Defines the product that is the subject of a tradable product de
 type Basket extends ProductBase: <"Defines a custom basket by referencing a product identifier and its consituents.">
 	basketConstituent Product (1..*) <"Identifies the constituents of the basket">
 
+type TradePosition: <"Specifies the price and quantity of a trade at net position level i.e. by aggregating trade lots prices and quantities, when several lots exist. the Trade Position shall be updated whenever an Event occurrs whicbh has an impact on the net position of the trade e.g. Increase, Decrease, Termination, Allocation, Novation, Notional Reset, Notional Step, etc. Then the aggregation method depends on the economic nature of the prices and quantities at stake : as an example, the aggregated Quantity to designated the Nominal Amount or total number of Undeliers units at Trade Position level would be the sum of related Quantities in each Trade Lot where such Underlier exist; whereas the aggregated Price at Trade Position level would rather be the weighted average of related Prices in each Trade Lot">
+	positionIdentifier Identifier (0..*) <"Specifies one or more identifiers for the Trade Position, if any.">
+	positionQuantity PriceQuantity (1..1) <"Specifies the price and quantity of the Trade Position">
+
 type TradeLot: <"Specifies the price and quantity of a trade lot, where the same product could be traded multiple times with the same counterparty but in different lots (at a different date, in a different quantity and at a different price). One trade lot combined with a product definition specifies the entire economics of a trade. The lifecycle mechanics of each such trade lot (e.g. cashflow payments) is independent of the other lots.">
 	lotIdentifier Identifier (0..*) <"Specifies one or more identifiers for the lot, if any.">
 	priceQuantity PriceQuantity (1..*) <"Specifies the settlement characteristics of a trade lot: price, quantity, observable (optionally) and the settlement terms. This attribute has a multiple cardinality to allow to specify the price, quantity and observable of different legs in a single, composite product (e.g. a Swap).">
@@ -271,6 +310,7 @@ type TradeLot: <"Specifies the price and quantity of a trade lot, where the same
 type TradableProduct: <"Definition of a product as ready to be traded, i.e. included in an execution or contract, by associating a specific price and quantity to this product plus an (optional) mechanism for any potential future quantity adjustment.">
 
 	product Product (1..1) <"The underlying product to be included in a contract or execution.">
+	tradePosition TradePosition (0..1) <"Specifies the price and quantity of a trade at net position level i.e. by aggregating trade lots prices and quantities, when several lots exist. the Trade Position shall be updated whenever an Event occurrs whicbh has an impact on the net position of the trade e.g. Increase, Decrease, Termination, Allocation, Novation, Notional Reset, Notional Step, etc. Then the aggregation method depends on the economic nature of the prices and quantities at stake : as an example, the aggregated Quantity to designated the Nominal Amount or total number of Undeliers units at Trade Position level would be the sum of related Quantities in each Trade Lot where such Underlier exist; whereas the aggregated Price at Trade Position level would rather be the weighted average of related Prices in each Trade Lot">
 	tradeLot TradeLot (1..*) <"Specifies the price, quantity and effective date of each trade lot, when the same product may be traded multiple times in different lots with the same counterparty. In a trade increase, a new trade lot is added to the list, with the corresponding effective date. In a trade decrease, the existing trade lot(s) are decreased of the corresponding quantity (and an unwind fee may have to be settled). The multiple cardinality and the ability to increase existing trades is used for Equity Swaps in particular.">
 	counterparty Counterparty (2..2) <"Specifies the parties which are the two counterparties to the transaction.  The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the counterparty enum (e.g. CounterpartyEnum values Party1 or Party2). The counterparty enum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this counterparties attribute, which is positioned outside of the product definition, allows the counterparty enum to be associated with an actual party reference.">
 	ancillaryParty AncillaryParty (0..*) <"Specifies the parties with ancillary roles in the transaction. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this AncillaryParty type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
@@ -391,6 +431,20 @@ type FixedForwardPayout extends PayoutBase: <"Represents a forward settling, fix
 	paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
     fixedPrice Price (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
         [metadata address "pointsTo"=PriceQuantity->price]
+
+
+type FixedPricePayout extends GenericObservationPayout: <"Represents any kind of fixed price i.e. fixed Strike that would represent a level to be compared with an observable for instance Dividend Points or a fixed CashPrice that would represent cash amounts in series e.g. Fixed Coupons, etc.">
+    strikePrice RateSchedule (0..1)
+	fixedPrice Price (0..1) <"Specifies the fixed price on which fixed forward payments are based.">
+        [metadata address "pointsTo"=PriceQuantity->price]
+
+	condition StrikeChoice: 
+		if strikePrice exists
+		then fixedPrice is absent
+
+	condition PriceChoice: 
+		if fixedPrice exists
+		then strikePrice is absent
 
 type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
 
@@ -565,7 +619,7 @@ type Barrier: <"As per ISDA 2002 Definitions.">
 
 type CalendarSpread: <"A type for defining a calendar spread feature.">
 
-	expirationDateTwo AdjustableOrRelativeDate (1..1)
+	expirationDateTwo GenericDate (1..1)
 
 type Composite: <"Specifies the conditions to be applied for converting into a reference currency when the actual currency rate is not determined upfront.">
 
@@ -579,11 +633,21 @@ type FxFeature: <"A type for defining FX Features.">
 	referenceCurrency string (1..1) <"Specifies the reference currency of the trade.">
 		[metadata id]
 		[metadata scheme]
-	composite Composite (0..1) <"If 'Composite' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price – Strike Price) / (Strike Price – Settlement Price) x Multiplier provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">
-	quanto Quanto (0..1) <"If 'Quanto' is specified as the Settlement Type in the relevant Transaction Supplement, an amount, as determined by the Calculation Agent in accordance with the Section 8.2 of the Equity Definitions.">
-	crossCurrency Composite (0..1) <"If 'Cross-Currency' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price – Strike Price) / (Strike Price – Settlement Price) x Multiplier x one unit of the Reference Currency converted into an amount in the Settlement Currency using the rate of exchange of the Settlement Currency as quoted on the Reference Price Source on the Valuation Date, provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">
-	condition FxFeatureChoice: <" Choice rule to represent an FpML choice construct.">
-		required choice composite, quanto, crossCurrency
+	fxPayout FxPayoutEnum(1..1)<"SpecifieswhetherFXFeatureembeddedinthePayoutLegappliestotherelatedPayoutasCompositeorQuantoorCrossCurrency.">
+	fxValuationDateSchedule GenericDateSchedule (0..1)
+	fxValuationDate GenericDate (0..1)
+	fxValuationTime ObservationTime (1..1)
+	fxDeterminationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">
+	fxValuationSource ValuationSource (0..1)
+	fxRate FxRate (0..1) <"Specifies a currency conversion rate.">
+
+	condition FxValuationDateChoice: <"condition to represent an FpML choice construct.">
+		required choice fxValuationDateSchedule, fxValuationDate
+
+	condition FxQuantoChoice: <"......">
+		if fxPayout = FxPayoutEnum -> Quanto
+		then fxRate exists
+		else fxRate is absent
 
 type Knock: <"Knock In means option to exercise comes into existence. Knock Out means option to exercise goes out of existence.">
 
@@ -649,8 +713,8 @@ type StrikeSpread: <"A class for defining a strike spread feature.">
 type AmericanExercise: <"A class defining the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[metadata key]
 
-	commencementDate AdjustableOrRelativeDate (1..1) <"The first day of the exercise period for an American style option.">
-	expirationDate AdjustableOrRelativeDate (1..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
+	commencementDate GenericDate (1..1) <"The first day of the exercise period for an American style option.">
+	expirationDate GenericDate (1..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
 	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.'">
 	earliestExerciseTime BusinessCenterTime (0..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) to, and including, the expiration date.">
 	latestExerciseTime BusinessCenterTime (0..1 ) <"For a Bermuda or American style option, the latest time on an exercise business day (excluding the expiration date) within the exercise period that notice can be given by the buyer to the seller or seller's agent. Notice of exercise given after this time will be deemed to have been given on the next exercise business day.">
@@ -676,7 +740,7 @@ type BermudaExercise: <"A class defining the Bermuda option exercise dates and t
 type EuropeanExercise: <"A class defining the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[metadata key]
 
-	expirationDate AdjustableOrRelativeDate (1..*) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
+	expirationDate GenericDate (1..*) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
 	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.">
 	earliestExerciseTime BusinessCenterTime (0..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) on the expiration date.">
 	expirationTime BusinessCenterTime (1..1) <"The latest time for exercise on expirationDate.">
@@ -808,7 +872,7 @@ type CollateralProvisions: <"Contains collateral attributes which can also inher
 
 type SecurityFinanceLeg: <"Defines each security movement of a security financing transaction.">
     [metadata key]
-    settlementDate AdjustableOrRelativeDate (1..1) <"Settlement date of the security movement.">
+    settlementDate GenericDate (1..1) <"Settlement date of the security movement.">
     deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security movement.">
 
 type Duration: <"Specifies the Duration Terms of the Security Financing Transaction, and optionally any Evergreen terms.">
