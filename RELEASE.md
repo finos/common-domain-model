@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-Following the recent `Transfer` model changes, and corresponding FpML (Confirmation view) mappings to `TradeState`, this release adds `Transfer` mappings for FpML Processes and Record-Keeping view.
+Following the recent `Transfer` model changes, and the corresponding FpML (Confirmation view) mappings to `TradeState`, this release adds `Transfer` mappings for FpML Processes and Record-Keeping view.
 
 _Review Directions_
 
