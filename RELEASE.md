@@ -1,21 +1,13 @@
-# *CDM Documentation*
-
-_Background_
-
-The CDM and its underlying technology (Rosetta) currently share the same documentation site. As the CDM and Rosetta mature, the documentation sites should be split to separate the concerns and have appropriate branding.
+# *Event model - Transfer FpML Processes and Record-Keeping mapping*
 
 _What is being released?_
 
-With this release, the [CDM documentation](https://cdm.docs.rosetta-technology.io) will move to its own dedicated site. The [Rosetta documentation](https://docs.rosetta-technology.io) will remain at the existing URL and will link to the CDM documentation.
+Following the recent `Transfer` model changes, and the corresponding FpML (Confirmation view) mappings to `TradeState`, this release adds `Transfer` mappings for FpML Processes and Record-Keeping view.
 
 _Review Directions_
 
-To view the CDM documentation:
+In the CDM Portal, select Ingestion and review the following example transactions:
 
-- In the [CDM Portal](https://portal.cdm.rosetta-technology.io/), select Documentation and follow the link to navigate to the new CDM Docs URL
-- From any browser, Navigate to https://cdm.docs.rosetta-technology.io
-
-To view the Rosetta documentation:
-
-- In the [Rosetta Application](https://ui.rosetta-technology.io), select the Documentation from the top right menu
-- From any browser, Navigate to https://docs.rosetta-technology.io
+- fpml-5-10 > incomplete-processes > msg-ex19-cds-execution-allocations
+- fpml-5-10 > incomplete-processes > msg-ex51-execution-advice-trade-initiation-C01-00
+- fpml-5-10 > incomplete-processes > msg-ex58-execution-advice-trade-initiation-F01-00
