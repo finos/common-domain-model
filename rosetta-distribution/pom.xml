@@ -5,12 +5,12 @@
     <parent>
         <artifactId>cdm-parent</artifactId>
         <groupId>com.isda</groupId>
-        <version>0.0.0.master</version>
+        <version>0.0.0.story-284-1790</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <packaging>pom</packaging>
-    <version>0.0.0.master</version>
+    <version>0.0.0.story-284-1790</version>
 
     <artifactId>rosetta-distribution</artifactId>
     <name>cdm-distribution</name>
@@ -748,8 +748,6 @@
     </dependencies>
 
     <build>
-        <finalName>${project.name}-${project.parent.version}</finalName>
-
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -873,6 +871,7 @@
                                 <artifactItem>
                                     <groupId>com.isda</groupId>
                                     <artifactId>cdm</artifactId>
+                                    <version>${project.parent.version}</version>
                                     <includes>cdm/**,cdm-sample-files/**,distribution/**,schemas/**,config/**,release/**</includes>
                                 </artifactItem>
                             </artifactItems>
@@ -961,6 +960,27 @@
                             <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-repo-zip</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy-file</goal>
+                        </goals>
+                        <configuration>
+                            <file>${project.build.directory}/${project.name}-${project.parent.version}.zip</file>
+                            <repositoryId>snapshots</repositoryId>
+                            <url>https://regnosys.jfrog.io/regnosys/libs-snapshot-local</url>
+                            <groupId>${parent.groupId}</groupId>
+                            <artifactId>${project.name}</artifactId>
+                            <version>${project.parent.version}</version>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
