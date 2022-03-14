@@ -35,8 +35,8 @@ A tradable product represents a financial product that is ready to be traded, me
  type TradableProduct:
     product Product (1..1)
     tradeLot TradeLot (1..*)
-    counterparty Counterparty (2..2) 
-    ancillaryParty AncillaryParty (0..*) 
+    counterparty Counterparty (2..2)
+    ancillaryParty AncillaryParty (0..*)
     adjustment NotionalAdjustmentEnum (0..1)
 
 .. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
@@ -425,7 +425,7 @@ The ``Payout`` type defines the composable payout types, each of which describes
    securityFinancePayout SecurityFinancePayout (0..*)
    cashflow Cashflow (0..*)
 
-A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts. The list of payouts that extend ``PayoutBase` are:
+A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts. The list of payouts that extend `PayoutBase` are:
 
 - ``InterestRatePayout``
 - ``EquityPayout``
@@ -697,7 +697,7 @@ The representation of state transitions in the CDM event model is based on the f
 
 The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below.
 
-.. figure:: event-model-overview.png
+.. figure:: images/event-model-overview.png
 
 * **Trade state** represents the state in the lifecycle that the trade is in, from execution to settlement and maturity.
 * **Primitive event** is a building block component used to specify business events in the CDM. Each primitive event describes a fundamental state-transition component that impacts the trade state during its lifecycle.
@@ -1108,7 +1108,7 @@ The list of business events for which this process is currently implemented in t
 
 .. code-block:: Haskell
 
- type Instruction: 
+ type Instruction:
     [rootType]
     instructionFunction string (0..1)
     allocation AllocationInstruction (0..1)
@@ -1775,7 +1775,7 @@ How Does It Work
 
 The data and proces model definitions of the CDM are systematically translated into executable code using purpose-built code generation technology. The CDM executable code is available in a number of modern, widely adopted and freely available programming languages and is systematically distributed as part of the CDM release.
 
-The code generation process is based on the Rosetta DSL and is further described in the `Code Generation Section`_, including an up-to-date `list of available languages <https://docs.rosetta-technology.io/dsl/codegen-readme.html#what-code-generators-are-available>`_. Support for further languages can be added as required by market participants.
+The code generation process is based on the Rosetta DSL and is further described in the `Code Generation Section`_, including an up-to-date `list of available languages <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available>`_. Support for further languages can be added as required by market participants.
 
 Scope
 ^^^^^
@@ -2228,7 +2228,7 @@ The data type and function to generate a Security Lending Invoice:
     billingEndDate date (1..1)
     billingRecord BillingRecord (1..*)
     billingSummary BillingSummary (1..*)
-    
+
 .. code-block:: Haskell
 
  func Create_SecurityLendingInvoice:
@@ -2472,11 +2472,11 @@ Model artifacts are organised into a directory hierarchy that is exposed in the 
 Organising Principles
 ^^^^^^^^^^^^^^^^^^^^^
 
-Namespaces are organised into a hierarchy, with layers going from in to out. The hierarchy contains an intrinsic inheritance structure where each layer has access to (“imports”) the layer outside, and is designed to be usable without any of its inner layers. Layers can contain several namespaces (“siblings”), which can also refer to each other. 
+Namespaces are organised into a hierarchy, with layers going from in to out. The hierarchy contains an intrinsic inheritance structure where each layer has access to (“imports”) the layer outside, and is designed to be usable without any of its inner layers. Layers can contain several namespaces (“siblings”), which can also refer to each other.
 
 Example – the base namespace
 
-.. figure:: cdm-namespace.png
+.. figure:: images/cdm-namespace.png
 
 In the example above the layers of the “base” namespace can be observed. There are four layers to the namespace. The outer layer “base” contains one file and three namespaces. The next layer contains three siblings, “datetime”, “math”, and “staticdata”. A third and fourth layer is contained within the “staticdata” namespace.
 
@@ -2496,24 +2496,24 @@ The namespace hierarchy in the CDM contains 7 components
 
 .. _Portal: https://portal.cdm.rosetta-technology.io
 
-.. _Rosetta DSL Documentation: https://docs.rosetta-technology.io/dsl/documentation.html
-.. _Qualified Type Section: https://docs.rosetta-technology.io/dsl/documentation.html#qualified-type
-.. _Function Definition Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-definition
-.. _Function Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-component
-.. _Code Generation Section: https://docs.rosetta-technology.io/dsl/codegen-readme.html
-.. _Validation Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#validation-component
-.. _Mapping Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#mapping-component
-.. _Special Syntax Section: https://docs.rosetta-technology.io/dsl/documentation.html#special-syntax
-.. _Meta-Data Section: https://docs.rosetta-technology.io/dsl/documentation.html#meta-data-and-reference
+.. _Rosetta DSL Documentation: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component
+.. _Qualified Type Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#qualified-type
+.. _Function Definition Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#function-definition
+.. _Function Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#function-component
+.. _Code Generation Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators
+.. _Validation Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#validation-component
+.. _Mapping Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component
+.. _Special Syntax Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#special-syntax
+.. _Meta-Data Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#meta-data-and-reference
 
-.. _Event Model Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#event-model
-.. _Event Qualification Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#event-qualification
-.. _Validation Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#validation-process
-.. _Calculation Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#calculation-process
-.. _Workflow Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#workflow
-.. _Product Model Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#product-model
-.. _Tradable Product Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#tradable-product
-.. _Lifecycle Event Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#lifecycle-event-process
+.. _Event Model Section: documentation.html#event-model
+.. _Event Qualification Section: documentation.html#event-qualification
+.. _Validation Process Section: documentation.html#validation-process
+.. _Calculation Process Section: documentation.html#calculation-process
+.. _Workflow Section: documentation.html#workflow
+.. _Product Model Section: documentation.html#product-model
+.. _Tradable Product Section: documentation.html#tradable-product
+.. _Lifecycle Event Process Section: documentation.html#lifecycle-event-process
 
 .. _serialised: https://en.wikipedia.org/wiki/Serialization
 .. _data modelling: https://en.wikipedia.org/wiki/Cardinality_(data_modeling)#Application_program_modeling_approaches

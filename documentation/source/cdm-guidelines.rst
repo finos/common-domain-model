@@ -23,7 +23,7 @@ Introduction
 
 Download page for zip files of the Java code and examples
 
-.. figure:: cdm-portal.png
+.. figure:: images/cdm-portal.png
 
 * Direct links:
     `ISDA CDM as Java Code <https://isda:isda@regnosys.jfrog.io/regnosys/libs-snapshot/com/isda/cdm-distribution>`_
@@ -32,13 +32,13 @@ Download page for zip files of the Java code and examples
 
 Tutorials
 
-.. figure:: cdm-tutorials.png
+.. figure:: images/cdm-tutorials.png
 
 Direct link: `Tutorials <https://vimeo.com/359012532>`_
 
 * The CDM model objects are classified into namespaces (cdm.base, cdm.base.staticdata, etc). These namespaces translate into Java packages with the same name, with each package containing a package-info file.
 
-.. figure:: cdm-distribution.png
+.. figure:: images/cdm-distribution.png
 
 * The CDM uses `builder pattern <https://en.wikipedia.org/wiki/Builder_pattern>`_ for each of the pojos. The distribution ships with the json to java object serialisers.
 

@@ -7,16 +7,16 @@ The purpose of this section is to provide guidance for accepting contributions i
 - What a Reviewer should do to review the changes
 - How to release a new CDM version once changes have been approved
 
-The CDM is an open source project and any contribution to its on-going development is governed by the `CDM Governance Principles <https://docs.rosetta-technology.io/cdm/readme.html#the-cdm-governance>`_.
+The CDM is an open source project and any contribution to its on-going development is governed by the `CDM Governance Principles <cdm-overview.html#the-cdm-governance>`_.
 
 Before you start modelling
 --------------------------
 
 Before you start modelling, please make sure you have gone through the following pre-modelling checklist:
 
-- Review the `CDM Design Principles <https://docs.rosetta-technology.io/cdm/readme.html#the-cdm-design-principles>`_
+- Review the `CDM Design Principles <cdm-overview.html#the-cdm-design-principles>`_
 - Get approval of your conceptual design from stakeholders (for large model change)
-- Review the `Rosetta Starter Guide <https://docs.rosetta-technology.io/core/0-welcome-to-rosetta.html>`_
+- Review the `Rosetta Starter Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta>`_
 
 For large model changes, or changes to core data types, it is recommended that the Contributor reviews the CDM Governance Principles and follows these steps:
 
@@ -27,7 +27,7 @@ For large model changes, or changes to core data types, it is recommended that t
   - CDM Owners (ISDA and other involved Trade Associations, where applicable)
   - CDM Sub-Working Group, if applicable
   - CDM Architecture and Review Committee
-  
+
 - **Quality Assurance**: Seek the early appointment of at least one CDM reviewer who can assist modelling discussions and provide early feedback. CDM Reviewers are appointed by the CDM Owners as and when relevant. Please contact `cdmInfo@isda.org <cdminfo@isda.org>`_.
 
 Editing the model
@@ -36,7 +36,7 @@ Editing the model
 Modelling checklist
 ^^^^^^^^^^^^^^^^^^^
 
-The CDM can be edited using a modelling platform called `Rosetta <https://ui.rosetta-technology.io>`_, which is accessible via a web browser.
+The CDM can be edited using a modelling platform called `Rosetta <https://rosetta-technology.io>`_, which is accessible via a web browser.
 
 Before you start editing the CDM using Rosetta, please go through the following modelling checklist:
 
@@ -53,46 +53,46 @@ Before you start editing the CDM using Rosetta, please go through the following 
 Use latest available CDM version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once ready to start modelling, the Contributor can log into Rosetta and start using the Rosetta Design application to create a workspace and edit the model, referring to the `Rosetta Design Guide <https://docs.rosetta-technology.io/core/2-rosetta-design.html>`_. To the extent possible it is recommended that the Contributor keeps working with a version of the CDM that is as close as possible to the latest to minimise the risk of backward compatibility.
+Once ready to start modelling, the Contributor can log into Rosetta and start using the Rosetta Design application to create a workspace and edit the model, referring to the `Rosetta Design Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta>`_. To the extent possible it is recommended that the Contributor keeps working with a version of the CDM that is as close as possible to the latest to minimise the risk of backward compatibility.
 
-Please refer to the `Source Control Integration Guide <https://docs.rosetta-technology.io/core/1-workspace.html#id1>`_ for more information.
+Please refer to the `Source Control Integration Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#id1>`_ for more information.
 
 No syntax warning or error
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The model is edited using the Rosetta DSL syntax. All syntax warnings and errors must be resolved to have a valid model before contributing any changes. The syntax is automatically checked live in Rosetta Design as the user edits the model, as described in the `Rosetta Design Content Assist Guide <https://docs.rosetta-technology.io/core/2-rosetta-design.html#rosetta-design-content-assist>`_.
+The model is edited using the Rosetta DSL syntax. All syntax warnings and errors must be resolved to have a valid model before contributing any changes. The syntax is automatically checked live in Rosetta Design as the user edits the model, as described in the `Rosetta Design Content Assist Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#rosetta-design-content-assist>`_.
 
-For further guidance about features of the syntax, please refer to the `Rosetta DSL Documentation <https://docs.rosetta-technology.io/dsl/documentation.html>`_.
+For further guidance about features of the syntax, please refer to the `Rosetta DSL Documentation <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component>`_.
 
 Model compilation
 ^^^^^^^^^^^^^^^^^
 
 Normally, when the model is syntactically correctly edited, valid code is being auto-generated and compiled in Rosetta. However, certain model changes can cause compilation errors when changes conflict with static code (e.g. certain mapper implementations).
 
-The Rosetta support team can help resolve these errors before the changes are contributed. In most cases you will be able to contact the team via the `In-App chat <https://docs.rosetta-technology.io/core/0-welcome-to-rosetta.html#in-app-chat>`_. If the Rosetta support identifies that significant work may be required to resolve these errors, they will notify the Contributor who should then contact the CDM Reviewer originally appointed for the proposed change and/or CDM Owners. The latter will be able to assist in the resolution of the issues.
+The Rosetta support team can help resolve these errors before the changes are contributed. In most cases you will be able to contact the team via the `In-App chat <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#in-app-chat>`_. If the Rosetta support identifies that significant work may be required to resolve these errors, they will notify the Contributor who should then contact the CDM Reviewer originally appointed for the proposed change and/or CDM Owners. The latter will be able to assist in the resolution of the issues.
 
-For more information about auto-compilation in Rosetta, please refer to the `Rosetta Auto Compilation Guide <https://docs.rosetta-technology.io/core/2-rosetta-design.html#auto-compilation>`_.
+For more information about auto-compilation in Rosetta, please refer to the `Rosetta Auto Compilation Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#auto-compilation>`_.
 
 Testing
 ^^^^^^^
 
 The CDM has adopted a test-driven development approach that maps model components to existing sample data (e.g., FpML documents or other existing standards).  Mappings are specified in the CDM using ``synonym`` which are collected into a Translation Dictionary, and the sample data are collected into a Test Pack. Each new model version is regression-tested using those mappings to translate the sample data in the Test Pack and then comparing against the expected number of mapped data points, validation and qualification results.
 
-Contributors are invited to test their model changes live against the Test Pack using the Rosetta Translate application, referring to the `Rosetta Translate Guide <https://docs.rosetta-technology.io/core/3-rosetta-translate.html>`_. When editing existing model components, the corresponding synonyms should be updated to maintain or improve existing levels. When adding new model components, new sample data and corresponding synonym mappings should also be provided so the new use-case can be added to the set of regression tests.
+Contributors are invited to test their model changes live against the Test Pack using the Rosetta Translate application, referring to the `Rosetta Translate Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta>`_. When editing existing model components, the corresponding synonyms should be updated to maintain or improve existing levels. When adding new model components, new sample data and corresponding synonym mappings should also be provided so the new use-case can be added to the set of regression tests.
 
-Please refer to the `Mapping Guide <https://docs.rosetta-technology.io/dsl/documentation.html#mapping-component>`_ for details about the synonym mapping syntax.
+Please refer to the `Mapping Guide <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component>`_ for details about the synonym mapping syntax.
 
 Namespace
 ^^^^^^^^^
 
 All model components should be positioned appropriately in the existing namespace hierarchy. If the proposed contribution includes changes to the namespace hierarchy, those changes should be justified and documented. Any new namespace should have an associated description, and be imported where required.
 
-Please refer to the `Namespace documentation <https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#namespace>`_ for more details.
+Please refer to the `Namespace documentation <documentation.html#namespace>`_ for more details.
 
 All model components have descriptions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-All model components (e.g. types, attributes, conditions, functions etc.) should be specified with descriptions in accordance with the `CDM Style Guide <https://docs.rosetta-technology.io/cdm/documentation/source/documentation-style-guide.html>`_.
+All model components (e.g. types, attributes, conditions, functions etc.) should be specified with descriptions in accordance with the `CDM Style Guide <documentation-style-guide.html>`_.
 
 Contributing model changes
 --------------------------
@@ -115,7 +115,7 @@ Before you start contributing your model changes, please go through the followin
 Contributing using Rosetta
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once the model changes have been completed, use Rosetta to submit changes for review, referring to the `Rosetta Workspace Contribution Guide <https://docs.rosetta-technology.io/core/1-workspace.html#contribute-workspace-changes>`_ and specifying a meaningful title and description.
+Once the model changes have been completed, use Rosetta to submit changes for review, referring to the `Rosetta Workspace Contribution Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#contribute-workspace-changes>`_ and specifying a meaningful title and description.
 
 .. note:: All contributions are submitted as candidate changes to be incorprated under `the CDM licence <https://portal.cdm.rosetta-technology.io/#/terms-isda>`_
 
@@ -133,7 +133,7 @@ The documentation includes *.rosetta* code snippets that directly illustrate exp
 Release note
 ^^^^^^^^^^^^
 
-A release note should be provided with the proposed model change that concisely describes the high-level conceptual design, model changes and how to review. Please refer to the `Release Note Style Guide <https://docs.rosetta-technology.io/cdm/documentation/source/documentation-style-guide.html#content-of-release-notes>`_ for further guidance on editing release notes.
+A release note should be provided with the proposed model change that concisely describes the high-level conceptual design, model changes and how to review. Please refer to the `Release Note Style Guide <documentation-style-guide.html#content-of-release-notes>`_ for further guidance on editing release notes.
 
 Reviewing model changes
 -----------------------
@@ -149,8 +149,8 @@ Before starting to review a contribution, the CDM Reviewer should go through the
   - Synonyms have been updated and output (JSON) looks correct
   - Contributed model version is not stale and does not conflict with any recent changes
   - Changes are in accordance with the CDM governance guidelines
-  
-.. note:: It is not yet possible to verify that mapping, validation and qualification expectations have been maintained by looking at the output of the GitHub Pull Request and CDM build only. Please refer to the `downstream dependencies <https://docs.rosetta-technology.io/cdm/contributing.html#id1>`_ section for more details.
+
+.. note:: It is not yet possible to verify that mapping, validation and qualification expectations have been maintained by looking at the output of the GitHub Pull Request and CDM build only. Please refer to the `downstream dependencies <contribution.html#id1>`_ section for more details.
 
 - CDM build process completed with no errors or test failures
 - Review additional samples provided (if use-case is not covered by existing samples)
@@ -198,7 +198,7 @@ Once the contributed model change has been merged, a new release can be built, t
 
 The following release checklist should be verified before deploying a new model:
 
-- Update CDM version, which uses the semantic version format (see `CDM Versioning Documentation <https://docs.rosetta-technology.io/cdm/readme.html#versioning>`_)
+- Update CDM version, which uses the semantic version format (see `CDM Versioning Documentation <cdm-overview.html#versioning>`_)
 - Build release candidate, and test
 - Build documentation website release candidate, and test
 - Deploy release candidate and notify channels if need be
