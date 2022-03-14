@@ -2,8 +2,6 @@ package org.isda.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
-import cdm.event.common.functions.UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity;
-import cdm.event.common.functions.UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl;
 import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
 import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStep;
@@ -34,19 +32,14 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ValidatorFactory.class).to(bindValidatorFactory());
 		bind(ReferenceConfig.class).toInstance(CdmReferenceConfig.get());
 
-		// Functions (should be refactored into rosetta)
+		// Requires DSL get-item(index)
 		bind(VectorOperation.class).to(bindVectorOperation());
 		bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
-
-		// Requires DSL get-item(index)
 		bind(SelectScheduleStep.class).to(bindSelectScheduleStep());
 		bind(SelectNonNegativeScheduleStep.class).to(bindSelectNonNegativeScheduleStep());
 
 		// Requires DSL remove-item(index)
 		bind(PopOffDateList.class).to(bindPopOffDateList());
-
-		// Re-assign variable in loop (not supported in DSL)
-		bind(UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity.class).to(bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity());
 
 		// Access to reference metadata (not supported in DSL)
 		bind(FpmlIrd8.class).to(bindFpmlIrd8());
@@ -163,10 +156,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends Today> bindToday() {
 		return TodayImpl.class;
-	}
-
-	protected Class<? extends UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity> bindUpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity() {
-		return UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl.class;
 	}
 
 	protected Class<? extends UpdateAmountForEachQuantity> bindUpdateAmountForEachQuantity() {
