@@ -86,7 +86,7 @@ func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the pre
 
 	set startPrice: <"The initial price is taken from the original contract when Resetting for the first time i.e. when the number of updated contracts is one.">
 		if calculationPeriod -> isFirstPeriod
-		then ResolveEquityInitialPrice( price, observable )
+		then ResolveEquityInitialPrice( price )
 		else priceReturnTerms -> valuationPriceInterim -> price
 
 func ResolveEquityPeriodEndPrice:
@@ -107,13 +107,16 @@ func ResolveEquityPeriodEndPrice:
 		then priceReturnTerms -> valuationPriceFinal -> price -> amount
 		else priceReturnTerms -> valuationPriceInterim -> price -> amount
 
-func ResolveEquityInitialPrice:
+func ResolveEquityInitialPrice: <"To be replaced by full resolve price function implementation.">
 	inputs:
 		price Price (0..*)
-		observable Observable (0..1)
-
 	output:
-		initialPrice Price (1..1)
+		initialPrice Price (0..1)
+
+	set initialPrice:
+	    price
+	        filter [ item -> unitOfAmount -> financialUnit = FinancialUnitEnum -> Share ]
+	        only-element
 
 func DividendCashSettlementAmount: <"Based on the following legal text: means, in respect of a Dividend Period and the related Dividend Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent for such Dividend Period to which the Dividend Cash Settlement Amount relates, pursuant to the following formula: Dividend Cash Settlement Amount = Record Amount × Number Of Securities.">
 

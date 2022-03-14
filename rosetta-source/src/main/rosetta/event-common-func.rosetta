@@ -757,10 +757,9 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
 	set equityCashSettlementAmount -> quantity -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
 	 	Abs(equityPerformance)
 	set equityCashSettlementAmount -> quantity -> unitOfAmount-> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
-         ResolveEquityInitialPrice(
-	 		tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
-	 		tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
-	 		) -> unitOfAmount -> currency
+        ResolveEquityInitialPrice(
+            tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
+        ) -> unitOfAmount -> currency
 	set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
 	    if equityPerformance >= 0 then payer else receiver
 	set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:

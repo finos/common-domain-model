@@ -6,14 +6,10 @@ import cdm.event.common.functions.UpdateSpreadAdjustmentAndRateOptionForEachPric
 import cdm.event.common.functions.UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantityImpl;
 import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
-import cdm.observable.event.functions.ResolveObservationAverage;
-import cdm.observable.event.functions.ResolveObservationAverageImpl;
 import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStep;
 import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStepImpl;
 import cdm.product.asset.floatingrate.functions.SelectScheduleStep;
 import cdm.product.asset.floatingrate.functions.SelectScheduleStepImpl;
-import cdm.product.asset.functions.ResolveEquityInitialPrice;
-import cdm.product.asset.functions.ResolveEquityInitialPriceImpl;
 import cdm.product.common.schedule.functions.*;
 import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantity;
 import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantityImpl;
@@ -39,8 +35,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ReferenceConfig.class).toInstance(CdmReferenceConfig.get());
 
 		// Functions (should be refactored into rosetta)
-		bind(ResolveEquityInitialPrice.class).to(bindResolveEquityInitialPrice());
-		bind(ResolveObservationAverage.class).to(bindResolveObservationAverage());
 		bind(VectorOperation.class).to(bindVectorOperation());
 		bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
 
@@ -85,10 +79,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		return CalculationPeriodRangeImpl.class;
 	}
 
-	protected Class<? extends ResolveObservationAverage> bindResolveObservationAverage() {
-		return ResolveObservationAverageImpl.class;
-	}
-
 	protected Class<? extends VectorOperation> bindVectorOperation() {
 		return VectorOperationImpl.class;
 	}
@@ -117,10 +107,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends CalculationPeriods> bindCalculationPeriods() {
 		return CalculationPeriodsImpl.class;
-	}
-
-	protected Class<? extends ResolveEquityInitialPrice> bindResolveEquityInitialPrice() {
-		return ResolveEquityInitialPriceImpl.class;
 	}
 
 	protected Class<? extends RoundToNearest> bindRoundToNearest() {
