@@ -21,10 +21,10 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class LookupNotionalAmountTest extends AbstractFunctionTest {
+public class GetNotionalAmountTest extends AbstractFunctionTest {
 
     @Inject
-    private LookupNotionalAmount func;
+    private GetNotionalAmount func;
 
     @Test
     void shouldLookupValue() {

@@ -35,8 +35,8 @@ func NovatedContractEffectiveDate:
 
 	alias eTerms: businessEvent -> primitives -> contractFormation -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
 	alias effectiveDate: eTerms only-element -> effectiveDate
-	alias interestRatePayoutDate: eTerms only-element-> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate
-	alias equityPayoutDate: eTerms only-element-> payout -> equityPayout -> calculationPeriodDates -> effectiveDate
+	alias interestRatePayoutDate: eTerms only-element -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate
+	alias equityPayoutDate: eTerms only-element -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate
 
 	add result: [
         effectiveDate -> adjustableDate -> adjustedDate,
@@ -392,7 +392,7 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
-    alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory  -> transfer, businessEvent -> eventDate )
+    alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate )
 	set is_event:
 		businessEvent -> intent is absent
 		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
@@ -661,7 +661,7 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 		ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, interestRatePayout -> payerReceiver -> receiver ) -> partyReference
 	set interestCashSettlementAmount -> quantity -> amount:
 		performance
-	set interestCashSettlementAmount -> quantity  -> unitOfAmount -> currency:
+	set interestCashSettlementAmount -> quantity -> unitOfAmount -> currency:
 		interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
 	set interestCashSettlementAmount -> payerReceiver -> payerPartyReference:
 	    if performance >= 0 then payer else receiver
@@ -757,10 +757,9 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
 	set equityCashSettlementAmount -> quantity -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
 	 	Abs(equityPerformance)
 	set equityCashSettlementAmount -> quantity -> unitOfAmount-> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
-         ResolveEquityInitialPrice(
-	 		tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
-	 		tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
-	 		) -> unitOfAmount -> currency
+        ResolveEquityInitialPrice(
+            tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
+        ) -> unitOfAmount -> currency
 	set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
 	    if equityPerformance >= 0 then payer else receiver
 	set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
@@ -1975,71 +1974,69 @@ func Create_IndexTransitionTermsChangePrimitive: <"Function specification to cre
 	inputs:
 		tradeState TradeState (1..1) <"Specifies the trade to be updated.">
 		instruction IndexTransitionInstruction (1..1) <"Specifies the instructions containing the floating rate index, spread adjustment for each leg to be updated, and the effective date.">
-
 	output:
 		termsChangePrimitive TermsChangePrimitive (1..1) <"Specifies the resulting term change primitive.">
 
 	set termsChangePrimitive -> after: <"Updates the trade based on each instruction priceQuantity (e.g. one for each floating rate leg).">
-		UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity(
-			tradeState,
-			instruction -> priceQuantity)
+		UpdateSpreadAdjustmentAndRateOptions( tradeState, instruction -> priceQuantity )
 
 	set termsChangePrimitive -> before:
 		tradeState
 
-func UpdateSpreadAdjustmentAndRateOptionForEachPriceQuantity: <"Function that loops through each instruction priceQuantity and calls UpdateSpreadAdjustmentAndRateOption for each one.">
+func UpdateSpreadAdjustmentAndRateOptions: <"For each of the trade state's price quantity, find a matching price quantity instruction, and call the update function.">
 	inputs:
 		tradeState TradeState (1..1) <"Specifies the trade to be updated.">
-		instructionPriceQuantity PriceQuantity (1..*) <"List of PriceQuantity from the IndexTransitionInstruction (e.g. one for each floating rate leg).">
-	output:
-		updatedTradeState TradeState (1..1) <"Specifies the updated trade.">
-
-func UpdateSpreadAdjustmentAndRateOption: <"Function that loops through each instruction priceQuantity and calls UpdateSpreadAdjustmentAndRateOption for each one.">
-	inputs:
-		tradeState TradeState (1..1) <"Specifies the trade to be updated.">
-		instructionPriceQuantity PriceQuantity (1..1) <"PriceQuantity from the IndexTransitionInstruction (e.g. for one of the floating rate legs).">
+		instructions PriceQuantity (1..*) <"List of PriceQuantity from the IndexTransitionInstruction (e.g. one for each floating rate leg).">
 	output:
 		updatedTradeState TradeState (1..1) <"Specifies the updated trade.">
 
     set updatedTradeState: tradeState
 
-	set updatedTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity:
-	    tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity
-            map [
-                if UnitOfAmountAndRateOptionMatches( item, instructionPriceQuantity ) then
-                    UpdateIndexTransitionPriceAndRateOption( item, instructionPriceQuantity )
-                else item
-            ]
+    set updatedTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity:
+        tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity
+            map [ UpdateIndexTransitionPriceAndRateOption( item, FindMatchingIndexTransitionInstruction( instructions, item ) ) ]
 
 func UpdateIndexTransitionPriceAndRateOption:
     inputs:
         priceQuantity PriceQuantity (1..1)
-        instructionPriceQuantity PriceQuantity (1..1)
+        instruction PriceQuantity (0..1)
     output:
         updatedPriceQuantity PriceQuantity (1..1)
 
     set updatedPriceQuantity: priceQuantity
 
-    set updatedPriceQuantity -> price -> amount:
-        priceQuantity -> price only-element -> amount + instructionPriceQuantity -> price only-element -> amount
+    set updatedPriceQuantity -> price -> amount: <"If instruction exists, sum the existing and instruction spread adjustments.">
+        if instruction exists then
+            priceQuantity -> price only-element -> amount + instruction -> price only-element -> amount
+        else
+            priceQuantity -> price only-element -> amount
 
-    set updatedPriceQuantity -> observable -> rateOption:
-         instructionPriceQuantity -> observable -> rateOption
+    set updatedPriceQuantity -> observable -> rateOption: <"If instruction exists, update the rate option.">
+        if instruction exists then
+            instruction -> observable -> rateOption
+        else
+            priceQuantity -> observable -> rateOption
 
-func UnitOfAmountAndRateOptionMatches: <"Checks whether the price or quantity unit of amount and rate option matches.">
+func FindMatchingIndexTransitionInstruction:
     inputs:
-        pq1 PriceQuantity (1..1)
-        pq2 PriceQuantity (1..1)
+        instructions PriceQuantity (1..*)
+        priceQuantity PriceQuantity (1..1)
     output:
-        matches boolean (1..1) <"Returns true if unit of amount and rate option match.">
+        matchingInstruction PriceQuantity (0..1)
 
-    set matches:
-        pq1 -> observable -> rateOption -> indexTenor -> period = pq2 -> observable -> rateOption -> indexTenor -> period
-        and pq1 -> observable -> rateOption -> indexTenor -> periodMultiplier = pq2 -> observable -> rateOption -> indexTenor -> periodMultiplier
-        and (
-            pq1 -> quantity -> unitOfAmount -> currency = pq2 -> quantity -> unitOfAmount -> currency
-            or pq1 -> price -> unitOfAmount -> currency = pq2 -> price -> unitOfAmount -> currency
-        )
+    set matchingInstruction:
+        instructions
+            filter [
+                // indexTenor period matches
+                item -> observable -> rateOption -> indexTenor -> period = priceQuantity -> observable -> rateOption -> indexTenor -> period
+                // indexTenor periodMultiplier matches
+                and item -> observable -> rateOption -> indexTenor -> periodMultiplier = priceQuantity -> observable -> rateOption -> indexTenor -> periodMultiplier
+                // quantity currency or price currency matches
+                and (
+                    item -> quantity -> unitOfAmount -> currency = priceQuantity -> quantity -> unitOfAmount -> currency
+                    or item -> price -> unitOfAmount -> currency = priceQuantity -> price -> unitOfAmount -> currency
+                )
+            ] first
 
 func Create_SecurityLendingInvoice: <"Defines the process of calculating and creating a Security Lending Invoice.">
 	inputs:
@@ -2148,7 +2145,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			reset  -> resetValue -> amount,
+			reset -> resetValue -> amount,
             billingQuantity,
 			recordEndDate,
 			calculationPeriodRange)

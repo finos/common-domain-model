@@ -1,5 +1,7 @@
 package cdm.base.datetime.functions;
 
+import cdm.base.datetime.BusinessCenterEnum;
+import cdm.base.datetime.BusinessCenters;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -13,6 +15,9 @@ import static cdm.base.datetime.functions.BusinessCenterHolidaysTestData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GenerateDateListTest extends AbstractFunctionTest {
+
+	@Inject
+	private GetAllBusinessCenters businessCentersFunc;
 
 	@Inject
 	private GenerateDateList func;
@@ -50,10 +55,18 @@ public class GenerateDateListTest extends AbstractFunctionTest {
 				Date.of(2021, 12, 29),
 				Date.of(2021, 12, 30));
 
-		assertEquals(Collections.emptyList(), func.evaluate(last, first, TARGET_BC));
-		assertEquals(targetExpected, func.evaluate(first, last, TARGET_BC));
-		assertEquals(londonTargetExpected, func.evaluate(first, last, LONDON_TARGET_BC));
-		assertEquals(londonTargetUsExpected, func.evaluate(first, last, LONDON_TARGET_US_BC));
-		assertEquals(londonTargetUsExpected, func.evaluate(Date.of(2021, 12, 20), Date.of(2021, 12, 30), LONDON_TARGET_US_BC));
+		assertEquals(Collections.emptyList(), func.evaluate(last, first, getBusinessCenters(TARGET_BC)));
+		assertEquals(targetExpected, func.evaluate(first, last, getBusinessCenters(TARGET_BC)));
+		assertEquals(londonTargetExpected, func.evaluate(first, last, getBusinessCenters(LONDON_TARGET_BC)));
+		assertEquals(londonTargetUsExpected, func.evaluate(first, last, getBusinessCenters(LONDON_TARGET_US_BC)));
+		assertEquals(londonTargetUsExpected,
+				func.evaluate(
+						Date.of(2021, 12, 20),
+						Date.of(2021, 12, 30),
+						getBusinessCenters(LONDON_TARGET_US_BC)));
+	}
+
+	private List<BusinessCenterEnum> getBusinessCenters(BusinessCenters businessCenters) {
+		return businessCentersFunc.evaluate(businessCenters);
 	}
 }
