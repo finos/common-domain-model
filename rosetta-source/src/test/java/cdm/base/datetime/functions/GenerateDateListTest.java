@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class GenerateDateListTest extends AbstractFunctionTest {
 
 	@Inject
-	private GetBusinessCenters businessCentersFunc;
+	private GetAllBusinessCenters businessCentersFunc;
 
 	@Inject
 	private GenerateDateList func;

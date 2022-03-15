@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class IsBusinessDayTest extends AbstractFunctionTest {
 
     @Inject
-    private GetBusinessCenters businessCentersFunc;
+    private GetAllBusinessCenters businessCentersFunc;
 
     @Inject
     private IsBusinessDay func;

@@ -1233,22 +1233,22 @@ One distinction with the product approach is that the ``intent`` qualification i
 .. code-block:: Haskell
 
  func Qualify_Termination:
-	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent (1..1)
-	output: is_event boolean (1..1)
-	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output: is_event boolean (1..1)
+    alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
     alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
-	set is_event:
-		businessEvent -> intent is absent
+    set is_event:
+        businessEvent -> intent is absent
         and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
-		    or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-		    or (primitiveInstruction -> quantityChange only exists
-		        or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
-		and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
-		    or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
-		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
-			or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
+            or (businessEvent -> primitives -> quantityChange exists and transfer exists)
+            or (primitiveInstruction -> quantityChange only exists
+                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
+        and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
+            or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
+        and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+            or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
@@ -1379,8 +1379,8 @@ The ``LegalAgreement`` data type represents the highest-level data type for defi
 .. code-block:: Haskell
 
   type LegalAgreement extends LegalAgreementBase:
-	[metadata key]
- 	[rootType]
+    [metadata key]
+     [rootType]
     agreementTerms AgreementTerms (0..1)
     relatedAgreements RelatedAgreement (0..*)
     umbrellaAgreement UmbrellaAgreement (0..1)
@@ -2064,37 +2064,36 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
  func EquityCashSettlementAmount:
-	inputs:
-		tradeState TradeState (1..1)
-		date date (1..1)
-	output:
-		equityCashSettlementAmount Transfer (1..1)
-
-	alias equityPayout:
-		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-	alias equityPerformance:
-	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-	alias payer:
-		ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPayout -> payerReceiver -> payer ) -> partyReference
-	alias receiver:
-		ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPayout -> payerReceiver -> receiver ) -> partyReference
-
-	set equityCashSettlementAmount -> quantity -> amount:
-	 	Abs(equityPerformance)
-	set equityCashSettlementAmount -> quantity -> unitOfAmount-> currency:
+     inputs:
+         tradeState TradeState (1..1)
+         date date (1..1)
+     output:
+         equityCashSettlementAmount Transfer (1..1)
+ 
+     alias equityPayout:
+         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+     alias equityPerformance:
+         EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
+     alias payer:
+         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPayout -> payerReceiver -> payer ) -> partyReference
+     alias receiver:
+         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPayout -> payerReceiver -> receiver ) -> partyReference
+ 
+     set equityCashSettlementAmount -> quantity -> amount:
+          Abs(equityPerformance)
+     set equityCashSettlementAmount -> quantity -> unitOfAmount-> currency:
          ResolveEquityInitialPrice(
-	 		tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
-	 		tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
-	 		) -> unitOfAmount -> currency
-	set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
-	    if equityPerformance >= 0 then payer else receiver
-	set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
-	    if equityPerformance >= 0 then receiver else payer
-    set equityCashSettlementAmount -> settlementDate -> adjustedDate:
-        ResolveCashSettlementDate(tradeState)
-	set equityCashSettlementAmount -> settlementOrigin -> equityPayout:
-		equityPayout as-key
-
+             tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
+         ) -> unitOfAmount -> currency
+     set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
+         if equityPerformance >= 0 then payer else receiver
+     set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
+         if equityPerformance >= 0 then receiver else payer
+     set equityCashSettlementAmount -> settlementDate -> adjustedDate:
+         ResolveCashSettlementDate(tradeState)
+     set equityCashSettlementAmount -> settlementOrigin -> equityPayout:
+         equityPayout as-key        
+ 
 .. code-block:: Haskell
 
  func RateOfReturn:

@@ -5,7 +5,7 @@ import cdm.observable.asset.FloatingRateOption;
 import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
-import cdm.product.asset.calculation.functions.LookupNotionalAmountTest;
+import cdm.product.asset.calculation.functions.GetNotionalAmountTest;
 import cdm.product.asset.floatingrate.FloatingRateSettingDetails;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.schedule.ResetDates;
@@ -52,7 +52,7 @@ public class DetermineFloatingRateResetTest extends AbstractFunctionTest {
 
 		return InterestRatePayout.builder()
 				.setResetDates(resetDates)
-				.setPayoutQuantity(LookupNotionalAmountTest.initNotionalSchedule())
+				.setPayoutQuantity(GetNotionalAmountTest.initNotionalSchedule())
 				.setRateSpecification(RateSpecification.builder()
 						.setFloatingRate(initFloatingRate(fro)).build())
 				.build();

@@ -6,7 +6,6 @@ import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 import static cdm.base.datetime.functions.BusinessCenterHolidaysTestData.*;
@@ -15,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class BusinessCentersHolidaysTest extends AbstractFunctionTest {
 
 	@Inject
-	private GetBusinessCenters businessCentersFunc;
+	private GetAllBusinessCenters businessCentersFunc;
 
 	@Inject
 	private BusinessCentersHolidays func;

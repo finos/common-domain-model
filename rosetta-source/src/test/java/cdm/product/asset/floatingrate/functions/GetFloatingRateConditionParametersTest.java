@@ -2,7 +2,7 @@ package cdm.product.asset.floatingrate.functions;
 
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
-import cdm.product.asset.calculation.functions.LookupNotionalAmountTest;
+import cdm.product.asset.calculation.functions.GetNotionalAmountTest;
 import cdm.product.asset.floatingrate.FloatingRateProcessingParameters;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import com.google.inject.Inject;
@@ -34,7 +34,7 @@ public class GetFloatingRateConditionParametersTest extends AbstractFunctionTest
 
 	private InterestRatePayout initInterestPayout() {
 		return InterestRatePayout.builder()
-				.setPayoutQuantity(LookupNotionalAmountTest.initNotionalSchedule())
+				.setPayoutQuantity(GetNotionalAmountTest.initNotionalSchedule())
 				.setRateSpecification(RateSpecification.builder()
 						.setFloatingRate(initFloatingRate(null)).build())
 				.build();
