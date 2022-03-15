@@ -34,7 +34,6 @@ func DetermineFloatingRateReset: <"Get the value of a floating rate by either ob
 	set floatingRate: ProcessFloatingRateReset(interestRatePayout, calcPeriod, processingType)
 
 func GetFloatingRateProcessingType: <"Get a classification of  the floating rate is processed. This is based on FRO category, style, and calculation method, as described in the 2021 ISDA Definitions Section 6.6.  The categorization information is obtained from the FRO metadata. .">
-	[calculation]
 	inputs:
 		rateDef FloatingRateSpecification (1..1) <"Specification details of the floating rate.">
 	output:
@@ -66,7 +65,6 @@ func GetFloatingRateProcessingType: <"Get a classification of  the floating rate
 	set processingType: processingCategory
 
 func ProcessFloatingRateReset: <"Entry point for the function that performs the floating rate resetting operation.  There are different variations depending on the processing type (e.g. screen rate, OIS, modular calculated rate. .">
-	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1) <"Floating rate stream definition.">
 		calcPeriod CalculationPeriodBase (1..1) <"The calculation period for which you want the rate.">
@@ -134,7 +132,7 @@ func GetCalculatedFROCalculationParameters: <"Initialize a calculation parameter
 
 	// generate and output the required type
 	set calcParams -> calculationMethod: calcMethod
-	set calcParams -> applicableBusinessDays: resetDates -> fixingDates  -> businessCenters
+	set calcParams -> applicableBusinessDays: resetDates -> fixingDates -> businessCenters
 
 func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum -> CompoundIndex): <"Call the compounded index processing logic to calculate the reset.">
 
@@ -185,7 +183,7 @@ func DetermineFixingDate: <"Determine the observation (fixing) date needed given
 		fixingDate date (1..1) <"The date upon which the rate should be observed. .">
 
 	alias fixingOffsetDays: resetDates -> fixingDates -> periodMultiplier
-	alias businessCenters: GetBusinessCenters(resetDates -> fixingDates -> businessCenters)
+	alias businessCenters: GetAllBusinessCenters(resetDates -> fixingDates -> businessCenters)
 	alias fixDate: AddBusinessDays(resetDate, fixingOffsetDays, businessCenters)
 
 	set fixingDate: fixDate

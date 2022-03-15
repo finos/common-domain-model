@@ -35,8 +35,8 @@ func NovatedContractEffectiveDate:
 
 	alias eTerms: businessEvent -> primitives -> contractFormation -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
 	alias effectiveDate: eTerms only-element -> effectiveDate
-	alias interestRatePayoutDate: eTerms only-element-> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate
-	alias equityPayoutDate: eTerms only-element-> payout -> equityPayout -> calculationPeriodDates -> effectiveDate
+	alias interestRatePayoutDate: eTerms only-element -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate
+	alias equityPayoutDate: eTerms only-element -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate
 
 	add result: [
         effectiveDate -> adjustableDate -> adjustedDate,
@@ -392,7 +392,7 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
-    alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory  -> transfer, businessEvent -> eventDate )
+    alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate )
 	set is_event:
 		businessEvent -> intent is absent
 		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
@@ -661,7 +661,7 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 		ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, interestRatePayout -> payerReceiver -> receiver ) -> partyReference
 	set interestCashSettlementAmount -> quantity -> amount:
 		performance
-	set interestCashSettlementAmount -> quantity  -> unitOfAmount -> currency:
+	set interestCashSettlementAmount -> quantity -> unitOfAmount -> currency:
 		interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
 	set interestCashSettlementAmount -> payerReceiver -> payerPartyReference:
 	    if performance >= 0 then payer else receiver
@@ -2145,7 +2145,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			reset  -> resetValue -> amount,
+			reset -> resetValue -> amount,
             billingQuantity,
 			recordEndDate,
 			calculationPeriodRange)
