@@ -1958,7 +1958,7 @@ Base calculation functions include:
 * ``GetFixedRate``: Look up the fixed rate for a calculation period
 * ``FloatingAmountCalculation``: Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction.  Floating amount calculations are described in the 2021 ISDA Definitions in Section 6 and 7.
 * ``GetNotionalAmount``: Look up the notional amount in effect for a calculation period
-* ``GetNonNegativeScheduleStepValues``: Find all schedule step values whose stepDate is before or equal to the supplied periodStartDate.  Returns a list of step values starting from the initial quantity value, to the last step value before the periodStartDate.
+* ``GetQuantityScheduleStepValues``: Find all schedule step values whose stepDate is before or equal to the supplied periodStartDate.  Returns a list of step values starting from the initial quantity value, to the last step value before the periodStartDate.
 * ``CalculateYearFraction``: Calculate the year fraction for a single calculation period, by invoking the base year fraction logic
 
 Floating rate processing an calculation functions include:

@@ -24,9 +24,8 @@ cdm.product.asset
 - `ResolveEquityInitialPrice`
 
 cdm.product.asset.calculation
-- `GetFixedRate`
 - `GetNotionalAmount`
-- `GetNonNegativeScheduleStepValues`
+- `GetQuantityScheduleStepValues`
 
 cdm.product.asset.floatingrate
 - `GetRateScheduleAmount`
