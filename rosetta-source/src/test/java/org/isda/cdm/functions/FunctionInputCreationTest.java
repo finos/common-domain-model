@@ -486,8 +486,8 @@ class FunctionInputCreationTest {
         Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
                 .setBefore(tradeState)
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(quantityChangeInstructions))
-                        .setTransfer(getTransferInstruction(tradeState, FeeTypeEnum.INCREASE));
+                        .setQuantityChange(quantityChangeInstructions)
+                        .setTransfer(getTransferInstruction(tradeState, FeeTypeEnum.INCREASE)));
 
         return new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
@@ -500,8 +500,8 @@ class FunctionInputCreationTest {
         Instruction instructionBuilder = Instruction.builder()
                 .setBefore(tradeState)
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(quantityChangeInstruction))
-                        .setTransfer(getTransferInstruction(tradeState, feeType));
+                        .setQuantityChange(quantityChangeInstruction)
+                        .setTransfer(getTransferInstruction(tradeState, feeType)));
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
