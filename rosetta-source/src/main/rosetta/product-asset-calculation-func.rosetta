@@ -1,4 +1,4 @@
-namespace cdm.product.asset.calculation : <"Product-related, asset class-specific calculation concepts, such as day counting and calculating accruals.">
+namespace cdm.product.asset.calculation: <"Product-related, asset class-specific calculation concepts, such as day counting and calculating accruals.">
 version "${project.version}"
 
 import cdm.base.math.*
@@ -19,33 +19,32 @@ import cdm.legalagreement.common.*
 //
 // Fixed Amount Calculation definitions
 //
-// these functions return the calculated fixed amount
+// These functions return the calculated fixed amount.
 //
 // ======================================================================
 
 // TODO: should this be enhanced to support spreads and do spread-exclusive calculations for compounding?
 func FixedAmountCalculation: <"Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction.">
-	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1)
 		calculationPeriod CalculationPeriodBase (1..1)
-		notional number(0..1)
+		notional number (0..1)
 	output:
 		fixedAmountDetails FixedAmountCalculationDetails (1..1)
 
 	alias fixedRate: LookupFixedRate(interestRatePayout, calculationPeriod)
-	alias calculationAmount: LookupNotionalAmount(interestRatePayout, calculationPeriod)
-	alias dcf: interestRatePayout->dayCountFraction
+	alias calculationAmount: GetNotionalAmount(interestRatePayout, calculationPeriod)
+	alias dcf: interestRatePayout -> dayCountFraction
 	alias yearFraction: CalculateYearFraction(interestRatePayout, dcf, calculationPeriod)
-	alias calcAmt : if  notional exists  then notional else calculationAmount->amount
+	alias calcAmt: if  notional exists  then notional else calculationAmount -> amount
 
-    set fixedAmountDetails->calculationPeriod : calculationPeriod
-    set fixedAmountDetails->calculationPeriodNotionalAmount -> amount : calcAmt
-    set fixedAmountDetails->calculationPeriodNotionalAmount -> unitOfAmount -> currency : calculationAmount-> unitOfAmount -> currency
-    set fixedAmountDetails->fixedRate : fixedRate
-    set fixedAmountDetails->yearFraction : yearFraction
-	set fixedAmountDetails->calculatedAmount:
-		calcAmt * fixedAmountDetails->fixedRate * fixedAmountDetails->yearFraction
+    set fixedAmountDetails -> calculationPeriod: calculationPeriod
+    set fixedAmountDetails -> calculationPeriodNotionalAmount -> amount: calcAmt
+    set fixedAmountDetails -> calculationPeriodNotionalAmount -> unitOfAmount -> currency: calculationAmount ->  unitOfAmount -> currency
+    set fixedAmountDetails -> fixedRate: fixedRate
+    set fixedAmountDetails -> yearFraction: yearFraction
+	set fixedAmountDetails -> calculatedAmount:
+		calcAmt * fixedAmountDetails -> fixedRate * fixedAmountDetails -> yearFraction
 
 func LookupFixedRate: <"Look up the fixed rate for a calculation period.">
 	[calculation]
@@ -54,9 +53,10 @@ func LookupFixedRate: <"Look up the fixed rate for a calculation period.">
 		calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which you want the spread.">
 	output:
 		fixedRate number (0..1)  <"the fixed rate value value for the period.">
-	alias startDate: calculationPeriod->adjustedStartDate
-	set
-		fixedRate: LookupRateScheduleAmount(interestRatePayout->rateSpecification -> fixedRate->rateSchedule, startDate)
+	
+	set fixedRate: GetRateScheduleAmount(
+	    interestRatePayout -> rateSpecification -> fixedRate -> rateSchedule,
+	    calculationPeriod -> adjustedStartDate )
 
 // =====================================================================
 //
@@ -67,7 +67,6 @@ func LookupFixedRate: <"Look up the fixed rate for a calculation period.">
 // ======================================================================
 
 func FloatingAmountCalculation: <"Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction.  Floating amount calculations are described in the 2021 ISDA Definitions in Section 6 and 7.">
-	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1) <"The interest rate stream for which the floating amount calculation is being done.">
 		calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the floating rate calculation is being done.">
@@ -83,7 +82,6 @@ func FloatingAmountCalculation: <"Calculate a floating amount for a calculation 
 	set result: ApplyFloatingRateSetting(interestRatePayout, calculationPeriod, isInitialPeriod, suppliedNotional, suppliedRate, floatingRateSetting)
 
 func ApplyFloatingRateSetting: <"Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction.  Floating amount calculations are described in the 2021 ISDA Definitions in Section 6 and 7.">
-	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1) <"The interest rate stream for which the floating amount calculation is being done.">
 		calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the floating rate calculation is being done.">
@@ -91,11 +89,10 @@ func ApplyFloatingRateSetting: <"Calculate a floating amount for a calculation p
 		suppliedNotional number(0..1)
 		suppliedRate number(0..1)
 		floatingRateSetting FloatingRateSettingDetails (0..1) <"Details of the rate observation/calculation corresonding to the supplied rate definition and calculation period.">
-
 	output:
 		result FloatingAmountCalculationDetails (1..1) <"The details of the floating rate calculation, including raw rate, rate treatment details, notional, and calculated cashlow amount.">
 
-	alias floatingRate: floatingRateSetting->floatingRate
+	alias floatingRate: floatingRateSetting -> floatingRate
 
 	// apply rate treatments/processing
 	alias processingParameters: GetFloatingRateProcessingParameters(interestRatePayout, calculationPeriod)
@@ -104,62 +101,54 @@ func ApplyFloatingRateSetting: <"Calculate a floating amount for a calculation p
 	    else ApplyFloatingRateProcessing(processingParameters, floatingRate, calculationPeriod, isInitialPeriod)
 
 	// determine notional, year fraction, and perform the final calculation
-	alias periodNotional: LookupNotionalAmount(interestRatePayout, calculationPeriod)
-	alias notional  : if suppliedNotional exists then suppliedNotional else periodNotional->amount
-	alias currency : periodNotional  -> unitOfAmount -> currency
+	alias periodNotional: GetNotionalAmount(interestRatePayout, calculationPeriod)
+	alias notional: if suppliedNotional exists then suppliedNotional else periodNotional -> amount
+	alias currency: periodNotional  -> unitOfAmount -> currency
 
-	set result : CalculateFloatingCashFlow(interestRatePayout, calculationPeriod, notional, currency, floatingRateSetting, processedRateDetails)
-
+	set result: CalculateFloatingCashFlow(interestRatePayout, calculationPeriod, notional, currency, floatingRateSetting, processedRateDetails)
 
 func DefaultFloatingRate:
-	[calculation]
 	inputs:
-		suppliedRate number(1..1)
+		suppliedRate number (1..1)
 	output:
-		processedRateDetails 	FloatingRateProcessingDetails (1..1) <"Results are details of the rate treatment.">
+		processedRateDetails FloatingRateProcessingDetails (1..1) <"Results are details of the rate treatment.">
 
-	set processedRateDetails -> processedRate : suppliedRate
-
+	set processedRateDetails -> processedRate: suppliedRate
 
 func CalculateFloatingCashFlow:
-	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1) <"The interest rate stream for which the floating amount calculation is being done.">
 		calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the floating rate calculation is being done.">
-		notional number(0..1)
+		notional number (0..1)
 		currency string (0..1)
-		floatingRateSetting FloatingRateSettingDetails (0..1) <"Details of the rate observation/calculation corresonding to the supplied rate definition and calculation period.">
-		processedRateDetails 	FloatingRateProcessingDetails (1..1) <"Results are details of the rate treatment.">
-
+		floatingRateSetting FloatingRateSettingDetails (0..1) <"Details of the rate observation/calculation corresponding to the supplied rate definition and calculation period.">
+		processedRateDetails FloatingRateProcessingDetails (1..1) <"Results are details of the rate treatment.">
 	output:
-		result FloatingAmountCalculationDetails (1..1) <"The details of the floating rate calculation, including raw rate, rate treatment details, notional, and calculated cashlow amount.">
+		result FloatingAmountCalculationDetails (1..1) <"The details of the floating rate calculation, including raw rate, rate treatment details, notional, and calculated cashflow amount.">
 
-	alias appliedRate: processedRateDetails-> processedRate
-	alias spreadExclusiveRate: processedRateDetails->spreadExclusiveRate
+	alias appliedRate: processedRateDetails ->  processedRate
+	alias spreadExclusiveRate: processedRateDetails -> spreadExclusiveRate
 
-	alias dcf: interestRatePayout->dayCountFraction
+	alias dcf: interestRatePayout -> dayCountFraction
 	alias yearFraction: CalculateYearFraction(interestRatePayout, dcf, calculationPeriod)
 	alias annualAccrual: notional * appliedRate
 	alias notionalAccrual: notional * yearFraction
 	alias cashflow: notionalAccrual * appliedRate
 	alias spreadExclusiveCashflow: if spreadExclusiveRate exists then notionalAccrual * spreadExclusiveRate
 
-
 	// record results
-	set result->calculationPeriod: calculationPeriod
-	set result->calculationPeriodNotionalAmount-> amount : notional
-	set result->calculationPeriodNotionalAmount-> unitOfAmount -> currency :  currency
-	set result->floatingRate:  if floatingRateSetting exists then floatingRateSetting
+	set result -> calculationPeriod: calculationPeriod
+	set result -> calculationPeriodNotionalAmount ->  amount: notional
+	set result -> calculationPeriodNotionalAmount ->  unitOfAmount -> currency:  currency
+	set result -> floatingRate:  if floatingRateSetting exists then floatingRateSetting
 
-	set result->processingDetails: if processedRateDetails exists then processedRateDetails
-	set result->appliedRate: appliedRate
-	set result->yearFraction: yearFraction
-	set result->calculatedAmount: cashflow
-	set result->spreadExclusiveCalculatedAMount: spreadExclusiveCashflow
-
+	set result -> processingDetails: if processedRateDetails exists then processedRateDetails
+	set result -> appliedRate: appliedRate
+	set result -> yearFraction: yearFraction
+	set result -> calculatedAmount: cashflow
+	set result -> spreadExclusiveCalculatedAMount: spreadExclusiveCashflow
 
 func FloatingAmountCalculationOrig: <"Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction.  Floating amount calculations are described in the 2021 ISDA Definitions in Section 6 and 7.">
-	[calculation]
 	inputs:
 		interestRatePayout InterestRatePayout (1..1) <"The interest rate stream for which the floating amount calculation is being done.">
 		calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the floating rate calculation is being done.">
@@ -171,36 +160,36 @@ func FloatingAmountCalculationOrig: <"Calculate a floating amount for a calculat
 
 	// Get the floating rate before treatments
 	alias rawFloatingRateDetails: DetermineFloatingRateReset(interestRatePayout, calculationPeriod)
-	alias rawFloatingRate: rawFloatingRateDetails->floatingRate
+	alias rawFloatingRate: rawFloatingRateDetails -> floatingRate
 
 	// apply rate treatments/processing
 	alias processingParameters: GetFloatingRateProcessingParameters(interestRatePayout, calculationPeriod)
 	alias processingDetails: ApplyFloatingRateProcessing(processingParameters, rawFloatingRate, calculationPeriod, isInitialPeriod)
-	alias appliedRate: if suppliedRate exists then suppliedRate else processingDetails-> processedRate
-	alias spreadExclusiveRate: processingDetails->spreadExclusiveRate
+	alias appliedRate: if suppliedRate exists then suppliedRate else processingDetails ->  processedRate
+	alias spreadExclusiveRate: processingDetails -> spreadExclusiveRate
 
 	// determine notional, year fraction, and perform the final calculation
-	alias periodNotional: LookupNotionalAmount(interestRatePayout, calculationPeriod)
-	alias notional  : if suppliedNotional exists then suppliedNotional else periodNotional->amount
-	alias dcf: interestRatePayout->dayCountFraction
+	alias periodNotional: GetNotionalAmount(interestRatePayout, calculationPeriod)
+	alias notional: if suppliedNotional exists then suppliedNotional else periodNotional -> amount
+	alias dcf: interestRatePayout -> dayCountFraction
 	alias yearFraction: CalculateYearFraction(interestRatePayout, dcf, calculationPeriod)
 	alias annualAccrual: notional * appliedRate
 	alias notionalAccrual: notional * yearFraction
 	alias cashflow: notionalAccrual * appliedRate
 	alias spreadExclusiveCashflow: notionalAccrual * spreadExclusiveRate
-	alias defaultedRate : suppliedRate exists
+	alias defaultedRate: suppliedRate exists
 
 	// record results
-	set result->calculationPeriod: calculationPeriod
-	set result->calculationPeriodNotionalAmount-> amount : notional
-	set result->calculationPeriodNotionalAmount-> unitOfAmount -> currency : periodNotional  -> unitOfAmount -> currency
-	set result->floatingRate:  if suppliedRate is absent then rawFloatingRateDetails
+	set result -> calculationPeriod: calculationPeriod
+	set result -> calculationPeriodNotionalAmount ->  amount: notional
+	set result -> calculationPeriodNotionalAmount ->  unitOfAmount -> currency: periodNotional  -> unitOfAmount -> currency
+	set result -> floatingRate:  if suppliedRate is absent then rawFloatingRateDetails
 
-	set result->processingDetails: if suppliedRate is absent then processingDetails
-	set result->appliedRate: appliedRate
-	set result->yearFraction: yearFraction
-	set result->calculatedAmount: cashflow
-	set result->spreadExclusiveCalculatedAMount: if suppliedRate is absent then spreadExclusiveCashflow
+	set result -> processingDetails: if suppliedRate is absent then processingDetails
+	set result -> appliedRate: appliedRate
+	set result -> yearFraction: yearFraction
+	set result -> calculatedAmount: cashflow
+	set result -> spreadExclusiveCalculatedAMount: if suppliedRate is absent then spreadExclusiveCashflow
 
 func Create_CalculationPeriodBase: <"Create a CalculationPeriodBase type from CalculationPeriodData type.">
 	inputs:
@@ -215,53 +204,33 @@ func Create_CalculationPeriodBase: <"Create a CalculationPeriodBase type from Ca
 // The following functions look up current notional
 //-------------------------------------------------------
 
-func LookupNotionalAmount: <"Look up the notional amount in effect for a calculation period.">
-	[calculation]
+func GetNotionalAmount: <"Look up the notional amount in effect for a calculation period.">
 	inputs:
 		interestRatePayout InterestRatePayout (1..1) <"An interest rate stream.">
 		calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which you want the notional.">
 	output:
-		notional Money (1..1) <"The notional that is in effect starting from the adjusterPeriodStartDate.">
-	// look up and return the notional from the notional schedule
-	set notional->amount:
-		LookupQuantityScheduleAmount(interestRatePayout->payoutQuantity->quantitySchedule, calculationPeriod->adjustedStartDate)
-	set notional->unitOfAmount->currency:
-		interestRatePayout->payoutQuantity->quantitySchedule->initialQuantity->unitOfAmount->currency
+		notional Money (1..1) <"The notional that is in effect starting from the adjustedPeriodStartDate.">
 
-func LookupQuantityScheduleAmount: <"Look up a value from a quantity schedule given a supplied starting date.  It will return the value of the last step that is before the supplied starting date, or if none matches, the initial value.">
-	[calculation]
+	set notional -> amount: <"Look up and return the notional from the notional schedule.">
+	    GetNonNegativeScheduleStepValues(
+	        interestRatePayout -> payoutQuantity -> quantitySchedule,
+	        calculationPeriod -> adjustedStartDate ) last
+	set notional -> unitOfAmount -> currency:
+		interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+
+func GetNonNegativeScheduleStepValues: <"Find all schedule step values whose stepDate is before or equal to the supplied periodStartDate.  Returns a list of step values starting from the initial quantity value, to the last step value before the periodStartDate.">
 	inputs:
-		schedule NonNegativeQuantitySchedule (0..1) <"The quantity schedule being looked up from.">
-		periodStartDate date (1..1) <"The date for which the quantity is required.">
-	output:
-		value number (1..1)	<"The quantity in effect on the supplied date.">
-
-	alias stepValues: FindNonNegativeScheduleSteps(schedule->stepSchedule, periodStartDate, 0)
-	alias vals: AppendToVector(stepValues, schedule->initialQuantity->amount)
-	set value: vals first
-
-func FindNonNegativeScheduleSteps: <"Find all schedule step values whose stepDate is before or equal to the supplied periodStartDate, starting from supplied startingStep number.  Returns a list of step values starting from the last matching one and going in reverse order.  Done this slightly odd way for efficiency and simplicity in code generation.">
-	[calculation]
-	inputs:
-		schedule NonNegativeStepSchedule (1..1) <"The quantity schedule being looked up from.">
+		schedule NonNegativeQuantitySchedule (1..1) <"The quantity schedule being looked up from.">
 		periodStartDate date (1..1)	<"The date for which the quantity is required.">
-		startingStep int (1..1) <"The first step to start looking at.">
 	output:
-		vector number (0..*)
+		stepValues number (0..*)
 
-	alias currentStep: SelectNonNegativeScheduleStep(schedule, startingStep)
-	alias remainingValues: FindNonNegativeScheduleSteps(schedule, periodStartDate, startingStep + 1)
-	alias append: AppendToVector(remainingValues, currentStep->stepValue)
-	alias checkAppend: if (periodStartDate >= stepDate) then append
-	alias stepDate: currentStep->stepDate
-	add vector: if (startingStep < schedule->step count) then checkAppend
-
-func SelectNonNegativeScheduleStep: <"Retrieve a single step from a  schedule given a step number.  This is an entry point to a function written in a native language like Java.  Returns the step if it exists, else null. The index is 0-based, so 0 returns the first step.">
-	inputs:
-		schedule NonNegativeStepSchedule (1..1) <"The quantity schedule being looked up from.">
-		stepNo int (1..1) <"The step to return.">
-	output:
-		step NonNegativeStep (0..1)	<"The returned step, or null if it does not exist.">
+    add stepValues: <"Add initial step value.">
+        schedule -> initialQuantity -> amount
+    add stepValues: <"Add all schedule step values whose stepDate is before or equal to the supplied periodStartDate.">
+	    schedule -> stepSchedule -> step
+            filter [ item -> stepDate <= periodStartDate ]
+            map [ item -> stepValue ]
 
 // -----------------------------------------------
 //
@@ -278,9 +247,9 @@ func CalculateYearFraction: <"Calculate the year fraction for a single calculati
 		yearFrac number (1..1)
 
     // some convenience aliases to access start and end dates
-	alias start: calculationPeriod->adjustedStartDate
-	alias end: calculationPeriod->adjustedEndDate
-	alias termination: interestRatePayout->calculationPeriodDates->terminationDate->adjustableDate->unadjustedDate
+	alias start: calculationPeriod -> adjustedStartDate
+	alias end: calculationPeriod -> adjustedEndDate
+	alias termination: interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate -> unadjustedDate
 
     // calculate the number of calculation periods in a year
 	alias periodsInYear: <"Number of calculation periods in a year.">

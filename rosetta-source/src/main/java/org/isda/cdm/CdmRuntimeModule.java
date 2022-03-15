@@ -4,10 +4,6 @@ import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
 import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
-import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStep;
-import cdm.product.asset.calculation.functions.SelectNonNegativeScheduleStepImpl;
-import cdm.product.asset.floatingrate.functions.SelectScheduleStep;
-import cdm.product.asset.floatingrate.functions.SelectScheduleStepImpl;
 import cdm.product.common.schedule.functions.*;
 import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantity;
 import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantityImpl;
@@ -35,8 +31,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		// Requires DSL get-item(index)
 		bind(VectorOperation.class).to(bindVectorOperation());
 		bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
-		bind(SelectScheduleStep.class).to(bindSelectScheduleStep());
-		bind(SelectNonNegativeScheduleStep.class).to(bindSelectNonNegativeScheduleStep());
 
 		// Requires DSL remove-item(index)
 		bind(PopOffDateList.class).to(bindPopOffDateList());
@@ -60,10 +54,10 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
 		bind(AddDays.class).to(bindAddDays());
-		bind(CalculationPeriodRange.class).to(bindCalculationPeriodRange());
+		bind(DayOfWeek.class).to(bindDayOfWeek());
 		bind(DateDifference.class).to(bindDateDifference());
 		bind(LeapYearDateDifference.class).to(bindLeapYearDateDiff());
-		bind(DayOfWeek.class).to(bindDayOfWeek());
+		bind(CalculationPeriodRange.class).to(bindCalculationPeriodRange());
 		bind(CalculationPeriod.class).to(bindCalculationPeriod());
 		bind(CalculationPeriods.class).to (bindCalculationPeriods());
 	}
@@ -140,14 +134,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends DayOfWeek> bindDayOfWeek() {
 		return DayOfWeekImpl.class;
-	}
-
-	protected Class<? extends SelectScheduleStep> bindSelectScheduleStep() {
-		return SelectScheduleStepImpl.class;
-	}
-
-	protected Class<? extends SelectNonNegativeScheduleStep> bindSelectNonNegativeScheduleStep() {
-		return SelectNonNegativeScheduleStepImpl.class;
 	}
 
 	protected Class<? extends IndexValueObservation> bindIndexValueObservation() {
