@@ -1897,7 +1897,7 @@ The functions are located in ``base-datetime-func``.
 Functions include:
 
 * ``GetAllBusinessCenters``: Returns a merged list of BusinessCenterEnums for the supplied BusinessCenters.
-* ``BusinessCentersHolidays``: Returns a sorted list of holidays for the supplied business centers.
+* ``BusinessCenterHolidaysMultiple``: Returns a sorted list of holidays for the supplied business centers.
 * ``BusinessCenterHolidays``: Returns a list of holidays for the supplied business center.
 * ``DayOfWeek``: Returns the day of week corresponding to the supplied date.
 * ``AddDays``: Adds the specified number of calendar days to the supplied date.  A negative number will generate a date before the supplied date.

@@ -11,13 +11,13 @@ import java.util.List;
 import static cdm.base.datetime.functions.BusinessCenterHolidaysTestData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BusinessCentersHolidaysTest extends AbstractFunctionTest {
+public class BusinessCenterHolidaysMultipleTest extends AbstractFunctionTest {
 
 	@Inject
 	private GetAllBusinessCenters businessCentersFunc;
 
 	@Inject
-	private BusinessCentersHolidays func;
+	private BusinessCenterHolidaysMultiple func;
 
 	@Test
 	void shouldRetrieve() {
