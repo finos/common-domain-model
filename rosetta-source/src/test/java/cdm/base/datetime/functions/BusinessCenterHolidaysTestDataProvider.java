@@ -14,7 +14,7 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
 /**
  * Simple holiday data provider implementation for unit tests.
  */
-public class BusinessCenterHolidaysTestDataProviderImpl implements BusinessCenterHolidaysDataProvider {
+public class BusinessCenterHolidaysTestDataProvider extends BusinessCenterHolidays {
 
 	private final Map<BusinessCenterEnum, List<Date>> data =
 			ImmutableMap.<BusinessCenterEnum, List<Date>>builder()
@@ -24,7 +24,7 @@ public class BusinessCenterHolidaysTestDataProviderImpl implements BusinessCente
 					.build();
 
 	@Override
-	public List<Date> getHolidays(BusinessCenterEnum businessCenter) {
+	protected List<Date> doEvaluate(BusinessCenterEnum businessCenter) {
 		return emptyIfNull(data.get(businessCenter))
 				.stream()
 				.sorted()

@@ -1,13 +1,36 @@
-# *Event model - Transfer FpML Processes and Record-Keeping mapping*
+# *Product and Event Model - Migrate Java function implementations to native DSL*
 
 _What is being released?_
 
-Following the recent `Transfer` model changes, and the corresponding FpML (Confirmation view) mappings to `TradeState`, this release adds `Transfer` mappings for FpML Processes and Record-Keeping view.
+Following the recent addition of DSL syntax features, functions that were previously implemented in Java due to unsupported DSL features, have now been migrated to native DSL.
+
+The migrated function namespace and names are listed below:
+
+cdm.base.datetime
+- `GetAllBusinessCenters`
+- `BusinessCenterHolidaysMultiple`
+
+cdm.event.common
+- `UpdateIndexTransitionPriceAndRateOption`
+- `FindMatchingIndexTransitionInstruction`
+
+cdm.observable.asset.fro
+- `IndexValueObservationMultiple`
+
+cdm.observable.event
+- `ResolveObservationAverage`
+
+cdm.product.asset
+- `ResolveEquityInitialPrice`
+
+cdm.product.asset.calculation
+- `GetNotionalAmount`
+- `GetQuantityScheduleStepValues`
+
+cdm.product.asset.floatingrate
+- `GetRateScheduleAmount`
+- `GetRateScheduleStepValues`
 
 _Review Directions_
 
-In the CDM Portal, select Ingestion and review the following example transactions:
-
-- fpml-5-10 > incomplete-processes > msg-ex19-cds-execution-allocations
-- fpml-5-10 > incomplete-processes > msg-ex51-execution-advice-trade-initiation-C01-00
-- fpml-5-10 > incomplete-processes > msg-ex58-execution-advice-trade-initiation-F01-00
+In the CDM Portal, select Textual Browser and review the functions above.

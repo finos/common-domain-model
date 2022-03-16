@@ -37,7 +37,7 @@ func Create_SecurityFinanceReset: <"Defines how to resolve the reset value for a
 	output:
 		reset Reset (1..1)
 
-	set reset -> resetValue: <"Assigns the observed value to the reset value. In the case of EquityPayout, the observed value represents the price of the underlying at the end of the period and no further manupulation of that value is required.">
+	set reset -> resetValue: <"Assigns the observed value to the reset value. In the case of EquityPayout, the observed value represents the price of the underlying at the end of the period and no further manipulation of that value is required.">
 		ResolveObservationAverage(observation)
 		// work out the average as the value to be used in the calculation
 
@@ -55,4 +55,13 @@ func ResolveObservationAverage: <"Specifies the interface that should be used by
 	output:
 		resetValue Price (1..1)
 
-	//java to calculate average
+    alias firstObservedValue:
+        observations -> observedValue first
+
+    condition:
+        observations -> observedValue -> unitOfAmount all = firstObservedValue -> unitOfAmount
+
+	set resetValue -> amount: observations -> observedValue -> amount sum / observations count
+	set resetValue -> unitOfAmount: firstObservedValue -> unitOfAmount
+	set resetValue -> perUnitOfAmount: firstObservedValue -> perUnitOfAmount
+	set resetValue -> priceExpression: firstObservedValue -> priceExpression

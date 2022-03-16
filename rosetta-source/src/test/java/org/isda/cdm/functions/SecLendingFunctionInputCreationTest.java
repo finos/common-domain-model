@@ -69,7 +69,7 @@ class SecLendingFunctionInputCreationTest {
 
     public static final ObjectMapper MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper();
 
-    // AVOID ADDING MANUALLY CRAFTER JSON
+    // AVOID ADDING MANUALLY CRAFTED JSON
 
     // ALLOCATION AND REALLOCATION EXAMPLES ARE BASED ON THIS EXECUTION INSTRUCTION.
     // This is the execution instruction between an agent lender and a borrower

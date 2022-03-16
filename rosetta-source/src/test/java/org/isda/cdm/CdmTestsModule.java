@@ -1,7 +1,7 @@
 package org.isda.cdm;
 
-import cdm.base.datetime.functions.BusinessCenterHolidaysDataProvider;
-import cdm.base.datetime.functions.BusinessCenterHolidaysTestDataProviderImpl;
+import cdm.base.datetime.functions.BusinessCenterHolidays;
+import cdm.base.datetime.functions.BusinessCenterHolidaysTestDataProvider;
 import cdm.product.asset.functions.ResolveRateIndex;
 import cdm.product.common.schedule.functions.CalculationPeriod;
 import cdm.product.common.schedule.functions.ResolveRateIndexImpl;
@@ -31,7 +31,7 @@ public class CdmTestsModule extends CdmRuntimeModule {
 	}
 
 	@Override
-	protected Class<? extends BusinessCenterHolidaysDataProvider> bindBusinessCenterHolidaysDataProvider() {
-		return BusinessCenterHolidaysTestDataProviderImpl.class;
+	protected Class<? extends BusinessCenterHolidays> bindBusinessCenterHolidays() {
+		return BusinessCenterHolidaysTestDataProvider.class;
 	}
 }
