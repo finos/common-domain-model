@@ -137,6 +137,115 @@ steps:
           - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
           - mvn -s /settings.xml -f kotlin-pom.xml clean deploy
 
+  Distribution:
+    steps:
+      BuildDistributionNormal:
+        title: Maven distribution build
+        fail_fast: false
+        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        working_directory: ./
+        when:
+          condition:
+            all:
+              isNotRelease: "${{TAG_REPO}} == false"
+        commands:
+          - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+          - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+          - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+          - mvn -U -s /settings.xml clean deploy -P distribute
+
+      BuildDistributionRelease:
+        title: Maven distribution build for release
+        fail_fast: false
+        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        working_directory: ./
+        when:
+          condition:
+            all:
+              isRelease: "${{TAG_REPO}}"
+        commands:
+          - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+          - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+          - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+          - mvn -U -s /settings.xml clean deploy -P distribute-full
+
+      DistributeDaml:
+        title: Maven DAML distribution
+        fail_fast: false
+        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        working_directory: ./rosetta-distribution
+        commands:
+          - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+          - mvn -s /settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+          - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+          - mvn -U -s /settings.xml -f daml-pom.xml clean deploy
+
+        DistributeScala:
+          title: Maven Scala distribution
+          fail_fast: false
+          image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+          working_directory: ./rosetta-distribution
+          commands:
+            - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+            - mvn -s /settings.xml -f scala-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+            - mvn -s /settings.xml -f scala-pom.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+            - mvn -U -s /settings.xml -f scala-pom.xml clean deploy
+
+        DistributeCSharp8:
+          title: Maven CSharp8 distribution
+          fail_fast: false
+          image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+          working_directory: ./rosetta-distribution
+          commands:
+            - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+            - mvn -s /settings.xml -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+            - mvn -s /settings.xml -f csharp8-pom.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+            - mvn -U -s /settings.xml -f csharp8-pom.xml clean deploy
+
+        DistributeCSharp9:
+          title: Maven CSharp9 distribution
+          fail_fast: false
+          image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+          working_directory: ./rosetta-distribution
+          commands:
+            - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+            - mvn -s /settings.xml -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+            - mvn -s /settings.xml -f csharp9-pom.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+            - mvn -U -s /settings.xml -f csharp9-pom.xml clean deploy
+
+        DistributeTypeScript:
+          title: Maven TypeScript distribution
+          fail_fast: false
+          image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+          working_directory: ./rosetta-distribution
+          commands:
+            - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+            - mvn -s /settings.xml -f typescript-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+            - mvn -s /settings.xml -f typescript-pom.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+            - mvn -U -s /settings.xml -f typescript-pom.xml clean deploy
+
+        DistributeGo:
+          title: Maven Golang distribution
+          fail_fast: false
+          image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+          working_directory: ./rosetta-distribution
+          commands:
+            - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+            - mvn -s /settings.xml -f golang-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+            - mvn -s /settings.xml -f golang-pom.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+            - mvn -U -s /settings.xml -f golang-pom.xml clean deploy
+
+        DistributeKotlin:
+          title: Maven Kotlin distribution
+          fail_fast: false
+          image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+          working_directory: ./rosetta-distribution
+          commands:
+            - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+            - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+            - mvn -s /settings.xml -f kotlin-pom.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+            - mvn -U -s /settings.xml -f kotlin-pom.xml clean deploy
+
   BuildJavaDocs:
     title: Javadocs build and deploy
     fail_fast: false
