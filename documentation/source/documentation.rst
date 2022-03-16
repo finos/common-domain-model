@@ -2108,7 +2108,8 @@ Some of those calculations are presented below:
     alias finalPriceValue:
         finalPrice->amount
     set rateOfReturn:
-        (finalPriceValue - initialPriceValue) / initialPriceValue
+        if finalPriceValue exists and initialPriceValue exists and initialPriceValue > 0 then
+            (finalPriceValue - initialPriceValue) / initialPriceValue
 
 Initial Margin
 """"""""""""""""""
