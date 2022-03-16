@@ -285,16 +285,23 @@ type ScheduledTransfer:
 	condition: <"When transfer type is Performance or Transfer then the type of event must be specified.">
 		if transferType = TransferTypeEnum -> CorporateAction then corporateActionTransferType exists
 
+
+// [TH Proposal] Mixed version. Contains both the "old" (FixedForward and Equity) and the "new" payouts (FixedPrice and Performance)
+
 type SettlementOrigin: <"Defines the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
 
 	commodityPayout CommodityPayout (0..1) <"Represents a reference to an Commodity Payout.">
 	    [metadata reference]
 	creditDefaultPayout CreditDefaultPayout (0..1) <"Represents a reference to a Credit Default Payout.">
 	    [metadata reference]
+	
+	// [TH Proposal] Old payouts still present. To be removed in the future.
 	equityPayout EquityPayout (0..1) <"Represents a reference to an Equity Payout.">
 	    [metadata reference]
 	fixedForwardPayout FixedForwardPayout (0..1) <"Represents a reference to a Fixed Forward Payout.">
 	    [metadata reference]
+	//---[End of TH Proposal]---
+
 	forwardPayout ForwardPayout (0..1) <"Represents a reference to a Forward Payout.">
 	    [metadata reference]
 	interestRatePayout InterestRatePayout (0..1) <"Represents a reference to an Interest Rate Payout.">
@@ -305,7 +312,22 @@ type SettlementOrigin: <"Defines the origin to the transfer as a reference for l
     	[metadata reference]
 	settlementTerms SettlementTerms (0..1) <"Represents a reference to settlement terms, which may have been specified at execution.">
 		[metadata reference]
+
+	// [TH Proposal] Added new payouts: Perforance and FixedPrice
+	
+	performancePayout PerformancePayout (0..1) <"Represents a reference to a Performance Payout.">
+		[metadata reference]
+	fixedPricePayout FixedPricePayout (0..1) <"Represents a reference to a Fixed Price Payout">
+		[metadata reference]
+	
+	//---[End of TH Proposal]---
+
 	condition: one-of	
+
+//---[End of TH Proposal]---
+
+
+
 
 type Trade: <"Defines the output of a financial transaction between parties - a Business Event. A Trade impacts the financial position (i.e. the balance sheet) of involved parties.">
 	[metadata key]
@@ -540,6 +562,8 @@ type ContractDetails: <"Defines specific attributes that relate to contractual d
 		[metadata scheme]
 	partyContractInformation PartyContractInformation (0..*) <"Represents additional contractual information provided by each involved party.">
 
+//[TH Proposal] Old Equity version
+
 type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an contractFormation event is corrected, the correction event will have a lineage into the initial event, which takes the form of a globalKey into that initial contract formation event. Two referencing mechanisms are provided as part of the CDM: either the globalKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the globalKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.globalKey.GlobalKeyHashCalculator. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
     tradeReference Trade (0..*)
         [metadata reference]
@@ -561,7 +585,34 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 		[metadata reference]
 	portfolioStateReference PortfolioState (0..*) <"The refence to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
 		[metadata reference]
+//---[End of TH Proposal]---
 
+
+	//[TH Proposal] Performance version
+
+type NEW_Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an contractFormation event is corrected, the correction event will have a lineage into the initial event, which takes the form of a globalKey into that initial contract formation event. Two referencing mechanisms are provided as part of the CDM: either the globalKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the globalKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.globalKey.GlobalKeyHashCalculator. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
+    tradeReference Trade (0..*)
+        [metadata reference]
+	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a globalKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+	cashflowReference Cashflow (0..*) <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+	creditDefaultPayoutReference CreditDefaultPayout (0..*) <"The reference to the instantiation of a CreditdefaultPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+	interestRatePayoutReference InterestRatePayout (0..*) <"The reference to the instantiation of a InterestRatePayout component object. An expected typical usage is to provide lineage for the payment of, say, an interest rate swap reset, with the ability to relate the gross cashflow amounts to the respective payout components. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+	optionPayoutReference OptionPayout (0..*) <"The reference to the instantiation of a OptionPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+	performancePayoutReference PerformancePayout (0..*) <"The reference to the instantiation of a EquityPayout object. An expected typical usage is to provide lineage for the payment of, say, an equity dividend. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+	transferReference TransferPrimitive (0..*) <"The reference to the instantiation of a TransferPrimitive object.">
+		[metadata reference]
+	legalAgreement LegalAgreement (0..*) <"The reference to the instantiation of a Legal Agreement object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+		[metadata reference]
+	portfolioStateReference PortfolioState (0..*) <"The refence to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
+		[metadata reference]
+
+//---[End of TH Proposal]---
 type StockSplitInstruction: <"Data required to perform a stock split business event.">
 
 	tradeState TradeState (1..1) <"Contract to be split.">
