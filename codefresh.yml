@@ -158,7 +158,7 @@ steps:
     title: Maven distribution build
     fail_fast: false
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./rosetta-distribution
+    working_directory: ./
     when:
       condition:
         all:
@@ -167,6 +167,7 @@ steps:
       - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - cd rosetta-distribution
       - mvn -U -s /settings.xml clean deploy -P distribute
 
   BuildDistributionRelease:
@@ -174,7 +175,7 @@ steps:
     title: Maven distribution build for release
     fail_fast: false
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./rosetta-distribution
+    working_directory: ./
     when:
       condition:
         all:
@@ -183,6 +184,7 @@ steps:
       - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - cd rosetta-distribution
       - mvn -U -s /settings.xml clean deploy -P distribute-full
 
   DistributeDaml:
