@@ -19,8 +19,6 @@
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <isda.cdm.version>0.0.0.master</isda.cdm.version>
-        <rosetta.ingest.version>0.0.0.master</rosetta.ingest.version>
         <guava.version>31.0.1-jre</guava.version>
         <junit.jupiter.version>5.8.2</junit.jupiter.version>
         <junit.platform.version>1.8.2</junit.platform.version>
@@ -28,7 +26,7 @@
 
     <profiles>
         <profile>
-            <id>full</id>
+            <id>distribute-full</id>
             <build>
                 <plugins>
                     <plugin>
@@ -62,6 +60,167 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>distribute</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>cdm-dependencies-lib</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/cdm-dependencies/dependencies</outputDirectory>
+                                    <excludeGroupIds>com.isda</excludeGroupIds>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/cdm-dependencies/dependencies</outputDirectory>
+                                    <classifier>sources</classifier>
+                                    <excludeGroupIds>com.isda</excludeGroupIds>
+                                    <includeArtifactIds>com.regnosys.rosetta.lib,com.regnosys.rosetta.blueprints,rosetta-common</includeArtifactIds>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>cdm-dependency-jar</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/cdm-dependencies</outputDirectory>
+                                    <includeGroupIds>com.isda</includeGroupIds>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>cdm-dependency-sources</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/cdm-dependencies</outputDirectory>
+                                    <classifier>sources</classifier>
+                                    <includeGroupIds>com.isda</includeGroupIds>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>cdm-artefacts</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/cdm-artefacts</outputDirectory>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.isda</groupId>
+                                            <artifactId>cdm</artifactId>
+                                            <version>${isda.cdm.version}</version>
+                                            <includes>cdm/**,cdm-sample-files/**,distribution/**,schemas/**,config/**,release/**</includes>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>assembly.xml</descriptor>
+                            </descriptors>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>make-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>create-cdm-json</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <!-- automatically creates the classpath using all project dependencies,
+                                            also adding the project build directory -->
+                                        <classpath />
+                                        <argument>com.regnosys.granite.ingestor.JsonWriter</argument>
+                                        <argument>${project.build.directory}/cdm-json/</argument>
+                                    </arguments>
+                                    <classpathScope>test</classpathScope>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <includes>**IntegrationTest.java</includes>
+                            <excludes>
+                                <exclude>**Daml**</exclude>
+                                <exclude>**Scala**</exclude>
+                                <exclude>**TypeScript**</exclude>
+                                <exclude>**CSharp8**</exclude>
+                                <exclude>**CSharp9**</exclude>
+                                <exclude>**Golang**</exclude>
+                                <exclude>**Kotlin**</exclude>
+                            </excludes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <dependencyManagement>
@@ -69,12 +228,12 @@
             <dependency>
                 <groupId>com.isda</groupId>
                 <artifactId>cdm</artifactId>
-                <version>${isda.cdm.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
             <dependency>
                 <artifactId>rosetta-ingest-lib</artifactId>
                 <groupId>com.regnosys</groupId>
-                <version>${rosetta.ingest.version}</version>
+                <version>${rosetta.bundle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -210,163 +369,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>cdm-dependencies-lib</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/cdm-dependencies/dependencies</outputDirectory>
-                            <excludeGroupIds>com.isda</excludeGroupIds>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/cdm-dependencies/dependencies</outputDirectory>
-                            <classifier>sources</classifier>
-                            <excludeGroupIds>com.isda</excludeGroupIds>
-                            <includeArtifactIds>com.regnosys.rosetta.lib,com.regnosys.rosetta.blueprints,rosetta-common</includeArtifactIds>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>cdm-dependency-jar</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/cdm-dependencies</outputDirectory>
-                            <includeGroupIds>com.isda</includeGroupIds>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>cdm-dependency-sources</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/cdm-dependencies</outputDirectory>
-                            <classifier>sources</classifier>
-                            <includeGroupIds>com.isda</includeGroupIds>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>cdm-artefacts</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/cdm-artefacts</outputDirectory>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.isda</groupId>
-                                    <artifactId>cdm</artifactId>
-                                    <version>${isda.cdm.version}</version>
-                                    <includes>cdm/**,cdm-sample-files/**,distribution/**,schemas/**,config/**,release/**</includes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-                <configuration>
-                    <includeScope>runtime</includeScope>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptors>
-                        <descriptor>assembly.xml</descriptor>
-                    </descriptors>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>create-cdm-json</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <!-- automatically creates the classpath using all project dependencies,
-                                    also adding the project build directory -->
-                                <classpath />
-                                <argument>com.regnosys.granite.ingestor.JsonWriter</argument>
-                                <argument>${project.build.directory}/cdm-json/</argument>
-                            </arguments>
-                            <classpathScope>test</classpathScope>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <includes>**IntegrationTest.java</includes>
-                    <excludes>
-                        <exclude>**Daml**</exclude>
-                        <exclude>**Scala**</exclude>
-                        <exclude>**TypeScript**</exclude>
-                        <exclude>**CSharp8**</exclude>
-                        <exclude>**CSharp9**</exclude>
-                        <exclude>**Golang**</exclude>
-                        <exclude>**Kotlin**</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
     </build>
     <distributionManagement>
         <repository>
