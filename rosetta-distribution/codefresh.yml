@@ -1,0 +1,198 @@
+version: "1.0"
+steps:
+  TagReleaseName:
+    title: Setup RELEASE_NAME variable with tag
+    image: alpine/git
+    when:
+      condition:
+        all:
+          releaseNameNotDefined: "${{TAG_REPO}} == true"
+    commands:
+      - cf_export RELEASE_NAME=${{TAG_NAME}}
+
+  BranchReleaseName:
+    title: Setup RELEASE_NAME variable with branch name
+    image: alpine/git
+    when:
+      condition:
+        all:
+          releaseNameNotDefined: "${{TAG_REPO}} == false"
+    commands:
+      - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}
+
+  BuildNormal:
+    title: Maven build
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    when:
+      condition:
+        all:
+          isNotRelease: "${{TAG_REPO}} == false"
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.ingest.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml clean deploy
+
+  BuildRelease:
+    title: Maven build for release
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    when:
+      condition:
+        all:
+          isRelease: "${{TAG_REPO}}"
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.ingest.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml clean deploy -P full
+
+  BuildDaml:
+    title: Maven DAML build
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=rosetta.ingest.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f daml-pom.xml clean deploy
+
+  BuildScala:
+    title: Maven Scala build
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f scala-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f scala-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f scala-pom.xml versions:update-property -Dproperty=rosetta.ingest.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f scala-pom.xml clean deploy
+
+  BuildCSharp8:
+    title: Maven CSharp8 build
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f csharp8-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f csharp8-pom.xml versions:update-property -Dproperty=rosetta.ingest.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f csharp8-pom.xml clean deploy
+
+  BuildCSharp9:
+    title: Maven CSharp9 build
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f csharp9-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f csharp9-pom.xml versions:update-property -Dproperty=rosetta.ingest.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f csharp9-pom.xml clean deploy
+
+  BuildTypeScript:
+    title: Maven TypeScript build
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f typescript-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f typescript-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f typescript-pom.xml versions:update-property -Dproperty=rosetta.ingest.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f typescript-pom.xml clean deploy
+
+  BuildGo:
+    title: Maven Golang build
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f golang-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f golang-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f golang-pom.xml versions:update-property -Dproperty=rosetta.ingest.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f golang-pom.xml clean deploy
+
+  BuildKotlin:
+    title: Maven Kotlin build
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f kotlin-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f kotlin-pom.xml versions:update-property -Dproperty=rosetta.ingest.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f kotlin-pom.xml clean deploy
+
+  NotifySlackOnFail:
+    title: Trigger Slack dev channel notification if master build failed
+    image: codefresh/cli
+    when:
+      branch:
+        only:
+          - master
+      condition:
+        any:
+          buildNormalError: steps.BuildNormal.result == 'error'
+          buildReleaseError: steps.BuildRelease.result == 'error'
+          buildDamlError: steps.BuildDaml.result == 'error'
+          buildScalaError: steps.BuildScala.result == 'error'
+          buildCSharp8Error: steps.BuildCSharp8.result == 'error'
+          buildCSharp9Error: steps.BuildCSharp9.result == 'error'
+          buildTypeScriptError: steps.BuildTypeScript.result == 'error'
+          buildGoError: steps.BuildGo.result == 'error'
+          buildKotlinError: steps.BuildKotlin.result == 'error'
+    commands:
+      - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
+      - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
+      - export SAFE_REPO_NAME='${{CF_REPO_NAME}}'
+      - export REPO_NAME=${SAFE_REPO_NAME:-NoRepo}
+      - export SAFE_COMMIT_MESSAGE='${{CF_COMMIT_MESSAGE}}'
+      - export COMMIT_MESSAGE=${SAFE_COMMIT_MESSAGE:-NoCommitMsg}
+      - echo Author is $SAFE_COMMIT_AUTHOR and commit msg is $SAFE_COMMIT_MESSAGE and repo is $SAFE_REPO_NAME
+      - echo After substitution author is $COMMIT_AUTHOR and commit msg is $COMMIT_MESSAGE and repo is $REPO_NAME
+      - codefresh run slack-notifier -v REPO_NAME="${REPO_NAME}" -v COMMIT_AUTHOR="${COMMIT_AUTHOR}" -v COMMIT_MESSAGE="${COMMIT_MESSAGE}"  --detach
+
+  FailPipeline:
+    title: Fail pipeline if the Maven build failed
+    image: codefresh/cli
+    when:
+      condition:
+        any:
+          buildNormalFailure: steps.BuildNormal.result == 'failure'
+          buildReleaseFailure: steps.BuildRelease.result == 'failure'
+          buildDamlFailure: steps.BuildDaml.result == 'failure'
+          buildScalaFailure: steps.BuildScala.result == 'failure'
+          buildCSharp8Failure: steps.BuildCSharp8.result == 'failure'
+          buildCSharp9Failure: steps.BuildCSharp9.result == 'failure'
+          buildTypeScriptFailure: steps.BuildTypeScript.result == 'failure'
+          buildGoFailure: steps.BuildGo.result == 'failure'
+          buildKotlinFailure: steps.BuildKotlin.result == 'failure'
+    commands:
+      - exit 1
+
+  TagRepo:
+    title: Tag git repo with release name
+    image: alpine/git
+    when:
+      condition:
+        all:
+          buildPassed: steps.Build.result == 'success'
+          isRelease: "${{TAG_REPO}}"
+    commands:
+      - echo This is a release build, tag repos with release name [${{RELEASE_NAME}}]
+      - git fetch --prune https://${{REGNOSYS_OPS}}:${{REGNOSYS_OPS_TOKEN}}@github.com/REGnosys/${{CF_REPO_NAME}}.git "+refs/tags/*:refs/tags/*"
+      - git tag ${{RELEASE_NAME}}
+      - git push https://${{REGNOSYS_OPS}}:${{REGNOSYS_OPS_TOKEN}}@github.com/REGnosys/${{CF_REPO_NAME}}.git ${{RELEASE_NAME}}
