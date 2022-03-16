@@ -20,7 +20,7 @@ public class IndexValueObservationTest extends AbstractFunctionTest {
 
 	@Override
 	protected void bindTestingMocks(Binder binder) {
-		binder.bind(IndexValueObservationDataProvider.class).toInstance(initIndexData(initFro()));
+		binder.bind(IndexValueObservation.class).toInstance(initIndexData(initFro()));
 	}
 
 	@Test

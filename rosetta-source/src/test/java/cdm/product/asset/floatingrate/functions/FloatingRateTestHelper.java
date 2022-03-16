@@ -6,8 +6,8 @@ import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateOption;
 import cdm.observable.asset.Price;
-import cdm.observable.asset.fro.functions.IndexValueObservationDataProvider;
-import cdm.observable.asset.fro.functions.IndexValueObservationTestDataProviderImpl;
+import cdm.observable.asset.fro.functions.IndexValueObservation;
+import cdm.observable.asset.fro.functions.IndexValueObservationTestDataProvider;
 import cdm.product.asset.FloatingRateSpecification;
 import cdm.product.asset.SpreadSchedule;
 import cdm.product.common.schedule.RateSchedule;
@@ -23,8 +23,8 @@ import java.util.List;
 
 public class FloatingRateTestHelper {
 
-	public static IndexValueObservationDataProvider initIndexData(FloatingRateOption fro) {
-		IndexValueObservationTestDataProviderImpl testDataProvider = new IndexValueObservationTestDataProviderImpl();
+	public static IndexValueObservation initIndexData(FloatingRateOption fro) {
+		IndexValueObservationTestDataProvider testDataProvider = new IndexValueObservationTestDataProvider();
 		testDataProvider.setDefaultValue(0.01);
 		testDataProvider.setValue(fro, Date.of(2021,6,1), 0.02);
 		testDataProvider.setValues(fro, Date.of(2021,7,1), 31,0.03, 0.0001);
