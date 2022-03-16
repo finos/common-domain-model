@@ -801,12 +801,14 @@ func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation 
 		finalPrice Price (1..1)
 	output:
 		rateOfReturn number (1..1)
+
 	alias initialPriceValue:
 		initialPrice->amount
 	alias finalPriceValue:
 		finalPrice->amount
 	set rateOfReturn:
-		(finalPriceValue - initialPriceValue) / initialPriceValue
+	    if finalPriceValue exists and initialPriceValue exists and initialPriceValue > 0 then
+		    (finalPriceValue - initialPriceValue) / initialPriceValue
 
 func EquityNotionalAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 74. 'Equity Notional Amount' means the Number Of Securities times the Initial Price, adjusted, if applicable, as provided in Part 1 Section 2.2, 'Equity Notional Reset'. If 'With Reset' is the Equity Notional Reset Election, then in respect of each Equity Cash Settlement Date: (i) the Equity Notional Amount applicable in respect of the first Equity Cash Settlement Date will be the amount specified as such in the definition of Equity Notional Amount; (ii) the Equity Notional Amount applicable in respect of each subsequent Equity Cash Settlement Date will be the sum of (a) the Equity Notional Amount in respect of the prior Equity Cash Settlement Date and (b) the Equity Performance, whether positive or negative, in respect of the prior Equity Cash Settlement Date; and (iii)	the Floating Notional Amount will be adjusted as provided in sub-clauses (i) and (ii) above as though it were an Equity Notional Amount.">
 	inputs:
