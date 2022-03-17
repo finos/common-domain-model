@@ -34,13 +34,13 @@ The CDM Components
 The Rosetta DSL
 ^^^^^^^^^^^^^^^
 
-The CDM is a `domain model <https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353>`_ written in a Domain-Specific Language (DSL) called the *Rosetta DSL*. 
+The CDM is a `domain model <https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353>`_ written in a Domain-Specific Language (DSL) called the *Rosetta DSL*. The CDM is distributed into multiple common programming languages using a *code generation* mechanism from the Rosetta DSL.
 
-The Rosetta DSL comprises a `language <https://github.com/REGnosys/rosetta-dsl>` (i.e. syntax and rules) and code generators <https://github.com/REGnosys/rosetta-code-generators>. The language includes one default code generator, into `Java <https://www.oracle.com/java/>`_. To facilitate adoption and implementation of the CDM by the community of industry participants, the Rosetta DSL is available open source under an Apache 2.0 license. This allows industry participants to write and share code generators for any other language.
+The Rosetta DSL comprises a `language <https://github.com/REGnosys/rosetta-dsl>`_ (i.e. syntax and rules) and `code generators <https://github.com/REGnosys/rosetta-code-generators>`_. The language includes one default code generator, into `Java <https://www.oracle.com/java/>`_. To facilitate adoption and implementation of the CDM by the community of industry participants, the Rosetta DSL is available open source under an Apache 2.0 license. This allows industry participants to write and share code generators into any other languages.
 
-All the language components, their syntax and purpose are details in the `Rosetta DSL documentation <https://docs.rosetta-technology.io/rosetta/rosetta-dsl>`_. The documentation also describes the mechanism to write and use code generators.
+All the language components, their syntax and purpose are detailed in the `Rosetta DSL documentation <https://docs.rosetta-technology.io/rosetta/rosetta-dsl>`_. The documentation also describes the mechanism to write and use code generators.
 
-.. note:: For more documentation about Rosetta and the DSL please visit the `Rosetta Documentation <https://docs.rosetta-technology.io>`_
+.. note:: For more information about Rosetta and the DSL please visit the `Rosetta Documentation <https://docs.rosetta-technology.io>`_
 
 The ISDA CDM Distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^
