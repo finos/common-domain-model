@@ -28,7 +28,6 @@ import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
-import cdm.product.common.settlement.SettlementTerms;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -52,6 +51,7 @@ import org.isda.cdm.CdmRuntimeModule;
 import org.isda.cdm.functions.testing.FunctionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FunctionInputCreationTest {
 
-    private static boolean WRITE_EXPECTATIONS =
+    private static final boolean WRITE_EXPECTATIONS =
             Optional.ofNullable(System.getenv("WRITE_EXPECTATIONS"))
                     .map(Boolean::parseBoolean).orElse(false);
     private static final Optional<Path> TEST_WRITE_BASE_PATH =
@@ -103,7 +103,7 @@ class FunctionInputCreationTest {
         validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json",
                 Date.parse("1994-12-12"),
-                "cdm-sample-files/functions/execution-business-event/execution-ir-swap-func-input.json");
+                "cdm-sample-files/functions/business-event/execution/execution-ir-swap-func-input.json");
     }
 
     @Test
@@ -111,7 +111,7 @@ class FunctionInputCreationTest {
         validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-initial-fee.json",
                 Date.parse("2018-02-20"),
-                "cdm-sample-files/functions/execution-business-event/execution-ir-swap-with-fee-func-input.json");
+                "cdm-sample-files/functions/business-event/execution/execution-ir-swap-with-fee-func-input.json");
     }
 
     @Test
@@ -119,7 +119,7 @@ class FunctionInputCreationTest {
         validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/swap-with-other-party-payment.json",
                 Date.parse("1994-12-12"),
-                "cdm-sample-files/functions/execution-business-event/execution-ir-swap-with-other-party-payment-func-input.json");
+                "cdm-sample-files/functions/business-event/execution/execution-ir-swap-with-other-party-payment-func-input.json");
     }
 
     @Test
@@ -127,7 +127,7 @@ class FunctionInputCreationTest {
         validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex08-fra.json",
                 Date.parse("1991-05-14"),
-                "cdm-sample-files/functions/execution-business-event/execution-fra-func-input.json");
+                "cdm-sample-files/functions/business-event/execution/execution-fra-func-input.json");
     }
 
     @Test
@@ -135,7 +135,7 @@ class FunctionInputCreationTest {
         validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/CAD-Long-Initial-Stub-versioned.json",
                 Date.parse("2017-12-18"),
-                "cdm-sample-files/functions/execution-business-event/execution-basis-swap-func-input.json");
+                "cdm-sample-files/functions/business-event/execution/execution-basis-swap-func-input.json");
     }
 
     @Test
@@ -143,7 +143,7 @@ class FunctionInputCreationTest {
         validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex07-ois-swap-uti.json",
                 Date.parse("2001-01-25"),
-                "cdm-sample-files/functions/execution-business-event/execution-ois-swap-func-input.json");
+                "cdm-sample-files/functions/business-event/execution/execution-ois-swap-func-input.json");
     }
 
     @Test
@@ -151,7 +151,7 @@ class FunctionInputCreationTest {
         validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/credit/cd-ex01-long-asia-corp-fixreg-versioned.json",
                 Date.parse("2002-12-04"),
-                "cdm-sample-files/functions/execution-business-event/execution-credit-default-swap-func-input.json");
+                "cdm-sample-files/functions/business-event/execution/execution-credit-default-swap-func-input.json");
     }
 
     @Test
@@ -159,7 +159,7 @@ class FunctionInputCreationTest {
         validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/fx/fx-ex03-fx-fwd.json",
                 Date.parse("2001-11-19"),
-                "cdm-sample-files/functions/execution-business-event/execution-fx-forward-func-input.json");
+                "cdm-sample-files/functions/business-event/execution/execution-fx-forward-func-input.json");
     }
 
     @Test
@@ -167,7 +167,7 @@ class FunctionInputCreationTest {
         validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/repo/repo-ex01-repo-fixed-rate.json",
                 Date.parse("2013-10-29"),
-                "cdm-sample-files/functions/execution-business-event/execution-repo-fixed-rate-func-input.json");
+                "cdm-sample-files/functions/business-event/execution/execution-repo-fixed-rate-func-input.json");
     }
 
     @Test
@@ -175,7 +175,7 @@ class FunctionInputCreationTest {
         validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex09-euro-swaption-explicit-versioned.json",
                 Date.parse("2000-08-30"),
-                "cdm-sample-files/functions/execution-business-event/execution-swaption-func-input.json");
+                "cdm-sample-files/functions/business-event/execution/execution-swaption-func-input.json");
     }
 
     private void validateExecutionFuncInputJson(String tradeStatePath, Date eventDate, String expectedJsonPath) throws IOException {
@@ -209,7 +209,7 @@ class FunctionInputCreationTest {
         validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json",
                 Date.parse("1994-12-12"),
-                "cdm-sample-files/functions/contract-formation-business-event/contract-formation-ir-swap-func-input.json",
+                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-ir-swap-func-input.json",
                 null);
     }
 
@@ -231,7 +231,7 @@ class FunctionInputCreationTest {
         validateContractFormationFuncInputJson(
                 tradeStatePath,
                 date,
-                "cdm-sample-files/functions/contract-formation-business-event/contract-formation-ir-swap-with-legal-agreement-func-input.json",
+                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-ir-swap-with-legal-agreement-func-input.json",
                 legalAgreement);
     }
 
@@ -240,7 +240,7 @@ class FunctionInputCreationTest {
         validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex08-fra.json",
                 Date.parse("1991-05-14"),
-                "cdm-sample-files/functions/contract-formation-business-event/contract-formation-fra-func-input.json",
+                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-fra-func-input.json",
                 null);
     }
 
@@ -249,7 +249,7 @@ class FunctionInputCreationTest {
         validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/CAD-Long-Initial-Stub-versioned.json",
                 Date.parse("2017-12-18"),
-                "cdm-sample-files/functions/contract-formation-business-event/contract-formation-basis-swap-func-input.json",
+                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-basis-swap-func-input.json",
                 null);
     }
 
@@ -258,7 +258,7 @@ class FunctionInputCreationTest {
         validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex07-ois-swap-uti.json",
                 Date.parse("2001-01-25"),
-                "cdm-sample-files/functions/contract-formation-business-event/contract-formation-ois-swap-func-input.json",
+                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-ois-swap-func-input.json",
                 null);
     }
 
@@ -267,7 +267,7 @@ class FunctionInputCreationTest {
         validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex09-euro-swaption-explicit-versioned.json",
                 Date.parse("2000-08-30"),
-                "cdm-sample-files/functions/contract-formation-business-event/contract-formation-swaption-func-input.json",
+                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-swaption-func-input.json",
                 null);
     }
 
@@ -276,7 +276,7 @@ class FunctionInputCreationTest {
         validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/credit/cd-ex01-long-asia-corp-fixreg-versioned.json",
                 Date.parse("2002-12-04"),
-                "cdm-sample-files/functions/contract-formation-business-event/contract-formation-credit-default-swap-func-input.json",
+                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-credit-default-swap-func-input.json",
                 null);
     }
 
@@ -285,7 +285,7 @@ class FunctionInputCreationTest {
         validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/fx/fx-ex03-fx-fwd.json",
                 Date.parse("2001-11-19"),
-                "cdm-sample-files/functions/contract-formation-business-event/contract-formation-fx-forward-func-input.json",
+                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-fx-forward-func-input.json",
                 null);
     }
 
@@ -294,7 +294,7 @@ class FunctionInputCreationTest {
         validateContractFormationFuncInputJson(
                 "result-json-files/fpml-5-10/products/repo/repo-ex01-repo-fixed-rate.json",
                 Date.parse("2013-10-29"),
-                "cdm-sample-files/functions/contract-formation-business-event/contract-formation-repo-fixed-rate-func-input.json",
+                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-repo-fixed-rate-func-input.json",
                 null);
     }
 
@@ -333,7 +333,7 @@ class FunctionInputCreationTest {
         validateQuantityChangeFuncInputJson(
                 getTerminationVanillaSwapTradeState(),
                 Date.of(2019, 12, 12),
-                "cdm-sample-files/functions/quantity-change-business-event/full-termination-vanilla-swap-func-input.json",
+                "cdm-sample-files/functions/business-event/quantity-change/full-termination-vanilla-swap-func-input.json",
                 quantityChangeInstruction, FeeTypeEnum.TERMINATION);
     }
 
@@ -356,7 +356,7 @@ class FunctionInputCreationTest {
         validateQuantityChangeFuncInputJson(
                 tradeState,
                 Date.of(2021, 11, 11),
-                "cdm-sample-files/functions/quantity-change-business-event/full-termination-equity-swap-func-input.json",
+                "cdm-sample-files/functions/business-event/quantity-change/full-termination-equity-swap-func-input.json",
                 quantityChangeInstruction, FeeTypeEnum.TERMINATION);
     }
 
@@ -377,7 +377,7 @@ class FunctionInputCreationTest {
         validateQuantityChangeFuncInputJson(
                 getTerminationVanillaSwapTradeState(),
                 Date.of(2019, 12, 12),
-                "cdm-sample-files/functions/quantity-change-business-event/partial-termination-vanilla-swap-func-input.json",
+                "cdm-sample-files/functions/business-event/quantity-change/partial-termination-vanilla-swap-func-input.json",
                 quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
     }
 
@@ -410,7 +410,7 @@ class FunctionInputCreationTest {
         validateQuantityChangeFuncInputJson(
                 increaseTradeState,
                 Date.of(2021, 11, 11),
-                "cdm-sample-files/functions/quantity-change-business-event/partial-termination-equity-swap-func-input.json",
+                "cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json",
                 quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
     }
 
@@ -418,7 +418,7 @@ class FunctionInputCreationTest {
     void validateIncreaseEquitySwapFuncInputJson() throws IOException {
         CreateBusinessEventWorkflowInput actual = getIncreaseEquitySwapFuncInputJson();
 
-        assertJsonEquals("cdm-sample-files/functions/quantity-change-business-event/increase-equity-swap-func-input.json", actual);
+        assertJsonEquals("cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-func-input.json", actual);
     }
 
     /**
@@ -582,7 +582,7 @@ class FunctionInputCreationTest {
                 EventIntentEnum.COMPRESSION,
                 Date.of(2018, 4, 3));
 
-        assertJsonEquals("cdm-sample-files/functions/compression-func-input.json", actual);
+        assertJsonEquals("cdm-sample-files/functions/business-event/compression/compression-func-input.json", actual);
     }
 
     private ExecutionInstruction getCompressionExecutionInstructionInputJson() throws IOException {
@@ -671,7 +671,7 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateNovationFuncInputJson() throws IOException {
+    void validateFullNovationFuncInputJson() throws IOException {
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 .addBreakdown(PrimitiveInstruction.builder()
                         .setPartyChange(PartyChangeInstruction.builder()
@@ -717,56 +717,99 @@ class FunctionInputCreationTest {
                 EventIntentEnum.NOVATION,
                 Date.of(2018, 4, 3));
 
-        assertJsonEquals("cdm-sample-files/functions/novation-func-input.json", actual);
+        assertJsonEquals("cdm-sample-files/functions/business-event/novation/full-novation-func-input.json", actual);
     }
 
     @Test
-    void validateCreateAllocationWorkflowInputJson() throws IOException {
-        TradeState.TradeStateBuilder tradeStateBuilder = getTerminationVanillaSwapTradeState();
+    void validateAllocationFuncInputJson() throws IOException {
+        SplitInstruction splitInstruction = SplitInstruction.builder()
+                .addBreakdown(PrimitiveInstruction.builder()
+                        .setPartyChange(PartyChangeInstruction.builder()
+                                .setCounterparty(Counterparty.builder()
+                                        .setPartyReferenceValue(Party.builder()
+                                                .setMeta(MetaFields.builder().setExternalKey("party3"))
+                                                .setNameValue("Fund 2")
+                                                .addPartyId(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder()
+                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
+                                                        .setValue("LEI2CP00A1")))
+                                        .setRole(CounterpartyRoleEnum.PARTY_2))
+                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                        .addAssignedIdentifier(AssignedIdentifier.builder()
+                                                .setIdentifier(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
+                                                        .setValue("LEI1RPT001POST1"))
+                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                        .setIssuer(FieldWithMetaString.builder()
+                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
+                                                .setValue("LEI1RPT001")))))
+                        .setQuantityChange(QuantityChangeInstruction.builder()
+                                .setDirection(QuantityChangeDirectionEnum.REPLACE)
+                                .addChange(PriceQuantity.builder()
+                                        .addQuantity(FieldWithMetaQuantity.builder()
+                                                .setValue(Quantity.builder()
+                                                        .setAmount(BigDecimal.valueOf(7000.0))
+                                                        .setUnitOfAmount(UnitType.builder()
+                                                                .setCurrency(FieldWithMetaString.builder()
+//                                                                        .setMeta(MetaFields.builder()
+//                                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
+                                                                        .setValue("EUR"))))))))
+                .addBreakdown(PrimitiveInstruction.builder()
+                        .setPartyChange(PartyChangeInstruction.builder()
+                                .setCounterparty(Counterparty.builder()
+                                        .setPartyReferenceValue(Party.builder()
+                                                .setMeta(MetaFields.builder().setExternalKey("party4"))
+                                                .setNameValue("Fund 3")
+                                                .addPartyId(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder()
+                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
+                                                        .setValue("LEI3CP00A2")))
+                                        .setRole(CounterpartyRoleEnum.PARTY_2))
+                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                        .addAssignedIdentifier(AssignedIdentifier.builder()
+                                                .setIdentifier(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
+                                                        .setValue("LEI1RPT001POST2"))
+                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                        .setIssuer(FieldWithMetaString.builder()
+                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
+                                                .setValue("LEI1RPT001")))))
+                        .setQuantityChange(QuantityChangeInstruction.builder()
+                                .setDirection(QuantityChangeDirectionEnum.REPLACE)
+                                .addChange(PriceQuantity.builder()
+                                        .addQuantity(FieldWithMetaQuantity.builder()
+                                                .setValue(Quantity.builder()
+                                                        .setAmount(BigDecimal.valueOf(3000.0))
+                                                        .setUnitOfAmount(UnitType.builder()
+                                                                .setCurrency(FieldWithMetaString.builder()
+//                                                                        .setMeta(MetaFields.builder()
+//                                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
+                                                                        .setValue("EUR"))))))))
+                .addBreakdown(PrimitiveInstruction.builder()
+                        .setQuantityChange(QuantityChangeInstruction.builder()
+                                .setDirection(QuantityChangeDirectionEnum.REPLACE)
+                                .addChange(PriceQuantity.builder()
+                                        .addQuantity(FieldWithMetaQuantity.builder()
+                                                .setValue(Quantity.builder()
+                                                        .setAmount(BigDecimal.valueOf(0.0))
+                                                        .setUnitOfAmount(UnitType.builder()
+                                                                .setCurrency(FieldWithMetaString.builder()
+//                                                                        .setMeta(MetaFields.builder()
+//                                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
+                                                                        .setValue("EUR"))))))));;
 
-        List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders = tradeStateBuilder
-                .getTrade()
-                .getTradableProduct()
-                .getProduct()
-                .getContractualProduct()
-                .getEconomicTerms()
-                .getPayout()
-                .getInterestRatePayout();
+        Instruction.InstructionBuilder instructions = Instruction.builder()
+                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-11-Submission-1.json"))
+                .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
-        interestRatePayoutBuilders.get(0)
-                .getCalculationPeriodDates()
-                .getTerminationDate()
-                .getAdjustableDate()
-                .setUnadjustedDate(Date.of(2028, 4, 1));
+        ResourcesUtils.reKey(instructions);
 
-        interestRatePayoutBuilders.get(1)
-                .getCalculationPeriodDates()
-                .getTerminationDate()
-                .getAdjustableDate()
-                .setUnadjustedDate(Date.of(2028, 4, 1));
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructions.build()),
+                EventIntentEnum.ALLOCATION,
+                Date.of(2018, 4, 1));
 
-        tradeStateBuilder
-                .getTrade()
-                .getParty().get(0)
-                .getPartyId().get(0)
-                .setValue("LEI1RPT001");
-
-        tradeStateBuilder
-                .getTrade()
-                .getParty().get(1)
-                .getPartyId().get(0)
-                .setValue("LEIFUNDMGR");
-
-        tradeStateBuilder
-                .getTrade()
-                .getTradeIdentifier().get(0)
-                .getAssignedIdentifier().get(0)
-                .getIdentifier()
-                .setValue("LEI1RPT001PREAA");
-
-        ExecutionInstruction executionInstruction = FunctionUtils.createExecutionInstructionFromTradeState(tradeStateBuilder.build());
-
-        assertJsonEquals("cdm-sample-files/functions/allocation-workflow-func-input.json", executionInstruction);
+        assertJsonEquals("cdm-sample-files/functions/business-event/allocation/allocation-func-input.json", actual);
     }
 
     /**
