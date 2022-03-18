@@ -112,6 +112,7 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
 
 type PrimitiveInstruction: <"A Primitive Instruction describes the inputs required to pass into the corresponding PrimitiveEvent function.">
 	execution ExecutionInstruction (0..1) <"Specifies instructions describing an execution primitive event.">
+	exercise ExerciseInstruction (0..1) <"Specifies instructions describing an exercise primitive event.">
 	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions describing an contract formation primitive event.">
 	partyChange PartyChangeInstruction (0..1) <"Specifies instructions describing a party change primitive event.">
 	quantityChange QuantityChangeInstruction (0..1) <"Specifies instructions describing an quantity change primitive event.">
@@ -173,8 +174,24 @@ type ExecutionInstruction: <"Specifies instructions for execution of a transacti
 
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 
+	instructionList PrimitiveInstruction (1..2) <"Contains instructions for exercising the option including a quantity change, a replacement trade or a transfer.">
+	exercisedOption OptionPayout (0..1) <"Specifies the Option Payout being exercised on the trade.">
 	exerciseDate AdjustableOrAdjustedDate (0..1) <"Specifies the date on which an option contained within the financial product would be exercised. The date may be omitted if the contractual product allows for only a single date of exercise (European exercise).">
 	exerciseTime BusinessCenterTime (0..1) <"Specifies the time at which an option contained within the financial product woulld be exercised. The time may be omitted if the contractual product allows for only a single time of exercise (European exercise). ">
+
+	condition CashExercise: <"Specifies conditions for instructions included in instruction list for cash exercise.">
+		if exercisedOption -> settlementTerms -> cashSettlementTerms exists
+			or exercisedOption -> settlementTerms -> settlementType = SettlementTypeEnum -> Cash
+		then instructionList count = 1 and
+			(instructionList -> quantityChange exists and instructionList -> transfer exists)
+
+	condition PhysicalExercise: <"Specifies conditions for instructions included in instruction list for cash exercise.">
+		if exercisedOption -> settlementTerms -> physicalSettlementTerms exists
+			or exercisedOption -> settlementTerms -> settlementType = SettlementTypeEnum -> Physical
+		then instructionList count = 2 and
+			(instructionList -> quantityChange only exists and
+				(instructionList -> execution only exists or
+				(instructionList -> execution exists and instructionList -> contractFormation exists)))
 
 type ResetInstruction: <"Defines the information needed to create a Reset Business Event. ">
  	payout Payout (1..1)

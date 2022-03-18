@@ -1042,6 +1042,21 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
  	 	if settlementTerms -> cashSettlementTerms exists then
  	 		Create_TransferPrimitive( transferInstruction, execution )
 
+func Create_ExercisePrimitive: <"Defines the process of putting into effect the rights specified in an options contract, such as to buy or sell a security.  Once exercised the option contract is terminated.">
+
+	inputs:
+		exerciseInstruction ExerciseInstruction (1..1) <"Each primitive instruction contains the set of instructions to be applied to each post-split trade.">
+		originalTrade TradeState (1..1) <"The original trade to be split, which must be of single cardinality.">
+	output:
+		exercisedTrade TradeState (1..*)
+
+	condition: <"Requires that the original contract contains an option payout.">
+ 		exerciseInstruction -> exercisedOption exists
+
+	add exercisedTrade: <"Iterate over each breakdown and apply the set of primitive instructions to each copy of the original trade.">
+		exerciseInstruction->instructionList
+			map [ Create_TradeState( item, originalTrade ) ]
+
 func SecurityTransferInstruction: <"Defines the creation of a Transfer Instruction from a Trade State.">
     inputs:
         tradeState TradeState (1..1)
@@ -2282,6 +2297,8 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
 	        map [
 	            if item -> primitiveInstruction -> split exists then
                     Create_Split( item -> primitiveInstruction -> split -> breakdown, item -> before )
+				else if item -> primitiveInstruction -> exercise exists then
+					Create_ExercisePrimitive( item -> primitiveInstruction ->exercise, item -> before )
                 else
                     [ Create_TradeState( item -> primitiveInstruction , item -> before ) ]
 	        ] flatten
