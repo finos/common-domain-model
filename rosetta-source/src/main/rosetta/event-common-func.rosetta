@@ -182,26 +182,28 @@ func Qualify_Allocation: <"The qualification of allocation event from the fact t
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 
-	alias beforeTradeState: businessEvent -> instruction -> before
-    alias closedTradeState: FilterClosedTradeStates( businessEvent -> after )
+	alias beforeTradeState: businessEvent -> instruction -> before only-element
+    alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
 	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
-		(businessEvent -> primitives -> split count = 1
-		and businessEvent -> primitives -> split -> after count >= 2
-		and businessEvent -> primitives -> contractFormation exists
-		and businessEvent -> primitives -> split -> after -> state -> closedState -> state contains ClosedStateEnum -> Allocated)
+		(
+		    businessEvent -> primitives -> split count = 1
+            and businessEvent -> primitives -> split -> after count >= 2
+            and businessEvent -> primitives -> contractFormation exists
+            and businessEvent -> primitives -> split -> after -> state -> closedState -> state contains ClosedStateEnum -> Allocated
+        )
 		or
 		(
-		businessEvent -> intent = EventIntentEnum -> Allocation
-		and closedTradeState count = 1
-		and openTradeStates count >= 1
-		and businessEvent -> instruction -> primitiveInstruction -> split exists
-		and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference
-		// and beforeTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference <> openTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference
-		// and 
-		// 	openTradeStates
-   		// 	 [ item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference ]
-   		// 		 all = True
+		    businessEvent -> intent = EventIntentEnum -> Allocation
+            and closedTradeStates count = 1
+            and openTradeStates count >= 1
+            and businessEvent -> instruction -> primitiveInstruction -> split exists
+            // before trade counterparties should match closed after trade counterparties
+            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+            // before trade counterparties should not match open after trade counterparties
+            and openTradeStates
+                map [ item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference ]
+                all = True
         )
 
 func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
@@ -264,31 +266,33 @@ func Qualify_ClearedTrade:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 
-	alias beforeTradeState: businessEvent -> instruction -> before
-    alias closedTradeState: FilterClosedTradeStates( businessEvent -> after )
+	alias beforeTradeState: businessEvent -> instruction -> before only-element
+    alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
 	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
 	    (
-		businessEvent -> primitives count = 5
-		and businessEvent -> primitives -> quantityChange count = 1
-		and QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
-		and businessEvent -> primitives -> execution count = 2
-		and businessEvent -> primitives -> contractFormation count = 2
-		and businessEvent -> primitives -> execution -> after = businessEvent -> primitives -> contractFormation -> before
-		and businessEvent -> primitives -> contractFormation -> after -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
+            businessEvent -> primitives count = 5
+            and businessEvent -> primitives -> quantityChange count = 1
+            and QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
+            and businessEvent -> primitives -> execution count = 2
+            and businessEvent -> primitives -> contractFormation count = 2
+            and businessEvent -> primitives -> execution -> after = businessEvent -> primitives -> contractFormation -> before
+            and businessEvent -> primitives -> contractFormation -> after -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
         )
         or
         (
-		businessEvent -> intent = EventIntentEnum -> Clearing
-		and closedTradeState count = 1
-		and openTradeStates count = 2
-		and businessEvent -> instruction -> primitiveInstruction -> split exists
-		and beforeTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference
-		and openTradeStates -> trade -> tradeIdentifier all <> beforeTradeState only-element -> trade -> tradeIdentifier
-		//and openTradeStates
-   		// 	 [ item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference ]
-   		// 		 all = True
-		// and openTradeStates [item -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization] all = True
+            businessEvent -> intent = EventIntentEnum -> Clearing
+            and closedTradeStates count = 1
+            and openTradeStates count = 2
+            and businessEvent -> instruction -> primitiveInstruction -> split exists
+            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+            and openTradeStates
+                map [
+                    item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+                    and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier
+                    and item -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
+                ]
+                all = True
         )
 
 // TODO: Submission / Rejection / Acceptance should be a workflow step qualification, independent from the event qualification.
@@ -385,9 +389,9 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 	inputs: businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 
-	alias beforeTradeState: businessEvent -> instruction -> before
-    alias closedTradeState: FilterClosedTradeStates( businessEvent -> after )
-	alias openTradeState: FilterOpenTradeStates( businessEvent -> after )
+	alias beforeTradeState: businessEvent -> instruction -> before only-element
+    alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
+	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
 	    (
             businessEvent -> primitives -> quantityChange exists
@@ -402,12 +406,12 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
         or
         (
             businessEvent -> intent = EventIntentEnum -> Novation
-            and closedTradeState count = 1
-            and openTradeState count = 1
+            and closedTradeStates count = 1
+            and openTradeStates count = 1
 			and businessEvent -> instruction -> primitiveInstruction -> split exists
-            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference
-            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference <> openTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference
-			and beforeTradeState -> trade -> tradeIdentifier <> openTradeState -> trade -> tradeIdentifier
+            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference <> openTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+			and beforeTradeState -> trade -> tradeIdentifier <> openTradeStates -> trade -> tradeIdentifier
         )
 
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
@@ -416,9 +420,9 @@ func Qualify_PartialNovation: <"The qualification of a novation event from the f
 	inputs: businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 
-	alias beforeTradeState: businessEvent -> instruction -> before
-    alias closedTradeState: FilterClosedTradeStates( businessEvent -> after )
-	alias openTradeState: FilterOpenTradeStates( businessEvent -> after )
+	alias beforeTradeState: businessEvent -> instruction -> before only-element
+    alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
+	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
 	    (
             businessEvent -> primitives -> quantityChange exists
@@ -433,13 +437,21 @@ func Qualify_PartialNovation: <"The qualification of a novation event from the f
         or
         (
             businessEvent -> intent = EventIntentEnum -> Novation
-            and closedTradeState count = 0
-            and openTradeState count = 2
+            and closedTradeStates count = 0
+            and openTradeStates count = 2
 			and businessEvent -> instruction -> primitiveInstruction -> split exists
-			// For one of the trades:
-			// and openTradeState -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference
-			// and the trade identifier has changed
-			// For one of the trades: parties have not changed but the quantity has got smaller
+			and openTradeStates
+			    map [
+			        // before trade counterparties should not match open after trade counterparties, and neither should trade identifiers
+			        ( item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+			            and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier )
+			        or
+			        // before trade counterparties match open after trade counterparties, and match trade identifiers, but with decreased quantity
+			        ( item -> trade -> tradableProduct -> counterparty -> partyReference = beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+                        and item -> trade -> tradeIdentifier = beforeTradeState -> trade -> tradeIdentifier
+                        and QuantityDecreased( beforeTradeState, [ item ] ) )
+			    ]
+			    all = True
         )
 
 
