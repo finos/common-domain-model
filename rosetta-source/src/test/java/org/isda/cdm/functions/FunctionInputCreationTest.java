@@ -721,8 +721,140 @@ class FunctionInputCreationTest {
     }
 
     @Test
+    void validatePartialNovationFuncInputJson() throws IOException {
+        SplitInstruction splitInstruction = SplitInstruction.builder()
+                .addBreakdown(PrimitiveInstruction.builder()
+                        .setPartyChange(PartyChangeInstruction.builder()
+                                .setCounterparty(Counterparty.builder()
+                                        .setPartyReferenceValue(Party.builder()
+                                                .setMeta(MetaFields.builder().setExternalKey("party3"))
+                                                .setNameValue("Bank Z")
+                                                .addPartyId(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder()
+                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
+                                                        .setValue("LEI3RPT0003")))
+                                        .setRole(CounterpartyRoleEnum.PARTY_1))
+                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                        .addAssignedIdentifier(AssignedIdentifier.builder()
+                                                .setIdentifier(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
+                                                        .setValue("LEI3RPT0003DDDD"))
+                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                        .setIssuer(FieldWithMetaString.builder()
+                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
+                                                .setValue("LEI3RPT0003")))))
+                        .setQuantityChange(QuantityChangeInstruction.builder()
+                                .setDirection(QuantityChangeDirectionEnum.REPLACE)
+                                .addChange(PriceQuantity.builder()
+                                        .addQuantity(FieldWithMetaQuantity.builder()
+                                                .setValue(Quantity.builder()
+                                                        .setAmount(BigDecimal.valueOf(5000.0))
+                                                        .setUnitOfAmount(UnitType.builder()
+                                                                .setCurrency(FieldWithMetaString.builder()
+                                                                        .setMeta(MetaFields.builder()
+                                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
+                                                                        .setValue("USD"))))))))
+                .addBreakdown(PrimitiveInstruction.builder()
+                        .setQuantityChange(QuantityChangeInstruction.builder()
+                                .setDirection(QuantityChangeDirectionEnum.REPLACE)
+                                .addChange(PriceQuantity.builder()
+                                        .addQuantity(FieldWithMetaQuantity.builder()
+                                                .setValue(Quantity.builder()
+                                                        .setAmount(BigDecimal.valueOf(8000.0))
+                                                        .setUnitOfAmount(UnitType.builder()
+                                                                .setCurrency(FieldWithMetaString.builder()
+                                                                        .setMeta(MetaFields.builder()
+                                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
+                                                                        .setValue("USD"))))))));
+
+        Instruction.InstructionBuilder instructions = Instruction.builder()
+                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-05-Submission-1.json"))
+                .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
+
+        ResourcesUtils.reKey(instructions);
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructions.build()),
+                EventIntentEnum.NOVATION,
+                Date.of(2018, 4, 4));
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/novation/partial-novation-func-input.json", actual);
+    }
+
+    @Test
+    void validateClearingFuncInputJson() throws IOException {
+        SplitInstruction splitInstruction = SplitInstruction.builder()
+                .addBreakdown(PrimitiveInstruction.builder()
+                        .setPartyChange(PartyChangeInstruction.builder()
+                                .setCounterparty(Counterparty.builder()
+                                        .setPartyReferenceValue(Party.builder()
+                                                .setMeta(MetaFields.builder().setExternalKey("clearing-svc"))
+                                                .setNameValue("ClearItAll")
+                                                .addPartyId(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder()
+                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
+                                                        .setValue("LEI1DCO")))
+                                        .setRole(CounterpartyRoleEnum.PARTY_2))
+                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                        .addAssignedIdentifier(AssignedIdentifier.builder()
+                                                .setIdentifier(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
+                                                        .setValue("LEI1DCO01BETA"))
+                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                        .setIssuer(FieldWithMetaString.builder()
+                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
+                                                .setValue("LEI1DCO"))))))
+                .addBreakdown(PrimitiveInstruction.builder()
+                        .setPartyChange(PartyChangeInstruction.builder()
+                                .setCounterparty(Counterparty.builder()
+                                        .setPartyReferenceValue(Party.builder()
+                                                .setMeta(MetaFields.builder().setExternalKey("clearing-svc"))
+                                                .setNameValue("ClearItAll")
+                                                .addPartyId(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder()
+                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
+                                                        .setValue("LEI1DCO")))
+                                        .setRole(CounterpartyRoleEnum.PARTY_1))
+                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                        .addAssignedIdentifier(AssignedIdentifier.builder()
+                                                .setIdentifier(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
+                                                        .setValue("LEI1DCO01GAMMA"))
+                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                        .setIssuer(FieldWithMetaString.builder()
+                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
+                                                .setValue("LEI1DCO"))))))
+                .addBreakdown(PrimitiveInstruction.builder()
+                        .setQuantityChange(QuantityChangeInstruction.builder()
+                                .setDirection(QuantityChangeDirectionEnum.REPLACE)
+                                .addChange(PriceQuantity.builder()
+                                        .addQuantity(FieldWithMetaQuantity.builder()
+                                                .setValue(Quantity.builder()
+                                                        .setAmount(BigDecimal.valueOf(0.0))
+                                                        .setUnitOfAmount(UnitType.builder()
+                                                                .setCurrency(FieldWithMetaString.builder()
+                                                                        .setMeta(MetaFields.builder()
+                                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
+                                                                        .setValue("USD"))))))));
+
+        Instruction.InstructionBuilder instructions = Instruction.builder()
+                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-06-Submission-1.json"))
+                .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
+
+        ResourcesUtils.reKey(instructions);
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructions.build()),
+                EventIntentEnum.CLEARING,
+                Date.of(2018, 4, 1));
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/clearing/clearing-func-input.json", actual);
+    }
+
+    @Test
     void validateAllocationFuncInputJson() throws IOException {
         SplitInstruction splitInstruction = SplitInstruction.builder()
+                // Allocated to Fund 2
                 .addBreakdown(PrimitiveInstruction.builder()
                         .setPartyChange(PartyChangeInstruction.builder()
                                 .setCounterparty(Counterparty.builder()
@@ -750,10 +882,8 @@ class FunctionInputCreationTest {
                                                 .setValue(Quantity.builder()
                                                         .setAmount(BigDecimal.valueOf(7000.0))
                                                         .setUnitOfAmount(UnitType.builder()
-                                                                .setCurrency(FieldWithMetaString.builder()
-//                                                                        .setMeta(MetaFields.builder()
-//                                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
-                                                                        .setValue("EUR"))))))))
+                                                                .setCurrencyValue("EUR")))))))
+                // Allocated to Fund 3
                 .addBreakdown(PrimitiveInstruction.builder()
                         .setPartyChange(PartyChangeInstruction.builder()
                                 .setCounterparty(Counterparty.builder()
@@ -781,10 +911,8 @@ class FunctionInputCreationTest {
                                                 .setValue(Quantity.builder()
                                                         .setAmount(BigDecimal.valueOf(3000.0))
                                                         .setUnitOfAmount(UnitType.builder()
-                                                                .setCurrency(FieldWithMetaString.builder()
-//                                                                        .setMeta(MetaFields.builder()
-//                                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
-                                                                        .setValue("EUR"))))))))
+                                                                .setCurrencyValue("EUR")))))))
+                // Close original trade
                 .addBreakdown(PrimitiveInstruction.builder()
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
@@ -793,10 +921,7 @@ class FunctionInputCreationTest {
                                                 .setValue(Quantity.builder()
                                                         .setAmount(BigDecimal.valueOf(0.0))
                                                         .setUnitOfAmount(UnitType.builder()
-                                                                .setCurrency(FieldWithMetaString.builder()
-//                                                                        .setMeta(MetaFields.builder()
-//                                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
-                                                                        .setValue("EUR"))))))));;
+                                                                .setCurrencyValue("EUR")))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
                 .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-11-Submission-1.json"))
