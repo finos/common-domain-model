@@ -62,9 +62,8 @@ steps:
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - rm -f isda-demo/*.zip
       - mvn -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
-      - zip -r isda-demo/isda-cdm-examples-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*"
+      - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*"
       - mvn -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
 
   ParallelTasks:
@@ -153,6 +152,18 @@ steps:
           - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
           - mvn -s /settings.xml -f kotlin-pom.xml clean deploy
 
+  BuildJavaDocs:
+    stage: 'build'
+    title: Javadocs build and deploy
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    commands:
+      - cd rosetta-source
+      - mvn -s /settings.xml javadoc:jar
+      - cd ..
+      - curl -X PUT -u ${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}} -T rosetta-source/target/cdm-${{RELEASE_NAME}}-javadoc.jar "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar"
+
   BuildDistributionNormal:
     stage: 'distribute'
     title: Maven distribution build
@@ -185,7 +196,7 @@ steps:
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - cd rosetta-distribution
-      - mvn -U -s /settings.xml clean deploy -P distribute-full
+      - mvn -U -s /settings.xml clean deploy -P distribute,distribute-full
 
   DistributeDaml:
     stage: 'distribute'
@@ -277,18 +288,6 @@ steps:
       - mvn -s /settings.xml -f kotlin-pom.xml versions:update-property -Dproperty=ingest.test.framework.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml -f kotlin-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -U -s /settings.xml -f kotlin-pom.xml clean deploy
-
-  BuildJavaDocs:
-    stage: 'finalise'
-    title: Javadocs build and deploy
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    commands:
-      - cd rosetta-source
-      - mvn -s /settings.xml javadoc:jar
-      - cd ..
-      - curl -X PUT -u ${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}} -T rosetta-source/target/cdm-${{RELEASE_NAME}}-javadoc.jar "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar"
 
   NotifySlackOnFail:
     stage: 'finalise'
