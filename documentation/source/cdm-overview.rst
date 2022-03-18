@@ -18,12 +18,7 @@ A single, digital processing standard for trade events and actions enhances fina
 * **Accelerates financial technology innovation** by providing a common, readily operational foundation for how technologies like distributed ledger, smart contracts, cloud computing, and artificial intelligence can be applied to financial markets.
 * **Delivers better regulatory oversight**, promotes transparency and alignment between regulators and market participants and enables consistency in regulatory reporting, by providing a standard representation of trade data and supporting machine executable reporting requirements.
 
-Further detailed information about the CDM and its application is available in the following resources:
-
-* The `ISDA CDM Fact Sheet <https://www.isda.org/a/z8AEE/ISDA-CDM-Factsheet.pdf>`_, published by ISDA in 2018, gives an overview of the CDM and its intended benefits.
-* The `CDM Introduction Video <https://vimeo.com/372578450>`_ gives a tour of the main features of the model. It is based on a version of the CDM from October 2019.
-* Additional information and announcements about the CDM can be found in the `Market Infrastructure and Technology Section <https://www.isda.org/category/infrastructure/market-infrastructure-technology/>`_ of the ISDA website.
-
+Further information about the CDM and its application is available on `CDM section <https://www.isda.org/2019/10/14/isda-common-domain-model/>`_ of the ISDA website.
 
 The CDM Components
 ------------------
@@ -39,13 +34,13 @@ The CDM Components
 The Rosetta DSL
 ^^^^^^^^^^^^^^^
 
-The CDM is a `domain model <https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353>`_ written in a Domain-Specific Language (DSL) called the *Rosetta DSL*, comprising a syntax and code generators.
+The CDM is a `domain model <https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353>`_ written in a Domain-Specific Language (DSL) called the *Rosetta DSL*. The CDM is distributed into multiple common programming languages using a *code generation* mechanism from the Rosetta DSL.
 
-The `Rosetta DSL documentation <https://docs.rosetta-technology.io/rosetta/rosetta-dsl>`_ details all the modelling components available in the syntax and their purpose. It also describes the mechanism to write and use code generators.
+The Rosetta DSL comprises a `language <https://github.com/REGnosys/rosetta-dsl>`_ (i.e. syntax and rules) and `code generators <https://github.com/REGnosys/rosetta-code-generators>`_. The language includes one default code generator, into `Java <https://www.oracle.com/java/>`_. To facilitate adoption and implementation of the CDM by the community of industry participants, the Rosetta DSL is available open source under an Apache 2.0 license. This allows industry participants to write and share code generators into any other languages.
 
-To enable adoption and implementation of the CDM by the community of industry participants, the Rosetta DSL and its default code generator (Java) are open source under an Apache 2.0 `licence <https://github.com/REGnosys/rosetta-dsl/blob/master/LICENSE>`_. Further code generators are also open source under an Apache 2.0 `license <https://github.com/REGnosys/rosetta-code-generators/blob/master/LICENSE>`_, allowing industry participants to write and share code generators for any other language.
+All the language components, their syntax and purpose are detailed in the `Rosetta DSL documentation <https://docs.rosetta-technology.io/rosetta/rosetta-dsl>`_. The documentation also describes the mechanism to write and use code generators.
 
-.. note:: For more documentation about Rosetta and the DSL please see: `<https://docs.rosetta-technology.io>`_
+.. note:: For more information about Rosetta and the DSL please visit the `Rosetta Documentation <https://docs.rosetta-technology.io>`_
 
 The ISDA CDM Distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -68,7 +63,7 @@ The ISDA CDM distribution comprises three main sets of components:
   * Reference Data
   * Mapping (Synonym)
 
-* **Executable code distribution**, automatically generated from the model definitions using `available code generators <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available>`_ from the Rosetta DSL. Once a code generator is implemented for a particular language, the corresponding code generation is included as part of the CDM build and release process, allowing the CDM to be automatically distributed in that language going forward.
+* **Executable code distribution**, automatically generated from the model definitions expressed in the Rosetta DSL using `available code generators <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available>`_. Once a code generator is implemented for a particular language, the corresponding code generation is included as part of the CDM build and release process, allowing the CDM to be automatically distributed in that language going forward.
 * **Default implementation**, comprising manually-written code (in Java) which, combined with the auto-generated code, provides a complete implementation of the model. This hand-written code is distributed together with the CDM to facilitate adoption by firms, which can directly use the CDM distribution to set-up and test an implementation. The default implementation can be used in its original state or be disabled or extended by industry participants in their implementation. For example, the default implementation uses the de-facto Java hash function for the *key* meta-data that supports the CDM cross-referencing mechanism. Firms may elect to use an alternative implementation.
 
 .. note:: While the Java executable code distribution is complete, i.e. it represents the entire CDM as defined in Rosetta (plus any associated default implementation), some other distributions may only capture parts of the model. For instance, the Scala and TypeScript distributions include the complete data model and the function specifications, but not the executable code for functions.
@@ -92,11 +87,9 @@ CDM Application
 An eco-system of CDM-based application components from software providers exists in order to support the adoption of CDM and the implementation of CDM-based production systems by industry participants. These applications may be open source software or licensed under commercial terms. In particular:
 
 * The CDM Portal provides a user interface allowing users to navigate through and download the CDM.
-* Rosetta is a Software Development Kit (SDK or *dev-kit*) for the Rosetta DSL, that provides an *editable* version of the CDM Portal. Rosetta consists of an integrated set of tools for editing, implementing and adopting models based on the Rosetta DSL. It allows the industry community to directly participate in the CDM development by contributing code to the CDM. Please refer to the `Rosetta Documentation <https://docs.rosetta-technology.io/core/index.html>`_ for more details.
+* Rosetta is a Software Development Kit (SDK or *dev-kit*) for the Rosetta DSL, that provides an *editable* version of the CDM Portal. Rosetta consists of an integrated set of tools for editing, implementing and adopting models based on the Rosetta DSL. It allows the industry community to directly participate in the CDM development by contributing code to the CDM. Please refer to the `Rosetta Documentation <https://docs.rosetta-technology.io/rosetta/rosetta-products/>`_ for more details.
 
-.. note:: The CDM Portal and Rosetta have been developed by technology firm REGnosys. For more information please visit: `<https://regnosys.com>`_
-
-ISDA encourages the adoption of CDM by software providers but does not endorse any CDM application component.
+.. note:: The CDM Portal and Rosetta have been developed by technology firm `REGnosys <https://regnosys.com>`. ISDA encourages the adoption of CDM by software providers but does not endorse any CDM application component.
 
 The CDM Design Principles
 -------------------------

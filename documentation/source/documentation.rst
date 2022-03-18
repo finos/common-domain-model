@@ -13,7 +13,7 @@ The Common Domain Model
 
 The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure. All the Rosetta DSL modelling components that are used to express the CDM are described in the `Rosetta DSL Documentation`_
 
-The complete model definition, including descriptions and other details can be viewed in the `Textual Browser <https://portal.cdm.rosetta-technology.io/#/text-browser>`_ on the ISDA CDM Portal.
+The complete model definition, including descriptions and other details can be viewed in the `Textual Browser`_ on the ISDA CDM Portal.
 
 Product Model
 -------------
@@ -250,20 +250,20 @@ The Observable data type requires the specification of either a ``rateOption`` (
 
 .. code-block:: Haskell
 
-type Observable:
-    [metadata key]
-    rateOption FloatingRateOption (0..1)
-        [metadata location]
-    commodity Commodity (0..1)
-        [metadata location]
-    productIdentifier ProductIdentifier (0..*)
-        [metadata location]
-    currencyPair QuotedCurrencyPair (0..1)
-        [metadata location]
-    optionReferenceType OptionReferenceTypeEnum (0..1)
+ type Observable:
+     [metadata key]
+     rateOption FloatingRateOption (0..1)
+         [metadata location]
+     commodity Commodity (0..1)
+         [metadata location]
+     productIdentifier ProductIdentifier (0..*)
+         [metadata location]
+     currencyPair QuotedCurrencyPair (0..1)
+         [metadata location]
+     optionReferenceType OptionReferenceTypeEnum (0..1)
 
-    condition ObservableChoice:
-        required choice rateOption, commodity, productIdentifier, currencyPair
+     condition ObservableChoice:
+         required choice rateOption, commodity, productIdentifier, currencyPair
 
 SettlementTerms
 """""""""""""""
@@ -1775,7 +1775,7 @@ How Does It Work
 
 The data and proces model definitions of the CDM are systematically translated into executable code using purpose-built code generation technology. The CDM executable code is available in a number of modern, widely adopted and freely available programming languages and is systematically distributed as part of the CDM release.
 
-The code generation process is based on the Rosetta DSL and is further described in the `Code Generation Section`_, including an up-to-date `list of available languages <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available>`_. Support for further languages can be added as required by market participants.
+The code generation process is based on the Rosetta DSL and is further described in the `Code Generation Section`_, including an up-to-date list of `available languages`_. Support for further languages can be added as required by market participants.
 
 Scope
 ^^^^^
@@ -2491,13 +2491,14 @@ The namespace hierarchy in the CDM contains 7 components
 .. _Portal: https://portal.cdm.rosetta-technology.io
 
 .. _Rosetta DSL Documentation: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component
+.. _Textual Browser: https://portal.cdm.rosetta-technology.io/#/text-browser
 .. _Qualified Type Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#qualified-type
 .. _Function Definition Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#function-definition
 .. _Function Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#function-component
 .. _Code Generation Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators
+.. _available languages: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available
 .. _Validation Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#validation-component
 .. _Mapping Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component
-.. _Special Syntax Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#special-syntax
 .. _Meta-Data Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#meta-data-and-reference
 
 .. _Event Model Section: documentation.html#event-model
