@@ -1,36 +1,5 @@
-# *Product and Event Model - Migrate Java function implementations to native DSL*
+# *Infrastructure Release - CDM Structure*
 
 _What is being released?_
 
-Following the recent addition of DSL syntax features, functions that were previously implemented in Java due to unsupported DSL features, have now been migrated to native DSL.
-
-The migrated function namespace and names are listed below:
-
-cdm.base.datetime
-- `GetAllBusinessCenters`
-- `BusinessCenterHolidaysMultiple`
-
-cdm.event.common
-- `UpdateIndexTransitionPriceAndRateOption`
-- `FindMatchingIndexTransitionInstruction`
-
-cdm.observable.asset.fro
-- `IndexValueObservationMultiple`
-
-cdm.observable.event
-- `ResolveObservationAverage`
-
-cdm.product.asset
-- `ResolveEquityInitialPrice`
-
-cdm.product.asset.calculation
-- `GetNotionalAmount`
-- `GetQuantityScheduleStepValues`
-
-cdm.product.asset.floatingrate
-- `GetRateScheduleAmount`
-- `GetRateScheduleStepValues`
-
-_Review Directions_
-
-In the CDM Portal, select Textual Browser and review the functions above.
+- Developers can develop/maintain the ingestion tests, demo code, distribution, project and scheme importer so that changes can be made as part of the CDM
