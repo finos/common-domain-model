@@ -1,4 +1,4 @@
-# *Infrastructure Release - CDM Structure*
+# *Infrastructure - CDM Structure*
 
 _What is being released?_
 
