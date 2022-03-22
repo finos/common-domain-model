@@ -16,7 +16,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class SchemeImporterTest {
-	private static final boolean WRITE_TEST_OUTPUT = ExpectationUtil.WRITE_EXPECTATIONS;;
+	private static final boolean WRITE_TEST_OUTPUT = ExpectationUtil.WRITE_EXPECTATIONS;
 	public static final String FPML_SET_OF_SCHEMES_2_2_XML = "coding-schemes/fpml/set-of-schemes-2-2.xml";
 	public static final String BODY = "ISDA";
 	public static final String CODING_SCHEME = "FpML_Coding_Scheme";
