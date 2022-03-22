@@ -181,11 +181,30 @@ func Qualify_Allocation: <"The qualification of allocation event from the fact t
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
+
+	alias beforeTradeState: businessEvent -> instruction -> before only-element
+    alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
+	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
-		businessEvent -> primitives -> split count = 1
-		and businessEvent -> primitives -> split -> after count >= 2
-		and businessEvent -> primitives -> contractFormation exists
-		and businessEvent -> primitives -> split -> after -> state -> closedState -> state contains ClosedStateEnum -> Allocated
+		(
+		    businessEvent -> primitives -> split count = 1
+            and businessEvent -> primitives -> split -> after count >= 2
+            and businessEvent -> primitives -> contractFormation exists
+            and businessEvent -> primitives -> split -> after -> state -> closedState -> state contains ClosedStateEnum -> Allocated
+        )
+		or
+		(
+		    businessEvent -> intent = EventIntentEnum -> Allocation
+            and closedTradeStates count = 1
+            and openTradeStates count >= 1
+            and businessEvent -> instruction -> primitiveInstruction -> split exists
+            // before trade counterparties should match closed after trade counterparties
+            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+            // before trade counterparties should not match open after trade counterparties
+            and openTradeStates
+                map [ item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference ]
+                all = True
+        )
 
 func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	[qualification BusinessEvent]
@@ -246,14 +265,35 @@ func Qualify_ClearedTrade:
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
+
+	alias beforeTradeState: businessEvent -> instruction -> before only-element
+    alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
+	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
-		businessEvent -> primitives count = 5
-		and businessEvent -> primitives -> quantityChange count = 1
-		and QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
-		and businessEvent -> primitives -> execution count = 2
-		and businessEvent -> primitives -> contractFormation count = 2
-		and businessEvent -> primitives -> execution -> after = businessEvent -> primitives -> contractFormation -> before
-		and businessEvent -> primitives -> contractFormation -> after -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
+	    (
+            businessEvent -> primitives count = 5
+            and businessEvent -> primitives -> quantityChange count = 1
+            and QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
+            and businessEvent -> primitives -> execution count = 2
+            and businessEvent -> primitives -> contractFormation count = 2
+            and businessEvent -> primitives -> execution -> after = businessEvent -> primitives -> contractFormation -> before
+            and businessEvent -> primitives -> contractFormation -> after -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
+        )
+        or
+        (
+            businessEvent -> intent = EventIntentEnum -> Clearing
+            and closedTradeStates count = 1
+            and openTradeStates count = 2
+            and businessEvent -> instruction -> primitiveInstruction -> split exists
+            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+            and openTradeStates
+                map [
+                    item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+                    and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier
+                    and item -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
+                ]
+                all = True
+        )
 
 // TODO: Submission / Rejection / Acceptance should be a workflow step qualification, independent from the event qualification.
 // The event still uniquely qualifies as clearing
@@ -349,9 +389,9 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
 	inputs: businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 
-	alias beforeTradeState: businessEvent -> instruction -> before
-    alias closedTradeState: FilterClosedTradeStates( businessEvent -> after )
-	alias openTradeState: FilterOpenTradeStates( businessEvent -> after )
+	alias beforeTradeState: businessEvent -> instruction -> before only-element
+    alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
+	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
 	    (
             businessEvent -> primitives -> quantityChange exists
@@ -366,25 +406,54 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
         or
         (
             businessEvent -> intent = EventIntentEnum -> Novation
-            and closedTradeState count = 1
-            and openTradeState count = 1
-            and beforeTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference
-            and beforeTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference <> openTradeState only-element -> trade -> tradableProduct -> counterparty -> partyReference
+            and closedTradeStates count = 1
+            and openTradeStates count = 1
+			and businessEvent -> instruction -> primitiveInstruction -> split exists
+            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference <> openTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+			and beforeTradeState -> trade -> tradeIdentifier <> openTradeStates -> trade -> tradeIdentifier
         )
 
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent (1..1)
+
+	inputs: businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
+
+	alias beforeTradeState: businessEvent -> instruction -> before only-element
+    alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
+	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
-		businessEvent -> primitives -> quantityChange exists
-		and businessEvent -> primitives -> contractFormation exists
-		and businessEvent -> primitives -> quantityChange count = businessEvent -> primitives -> contractFormation count
-        //and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
-		and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
-		//and businessEvent -> effectiveDate all = NovatedContractEffectiveDate(businessEvent)
-		and QuantityDecreasedPrimitive(businessEvent -> primitives -> quantityChange) = True
+	    (
+            businessEvent -> primitives -> quantityChange exists
+            and businessEvent -> primitives -> contractFormation exists
+            and businessEvent -> primitives -> quantityChange count = businessEvent -> primitives -> contractFormation count
+            and QuantityDecreasedPrimitive(businessEvent -> primitives -> quantityChange) = True
+            //and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state contains ClosedStateEnum -> Novated
+            //and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
+            and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
+            //and businessEvent -> effectiveDate = NovatedContractEffectiveDate(businessEvent) only-element
+        )
+        or
+        (
+            businessEvent -> intent = EventIntentEnum -> Novation
+            and closedTradeStates count = 0
+            and openTradeStates count = 2
+			and businessEvent -> instruction -> primitiveInstruction -> split exists
+			and openTradeStates
+			    map [
+			        // before trade counterparties should not match open after trade counterparties, and neither should trade identifiers
+			        ( item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+			            and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier )
+			        or
+			        // before trade counterparties match open after trade counterparties, and match trade identifiers, but with decreased quantity
+			        ( item -> trade -> tradableProduct -> counterparty -> partyReference = beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+                        and item -> trade -> tradeIdentifier = beforeTradeState -> trade -> tradeIdentifier
+                        and QuantityDecreased( beforeTradeState, [ item ] ) )
+			    ]
+			    all = True
+        )
+
 
 func Qualify_PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
 	[qualification BusinessEvent]
@@ -1600,7 +1669,8 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
 		ReplaceParty( originalTrade -> trade -> party,
 		    partyToRemove,
 		    counterparty -> partyReference )
-
+	set newTrade -> trade -> tradeIdentifier: <"Replaces the existing trade identifier with the new trade identifier"> 
+		tradeId
 	add newTrade -> trade -> party: <"Add ancillary party as an additional party">
 		ancillaryParty -> partyReference
 	add newTrade -> trade -> tradableProduct -> ancillaryParty: <"Add ancillary party role">
@@ -1773,93 +1843,6 @@ func NewContractFormationPrimitiveEvent: <"Constructs a primitive event from a f
 
 	set primitiveEvent -> contractFormation:
 	    contractFormation
-
-func Create_ClearedTrade: <"Function supporting direct principal and agency clearing model that takes the clearing instruction as an input and results in the cleared trade BusinessEvent. Direct clearing is when the risk party to the trade is facing the CCP, either through its own account or its clearing member acting as agent. In the direct clearing agency model, the party facing the CCP is acting as clearing member for another party. If the clearing instructions contains clearerParty1 or clearerParty2, then it should be used as the party facing the CCP in the beta or gamma contracts respectively. The resulting beta and gamma trades should have the same tradable product as the alpha referencing the risk parties however, the current state of the model does not allow parties to be aliased efficiently which will be resolved by Trello task https://trello.com/c/q8S3w2Rz.">
-	[creation BusinessEvent]
-	inputs:
-		clearingInstruction ClearingInstruction (1..1) <"Clearing Instruction with all party information required to clear the trade.">
-		tradeDate date (1..1) <"Denotes the trade/execution date.">
-		identifier Identifier (1..1) <"Denotes one or more identifiers associated with the transaction.">
-	output:
-		clearedEvent BusinessEvent (1..1) <"Business event qualified as a cleared trade consisting of five primitive events; terminated alpha contract, new beta execution, beta contract formation, new gamma execution and gamma contract formation">
-	alias alphaTerminationPriceQuantity:
-       Create_PriceQuantity( empty, clearingInstruction -> alphaContract -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, empty )
-	alias alphaTerminationInstruction:
-        Create_TerminationInstruction( [ alphaTerminationPriceQuantity ], tradeDate )
-	alias alphaTerminatedPrimitives: <"Terminated alpha primitive event represented as a quantity change event with the after quantity set to 0. The before state is a reference to the original alpha contract.">
-		Create_Termination( clearingInstruction -> alphaContract, alphaTerminationInstruction ) -> primitives only-element
-	alias clearerRole: <"The clearing party (CCP) role set to ClearingOrganization.">
-		Create_PartyRole(clearingInstruction -> clearingParty, PartyRoleEnum -> ClearingOrganization)
-	alias betaClearerCounterparty:
-    		Create_Counterparty(clearingInstruction -> clearingParty, CounterpartyRoleEnum -> Party2)
-    alias betaParty: <"Beta party is the clearerParty1 when acting as a clearing member or else is party1 when it is clearing for its own account.">
-		if clearingInstruction -> clearerParty1 exists
-		then clearingInstruction -> clearerParty1
-		else clearingInstruction -> party1
-	alias betaCounterparty:
-		Create_Counterparty(betaParty, CounterpartyRoleEnum -> Party1)
-	alias betaExecution: <"Execution between the CCP and the beta party. Only works with a single trade lot.">
-		Create_ExecutionPrimitive(
-		    Create_ExecutionInstruction(
-		        clearingInstruction -> alphaContract -> trade -> tradableProduct -> product,
-                clearingInstruction -> alphaContract -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
-                [betaCounterparty, betaClearerCounterparty],
-                clearingInstruction -> alphaContract -> trade -> tradableProduct -> ancillaryParty,
-                [betaParty, clearingInstruction -> clearingParty],
-                [clearerRole],
-                clearingInstruction -> alphaContract -> trade -> executionDetails,
-                tradeDate,
-                [identifier]
-            )
-        )
-	alias betaExecutionPrimitives: NewExecutionPrimitiveEvent(betaExecution)
-	alias betaContract: <"Contract between the CCP and the beta party.">
-		Create_ContractFormationPrimitive( Create_ContractFormationInstruction( empty ), betaExecution -> after )
-	alias betaContractPrimitives: NewContractFormationPrimitiveEvent(betaContract)
-	alias gammaClearerCounterparty:
-		Create_Counterparty(clearingInstruction -> clearingParty, CounterpartyRoleEnum -> Party1)
-	alias gammaParty: <"Gamma party is the clearerParty2 when acting as a clearing member or else is party1 when it is clearing for its own account.">
-		if clearingInstruction -> clearerParty2 exists
-		then clearingInstruction -> clearerParty2
-		else clearingInstruction -> party2
-	alias gammaCounterparty:
-		Create_Counterparty(gammaParty, CounterpartyRoleEnum -> Party2)
-	alias gammaExecution: <"Execution between the CCP and the gamma party">
-		Create_ExecutionPrimitive(
-		    Create_ExecutionInstruction(
-		        clearingInstruction -> alphaContract -> trade -> tradableProduct -> product,
-                clearingInstruction -> alphaContract -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
-                [gammaCounterparty, gammaClearerCounterparty],
-                clearingInstruction -> alphaContract -> trade -> tradableProduct -> ancillaryParty,
-                [gammaParty, clearingInstruction -> clearingParty],
-                [clearerRole],
-                clearingInstruction -> alphaContract -> trade -> executionDetails,
-                tradeDate,
-                [identifier]
-            )
-        )
-	alias gammaExecutionPrimitives: NewExecutionPrimitiveEvent(gammaExecution)
-	alias gammaContract: <"Contract between the CCP and the gamma party.">
-		Create_ContractFormationPrimitive( Create_ContractFormationInstruction( empty ), gammaExecution -> after )
-	alias gammaContractPrimitives: NewContractFormationPrimitiveEvent(gammaContract)
-	condition: <"The alpha contract being terminated must include the party1 contained in the clearing instruction.">
-		clearingInstruction -> alphaContract -> trade -> party contains clearingInstruction -> party1
-	condition: <"The alpha contract being terminated must include the party2 contained in the clearing instruction.">
-		clearingInstruction -> alphaContract -> trade -> party contains clearingInstruction -> party2
-	condition: <"The alpha contract being terminated must include the party role of the clearing member (clearerParty1) if it has been specified.">
-		if clearingInstruction -> clearerParty1 exists
-		then clearingInstruction -> alphaContract -> trade -> partyRole -> partyReference contains clearingInstruction -> clearerParty1
-	condition: <"The alpha contract being terminated must include the party role of the clearing member (clearerParty2) if it has been specified.">
-		if clearingInstruction -> clearerParty2 exists
-		then clearingInstruction -> alphaContract -> trade -> partyRole -> partyReference contains clearingInstruction -> clearerParty2
-	add clearedEvent -> primitives: <"Create the event made up of five primitives; alpha terminated, beta execution, beta contract, gamma execution and gamma contract. Each beta and gamma contracts contain references to the respective executions.">
-		[
-			alphaTerminatedPrimitives,
-			betaExecutionPrimitives,
-			betaContractPrimitives,
-			gammaExecutionPrimitives,
-			gammaContractPrimitives
-		]
 
 func FilterOpenTradeStates: <"Filter to only 'open' TradeState - where both the closedState and positionState are not set.">
 	inputs:
