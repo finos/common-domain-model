@@ -35,8 +35,8 @@ A tradable product represents a financial product that is ready to be traded, me
  type TradableProduct:
     product Product (1..1)
     tradeLot TradeLot (1..*)
-    counterparty Counterparty (2..2) 
-    ancillaryParty AncillaryParty (0..*) 
+    counterparty Counterparty (2..2)
+    ancillaryParty AncillaryParty (0..*)
     adjustment NotionalAdjustmentEnum (0..1)
 
 .. note:: The conditions for this data type are excluded from the snippet above for purposes of brevity.
@@ -183,10 +183,10 @@ Consider the example below for the initial price of the underlying equity in a s
                 "perUnitOfAmount": {
                   "financialUnit": "SHARE"
                 },
-		"priceExpression": {
+                "priceExpression": {
                   "priceType": "ASSET_PRICE",
-		  "grossOrNet": "NET"
-		},
+                  "grossOrNet": "NET"
+                },
               },
               "meta": {
                 "location": [
@@ -226,8 +226,8 @@ The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient t
                 "unitOfAmount": {
                   "financialUnit": "CONTRACT"
                 },
-		"multiplier": 1000,
-		"multiplierUnit": "BBL"
+                "multiplier": 1000,
+                "multiplierUnit": "BBL"
               },
               "meta": {
                 "location": [
@@ -425,7 +425,7 @@ The ``Payout`` type defines the composable payout types, each of which describes
    securityFinancePayout SecurityFinancePayout (0..*)
    cashflow Cashflow (0..*)
 
-A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts. The list of payouts that extend ``PayoutBase` are:
+A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts. The list of payouts that extend `PayoutBase` are:
 
 - ``InterestRatePayout``
 - ``EquityPayout``
@@ -439,7 +439,7 @@ A number of payout types extend a common data type called ``PayoutBase``. This d
  type PayoutBase:
    payerReceiver PayerReceiver (1..1)
    payoutQuantity ResolvablePayoutQuantity (1..1)
-   settlementTerms SettlementTerms (1..1)
+   settlementTerms SettlementTerms (0..1)
 
 .. code-block:: Haskell
 
@@ -459,23 +459,23 @@ An example of the payout types that extend ``PayoutBase`` is illustrated below:
 .. code-block:: Haskell
 
  type InterestRatePayout extends PayoutBase:
-   [metadata key]
-   	rateSpecification RateSpecification (1..1)
-	dayCountFraction DayCountFractionEnum (0..1)
-		[metadata scheme]
-	calculationPeriodDates CalculationPeriodDates (0..1)
-	paymentDates PaymentDates (0..1)
-	paymentDate AdjustableDate (0..1)
-	paymentDelay boolean (0..1)
-	resetDates ResetDates (0..1)
-	discountingMethod DiscountingMethod (0..1)
-	compoundingMethod CompoundingMethodEnum (0..1)
-	cashflowRepresentation CashflowRepresentation (0..1)
-	principalExchanges PrincipalExchanges (0..1)
-	stubPeriod StubPeriod (0..1)
-	bondReference BondReference (0..1)
-	fixedAmount calculation (0..1)
-	floatingAmount calculation (0..1)
+    [metadata key]
+    rateSpecification RateSpecification (1..1)
+    dayCountFraction DayCountFractionEnum (0..1)
+        [metadata scheme]
+    calculationPeriodDates CalculationPeriodDates (0..1)
+    paymentDates PaymentDates (0..1)
+    paymentDate AdjustableDate (0..1)
+    paymentDelay boolean (0..1)
+    resetDates ResetDates (0..1)
+    discountingMethod DiscountingMethod (0..1)
+    compoundingMethod CompoundingMethodEnum (0..1)
+    cashflowRepresentation CashflowRepresentation (0..1)
+    principalExchanges PrincipalExchanges (0..1)
+    stubPeriod StubPeriod (0..1)
+    bondReference BondReference (0..1)
+    fixedAmount calculation (0..1)
+    floatingAmount calculation (0..1)
 
 .. note:: The code snippets above excludes the conditions in this data type for purposes of brevity.
 
@@ -605,13 +605,13 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
 .. code-block:: Haskell
 
  func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
-	[qualification Product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-	set is_product:
-		Qualify_BaseProduct_Inflation(economicTerms) = True
-		and Qualify_SubProduct_FixedFloat(economicTerms) = True
-		and Qualify_Transaction_ZeroCoupon(economicTerms) = True
+    [qualification Product]
+    inputs: economicTerms EconomicTerms (1..1)
+    output: is_product boolean (1..1)
+    set is_product:
+        Qualify_BaseProduct_Inflation(economicTerms) = True
+        and Qualify_SubProduct_FixedFloat(economicTerms) = True
+        and Qualify_Transaction_ZeroCoupon(economicTerms) = True
 
 If all the statements above are true, then the function evaluates to True, and the product is determined to be qualified as the product type referenced by the function name.
 
@@ -626,13 +626,13 @@ The ``productIdentification`` data structure and an instance of a CDM object (`s
 .. code-block:: Haskell
 
  type ProductIdentification:
- 	productQualifier productType (0..1)
- 	primaryAssetData AssetClassEnum (0..1)
- 		[metadata scheme]
- 	secondaryAssetData AssetClassEnum (0..*)
- 		[metadata scheme]
- 	externalProductType ExternalProductType (0..*)
- 	productIdentifier ProductIdentifier (0..*)
+     productQualifier productType (0..1)
+     primaryAssetData AssetClassEnum (0..1)
+         [metadata scheme]
+     secondaryAssetData AssetClassEnum (0..*)
+         [metadata scheme]
+     externalProductType ExternalProductType (0..*)
+     productIdentifier ProductIdentifier (0..*)
 
 .. code-block:: Javascript
 
@@ -697,7 +697,7 @@ The representation of state transitions in the CDM event model is based on the f
 
 The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below.
 
-.. figure:: event-model-overview.png
+.. figure:: images/event-model-overview.png
 
 * **Trade state** represents the state in the lifecycle that the trade is in, from execution to settlement and maturity.
 * **Primitive event** is a building block component used to specify business events in the CDM. Each primitive event describes a fundamental state-transition component that impacts the trade state during its lifecycle.
@@ -721,7 +721,7 @@ The trade state is defined in CDM by the ``TradeState`` data type and represents
    trade Trade (1..1)
    state State (0..1)
    resetHistory Reset (0..*)
-   transferHistory Transfer (0..*)
+   transferHistory TransferState (0..*)
 
 While many different types of events may occur through the trade lifecycle, the ``trade``, ``state``, ``resetHistory`` and ``transferHistory`` attributes are deemed sufficient to describe all of the possible (post-trade) states which may result from lifecycle events. The ``Trade`` data type contains the tradable product, which defines all of the economic terms of the transaction as agreed between the parties.
 
@@ -888,6 +888,7 @@ The *reset* process creates instances of the ``Reset`` data type, which are adde
 .. code-block:: Haskell
 
  type Reset:
+   [metadata key]
    resetValue Price (1..1)
    resetDate date (1..1)
    rateRecordDate date (0..1)
@@ -915,8 +916,9 @@ The *transfer* process creates instances of the ``Transfer`` data type, which ar
 .. code-block:: Haskell
 
  type Transfer extends TransferBase:
-   settlementOrigin SettlementTerms (0..1)
-     [metadata reference]
+   settlementOrigin SettlementOrigin (0..1)
+   resetOrigin Reset (0..1)
+   transferExpression TransferExpression (1..1)
 
 .. code-block:: Haskell
 
@@ -947,16 +949,15 @@ A Business Event represents a transaction lifecycle event and is built according
    [metadata key]
    [rootType]
    primitives PrimitiveEvent (0..*)
-   intent IntentEnum (0..1)
+   intent EventIntentEnum (0..1)
    functionCall string (0..1)
    eventQualifier eventType (0..1)
    eventDate date (1..1)
    effectiveDate date (0..1)
    eventEffect EventEffect (0..1)
-   workflowEventState WorkflowStepState (0..1)
-     [deprecated]
-   tradeWarehouseWorkflow TradeWarehouseWorkflow (0..1)
    packageInformation IdentifiedList (0..1)
+   instruction Instruction (0..*)
+   after TradeState (0..*)
 
 As can be observed in the definition above, the only mandatory attributes of a business event are the ones listed below:
 
@@ -1089,6 +1090,7 @@ A *workflow* represents a set of actions or steps that are required to trigger a
    account Account (0..*)
    lineage Lineage (0..1)
    creditLimitInformation CreditLimitInformation (0..1)
+   workflowState WorkflowState (0..1)
 
 The different attributes of a workflow step are detailed in the sections below.
 
@@ -1106,7 +1108,7 @@ The list of business events for which this process is currently implemented in t
 
 .. code-block:: Haskell
 
- type Instruction: 
+ type Instruction:
     [rootType]
     instructionFunction string (0..1)
     allocation AllocationInstruction (0..1)
@@ -1119,11 +1121,11 @@ The list of business events for which this process is currently implemented in t
     quantityChange QuantityChangeInstruction (0..1)
     indexTransition IndexTransitionInstruction (0..1)
     termination TerminationInstruction (0..1)
-    primitiveInstruction PrimitiveInstruction (1..*)
+    primitiveInstruction PrimitiveInstruction (0..1)
     before TradeState (0..1)
 
-    condition ExecutionPrimitive:
-        if primitiveInstruction -> execution exists then primitiveInstruction -> execution count = 1
+    condition ExclusiveSplitPrimitive:
+       if primitiveInstruction -> split exists then primitiveInstruction -> split only exists
 
 
 Previous Workflow Step
@@ -1233,17 +1235,20 @@ One distinction with the product approach is that the ``intent`` qualification i
  func Qualify_Termination:
     [qualification BusinessEvent]
     inputs:
-        businessEvent BusinessEvent(1..1)
+        businessEvent BusinessEvent (1..1)
     output: is_event boolean (1..1)
-    alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory, businessEvent -> eventDate ) only-element
+    alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
+    alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
     set is_event:
-        (businessEvent -> intent is absent or businessEvent -> intent = IntentEnum -> Termination)
+        businessEvent -> intent is absent
         and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
             or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-            or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction count = 1))
-        and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
-		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated or
-	  	    businessEvent -> instructionFunction = InstructionFunctionEnum -> QuantityChange or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
+            or (primitiveInstruction -> quantityChange only exists
+                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
+        and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
+            or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
+        and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+            or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
@@ -1374,8 +1379,8 @@ The ``LegalAgreement`` data type represents the highest-level data type for defi
 .. code-block:: Haskell
 
   type LegalAgreement extends LegalAgreementBase:
-	[metadata key]
- 	[rootType]
+    [metadata key]
+     [rootType]
     agreementTerms AgreementTerms (0..1)
     relatedAgreements RelatedAgreement (0..*)
     umbrellaAgreement UmbrellaAgreement (0..1)
@@ -1594,10 +1599,10 @@ The development of a digital data standard for representation of eligible collat
 .. code-block:: Haskell
 
  type EligibleCollateralSchedule:
-	[rootType]
-	[metadata key]
-	scheduleIdentifier Identifier (0..*)
-	criteria EligibleCollateralCriteria (1..*)
+    [rootType]
+    [metadata key]
+    scheduleIdentifier Identifier (0..*)
+    criteria EligibleCollateralCriteria (1..*)
 
 The ``EligibleCollateralCriteria`` data type contains the following key components to allow the digital representation of the detailed criteria reflected in the legal agreement:
 
@@ -1610,13 +1615,13 @@ The following code snippets represent these three components of the eligible col
 .. code-block:: Haskell
 
  type EligibleCollateralCriteria extends CollateralCriteriaBase:
-	treatment CollateralTreatment (1..1)
+    treatment CollateralTreatment (1..1)
 
 .. code-block:: Haskell
 
  type CollateralCriteriaBase:
-	issuer IssuerCriteria (0..*)
-	asset AssetCriteria (0..*)
+    issuer IssuerCriteria (0..*)
+    asset AssetCriteria (0..*)
 
 .. code-block:: Haskell
 
@@ -1742,15 +1747,6 @@ Financial transactions defined in CDM can be referenced in the ``ContractTradeDe
 
 Similarly, the ``ContractFormation`` business event that creates the legally binding agreement between the parties can reference a ``LegalAgreement`` governing the transaction.
 
-.. code-block:: Haskell
-
- func Create_ContractFormation:
-    [creation BusinessEvent]
-    inputs:
-        instruction ContractFormationInstruction (1..1)
-        before TradeState (0..1)
-        contractFormationDate date (1..1)
-
 .. note:: The functions to create such business events are further detailed in the `Lifecycle Event Process Section`_ of the documentation.
 
 
@@ -1779,7 +1775,7 @@ How Does It Work
 
 The data and proces model definitions of the CDM are systematically translated into executable code using purpose-built code generation technology. The CDM executable code is available in a number of modern, widely adopted and freely available programming languages and is systematically distributed as part of the CDM release.
 
-The code generation process is based on the Rosetta DSL and is further described in the `Code Generation Section`_, including an up-to-date `list of available languages <https://docs.rosetta-technology.io/dsl/codegen-readme.html#what-code-generators-are-available>`_. Support for further languages can be added as required by market participants.
+The code generation process is based on the Rosetta DSL and is further described in the `Code Generation Section`_, including an up-to-date `list of available languages <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available>`_. Support for further languages can be added as required by market participants.
 
 Scope
 ^^^^^
@@ -1870,7 +1866,7 @@ Explanations of these processes are provided in the following sections.
 
 Base Libraries - Vector Math
 """"""""""""""""""""""""""""
-The CDM includes a very basic library for performing vector math.  This is intended to support more complex calculations such as daily compounded floating amounts.   The CDM includes a basic implementation of these functions in Java, and allows individual implementations to substitute their own more robust representations.
+The CDM includes a very basic library for performing vector math.  This is intended to support more complex calculations such as daily compounded floating amounts.  The CDM includes a basic implementation of these functions in Java, and allows individual implementations to substitute their own more robust representations.
 
 A small library of functions for working with vectors (ordered collections of numbers) has been added to CDM to support Rosetta functions needing to perform complex mathematical operations.  Anticipated uses include averaging and compounding calculations for floating amounts, but the functions are designed to be general use.
 
@@ -1878,15 +1874,13 @@ The functions are located in ``base-math-func``.
 
 Functions include:
 
-* ``ToVector``: Creates a vector from a list of numbers.
-* ``SelectFromVector``: Selects a single value from a vector (list of numbers), i.e. result = val[index].
-* ``LastInVector``: Returns the last value in a vector.  If the vector is empty, returns null.
-* ``AppendToVector``: Appends a single value to a vector.
 * ``VectorOperation``: Generates a result vector by applying the supplied arithmetic operation to each element of the supplied left and right vectors in turn.  i.e. result[n] = left[n] [op] right[n], where [op] is the arithmetic operation defined by arithmeticOp.   This function can be used to, for example, multiply or add two vectors.
-* ``VectorScalarOperation``: Generates a result vector by applying the supplied arithemetic operation and scalar right value to each element of the supplied left vector in turn. i.e. result[n] = left[n] [op] right, where [op] is the arithmetic operation defined by arithmeticOp.  This function can be used to, for example, multiply a vector by a scalar value, or add a scalar to a vector.
-* ``VectorGrowthOperation``: Generates a result vector by starting with the supplied base value (typically 1), and then multiplying it in turn by each growth factor, which is typically a number just above 1.  For instance, a growth factor of 1.1 reprsents a 10% increase, and 0.9 a 10% decrease.  The results will show the successive results of applying the successive growth factors, with the first value of the list being the supplied baseValue, and final value of the results list being the product of all of the supplied values.  i.e. result[1] = baseValue * factor[1], result[n] = result[n-1] * factor[n].  The resulting list will have the one more element than the supplied list of factors.  This function is useful for performing compounding calculations.
+* ``VectorScalarOperation``: Generates a result vector by applying the supplied arithmetic operation and scalar right value to each element of the supplied left vector in turn. i.e. result[n] = left[n] [op] right, where [op] is the arithmetic operation defined by arithmeticOp.  This function can be used to, for example, multiply a vector by a scalar value, or add a scalar to a vector.
+* ``VectorGrowthOperation``: Generates a result vector by starting with the supplied base value (typically 1), and then multiplying it in turn by each growth factor, which is typically a number just above 1.  For instance, a growth factor of 1.1 represents a 10% increase, and 0.9 a 10% decrease.  The results will show the successive results of applying the successive growth factors, with the first value of the list being the supplied baseValue, and final value of the results list being the product of all of the supplied values.  i.e. result[1] = baseValue * factor[1], result[n] = result[n-1] * factor[n].  The resulting list will have the one more element than the supplied list of factors.  This function is useful for performing compounding calculations.
+* ``AppendToVector``: Appends a single value to a vector.
 
 Also a new scalar functions has been added to better support floating rate processing:
+
 * ``RoundToPrecision``:  Rounds a supplied number to a specified precision (in decimal places) using a roundingMode of type ``RoundingDirectionEnum``.  This is similar to ``RoundToNearest`` but takes a precision rather than an amount, and uses a different rounding mode enumeration that supports more values.
 
 Base Libraries - Date Math
@@ -1902,21 +1896,21 @@ The functions are located in ``base-datetime-func``.
 
 Functions include:
 
-* ``CombineBusinessCenters``: Creates a BusinessCenters object that includes the union of business centers in the two supplied lists
-* ``RetrieveBusinessCenterHolidays``: Returns a merged list of holidays for the supplied business centers
-* ``DayOfWeek``: returns the day of week corresponding to the supplied date
-* ``AddDays``: adds the specified number of calendar days to the supplied date.  A negative number will generate a date before the supplied date.
-* ``DateDifference``: subtracts the two supplied dates to return the number of calendar days between them .  A negative number implies first is after second.
-* ``LeapYearDateDifference``: subtracts the two supplied dates to return the number of leap year calendar days between them.(That is, the number of dates that happen to fall within a leap year.)  A negative number implies firstDate is after secondDate.
-* ``SelectDate``: Select a date from a list of dates based on index.  If not found return nothing.
-* ``LastInDateList``: Return the last date in a list of dates
-* ``AppendDateToList``: Add a date to a list of dates
-* ``PopOffDateList``:  Remove last element from a list of dates
+* ``GetAllBusinessCenters``: Returns a merged list of BusinessCenterEnums for the supplied BusinessCenters.
+* ``BusinessCenterHolidaysMultiple``: Returns a sorted list of holidays for the supplied business centers.
+* ``BusinessCenterHolidays``: Returns a list of holidays for the supplied business center.
+* ``DayOfWeek``: Returns the day of week corresponding to the supplied date.
+* ``AddDays``: Adds the specified number of calendar days to the supplied date.  A negative number will generate a date before the supplied date.
+* ``DateDifference``: Subtracts the two supplied dates to return the number of calendar days between them .  A negative number implies first is after second.
+* ``LeapYearDateDifference``: Subtracts the two supplied dates to return the number of leap year calendar days between them (that is, the number of dates that happen to fall within a leap year).  A negative number implies firstDate is after secondDate.
+* ``AppendDateToList``: Add a date to a list of dates.
+* ``PopOffDateList``:  Remove last element from a list of dates.
 
-The following are implemented in Rosetta based on the above primitives.
-* ``IsWeekend``: returns whether the supplied date is a weekend.  This implementation currently assumes a 5 day week with Saturday and Sunday as holidays.  A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.
-* ``IsHoliday``: Returns whether a day is a holiday for the specified business centers
-* ``IsBusinessDay``: returns an indicator of whether the supplied date is a good business date given the supplied business centers.  True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday
+The following are implemented in Rosetta based on the above primitives:
+
+* ``IsWeekend``: Returns whether the supplied date is a weekend. This implementation currently assumes a 5 day week with Saturday and Sunday as holidays.  A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.
+* ``IsHoliday``: Returns whether a day is a holiday for the specified business centers.
+* ``IsBusinessDay``: Returns an indicator of whether the supplied date is a good business date given the supplied business centers.  True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday.
 * ``AddBusinessDays``: Returns a good business date that has been offset by the given number of business days given the supplied business centers.  A negative value implies an earlier date (before the supplied originalDate), and a positive value a later date (after the supplied date).
 * ``GenerateDateList``: Creates a list of good business days starting from the startDate and going to the end date, inclusive, omitting any days that are weekends or holidays according to the supplied business centers.
 
@@ -1925,9 +1919,9 @@ Base Libraries - Daycounting
 The CDM includes a  library for performing day counting calculations.
 
 It includes functions as follows:
-* ``YearFraction``: The fraction of a year represented by a date range
+* ``YearFraction``: The fraction of a year represented by a date range.
 * ``YearFractionForOneDay```: Return the year fraction represented by a single day, i.e. 1 / dayCountBasis, where dayCountBasis represents the denominator of the day count fraction. This perhaps should take into account leap years, though the ISDA compounding formulas do not cover ACT basis at the moment.
-* ``DayCountBasis``: Return the day count basis (the denominator of the day count fraction) for the day count fraction
+* ``DayCountBasis``: Return the day count basis (the denominator of the day count fraction) for the day count fraction.
 
 Floating Rate Option/Index Features
 """""""""""""""""""""""""""""""""""
@@ -1943,12 +1937,12 @@ Functions for retrieving information about FROs include:
 Functions for calculating modular floating rates include:
 
 * ``EvaluateCalculatedRate``: Evaluate a calculated rate as described in the 2021 ISDA Definitions, Section 7
-* ``GenerateObservationDatesAndWeights``: Apply shifts to generate the list of observation dates and weights for each of those dates
+* ``GenerateObservationDatesAndWeights``: Apply shifts to generate the list of observation dates and weights for each of those dates.
 * ``ComputeCalculationPeriod``: Determine the calculation period to use for computing the calculated rate (it may not be the same as the normal calculation period, for instance if the rate is set in advance)
-* ``DetermineObservationPeriod``: Determine any applicable offsets/shifts for the period for observing an index, and then generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shifts
+* ``DetermineObservationPeriod``: Determine any applicable offsets/shifts for the period for observing an index, and then generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shifts.
 * ``GenerateObservationPeriod``: Generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shifts.
-* ``GenerateObservationDates``: Generate the list of observation dates given an observation period
-* ``DetermineWeightingDates``: Determine the dates to be used for weighting observations
+* ``GenerateObservationDates``: Generate the list of observation dates given an observation period.
+* ``DetermineWeightingDates``: Determine the dates to be used for weighting observations.
 * ``ProcessObservations``: Apply daily observation parameters to rate observation.  These are discussed in the 2021 ISDA Definitions, section 7.2.3 and 7.2.4.
 * ``GenerateWeights``: Recursively creates a list of weights based on the date difference between successive days.
 * ``ApplyCompoundingFormula``:  Implements the compounding formula:   Product of ( 1 + (rate * weight) / basis), then backs out the final rate. This is used to support section 7.3 of the 2021 ISDA Definitions.
@@ -1961,12 +1955,10 @@ The CDM includes preliminary features for calculating fixed and floating amounts
 Base calculation functions include:
 
 * ``FixedAmountCalculation``: Calculates the fixed amount for a calculation period by looking up the notional and the fixed rate and multiplying by the year fraction
-* ``LookupFixedRate``: Look up the fixed rate for a calculation period
+* ``GetFixedRate``: Look up the fixed rate for a calculation period
 * ``FloatingAmountCalculation``: Calculate a floating amount for a calculation period by determining the raw floating rate, applying any rate treatments, looking up the calculation period notional, then performing the multiplication of the notional, rate, and year fraction.  Floating amount calculations are described in the 2021 ISDA Definitions in Section 6 and 7.
-* ``LookupNotionalAmount``: Look up the notional amount in effect for a calculation period
-* ``LookupQuantityScheduleAmount``: Look up a value from a quantity schedule given a supplied starting date.  It will return the value of the last step that is before the supplied starting date, or if none matches, the initial value.
-* ``FindNonNegativeScheduleSteps``: Find all  schedule step values whose stepDate is before or equal to the supplied periodStartDate, starting from supplied startingStep number.  Returns a list of step values starting from the last matching one and going in reverse order.  Done this slightly odd way for efficiency and simplicity in code generation.
-* ``SelectNonNegativeScheduleStep``: Retrieve a single step from a  schedule given a step number.  This is an entry point to a function written in a native language like Java.  Returns the step if it exists, else null. The index is 0-based, so 0 returns the first step.
+* ``GetNotionalAmount``: Look up the notional amount in effect for a calculation period
+* ``GetQuantityScheduleStepValues``: Find all schedule step values whose stepDate is before or equal to the supplied periodStartDate.  Returns a list of step values starting from the initial quantity value, to the last step value before the periodStartDate.
 * ``CalculateYearFraction``: Calculate the year fraction for a single calculation period, by invoking the base year fraction logic
 
 Floating rate processing an calculation functions include:
@@ -1980,13 +1972,11 @@ Floating rate processing an calculation functions include:
 * ``DetermineResetDate``: Determine the value of the reset date given a reset dates structure and a calculation period for which it's needed. Reset dates are defined in the 2021 ISDA Definition in Section 6.5.5.
 * ``DetermineFixingDate``: Determine the observation (fixing) date needed given a reset dates structure and a reset date.
 * ``GetFloatingRateProcessingParameters``: Determine the processing parameters to use from the InterestRatePayout by looking them up if necessary from the corresponding schedules in the interest rate stream
-* ``SpreadAmount``: Look up the spread amount for a calculation period
-* ``MultiplierAmount``: Look up the multiplier amount for a calculation period
-* ``CapRateAmount``: Look up the cap rate amount for a calculation period
-* ``FloorRateAmount``: Look up the floor rate amount for a calculation period
-* ``LookupRateScheduleAmount``: Look up an amount for a calculation period from a rate schedule
-* ``FindScheduleSteps``: Find all rate schedule step values whose stepDate is before or equal to the supplied periodStartDate, starting from supplied startingStep number.  Returns a list of step values starting from the last matching one and going in reverse order.  Done this slightly odd way for efficiency and simplicity in code generation.  Assumes schedule step are in ascending date order.
-* ``SelectScheduleStep``: Retrieve a single step from a  schedule given a step number
+* ``SpreadAmount``: Look up the spread amount for a calculation period.
+* ``MultiplierAmount``: Look up the multiplier amount for a calculation period.
+* ``CapRateAmount``: Look up the cap rate amount for a calculation period.
+* ``FloorRateAmount``: Look up the floor rate amount for a calculation period.
+* ``GetRateScheduleAmount``: Look up an amount for a calculation period from a rate schedule
 * ``ApplyFloatingRateProcessing``: Perform rate treatments on floating rates, such as applying spreads, multipliers, caps and floors, rounding, and negative interest treatment.
 * ``ApplyFloatingRatePostSpreadProcessing``: Perform post-spread rate treatments on floating rates, such as applying caps and floors, rounding, and negative interest treatment.
 * ``ApplyCapsAndFloors``: Apply any cap or floor rate as a constraint on a regular swap rate, as discussed in the 2021 ISDA Definitions, section 6.5.8 and 6.5.9
@@ -2005,47 +1995,46 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
  func FloatingAmount:
    [calculation]
    inputs:
-     interestRatePayout InterestRatePayout (1..1)
-     spread number (1..1)
-     rate number (1..1)
-     quantity Quantity (1..1)
-     date date (1..1)
-     calculationPeriodData CalculationPeriodData (0..1)
+       interestRatePayout InterestRatePayout (1..1)
+       rate number (0..1)
+       quantity Quantity (0..1)
+       date date (0..1)
+       calculationPeriodData CalculationPeriodData (0..1)
    output:
-     floatingAmount number (1..1)
-   
-   alias calculationAmount:
-     quantity -> amount
-   alias calculationPeriod:
-     if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
-   alias dayCountFraction:
-     DayCountFraction(interestRatePayout, interestRatePayout -> dayCountFraction, date, calculationPeriod)
-   set floatingAmount:
-     calculationAmount * (rate + spread) * dayCountFraction
+       floatingAmount number (1..1)
 
-Day Count Fraction
+   alias notional:
+       if quantity exists then quantity -> amount
+   alias calculationPeriod:
+       if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
+   alias calcPeriodBase : Create_CalculationPeriodBase(calculationPeriod)
+   alias floatingCalc : FloatingAmountCalculation(interestRatePayout, calcPeriodBase, False, notional, rate)
+
+   set floatingAmount : floatingCalc-> calculatedAmount
+
+Year Fraction
 """"""""""""""""""
 
 The CDM process model incorporates calculations that represent the set of day count fraction rules specified as part of the ISDA 2006 Definitions, e.g. the *ACT/365.FIXED* and the *30E/360* day count fraction rules. Although these rules are widely accepted in international markets, many of them have complex nuances which can lead to inconsistent implementations and potentially mismatched settlements.
 
-For example, there are three distinct rule sets in which the length of each month is generally assumed to be 30 days for accrual purposes (and each year is assumed to be 360 days). However there are nuances in the rule sets that distinquish the resulting calculations under different circumstances, such as when the last day of the period is the last day of February. These distinct rule sets are defined by ISDA as 30/360 (also known as 30/360 US), 30E/360 (formerly known as 30/360 ICMA or 30/360 Eurobond), and the 30E/360.ISDA.
+For example, there are three distinct rule sets in which the length of each month is generally assumed to be 30 days for accrual purposes (and each year is assumed to be 360 days). However there are nuances in the rule sets that distinguish the resulting calculations under different circumstances, such as when the last day of the period is the last day of February. These distinct rule sets are defined by ISDA as 30/360 (also known as 30/360 US), 30E/360 (formerly known as 30/360 ICMA or 30/360 Eurobond), and the 30E/360.ISDA.
 
-The CDM process model eliminates the need for implementators to interpret the logic and write unique code for these rules. Instead, it provides a machine-readable expression that generates executable code, such as the example below:
+The CDM process model eliminates the need for implementors to interpret the logic and write unique code for these rules. Instead, it provides a machine-readable expression that generates executable code, such as the example below:
 
 .. code-block:: Haskell
 
- func DayCountFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
-	[calculation]
+ func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
+    [calculation]
 
-	alias startYear: calculationPeriod -> startDate -> year
-	alias endYear: calculationPeriod -> endDate -> year
-	alias startMonth: calculationPeriod -> startDate -> month
-	alias endMonth: calculationPeriod -> endDate -> month
-	alias endDay: Min(calculationPeriod -> endDate -> day, 30)
-	alias startDay: Min(calculationPeriod -> startDate -> day, 30)
+    alias startYear: startDate -> year
+    alias endYear: endDate -> year
+    alias startMonth: startDate -> month
+    alias endMonth: endDate -> month
+    alias endDay: Min(endDate -> day, 30)
+    alias startDay: Min(startDate -> day, 30)
 
-	set result:
-		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+    set result:
+        (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
 Utility Function
 """"""""""""""""
@@ -2075,44 +2064,52 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
  func EquityCashSettlementAmount:
-	inputs:
-		tradeState TradeState (1..1)
-		date date (1..1)
-	output:
-		equityCashSettlementAmount Cashflow (1..1)
-	alias equityPayout:
-		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
-	alias equityPerformance:
-	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-	 set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount:
-	 	Abs(equityPerformance)
-	 set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency:
+     inputs:
+         tradeState TradeState (1..1)
+         date date (1..1)
+     output:
+         equityCashSettlementAmount Transfer (1..1)
+ 
+     alias equityPayout:
+         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+     alias equityPerformance:
+         EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
+     alias payer:
+         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPayout -> payerReceiver -> payer ) -> partyReference
+     alias receiver:
+         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPayout -> payerReceiver -> receiver ) -> partyReference
+ 
+     set equityCashSettlementAmount -> quantity -> amount:
+          Abs(equityPerformance)
+     set equityCashSettlementAmount -> quantity -> unitOfAmount-> currency:
          ResolveEquityInitialPrice(
-	 		tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
-	 		tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
-	 		) -> unitOfAmount -> currency
-	set equityCashSettlementAmount -> payerReceiver -> payer:
-	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
-	set equityCashSettlementAmount -> payerReceiver -> receiver:
-	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
-    set equityCashSettlementAmount -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
-        ResolveCashSettlementDate(tradeState)
-
+             tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
+         ) -> unitOfAmount -> currency
+     set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
+         if equityPerformance >= 0 then payer else receiver
+     set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
+         if equityPerformance >= 0 then receiver else payer
+     set equityCashSettlementAmount -> settlementDate -> adjustedDate:
+         ResolveCashSettlementDate(tradeState)
+     set equityCashSettlementAmount -> settlementOrigin -> equityPayout:
+         equityPayout as-key        
+ 
 .. code-block:: Haskell
 
  func RateOfReturn:
-	inputs:
-		initialPrice Price (1..1)
-		finalPrice Price (1..1)
-	output:
-		rateOfReturn number (1..1)
+    inputs:
+        initialPrice Price (1..1)
+        finalPrice Price (1..1)
+    output:
+        rateOfReturn number (1..1)
 
-	alias initialPriceValue:
-		initialPrice->amount
-	alias finalPriceValue:
-		finalPrice->amount
-	set rateOfReturn:
-		(finalPriceValue - initialPriceValue) / initialPriceValue
+    alias initialPriceValue:
+        initialPrice->amount
+    alias finalPriceValue:
+        finalPrice->amount
+    set rateOfReturn:
+        if finalPriceValue exists and initialPriceValue exists and initialPriceValue > 0 then
+            (finalPriceValue - initialPriceValue) / initialPriceValue
 
 Initial Margin
 """"""""""""""""""
@@ -2124,7 +2121,7 @@ Some of those calculations are presented below:
 .. code-block:: Haskell
 
   func DeliveryAmount:
-	[calculation]
+    [calculation]
     inputs:
       postedCreditSupportItems PostedCreditSupportItem (0..*)
       priorDeliveryAmountAdjustment Money (1..1)
@@ -2167,6 +2164,7 @@ Some of those calculations are presented below:
       baseCurrency
 
 .. code-block:: Haskell
+
  func ReturnAmount:
    [calculation]
    inputs:
@@ -2182,68 +2180,69 @@ Some of those calculations are presented below:
      rounding CollateralRounding (1..1)
      disputedReturnAmount Money (1..1)
      baseCurrency string (1..1)
-
    output:
      result Money (1..1)
 
-       alias undisputedAdjustedPostedCreditSupportAmount:
-         UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency )
-       alias creditSupportAmount:
-         CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
-       alias returnAmount:
-         Max( undisputedAdjustedPostedCreditSupportAmount -> amount - creditSupportAmount -> amount, 0.0 )
-       alias undisputedReturnAmount:
-         Max( returnAmount - disputedReturnAmount -> amount, 0.0 )
+   alias undisputedAdjustedPostedCreditSupportAmount:
+     UndisputedAdjustedPostedCreditSupportAmount( postedCreditSupportItems, priorDeliveryAmountAdjustment, priorReturnAmountAdjustment, disputedTransferredPostedCreditSupportAmount, baseCurrency )
+   alias creditSupportAmount:
+     CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
+   alias returnAmount:
+     Max( undisputedAdjustedPostedCreditSupportAmount -> amount - creditSupportAmount -> amount, 0.0 )
+   alias undisputedReturnAmount:
+     Max( returnAmount - disputedReturnAmount -> amount, 0.0 )
 
-       condition:
-         ( baseCurrency = minimumTransferAmount -> currency )
-	   and ( baseCurrency = disputedReturnAmount -> currency )
+   condition:
+     (baseCurrency = minimumTransferAmount -> unitOfAmount->currency)
+       and (baseCurrency = disputedReturnAmount -> unitOfAmount->currency)
 
-       set result -> amount:
-         if undisputedReturnAmount >= minimumTransferAmount -> amount
-	 then RoundToNearest( undisputedReturnAmount, rounding -> returnAmount, RoundingModeEnum -> Down )
-	 else 0.0
-       set result -> currency:
-         baseCurrency
-	 
+   set result -> amount:
+     if undisputedReturnAmount >= minimumTransferAmount -> amount
+     then RoundToNearest( undisputedReturnAmount, rounding -> returnAmount, RoundingModeEnum -> Down )
+     else 0.0
+
+   set result -> unitOfAmount->currency:
+     baseCurrency
+
 Billing
-"""""""""
+"""""""
 
 The CDM process model includes calculations to support the billing event consisting of the individual amounts that need to be settled in relation to a portfolio of Security Loans.  These calculations leverage the `FixedAmount`, `FloatingAmount` and `Day Count Fraction` calculations described earlier in the documentation.  A functional model is provided to populate the `SecurityLendingInvoice` data type following the definitions as normalised in the *ISLA best practice handbook*
 
 The data type and function to generate a Security Lending Invoice:
 
 .. code-block:: Haskell
+
   type SecurityLendingInvoice:
+    [rootType]
+    [metadata key]
     sendingParty Party (1..1)
     receivingParty Party (1..1)
     billingStartDate date (1..1)
     billingEndDate date (1..1)
     billingRecord BillingRecord (1..*)
     billingSummary BillingSummary (1..*)
-    
+
 .. code-block:: Haskell
-  func Create_SecurityLendingInvoice: <"Defines the process of calculating and creating a Security Lending Invoice.">
 
+ func Create_SecurityLendingInvoice:
     inputs:
-      instruction BillingInstruction (1..1) <"Specifies the instructions for creation of a Security Lending billing invoice.">
-
+      instruction BillingInstruction (1..1)
     output:
-      invoice SecurityLendingInvoice (1..1) <"Produces the Security Lending Invoice">
+      invoice SecurityLendingInvoice (1..1)
 
-      set invoice->sendingParty:
-        instruction->sendingParty
-      set invoice->receivingParty:
-	instruction->receivingParty	
-      set invoice->billingStartDate:
-	instruction->billingStartDate
-      set invoice->billingEndDate:
-	instruction->billingEndDate
-      set invoice -> billingRecord:
-	Create_BillingRecords (instruction -> billingRecordInstruction)
-      set invoice->billingSummary:
-	Create_BillingSummary (invoice -> billingRecord)
-
+    set invoice -> sendingParty:
+      instruction -> sendingParty
+    set invoice -> receivingParty:
+      instruction -> receivingParty
+    set invoice -> billingStartDate:
+      instruction -> billingStartDate
+    set invoice -> billingEndDate:
+      instruction -> billingEndDate
+    add invoice -> billingRecord:
+      Create_BillingRecords( instruction -> billingRecordInstruction )
+    add invoice -> billingSummary:
+      Create_BillingSummary( invoice -> billingRecord )
 
 
 Lifecycle Event Process
@@ -2285,38 +2284,38 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
 .. code-block:: Haskell
 
  func Create_ResetPrimitive:
- 	[creation PrimitiveEvent]
- 	inputs:
- 		tradeState TradeState (1..1)
- 		instruction ResetInstruction (1..1)
- 		resetDate date (1..1)
- 	output:
- 		resetPrimitive ResetPrimitive (1..1)
+     [creation PrimitiveEvent]
+     inputs:
+         tradeState TradeState (1..1)
+         instruction ResetInstruction (1..1)
+         resetDate date (1..1)
+     output:
+         resetPrimitive ResetPrimitive (1..1)
 
- 	alias payout:
-		instruction -> payout
+     alias payout:
+        instruction -> payout
 
-	alias observationDate:
-		if instruction -> rateRecordDate exists
-		then instruction -> rateRecordDate
-		else resetDate
+    alias observationDate:
+        if instruction -> rateRecordDate exists
+        then instruction -> rateRecordDate
+        else resetDate
 
-	alias observationIdentifiers:
-		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, resetDate)
-		else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
+    alias observationIdentifiers:
+        if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, resetDate)
+        else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
 
-	alias observation:
-		ResolveObservation([observationIdentifiers], empty)
+    alias observation:
+        ResolveObservation([observationIdentifiers], empty)
 
-	set resetPrimitive -> before:
-		tradeState
+    set resetPrimitive -> before:
+        tradeState
 
-	set resetPrimitive -> after:
-		tradeState
+    set resetPrimitive -> after:
+        tradeState
 
-	add resetPrimitive -> after -> resetHistory:
-    	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate)
-		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
+    add resetPrimitive -> after -> resetHistory:
+        if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate)
+        else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
 
 
 First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
@@ -2326,63 +2325,63 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
 .. code-block:: Haskell
 
  func ResolveEquityObservationIdentifiers:
- 	inputs:
- 		payout EquityPayout (1..1)
- 		date date (1..1)
- 	output:
- 		identifiers ObservationIdentifier (1..1)
+     inputs:
+         payout EquityPayout (1..1)
+         date date (1..1)
+     output:
+         identifiers ObservationIdentifier (1..1)
 
- 	alias periodEndDate:
- 		CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
+     alias periodEndDate:
+         CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
 
- 	alias equityValuation:
- 		if CalculationPeriod( payout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then
- 			payout -> priceReturnTerms -> valuationPriceFinal
- 			else payout -> priceReturnTerms -> valuationPriceInterim
+     alias equityValuation:
+         if CalculationPeriod( payout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then
+             payout -> priceReturnTerms -> valuationPriceFinal
+             else payout -> priceReturnTerms -> valuationPriceInterim
 
- 	add identifiers -> observable -> productIdentifier:
- 		payout -> underlier -> security -> productIdentifier
+     add identifiers -> observable -> productIdentifier:
+         payout -> underlier -> security -> productIdentifier
 
- 	set identifiers -> observationDate:
- 		ResolveEquityValuationDate(equityValuation, date)
+     set identifiers -> observationDate:
+         ResolveEquityValuationDate(equityValuation, date)
 
- 	set identifiers -> observationTime:
- 		ResolveEquityValuationTime(equityValuation, identifiers -> observable -> productIdentifier only-element)
+     set identifiers -> observationTime:
+         ResolveEquityValuationTime(equityValuation, identifiers -> observable -> productIdentifier only-element)
 
- 	set identifiers -> determinationMethodology -> determinationMethod:
- 		equityValuation -> determinationMethod
+     set identifiers -> determinationMethodology -> determinationMethod:
+         equityValuation -> determinationMethod
 
 ``ResolveObservation`` provides an interface for adopters to integrate their market data systems. It specifies the input types and the output type, which ensures the integrity of the observed value.
 
 .. code-block:: Haskell
 
  func ResolveObservation:
- 	inputs:
- 		identifiers ObservationIdentifier (1..*)
- 		averagingMethod AveragingMethodEnum (0..1)
- 	output:
- 		observation Observation (1..1)
+     inputs:
+         identifiers ObservationIdentifier (1..*)
+         averagingMethod AveragingMethodEnum (0..1)
+     output:
+         observation Observation (1..1)
 
 The construction of the ``Reset`` in our scenario then becomes trivial, once the equity price has been retrieved, as the equity price and reset date are simply assigned to the corresponding attributes on the ``Reset``.
 
 .. code-block:: Haskell
 
  func ResolveEquityReset:
- 	inputs:
- 		equityPayout EquityPayout (1..1)
- 		observation Observation (1..1)
- 		date date (1..1)
- 	output:
- 		reset Reset (1..1)
+     inputs:
+         equityPayout EquityPayout (1..1)
+         observation Observation (1..1)
+         date date (1..1)
+     output:
+         reset Reset (1..1)
 
- 	set reset -> resetValue:
- 		observation -> observedValue
+     set reset -> resetValue:
+         observation -> observedValue
 
- 	set reset -> resetDate:
- 		date
+     set reset -> resetDate:
+         date
 
- 	add reset -> observations:
- 		observation
+     add reset -> observations:
+         observation
 
 Workflow Step Creation
 """"""""""""""""""""""
@@ -2467,11 +2466,11 @@ Model artifacts are organised into a directory hierarchy that is exposed in the 
 Organising Principles
 ^^^^^^^^^^^^^^^^^^^^^
 
-Namespaces are organised into a hierarchy, with layers going from in to out. The hierarchy contains an intrinsic inheritance structure where each layer has access to (“imports”) the layer outside, and is designed to be usable without any of its inner layers. Layers can contain several namespaces (“siblings”), which can also refer to each other. 
+Namespaces are organised into a hierarchy, with layers going from in to out. The hierarchy contains an intrinsic inheritance structure where each layer has access to (“imports”) the layer outside, and is designed to be usable without any of its inner layers. Layers can contain several namespaces (“siblings”), which can also refer to each other.
 
 Example – the base namespace
 
-.. figure:: cdm-namespace.png
+.. figure:: images/cdm-namespace.png
 
 In the example above the layers of the “base” namespace can be observed. There are four layers to the namespace. The outer layer “base” contains one file and three namespaces. The next layer contains three siblings, “datetime”, “math”, and “staticdata”. A third and fourth layer is contained within the “staticdata” namespace.
 
@@ -2480,35 +2479,35 @@ Hierarchy Structure
 
 The namespace hierarchy in the CDM contains 7 components
 
-•	Base – contains basic concepts used across the model: date, time, maths, static data
-•	Event – contains business event concepts: primitive, contract state, and associated state transition function specifications
-•	Legal Agreement – contains generic documentation concepts: legal agreement, contract, and credit support specifications
-•	Observable – contains observable concepts: market data, holiday calendars, asset class specific specifications
-•	Product – contains generic product concepts: quantity, price, economic terms and payout, that are built using template features
-•	Regulation – contains regulation concepts: regulatory bodies, corpus, report definitions and field rules
-•	Synonym – contains model to model synonym mappings
+•    Base – contains basic concepts used across the model: date, time, maths, static data
+•    Event – contains business event concepts: primitive, contract state, and associated state transition function specifications
+•    Legal Agreement – contains generic documentation concepts: legal agreement, contract, and credit support specifications
+•    Observable – contains observable concepts: market data, holiday calendars, asset class specific specifications
+•    Product – contains generic product concepts: quantity, price, economic terms and payout, that are built using template features
+•    Regulation – contains regulation concepts: regulatory bodies, corpus, report definitions and field rules
+•    Synonym – contains model to model synonym mappings
 
 
 .. _Portal: https://portal.cdm.rosetta-technology.io
 
-.. _Rosetta DSL Documentation: https://docs.rosetta-technology.io/dsl/documentation.html
-.. _Qualified Type Section: https://docs.rosetta-technology.io/dsl/documentation.html#qualified-type
-.. _Function Definition Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-definition
-.. _Function Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#function-component
-.. _Code Generation Section: https://docs.rosetta-technology.io/dsl/codegen-readme.html
-.. _Validation Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#validation-component
-.. _Mapping Component Section: https://docs.rosetta-technology.io/dsl/documentation.html#mapping-component
-.. _Special Syntax Section: https://docs.rosetta-technology.io/dsl/documentation.html#special-syntax
-.. _Meta-Data Section: https://docs.rosetta-technology.io/dsl/documentation.html#meta-data-and-reference
+.. _Rosetta DSL Documentation: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component
+.. _Qualified Type Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#qualified-type
+.. _Function Definition Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#function-definition
+.. _Function Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#function-component
+.. _Code Generation Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators
+.. _Validation Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#validation-component
+.. _Mapping Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component
+.. _Special Syntax Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#special-syntax
+.. _Meta-Data Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#meta-data-and-reference
 
-.. _Event Model Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#event-model
-.. _Event Qualification Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#event-qualification
-.. _Validation Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#validation-process
-.. _Calculation Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#calculation-process
-.. _Workflow Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#workflow
-.. _Product Model Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#product-model
-.. _Tradable Product Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#tradable-product
-.. _Lifecycle Event Process Section: https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#lifecycle-event-process
+.. _Event Model Section: documentation.html#event-model
+.. _Event Qualification Section: documentation.html#event-qualification
+.. _Validation Process Section: documentation.html#validation-process
+.. _Calculation Process Section: documentation.html#calculation-process
+.. _Workflow Section: documentation.html#workflow
+.. _Product Model Section: documentation.html#product-model
+.. _Tradable Product Section: documentation.html#tradable-product
+.. _Lifecycle Event Process Section: documentation.html#lifecycle-event-process
 
 .. _serialised: https://en.wikipedia.org/wiki/Serialization
 .. _data modelling: https://en.wikipedia.org/wiki/Cardinality_(data_modeling)#Application_program_modeling_approaches

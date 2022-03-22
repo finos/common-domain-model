@@ -160,7 +160,7 @@ similar types.
 
 An illustrative example for understanding the principle is shown here:
 
-.. image:: collateral-asset-identifier-tree.png
+.. image:: images/collateral-asset-identifier-tree.png
    :width: 6.85159in
    :height: 3.24844in
 
@@ -187,7 +187,7 @@ High Level Design Principles
 The foundational data structure from the highest level allows firstly to
 represent eligibility through specification of *criteria*:
 
-.. image:: cdm-graphical-ecs.png
+.. image:: images/cdm-graphical-ecs.png
    :width: 6.26806in
    :height: 1.1083in
 
@@ -888,7 +888,7 @@ product identifiers. Data type ``productIdentifier`` can be used to express
 specific instrument identifiers such as ISINs, CUSIPs etc. There is a
 section within the CDM documentation that covers this area of the model,
 this can be found in the following link
-https://docs.rosetta-technology.io/cdm/documentation/source/documentation.html#products-with-identifiers
+documentation.html#products-with-identifiers
 
 Listing (Used within Asset Criteria)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

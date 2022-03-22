@@ -1,0 +1,100 @@
+namespace cdm.event.common : <"Business event concepts: primitives, contract state and associated state transition function specifications.">
+version "${project.version}"
+
+import cdm.product.common.settlement.*
+
+import cdm.synonyms.config.*
+
+enum ConfirmationStatusEnum: <"Enumeration for the different types of confirmation status.">
+	Confirmed
+	Unconfirmed
+
+enum AffirmationStatusEnum: <"Enumeration for the different types of affirmation status.">
+	Affirmed
+	Unaffirmed
+	
+enum ExecutionTypeEnum: <"The enumerated values to specify how a contract has been executed, e.g. electronically, verbally, ...">
+	Electronic <"Execution via electronic execution facility, derivatives contract market, or other electronic message such as an instant message.">
+	OffFacility <"Bilateral execution between counterparties not pursuant to the rules of a SEF or DCM.">
+
+enum ActionEnum: <"The enumeration values to specify the actions associated with transactions.">
+	New <"A new instance of a transaction event, which is also characterized by the fact that the eventIdentifier has an associated version 1.">
+	Correct <"A correction of a prior instance of the transaction event. The eventIdentifier has an associated version greater than 1.">
+	Cancel <"A cancellation of a prior instance of the transaction event. The eventIdentifier has an associated version greater than 1.">
+
+enum AssetTransferTypeEnum: <"The qualification of the type of asset transfer.">
+	FreeOfPayment <"The transfer of assets takes place without a corresponding exchange of payment.">
+
+enum EventIntentEnum: <"The enumeration values to qualify the intent associated with a transaction event.">
+	Allocation <"The intent is to allocate one or more trades as part of an allocated block trade.">
+	Clearing <"The intent is to clear the contract.">
+	Compression <"The intent is to compress multiple trades as part of a netting or compression event.">
+	Exercise <"The intent is to Exercise the contract.">
+	IndexTransition <"The intent is to replace an interest rate index by another one during the life of a trade and add a transition spread on top of this index (and on top of the spreads already defined in the trade, if any). ">
+	Novation <"The intent is to novate the contract.">
+	Reallocation <"The intent is to reallocate one or more trades as part of an allocated block trade.">
+	Renegotiation <"The intent is to re-negotiate some of the terms of the contract.">
+	ContractFormation <"The intent is to form a contract from an execution.">
+
+enum RecordAmountTypeEnum: <"The enumeration of the account level for the billing summary.">
+    AccountTotal
+    GrandTotal
+    ParentTotal
+
+enum TransferStatusEnum: <"The enumeration values to specify the transfer status.">
+	Disputed <"The transfer is disputed.">
+	Instructed <"The transfer has been instructed.">
+	Pending <"The transfer is pending instruction.">
+	Settled <"The transfer has been settled.">
+	Netted <"The transfer has been netted into a separate Transfer.">
+
+enum InstructionFunctionEnum: <"The enumeration values indicating the BusinessEvent function associated input instructions.">
+	Execution
+	ContractFormation
+	QuantityChange
+	Renegotiation
+	Compression
+
+enum CallTypeEnum: <"Represents the enumeration values that indicate the intended status of message type, such as expected call, notification of a call or a margin call.">
+	MarginCall <"Identifies an actionable Margin Call.">
+	Notification <"Identifies a notification of a Margin Call for legal obligation to notify other party to initiate a margin call when notifying party is calculation or valuation agent.">
+	ExpectedCall <"Identifies an expected Margin Call instruction for either party to notify the other or their service provider of an expected margin call movement.">
+	
+enum MarginCallActionEnum: <"Represents the enumeration values to identify the collateral action instruction.">
+	Delivery <"Indicates an instruction of a new collateral asset delivery.">
+	Return <"Indicates an instruction for a return of a principals collateral asset delivery.">
+
+enum CollateralStatusEnum: <"Represents the enumeration list to identify the settlement status of the collateral.">
+	FullAmount <"Indicates the collateral balance amount in full, inclusive of any pre-agreed collateral positions in transit for settlement.">
+	SettledAmount <"Indicates the collateral is settled and not an in transit pre-agreed collateral amount/s.">
+	InTransitAmount <"Indicates collateral amount in transit settlement cycle only, excluding settled collateral amount/s.">
+
+enum MarginCallResponseTypeEnum: <"Represents the enumeration values to define the response type to a margin call.">
+	AgreeinFull <"Specifies a 'Full Agreement' to Margin Call.">
+	PartiallyAgree <"Specifies a 'Partial agreement' to Margin Call.">
+	Dispute <"Specifies a 'Full Dispute' to a Margin call.">
+
+enum RegMarginTypeEnum: <"Represents the enumeration values to specify the margin type in relation to bilateral or regulatory obligation.">
+	VM <"Indicates Variation Margin">
+	RegIM <"Indicates Regulatory Initial Margin">
+	NonRegIM <"Indicates Non Regulatory Initial margin or independent amount">
+
+enum RegIMRoleEnum: <"Represents the enumeration values to specify the role of the party in relation to a regulatory initial margin call.">
+	Pledgor <"Indicates 'Pledgor' party of initial margin call.">
+	Secured <"Indicates 'Secured' party of initial margin call.">
+
+enum HaircutIndicatorEnum: <"Represents the enumeration indicators to specify if an asset or group of assets valuation is based on any valuation treatment haircut.">
+	PreHaircut <"Indicates Pre haircut value">
+	PostHaircut <"Indicates Post haircut value">
+
+enum PerformanceTransferTypeEnum: <"The enumerated values to specify the origin of a performance transfer">
+	Commodity
+	Correlation
+	Dividend
+	Equity
+	Interest
+	Volatility
+	Variance
+
+enum CorporateActionTypeEnum: <"The enumerated values to specify the origin of a corporate action transfer.">
+	Dividend
