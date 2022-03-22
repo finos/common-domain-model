@@ -49,9 +49,10 @@ PerformancePayout:
             [value "fxFeature" path "fxFeature"]
 		+ valuationDates
 			[hint "valuation"]
-		+ observationDates
-			[hint "amount"]
-
+		//+ observationDates
+		//	[hint "amount"]
+		+ returnTerms 
+			[value "amount"]
 EquityValuationDates:
 		+ valuationDate
 			[value "valuationDate" path "valuation"]
@@ -62,11 +63,67 @@ EquityValuationDates:
 		+ valuationTime
 			[value "valuationTime" path "valuation"]
 
-EquityObservation:
-		+ observationDates
-			[hint "amount"]
+//EquityObservation:
+//		+ observationDates
+//			[hint "amount"]
+ReturnTerms:
+		+ varianceReturnTerms
+			[hint "variance"]
+
+VarianceReturnTerms:
+		+ expectedN
+			[value "expectedN" path "variance"]
+
+		+ annualizationFactor
+		+ dividendApplicability
+		+ equityUnderlierProvisions
+		+ initialLevelSource
+		+ initialLevel
+			[value "initialLevel" path "variance"]
+		+ meanAdjustment
+		+ performance
+		+ sharePriceDividendAdjustment
+		+ valuation
 
 
+		+ exchangeTradedContractNearest
+		+ extraordinaryEvents
+		+ varianceCapFloor
+			[hint "variance"]
+		+ varianceStrikePrice
+			[hint "variance"]
+		+ vegaNotionalAmount
+		+ volatilityCapFloor
+		+ volatilityStrikePrice
+
+VarianceCapFloor:
+		+ varianceCap
+			[value "varianceCap" path "variance"]
+		+ unadjustedVarianceCap
+			[value "unadjustedVarianceCap" path "variance"]
+		+ boundedVariance
+			[value "boundedVariance" path "variance"]
+
+BoundedVariance:
+		+ daysInRangeAdjustment
+			[value "daysInRangeAdjustment"]
+		+ realisedVarianceMethod
+			[value "realisedVarianceMethod"]
+		+ upperBarrier
+			[value "upperBarrier"]
+		+ lowerBarrier
+			[value "lowerBarrier"]
+
+/*
+RealisedVarianceMethodEnum:
+		+ Previous
+			[value "Previous" path "realisedVarianceMethod"]
+		+ Last
+			[value "Last"]
+		+ Both
+			[value "Both"]
+
+*/
 //-------------------------------------------------------------------------------------------------------------------------------
 
 	AdjustableRelativeOrPeriodicDates:
@@ -448,7 +505,7 @@ EquityObservation:
 			[hint "startDate"]
 
 			//[TH Proposal]
-			[value "observationStartDate" path "amount"]
+			//[value "observationStartDate" path "amount"]
 			//---[End of TH Proposal]---
 
 		+ endDate
@@ -583,6 +640,12 @@ EquityObservation:
 			[value "price" maps 2]
 			// For Commodity Option
 			[value "amount" path "strikePricePerUnit" mapper "PriceUnitType"]
+
+			//[TH Proposal]
+			//[value "varianceStrikePrice" path "variance" mapper "PriceUnitType"]
+
+
+
 		+ unitOfAmount
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
 			[value "quotedCurrencyPair"]
@@ -2291,12 +2354,15 @@ DividendReturnTerms:
 		+ lag
 			[value "lag"]
 
-	FixedForwardPayout:
+//[TH Proposal] [FIXED] Renamed component. Formerly FixedForwardPayout
+
+	FixedPricePayout:
 		+ 	paymentDates
 			[value "paymentDates"]
 			[value "relativePaymentDates"]
 		+ fixedPrice
 			[value "fixedPrice" meta "price"]
+//---[End of TH Proposal]---
 
 	SecurityValuation:
 		+ securityValuationModel
@@ -2413,9 +2479,7 @@ Payout:
 			[value "ignore"]
 		+ commodityPayout
 			[value "commoditySwap", "floatingLeg" path "commoditySwap"]
-		+ fixedForwardPayout
-			[value "fixedLeg" path "commoditySwap"]
-		// [TH Proposal]
+		// [TH Proposal] [FIXED] Renamed component. Formerly fixedForwardPayout
 		+ fixedPricePayout
 			[value "fixedLeg" path "commoditySwap"]
 		//---[End of TH Proposal]---
@@ -2473,7 +2537,10 @@ Payout:
 			[hint "commodityOption"]
 			[value "commodityOption"]
 			//[TH Proposal] Variance Swap
-			[value "varianceSwap"]
+			[value "varianceSwap", "varianceSwapTransactionSupplement"]
+			//---[End of TH Proposal]---
+			//[TH Proposal] Volatility Swap
+			[value "volatilitySwap", "volatilitySwapTransactionSupplement"]
 			//---[End of TH Proposal]---
 
 		+ index

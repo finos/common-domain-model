@@ -302,11 +302,8 @@ type Payout: <" A class to represent the set of future cashflow methodologies in
 	optionPayout OptionPayout (0..*) <"The option payout.">
 	commodityPayout CommodityPayout (0..*) <"Defines the payout for the floating leg of a Commodity Swap.">
 	forwardPayout ForwardPayout (0..*) <"Represents a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this component.">
-	// [TH Proposal] Fixed Forward Payout removed in the future
-	fixedForwardPayout FixedForwardPayout (0..*)<"Defines a payout in which one or more forward payouts are defined as a fixed price.">
-	//---[End of TH Proposal]---
-	//[TH Proposal] Added Fixed Price Payout. To replace Fixed Forward Payout in the future.
-	fixedPricePayout FixedPricePayout (0..*)<"Defines a payout in which one or more forward payouts are defined as a fixed price.">
+	//[TH Proposal] [FIXED] Renamed component. Formerly FixedForwardPayout.
+	fixedPricePayout FixedPricePayout (0..*)<"Defines a payout in which one or more payouts are defined as a fixed price.">
 	//---[End of TH Proposal]---
 	securityPayout SecurityPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
 	securityFinancePayout SecurityFinancePayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
@@ -566,8 +563,9 @@ type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attr
 		if ForwardFX() exists
 		then settlementTerms -> physicalSettlementTerms is absent
 
-// [TH Proposal] Old version
-type FixedForwardPayout extends PayoutBase: <"Represents a forward settling, fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
+// [TH Proposal] [FIXED] Renamed component. Formerly FixedForwardPayout
+
+type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
 	[metadata key]
 	paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
     fixedPrice Price (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
@@ -575,16 +573,6 @@ type FixedForwardPayout extends PayoutBase: <"Represents a forward settling, fix
 
 //---[End of TH Proposal]---
 
-
-//[TH Proposal] New component: FixedPricePayout. To replace Fixed Forward Payout in the future.
-
-type FixedPricePayout extends PayoutBase: <"Represents a forward settling, fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
-
-	paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
-	fixedPrice Price (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
-		[metadata address "pointsTo"=PriceQuantity->price]
-
-	//---[End of TH Proposal]---
 
 
 type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
