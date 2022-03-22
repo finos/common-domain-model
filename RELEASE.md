@@ -1,36 +1,9 @@
-# *Product and Event Model - Migrate Java function implementations to native DSL*
+# *Event Model - Partial Novation, Clearing and Allocation Visualisation Samples*
 
 _What is being released?_
 
-Following the recent addition of DSL syntax features, functions that were previously implemented in Java due to unsupported DSL features, have now been migrated to native DSL.
+This release follows the recent work on the composable business event model and the corresponding creation function, Create_BusinessEvent. Visualisation examples have been created for Partial Novation, Clearing and Allocation business events.
 
-The migrated function namespace and names are listed below:
+Review Directions
 
-cdm.base.datetime
-- `GetAllBusinessCenters`
-- `BusinessCenterHolidaysMultiple`
-
-cdm.event.common
-- `UpdateIndexTransitionPriceAndRateOption`
-- `FindMatchingIndexTransitionInstruction`
-
-cdm.observable.asset.fro
-- `IndexValueObservationMultiple`
-
-cdm.observable.event
-- `ResolveObservationAverage`
-
-cdm.product.asset
-- `ResolveEquityInitialPrice`
-
-cdm.product.asset.calculation
-- `GetNotionalAmount`
-- `GetQuantityScheduleStepValues`
-
-cdm.product.asset.floatingrate
-- `GetRateScheduleAmount`
-- `GetRateScheduleStepValues`
-
-_Review Directions_
-
-In the CDM Portal, select Textual Browser and review the functions above.
+In the CDM Portal, select the Instance Viewer, review the visualisation examples in the Novation Business Event, Clearing Business Event and Allocation Business Event folders.
