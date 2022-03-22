@@ -239,15 +239,42 @@ type SwapCurveValuation: <"A class to specify a valuation swap curve, which is u
 	spread number (1..1) <"Spread in basis points over the floating rate index.">
 	side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the measure.">
 
+//[TH Proposal] Old Equity version
 
 type EquityValuation : <"Defines how and when an equity option or equity swap is to be valued.">
-
+[deprecated]
 	price Price (0..1) <"Specifies the price used for valuation.">
 	determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
 	valuationDates AdjustableRelativeOrPeriodicDates (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
 	valuationDate AdjustableOrRelativeDate (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
 	valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location – e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
 	valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
+
+//---[End of TH Proposal]---
+
+//[TH Proposal] Performance version. Removed price from EquityValuation. Renamed EquityValuationDates.
+
+type EquityValuationDates : <"Defines how and when a performance type option or performance type swap is to be valued.">
+	determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
+	valuationDates AdjustableRelativeOrPeriodicDates (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
+	valuationDate AdjustableOrRelativeDate (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
+	valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location  e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
+	valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
+
+//---[End of TH Proposal]---
+
+//[TH Proposal] New object, same structure as EquityValuation
+
+type EquityObservation : <"Defines how and when a performance type option or performance type swap is to be observed.">
+
+	price Price (0..1) <"Specifies the price observed.">
+	determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
+	observationDates AdjustableRelativeOrPeriodicDates (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
+	observationDate AdjustableOrRelativeDate (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
+	observationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location  e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
+	observationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
+
+//---[End of TH Proposal]---
 
 type FxRateSourceFixing: <"Describes a rate source to be fixed and the date the fixing occurs">
 
@@ -442,3 +469,13 @@ type CashCollateralValuationMethod : <"This type is a generic structure that can
 		[metadata scheme]
 	protectedParty PartyDeterminationEnum (0..2) <"This may be used to specify which party is protected (e.g. under Replacement Value cash settlement methods).">
 	prescribedDocumentationAdjustment boolean (0..1) <"This may be used to indicate that 'prescribed documentation adjustment' is applicable.">
+
+//[TH Proposal] New type: DividendApplicability (equivalent to the dividends.model)
+
+type DividendApplicability: <"The parameters which define whether dividends are applicable">
+
+	optionsExchangeDividend boolean (0..1) <"If present and true, then options exchange dividends are applicable.">
+	additionalDividends boolean (0..1)<"If present and true, then additional dividends are applicable.">
+	allDividends boolean (0..1) <"Represents the European Master Confirmation value of 'All Dividends' which, when applicable, signifies that, for a given Ex-Date, the daily observed Share Price for that day is adjusted (reduced) by the cash dividend and/or the cash value of any non cash dividend per Share (including Extraordinary Dividends) declared by the Issuer. All Dividends in accordance with the ISDA 2002 Equity Derivatives Definitions.">
+
+	//---[End of TH Proposal]---
