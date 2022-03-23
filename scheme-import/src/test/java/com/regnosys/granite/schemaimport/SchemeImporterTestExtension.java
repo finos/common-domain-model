@@ -90,7 +90,7 @@ public class SchemeImporterTestExtension implements BeforeEachCallback {
     }
 
     private void writeTestOutput(Map<String, String> rosettaExpected) throws IOException {
-        // Add environment variablex TEST_WRITE_BASE_PATH to override the base write path, e.g.
+        // Add environment variable TEST_WRITE_BASE_PATH to override the base write path, e.g.
         // TEST_WRITE_BASE_PATH=/Users/hugohills/code/src/github.com/REGnosys/rosetta-cdm/src/main/rosetta/
         Path basePath = Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH"))
                 .map(Paths::get)
