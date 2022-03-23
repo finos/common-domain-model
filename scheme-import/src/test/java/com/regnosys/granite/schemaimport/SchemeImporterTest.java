@@ -21,8 +21,9 @@ class SchemeImporterTest {
 	public static final String BODY = "ISDA";
 	public static final String CODING_SCHEME = "FpML_Coding_Scheme";
 
+	public static final String ROSETTA_PATH_ROOT = "cdm/rosetta";
 	@RegisterExtension
-	static SchemeImporterTestExtension schemeImporterTestExtension = new SchemeImporterTestExtension(FPML_SET_OF_SCHEMES_2_2_XML);
+	static SchemeImporterTestExtension schemeImporterTestExtension = new SchemeImporterTestExtension(FPML_SET_OF_SCHEMES_2_2_XML, ROSETTA_PATH_ROOT);
 
 	@Test
 	void checkEnumsAreValid() throws IOException {

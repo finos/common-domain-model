@@ -25,15 +25,17 @@ public class SchemeImporterTestExtension implements BeforeEachCallback {
     private SchemeImporter schemeImporter;
     private final String schemaPath;
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemeImporterTestExtension.class);
+    private final String rosettaPathRoot;
 
-    public SchemeImporterTestExtension(String schemaPath) {
+    public SchemeImporterTestExtension(String schemaPath, String rosettaPathRoot) {
         this.schemaPath = schemaPath;
+        this.rosettaPathRoot = rosettaPathRoot;
     }
 
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        rosettaPaths = getRosettaPaths();
+        rosettaPaths = getRosettaPaths(rosettaPathRoot);
         ModelLoaderImpl modelLoader = new ModelLoaderImpl(rosettaPaths);
         schemeImporter = new SchemeImporter(
                 new FpMLSchemeEnumReader(
@@ -58,9 +60,9 @@ public class SchemeImporterTestExtension implements BeforeEachCallback {
         }
     }
 
-    private static URL[] getRosettaPaths() {
+    private static URL[] getRosettaPaths(String rosettaPathRoot) {
         return ClassPathUtils.findPathsFromClassPath(
-                        List.of("cdm/rosetta"),
+                        List.of(rosettaPathRoot),
                         ".*\\.rosetta",
                         Optional.empty(),
                         SchemeImporter.class.getClassLoader()
