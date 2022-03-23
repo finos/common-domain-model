@@ -11,7 +11,9 @@ The Common Domain Model
 * Mapping (Synonym)
 * Namespace
 
-The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure. All the Rosetta DSL modelling components that are used to express the CDM are described in the `Rosetta DSL Documentation`_
+The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure.
+
+The CDM is expressed in a language called the Rosetta DSL. All the language components used by the CDM including types, functions and annotations are described in the `Rosetta DSL Documentation`_
 
 The complete model definition, including descriptions and other details can be viewed in the `Textual Browser`_ on the ISDA CDM Portal.
 
@@ -220,25 +222,25 @@ The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient t
 .. code-block:: Javascript
 
  "quantity": [
-            {
-              "value": {
-                "amount": 200,
-                "unitOfAmount": {
-                  "financialUnit": "CONTRACT"
-                },
-                "multiplier": 1000,
-                "multiplierUnit": "BBL"
-              },
-              "meta": {
-                "location": [
-                  {
-                    "scope": "DOCUMENT",
-                    "value": "quantity-1"
-                  }
-                ]
-              }
-            }
-           ]
+   {
+     "value": {
+       "amount": 200,
+       "unitOfAmount": {
+         "financialUnit": "CONTRACT"
+       },
+       "multiplier": 1000,
+       "multiplierUnit": "BBL"
+     },
+     "meta": {
+       "location": [
+         {
+           "scope": "DOCUMENT",
+           "value": "quantity-1"
+         }
+       ]
+     }
+   }
+ ]
 
 In this case, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME.  Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
 
@@ -425,14 +427,7 @@ The ``Payout`` type defines the composable payout types, each of which describes
    securityFinancePayout SecurityFinancePayout (0..*)
    cashflow Cashflow (0..*)
 
-A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts. The list of payouts that extend `PayoutBase` are:
-
-- ``InterestRatePayout``
-- ``EquityPayout``
-- ``OptionPayout``
-- ``SecurityFinancePayout``
-- ``Cashflow``
-- the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout``
+A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts.
 
 .. code-block:: Haskell
 
@@ -441,20 +436,16 @@ A number of payout types extend a common data type called ``PayoutBase``. This d
    payoutQuantity ResolvablePayoutQuantity (1..1)
    settlementTerms SettlementTerms (0..1)
 
-.. code-block:: Haskell
+The list of payouts that extend `PayoutBase` are:
 
- type ResolvablePayoutQuantity:
-   [metadata key]
-   resolvedQuantity Quantity (0..1)
-     [metadata address "pointsTo"=PriceQuantity->quantity]
-   quantitySchedule NonNegativeQuantitySchedule (0..1)
-   quantityReference ResolvablePayoutQuantity (0..1)
-     [metadata reference]
-   quantityMultiplier QuantityMultiplier (0..1)
-   reset boolean (0..1)
-   futureValueNotional FutureValueAmount (0..1)
+- ``InterestRatePayout``
+- ``EquityPayout``
+- ``OptionPayout``
+- ``SecurityFinancePayout``
+- ``Cashflow``
+- the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout``
 
-An example of the payout types that extend ``PayoutBase`` is illustrated below:
+For example:
 
 .. code-block:: Haskell
 
@@ -479,9 +470,24 @@ An example of the payout types that extend ``PayoutBase`` is illustrated below:
 
 .. note:: The code snippets above excludes the conditions in this data type for purposes of brevity.
 
-The ``resolvedQuantity`` attribute has a metadata address that points to the quantity attribute in the ``PriceQuantity`` data type.  This metadata address allows for referencing a value without requiring the population of the value in the persistent object.  The other attributes in this data type support the definition of additional information such as a schedule, a reference, or the indication that the quantity is resettable.  One of the data types that extends ``PayoutBase`` is ``InterestRatePayout``, as shown below:
+The quantity attribute in the `PayoutBase` structure does not use the `Quantity` type and uses `ResolvablePayoutQuantity` instead. In addition to the quantity, that data type supports the definition of additional information such as a schedule, a quantity reference, or the indication that the quantity is resettable.
 
-There are other addresses in the model that use the metadata address to point to ``Price`` in ``PriceQuantity``.  Examples include the ``initialValue`` attribute in the ``RateSchedule`` data type and the ``strikePrice`` attribute in the ``OptionStrike`` data type, which are illustrated below:
+.. code-block:: Haskell
+
+ type ResolvablePayoutQuantity:
+   [metadata key]
+   resolvedQuantity Quantity (0..1)
+     [metadata address "pointsTo"=PriceQuantity->quantity]
+   quantitySchedule NonNegativeQuantitySchedule (0..1)
+   quantityReference ResolvablePayoutQuantity (0..1)
+     [metadata reference]
+   quantityMultiplier QuantityMultiplier (0..1)
+   reset boolean (0..1)
+   futureValueNotional FutureValueAmount (0..1)
+
+The ``resolvedQuantity`` attribute has a metadata address that points to the quantity attribute in the ``PriceQuantity`` data type. This special cross-referencing annotation in the Rosetta DSL allows to parameterise an attribute whose value may be variable by associating it to an address. The attribute value does not need to be populated in the persisted object and can be provided by another object, using the address as a reference.
+
+Other model structures use the metadata address to point to ``PriceQuantity->price``. An example include the ``initialValue`` attribute in the ``RateSchedule`` data type, which is illustrated below:
 
 .. code-block:: Haskell
 
@@ -489,16 +495,6 @@ There are other addresses in the model that use the metadata address to point to
    initialValue Price (0..1)
      [metadata address "pointsTo"=PriceQuantity->price]
    step Step (0..*)
-
-.. code-block:: Haskell
-
- type OptionStrike:
-   strikePrice Price (0..1)
-   strikeReference FixedRateSpecification (0..1)
-     [metadata reference]
-   referenceSwapCurve ReferenceSwapCurve (0..1)
-   averagingStrikeFeature AveragingStrikeFeature (0..1)
-   condition: one-of
 
 Reusable Components
 """""""""""""""""""
