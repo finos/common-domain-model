@@ -72,7 +72,9 @@ This design allows to use anonymised ``Party1`` and ``Party2`` values to specify
  type Party:
    [metadata key]
    partyId string (1..*)
+     [metadata scheme]
    name string (0..1)
+     [metadata scheme]
    person NaturalPerson (0..*)
    account Account (0..1)
 
