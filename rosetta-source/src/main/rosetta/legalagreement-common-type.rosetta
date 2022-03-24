@@ -18,36 +18,14 @@ type ContractualMatrix:
 
 	matrixType MatrixTypeEnum (1..1) <"Identifies the form of applicable matrix.">
 		[metadata scheme]
-	publicationDate date (0..1) <"Specifies the publication date of the applicable version of the matrix. When this element is omitted, the ISDA supplemental language for incorporation of the relevant matrix will generally define rules for which version of the matrix is applicable.">
 	matrixTerm MatrixTermEnum (0..1) <"Defines any applicable key into the relevant matrix. For example, the Transaction Type would be the single term required for the Credit Derivatives Physical Settlement Matrix. This element should be omitted in the case of the 2000 ISDA Definitions Settlement Matrix for Early Termination and Swaptions.">
 		[metadata scheme]
 
-type ContractualTermsSupplement: <"A contractual supplement (such as those published by ISDA) and its publication date that will apply to the trade.">
 
-	contractualTermsSupplementType ContractualSupplementEnum (1..1) <"Identifies the form of applicable contractual supplement.">
-		[metadata scheme]
-	publicationDate date (0..1) <"Specifies the publication date of the applicable version of the contractual supplement.">
 
-type RelatedAgreement: <"A class for specifying the legal agreements that govern the contract, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
 
-	legalAgreement LegalAgreement (0..1) <"The legal agreement(s) that govern the contract, when such agreement is specified as a reference part of the CDM.">
-	documentationIdentification DocumentationIdentification (0..1) <"The identification of the legal document(s) that govern the contract through some of the key terms of such document(s): type of document, the document identifier, the publisher, the document vintage and the agreement date.">
 
-type DocumentationIdentification: <"A class for defining the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.">
 
-	masterAgreement MasterAgreement (0..1) <"The agreement executed between the parties and intended to govern all OTC derivatives transactions between those parties.">
-	masterConfirmation MasterConfirmation (0..1)
-	brokerConfirmation BrokerConfirmation (0..1) <"Specifies the details for a broker confirm.">
-	contractualDefinitions ContractualDefinitionsEnum (0..*) <"The definitions such as those published by ISDA that will define the terms of the trade.">
-		[metadata scheme]
-	contractualTermsSupplement ContractualTermsSupplement (0..*) <"A contractual supplement (such as those published by ISDA) that will apply to the trade.">
-	contractualMatrix ContractualMatrix (0..*) <"A reference to a contractual matrix of elected terms/values (such as those published by ISDA) that shall be deemed to apply to the trade. The applicable matrix is identified by reference to a name and optionally a publication date. Depending on the structure of the matrix, an additional term (specified in the matrixTerm element) may be required to further identify a subset of applicable terms/values within the matrix.">
-	creditSupportAgreement CreditSupportAgreement (0..1) <"The agreement executed between the parties and intended to govern collateral arrangement for all OTC derivatives transactions between those parties.">
-	otherAgreement OtherAgreement (0..*) <"Any other agreement executed between the parties.">
-	attachment Resource (0..*) <"A human readable document related to this transaction, for example a confirmation.">
-
-	condition ConfirmationChoice: <"Choice rule to represent an FpML choice construct.">
-		optional choice masterConfirmation, brokerConfirmation
 
 type OtherAgreement: <"A class for defining an agreement executed between parties.">
 
@@ -103,32 +81,34 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
 	[rootType]
 
 	agreementTerms AgreementTerms (0..1) <"Specification of the content of the legal agreement.">
-	relatedAgreements RelatedAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
+	relatedAgreements LegalAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
 
 	condition agreementVerification: <"A validation rule to ensure that the agreement elections are associated with the correct legal agreement type as specified.">
 		if agreementTerms -> agreement -> securityAgreementElections exists
-		then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
+		then agreementType -> agreementName -> securityAgreement exists
 		else if agreementTerms -> agreement -> creditSupportAgreementElections exists
-			then agreementType -> name = LegalAgreementNameEnum->CreditSupportDeed or agreementType -> name = LegalAgreementNameEnum->CreditSupportAnnex
+			then agreementType -> agreementName -> creditSupportAgreement -> creditSupportAgreementType =  CreditSupportAgreementTypeEnum -> CreditSupportDeed or 
+			agreementType -> agreementName -> creditSupportAgreement -> creditSupportAgreementType =  CreditSupportAgreementTypeEnum -> CreditSupportAnnex
 			else if agreementTerms -> agreement -> collateralTransferAgreementElections exists
-				then agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement
+				then agreementType -> agreementName -> creditSupportAgreement -> creditSupportAgreementType =  CreditSupportAgreementTypeEnum -> CollateralTransferAgreement
+
 		else if agreementTerms -> agreement -> masterAgreementSchedule exists
-		then agreementType -> name = LegalAgreementNameEnum->MasterAgreement
+		then agreementType -> agreementName -> masterAgreementType exists
 
 type LegalAgreementBase: <"A class describing the legal agreement baseline information, other than the specialized elections: type of legal agreement, agreement date and effective date, parties to the agreement, ... The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalAgreement class as a way to enforce a systematic choice between its attributes.">
 
 	agreementDate date (1..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
 	effectiveDate date (0..1) <"The date on which, or as of which, the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">
 	identifier Identifier (0..*) <"The legal agreement identifier. Several identifiers can be specified.">
-	agreementType LegalAgreementType (1..1) <"The type of legal agreement, identified via a set of distinct attributes: name, publisher, governing law and version, e.g. ISDA 2013 Standard Credit Support Annex English Law.">
+	agreementType LegalAgreementIndentification (1..1) <"The type of legal agreement, identified via a set of distinct attributes: name, publisher, governing law and version, e.g. ISDA 2013 Standard Credit Support Annex English Law.">
 	contractualParty Party (2..2)  <"The two contractual parties to the legal agreement, which reference information is positioned as part of the partyInformation attribute.">
 		[metadata reference]
 	otherParty PartyRole (0..*) <"The role(s) that other party(ies) may have in relation to the legal agreement, further to the contractual parties.">
 
-type LegalAgreementType: <"A class to specify the type of legal agreement, which is extended by each legal agreement instance, such as the ISDA 2016 CSA for Initial Margin.">
+type LegalAgreementIndentification: <"A class to specify the type of legal agreement, which is extended by each legal agreement instance, such as the ISDA 2016 CSA for Initial Margin.">
 
-	name LegalAgreementNameEnum (1..1) <"The legal agreement name, e.g. Credit Support Annex for Variation Margin.">
+	agreementName AgreementName (1..1) <"The legal agreement name, e.g. Credit Support Annex for Variation Margin.">
 		[synonym AcadiaSoft_AM_1_0 value "documentName"]
 	publisher LegalAgreementPublisherEnum (1..1) <"The legal agreement publisher, e.g. ISDA.">
 		[synonym AcadiaSoft_AM_1_0 value "publisher"]
@@ -136,6 +116,32 @@ type LegalAgreementType: <"A class to specify the type of legal agreement, which
 		[synonym AcadiaSoft_AM_1_0 value "governingLaw"]
 	vintage int (0..1) <"In the case where successive definitions of the legal agreement have been developed, the vintage identification. This is typically (but not necessarily) done by referencing the year, e.g. 2013 in the case of the ISDA 2013 Standard Credit Support Annex.">
 		[synonym AcadiaSoft_AM_1_0 value "csaVersion"]
+
+type AgreementName: <"Type of Legal agreement.">
+	[synonym AcadiaSoft_AM_1_0 value "DocumentNameEnum"]
+	masterAgreementType MasterAgreementTypeEnum (0..1) <" The master agreement executed between the parties and intented to govern product-specific derivatives between those parties.">
+		[metadata scheme]
+	creditSupportAgreement CreditSupportAgreement (0..1) <"The type of Credit Support Agreement.">
+	securityAgreement boolean (0..1) <"Specifies a Security Agreement, related to a Collateral Transfer Agreement (CTA).">
+	clauseLibrary boolean (0..1) <"Specifiies Clause Library">
+	masterConfirmationType MasterConfirmationTypeEnum (0..1) <"The type of master confirmation executes between the parties.">
+		[metadata scheme]
+	masterConfirmationAnnexType MasterConfirmationAnnexTypeEnum (0..1) <"Specifies the master confirmation agreement executed between the parties.">
+	brokerConfirmationType BrokerConfirmationTypeEnum (0..1) <"Specifies the type of broker confirmation.">
+	contractualDefinitionsType ContractualDefinitionsEnum (0..*) <"The definitions such as those published by ISDA that will define the terms of the trade.">
+		[metadata scheme]
+	contractualTermsSupplementType ContractualSupplementTypeEnum (0..*) <"A contractual supplement (such as those published by ISDA) that will apply to the trade.">
+		[metadata scheme]
+	contractualMatrix ContractualMatrix (0..*) <"A reference to a contractual matrix of elected terms/values (such as those published by ISDA) that shall be deemed to apply to the trade. The applicable matrix is identified by reference to a name and optionally a publication date. Depending on the structure of the matrix, an additional term (specified in the matrixTerm element) may be required to further identify a subset of applicable terms/values within the matrix.">
+	otherAgreement OtherAgreement (0..*) <"Any other agreement executed between the parties.">
+    attachment Resource (0..*) <"A human readable document related to this transaction, for example a confirmation."> // validate the relevance and correct position of this atttribute 
+
+	//[synonym ISDA_Create_1_0 value "ignore"]
+		// need to go back to check synonym is correctly placed - originally related agreement/ document identification
+
+condition AgreementTypeChoice: <"choice rule to enforce determination of a type of document">
+	required choice masterAgreementType, creditSupportAgreement, securityAgreement, masterConfirmationType, masterConfirmationAnnexType, brokerConfirmationType, contractualDefinitionsType, contractualTermsSupplementType, contractualMatrix, otherAgreement
+
 
 type UmbrellaAgreement: <"A class to specify a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement. This data representation reflects the ISDA Create representation.">
 
