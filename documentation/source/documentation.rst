@@ -11,7 +11,9 @@ The Common Domain Model
 * Mapping (Synonym)
 * Namespace
 
-The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure. All the Rosetta DSL modelling components that are used to express the CDM are described in the `Rosetta DSL Documentation`_
+The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure.
+
+The CDM is expressed in a language called the Rosetta DSL. All the language components used by the CDM including types, functions and annotations are described in the `Rosetta DSL Documentation`_.
 
 The complete model definition, including descriptions and other details can be viewed in the `Textual Browser`_ on the ISDA CDM Portal.
 
@@ -50,6 +52,8 @@ The ``counterparty`` attribute of a ``TradableProduct`` is constrained to be exa
 
 The ``counterparty`` attribute uses the ``Counterparty`` data type, which links a specific ``Party`` object identifying that party to its role in the transaction. The counterparty roles in the CDM are normalised to be either ``Party1`` or ``Party2`` and captured as a pair of enumerated values.
 
+This design allows to use anonymised ``Party1`` and ``Party2`` values to specify the direction of flows in the definition of a tradable product without having to reference specific parties. This means that the same product can now be defined in a party-agnostic way and used to represent transactions between potentially many different parties.
+
 .. code-block:: Haskell
 
  type Counterparty:
@@ -63,7 +67,18 @@ The ``counterparty`` attribute uses the ``Counterparty`` data type, which links 
    Party1
    Party2
 
-This design allows to use anonymised ``Party1`` and ``Party2`` values to specify the direction of flows in the definition of a tradable product without having to reference specific parties. This means that the same product can now be defined in a party-agnostic way and used to represent transactions between potentially many different parties.
+.. code-block:: Haskell
+
+ type Party:
+   [metadata key]
+   partyId string (1..*)
+     [metadata scheme]
+   name string (0..1)
+     [metadata scheme]
+   person NaturalPerson (0..*)
+   account Account (0..1)
+
+.. note:: The ``partyReference`` attribute in ``Counterparty`` is annotated with a ``[metadata reference]``, which means that a reference to the party object can be passed in instead of a copy. In that case, the attribute's type must itself be annotated with a ``[metadata key]``, so that it is referenceable via a key. The use of the key / reference mechanism is further detailed in the Rosetta DSL documentation.
 
 TradeLot
 """"""""
@@ -172,32 +187,32 @@ Consider the example below for the initial price of the underlying equity in a s
 .. code-block:: Javascript
 
  "price": [
-            {
-              "value": {
-                "amount": 37.44,
-                "unitOfAmount": {
-                  "currency": {
-                    "value": "USD"
-                  }
-                },
-                "perUnitOfAmount": {
-                  "financialUnit": "SHARE"
-                },
-                "priceExpression": {
-                  "priceType": "ASSET_PRICE",
-                  "grossOrNet": "NET"
-                },
-              },
-              "meta": {
-                "location": [
-                  {
-                    "scope": "DOCUMENT",
-                    "value": "price-1"
-                  }
-                ]
-              }
-            }
-          ]
+   {
+     "value": {
+       "amount": 37.44,
+       "unitOfAmount": {
+         "currency": {
+           "value": "USD"
+           }
+         },
+         "perUnitOfAmount": {
+           "financialUnit": "SHARE"
+         },
+         "priceExpression": {
+           "priceType": "ASSET_PRICE",
+           "grossOrNet": "NET"
+         },
+       },
+       "meta": {
+         "location": [
+           {
+             "scope": "DOCUMENT",
+             "value": "price-1"
+           }
+         ]
+       }
+     }
+   ]
 
 The full form of this example can be seen in the CDM Portal Ingestion panel, products->equity->eqs-ex01-single-underlyer-execution-long-form-other-party.xml.  As can be seen in the full example, for an interest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency (e.g. 0.002 USD per USD). The  ``priceType`` would be an InterestRate and, in the case of a floating leg, the ``spreadType`` would be a Spread.
 
@@ -220,25 +235,25 @@ The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient t
 .. code-block:: Javascript
 
  "quantity": [
-            {
-              "value": {
-                "amount": 200,
-                "unitOfAmount": {
-                  "financialUnit": "CONTRACT"
-                },
-                "multiplier": 1000,
-                "multiplierUnit": "BBL"
-              },
-              "meta": {
-                "location": [
-                  {
-                    "scope": "DOCUMENT",
-                    "value": "quantity-1"
-                  }
-                ]
-              }
-            }
-           ]
+   {
+     "value": {
+       "amount": 200,
+       "unitOfAmount": {
+         "financialUnit": "CONTRACT"
+       },
+       "multiplier": 1000,
+       "multiplierUnit": "BBL"
+     },
+     "meta": {
+       "location": [
+         {
+           "scope": "DOCUMENT",
+           "value": "quantity-1"
+         }
+       ]
+     }
+   }
+ ]
 
 In this case, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME.  Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
 
@@ -251,19 +266,19 @@ The Observable data type requires the specification of either a ``rateOption`` (
 .. code-block:: Haskell
 
  type Observable:
-     [metadata key]
-     rateOption FloatingRateOption (0..1)
-         [metadata location]
-     commodity Commodity (0..1)
-         [metadata location]
-     productIdentifier ProductIdentifier (0..*)
-         [metadata location]
-     currencyPair QuotedCurrencyPair (0..1)
-         [metadata location]
-     optionReferenceType OptionReferenceTypeEnum (0..1)
+   [metadata key]
+   rateOption FloatingRateOption (0..1)
+     [metadata location]
+   commodity Commodity (0..1)
+     [metadata location]
+   productIdentifier ProductIdentifier (0..*)
+     [metadata location]
+   currencyPair QuotedCurrencyPair (0..1)
+     [metadata location]
+   optionReferenceType OptionReferenceTypeEnum (0..1)
 
-     condition ObservableChoice:
-         required choice rateOption, commodity, productIdentifier, currencyPair
+   condition ObservableChoice:
+     required choice rateOption, commodity, productIdentifier, currencyPair
 
 SettlementTerms
 """""""""""""""
@@ -425,14 +440,7 @@ The ``Payout`` type defines the composable payout types, each of which describes
    securityFinancePayout SecurityFinancePayout (0..*)
    cashflow Cashflow (0..*)
 
-A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts. The list of payouts that extend `PayoutBase` are:
-
-- ``InterestRatePayout``
-- ``EquityPayout``
-- ``OptionPayout``
-- ``SecurityFinancePayout``
-- ``Cashflow``
-- the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout``
+A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts.
 
 .. code-block:: Haskell
 
@@ -441,20 +449,16 @@ A number of payout types extend a common data type called ``PayoutBase``. This d
    payoutQuantity ResolvablePayoutQuantity (1..1)
    settlementTerms SettlementTerms (0..1)
 
-.. code-block:: Haskell
+The list of payouts that extend `PayoutBase` are:
 
- type ResolvablePayoutQuantity:
-   [metadata key]
-   resolvedQuantity Quantity (0..1)
-     [metadata address "pointsTo"=PriceQuantity->quantity]
-   quantitySchedule NonNegativeQuantitySchedule (0..1)
-   quantityReference ResolvablePayoutQuantity (0..1)
-     [metadata reference]
-   quantityMultiplier QuantityMultiplier (0..1)
-   reset boolean (0..1)
-   futureValueNotional FutureValueAmount (0..1)
+- ``InterestRatePayout``
+- ``EquityPayout``
+- ``OptionPayout``
+- ``SecurityFinancePayout``
+- ``Cashflow``
+- the ``ProtectionTerms`` data type encapsulated in ``CreditDefaultPayout``
 
-An example of the payout types that extend ``PayoutBase`` is illustrated below:
+For example:
 
 .. code-block:: Haskell
 
@@ -462,7 +466,7 @@ An example of the payout types that extend ``PayoutBase`` is illustrated below:
     [metadata key]
     rateSpecification RateSpecification (1..1)
     dayCountFraction DayCountFractionEnum (0..1)
-        [metadata scheme]
+       [metadata scheme]
     calculationPeriodDates CalculationPeriodDates (0..1)
     paymentDates PaymentDates (0..1)
     paymentDate AdjustableDate (0..1)
@@ -479,9 +483,24 @@ An example of the payout types that extend ``PayoutBase`` is illustrated below:
 
 .. note:: The code snippets above excludes the conditions in this data type for purposes of brevity.
 
-The ``resolvedQuantity`` attribute has a metadata address that points to the quantity attribute in the ``PriceQuantity`` data type.  This metadata address allows for referencing a value without requiring the population of the value in the persistent object.  The other attributes in this data type support the definition of additional information such as a schedule, a reference, or the indication that the quantity is resettable.  One of the data types that extends ``PayoutBase`` is ``InterestRatePayout``, as shown below:
+The quantity attribute in the `PayoutBase` structure does not use the `Quantity` type and uses `ResolvablePayoutQuantity` instead. In addition to the quantity, that data type supports the definition of additional information such as a schedule, a quantity reference, or the indication that the quantity is resettable.
 
-There are other addresses in the model that use the metadata address to point to ``Price`` in ``PriceQuantity``.  Examples include the ``initialValue`` attribute in the ``RateSchedule`` data type and the ``strikePrice`` attribute in the ``OptionStrike`` data type, which are illustrated below:
+.. code-block:: Haskell
+
+ type ResolvablePayoutQuantity:
+   [metadata key]
+   resolvedQuantity Quantity (0..1)
+     [metadata address "pointsTo"=PriceQuantity->quantity]
+   quantitySchedule NonNegativeQuantitySchedule (0..1)
+   quantityReference ResolvablePayoutQuantity (0..1)
+     [metadata reference]
+   quantityMultiplier QuantityMultiplier (0..1)
+   reset boolean (0..1)
+   futureValueNotional FutureValueAmount (0..1)
+
+The ``resolvedQuantity`` attribute has a metadata address that points to the quantity attribute in the ``PriceQuantity`` data type. This special cross-referencing annotation in the Rosetta DSL allows to parameterise an attribute whose value may be variable by associating it to an address. The attribute value does not need to be populated in the persisted object and can be provided by another object, using the address as a reference.
+
+Other model structures use the ``[metadata address]`` to point to ``PriceQuantity->price``. An example include the ``initialValue`` attribute in the ``RateSchedule`` data type, which is illustrated below:
 
 .. code-block:: Haskell
 
@@ -489,16 +508,6 @@ There are other addresses in the model that use the metadata address to point to
    initialValue Price (0..1)
      [metadata address "pointsTo"=PriceQuantity->price]
    step Step (0..*)
-
-.. code-block:: Haskell
-
- type OptionStrike:
-   strikePrice Price (0..1)
-   strikeReference FixedRateSpecification (0..1)
-     [metadata reference]
-   referenceSwapCurve ReferenceSwapCurve (0..1)
-   averagingStrikeFeature AveragingStrikeFeature (0..1)
-   condition: one-of
 
 Reusable Components
 """""""""""""""""""
@@ -596,7 +605,7 @@ The product identifier will uniquely identify the security.  The ``securityType`
 Product Qualification
 ^^^^^^^^^^^^^^^^^^^^^
 
-**Product qualification is inferred from the economic terms of the product** instead of explicitly naming the product type.  The CDM uses a set of Product Qualification functions to achieve this purpose. These functions can be identified as those annotated with ``[qualification Product]``.
+**Product qualification is inferred from the economic terms of the product** instead of explicitly naming the product type.  The CDM uses a set of Product Qualification functions to achieve this purpose. These functions are identified with a ``[qualification Product]`` annotation.
 
 A Product Qualification function applies a taxonomy-specific business logic to identify if the product attribute values, as represented by the product's economic terms, match the specified criteria for the product named in that taxonomy. For example, if a certain set of attributes are populated and others are absent, then that specific product type is inferred. The Product Qualification function name in the CDM begins with the word ``Qualify`` followed by an underscore ``_`` and then the product type from the applicable taxonomy  (also separated by underscores).
 
@@ -672,8 +681,7 @@ The ``productIdentification`` data structure and an instance of a CDM object (`s
    } ]
  }
 
-.. note:: ``productQualifier`` is a *meta-type* that indicates that its value is meant to be populated via a function. This mechanism is explained in the `Qualified Type Section`_ of the Rosetta DSL documentation. For a further understanding of the underlying qualification logic in the Product Qualification, see the explanation of the *object qualification* feature of the Rosetta DSL, as described in the `Function Definition Section`_.
-
+.. note:: The type of the ``productQualifier`` attribute in ``ProductIdentification``, called ``productType``, is a *meta-type* that indicates that its value is meant to be populated using some functional logic. That functional logic must be represented by a qualification function annotated with ``[qualification Product]``, as in the example above. This mechanism is further detailed in the Rosetta DSL documentation.
 
 Event Model
 -----------
@@ -983,9 +991,7 @@ Event Effect
 
 The event effect attribute corresponds to the set of operational and positional effects associated with a lifecycle event. This information is generated by a post-processor associated to the CDM. Certain events such as observations do not have any event effect, hence the optional cardinality.
 
-The ``eventEffect`` contains a set of pointers to the relevant objects that are affected by the event and annotated with ``[metadata reference]``. The candidate objects are types that are marked as referenceable via an associated ``[metadata key]`` annotation.
-
-.. note:: The use of the key/reference mechanism is further described in the `Meta-Data Section`_ of the Rosetta DSL documentation.
+The ``eventEffect`` contains a set of pointers to the relevant objects that are affected by the event and annotated with ``[metadata reference]``.
 
 .. code-block:: Haskell
 
@@ -1222,7 +1228,7 @@ Other Misc. Attributes
 Event Qualification
 ^^^^^^^^^^^^^^^^^^^
 
-**The CDM qualifies lifecycle events as a function of their primitive event components** rather than explicitly naming the event type. The CDM uses the same approach for event qualification as for product qualification, which is based on a set of Event Qualification functions. These functions can be identified as those annotated with ``[qualification BusinessEvent]``.
+**The CDM qualifies lifecycle events as a function of their primitive event components** rather than explicitly naming the event type. The CDM uses the same approach for event qualification as for product qualification, which is based on a set of Event Qualification functions. These functions are identified with a ``[qualification BusinessEvent]`` annotatation.
 
 Event Qualification functions apply a taxonomy-specific business logic to identify if the state-transition attributes values, which are embedded in the primitive event components, match the specified criteria for the event named in that taxonomy. Like Product Qualification functions, the Event Qualification function name begins with the word ``Qualify`` followed by an underscore ``_`` and then the taxonomy name.
 
@@ -1254,8 +1260,7 @@ If all the statements above are true, then the function evaluates to True. In th
 
 The output of the qualification function is used to populate the ``eventQualifier`` attribute of the ``BusinessEvent`` object, similar to how product qualification works. An implementation of the CDM would call all of the Event Qualification functions following the creation of each event and then insert the appropriate value or provide an exception message.
 
-.. note:: ``eventType`` is a *meta-type* that indicates that its value is meant to be populated via a function. This mechanism is explained in the `Qualified Type Section`_ of the Rosetta DSL documentation. For a further understanding of the underlying qualification logic in the Product Qualification, see the explanation of the *object qualification* feature of the Rosetta DSL, as described in the `Function Definition Section`_.
-
+.. note:: The type of the ``eventQualifier`` attribute in ``BusinessEvent``, called ``eventType``, is a *meta-type* that indicates that its value is meant to be populated using some functional logic. That functional logic must be represented by a qualification function annotated with ``[qualification BusinessEvent]``, as in the example above. This mechanism is further detailed in the Rosetta DSL documentation.
 
 Legal Agreements
 ----------------
@@ -1806,7 +1811,7 @@ Granularity
 
 **It is important for implementors of the CDM to understand the scope of the model** with regard to specifications and executable code for the above list of post-trade lifecycle processes.
 
-The CDM process model leverages the *function* component of the Rosetta DSL. As detailed in the `Function Component Section`_ of the documentation, a function receives a set of input values and applies logical instructions to return an output. The input and output are both CDM objects (including basic types). While a function specifies its inputs and output, its logic may be *fully defined* or only *partially defined* depending on how much of the output's attribute values it builds. Unspecified parts of a process represent functionality that firms are expected to implement, either internally or through third-parties such as utilities.
+The CDM process model leverages the *function* component of the Rosetta DSL. A function receives a set of input values and applies logical instructions to return an output. The input and output are both CDM objects (including basic types). While a function specifies its inputs and output, its logic may be *fully defined* or only *partially defined* depending on how much of the output's attribute values it builds. Unspecified parts of a process represent functionality that firms are expected to implement, either internally or through third-parties such as utilities.
 
 It is not always possible or practical to fully specify the business logic of a process from a model. Parts of processes or sub-processes may be omitted from the CDM for the following reasons:
 
@@ -1833,7 +1838,7 @@ Validation Process
 
 In many legacy models and technical standards, validation rules are generally specified in text-based documentation, which requires software engineers to evaluate and translate the logic into code. The frequently occuring result of this human interpretation process is inconsistent enforcement of the intended logic.
 
-By contrast, in the CDM, validation components are an integral part of the process model specifications and are distributed as executable code in the Java representation of the CDM. The CDM validation components leverage the validation components of the Rosetta DSL, as described in the `Validation Component Section`_.
+By contrast, in the CDM, validation components are an integral part of the process model specifications and are distributed as executable code in the Java representation of the CDM. The CDM validation components leverage the *validation* components of the Rosetta DSL.
 
 Product Validation
 """"""""""""""""""
@@ -1860,7 +1865,7 @@ Calculation Process
 
 The CDM provides certain ISDA Definitions as machine executable formulas to standardise the industry calculation processes that depend on those definitions.  Examples include the ISDA 2006 definitions of *Fixed Amount* and *Floating Amount* , the ISDA 2006 definitions of Day Count Fraction rules, and performance calculations for Equity Swaps. The CDM also specifies related utility functions.
 
-These calculation processes leverage the *calculation function* component of the Rosetta DSL, as detailed in the `Function Definition Section`_, and accordingly are associated to a ``calculation`` annotation.
+These calculation processes leverage the *calculation function* component of the Rosetta DSL which is associated to a ``[calculation]`` annotation.
 
 Explanations of these processes are provided in the following sections.
 
@@ -2013,7 +2018,7 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
    set floatingAmount : floatingCalc-> calculatedAmount
 
 Year Fraction
-""""""""""""""""""
+"""""""""""""
 
 The CDM process model incorporates calculations that represent the set of day count fraction rules specified as part of the ISDA 2006 Definitions, e.g. the *ACT/365.FIXED* and the *30E/360* day count fraction rules. Although these rules are widely accepted in international markets, many of them have complex nuances which can lead to inconsistent implementations and potentially mismatched settlements.
 
@@ -2112,7 +2117,7 @@ Some of those calculations are presented below:
             (finalPriceValue - initialPriceValue) / initialPriceValue
 
 Initial Margin
-""""""""""""""""""
+""""""""""""""
 
 The CDM process model includes calculations to support the Delivery and Return amount concepts applied to the posting of Initial Margin. Those calculations follow the definitions as normalised in the *ISDA 2018 CSA (Security Interest – New York Law)*
 
@@ -2492,14 +2497,9 @@ The namespace hierarchy in the CDM contains 7 components
 
 .. _Rosetta DSL Documentation: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component
 .. _Textual Browser: https://portal.cdm.rosetta-technology.io/#/text-browser
-.. _Qualified Type Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#qualified-type
-.. _Function Definition Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#function-definition
-.. _Function Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#function-component
 .. _Code Generation Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators
 .. _available languages: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available
-.. _Validation Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#validation-component
 .. _Mapping Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component
-.. _Meta-Data Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#meta-data-and-reference
 
 .. _Event Model Section: documentation.html#event-model
 .. _Event Qualification Section: documentation.html#event-qualification
