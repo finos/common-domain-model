@@ -13,7 +13,7 @@ The Common Domain Model
 
 The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure.
 
-The CDM is expressed in a language called the Rosetta DSL. All the language components used by the CDM including types, functions and annotations are described in the `Rosetta DSL Documentation`_
+The CDM is expressed in a language called the Rosetta DSL. All the language components used by the CDM including types, functions and annotations are described in the `Rosetta DSL Documentation`_.
 
 The complete model definition, including descriptions and other details can be viewed in the `Textual Browser`_ on the ISDA CDM Portal.
 
@@ -70,11 +70,11 @@ This design allows to use anonymised ``Party1`` and ``Party2`` values to specify
 .. code-block:: Haskell
 
  type Party:
-	  [metadata key]
-	  partyId string (1..*)
-	  name string (0..1)
-	  person NaturalPerson (0..*)
-	  account Account (0..1)
+   [metadata key]
+   partyId string (1..*)
+   name string (0..1)
+   person NaturalPerson (0..*)
+   account Account (0..1)
 
 .. note:: The ``partyReference`` attribute in ``Counterparty`` is annotated with a ``[metadata reference]``, which means that a reference to the party object can be passed in instead of a copy. In that case, the attribute's type must itself be annotated with a ``[metadata key]``, so that it is referenceable via a key. The use of the key / reference mechanism is further detailed in the Rosetta DSL documentation.
 
@@ -185,32 +185,32 @@ Consider the example below for the initial price of the underlying equity in a s
 .. code-block:: Javascript
 
  "price": [
-            {
-              "value": {
-                "amount": 37.44,
-                "unitOfAmount": {
-                  "currency": {
-                    "value": "USD"
-                  }
-                },
-                "perUnitOfAmount": {
-                  "financialUnit": "SHARE"
-                },
-                "priceExpression": {
-                  "priceType": "ASSET_PRICE",
-                  "grossOrNet": "NET"
-                },
-              },
-              "meta": {
-                "location": [
-                  {
-                    "scope": "DOCUMENT",
-                    "value": "price-1"
-                  }
-                ]
-              }
-            }
-          ]
+   {
+     "value": {
+       "amount": 37.44,
+       "unitOfAmount": {
+         "currency": {
+           "value": "USD"
+           }
+         },
+         "perUnitOfAmount": {
+           "financialUnit": "SHARE"
+         },
+         "priceExpression": {
+           "priceType": "ASSET_PRICE",
+           "grossOrNet": "NET"
+         },
+       },
+       "meta": {
+         "location": [
+           {
+             "scope": "DOCUMENT",
+             "value": "price-1"
+           }
+         ]
+       }
+     }
+   ]
 
 The full form of this example can be seen in the CDM Portal Ingestion panel, products->equity->eqs-ex01-single-underlyer-execution-long-form-other-party.xml.  As can be seen in the full example, for an interest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency (e.g. 0.002 USD per USD). The  ``priceType`` would be an InterestRate and, in the case of a floating leg, the ``spreadType`` would be a Spread.
 
@@ -264,19 +264,19 @@ The Observable data type requires the specification of either a ``rateOption`` (
 .. code-block:: Haskell
 
  type Observable:
-     [metadata key]
-     rateOption FloatingRateOption (0..1)
-         [metadata location]
-     commodity Commodity (0..1)
-         [metadata location]
-     productIdentifier ProductIdentifier (0..*)
-         [metadata location]
-     currencyPair QuotedCurrencyPair (0..1)
-         [metadata location]
-     optionReferenceType OptionReferenceTypeEnum (0..1)
+   [metadata key]
+   rateOption FloatingRateOption (0..1)
+     [metadata location]
+   commodity Commodity (0..1)
+     [metadata location]
+   productIdentifier ProductIdentifier (0..*)
+     [metadata location]
+   currencyPair QuotedCurrencyPair (0..1)
+     [metadata location]
+   optionReferenceType OptionReferenceTypeEnum (0..1)
 
-     condition ObservableChoice:
-         required choice rateOption, commodity, productIdentifier, currencyPair
+   condition ObservableChoice:
+     required choice rateOption, commodity, productIdentifier, currencyPair
 
 SettlementTerms
 """""""""""""""
@@ -464,7 +464,7 @@ For example:
     [metadata key]
     rateSpecification RateSpecification (1..1)
     dayCountFraction DayCountFractionEnum (0..1)
-        [metadata scheme]
+       [metadata scheme]
     calculationPeriodDates CalculationPeriodDates (0..1)
     paymentDates PaymentDates (0..1)
     paymentDate AdjustableDate (0..1)
@@ -498,7 +498,7 @@ The quantity attribute in the `PayoutBase` structure does not use the `Quantity`
 
 The ``resolvedQuantity`` attribute has a metadata address that points to the quantity attribute in the ``PriceQuantity`` data type. This special cross-referencing annotation in the Rosetta DSL allows to parameterise an attribute whose value may be variable by associating it to an address. The attribute value does not need to be populated in the persisted object and can be provided by another object, using the address as a reference.
 
-Other model structures use the metadata address to point to ``PriceQuantity->price``. An example include the ``initialValue`` attribute in the ``RateSchedule`` data type, which is illustrated below:
+Other model structures use the ``[metadata address]`` to point to ``PriceQuantity->price``. An example include the ``initialValue`` attribute in the ``RateSchedule`` data type, which is illustrated below:
 
 .. code-block:: Haskell
 
