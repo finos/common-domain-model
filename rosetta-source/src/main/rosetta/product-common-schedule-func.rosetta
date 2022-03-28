@@ -5,7 +5,20 @@ import cdm.base.datetime.*
 
 import cdm.product.template.*
 
+
+
+//[TH Proposal]
+
+import cdm.observable.asset.*
+import cdm.observable.common.*
+
+//---[End of TH Proposal]---
+
+
+//[TH Proposal] Old Equity version
+
 func EffectiveDateContainsPaymentDate:
+[deprecated]
 	inputs:
 		economicTerms EconomicTerms (1..1)
 	output:
@@ -25,9 +38,49 @@ func EffectiveDateContainsPaymentDate:
 			equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
 			equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
 			equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+				]
+	set result:
+		effectiveDates exists and effectiveDates contains paymentDate
+
+//---[End of TH Proposal]---
+
+//[TH Proposal] Performance version
+
+func NEW_EffectiveDateContainsPaymentDate:
+	inputs:
+		economicTerms EconomicTerms (1..1)
+	output:
+		result boolean (1..1)
+
+	alias paymentDate: PaymentDate(economicTerms)
+    alias interestRatePayout: economicTerms -> payout -> interestRatePayout only-element
+
+    //alias equityPayout: economicTerms -> payout -> equityPayout only-element // Removed because the alias equityPayout is not used anymore, it was only used in the deprecated effectiveDate references
+
+	alias effectiveDates: [
+			economicTerms -> effectiveDate -> adjustableDate -> adjustedDate,
+			economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate,
+			economicTerms -> effectiveDate -> relativeDate -> adjustedDate,
+			interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
+			interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
+			interestRatePayout-> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+	
+	// [TH Proposal] References to effectiveDates inside equityPayout removed, since now all former effectiveDates for equity (now performance) will be placed outside the payout (that is, they will use the first three paths of this alias
+
+			//equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> adjustedDate,
+			//equityPayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate,
+			//equityPayout -> calculationPeriodDates -> effectiveDate -> relativeDate -> adjustedDate
+
+	//---[End of TH Proposal]---
 	]
 	set result:
 		effectiveDates exists and effectiveDates contains paymentDate
+
+//---[End of TH Proposal]---
+
+
+
+//[TH Proposal] Performance version
 
 func PaymentDate: 
 	inputs: economicTerms EconomicTerms (1..1)
@@ -37,20 +90,54 @@ func PaymentDate:
 func PeriodsInYear:
 	inputs: frequency CalculationPeriodFrequency (1..1)
 	output: numberOfPeriods int (1..1)
+	
+//---[End of TH Proposal]---
+
+// [TH Proposal] [CALCDAT] Old Calculation version
 
 func CalculationPeriod: <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
+	
+	[deprecated]
+	
 	inputs:
 		calculationPeriodDates CalculationPeriodDates (1..1)
 		date date (1..1)
 	output:
 	    result CalculationPeriodData (1..1)
 
+//[TH Proposal] [VALDAT] New Valuation version
+
+func ValuationPeriod: <"Equivalent to the CalculationPeriod function, using valuationDates and not calculationPeriodDates as an input">
+	inputs:
+		valuationDates EquityValuationDates (1..1)
+		date date (1..1)
+	output:
+	    result CalculationPeriodData (1..1)
+
+//---[End of TH Proposal]---
+
+
+//[TH Proposal] [CALCDAT] Old Calculation version
+
 func CalculationPeriods: <"2006 ISDA Definition Section 4.13. 'Calculation Period' means, in respect of a Swap Transaction and a party, each period from, and including, one Period End Date of that party to, but excluding, the next following applicable Period End Date during the Term of the Swap Transaction, except that (a) the initial Calculation Period for the party will commence on, and include, the Effective Date and (b) the final Calculation Period for the party will end on, but exclude, the Termination Date.">
+	[deprecated]
+	
 	inputs:
 		calculationPeriodDates CalculationPeriodDates (1..1)
 	output:
 	    result CalculationPeriodData (0..*)
 
+//---[End of TH Proposal]---
+
+//[TH Proposal] [VALDAT] New Valuation version
+
+func ValuationPeriods: <"Equivalent to the CalculationPeriods function, using valuationDates and not calculationPeriodDates as an input">
+	inputs:
+		valuationDates EquityValuationDates (1..1)
+	output:
+	    result CalculationPeriodData (0..*)
+
+//---[End of TH Proposal]---
 
 func CalculationPeriodRange:
 	inputs:
@@ -59,3 +146,20 @@ func CalculationPeriodRange:
 		dateAdjustments BusinessDayAdjustments (0..1) 
 	output:
 		result CalculationPeriodData (1..1)
+
+
+
+// [TH Proposal] [TO BE INCLUDED] [WORK IN PROGRESS] Transforms calculationPeriodDates into valuationDates. It will allow to render [TO BE INCLUDED] functions functional.
+func Create_ValuationDatesFromCalculationPeriodDates: <"Sample model for internal use Tradeheader">
+    inputs: equityCalculationPeriod CalculationPeriodDates (1..1)
+    output: equityValuationDates EquityValuationDates (1..1)
+
+    set equityValuationDates -> determinationMethod: DeterminationMethodEnum -> ValuationTime
+
+    //set equityValuationDates -> valuationDates: equityCalculationPeriod -> ...
+    set equityValuationDates -> valuationDate: equityCalculationPeriod -> effectiveDate
+    //set equityValuationDates -> valuationTime: equityCalculationPeriod -> ...
+    set equityValuationDates -> valuationTimeType: TimeTypeEnum -> SpecificTime
+
+
+//TH Review -> ENd internal proposal
