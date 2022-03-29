@@ -172,8 +172,8 @@ public class DocumentationCodeValidator {
 		 
 		 CommandLine cmd = new DefaultParser().parse(options, args);
 		 
-		 String docPath = cmd.getOptionValue("doc-path","rosetta-source/documentation/source");
-		 String snippetPath = cmd.getOptionValue("snippet-path","rosetta-source/documentation/source/code-snippets");
+		 String docPath = cmd.getOptionValue("doc-path","documentation/source");
+		 String snippetPath = cmd.getOptionValue("snippet-path","documentation/source/code-snippets");
 		 String modelPath = cmd.getOptionValue("model-path","rosetta-source/src/main/rosetta");
 		 boolean fixUp = cmd.hasOption("fix-up");
 		 

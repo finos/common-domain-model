@@ -2,10 +2,10 @@ package cdm.product.asset.floatingrate.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.observable.asset.FloatingRateOption;
-import cdm.observable.asset.fro.functions.IndexValueObservationDataProvider;
+import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
-import cdm.product.asset.calculation.functions.LookupNotionalAmountTest;
+import cdm.product.asset.calculation.functions.GetNotionalAmountTest;
 import cdm.product.asset.floatingrate.FloatingRateSettingDetails;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.schedule.ResetDates;
@@ -28,7 +28,7 @@ public class DetermineFloatingRateResetTest extends AbstractFunctionTest {
 
 	@Override
 	protected void bindTestingMocks(Binder binder) {
-		binder.bind(IndexValueObservationDataProvider.class).toInstance(initIndexData(initFro()));
+		binder.bind(IndexValueObservation.class).toInstance(initIndexData(initFro()));
 	}
 
 	@Test
@@ -52,7 +52,7 @@ public class DetermineFloatingRateResetTest extends AbstractFunctionTest {
 
 		return InterestRatePayout.builder()
 				.setResetDates(resetDates)
-				.setPayoutQuantity(LookupNotionalAmountTest.initNotionalSchedule())
+				.setPayoutQuantity(GetNotionalAmountTest.initNotionalSchedule())
 				.setRateSpecification(RateSpecification.builder()
 						.setFloatingRate(initFloatingRate(fro)).build())
 				.build();

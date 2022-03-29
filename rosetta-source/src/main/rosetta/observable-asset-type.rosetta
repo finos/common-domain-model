@@ -111,10 +111,10 @@ type PriceExpression:
  	condition SpreadPrice: <"A spread type can only be specified when the price type is an asset price, an exchange rate or an interest rate.">
  		if spreadType exists then priceType = PriceTypeEnum -> AssetPrice or priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> InterestRate
 
-type CashPrice:
- 	cashPriceType CashPriceTypeEnum (1..1)
- 	premiumExpression PremiumExpression (0..1) <"Forward start premium type">
- 	feeType FeeTypeEnum (0..1)
+type CashPrice: <"Specifies the nature of a cash price either as a fee type, cash price type, or premium expression.">
+ 	cashPriceType CashPriceTypeEnum (1..1) <"Specifies the type of Cash Price.">
+ 	premiumExpression PremiumExpression (0..1) <"Specifies a premium when expressed in a way other than an amount, and any required forward starting price definition.">
+ 	feeType FeeTypeEnum (0..1) <"Specifies the event type associated with a fee.">
  	condition PremiumType: <"Premium type can only be specified when the cash price type is a premium.">
  		if premiumExpression exists then cashPriceType = CashPriceTypeEnum -> Premium
 
@@ -169,7 +169,7 @@ type InformationSource: <"A class defining the source for a piece of information
 type Money extends Quantity: <"Defines a monetary amount in a specified currency.">
 	[metadata key]
 	condition:
-    	unitOfAmount->currency exists
+    	unitOfAmount -> currency exists
 
 type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
     [deprecated]
@@ -426,7 +426,7 @@ type ValuationMethod: <"Specifies the parameters required to obtain a valuation,
 
 	condition FpML_cd_37: <"FpML validation rule cd-37 - If condition quotationAmount is true, and if condition minimumQuotationAmount is true, and if both amounts have the same-currency, then quotationAmount/amount must be greater or equal to minimumQuotationAmount/amount.">
 		if (quotationAmount exists and minimumQuotationAmount exists)
-			and quotationAmount -> unitOfAmount-> currency = minimumQuotationAmount -> unitOfAmount-> currency
+			and quotationAmount -> unitOfAmount -> currency = minimumQuotationAmount -> unitOfAmount -> currency
 		then quotationAmount -> amount > minimumQuotationAmount -> amount
 
 	condition Dealer: <"When a quotation amount is specified, the dealer from which to obtain the quotation must be specified in the valuation source. This is typically applicable to determine the recovery amount in a credit event.">

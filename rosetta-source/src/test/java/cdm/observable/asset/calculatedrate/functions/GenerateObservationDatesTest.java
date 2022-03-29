@@ -9,6 +9,7 @@ import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static cdm.observable.asset.calculatedrate.functions.CalculatedRateTestHelper.period;
@@ -22,7 +23,7 @@ public class GenerateObservationDatesTest extends AbstractFunctionTest {
 	@Test
 	void shouldDeterminedDates() {
 		CalculationPeriodBase obsPeriod = period(Date.of(2020, 12, 7), Date.of(2021, 3, 5));
-		BusinessCenters bc = BusinessCenters.builder().addBusinessCenterValue(BusinessCenterEnum.GBLO).build();
+		List<BusinessCenterEnum> bc = Collections.singletonList(BusinessCenterEnum.GBLO);
 
 		Integer lockout = 1;
 

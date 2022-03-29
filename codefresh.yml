@@ -1,6 +1,11 @@
 version: '1.0'
+stages:
+  - build
+  - distribute
+  - finalise
 steps:
   TagReleaseName:
+    stage: 'build'
     title: Setup RELEASE_NAME variable with tag
     image: alpine/git
     when:
@@ -11,6 +16,7 @@ steps:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
 
   BranchReleaseName:
+    stage: 'build'
     title: Setup RELEASE_NAME variable with branch name
     image: alpine/git
     when:
@@ -21,6 +27,7 @@ steps:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}
 
   BuildNormal:
+    stage: 'build'
     title: Maven build
     fail_fast: false
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
@@ -34,9 +41,13 @@ steps:
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -U -s /settings.xml clean deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
+      - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
+      - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*"
+      - mvn -U -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
 
   BuildRelease:
+    stage: 'build'
     title: Maven build for release
     fail_fast: false
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
@@ -50,12 +61,17 @@ steps:
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.common.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
       - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.code-generators.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
-      - mvn -s /settings.xml clean deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
+      - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
+      - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*"
+      - mvn -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
 
   ParallelTasks:
+    stage: 'build'
     type: parallel
     steps:
       BuildDaml:
+        stage: 'build'
         title: DAML build and deploy
         fail_fast: false
         image: digitalasset/daml-sdk:1.3.0
@@ -67,6 +83,7 @@ steps:
           - tar -cvzf cdm-daml.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.tar.gz" -T cdm-daml.tar.gz
       BuildScala:
+        stage: 'build'
         title: Scala build and deploy
         fail_fast: false
         image: mozilla/sbt
@@ -78,6 +95,7 @@ steps:
           - cd /codefresh/volume/rosetta-cdm/rosetta-source/target/classes/cdm/scala/target/scala-2.12
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-scala/${{RELEASE_NAME}}/cdm-scala-${{RELEASE_NAME}}.jar" -T cdm-scala_2.12-0.0.0.snapshot.jar
       BuildCSharp8:
+        stage: 'build'
         title: CSharp8 build and deploy
         fail_fast: false
         image: mcr.microsoft.com/dotnet/core/sdk:3.1
@@ -90,6 +108,7 @@ steps:
           - tar -cvzf cdm-csharp8.tar.gz app
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp8/${{RELEASE_NAME}}/cdm-csharp8-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp8.tar.gz
       BuildCSharp9:
+        stage: 'build'
         title: CSharp9 build and deploy
         fail_fast: false
         image: mcr.microsoft.com/dotnet/sdk:5.0
@@ -102,6 +121,7 @@ steps:
           - tar -cvzf cdm-csharp9.tar.gz app
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp9/${{RELEASE_NAME}}/cdm-csharp9-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp9.tar.gz
       BuildTypeScript:
+        stage: 'build'
         title: TypeScript build and deploy
         fail_fast: false
         image: spotify/alpine
@@ -111,6 +131,7 @@ steps:
           - tar -cvzf cdm-typescript.zip typescript
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-typescript/${{RELEASE_NAME}}/cdm-typescript-${{RELEASE_NAME}}.zip" -T cdm-typescript.zip
       BuildGo:
+        stage: 'build'
         title: Go build and deploy
         fail_fast: false
         image: spotify/alpine
@@ -120,6 +141,7 @@ steps:
           - tar -cvzf cdm-golang.tar.gz golang
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-golang/${{RELEASE_NAME}}/cdm-golang-${{RELEASE_NAME}}.zip" -T cdm-golang.tar.gz
       BuildKotlin:
+        stage: 'build'
         title: Kotlin build and deploy
         fail_fast: false
         image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
@@ -131,16 +153,144 @@ steps:
           - mvn -s /settings.xml -f kotlin-pom.xml clean deploy
 
   BuildJavaDocs:
+    stage: 'build'
     title: Javadocs build and deploy
     fail_fast: false
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
     working_directory: ./
     commands:
+      - cd rosetta-source
       - mvn -s /settings.xml javadoc:jar
-      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - cd ..
       - curl -X PUT -u ${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}} -T rosetta-source/target/cdm-${{RELEASE_NAME}}-javadoc.jar "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar"
 
+  BuildDistributionNormal:
+    stage: 'distribute'
+    title: Maven distribution build
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    when:
+      condition:
+        all:
+          isNotRelease: "${{TAG_REPO}} == false"
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - cd cdm-distribution
+      - mvn -U -s /settings.xml clean deploy -P distribute
+
+  BuildDistributionRelease:
+    stage: 'distribute'
+    title: Maven distribution build for release
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./
+    when:
+      condition:
+        all:
+          isRelease: "${{TAG_REPO}}"
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml versions:update-property -Dproperty=rosetta.bundle.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - cd cdm-distribution
+      - mvn -U -s /settings.xml clean deploy -P distribute,distribute-full
+
+  DistributeDaml:
+    stage: 'distribute'
+    title: Maven DAML distribution
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./cdm-distribution
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=ingest.test.framework.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f daml-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f daml-pom.xml clean deploy
+
+  DistributeScala:
+    stage: 'distribute'
+    title: Maven Scala distribution
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./cdm-distribution
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f scala-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f scala-pom.xml versions:update-property -Dproperty=ingest.test.framework.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f scala-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f scala-pom.xml clean deploy
+
+  DistributeCSharp8:
+    stage: 'distribute'
+    title: Maven CSharp8 distribution
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./cdm-distribution
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f csharp8-pom.xml versions:update-property -Dproperty=ingest.test.framework.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f csharp8-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f csharp8-pom.xml clean deploy
+
+  DistributeCSharp9:
+    stage: 'distribute'
+    title: Maven CSharp9 distribution
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./cdm-distribution
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f csharp9-pom.xml versions:update-property -Dproperty=ingest.test.framework.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f csharp9-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f csharp9-pom.xml clean deploy
+
+  DistributeTypeScript:
+    stage: 'distribute'
+    title: Maven TypeScript distribution
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./cdm-distribution
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f typescript-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f typescript-pom.xml versions:update-property -Dproperty=ingest.test.framework.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f typescript-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f typescript-pom.xml clean deploy
+
+  DistributeGo:
+    stage: 'distribute'
+    title: Maven Golang distribution
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./cdm-distribution
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f golang-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f golang-pom.xml versions:update-property -Dproperty=ingest.test.framework.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f golang-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f golang-pom.xml clean deploy
+
+  DistributeKotlin:
+    stage: 'distribute'
+    title: Maven Kotlin distribution
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./cdm-distribution
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s /settings.xml -f kotlin-pom.xml versions:update-property -Dproperty=ingest.test.framework.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -s /settings.xml -f kotlin-pom.xml versions:update-property -Dproperty=isda.cdm.version -DnewVersion=[${{RELEASE_NAME}}] -DallowSnapshots=true -DallowDowngrade=true
+      - mvn -U -s /settings.xml -f kotlin-pom.xml clean deploy
+
   NotifySlackOnFail:
+    stage: 'finalise'
     title: Trigger Slack dev channel notification if master build failed
     image: codefresh/cli
     when:
@@ -159,6 +309,16 @@ steps:
           buildGoFailed: steps.BuildGo.result == 'error'
           buildKotlinFailed: steps.BuildKotlin.result == 'error'
           buildJavaDocsFailed: steps.BuildJavaDocs.result == 'error'
+          distributeNormalFailed: steps.BuildDistributionNormal.result == 'error'
+          distributeReleaseFailed: steps.BuildDistributionRelease.result == 'error'
+          distributeDamlFailed: steps.DistributeDaml.result == 'error'
+          distributeScalaFailed: steps.DistributeScala.result == 'error'
+          distributeTypeScriptFailed: steps.DistributeTypeScript.result == 'error'
+          distributeCSharp8Failed: steps.DistributeCSharp8.result == 'error'
+          distributeCSharp9Failed: steps.DistributeCSharp9.result == 'error'
+          distributeGoFailed: steps.DistributeGo.result == 'error'
+          distributeKotlinFailed: steps.DistributeKotlin.result == 'error'
+          distributeJavaDocsFailed: steps.DistributeJavaDocs.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
       - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
@@ -171,6 +331,7 @@ steps:
       - codefresh run slack-notifier -v REPO_NAME="${REPO_NAME}" -v COMMIT_AUTHOR="${COMMIT_AUTHOR}" -v COMMIT_MESSAGE="${COMMIT_MESSAGE}"  --detach
 
   FailPipeline:
+    stage: 'finalise'
     title: Fail pipeline if the Maven build failed
     image: codefresh/cli
     when:
@@ -186,10 +347,21 @@ steps:
           goBuildFailure: steps.BuildGo.result == 'failure'
           kotlinBuildFailure: steps.BuildKotlin.result == 'failure'
           javaDocsBuildFailure: steps.BuildJavaDocs.result == 'failure'
+          distributeNormalFailure: steps.BuildDistributionNormal.result == 'failure'
+          distributeReleaseFailure: steps.BuildDistributionRelease.result == 'failure'
+          distributeDamlFailure: steps.DistributeDaml.result == 'failure'
+          distributeScalaFailure: steps.DistributeScala.result == 'failure'
+          distributeTypeScriptFailure: steps.DistributeTypeScript.result == 'failure'
+          distributeCSharp8Failure: steps.DistributeCSharp8.result == 'failure'
+          distributeCSharp9Failure: steps.DistributeCSharp9.result == 'failure'
+          distributeGoFailure: steps.DistributeGo.result == 'failure'
+          distributeKotlinFailure: steps.DistributeKotlin.result == 'failure'
+          distributeJavaDocsFailure: steps.DistributeJavaDocs.result == 'failure'
     commands:
       - exit 1
 
   TagRepo:
+    stage: 'finalise'
     title: Tag git repo with release name
     image: alpine/git
     when:
@@ -204,7 +376,8 @@ steps:
       - git push https://${{REGNOSYS_OPS}}:${{REGNOSYS_OPS_TOKEN}}@github.com/REGnosys/${{CF_REPO_NAME}}.git ${{RELEASE_NAME}}
 
   StartNextBuild:
-    title: Build rosetta-ingest if on master
+    stage: 'finalise'
+    title: Build rosetta-navigation if on master
     image: codefresh/cli
     when:
       branch:
@@ -216,4 +389,4 @@ steps:
           variableDefined: "${{TAG_REPO}} == false"
           skipNextBuild: "${{SKIP_NEXT_BUILD}} == false"
     commands:
-      - codefresh run REGnosys/rosetta-ingest/rosetta-ingest --branch master --detach
+      - codefresh run REGnosys/rosetta-navigation/rosetta-navigation --branch master --detach

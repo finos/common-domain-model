@@ -46,6 +46,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import util.ResourcesUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -68,7 +69,7 @@ class SecLendingFunctionInputCreationTest {
 
     public static final ObjectMapper MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper();
 
-    // AVOID ADDING MANUALLY CRAFTER JSON
+    // AVOID ADDING MANUALLY CRAFTED JSON
 
     // ALLOCATION AND REALLOCATION EXAMPLES ARE BASED ON THIS EXECUTION INSTRUCTION.
     // This is the execution instruction between an agent lender and a borrower
@@ -167,13 +168,13 @@ class SecLendingFunctionInputCreationTest {
                 .get("allocationInstruction"), AllocationInstruction.class);
 
         assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Stream
-						.of(new AbstractMap.SimpleEntry<>("tradeState", actualTradeState),
-								new AbstractMap.SimpleEntry<>("allocationInstruction", actualAllocationInstruction))
-						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Stream
 						.of(new AbstractMap.SimpleEntry<>("tradeState", expectedTradeState),
 								new AbstractMap.SimpleEntry<>("allocationInstruction", expectedAllocationInstruction))
 						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))),
+                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(asJsonNode(Stream
+                        .of(new AbstractMap.SimpleEntry<>("tradeState", actualTradeState),
+                                new AbstractMap.SimpleEntry<>("allocationInstruction", actualAllocationInstruction))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))),
                 "The input JSON for create-allocation-func-input.json has been updated (probably due to a model change). Update the input file");
     }
 
@@ -423,11 +424,15 @@ class SecLendingFunctionInputCreationTest {
 
         List<Quantity> allocatedQuantities = scaleQuantities(tradeState, percent);
 
-        return AllocationBreakdown.builder()
+        AllocationBreakdown.AllocationBreakdownBuilder allocationBreakdownBuilder = AllocationBreakdown.builder()
                 .addAllocationTradeId(allocationIdentifier)
                 .setCounterparty(counterparty1)
                 .setQuantity(allocatedQuantities)
                 .setAncillaryParty(agentLenderPartyRole);
+
+        ResourcesUtils.reKey(allocationBreakdownBuilder);
+
+        return allocationBreakdownBuilder;
     }
 
     private static Party getParty(TradeState tradeState, CounterpartyRoleEnum counterpartyRoleEnum) {

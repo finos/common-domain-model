@@ -7,7 +7,7 @@ import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndex
 import cdm.observable.asset.FloatingRateOption;
 import cdm.observable.asset.calculatedrate.CalculatedRateDetails;
 import cdm.observable.asset.calculatedrate.FloatingRateCalculationParameters;
-import cdm.observable.asset.fro.functions.IndexValueObservationDataProvider;
+import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationMultiple;
 import cdm.product.asset.floatingrate.FloatingRateSettingDetails;
 import cdm.product.common.schedule.CalculationPeriodBase;
@@ -36,7 +36,7 @@ public class EvaluateCalculatedRateTest extends AbstractFunctionTest {
 
 	@Override
 	protected void bindTestingMocks(Binder binder) {
-		binder.bind(IndexValueObservationDataProvider.class).toInstance(initIndexData(initFro()));
+		binder.bind(IndexValueObservation.class).toInstance(initIndexData(initFro()));
 	}
 
 	@Test
