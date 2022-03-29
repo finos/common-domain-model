@@ -21,6 +21,7 @@ import cdm.event.common.*;
 import cdm.event.common.functions.Create_BusinessEvent;
 import cdm.event.workflow.WorkflowStep;
 import cdm.legalagreement.common.*;
+import cdm.legalagreement.master.MasterAgreementTypeEnum;
 import cdm.observable.asset.Observable;
 import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.FieldWithMetaFloatingRateOption;
@@ -222,8 +223,9 @@ class FunctionInputCreationTest {
         LegalAgreement.LegalAgreementBuilder legalAgreement = LegalAgreement.builder()
                 .addContractualPartyValue(guard(tradeState.getTrade().getParty()))
                 .setAgreementDate(date)
-                .setAgreementType(LegalAgreementType.builder()
-                        .setName(LegalAgreementNameEnum.MASTER_AGREEMENT)
+                .setAgreementType(LegalAgreementIdentification.builder()
+                        .setAgreementName(AgreementName.builder()
+                                .setMasterAgreementTypeValue(MasterAgreementTypeEnum.ISDA_MASTER))
                         .setPublisher(LegalAgreementPublisherEnum.ISDA)
                         .setGoverningLaw(GoverningLawEnum.AS_SPECIFIED_IN_MASTER_AGREEMENT)
                         .build());
