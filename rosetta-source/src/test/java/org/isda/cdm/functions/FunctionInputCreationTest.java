@@ -225,7 +225,7 @@ class FunctionInputCreationTest {
                 .setAgreementDate(date)
                 .setAgreementType(LegalAgreementIdentification.builder()
                         .setAgreementName(AgreementName.builder()
-                                .setMasterAgreementTypeValue(MasterAgreementTypeEnum.ISDA_MASTER))
+                                .setMasterAgreementType(MasterAgreementTypeEnum.ISDA))
                         .setPublisher(LegalAgreementPublisherEnum.ISDA)
                         .setGoverningLaw(GoverningLawEnum.AS_SPECIFIED_IN_MASTER_AGREEMENT)
                         .build());

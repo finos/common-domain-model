@@ -88,10 +88,10 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
 		if agreementTerms -> agreement -> securityAgreementElections exists
 		then agreementType -> agreementName -> securityAgreement exists
 		else if agreementTerms -> agreement -> creditSupportAgreementElections exists
-			then agreementType -> agreementName -> creditSupportAgreement -> creditSupportAgreementType =  CreditSupportAgreementTypeEnum -> CreditSupportDeed or 
-			agreementType -> agreementName -> creditSupportAgreement -> creditSupportAgreementType =  CreditSupportAgreementTypeEnum -> CreditSupportAnnex
+			then agreementType -> agreementName -> creditSupportAgreementName -> creditSupportAgreementType =  CreditSupportAgreementTypeEnum -> CreditSupportDeed or
+			agreementType -> agreementName -> creditSupportAgreementName -> creditSupportAgreementType =  CreditSupportAgreementTypeEnum -> CreditSupportAnnex
 			else if agreementTerms -> agreement -> collateralTransferAgreementElections exists
-				then agreementType -> agreementName -> creditSupportAgreement -> creditSupportAgreementType =  CreditSupportAgreementTypeEnum -> CollateralTransferAgreement
+				then agreementType -> agreementName -> creditSupportAgreementName -> creditSupportAgreementType =  CreditSupportAgreementTypeEnum -> CollateralTransferAgreement
 
 		else if agreementTerms -> agreement -> masterAgreementSchedule exists
 		then agreementType -> agreementName -> masterAgreementType exists
@@ -118,30 +118,22 @@ type LegalAgreementIdentification: <"A class to specify the type of legal agreem
 		[synonym AcadiaSoft_AM_1_0 value "csaVersion"]
 
 type AgreementName: <"Type of Legal agreement.">
-	[synonym AcadiaSoft_AM_1_0 value "DocumentNameEnum"]
+
 	masterAgreementType MasterAgreementTypeEnum (0..1) <" The master agreement executed between the parties and intented to govern product-specific derivatives between those parties.">
-		[metadata scheme]
-	creditSupportAgreement CreditSupportAgreement (0..1) <"The type of Credit Support Agreement.">
+	creditSupportAgreementName CreditSupportAgreementName (0..1) <"The type of Credit Support Agreement.">
 	securityAgreement boolean (0..1) <"Specifies a Security Agreement, related to a Collateral Transfer Agreement (CTA).">
-	clauseLibrary boolean (0..1) <"Specifiies Clause Library">
+	clauseLibrary boolean (0..1) <"Specifies Clause Library">
 	masterConfirmationType MasterConfirmationTypeEnum (0..1) <"The type of master confirmation executes between the parties.">
-		[metadata scheme]
 	masterConfirmationAnnexType MasterConfirmationAnnexTypeEnum (0..1) <"Specifies the master confirmation agreement executed between the parties.">
 	brokerConfirmationType BrokerConfirmationTypeEnum (0..1) <"Specifies the type of broker confirmation.">
 	contractualDefinitionsType ContractualDefinitionsEnum (0..*) <"The definitions such as those published by ISDA that will define the terms of the trade.">
-		[metadata scheme]
 	contractualTermsSupplementType ContractualSupplementTypeEnum (0..*) <"A contractual supplement (such as those published by ISDA) that will apply to the trade.">
-		[metadata scheme]
 	contractualMatrix ContractualMatrix (0..*) <"A reference to a contractual matrix of elected terms/values (such as those published by ISDA) that shall be deemed to apply to the trade. The applicable matrix is identified by reference to a name and optionally a publication date. Depending on the structure of the matrix, an additional term (specified in the matrixTerm element) may be required to further identify a subset of applicable terms/values within the matrix.">
 	otherAgreement OtherAgreement (0..*) <"Any other agreement executed between the parties.">
     attachment Resource (0..*) <"A human readable document related to this transaction, for example a confirmation."> // validate the relevance and correct position of this atttribute 
 
-	//[synonym ISDA_Create_1_0 value "ignore"]
-		// need to go back to check synonym is correctly placed - originally related agreement/ document identification
-
-condition AgreementTypeChoice: <"choice rule to enforce determination of a type of document">
-	required choice masterAgreementType, creditSupportAgreement, securityAgreement, masterConfirmationType, masterConfirmationAnnexType, brokerConfirmationType, contractualDefinitionsType, contractualTermsSupplementType, contractualMatrix, otherAgreement
-
+    condition AgreementTypeChoice: <"choice rule to enforce determination of a type of document">
+        required choice masterAgreementType, creditSupportAgreementName, securityAgreement, masterConfirmationType, masterConfirmationAnnexType, brokerConfirmationType, contractualDefinitionsType, contractualTermsSupplementType, contractualMatrix, otherAgreement
 
 type UmbrellaAgreement: <"A class to specify a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement. This data representation reflects the ISDA Create representation.">
 

@@ -135,7 +135,7 @@ synonym source FpML_5_10 extends FpML
 	// 	+ publicationDate
 	// 		[value "publicationDate"]
 
-	CreditSupportAgreement:
+	CreditSupportAgreementName:
 		+ creditSupportAgreementType
 			[value "type" meta "creditSupportAgreementTypeScheme"]
 
@@ -153,8 +153,8 @@ synonym source FpML_5_10 extends FpML
 	// 		[value "contractualTermsSupplement"]
 	// 	+ contractualMatrix
 	// 		[value "contractualMatrix"]
-	// 	+ creditSupportAgreement
-	// 		[value "creditSupportAgreement"]
+	// 	+ creditSupportAgreementName
+	// 		[value "creditSupportAgreementName"]
 	// 	+ otherAgreement
 	// 		[value "otherAgreement"]
 	// 	+ attachment
@@ -3404,9 +3404,17 @@ synonym source FpML_5_10 extends FpML
 		+ useOfPostedCollateral
 			[value "useOfPostedCollateral"]
 
+    LegalAgreement:
+		+ agreementTerms
+			[value "ignore"]
+		+ relatedAgreements
+            [value "ignore"]
+
 	LegalAgreementBase:
 		+ agreementDate
 			[value "agreementDate" path "legalDocumentHeader"]
+			[value "masterAgreementDate" path "masterAgreement"]
+            [value "masterConfirmationDate" path "masterConfirmation"]
 		+ effectiveDate
 			[value "effectiveDate" path "legalDocumentHeader"]
 		+ identifier
@@ -3414,14 +3422,26 @@ synonym source FpML_5_10 extends FpML
 		+ contractualParty
 			[value "party"]
 
-// TODO fix typo
+	AgreementName:
+		+ masterAgreementType
+			[value "masterAgreementType" path "masterAgreement"]
+		+ contractualDefinitionsType
+            [value "contractualDefinitions"]
+        + contractualTermsSupplementType
+            [value "type" path "contractualTermsSupplement"]
+        + contractualMatrix
+            [value "contractualMatrix"]
+        + masterConfirmationType
+            [value "masterConfirmationType" path "masterConfirmation"]
+
 	LegalAgreementIdentification:
-		+ publisher
+	    + publisher
 			[value "publisher"]
 		+ governingLaw
 			[value "style"]
 		+ vintage
 			[value "version"]
+			[value "masterAgreementVersion" path "masterAgreement"]
 
 	MultipleCreditNotations:
 		+ condition
@@ -3475,10 +3495,6 @@ synonym source FpML_5_10 extends FpML
 			[value "Frequency"]
 			// For Commodity Swap Fixed Leg
 			[hint "quantityFrequency"]
-	
-	AgreementName:
-		+ 	masterAgreementType 
-			[value "masterAgreement"]
 	
 	enums
 
@@ -6246,8 +6262,8 @@ synonym source FpML_5_10 extends FpML
 			[value "Postponement"]
 
 	MasterAgreementTypeEnum:
-		// + AFB
-		// 	[value "AFB"]
+		+ AFB
+		 	[value "AFB"]
 		+ Bespoke
 			[value "Bespoke"]
 		+ CMA
@@ -6286,7 +6302,7 @@ synonym source FpML_5_10 extends FpML
 			[value "IFEMA"]
 		+ IFEOMA
 			[value "IFEOMA"]
-		+ ISDAMaster
+		+ ISDA
 		 	[value "ISDA"]
 		+ ISDAFIA_CDEA
 			[value "ISDAFIA-CDEA"]
