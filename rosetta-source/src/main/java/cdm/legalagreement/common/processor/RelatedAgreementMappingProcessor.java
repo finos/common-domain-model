@@ -1,9 +1,6 @@
 package cdm.legalagreement.common.processor;
 
-import cdm.legalagreement.common.AgreementName;
-import cdm.legalagreement.common.LegalAgreement;
-import cdm.legalagreement.common.LegalAgreementIdentification;
-import cdm.legalagreement.common.LegalAgreementPublisherEnum;
+import cdm.legalagreement.common.*;
 import cdm.legalagreement.csa.CreditSupportAgreementTypeEnum;
 import cdm.legalagreement.master.MasterAgreementTypeEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -53,14 +50,15 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
     }
 
     private boolean isMasterAgreement(LegalAgreementBuilder relatedAgreementBuilder) {
-        return Optional.of(relatedAgreementBuilder)
-                .map(LegalAgreementBuilder::getAgreementType)
-                .filter(x -> Optional.ofNullable(x)
-                        .map(LegalAgreementIdentification.LegalAgreementIdentificationBuilder::getAgreementName)
-                        .map(AgreementName::getMasterAgreementType)
-                        .isPresent())
-                .filter(x -> x.getPublisher() == LegalAgreementPublisherEnum.ISDA)
-                .isPresent();
+        return true;
+//        return Optional.of(relatedAgreementBuilder)
+//                .map(LegalAgreementBuilder::getAgreementType)
+//                .filter(x -> Optional.ofNullable(x)
+//                        .map(LegalAgreementIdentification.LegalAgreementIdentificationBuilder::getAgreementName)
+//                        .map(AgreementName::getMasterAgreementType)
+//                        .isPresent())
+//                .filter(x -> x.getPublisher() == LegalAgreementPublisherEnum.ISDA)
+//                .isPresent();
     }
 
     private Optional<LegalAgreement> getRelatedAgreement(Path synonymPath) {
@@ -92,20 +90,22 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
                 legalAgreementBuilder
                         .getOrCreateAgreementType()
                         .getOrCreateAgreementName()
-                        .getOrCreateCreditSupportAgreementName()
+                        .setAgreementType(LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT)
                         .setCreditSupportAgreementTypeValue(CreditSupportAgreementTypeEnum.COLLATERAL_TRANSFER_AGREEMENT);
                 return true;
             case "date_of_isda_master_agreement":
                 legalAgreementBuilder
                         .getOrCreateAgreementType()
                         .setPublisher(LegalAgreementPublisherEnum.ISDA)
-                        .setAgreementName(AgreementName.builder()
+                        .setAgreementName(LegalAgreementIdentification.builder()
+                                .setAgreementType(LegalAgreementTypeEnum.MASTER_AGREEMENT)
                                 .setMasterAgreementTypeValue(MasterAgreementTypeEnum.ISDA));
                 return true;
             case "date_of_euroclear_security_agreement":
                 legalAgreementBuilder.getOrCreateAgreementType()
                         .setPublisher(LegalAgreementPublisherEnum.ISDA_EUROCLEAR)
-                        .getOrCreateAgreementName().setSecurityAgreement(true);
+                        .setAgreementName(LegalAgreementIdentification.builder()
+                                .setAgreementType(LegalAgreementTypeEnum.SECURITY_AGREEMENT));
                 return true;
             default:
                 return false;

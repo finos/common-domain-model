@@ -2,7 +2,7 @@ package com.regnosys.granite.projector.isdacreate;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.legalagreement.common.GoverningLawEnum;
-import cdm.legalagreement.common.LegalAgreementNameEnum;
+import cdm.legalagreement.common.LegalAgreementTypeEnum;
 import cdm.legalagreement.common.LegalAgreementPublisherEnum;
 import cdm.legalagreement.csa.AmendmentEffectiveDateEnum;
 import cdm.legalagreement.csa.SensitivitiesEnum;
@@ -37,12 +37,12 @@ class IsdaCreateEnumMapper {
 		}
 	}
 
-	String getDocumentType(LegalAgreementNameEnum legalAgreementNameEnum) {
+	String getDocumentType(LegalAgreementTypeEnum legalAgreementNameEnum) {
 		switch(legalAgreementNameEnum) {
-		case CREDIT_SUPPORT_DEED:
-			return "Credit Support Deed";
-		case CREDIT_SUPPORT_ANNEX:
-			return "Credit Support Annex";
+//		case CREDIT_SUPPORT_DEED:
+//			return "Credit Support Deed";
+//		case CREDIT_SUPPORT_ANNEX:
+//			return "Credit Support Annex";
 		default:
 			LOGGER.warn("Unknown enum value {}", legalAgreementNameEnum);
 			return legalAgreementNameEnum.toString();
