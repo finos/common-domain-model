@@ -1,110 +1,94 @@
-# *DSL Syntax - List operations: sum, min, max, join, sort, first and last*
+# *Legal Agreement Identification Refactor to ensure user has a normalised model to categorise agreements – Story 631*
 
 _What is being released?_
 
-This release introduces a number of syntax keywords related to list operations.
-
-*`sum`*
-
-- Returns a summed total from the items of a list of `int` or `number`.
-
-_Example_
-
-```
- func SumNumbers: <"Returns the sum of the given list of numbers.">
-    inputs:
-        numbers number (0..*)
-    output:
-        total number (1..1)
-
-    set total:
-        numbers sum
-```
-
-*`min`/`max`*
-
-- Returns the maximum or minimum item from a list based on a comparable (e.g. `string`, `int`, `number`, `date`) item or attribute.
-
-_Example_
-
-```
- func FindVehicleWithMaxPower: <"Returns the vehicle with the highest power engine.">
-    inputs:
-        vehicles Vehicle (0..*)
-    output:
-        vehicleWithMaxPower Vehicle (1..1)
-
-    set vehicleWithMaxPower:
-        vehicles 
-            max [ item -> specification -> engine -> power ]
-```
-
-*`join`*
-
-- Returns a `string` concatenated from the items of a list, optionally separated with a delimiter `string`.
-
-_Example_
-
-```
- func JoinStrings: <"Concatenates the list of strings, separating each element with a comma (",") delimiter.">
-    inputs:
-        strings string (0..*)
-    output:
-        result string (1..1)
-
-    set result:
-        strings 
-            join [ "," ]
-```
-
-*`sort`*
-
-- Returns a list in sorted order based on a comparable (e.g. `string`, `int`, `number`, `date`) item or attribute.
-
-_Example_
-
-```
- func SortDatesChronologically: <"Sorts the list of dates chronologically.">
-    inputs:
-        dates date (0..*)
-    output:
-        sortedDates date (0..*)
-
-    set sortedDates:
-        dates sort
-```
-
-*`first`/`last`*
-
-- Returns the first or last item from a list.
-
-_Example_
-
-```
- func GetFirst: <"Get the first date.">
-    inputs:
-        dates date (0..*)
-    output:
-        firstDate date (0..1)
-
-    set sortedDates:
-        dates first
-```
-
+`DocumentIdentification` data type is being removed and attributes are now found in the LegalAgreementIdentification data type (`LegalAgreementBase` >`agreementType` > `LegalAgreementIdentification`), which replaces `LegalAgreementType` 
+ 
+ 
+`CreditSupportAgreement` enumerations have been adjusted to remove the document publisher, vintage and governing law from their names as this information is now in the `LegalAgreementIdentification` type. 
+ 
+`RelatedAgreement `has been adjusted to point directly to legal agreement. 
+ 
+There has also been some minor changes to the label names and attributes of some of the related enumerations and data types. 
+ 
+Other areas of the CDM model that are impacted by these changes such as synonyms and conditions have been updated also as necessary.  
+ 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser, and search for syntax keywords.
+In the CDM Portal, select the Textual Browser and search and inspect each of the changes to the below data types, their attributes and descriptions. They will be found in `legalagreement-common-type’ name space:   
+1.	`ContractualMatrix` removed attribute `publicationDate`  
+2.	`ContractualTermSupplement` removed  
+3.	`RelatedAgreement` removed  
+4.	`DocumentationIdentification` removed, all its attributes and related conditions 
+5.	`LegalAgreement` attribute relatedAgreements amended to point direct to data type `LegalAgreement`  
+6.	`LegalAgreement` data type related conditions have been updated with all required changes relevant to this contribution  
+7.	`LegalAgreementType` renamed to data type ‘LegalAgreementIndentification’ 
+8.	` LegalAgreementIndentification` attribute `name` removed 
+9.	`LegalAgreementIndentification` new attribute added `agreementname` 
+10.	New data type added `AgreementName` along with the following attributes:  
+•	`masterAgreementType` 
+•	`creditSupportAgreement` 
+•	`securityAgreement` 
+•	`clauseLibrary` 
+•	`masterConfirmationType` 
+•	`masterConfirmationAnnexType` 
+•	`brokerConfirmationType` 
+•	`contractualDefinitionsType` 
+•	`contractualTermsSupplementType` 
+•	`contractualMatrix` 
+•	`otherAgreement` 
+•	`attachment` 
+11.	In data type `AgreementName` addition of synonym (AcadiaSoft- DocumentNameEnum) moved from `legalAgreementNameEnum` 
+12.	A condition `AgreementTypeChoice` to only determine one agreement type is added  
 
-# *Product Model - CreditDefaultPayout Index Factor and Seniority*
+In namespace event-common-type inspect each of the changes as follows: 
+1.	Review all changes to related conditions where `documentationIdentification` is replaced with `agreementType` > `agreementName` 
+2.	Data type `ContractDetails` attribute `documentation` has been updated to point to `LegalAgreement` instead of `RelatedAgreement` 
+3.	Data type `MarginCallBase` attribute `callAgreementType` has been updated to point to `LegalAgreementIdentification` instead of `LegalAgreementType` 
+ 
+In namespace legalagreement-common-enum inspect each of the changes as follows: 
+1.	`ContractualSupplementEnum` changed to `ContractualSupplementTypeEnum` 
+2.	Removal of `LegalAgreementNameEnum` and all its items listed 
+ 
+In namespace legalagreement-common-func inspect each of the changes as follows: 
+1.	Change of reference from `RelatedAgreement` to `LegalAgreement` 
+2.	Change of reference from LegalAgreementType to ‘LegalAgreementIdentification’  
+ 
+In namespace `legalagreement-csa-enum` inspect each of the changes to the  enumeration `CreditSupportAgreementTypeEnum` list as follows: 
+1.	removal of publisher, vintage and governing law of retain items renamed 
+2.	removal of enumerations within the list not required (margin provisions and 2013,2014 Standardised CSAs) 
+3.	Repositioning of AcadiaSoft synonym relating to CSA 
+ 
+In namespace legalagreement-csa-type inspect the changes outlined as follows:  
+1.	In data type ‘CreditSupportAgreementType’ removal of 2 attributes `date` and `identifierValue` these are not required as both of these exist in data type `LegalAgreementBase`  
+ 
+In namespace legalagreement-master-enum inspect the changes outlined as follows:  
+1.	removal of enumeration within `MasterAgreementTypeEnum` list not required (AFB) 
+2.	Rename enumeration `ISDA` to `ISDAMaster`  
+ 
+In namespace legalagreement-master-type, inspect the changes outlined as follows:  
+1.	in data type `CreditSupportDocumentElection` there is a change to the attribute ` creditSupportDocument` to point to `LegalAgreement` instead of `RelatedAgreement` 
 
-_What is being released_
+In namespace synonym-cdm-event, inspect the changes outlined as follows:   
+1.	Removal of `RelatedAgreement` synonym 
+ 
+In namespace synonym-cdm-fpml, inspect the changes to synonyms outlined as follows:   
+1.	Removed `ContractualMatrix`  (publication date) 
+2.	Removed ` ContractualTermsSupplement` 
+3.	Removed translations related to (date and identifier) in `CreditSupportAgreement` 
+4.	Removed `RelatedAgreement` 
+5.	Removed `DocumentationIdentification` 
+6.	`LegalAgreementType` changed to `LegalAgreeementIdentification` and `name` changed to `agreementName` 
+7.	Synonym added `masterAgreementType` - `masterAgreement` 
+8.	Synonym related to `CreditSupportAnnex` adjusted and ‘MasterAgreement’ removed 
+9.	`ContractualSupplementsEnum` changed to `ContractualSupplementTypeEnum` 
+10.	Removed ` CreditSupportAgreementTypeEnum` 
+11.	Removed translation related to (AFB) and adjusted ISDA to ISDAMaster in `MasterAgreementTypeEnum` 
+ 
+In namespace synonym-cdm-isda-create, inspect the changes to synonyms outlined as follows:   
+1.	Removed `RelatedAgreement`  
+2.	`LegalAgreementType` changed to `LegalAgreeementIdentification` and `name` changed to `agreementName` 
+3.	Addition of synonym `AgreementName` with `clauseLibrary`, `securityagreement` and `masterAgreementType` 
+4.	Removal of synonym `LegalAgreementNameEnum` and all the translations  
+5.	Addition of synonym `CreditSupportAgreementTypeEnum` with translations for `CreditSuportDeed`, `CreditSupportAnnex`, `CollateralTransferAgreement`
 
-Data type `IndexReferenceInformation` has been extended to include `indexFactor` and `seniority`.
-
-- `indexFactor` - represents the index version factor
-- `seniority` - Defines the seniority of debt instruments comprising the index.  The enumerated values in the CDM have been populated with linkage to the FpML scheme Credit Seniority Scheme (http://www.fpml.org/coding-scheme/credit-seniority-2-3.xml)
-- FpML mappings have been updated to reflect the above
-
-_Review Directions_
-
-In the CDM Portal, select Textual Browser, and review the data type and attributes above.
