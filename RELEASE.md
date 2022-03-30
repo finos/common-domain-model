@@ -6,4 +6,4 @@ This release removes the deprecated DSL syntax to specify DRR reports using the 
 
 Review Directions
 
-There is no impact as the usages has already been replaced in DRR by the `with type` keywords.
+There is no impact as the usages have already been replaced in DRR by the `with type` keywords.
