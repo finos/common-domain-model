@@ -775,7 +775,7 @@ The ``ExecutionDetails`` data type represents details applicable to trade execut
 
  type ContractDetails:
    [metadata key]
-   documentation RelatedAgreement (0..*)
+   documentation LegalAgreement (0..*)
    governingLaw GoverningLawEnum (0..1)
      [metadata scheme]
    partyContractInformation PartyContractInformation (0..*)
@@ -1388,10 +1388,10 @@ The ``LegalAgreement`` data type represents the highest-level data type for defi
     [metadata key]
      [rootType]
     agreementTerms AgreementTerms (0..1)
-    relatedAgreements RelatedAgreement (0..*)
+    relatedAgreements LegalAgreement (0..*)
     umbrellaAgreement UmbrellaAgreement (0..1)
 
-The ``LegalAgreementBase``, ``RelatedAgreement``, ``UmbrellaAgreement``, and ``AgreementTerms`` are defined in the following sections.
+The ``LegalAgreementBase``, ``UmbrellaAgreement``, and ``AgreementTerms`` are defined in the following sections.
 
 Agreement Identification
 """"""""""""""""""""""""
@@ -1413,22 +1413,9 @@ As indicated by the cardinality for the attributes in this data type, all legal 
 Related Agreement
 """""""""""""""""
 
-``RelatedAgreement`` is a data type used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.
+Related agreements attribute is used to specify any higher-level agreement(s) that may govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements.
 
-The below snippet represents the ``RelatedAgreement`` data type.
-
-.. code-block:: Haskell
-
- type RelatedAgreement:
-   legalAgreement LegalAgreement (0..1)
-   documentationIdentification DocumentationIdentification (0..1)
-
-Through the ``legalAgreement`` attribute the CDM provides support for implementors to do the following:
-
-* Identify some of the key terms of a governing legal agreement such as the agreement identifier, the publisher, the document vintage, and the agreement date.
-* Or, reference the entire legal agreement that is electronically represented in the CDM through a reference key into the agreement instance.
-
-.. note:: The ``DocumentationIdentification`` attribute is used to map related agreement terms that are embedded as part of a transaction message converted from another model structure, such as FpML.  For example, this attribute may reference an ISDA Master Agreement, which is not modelled or mapped in the CDM ``LegalAgreement`` data type.
+.. note:: The ``LegalAgreementType`` attribute is used to map related agreement terms that are embedded as part of a transaction message converted from another model structure, such as FpML.  For example, this attribute may reference an ISDA Master Agreement, which is not modelled or mapped in the CDM ``LegalAgreement`` data type.
 
 Umbrella Agreement
 """"""""""""""""""
@@ -1453,6 +1440,7 @@ Agreement Content
 
  type AgreementTerms:
    agreement Agreement (1..1)
+   clauseLibrary boolean (0..1)
    counterparty Counterparty (2..2)
 
 The following sections describe each of these components.
@@ -1571,7 +1559,7 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
 
  condition agreementVerification:
    if agreementTerms -> agreement -> securityAgreementElections exists
-   then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
+    then agreementType -> agreementName -> agreementType = LegalAgreementTypeEnum->SecurityAgreement
 
 The validation in this case requires that if the ``securityAgreementElections`` attribute is populated, then the value in ``LegalAgreementNameEnum`` must be ``SecurityAgreement`` .
 
