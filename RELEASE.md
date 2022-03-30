@@ -13,15 +13,6 @@ report CFTC Part43 in T+1
  		ReportingTimestamp
  		ReportingCounterpartyID
  		TypeOfIdOfTheOtherCounterparty
- 		IdOfTheOtherCounterparty
- 		CountryOfTheOtherCounterparty
- 		CorporateSectorOfTheReportingCounterparty
- 		NatureOfTheReportingCounterparty
- 		BrokerID
- 		TypeOfIdOfTheBeneficiary
- 		BeneficiaryID
- 		TradingCapacity
- 		CounterpartySide
 ```
     
 Which has now been replaced by the following syntax:
