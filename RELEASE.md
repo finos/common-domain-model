@@ -1,9 +1,9 @@
-# *Infrastructure - Scheme Importer*
+# *DSL Syntax - Remove deprecated DRR report syntax*
 
 _What is being released?_
 
-This release turns the scheme importer into a reusable component that can be imported and used in models that extend the CDM.
+This release removes the deprecated DSL syntax to specify DRR reports using the `with fields` keywords. 
 
 Review Directions
 
-There is no user impact of this release.
+There is no impact as the usages has already been replaced in DRR by the `with type` keywords.
