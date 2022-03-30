@@ -1129,6 +1129,7 @@ The list of business events for which this process is currently implemented in t
     termination TerminationInstruction (0..1)
     primitiveInstruction PrimitiveInstruction (0..1)
     before TradeState (0..1)
+        [metadata reference]
 
     condition ExclusiveSplitPrimitive:
        if primitiveInstruction -> split exists then primitiveInstruction -> split only exists
