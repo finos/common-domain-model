@@ -96,7 +96,8 @@ type Agreement: <"Specification of the standard set of terms that define a legal
 type AgreementTerms: <"Specification of the content of a legal agreement.">
 
 	agreement Agreement (1..1) <"Specification of the standard set of terms that define a legal agreement.">
-	counterparty Counterparty (2..2)
+	clauseLibrary boolean (0..1) <"Specification of whether the agreement terms have been negotiated using the clause library methodology.">
+	counterparty Counterparty (2..2) <"Specification of the roles of the counterparties to the agreement.">
 
 type LegalAgreement extends LegalAgreementBase: <"The specification of a legal agreement between two parties, including the baseline information and the optional specification of agreement terms allowing .">
 	[metadata key]
@@ -108,13 +109,14 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
 
 	condition agreementVerification: <"A validation rule to ensure that the agreement elections are associated with the correct legal agreement type as specified.">
 		if agreementTerms -> agreement -> securityAgreementElections exists
-		then agreementType -> name = LegalAgreementNameEnum->SecurityAgreement
+		then agreementType -> name -> agreementType = LegalAgreementNameEnum->SecurityAgreement
 		else if agreementTerms -> agreement -> creditSupportAgreementElections exists
-			then agreementType -> name = LegalAgreementNameEnum->CreditSupportDeed or agreementType -> name = LegalAgreementNameEnum->CreditSupportAnnex
+			then agreementType -> name -> creditSupportAgreementType = CreditSupportAgreementTypeEnum->CreditSupportAnnex or
+				agreementType -> name -> creditSupportAgreementType = CreditSupportAgreementTypeEnum->CreditSupportDeed
 			else if agreementTerms -> agreement -> collateralTransferAgreementElections exists
-				then agreementType -> name = LegalAgreementNameEnum->CollateralTransferAgreement
+				then agreementType -> name -> creditSupportAgreementType = CreditSupportAgreementTypeEnum->CollateralTransferAgreement
 		else if agreementTerms -> agreement -> masterAgreementSchedule exists
-		then agreementType -> name = LegalAgreementNameEnum->MasterAgreement
+		then agreementType -> name -> agreementType = LegalAgreementNameEnum->MasterAgreement
 
 type LegalAgreementBase: <"A class describing the legal agreement baseline information, other than the specialized elections: type of legal agreement, agreement date and effective date, parties to the agreement, ... The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalAgreement class as a way to enforce a systematic choice between its attributes.">
 
@@ -125,17 +127,47 @@ type LegalAgreementBase: <"A class describing the legal agreement baseline infor
 	contractualParty Party (2..2)  <"The two contractual parties to the legal agreement, which reference information is positioned as part of the partyInformation attribute.">
 		[metadata reference]
 	otherParty PartyRole (0..*) <"The role(s) that other party(ies) may have in relation to the legal agreement, further to the contractual parties.">
+	attachment Resource (0..*) <"A human readable document, for example a confirmation.">
 
 type LegalAgreementType: <"A class to specify the type of legal agreement, which is extended by each legal agreement instance, such as the ISDA 2016 CSA for Initial Margin.">
 
-	name LegalAgreementNameEnum (1..1) <"The legal agreement name, e.g. Credit Support Annex for Variation Margin.">
+	governingLaw GoverningLawEnum (0..1) <"The law governing the legal agreement, e.g. English Law, New York Law or Japanese Law.">
+		[synonym AcadiaSoft_AM_1_0 value "governingLaw"]
+	name LegalAgreementName (1..1) <"The legal agreement name, e.g. Credit Support Annex for Variation Margin.">
 		[synonym AcadiaSoft_AM_1_0 value "documentName"]
 	publisher LegalAgreementPublisherEnum (1..1) <"The legal agreement publisher, e.g. ISDA.">
 		[synonym AcadiaSoft_AM_1_0 value "publisher"]
-	governingLaw GoverningLawEnum (0..1) <"The law governing the legal agreement, e.g. English Law, New York Law or Japanese Law.">
-		[synonym AcadiaSoft_AM_1_0 value "governingLaw"]
 	vintage int (0..1) <"In the case where successive definitions of the legal agreement have been developed, the vintage identification. This is typically (but not necessarily) done by referencing the year, e.g. 2013 in the case of the ISDA 2013 Standard Credit Support Annex.">
 		[synonym AcadiaSoft_AM_1_0 value "csaVersion"]
+
+type LegalAgreementName:
+	agreementType LegalAgreementNameEnum (1..1)
+	brokerConfirmationType BrokerConfirmationTypeEnum (0..1)
+	creditSupportAgreementType CreditSupportAgreementTypeEnum (0..1)
+	contractualDefinitions ContractualDefinitionsEnum (0..*) <"The definitions such as those published by ISDA that will define the terms of the trade.">
+	contractualDefinitionsAlt ContractualDefinitionsAltEnum (0..*)
+	contractualTermsSupplement ContractualTermsSupplement (0..*) <"A contractual supplement (such as those published by ISDA) that will apply to the trade.">
+	contractualMatrix ContractualMatrix (0..*) <"A reference to a contractual matrix of elected terms/values (such as those published by ISDA) that shall be deemed to apply to the trade. The applicable matrix is identified by reference to a name and optionally a publication date. Depending on the structure of the matrix, an additional term (specified in the matrixTerm element) may be required to further identify a subset of applicable terms/values within the matrix.">
+	masterAgreementType MasterAgreementTypeEnum (0..1)
+	masterConfirmationType MasterConfirmationTypeEnum (1..1) <"The type of master confirmation executed between the parties.">
+		[metadata scheme]
+	masterConfirmationAnnexType MasterConfirmationAnnexTypeEnum (0..1) <"The type of master confirmation annex executed between the parties.">
+	otherAgreement string (0..1)
+
+	condition:
+		if agreementType <> LegalAgreementNameEnum -> Other then otherAgreement is absent
+			else if agreementType <> LegalAgreementNameEnum -> MasterAgreement then masterAgreementType is absent
+			else if agreementType <> LegalAgreementNameEnum -> BrokerConfirmation then brokerConfirmationType is absent
+			else if agreementType <> LegalAgreementNameEnum -> MasterConfirmation then masterConfirmationType is absent and masterConfirmationAnnexType is absent
+			else if agreementType <> LegalAgreementNameEnum -> Confirmation then contractualDefinitions is absent and contractualTermsSupplement is absent and contractualMatrix is absent
+
+	condition:
+			if masterConfirmationAnnexType exists then masterConfirmationType exists
+			else if contractualMatrix exists then contractualTermsSupplement exists
+
+	condition:
+
+		if contractualTermsSupplement exists then contractualDefinitionsAlt any = ContractualDefinitionsAltEnum -> Credit
 
 type UmbrellaAgreement: <"A class to specify a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement. This data representation reflects the ISDA Create representation.">
 
