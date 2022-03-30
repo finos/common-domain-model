@@ -305,7 +305,7 @@ class FunctionInputCreationTest {
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
         Instruction instructionBuilder = Instruction.builder()
-                .setBefore(tradeState)
+                .setBeforeValue(tradeState)
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setContractFormation(ContractFormationInstruction.builder()
                                 .addLegalAgreement(legalAgreement)))
@@ -487,7 +487,7 @@ class FunctionInputCreationTest {
         TradeState tradeState = getQuantityChangeEquitySwapTradeState();
 
         Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
-                .setBefore(tradeState)
+                .setBeforeValue(tradeState)
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(quantityChangeInstructions)
                         .setTransfer(getTransferInstruction(tradeState, FeeTypeEnum.INCREASE)));
@@ -501,7 +501,7 @@ class FunctionInputCreationTest {
 
     private void validateQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, String expectedJsonPath, QuantityChangeInstruction quantityChangeInstruction, FeeTypeEnum feeType) throws IOException {
         Instruction instructionBuilder = Instruction.builder()
-                .setBefore(tradeState)
+                .setBeforeValue(tradeState)
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(quantityChangeInstruction)
                         .setTransfer(getTransferInstruction(tradeState, feeType)));
@@ -558,19 +558,19 @@ class FunctionInputCreationTest {
 
 
         instructions.add(Instruction.builder()
-                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-1.json"))
+                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
 
         instructions.add(Instruction.builder()
-                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-2.json"))
+                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-2.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
 
         instructions.add(Instruction.builder()
-                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-3.json"))
+                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-3.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
@@ -710,7 +710,7 @@ class FunctionInputCreationTest {
                                                                         .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-04-Submission-1.json"))
+                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-04-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
@@ -771,7 +771,7 @@ class FunctionInputCreationTest {
                                                                         .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-05-Submission-1.json"))
+                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-05-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
@@ -841,7 +841,7 @@ class FunctionInputCreationTest {
                                                                         .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-06-Submission-1.json"))
+                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-06-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
@@ -927,7 +927,7 @@ class FunctionInputCreationTest {
                                                                 .setCurrencyValue("EUR")))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBefore(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-11-Submission-1.json"))
+                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-11-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
