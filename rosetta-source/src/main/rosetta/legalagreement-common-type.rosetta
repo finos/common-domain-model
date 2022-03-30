@@ -133,41 +133,35 @@ type LegalAgreementType: <"A class to specify the type of legal agreement, which
 
 	governingLaw GoverningLawEnum (0..1) <"The law governing the legal agreement, e.g. English Law, New York Law or Japanese Law.">
 		[synonym AcadiaSoft_AM_1_0 value "governingLaw"]
-	name LegalAgreementName (1..1) <"The legal agreement name, e.g. Credit Support Annex for Variation Margin.">
+	name LegalAgreementIdentification (1..1) <"The legal agreement name, e.g. Credit Support Annex for Variation Margin.">
 		[synonym AcadiaSoft_AM_1_0 value "documentName"]
 	publisher LegalAgreementPublisherEnum (1..1) <"The legal agreement publisher, e.g. ISDA.">
 		[synonym AcadiaSoft_AM_1_0 value "publisher"]
 	vintage int (0..1) <"In the case where successive definitions of the legal agreement have been developed, the vintage identification. This is typically (but not necessarily) done by referencing the year, e.g. 2013 in the case of the ISDA 2013 Standard Credit Support Annex.">
 		[synonym AcadiaSoft_AM_1_0 value "csaVersion"]
 
-type LegalAgreementName:
-	agreementType LegalAgreementNameEnum (1..1)
-	brokerConfirmationType BrokerConfirmationTypeEnum (0..1)
-	creditSupportAgreementType CreditSupportAgreementTypeEnum (0..1)
+type LegalAgreementIdentification: <"Specification of the agreement class and an optional detailed sub agreement class.">
+	agreementType LegalAgreementNameEnum (1..1) <"Specification of the legal agreement type.">
+	brokerConfirmationType BrokerConfirmationTypeEnum (0..1) <"Specification of the broker confirmation type.">
+	creditSupportAgreementType CreditSupportAgreementTypeEnum (0..1) <"Specification of the credit support agreement type.">
 	contractualDefinitions ContractualDefinitionsEnum (0..*) <"The definitions such as those published by ISDA that will define the terms of the trade.">
-	contractualDefinitionsAlt ContractualDefinitionsAltEnum (0..*)
 	contractualTermsSupplement ContractualTermsSupplement (0..*) <"A contractual supplement (such as those published by ISDA) that will apply to the trade.">
 	contractualMatrix ContractualMatrix (0..*) <"A reference to a contractual matrix of elected terms/values (such as those published by ISDA) that shall be deemed to apply to the trade. The applicable matrix is identified by reference to a name and optionally a publication date. Depending on the structure of the matrix, an additional term (specified in the matrixTerm element) may be required to further identify a subset of applicable terms/values within the matrix.">
-	masterAgreementType MasterAgreementTypeEnum (0..1)
+	masterAgreementType MasterAgreementTypeEnum (0..1) <"Specification of the master agreement type.">
 	masterConfirmationType MasterConfirmationTypeEnum (1..1) <"The type of master confirmation executed between the parties.">
 		[metadata scheme]
 	masterConfirmationAnnexType MasterConfirmationAnnexTypeEnum (0..1) <"The type of master confirmation annex executed between the parties.">
-	otherAgreement string (0..1)
+	otherAgreement string (0..1) <"Definition of an agreement that is not enumerated in the CDM.">
 
-	condition:
+	condition AgreementType: <"A condition to ensure that the agreement type specified is consistent with the detailed documentation identified.">
 		if agreementType <> LegalAgreementNameEnum -> Other then otherAgreement is absent
 			else if agreementType <> LegalAgreementNameEnum -> MasterAgreement then masterAgreementType is absent
 			else if agreementType <> LegalAgreementNameEnum -> BrokerConfirmation then brokerConfirmationType is absent
 			else if agreementType <> LegalAgreementNameEnum -> MasterConfirmation then masterConfirmationType is absent and masterConfirmationAnnexType is absent
 			else if agreementType <> LegalAgreementNameEnum -> Confirmation then contractualDefinitions is absent and contractualTermsSupplement is absent and contractualMatrix is absent
 
-	condition:
+	condition MasterConfirmation: <"If a master confirmation annex type is specified a master confirmation type must exist.">
 			if masterConfirmationAnnexType exists then masterConfirmationType exists
-			else if contractualMatrix exists then contractualTermsSupplement exists
-
-	condition:
-
-		if contractualTermsSupplement exists then contractualDefinitionsAlt any = ContractualDefinitionsAltEnum -> Credit
 
 type UmbrellaAgreement: <"A class to specify a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement. This data representation reflects the ISDA Create representation.">
 
