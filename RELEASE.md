@@ -22,9 +22,15 @@ report CFTC Part43 in T+1
     when ReportableEvent
   	using standard ISO_20022
   	with type CFTCPart43TransactionReport
+   
+type CFTCPart43TransactionReport:
+    reportingTimestamp string (1..1)
+        [ruleReference ReportingTimestamp]
+    reportingCounterpartyID string (1..1)
+        [ruleReference ReportingCounterpartyID]
+    typeOfIdOfTheOtherCounterparty string (1..1)
+        [ruleReference TypeOfIdOfTheOtherCounterparty]
 ```
-
-Where the type is then defined seeperately in the same report definition.
 
 Review Directions
 
