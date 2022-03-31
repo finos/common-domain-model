@@ -18,10 +18,7 @@ import cdm.base.staticdata.party.metafields.FieldWithMetaCategoryEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.ContractDetails;
 import cdm.event.common.TradeState;
-//import cdm.legalagreement.common.RelatedAgreement;
-//import cdm.legalagreement.common.metafields.FieldWithMetaContractualDefinitionsEnum;
 import cdm.legalagreement.contract.PartyContractInformation;
-import cdm.legalagreement.master.metafields.FieldWithMetaMasterAgreementTypeEnum;
 import cdm.observable.asset.FxSpotRateSource;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.*;
@@ -1642,54 +1639,6 @@ public class Fpml510ProjectionMapper {
 				return dayCountFraction;
 			});
 	}
-
-//	private Optional<Documentation> getDocumentation(RelatedAgreement cdmDocumentation) {
-//		return Optional.ofNullable(cdmDocumentation)
-//			.map(RelatedAgreement::getDocumentationIdentification)
-//			.map(d -> {
-//				Documentation documentation = objectFactory.createDocumentation();
-//				getMasterAgreement(d.getMasterAgreement()).ifPresent(documentation::setMasterAgreement);
-//				getContractualDefinitions(d.getContractualDefinitions()).ifPresent(cd -> documentation.getContractualDefinitions().addAll(cd));
-//				return documentation;
-//			});
-//	}
-
-//	private Optional<MasterAgreement> getMasterAgreement(cdm.legalagreement.master.MasterAgreement cdmMasterAgreement) {
-//		return Optional.ofNullable(cdmMasterAgreement)
-//			.map(a -> {
-//				MasterAgreement masterAgreement = objectFactory.createMasterAgreement();
-//				getMasterAgreementType(a.getMasterAgreementType()).ifPresent(masterAgreement::setMasterAgreementType);
-//				return masterAgreement;
-//			});
-//	}
-
-	private Optional<MasterAgreementType> getMasterAgreementType(FieldWithMetaMasterAgreementTypeEnum cdmMasterAgreementType) {
-		return Optional.ofNullable(cdmMasterAgreementType)
-			.map(t -> {
-				MasterAgreementType masterAgreementType = objectFactory.createMasterAgreementType();
-				getValue(t).ifPresent(masterAgreementType::setValue);
-				getScheme(t.getMeta()).ifPresent(masterAgreementType::setMasterAgreementTypeScheme);
-				return masterAgreementType;
-			});
-	}
-
-//	private Optional<List<ContractualDefinitions>> getContractualDefinitions(List<? extends FieldWithMetaContractualDefinitionsEnum> contractualDefinitions) {
-//		return Optional.ofNullable(contractualDefinitions)
-//			.map(d -> d.stream()
-//				.map(this::getContractualDefinition)
-//				.flatMap(Optional::stream)
-//				.collect(Collectors.toList()));
-//	}
-//
-//	private Optional<ContractualDefinitions> getContractualDefinition(FieldWithMetaContractualDefinitionsEnum cdmContractualDefinition) {
-//		return Optional.ofNullable(cdmContractualDefinition)
-//			.map(cd -> {
-//				ContractualDefinitions contractualDefinitions = objectFactory.createContractualDefinitions();
-//				getValue(cd).ifPresent(contractualDefinitions::setValue);
-//				getScheme(cd.getMeta()).ifPresent(contractualDefinitions::setContractualDefinitionsScheme);
-//				return contractualDefinitions;
-//			});
-//	}
 
 	private List<Party> getParties(TradeState cdmTradeState) {
 		return cdmTradeState.getTrade().getParty().stream()
