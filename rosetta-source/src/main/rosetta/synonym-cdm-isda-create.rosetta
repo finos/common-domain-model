@@ -690,6 +690,8 @@ synonym source ISDA_Create_1_0 extends ISDA_Create
 			[value "ignore"]
 
 	AgreementTerms:
+        + clauseLibrary
+            [set to True when "document->documentType" = "Clause Library"]
 		+ counterparty
 			[value "partyA" mapper "AgreementTermsParty"]
 
@@ -710,7 +712,7 @@ synonym source ISDA_Create_1_0 extends ISDA_Create
 		+ contractualParty
 			[value "partyA" mapper "ContractualParty"]
 
-	LegalAgreementType:
+	LegalAgreementIdentification:
 		+ governingLaw
             [value "governingLaw" path "document"]
         + agreementName
@@ -719,6 +721,14 @@ synonym source ISDA_Create_1_0 extends ISDA_Create
 			[value "publisher" path "document"]
 		+ vintage
 			[value "year" path "document"]
+
+	AgreementName:
+	    + agreementType
+	        [value "documentType"]
+	    + creditSupportAgreementType
+	        [value "documentType"]
+		+ masterAgreementType
+			[value "documentType"]
 
 	UmbrellaAgreement:
 		+ isApplicable
@@ -763,19 +773,7 @@ synonym source ISDA_Create_1_0 extends ISDA_Create
 	PartyRole:
 		+ partyReference
 			[value "partyA"]
-/*
-	AgreementName:
-		+ masterAgreementType
-			[value "documentType"]
-        + securityAgreement
-            [set to True when "documentType" = "Security Agreement"]
-		+ clauseLibrary
-			[set to True when "documentType" = "Clause Library"]
 
-    CreditSupportAgreementName:
-        + creditSupportAgreementType
-            [value "documentType"]
-*/
 	enums
 
 	ISOCurrencyCodeEnum:
@@ -1478,6 +1476,16 @@ synonym source ISDA_Create_1_0 extends ISDA_Create
 			[value "As agreed in the ISDA Master Agreement"]
 		+ USNY
 			[value "New York"]
+
+    LegalAgreementTypeEnum:
+        + MasterAgreement
+            [value "Master Agreement"]
+        + CreditSupportAgreement
+            [value "Credit Support Deed"]
+            [value "Credit Support Annex"]
+            [value "Collateral Transfer Agreement"]
+        + SecurityAgreement
+            [value "Security Agreement"]
 
     MasterAgreementTypeEnum:
         + ISDA
