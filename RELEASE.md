@@ -26,7 +26,7 @@ _Attributes_
 
 _Enumerations_
 
-`LegalAgreementTypeEnum` - This new enumeration identifies the legal agreement type.  (e.g. Master Agreement, Confirmation, Credit Support Agreement.)
+`LegalAgreementTypeEnum` - This new enumeration identifies the legal agreement type (e.g. Master Agreement, Confirmation, Credit Support Agreement).
 
 `CreditSupportAgreementTypeEnum` - This enumeration has been adjusted to remove the document publisher, vintage and governing law from their names as this information is now supported with the `LegalAgreementType` component
 
