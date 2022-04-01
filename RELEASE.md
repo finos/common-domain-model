@@ -2,39 +2,39 @@
 
 _Background_
 
-Legal agreements are not currently represented consistently in the CDM.  Legal agreements defined using the `DocumentationIdentification` data type are identified through a series of enumerations which point to individual instances of documents such as Master Agreements, Master Confirmation Agreements, Credit Support Agreements, Confirmations (e.g. Contractual Definitions, Contractual Terms Supplements etc) and Other Agreements.  Legal agreements defined used the `LegalAgreement` data type are identified through a composable set of attributes allowing the publisher, vintage, governing law and agremeent name to be specified.
+The representation of Legal agreements lacks of consistency.  Some agreements use the `DocumentationIdentification` data type and are identified through a series of enumerations that point to individual instances of documents such as Master Agreements, Master Confirmation Agreements, Credit Support Agreements, Confirmations (e.g. Contractual Definitions, Contractual Terms Supplements etc) and Other Agreements.  Some agreements use the `LegalAgreement` data type and are identified through a composable set of attributes allowing the publisher, vintage, governing law and agremeent name to be specified.
 
-The CDM Legal Agreement model is therefore being refactored to use a standardised approach that represents all legal agreements as composable data using the `LegalAgreement` data type.  Credit Support Agreements have been fully refactored to follow this approach.  Other documents will be re-factored in future releases.
+The representation of Legal Agreement  is therefore  refactored through a standardised composition of data types using the `LegalAgreement` data type as anchor.  Credit Support Agreements have been fully refactored to follow this approach.  Other documents will be re-factored in future releases.
 
 _What is being released?_
 
-This release contains the components required to represent Legal Agreements in line with the above approach. Model to model mappings have been updated to reflect this refactoring. Changes are described based on the data types, attributes, enumerations and functions impacted:
+This release contains the components required to represent Legal Agreements per the above approach. Model to model mappings have been updated. Changes are described based on the data types, attributes, enumerations and functions impacted.
 
 _Data Types_
 
-`AgreementName` - new data type allowing specification of the agreement name through an agreement type and optional detailed sub agreement type.  In addition contains attributes previously found on `DocumentationIdentification`.
+`AgreementName` - This new data type  categorises the agreement, describes addtional features and provides for the attributes previously found in `DocumentationIdentification`.
 
-`DocumentationIdentification` has been removed.
+`DocumentationIdentification` - This has been removed.
 
-`RelatedAgreement` has been removed.  All locations in the model that previously referenced this data type now reference `LegalAgreement`.
+`RelatedAgreement` - This has been removed.  All references have been updated to point to `LegalAgreement`.
 
 _Attributes_
 
-`attachment` - attribute has been moved to `LegalAgreementBase` describing a human readable document containing a complete Legal Agreement.
+`attachment` - This attribute has been moved to `LegalAgreementBase` to point to supplementary external documents.
 
-`clauseLibrary` - boolean attribute has been moved to `AgreementTerms` defining whether agreement terms have been negotiated using the Clause Library methodology.
+`clauseLibrary` - This boolean attribute has been moved to `AgreementTerms` defining whether agreement terms have been negotiated using the Clause Library methodology.
 
 _Enumerations_
 
-`LegalAgreementTypeEnum` - new enumeration containing values to identify the legal agreement type.  (e.g. Master Agreement, Confirmation, Credit Support Agreement.)
+`LegalAgreementTypeEnum` - This new enumeration identifies the legal agreement type.  (e.g. Master Agreement, Confirmation, Credit Support Agreement.)
 
-`CreditSupportAgreementTypeEnum` - enumerations have been adjusted to remove the document publisher, vintage and governing law from their names as this information can now be defined composably through the `LegalAgreementType`.
+`CreditSupportAgreementTypeEnum` - This enumeration has been adjusted to remove the document publisher, vintage and governing law from their names as this information is now supported with the `LegalAgreementType` component
 
-There has also been some minor changes to the label names and attributes of some of the related enumerations and data types.
-
-In the CDM Portal, select the Textual Browser and search and inspect each of the changes identified above.
+This change also adjusts the label names and attributes of some of the related enumerations and data types.
 
 _Review Directions_
+
+In the CDM Portal, select the Textual Browser and search and inspect each of the changes identified above.
 
 In the CDM Portal, select Ingestion and review the following samples with documentation:
 
