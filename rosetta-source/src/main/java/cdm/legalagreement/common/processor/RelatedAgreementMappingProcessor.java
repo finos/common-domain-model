@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static cdm.legalagreement.common.LegalAgreement.*;
+import static cdm.legalagreement.common.LegalAgreement.LegalAgreementBuilder;
+import static cdm.legalagreement.common.LegalAgreement.builder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
 
@@ -42,7 +43,7 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
         for (LegalAgreementBuilder relatedAgreementBuilder : relatedAgreementBuilders) {
             setValueAndOptionallyUpdateMappings(synonymPath.addElement("isda_master_agreement_form"),
                     (vintage) -> {
-                        relatedAgreementBuilder.getOrCreateAgreementIdentification().setVintage(Integer.valueOf(vintage));
+                        relatedAgreementBuilder.getOrCreateLegalAgreementType().setVintage(Integer.valueOf(vintage));
                         return true;
                     },
                     getMappings(), getModelPath());
@@ -51,8 +52,8 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
 
     private boolean isMasterAgreement(LegalAgreementBuilder relatedAgreementBuilder) {
         return Optional.of(relatedAgreementBuilder)
-                .map(LegalAgreementBuilder::getAgreementIdentification)
-                .map(LegalAgreementIdentification.LegalAgreementIdentificationBuilder::getAgreementName)
+                .map(LegalAgreementBuilder::getLegalAgreementType)
+                .map(LegalAgreementType.LegalAgreementTypeBuilder::getAgreementName)
                 .map(AgreementName.AgreementNameBuilder::getAgreementType)
                 .map(LegalAgreementTypeEnum.MASTER_AGREEMENT::equals)
                 .orElse(false);
@@ -85,21 +86,21 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
             case "collateral_transfer_agreement":
             case "date_of_collateral_transfer_agreement":
                 legalAgreementBuilder
-                        .getOrCreateAgreementIdentification()
+                        .getOrCreateLegalAgreementType()
                         .getOrCreateAgreementName()
                         .setAgreementType(LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT)
                         .setCreditSupportAgreementTypeValue(CreditSupportAgreementTypeEnum.COLLATERAL_TRANSFER_AGREEMENT);
                 return true;
             case "date_of_isda_master_agreement":
                 legalAgreementBuilder
-                        .getOrCreateAgreementIdentification()
+                        .getOrCreateLegalAgreementType()
                         .setPublisher(LegalAgreementPublisherEnum.ISDA)
                         .setAgreementName(AgreementName.builder()
                                 .setAgreementType(LegalAgreementTypeEnum.MASTER_AGREEMENT)
                                 .setMasterAgreementTypeValue(MasterAgreementTypeEnum.ISDA));
                 return true;
             case "date_of_euroclear_security_agreement":
-                legalAgreementBuilder.getOrCreateAgreementIdentification()
+                legalAgreementBuilder.getOrCreateLegalAgreementType()
                         .setPublisher(LegalAgreementPublisherEnum.ISDA_EUROCLEAR)
                         .setAgreementName(AgreementName.builder()
                                 .setAgreementType(LegalAgreementTypeEnum.SECURITY_AGREEMENT));

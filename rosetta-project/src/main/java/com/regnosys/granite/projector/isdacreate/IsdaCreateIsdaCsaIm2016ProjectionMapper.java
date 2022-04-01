@@ -45,7 +45,7 @@ abstract class IsdaCreateIsdaCsaIm2016ProjectionMapper {
 		Optional.ofNullable(legalAgreement)
 			.ifPresent(a -> {
 				document.setYear(2016); // Only InitialMargin2016 is currently supported
-				Optional.ofNullable(a.getAgreementIdentification())
+				Optional.ofNullable(a.getLegalAgreementType())
 					.ifPresent(t -> {
 						Optional.ofNullable(t.getGoverningLaw()).ifPresent(governingLawEnum -> {
 							document.setGoverningLaw(enumMapper.getGoverningLaw(governingLawEnum));
