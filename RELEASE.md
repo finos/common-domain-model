@@ -8,7 +8,7 @@ The CDM Legal Agreement model is therefore being refactored to use a standardise
 
 _What is being released?_
 
-This release contains the components required to represent Legal Agreements in line with the above approach. Model to model mappings have been updated to reflect this refactoring. Changes are described based on the data types, enumerations and functions impacted:
+This release contains the components required to represent Legal Agreements in line with the above approach. Model to model mappings have been updated to reflect this refactoring. Changes are described based on the data types, attributes, enumerations and functions impacted:
 
 _Data Types_
 
@@ -17,6 +17,12 @@ _Data Types_
 `DocumentationIdentification` has been removed.
 
 `RelatedAgreement` has been removed.  All locations in the model that previously referenced this data type now reference `LegalAgreement`.
+
+_Attributes_
+
+`attachment` - attribute has been moved to `LegalAgreementBase` describing a human readable document containing a complete Legal Agreement.
+
+`clauseLibrary` - boolean attribute has been moved to `AgreementTerms` defining whether agreement terms have been negotiated using the Clause Library methodology.
 
 _Enumerations_
 
