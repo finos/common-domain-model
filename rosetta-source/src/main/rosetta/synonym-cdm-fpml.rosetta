@@ -125,48 +125,8 @@ synonym source FpML_5_10 extends FpML
 	ContractualMatrix:
 		+ matrixType
 			[value "matrixType" meta "matrixTypeScheme"]
-		+ publicationDate
-			[value "publicationDate"]
 		+ matrixTerm
 			[value "matrixTerm" meta "matrixTermScheme"]
-
-	ContractualTermsSupplement:
-		+ contractualTermsSupplementType
-			[value "type" meta "contractualSupplementScheme"]
-		+ publicationDate
-			[value "publicationDate"]
-
-	CreditSupportAgreement:
-		+ creditSupportAgreementType
-			[value "type" meta "creditSupportAgreementTypeScheme"]
-		+ date
-			[value "date"]
-		+ identifierValue
-			[value "identifier"]
-
-	RelatedAgreement:
-		+ legalAgreement
-			[value "ignore"]
-
-	DocumentationIdentification:
-		+ masterAgreement
-			[value "masterAgreement"]
-		+ masterConfirmation
-			[value "masterConfirmation"]
-		+ brokerConfirmation
-			[value "brokerConfirmation"]
-		+ contractualDefinitions
-			[value "contractualDefinitions" meta "contractualDefinitionsScheme"]
-		+ contractualTermsSupplement
-			[value "contractualTermsSupplement"]
-		+ contractualMatrix
-			[value "contractualMatrix"]
-		+ creditSupportAgreement
-			[value "creditSupportAgreement"]
-		+ otherAgreement
-			[value "otherAgreement"]
-		+ attachment
-			[value "attachment"]
 
 	EuropeanExercise:
 	 	[value "EuropeanExercise" meta "id"]
@@ -311,26 +271,6 @@ synonym source FpML_5_10 extends FpML
 			[value "exerciseNotice"]
 		+ fallbackExercise
 			[value "fallbackExercise"]
-
-	MasterAgreement:
-		+ masterAgreementId
-			[value "masterAgreementId" meta "masterAgreementIdScheme"]
-		+ masterAgreementType
-			[value "masterAgreementType" meta "masterAgreementTypeScheme"]
-		+ masterAgreementVersion
-			[value "masterAgreementVersion" meta "masterAgreementVersionScheme"]
-		+ masterAgreementDate
-			[value "masterAgreementDate"]
-
-	MasterConfirmation:
-		+ masterConfirmationType
-			[value "masterConfirmationType" meta "masterConfirmationTypeScheme"]
-		+ masterConfirmationDate
-			[value "masterConfirmationDate"]
-		+ masterConfirmationAnnexDate
-			[value "masterConfirmationAnnexDate"]
-		+ masterConfirmationAnnexType
-			[value "masterConfirmationAnnexType" meta "masterConfirmationAnnexTypeScheme"]
 
 	Money:
 	 	[value "Money" meta "id"]
@@ -1370,8 +1310,6 @@ synonym source FpML_5_10 extends FpML
 			[value "notionalAmount"]
 
 	FxLinkedNotionalSchedule:
-		// + initialValue
-		// 	[meta "initialValue"]
 		+ varyingNotionalCurrency
 			[value "varyingNotionalCurrency" meta "currencyScheme"]
 		+ varyingNotionalFixingDates
@@ -2005,7 +1943,7 @@ synonym source FpML_5_10 extends FpML
 
 	ContractDetails:
 		+ documentation
-			[value "documentation"]
+		    [value "documentation" mapper "Documentation"]
 		+ governingLaw
 			[value "governingLaw" meta "governingLawScheme"]
 		+ partyContractInformation
@@ -3411,6 +3349,12 @@ synonym source FpML_5_10 extends FpML
 		+ useOfPostedCollateral
 			[value "useOfPostedCollateral"]
 
+    LegalAgreement:
+		+ agreementTerms
+			[value "ignore"]
+		+ relatedAgreements
+            [value "ignore"]
+
 	LegalAgreementBase:
 		+ agreementDate
 			[value "agreementDate" path "legalDocumentHeader"]
@@ -3418,18 +3362,14 @@ synonym source FpML_5_10 extends FpML
 			[value "effectiveDate" path "legalDocumentHeader"]
 		+ identifier
 			[value "partyDocumentIdentifier" path "legalDocumentHeader"]
-		+ agreementType
-			[value "documentType"]
 		+ contractualParty
 			[value "party"]
 
-	LegalAgreementType:
-		+ name
-			[value "name"]
-		+ publisher
+	LegalAgreementIdentification:
+	    + governingLaw
+            [value "style"]
+        + publisher
 			[value "publisher"]
-		+ governingLaw
-			[value "style"]
 		+ vintage
 			[value "version"]
 
@@ -3485,7 +3425,7 @@ synonym source FpML_5_10 extends FpML
 			[value "Frequency"]
 			// For Commodity Swap Fixed Leg
 			[hint "quantityFrequency"]
-
+	
 	enums
 
 	ObligationCategoryEnum:
@@ -5562,12 +5502,18 @@ synonym source FpML_5_10 extends FpML
 		+ NoneUnlessSpecifiedInConfirmation
 			[value "NoneUnlessSpecifiedInConfirmation"]
 
-	LegalAgreementNameEnum:
-		+ CreditSupportAnnex
-			[value "CreditSupportAnnex"]
-		+ MasterAgreement
-			[value "MasterAgreement"]
-		
+	CreditSupportAgreementTypeEnum:
+		+ CreditSupportDeed
+        	[value "CreditSupportDeed"]
+        	[value "ISDA1995CreditSupportDeedEnglishLaw"]
+        + CreditSupportAnnex
+        	[value "CreditSupportAnnex"]
+        	[value "ISDA1994CreditSupportAnnexNewYorkLaw"]
+            [value "ISDA1995CreditSupportAnnexEnglishLaw"]
+            [value "ISDA1995CreditSupportAnnexJapaneseLaw"]
+        + CollateralTransferAgreement
+	        [value "CollateralTransferAgreement"]
+
 	LegalAgreementPublisherEnum:
 		+ AFB
 			[value "AFB"]
@@ -5836,7 +5782,7 @@ synonym source FpML_5_10 extends FpML
 		+ ISDA2014Credit
 			[value "ISDA2014Credit"]
 
-	ContractualSupplementEnum:
+	ContractualSupplementTypeEnum:
 		+ ABX
 			[value "ABX"]
 		+ ABXTranche
@@ -5983,22 +5929,6 @@ synonym source FpML_5_10 extends FpML
 			[value "iTraxxSDI75NonDealer"]
 		+ iTraxxSovX
 			[value "iTraxxSovX"]
-
-	CreditSupportAgreementTypeEnum:
-		+ ISDA1994CreditSupportAnnexNewYorkLaw
-			[value "ISDA1994CreditSupportAnnexNewYorkLaw"]
-		+ ISDA1995CreditSupportAnnexEnglishLaw
-			[value "ISDA1995CreditSupportAnnexEnglishLaw"]
-		+ ISDA1995CreditSupportAnnexJapaneseLaw
-			[value "ISDA1995CreditSupportAnnexJapaneseLaw"]
-		+ ISDA1995CreditSupportDeedEnglishLaw
-			[value "ISDA1995CreditSupportDeedEnglishLaw"]
-		+ ISDA2001MarginProvisions
-			[value "ISDA2001MarginProvisions"]
-		+ ISDA2013StandardCreditSupportAgreement
-			[value "ISDA2013StandardCreditSupportAgreement"]
-		+ ISDA2014StandardCreditSupportAgreement
-			[value "ISDA2014StandardCreditSupportAgreement"]
 
 	DayCountFractionEnum:
 		+ ACT_360
@@ -6251,7 +6181,7 @@ synonym source FpML_5_10 extends FpML
 
 	MasterAgreementTypeEnum:
 		+ AFB
-			[value "AFB"]
+		 	[value "AFB"]
 		+ Bespoke
 			[value "Bespoke"]
 		+ CMA
@@ -6291,7 +6221,7 @@ synonym source FpML_5_10 extends FpML
 		+ IFEOMA
 			[value "IFEOMA"]
 		+ ISDA
-			[value "ISDA"]
+		 	[value "ISDA"]
 		+ ISDAFIA_CDEA
 			[value "ISDAFIA-CDEA"]
 		+ JSCC
@@ -7922,18 +7852,18 @@ synonym source FpML_5_12 extends FpML_5_10
 			[value "mutuallyAgreedClearinghouse"]
 
 	ValuationMethod:
-    + valuationSource
-      [value "indicativeQuotations"]
-			// The following are un-tested:
-			// [value "indicativeQuotationsAlternate"]
-			// [value "calculationAgentDetermination"]
-			[value "firmQuotations"]
-		+ cashCollateralValuationMethod
-			[value "indicativeQuotations"]
-			// The following are un-tested:
-			// [value "indicativeQuotationsAlternate"]
-			// [value "calculationAgentDetermination"]
-			[value "firmQuotations"]
+        + valuationSource
+          [value "indicativeQuotations"]
+                // The following are un-tested:
+                // [value "indicativeQuotationsAlternate"]
+                // [value "calculationAgentDetermination"]
+                [value "firmQuotations"]
+            + cashCollateralValuationMethod
+                [value "indicativeQuotations"]
+                // The following are un-tested:
+                // [value "indicativeQuotationsAlternate"]
+                // [value "calculationAgentDetermination"]
+                [value "firmQuotations"]
 
 	enums
 
