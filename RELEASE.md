@@ -2,7 +2,7 @@
 
 _Background_
 
-The representation of Legal agreements lacks of consistency.  Some agreements use the `DocumentationIdentification` data type and are identified through a series of enumerations that point to individual instances of documents such as Master Agreements, Master Confirmation Agreements, Credit Support Agreements, Confirmations (e.g. Contractual Definitions, Contractual Terms Supplements etc) and Other Agreements.  Some agreements use the `LegalAgreement` data type and are identified through a composable set of attributes allowing the publisher, vintage, governing law and agremeent name to be specified.
+The representation of legal agreements lacks consistency.  Some agreements use the `DocumentationIdentification` data type and are identified through a series of enumerations that point to individual instances of documents such as Master Agreements, Master Confirmation Agreements, Credit Support Agreements, Confirmations (e.g. Contractual Definitions, Contractual Terms Supplements etc) and Other Agreements.  Some agreements use the `LegalAgreement` data type and are identified through a composable set of attributes allowing the publisher, vintage, governing law and agremeent name to be specified.
 
 The representation of Legal Agreement  is therefore  refactored through a standardised composition of data types using the `LegalAgreement` data type as anchor.  Credit Support Agreements have been fully refactored to follow this approach.  Other documents will be re-factored in future releases.
 
