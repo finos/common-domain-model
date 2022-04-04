@@ -1,6 +1,9 @@
 package cdm.legalagreement.common.processor;
 
-import cdm.legalagreement.common.*;
+import cdm.legalagreement.common.AgreementName;
+import cdm.legalagreement.common.LegalAgreement;
+import cdm.legalagreement.common.LegalAgreementPublisherEnum;
+import cdm.legalagreement.common.LegalAgreementTypeEnum;
 import cdm.legalagreement.csa.CreditSupportAgreementTypeEnum;
 import cdm.legalagreement.master.MasterAgreementTypeEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -53,8 +56,8 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
     private boolean isMasterAgreement(LegalAgreementBuilder relatedAgreementBuilder) {
         return Optional.of(relatedAgreementBuilder)
                 .map(LegalAgreementBuilder::getLegalAgreementType)
-                .map(LegalAgreementType.LegalAgreementTypeBuilder::getAgreementName)
-                .map(AgreementName.AgreementNameBuilder::getAgreementType)
+                .map(a -> a.getAgreementName())
+                .map(n -> n.getAgreementType())
                 .map(LegalAgreementTypeEnum.MASTER_AGREEMENT::equals)
                 .orElse(false);
     }
