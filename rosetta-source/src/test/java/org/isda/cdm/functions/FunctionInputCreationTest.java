@@ -29,6 +29,7 @@ import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
+import cdm.product.common.settlement.TransferTypeEnum;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -938,6 +939,64 @@ class FunctionInputCreationTest {
                 Date.of(2018, 4, 1));
 
         assertJsonEquals("cdm-sample-files/functions/business-event/allocation/allocation-func-input.json", actual);
+    }
+
+    @Test
+    void validateExerciseCashSettledInputJson() throws IOException {
+        String example8Submission1 = "result-json-files/native-cdm-events/Example-08-Submission-1.json";
+        TradeState afterTradeState = getWorkflowStepAfter(example8Submission1);
+
+        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
+        quantityChangeInstructionBuilder
+                .getOrCreateChange(0)
+                .getOrCreateQuantity(0)
+                .getOrCreateValue()
+                .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR").build())
+                .setAmount(BigDecimal.ZERO);
+        quantityChangeInstructionBuilder
+                .setDirection(QuantityChangeDirectionEnum.REPLACE);
+
+        TransferInstruction.TransferInstructionBuilder transferInstructionBuilder = TransferInstruction.builder();
+
+        Transfer.TransferBuilder transferBuilder = transferInstructionBuilder
+                .getOrCreateTransferState(0)
+                .getOrCreateTransfer();
+
+        transferBuilder.getOrCreatePayerReceiver()
+                .setPayerPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1").build())
+                .setReceiverPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party2").build());
+
+        transferBuilder.getOrCreateQuantity()
+                .setAmount(BigDecimal.valueOf(2000))
+                .setUnitOfAmount(UnitType.builder()
+                        .setCurrency(FieldWithMetaString.builder()
+                                .setValue("EUR")
+                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso4217").build())
+                                .build())
+                        .build());
+
+        transferBuilder.getOrCreateSettlementDate()
+                .setAdjustedDateValue(Date.of(2019, 4, 3));
+
+        transferBuilder.getOrCreateTransferExpression()
+                .getOrCreateScheduledTransfer()
+                .setTransferType(TransferTypeEnum.EXERCISE);
+
+        Instruction.InstructionBuilder instructions = Instruction.builder()
+                .setBeforeValue(afterTradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(quantityChangeInstructionBuilder)
+                        .setTransfer(transferInstructionBuilder)
+                );
+
+        ResourcesUtils.reKey(instructions);
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructions.build()),
+                EventIntentEnum.EXERCISE,
+                Date.of(2019, 4, 1));
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-cash-settled-func-input.json", actual);
     }
 
     /**
