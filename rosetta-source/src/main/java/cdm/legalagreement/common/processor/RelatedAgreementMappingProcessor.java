@@ -1,9 +1,11 @@
 package cdm.legalagreement.common.processor;
 
+import cdm.legalagreement.common.AgreementName;
 import cdm.legalagreement.common.LegalAgreement;
-import cdm.legalagreement.common.LegalAgreementNameEnum;
 import cdm.legalagreement.common.LegalAgreementPublisherEnum;
-import cdm.legalagreement.common.RelatedAgreement;
+import cdm.legalagreement.common.LegalAgreementTypeEnum;
+import cdm.legalagreement.csa.CreditSupportAgreementTypeEnum;
+import cdm.legalagreement.master.MasterAgreementTypeEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static cdm.legalagreement.common.LegalAgreement.LegalAgreementBuilder;
+import static cdm.legalagreement.common.LegalAgreement.builder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 import static org.isda.cdm.processor.IsdaCreateMappingProcessorUtils.PARTIES;
 
@@ -27,53 +31,51 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
 
     @Override
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-        LegalAgreement.LegalAgreementBuilder agreementTermsBuilder = (LegalAgreement.LegalAgreementBuilder) parent;
+        LegalAgreementBuilder agreementTermsBuilder = (LegalAgreementBuilder) parent;
         getRelatedAgreement(synonymPath).ifPresent(agreementTermsBuilder::addRelatedAgreements);
+
         PARTIES.forEach(party -> getRelatedAgreementForParty(synonymPath, party).ifPresent(agreementTermsBuilder::addRelatedAgreements));
 
         associateIsdaMasterAgreement(synonymPath, builder.stream()
-                .map(RelatedAgreement.RelatedAgreementBuilder.class::cast)
+                .map(LegalAgreementBuilder.class::cast)
                 .filter(this::isMasterAgreement)
-                .collect(Collectors.toList())
-        );
+                .collect(Collectors.toList()));
     }
 
-    private void associateIsdaMasterAgreement(Path synonymPath, List<RelatedAgreement.RelatedAgreementBuilder> relatedAgreementBuilders) {
-        for (RelatedAgreement.RelatedAgreementBuilder relatedAgreementBuilder : relatedAgreementBuilders) {
+    private void associateIsdaMasterAgreement(Path synonymPath, List<LegalAgreementBuilder> relatedAgreementBuilders) {
+        for (LegalAgreementBuilder relatedAgreementBuilder : relatedAgreementBuilders) {
             setValueAndOptionallyUpdateMappings(synonymPath.addElement("isda_master_agreement_form"),
                     (vintage) -> {
-                        relatedAgreementBuilder.getOrCreateLegalAgreement().getOrCreateAgreementType().setVintage(Integer.valueOf(vintage));
+                        relatedAgreementBuilder.getOrCreateLegalAgreementType().setVintage(Integer.valueOf(vintage));
                         return true;
                     },
                     getMappings(), getModelPath());
         }
     }
 
-    private boolean isMasterAgreement(RelatedAgreement.RelatedAgreementBuilder relatedAgreementBuilder) {
+    private boolean isMasterAgreement(LegalAgreementBuilder relatedAgreementBuilder) {
         return Optional.of(relatedAgreementBuilder)
-                .map(RelatedAgreement.RelatedAgreementBuilder::getLegalAgreement)
-                .map(LegalAgreement.LegalAgreementBuilder::getAgreementType)
-                .filter(x -> x.getName() == LegalAgreementNameEnum.MASTER_AGREEMENT)
-                .filter(x -> x.getPublisher() == LegalAgreementPublisherEnum.ISDA)
-                .isPresent();
+                .map(LegalAgreementBuilder::getLegalAgreementType)
+                .map(a -> a.getAgreementName())
+                .map(n -> n.getAgreementType())
+                .map(LegalAgreementTypeEnum.MASTER_AGREEMENT::equals)
+                .orElse(false);
     }
 
-
-    private Optional<RelatedAgreement> getRelatedAgreement(Path synonymPath) {
-        RelatedAgreement.RelatedAgreementBuilder relatedAgreementBuilder = RelatedAgreement.builder();
+    private Optional<LegalAgreement> getRelatedAgreement(Path synonymPath) {
+        LegalAgreementBuilder legalAgreementBuilder = builder();
 
         setValueAndOptionallyUpdateMappings(synonymPath.addElement("collateral_transfer_agreement_date"),
-                (date) -> setAgreementDetails(synonymPath, relatedAgreementBuilder, date), getMappings(), getModelPath());
+                (date) -> setAgreementDetails(synonymPath, legalAgreementBuilder, date), getMappings(), getModelPath());
 
         setValueAndOptionallyUpdateMappings(synonymPath.addElement("master_agreement_date"),
-                (date) -> setAgreementDetails(synonymPath, relatedAgreementBuilder, date), getMappings(), getModelPath());
+                (date) -> setAgreementDetails(synonymPath, legalAgreementBuilder, date), getMappings(), getModelPath());
 
-        return relatedAgreementBuilder.hasData() ? Optional.of(relatedAgreementBuilder.build()) : Optional.empty();
+        return legalAgreementBuilder.hasData() ? Optional.of(legalAgreementBuilder.build()) : Optional.empty();
     }
 
-
-    private Optional<RelatedAgreement> getRelatedAgreementForParty(Path synonymPath, String party) {
-        RelatedAgreement.RelatedAgreementBuilder relatedAgreementBuilder = RelatedAgreement.builder();
+    private Optional<LegalAgreement> getRelatedAgreementForParty(Path synonymPath, String party) {
+        LegalAgreement.LegalAgreementBuilder relatedAgreementBuilder = LegalAgreement.builder();
         setValueAndOptionallyUpdateMappings(synonymPath.addElement(party + "_date_of_security_agreement"),
                 (date) -> setAgreementDetails(synonymPath, relatedAgreementBuilder, date), getMappings(), getModelPath());
 
@@ -81,24 +83,30 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
     }
 
     @NotNull
-    private Boolean setAgreementDetails(Path synonymPath, RelatedAgreement.RelatedAgreementBuilder relatedAgreementBuilder, String date) {
-        LegalAgreement.LegalAgreementBuilder legalAgreementBuilder = relatedAgreementBuilder.getOrCreateLegalAgreement();
+    private Boolean setAgreementDetails(Path synonymPath, LegalAgreementBuilder legalAgreementBuilder, String date) {
         legalAgreementBuilder.setAgreementDate(Date.parse(date));
         switch (synonymPath.getLastElement().getPathName()) {
             case "collateral_transfer_agreement":
             case "date_of_collateral_transfer_agreement":
-                legalAgreementBuilder.getOrCreateAgreementType()
-                        .setName(LegalAgreementNameEnum.COLLATERAL_TRANSFER_AGREEMENT);
+                legalAgreementBuilder
+                        .getOrCreateLegalAgreementType()
+                        .getOrCreateAgreementName()
+                        .setAgreementType(LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT)
+                        .setCreditSupportAgreementTypeValue(CreditSupportAgreementTypeEnum.COLLATERAL_TRANSFER_AGREEMENT);
                 return true;
             case "date_of_isda_master_agreement":
-                legalAgreementBuilder.getOrCreateAgreementType()
+                legalAgreementBuilder
+                        .getOrCreateLegalAgreementType()
                         .setPublisher(LegalAgreementPublisherEnum.ISDA)
-                        .setName(LegalAgreementNameEnum.MASTER_AGREEMENT);
+                        .setAgreementName(AgreementName.builder()
+                                .setAgreementType(LegalAgreementTypeEnum.MASTER_AGREEMENT)
+                                .setMasterAgreementTypeValue(MasterAgreementTypeEnum.ISDA));
                 return true;
             case "date_of_euroclear_security_agreement":
-                legalAgreementBuilder.getOrCreateAgreementType()
+                legalAgreementBuilder.getOrCreateLegalAgreementType()
                         .setPublisher(LegalAgreementPublisherEnum.ISDA_EUROCLEAR)
-                        .setName(LegalAgreementNameEnum.SECURITY_AGREEMENT);
+                        .setAgreementName(AgreementName.builder()
+                                .setAgreementType(LegalAgreementTypeEnum.SECURITY_AGREEMENT));
                 return true;
             default:
                 return false;

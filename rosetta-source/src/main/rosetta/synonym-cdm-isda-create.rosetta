@@ -13,10 +13,6 @@ synonym source ISDA_Create
 
 synonym source ISDA_Create_1_0 extends ISDA_Create
 {
-	MasterAgreement:
-		+ masterAgreementDate
-			[value "master_agreement_date" path "date_of_isda_master_agreement" maps 2]
-
 	AccessConditionsElections:
 		+ party
 			[set to CounterpartyRoleEnum -> Party1 when "partyA_illegality" = "applicable", set to CounterpartyRoleEnum -> Party1 when "partyA_illegality" = "not_applicable"]
@@ -677,9 +673,6 @@ synonym source ISDA_Create_1_0 extends ISDA_Create
 		+ bespokeTransferTiming
 			[value "transfer_timing"]
 
-	RelatedAgreement:
-		+ documentationIdentification
-			[value "ignore"]
 
 	OtherAgreement:
 		+ date
@@ -697,6 +690,8 @@ synonym source ISDA_Create_1_0 extends ISDA_Create
 			[value "ignore"]
 
 	AgreementTerms:
+        + clauseLibrary
+            [set to True when "document->documentType" = "Clause Library"]
 		+ counterparty
 			[value "partyA" mapper "AgreementTermsParty"]
 
@@ -718,14 +713,22 @@ synonym source ISDA_Create_1_0 extends ISDA_Create
 			[value "partyA" mapper "ContractualParty"]
 
 	LegalAgreementType:
-		+ name
-			[value "documentType" path "document"]
+		+ governingLaw
+            [value "governingLaw" path "document"]
+        + agreementName
+			[value "document"]
 		+ publisher
 			[value "publisher" path "document"]
-		+ governingLaw
-			[value "governingLaw" path "document"]
 		+ vintage
 			[value "year" path "document"]
+
+	AgreementName:
+	    + agreementType
+	        [value "documentType"]
+	    + creditSupportAgreementType
+	        [value "documentType"]
+		+ masterAgreementType
+			[value "documentType"]
 
 	UmbrellaAgreement:
 		+ isApplicable
@@ -1474,19 +1477,27 @@ synonym source ISDA_Create_1_0 extends ISDA_Create
 		+ USNY
 			[value "New York"]
 
-	LegalAgreementNameEnum:
-		+ ClauseLibrary
-			[value "Clause Library"]
+    LegalAgreementTypeEnum:
+        + MasterAgreement
+            [value "Master Agreement"]
+        + CreditSupportAgreement
+            [value "Credit Support Deed"]
+            [value "Credit Support Annex"]
+            [value "Collateral Transfer Agreement"]
+        + SecurityAgreement
+            [value "Security Agreement"]
+
+    MasterAgreementTypeEnum:
+        + ISDA
+            [value "Master Agreement"]
+
+	CreditSupportAgreementTypeEnum:
 		+ CreditSupportDeed
 			[value "Credit Support Deed"]
 		+ CreditSupportAnnex
 			[value "Credit Support Annex"]
 		+ CollateralTransferAgreement
 			[value "Collateral Transfer Agreement"]
-		+ MasterAgreement
-			[value "Master Agreement"]
-		+ SecurityAgreement
-			[value "Security Agreement"]
 
 	LegalAgreementPublisherEnum:
 		+ ISDAClearstream
