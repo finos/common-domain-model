@@ -371,21 +371,21 @@ type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attr
 	settlementTerms SettlementTerms (1..1) <"Settlement terms for the underlier that include the settlement date, settlement method etc.">
 
 	condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
-		if ForwardFX() exists then
+		if underlier -> foreignExchange exists then
 		(
 			settlementTerms -> settlementDate -> valueDate exists
-			and ForwardFX() -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate is absent
-			and ForwardFX() -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate is absent
+			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate is absent
+			and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate is absent
 		) or
 		(
 			settlementTerms -> settlementDate -> valueDate is absent
-			and ForwardFX() -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate exists
-			and ForwardFX() -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate exists
-			and ForwardFX() -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate = ForwardFX() -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate
+			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate exists
+			and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate exists
+			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate = underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate
 		)
 
 	condition FxSettlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
-		if ForwardFX() exists
+		if underlier -> foreignExchange exists
 		then settlementTerms -> physicalSettlementTerms is absent
 
 type FixedForwardPayout extends PayoutBase: <"Represents a forward settling, fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
