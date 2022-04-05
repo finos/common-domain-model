@@ -149,14 +149,11 @@ type RateSpecification: <" A class to specify the fixed interest rate, floating 
 	inflationRate InflationRateSpecification (0..1) <"An inflation rate calculation definition.">
 	condition: one-of
 
-
-// [TH Proposal] Old Dividend Return Terms version 
-
 type DividendPayoutRatio: <"A class describing the dividend payout ratio associated with an equity underlier. In certain cases the actual ratio is not known on trade inception, and only general conditions are then specified.">
-[deprecated]
 
 	underlier Product (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">
-	dividendPayoutRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+        [deprecated] // [TH Proposal] Underlier can removed from as it is already present in dividendPeriod, where it can be established for every period
+    dividendPayoutRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
 	dividendPayoutRatioCash number (0..1) <"Specifies the cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
 	dividendPayoutRatioNonCash number (0..1) <"Specifies the non cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
 
@@ -174,36 +171,6 @@ type DividendPayoutRatio: <"A class describing the dividend payout ratio associa
 		if dividendPayoutRatioNonCash exists
 		then dividendPayoutRatioNonCash >= 0
 			and dividendPayoutRatio <= 1
-//---[End of TH Proposal]---
-
-//[TH Proposal] New Dividend Return Terms version
-
-type NEW_DividendPayoutRatio: <"A class describing the dividend payout ratio associated with an equity underlier. In certain cases the actual ratio is not known on trade inception, and only general conditions are then specified.">
-
-	// [TH Proposal] Underlier removed from the dividendPayoutRatio as it is already present in dividendPeriod, where it can be established for every period
-	//underlier Product (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">
-	//---[End of TH Proposal]---
-
-	dividendPayoutRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
-	dividendPayoutRatioCash number (0..1) <"Specifies the cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
-	dividendPayoutRatioNonCash number (0..1) <"Specifies the non cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
-
-	condition DividendPayoutRatio: <"The dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		if dividendPayoutRatio exists
-		then dividendPayoutRatio >= 0
-			and dividendPayoutRatio <= 1
-
-	condition DividendPayoutRatioCash: <"The cash dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		if dividendPayoutRatioCash exists
-		then dividendPayoutRatioCash >= 0
-			and dividendPayoutRatio <= 1
-
-	condition DividendPayoutRatioNonCash: <"The non cash dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		if dividendPayoutRatioNonCash exists
-		then dividendPayoutRatioNonCash >= 0
-			and dividendPayoutRatio <= 1
-
-//---[End of TH Proposal]---
 
 type AdditionalFixedPayments: <"A class to specify the events that will give rise to the payment additional fixed payments.">
 
@@ -495,21 +462,16 @@ type NEW_DividendReturnTerms: <"A class describing the conditions governing the 
 
 //---[End of TH Proposal]---
 
+type DividendPeriod: <"Time bounded dividend payment periods, each with a dividend payment date per period.">
+    unadjustedStartDate date (1..1) <"Unadjusted inclusive dividend period start date.">
+    unadjustedEndDate date (1..1) <"Unadjusted inclusive dividend period end date.">
+    dateAdjustments BusinessDayAdjustments (1..1) <"Date adjustments for all unadjusted dates in this dividend period.">
+    underlierReference Observable (0..1) <"Reference to the underlyer which is paying dividends. This should be used in all cases, and must be used where there are multiple underlying assets, to avoid any ambiguity about which asset the dividend period relates to.">
+    //fixedStrike number (1..1) // fixedStrike not included in this structure because it is to be represented as a FixedPricePayout
+    dividendPaymentDate AdjustableOrRelativeDate (1..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">
+    dividendValuationDate AdjustableOrRelativeDate (0..1) <"Specifies the dividend valuation dates of the swap.">
 
-// [TH Proposal] New type: DividendPeriod.
-
-	type DividendPeriod: <"Time bounded dividend payment periods, each with a dividend payment date per period.">
-		unadjustedStartDate date (1..1) <"Unadjusted inclusive dividend period start date.">
-		unadjustedEndDate date (1..1) <"Unadjusted inclusive dividend period end date.">
-		dateAdjustments BusinessDayAdjustments (1..1) <"Date adjustments for all unadjusted dates in this dividend period.">
-		underlierReference Observable (0..1) <"Reference to the underlyer which is paying dividends. This should be used in all cases, and must be used where there are multiple underlying assets, to avoid any ambiguity about which asset the dividend period relates to.">
-		//fixedStrike number (1..1) // fixedStrike not included in this structure because it is to be represented as a FixedPricePayout
-		dividendPaymentDate AdjustableOrRelativeDate (1..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">
-		dividendValuationDate AdjustableOrRelativeDate (0..1) <"Specifies the dividend valuation dates of the swap.">
-		//condition: fixedStrike > 0
-
-//---[End of TH Proposal]---
-
+    //condition: fixedStrike > 0
 
 // [TH Proposal] Old Price Return Terms
 
@@ -542,8 +504,6 @@ type NEW_PriceReturnTerms:
 
 //---[End of TH Proposal]---
 
-// [TH Proposal] New component: Return Terms Base
-
 type ReturnTermsBase: <"Contains all common elements in variance, volatility and correlation return Terms.">
 	valuation Valuation (1..1) <"Contains all non-date valuation information.">
 	annualizationFactor int (0..1) <"This specifies the numerator of an annualization factor. Frequently this number is equal to the number of observations of prices in a year e.g. 252.">
@@ -563,11 +523,6 @@ type ReturnTermsBase: <"Contains all common elements in variance, volatility and
 	condition PositiveExpectedN: <"The number of expected trading dates must be positive">
 		expectedN > 0
 
-//---[End of TH Proposal]---
-
-
-//[TH Proposal] New component: VarianceReturnTerms
-
 type VarianceReturnTerms extends ReturnTermsBase:
 
 	varianceStrikePrice Price (0..1) <"Variance Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
@@ -576,16 +531,15 @@ type VarianceReturnTerms extends ReturnTermsBase:
 	volatilityCapFloor VolatilityCapFloor (0..1) <"Contains containing volatility-based barriers">
 	vegaNotionalAmount Quantity (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
 		//vegaNotionalAmount is only present here in varianceReturnTerms because it is an optional complement to the varianceAmount expressed in payoutQuantity.quantitySchedule.initialQuantity.amount.   In volatilityReturnTerms this element does not exist because the vegaNotionalAmount is compulsory and should therefore be expressed in payoutQuantity.quantitySchedule.initialQuantity.amount. in the corresponding units.
-
 	exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
 	extraordinaryEvents ExtraordinaryEvents (0..1) <"Where the underlying is shares, specifies events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
 
 	condition Positive_VegaNotionalAmount: <"When the optional vegaNotionalAmount is present in the varianceReturnTerms, it needs to have a positive value.">
-		if VarianceReturnTerms -> vegaNotionalAmount -> amount exists then VarianceReturnTerms -> vegaNotionalAmount -> amount > 0
+		if vegaNotionalAmount -> amount exists then vegaNotionalAmount -> amount > 0
 
 	condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
-		if VarianceReturnTerms -> exchangeTradedContractNearest exists
-		then VarianceReturnTerms -> exchangeTradedContractNearest -> productIdentifier only exists
+		if exchangeTradedContractNearest exists
+		then exchangeTradedContractNearest -> productIdentifier only exists
 
 	condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
 		if valuation -> futuresPriceValuation = True then exchangeTradedContractNearest exists
@@ -597,11 +551,6 @@ type VarianceReturnTerms extends ReturnTermsBase:
 		if volatilityStrikePrice -> amount  exists then volatilityStrikePrice -> amount >= 0 and
 		if varianceStrikePrice -> amount exists then varianceStrikePrice -> amount >= 0
 
-//---[End of TH Proposal]---
-
-
-//[TH Proposal] New component: VolatilityReturnTerms
-
 type VolatilityReturnTerms extends ReturnTermsBase:
 
 	volatilityStrikePrice Price (1..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
@@ -611,13 +560,8 @@ type VolatilityReturnTerms extends ReturnTermsBase:
 	extraordinaryEvents ExtraordinaryEvents (0..1) <"Where the underlying is shares, specifies events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
 
 	condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
-		if VolatilityReturnTerms -> exchangeTradedContractNearest exists
-		then VolatilityReturnTerms -> exchangeTradedContractNearest -> productIdentifier only exists
-
-//---[End of TH Proposal]---
-
-
-//[TH Proposal] New component: CorrelationReturnTerms
+		if exchangeTradedContractNearest exists
+		then exchangeTradedContractNearest -> productIdentifier only exists
 
 type CorrelationReturnTerms extends ReturnTermsBase:
 
@@ -631,11 +575,6 @@ type CorrelationReturnTerms extends ReturnTermsBase:
 	condition CorrelationValue: <"The correlation strike price is a decimal with allowed values only between 1 and -1">
 		correlationStrikePrice -> amount > -1 and correlationStrikePrice -> amount > 1
 
-//---[End of TH Proposal]---
-
-
-// [TH Proposal] New component: Valuation
-
 type Valuation:
 	futuresPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions.">
 	optionsPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions">
@@ -648,10 +587,6 @@ type Valuation:
 	condition PositiveNumberOfValuationDates: <"The number of valuation dates must be positive.">
 		if numberOfValuationDates exists then numberOfValuationDates > 0
 
-//---[End of TH Proposal]---
-
-// [TH Proposal] Equity Underlier Provisions
-
 type EquityUnderlierProvisions:
 	multipleExchangeIndexAnnexFallback boolean (0..1) <"For an index option or swap transaction, a flag to indicate whether a relevant Multiple Exchange Index Annex is applicable to the transaction. This annex defines additional provisions which are applicable where an index is comprised of component securities that are traded on multiple exchanges.">
 	componentSecurityIndexAnnexFallback boolean (0..1) <"For an index option or swap transaction, a flag to indicate whether a relevant Component Security Index Annex is applicable to the transaction.">
@@ -660,33 +595,24 @@ type EquityUnderlierProvisions:
 	relevantJurisdiction string (0..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
 		[metadata scheme]
 
-	condition ComponentSecurityOrMultipleExchange: <"If multipleExchangeIndexAnnexFallback is present then componentSecurityIndexAnnexFallback must be absent and viceversa">
+	condition ComponentSecurityOrMultipleExchange: <"If multipleExchangeIndexAnnexFallback is present then componentSecurityIndexAnnexFallback must be absent and vice versa.">
 		optional choice multipleExchangeIndexAnnexFallback, componentSecurityIndexAnnexFallback
 
-//---[End of TH Proposal]---
-
-
-// [TH Proposal] New types for Variance, Volatility and Correlation Caps and Floors
-
-//[TH Proposal] New component: VarianceCapFloor
-
 type VarianceCapFloor:
+
 	varianceCap boolean (1..1) <"If present and true, then variance cap is applicable.">
 	unadjustedVarianceCap number (0..1) <"For use when varianceCap is applicable. Contains the scaling factor of the Variance Cap that can differ on a trade-by-trade basis in the European market. For example, a Variance Cap of 2.5^2 x Variance Strike Price has an unadjustedVarianceCap of 2.5.">
 	boundedVariance BoundedVariance (0..1) <"Conditions which bound variance. The contract specifies one or more boundary levels. These levels are expressed as prices for confirmation purposes Underlyer price must be equal to or higher than Lower Barrier is known as Up Conditional Swap Underlyer price must be equal to or lower than Upper Barrier is known as Down Conditional Swap Underlyer price must be equal to or higher than Lower Barrier and must be equal to or lower than Upper Barrier is known as Barrier Conditional Swap.">
 
 	condition PositiveUnadjustedVarianceCap: <"Unadjusted variance cap must be positive">
-	if unadjustedVarianceCap exists then unadjustedVarianceCap > 0
+    	if unadjustedVarianceCap exists then unadjustedVarianceCap > 0
 
 	condition CapFloorApplicability: <"Caps/floors can and must be specified if varianceCap is set to true. If false, barriers cannot be established">
 		if varianceCap = True then unadjustedVarianceCap exists or boundedVariance exists // [TH Proposal] If CapFloor is applicable at least one cap expression must exist
 		else unadjustedVarianceCap is absent and boundedVariance is absent // [TH Proposal] If CapFloor is not applicable, then there cannot be any volatility caps
 
-//---[End of TH Proposal]---
-
-// [TH Proposal] New component: BoundedVariance
-
 type BoundedVariance:
+
 	realisedVarianceMethod RealisedVarianceMethodEnum (1..1) <"The contract specifies which price must satisfy the boundary condition.">
 	daysInRangeAdjustment boolean (1..1) <"The contract specifies whether the notional should be scaled by the Number of Days in Range divided by the Expected N. The number of Days in Ranges refers to the number of returns that contribute to the realized volatility.">
 	upperBarrier number (0..1) <"All observations above this price level will be excluded from the variance calculation.">
@@ -694,13 +620,10 @@ type BoundedVariance:
  
 	condition NonNegativeBarriers: <"Barriers cannot be set to negative values">
 		if upperBarrier exists then upperBarrier >= 0 and 
-		if lowerBarrier exists then lowerBarrier >=0
-
-//---[End of TH Proposal]---
-
-// [TH Proposal] New component: VolatilityCapFloor
+		if lowerBarrier exists then lowerBarrier >= 0
 
 type VolatilityCapFloor: <"Contains volatility-based barriers. Volatility Cap needs to be specified in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+
 	applicable boolean (1..1) <"Indicates whether the volatility cap is applicable in accordance with the ISDA 2011 Equity Derivatives Definitions. Setting the element 'applicable' to 'False' - means No Volatility Cap and no 'totalVolatilityCap' or 'volatilityCapFactor' should be provided. Setting the element 'applicable' to 'True' - means Volatility Cap election, then 'totalVolatilityCap' or 'volatilityCapFactor' should be provided, otherwise it defaults to volatilityCapFactor=2.5.">
 	totalVolatilityCap number (0..1) <"Volatility Cap Amount in accordance with the ISDA 2011 Equity Derivatives Definitions. This means the Volatility Cap Amount election is a number.">
 	volatilityCapFactor number (0..1) <"Volatility Cap Amount in accordance with the ISDA 2011 Equity Derivatives Definitions. The Calculated VolCapAmt can be optionally provided.">
@@ -713,15 +636,9 @@ type VolatilityCapFloor: <"Contains volatility-based barriers. Volatility Cap ne
 		if totalVolatilityCap exists then totalVolatilityCap >= 0 and
 		if volatilityCapFactor exists then volatilityCapFactor >= 0
 
-//---[End of TH Proposal]---
-
-// [TH Proposal] New component: BoundedCorrelation
-
 type BoundedCorrelation: <"Describes correlation bounds, which form a cap and a floor on the realized correlation.">
 	minimumBoundaryPercent number (0..1) <"Minimum Boundary as a percentage of the Strike Price.">
 	maximumBoundaryPercent number (0..1) <"Maximum Boundary as a percentage of the Strike Price.">
-
-//---[End of TH Proposal]---
 
 type ForeignExchange: <"From FpML: A type defining either a spot or forward FX transactions.">
 

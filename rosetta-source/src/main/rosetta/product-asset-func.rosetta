@@ -69,8 +69,6 @@ func ResolveRateIndex: <"The function to specify that the floating rate index en
 	inputs: index FloatingRateIndexEnum (1..1)
 	output: rate number (1..1)
 
-//[TH Proposal] Old Equity version
-
 func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
 	[deprecated]
 	inputs:
@@ -93,10 +91,6 @@ func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the pre
 		else
 		    priceReturnTerms -> valuationPriceInterim -> price
 
-//---[End of TH Proposal]---
-
-//[TH Proposal] Performance version
-
 func ResolvePerformancePeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
 	inputs:
 		performancePayout PerformancePayout (1..1)
@@ -117,12 +111,8 @@ func ResolvePerformancePeriodStartPrice: <"Resolves the price from the end of th
 		then ResolveEquityInitialPrice(price)
 		else priceReturnTerms -> valuationPriceInitial //[TH Proposal] valuationPriceInterim removed since it does no longer exist. valuationPriceInitial alternative "direct" route to ResolveEquityInitialPrice( price, observable ) to get the initial price.
 
-//---[End of TH Proposal]---
-
-//[TH Proposal] Old equity version
-
 func ResolveEquityPeriodEndPrice:
-[deprecated]
+    [deprecated]
 	inputs:
 		equityPayout EquityPayout (1..1)
 		date date (1..1)
@@ -140,10 +130,6 @@ func ResolveEquityPeriodEndPrice:
 		then priceReturnTerms -> valuationPriceFinal -> price -> amount
 		else priceReturnTerms -> valuationPriceInterim -> price -> amount
 
-//---[End of TH Proposal]---
-
-//[TH Proposal] Performance version
-
 func ResolvePerformancePeriodEndPrice:
 	inputs:
 		performancePayout PerformancePayout (1..1)
@@ -160,8 +146,6 @@ func ResolvePerformancePeriodEndPrice:
 	set price: <"If the last period, take the price from the Valuation Price Final, otherwise from Valuation Price Interim.">
 		if valuation -> isLastPeriod
 		then priceReturnTerms -> valuationPriceFinal -> amount //[TH Proposal] valuationPriceInterim removed since it does no longer exist
-
-//---[End of TH Proposal]---
 
 func ResolveEquityInitialPrice: <"To be replaced by full resolve price function implementation.">
 	inputs:
