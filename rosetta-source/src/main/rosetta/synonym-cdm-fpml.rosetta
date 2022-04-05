@@ -36,15 +36,11 @@ synonym source FpML
 
 synonym source FpML_5_10 extends FpML
 {
-//-------------------------------------------------------------------------------------------------------------------------------
-
-//[TH Proposal] New components mapping first approach
-
-PerformancePayout:
+    PerformancePayout:
 		+ payerReceiver
 			[hint "payerPartyReference"]
         + underlier
-            [value "singleUnderlyer" path "underlyer","underlyer"]
+            [value "singleUnderlyer" path "underlyer", "underlyer"]
         + fxFeature
             [value "fxFeature" path "fxFeature"]
 		+ valuationDates
@@ -54,10 +50,8 @@ PerformancePayout:
 		+ returnTerms 
 			[hint "amount"]
 			[hint "valuation"]
-		//	[value "amount"]
-		//	[value "valuation"]
 
-EquityValuationDates:
+    EquityValuationDates:
 		+ valuationDate
 			[value "valuationDate" path "valuation"]
 		+ valuationDates
@@ -67,70 +61,48 @@ EquityValuationDates:
 		+ valuationTime
 			[value "valuationTime" path "valuation"]
 
-EquityObservation:
+    EquityObservation:
 		+ observationDates
 			[hint "amount"]
 			[hint "valuation"]
-ReturnTerms:
+
+    ReturnTerms:
 		+ varianceReturnTerms
-		//	[hint "variance"]
-		//	[hint "futuresPriceValuation"]
 			[hint "amount"]
 			[hint "valuation"]
-
 		+ volatilityReturnTerms
-		//	[hint "variance"]
-		//	[hint "futuresPriceValuation"]
 			[hint "amount"]
 			[hint "valuation"]
 
-VolatilityReturnTerms:
-
+    VolatilityReturnTerms:
 		// Common for variance, volatility and correlation (ReturnTermsBase)
 		+ expectedN
 			[value "expectedN" path "amount->volatility"]
-		+ annualizationFactor
 		+ dividendApplicability
 			[value "amount" set when path = "volatilityLeg"]
-		+ equityUnderlierProvisions
-		+ initialLevelSource
 		+ initialLevel
 			[value "initialLevel" path "amount->volatility"]
-		+ meanAdjustment
-		+ performance
-		+ sharePriceDividendAdjustment
 		+ valuation
 			[value "valuation" set when path = "volatilityLeg"]
-
 		// Variance specific
 		+ volatilityCapFloor
 			[value "volatilityCap" path "amount->volatility"]
 
-VarianceReturnTerms:
-
-		// Common for variance, volatility and correlation (ReturnTermsBase)
-
+    VarianceReturnTerms:
+    	// Common for variance, volatility and correlation (ReturnTermsBase)
 		+ expectedN
 			[value "expectedN" path "amount->variance"]
-		+ annualizationFactor
 		+ dividendApplicability
 			[value "amount" set when path = "varianceLeg"]
-		+ equityUnderlierProvisions
-		+ initialLevelSource
 		+ initialLevel
 			[value "initialLevel" path "amount->variance"]
-		+ meanAdjustment
-		+ performance
-		+ sharePriceDividendAdjustment
 		+ valuation
 			[value "valuation" set when path = "varianceLeg"]
-	
 		// Variance specific
-
 		+ exchangeTradedContractNearest
 			[value "variance" path "amount" set when path = "varianceLeg"]
 
-VarianceCapFloor:
+    VarianceCapFloor:
 		+ varianceCap
 			[value "varianceCap" path "amount->variance"]
 		+ unadjustedVarianceCap
@@ -138,18 +110,15 @@ VarianceCapFloor:
 		+ boundedVariance
 			[value "boundedVariance" path "amount->variance"]
 
-VolatilityCapFloor:
+    VolatilityCapFloor:
 		+ applicable
-			//[value "applicable" path "amount->variance"]
 			[value "applicable"]
 		+ totalVolatilityCap
-			//[value "totalVolatilityCap" path "amount->variance"]
 			[value "totalVolatilityCap"]
 		+ volatilityCapFactor
-			//[value "volatilityCapFactor" path "amount->variance"]
 			[value "volatilityCapFactor"]
 
-BoundedVariance:
+    BoundedVariance:
 		+ daysInRangeAdjustment
 			[value "daysInRangeAdjustment"]
 		+ realisedVarianceMethod
@@ -159,7 +128,7 @@ BoundedVariance:
 		+ lowerBarrier
 			[value "lowerBarrier"]
 
-Valuation:
+    Valuation:
 		+ futuresPriceValuation
 			[value "futuresPriceValuation"]
 		+ optionsPriceValuation
@@ -171,14 +140,13 @@ Valuation:
 		+ fPVFinalPriceElectionFallback
 			[value "fPVFinalPriceElectionFallback"]
 
-DividendApplicability:
+    DividendApplicability:
 		+ optionsExchangeDividends
 			[value "optionsExchangeDividends"]
 		+ additionalDividends
 			[value "additionalDividends"]
 		+ allDividends
 			[value "allDividends"]
-//-------------------------------------------------------------------------------------------------------------------------------
 
 	AdjustableRelativeOrPeriodicDates:
 		[meta "id"]
@@ -189,10 +157,7 @@ DividendApplicability:
 			[value "relativeDateSequence"]
 		+ periodicDates
 			[value "periodicDates"]
-
-			//[TH Proposal]
 			[hint "amount"]
-			//---[End of TH Proposal]---
 
 	AmericanExercise:
         [value "AmericanExercise" meta "id"]
@@ -497,11 +462,7 @@ DividendApplicability:
 		+ startDate
 			[value "calculationStartDate"]
 			[hint "startDate"]
-
-			//[TH Proposal]
 			[value "observationStartDate" path "amount"]
-			//---[End of TH Proposal]---
-
 		+ endDate
 			[value "calculationEndDate"]
 			[hint "endDate"]
@@ -596,7 +557,7 @@ DividendApplicability:
 			[value "floatingRateCalculation" path "interestCalculation"]
 			[hint "equity"]
 			[hint "index"]
-				// For FX:
+            // For FX:
 			[value "fixing" path "nonDeliverableSettlement"]
 			[value "fixing" path "cashSettlement"]
 			[hint "features", "putCurrencyAmount", "callCurrencyAmount"]
@@ -606,7 +567,6 @@ DividendApplicability:
             [hint "bond", "convertibleBond"]
 			// For Commodity Swap Floating Leg
 			[hint "commodity"]
-
 		+ settlementTerms
 			[hint "paymentDelay"]
 			[hint "paymentDate"]
@@ -635,16 +595,9 @@ DividendApplicability:
 			[value "price" maps 2]
 			// For Commodity Option
 			[value "amount" mapper "PriceUnitType"]
-
-			//[TH Proposal]
-
 			[value "varianceStrikePrice" path "amount->variance" set when rosettaPath = PerformancePayout -> returnTerms -> varianceReturnTerms -> varianceStrikePrice]
 			[value "volatilityStrikePrice" path "amount->variance" set when rosettaPath = PerformancePayout -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice]
 			[value "volatilityStrikePrice" path "amount->volatility" set when rosettaPath = PerformancePayout -> returnTerms -> volatilityReturnTerms -> volatilityStrikePrice]
-		
-			//--- End of TH Proposal ---
-
-
 		+ unitOfAmount
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
 			[value "quotedCurrencyPair"]
@@ -1231,10 +1184,7 @@ DividendApplicability:
 		+ forecastRate
 			[value "forecastRate"]
 
-
-//[TH Proposal] Old Equity version. No changes.
-
-CalculationPeriodDates:
+    CalculationPeriodDates:
 		[meta "id" path "calculationPeriodDates"]
 		[meta "id" path "interestLegCalculationPeriodDates"]
 		+ effectiveDate
@@ -1269,8 +1219,6 @@ CalculationPeriodDates:
 			[value "periodicPayment"]
 			// for Commodity Floating Leg (Payout)
 			[value "calculationPeriodsSchedule"]
-
-//---[End of TH Proposal]---
 
 	CancelableProvision:
 		+ americanExercise
@@ -1649,13 +1597,9 @@ CalculationPeriodDates:
 		 	[value "instrumentId" path "equity" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "index" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "loan" maps 2 meta "instrumentIdScheme"]
+			[value "instrumentId" path "exchangeTradedContractNearest"]
 			// [value "instrumentId" maps 2 meta "instrumentIdScheme"]
 			[value "productId" maps 2 meta "productIdScheme"]
-
-	//[TH Proposal]
-			[value "instrumentId" path "exchangeTradedContractNearest"]
-
-	//---End of TH Proposal---
 		+ source
 		    // Bond
 			[set to ProductIdTypeEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "CUSIP"]
@@ -1769,12 +1713,7 @@ CalculationPeriodDates:
 			[value "quantity" maps 2]
 			[value "amount" path "paymentAmount"]
 			[value "amount" path "fixedAmount"]
-
-			//[TH Proposal]
 			[value "vegaNotionalAmount" path "amount->variance"]
-			//[value "vegaNotionalAmount" path "amount->volatility" set when rosettaPath = PerformancePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> amount]
-			//--- End of TH Proposal ---
-
 		+ unitOfAmount
 			[value "singleUnderlyer"]
 			[value "basket"]
@@ -1794,11 +1733,7 @@ CalculationPeriodDates:
 			[meta "amount"]
 			[meta "quantity"]
             [value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
-
-			//[TH Proposal]
 			[value "varianceAmount" path "amount->variance"]
-			//[hint "amount"]
-			//---End of TH Proposal---
 
 	NonNegativeStepSchedule:
 		+ step
@@ -1873,9 +1808,7 @@ CalculationPeriodDates:
 		+ adjustableDate
 			[value "adjustableDate"]
 
-// [TH Proposal] Old Equity version. No changes.
-
-DividendReturnTerms:
+    DividendReturnTerms:
 		+ dividendPayout
 			[hint "dividendPayout"]
 			[value "basketConstituent"]
@@ -1903,8 +1836,6 @@ DividendReturnTerms:
 			[value "nonCashDividendTreatment"]
 		+ dividendComposition
 			[value "dividendComposition"]
-
-//---[End of TH Proposal]---
 
 	EquityCorporateEvents:
 		+ shareForShare
@@ -2035,16 +1966,10 @@ DividendReturnTerms:
 			[hint "convertibleBond"]
 			[hint "index"]
 			[hint "instrumentId"]
-	//[TH Proposal]
 			[hint "exchangeTradedContractNearest"]
-
-	//---End of TH Proposal---
-
-
-		+ currencyPair
+    	+ currencyPair
 			[value "quotedCurrencyPair"]
 			[hint "features", "putCurrencyAmount", "callCurrencyAmount"]
-
 
 	Cashflow:
 		[meta "id"]
@@ -2187,10 +2112,7 @@ DividendReturnTerms:
 			[value "fxLinkedNotionalSchedule"]
 			[value "constantNotionalScheduleReference" path "fxLinkedNotionalSchedule" meta "href"]
 			[value "notionalQuantity"]
-
-			//[TH Proposal]
 			[hint "amount"]
-			//---End of TH Proposal---
 		+ reset
 			[value "notionalReset"]
 		+ futureValueNotional
@@ -2209,17 +2131,13 @@ DividendReturnTerms:
 			[value"effectiveDate"path"commoditySwap"]
 			[value "effectiveDate" path "fxOption"]
 			[value "effectiveDate"]
-			//[TH Proposal]
 			[value "effectiveDate" path "varianceLeg"]
 			[value "effectiveDate" path "volatilityLeg"]
-			//---[End of TH Proposal]---
 		+ terminationDate
 			[value "scheduledTerminationDate" path "generalTerms"]
 			[value "terminationDate"]
-			//[TH Proposal]
 			[value "terminationDate" path "varianceLeg"]
 			[value "terminationDate" path "volatilityLeg"]
-			//---[End of TH Proposal]---
 		+ dateAdjustments
 			[value "dateAdjustments" path "generalTerms"]
 		+ earlyTerminationProvision
@@ -2381,15 +2299,12 @@ DividendReturnTerms:
 		+ lag
 			[value "lag"]
 
-//[TH Proposal] [FIXED] Renamed component. Formerly FixedForwardPayout
-
 	FixedPricePayout:
 		+ 	paymentDates
 			[value "paymentDates"]
 			[value "relativePaymentDates"]
 		+ fixedPrice
 			[value "fixedPrice" meta "price"]
-//---[End of TH Proposal]---
 
 	SecurityValuation:
 		+ securityValuationModel
@@ -2466,12 +2381,9 @@ DividendReturnTerms:
 			[value "commodity"]
 			[hint "notionalQuantity"]
 			[hint "totalNotionalQuantity"]
-
-			//[TH Proposal]
 			[hint "amount"]
-			//---End of TH Proposal---
 
-Payout:
+    Payout:
 		+ interestRatePayout
 			// For Swap Stream
 			[value "swapStream"]
@@ -2510,19 +2422,13 @@ Payout:
 			[value "ignore"]
 		+ commodityPayout
 			[value "commoditySwap", "floatingLeg" path "commoditySwap"]
-		// [TH Proposal] [FIXED] Renamed component. Formerly fixedForwardPayout
 		+ fixedPricePayout
 			[value "fixedLeg" path "commoditySwap"]
-		//---[End of TH Proposal]---
 		+ securityFinancePayout
 			[value "ignore"]
-
-		//[TH Proposal] Performance Payout
-		+ performancePayout
+        + performancePayout
 			[value "varianceLeg"]
 			[value "volatilityLeg"]
-		//	[hint "varianceLeg"]
-		//---[End of TH Proposal]---
 
 	Product:
 		+ contractualProduct
@@ -2569,13 +2475,8 @@ Payout:
 			// For Commodity Option
 			[hint "commodityOption"]
 			[value "commodityOption"]
-			//[TH Proposal] Variance Swap
 			[value "varianceSwap", "varianceSwapTransactionSupplement"]
-			//---[End of TH Proposal]---
-			//[TH Proposal] Volatility Swap
 			[value "volatilitySwap", "volatilitySwapTransactionSupplement"]
-			//---[End of TH Proposal]---
-
 		+ index
 			[hint "index"]
 		+ loan
@@ -3659,7 +3560,6 @@ Payout:
 	
 	enums
 
-		//[TH Proposal]
 	RealisedVarianceMethodEnum:
 		+ Previous
 			[value "Previous"]
@@ -3668,14 +3568,11 @@ Payout:
 		+ Both
 			[value "Both"]
 
-
 	FPVFinalPriceElectionFallbackEnum:
 		+ FPVClose
 			[value "FPVClose"]
 		+ FPVHedgeExecution
 			[value "FPVHedgeExecution"]
-
-		//---[End of TH Proposal]---
 
 	ObligationCategoryEnum:
 		+ Payment
