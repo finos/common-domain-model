@@ -19,29 +19,12 @@ type CalculationPeriodData:
 	isFirstPeriod boolean (1..1)
 	isLastPeriod boolean (1..1)
 
-//[TH Proposal] [CALCDAT] Old Calculation version. No changes nor deprecated, since it is used by non-equity/performance payouts.
-
 type StubPeriod: <" A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 
 	calculationPeriodDatesReference CalculationPeriodDates (1..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
 		[metadata reference]
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
 	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
-
-//---[End of TH Proposal]---
-
-
-//[TH Proposal] [VALDAT] Version using valuationDates as input (for Performance products) - Not needed in the present version since stubs cannot be represented in the current Performance Payout model-
-/*
-type StubPeriod_valuation: <" A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
-
-	valuationDatesReference EquityValuationDates (1..1) <"A pointer style reference to the associated valuation period dates component defined elsewhere in the document.">
-		[metadata reference]
-	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
-	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
-*/
-//---[End of TH Proposal]---
-
 
 type CalculationPeriodBase: <"The calculation period adjusted start and end dates, which are the baseline arguments needed to compute an interest accrual calculation.">
 	[metadata key]
@@ -78,7 +61,6 @@ type CalculationPeriodDates: <"A data for:  defining the parameters used to gene
 	[metadata key]
 
 	effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">
-	
 	terminationDate AdjustableOrRelativeDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention. It can also be specified in relation to another scheduled date (e.g. the last payment date).">
 	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
 	firstPeriodStartDate AdjustableOrRelativeDate (0..1) <"The start date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the effective date. It is always specified in the case of equity swaps and credit default swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
@@ -113,25 +95,15 @@ type CalculationPeriodDates: <"A data for:  defining the parameters used to gene
 		if firstPeriodStartDate exists and firstRegularPeriodStartDate exists
 		then firstPeriodStartDate -> adjustableDate -> unadjustedDate < firstRegularPeriodStartDate
 
-//[TH Proposal] [CALCDAT] Old Calculation version
-
 type DateRelativeToCalculationPeriodDates: <"A data to:  provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
-[deprecated]
 
 	calculationPeriodDatesReference CalculationPeriodDates (1..*) <"A set of href pointers to calculation period dates defined somewhere else in the document.">
 		[metadata reference]
-
-//---[End of TH Proposal]---
-
-//[TH Proposal] [VALDAT] New Valuation version
 
 type DateRelativeToValuationDates: <"A data to:  provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
 
 	valuationDatesReference EquityValuationDates (1..*) <"A set of href pointers to valuation period dates defined somewhere else in the document.">
 		[metadata reference]
-
-//---[End of TH Proposal]---
-
 
 type DateRelativeToPaymentDates: <"A data to:  provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
 
@@ -200,10 +172,7 @@ type ObservationSchedule: <"Specifies a single date on which market observations
    weight number (0..1) <"Specifies the degree of importance of the observation.">
    observationReference string (0..1) <"Specifies an identification key for the market observation. This attribute can be used as a reference to assign weights to a series of dates defined in a parametricSchedule.">
 
-//[TH Proposal] [CALCDAT] Old Calculation Version
-
-type ObservationTerms: <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. ">
-[deprecated]
+type ObservationTerms: <"Class containing terms that are associated with observing a price/benchmark/index across either single or multiple observations. ">
 
 	pricingTime BusinessCenterTime (1..1) <"Defines time in respect to a business calendar location that the price/benchmark/index is observed">
 	pricingTimeType TimeTypeEnum (0..1) <"The enumerated values to specify points in the day when option exercise and valuation can occur.">
@@ -212,23 +181,6 @@ type ObservationTerms: <"Class containing terms that are associated with observi
 	calculationPeriodDates CalculationPeriodDates (0..1) <"Defines parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
 	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
 	observationDates ObservationDates (1..1) <"Describes date details for a set of observation dates in parametric or non-parametric form.">
-
-//---[End of TH Proposal]---
-
-
-//[TH Proposal] [VALDAT] New Valuation version
-
-type ObservationTerms_valuation: <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. ">
-	pricingTime BusinessCenterTime (1..1) <"Defines time in respect to a business calendar location that the price/benchmark/index is observed">
-	pricingTimeType TimeTypeEnum (0..1) <"The enumerated values to specify points in the day when option exercise and valuation can occur.">
-	informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
-	precision Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of observations.">
-	valuationDates EquityValuationDates (0..1)  <"Defines how and when a performance type option or performance type swap is to be valued.">
-	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
-	observationDates ObservationDates (1..1) <"Describes date details for a set of observation dates in parametric or non-parametric form.">
-
-//---[End of TH Proposal]---
-
 
 type ParametricDates: <"Defines rules for the dates on which the price will be determined.">
 	dayType DayTypeEnum (1..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">
@@ -249,11 +201,8 @@ type Lag: <"The pricing period per calculation period if the pricing days do not
    lagDuration Offset (1..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
    firstObservationDateOffset Offset (0..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
 
-// [TH Proposal] [CALCDAT] Old Calculation Version
-
 type ResetDates: <"A data defining:  the parameters used to generate the reset dates schedule and associated fixing dates. The reset dates are the dates on which the new index value (which is observed on the fixing date) is applied for each period and on which the interest rate hence begins to accrue.">
 	[metadata key]
-	[deprecated]
 
 	calculationPeriodDatesReference CalculationPeriodDates (0..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
 		[metadata reference]
@@ -264,27 +213,6 @@ type ResetDates: <"A data defining:  the parameters used to generate the reset d
 	rateCutOffDaysOffset Offset (0..1) <"Specifies the number of business days before the period end date when the rate cut-off date is assumed to apply. The financial business centers associated with determining the rate cut-off date are those specified in the reset dates adjustments. The rate cut-off number of days must be a negative integer (a value of zero would imply no rate cut off applies in which case the rateCutOffDaysOffset element should not be included). The relevant rate for each reset date in the period from, and including, a rate cut-off date to, but excluding, the next applicable period end date (or, in the case of the last calculation period, the termination date) will (solely for purposes of calculating the floating amount payable on the next applicable payment date) be deemed to be the relevant rate in effect on that rate cut-off date. For example, if rate cut-off days for a daily averaging deal is -2 business days, then the refix rate applied on (period end date - 2 days) will also be applied as the reset on (period end date - 1 day), i.e. the actual number of reset dates remains the same but from the rate cut-off date until the period end date, the same refix rate is applied. Note that in the case of several calculation periods contributing to a single payment, the rate cut-off is assumed only to apply to the final calculation period contributing to that payment. The day type associated with the offset must imply a business days offset.">
 	resetFrequency ResetFrequency (0..1) <"The frequency at which the reset dates occur. In the case of a weekly reset frequency, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency then this implies that more than one reset is established for each calculation period and some form of rate averaging is applicable.">
 	resetDatesAdjustments BusinessDayAdjustments (0..1) <"The definition of the business day convention and financial business centers used for adjusting the reset date if it would otherwise fall on a day that is not a business day in the specified business center.">
-
-//---[End of TH Proposal]---
-
-
-//[TH Proposal] [VALDAT] New Valuation version
-
-type ResetDates_valuation: <"A data defining:  the parameters used to generate the reset dates schedule and associated fixing dates. The reset dates are the dates on which the new index value (which is observed on the fixing date) is applied for each period and on which the interest rate hence begins to accrue.">
-	[metadata key]
-
-	valuationDatesReference EquityValuationDates (0..1) <"A pointer style reference to the associated valuation period dates component defined elsewhere in the document.">
-		[metadata reference]
-	resetRelativeTo ResetRelativeToEnum (0..1) <"Specifies whether the reset dates are determined with respect to each adjusted calculation period start date or adjusted calculation period end date. If the reset frequency is specified as daily this element must not be included.">
-	initialFixingDate InitialFixingDate (0..1) <"The initial fixing date.">
-	fixingDates RelativeDateOffset (0..1) <"The fixing dates are the dates on which the index values are observed. The fixing dates are specified by reference to the reset date through business days offset and an associated set of financial business centers. Normally these offset calculation rules will be those specified in the ISDA definition for the relevant floating rate index (ISDA's Floating Rate Option). However, non-standard offset calculation rules may apply for a trade if mutually agreed by the principal parties to the transaction.">
-	finalFixingDate AdjustableDate (0..1) <"This attribute is not part of the FpML ResetDate, and has been added as part of the CDM to support the credit derivatives final fixing date.">
-	rateCutOffDaysOffset Offset (0..1) <"Specifies the number of business days before the period end date when the rate cut-off date is assumed to apply. The financial business centers associated with determining the rate cut-off date are those specified in the reset dates adjustments. The rate cut-off number of days must be a negative integer (a value of zero would imply no rate cut off applies in which case the rateCutOffDaysOffset element should not be included). The relevant rate for each reset date in the period from, and including, a rate cut-off date to, but excluding, the next applicable period end date (or, in the case of the last calculation period, the termination date) will (solely for purposes of calculating the floating amount payable on the next applicable payment date) be deemed to be the relevant rate in effect on that rate cut-off date. For example, if rate cut-off days for a daily averaging deal is -2 business days, then the refix rate applied on (period end date - 2 days) will also be applied as the reset on (period end date - 1 day), i.e. the actual number of reset dates remains the same but from the rate cut-off date until the period end date, the same refix rate is applied. Note that in the case of several calculation periods contributing to a single payment, the rate cut-off is assumed only to apply to the final calculation period contributing to that payment. The day type associated with the offset must imply a business days offset.">
-	resetFrequency ResetFrequency (0..1) <"The frequency at which the reset dates occur. In the case of a weekly reset frequency, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency then this implies that more than one reset is established for each calculation period and some form of rate averaging is applicable.">
-	resetDatesAdjustments BusinessDayAdjustments (0..1) <"The definition of the business day convention and financial business centers used for adjusting the reset date if it would otherwise fall on a day that is not a business day in the specified business center.">
-
-//---[End of TH Proposal]---
-
 
 	condition RateCutOffDaysOffset: <"FpML specifies that the rate cut-off number of days must be a negative integer with a value of zero would implying that no rate cut off applies, in which case the rateCutOffDaysOffset element should not be included.">
 		if rateCutOffDaysOffset exists
@@ -298,28 +226,12 @@ type ResetDates_valuation: <"A data defining:  the parameters used to generate t
 		if resetFrequency -> period <> PeriodExtendedEnum -> W
 		then resetFrequency -> weeklyRollConvention is absent
 
-
-// [TH Proposal] [CALCDAT] Old Calculation version. No changes.
-
 type StubCalculationPeriodAmount: <"A data defining:  how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 	
 	calculationPeriodDatesReference CalculationPeriodDates (1..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
 		[metadata reference]
 	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
 	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
-
-//---[End of TH Proposal]---
-
-// [TH Proposal] [VALDAT] New Valuation Version - Not needed in the present version
-/*
-type StubValuationPeriodAmount: <"A data defining:  how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
-	
-	valuationDatesReference EquityValuationDates (1..1) <"A pointer style reference to the associated valuation period dates component defined elsewhere in the document.">
-		[metadata reference]
-	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
-	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
-*/
-//---[End of TH Proposal]---
 
 type AveragingObservationList: <"An unordered list of weighted averaging observations.">
 
