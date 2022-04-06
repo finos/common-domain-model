@@ -77,33 +77,20 @@ type PayoutBase: <" Base class that all payout types should extend. Use case is 
 	payoutQuantity ResolvablePayoutQuantity (1..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
 	settlementTerms SettlementTerms (0..1) <"Each payout leg must specifies its settlement terms, including the delivery type (i.e. cash vs physical, and their respective terms), the transfer type (DvP etc.) and settlement date, if any.">
 
-// [TH Proposal] [CALCDAT] Old Calculation version
+type ObservationPayout extends PayoutBase: <"Defines payout terms relevant where the underlier is an asset (e.g. equities, commodities) or a referenced benchmark that is observed to obtain a price">
 
-type ObservationPayout extends PayoutBase: <"Defines payout terms relevent where the underlier is an asset (e.g. equities, commodities) or a referenced benchmark that is observed to obtain a price">
-    [deprecated]
 	calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
     underlier Product (1..1)<"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
     fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
-//---[End of TH Proposal]---
 
+type PerformancePayoutBase extends PayoutBase: <"Defines payout terms relevant where the underlier is an asset (e.g. equities, commodities) or a referenced benchmark that is observed to obtain a price">
 
-//[TH Proposal] [VALDAT] New Valuation Version
-
-type NEW_ObservationPayout extends PayoutBase: <"Defines payout terms relevent where the underlier is an asset (e.g. equities, commodities) or a referenced benchmark that is observed to obtain a price">
-		
-		//[TH Proposal] Change in the date structure
-
-		//calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule."> // TO BE REMOVED
 		observationDates EquityObservation (0..1) <"Defines how and when a performance type option or performance type swap is to be observed.">
 		valuationDates EquityValuationDates (1..1) <"Defines how and when a performance type option or performance type swap is to be valued.">
-		//---[End of TH Proposal]---
 		paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
 		underlier Product (1..1)<"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
 		fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
-
-//---[End of TH Proposal]---
-
 
 type CommodityPayout extends ObservationPayout: <"Payout based on the averaged price of a referenced underlier. (e.g. Commodities). Can represent both average (average of many) & bullet (average of 1) pricing">
 	[metadata key]
@@ -299,12 +286,7 @@ type SettlementDate: <"A data defining the settlement date(s) for cash or physic
 	condition DateChoice: <"Settlement date must be specified either throught the 'settlementDate' or 'valueDate' attribute. This is a temporary work-around until such time when we can retire the 'valueDate' attribute.">
 		optional choice adjustedDate, valueDate, adjustableDates, businessDateRange
 
-
-
-//[TH Proposal] [CALCDAT] Old Calculation version
-
 type FxFixingDate extends Offset: <"Extends the Offset structure to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
-[deprecated]
 
 	businessDayConvention BusinessDayConventionEnum (0..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
 	businessCenters BusinessCenters (0..1)
@@ -312,37 +294,14 @@ type FxFixingDate extends Offset: <"Extends the Offset structure to specify an F
 		[metadata reference]
 	dateRelativeToPaymentDates DateRelativeToPaymentDates (0..1) <"The payment date references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure.">
 	dateRelativeToCalculationPeriodDates DateRelativeToCalculationPeriodDates (0..1) <"The calculation period references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure. Implemented for Brazilian-CDI swaps where it will refer to the termination date of the appropriate leg.">
-	fxFixingDate AdjustableOrRelativeDate (0..1) <"Describes the specific date when a non-deliverable forward or cash-settled option will 'fix' against a particular rate, which will be used to compute the ultimate cash settlement. This element should be omitted where a single, discrete fixing date cannot be identified e.g. on an american option, where fixing may occur at any date on a continuous range.  This attribute was formerly part of 'fxSettlementTerms', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
+	dateRelativeToValuationDates DateRelativeToValuationDates (0..1) <"The calculation period references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure. Implemented for Brazilian-CDI swaps where it will refer to the termination date of the appropriate leg.">
+    fxFixingDate AdjustableOrRelativeDate (0..1) <"Describes the specific date when a non-deliverable forward or cash-settled option will 'fix' against a particular rate, which will be used to compute the ultimate cash settlement. This element should be omitted where a single, discrete fixing date cannot be identified e.g. on an american option, where fixing may occur at any date on a continuous range.  This attribute was formerly part of 'fxSettlementTerms', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
 
 	condition BusinessCentersChoice: <"condition to represent an FpML choice construct.">
 		optional choice businessCenters, businessCentersReference
 
 	condition DateChoice: <"condition to represent an FpML choice construct.">
-		required choice dateRelativeToPaymentDates, dateRelativeToCalculationPeriodDates, fxFixingDate
-
-//---[End of TH Proposal]---
-
-
-//[TH Proposal] [VALDAT] New Valuation version
-
-type FxFixingDate_valuation extends Offset: <"Extends the Offset structure to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
-
-	businessDayConvention BusinessDayConventionEnum (0..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
-	businessCenters BusinessCenters (0..1)
-	businessCentersReference BusinessCenters (0..1) <"A reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">
-		[metadata reference]
-	dateRelativeToPaymentDates DateRelativeToPaymentDates (0..1) <"The payment date references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure.">
-	dateRelativeToCalculationPeriodDates DateRelativeToValuationDates (0..1) <"The calculation period references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure. Implemented for Brazilian-CDI swaps where it will refer to the termination date of the appropriate leg.">
-	fxFixingDate AdjustableOrRelativeDate (0..1) <"Describes the specific date when a non-deliverable forward or cash-settled option will 'fix' against a particular rate, which will be used to compute the ultimate cash settlement. This element should be omitted where a single, discrete fixing date cannot be identified e.g. on an american option, where fixing may occur at any date on a continuous range.  This attribute was formerly part of 'fxSettlementTerms', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
-
-	condition BusinessCentersChoice: <"condition to represent an FpML choice construct.">
-		optional choice businessCenters, businessCentersReference
-
-	condition DateChoice: <"condition to represent an FpML choice construct.">
-		required choice dateRelativeToPaymentDates, dateRelativeToCalculationPeriodDates, fxFixingDate
-
-//---[End of TH Proposal]---
-
+		required choice dateRelativeToPaymentDates, dateRelativeToCalculationPeriodDates, dateRelativeToValuationDates, fxFixingDate
 
 type PrincipalExchange: <"A data for:  defining a principal exchange amount and adjusted exchange date. This data forms:  part of the cashflow representation of a swap stream.">
 	[metadata key]

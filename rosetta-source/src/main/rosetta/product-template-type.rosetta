@@ -197,9 +197,9 @@ type ReturnTerms: <"Specifies the type of return of a performance payout.">
 
 	condition: one-of
 
-type PerformancePayout extends NEW_ObservationPayout: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products.">
+type PerformancePayout extends PerformancePayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products.">
 
-	returnTerms ReturnTerms (1..1) <"Specifies the type of return of a performance payou.t">
+	returnTerms ReturnTerms (1..1) <"Specifies the type of return of a performance payout.">
 	averagingMethod AveragingMethodEnum (0..1) <"Specifies the method of calculation to be used when averaging rates. Per ISDA 2000 Definitions, Section 6.2. Certain Definitions Relating to Floating Amounts.">
 
 	condition PositiveQuantityAmount: <"Quantities for any performance payout must be strictly positive.">
@@ -236,7 +236,7 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
 	performancePayout PerformancePayout (0..*) <"The performance payout, which encompasses the equity price returns, dividend returns, volatility return, variance return and correlation provisions.">
 
 	condition ReturnType_Total_Requires_Dividends: <"A total return implies both a price and a dividend return">
-	    if performancePayout -> returnTerms -> priceReturnTerms -> returnType = NEW_ReturnTypeEnum -> Total then
+	    if performancePayout -> returnTerms -> priceReturnTerms -> returnType = ReturnTypeEnum -> Total then
 	        performancePayout -> returnTerms -> dividendReturnTerms exists
 
 	condition LastRegularPaymentDate: <"FpML specifies that lastRegularPaymentDate must only be included if there is a final stub. As part of the CDM, this data rule has been adjusted to specify that it only applies to interest rate swaps, as the credit derivatives products can have a specified lastRegularPaymentDate while the stub is typically not applicable to those.">
