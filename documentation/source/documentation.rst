@@ -1839,14 +1839,14 @@ As an example, the *FpML ird validation rule #57*, states that if the calculatio
  condition FpML_ird_57:
    if period = PeriodExtendedEnum -> M or period = PeriodExtendedEnum -> Y
    then rollConvention <> RollConventionEnum -> NONE
-     or rollConvention <> RollConventionEnum -> SFE
-     or rollConvention <> RollConventionEnum -> MON
-     or rollConvention <> RollConventionEnum -> TUE
-     or rollConvention <> RollConventionEnum -> WED
-     or rollConvention <> RollConventionEnum -> THU
-     or rollConvention <> RollConventionEnum -> FRI
-     or rollConvention <> RollConventionEnum -> SAT
-     or rollConvention <> RollConventionEnum -> SUN
+     and rollConvention <> RollConventionEnum -> SFE
+     and rollConvention <> RollConventionEnum -> MON
+     and rollConvention <> RollConventionEnum -> TUE
+     and rollConvention <> RollConventionEnum -> WED
+     and rollConvention <> RollConventionEnum -> THU
+     and rollConvention <> RollConventionEnum -> FRI
+     and rollConvention <> RollConventionEnum -> SAT
+     and rollConvention <> RollConventionEnum -> SUN
 
 
 Calculation Process
