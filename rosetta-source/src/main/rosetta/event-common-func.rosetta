@@ -749,7 +749,6 @@ func ResolveEquityObservationIdentifiers: <"Defines which attributes on the Equi
 		equityValuation -> determinationMethod
 
 func ResolveEquityValuationDate: <"Specifies how an adjusted data is derived from an EquityValuation data type, which contains a series of adjustable dates.">
-	[deprecated]
 	inputs:
 		equityValuation EquityValuation (1..1) <"Represents the Equity Valuation terms from the Equity product definition.">
 		date date (1..1) <"Specifies the date, which is a proxy for the period, for which the valuation date should be resolved.">
@@ -764,7 +763,6 @@ func ResolvePerformanceValuationDate: <"Specifies how an adjusted data is derive
 		valuationDate date (1..1)
 
 func ResolveEquityValuationTime: <"Defines how to resolve the observation time from those specified in the Equity Valuation type.">
-	[deprecated]
 	inputs:
 		equityValuation EquityValuation (1..1) <"Represents the Equity Valuation terms from the Equity product definition.">
 		productIdentifier ProductIdentifier (1..1) <"Specifies the product identifier, along with the source, which should be used to determine the correct valuation time i.e. close times are different across exchanges.">
@@ -823,7 +821,6 @@ func ResolvePerformanceReset: <"Defines how to resolve the reset value for a per
 		observation
 
 func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) * Equity Notional Amount.">
-	[deprecated]
 	inputs:
 		tradeState TradeState (1..1)
 		date date (1..1)
@@ -854,45 +851,7 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
 	set equityCashSettlementAmount -> settlementOrigin -> equityPayout:
 		equityPayout as-key
 
-//---[End of TH Proposal]---
-
-//[TH Proposal] Performance version
-
-func NEW_EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) * Equity Notional Amount.">
-	inputs:
-		tradeState TradeState (1..1)
-		date date (1..1)
-	output:
-		equityCashSettlementAmount Cashflow (1..1)
-	alias equityPayout:
-		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout only-element
-	alias equityPerformance:
-	    EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
-
-	// [TH Proposal] Added condition so that the function only applies to products with priceReturnTerms and not other types of Performance Payouts (such as variance, volatility, etc.)
-
-	condition: tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists
-
- 	//---[End of TH Proposal]---
-
-
-	 set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
-	 	Abs(equityPerformance)
-	 set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
-        ResolveEquityInitialPrice(
-            tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
-        ) -> unitOfAmount -> currency
-	set equityCashSettlementAmount -> payerReceiver -> payer:
-	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
-	set equityCashSettlementAmount -> payerReceiver -> receiver:
-	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
-    set equityCashSettlementAmount -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
-        ResolveCashSettlementDate(tradeState)
-
-//[TH Proposal] Old equity version
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return)  Equity Notional Amount.">
-	[deprecated]
-
 	inputs:
 		trade Trade (1..1)
 		observation Price (1..1)
@@ -917,57 +876,6 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 		EquityNotionalAmount(numberOfSecurities, periodEndPrice)
 	set equityPerformance:
 		rateOfReturn * notionalAmount
-//---[End of TH Proposal]---
-
-// [TH Proposal] Performance version
-
-func NEW_EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return)  Equity Notional Amount.">
-
-	inputs:
-		trade Trade (1..1)
-		observation Price (1..1)
-		date date (1..1)
-	output:
-		equityPerformance number (1..1)
-
-	alias equityPayout:
-
-		trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout only-element
-
-	alias periodStartPrice: <"Only works in the case of a single trade lot.">
-		ResolvePerformancePeriodStartPrice(
-				equityPayout,
-				trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price,
-				trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element,
-				date)
-	alias periodEndPrice:
-		observation
-	alias numberOfSecurities:
-		equityPayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> amount / periodStartPrice->amount
-	alias rateOfReturn:
-		RateOfReturn(periodStartPrice, periodEndPrice)
-
-	alias payout:
-		trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout
-
-	alias notionalAmount:
-		NEW_EquityNotionalAmount(numberOfSecurities, periodEndPrice, payout)
-
-	// [THProposal] Added condition so that the function only applies to products with priceReturnTerms and not other types of Performance Payouts (such as variance, volatility, etc.)
-
-	condition: trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists
-
-	//---[End of TH Proposal]---
-
-
-	set equityPerformance:
-		rateOfReturn * notionalAmount
-
-//---[End of TH Proposal]---
-
-
-
-//[TH Proposal] Old equity version
 
 func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
 	inputs:
@@ -984,12 +892,7 @@ func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation 
 	    if finalPriceValue exists and initialPriceValue exists and initialPriceValue > 0 then
 		    (finalPriceValue - initialPriceValue) / initialPriceValue
 
-//---[End of TH Proposal]---
-
-// [TH Proposal] Old Equity version
-
 func EquityNotionalAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 74. 'Equity Notional Amount' means the Number Of Securities times the Initial Price, adjusted, if applicable, as provided in Part 1 Section 2.2, 'Equity Notional Reset'. If 'With Reset' is the Equity Notional Reset Election, then in respect of each Equity Cash Settlement Date: (i) the Equity Notional Amount applicable in respect of the first Equity Cash Settlement Date will be the amount specified as such in the definition of Equity Notional Amount; (ii) the Equity Notional Amount applicable in respect of each subsequent Equity Cash Settlement Date will be the sum of (a) the Equity Notional Amount in respect of the prior Equity Cash Settlement Date and (b) the Equity Performance, whether positive or negative, in respect of the prior Equity Cash Settlement Date; and (iii)	the Floating Notional Amount will be adjusted as provided in sub-clauses (i) and (ii) above as though it were an Equity Notional Amount.">
-	[deprecated]
 	inputs:
 		numberOfSecurities number (1..1)
 		price Price (1..1)
@@ -999,33 +902,6 @@ func EquityNotionalAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confi
 		price->amount
 	set equityNotionalAmount:
 		numberOfSecurities * priceValue
-
-//---[End of TH Proposal]---
-
-// [TH Proposal] Performance version
-
-func NEW_EquityNotionalAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 74. 'Equity Notional Amount' means the Number Of Securities times the Initial Price, adjusted, if applicable, as provided in Part 1 Section 2.2, 'Equity Notional Reset'. If 'With Reset' is the Equity Notional Reset Election, then in respect of each Equity Cash Settlement Date: (i) the Equity Notional Amount applicable in respect of the first Equity Cash Settlement Date will be the amount specified as such in the definition of Equity Notional Amount; (ii) the Equity Notional Amount applicable in respect of each subsequent Equity Cash Settlement Date will be the sum of (a) the Equity Notional Amount in respect of the prior Equity Cash Settlement Date and (b) the Equity Performance, whether positive or negative, in respect of the prior Equity Cash Settlement Date; and (iii)	the Floating Notional Amount will be adjusted as provided in sub-clauses (i) and (ii) above as though it were an Equity Notional Amount.">
-	inputs:
-		numberOfSecurities number (1..1)
-		price Price (1..1)
-
-		// [TH Proposal] New input for the new condition
-		payout Payout (1..1)
-		//---[End of TH Proposal]---
-
-	output:
-		equityNotionalAmount number (1..1)
-	alias priceValue:
-		price->amount
-
-	// [TH Proposal] Added condition so that the function only applies to products with priceReturnTerms and not other types of Performance Payouts (such as variance, volatility, etc.)
-	condition: payout -> performancePayout -> returnTerms -> priceReturnTerms only exists
-	//---[End of TH Proposal]---
-
-	set equityNotionalAmount:
-		numberOfSecurities * priceValue
-
-//---[End of TH Proposal]---
 
 func StockSplit: <"Function specification to create the fully-formed business event which represents the impact of a stock split (or a reverse stock split) on an Equity Derivatives contract on a certain date.  The function uses the defined adjustmentRatio to adjust the quantity and price as represented in two business events: QuantityChange and termsChange. ">
 	inputs:
@@ -1338,11 +1214,8 @@ func Create_Reset: <"Defines the process of applying a reference rate (also know
 	add resetEvent -> eventEffect -> effectedTrade: <"Assigns the effectedTrade value as the input TradeState using a reference.">
 		tradeState as-key
 
-//[TH Proposal] Old Equity Payout version
-
 func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructed.">
 	[creation PrimitiveEvent]
-	[deprecated]
 
 	inputs:
 		tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
@@ -1376,49 +1249,6 @@ func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructe
 	add resetPrimitive -> after -> resetHistory: <"To handle the various ways Contracts can change over time, ">
     	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate)
 		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
-
-//---[End of TH Proposal]---
-
-
-//[TH Proposal] [TO BE INCLUDED] Performance version
-/*
-func NEW_Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructed.">
-	[creation PrimitiveEvent]
-
-	inputs:
-		tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
-		instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
-		resetDate date (1..1) <"Specifies the date on which the reset is occuring.">
-
-	output:
-		resetPrimitive ResetPrimitive (1..1)
-
-	alias payout: <"Specifies the payout that is resetting.">
-		instruction -> payout
-
-	alias observationDate: <"If the rateRecordDate is provided in the instructions, it should used as the observation date when determining the fixing rate for an interest rate payout.">
-		if instruction -> rateRecordDate exists
-		then instruction -> rateRecordDate
-		else resetDate
-
-	alias observationIdentifiers: <"Resolves the ObservationIdentifier to be used to derive the single observation to be used in the reset calculation. Resolving the ObservationIdentifier is dependent on the type of payout in use.">
-		if payout -> performancePayout count = 1 then ResolvePerformanceObservationIdentifiers (payout -> performancePayout only-element, resetDate)
-		else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
-
-	alias observation: <"Represents the single observation that will be used to compute the reset value.">
-		ResolveObservation([observationIdentifiers], empty)
-
-	set resetPrimitive -> before:
-		tradeState
-
-	set resetPrimitive -> after:
-		tradeState
-
-	add resetPrimitive -> after -> resetHistory: <"To handle the various ways Contracts can change over time, ">
-    	if payout -> performancePayout count = 1 then ResolvePerformanceReset(payout -> performancePayout only-element, observation, resetDate)
-		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
-*/
-//---[End of TH Proposal]---
 
 func Create_Transfer: <"Function specification to build a transfer event following a reset on a contract">
 	[creation BusinessEvent]
@@ -1562,8 +1392,6 @@ func Create_SecurityFinanceTransfer: <"Defines how Transfer that represents an e
 		then instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout only-element
 		as-key
 
-//[TH Proposal] Old Equity version
-
 func ResolveTransfer: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
 	inputs:
 		instruction CalculateTransferInstruction (1..1)
@@ -1579,28 +1407,6 @@ func ResolveTransfer: <"Defines how to calculate the amount due to be transferre
 		else if payout -> interestRatePayout -> rateSpecification -> floatingRate exists
 				or payout -> interestRatePayout -> rateSpecification -> fixedRate exists
 			then InterestCashSettlementAmount(instruction -> tradeState, payout -> interestRatePayout only-element, instruction -> resets, instruction -> date)
-
-//---[End of TH Proposal]---
-
-// [TH Proposal] Performance version
-
-func NEW_ResolveTransfer: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
-	inputs:
-		instruction CalculateTransferInstruction (1..1)
-	output:
-		transfer Transfer (1..1)
-	alias payout:
-		instruction -> payout
-	set transfer:
-	    if payout -> securityFinancePayout exists
-            then SecurityFinanceCashSettlementAmount(instruction -> tradeState, instruction -> date, instruction -> quantity, instruction -> payerReceiver)
-		else if payout -> performancePayout exists
-			then EquityCashSettlementAmount(instruction -> tradeState, instruction -> date)
-		else if payout -> interestRatePayout -> rateSpecification -> floatingRate exists
-				or payout -> interestRatePayout -> rateSpecification -> fixedRate exists
-			then InterestCashSettlementAmount(instruction -> tradeState, payout -> interestRatePayout only-element, instruction -> resets, instruction -> date)
-
-//---[End of TH Proposal]---
 
 func ResolveCashSettlementDate: <"A product agnostic function that resolves the settlement date of the payout for the period in question">
 	inputs: tradeState TradeState (1..1)
@@ -2081,10 +1887,7 @@ func ExtractTradeState: <"Extracts a single Contract State, given an Event. This
 		if primitive -> contractFormation exists then primitive -> contractFormation -> after
 		else if primitive -> reset exists then primitive -> reset -> after
 
-//[TH Proposal] Old Equity version [FIXED] Renamed component. Formerly FixedForwardPayout
-
 func NewEquitySwapProduct: <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">
-	[deprecated]
 	inputs:
 		security Security (1..1) <"The underlying Equity asset for the swap.">
 		masterConfirmation EquitySwapMasterConfirmation2018 (0..1) <"An (optional) pointer to the Master Confirmation Agreement, if any, that holds further inputs to the Equity Swap">
@@ -2112,59 +1915,13 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 	post-condition: <"Non-contractual product types must be absent.">
 		product -> contractualProduct only exists
 
-//---[End of TH Proposal]---
-
-//[TH Proposal] Performance version
-
-func NEW_NewEquitySwapProduct: <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">
-	inputs:
-		security Security (1..1) <"The underlying Equity asset for the swap.">
-		masterConfirmation EquitySwapMasterConfirmation2018 (0..1) <"An (optional) pointer to the Master Confirmation Agreement, if any, that holds further inputs to the Equity Swap">
-
-		// [TH Proposal] New input for the new condition
-		performancePayout PerformancePayout (1..1)
-		//---[End of TH Proposal]---
-
-	output:
-		product Product (1..1)
-
-	alias payout:
-		product -> contractualProduct -> economicTerms -> payout
-
-	// [TH Proposal] Added condition so that the function only applies to products with priceReturnTerms and not other types of Performance Payouts (such as variance, volatility, etc.)
-
-	condition:  performancePayout -> returnTerms -> priceReturnTerms only exists
-	//---[End of TH Proposal]---
-
-	condition: <"Security must be equity (single name).">
-		security -> securityType = SecurityTypeEnum -> Equity
-
-	// [TH Proposal] [TO BE INCLUDED] Changed equityPayout for performancePayout and FixedForward for FixedPrice
-
-	//add product -> contractualProduct -> economicTerms -> payout -> performancePayout:
-	//	NewSingleNameEquityPayout(security, masterConfirmation, payout)
-	//---[End of TH Proposal]---
-
-	post-condition: <"Other payout types must be absent.">
-		if masterConfirmation is absent then payout -> interestRatePayout is absent
-			and payout -> cashflow is absent
-			and payout -> creditDefaultPayout is absent
-			and payout -> forwardPayout is absent
-			and payout -> fixedPricePayout is absent
-			and payout -> optionPayout is absent
-	post-condition: <"Non-contractual product types must be absent.">
-		product -> contractualProduct only exists
-
-//---[End of TH Proposal]---
-
-// [TH Proposal] [CALCDAT] Old Equity version. This function does nor have VALDAT version because it references the Master Agreement, which retains calculation^PeriodDates.
-
 func NewSingleNameEquityPayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
-	inputs:
+    inputs:
 		security Security (1..1)
 		masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
 	output:
 		equityPayout EquityPayout (1..1)
+
 	condition: <"Security must be equity (single name).">
 		security -> securityType = SecurityTypeEnum->Equity
 	set equityPayout -> returnType: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
@@ -2175,50 +1932,6 @@ func NewSingleNameEquityPayout: <"Function specification to create the equity pa
 		masterConfirmation -> equityCashSettlementDates
 	set equityPayout -> settlementTerms: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
 		masterConfirmation -> settlementTerms
-
-//---[End of TH Proposal]---
-
-
-//[TH Proposal] [TO BE INCLUDED] Performance version
-
-func NewSingleNamePerformanceEquityPayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
-	inputs:
-		security Security (1..1)
-		masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
-
-		// [TH Proposal] New input for the new condition
-		payout Payout (1..1)
-		//---[End of TH Proposal]---
-
-	output:
-		// [TH Proposal] Changed output from equity to performance
-		performancePayout PerformancePayout (1..1)
-		//---[End of TH Proposal]---
-
-	 // [TH Proposal] Added condition so that the function only applies to products with priceReturnTerms and not other types of Performance Payouts (such as variance, volatility, etc.)
-	condition:
-		payout -> performancePayout -> returnTerms -> priceReturnTerms only exists
-	//---[End of TH Proposal]---
-
-	condition: <"Security must be equity (single name).">
-		security -> securityType = SecurityTypeEnum->Equity
-
-	//[TH Proposal] [TO BE INCLUDED] Should include also the ones which have typeOfSwapElection represented as returnTerms and no returnType (i.e.: variance, volatility, etc.)
-
-	//set performancePayout -> returnTerms -> priceReturnTerms -> returnType: <"Performance payout must inherit terms from the Master Confirmation Agreement.">
-	//	masterConfirmation -> typeOfSwapElection
-
-//---[End of TH Proposal]---
-
-	//set performancePayout -> calculationPeriodDates: <"Performance payout must inherit terms from the Master Confirmation Agreement.">
-	//	masterConfirmation -> equityCalculationPeriod
-	set performancePayout -> paymentDates: <"Performance payout must inherit terms from the Master Confirmation Agreement.">
-		masterConfirmation -> equityCashSettlementDates
-	set performancePayout -> settlementTerms: <"Performance payout must inherit terms from the Master Confirmation Agreement.">
-		masterConfirmation -> settlementTerms
-
-//---[End of TH Proposal]---
-
 
 func NewFloatingPayout: <"Function specification to create the interest rate (floating) payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
 	inputs: masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
