@@ -1005,8 +1005,8 @@ class FunctionInputCreationTest {
     void validateExercisePartialExerciseInputJson() throws IOException {
         String example9Submission1 = "result-json-files/native-cdm-events/Example-09-Submission-1.json";
         TradeState afterTradeState = getWorkflowStepAfter(example9Submission1);
-        Date tradeDate = Date.of(2019, 4, 1);
 
+        Date tradeDate = Date.of(2019, 4, 1);
 
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
         quantityChangeInstructionBuilder
@@ -1037,6 +1037,67 @@ class FunctionInputCreationTest {
                 tradeDate);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-partial-exercise-func-input.json", actual);
+    }
+
+    @Test
+    void validateExerciseCancellableOptionInputJson() throws IOException {
+        String example10Submission1 = "result-json-files/native-cdm-events/Example-10-Submission-1.json";
+        TradeState afterTradeState = getWorkflowStepAfter(example10Submission1);
+
+        Date tradeDate = Date.of(2019, 4, 1);
+
+        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
+        quantityChangeInstructionBuilder
+                .getOrCreateChange(0)
+                .getOrCreateQuantity(0)
+                .getOrCreateValue()
+                .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
+                .setAmount(BigDecimal.valueOf(12000));
+        quantityChangeInstructionBuilder
+                .setDirection(QuantityChangeDirectionEnum.REPLACE);
+
+        TransferInstruction.TransferInstructionBuilder transferInstructionBuilder = TransferInstruction.builder();
+
+        Transfer.TransferBuilder transferBuilder = transferInstructionBuilder
+                .getOrCreateTransferState(0)
+                .getOrCreateTransfer();
+
+        transferBuilder.getOrCreatePayerReceiver()
+                .setPayerPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1"))
+                .setReceiverPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party2"));
+
+        transferBuilder.getOrCreateQuantity()
+                .setAmount(BigDecimal.valueOf(2000))
+                .setUnitOfAmount(UnitType.builder()
+                        .setCurrency(FieldWithMetaString.builder()
+                                .setValue("EUR")
+                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
+                                )
+                        );
+
+        transferBuilder.setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
+                        .setAdjustedDateValue(Date.of(2019, 4, 3))
+                );
+
+        transferBuilder.getOrCreateTransferExpression()
+                .getOrCreateScheduledTransfer()
+                .setTransferType(TransferTypeEnum.EXERCISE);
+
+        Instruction.InstructionBuilder instruction = Instruction.builder()
+                .setBeforeValue(afterTradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(quantityChangeInstructionBuilder)
+                        .setTransfer(transferInstructionBuilder)
+                );
+
+        ResourcesUtils.reKey(instruction);
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instruction.build()),
+                EventIntentEnum.EXERCISE,
+                tradeDate);
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-cancellable-option-func-input.json", actual);
     }
 
     /**
