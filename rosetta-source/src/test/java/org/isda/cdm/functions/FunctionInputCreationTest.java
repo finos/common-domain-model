@@ -635,9 +635,9 @@ class FunctionInputCreationTest {
                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/uti"))
                                 .setValue("LEI1RPT0003EFG"))
                         .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
-                        .setIssuer(FieldWithMetaString.builder()
-                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                .setValue("LEI1RPT0001"));
+                .setIssuer(FieldWithMetaString.builder()
+                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
+                        .setValue("LEI1RPT0001"));
         tradeBuilder
                 .setTradeIdentifier(Lists.newArrayList(tradeIdentifier.build()))
                 .setTradeDateValue(effectiveDate);
@@ -991,8 +991,6 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-cash-settled-func-input.json", actual);
     }
 
-    //TODO: Compelete this when get go ahead from Nigel
-    @Disabled
     @Test
     void validateExercisePartialExerciseInputJson() throws IOException {
         String example9Submission1 = "result-json-files/native-cdm-events/Example-09-Submission-1.json";
@@ -1011,8 +1009,84 @@ class FunctionInputCreationTest {
 
         ResourcesUtils.reKey(instruction1);
 
+        List<Counterparty.CounterpartyBuilder> counterparties = Lists.newArrayList(
+                Counterparty.builder()
+                        .setPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1").build())
+                        .setRole(CounterpartyRoleEnum.PARTY_1),
+                Counterparty.builder()
+                        .setPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party2").build())
+                        .setRole(CounterpartyRoleEnum.PARTY_2)
+        );
+
+        PriceQuantity.PriceQuantityBuilder pq1 = PriceQuantity.builder();
+        pq1.addPrice(
+                FieldWithMetaPrice.builder()
+                        .setMeta(createKey("price-1"))
+                        .setValue(
+                                Price.builder()
+                                        .setAmount(BigDecimal.valueOf(0.05))
+                                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
+                                        .setPerUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
+                                        .setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.INTEREST_RATE))
+                        )
+        );
+        pq1.addQuantity(
+                FieldWithMetaQuantity.builder()
+                        .setMeta(createKey("quantity-2"))
+                        .setValue(
+                                Quantity.builder()
+                                        .setAmount(BigDecimal.valueOf(16000))
+                                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
+                        )
+        );
+
+
+        PriceQuantity.PriceQuantityBuilder pq2 = PriceQuantity.builder();
+        pq2.setObservable(
+                Observable.builder()
+                        .setRateOption(FieldWithMetaFloatingRateOption.builder()
+                                .setMeta(createKey("rateOption-1"))
+                                .setValue(FloatingRateOption.builder()
+                                        .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_TELERATE)
+                                        .setIndexTenor(Period.builder().setPeriod(PeriodEnum.M).setPeriodMultiplier(6))
+                                )
+                        )
+        );
+        pq2.addQuantity(
+                FieldWithMetaQuantity.builder()
+                        .setMeta(createKey("quantity-1"))
+                        .setValue(Quantity.builder()
+                                .setAmount(BigDecimal.valueOf(16000))
+                                .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
+                        )
+        );
+
+        Identifier.IdentifierBuilder tradeIdentifier = Identifier.builder();
+        tradeIdentifier.addAssignedIdentifier(
+                AssignedIdentifier.builder()
+                        .setIdentifier(
+                                FieldWithMetaString.builder()
+                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
+                                        .setValue("LEI1RPT0001IIIIEx")
+                        )
+                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
+                );
+        tradeIdentifier.setIssuer(
+                FieldWithMetaString.builder()
+                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
+                        .setValue("LEI1RPT0001")
+        );
 
         Instruction.InstructionBuilder instruction2 = Instruction.builder();
+
+        instruction2
+                .getOrCreateExecution()
+                .setCounterparty(counterparties)
+                .setPriceQuantity(Lists.newArrayList(pq1, pq2))
+                .setProduct(afterTradeState.getTrade().getTradableProduct().getProduct())
+                .setTradeDate(tradeDate)
+                .setTradeIdentifier(Lists.newArrayList(tradeIdentifier));
+
 
         ResourcesUtils.reKey(instruction2);
 
@@ -1049,12 +1123,12 @@ class FunctionInputCreationTest {
                         .setCurrency(FieldWithMetaString.builder()
                                 .setValue("EUR")
                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
-                                )
-                        );
+                        )
+                );
 
         transferBuilder.setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
-                        .setAdjustedDateValue(Date.of(2019, 4, 3))
-                );
+                .setAdjustedDateValue(Date.of(2019, 4, 3))
+        );
 
         transferBuilder.getOrCreateTransferExpression()
                 .getOrCreateScheduledTransfer()
@@ -1190,7 +1264,7 @@ class FunctionInputCreationTest {
             }
         }
         assertEquals(expectedJson, actualJson,
-                "The input JSON for "+ Paths.get(expectedJsonPath).getFileName() +" has been updated (probably due to a model change). Update the input file");
+                "The input JSON for " + Paths.get(expectedJsonPath).getFileName() + " has been updated (probably due to a model change). Update the input file");
     }
 
     private void writeExpectation(String writePath, String json) {
