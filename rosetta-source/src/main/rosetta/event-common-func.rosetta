@@ -27,67 +27,6 @@ import cdm.event.position.*
 
 isEvent root BusinessEvent;
 
-//[TH Proposal] Old Equity version
-
-func NovatedContractEffectiveDate:
-[deprecated]
-	inputs:
-		businessEvent BusinessEvent (1..1)
-	output:
-		result date (0..*)
-
-	alias eTerms: businessEvent -> primitives -> contractFormation -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
-	alias effectiveDate: eTerms only-element -> effectiveDate
-	alias interestRatePayoutDate: eTerms only-element -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate
-	alias equityPayoutDate: eTerms only-element -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate
-
-	add result: [
-        effectiveDate -> adjustableDate -> adjustedDate,
-        effectiveDate -> adjustableDate -> unadjustedDate,
-        effectiveDate -> relativeDate -> adjustedDate,
-        interestRatePayoutDate -> adjustableDate -> adjustedDate,
-        interestRatePayoutDate -> adjustableDate -> unadjustedDate,
-        interestRatePayoutDate -> relativeDate -> adjustedDate,
-        equityPayoutDate -> adjustableDate -> adjustedDate,
-        equityPayoutDate -> adjustableDate -> unadjustedDate,
-        equityPayoutDate -> relativeDate -> adjustedDate
-	]
-//---[End of TH Proposal]---
-
-// [TH Proposal] Performance version
-
-func NEW_NovatedContractEffectiveDate:
-	inputs:
-		businessEvent BusinessEvent (1..1)
-	output:
-		result date (0..*)
-
-	alias eTerms: businessEvent -> primitives -> contractFormation -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
-	alias effectiveDate: eTerms only-element -> effectiveDate
-	alias interestRatePayoutDate: eTerms only-element-> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate
-
-	//Changed path to adapt to the new performancePayout + the removal of effective date inside the payout.
-	//alias equityPayoutDate: eTerms only-element-> payout -> equityPayout -> calculationPeriodDates -> effectiveDate
-
-	alias performancePayoutDate: eTerms only-element -> effectiveDate // since now effectiveDate is only outside the payout for equities
-	add result: [
-        effectiveDate -> adjustableDate -> adjustedDate,
-        effectiveDate -> adjustableDate -> unadjustedDate,
-        effectiveDate -> relativeDate -> adjustedDate,
-        interestRatePayoutDate -> adjustableDate -> adjustedDate,
-        interestRatePayoutDate -> adjustableDate -> unadjustedDate,
-        interestRatePayoutDate -> relativeDate -> adjustedDate,
-
-// References to equity also replaced
-
-        //equityPayoutDate -> adjustableDate -> adjustedDate,
-        //equityPayoutDate -> adjustableDate -> unadjustedDate,
-        //equityPayoutDate -> relativeDate -> adjustedDate
-		performancePayoutDate -> adjustableDate -> adjustedDate,
-        performancePayoutDate -> adjustableDate -> unadjustedDate,
-        performancePayoutDate -> relativeDate -> adjustedDate
-	]
-//---[End of TH Proposal]---
 func QuantityIncreasedPrimitive: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is greater than the Quantity (with the same unit of amount) in the before TradeState.  If all quantities are greater then the function returns true.">
 	inputs:
 		quantityChangePrimitives QuantityChangePrimitive (0..*) <"List of QuantityChangePrimitive to be compared.">
@@ -788,10 +727,7 @@ func ResolveReset: <"Defines the interface for adopters to resolve a reset, give
 	output:
 		reset Reset (1..1)
 
-//[TH Proposal] Old equity version
-
 func ResolveEquityObservationIdentifiers: <"Defines which attributes on the EquityPayout should be used to locate and resolve the underlier's price, for example for the reset process.">
-	[deprecated]
 	inputs:
 		payout EquityPayout (1..1)
 		date date (1..1)
@@ -811,36 +747,6 @@ func ResolveEquityObservationIdentifiers: <"Defines which attributes on the Equi
 		ResolveEquityValuationTime(equityValuation, identifiers -> observable -> productIdentifier only-element)
 	set identifiers -> determinationMethodology -> determinationMethod: <"Identifies a more specific price should multiple prices for the underlier be available at the given date time, for example bid or ask prices.">
 		equityValuation -> determinationMethod
-//---[End of TH Proposal]---
-
-
-//[TH Proposal] Performance version [TO BE INCLUDED] [Requires transformation function from calculationPeriodDates (CalculationPeriodDates) to valuationDates (EquityValuationDates) which is still in discussion/development, in order to function properly for the new Performance Payout]
-/*
-func NEW_ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the PerformancePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
-	inputs:
-		payout PerformancePayout (1..1)
-		date date (1..1)
-	output:
-		identifiers ObservationIdentifier (1..1)
-	alias periodEndDate:
-		CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
-	alias performanceValuation: <"Represents the appropriate performance valuation representation, depending on which period the date falls in.">
-		if CalculationPeriod( payout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then
-			payout -> returnTerms -> priceReturnTerms -> valuationPriceFinal
-			else payout -> valuationDates
-	add identifiers -> observable -> productIdentifier: <"Represents the identifer for the equity underlier.">
-		payout -> underlier -> security -> productIdentifier
-	set identifiers -> observationDate: <"Specifies the date for which to retireve the market data value(s).">
-		ResolvePerformanceValuationDate(performanceValuation, date)
-	set identifiers -> observationTime: <"Specifies the time for which to retireve the market data value(s).">
-		ResolveEquityValuationTime(performanceValuation, identifiers -> observable -> productIdentifier only-element)
-	set identifiers -> determinationMethodology -> determinationMethod: <"Identifies a more specific price should multiple prices for the underlier be available at the given date time, for example bid or ask prices.">
-		performanceValuation-> determinationMethod
-
-*/
-//---[End of TH Proposal]---
-
-// [TH Proposal] Old Equity version
 
 func ResolveEquityValuationDate: <"Specifies how an adjusted data is derived from an EquityValuation data type, which contains a series of adjustable dates.">
 	[deprecated]
@@ -850,21 +756,12 @@ func ResolveEquityValuationDate: <"Specifies how an adjusted data is derived fro
 	output:
 		valuationDate date (1..1)
 
-//---[End of TH Proposal]---
-
-// [TH Proposal] Performance version
-
 func ResolvePerformanceValuationDate: <"Specifies how an adjusted data is derived from an EquityValuation data type, which contains a series of adjustable dates.">
 	inputs:
 		performanceValuation EquityValuationDates (1..1) <"Represents the Equity Valuation terms from the Equity product definition.">
 		date date (1..1) <"Specifies the date, which is a proxy for the period, for which the valuation date should be resolved.">
 	output:
 		valuationDate date (1..1)
-
-//---[End of TH Proposal]---
-
-
-//[TH Proposal] Old Equity version
 
 func ResolveEquityValuationTime: <"Defines how to resolve the observation time from those specified in the Equity Valuation type.">
 	[deprecated]
@@ -881,9 +778,6 @@ func ResolveEquityValuationTime: <"Defines how to resolve the observation time f
 		if valuationTime exists then TimeZoneFromBusinessCenterTime(valuationTime)
 	set time:
 		if timeType exists then ResolveTimeZoneFromTimeType(productIdentifier, timeType, equityValuation -> determinationMethod)
-//---[End of TH Proposal]---
-
-//[TH Proposal] Performance version
 
 func ResolvePerformanceValuationTime: <"Defines how to resolve the observation time from those specified in the Performance Valuation type.">
 	inputs:
@@ -899,9 +793,6 @@ func ResolvePerformanceValuationTime: <"Defines how to resolve the observation t
 		if valuationTime exists then TimeZoneFromBusinessCenterTime(valuationTime)
 	set time:
 		if timeType exists then ResolveTimeZoneFromTimeType(productIdentifier, timeType, performanceValuation -> determinationMethod)
-//---[End of TH Proposal]---
-
-//[TH Proposal] Old Equity version
 
 func ResolveEquityReset: <"Defines how to resolve the reset value for an equity payout.">
 	inputs:
@@ -916,12 +807,8 @@ func ResolveEquityReset: <"Defines how to resolve the reset value for an equity 
 		date
 	add reset -> observations: <"Assigns the observation required to compute the rest value as audit.">
 		observation
-//---[End of TH Proposal]---
-
-//[TH Proposal] Performance version
 
 func ResolvePerformanceReset: <"Defines how to resolve the reset value for a performance payout.">
-
 	inputs:
 		performancePayout PerformancePayout (1..1) <"Represents the PerformancePayout to which the reset will apply.">
 		observation Observation (1..1) <"Represents the observation that will be used to compute the reset value.">
@@ -934,10 +821,6 @@ func ResolvePerformanceReset: <"Defines how to resolve the reset value for a per
 		date
 	add reset -> observations: <"Assigns the observation required to compute the rest value as audit.">
 		observation
-
-//---[End of TH Proposal]---
-
-//[TH Proposal] Old Equity version
 
 func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 72. 'Equity Cash Settlement Amount' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Cash Settlement Amount = ABS(Rate Of Return) * Equity Notional Amount.">
 	[deprecated]
@@ -996,22 +879,15 @@ func NEW_EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 
 	 set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
 	 	Abs(equityPerformance)
 	 set equityCashSettlementAmount -> payoutQuantity -> resolvedQuantity -> unitOfAmount-> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
-         ResolveEquityInitialPrice(
-	 		tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price 
-			 ) -> unitOfAmount -> currency
-			 
-			 //,
-	 		//tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable only-element
-	 		//) -> unitOfAmount -> currency
+        ResolveEquityInitialPrice(
+            tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
+        ) -> unitOfAmount -> currency
 	set equityCashSettlementAmount -> payerReceiver -> payer:
 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> payer else equityPayout -> payerReceiver -> receiver
 	set equityCashSettlementAmount -> payerReceiver -> receiver:
 	    if equityPerformance >= 0 then equityPayout -> payerReceiver -> receiver else equityPayout -> payerReceiver -> payer
     set equityCashSettlementAmount -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
-
-//---[End of TH Proposal]---
-
 
 //[TH Proposal] Old equity version
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return)  Equity Notional Amount.">
