@@ -946,15 +946,7 @@ class FunctionInputCreationTest {
         String example8Submission1 = "result-json-files/native-cdm-events/Example-08-Submission-1.json";
         TradeState afterTradeState = getWorkflowStepAfter(example8Submission1);
 
-        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
-        quantityChangeInstructionBuilder
-                .getOrCreateChange(0)
-                .getOrCreateQuantity(0)
-                .getOrCreateValue()
-                .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR").build())
-                .setAmount(BigDecimal.ZERO);
-        quantityChangeInstructionBuilder
-                .setDirection(QuantityChangeDirectionEnum.REPLACE);
+        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = createQuantityChangeInstruction(UnitType.builder().setCurrencyValue("EUR").build(), BigDecimal.ZERO);
 
         TransferInstruction.TransferInstructionBuilder transferInstructionBuilder = TransferInstruction.builder();
 
@@ -1008,15 +1000,8 @@ class FunctionInputCreationTest {
 
         Date tradeDate = Date.of(2019, 4, 1);
 
-        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
-        quantityChangeInstructionBuilder
-                .getOrCreateChange(0)
-                .getOrCreateQuantity(0)
-                .getOrCreateValue()
-                .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR").build())
-                .setAmount(BigDecimal.valueOf(11000));
-        quantityChangeInstructionBuilder
-                .setDirection(QuantityChangeDirectionEnum.REPLACE);
+        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder =
+                createQuantityChangeInstruction(UnitType.builder().setCurrencyValue("EUR").build(), BigDecimal.valueOf(11000));
 
         Instruction.InstructionBuilder instruction1 = Instruction.builder()
                 .setBeforeValue(afterTradeState)
@@ -1046,15 +1031,7 @@ class FunctionInputCreationTest {
 
         Date tradeDate = Date.of(2019, 4, 1);
 
-        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
-        quantityChangeInstructionBuilder
-                .getOrCreateChange(0)
-                .getOrCreateQuantity(0)
-                .getOrCreateValue()
-                .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
-                .setAmount(BigDecimal.valueOf(12000));
-        quantityChangeInstructionBuilder
-                .setDirection(QuantityChangeDirectionEnum.REPLACE);
+        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = createQuantityChangeInstruction(UnitType.builder().setCurrencyValue("EUR"), BigDecimal.valueOf(12000));
 
         TransferInstruction.TransferInstructionBuilder transferInstructionBuilder = TransferInstruction.builder();
 
@@ -1098,6 +1075,20 @@ class FunctionInputCreationTest {
                 tradeDate);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-cancellable-option-func-input.json", actual);
+    }
+
+    @NotNull
+    private QuantityChangeInstruction.QuantityChangeInstructionBuilder createQuantityChangeInstruction(UnitType unitOfAmount, BigDecimal amount) {
+        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
+        quantityChangeInstructionBuilder
+                .getOrCreateChange(0)
+                .getOrCreateQuantity(0)
+                .getOrCreateValue()
+                .setUnitOfAmount(unitOfAmount)
+                .setAmount(amount);
+        quantityChangeInstructionBuilder
+                .setDirection(QuantityChangeDirectionEnum.REPLACE);
+        return quantityChangeInstructionBuilder;
     }
 
     /**
