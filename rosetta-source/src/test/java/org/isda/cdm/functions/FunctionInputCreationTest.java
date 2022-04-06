@@ -999,6 +999,45 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-cash-settled-func-input.json", actual);
     }
 
+    @Disabled
+    @Test
+    void validateExercisePartialExerciseInputJson() throws IOException {
+        String example9Submission1 = "result-json-files/native-cdm-events/Example-09-Submission-1.json";
+        TradeState afterTradeState = getWorkflowStepAfter(example9Submission1);
+        Date tradeDate = Date.of(2019, 4, 1);
+
+
+        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
+        quantityChangeInstructionBuilder
+                .getOrCreateChange(0)
+                .getOrCreateQuantity(0)
+                .getOrCreateValue()
+                .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR").build())
+                .setAmount(BigDecimal.valueOf(11000));
+        quantityChangeInstructionBuilder
+                .setDirection(QuantityChangeDirectionEnum.REPLACE);
+
+        Instruction.InstructionBuilder instruction1 = Instruction.builder()
+                .setBeforeValue(afterTradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(quantityChangeInstructionBuilder)
+                );
+
+        ResourcesUtils.reKey(instruction1);
+
+
+        Instruction.InstructionBuilder instruction2 = Instruction.builder();
+
+        ResourcesUtils.reKey(instruction2);
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instruction1.build(), instruction2.build()),
+                EventIntentEnum.EXERCISE,
+                tradeDate);
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-partial-exercise-func-input.json", actual);
+    }
+
     /**
      * Use record-ex01-vanilla-swap.json sample and modify it to look exactly like CFTC example 3 (used in regs termination example)
      */
