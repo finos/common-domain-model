@@ -999,6 +999,7 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-cash-settled-func-input.json", actual);
     }
 
+    //TODO: Compelete this when get go ahead from Nigel
     @Disabled
     @Test
     void validateExercisePartialExerciseInputJson() throws IOException {
