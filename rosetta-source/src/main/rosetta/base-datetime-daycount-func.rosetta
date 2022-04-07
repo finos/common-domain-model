@@ -131,6 +131,13 @@ func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360_ISDA): 
 	set result:
 		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
+
+func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_364): <"the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 364.">
+	[calculation]
+	alias daysInPeriod: DateDifference(startDate, endDate)
+	set result:
+		daysInPeriod / 364
+
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_365L): <"The actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365 (or, if the later Period End Date of the Calculation Period or Compounding Period falls in a leap year, divided by 366).">
 	[calculation]
 
@@ -177,6 +184,8 @@ func DayCountBasis(dcf: DayCountFractionEnum -> ACT_365L):
 
 func DayCountBasis(dcf: DayCountFractionEnum ->ACT_365_FIXED):
 	set basis: 365
+
+// the following day count bases are under review by ISDA Legal and may be updated in a future version of CDM
 
 func DayCountBasis(dcf: DayCountFractionEnum ->ACT_ACT_AFB):
 	set basis: 365 // Should this support 366 in leap years?  requires passing in the actual dates
