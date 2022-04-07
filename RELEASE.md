@@ -1,3 +1,4 @@
+
 # *Event Model - Exercise*
 
 _Background_
@@ -25,7 +26,7 @@ The CDM contains the following visualisation examples to demonstrate the approac
 - Swaption Full Cash Exercise
 - Swaption Partial Physical Exercise
 - Swaption Full Physical Exercise
-- Cancellable Swap Partical Cash Exercise
+- Cancellable Swap Exercise
 
 _Review Directions_
 
