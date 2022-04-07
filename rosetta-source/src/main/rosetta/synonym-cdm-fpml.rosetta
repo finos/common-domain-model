@@ -66,36 +66,48 @@ synonym source FpML_5_10 extends FpML
 			[hint "amount"]
 			[hint "valuation"]
 
+// 	[value "volatilityStrikePrice" path "amount->variance" set when rosettaPath = PerformancePayout -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice]
+    //[value "volatilityStrikePrice" path "amount->volatility" set when rosettaPath = PerformancePayout -> returnTerms -> volatilityReturnTerms -> volatilityStrikePrice]
+
+
     ReturnTerms:
 		+ varianceReturnTerms
+		    [value "variance" path "amount"]
 			[hint "amount"]
 			[hint "valuation"]
 		+ volatilityReturnTerms
-			[hint "amount"]
+			[value "volatility" path "amount"] // TODO remove conditional mapping
+            [hint "amount"]
 			[hint "valuation"]
 
     VolatilityReturnTerms:
+        + volatilityStrikePrice
+            [hint "volatilityStrikePrice"]
 		// Common for variance, volatility and correlation (ReturnTermsBase)
 		+ expectedN
-			[value "expectedN" path "amount->volatility"]
+			[value "expectedN"]
 		+ dividendApplicability
 			[value "amount" set when path = "volatilityLeg"]
 		+ initialLevel
-			[value "initialLevel" path "amount->volatility"]
+			[value "initialLevel"]
 		+ valuation
 			[value "valuation" set when path = "volatilityLeg"]
 		// Variance specific
 		+ volatilityCapFloor
-			[value "volatilityCap" path "amount->volatility"]
+			[value "volatilityCap"]
 
     VarianceReturnTerms:
+        + varianceStrikePrice
+            [hint "varianceStrikePrice"]
+        + volatilityStrikePrice
+            [hint "volatilityStrikePrice"]
     	// Common for variance, volatility and correlation (ReturnTermsBase)
 		+ expectedN
-			[value "expectedN" path "amount->variance"]
+			[value "expectedN"]
 		+ dividendApplicability
 			[value "amount" set when path = "varianceLeg"]
 		+ initialLevel
-			[value "initialLevel" path "amount->variance"]
+			[value "initialLevel"]
 		+ valuation
 			[value "valuation" set when path = "varianceLeg"]
 		// Variance specific
@@ -595,9 +607,8 @@ synonym source FpML_5_10 extends FpML
 			[value "price" maps 2]
 			// For Commodity Option
 			[value "amount" path "strikePricePerUnit" mapper "PriceUnitType"]
-			[value "varianceStrikePrice" path "amount->variance" set when rosettaPath = PerformancePayout -> returnTerms -> varianceReturnTerms -> varianceStrikePrice]
-			[value "volatilityStrikePrice" path "amount->variance" set when rosettaPath = PerformancePayout -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice]
-			[value "volatilityStrikePrice" path "amount->volatility" set when rosettaPath = PerformancePayout -> returnTerms -> volatilityReturnTerms -> volatilityStrikePrice]
+			[value "varianceStrikePrice" mapper "PriceUnitType"]
+			[value "volatilityStrikePrice" mapper "PriceUnitType"]
 		+ unitOfAmount
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
 			[value "quotedCurrencyPair"]
@@ -627,7 +638,10 @@ synonym source FpML_5_10 extends FpML
  			[set to PriceTypeEnum->AssetPrice when "referencePrice" exists]
  			[set to PriceTypeEnum->AssetPrice when "strikePrice" exists]
  			[set to PriceTypeEnum->AssetPrice when "initialPrice->netPrice->amount" exists]
- 			[set to PriceTypeEnum->CashPrice when path = "bulletPayment->payment->paymentAmount"]
+ 			[set to PriceTypeEnum->Variance when path = "variance" and "varianceStrikePrice" exists]
+ 			[set to PriceTypeEnum->Volatility when path = "variance" and "volatilityStrikePrice" exists]
+ 			[set to PriceTypeEnum->Volatility when path = "volatility" and "volatilityStrikePrice" exists]
+            [set to PriceTypeEnum->CashPrice when path = "bulletPayment->payment->paymentAmount"]
  			[set to PriceTypeEnum->ExchangeRate when path = "exchangeRate" and "rate" exists]
  			[set to PriceTypeEnum->ExchangeRate when path = "fxOption->strike"]
  			[set to PriceTypeEnum->ExchangeRate when path = "fxOption" and "spotRate" exists]
@@ -1713,7 +1727,7 @@ synonym source FpML_5_10 extends FpML
 			[value "quantity" maps 2]
 			[value "amount" path "paymentAmount"]
 			[value "amount" path "fixedAmount"]
-			[value "vegaNotionalAmount" path "amount->variance"]
+			[value "vegaNotionalAmount"]
 		+ unitOfAmount
 			[value "singleUnderlyer"]
 			[value "basket"]
@@ -1721,6 +1735,7 @@ synonym source FpML_5_10 extends FpML
 			[value "openUnits"]
 			[value "paymentAmount"]
 			[value "fixedAmount"]
+			[hint "varianceAmount"]
 		+ multiplier
 			[value "optionEntitlement"]
 		+ multiplierUnit
@@ -3553,6 +3568,7 @@ synonym source FpML_5_10 extends FpML
 			[value "priceCurrency" maps 2 set when rosettaPath = Price->unitOfAmount->currency]
 			// For Bond Option
 			[value "entitlementCurrency" maps 2 meta "currencyScheme"]
+			[value "currency" path "varianceAmount" maps 2 set when "vegaNotionalAmount" exists]
 		+ frequency
 			[value "Frequency"]
 			// For Commodity Swap Fixed Leg

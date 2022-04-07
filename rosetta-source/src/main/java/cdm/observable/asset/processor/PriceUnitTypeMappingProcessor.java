@@ -57,7 +57,8 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
 				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", Arrays.asList("currency"), FinancialUnitEnum.SHARE)
 				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", Arrays.asList("notional", "notionalAmount", "currency"), FinancialUnitEnum.SHARE)
-				|| updatePriceUnits(priceBuilder, synonymPath, "equityOption", Arrays.asList("equityExercise", "settlementCurrency"), exists(Arrays.asList("underlyer", "singleUnderlyer", "index", "instrumentId")) ? FinancialUnitEnum.INDEX_UNIT : FinancialUnitEnum.SHARE)
+				|| updatePriceUnits(priceBuilder, synonymPath, "equityOption", Arrays.asList("equityExercise", "settlementCurrency"), getPerUnitOfAmountIndexOrShare())
+				|| updatePriceUnits(priceBuilder, getUnitOfAmountVarianceOrVolatility(synonymPath), getPerUnitOfAmountIndexOrShare())
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
 				// Repo
@@ -66,6 +67,23 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updatePriceUnits(priceBuilder, synonymPath, "commodityOption", Arrays.asList("strikePricePerUnit", "currency"), Arrays.asList("notionalQuantity", "quantityUnit"))) {
 			return;
 		}
+	}
+
+	@NotNull
+	private Optional<FinancialUnitEnum> getUnitOfAmountVarianceOrVolatility(Path synonymPath) {
+		if (synonymPath.getLastElement().getPathName().equals("varianceStrikePrice")) {
+			return Optional.of(FinancialUnitEnum.VARIANCE);
+		}
+		else if (synonymPath.getLastElement().getPathName().equals("volatilityStrikePrice")) {
+			return Optional.of(FinancialUnitEnum.VOLATILITY);
+		} else {
+			return Optional.empty();
+		}
+	}
+
+	@NotNull
+	private FinancialUnitEnum getPerUnitOfAmountIndexOrShare() {
+		return exists(Arrays.asList("underlyer", "singleUnderlyer", "index", "instrumentId")) ? FinancialUnitEnum.INDEX_UNIT : FinancialUnitEnum.SHARE;
 	}
 
 	private boolean updateCurrencyUnits(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
@@ -106,6 +124,14 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(perUnitOfAmountEndsWith)))
 				.map(this::toCapacityUnitEnumType);
 		return unitOfAmount.flatMap(uoa -> perUnitOfAmount.map(puoa -> updateBuilder(builder, uoa, puoa)))
+				.orElse(false);
+	}
+
+	private boolean updatePriceUnits(PriceBuilder builder, Optional<FinancialUnitEnum> unitOfAmountOptional, FinancialUnitEnum perUnitOfAmount) {
+		return unitOfAmountOptional
+				.map(unitOfAmount -> updateBuilder(builder,
+						UnitType.builder().setFinancialUnit(unitOfAmount),
+						UnitType.builder().setFinancialUnit(perUnitOfAmount)))
 				.orElse(false);
 	}
 
@@ -158,9 +184,6 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	}
 
 	private boolean updateFxOption(PriceBuilder builder, Path synonymPath) {
-//		if (builder.getPriceExpression().getPriceType() == PriceTypeEnum.EXCHANGE_RATE && builder.getPriceExpression().getSpreadType() != PriceTypeEnum.SPOT) {
-//			return false;
-//		}
 		Optional<Path> subPath = subPath("fxOption", synonymPath);
 		return subPath.flatMap(p -> getValueAndUpdateMappings(p.addElement("strike").addElement("strikeQuoteBasis")))
 				.map(quoteBasis -> setFxOptionRateUnits(builder, subPath.get(), quoteBasis))
