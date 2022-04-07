@@ -66,10 +66,6 @@ synonym source FpML_5_10 extends FpML
 			[hint "amount"]
 			[hint "valuation"]
 
-// 	[value "volatilityStrikePrice" path "amount->variance" set when rosettaPath = PerformancePayout -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice]
-    //[value "volatilityStrikePrice" path "amount->volatility" set when rosettaPath = PerformancePayout -> returnTerms -> volatilityReturnTerms -> volatilityStrikePrice]
-
-
     ReturnTerms:
 		+ varianceReturnTerms
 		    [value "variance" path "amount"]
@@ -101,6 +97,8 @@ synonym source FpML_5_10 extends FpML
             [hint "varianceStrikePrice"]
         + volatilityStrikePrice
             [hint "volatilityStrikePrice"]
+        + vegaNotionalAmount
+            [hint "vegaNotionalAmount"]
     	// Common for variance, volatility and correlation (ReturnTermsBase)
 		+ expectedN
 			[value "expectedN"]
@@ -543,6 +541,7 @@ synonym source FpML_5_10 extends FpML
 			[value "constituentWeight"]
 			[hint "constituentWeight"]
             [value "notionalAmount" path "notional"]
+            [value "variance" path "amount"]
             // For FX:
             [value "paymentAmount" path "exchangedCurrency1"]
             [value "paymentAmount" path "exchangedCurrency2"]
@@ -1727,6 +1726,7 @@ synonym source FpML_5_10 extends FpML
 			[value "quantity" maps 2]
 			[value "amount" path "paymentAmount"]
 			[value "amount" path "fixedAmount"]
+			[value "amount" path "varianceAmount"]
 			[value "vegaNotionalAmount"]
 		+ unitOfAmount
 			[value "singleUnderlyer"]
@@ -1735,7 +1735,8 @@ synonym source FpML_5_10 extends FpML
 			[value "openUnits"]
 			[value "paymentAmount"]
 			[value "fixedAmount"]
-			[hint "varianceAmount"]
+			[value "varianceAmount"]
+			//[value "variance"]
 		+ multiplier
 			[value "optionEntitlement"]
 		+ multiplierUnit
@@ -1747,8 +1748,9 @@ synonym source FpML_5_10 extends FpML
 			[meta "initialValue"]
 			[meta "amount"]
 			[meta "quantity"]
+			[value "varianceAmount" path "amount->variance" meta "amount"]
             [value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
-			[value "varianceAmount" path "amount->variance"]
+
 
 	NonNegativeStepSchedule:
 		+ step
@@ -2540,6 +2542,7 @@ synonym source FpML_5_10 extends FpML
 			[value "returnLeg"]
 			[value "basketConstituent"]
 			[value "interestLeg"]
+			[value "varianceLeg"]
 			// FX
 			[value "nearLeg"]
 			[value "farLeg"]
@@ -2582,6 +2585,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "equityOption"]
 			[value "basket" path "equityOption->underlyer"]
 			[value "brokerEquityOption"]
+			[value "varianceSwap"]
 			// Other
 			[value "commoditySwap"]
 			[hint "commoditySwap"]
