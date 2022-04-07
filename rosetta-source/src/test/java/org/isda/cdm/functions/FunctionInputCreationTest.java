@@ -942,6 +942,34 @@ class FunctionInputCreationTest {
     }
 
     @Test
+    void validateExerciseSwaptionFullPhysicalInputJson() throws IOException {
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex09-euro-swaption-explicit-physical-exercise.json");
+
+        ExerciseInstruction.ExerciseInstructionBuilder exerciseInstructionBuilder = ExerciseInstruction.builder();
+        exerciseInstructionBuilder.getOrCreateExerciseQuantity()
+                .setQuantityChange(createQuantityChangeInstruction(
+                        UnitType.builder().setCurrencyValue("EUR"),
+                        BigDecimal.ZERO
+                ));
+
+
+        Instruction.InstructionBuilder instructions = Instruction.builder()
+                .setBeforeValue(tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setExercise(exerciseInstructionBuilder)
+                );
+
+        ResourcesUtils.reKey(instructions);
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructions.build()),
+                EventIntentEnum.EXERCISE,
+                Date.of(2001, 8, 28));
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-swaption-full-physical-func-input.json", actual);
+    }
+
+    @Test
     void validateExerciseCashSettledInputJson() throws IOException {
         String example8Submission1 = "result-json-files/native-cdm-events/Example-08-Submission-1.json";
         TradeState afterTradeState = getWorkflowStepAfter(example8Submission1);
