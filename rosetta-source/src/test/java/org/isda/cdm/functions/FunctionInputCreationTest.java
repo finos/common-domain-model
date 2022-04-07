@@ -998,100 +998,42 @@ class FunctionInputCreationTest {
 
         Date tradeDate = Date.of(2019, 4, 1);
 
-        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder =
-                createQuantityChangeInstruction(UnitType.builder().setCurrencyValue("EUR").build(), BigDecimal.valueOf(11000));
+        ExerciseInstruction.ExerciseInstructionBuilder exerciseInstructionBuilder = ExerciseInstruction.builder();
 
-        Instruction.InstructionBuilder instruction1 = Instruction.builder()
+        exerciseInstructionBuilder.getOrCreateExerciseQuantity()
+                .setQuantityChange(
+                        createQuantityChangeInstruction(
+                                UnitType.builder().setCurrencyValue("EUR"),
+                                BigDecimal.valueOf(11000))
+                );
+
+        exerciseInstructionBuilder.addReplacementTradeIdentifier(
+                Identifier.builder()
+                        .addAssignedIdentifier(
+                                AssignedIdentifier.builder()
+                                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
+                                        .setIdentifier(FieldWithMetaString.builder()
+                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
+                                                .setValue("LEI1RPT0001IIIIEx")
+                                        )
+                        )
+                        .setIssuer(FieldWithMetaString.builder()
+                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
+                                .setValue("LEI1RPT0001")
+                        )
+        );
+
+        Instruction.InstructionBuilder instruction = Instruction.builder()
                 .setBeforeValue(afterTradeState)
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(quantityChangeInstructionBuilder)
+                        .setExercise(exerciseInstructionBuilder)
                 );
 
-        ResourcesUtils.reKey(instruction1);
+        ResourcesUtils.reKey(instruction);
 
-        List<Counterparty.CounterpartyBuilder> counterparties = Lists.newArrayList(
-                Counterparty.builder()
-                        .setPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1").build())
-                        .setRole(CounterpartyRoleEnum.PARTY_1),
-                Counterparty.builder()
-                        .setPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party2").build())
-                        .setRole(CounterpartyRoleEnum.PARTY_2)
-        );
-
-        PriceQuantity.PriceQuantityBuilder pq1 = PriceQuantity.builder();
-        pq1.addPrice(
-                FieldWithMetaPrice.builder()
-                        .setMeta(createKey("price-1"))
-                        .setValue(
-                                Price.builder()
-                                        .setAmount(BigDecimal.valueOf(0.05))
-                                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
-                                        .setPerUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
-                                        .setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.INTEREST_RATE))
-                        )
-        );
-        pq1.addQuantity(
-                FieldWithMetaQuantity.builder()
-                        .setMeta(createKey("quantity-2"))
-                        .setValue(
-                                Quantity.builder()
-                                        .setAmount(BigDecimal.valueOf(16000))
-                                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
-                        )
-        );
-
-
-        PriceQuantity.PriceQuantityBuilder pq2 = PriceQuantity.builder();
-        pq2.setObservable(
-                Observable.builder()
-                        .setRateOption(FieldWithMetaFloatingRateOption.builder()
-                                .setMeta(createKey("rateOption-1"))
-                                .setValue(FloatingRateOption.builder()
-                                        .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_TELERATE)
-                                        .setIndexTenor(Period.builder().setPeriod(PeriodEnum.M).setPeriodMultiplier(6))
-                                )
-                        )
-        );
-        pq2.addQuantity(
-                FieldWithMetaQuantity.builder()
-                        .setMeta(createKey("quantity-1"))
-                        .setValue(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(16000))
-                                .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
-                        )
-        );
-
-        Identifier.IdentifierBuilder tradeIdentifier = Identifier.builder();
-        tradeIdentifier.addAssignedIdentifier(
-                AssignedIdentifier.builder()
-                        .setIdentifier(
-                                FieldWithMetaString.builder()
-                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                        .setValue("LEI1RPT0001IIIIEx")
-                        )
-                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
-                );
-        tradeIdentifier.setIssuer(
-                FieldWithMetaString.builder()
-                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
-                        .setValue("LEI1RPT0001")
-        );
-
-        Instruction.InstructionBuilder instruction2 = Instruction.builder();
-
-        instruction2
-                .getOrCreateExecution()
-                .setCounterparty(counterparties)
-                .setPriceQuantity(Lists.newArrayList(pq1, pq2))
-                .setProduct(afterTradeState.getTrade().getTradableProduct().getProduct())
-                .setTradeDate(tradeDate)
-                .setTradeIdentifier(Lists.newArrayList(tradeIdentifier));
-
-
-        ResourcesUtils.reKey(instruction2);
 
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
-                Lists.newArrayList(instruction1.build(), instruction2.build()),
+                Lists.newArrayList(instruction.build()),
                 EventIntentEnum.EXERCISE,
                 tradeDate);
 
