@@ -17,8 +17,8 @@ For Cash exercise, and for Physical exercise of Options that are not Interest Ra
 
 _What is being released?_
 
-`ExerciseInstruction` - updated to contain the necessary inputs to functional instruct an exercise business event.
-`Create_ExercisePrimitive` - new primitive event creation function used to functional create the result of the physical exercise of an Interest Rate Swaption or Credit Default Swaption.
+`ExerciseInstruction` - updated to contain the necessary inputs to functionally instruct an exercise business event.
+`Create_ExercisePrimitive` - new primitive event creation function used to functionally create the result of the physical exercise of an Interest Rate Swaption or Credit Default Swaption.
 `Create_BusinessEvent` - updated to call `Create_ExercisePrimitive` when input contains an `exercise` instruction.
 `Qualify_Exercise` - updated to correctly qualify an exercise business event based on the functional or declarative model.
 
