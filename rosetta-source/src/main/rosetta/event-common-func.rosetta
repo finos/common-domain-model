@@ -316,16 +316,27 @@ func Qualify_Compression: <"The qualification of a compression event from the fa
 		businessEvent -> instruction -> primitiveInstruction -> execution count = 1
         and businessEvent -> instruction -> primitiveInstruction -> quantityChange count > 1
 
-
 func Qualify_Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
+	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
 	set is_event:
-		businessEvent -> primitives -> quantityChange count = 1
+		(businessEvent -> primitives -> quantityChange count = 1
 		and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Exercised
-		and (businessEvent -> primitives -> contractFormation exists or businessEvent -> primitives -> transfer exists)
+		and (businessEvent -> primitives -> contractFormation exists or businessEvent -> primitives -> transfer exists))
+		or
+		(businessEvent -> intent = EventIntentEnum -> Exercise and
+		(businessEvent -> instruction count = 1 and
+		(businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction -> transfer exists))
+		or
+		(businessEvent -> instruction count = 2 and
+		(businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction -> execution exists))
+		or
+		(businessEvent -> instruction count = 1 and
+		businessEvent -> instruction -> primitiveInstruction -> exercise exists)
+		)
 
 func Qualify_Increase: <"The qualification of a increase event from the fact that (i) the intent is Increase when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract increases.">
 	[qualification BusinessEvent]
@@ -1124,6 +1135,48 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
   	set exerciseEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the underlying financial product to the exercising party if cash settlement was mandated by the contract.">
  		if settlementTerms -> cashSettlementTerms exists then
  			Create_TransferPrimitive( transferInstruction, execution )
+
+func Create_ExercisePrimitive: <"Defines the process of putting into effect the rights specified in an options contract, such as to buy or sell a security.  Once exercised the option contract is terminated.">
+
+	inputs:
+		exerciseInstruction ExerciseInstruction (1..1) <"Instruction containing the terms of the option exercise.">
+		originalTrade TradeState (1..1) <"The original trade to be split, which must be of single cardinality.">
+	output:
+		exercise TradeState (1..*)
+
+	alias tradableProduct: <"Extracts the originally traded product.">
+ 		originalTrade -> trade -> tradableProduct
+
+	alias optionPayout: <"Extracts the optionPayout from exerciseInstruction if provided or from the original trade if absent">
+		if exerciseInstruction -> exerciseOption exists then exerciseInstruction -> exerciseOption
+			else tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> optionPayout only-element
+
+	alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout.">
+ 		optionPayout -> underlier
+
+  	alias execution: <"Creates the execution primitive describing the exchange of the underlying product, either as a cash transfer or as the formation of a new contractual product between parties.">
+ 		Create_ExecutionPrimitive(
+ 		    Create_ExecutionInstruction(
+                underlier,
+                tradableProduct -> tradeLot only-element -> priceQuantity,
+                tradableProduct -> counterparty,
+                tradableProduct -> ancillaryParty,
+                originalTrade -> trade -> party,
+                originalTrade -> trade -> partyRole,
+                empty,
+                originalTrade -> trade -> tradeDate,
+                exerciseInstruction -> replacementTradeIdentifier
+            )
+        ) -> after
+
+	condition: <"Requires that the original contract contains an option payout.">
+ 		optionPayout exists
+
+	add exercise: <"Reduces notional / quantity of option by the amount exercised.">
+		Create_TradeState( exerciseInstruction->exerciseQuantity, originalTrade )
+
+	add exercise: <"Adds the replacement trade">
+		execution
 
 func SecurityTransferInstruction: <"Defines the creation of a Transfer Instruction from a Trade State.">
     inputs:
@@ -2278,6 +2331,9 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
 	        map [
 	            if item -> primitiveInstruction -> split exists then
                     Create_Split( item -> primitiveInstruction -> split -> breakdown, item -> before )
+				else if item -> primitiveInstruction -> exercise exists then
+					Create_ExercisePrimitive( item -> primitiveInstruction ->exercise, item -> before )
+
                 else
                     [ Create_TradeState( item -> primitiveInstruction , item -> before ) ]
 	        ] flatten
