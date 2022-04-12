@@ -1,4 +1,4 @@
-# *Product Model - Performance and Fixed Price Payouts*
+# *Product Model - New Performance Payouts*
 
 _Background_
 
