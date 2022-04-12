@@ -43,9 +43,7 @@ The Rosetta DSL comprises a `language <https://github.com/REGnosys/rosetta-dsl>`
 The ISDA CDM Distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* The ISDA CDM distribution is openly accessible to all industry participants and can be downloaded from the `CDM Portal <https://portal.cdm.rosetta-technology.io>`_. The ISDA CDM is distributed subject to the ISDA CDM open source licence.
-
-* Information on how to access the CDM Java distribution can be found here: `CDM Java Distribution Guidelines <cdm-guidelines.html>`_
+The ISDA CDM distribution is openly accessible to all industry participants and can be downloaded from the `CDM Portal <https://portal.cdm.rosetta-technology.io>`_. The ISDA CDM is distributed subject to the ISDA CDM open source licence.
 
 Components
 """"""""""
@@ -64,7 +62,7 @@ The ISDA CDM distribution comprises three main sets of components:
 * **Executable code distribution**, automatically generated from the model definitions expressed in the Rosetta DSL using `available code generators <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available>`_. Once a code generator is implemented for a particular language, the corresponding code generation is included as part of the CDM build and release process, allowing the CDM to be automatically distributed in that language going forward.
 * **Default implementation**, comprising manually-written code (in Java) which, combined with the auto-generated code, provides a complete implementation of the model. This hand-written code is distributed together with the CDM to facilitate adoption by firms, which can directly use the CDM distribution to set-up and test an implementation. The default implementation can be used in its original state or be disabled or extended by industry participants in their implementation. For example, the default implementation uses the de-facto Java hash function for the *key* meta-data that supports the CDM cross-referencing mechanism. Firms may elect to use an alternative implementation.
 
-.. note:: While the Java executable code distribution is complete, i.e. it represents the entire CDM as defined in Rosetta (plus any associated default implementation), some other distributions may only capture parts of the model. For instance, the Scala and TypeScript distributions include the complete data model and the function specifications, but not the executable code for functions.
+.. note:: Only the Java executable code distribution is complete: i.e. it represents the entire CDM as defined in Rosetta (plus any associated default implementation). Other distributions may only capture parts of the model: for instance, the Scala and TypeScript distributions include the complete data model and function specifications, but not the functions' executable code. Information on how to access the CDM Java distribution can be found in the `CDM Java Distribution Guidelines <cdm-guidelines.html>`_.
 
 Versioning
 """"""""""
