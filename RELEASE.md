@@ -173,15 +173,15 @@ New
 
 Modified
 
-* `Qualify_AssetClass_Equity` – Added products with underlier equity baskets as Equity Asset Class products
+* `Qualify_AssetClass_Equity` – Added products with underlier equity baskets as Equity Asset Class products.
 * `Qualify_BaseProduct_EquitySwap` – Added asset class check using Qualify_AssetClass_Equity to replace the former equityPayout check. Payout check changed from equity Payout to several payout combinations (all containing at least a  performance payout) to reflect the payout structures of all the equity products now available.
-* `Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName.` – Qualification adapted to include performance payout. One interest and one performance payout is required.
+* `Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName` – Qualification adapted to include performance payout. One interest and one performance payout is required.
 * `Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName` – Qualification adapted to include performance payout.  One performance (dividend), one performance (price) and one interest rate payout are required.
 * `Qualify_EquitySwap_PriceReturnBasicPerformance_Index` – Qualification adapted to include performance payout.  One interest and one performance payout is required.
 * `Qualify_EquitySwap_TotalReturnBasicPerformance_Index` – Qualification adapted to include performance payout.  One performance (dividend), one performance (price) and one interest rate payout are required.
 * `Qualify_EquitySwap_PriceReturnBasicPerformance_Basket` – Qualification adapted to include performance payout. One interest and one performance payout is required.
 * `Qualify_EquitySwap_TotalReturnBasicPerformance_Basket` – Qualification adapted to include performance payout. One performance (dividend), one performance (price) and one interest rate payout are required.
-* `Qualify_Commodity_Swap_FixedFloat` – References to equityPayout replaced by references to performancePayout
+* `Qualify_Commodity_Swap_FixedFloat` – References to equityPayout replaced by references to performancePayout.
 
 `product-common-schedule-func`:
 
