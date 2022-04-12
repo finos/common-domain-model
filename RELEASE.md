@@ -2,8 +2,7 @@
 
 _Background_
 
-Variance, volatility, correlation, and dividend products are currently not supported by CDM Core. This release intends to allow for the representation of this group of products. In order to avoid the proliferation of new payouts, a new Performance Payout has been created to encompass all products formerly represented through the Equity Payout (that is, price and total return swaps) plus the new aforementioned products. The underlying logic in the Performance Payout is to create a common structure for all products sharing the following characteristics:
-
+Variance, volatility, correlation, and dividend products are currently not supported in the CDM product model. This release intends to allow for the representation of this group of products. In order to avoid the proliferation of new payouts, a new Performance Payout has been created to encompass all products formerly represented through the Equity Payout (that is, price and total return swaps) plus the new aforementioned products. The underlying logic in the Performance Payout is to create a common structure for all products sharing the following characteristics:
 * Require an observation of an underlier to be made.
 * The return is derived from the observed value of the underlier, either directly (as in price or total return swaps) or by applying a specific function to the observed value (as in variance, volatility, or correlation).
 
