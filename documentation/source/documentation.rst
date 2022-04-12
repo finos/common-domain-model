@@ -435,10 +435,11 @@ The ``Payout`` type defines the composable payout types, each of which describes
    optionPayout OptionPayout (0..*)
    commodityPayout CommodityPayout (0..*)
    forwardPayout ForwardPayout (0..*)
-   fixedForwardPayout FixedForwardPayout (0..*)
+   fixedPricePayout FixedPricePayout (0..*)
    securityPayout SecurityPayout (0..*)
    securityFinancePayout SecurityFinancePayout (0..*)
    cashflow Cashflow (0..*)
+   performancePayout PerformancePayout (0..*)
 
 A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts.
 
