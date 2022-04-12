@@ -1,4 +1,4 @@
-# *Product Model - New Performance Payouts*
+# *Product Model - New Performance Payout*
 
 _Background_
 
