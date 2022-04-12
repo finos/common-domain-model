@@ -20,8 +20,8 @@ A single, digital processing standard for trade events and actions enhances fina
 
 For further information about the CDM and its applications, please consult the `CDM section <https://www.isda.org/2019/10/14/isda-common-domain-model/>`_ of the ISDA website or contact ISDA directly at marketinfrastructureandtechnology@isda.org.
 
-The CDM Components
-------------------
+CDM Components
+--------------
 
 **There are three sets of CDM components**, as laid-out in the ISDA CDM components diagram below:
 
@@ -31,8 +31,8 @@ The CDM Components
 
 .. figure:: images/cdm-components-diagram.png
 
-The Rosetta DSL
-^^^^^^^^^^^^^^^
+Rosetta DSL
+^^^^^^^^^^^
 
 The CDM is a `domain model <https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353>`_ written in a Domain-Specific Language (DSL) called the *Rosetta DSL*. The CDM is distributed into multiple common programming languages using a *code generation* mechanism from the Rosetta DSL.
 
@@ -40,10 +40,10 @@ The Rosetta DSL comprises a `language <https://github.com/REGnosys/rosetta-dsl>`
 
 .. note:: All the language components, their syntax and purpose are detailed in the `Rosetta DSL documentation <https://docs.rosetta-technology.io/rosetta/rosetta-dsl>`_. The documentation also describes the mechanism to write and use code generators.
 
-The ISDA CDM Distribution
-^^^^^^^^^^^^^^^^^^^^^^^^^
+ISDA CDM Distribution
+^^^^^^^^^^^^^^^^^^^^^
 
-The ISDA CDM distribution is openly accessible to all industry participants and can be downloaded from the `CDM Portal <https://portal.cdm.rosetta-technology.io>`_. The ISDA CDM is distributed subject to the ISDA CDM open source licence.
+The ISDA CDM distribution is openly accessible to all industry participants and can also be downloaded. The ISDA CDM is distributed subject to the ISDA CDM open source licence.
 
 Components
 """"""""""
@@ -77,12 +77,12 @@ The CDM is released using the semantic versioning system. The format of a versio
 
 The MAJOR.MINOR.PATCH numbers may increment by more than one unit because release candidates may be created, but not immediately released. Consequently, a subsequent build referenced with the next incremental unit may be released with amendments that include the earlier release candidate.
 
-CDM Application
-^^^^^^^^^^^^^^^
+CDM Applications
+^^^^^^^^^^^^^^^^
 
 An eco-system of CDM-based application components from software providers exists in order to support the adoption of CDM and the implementation of CDM-based production systems by industry participants. These applications may be open source software or licensed under commercial terms. In particular:
 
-* The CDM Portal provides a user interface allowing users to navigate through and download the CDM.
+* The `CDM Portal <https://portal.cdm.rosetta-technology.io>`_ provides a user interface allowing users to navigate through and download the CDM.
 * Rosetta is a Software Development Kit (SDK or *dev-kit*) for the Rosetta DSL, that provides an *editable* version of the CDM Portal. It allows the industry community to directly participate in the CDM development by contributing code to the CDM. Please refer to the `Rosetta Documentation <https://docs.rosetta-technology.io/rosetta/rosetta-products/>`_ for more details.
 
 .. note:: The CDM Portal and Rosetta have been developed by technology firm `REGnosys <https://regnosys.com>`_. ISDA encourages the adoption of CDM by software providers but does not endorse any CDM application component.
