@@ -2,15 +2,13 @@
 
 _Background_
 
-Variance, volatility, correlation, and dividend products are currently not supported in the CDM product model. This release intends to allow for the representation of this group of products. In order to avoid the proliferation of new payouts, a new Performance Payout has been created to encompass all products formerly represented through the Equity Payout (that is, price and total return swaps) plus the new aforementioned products. The underlying logic in the Performance Payout is to create a common structure for all products sharing the following characteristics:
-* Require an observation of an underlier to be made.
+This change addresses the gap in the CDM product model for representing variance, volatility, correlation, and dividend swaps. The model avoids the proliferation of new payouts with one central new Performance Payout to cover these type of swaps as well other products previously represented with the use of the Equity Payout (e.g price and total return swaps). The singular Performance Payout specifies a specific metric observed and the function applied by the means of different return terms, each of them featuring both shared and return-terms-endemic components. The corresponding  structural definition covers all products sharing the following characteristics:
+* Require the observation of an underlier to be made.
 * The return is derived from the observed value of the underlier, either directly (as in price or total return swaps) or by applying a specific function to the observed value (as in variance, volatility, or correlation).
 
-The intention is to include all such products in a single payout type, which then allows to specify the particular metric observed and the particular function applied by the means of different return terms, each of them featuring both shared and return-terms-endemic components. 
+The new performance payout is not equity-exclusive. It cover other performance based products such as foreign exchange variance and volatility swaps, belonging to the Foreign Exchange asset class.
 
-The new performance payout is not equity-exclusive, but also allows representing other performance based products such as foreign exchange variance and volatility swaps, belonging to the Foreign Exchange asset class.
-
-Taking into account the scope of the changes, it has been deemed prudent to keep temporarily the previous model along with the new performance payout, rather than replacing it entirely. In this line, all components affected by the change have been duplicated, thus effectively enabling the user to represent equity products in the two ways (except for the new variance, volatility and correlation, which were not included in the equity payout).
+Given the complexity of the change, the previous equity payout has been temporarily maitained along with the new performance payout. All components affected by the change have been duplicated to allow the user to represent equity products either ways (except for the new variance, volatility and correlation, which were not included in the equity payout).
 
 As this coexistence of both equity and performance payouts is devised as a temporary measure until the latter is fully tested, components associated with the older model have been marked as deprecated.
 
@@ -196,7 +194,7 @@ Added synonym coverage for variance and volatility swaps using the new performan
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search and inspect each of the changes identified above.
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
 In the CDM Portal, select Ingestion and review the following samples:
 
