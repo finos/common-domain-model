@@ -18,7 +18,7 @@ A single, digital processing standard for trade events and actions enhances fina
 * **Accelerates financial technology innovation** by providing a common, readily operational foundation for how technologies like distributed ledger, smart contracts, cloud computing, and artificial intelligence can be applied to financial markets.
 * **Delivers better regulatory oversight**, promotes transparency and alignment between regulators and market participants and enables consistency in regulatory reporting, by providing a standard representation of trade data and supporting machine executable reporting requirements.
 
-Further information about the CDM and its application is available on `CDM section <https://www.isda.org/2019/10/14/isda-common-domain-model/>`_ of the ISDA website.
+For further information about the CDM and its applications, please consult the `CDM section <https://www.isda.org/2019/10/14/isda-common-domain-model/>`_ of the ISDA website or contact ISDA directly at marketinfrastructureandtechnology@isda.org.
 
 The CDM Components
 ------------------
