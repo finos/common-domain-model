@@ -149,11 +149,11 @@ type RateSpecification: <" A class to specify the fixed interest rate, floating 
 	inflationRate InflationRateSpecification (0..1) <"An inflation rate calculation definition.">
 	condition: one-of
 
-
 type DividendPayoutRatio: <"A class describing the dividend payout ratio associated with an equity underlier. In certain cases the actual ratio is not known on trade inception, and only general conditions are then specified.">
 
 	underlier Product (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Security">
-	dividendPayoutRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+        [deprecated] // Following migration to PerformancePayout, underlier can removed from as it is already present in dividendPeriod, where it can be established for every period
+    dividendPayoutRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
 	dividendPayoutRatioCash number (0..1) <"Specifies the cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
 	dividendPayoutRatioNonCash number (0..1) <"Specifies the non cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
 
@@ -378,6 +378,7 @@ type DividendPaymentDate: <"A class describing the date on which the dividend wi
 	condition: one-of
 
 type DividendReturnTerms: <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
+    [deprecated] // To be replaced by PerformanceDividendReturnTerms
 
 	dividendPayout DividendPayoutRatio (0..*) <"Specifies the dividend payout ratio associated with each underlier. In FpML 5.10 the payout is positioned at the underlier level, although there is an intent to reconsider this approach and position it at the leg level. This is approach adopted by the CDM.">
 
@@ -401,15 +402,199 @@ type DividendReturnTerms: <"A class describing the conditions governing the paym
 		if dividendPeriod exists
 		then dividendPeriodEffectiveDate is absent
 			and dividendPeriodEndDate is absent
-	
+
+// To be renamed DividendReturnTerms once deprecated type has been removed
+type PerformanceDividendReturnTerms: <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
+
+	dividendPayout DividendPayoutRatio (0..*) <"Specifies the dividend payout ratio associated with each underlier. In FpML 5.10 the payout is positioned at the underlier level, although there is an intent to reconsider this approach and position it at the leg level. This is approach adopted by the CDM.">
+
+	dividendReinvestment boolean (0..1) <"Boolean element that defines whether the dividend will be reinvested or not.">
+	dividendEntitlement DividendEntitlementEnum (0..1) <"Defines the date on which the receiver of the equity return is entitled to the dividend.">
+	dividendAmountType DividendAmountTypeEnum (0..1) <"Specifies whether the dividend is paid with respect to the Dividend Period.">
+	performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
+	firstOrSecondPeriod DividendPeriodEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Dividend Period as either the First Period or the Second Period. | ">
+	extraordinaryDividendsParty AncillaryRoleEnum (0..1) <"Specifies the party which determines if dividends are extraordinary in relation to normal levels.">
+	excessDividendAmount DividendAmountTypeEnum (0..1) <"Determination of Gross Cash Dividend per Share.">
+	dividendCurrency DividendCurrency (0..1) <"Specifies the currency in which the dividend will be denominated, e.g. the dividend currency, or a specified currency. This class is not specified as such in FpML, which makes use of the CurrencyAndDeterminationMethod.model to specify such terms.">
+	nonCashDividendTreatment NonCashDividendTreatmentEnum (0..1) <"Specifies the treatment of Non-Cash Dividends.">
+	dividendComposition DividendCompositionEnum (0..1) <"Specifies how the composition of Dividends is to be determined.">
+	specialDividends boolean (0..1) <"Specifies the method according to which special dividends are determined.">
+	materialDividend boolean (0..1) <"If present and true, then material non cash dividends are applicable.">
+	dividendPeriod DividendPeriod (0..*) <"One to many time bounded dividend payment periods, each with a dividend payment date per period.">
+
+	condition DividendPeriod: <"FpML specifies a choice between dividendPeriod on one end, and dividendPeriodEffectiveDate and dividendPeriodEndDate on the other end.">
+		if firstOrSecondPeriod exists
+		then dividendPeriod -> unadjustedStartDate is absent
+			and dividendPeriod -> unadjustedEndDate is absent
+
 	condition ExtraordinaryDividendsParty:
 		if extraordinaryDividendsParty exists
 		then extraordinaryDividendsParty = AncillaryRoleEnum -> ExtraordinaryDividendsParty
 
+type DividendPeriod: <"Time bounded dividend payment periods, each with a dividend payment date per period.">
+    unadjustedStartDate date (1..1) <"Unadjusted inclusive dividend period start date.">
+    unadjustedEndDate date (1..1) <"Unadjusted inclusive dividend period end date.">
+    dateAdjustments BusinessDayAdjustments (1..1) <"Date adjustments for all unadjusted dates in this dividend period.">
+    underlierReference Observable (0..1) <"Reference to the underlyer which is paying dividends. This should be used in all cases, and must be used where there are multiple underlying assets, to avoid any ambiguity about which asset the dividend period relates to.">
+    //fixedStrike number (1..1) // fixedStrike not included in this structure because it is to be represented as a FixedPricePayout
+    dividendPaymentDate AdjustableOrRelativeDate (1..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">
+    dividendValuationDate AdjustableOrRelativeDate (0..1) <"Specifies the dividend valuation dates of the swap.">
+
+    //condition: fixedStrike > 0
+
 type PriceReturnTerms:
+    [deprecated] // To be replaced by PerformancePriceReturnTerms
 
 	valuationPriceInterim EquityValuation (0..1) <"Specifies the interim valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
 	valuationPriceFinal EquityValuation (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+
+type PerformancePriceReturnTerms: // To be renamed PriceReturnTerms once deprecated type has been removed
+
+	valuationPriceInitial Price (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+	valuationPriceFinal Price (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+	returnType ReturnTypeEnum (1..1) <"The type of return associated with the equity swap.">
+	rounding Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of a number.">
+	conversionFactor number (0..1) <"Defines the conversion applied if the quantity unit on contract is different from unit on referenced underlier.">
+   	spread SpreadSchedule (0..1) <"Defines a spread value for one or more defined dates.">
+   	rollFeature RollFeature (0..1) <"Used in conjunction with an exchange-based pricing source. Identifies a way in which the futures contracts referenced will roll between periods. ">
+	performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
+
+type ReturnTermsBase: <"Contains all common elements in variance, volatility and correlation return Terms.">
+
+	valuation Valuation (1..1) <"Contains all non-date valuation information.">
+	annualizationFactor int (0..1) <"This specifies the numerator of an annualization factor. Frequently this number is equal to the number of observations of prices in a year e.g. 252.">
+	dividendApplicability DividendApplicability (0..1) <"The parameters which define whether dividends are applicable">
+	equityUnderlierProvisions EquityUnderlierProvisions (0..1) <"Contains Equity Underlyer provisions regarding jurisdiction and fallbacks.">
+	sharePriceDividendAdjustment boolean (0..1) <"Indicates whether the price of shares is adjusted for dividends or not.">
+	expectedN int (1..1) <"Expected number of trading days.">
+	initialLevel number (0..1) <"Contract will strike off this initial level. Providing just the initialLevel without initialLevelSource, infers that this is AgreedInitialPrice - a specified Initial Index Level.">
+	initialLevelSource DeterminationMethodEnum (0..1) <"In this context, this is AgreedInitialPrice - a specified Initial Index Level.">
+	meanAdjustment boolean (0..1) <"Specifies whether Mean Adjustment is applicable or not in the calculation of the Realized Volatility, Variance or Correlation">
+	performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
+
+	condition InitialLevelOrInitialLevelSource: <"At least one of initialLevel and initialLevelSource must be present, or both">
+		if initialLevel is absent then initialLevelSource exists
+		and if initialLevelSource is absent then initialLevel exists
+
+	condition PositiveExpectedN: <"The number of expected trading dates must be positive">
+		expectedN > 0
+
+type VarianceReturnTerms extends ReturnTermsBase:
+
+	varianceStrikePrice Price (0..1) <"Variance Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+	volatilityStrikePrice Price (0..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+	varianceCapFloor VarianceCapFloor (0..1) <"Contains possible barriers for variance products, both variance-based and underlier price based">
+	volatilityCapFloor VolatilityCapFloor (0..1) <"Contains containing volatility-based barriers">
+	vegaNotionalAmount Quantity (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
+		//vegaNotionalAmount is only present here in varianceReturnTerms because it is an optional complement to the varianceAmount expressed in payoutQuantity.quantitySchedule.initialQuantity.amount.   In volatilityReturnTerms this element does not exist because the vegaNotionalAmount is compulsory and should therefore be expressed in payoutQuantity.quantitySchedule.initialQuantity.amount. in the corresponding units.
+	exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
+	extraordinaryEvents ExtraordinaryEvents (0..1) <"Where the underlying is shares, specifies events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
+
+	condition Positive_VegaNotionalAmount: <"When the optional vegaNotionalAmount is present in the varianceReturnTerms, it needs to have a positive value.">
+		if vegaNotionalAmount -> amount exists then vegaNotionalAmount -> amount > 0
+
+	condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
+		if exchangeTradedContractNearest exists
+		then exchangeTradedContractNearest -> productIdentifier exists
+
+	condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
+		if valuation -> futuresPriceValuation = True then exchangeTradedContractNearest exists
+
+	condition StrikePriceMustExist: <"The strike price must be present, but it can be expressed in either variance or volatility terms">
+		required choice volatilityStrikePrice, varianceStrikePrice
+
+	condition NonNegativeStrikePrice: <"The strike price must have a positive value">
+		if volatilityStrikePrice -> amount  exists then volatilityStrikePrice -> amount >= 0 and
+		if varianceStrikePrice -> amount exists then varianceStrikePrice -> amount >= 0
+
+type VolatilityReturnTerms extends ReturnTermsBase:
+
+	volatilityStrikePrice Price (1..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+	volatilityCapFloor VolatilityCapFloor (0..1) <"Contains volatility-based barriers">
+	//vegaNotionalAmount Quantity (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
+	exchangeTradedContractNearest Observable (0..1)  <"Specification of the exchange traded contract nearest.">
+	extraordinaryEvents ExtraordinaryEvents (0..1) <"Where the underlying is shares, specifies events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
+
+	condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
+		if exchangeTradedContractNearest exists
+		then exchangeTradedContractNearest -> productIdentifier exists
+
+type CorrelationReturnTerms extends ReturnTermsBase:
+
+	correlationStrikePrice Price (1..1) <"Correlation Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+	boundedCorrelation BoundedCorrelation (0..1) <"Describes correlation bounds, which form a cap and a floor on the realized correlation.">
+	numberOfDataSeries int (0..1) <"Number of data series, normal market practice is that correlation data sets are drawn from geographic market areas, such as America, Europe and Asia Pacific, each of these geographic areas will have its own data series to avoid contagion.">
+
+	condition PositiveNumberOfDataSeries: <"The number of data series must be positive">
+		if numberOfDataSeries exists then numberOfDataSeries > 0
+
+	condition CorrelationValue: <"The correlation strike price is a decimal with allowed values only between 1 and -1">
+		correlationStrikePrice -> amount > -1 and correlationStrikePrice -> amount > 1
+
+type Valuation:
+	futuresPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions.">
+	optionsPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions">
+	numberOfValuationDates int (0..1) <"The number of valuation dates between valuation start date and valuation end date.">
+	dividendValuationDates AdjustableRelativeOrPeriodicDates (0..1) <"Specifies the dividend valuation dates of the swap.">
+	fPVFinalPriceElectionFallback FPVFinalPriceElectionFallbackEnum (0..1) <"Specifies the fallback provisions for Hedging Party in the determination of the Final Price.">
+	//valuationPriceInitial Price (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+	//valuationPriceFinal Price (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+
+	condition PositiveNumberOfValuationDates: <"The number of valuation dates must be positive.">
+		if numberOfValuationDates exists then numberOfValuationDates > 0
+
+type EquityUnderlierProvisions:
+	multipleExchangeIndexAnnexFallback boolean (0..1) <"For an index option or swap transaction, a flag to indicate whether a relevant Multiple Exchange Index Annex is applicable to the transaction. This annex defines additional provisions which are applicable where an index is comprised of component securities that are traded on multiple exchanges.">
+	componentSecurityIndexAnnexFallback boolean (0..1) <"For an index option or swap transaction, a flag to indicate whether a relevant Component Security Index Annex is applicable to the transaction.">
+	localJurisdiction string (0..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
+		[metadata scheme]
+	relevantJurisdiction string (0..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
+		[metadata scheme]
+
+	condition ComponentSecurityOrMultipleExchange: <"If multipleExchangeIndexAnnexFallback is present then componentSecurityIndexAnnexFallback must be absent and vice versa.">
+		optional choice multipleExchangeIndexAnnexFallback, componentSecurityIndexAnnexFallback
+
+type VarianceCapFloor:
+
+	varianceCap boolean (1..1) <"If present and true, then variance cap is applicable.">
+	unadjustedVarianceCap number (0..1) <"For use when varianceCap is applicable. Contains the scaling factor of the Variance Cap that can differ on a trade-by-trade basis in the European market. For example, a Variance Cap of 2.5^2 x Variance Strike Price has an unadjustedVarianceCap of 2.5.">
+	boundedVariance BoundedVariance (0..1) <"Conditions which bound variance. The contract specifies one or more boundary levels. These levels are expressed as prices for confirmation purposes Underlyer price must be equal to or higher than Lower Barrier is known as Up Conditional Swap Underlyer price must be equal to or lower than Upper Barrier is known as Down Conditional Swap Underlyer price must be equal to or higher than Lower Barrier and must be equal to or lower than Upper Barrier is known as Barrier Conditional Swap.">
+
+	condition PositiveUnadjustedVarianceCap: <"Unadjusted variance cap must be positive">
+    	if unadjustedVarianceCap exists then unadjustedVarianceCap > 0
+
+	condition CapFloorApplicability: <"Caps/floors can and must be specified if varianceCap is set to true. If false, barriers cannot be established">
+		if varianceCap = True then unadjustedVarianceCap exists or boundedVariance exists // If CapFloor is applicable at least one cap expression must exist
+		else unadjustedVarianceCap is absent and boundedVariance is absent // If CapFloor is not applicable, then there cannot be any volatility caps
+
+type BoundedVariance:
+
+	realisedVarianceMethod RealisedVarianceMethodEnum (1..1) <"The contract specifies which price must satisfy the boundary condition.">
+	daysInRangeAdjustment boolean (1..1) <"The contract specifies whether the notional should be scaled by the Number of Days in Range divided by the Expected N. The number of Days in Ranges refers to the number of returns that contribute to the realized volatility.">
+	upperBarrier number (0..1) <"All observations above this price level will be excluded from the variance calculation.">
+	lowerBarrier number (0..1) <"All observations below this price level will be excluded from the variance calculation.">
+ 
+	condition NonNegativeBarriers: <"Barriers cannot be set to negative values">
+		if upperBarrier exists then upperBarrier >= 0 and 
+		if lowerBarrier exists then lowerBarrier >= 0
+
+type VolatilityCapFloor: <"Contains volatility-based barriers. Volatility Cap needs to be specified in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+
+	applicable boolean (1..1) <"Indicates whether the volatility cap is applicable in accordance with the ISDA 2011 Equity Derivatives Definitions. Setting the element 'applicable' to 'False' - means No Volatility Cap and no 'totalVolatilityCap' or 'volatilityCapFactor' should be provided. Setting the element 'applicable' to 'True' - means Volatility Cap election, then 'totalVolatilityCap' or 'volatilityCapFactor' should be provided, otherwise it defaults to volatilityCapFactor=2.5.">
+	totalVolatilityCap number (0..1) <"Volatility Cap Amount in accordance with the ISDA 2011 Equity Derivatives Definitions. This means the Volatility Cap Amount election is a number.">
+	volatilityCapFactor number (0..1) <"Volatility Cap Amount in accordance with the ISDA 2011 Equity Derivatives Definitions. The Calculated VolCapAmt can be optionally provided.">
+
+	condition CapFloorApplicability: <"Caps/floors can and must be specified if applicable is set to true. If false, barriers cannot be established">
+		if applicable = True then totalVolatilityCap exists or volatilityCapFactor exists // If CapFloor is applicable at least one cap expression must exist
+		else totalVolatilityCap is absent and volatilityCapFactor is absent // If CapFloor is not applicable, then there cannot be any volatility caps
+
+	condition PositiveCaps: <"Barriers must be set to positive values">
+		if totalVolatilityCap exists then totalVolatilityCap >= 0 and
+		if volatilityCapFactor exists then volatilityCapFactor >= 0
+
+type BoundedCorrelation: <"Describes correlation bounds, which form a cap and a floor on the realized correlation.">
+	minimumBoundaryPercent number (0..1) <"Minimum Boundary as a percentage of the Strike Price.">
+	maximumBoundaryPercent number (0..1) <"Maximum Boundary as a percentage of the Strike Price.">
 
 type ForeignExchange: <"From FpML: A type defining either a spot or forward FX transactions.">
 

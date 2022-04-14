@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Documentation'
-copyright = '2021, REGnosys & ISDA'
+copyright = '2022, ISDA'
 author = 'REGnosys'
 
 # The short X.Y version.

@@ -62,6 +62,7 @@ func ReplaceParty: <"Removes the old party, and adds the new party.">
     add updatedParties:
         parties
             map [ if item = oldParty then newParty else item ]
+            distinct
 
 func Create_PayerReceiver:
 	inputs:
@@ -82,4 +83,15 @@ func FilterPartyRole: <"Filters the list of partyRoles based on the provided par
 
 	add filteredPartyRoles:
 	    partyRoles
+	        filter [ item -> role = partyRoleEnum ]
+
+func FilterRelatedPartyByRole: <"Filters the list of RelatedParty based on the provided partyRoleEnum.">
+	inputs:
+		relatedParties RelatedParty (0..*)
+		partyRoleEnum PartyRoleEnum (1..1)
+	output:
+		filteredRelatedParties RelatedParty (0..*)
+
+	add filteredRelatedParties:
+	    relatedParties
 	        filter [ item -> role = partyRoleEnum ]
