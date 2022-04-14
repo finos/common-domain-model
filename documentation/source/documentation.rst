@@ -1404,7 +1404,7 @@ The CDM provides support for implementors to uniquely identify a legal agreement
    agreementDate date (1..1)
    effectiveDate date (0..1)
    identifier Identifier (0..*)
-   legalAgreementType LegalAgreementType (1..1)
+   legalAgreementIdentification LegalAgreementIdentification (1..1)
    contractualParty Party (2..2)
     [metadata reference]
    otherParty PartyRole (0..*)
@@ -1560,7 +1560,7 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
 
  condition agreementVerification:
    if agreementTerms -> agreement -> securityAgreementElections exists
-    then legalAgreementType -> agreementName -> agreementType = LegalAgreementTypeEnum->SecurityAgreement
+   then legalAgreementIdentification -> agreementName -> agreementType = LegalAgreementTypeEnum->SecurityAgreement
 
 The validation in this case requires that if the ``securityAgreementElections`` attribute is populated, then the value in ``LegalAgreementNameEnum`` must be ``SecurityAgreement`` .
 
