@@ -224,11 +224,11 @@ class FunctionInputCreationTest {
         LegalAgreement.LegalAgreementBuilder legalAgreement = LegalAgreement.builder()
                 .addContractualPartyValue(guard(tradeState.getTrade().getParty()))
                 .setAgreementDate(date)
-                .setLegalAgreementType(LegalAgreementType.builder()
+                .setLegalAgreementIdentification(LegalAgreementIdentification.builder()
                         .setGoverningLaw(GoverningLawEnum.AS_SPECIFIED_IN_MASTER_AGREEMENT)
                         .setAgreementName(AgreementName.builder()
                                 .setAgreementType(LegalAgreementTypeEnum.MASTER_AGREEMENT)
-                                .setMasterAgreementTypeValue(MasterAgreementTypeEnum.ISDA))
+                                .setMasterAgreementTypeValue(MasterAgreementTypeEnum.ISDA_MASTER))
                         .setPublisher(LegalAgreementPublisherEnum.ISDA)
                         .build());
 

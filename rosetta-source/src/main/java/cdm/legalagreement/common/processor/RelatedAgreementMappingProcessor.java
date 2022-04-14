@@ -1,9 +1,6 @@
 package cdm.legalagreement.common.processor;
 
-import cdm.legalagreement.common.AgreementName;
-import cdm.legalagreement.common.LegalAgreement;
-import cdm.legalagreement.common.LegalAgreementPublisherEnum;
-import cdm.legalagreement.common.LegalAgreementTypeEnum;
+import cdm.legalagreement.common.*;
 import cdm.legalagreement.csa.CreditSupportAgreementTypeEnum;
 import cdm.legalagreement.master.MasterAgreementTypeEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -46,7 +43,7 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
         for (LegalAgreementBuilder relatedAgreementBuilder : relatedAgreementBuilders) {
             setValueAndOptionallyUpdateMappings(synonymPath.addElement("isda_master_agreement_form"),
                     (vintage) -> {
-                        relatedAgreementBuilder.getOrCreateLegalAgreementType().setVintage(Integer.valueOf(vintage));
+                        relatedAgreementBuilder.getOrCreateLegalAgreementIdentification().setVintage(Integer.valueOf(vintage));
                         return true;
                     },
                     getMappings(), getModelPath());
@@ -55,7 +52,9 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
 
     private boolean isMasterAgreement(LegalAgreementBuilder relatedAgreementBuilder) {
         return Optional.of(relatedAgreementBuilder)
-                .map(LegalAgreementBuilder::getLegalAgreementType)
+                .map(LegalAgreementBuilder::getLegalAgreementIdentification)
+                // do not replace these two lines with lambda references and some compilers (e.g. eclipse) do
+                // not like inner class references (e.g. LegalAgreementIdentification.LegalAgreementIdentificationBuilder::getAgreementName)
                 .map(a -> a.getAgreementName())
                 .map(n -> n.getAgreementType())
                 .map(LegalAgreementTypeEnum.MASTER_AGREEMENT::equals)
@@ -89,21 +88,21 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
             case "collateral_transfer_agreement":
             case "date_of_collateral_transfer_agreement":
                 legalAgreementBuilder
-                        .getOrCreateLegalAgreementType()
+                        .getOrCreateLegalAgreementIdentification()
                         .getOrCreateAgreementName()
                         .setAgreementType(LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT)
                         .setCreditSupportAgreementTypeValue(CreditSupportAgreementTypeEnum.COLLATERAL_TRANSFER_AGREEMENT);
                 return true;
             case "date_of_isda_master_agreement":
                 legalAgreementBuilder
-                        .getOrCreateLegalAgreementType()
+                        .getOrCreateLegalAgreementIdentification()
                         .setPublisher(LegalAgreementPublisherEnum.ISDA)
                         .setAgreementName(AgreementName.builder()
                                 .setAgreementType(LegalAgreementTypeEnum.MASTER_AGREEMENT)
-                                .setMasterAgreementTypeValue(MasterAgreementTypeEnum.ISDA));
+                                .setMasterAgreementTypeValue(MasterAgreementTypeEnum.ISDA_MASTER));
                 return true;
             case "date_of_euroclear_security_agreement":
-                legalAgreementBuilder.getOrCreateLegalAgreementType()
+                legalAgreementBuilder.getOrCreateLegalAgreementIdentification()
                         .setPublisher(LegalAgreementPublisherEnum.ISDA_EUROCLEAR)
                         .setAgreementName(AgreementName.builder()
                                 .setAgreementType(LegalAgreementTypeEnum.SECURITY_AGREEMENT));
