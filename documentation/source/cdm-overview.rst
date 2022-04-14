@@ -87,9 +87,9 @@ CDM Application
 An eco-system of CDM-based application components from software providers exists in order to support the adoption of CDM and the implementation of CDM-based production systems by industry participants. These applications may be open source software or licensed under commercial terms. In particular:
 
 * The CDM Portal provides a user interface allowing users to navigate through and download the CDM.
-* Rosetta is a Software Development Kit (SDK or *dev-kit*) for the Rosetta DSL, that provides an *editable* version of the CDM Portal. Rosetta consists of an integrated set of tools for editing, implementing and adopting models based on the Rosetta DSL. It allows the industry community to directly participate in the CDM development by contributing code to the CDM. Please refer to the `Rosetta Documentation <https://docs.rosetta-technology.io/rosetta/rosetta-products/>`_ for more details.
+* Rosetta is a Software Development Kit (SDK or *dev-kit*) for the Rosetta DSL, that provides an *editable* version of the CDM Portal. It allows the industry community to directly participate in the CDM development by contributing code to the CDM. Please refer to the `Rosetta Documentation <https://docs.rosetta-technology.io/rosetta/rosetta-products/>`_ for more details.
 
-.. note:: The CDM Portal and Rosetta have been developed by technology firm `REGnosys <https://regnosys.com>`. ISDA encourages the adoption of CDM by software providers but does not endorse any CDM application component.
+.. note:: The CDM Portal and Rosetta have been developed by technology firm `REGnosys <https://regnosys.com>`_. ISDA encourages the adoption of CDM by software providers but does not endorse any CDM application component.
 
 The CDM Design Principles
 -------------------------
