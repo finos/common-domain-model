@@ -435,10 +435,11 @@ The ``Payout`` type defines the composable payout types, each of which describes
    optionPayout OptionPayout (0..*)
    commodityPayout CommodityPayout (0..*)
    forwardPayout ForwardPayout (0..*)
-   fixedForwardPayout FixedForwardPayout (0..*)
+   fixedPricePayout FixedPricePayout (0..*)
    securityPayout SecurityPayout (0..*)
    securityFinancePayout SecurityFinancePayout (0..*)
    cashflow Cashflow (0..*)
+   performancePayout PerformancePayout (0..*)
 
 A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts.
 
@@ -1839,14 +1840,14 @@ As an example, the *FpML ird validation rule #57*, states that if the calculatio
  condition FpML_ird_57:
    if period = PeriodExtendedEnum -> M or period = PeriodExtendedEnum -> Y
    then rollConvention <> RollConventionEnum -> NONE
-     or rollConvention <> RollConventionEnum -> SFE
-     or rollConvention <> RollConventionEnum -> MON
-     or rollConvention <> RollConventionEnum -> TUE
-     or rollConvention <> RollConventionEnum -> WED
-     or rollConvention <> RollConventionEnum -> THU
-     or rollConvention <> RollConventionEnum -> FRI
-     or rollConvention <> RollConventionEnum -> SAT
-     or rollConvention <> RollConventionEnum -> SUN
+     and rollConvention <> RollConventionEnum -> SFE
+     and rollConvention <> RollConventionEnum -> MON
+     and rollConvention <> RollConventionEnum -> TUE
+     and rollConvention <> RollConventionEnum -> WED
+     and rollConvention <> RollConventionEnum -> THU
+     and rollConvention <> RollConventionEnum -> FRI
+     and rollConvention <> RollConventionEnum -> SAT
+     and rollConvention <> RollConventionEnum -> SUN
 
 
 Calculation Process
