@@ -1234,33 +1234,12 @@ func Create_Termination: <"Defines the process of partially or fully termination
 	set terminationEvent -> eventDate:
 		terminationInstruction -> terminationDate
 
-func Create_Reset: <"Defines the process of applying a reference rate (also known as fixing rate) to a transaction, usually in order to calculate the settlement value of a periodic payment schedule between two parties.">
-	[creation BusinessEvent]
-
-	inputs:
-		tradeState TradeState (1..1) <"Specifies the trade to which the reset applies.">
-		instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
-		date date (1..1) <"Specified the date of the reset event.">
-
-	output:
-		resetEvent BusinessEvent (1..1) <"Represents the Business Event created as a result of the reset.">
-
-	set resetEvent -> primitives -> reset: <"Creates the reset primitive and assigns it to the business event.">
-		Create_ResetPrimitive(tradeState, instruction, date)
-
-	set resetEvent -> eventDate: <"Sets the business event date as the date of the reset event.">
-		date
-
-	add resetEvent -> eventEffect -> effectedTrade: <"Assigns the effectedTrade value as the input TradeState using a reference.">
-		tradeState as-key
-
 func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructed.">
 	[creation PrimitiveEvent]
 
 	inputs:
-		tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
 		instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
-		resetDate date (1..1) <"Specifies the date on which the reset is occuring.">
+		tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
 
 	output:
 		resetPrimitive ResetPrimitive (1..1)
@@ -1271,10 +1250,10 @@ func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructe
 	alias observationDate: <"If the rateRecordDate is provided in the instructions, it should used as the observation date when determining the fixing rate for an interest rate payout.">
 		if instruction -> rateRecordDate exists
 		then instruction -> rateRecordDate
-		else resetDate
+		else instruction -> resetDate
 
 	alias observationIdentifiers: <"Resolves the ObservationIdentifier to be used to derive the single observation to be used in the reset calculation. Resolving the ObservationIdentifier is dependent on the type of payout in use.">
-		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, resetDate)
+		if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, instruction -> resetDate)
 		else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
 
 	alias observation: <"Represents the single observation that will be used to compute the reset value.">
@@ -1287,8 +1266,8 @@ func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructe
 		tradeState
 
 	add resetPrimitive -> after -> resetHistory: <"To handle the various ways Contracts can change over time, ">
-    	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate)
-		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
+    	if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, instruction -> resetDate)
+		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
 
 func Create_Transfer: <"Function specification to build a transfer event following a reset on a contract">
 	[creation BusinessEvent]
@@ -2373,12 +2352,16 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 	alias transfer:
 		if primitiveInstruction -> transfer is absent then contractFormation
 		else Create_TransferPrimitive( primitiveInstruction -> transfer, contractFormation) -> after
+	
+	alias reset:
+		if primitiveInstruction -> reset is absent then transfer
+		else Create_ResetPrimitive( primitiveInstruction -> reset, transfer ) -> after
 
 	condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
 		primitiveInstruction -> split is absent
 
 	set after: <"Initiate applying primitive instructions.">
-		transfer
+		reset
 
 	set after -> state -> closedState -> state:
 		if contractFormation -> state -> positionState = PositionStatusEnum -> Closed
