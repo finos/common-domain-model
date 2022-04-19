@@ -1971,38 +1971,11 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 		then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod
 		and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
-func Create_IndexTransition: <"Function specification to create the business event which represents an Index Transition on a Derivatives contract. The function adjust updates the floating rate index and adds the spread adjustment to any existing spread.">
-	[creation BusinessEvent]
-	inputs:
-		tradeState TradeState (1..1) <"Specifies the trade to be updated.">
-		instruction IndexTransitionInstruction (1..1) <"Specifies the instructions containing the floating rate index, spread adjustment for each leg to be updated, and the effective date.">
-		date date (1..1) <"Specifies the event date.">
-
-	output:
-		businessEvent BusinessEvent (1..1) <"Specifies the resulting business event which will be composed of up to two primitive events: TermsChangePrimitive and optionally a (cash) TransferPrimitive.">
-
-	alias termsChangePrimitive:
-		Create_IndexTransitionTermsChangePrimitive(tradeState, instruction)
-
-	set businessEvent -> primitives -> termsChange:
-		termsChangePrimitive
-
-	set businessEvent -> primitives -> transfer:
-		if instruction -> cashTransfer exists
-		then Create_TransferPrimitiveFromTransfer( termsChangePrimitive -> after, instruction -> cashTransfer )
-
-	set businessEvent -> intent:
-		EventIntentEnum -> IndexTransition
-
-	set businessEvent -> eventDate:
-		// To review following the increase / decrease discussions
-		instruction -> effectiveDate
-
 func Create_IndexTransitionTermsChangePrimitive: <"Function specification to create a terms change primitive that contains changes to the floating rate indexes and adds an adjustment spread to any existing spread.">
 	[creation PrimitiveEvent]
 	inputs:
-		tradeState TradeState (1..1) <"Specifies the trade to be updated.">
 		instruction IndexTransitionInstruction (1..1) <"Specifies the instructions containing the floating rate index, spread adjustment for each leg to be updated, and the effective date.">
+		tradeState TradeState (1..1) <"Specifies the trade to be updated.">
 	output:
 		termsChangePrimitive TermsChangePrimitive (1..1) <"Specifies the resulting term change primitive.">
 
@@ -2369,11 +2342,15 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 		if primitiveInstruction -> reset is absent then transfer
 		else Create_ResetPrimitive( primitiveInstruction -> reset, transfer ) -> after
 
+    alias indexTransition:
+        if primitiveInstruction -> indexTransition is absent then reset
+        else Create_IndexTransitionTermsChangePrimitive( primitiveInstruction -> indexTransition, reset ) -> after
+
 	condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
 		primitiveInstruction -> split is absent
 
 	set after: <"Initiate applying primitive instructions.">
-		reset
+		indexTransition
 
 	set after -> state -> closedState -> state:
 		if contractFormation -> state -> positionState = PositionStatusEnum -> Closed
