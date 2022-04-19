@@ -1,35 +1,27 @@
-
-# *Event Model - Exercise*
+# *Legal Agreement Model - Enhancements for the categorisation of legal agreement*
 
 _Background_
 
-This release follows the recent work on the composable business event model and the corresponding creation function `Create_BusinessEvent`.
+The categorisation of legal agreements has been enhanced and a few data validation rule have been adjusted based on feedback from users.
 
-The Exercise business event is now supported in the CDM through either a functional approach, for physical exercise of Interest Rate and Credit Swaptions only, or a declarative approach for other exercise scenarios.
 
-_Functional Model_
+_What is being Released_
 
-For Physical exercise of Interest Rate Swaptions or Credit Default Swaptions the CDM functional model can create the required outputs through the use of a an `exercise` Instruction passed into the `Create_BusinessEvent` function.
 
-_Declarative Model_
+1.	Change of data type name `LegalAgreementType` to `LegalAgreementIdentification`. This change uses a more relevant type name for identifying the legal agreement and avoids the unnecessary use of suffix 'type' in the label. 
 
-For Cash exercise, and for Physical exercise of Options that are not Interest Rate or Credit Default Swaptions a declarative model approach needs to be taken where the BusinessEvent is defined by a `quantityChange` Instruction to close the Option, with an associated `transfer` for Cash Exercise, or a `quantityChange` Instruction to close the Option and a separate `execution` Instruction for the replacement trade for Physical Exercise.
+2.  Conditions have been updated in the model due to the renaming of `LegalAgreementType` to `legalAgreementIdentification`.
 
-_What is being released?_
+2.	Data type `AgreementName` has an additional condition added for `creditSupportAgreement` This condition ensures a credit support agreement type is specified if the legal agreement is a credit support agreement.
 
-`ExerciseInstruction` - updated to contain the necessary inputs to functionally instruct an exercise business event.
-`Create_ExercisePrimitive` - new primitive event creation function used to functionally create the result of the physical exercise of an Interest Rate Swaption or Credit Default Swaption.
-`Create_BusinessEvent` - updated to call `Create_ExercisePrimitive` when input contains an `exercise` instruction.
-`Qualify_Exercise` - updated to correctly qualify an exercise business event based on the functional or declarative model.
+3.	Changes have been made to the logic in haircut percentages and Asset type conditions. In Data type `CollateralValuationTreatment` the related conditions for `HaircutPercentage`, `FxHaircutPercentage` and `AdditionalHaircutPercentage`, have all been adjusted so the higher range of population is <1 instead of <=1. `HaircutPercentage` has been adjusted so the lower range is >=0 instead of >0. These changes will address errors reported by users when using the model.
 
-The CDM contains the following visualisation examples to demonstrate the approach described.
-- Swaption Full Cash Exercise
-- Swaption Partial Physical Exercise
-- Swaption Full Physical Exercise
-- Cancellable Swap Exercise
+4.   Data type `AssetType` and its related condition `OtherAssetSubType` have been changed as foolows (`assetType` <> `AssetTypeEnum` to `assetType` = `AssetTypeEnum`).  These changes will address errors reported by users when using the model.
+
+5.	Within `MasterAgreementTypeEnum` `ISDA` has been amended to `ISDAMaster`, this change was recommended by ISDA legal team and is more in line with the document name and avoids confusion with the publisher used when identifying the agreement type at a higher level in the model. Updates have also been made to the related ISDACreate and FPML synonyms
+
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and review the data types and functions described above
+In the CDM Portal, select the Textual Browser and inspect the changes outlined above 
 
-In the CDM Portal, select Instance Viewer and review the visualisation examples above in the `Exercise Business Event` folder

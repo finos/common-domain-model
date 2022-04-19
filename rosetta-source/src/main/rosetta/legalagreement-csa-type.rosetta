@@ -44,24 +44,25 @@ type CollateralValuationTreatment: <"Specification of the valuation treatment fo
 	fxHaircutPercentage number (0..1) <"Specifies an FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin).The percentage value is expressed as the discount haircut to the value of the collateral- as an example an 8% FX haircut would be expressed as 0.08.">
 	additionalHaircutPercentage number (0..1) <"Specifies a percentage value of any additional haircut to be applied to a collateral asset,the percentage value is expressed as the discount haircut to the value of the collateral- as an example a 5% haircut would be expressed as 0.05. ">
 
-	condition HaircutPercentage: <"A data rule to validate that if a Valuation Percentage is specified it should be between 0 and 1.">
+	condition HaircutPercentage: <"A data rule to validate that if a Valuation Percentage is specified it should be greater than or equal to 0 and less than 1.">
 		if haircutPercentage exists
-		then haircutPercentage > 0 and haircutPercentage <= 1
+		then haircutPercentage >= 0 and haircutPercentage < 1
 
 	condition MarginPercentage: <"A data rule to validate that if a Margin Percentage is specified it should be greater than 1.">
 		if marginPercentage exists
 		then marginPercentage >= 1
 
-	condition FxHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and 1.">
+	condition FxHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and less than 1.">
 		if fxHaircutPercentage exists
-		then fxHaircutPercentage > 0 and fxHaircutPercentage <= 1
+		then fxHaircutPercentage > 0 and fxHaircutPercentage < 1
 
-	condition AdditionalHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and 1.">
+	condition AdditionalHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and  less than 1.">
 		if additionalHaircutPercentage exists
-		then additionalHaircutPercentage > 0 and additionalHaircutPercentage <= 1
+		then additionalHaircutPercentage > 0 and additionalHaircutPercentage < 1
 
 	condition HaircutPercentageOrMarginPercentage: <"Choice rule requiring that either a haircut percentage or margin percentage is specified.">
 		required choice haircutPercentage, marginPercentage
+
 
 type EligibleCollateralSchedule: <"Represents a set of criteria used to specify an eligible collateral schedule.">
 	[rootType]

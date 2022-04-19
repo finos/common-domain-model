@@ -27,29 +27,6 @@ import cdm.event.position.*
 
 isEvent root BusinessEvent;
 
-func NovatedContractEffectiveDate:
-	inputs:
-		businessEvent BusinessEvent (1..1)
-	output:
-		result date (0..*)
-
-	alias eTerms: businessEvent -> primitives -> contractFormation -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
-	alias effectiveDate: eTerms only-element -> effectiveDate
-	alias interestRatePayoutDate: eTerms only-element -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate
-	alias equityPayoutDate: eTerms only-element -> payout -> equityPayout -> calculationPeriodDates -> effectiveDate
-
-	add result: [
-        effectiveDate -> adjustableDate -> adjustedDate,
-        effectiveDate -> adjustableDate -> unadjustedDate,
-        effectiveDate -> relativeDate -> adjustedDate,
-        interestRatePayoutDate -> adjustableDate -> adjustedDate,
-        interestRatePayoutDate -> adjustableDate -> unadjustedDate,
-        interestRatePayoutDate -> relativeDate -> adjustedDate,
-        equityPayoutDate -> adjustableDate -> adjustedDate,
-        equityPayoutDate -> adjustableDate -> unadjustedDate,
-        equityPayoutDate -> relativeDate -> adjustedDate
-	]
-
 func QuantityIncreasedPrimitive: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is greater than the Quantity (with the same unit of amount) in the before TradeState.  If all quantities are greater then the function returns true.">
 	inputs:
 		quantityChangePrimitives QuantityChangePrimitive (0..*) <"List of QuantityChangePrimitive to be compared.">
@@ -789,6 +766,13 @@ func ResolveEquityValuationDate: <"Specifies how an adjusted data is derived fro
 	output:
 		valuationDate date (1..1)
 
+func ResolvePerformanceValuationDate: <"Specifies how an adjusted data is derived from an EquityValuation data type, which contains a series of adjustable dates.">
+	inputs:
+		performanceValuation EquityValuationDates (1..1) <"Represents the Equity Valuation terms from the Equity product definition.">
+		date date (1..1) <"Specifies the date, which is a proxy for the period, for which the valuation date should be resolved.">
+	output:
+		valuationDate date (1..1)
+
 func ResolveEquityValuationTime: <"Defines how to resolve the observation time from those specified in the Equity Valuation type.">
 	inputs:
 		equityValuation EquityValuation (1..1) <"Represents the Equity Valuation terms from the Equity product definition.">
@@ -804,9 +788,38 @@ func ResolveEquityValuationTime: <"Defines how to resolve the observation time f
 	set time:
 		if timeType exists then ResolveTimeZoneFromTimeType(productIdentifier, timeType, equityValuation -> determinationMethod)
 
+func ResolvePerformanceValuationTime: <"Defines how to resolve the observation time from those specified in the Performance Valuation type.">
+	inputs:
+		performanceValuation EquityValuationDates (1..1) <"Represents the Equity Valuation terms from the Equity product definition.">
+		productIdentifier ProductIdentifier (1..1) <"Specifies the product identifier, along with the source, which should be used to determine the correct valuation time i.e. close times are different across exchanges.">
+	output:
+		time TimeZone (1..1)
+	alias valuationTime:
+	    performanceValuation -> valuationTime
+	alias timeType:
+	    performanceValuation -> valuationTimeType
+	set time:
+		if valuationTime exists then TimeZoneFromBusinessCenterTime(valuationTime)
+	set time:
+		if timeType exists then ResolveTimeZoneFromTimeType(productIdentifier, timeType, performanceValuation -> determinationMethod)
+
 func ResolveEquityReset: <"Defines how to resolve the reset value for an equity payout.">
 	inputs:
 		equityPayout EquityPayout (1..1) <"Represents the EquityPayout to which the reset will apply.">
+		observation Observation (1..1) <"Represents the observation that will be used to compute the reset value.">
+		date date (1..1) <"Specifies the date of the reset.">
+	output:
+		reset Reset (1..1)
+	set reset -> resetValue: <"Assigns the observed value to the reset value. In the case of EquityPayout, the observed value represents the price of the underlying at the end of the period and no further manupulation of that value is required.">
+		observation -> observedValue
+	set reset -> resetDate:
+		date
+	add reset -> observations: <"Assigns the observation required to compute the rest value as audit.">
+		observation
+
+func ResolvePerformanceReset: <"Defines how to resolve the reset value for a performance payout.">
+	inputs:
+		performancePayout PerformancePayout (1..1) <"Represents the PerformancePayout to which the reset will apply.">
 		observation Observation (1..1) <"Represents the observation that will be used to compute the reset value.">
 		date date (1..1) <"Specifies the date of the reset.">
 	output:
@@ -1066,7 +1079,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
  		exerciseEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the transfer, termination, or formation of new contracts as a result of the input exercise instruction.">
 
     alias transferInstruction:
-        SecurityTransferInstruction(tradeState)
+     		SecurityTransferInstruction(tradeState)
 
   	alias tradableProduct: <"Extracts the originally traded product.">
  		tradeState -> trade -> tradableProduct
@@ -1120,8 +1133,8 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
  			Create_ContractFormationPrimitive( Create_ContractFormationInstruction( empty ), execution )
 
   	set exerciseEvent -> primitives -> transfer: <"Creates a transfer primitive delivering the underlying financial product to the exercising party if cash settlement was mandated by the contract.">
- 	 	if settlementTerms -> cashSettlementTerms exists then
- 	 		Create_TransferPrimitive( transferInstruction, execution )
+ 		if settlementTerms -> cashSettlementTerms exists then
+ 			Create_TransferPrimitive( transferInstruction, execution )
 
 func Create_ExercisePrimitive: <"Defines the process of putting into effect the rights specified in an options contract, such as to buy or sell a security.  Once exercised the option contract is terminated.">
 
@@ -1929,17 +1942,18 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 			and payout -> cashflow is absent
 			and payout -> creditDefaultPayout is absent
 			and payout -> forwardPayout is absent
-			and payout -> fixedForwardPayout is absent
+			and payout -> fixedPricePayout is absent
 			and payout -> optionPayout is absent
 	post-condition: <"Non-contractual product types must be absent.">
 		product -> contractualProduct only exists
 
 func NewSingleNameEquityPayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
-	inputs:
+    inputs:
 		security Security (1..1)
 		masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
 	output:
 		equityPayout EquityPayout (1..1)
+
 	condition: <"Security must be equity (single name).">
 		security -> securityType = SecurityTypeEnum->Equity
 	set equityPayout -> returnType: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
@@ -1957,7 +1971,7 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 	post-condition: <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">
 		if masterConfirmation exists
 		then interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod
-			and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
+		and interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
 func Create_IndexTransition: <"Function specification to create the business event which represents an Index Transition on a Derivatives contract. The function adjust updates the floating rate index and adds the spread adjustment to any existing spread.">
 	[creation BusinessEvent]

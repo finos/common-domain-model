@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -142,7 +143,9 @@ public class IsdaCreateIngestionServiceTest extends IngestionTest<LegalAgreement
 			Path path = Paths.get(updatedFilename);
 			Files.createDirectories(path.getParent());
 			try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-				writer.write(toJson(expectationFileMappingCoveragesPair.right()));
+				List<MappingCoverage> mappingCoverages = expectationFileMappingCoveragesPair.right();
+				Collections.sort(mappingCoverages);
+				writer.write(toJson(mappingCoverages));
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);

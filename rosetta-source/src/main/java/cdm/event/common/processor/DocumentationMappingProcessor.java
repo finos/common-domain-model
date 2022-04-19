@@ -51,18 +51,18 @@ public class DocumentationMappingProcessor extends MappingProcessor {
         Path masterAgreementTypePath = masterAgreementPath.addElement("masterAgreementType");
         setValueAndUpdateMappings(masterAgreementTypePath,
                 xmlValue -> {
-                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementType().getOrCreateAgreementName();
+                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
                     getSynonymToEnumMap().getEnumValueOptional(MasterAgreementTypeEnum.class, xmlValue)
                             .ifPresent(agreementName::setMasterAgreementTypeValue);
                 });
         setValueAndUpdateMappings(masterAgreementTypePath.addElement("masterAgreementTypeScheme"),
                 xmlValue -> {
-                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementType().getOrCreateAgreementName();
+                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
                     agreementName.getOrCreateMasterAgreementType().getOrCreateMeta().setScheme(xmlValue);
                 });
 
         setValueAndUpdateMappings(masterAgreementPath.addElement("masterAgreementVersion"),
-                xmlValue -> builder.getOrCreateLegalAgreementType().setVintage(Integer.valueOf(xmlValue)));
+                xmlValue -> builder.getOrCreateLegalAgreementIdentification().setVintage(Integer.valueOf(xmlValue)));
 
         setValueAndUpdateMappings(masterAgreementPath.addElement("masterAgreementDate"),
                 xmlValue -> builder.setAgreementDate(parseDate(xmlValue)));
@@ -78,26 +78,26 @@ public class DocumentationMappingProcessor extends MappingProcessor {
         Path masterConfirmationTypePath = masterConfirmationPath.addElement("masterConfirmationType");
         setValueAndUpdateMappings(masterConfirmationTypePath,
                 xmlValue -> {
-                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementType().getOrCreateAgreementName();
+                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
                     getSynonymToEnumMap().getEnumValueOptional(MasterConfirmationTypeEnum.class, xmlValue)
                             .ifPresent(agreementName::setMasterConfirmationTypeValue);
                 });
         setValueAndUpdateMappings(masterConfirmationTypePath.addElement("masterConfirmationTypeScheme"),
                 xmlValue -> {
-                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementType().getOrCreateAgreementName();
+                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
                     agreementName.getOrCreateMasterConfirmationType().getOrCreateMeta().setScheme(xmlValue);
                 });
 
         Path masterConfirmationAnnexTypePath = masterConfirmationPath.addElement("masterConfirmationAnnexType");
         setValueAndUpdateMappings(masterConfirmationAnnexTypePath,
                 xmlValue -> {
-                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementType().getOrCreateAgreementName();
+                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
                     getSynonymToEnumMap().getEnumValueOptional(MasterConfirmationAnnexTypeEnum.class, xmlValue)
                             .ifPresent(agreementName::setMasterConfirmationAnnexTypeValue);
                 });
         setValueAndUpdateMappings(masterConfirmationAnnexTypePath.addElement("masterConfirmationAnnexTypeScheme"),
                 xmlValue -> {
-                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementType().getOrCreateAgreementName();
+                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
                     agreementName.getOrCreateMasterConfirmationAnnexType().getOrCreateMeta().setScheme(xmlValue);
                 });
 
@@ -114,7 +114,7 @@ public class DocumentationMappingProcessor extends MappingProcessor {
 
         setValueAndUpdateMappings(brokerConfirmationPath.addElement("brokerConfirmationType"),
                 xmlValue -> {
-                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementType().getOrCreateAgreementName();
+                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
                     getSynonymToEnumMap().getEnumValueOptional(BrokerConfirmationTypeEnum.class, xmlValue)
                             .ifPresent(agreementName::setBrokerConfirmationType);
                 });
@@ -130,13 +130,13 @@ public class DocumentationMappingProcessor extends MappingProcessor {
         Path creditSupportAgreementTypePath = creditSupportAgreementPath.addElement("type");
         setValueAndUpdateMappings(creditSupportAgreementTypePath,
                 xmlValue -> {
-                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementType().getOrCreateAgreementName();
+                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
                     getSynonymToEnumMap().getEnumValueOptional(CreditSupportAgreementTypeEnum.class, xmlValue)
                             .ifPresent(agreementName::setCreditSupportAgreementTypeValue);
                 });
         setValueAndUpdateMappings(creditSupportAgreementTypePath.addElement("creditSupportAgreementTypeScheme"),
                 xmlValue -> {
-                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementType().getOrCreateAgreementName();
+                    AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
                     agreementName.getOrCreateCreditSupportAgreementType().getOrCreateMeta().setScheme(xmlValue);
                 });
 
@@ -162,7 +162,7 @@ public class DocumentationMappingProcessor extends MappingProcessor {
                             xmlValue -> contractualDefinitionsBuilder.getOrCreateMeta().setScheme(xmlValue));
 
                     if (contractualDefinitionsBuilder.hasData()) {
-                        builder.getOrCreateLegalAgreementType()
+                        builder.getOrCreateLegalAgreementIdentification()
                                 .getOrCreateAgreementName()
                                 .addContractualDefinitionsType(contractualDefinitionsBuilder);
                     }
@@ -173,7 +173,7 @@ public class DocumentationMappingProcessor extends MappingProcessor {
                 // for each item, check if matrixType/matrixTerm is mapped
                 .forEach(m -> {
                     AgreementNameBuilder agreementName =
-                            builder.getOrCreateLegalAgreementType().getOrCreateAgreementName();
+                            builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
                     ContractualMatrix.ContractualMatrixBuilder contractualMatrixBuilder = ContractualMatrix.builder();
 
                     Path matrixTypePath = m.getXmlPath().addElement("matrixType");
@@ -200,7 +200,7 @@ public class DocumentationMappingProcessor extends MappingProcessor {
                 // for each item, check if type is mapped
                 .forEach(m -> {
                     AgreementNameBuilder agreementName =
-                            builder.getOrCreateLegalAgreementType().getOrCreateAgreementName();
+                            builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
 
                     ContractualTermsSupplement.ContractualTermsSupplementBuilder contractualTermsSupplementBuilder = ContractualTermsSupplement.builder();
 
@@ -233,10 +233,10 @@ public class DocumentationMappingProcessor extends MappingProcessor {
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
 
         setValueAndUpdateMappings(otherAgreementPath.addElement("type"),
-                xmlValue -> builder.getOrCreateLegalAgreementType().getOrCreateAgreementName().setOtherAgreement(xmlValue));
+                xmlValue -> builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName().setOtherAgreement(xmlValue));
 
         setValueAndUpdateMappings(otherAgreementPath.addElement("version"),
-                xmlValue -> builder.getOrCreateLegalAgreementType().setVintage(Integer.valueOf(xmlValue)));
+                xmlValue -> builder.getOrCreateLegalAgreementIdentification().setVintage(Integer.valueOf(xmlValue)));
 
         setValueAndUpdateMappings(otherAgreementPath.addElement("date"),
                 xmlValue -> builder.setAgreementDate(parseDate(xmlValue)));
@@ -247,7 +247,7 @@ public class DocumentationMappingProcessor extends MappingProcessor {
     @NotNull
     private Optional<LegalAgreement> setAgreementType(LegalAgreement.LegalAgreementBuilder builder, LegalAgreementTypeEnum masterAgreement) {
         if (builder.hasData()) {
-            builder.getOrCreateLegalAgreementType()
+            builder.getOrCreateLegalAgreementIdentification()
                     .getOrCreateAgreementName()
                     .setAgreementType(masterAgreement);
             return Optional.of(builder);
