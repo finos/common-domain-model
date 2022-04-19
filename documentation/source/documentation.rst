@@ -2281,9 +2281,8 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
  func Create_ResetPrimitive:
      [creation PrimitiveEvent]
      inputs:
-         tradeState TradeState (1..1)
          instruction ResetInstruction (1..1)
-         resetDate date (1..1)
+         tradeState TradeState (1..1)
      output:
          resetPrimitive ResetPrimitive (1..1)
 
@@ -2293,10 +2292,10 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
     alias observationDate:
         if instruction -> rateRecordDate exists
         then instruction -> rateRecordDate
-        else resetDate
+        else instruction -> resetDate
 
     alias observationIdentifiers:
-        if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, resetDate)
+        if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, instruction -> resetDate)
         else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
 
     alias observation:
@@ -2309,8 +2308,8 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
         tradeState
 
     add resetPrimitive -> after -> resetHistory:
-        if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, resetDate)
-        else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, resetDate, instruction -> rateRecordDate)
+        if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, instruction -> resetDate)
+        else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
 
 
 First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
