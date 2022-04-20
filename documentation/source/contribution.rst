@@ -102,8 +102,28 @@ Agile Development Approach
 
 The on-going development of the CDM adheres to a methodology inspired by the *Agile* software development framework. This methodology is based on the following high-level principles:
 
-#. Focus on business value-add from the user's perspective, encapsulated in *stories*
+#. Focus on business value-add from the user's perspective, encapsulated in the concept of *user story*
 #. Delivery of small, releasable changes that add to that business value (sometimes referred to as *shippable increments*) - no "big bang" changes
+
+Focus on business value
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Any CDM development work starts from a *user story*. A user story describes the business benefit being sought from the proposed development, as written from the perspective of the user who will enjoy that benefit.
+
+A good user story comprises three elements and can generally fit into one sentence: who, what and why.
+
+- *Who* defines the user (or more generally the set of users defined by some categorisation) that will enjoy that benefit
+- *What* defines the feature to be delivered, as a verbal proposition applying to the user - i.e. "the user can do this or that"
+- *Why* specifies the benefit, i.e. what makes this feature important for the user
+
+Since a story is written from the user's perspective, it must be written in plain language, or at least language that is intelligible by that user. It must therefore be free of technical jargon that only the developer of that feature may understand.
+
+To achieve the sought-after benefit, a story will require a set of development *tasks* to be executed. This is the *how*, where the story is being decomposed into units of work described in terms that are actionable by the developers. Those tasks will usually correspond to steps in the software development lifecycle (SDLC): analysis, design, build, test, deploy. Those tasks must be planned before the story is scheduled for development.
+
+An example
+""""""""""
+
+A user does not need to know about the how, they only care about the what and why.
 
 How to Contribute
 -----------------
