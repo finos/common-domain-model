@@ -1693,7 +1693,8 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
 	inputs:
 		counterparty Counterparty (1..1) <"The counterparty to change and the role it plays in the transaction.">
 		ancillaryParty AncillaryParty (0..1) <"Optional ancillary party, which can be used to keep a reference to the original executing party, for instance.">
-		tradeId Identifier (1..*) <"A mandatory trade identifier must be specified, as the chnage of party results in a new trade.">
+		partyRole PartyRole (0..1)
+        tradeId Identifier (1..*) <"A mandatory trade identifier must be specified, as the chnage of party results in a new trade.">
 		originalTrade TradeState (1..1) <"The original trade on which to update the counterparty. The original trade will be terminated.">
 	output:
 		newTrade TradeState (1..1)
@@ -1725,6 +1726,10 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
 		ancillaryParty -> partyReference
 	add newTrade -> trade -> tradableProduct -> ancillaryParty: <"Add ancillary party role">
 		ancillaryParty
+	add newTrade -> trade -> party: <"Add party role party reference as an additional party">
+        partyRole -> partyReference
+    add newTrade -> trade -> partyRole: <"Add party role">
+        partyRole
 
 func Settle: <"Function specification to create the Transfer event based on an execution's settlement terms. Initial implementation only supports securities settled via delivery vs payment.">
 	inputs:
@@ -2333,7 +2338,8 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 		else Create_PartyChange(
 			primitiveInstruction -> partyChange -> counterparty,
 			primitiveInstruction -> partyChange -> ancillaryParty,
-			primitiveInstruction -> partyChange -> tradeId,
+			primitiveInstruction -> partyChange -> partyRole,
+            primitiveInstruction -> partyChange -> tradeId,
 			termsChange /*after*/
         )
 
