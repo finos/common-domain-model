@@ -77,9 +77,9 @@ The ISDA CDM distribution comprises three main sets of components:
   * Mapping (Synonym)
 
 * **Executable code distribution**, automatically generated from the model definitions expressed in the Rosetta DSL using `available code generators <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available>`_. Once a code generator is implemented for a particular language, the corresponding code generation is included as part of the CDM build and release process, allowing the CDM to be automatically distributed in that language going forward.
-* **Default implementation**, comprising manually-written code (in Java) which, combined with the auto-generated code, provides a complete implementation of the model. This hand-written code is distributed together with the CDM to facilitate adoption by firms, which can directly use the CDM distribution to set-up and test an implementation. The default implementation can be used in its original state or be disabled or extended by industry participants in their implementation. For example, the default implementation uses the de-facto Java hash function for the *key* meta-data that supports the CDM cross-referencing mechanism. Firms may elect to use an alternative implementation.
+* **Default implementation**, comprising manually-written code (in Java) which, combined with the auto-generated code, provides a complete implementation of the model. This hand-written code is distributed together with the CDM to facilitate adoption by firms, which can directly use the CDM distribution to set-up and test an implementation. The default implementation can be used in its original state or be disabled or extended by industry participants in their implementations. For example, the default implementation uses the de-facto Java hash function to support cross-referencing in the CDM, but firms may elect to use an alternative implementation.
 
-.. note:: Only the Java executable code distribution is complete: i.e. it represents the entire CDM as defined in Rosetta (plus any associated default implementation). Other distributions may only capture parts of the model: for instance, the Scala and TypeScript distributions include the complete data model and function specifications, but not the functions' executable code. Information on how to access the CDM Java distribution can be found in the `CDM Java Distribution Guidelines <cdm-guidelines.html>`_.
+.. note:: Only the Java executable code distribution is complete: i.e. it represents the entire CDM as defined in Rosetta (plus any associated default implementation). Other distributions may only capture parts of the model: for instance, the Scala and TypeScript distributions include the complete data model and function specifications, but not the functions' executable code.
 
 Versioning
 """"""""""
@@ -113,9 +113,6 @@ An eco-system of CDM-based application components from software providers exists
 
 .. note:: The CDM Portal and Rosetta have been developed by technology firm `REGnosys <https://regnosys.com>`_. ISDA encourages the adoption of CDM by software providers but does not endorse any CDM application component.
 
-.. |Codefresh build status| image:: https://g.codefresh.io/api/badges/pipeline/regnosysops/REGnosys%2Frosetta-cdm%2Frosetta-cdm?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWE1N2EyYTlmM2JiOTMwMDAxNDRiODMz.ZDeqVUhB-oMlbZGj4tfEiOg0cy6azXaBvoxoeidyL0g&type=cf-1
-   :target: https://g.codefresh.io/pipelines/rosetta-cdm/builds?repoOwner=REGnosys&repoName=rosetta-cdm&serviceName=REGnosys%2Frosetta-cdm&filter=trigger:build~Build;branch:master;pipeline:5a86c209eaf77d0001daacb6~rosetta-cdm
-
 Using the CDM (Java)
 --------------------
 
@@ -126,3 +123,6 @@ It depends on some open source java artifacts which are freely available from an
 For more details, please follow the `CDM Java Distribution Guidelines <cdm-guidelines.html>`_.
 
 .. note:: These guidelines are intended as a technical documentation for developers to make use of the Java distribution in their implementation.
+
+.. |Codefresh build status| image:: https://g.codefresh.io/api/badges/pipeline/regnosysops/REGnosys%2Frosetta-cdm%2Frosetta-cdm?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWE1N2EyYTlmM2JiOTMwMDAxNDRiODMz.ZDeqVUhB-oMlbZGj4tfEiOg0cy6azXaBvoxoeidyL0g&type=cf-1
+   :target: https://g.codefresh.io/pipelines/rosetta-cdm/builds?repoOwner=REGnosys&repoName=rosetta-cdm&serviceName=REGnosys%2Frosetta-cdm&filter=trigger:build~Build;branch:master;pipeline:5a86c209eaf77d0001daacb6~rosetta-cdm
