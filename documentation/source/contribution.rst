@@ -97,6 +97,14 @@ Each of these higher-level namespaces is further divided into lower-level namesp
 
 **When developing new CDM components, the positioning of those components in the namespace hierarchy is critical** as part of the design (or potentially the re-organising of the hierarchy following the new development), to ensure the CDM remains well organised.
 
+Agile Development Approach
+--------------------------
+
+The on-going development of the CDM adheres to a methodology inspired by the *Agile* software development framework. This methodology is based on the following high-level principles:
+
+#. Focus on business value-add from the user's perspective, encapsulated in *stories*
+#. Delivery of small, releasable changes that add to that business value (sometimes referred to as *shippable increments*) - no "big bang" changes
+
 How to Contribute
 -----------------
 
