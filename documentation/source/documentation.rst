@@ -1118,16 +1118,9 @@ The list of business events for which this process is currently implemented in t
  type Instruction:
     [rootType]
     instructionFunction string (0..1)
-    allocation AllocationInstruction (0..1)
-    clearing ClearingInstruction (0..1)
-    contractFormation ContractFormationInstruction (0..1)
-    execution ExecutionInstruction (0..1)
-    exercise ExerciseInstruction (0..1)
-    reset ResetInstruction (0..1)
+        [deprecated]
     transfer TransferInstruction (0..1)
-    quantityChange QuantityChangeInstruction (0..1)
-    indexTransition IndexTransitionInstruction (0..1)
-    termination TerminationInstruction (0..1)
+        [deprecated]
     primitiveInstruction PrimitiveInstruction (0..1)
     before TradeState (0..1)
         [metadata reference]

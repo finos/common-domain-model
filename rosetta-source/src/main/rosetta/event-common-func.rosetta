@@ -477,9 +477,19 @@ func Qualify_Reset: <"The qualification of a reset event from the fact that the 
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	set is_event:
-		businessEvent -> primitives count = 1
-		and businessEvent -> primitives -> reset exists
+	alias beforeTradeState: businessEvent -> instruction -> before only-element
+	alias afterTradeState: businessEvent -> after only-element
+    set is_event:
+		(
+             businessEvent -> primitives count = 1
+             and businessEvent -> primitives -> reset exists
+        )
+        or
+        (
+            businessEvent -> after count = 1
+            and beforeTradeState -> trade = afterTradeState -> trade
+            and beforeTradeState -> resetHistory count + 1 = afterTradeState -> resetHistory count
+        )
 
 func Qualify_SecurityTransfer: <"The qualification of a security transfer from the fact that the only component is a securityTransfer.">
 	[qualification BusinessEvent]
@@ -629,10 +639,10 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
 		is_event boolean (1..1)
 
 	alias after:
-		businessEvent -> primitives -> termsChange -> after -> trade -> tradableProduct
+		businessEvent -> after only-element -> trade -> tradableProduct
 
 	alias before:
-		businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct
+		businessEvent -> instruction -> before -> trade -> tradableProduct
 
 	alias floatingRateIndexChanged:
 	    before -> tradeLot -> priceQuantity -> observable -> rateOption -> floatingRateIndex exists
@@ -647,13 +657,7 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
 		else True
 
 	set is_event:
-		( businessEvent -> intent is absent or businessEvent -> intent = EventIntentEnum -> IndexTransition )
-		and businessEvent -> primitives -> termsChange count = 1
-		and businessEvent -> primitives -> execution is absent
-		and businessEvent -> primitives -> contractFormation is absent
-		and businessEvent -> primitives -> split is absent
-		and businessEvent -> primitives -> quantityChange is absent
-		and businessEvent -> primitives -> reset is absent
+		businessEvent -> intent = EventIntentEnum -> IndexTransition
 		and floatingRateIndexChanged = True
 		and adjustmentSpreadAdded = True
 
