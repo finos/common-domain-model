@@ -918,28 +918,31 @@ func EquityNotionalAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confi
 	set equityNotionalAmount:
 		numberOfSecurities * priceValue
 
-func StockSplit: <"Function specification to create the fully-formed business event which represents the impact of a stock split (or a reverse stock split) on an Equity Derivatives contract on a certain date.  The function uses the defined adjustmentRatio to adjust the quantity and price as represented in two business events: QuantityChange and termsChange. ">
+func Create_StockSplit: <"Function specification to create the fully-formed business event which represents the impact of a stock split (or a reverse stock split) on an Equity Derivatives contract on a certain date.">
 	inputs:
-		instruction StockSplitInstruction (1..1)
-	output:
-		businessEvent BusinessEvent (1..1)
+		stockSplitInstruction StockSplitInstruction (1..1)
+		before TradeState (1..1)
+    output:
+		after TradeState (1..1)
 
 	alias preSplitNumberOfShares: <"Only works in the case of a single trade lot.">
-		FilterQuantityByFinancialUnit( instruction -> tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity, FinancialUnitEnum -> Share ) only-element -> amount
+		FilterQuantityByFinancialUnit( before -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity, FinancialUnitEnum -> Share ) only-element -> amount
 	alias postSplitNumberOfShares: <"The adjustment ratio is be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.">
-		Create_Quantity( preSplitNumberOfShares * instruction -> adjustmentRatio, Create_UnitType( empty, FinancialUnitEnum -> Share ))
-	alias preSplitPrice: <"Only works in the case of a single trade lot with a single price object.">
-		instruction -> tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price only-element
+		Create_Quantity( preSplitNumberOfShares * stockSplitInstruction -> adjustmentRatio, Create_UnitType( empty, FinancialUnitEnum -> Share ))
+	alias preSplitPrice:
+		before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price
+		    filter [ item -> perUnitOfAmount -> financialUnit = FinancialUnitEnum -> Share ]
+		    only-element
 	alias postSplitPrice: <"The pre-split price is divided by the adjustment ratio to determine the post-split price.">
-		Create_Price( preSplitPrice -> amount / instruction -> adjustmentRatio, preSplitPrice -> unitOfAmount, preSplitPrice -> perUnitOfAmount, preSplitPrice -> priceExpression )
+		Create_Price( preSplitPrice -> amount / stockSplitInstruction -> adjustmentRatio, preSplitPrice -> unitOfAmount, preSplitPrice -> perUnitOfAmount, preSplitPrice -> priceExpression )
 	alias postSplitPriceQuantity:
 		Create_PriceQuantity( [postSplitPrice],[postSplitNumberOfShares], empty )
-
-	condition:
-		instruction -> tradeState -> trade -> contractDetails exists
-
-	set businessEvent -> primitives -> quantityChange: <"Build the QuantityChangePrimitive containing both the adjusted Price and Quantity, and add to WorkflowStep.">
-		Create_QuantityChangePrimitive( Create_QuantityChangeInstruction( [postSplitPriceQuantity], QuantityChangeDirectionEnum -> Replace, empty ), instruction -> tradeState )
+    alias quantityChangeInstruction:
+        Create_QuantityChangeInstruction( [postSplitPriceQuantity], QuantityChangeDirectionEnum -> Replace, empty )
+    alias primitiveInstruction:
+        Create_PrimitiveInstruction( empty, empty, empty, empty, quantityChangeInstruction, empty, empty, empty, empty, empty, empty )
+    set after:
+        Create_TradeState( primitiveInstruction, before )
 
 func Create_PrimitiveEvent:
     inputs:
@@ -2350,12 +2353,44 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
         if primitiveInstruction -> indexTransition is absent then reset
         else Create_IndexTransitionTermsChangePrimitive( primitiveInstruction -> indexTransition, reset ) -> after
 
+    alias stockSplit:
+       if primitiveInstruction -> stockSplit is absent then indexTransition
+       else Create_StockSplit( primitiveInstruction -> stockSplit, indexTransition )
+
 	condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
 		primitiveInstruction -> split is absent
 
 	set after: <"Initiate applying primitive instructions.">
-		indexTransition
+		stockSplit
 
 	set after -> state -> closedState -> state:
 		if contractFormation -> state -> positionState = PositionStatusEnum -> Closed
 			then ClosedStateEnum -> Terminated
+
+func Create_PrimitiveInstruction:
+    inputs:
+        contractFormation ContractFormationInstruction (0..1)
+        execution ExecutionInstruction (0..1)
+        exercise ExerciseInstruction (0..1)
+        partyChange PartyChangeInstruction (0..1)
+        quantityChange QuantityChangeInstruction (0..1)
+        reset ResetInstruction (0..1)
+        split SplitInstruction (0..1)
+        termsChange TermsChangeInstruction (0..1)
+        transfer TransferInstruction (0..1)
+        indexTransition IndexTransitionInstruction (0..1)
+        stockSplit StockSplitInstruction (1..1)
+    output:
+        primitiveInstruction PrimitiveInstruction (1..1)
+
+    set primitiveInstruction -> contractFormation: contractFormation
+    set primitiveInstruction -> execution: execution
+    set primitiveInstruction -> exercise: exercise
+    set primitiveInstruction -> partyChange: partyChange
+    set primitiveInstruction -> quantityChange: quantityChange
+    set primitiveInstruction -> reset: reset
+    set primitiveInstruction -> split: split
+    set primitiveInstruction -> termsChange: termsChange
+    set primitiveInstruction -> transfer: transfer
+    set primitiveInstruction -> indexTransition: indexTransition
+    set primitiveInstruction -> stockSplit: stockSplit

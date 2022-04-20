@@ -1295,6 +1295,27 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/business-event/index-transition/index-transition-xccy-swap-func-input.json", actual);
     }
 
+    @Test
+    void validateStockSplitFuncInputJson() throws IOException {
+        String tradeStatePath = "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json";
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
+
+        Instruction instructionBuilder = Instruction.builder()
+                .setBeforeValue(tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setStockSplit(StockSplitInstruction.builder()
+                                .setAdjustmentRatio(BigDecimal.valueOf(2.0))
+                                .setEffectiveDate(Date.of(2001, 11, 3))))
+                .prune();
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                EventIntentEnum.STOCK_SPLIT,
+                Date.of(2001, 11, 1));
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/stock-split/stock-split-equity-swap-func-input.json", actual);
+    }
+
     private MetaFields.MetaFieldsBuilder createKey(String s) {
         return MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue(s));
     }
