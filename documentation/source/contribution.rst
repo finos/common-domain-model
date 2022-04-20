@@ -4,7 +4,7 @@ Development Principles
 Governance
 ----------
 
-The CDM governance framework regulates the development of the open source CDM standard via a three-tiered committee structure:
+The CDM is an open source project with a governance framework that regulates any contribution to its on-going development. A three-tiered committee structure pilots the development of the CDM:
 
 #. The *CDM Executive Committee* is accountable for setting the strategy, promoting adoption of the standard, and overseeing the activity of the Working Groups and the Architecture & Review Committee. Members are senior executives appointed by the ISDA Board considering their strategic influence in the decision making at their firm and active contribution to the development of the CDM.
 
@@ -12,26 +12,25 @@ The CDM governance framework regulates the development of the open source CDM st
 
 #. The *CDM Working Groups* are assembled per subject matter or use cases to actively develop and implement concretely targeted elements of the CDM. Participants include ISDA members and non-members from the CDM user community who commit time and effort for the development and implementation of the CDM as a global standard.
 
-The on-going development of the CDM is organised in accordance with the following process:
+On-going development of the CDM is organised in accordance with the following process:
 
 .. figure:: images/CDM-Development-Process.png
 
 Committee members or any user of CDM within the community can propose amendments to the CDM. The proposals can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM design principles and submitted to ISDA staff and the Architecture & Review Committee for approval. If approved, the amendment will be merged with the CDM master code branch. In some instances, the proposal may not be immediately approved, but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
 
-
 Design Principles
 -----------------
 
-The CDM supports the market objectives of standardisation via a set of design principles that include the following concepts:
+The purpose of this section is to detail the CDM design principles that any contribution to the CDM development must adhere to. The CDM supports the market objectives of standardisation via a set of design principles that include the following concepts:
 
-* Normalisation through abstraction of common components, e.g. *price* or *quantity*
-* Construction by composition and qualification, i.e. "bottom-up" approach
-* Mapping to existing industry messaging formats, e.g. *FpML*
-* Embedded processing logic, e.g. data validation or state-transition logic
-* Modularisation into logical layers, using *namespace* organisation
+* **Normalisation** through abstraction of common components, e.g. *price* or *quantity*
+* **Composability** where objects are composed and qualified from the bottom up
+* **Mapping** to existing industry messaging formats, e.g. *FpML*
+* **Embedded logic** to represent industry processes, e.g. data validation or state-transition logic
+* **Modularisation** into logical layers, using *namespace* organisation
 
-Normalisation through abstraction of common components
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Normalisation
+^^^^^^^^^^^^^
 
 **To achieve standardisation across products and asset classes, the CDM identifies logical components that fulfil the same function** and normalises them, even when those components may be named and treated differently in the context of their respective markets. By helping to remove inefficiencies that siloed IT environments can create (e.g. different systems dealing with cash, listed, financing and derivative trades make it harder to manage aggregated positions), such design reaffirms the goal of creating an inter-operable ecosystem for the processing of transactions across asset classes.
 
@@ -41,8 +40,8 @@ This approach means that a single logical concept such as *quantity* represents 
 
 **It is imperative that any request to add new model components or extend existing ones is analysed against existing components** to find patterns that should be factored into common components and avoid specialising the model according to each use case. For instance, in the model for *averaging* options (often used for commodity products, whereby multiple price observations are averaged through time to be compared to the option's strike price), the components are built and named such that they can be re-used across asset classes.
 
-Construction by composition and qualification
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Composability
+^^^^^^^^^^^^^
 
 **To ensure re-usability across different markets, the CDM is designed as a composable model** whereby financial objects can be constructed bottom-up based on building-block components. A composable and modular approach allows for a streamlined model to address a broad scope of operational processes consistently across firms' front-to-back flows and across asset classes. The main groups of composable components are:
 
@@ -54,8 +53,8 @@ In this paradigm, the type of object defined by the CDM, whether a financial pro
 
 **The benefit of this approach is that consistency of object classification is achieved through how those objects are populated**, rather than depending on each market participant's implementation to use the same naming convention. This approach also avoids the model relying on specific taxonomies, labels or identifiers to function and provides the flexibility to maintain multiple values from different taxonomies and identifier sets as data in the model related to the same transaction. This has a number of useful application, not least for regulatory purposes.
 
-Mapping to existing industry messaging formats
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Mapping
+^^^^^^^
 
 **To facilitate adoption by market participants, the CDM is made compatible with existing industry messaging formats.** This means that the CDM does not need to be implemented "wholesale" as a replacement to existing messaging systems or databases but can coexist alongside existing systems, with a translation layer. In fact, the CDM is designed to provide only a logical model but does not prescribe any physical data format, neither for storage nor transport. This means that translation to those physical data formats is built-in, and the CDM is best thought of as a logical layer supporting inter-operability between them.
 
@@ -67,8 +66,8 @@ In practice, mapping to existing formats is supported by *synonym* mappings, whi
 
 **The CDM recognises certain formats as de-facto standards that are widely used to exchange information between market participants.** Their synonym mappings are included and rigorously tested in each CDM release, allowing firms that already use such standards to bootstrap their CDM implementation. Besides, because most standard messaging formats are typically extended and customised by each market participants (e.g. FpML or FIX), the CDM allows the synonym representation for those standards to be similarly inherited and extended to cover each firm's specific customisation.
 
-Embedded processing logic
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Embedded logic
+^^^^^^^^^^^^^^
 
 **The CDM is designed to lay the foundation for the standardisation, automation and inter-operability of industry processes**. Industry processes represent events and actions that occur through the transaction’s lifecycle, from negotiating a legal agreement to allocating a block-trade, calculating settlement amounts or exchanging margin requirements.
 
@@ -78,8 +77,8 @@ Traditional implementation of a technical standard distributed in prose comes wi
 
 **By contrast, the CDM provides a fully specified processing model that translates the technical standards supporting industry processes** into a machine-readable and machine-executable format. Systematically providing the domain model as executable code vastly reduces implementation effort and virtually eliminates the risk of inconsistency. For instance, the CDM is designed to provide a fully functional event model, where the state-transition logic for all potential transaction lifecycle events is being specified and distributed as executable code. Another CDM feature is that each model component is associated with data validation constraints to ensure that data is being validated at the point of creation, and this validation logic is distributed alongside the model itself.
 
-Modularisation into logical layers
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Modularisation
+^^^^^^^^^^^^^^
 
 **The set of files that define the CDM data structures and functions are organised into a hierarchy of namespaces**. The first level in the namespace hierarchy corresponds to the layer of the CDM that the components belong to, and those CDM layers are organised from inner- to outer-most as follows:
 
@@ -101,20 +100,18 @@ Each of these higher-level namespaces is further divided into lower-level namesp
 How to Contribute
 -----------------
 
-The purpose of this section is to provide guidance for accepting contributions into the CDM by the wider industry community including market participants, trade associations and technology or service vendors. It describes:
+The purpose of this section is to provide guidance for submitting, accepting and releasing contributions to the CDM by the wider industry community including market participants, trade associations and technology or service vendors. It describes:
 
 - What a Contributor should do to edit and contribute to the CDM
 - What a Reviewer should do to review the changes
 - How to release a new CDM version once changes have been approved
-
-The CDM is an open source project and any contribution to its on-going development is governed by the `CDM Governance Principles <cdm-overview.html#the-cdm-governance>`_.
 
 Before you start modelling
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Before you start modelling, please make sure you have gone through the following pre-modelling checklist:
 
-- Review the `CDM Design Principles <cdm-overview.html#the-cdm-design-principles>`_
+- Review the `CDM Design Principles <#design-principles>`_
 - Get approval of your conceptual design from stakeholders (for large model change)
 - Review the `Rosetta Starter Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta>`_
 
