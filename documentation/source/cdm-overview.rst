@@ -10,7 +10,7 @@ Overview of the ISDA CDM
 What is the ISDA CDM
 --------------------
 
-The ISDA Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle.
+The ISDA Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a `domain model <https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353>`_ and distributed in open source.
 
 Purpose
 ^^^^^^^
@@ -34,7 +34,12 @@ To support these objectives, the CDM is built according to a set of design princ
 * **Embedded logic** to represent industry processes
 * **Modularisation** into logical layers
 
-These design principles are further detailed in the `Design Principles`_ section of the CDM documentation.
+These design principles are further detailed in the `Design Principles <contribution.html#design-principles>`_ section of the CDM documentation.
+
+Governance
+^^^^^^^^^^
+
+The CDM `governance framework <contribution.html#governance>`_ regulates the development of the CDM in open source.
 
 Scope
 ^^^^^
@@ -44,34 +49,25 @@ The product scope of the CDM includes OTC derivatives, cash securities, securiti
 CDM Components
 --------------
 
-**There are three sets of CDM components**, as laid-out in the ISDA CDM components diagram below:
+**The CDM is made of three sets of components**, as laid-out in the ISDA CDM components diagram below:
 
-* The Rosetta DSL
-* The ISDA CDM Distribution
-* CDM Applications
+* The ISDA CDM Distribution (in *blue*)
+* The Rosetta DSL (in *grey*)
+* CDM Applications (in *green*)
 
 .. figure:: images/cdm-components-diagram.png
-
-Rosetta DSL
-^^^^^^^^^^^
-
-The CDM is a `domain model <https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353>`_ written in a Domain-Specific Language (DSL) called the *Rosetta DSL*. The CDM is distributed into multiple common programming languages using a *code generation* mechanism from the Rosetta DSL.
-
-The Rosetta DSL comprises a `language <https://github.com/REGnosys/rosetta-dsl>`_ (i.e. syntax and rules) and `code generators <https://github.com/REGnosys/rosetta-code-generators>`_. The language includes one default code generator, into `Java <https://www.oracle.com/java/>`_. To facilitate adoption and implementation of the CDM by the community of industry participants, the Rosetta DSL is available open source under an Apache 2.0 license. This allows industry participants to write and share code generators into any other languages.
-
-.. note:: All the language components, their syntax and purpose are detailed in the `Rosetta DSL documentation <https://docs.rosetta-technology.io/rosetta/rosetta-dsl>`_. The documentation also describes the mechanism to write and use code generators.
 
 ISDA CDM Distribution
 ^^^^^^^^^^^^^^^^^^^^^
 
-The ISDA CDM distribution is openly accessible to all industry participants and can also be downloaded. The ISDA CDM is distributed subject to the ISDA CDM open source licence. The CDM `governance framework`_ regulates the development of the CDM in open source.
+The ISDA CDM distribution is openly accessible to all industry participants, subject to the ISDA CDM open source licence. This distribution is fully downloadable.
 
 Components
 """"""""""
 
 The ISDA CDM distribution comprises three main sets of components:
 
-* **Model definition**, which corresponds to the model as expressed in the Rosetta DSL syntax and contained into a set of *.rosetta* files organised as *namespaces*. The primary dimensions of the model are listed below and further described in the `Common Domain Model Section <documentation.html>`_ of the documentation.
+* **Model definition**, which corresponds to the model as expressed in the Rosetta DSL and contained into a set of *.rosetta* files organised as *namespaces*. The primary dimensions of the model are listed below and further described in the `Common Domain Model Section <documentation.html>`_ of the documentation.
 
   * Product
   * Event
@@ -97,6 +93,15 @@ The CDM is released using the semantic versioning system. The format of a versio
 * PATCH (``456``) version when a backward compatible change is made, for example adding a new class, attribute or updating documentation. An implementor would not have to make any changes to update to this release.
 
 The MAJOR.MINOR.PATCH numbers may increment by more than one unit because release candidates may be created, but not immediately released. Consequently, a subsequent build referenced with the next incremental unit may be released with amendments that include the earlier release candidate.
+
+Rosetta DSL
+^^^^^^^^^^^
+
+The CDM is written in a Domain-Specific Language (DSL) called the *Rosetta DSL*, that comprises a `language <https://github.com/REGnosys/rosetta-dsl>`_ (i.e. syntax, semantics and rules) and `code generators <https://github.com/REGnosys/rosetta-code-generators>`_.
+
+The language includes one default code generator into `Java <https://www.oracle.com/java/>`_. To facilitate adoption and implementation of the CDM by the community of industry participants, the Rosetta DSL is available open source under an Apache 2.0 license. This allows industry participants to write and share code generators into any other languages.
+
+.. note:: All the language components, their syntax and purpose are detailed in the `Rosetta DSL documentation <https://docs.rosetta-technology.io/rosetta/rosetta-dsl>`_. The documentation also describes the mechanism to write and use code generators.
 
 CDM Applications
 ^^^^^^^^^^^^^^^^
