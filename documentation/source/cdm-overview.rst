@@ -10,7 +10,10 @@ Overview of the ISDA CDM
 What is the ISDA CDM
 --------------------
 
-The ISDA Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. The product scope of the CDM includes OTC derivatives, cash securities, securities financing, and commodities.
+The ISDA Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle.
+
+Purpose
+^^^^^^^
 
 A single, digital processing standard for trade events and actions enhances financial markets' operational efficiency in several ways:
 
@@ -19,6 +22,24 @@ A single, digital processing standard for trade events and actions enhances fina
 * **Delivers better regulatory oversight**, promotes transparency and alignment between regulators and market participants and enables consistency in regulatory reporting, by providing a standard representation of trade data and supporting machine executable reporting requirements.
 
 For further information about the CDM and its applications, please consult the `CDM section <https://www.isda.org/2019/10/14/isda-common-domain-model/>`_ of the ISDA website or contact ISDA directly at marketinfrastructureandtechnology@isda.org.
+
+Design Principles
+^^^^^^^^^^^^^^^^^
+
+To support these objectives, the CDM is built according to a set of design principles that include the following concepts:
+
+* **Normalisation** through abstraction of common components
+* **Composability** where objects are composed and qualified from the bottom up
+* **Mapping** to existing industry messaging formats
+* **Embedded logic** to represent industry processes
+* **Modularisation** into logical layers
+
+These design principles are further detailed in the `Design Principles`_ section of the CDM documentation.
+
+Scope
+^^^^^
+
+The product scope of the CDM includes OTC derivatives, cash securities, securities financing, and commodities.
 
 CDM Components
 --------------
