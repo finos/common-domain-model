@@ -104,26 +104,28 @@ Agile Development Approach
 
 The on-going development of the CDM adheres to a methodology inspired by the *Agile* software development framework. This methodology is based on the following high-level principles:
 
-#. Focus on business value-add from the user's perspective, encapsulated in the concept of *user story*
-#. Delivery of small, releasable changes that contribute to that business value-add (sometimes referred to as *shippable increments*) - i.e. no "big bang" changes
+#. Focus on business value from the user's perspective, encapsulated in the concept of *user story*
+#. Delivery of small, releasable changes that contribute to that business value (sometimes referred to as *shippable increments*) - i.e. no "big bang" changes
 
 Development is being planned along a series of 2-week *sprints* that are guided by high-level priorities set on a quarterly basis.
 
 Focus on business value
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Any CDM development work must start with describing the business benefit being sought from the proposed development, as seen from the perspective of the user who will enjoy that benefit. In an agile framework, this is know as a *user story*.
+Any CDM development work must start from a business case describing the business benefit being sought from the proposed development, as seen from the perspective of the user who will enjoy that benefit. In an agile framework, this is know as a *user story*.
 
 What a user story looks like
 """"""""""""""""""""""""""""
 
-A good user story comprises three elements and can generally fit into one sentence: who, what and why.
+A good user story comprises three elements which can be summarised into one sentence: who, what and why.
 
 - *Who* defines the user (or more generally the set of users defined by some profiling) that will enjoy that benefit
 - *What* defines the feature to be delivered, as a verbal proposition applying to the user - i.e. "the user can do this or that"
 - *Why* specifies the benefit, i.e. what makes this feature important for the user
 
 Since a story is from the user's perspective, it must be written in plain language, or at least in language that is intelligible by that user. It must be free of technical jargon that only the developer of that feature may understand, so that it can be communicated to the user.
+
+Further details about the business case (including documents, pictures, sample data etc.) may be attached to a user story to complement that summary, but the sumamry itself should be whole and self-explanatory.
 
 Story vs task
 """""""""""""
