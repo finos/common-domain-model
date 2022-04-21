@@ -27,15 +27,6 @@ import cdm.event.position.*
 
 isEvent root BusinessEvent;
 
-func QuantityIncreasedPrimitive: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is greater than the Quantity (with the same unit of amount) in the before TradeState.  If all quantities are greater then the function returns true.">
-	inputs:
-		quantityChangePrimitives QuantityChangePrimitive (0..*) <"List of QuantityChangePrimitive to be compared.">
-	output:
-		result boolean (1..1) <"Returns true if the Quantity has increased in all QuantityChangePrimitives.">
-
-	set result:
-		CompareQuantityChangePrimitives( quantityChangePrimitives, CompareOp -> GreaterThan )
-
 func QuantityIncreased:
 	inputs:
 		before TradeState (1..1)
@@ -105,15 +96,6 @@ func QuantityDecreasedToZero:
     set result:
 	    CompareTradeLotToAmount( before -> trade -> tradableProduct -> tradeLot only-element, CompareOp -> GreaterThan, 0.0 ) = True
 	    and CompareTradeStatesToAmount( after, CompareOp -> Equals, 0.0 ) = True
-
-func NoQuantityChange: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is equal to the Quantity (with the same unit of amount) in the before TradeState.">
-	inputs:
-		quantityChangePrimitives QuantityChangePrimitive (0..*) <"List of QuantityChangePrimitive to be compared.">
-	output:
-		result boolean (1..1) <"Returns true if the Quantity has not changed in all QuantityChangePrimitives.">
-
-	set result:
-		CompareQuantityChangePrimitives( quantityChangePrimitives, CompareOp -> Equals )
 
 func CompareQuantityChangePrimitives: <"For each QuantityChangePrimitive, compare the Quantity in the after TradeState to the Quantity (with the same unit of amount) in the before TradeState, based on the CompareOp enum.">
 	inputs:
@@ -247,65 +229,18 @@ func Qualify_ClearedTrade:
     alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
 	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
-	    (
-            businessEvent -> primitives count = 5
-            and businessEvent -> primitives -> quantityChange count = 1
-            and QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
-            and businessEvent -> primitives -> execution count = 2
-            and businessEvent -> primitives -> contractFormation count = 2
-            and businessEvent -> primitives -> execution -> after = businessEvent -> primitives -> contractFormation -> before
-            and businessEvent -> primitives -> contractFormation -> after -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
-        )
-        or
-        (
-            businessEvent -> intent = EventIntentEnum -> Clearing
-            and closedTradeStates count = 1
-            and openTradeStates count = 2
-            and businessEvent -> instruction -> primitiveInstruction -> split exists
-            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
-            and openTradeStates
-                map [
-                    item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
-                    and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier
-                    and item -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
-                ]
-                all = True
-        )
-
-// TODO: Submission / Rejection / Acceptance should be a workflow step qualification, independent from the event qualification.
-// The event still uniquely qualifies as clearing
-func Qualify_ClearingRejection: <"The rejection of an alpha trade submission by a CCP, which is qualified by the fact that (i) termsChange is the only primitive, the workflow status is `rejected`, and (iii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
-	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent (1..1)
-	output: is_event boolean (1..1)
-	set is_event:
-		businessEvent -> primitives count = 1
-		and businessEvent -> primitives -> termsChange exists
-		// and businessEvent -> workflowEventState -> workflowStatus contains WorkflowStatusEnum -> Rejected
-		and (businessEvent -> primitives -> termsChange -> before -> trade -> partyRole is absent
-			or businessEvent -> primitives -> termsChange -> before -> trade -> partyRole -> role all <> PartyRoleEnum -> ClearingOrganization)
-		and (businessEvent -> primitives -> termsChange -> before -> trade -> contractDetails -> partyContractInformation -> relatedParty -> role is absent
-			or businessEvent -> primitives -> termsChange -> before -> trade -> contractDetails -> partyContractInformation -> relatedParty -> role all <> PartyRoleEnum -> ClearingOrganization)
-		and (businessEvent -> primitives -> termsChange -> after -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
-			or businessEvent -> primitives -> termsChange -> after -> trade -> contractDetails -> partyContractInformation -> relatedParty -> role contains PartyRoleEnum -> ClearingOrganization)
-		and NoQuantityChange(businessEvent -> primitives -> quantityChange) = True
-
-func Qualify_ClearingSubmission: <"The submission of a contract to a CCP, which is qualified by the fact that (i) the termsChange is the only primitive, and (ii) the CCP is positioned as a partyRole to the execution or contract in the after state, while it didn't exist in the before state.">
-	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent (1..1)
-	output: is_event boolean (1..1)
-	set is_event:
-		businessEvent -> primitives count = 1
-		and businessEvent -> primitives -> termsChange exists
-		// and businessEvent -> workflowEventState -> workflowStatus contains WorkflowStatusEnum -> Submitted
-		and (businessEvent -> primitives -> termsChange -> before -> trade -> partyRole is absent
-			or businessEvent -> primitives -> termsChange -> before -> trade -> partyRole -> role all <> PartyRoleEnum -> ClearingOrganization)
-		and (businessEvent -> primitives -> termsChange -> before -> trade -> contractDetails -> partyContractInformation -> relatedParty -> role is absent
-			or businessEvent -> primitives -> termsChange -> before -> trade -> contractDetails -> partyContractInformation -> relatedParty -> role all <> PartyRoleEnum -> ClearingOrganization)
-		and (businessEvent -> primitives -> termsChange -> after -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
-			or businessEvent -> primitives -> termsChange -> after -> trade -> contractDetails -> partyContractInformation -> relatedParty -> role contains PartyRoleEnum -> ClearingOrganization)
+        businessEvent -> intent = EventIntentEnum -> Clearing
+        and closedTradeStates count = 1
+        and openTradeStates count = 2
+        and businessEvent -> instruction -> primitiveInstruction -> split exists
+        and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+        and openTradeStates
+            map [
+                item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+                and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier
+                and item -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
+            ]
+            all = True
 
 func Qualify_Compression: <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
 	[qualification BusinessEvent]
@@ -323,19 +258,17 @@ func Qualify_Exercise: <"The qualification of an exercise event from the fact th
 	output: is_event boolean (1..1)
 	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
 	set is_event:
-		(businessEvent -> primitives -> quantityChange count = 1
-		and businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Exercised
-		and (businessEvent -> primitives -> contractFormation exists or businessEvent -> primitives -> transfer exists))
-		or
-		(businessEvent -> intent = EventIntentEnum -> Exercise and
-		(businessEvent -> instruction count = 1 and
-		(businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction -> transfer exists))
-		or
-		(businessEvent -> instruction count = 2 and
-		(businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction -> execution exists))
-		or
-		(businessEvent -> instruction count = 1 and
-		businessEvent -> instruction -> primitiveInstruction -> exercise exists)
+		businessEvent -> intent = EventIntentEnum -> Exercise
+		and
+		(
+            (businessEvent -> instruction count = 1 and
+            (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction -> transfer exists))
+            or
+            (businessEvent -> instruction count = 2 and
+            (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction -> execution exists))
+            or
+            (businessEvent -> instruction count = 1 and
+            businessEvent -> instruction -> primitiveInstruction -> exercise exists)
 		)
 
 func Qualify_Increase: <"The qualification of a increase event from the fact that (i) the intent is Increase when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract increases.">
@@ -349,20 +282,11 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 		businessEvent -> intent is absent
         and
         (
-            (
-                (businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
-                    or (businessEvent -> primitives -> quantityChange exists and transfer exists))
-                and QuantityIncreasedPrimitive(businessEvent -> primitives -> quantityChange) = True
-                and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
-            )
-            or
-            (
-                (primitiveInstruction -> quantityChange only exists
-                    or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
-                and (QuantityIncreased(businessEvent -> instruction -> before only-element, businessEvent -> after) = True
-                    or businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
-            )
-		)
+            (primitiveInstruction -> quantityChange only exists
+                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
+            and (QuantityIncreased(businessEvent -> instruction -> before only-element, businessEvent -> after) = True
+                or businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
+        )
 
 func Qualify_MultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
 	[qualification BusinessEvent]
@@ -494,7 +418,6 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
 		and transfer -> observable -> productIdentifier exists
 		and transfer -> quantity -> unitOfAmount -> financialUnit only exists
 
-
 func Qualify_SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
 	[qualification BusinessEvent]
 	inputs:
@@ -526,18 +449,6 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
 			or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
-/*
-// TODO: This should be a workflow step qualification, rather than an event qualification. The event is still a contract formation
-func Qualify_TradeWarehousePositionNotification:
-	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent (1..1)
-	output: is_event boolean (1..1)
-	set is_event:
-		businessEvent -> primitives -> contractFormation exists
-		// and businessEvent -> tradeWarehouseWorkflow exists
-*/
-
 func Qualify_Execution: <"The qualification of an execution event from the fact that the only component is an execution.">
 	[qualification BusinessEvent]
 	inputs:
@@ -568,57 +479,64 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 
-	alias beforeQuantity:
-		businessEvent -> primitives -> quantityChange -> before -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity
+    alias beforeTradeState:
+        businessEvent -> instruction -> before only-element
+
+    alias afterTradeState:
+        businessEvent -> after only-element
+
+	alias beforeQuantities:
+		beforeTradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity
 	
 	alias beforeNoOfUnits:
-		if beforeQuantity exists
-		then FilterQuantityByFinancialUnit( beforeQuantity, FinancialUnitEnum -> Share ) only-element -> amount
+		FilterQuantityByFinancialUnit( beforeQuantities, FinancialUnitEnum -> Share ) only-element -> amount
 	
-	alias afterQuantity:
-		businessEvent -> primitives -> quantityChange -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity
+	alias afterQuantities:
+		afterTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity
 	
 	alias afterNoOfUnits:
-		if afterQuantity exists
-		then FilterQuantityByFinancialUnit( afterQuantity, FinancialUnitEnum -> Share ) only-element -> amount
+		FilterQuantityByFinancialUnit( afterQuantities, FinancialUnitEnum -> Share ) only-element -> amount
 
 	alias beforeCurrencyAmount:
-		if beforeQuantity exists
-		then FilterQuantityByCurrencyExists( beforeQuantity ) -> amount distinct only-element
+		FilterQuantityByCurrencyExists( beforeQuantities ) -> amount distinct only-element
 	
 	alias afterCurrencyAmount:
-		if afterQuantity exists
-		then FilterQuantityByCurrencyExists( afterQuantity ) -> amount distinct only-element
+		FilterQuantityByCurrencyExists( afterQuantities ) -> amount distinct only-element
 
-	alias beforeCashPrice: <"Only works in the case of a single trade lot and price.">
-		businessEvent -> primitives -> termsChange -> before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> amount only-element
+	alias beforePrice: <"Only works in the case of a single trade lot and price.">
+		beforeTradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
+		    filter [ item -> perUnitOfAmount -> financialUnit = FinancialUnitEnum -> Share ]
+		    map [ item -> amount ]
+		    only-element
 
-	alias afterCashPrice: <"Only works in the case of a single trade lot and price.">
-		businessEvent -> primitives -> termsChange -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> amount only-element
+	alias afterPrice: <"Only works in the case of a single trade lot and price.">
+		afterTradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
+		    filter [ item -> perUnitOfAmount -> financialUnit = FinancialUnitEnum -> Share ]
+		    map [ item -> amount ]
+		    only-element
 
 	alias currencyAmountUnchanged:
-		if beforeCurrencyAmount exists and afterCurrencyAmount exists
-		then beforeCurrencyAmount = afterCurrencyAmount
+		if beforeCurrencyAmount exists and afterCurrencyAmount exists then
+		    beforeCurrencyAmount = afterCurrencyAmount
 		else False
 	
 	alias noOfUnitsChanged:
-		if beforeNoOfUnits exists and afterNoOfUnits exists
-		then afterNoOfUnits <> beforeNoOfUnits
+		if beforeNoOfUnits exists and afterNoOfUnits exists then
+		    afterNoOfUnits <> beforeNoOfUnits
 		else False
 	
 	alias cashPriceChanged:
-		if beforeCashPrice exists and afterCashPrice exists
-		then beforeCashPrice <> afterCashPrice
+		if beforePrice exists and afterPrice exists then
+		    beforePrice <> afterPrice
 		else False
 	
 	alias adjustmentRatioMatches:
-		if beforeNoOfUnits exists and afterNoOfUnits exists and beforeCashPrice exists and afterCashPrice exists
-		then afterNoOfUnits / beforeNoOfUnits = beforeCashPrice / afterCashPrice
+		if beforeNoOfUnits exists and afterNoOfUnits exists and beforePrice exists and afterPrice exists then
+		    afterNoOfUnits / beforeNoOfUnits = beforePrice / afterPrice
 		else False
 	
 	set is_event:
-		businessEvent -> primitives count = 2
-		and currencyAmountUnchanged = True
+		currencyAmountUnchanged = True
 		and noOfUnitsChanged = True
 		and cashPriceChanged = True 
 		and adjustmentRatioMatches = True
