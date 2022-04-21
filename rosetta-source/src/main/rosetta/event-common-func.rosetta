@@ -880,8 +880,6 @@ func Create_Execution: <"Creates the fully formed business event of executing a 
 		executionEvent BusinessEvent (1..1) <"Qualified execution business event containing a single execution primitive event, and no other primitive event.">
 	set executionEvent -> primitives -> execution: <"Create and assign the execution primitive event to the execution business event, using the corresponding primitive event creation function.">
 		Create_ExecutionPrimitive( executionInstruction )
-	add executionEvent -> eventEffect -> trade: <"The trade object, i.e. the after state of the execution primitive event, is the single event effect of the business event.">
-        executionEvent -> primitives -> execution -> after
 
 func Create_ExecutionInstruction:
     inputs:
@@ -1068,15 +1066,11 @@ func Create_Transfer: <"Function specification to build a transfer event followi
 
 	set transferEvent -> primitives -> transfer:
 		Create_TransferPrimitive(instruction, tradeState)
-	add transferEvent -> eventEffect -> effectedTrade:
-	    tradeState
 	set transferEvent -> eventDate:
 		date
 
 	post-condition: <"Event must contain a transfer primitive populated with the cashflow, and no other primitive.">
 		transferEvent -> primitives -> transfer only exists
-	post-condition: <"Event effect must include the contract generating the cashflow.">
-		transferEvent -> eventEffect -> productIdentifier is absent
 
 func CalculateTransfer: <"Function specification to calculate a transfer, e.g. following a reset on a contract">
 	inputs:

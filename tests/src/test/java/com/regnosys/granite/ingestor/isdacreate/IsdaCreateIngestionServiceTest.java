@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.regnosys.granite.ingestor.CdmTestInitialisationUtil;
 import com.regnosys.granite.ingestor.IngestionTest;
 import com.regnosys.granite.ingestor.IngestionTestExpectation;
+import com.regnosys.granite.ingestor.IngestionTestUtil;
 import com.regnosys.granite.ingestor.service.IngestionFactory;
 import com.regnosys.granite.ingestor.service.IngestionService;
 import com.regnosys.granite.ingestor.testing.Expectation;
@@ -55,8 +55,8 @@ public class IsdaCreateIngestionServiceTest extends IngestionTest<LegalAgreement
 
 	@BeforeAll
 	static void setup() {
-		CdmTestInitialisationUtil cdmTestInitialisationUtil = new CdmTestInitialisationUtil();
-		initialiseIngestionFactory(new CdmRuntimeModule(), cdmTestInitialisationUtil.getPostProcessors());
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = IngestionFactory.getInstance().getIsdaCreateAll();
 	}
 
@@ -68,10 +68,6 @@ public class IsdaCreateIngestionServiceTest extends IngestionTest<LegalAgreement
 	@Override
 	protected IngestionService ingestionService() {
 		return ingestionService;
-	}
-
-	@Override
-	protected void assertEventEffect(LegalAgreement c) {
 	}
 
 	@Test

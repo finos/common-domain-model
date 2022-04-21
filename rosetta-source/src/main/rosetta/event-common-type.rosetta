@@ -119,12 +119,12 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	[rootType]
 
 	primitives PrimitiveEvent (0..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
+        [deprecated]
 	intent EventIntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
 	eventDate date (1..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
-	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of globalKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
 	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
 
     // New Content
@@ -136,17 +136,6 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 			or primitives -> execution exists
 			or primitives -> contractFormation exists)
 		then intent is absent
-
-type EventEffect: <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
-
-	effectedTrade TradeState (0..*) <"A pointer to the trade(s) to which the event effect(s) apply, i.e. in the before event state.">
-		[metadata reference]
-	trade TradeState (0..*) <"A pointer to the trade effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">
-	    [metadata reference]
-	productIdentifier ProductIdentifier (0..*) <"A pointer to the product identifier effect(s), an example of such being the outcome of the physical exercise of a bond option.">
-		[metadata reference]
-	transfer TransferPrimitive (0..*) <"A pointer to the transfer effect(s), either a cash, security or other asset.">
-		[metadata reference]
 
 type EventTestBundle: <"Combines several events for testing purposes, intended to be used in downstream processes.">
 

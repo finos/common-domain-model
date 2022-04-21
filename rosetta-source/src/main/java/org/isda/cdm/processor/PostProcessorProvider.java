@@ -12,22 +12,21 @@ import java.util.List;
 @ImplementedBy(PostProcessorProvider.Default.class)
 public interface PostProcessorProvider {
 	
-	public List<PostProcessStep> getPostProcessor();
+	List<PostProcessStep> getPostProcessor();
 
 	@Singleton
-	static final class Default implements PostProcessorProvider {
+	final class Default implements PostProcessorProvider {
 		
 		private List<PostProcessStep> processors;
 
 		public Default() {
 			GlobalKeyProcessStep globalKeyProcessStep = new GlobalKeyProcessStep(NonNullHashCollector::new);
-			this.processors = ImmutableList.of(globalKeyProcessStep, new EventEffectProcessStep(globalKeyProcessStep));
+			this.processors = ImmutableList.of(globalKeyProcessStep);
 		}
 
 		@Override
 		public List<PostProcessStep> getPostProcessor() {
 			return processors;
 		}
-
 	}
 }

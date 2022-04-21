@@ -28,18 +28,14 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
 
     @BeforeAll
     static void setup() {
-		CdmTestInitialisationUtil cdmTestInitialisationUtil = new CdmTestInitialisationUtil();
-		initialiseIngestionFactory(ENV_INSTANCE_NAME, ENV_FILE, new CdmRuntimeModule(), cdmTestInitialisationUtil.getPostProcessors());
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+        initialiseIngestionFactory(ENV_INSTANCE_NAME, ENV_FILE, runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
         ingestionService = IngestionFactory.getInstance(ENV_INSTANCE_NAME).getFis();
     }
 
     @Override
     protected Class<WorkflowStep> getClazz() {
         return WorkflowStep.class;
-    }
-
-    @Override
-    protected void assertEventEffect(WorkflowStep rosettaModelInstance) {
     }
 
     @Override
