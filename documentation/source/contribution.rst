@@ -218,39 +218,37 @@ In addition, for large model changes or changes to core data types, it is recomm
 Editing the model
 ^^^^^^^^^^^^^^^^^
 
-Modelling checklist
-"""""""""""""""""""
-
 The CDM can be edited using a modelling platform called `Rosetta <https://rosetta-technology.io>`_, which is accessible via a web browser.
 
 Before you start editing the CDM using Rosetta, please go through the following modelling checklist:
 
-- Use latest available CDM version
-- No syntax warnings or errors
-- Model compiles (with no "static compilation" errors)
-- All translate regression tests expectations for mapping, validation and qualification maintained or improved
-- Additional test samples used (if use-case is not covered by existing samples)
-- All model components positioned in the correct namespace
-- All model components have descriptions
+- CDM version: use latest available version
+- Syntax: no syntax warnings or errors
+- Compilation: model compiles ok with no "static compilation" errors
+- Testing: all translate regression tests expectations for mapping, validation and qualification maintained or improved. Additional test samples may be needed if use-case is not covered by existing samples.
+- Namespace: all model components positioned in the correct namespace
+- Descriptions: all model components have descriptions
 
 .. note:: The CDM may also be supported through alternative modelling platforms (for instance `Legend <https://legend.finos.org/studio>`_). If you intend on using a platform other than Rosetta to edit the CDM, please go through the Rosetta check-list anyway as you will still need to validate and then contribute your code through Rosetta.
 
-Use latest available CDM version
-""""""""""""""""""""""""""""""""
+The following sections detail that checklist.
+
+CDM version
+"""""""""""
 
 Once ready to start modelling, the Contributor can log into Rosetta and start using the Rosetta Design application to create a workspace and edit the model, referring to the `Rosetta Design Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta>`_. To the extent possible it is recommended that the Contributor keeps working with a version of the CDM that is as close as possible to the latest to minimise the risk of backward compatibility.
 
 Please refer to the `Source Control Integration Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#id1>`_ for more information.
 
-No syntax warning or error
-""""""""""""""""""""""""""
+Syntax
+""""""
 
 The model is edited using the Rosetta DSL syntax. All syntax warnings and errors must be resolved to have a valid model before contributing any changes. The syntax is automatically checked live in Rosetta Design as the user edits the model, as described in the `Rosetta Design Content Assist Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#rosetta-design-content-assist>`_.
 
 For further guidance about features of the syntax, please refer to the `Rosetta DSL Documentation <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component>`_.
 
-Model compilation
-"""""""""""""""""
+Compilation
+"""""""""""
 
 Normally, when the model is syntactically correctly edited, valid code is being auto-generated and compiled in Rosetta. However, certain model changes can cause compilation errors when changes conflict with static code (e.g. certain mapper implementations).
 
@@ -274,8 +272,8 @@ All model components should be positioned appropriately in the existing namespac
 
 Please refer to the `Namespace documentation <documentation.html#namespace>`_ for more details.
 
-All model components have descriptions
-""""""""""""""""""""""""""""""""""""""
+Descriptions
+""""""""""""
 
 All model components (e.g. types, attributes, conditions, functions etc.) should be specified with descriptions in accordance with the `CDM Documentation Style Guide <#documentation-style-guide>`_.
 
