@@ -9,8 +9,6 @@ import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.regnosys.granite.ingestor.IngestionReport;
-import com.regnosys.granite.ingestor.XMLSchema;
 import com.regnosys.granite.ingestor.postprocess.pathduplicates.PathCollector;
 import com.regnosys.granite.ingestor.postprocess.qualify.QualifyProcessorStep;
 import com.regnosys.granite.ingestor.service.IngestionFactory;
@@ -21,7 +19,6 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.RosettaModelObject;
 import org.isda.cdm.CdmRuntimeModule;
-import org.isda.cdm.processor.EventEffectProcessStep;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +67,6 @@ public class JsonWriter {
 			globalKeyProcessStep,
 				new ReKeyProcessStep(globalKeyProcessStep),
 				new ReferenceResolverProcessStep(injector.getInstance(ReferenceConfig.class)),
-				new EventEffectProcessStep(globalKeyProcessStep),
 				qualifyProcessorStep,
 				new PathCollector<>(),
 				validator);

@@ -1,4 +1,4 @@
-package org.isda.cdm.functions;
+package com.regnosys.granite.ingestor.functions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
@@ -7,6 +7,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
+import com.regnosys.granite.ingestor.postprocess.WorkflowPostProcessRunner;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.testing.ExecutionDescriptor;
 import com.regnosys.rosetta.common.testing.FunctionRunner;
@@ -31,8 +32,8 @@ import static com.regnosys.rosetta.common.util.ClassPathUtils.loadFromClasspath;
 import static com.regnosys.rosetta.common.util.ClassPathUtils.toUrl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class SecLendingFunctionExecutionTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecLendingFunctionExecutionTest.class);
+class SecLendingFunctionTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecLendingFunctionTest.class);
 
     private static final ObjectMapper ROSETTA_OBJECT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper();
     private static final String EXECUTION_DESCRIPTOR_PATH = "cdm-sample-files/functions/sec-lending-execution-descriptor.json";
@@ -44,7 +45,7 @@ class SecLendingFunctionExecutionTest {
                 .with(new AbstractModule() {
                     @Override
                     protected void configure() {
-                        bind(PostProcessor.class).to(GlobalKeyProcessRunner.class);
+                        bind(PostProcessor.class).to(WorkflowPostProcessRunner.class);
                         bind(ModelObjectValidator.class).toInstance(Mockito.mock(ModelObjectValidator.class));
                     }
                 });
@@ -52,7 +53,7 @@ class SecLendingFunctionExecutionTest {
     }
 
     private static Stream<Arguments> loadExecutionDescriptors() {
-        return loadFromClasspath(EXECUTION_DESCRIPTOR_PATH, SecLendingFunctionExecutionTest.class.getClassLoader())
+        return loadFromClasspath(EXECUTION_DESCRIPTOR_PATH, SecLendingFunctionTest.class.getClassLoader())
                 .map(path -> ExecutionDescriptor.loadExecutionDescriptor(ROSETTA_OBJECT_MAPPER, toUrl(path)))
                 .flatMap(Collection::stream)
                 .map(executionDescriptor -> Arguments

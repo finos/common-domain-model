@@ -3,8 +3,8 @@ package com.regnosys.granite.ingestor.dtcc;
 import cdm.event.workflow.WorkflowStep;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
-import com.regnosys.granite.ingestor.CdmTestInitialisationUtil;
 import com.regnosys.granite.ingestor.IngestionTest;
+import com.regnosys.granite.ingestor.IngestionTestUtil;
 import com.regnosys.granite.ingestor.service.IngestionFactory;
 import com.regnosys.granite.ingestor.service.IngestionService;
 import com.regnosys.granite.ingestor.synonym.MappingReport;
@@ -28,8 +28,8 @@ class DtccIngestion9ServiceTest extends IngestionTest<WorkflowStep> {
 
 	@BeforeAll
 	static void setup() {
-		CdmTestInitialisationUtil cdmTestInitialisationUtil = new CdmTestInitialisationUtil();
-		initialiseIngestionFactory(new CdmRuntimeModule(), cdmTestInitialisationUtil.getPostProcessors());
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		dtcc9IngestionService = IngestionFactory.getInstance().getDtcc9();
 	}
 	
@@ -42,12 +42,7 @@ class DtccIngestion9ServiceTest extends IngestionTest<WorkflowStep> {
 	protected IngestionService ingestionService() {
 		return dtcc9IngestionService;
 	}
-	
-	@Override
-	protected void assertEventEffect(WorkflowStep c) {
-		//assertEventEffect(c);
-	}
-	
+
 	@SuppressWarnings("unused")//used by the junit parameterized test
 	private static Stream<Arguments> fpMLFiles() {
 		return readExpectationsFrom(EXPECTATION_FILES);

@@ -12,8 +12,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.net.URL;
 import java.util.stream.Stream;
 
-import static com.regnosys.granite.ingestor.EventTestUtil.assertEventEffects;
-
 class EventIngestionServiceTest extends IngestionTest<WorkflowStep>{
 
 	private static final String SAMPLE_FILES_DIR = "cdm-sample-files/events/";
@@ -26,8 +24,8 @@ class EventIngestionServiceTest extends IngestionTest<WorkflowStep>{
 
 	@BeforeAll
 	static void setup() {
-		CdmTestInitialisationUtil cdmTestInitialisationUtil = new CdmTestInitialisationUtil();
-		initialiseIngestionFactory(new CdmRuntimeModule(), cdmTestInitialisationUtil.getPostProcessors());
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = IngestionFactory.getInstance().getFpml510EventsAndBundles();
 	}
 	
@@ -40,12 +38,7 @@ class EventIngestionServiceTest extends IngestionTest<WorkflowStep>{
 	protected IngestionService ingestionService() {
 		return ingestionService;
 	}
-	
-	@Override
-	protected void assertEventEffect(WorkflowStep c) {
-		assertEventEffects(c);
-	}
-	
+
 	@SuppressWarnings("unused")//used by the junit parameterized test
 	private static Stream<Arguments> fpMLFiles() {
 		return readExpectationsFrom(EXPECTATION_FILES);

@@ -12,6 +12,7 @@ import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
 import cdm.base.staticdata.asset.common.ProductIdentifier;
 import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
+import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
@@ -1123,16 +1124,12 @@ class FunctionInputCreationTest {
 
     @NotNull
     private QuantityChangeInstruction.QuantityChangeInstructionBuilder createQuantityChangeInstruction(UnitType unitOfAmount, BigDecimal amount) {
-        QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
-        quantityChangeInstructionBuilder
-                .getOrCreateChange(0)
-                .getOrCreateQuantity(0)
-                .getOrCreateValue()
-                .setUnitOfAmount(unitOfAmount)
-                .setAmount(amount);
-        quantityChangeInstructionBuilder
+        return QuantityChangeInstruction.builder()
+                .addChange(PriceQuantity.builder()
+                        .addQuantityValue(Quantity.builder()
+                                .setAmount(amount)
+                                .setUnitOfAmount(unitOfAmount)))
                 .setDirection(QuantityChangeDirectionEnum.REPLACE);
-        return quantityChangeInstructionBuilder;
     }
 
     /**
@@ -1209,6 +1206,114 @@ class FunctionInputCreationTest {
                 .addAssignedIdentifier(AssignedIdentifier.builder()
                         .setIdentifierValue("LOT-1")));
         return tradeStateBuilder.build();
+    }
+
+    @Test
+    void validateIndexTransitionVanillaSwapFuncInputJson() throws IOException {
+        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/ird-ex05-long-stub-swap-uti.json";
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
+
+        Instruction instructionBuilder = Instruction.builder()
+                .setBeforeValue(tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setIndexTransition(IndexTransitionInstruction.builder()
+                                .addPriceQuantity(PriceQuantity.builder()
+                                        .setObservable(Observable.builder()
+                                                .setRateOptionValue(FloatingRateOption.builder()
+                                                        .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
+                                                        .setIndexTenor(Period.builder()
+                                                                .setPeriod(PeriodEnum.M)
+                                                                .setPeriodMultiplier(6))))
+                                        .addPriceValue(Price.builder()
+                                                .setAmount(BigDecimal.valueOf(0.003))
+                                                .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
+                                                .setPerUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
+                                                .setPriceExpression(PriceExpression.builder()
+                                                        .setPriceType(PriceTypeEnum.INTEREST_RATE)
+                                                        .setSpreadType(SpreadTypeEnum.SPREAD))))
+                                .setEffectiveDate(Date.of(2000, 10, 3))))
+                .prune();
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                EventIntentEnum.INDEX_TRANSITION,
+                Date.of(2000, 10, 1));
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/index-transition/index-transition-vanilla-swap-func-input.json", actual);
+    }
+
+    @Test
+    void validateIndexTransitionXccySwapFuncInputJson() throws IOException {
+        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/cdm-xccy-swap-after-usi-uti.json";
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
+
+        Instruction instructionBuilder = Instruction.builder()
+                .setBeforeValue(tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setIndexTransition(IndexTransitionInstruction.builder()
+                                .addPriceQuantity(PriceQuantity.builder()
+                                        .setObservable(Observable.builder()
+                                                .setRateOptionValue(FloatingRateOption.builder()
+                                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
+                                                                .setValue(FloatingRateIndexEnum.USD_LIBOR_ISDA)
+                                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
+                                                        .setIndexTenor(Period.builder()
+                                                                .setPeriod(PeriodEnum.M)
+                                                                .setPeriodMultiplier(3))))
+                                        .addPriceValue(Price.builder()
+                                                .setAmount(BigDecimal.valueOf(0.002))
+                                                .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                                                .setPerUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                                                .setPriceExpression(PriceExpression.builder()
+                                                        .setPriceType(PriceTypeEnum.INTEREST_RATE)
+                                                        .setSpreadType(SpreadTypeEnum.SPREAD))))
+                                .addPriceQuantity(PriceQuantity.builder()
+                                        .setObservable(Observable.builder()
+                                                .setRateOptionValue(FloatingRateOption.builder()
+                                                        .setFloatingRateIndex(
+                                                                FieldWithMetaFloatingRateIndexEnum.builder()
+                                                                        .setValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
+                                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
+                                                        .setIndexTenor(Period.builder()
+                                                                .setPeriod(PeriodEnum.M)
+                                                                .setPeriodMultiplier(3))))
+                                        .addPriceValue(Price.builder()
+                                                .setAmount(BigDecimal.valueOf(0.001))
+                                                .setUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
+                                                .setPerUnitOfAmount(UnitType.builder().setCurrencyValue("EUR"))
+                                                .setPriceExpression(PriceExpression.builder()
+                                                        .setPriceType(PriceTypeEnum.INTEREST_RATE)
+                                                        .setSpreadType(SpreadTypeEnum.SPREAD))))
+                                .setEffectiveDate(Date.of(2018, 6, 19))))
+                .prune();
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                EventIntentEnum.INDEX_TRANSITION,
+                Date.of(2018, 6, 17));
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/index-transition/index-transition-xccy-swap-func-input.json", actual);
+    }
+
+    @Test
+    void validateStockSplitFuncInputJson() throws IOException {
+        String tradeStatePath = "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json";
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
+
+        Instruction instructionBuilder = Instruction.builder()
+                .setBeforeValue(tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setStockSplit(StockSplitInstruction.builder()
+                                .setAdjustmentRatio(BigDecimal.valueOf(2.0))
+                                .setEffectiveDate(Date.of(2001, 11, 3))))
+                .prune();
+
+        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                EventIntentEnum.STOCK_SPLIT,
+                Date.of(2001, 11, 1));
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/stock-split/stock-split-equity-swap-func-input.json", actual);
     }
 
     private MetaFields.MetaFieldsBuilder createKey(String s) {
