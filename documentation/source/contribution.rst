@@ -12,13 +12,13 @@ The CDM is an open source project with a governance framework that regulates any
 
 #. The *CDM Working Groups* are assembled per subject matter or use cases to actively develop and implement concretely targeted elements of the CDM. Participants include ISDA members and non-members from the CDM user community who commit time and effort for the development and implementation of the CDM as a global standard.
 
-On-going development of the CDM is organised in accordance with the following process:
+Committee members or any user of CDM within the community can propose amendments to the CDM. The on-going development of the CDM adheres to the following process:
 
 .. figure:: images/CDM-Development-Process.png
 
-Committee members or any user of CDM within the community can propose amendments to the CDM. A proposal can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM `design principles <#design-principles>`_ and `agile development approach <#agile-development-approach>`_ and submitted to ISDA staff and the Architecture & Review Committee for approval. In some instances, the proposal may not be immediately approved, but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
+A proposal can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM `design principles <#design-principles>`_ and `agile development approach <#agile-development-approach>`_ and submitted to ISDA staff and the Architecture & Review Committee for approval. In some instances, the proposal may not be immediately approved but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
 
-If approved, the amendment will be merged with the CDM's main code branch.
+Once approved, the amendment will be scheduled to be merged with the CDM's main code branch.
 
 Design Principles
 -----------------
@@ -198,21 +198,20 @@ Before you start modelling
 
 Before you start modelling, please make sure you have gone through the following pre-modelling checklist:
 
-- Review the `CDM Design Principles <#design-principles>`_
-- Get approval of your conceptual design from stakeholders (for large model change)
+- Review the `CDM Design Principles <#design-principles>`_ and `CDM Governance <#governance>`_
 - Review the `Rosetta Starter Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta>`_
 
-For large model changes, or changes to core data types, it is recommended that the Contributor reviews the CDM Governance Principles and follows these steps:
+In addition, for large model changes or changes to core data types, it is recommended that the Contributor reviews the `agile development approach <#agile-development-approach>`_ and follows these steps:
 
-- **Define Use Case**. Identify and document one or more use cases with details (e.g., a sample trade).
-- **Draft Conceptual Design** (High Level). Draft a conceptual view showing the set of data types, their definitions (and/or sample attributes but not the whole set of attributes), their relationships to each other, and, if applicable, a workflow.
+- **Define use case**. Identify and document one or more use cases with details (e.g. a sample trade).
+- **Draft conceptual design** (high level). Draft a conceptual view showing the set of data types, their definitions (and/or sample attributes but not the whole set of attributes), their relationships to each other, and, if applicable, a workflow.
 - **Design approval**. Obtain approval of high-level conceptual design from CDM stakeholders:
 
   - CDM Owners (ISDA and other involved Trade Associations, where applicable)
   - CDM Sub-Working Group, if applicable
   - CDM Architecture and Review Committee
 
-- **Quality Assurance**. Seek the early appointment of at least one CDM reviewer who can assist modelling discussions and provide early feedback. CDM Reviewers are appointed by the CDM Owners as and when relevant. Please contact `cdmInfo@isda.org <cdminfo@isda.org>`_.
+- **Quality assurance**. Seek the early appointment of at least one CDM reviewer who can assist modelling discussions and provide early feedback. CDM Reviewers are appointed by the CDM Owners as and when relevant. Please contact `cdmInfo@isda.org <cdminfo@isda.org>`_.
 
 Editing the model
 ^^^^^^^^^^^^^^^^^
