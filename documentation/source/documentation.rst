@@ -829,7 +829,6 @@ A ``PrimitiveEvent`` can only include one of the primitive components, which is 
    contractFormation ContractFormationPrimitive (0..1)
    split SplitPrimitive (0..1)
    quantityChange QuantityChangePrimitive (0..1)
-   reset ResetPrimitive (0..1)
    termsChange TermsChangePrimitive (0..1)
    transfer TransferPrimitive (0..1)
 
@@ -2272,7 +2271,6 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
 .. code-block:: Haskell
 
  func Create_ResetPrimitive:
-     [creation PrimitiveEvent]
      inputs:
          instruction ResetInstruction (1..1)
          tradeState TradeState (1..1)

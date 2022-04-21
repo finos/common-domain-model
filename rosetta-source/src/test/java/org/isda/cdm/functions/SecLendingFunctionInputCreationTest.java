@@ -9,7 +9,6 @@ import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
-import cdm.event.common.functions.Create_Allocation;
 import cdm.event.common.functions.Create_BusinessEvent;
 import cdm.event.common.functions.Create_Execution;
 import cdm.event.common.metafields.ReferenceWithMetaTradeState;
