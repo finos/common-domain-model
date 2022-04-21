@@ -16,7 +16,9 @@ On-going development of the CDM is organised in accordance with the following pr
 
 .. figure:: images/CDM-Development-Process.png
 
-Committee members or any user of CDM within the community can propose amendments to the CDM. The proposals can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM `design principles <#design-principles>`_ and `agile development approach <#agile-development-approach>`_ and submitted to ISDA staff and the Architecture & Review Committee for approval. If approved, the amendment will be merged with the CDM master code branch. In some instances, the proposal may not be immediately approved, but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
+Committee members or any user of CDM within the community can propose amendments to the CDM. A proposal can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM `design principles <#design-principles>`_ and `agile development approach <#agile-development-approach>`_ and submitted to ISDA staff and the Architecture & Review Committee for approval. In some instances, the proposal may not be immediately approved, but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
+
+If approved, the amendment will be merged with the CDM's main code branch.
 
 Design Principles
 -----------------
