@@ -105,27 +105,48 @@ Agile Development Approach
 The on-going development of the CDM adheres to a methodology inspired by the *Agile* software development framework. This methodology is based on the following high-level principles:
 
 #. Focus on business value-add from the user's perspective, encapsulated in the concept of *user story*
-#. Delivery of small, releasable changes that add to that business value (sometimes referred to as *shippable increments*) - no "big bang" changes
+#. Delivery of small, releasable changes that contribute to that business value-add (sometimes referred to as *shippable increments*) - i.e. no "big bang" changes
 
 Focus on business value
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Any CDM development work starts from a *user story*. A user story describes the business benefit being sought from the proposed development, as written from the perspective of the user who will enjoy that benefit.
+Any CDM development work must start with describing the business benefit being sought from the proposed development, as seen from the perspective of the user who will enjoy that benefit. In an agile framework, this is know as a *user story*.
+
+What a user story looks like
+""""""""""""""""""""""""""""
 
 A good user story comprises three elements and can generally fit into one sentence: who, what and why.
 
-- *Who* defines the user (or more generally the set of users defined by some categorisation) that will enjoy that benefit
+- *Who* defines the user (or more generally the set of users defined by some profiling) that will enjoy that benefit
 - *What* defines the feature to be delivered, as a verbal proposition applying to the user - i.e. "the user can do this or that"
 - *Why* specifies the benefit, i.e. what makes this feature important for the user
 
-Since a story is written from the user's perspective, it must be written in plain language, or at least language that is intelligible by that user. It must therefore be free of technical jargon that only the developer of that feature may understand.
+Since a story is from the user's perspective, it must be written in plain language, or at least in language that is intelligible by that user. It must therefore be free of technical jargon that only the developer of that feature may understand.
 
-To achieve the sought-after benefit, a story will require a set of development *tasks* to be executed. This is the *how*, where the story is being decomposed into units of work described in terms that are actionable by the developers. Those tasks will usually correspond to steps in the software development lifecycle (SDLC): analysis, design, build, test, deploy. Those tasks must be planned before the story is scheduled for development.
+By contrast, what should *not* be part of the story is the how:
 
-An example
-""""""""""
+- *How* describes the set of *tasks* that will need to be executed to deliver the story. This is where the story is being decomposed into units of work written in terms that are actionable by the developers.
 
-A user does not need to know about the how, they only care about the what and why.
+Tasks will usually correspond to steps in the software development lifecycle: analysis, design, build, test, deploy. They must be planned before the story is scheduled for development. Apart from time estimates, users do not need to know about this how or any of its technical details -  they only care about the what and why.
+
+Some examples
+"""""""""""""
+
+Instead of writing:
+
+- "Commodity Swap Follow Up w/Enum values, mapping, samples": unclear, assumes some context which not all users may have ("follow-up" from what?), no explicit benefit.
+
+Write:
+
+- "A Commodity user of the CDM can map a set of basic Commodity attributes to represent simple Commodity derivative products."
+
+In which some of the underlying tasks may be:
+
+- "Map basic Commodity enumerations"
+- "Add Commodity samples to the ingestion test pack"
+- etc.
+
+.. note:: As a rule of thumb, a story should be written as a sentence starting with the user's profile as the subject of a verbal proposition, whereas a taks is written in the imperative mode as an injunction to the developer. A story written in the imperative mode is more likely a task and should be re-written.
 
 How to Contribute
 -----------------
