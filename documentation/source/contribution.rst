@@ -12,7 +12,7 @@ The CDM is an open source project with a governance framework that regulates any
 
 #. The *CDM Working Groups* are assembled per subject matter or use cases to actively develop and implement concretely targeted elements of the CDM. Participants include ISDA members and non-members from the CDM user community who commit time and effort for the development and implementation of the CDM as a global standard.
 
-Committee members or any user of CDM within the community can propose amendments to the CDM. The on-going development of the CDM adheres to the following process:
+Committee members or any user of CDM within the community can propose amendments in accordance with the following process:
 
 .. figure:: images/CDM-Development-Process.png
 
@@ -141,27 +141,27 @@ Some examples
 
 Instead of writing:
 
-- "Commodity Swap Follow Up w/Enum values, mapping, samples": unclear, assumes some context which not all users may have ("follow-up" from what?), no explicit benefit.
+ "Commodity Swap Follow Up w/Enum values, mapping, samples"
 
-Write:
+Which is unclear, assumes some context which not all users may have ("follow-up" from what?) and has no explicit benefit, write:
 
-- "A Commodity user of the CDM can map a set of basic Commodity attributes to represent simple Commodity derivative products."
+ "A Commodity user of the CDM can map a set of basic Commodity attributes to represent simple Commodity derivative products."
 
 In which some of the underlying tasks may be:
 
-- "Map basic Commodity enumerations"
-- "Add Commodity samples to the ingestion test pack"
-- etc.
+ - "Map basic Commodity enumerations"
+ - "Add Commodity samples to the ingestion test pack"
+ - etc.
 
 As a rule, a task is written in the imperative mode as an injunction to the developer, whereas a story should be written as a sentence starting with the user's profile as the subject of a verbal proposition. A story written in the imperative mode is more likely a task and improperly re-written.
 
 For instance, instead of writing:
 
-- "Release member contribution for DayCountFraction."
+ "Release member contribution for DayCountFraction."
 
 Write:
 
-- "A user of interest rate products is able to model products that use the ACT/364 day count convention in the CDM."
+ "A user of interest rate products is able to model products that use the ACT/364 day count convention in the CDM."
 
 Where the "Release" injunction is attached to a deploy-type task.
 
