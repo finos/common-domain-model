@@ -102,17 +102,19 @@ Each of these higher-level namespaces is further divided into lower-level namesp
 Agile Development Approach
 --------------------------
 
-The on-going development of the CDM adheres to a methodology inspired by the *Agile* software development framework. This methodology is based on the following high-level principles:
+The on-going development of the CDM adheres to a methodology inspired by the *Agile* software development framework. This methodology is based on two high-level principles:
 
 #. Focus on business value from the user's perspective, encapsulated in the concept of *user story*
 #. Delivery of small, releasable changes that contribute to that business value (sometimes referred to as *shippable increments*) - i.e. no "big bang" changes
 
-Development is being planned along a series of 2-week *sprints* that are guided by high-level priorities set on a quarterly basis.
+Development by the CDM maintainer team is being planned along a series of 2-week *sprints* aligned onto the CDM Architecture and Review Committee cycle. This development is guided by high-level priorities set on a quarterly basis.
+
+Outside `contributions <#how-to-contribute>`_ that are proposed by industry members, whilst not formally enlisted in the sprint process, usually generate tasks (design, review, deployment etc.) for the CDM maintainer team that will need to be included in a sprint. Those outside contributions still need to comply with the above development principles to ensure a smooth integration with the rest of the development by the CDM maintainer team.
 
 Focus on business value
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Any CDM development work must start from a business case describing the business benefit being sought from the proposed development, as seen from the perspective of the user who will enjoy that benefit. In an agile framework, this is know as a *user story*.
+Any CDM development work must start from a business case describing the business benefit being sought from the proposed development, as seen from the perspective of the user who will enjoy that benefit. This is know as a *user story* in the agile framework.
 
 What a user story looks like
 """"""""""""""""""""""""""""
@@ -153,7 +155,7 @@ In which some of the underlying tasks may be:
  - "Add Commodity samples to the ingestion test pack"
  - etc.
 
-As a rule, a task is written in the imperative mode as an injunction to the developer, whereas a story should be written as a sentence starting with the user's profile as the subject of a verbal proposition. A story written in the imperative mode is more likely a task and improperly re-written.
+As a rule, a task is written in the imperative mode as an injunction to the developer, whereas a story should be written as a sentence starting with the user's profile as the subject of a verbal proposition. A story written in the imperative mode is more likely a task and improperly written.
 
 For instance, instead of writing:
 
