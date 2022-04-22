@@ -99,7 +99,7 @@ Rosetta DSL
 
 The CDM is written in a Domain-Specific Language (DSL) called the *Rosetta DSL*, that comprises a `language <https://github.com/REGnosys/rosetta-dsl>`_ (i.e. syntax, semantics and rules) and `code generators <https://github.com/REGnosys/rosetta-code-generators>`_.
 
-The language includes one default code generator into `Java <https://www.oracle.com/java/>`_. To facilitate adoption and implementation of the CDM by the community of industry participants, the Rosetta DSL is available open source under an Apache 2.0 license. This allows industry participants to write and share code generators into any other languages.
+The language includes one default code generator into `Java <https://www.oracle.com/java/>`_. To facilitate adoption and implementation of the CDM by the community of industry participants, the Rosetta DSL is available in open source under an Apache 2.0 license. This allows industry participants to write and share code generators into any other languages.
 
 .. note:: All the language components, their syntax and purpose are detailed in the `Rosetta DSL documentation <https://docs.rosetta-technology.io/rosetta/rosetta-dsl>`_. The documentation also describes the mechanism to write and use code generators.
 
