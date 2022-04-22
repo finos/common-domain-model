@@ -173,11 +173,13 @@ Delivery of small releasable units
 What is a releasable unit
 """""""""""""""""""""""""
 
-To maintain on-going momentum in the development of the CDM, delivery is organised around small but releasable units of change. This means that any change must be small enough to be achievable during a single sprint (usually), but large enough to be releasable as a cohesive whole. In particular, a change unit should not be regressive or break existing functionality, even if only temporarily (except when retiring such functionality is the purpose of that change) - in agile terms, it must be *shippable*.
+To maintain on-going momentum in the development of the CDM, delivery is organised around small but releasable units of change. This means that any change must be small enough to be achievable during a single sprint (usually), but large enough to be releasable as a cohesive whole. In particular, a change unit should not be regressive or break existing functionality, even if only temporarily (except when retiring such functionality is the purpose of that change) - in agile terms, it must be *shippable*. This principle applies to on-going development by the CDM Maintainers as well as to outside contributions.
 
-**The CDM development approach aligns the concepts of user story and releasable unit**: 1 user story = 1 releasable unit. Stories should be calibrated to be achievable during a single sprint.
+**The CDM development approach aligns the concepts of user story and releasable unit**, therefore stories should be calibrated to be achievable during a single sprint.
 
-.. note:: A CDM `release <cdm-overview.html#versioning>`_ may contain more than 1 releasable unit / user story. Every unit should still be shippable in isolation, even if they may end-up being shipped as a group.
+ 1 contribution = 1 releasable unit = 1 user story
+
+.. note:: A CDM `release <cdm-overview.html#versioning>`_ may contain more than 1 releasable unit. Every unit should still be shippable in isolation, even if they may end-up being shipped as a group.
 
 Epics
 """""
@@ -193,7 +195,7 @@ How to Contribute
 
 The purpose of this section is to provide guidance for submitting, accepting and releasing contributions to the CDM by the wider industry community including market participants, trade associations and technology or service vendors. It describes:
 
-- What a Contributor should do to edit and contribute to the CDM
+- What a Contributor should do to edit and contribute changes to the CDM
 - What a Maintainer should do to review the changes
 - How to release a new CDM version once changes have been approved
 
@@ -296,15 +298,21 @@ Before you start contributing your model changes, please go through the followin
   - Documentation adjustment, if necessary
   - Release notes
   - Any other additional materials or documentation that may help with the review and approval process
+ 
+.. note:: A contribution should be a whole `releasable unit <#what-is-a-releasable-unit>`_ and its size calibrated in accordance with the CDM's `agile development approach <#agile-development-approach>`_.
 
 Contributing using Rosetta
 """"""""""""""""""""""""""
 
 Once the model changes have been completed, use Rosetta to submit changes for review, referring to the `Rosetta Workspace Contribution Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#contribute-workspace-changes>`_ and specifying a meaningful title and description.
 
-.. note:: All contributions are submitted as candidate changes to be incorprated under `the CDM licence <https://portal.cdm.rosetta-technology.io/#/terms-isda>`_
+.. note:: All contributions are submitted as candidate changes to be incorprated under `the CDM licence <https://portal.cdm.rosetta-technology.io/#/terms-isda>`_.
 
-The CDM is hosted in GitHub. Any changes contributed through Rosetta are submitted as a "Pull Request" on a one-off CDM branch and will invoke a build process to compile and run all CDM unit tests and regression tests.
+The CDM is hosted in GitHub. Any changes contributed through Rosetta are submitted as a *Pull Request* on a one-off CDM branch. This pull request will invoke a build process to compile and run all CDM unit tests and regression tests. Given the alignment:
+
+ 1 pull request = 1 contribution = 1 releasable unit = 1 user story,
+
+we recommend labelling the pull request with the user story label, i.e. "STORY-XYZ: ..." to facilitate its tracking.
 
 .. note:: It is not yet possible to use Rosetta to contribute updated test expectations, documentation, release notes or new sample data, so these must be provided to the CDM Maintainers via Slack or email.
 
