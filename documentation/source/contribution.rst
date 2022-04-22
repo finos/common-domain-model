@@ -18,7 +18,7 @@ Committee members or any user of CDM within the community can propose amendments
 
 A proposal can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM `design principles <#design-principles>`_ and `agile development approach <#agile-development-approach>`_ and submitted to ISDA staff and the Architecture & Review Committee for approval. In some instances, the proposal may not be immediately approved but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
 
-Once approved, the amendment will be scheduled to be merged with the CDM's main code branch.
+Once approved, the amendment will be scheduled to be merged with the CDM's main code branch by the CDM Maintainers.
 
 Design Principles
 -----------------
@@ -107,9 +107,9 @@ The on-going development of the CDM adheres to a methodology inspired by the *Ag
 #. Focus on business value from the user's perspective, encapsulated in the concept of *user story*
 #. Delivery of small, releasable changes that contribute to that business value (sometimes referred to as *shippable increments*) - i.e. no "big bang" changes
 
-Development by the CDM maintainer team is being planned along a series of 2-week *sprints* aligned onto the CDM Architecture and Review Committee cycle. This development is guided by high-level priorities set on a quarterly basis.
+Development by the CDM Maintainer team is being planned along a series of 2-week *sprints* aligned onto the CDM Architecture and Review Committee cycle. This development is guided by high-level priorities set on a quarterly basis.
 
-Outside `contributions <#how-to-contribute>`_ that are proposed by industry members, whilst not formally enlisted in the sprint process, usually generate tasks (design, review, deployment etc.) for the CDM maintainer team that will need to be included in a sprint. Those outside contributions still need to comply with the above development principles to ensure a smooth integration with the rest of the development by the CDM maintainer team.
+Outside `contributions <#how-to-contribute>`_ that are proposed by industry members, whilst not formally enlisted in the sprint process, usually generate additional tasks (design, review, deployment etc.) for the CDM Maintainer team that will need to be included in a sprint. Those outside contributions still need to comply with the above development principles to ensure a smooth integration with the rest of the development by the CDM Maintainer team.
 
 Focus on business value
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -194,7 +194,7 @@ How to Contribute
 The purpose of this section is to provide guidance for submitting, accepting and releasing contributions to the CDM by the wider industry community including market participants, trade associations and technology or service vendors. It describes:
 
 - What a Contributor should do to edit and contribute to the CDM
-- What a Reviewer should do to review the changes
+- What a Maintainer should do to review the changes
 - How to release a new CDM version once changes have been approved
 
 Before you start modelling
@@ -215,7 +215,7 @@ In addition, for large model changes or changes to core data types, it is recomm
   - CDM Sub-Working Group, if applicable
   - CDM Architecture and Review Committee
 
-- **Quality assurance**. Seek the early appointment of at least one CDM reviewer who can assist modelling discussions and provide early feedback. CDM Reviewers are appointed by the CDM Owners as and when relevant. Please contact `cdmInfo@isda.org <cdminfo@isda.org>`_.
+- **Quality assurance**. Seek the early appointment of at least one CDM Maintainer who can assist modelling discussions and provide early feedback. CDM Maintainers are appointed by the CDM Owners as and when relevant. Please contact `cdmInfo@isda.org <cdminfo@isda.org>`_.
 
 Editing the model
 ^^^^^^^^^^^^^^^^^
@@ -254,7 +254,7 @@ Compilation
 
 Normally, when the model is syntactically correctly edited, valid code is being auto-generated and compiled in Rosetta. However, certain model changes can cause compilation errors when changes conflict with static code (e.g. certain mapper implementations).
 
-The Rosetta support team can help resolve these errors before the changes are contributed. In most cases you will be able to contact the team via the `In-App chat <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#in-app-chat>`_. If the Rosetta support identifies that significant work may be required to resolve these errors, they will notify the Contributor who should then contact the CDM Reviewer originally appointed for the proposed change and/or CDM Owners. The latter will be able to assist in the resolution of the issues.
+The Rosetta support team can help resolve these errors before the changes are contributed. In most cases you will be able to contact the team via the `In-App chat <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#in-app-chat>`_. If the Rosetta support identifies that significant work may be required to resolve these errors, they will notify the Contributor who should then contact the CDM Maintainer originally appointed for the proposed change and/or CDM Owners. The latter will be able to assist in the resolution of the issues.
 
 For more information about auto-compilation in Rosetta, please refer to the `Rosetta Auto Compilation Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#auto-compilation>`_.
 
@@ -288,7 +288,7 @@ Contribution checklist
 Before you start contributing your model changes, please go through the following contribution checklist:
 
 - Use Rosetta to contribute model changes to GitHub, specifying a meaningful title and description
-- Notify the CDM Reviewers (via email or Slack) of the submitted contribution
+- Notify the CDM Maintainers (via email or Slack) of the submitted contribution
 - Include:
 
   - Any notes on expected mapping, validation or qualification changes (success numbers should not decrease)
@@ -306,7 +306,7 @@ Once the model changes have been completed, use Rosetta to submit changes for re
 
 The CDM is hosted in GitHub. Any changes contributed through Rosetta are submitted as a "Pull Request" on a one-off CDM branch and will invoke a build process to compile and run all CDM unit tests and regression tests.
 
-.. note:: It is not yet possible to use Rosetta to contribute updated test expectations, documentation, release notes or new sample data, so these must be provided to the CDM Reviewers via Slack or email.
+.. note:: It is not yet possible to use Rosetta to contribute updated test expectations, documentation, release notes or new sample data, so these must be provided to the CDM Maintainers via Slack or email.
 
 Documentation
 """""""""""""
@@ -326,7 +326,7 @@ Reviewing model changes
 Review checklist
 """"""""""""""""
 
-Before starting to review a contribution, the CDM Reviewer should go through the following review checklist:
+Before starting to review a contribution, the CDM Maintainer should go through the following review checklist:
 
 - Review the GitHub Pull Request to assert that:
 
@@ -344,42 +344,42 @@ Before starting to review a contribution, the CDM Reviewer should go through the
 - Additional documentation provided, if necessary.
 - Release note provided
 
-Any review feedback should be sent to the contributor as required via Slack, email or in direct meetings.
+Any review feedback should be sent to the Contributor as required via Slack, email or in direct meetings.
 
-.. note:: Depending on the size, complexity or impact of a contribution, the CDM Reviewers can recommend for the contribution to be presented with an appropriate level of details with the CDM Architecture and Review Committee for further feedback. The CDM reviewer will work with the Contributor to orchestrate that additional step. The additional feedback may recommend revisions to the proposed changes. When it is the case the review process will iterate on the revised proposal.
+.. note:: Depending on the size, complexity or impact of a contribution, the CDM Maintainer can recommend for the contribution to be presented with an appropriate level of details with the CDM Architecture and Review Committee for further feedback. The CDM Maintainer will work with the Contributor to orchestrate that additional step. The additional feedback may recommend revisions to the proposed changes. When it is the case the review process will iterate on the revised proposal.
 
 Post-review technical tasks
 """""""""""""""""""""""""""
 
 Following model reviews, a number of technical tasks may be required before the changes can be finally approved, merged and released:
 
-- **Stale CDM version**: Contribution is based on an old CDM version and model changes conflict with more recent changes. If the conflicting change is available in Rosetta, the contributor should be asked to update their contribution to the latest version and resubmit. If the conflicting change is not yet available in Rosetta, this merge will need to be handled by the CDM Reviewer.
-- **Failed unit tests**: Java unit tests in the CDM project may fail due to problems in the contributed changes. Alternatively it may be that the test expectations need to be updated. The Reviewer should determine the cause of the test failure and notify either the Contributor or work on adjusting the test expectations.
-- **Additional documentation**: If the contributor provided additional documentation, the Reviewer should update the CDM documentation by editing the *documentation.rst* file in GitHub.
-- **Documentation code snippets**: To avoid stale documentation, the CDM build process verifies that any code snippets in the documentation exists and is in line with the model itself. The Reviewer should adjust or include any code snippets by editing the *documentation.rst* file on GitHub.
-- **Code generation**: Model changes may cause code generator failures (e.g., Java, C#, Scala, Kotlin etc.). In the unlikely event of code generation failures, these will need to be addressed by the Reviewer.
+- **Stale CDM version**: Contribution is based on an old CDM version and model changes conflict with more recent changes. If the conflicting change is available in Rosetta, the contributor should be asked to update their contribution to the latest version and resubmit. If the conflicting change is not yet available in Rosetta, this merge will need to be handled by the CDM Maintainer.
+- **Failed unit tests**: Java unit tests in the CDM project may fail due to problems in the contributed changes. Alternatively it may be that the test expectations need to be updated. The Maintainer should determine the cause of the test failure and notify either the Contributor or work on adjusting the test expectations.
+- **Additional documentation**: If the contributor provided additional documentation, the Maintainer should update the CDM documentation by editing the *documentation.rst* file in GitHub.
+- **Documentation code snippets**: To avoid stale documentation, the CDM build process verifies that any code snippets in the documentation exists and is in line with the model itself. The Maintainer should adjust or include any code snippets by editing the *documentation.rst* file on GitHub.
+- **Code generation**: Model changes may cause code generator failures (e.g., Java, C#, Scala, Kotlin etc.). In the unlikely event of code generation failures, these will need to be addressed by the Maintainer.
 
 Downstream dependencies
 """""""""""""""""""""""
 
-The CDM has a number of dependent projects that are required for the CDM to be successfully distributed. It is possible that model changes may cause these downstream projects to fail. The Reviewer will need to test and, if necessary, update those before the changes can be released.
+The CDM has a number of dependent projects that are required for the CDM to be successfully distributed. It is possible that model changes may cause these downstream projects to fail. The Maintainer will need to test and, if necessary, update those before the changes can be released.
 
 - **Translate**: The regression tests in this project compare the contributed model against the expected number of mapping, validation and qualification results. Due to the contributed model changes, it is likely that there will be expectation mismatches that cause this build to fail.
 - **CDM Portal**: compile and test.
 - **CDM Java Examples**: compile and test.
 
-.. note:: In most cases, the post-review technical tasks and downstream dependencies require software engineering expertise in addition to CDM expertise. The Reviewer should seek additional technical support to address those if they cannot handle those tasks themselves.
+.. note:: In most cases, the post-review technical tasks and downstream dependencies require software engineering expertise in addition to CDM expertise. Additional technical support from the CDM Maintainer team may need to be called upon to address those.
 
 The change can be merged into the main CDM code base only upon:
 
-- approval by CDM Reviewers and/or CDM Architecture and Review Committee,
+- approval by CDM Maintainers and/or CDM Architecture and Review Committee,
 - successful completing of all the above technical tasks, and
 - successful builds of the CDM and all its downstream dependencies.
 
 Releasing model changes
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Once the contributed model change has been merged, a new release can be built, tested and deployed. The Reviewer will work with the CDM Owners and the Contributor on a deployment timeline.
+Once the contributed model change has been merged, a new release can be built, tested and deployed. The Maintainer will work with the CDM Owners and the Contributor on a deployment timeline.
 
 The following release checklist should be verified before deploying a new model:
 
@@ -389,7 +389,7 @@ The following release checklist should be verified before deploying a new model:
 - Deploy release candidate and notify channels if need be
 - (Currently done at a later stage) Update the latest CDM version available in Rosetta
 
-.. note:: The release process is now being handled by the **Rosetta Deploy** solution. The Reviewer should contact the Rosetta support team to request that deployment and discuss a timeline for the release.
+.. note:: The release process is now being handled through the *Rosetta Deploy* software solution. The Maintainer should contact the Rosetta support team to request that deployment and discuss a timeline for the release.
 
 Documentation Style Guide
 -------------------------
