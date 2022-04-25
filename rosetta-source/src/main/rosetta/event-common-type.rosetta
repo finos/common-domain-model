@@ -87,19 +87,9 @@ type ContractFormationInstruction: <"Specifies instructions to create a fully fo
 type Instruction: <"Instruction to a function that will be used to perform a business event">
 	[rootType]
   	instructionFunction string (0..1) <"Specifies the function that will be called.">
-  	allocation AllocationInstruction (0..1) <"Instruction to allocate">
-  	clearing ClearingInstruction (0..1) <"Instruction to clear">
-	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions for transition from execution to a fully formed contract, consisting of an execution and an optional legal agreement.">
-  	execution ExecutionInstruction (0..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, and a trade date.">
-  	exercise ExerciseInstruction (0..1) <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
-  	reset ResetInstruction (0..1) <"Specifies inputs needed to process a Reset business event.">
-    transfer TransferInstruction (0..1) <"Specifies inputs needed to process a Transfer business event.">
-	quantityChange QuantityChangeInstruction (0..1) <"Specifies the inputs needed to process a trade quantity change, containing the quantity to increase/decrease/replace the trade by and the price at which this quantity change is agreed. An optional lot identifier can be specified in the case when a trade may contain multiple trade lots, to identify the lot to be changed.">
-	indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
-	termination TerminationInstruction (0..1) <"Specifies inputs needed to process a Termination business event.">
-
-	// New Content
-
+		[deprecated]
+	transfer TransferInstruction (0..1) <"Specifies inputs needed to process a Transfer business event.">
+		[deprecated]
 	primitiveInstruction PrimitiveInstruction (0..1) <"Specifies the primitive instructions that will be used to call primitive event functions.">
 	before TradeState (0..1) <"Specifies the trade state that will be acted on by the primitive event functions.">
 		[metadata reference]
@@ -121,18 +111,20 @@ type PrimitiveInstruction: <"A Primitive Instruction describes the inputs requir
 	split SplitInstruction (0..1) <"Specifies instructions to split a trade into multiple branches.">
 	termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing a terms change primitive event.">
 	transfer TransferInstruction (0..1) <"Specifies instructions describing a transfer primitive event.">
+    indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
+    stockSplit StockSplitInstruction (0..1) <"Specifies inputs needed to process a Stock Split business event.">
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade and consists of a series of primitive events. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
 	[rootType]
 
 	primitives PrimitiveEvent (0..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
+        [deprecated]
 	intent EventIntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
 	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
 	eventDate date (1..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
-	eventEffect EventEffect (0..1) <"The set of effects associated with the lifecycle event, i.e. generated cashflows, contracts (from, say, novation events), listed products (from, say, a bond option exercise event) values and more. Those are represented through a set of globalKey references. This attribute is optional in order to provide implementers with the ability not to make use of this feature.">
 	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
 
     // New Content
@@ -142,20 +134,8 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	condition Intent: <"The intent should only be associated with the primitives which use can lead to ambiguity with respect to the qualification of the event.">
 		if (primitives -> split exists
 			or primitives -> execution exists
-			or primitives -> contractFormation exists
-			or primitives -> reset exists)
+			or primitives -> contractFormation exists)
 		then intent is absent
-
-type EventEffect: <"The set of operational and positional effects associated with a lifecycle event, alongside the reference to the contract reference(s) that is subject to the event (and is positioned in the before state of the event primitive).">
-
-	effectedTrade TradeState (0..*) <"A pointer to the trade(s) to which the event effect(s) apply, i.e. in the before event state.">
-		[metadata reference]
-	trade TradeState (0..*) <"A pointer to the trade effect(s), an example of such being the outcome of a new trade, swaption exercise or novation event.">
-	    [metadata reference]
-	productIdentifier ProductIdentifier (0..*) <"A pointer to the product identifier effect(s), an example of such being the outcome of the physical exercise of a bond option.">
-		[metadata reference]
-	transfer TransferPrimitive (0..*) <"A pointer to the transfer effect(s), either a cash, security or other asset.">
-		[metadata reference]
 
 type EventTestBundle: <"Combines several events for testing purposes, intended to be used in downstream processes.">
 
@@ -186,6 +166,7 @@ type ResetInstruction: <"Defines the information needed to create a Reset Busine
  	payout Payout (1..1)
  		[metadata reference]
 	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
+	resetDate date (1..1) <"Specifies the date on which the reset is occuring.">
 
 type CalculateTransferInstruction: <"Defines the tradeState or payout on which to create a Transfer along with all necessary resets.">
 	tradeState TradeState (1..1)
@@ -214,10 +195,6 @@ type IndexTransitionInstruction: <"Defines the information needed to create a In
 		and priceQuantity -> observable -> rateOption exists
 		and priceQuantity -> quantity is absent
 
-type TerminationInstruction: <"Specifies the information required to create the termination event of a trade.">
-    terminatedPriceQuantity PriceQuantity (1..*) <"Specifies the quantities of the transaction as a result of the partial or full termination event, including the fee agreed to be exchanged as part of the trade termination (optional).">
-	terminationDate	date (1..1) <"Date of partial or full termination">
-
 type TermsChangeInstruction: <"Specifies instructions for terms change consisting of the new transaction terms, and the renegotiation fee.">
 	product Product (0..1) <"product to be changed">
 	ancillaryParty AncillaryParty (0..*) <"ancillary party to be changed">
@@ -232,17 +209,18 @@ type SplitInstruction: <"Specifies instructions for a split, consisting of a bre
 type PartyChangeInstruction: <"Specifies instruction to change the party on a trade. This primitive instruction is used in a number of scenarios including: clearing, allocation and novation. The instrution must include a trade identifier, because a change of party effectively results in a different trade.">
 	counterparty Counterparty (1..1) <"The new counterparty who is stepping into the trade. The stepping out counterparty is inferred based on the counterparty role that is being updated.">
 	ancillaryParty AncillaryParty (0..1) <"Specifies an ancillary party to be added onto the new transaction, e.g. the original executing party in an allocation.">
-	tradeId Identifier (1..*) <"The identifier to be assigned to the new trade post change of party.">
+	partyRole PartyRole (0..1) <"Specifies an additional party roles to be added on to the new transaction.">
+    tradeId Identifier (1..*) <"The identifier to be assigned to the new trade post change of party.">
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
 	[rootType]
 	trade Trade (1..1) <"Represents the Trade that has been effected by a business or life-cycle event.">
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
-	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
+	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_ResetPrimitive function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
 	transferHistory TransferState (0..*) <"Represents the updated Trade attributes which can change as the result of a transfer event.">
 
-type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
+type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_ResetPrimitive function joins product definition details with observations to compute the reset value.">
 	[metadata key]
 	resetValue Price (1..1) <"Specifies the reset or fixing value. The fixing value could be a cash price, interest rate, or other value.">
 	resetDate date (1..1) <"Specifies the date on which the reset occurred.">
@@ -577,9 +555,8 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
 
 type StockSplitInstruction: <"Data required to perform a stock split business event.">
 
-	tradeState TradeState (1..1) <"Contract to be split.">
 	adjustmentRatio number (1..1) <"The number that denotes the cumulative quantity of post-split shares issued to shareholders versus the quantity of pre-split shares previously issued to shareholders.  This number will be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.  With regard to any reference to price, the pre-split reference price will be divided by this number to determine the post-split reference price.">
-	date date (1..1) <"The effective date of the stock split, also known as the ex-date. This is the date on which the additional shares are paid to the shareholders, or in the case of a reverse stock split, the number shares held by each shareholder is proportionally reduced.  Equity derivative transactions can be amended in firms' internal systems on such date.   In most markets, the listed stock price is reduced (or increased for a reverse stock split) to account for the split on the same date, but in some markets the price adjustment occurs on a later date.  In either case, equity derivative transactions should be amended on the date that the stocks are paid to the shareholders (or consolidated).">
+	effectiveDate date (1..1) <"The effective date of the stock split, also known as the ex-date. This is the date on which the additional shares are paid to the shareholders, or in the case of a reverse stock split, the number shares held by each shareholder is proportionally reduced.  Equity derivative transactions can be amended in firms' internal systems on such date.   In most markets, the listed stock price is reduced (or increased for a reverse stock split) to account for the split on the same date, but in some markets the price adjustment occurs on a later date.  In either case, equity derivative transactions should be amended on the date that the stocks are paid to the shareholders (or consolidated).">
 
 type TransferBase:
 
@@ -610,7 +587,6 @@ type PrimitiveEvent: <"A primitive event is defined by one and only one atomic c
 	contractFormation ContractFormationPrimitive (0..1)
 	split SplitPrimitive (0..1)
 	quantityChange QuantityChangePrimitive (0..1)
-	reset ResetPrimitive (0..1)
 	termsChange TermsChangePrimitive (0..1)
 	transfer TransferPrimitive (0..1)
 

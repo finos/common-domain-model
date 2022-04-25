@@ -7,23 +7,18 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.regnosys.granite.ingestor.IngestionReport;
-import com.regnosys.granite.ingestor.postprocess.pathduplicates.PathCollector;
-import com.regnosys.granite.ingestor.postprocess.qualify.QualifyProcessorStep;
+import com.regnosys.granite.ingestor.IngestionTestUtil;
 import com.regnosys.granite.ingestor.service.IngestionFactory;
 import com.regnosys.granite.ingestor.service.IngestionService;
 import com.regnosys.granite.ingestor.synonym.MappingResult;
-import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
-import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
-import com.regnosys.rosetta.common.hashing.ReKeyProcessStep;
+import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.path.RosettaPath;
+import com.rosetta.model.lib.process.PostProcessStep;
 import org.fpml.fpml_5.confirmation.DataDocument;
 import org.fpml.fpml_5.confirmation.Document;
 import org.fpml.fpml_5.confirmation.RequestClearing;
 import org.isda.cdm.CdmRuntimeModule;
-import org.isda.cdm.processor.CdmReferenceConfig;
-import org.isda.cdm.processor.EventEffectProcessStep;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -226,15 +221,10 @@ class Fpml510ProjectionMapperTest {
 	}
 
 	private static void initialiseIngestionFactory() {
-		GlobalKeyProcessStep globalKeyProcessStep = new GlobalKeyProcessStep(NonNullHashCollector::new);
-		IngestionFactory.init(INSTANCE_NAME, Fpml510ProjectionMapperTest.class.getClassLoader(),
-			CdmReferenceConfig.get(),
-			globalKeyProcessStep,
-			new ReKeyProcessStep(globalKeyProcessStep),
-			new EventEffectProcessStep(globalKeyProcessStep),
-			injector.getInstance(QualifyProcessorStep.class),
-			new PathCollector<>(),
-			injector.getInstance(RosettaTypeValidator.class));
+		IngestionFactory.init(INSTANCE_NAME,
+				Fpml510ProjectionMapperTest.class.getClassLoader(),
+				injector.getInstance(ReferenceConfig.class),
+				IngestionTestUtil.getPostProcessors(injector).toArray(new PostProcessStep[0]));
 	}
 
 	static class Expectations {

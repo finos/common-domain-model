@@ -1,19 +1,18 @@
 package com.regnosys.granite.ingestor.fpml;
 
-import java.net.URL;
-import java.util.stream.Stream;
-
 import cdm.event.common.TradeState;
-import com.regnosys.granite.ingestor.CdmTestInitialisationUtil;
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.Resources;
 import com.regnosys.granite.ingestor.IngestionTest;
+import com.regnosys.granite.ingestor.IngestionTestUtil;
+import com.regnosys.granite.ingestor.service.IngestionFactory;
+import com.regnosys.granite.ingestor.service.IngestionService;
 import org.isda.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.provider.Arguments;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.Resources;
-import com.regnosys.granite.ingestor.service.IngestionFactory;
-import com.regnosys.granite.ingestor.service.IngestionService;
+import java.net.URL;
+import java.util.stream.Stream;
 
 class InvalidProductTest extends IngestionTest<TradeState> {
 
@@ -32,8 +31,8 @@ class InvalidProductTest extends IngestionTest<TradeState> {
 
 	@BeforeAll
 	static void setup() {
-		CdmTestInitialisationUtil cdmTestInitialisationUtil = new CdmTestInitialisationUtil();
-		initialiseIngestionFactory(new CdmRuntimeModule(), cdmTestInitialisationUtil.getPostProcessors());
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = IngestionFactory.getInstance().getFpml510();
 	}
 
@@ -45,10 +44,6 @@ class InvalidProductTest extends IngestionTest<TradeState> {
 	@Override
 	protected IngestionService ingestionService() {
 		return ingestionService;
-	}
-	
-	@Override
-	protected void assertEventEffect(TradeState c) {
 	}
 
 	@SuppressWarnings("unused")//used by the junit parameterized test

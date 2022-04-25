@@ -8,8 +8,8 @@ import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.ReferenceWithMetaQuantity;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.PayerReceiver;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.observable.asset.FloatingRateOption;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceExpression;
@@ -82,9 +82,8 @@ public class InterestRatePayoutCreation {
 													.setPeriodMultiplier(6)))))
 
 				.setPayerReceiver(PayerReceiver.builder()
-						.setPayerPartyReference(ReferenceWithMetaParty.builder().setExternalReference("giga-bank").build())
-						.setReceiverPartyReference(ReferenceWithMetaParty.builder().setExternalReference("mega-bank").build()))
-
+						.setPayer(CounterpartyRoleEnum.PARTY_1)
+						.setReceiver(CounterpartyRoleEnum.PARTY_2))
 				.build();
 	}
 
@@ -143,9 +142,8 @@ public class InterestRatePayoutCreation {
 													.setPriceExpression(PriceExpression.builder()
 															.setPriceType(PriceTypeEnum.INTEREST_RATE)))))))
 				.setPayerReceiver(PayerReceiver.builder()
-						.setPayerPartyReference(ReferenceWithMetaParty.builder().setExternalReference("mega-bank").build())
-						.setReceiverPartyReference(ReferenceWithMetaParty.builder().setExternalReference("giga-bank").build()))
-
+						.setPayer(CounterpartyRoleEnum.PARTY_2)
+						.setReceiver(CounterpartyRoleEnum.PARTY_1))
 				.build();
 	}
 }
