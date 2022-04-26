@@ -7,6 +7,8 @@ import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.base.math.metafields.ReferenceWithMetaQuantity;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
+import cdm.base.staticdata.party.Counterparty;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.PayerReceiver;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
@@ -74,8 +76,8 @@ public class FxSwapContractCreation {
         PriceQuantity priceQuantity = createPriceQuantity(currency1Str, quantity1, currency2Str, quantity2, rate);
 
         Product underlier = createForeignExchangeUnderlier(
-                createExchangeCurrency(party1, party2),
-                createExchangeCurrency(party2, party1));
+                createExchangeCurrency(CounterpartyRoleEnum.PARTY_1, CounterpartyRoleEnum.PARTY_2),
+                createExchangeCurrency(CounterpartyRoleEnum.PARTY_2, CounterpartyRoleEnum.PARTY_1));
 
         Date settlementDate = of(2001, 10, 25);
 
@@ -86,14 +88,10 @@ public class FxSwapContractCreation {
         Identifier citi123 = createIdentifier("CITI123", "http://www.citi.com/fx/trade-id", party1);
         Identifier barc987 = createIdentifier("BARC987", "http://www.barclays.com/fx/trade-id", party2);
 
-//        QuantityNotation quantityNotation1 = createQuantityNotation(currency1, quantity1);
-//        QuantityNotation quantityNotation2 = createQuantityNotation(currency2, quantity2);
-
         List<Identifier> identifiers = List.of(citi123, barc987);
         List<Party> parties = List.of(party1, party2);
-//        List<QuantityNotation> quantityNotations = List.of(quantityNotation1, quantityNotation2);
 
-        return createFxSwapContract(identifiers, parties, priceQuantity, contractualProduct, tradeDate);
+        return createFxSwapContract(identifiers, parties, priceQuantity, contractualProduct, tradeDate, party1, party2);
     }
 
     private PriceQuantity createPriceQuantity(String currency1Str, long quantity1, String currency2Str, long quantity2, double rate) {
@@ -137,10 +135,22 @@ public class FxSwapContractCreation {
                 .build();
     }
 
-    private Trade createFxSwapContract(List<Identifier> identifiers, List<Party> parties, PriceQuantity priceQuantity, ContractualProduct contractualProduct, Date tradeDate) {
+    private Trade createFxSwapContract(List<Identifier> identifiers,
+                                       List<Party> parties,
+                                       PriceQuantity priceQuantity,
+                                       ContractualProduct contractualProduct,
+                                       Date tradeDate,
+                                       Party party1,
+                                       Party party2) {
         Trade trade = Trade.builder()
                 .addTradeIdentifier(identifiers)
                 .setTradableProduct(TradableProduct.builder()
+                        .addCounterparty(Counterparty.builder()
+                                .setPartyReferenceValue(party1)
+                                .setRole(CounterpartyRoleEnum.PARTY_1))
+                        .addCounterparty(Counterparty.builder()
+                                .setPartyReferenceValue(party2)
+                                .setRole(CounterpartyRoleEnum.PARTY_2))
                         .addTradeLot(TradeLot.builder()
                                 .addPriceQuantity(priceQuantity))
                         .setProduct(Product.builder().setContractualProduct(contractualProduct)))
@@ -160,18 +170,16 @@ public class FxSwapContractCreation {
                         .build();
     }
 
-    private Cashflow createExchangeCurrency(Party payer, Party receiver) {
+    private Cashflow createExchangeCurrency(CounterpartyRoleEnum payer, CounterpartyRoleEnum receiver) {
         return Cashflow.builder()
                 .setPayoutQuantity(ResolvablePayoutQuantity.builder()
                         .setResolvedQuantity(ReferenceWithMetaQuantity.builder()
-                            .setReference(Reference.builder()
-                                .setScope("DOCUMENT")
-                                .setReference("quantity-2"))))
+                                .setReference(Reference.builder()
+                                        .setScope("DOCUMENT")
+                                        .setReference("quantity-2"))))
                 .setPayerReceiver(PayerReceiver.builder()
-                        .setReceiverPartyReference(ReferenceWithMetaParty.builder()
-                                .setGlobalReference(getGlobalReference(receiver)))
-                        .setPayerPartyReference(ReferenceWithMetaParty.builder()
-                                .setGlobalReference(getGlobalReference(payer))))
+                        .setPayer(payer)
+                        .setReceiver(receiver))
                 .build();
     }
 

@@ -3,8 +3,8 @@ package com.regnosys.granite.ingestor.cme;
 import cdm.event.workflow.WorkflowStep;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
-import com.regnosys.granite.ingestor.CdmTestInitialisationUtil;
 import com.regnosys.granite.ingestor.IngestionTest;
+import com.regnosys.granite.ingestor.IngestionTestUtil;
 import com.regnosys.granite.ingestor.service.IngestionFactory;
 import com.regnosys.granite.ingestor.service.IngestionService;
 import org.isda.cdm.CdmRuntimeModule;
@@ -26,8 +26,8 @@ class CMEClearedConfirmTest extends IngestionTest<WorkflowStep>{
 
 	@BeforeAll
 	static void setup() {
-		CdmTestInitialisationUtil cdmTestInitialisationUtil = new CdmTestInitialisationUtil();
-		initialiseIngestionFactory(new CdmRuntimeModule(), cdmTestInitialisationUtil.getPostProcessors());
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = IngestionFactory.getInstance().getCmeCleared117();
 	}
 	
@@ -40,11 +40,7 @@ class CMEClearedConfirmTest extends IngestionTest<WorkflowStep>{
 	protected IngestionService ingestionService() {
 		return ingestionService;
 	}
-	
-	@Override
-	protected void assertEventEffect(WorkflowStep c) {
-	}
-	
+
 	@SuppressWarnings("unused")//used by the junit parameterized test
 	private static Stream<Arguments> fpMLFiles() {
 		return readExpectationsFrom(EXPECTATION_FILES);
