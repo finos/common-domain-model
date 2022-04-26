@@ -36,29 +36,13 @@ synonym source FpML
 
 synonym source FpML_5_10 extends FpML
 {
-PerformancePayout:
-		+ payerReceiver
-			[hint "payerPartyReference"]
+    PerformancePayout:
         + underlier
             [value "singleUnderlyer" path "underlyer", "underlyer"]
         + fxFeature
             [value "fxFeature" path "fxFeature"]
-		+ valuationDates
-			[hint "valuation"]
-		+ observationDates
-			[hint "amount"]
-		+ returnTerms 
-			[hint "amount"]
-			[hint "valuation"]
 
-			[hint "specialDividends"]
-			[hint "materialDividend"]
-			[hint "dividendPeriod"]
-
-		//	[value "amount"]
-		//	[value "valuation"]
-
-EquityValuationDates:
+    EquityValuationDates:
 		+ valuationDate
 			[value "valuationDate" path "valuation"]
 		+ valuationDates
@@ -68,32 +52,26 @@ EquityValuationDates:
 		+ valuationTime
 			[value "valuationTime" path "valuation"]
 
-EquityObservation:
+    EquityObservation:
 		+ observationDates
 			[hint "amount"]
 			[hint "valuation"]
 
-ReturnTerms:
+    ReturnTerms:
 		+ varianceReturnTerms
-			[value "variance" path "amount"]
+		    [value "variance" path "amount"]
 			[hint "amount"]
 			[hint "valuation"]
 		+ volatilityReturnTerms
-			[value "volatility" path "amount"] // TODO remove conditional mapping
-			[hint "amount"]
+			[value "volatility" path "amount"]
+            [hint "amount"]
 			[hint "valuation"]
-
 		+ correlationReturnTerms
+		    [value "correlation" path "amount"]
 			[hint "amount"]
 			[hint "valuation"]
 
-		+ dividendReturnTerms
-			[hint "specialDividends"]
-			[hint "materialDividend"]
-			[hint "dividendPeriod"]
-
-PerformanceDividendReturnTerms:
-
+    PerformanceDividendReturnTerms:
 		+ specialDividends
 			[value "specialDividends"]
 		+ materialDividend
@@ -101,8 +79,7 @@ PerformanceDividendReturnTerms:
 		+ dividendPeriod
 			[value "dividendPeriod"]
 
-DividendPeriod:
-
+    DividendPeriod:
 		+ dateAdjustments
 			[value "dateAdjustments"]
 		+ dividendPaymentDate
@@ -116,107 +93,83 @@ DividendPeriod:
 		+ underlierReference
 			[value "underlierReference"]
 
-VolatilityReturnTerms:
-        + volatilityStrikePrice
-            [hint "volatilityStrikePrice"]
-		// Common for variance, volatility and correlation (ReturnTermsBase)
+    VolatilityReturnTerms:
+        // Common for variance, volatility and correlation (ReturnTermsBase)
 		+ expectedN
 			[value "expectedN"]
-		+ annualizationFactor
 		+ dividendApplicability
 			[value "amount" set when path = "volatilityLeg"]
-		+ equityUnderlierProvisions
-		+ initialLevelSource
 		+ initialLevel
 			[value "initialLevel"]
-		+ meanAdjustment
-		+ performance
-		+ sharePriceDividendAdjustment
 		+ valuation
 			[value "valuation" set when path = "volatilityLeg"]
-		// Variance specific
-		+ volatilityCapFloor
+		// Volatility specific
+		+ volatilityStrikePrice
+            [hint "volatilityStrikePrice"]
+        + volatilityCapFloor
 			[value "volatilityCap"]
 
-VarianceReturnTerms:
-        + varianceStrikePrice
+    VarianceReturnTerms:
+        // Common for variance, volatility and correlation (ReturnTermsBase)
+		+ expectedN
+			[value "expectedN"]
+		+ dividendApplicability
+			[value "amount" set when path = "varianceLeg"]
+		+ initialLevel
+			[value "initialLevel"]
+		+ valuation
+			[value "valuation" set when path = "varianceLeg"]
+		// Variance specific
+		+ varianceStrikePrice
             [hint "varianceStrikePrice"]
         + volatilityStrikePrice
             [hint "volatilityStrikePrice"]
         + vegaNotionalAmount
             [hint "vegaNotionalAmount"]
-		// Common for variance, volatility and correlation (ReturnTermsBase)
-		+ expectedN
-			[value "expectedN"]
-		+ annualizationFactor
-		+ dividendApplicability
-			[value "amount" set when path = "varianceLeg"]
-		+ equityUnderlierProvisions
-		+ initialLevelSource
-		+ initialLevel
-			[value "initialLevel"]
-		+ meanAdjustment
-		+ performance
-		+ sharePriceDividendAdjustment
-		+ valuation
-			[value "valuation" set when path = "varianceLeg"]
-		// Variance specific
 		+ exchangeTradedContractNearest
 			[value "variance" path "amount" set when path = "varianceLeg"]
 
-CorrelationReturnTerms:
-
-		// Common for variance, volatility and correlation (ReturnTermsBase)
-
+    CorrelationReturnTerms:
+        // Common for variance, volatility and correlation (ReturnTermsBase)
 		+ expectedN
-			[value "expectedN" path "amount->correlation"]
-		+ annualizationFactor
+			[value "expectedN"]
 		+ dividendApplicability
 			[value "amount" set when path = "correlationLeg"]
-		+ equityUnderlierProvisions
-		+ initialLevelSource
 		+ initialLevel
-			[value "initialLevel" path "amount->correlation"]
-		+ meanAdjustment
-		+ performance
-		+ sharePriceDividendAdjustment
+			[value "initialLevel"]
 		+ valuation
 			[value "valuation" set when path = "correlationLeg"]
-	
 		// Correlation specific
-
-		+ boundedCorrelation
-			[value "boundedCorrelation" path "amount->correlation"]
-
+		+ correlationStrikePrice
+            [hint "correlationStrikePrice"]
+        + boundedCorrelation
+			[value "boundedCorrelation"]
 		+ numberOfDataSeries
-			[value "numberOfDataSeries" path "amount->correlation"]
+			[value "numberOfDataSeries"]
 
+    BoundedCorrelation:
+        + maximumBoundaryPercent
+            [value "maximumBoundaryPercent"]
+        + minimumBoundaryPercent
+            [value "minimumBoundaryPercent"]
 
-BoundedCorrelation:
-	+ maximumBoundaryPercent
-			[value "maximumBoundaryPercent"]
-	+ minimumBoundaryPercent
-			[value "minimumBoundaryPercent"]
-VarianceCapFloor:
+    VarianceCapFloor:
 		+ varianceCap
-			[value "varianceCap" path "amount->variance"]
+			[value "varianceCap"]
 		+ unadjustedVarianceCap
-			[value "unadjustedVarianceCap" path "amount->variance"]
+			[value "unadjustedVarianceCap"]
 		+ boundedVariance
-			[value "boundedVariance" path "amount->variance"]
+			[value "boundedVariance"]
 
-VolatilityCapFloor:
+    VolatilityCapFloor:
 		+ applicable
-			//[value "applicable" path "amount->variance"]
 			[value "applicable"]
 		+ totalVolatilityCap
-			//[value "totalVolatilityCap" path "amount->variance"]
 			[value "totalVolatilityCap"]
 		+ volatilityCapFactor
-			//[value "volatilityCapFactor" path "amount->variance"]
 			[value "volatilityCapFactor"]
 
-BoundedVariance:
+    BoundedVariance:
 		+ daysInRangeAdjustment
 			[value "daysInRangeAdjustment"]
 		+ realisedVarianceMethod
@@ -226,7 +179,7 @@ BoundedVariance:
 		+ lowerBarrier
 			[value "lowerBarrier"]
 
-Valuation:
+    Valuation:
 		+ futuresPriceValuation
 			[value "futuresPriceValuation"]
 		+ optionsPriceValuation
@@ -238,7 +191,7 @@ Valuation:
 		+ fPVFinalPriceElectionFallback
 			[value "fPVFinalPriceElectionFallback"]
 
-DividendApplicability:
+    DividendApplicability:
 		+ optionsExchangeDividends
 			[value "optionsExchangeDividends"]
 		+ additionalDividends
@@ -531,8 +484,6 @@ DividendApplicability:
 			[value "paymentDatesAdjustments"]
 			[value "paymentDaysOffset"]
 			[hint "businessCenters"]
-		+ paymentDateSchedule
-			[hint "fixedPayment"]
 
 	PaymentDateSchedule:
 		+ interimPaymentDates
@@ -542,7 +493,6 @@ DividendApplicability:
 			[hint "periodicDates"]
 		+ finalPaymentDate
 			[value "paymentDateFinal"]
-			[hint "fixedPayment"]
 
 	PaymentDetail:
 	 	[value "PaymentDetail" meta "id"]
@@ -632,7 +582,10 @@ DividendApplicability:
 			[value "constituentWeight"]
 			[hint "constituentWeight"]
             [value "notionalAmount" path "notional"]
+            // Performance
+            [value "fixedPayment"]
 			[value "variance" path "amount"]
+			[value "correlation" path "amount"]
             // For FX:
             [value "paymentAmount" path "exchangedCurrency1"]
             [value "paymentAmount" path "exchangedCurrency2"]
@@ -659,7 +612,7 @@ DividendApplicability:
 			[value "floatingRateCalculation" path "interestCalculation"]
 			[hint "equity"]
 			[hint "index"]
-				// For FX:
+            // For FX:
 			[value "fixing" path "nonDeliverableSettlement"]
 			[value "fixing" path "cashSettlement"]
 			[hint "features", "putCurrencyAmount", "callCurrencyAmount"]
@@ -693,22 +646,12 @@ DividendApplicability:
 			[value "spread" mapper "PriceUnitType"]
 			[value "spread" path "floatingRateCalculation" mapper "PriceUnitType"]
 			[value "referencePrice" mapper "PriceUnitType"]
-			// For Commodity Swap Fixed Leg
-			[value "price" maps 2]
-			// For Commodity Option
-			[value "amount" path "strikePricePerUnit" mapper "PriceUnitType"]
+			[value "price" maps 2] // For Commodity Swap Fixed Leg
+            [value "amount" path "strikePricePerUnit" mapper "PriceUnitType"] // For Commodity Option
 			[value "varianceStrikePrice" mapper "PriceUnitType"]
 			[value "volatilityStrikePrice" mapper "PriceUnitType"]
-
-/*
-			[value "amount" mapper "PriceUnitType"]
-			[value "varianceStrikePrice" path "amount->variance" set when rosettaPath = PerformancePayout -> returnTerms -> varianceReturnTerms -> varianceStrikePrice]
-			[value "volatilityStrikePrice" path "amount->variance" set when rosettaPath = PerformancePayout -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice]
-			[value "volatilityStrikePrice" path "amount->volatility" set when rosettaPath = PerformancePayout -> returnTerms -> volatilityReturnTerms -> volatilityStrikePrice]
-			*/
-			[value "correlationStrikePrice" path "amount->correlation" set when rosettaPath = PerformancePayout -> returnTerms -> correlationReturnTerms -> correlationStrikePrice]
-			[value "fixedStrike" path "dividendLeg->dividendPeriod"]
-
+            [value "correlationStrikePrice" mapper "PriceUnitType"]
+			[value "fixedStrike" mapper "PriceUnitType"]
 		+ unitOfAmount
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
 			[value "quotedCurrencyPair"]
@@ -738,10 +681,12 @@ DividendApplicability:
  			[set to PriceTypeEnum->AssetPrice when "referencePrice" exists]
  			[set to PriceTypeEnum->AssetPrice when "strikePrice" exists]
  			[set to PriceTypeEnum->AssetPrice when "initialPrice->netPrice->amount" exists]
-			[set to PriceTypeEnum->Variance when path = "variance" and "varianceStrikePrice" exists]
+ 			[set to PriceTypeEnum->Dividend when "fixedStrike" exists]
+ 			[set to PriceTypeEnum->Correlation when "correlationStrikePrice" exists]
+ 			[set to PriceTypeEnum->Variance when path = "variance" and "varianceStrikePrice" exists]
  			[set to PriceTypeEnum->Volatility when path = "variance" and "volatilityStrikePrice" exists]
  			[set to PriceTypeEnum->Volatility when path = "volatility" and "volatilityStrikePrice" exists]
- 			[set to PriceTypeEnum->CashPrice when path = "bulletPayment->payment->paymentAmount"]
+            [set to PriceTypeEnum->CashPrice when path = "bulletPayment->payment->paymentAmount"]
  			[set to PriceTypeEnum->ExchangeRate when path = "exchangeRate" and "rate" exists]
  			[set to PriceTypeEnum->ExchangeRate when path = "fxOption->strike"]
  			[set to PriceTypeEnum->ExchangeRate when path = "fxOption" and "spotRate" exists]
@@ -1298,7 +1243,7 @@ DividendApplicability:
 		+ forecastRate
 			[value "forecastRate"]
 
-CalculationPeriodDates:
+    CalculationPeriodDates:
 		[meta "id" path "calculationPeriodDates"]
 		[meta "id" path "interestLegCalculationPeriodDates"]
 		+ effectiveDate
@@ -1714,7 +1659,6 @@ CalculationPeriodDates:
 			[value "instrumentId" path "exchangeTradedContractNearest"]
 			// [value "instrumentId" maps 2 meta "instrumentIdScheme"]
 			[value "productId" maps 2 meta "productIdScheme"]
-			[value "instrumentId" path "exchangeTradedContractNearest"]
 		+ source
 		    // Bond
 			[set to ProductIdTypeEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "CUSIP"]
@@ -1829,9 +1773,9 @@ CalculationPeriodDates:
 			[value "amount" path "paymentAmount"]
 			[value "amount" path "fixedAmount"]
 			[value "amount" path "varianceAmount"]
+			[value "amount" path "notionalAmount"]
 			[value "vegaNotionalAmount"]
 			//[value "vegaNotionalAmount" path "amount->volatility" set when rosettaPath = PerformancePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> amount]
-
 		+ unitOfAmount
 			[value "singleUnderlyer"]
 			[value "basket"]
@@ -1840,7 +1784,7 @@ CalculationPeriodDates:
 			[value "paymentAmount"]
 			[value "fixedAmount"]
 			[value "varianceAmount"]
-			//[value "variance"]
+			[value "notionalAmount"]
 		+ multiplier
 			[value "optionEntitlement"]
 		+ multiplierUnit
@@ -1854,10 +1798,7 @@ CalculationPeriodDates:
 			[meta "quantity"]
 			[value "varianceAmount" path "amount->variance" meta "amount"]
             [value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
-
-			[value "notionalAmount" path "amount->correlation"]
-			[value "paymentAmount" path "fixedPayment"]
-			//[hint "amount"]
+            [value "notionalAmount" path "amount->correlation" meta "amount"]
 
 	NonNegativeStepSchedule:
 		+ step
@@ -1932,7 +1873,7 @@ CalculationPeriodDates:
 		+ adjustableDate
 			[value "adjustableDate"]
 
-DividendReturnTerms:
+    DividendReturnTerms:
 		+ dividendPayout
 			[hint "dividendPayout"]
 			[value "basketConstituent"]
@@ -2091,7 +2032,7 @@ DividendReturnTerms:
 			[hint "index"]
 			[hint "instrumentId"]
 			[hint "exchangeTradedContractNearest"]
-		+ currencyPair
+    	+ currencyPair
 			[value "quotedCurrencyPair"]
 			[hint "features", "putCurrencyAmount", "callCurrencyAmount"]
 
@@ -2236,8 +2177,8 @@ DividendReturnTerms:
 			[value "fxLinkedNotionalSchedule"]
 			[value "constantNotionalScheduleReference" path "fxLinkedNotionalSchedule" meta "href"]
 			[value "notionalQuantity"]
+			[value "paymentAmount"]
 			[hint "amount"]
-			[hint "fixedPayment"]
 		+ reset
 			[value "notionalReset"]
 		+ futureValueNotional
@@ -2253,7 +2194,7 @@ DividendReturnTerms:
 	EconomicTerms:
 		+ effectiveDate
 			[value "effectiveDate" path "generalTerms"]
-			[value"effectiveDate"path"commoditySwap"]
+			[value "effectiveDate"path "commoditySwap"]
 			[value "effectiveDate" path "fxOption"]
 			[value "effectiveDate"]
 			[value "effectiveDate" path "varianceLeg"]
@@ -2431,15 +2372,14 @@ DividendReturnTerms:
 			[value "lag"]
 
 	FixedPricePayout:
-		+ 	paymentDates
+		+ paymentDates
 			[value "paymentDates"]
 			[value "relativePaymentDates"]
-			[hint "fixedPayment"]
+			[hint "paymentDate"]
 		+ fixedPrice
 			[value "fixedPrice" meta "price"]
+			[hint "fixedStrike"]
 
-			[hint "dividendLeg"]
-		
 	SecurityValuation:
 		+ securityValuationModel
 			[value "collateral"]
@@ -2516,9 +2456,9 @@ DividendReturnTerms:
 			[hint "notionalQuantity"]
 			[hint "totalNotionalQuantity"]
 			[hint "amount"]
-			[hint "fixedPayment"]
+			[hint "paymentAmount"]
 
-Payout:
+    Payout:
 		+ interestRatePayout
 			// For Swap Stream
 			[value "swapStream"]
@@ -2559,16 +2499,14 @@ Payout:
 			[value "commoditySwap", "floatingLeg" path "commoditySwap"]
 		+ fixedPricePayout
 			[value "fixedLeg" path "commoditySwap"]
-			[value "fixedLeg"]
-			[hint "dividendLeg"]
+			[value "fixedPayment" path "fixedLeg", "dividendPeriod" path "dividendLeg" mapper "DividendFixedLeg"]
 		+ securityFinancePayout
 			[value "ignore"]
-		+ performancePayout
+        + performancePayout
 			[value "varianceLeg"]
 			[value "volatilityLeg"]
 			[value "correlationLeg"]
 			[value "dividendLeg"]
-		//	[hint "varianceLeg"]
 
 	Product:
 		+ contractualProduct
@@ -2615,6 +2553,7 @@ Payout:
 			// For Commodity Option
 			[hint "commodityOption"]
 			[value "commodityOption"]
+			// For Variance / Volatility / Correlation / Dividend
 			[value "varianceSwap", "varianceSwapTransactionSupplement"]
 			[value "volatilitySwap", "volatilitySwapTransactionSupplement"]
 			[value "correlationSwap"]
@@ -2667,8 +2606,12 @@ Payout:
 			[value "returnLeg"]
 			[value "basketConstituent"]
 			[value "interestLeg"]
+			// Performance
 			[value "varianceLeg"]
-			// FX
+			[value "fixedLeg"]
+			[value "dividendLeg"]
+			[value "correlationLeg"]
+            // FX
 			[value "nearLeg"]
 			[value "farLeg"]
 			[value "fxSingleLeg"]
@@ -2710,7 +2653,10 @@ Payout:
 			[hint "equityOption"]
 			[value "basket" path "equityOption->underlyer"]
 			[value "brokerEquityOption"]
+			// Performance
 			[value "varianceSwap"]
+            [value "dividendSwapTransactionSupplement"]
+            [value "correlationSwap"]
 			// Other
 			[value "commoditySwap"]
 			[hint "commoditySwap"]
@@ -2894,7 +2840,6 @@ Payout:
 			[value "relativeDate" path "paymentDateFinal"]
 			[value "paymentDaysOffset"]
 			[hint "payRelativeTo"]
-			[value "paymentDate" path "fixedPayment"]
 
 	AdjustableOrRelativeDates:
 		[meta "id"]
@@ -3680,9 +3625,7 @@ Payout:
 			// [value "priceUnit" set when rosettaPath = Price->perUnitOfAmount]
 		+ financialUnit
 			[value "quantityUnit"]
-			// [value "openUnits"]
-			// [set to FinancialUnitEnum->Share when "equity" exists and "openUnits" exists]
-			[value "openUnits" mapper "OpenEquityFinancialUnits"]
+			[value "openUnits" mapper "OpenUnits"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "bulletPayment->payment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->Weight when path = "basketPercentage"]
 			[set to FinancialUnitEnum->IndexUnit when path = "constituentWeight->openUnits"]			

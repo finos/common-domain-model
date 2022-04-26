@@ -15,9 +15,9 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getN
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMapping;
 
 @SuppressWarnings("unused")
-public class OpenEquityFinancialUnitsMappingProcessor extends MappingProcessor {
+public class OpenUnitsMappingProcessor extends MappingProcessor {
 
-	public OpenEquityFinancialUnitsMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
+	public OpenUnitsMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);
 	}
 
@@ -26,5 +26,8 @@ public class OpenEquityFinancialUnitsMappingProcessor extends MappingProcessor {
 		getNonNullMapping(getMappings(), openUnitPath)
 				.flatMap(x -> getNonNullMappedValue(getMappings(), openUnitPath.getParent().addElement("equity")))
 				.ifPresent(x -> ((UnitType.UnitTypeBuilder) parent).setFinancialUnit(FinancialUnitEnum.SHARE));
+		getNonNullMapping(getMappings(), openUnitPath)
+				.flatMap(x -> getNonNullMappedValue(getMappings(), openUnitPath.getParent().addElement("index")))
+				.ifPresent(x -> ((UnitType.UnitTypeBuilder) parent).setFinancialUnit(FinancialUnitEnum.INDEX_UNIT));
 	}
 }
