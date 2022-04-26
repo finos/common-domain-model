@@ -665,29 +665,27 @@ Example of how a code snippet should be edited in the documentation:
 
  .. code-block:: Haskell
 
-  type EventEffect:
-    effectedTrade TradeState (0..*)
-      [metadata reference]
-    trade TradeState (0..*)
-      [metadata reference]
-    productIdentifier ProductIdentifier (0..*)
-      [metadata reference]
-    transfer TransferPrimitive (0..*)
-      [metadata reference]
+  type Party:
+    [metadata key]
+    partyId string (1..*)
+      [metadata scheme]
+    name string (0..1)
+      [metadata scheme]
+    person NaturalPerson (0..*)
+    account Account (0..1)
 
 And the result will be rendered as:
 
 .. code-block:: Haskell
 
- type EventEffect:
-   effectedTrade TradeState (0..*)
-     [metadata reference]
-   trade TradeState (0..*)
-     [metadata reference]
-   productIdentifier ProductIdentifier (0..*)
-     [metadata reference]
-   transfer TransferPrimitive (0..*)
-     [metadata reference]
+ type Party:
+   [metadata key]
+   partyId string (1..*)
+     [metadata scheme]
+   name string (0..1)
+     [metadata scheme]
+   person NaturalPerson (0..*)
+   account Account (0..1)
 
 .. note:: Code snippets that appear in the user documentation are being compared against actual CDM components during the CDM build process, and any mismatch will trigger an error in the build. This mechanism ensures that the user documentation is kept in sync with the model in production prior to any release.
 
