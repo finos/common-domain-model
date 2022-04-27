@@ -4,7 +4,7 @@ _Background_
 
 The `PerformancePayout` was recently introduced to allow for representation of a wider variety of equity products including Price and Total Return Swaps, plus a new range of Equity Return Swaps, namely variance (including its dispersion variant), volatility, correlation and dividend swaps. The first release included mapping coverage for variance and volatility, while the present one adds coverage for correlation and dividend swaps.
 
-_What is being released?_
+_What is being released_
 
 - Mapping coverage for correlation swaps
 - Mapping coverage for dividend swaps
