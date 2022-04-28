@@ -445,12 +445,31 @@ type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attr
 		if underlier -> foreignExchange exists
 		then settlementTerms -> physicalSettlementTerms is absent
 
+type CommoditySchedule:
+	unitOfAmount UnitType (1..1)
+	perUnitOfAmount UnitType (0..1)
+	priceExpression PriceExpression (0..1)
+	schedulePeriod SchedulePeriod (0..*)
+
+type SchedulePeriod:
+	calculationPeriod TimeInterval (1..1)
+    quantity number (0..1)
+    totalQuantity number (0..1)
+    paymentDate date (1..1)
+    fixingPeriod TimeInterval (1..1)
+	price number (0..1)
+
+type TimeInterval:
+    startDate date (1..1)
+    endDate date (1..1)
+
 type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
 	[metadata key]
 
 	paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
-    fixedPrice Price (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
-        [metadata address "pointsTo"=PriceQuantity->price]
+    fixedPrice FixedPrice (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
+        //[metadata address "pointsTo"=PriceQuantity->price]
+    schedule CommoditySchedule (0..2)
 
 type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
 
