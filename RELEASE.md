@@ -1,27 +1,19 @@
-# *Legal Agreement Model - Enhancements for the categorisation of legal agreement*
-
-_Background_
-
-The categorisation of legal agreements has been enhanced and a few data validation rule have been adjusted based on feedback from users.
-
+# *Extensions to date types Collateral, Collateral Balance and Collateral Portfolio *
 
 _What is being Released_
 
-
-1.	Change of data type name `LegalAgreementType` to `LegalAgreementIdentification`. This change uses a more relevant type name for identifying the legal agreement and avoids the unnecessary use of suffix 'type' in the label. 
-
-2.  Conditions have been updated in the model due to the renaming of `LegalAgreementType` to `legalAgreementIdentification`.
-
-2.	Data type `AgreementName` has an additional condition added for `creditSupportAgreement` This condition ensures a credit support agreement type is specified if the legal agreement is a credit support agreement.
-
-3.	Changes have been made to the logic in haircut percentages and Asset type conditions. In Data type `CollateralValuationTreatment` the related conditions for `HaircutPercentage`, `FxHaircutPercentage` and `AdditionalHaircutPercentage`, have all been adjusted so the higher range of population is <1 instead of <=1. `HaircutPercentage` has been adjusted so the lower range is >=0 instead of >0. These changes will address errors reported by users when using the model.
-
-4.   Data type `AssetType` and its related condition `OtherAssetSubType` have been changed as foolows (`assetType` <> `AssetTypeEnum` to `assetType` = `AssetTypeEnum`).  These changes will address errors reported by users when using the model.
-
-5.	Within `MasterAgreementTypeEnum` `ISDA` has been amended to `ISDAMaster`, this change was recommended by ISDA legal team and is more in line with the document name and avoids confusion with the publisher used when identifying the agreement type at a higher level in the model. Updates have also been made to the related ISDACreate and FPML synonyms
-
+Extensions have been made to enable the user more options for collateral related information to be referenced in the CDM. This connects trade data, collateral portfolios and balances to legal agreement data for varied use cases including DRR . The following extensions in the CDM model will enable this: 
+1.	New attributes added to data type `Collateral` for `portfolioidentifier` and `collateralPortfolio` this allows user to identify collateral portfolios related to trades and also list collateral components and balances
+2.	New attribute `payerReceiver` added to data type `CollateralBalance` to allow representation of both the Payer Receiver (party1 or party2) and the Collateral direction (posted or received)
+3.	New attribute `collateralAgreement` added to data type `CollateralPortfolio` this will extend to options to retrieve data from related collateral agreements needed for various use cases
+4.	The data type ‘CollateralPortfolio` has been made a [root Type] to allow for independent use in the CDM model
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and inspect the changes outlined above 
+In the CDM Portal, select the Textual Browser and search and inspect the additions laid out above across the following data types: 
+
+1.	`Collateral`
+2.	`CollateralBalance`
+3.	`CollateralPortfolio`
+
 
