@@ -1,4 +1,4 @@
-namespace cdm.legalagreement.common : <"Common legal agreement concepts.">
+ namespace cdm.legalagreement.common : <"Common legal agreement concepts.">
 version "${project.version}"
 
 import cdm.base.staticdata.party.*
@@ -118,11 +118,16 @@ type LegalAgreementIdentification: <"Specifies the type of legal agreement, iden
 	vintage int (0..1) <"In the case where successive definitions of the legal agreement have been developed, the vintage identification. This is typically (but not necessarily) done by referencing the year, e.g. 2013 in the case of the ISDA 2013 Standard Credit Support Annex.">
 		[synonym AcadiaSoft_AM_1_0 value "csaVersion"]
 
+	condition CSAMarginType: <"A condition to ensure that CSA margin type is only specified if a credit support agreemnt type is specified and its published vintage year is equal to or after 2016.">
+            if agreementName -> creditSupportAgreementMarginType exists then
+            agreementName -> creditSupportAgreementType exists and vintage >= 2016
+
 type AgreementName: <"Specifies the agreement name through an agreement type and optional detailed sub agreement type.">
 	agreementType LegalAgreementTypeEnum (1..1) <"Specification of the legal agreement type.">
 	brokerConfirmationType BrokerConfirmationTypeEnum (0..1) <"Specification of the broker confirmation type.">
 	creditSupportAgreementType CreditSupportAgreementTypeEnum (0..1) <"Specification of the credit support agreement type.">
 		[metadata scheme]
+	creditSupportAgreementMarginType CreditSupportAgreementMarginTypeEnum (0..1) <"specifies the type of margin for which a legal agreement is named.">
     contractualDefinitionsType ContractualDefinitionsEnum (0..*) <"The definitions such as those published by ISDA that will define the terms of the trade.">
 		[metadata scheme]
     contractualTermsSupplement ContractualTermsSupplement (0..*) <"A contractual supplement (such as those published by ISDA) that will apply to the trade.">
@@ -147,6 +152,10 @@ type AgreementName: <"Specifies the agreement name through an agreement type and
 
 	condition MasterConfirmation: <"If a master confirmation annex type is specified a master confirmation type must exist.">
 			if masterConfirmationAnnexType exists then masterConfirmationType exists
+
+	condition CSAMarginType: <"A condition to ensure that CSA margin type is only specified if a credit support agreemnt type is specified.">
+			if creditSupportAgreementMarginType exists then creditSupportAgreementType exists
+
 			
 type UmbrellaAgreement: <"A class to specify a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement. This data representation reflects the ISDA Create representation.">
 
