@@ -123,7 +123,15 @@ type CashPrice: <"Specifies the nature of a cash price either as a fee type, cas
 type Price extends MeasureBase: <"Specifies a price to be used for trade amounts and other purposes.">
 
 	priceExpression PriceExpression (1..1) <"Provides a value for the type of price expression (cash price, interest rate, gross or net, clean or dirty etc.) in order to explain how to interpret the amount and use it in calculations.">
-	perUnitOfAmount UnitType (1..1) <"Provides an attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
+	perUnitOfAmount UnitType (0..1) <"Provides an attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
+
+    condition UnitOfAmountExists: <"Requires that a unit of amount must be specified for price unless price type is Variance, Volatility or Correlation.">
+        if priceExpression -> priceType = PriceTypeEnum -> Variance
+                or priceExpression -> priceType = PriceTypeEnum -> Volatility
+                or priceExpression -> priceType = PriceTypeEnum -> Correlation then
+    	    unitOfAmount is absent and perUnitOfAmount is absent
+        else
+            unitOfAmount exists and perUnitOfAmount exists
 
     condition PositiveFXRate: <"Requires that per FpML rules, the FX rate must be a positive value.">
         if ( priceExpression -> priceType = PriceTypeEnum -> ExchangeRate or priceExpression -> priceType = PriceTypeEnum -> AssetPrice )

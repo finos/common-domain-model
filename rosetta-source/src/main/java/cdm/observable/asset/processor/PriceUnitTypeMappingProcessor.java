@@ -58,7 +58,6 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", Arrays.asList("currency"), FinancialUnitEnum.SHARE)
 				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", Arrays.asList("notional", "notionalAmount", "currency"), FinancialUnitEnum.SHARE)
 				|| updatePriceUnits(priceBuilder, synonymPath, "equityOption", Arrays.asList("equityExercise", "settlementCurrency"), getPerUnitOfAmountIndexOrShare())
-				|| updatePriceUnits(priceBuilder, getUnitOfAmountVarianceOrVolatility(synonymPath), getPerUnitOfAmountIndexOrShare())
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
 				// Repo
@@ -66,18 +65,6 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				// Commodity
 				|| updatePriceUnits(priceBuilder, synonymPath, "commodityOption", Arrays.asList("strikePricePerUnit", "currency"), Arrays.asList("notionalQuantity", "quantityUnit"))) {
 			return;
-		}
-	}
-
-	@NotNull
-	private Optional<FinancialUnitEnum> getUnitOfAmountVarianceOrVolatility(Path synonymPath) {
-		if (synonymPath.getLastElement().getPathName().equals("varianceStrikePrice")) {
-			return Optional.of(FinancialUnitEnum.VARIANCE);
-		}
-		else if (synonymPath.getLastElement().getPathName().equals("volatilityStrikePrice")) {
-			return Optional.of(FinancialUnitEnum.VOLATILITY);
-		} else {
-			return Optional.empty();
 		}
 	}
 
