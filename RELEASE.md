@@ -1,4 +1,4 @@
-# *Extensions to date types Collateral, Collateral Balance and Collateral Portfolio *
+# Extensions to date types Collateral, Collateral Balance and Collateral Portfolio 
 
 _What is being Released_
 
