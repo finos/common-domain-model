@@ -1651,8 +1651,8 @@ synonym source FpML_5_10 extends FpML
 		 	[value "instrumentId" path "equity" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "index" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "loan" maps 2 meta "instrumentIdScheme"]
-			[value "instrumentId" path "exchangeTradedContractNearest"]
-			// [value "instrumentId" maps 2 meta "instrumentIdScheme"]
+			[value "instrumentId" path "commodity" maps 2 meta "instrumentIdScheme"]
+			[value "instrumentId" path "exchangeTradedContractNearest" maps 2 meta "instrumentIdScheme"]
 			[value "productId" maps 2 meta "productIdScheme"]
 		+ source
 		    // Bond
@@ -1710,10 +1710,10 @@ synonym source FpML_5_10 extends FpML
             [set to ProductIdTypeEnum -> ISIN when "convertibleBond->instrumentId->instrumentIdScheme" = "ISIN"]
 			[set to ProductIdTypeEnum -> Other when "convertibleBond->instrumentId->instrumentIdScheme" exists]
             // Commodity
-			[set to ProductIdTypeEnum -> ISDACRP when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/commodity-reference-price-1-0"]
-            [set to ProductIdTypeEnum -> ISDACRP when "instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/commodity-reference-price"]
-            [set to ProductIdTypeEnum -> Other when "instrumentId->instrumentIdScheme" exists]
-            // Repo
+			[set to ProductIdTypeEnum -> ISDACRP when "commodity->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/commodity-reference-price-1-0"]
+            [set to ProductIdTypeEnum -> ISDACRP when "commodity->instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/commodity-reference-price"]
+            [set to ProductIdTypeEnum -> Other when "commodity->instrumentId->instrumentIdScheme" exists]
+			// Repo
             [set to ProductIdTypeEnum -> CUSIP when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "CUSIP"]
             [set to ProductIdTypeEnum -> CUSIP when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
             [set to ProductIdTypeEnum -> CUSIP when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
@@ -1725,6 +1725,7 @@ synonym source FpML_5_10 extends FpML
             [set to ProductIdTypeEnum -> Other when path = "repo->bond" and "instrumentId->instrumentIdScheme" exists]
             // Catch all
             [set to ProductIdTypeEnum -> Other when path = "productId"] // catch-all
+            [value "productId" mapper "DefaultProductIdType"]
 
 	ProductIdentification:
 		+ primaryAssetData
@@ -1794,10 +1795,13 @@ synonym source FpML_5_10 extends FpML
             [value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
             [value "notionalAmount" path "amount->correlation" meta "amount"]
             [value "volatility" path "amount" meta "vegaNotionalAmount"]
+        + step
+            [value "step"]
 
-	NonNegativeStepSchedule:
-		+ step
-			[value "step"]
+    NonNegativePriceSchedule:
+        + initialPrice
+            [value "fixedPrice" meta "price"]
+            [hint "fixedStrike"]
 
 	NonNegativeStep:
 		+ stepDate
@@ -2019,13 +2023,12 @@ synonym source FpML_5_10 extends FpML
 
 	Observable:
 		+ commodity
-			[value "commodity"]
+			[hint "commodity"]
 		+ productIdentifier
 			[hint "equity"]
 			[hint "bond"]
 			[hint "convertibleBond"]
 			[hint "index"]
-			[hint "instrumentId"]
 			[hint "exchangeTradedContractNearest"]
     	+ currencyPair
 			[value "quotedCurrencyPair"]
@@ -2310,7 +2313,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "swap"]
 			[hint "creditDefaultSwap"]
 			[hint "putCurrencyAmount", "callCurrencyAmount"]
-			[hint "commodity"]
+			[value "commodity"]
 		+ observationTerms
 			[value "asian" path "features"]
 			[hint "pricingDates"]
@@ -2342,6 +2345,8 @@ synonym source FpML_5_10 extends FpML
 			[value "averagingMethod" path "calculation"]
 		+ pricingDates
 			[value "pricingDates" path "calculation"]
+		+ underlier
+		    [value "commodity"]
 
 	CommodityPriceReturnTerms:
 		+ spread
@@ -2371,9 +2376,8 @@ synonym source FpML_5_10 extends FpML
 			[value "paymentDates"]
 			[value "relativePaymentDates"]
 			[hint "paymentDate"]
-		+ fixedPrice
-			[value "fixedPrice" meta "price"]
-			[hint "fixedStrike"]
+        + schedule
+            [value "ignore"]
 
 	SecurityValuation:
 		+ securityValuationModel
@@ -2503,6 +2507,10 @@ synonym source FpML_5_10 extends FpML
 			[value "correlationLeg"]
 			[value "dividendLeg"]
 
+    ProductIdentification:
+        + productIdentifier
+            [hint "productId"]
+
 	Product:
 		+ contractualProduct
 			// For Equity Swap:
@@ -2558,7 +2566,8 @@ synonym source FpML_5_10 extends FpML
 		+ loan
 			[hint "loan"]
 		+ commodity
-			[value "commodity" meta "instrumentId"]
+			[value "commodity"]
+			[meta "specifiedPrice"]
 		+ security
 			[hint "bond", "equity", "mortgage", "convertibleBond"]
 		+ basket
@@ -2574,10 +2583,12 @@ synonym source FpML_5_10 extends FpML
 			[value "basketConstituent"]
 
 	Commodity:
-	    + productIdentifier
-	        [hint "instrumentId"]
-		+ priceQuoteType
-			[value "specifiedPrice" maps 2]
+        + productIdentifier
+            [hint "commodity"]
+        + priceQuoteType
+            [value "specifiedPrice" path "commodity" maps 2]
+        + deliveryDateReference
+            [value "commodity"]
 
 	DeliveryDateParameters:
 		+ deliveryNearby
@@ -2623,8 +2634,9 @@ synonym source FpML_5_10 extends FpML
 			[value "fxOption"]
 			[value "fxDigitalOption"]
 			[value "equityOption"]
-			[hint "commodity", "notionalQuantity"] // Commodity Option
-			[value "commodityOption"] // Commodity Option
+			[merge "commodity"]
+			[hint "notionalQuantity"] // Commodity Option
+			[value "commodityOption"]
 			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"] // For Equity / Bond Option
 		+ lotIdentifier
 			[value "ignore"]
@@ -2657,7 +2669,6 @@ synonym source FpML_5_10 extends FpML
             // Other
 			[value "commoditySwap"]
 			[hint "commoditySwap"]
-			[value "commodityOption"]
 			[hint "commodityOption"]
 			[hint "repo"]
 		+ adjustment
@@ -2895,6 +2906,7 @@ synonym source FpML_5_10 extends FpML
 		[value "periodMultiplier" path "paymentDatesInterim->relativeDates"]
 		[set to 1 when "quantityFrequency" = "PerCalendarDay"]
 		[set to 1 when "quantityFrequency" = "PerCalculationPeriod"]
+		[set to 1 when "quantityFrequency" = "PerMonth"]
 	+ period
 		[value "period"]
 		[value "period" path "paymentDatesInterim->relativeDates"]
@@ -5334,10 +5346,14 @@ synonym source FpML_5_10 extends FpML
             [value "W"]
         + M
             [value "M"]
+            [value "PerMonth"]
         + Y
             [value "Y"]
-		+ T
-			[value "T"]
+        + T
+            [value "T"]
+            [value "Term"]
+        + C
+            [value "PerCalculationPeriod"]
 
 	PeriodTimeEnum:
 		+ Hour
@@ -7072,7 +7088,7 @@ synonym source FpML_5_10 extends FpML
 			[value "R"]
 
 	ReturnTypeEnum:
-	+ Dividend
+		+ Dividend
 			[value "Dividend"]
 		+ Price
 			[value "Price"]
@@ -8125,6 +8141,4 @@ synonym source FpML_5_12 extends FpML_5_10
 			[ value "SetInAdvance"]
 		+ FixingDate
 			[ value "FixingDate" ]
-
-
 }

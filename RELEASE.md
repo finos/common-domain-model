@@ -1,93 +1,78 @@
-# *Product Model - Correlation and Dividend Swaps*
+# *Product Model - Commodity Swaps*
 
-_Background_
+## _Background_
 
-The `PerformancePayout` was recently introduced to allow for representation of a wider variety of equity products including Price and Total Return Swaps, plus a new range of Equity Return Swaps, namely variance (including its dispersion variant), volatility, correlation and dividend swaps. The first release included mapping coverage for variance and volatility, while the present one adds coverage for correlation and dividend swaps.
+This release enhances the financial commodities products coverage in CDM by adding a set of structures needed to fully describe commodity products. Particularly, a new Schedule structure allows the full representation of a commodity swap and to support standard schedule customization. It expresses all the dates, quantities, and pricing data in a non-parametric way.
 
-_What is being released_
+## _What is being released_
 
-- Mapping coverage for correlation swaps
-- Mapping coverage for dividend swaps
-- Minor adjustments to equity qualification functions
-- Fixes for variance and volatility mappings
+* New Schedule structure for commodity swaps, available in the `FixedPricePayout` and the `CommodityPayout`.
+* New Fixed Price Schedule inside the `FixedPricePayout` to support a fixed price with steps.
+* Updated `quantitySchedule` inside `PayoutQuantity` to better support a quantity with steps.
+* New commodity description element.
+* Fixed FpML mapping issue for `instrumentId` to be able to support Commodity Reference Prices.
+* Added missing FpML mapping values for `quantityFrequency`.
 
-_Functions_
+### _Types_
 
-**product-common-func**
+**base-staticdata-asset-common-type**
 
-Added `only exists` replacing `exists` for conditions specifying the type of `underlier` or the type of `returnTerms` required in variance, volatility, correlation and dividend qualification functions. 
+Added the `description` element, of type `string`, within `Commodity`.
 
-Updated functions: 
-- `Qualify_EquitySwap_ParameterReturnVariance_SingleName`
-- `Qualify_EquitySwap_ParameterReturnVariance_Index`
-- `Qualify_EquitySwap_ParameterReturnVariance_Basket`
-- `Qualify_EquitySwap_ParameterReturnVolatility_SingleName`
-- `Qualify_EquitySwap_ParameterReturnVolatility_Index`
-- `Qualify_EquitySwap_ParameterReturnVolatility_Basket`
-- `Qualify_EquitySwap_ParameterReturnCorrelation_Basket`
-- `Qualify_EquitySwap_ParameterReturnDividend_SingleName`
-- `Qualify_EquitySwap_ParameterReturnDividend_Index`
-- `Qualify_EquitySwap_ParameterReturnDividend_Basket`
-- `Qualify_ForeignExchange_ParameterReturnVariance`
-- `Qualify_ForeignExchange_ParameterReturnVolatility`
-- `Qualify_ForeignExchange_ParameterReturnCorrelation`
+**observable-asset-type**
 
-Removed `fixedPricePayout count = 1` condition for dividend swaps, thus allowing for multiple period dividend swaps to be qualified. 
+Created the `FixedPrice` type, which contains `fixedPriceSchedule` of type `NonNegativePriceSchedule`.
 
-Updated functions:
-- `Qualify_EquitySwap_ParameterReturnDividend_SingleName`
-- `Qualify_EquitySwap_ParameterReturnDividend_Index`
-- `Qualify_EquitySwap_ParameterReturnDividend_Basket`
+**product-common-schedule-type**
 
-_Translate_
- 
+Updated the `NonNegativeQuantitySchedule` type, allowing the specification of the steps at the same level as the initial quantity, not within an unnecessary `stepSchedule` element.
+
+Created the `NonNegativePriceSchedule` type, with the structure described before.
+
+**product-common-settlement-type**
+
+Added the `schedule` element, of type `CommoditySchedule`, within `CommodityPayout`.
+
+**product-template-type**
+
+Updated the `FixedPricePayout` type:
+
+* Changed the type of `fixedPrice` from `Price` to `FixedPrice`.
+* Added the `schedule` element, of type `CommoditySchedule`.
+
+Created the `CommoditySchedule` type, which contains:
+
+* `unitOfAmount` and `perUnitOfAmount`of type `UnitType`.
+* `priceExpression` of type `PriceExpression`.
+* The repeatable element `schedulePeriod` of type`SchedulePeriod`.
+
+Created the `SchedulePeriod` type, which contains:
+
+* `quantity`, `totalQuantity` and `price` of type `number`.
+* `paymentDate` of type `date`.
+* `calculationPeriod` and `fixingPeriod` of type `TimeInterval`.
+
+Created the `TimeInterval` type, which contains two elements: `startDate` and `endDate` of type `date`.
+
+### _Functions_
+
+**product-asset-calculation-func**
+
+Updated the `GetQuantityScheduleStepValues` function due to the new structure of the quantity schedule.
+
+### _Synonyms_
+
 **synonym-cdm-fpml**
 
-Fixed volatility and dispersion mapping issues.
+Added mapping coverage for the FpML element `instrumentId`, mapped it into `productIdentifier` inside the commodity underlier.
 
-Added mapping coverage for correlation swaps and dividend swaps. Correlation swaps use `PerformancePayout` alone, while dividend swaps use the `PerformancePayout` structure in combination with one or several `FixedPricePayout`.
+Expanded the coverage on the mapping of the quantity frequency by adding the synonyms for the FpML codes _PerMonth_, _PerCalculationPeriod_ and _Term_.
 
-_Review Directions_
+## _Review Directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
 In the CDM Portal, select Ingestion and review the following samples:
 
-fpml-5-10/incomplete-products/variance-swaps
-- eqvs-ex04-dispersion-variance-swap.xml
-- eqvs-ex05-dispersion-variance-swap-transaction-supplement.xml
-
-fpml-5-10/incomplete-products/volatility-swaps
-- eqvls-ex01-volatility-swap-index-matrix.xml
-- eqvls-ex02-volatility-swap-index-mca.xml
-
-fpml-5-10/incomplete-products/correlation-swaps
-- eqcs-ex01-correlation-swap.xml
-- eqcs-ex02-correlation-swap.xml
-- eqcs-ex03-correlation-swap.xml
-- eqcs-ex04-correlation-swap.xml
-
-fpml-5-10/incomplete-products/dividend-swaps
-- div-ex01-dividend-swap.xml
-- div-ex02-dividend-swap-collateral.xml
-- div-ex03-dividend-swap-short-form-japanese-underlyer.xml
-
-# *User Documentation - Development Guidelines*
-
-_What is being released_
-
-This release consolidates all the development guidelines into a single section in the CDM user documentation, and adds a specific sub-section regarding the agile development approach. It also includes some minor fixes and clean-ups.
-
-In the CDM user documentation, there is now an entire section called "Development Guidelines". This section contains the following sub-sections:
-
-- Governance (previously part of the "Overview" section)
-- Design Principles (previously part of the "Overview" section)
-- Agile Development Approach (new sub-section)
-- How to Contribute (was previously a stand-alone section)
-- Documentation Style Guide (was previously a stand-alone section)
-
-In the "Overview" section, the governance and design principles parts have been replaced by references with links to that new "Development Guidelines" section of the user documentation.
-
-_Review Directions_
-
-In the [CDM user documentation](https://cdm.docs.rosetta-technology.io/index.html), navigate to the "Development Guidelines" section shown in the left-hand side panel.
+- fpml-5-10/products/commodity
+- fpml-5-10/incomplete-products/commodity-derivatives
