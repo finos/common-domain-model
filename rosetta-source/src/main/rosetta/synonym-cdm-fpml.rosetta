@@ -1653,7 +1653,6 @@ synonym source FpML_5_10 extends FpML
 			[value "instrumentId" path "loan" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "commodity" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "exchangeTradedContractNearest"]
-			// [value "instrumentId" maps 2 meta "instrumentIdScheme"]
 			[value "productId" maps 2 meta "productIdScheme"]
 		+ source
 		    // Bond
@@ -1795,10 +1794,13 @@ synonym source FpML_5_10 extends FpML
             [value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
             [value "notionalAmount" path "amount->correlation" meta "amount"]
             [value "volatility" path "amount" meta "vegaNotionalAmount"]
+        + step
+            [value "step"]
 
-	NonNegativeStepSchedule:
-		+ step
-			[value "step"]
+    NonNegativePriceSchedule:
+        + initialPrice
+            [value "fixedPrice" meta "price"]
+            [hint "fixedStrike"]
 
 	NonNegativeStep:
 		+ stepDate
@@ -2020,13 +2022,12 @@ synonym source FpML_5_10 extends FpML
 
 	Observable:
 		+ commodity
-			[value "commodity"]
+			[hint "commodity"]
 		+ productIdentifier
 			[hint "equity"]
 			[hint "bond"]
 			[hint "convertibleBond"]
 			[hint "index"]
-			[hint "instrumentId"]
 			[hint "exchangeTradedContractNearest"]
     	+ currencyPair
 			[value "quotedCurrencyPair"]
@@ -2311,7 +2312,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "swap"]
 			[hint "creditDefaultSwap"]
 			[hint "putCurrencyAmount", "callCurrencyAmount"]
-			[hint "commodity"]
+			[value "commodity"]
 		+ observationTerms
 			[value "asian" path "features"]
 			[hint "pricingDates"]
@@ -2343,6 +2344,8 @@ synonym source FpML_5_10 extends FpML
 			[value "averagingMethod" path "calculation"]
 		+ pricingDates
 			[value "pricingDates" path "calculation"]
+		+ underlier
+		    [value "commodity"]
 
 	CommodityPriceReturnTerms:
 		+ spread
@@ -2372,9 +2375,8 @@ synonym source FpML_5_10 extends FpML
 			[value "paymentDates"]
 			[value "relativePaymentDates"]
 			[hint "paymentDate"]
-		+ fixedPrice
-			[value "fixedPrice" meta "price"]
-			[hint "fixedStrike"]
+        + schedule
+            [value "ignore"]
 
 	SecurityValuation:
 		+ securityValuationModel
@@ -2559,7 +2561,8 @@ synonym source FpML_5_10 extends FpML
 		+ loan
 			[hint "loan"]
 		+ commodity
-			[hint "commodity" /*meta "instrumentId"*/]
+			[value "commodity"]
+			[meta "specifiedPrice"]
 		+ security
 			[hint "bond", "equity", "mortgage", "convertibleBond"]
 		+ basket
@@ -2579,6 +2582,8 @@ synonym source FpML_5_10 extends FpML
             [hint "commodity"]
         + priceQuoteType
             [value "specifiedPrice" path "commodity" maps 2]
+        + deliveryDateReference
+            [value "commodity"]
 
 	DeliveryDateParameters:
 		+ deliveryNearby
@@ -2624,8 +2629,9 @@ synonym source FpML_5_10 extends FpML
 			[value "fxOption"]
 			[value "fxDigitalOption"]
 			[value "equityOption"]
-			[hint "commodity", "notionalQuantity"] // Commodity Option
-			[value "commodityOption"] // Commodity Option
+			[merge "commodity"]
+			[hint "notionalQuantity"] // Commodity Option
+			[value "commodityOption"]
 			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"] // For Equity / Bond Option
 		+ lotIdentifier
 			[value "ignore"]
@@ -2658,7 +2664,6 @@ synonym source FpML_5_10 extends FpML
             // Other
 			[value "commoditySwap"]
 			[hint "commoditySwap"]
-			[value "commodityOption"]
 			[hint "commodityOption"]
 			[hint "repo"]
 		+ adjustment
