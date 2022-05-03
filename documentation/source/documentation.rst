@@ -151,7 +151,7 @@ MeasureBase
 
  type MeasureBase:
    amount number (1..1)
-   unitOfAmount UnitType (1..1)
+   unitOfAmount UnitType (0..1)
 
 The ``UnitType`` data type used to defined the ``unitOfAmount`` attribute requires the definition of units using one of five defined types:
 
@@ -178,7 +178,7 @@ The ``Price`` data type extends the ``MeasureBase`` data type with the addition 
 
  type Price extends MeasureBase:
    priceExpression PriceExpression (1..1)
-   perUnitOfAmount UnitType (1..1)
+   perUnitOfAmount UnitType (0..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
 
@@ -225,6 +225,9 @@ The ``Quantity`` data type extends the ``MeasureBase`` data type with the additi
  type Quantity extends MeasureBase:
    multiplier number (0..1)
    multiplierUnit UnitType (0..1)
+
+   condition UnitOfAmountExists:
+     unitOfAmount exists
 
    condition Quantity_multiplier:
      if multiplier exists
