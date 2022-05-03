@@ -163,10 +163,9 @@ The ``UnitType`` data type used to defined the ``unitOfAmount`` attribute requir
    financialUnit FinancialUnitEnum (0..1)
    currency string (0..1)
      [metadata scheme]
-   frequency cdm.base.datetime.Frequency (0..1)
 
    condition UnitType:
-      required choice capacityUnit, weatherUnit, financialUnit, currency
+      one-of
 
 The ``Price`` and ``Quantity`` data types are both extensions of the ``MeasureBase`` data type, as shown below.
 
@@ -225,6 +224,7 @@ The ``Quantity`` data type extends the ``MeasureBase`` data type with the additi
  type Quantity extends MeasureBase:
    multiplier number (0..1)
    multiplierUnit UnitType (0..1)
+   frequency Frequency (0..1)
 
    condition UnitOfAmountExists:
      unitOfAmount exists
