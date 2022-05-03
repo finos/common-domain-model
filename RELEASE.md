@@ -2,14 +2,14 @@
 
 ## _Background_
 
-This release enhances the financial commodities products coverage in CDM by adding a set of structures needed to fully describe commodity products. Particularly, a new Schedule structure allows the full representation of a commodity swap and to support standard schedule customization. It expresses all the dates, quantities, and pricing data in a non-parametric way.
+This release enhances the financial commodity products coverage in CDM by adding a set of structures needed to fully describe commodity products. Particularly, a new Schedule structure allows full representation of a commodity swap and supports standard schedule customization. It expresses all the dates, quantities, and pricing data in a non-parametric way.
 
 ## _What is being released_
 
-* New Schedule structure for commodity swaps, available in the `FixedPricePayout` and the `CommodityPayout`.
-* New Fixed Price Schedule inside the `FixedPricePayout` to support a fixed price with steps.
+* A new schedule structure added for commodity swaps, available in the `FixedPricePayout` and the `CommodityPayout`.
+* A new fixed price schedule added to `FixedPricePayout` to support a fixed price with steps.
 * Updated `quantitySchedule` inside `PayoutQuantity` to better support a quantity with steps.
-* New commodity description element.
+* A new commodity description element has been added.
 * Fixed FpML mapping issue for `instrumentId` to be able to support Commodity Reference Prices.
 * Added missing FpML mapping values for `quantityFrequency`.
 
