@@ -1,7 +1,6 @@
 package cdm.product.asset.calculation.functions;
 
 import cdm.base.math.NonNegativeStep;
-import cdm.base.math.NonNegativeStepSchedule;
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.ReferenceWithMetaQuantity;
@@ -13,7 +12,6 @@ import cdm.product.common.schedule.NonNegativeQuantitySchedule;
 import cdm.product.common.settlement.ResolvablePayoutQuantity;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.metafields.FieldWithMetaString;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
