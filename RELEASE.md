@@ -2,11 +2,11 @@
 
 ## _Background_
 
-This release will fix reporting timestamps to use the correct ISO8601 date time format.
+This release will fix the regulatory rule `ReportingTimestamp` to output the correct ISO8601 date time format.
 
 ## _What is being released_
 
-* Updated to the `Now` function used in CFTC reporting to generate the correct format.
+* Update to the underlying code of the `Now` function used in CFTC reporting to generate the correct format.
 
 ## _Review Directions_
 
