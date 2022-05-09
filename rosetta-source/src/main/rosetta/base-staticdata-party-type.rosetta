@@ -107,7 +107,7 @@ type LegalEntity: <"A class to specify a legal entity, with a required name and 
 type NaturalPerson: <"A class to represent the attributes that are specific to a natural person.">
 	[metadata key]
 
-	personId string (0..*) <"The identifier associated with a person, e.g. the internal identification code.">
+	personId PersonIdentifier (0..*) <"The identifier associated with a person, e.g. the internal identification code.">
 		[metadata scheme]
 	honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">
 	firstName string (0..1) <"The natural person's first name. It is optional in FpML.">
@@ -129,7 +129,7 @@ type NaturalPersonRole: <"A class to specify the role(s) that natural person(s) 
 		[metadata reference]
 	role NaturalPersonRoleEnum (0..*) <"FpML specifies a person role that is distinct from the party role.">
 		[metadata scheme]
-
+/*
 type Party: <"A class to specify a party, without a qualification as to whether this party is a legal entity or a natural person, although the model provides the ability to associate a person (or set of persons) to a party, which use case would imply that such party would be a legal entity (even if not formally specified as such). ">
 	[metadata key]
 
@@ -139,6 +139,29 @@ type Party: <"A class to specify a party, without a qualification as to whether 
 		[metadata scheme]
 	person NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">
 	account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">
+*/
+type Party: <"A class to specify a party, without a qualification as to whether this party is a legal entity or a natural person, although the model provides the ability to associate a person (or set of persons) to a party, which use case would imply that such party would be a legal entity (even if not formally specified as such). ">
+	[metadata key]
+
+	partyId PartyIdentifier (1..*) <"The identifier associated with a party, e.g. the 20 digits LEI code.">
+	name string (0..1) <"The party name.">
+		[metadata scheme]
+	person NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">
+	account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">
+
+type PartyIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the PartyIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+	[metadata key]
+	identifier string (1..1) <"Provides an identifier associated with a party. The identifier is unique within the public source specified in the source attribute.">
+		[metadata scheme]
+	identifierType PartyIdentifierTypeEnum (0..1) <"Defines the source of the identifier.">
+
+type PersonIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the PersonIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+	[metadata key]
+	identifier string (1..1) <"Provides an identifier associated with a person. The identifier is unique within the public source specified in the source attribute.">
+		[metadata scheme]
+	identifierType PersonIdentifierTypeEnum (0..1) <"Defines the source of the identifier.">
+	country string (0..1) <"The ISO 3166 standard code for the country issuing the identifier.">
+		[metadata scheme]
 
 type PartyContactInformation: <"A class to specify contact information within a party: address and, optionally, associated business unit and person. This class also supports the ISDA CSA representation as a single string, through the address attribute.">
 
