@@ -1,4 +1,4 @@
-# *Legal Agreement Extension, to allow user to state ‘CSA Margin Type’ as part of Agreement Name*
+# *Legal Agreement Extension, to allow user to state CSA Margin Type as part of Agreement Name*
 
 _What is being Released_
 
