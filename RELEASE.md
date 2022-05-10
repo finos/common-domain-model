@@ -2,7 +2,7 @@
 
 _What is being Released_
 
-Extensions have been made to enable the user more options for collateral related information to be referenced in the CDM. This connects trade data, collateral portfolios and balances to legal agreement data for varied use cases including DRR . The following extensions in the CDM model will enable this: 
+Extensions have been made to enable the user more options for collateral related information to be referenced in the CDM. This connects trade data, collateral portfolios and balances to legal agreement data for varied use cases including DRR. The following extensions in the CDM model will enable this: 
 
 * New attributes added to data type `Collateral` for `portfolioIdentifier` and `collateralPortfolio` this allows user to identify collateral portfolios related to trades and also list collateral components and balances
 * New attribute `payerReceiver` added to data type `CollateralBalance` to allow representation of both the Payer Receiver (party1 or party2) and the Collateral direction (posted or received)
