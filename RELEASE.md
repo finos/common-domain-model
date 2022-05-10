@@ -1,10 +1,8 @@
 # *Legal Agreement Model - Features to categorise CSA documents*
 
-_Background_
-
-This change allows the explicit categorisation of the ISDA Credit Support documents. This is particularl helpful for documents published since 2016 that currently carry the margin type (Variation or Initial) only in the agreement name.
-
 _What is being released?_
+
+This change allows the explicit categorisation of the ISDA Credit Support documents. This is particularly helpful for documents published since 2016 that currently carry the margin type (Variation or Initial) only in the agreement name. The adjustments include:
 
 * New attribute `creditSupportAgreementMarginType ` added to data type name `AgreementName` 
 * Conditions added to ensure that a CSA margin type is only specified if a credit support agreement type is specified as an agreement name, and it published year `vintage` is > = 2016
