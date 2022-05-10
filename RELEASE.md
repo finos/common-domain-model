@@ -23,7 +23,7 @@ Inspect the associated enumeration list `CreditSupportAgreementMarginTypeEnum` a
 
 _What is being Released_
 
-This changes represent the association between a trade and the corresponding collateral portfolios and resulting balances as prescribed by underlyig legal agreements (e.g. IM/VM CSA). The following is included:
+This change represents the association between a trade, the corresponding collateral portfolios and balances as prescribed by underlyig legal agreements (e.g. IM/VM CSA). The following is included:
 
 * New attributes added to data type `Collateral` for `portfolioIdentifier` and `collateralPortfolio`. This allows users to identify collateral portfolios related to trades and also to list collateral components and balances.
 * New attribute `payerReceiver` added to data type `CollateralBalance`. This allows the representation of both the Payer Receiver (party1 or party2) and the Collateral direction (posted or received)
