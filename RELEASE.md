@@ -19,16 +19,16 @@ Please also inspect the related conditions that have been updated in the model n
 
 Inspect the associated enumeration list `CreditSupportAgreementMarginTypeEnum` and its contents `VariationMargin`.
 
-# Collateral Model - Collateral, Collateral Balance and Collateral Portfolio
+# Collateral Model - Features to link transactions and collateral portfolios 
 
-_What is being released?_
+_What is being Released_
 
-Extensions have been made to enable the user more options for collateral related information to be referenced in the CDM. This connects trade data, collateral portfolios and balances to legal agreement data for varied use cases including DRR. The following extensions in the CDM model will enable this:
+This changes represent the association between a trade and the corresponding collateral portfolios and resulting balances as prescribed by underlyig legal agreements (e.g. IM/VM CSA). The following is included:
 
-* New attributes added to data type `Collateral` for `portfolioIdentifier` and `collateralPortfolio` this allows user to identify collateral portfolios related to trades and also list collateral components and balances
-* New attribute `payerReceiver` added to data type `CollateralBalance` to allow representation of both the Payer Receiver (party1 or party2) and the Collateral direction (posted or received)
-* New attribute `collateralAgreement` added to data type `CollateralPortfolio` this will extend to options to retrieve data from related collateral agreements needed for various use cases
-* The data type `CollateralPortfolio` has been made a `[root Type]` to allow for independent use in the CDM model
+* New attributes added to data type `Collateral` for `portfolioIdentifier` and `collateralPortfolio`. This allows users to identify collateral portfolios related to trades and also to list collateral components and balances.
+* New attribute `payerReceiver` added to data type `CollateralBalance`. This allows the representation of both the Payer Receiver (party1 or party2) and the Collateral direction (posted or received)
+* New attribute `collateralAgreement` added to data type `CollateralPortfolio`. This allows the direct association of a portfolio with a collateral agreements.
+* The data type `CollateralPortfolio` has been made a `[root Type]` to allow for independent use in the model
 
 _Review Directions_
 
