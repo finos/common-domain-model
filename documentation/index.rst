@@ -13,7 +13,6 @@ Welcome to the ISDA CDM documentation
    source/eligible-collateral-representation
    source/cdm-guidelines
    source/contribution
-   source/documentation-style-guide
    releases/latest
    releases/all
    

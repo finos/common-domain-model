@@ -4,7 +4,6 @@ import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
 import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
-import cdm.base.math.NonNegativeStepSchedule;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.ReferenceWithMetaQuantity;
 import cdm.base.staticdata.asset.common.ExternalProductType;
@@ -1496,8 +1495,7 @@ public class Fpml510ProjectionMapper {
 		return Optional.ofNullable(cdmInterestRatePayout)
 			.map(PayoutBase::getPayoutQuantity)
 			.map(ResolvablePayoutQuantity::getQuantitySchedule)
-			.map(NonNegativeQuantitySchedule::getStepSchedule)
-			.map(NonNegativeStepSchedule::getStep)
+			.map(NonNegativeQuantitySchedule::getStep)
 			.map(sl -> sl.stream()
 				.map(this::getNonNegativeStep)
 				.flatMap(Optional::stream)
