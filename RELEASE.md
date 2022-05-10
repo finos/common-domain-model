@@ -1,8 +1,10 @@
-# *Legal Agreement Extension, to allow user to state CSA Margin Type as part of Agreement Name*
+# *Legal Agreement Model - Features to categorise CSA documents*
 
 _What is being Released_
 
-ISDA published Credit Support documents from 2016 onwards have the margin type (Variation or Initial) detailed within the agreement name. For various use cases the implementors of CDM will need to be able to define this information. The following extensions in the legal agreement model will enable this: 
+This change allows the explicit categorisation of the ISDA Credit Support documents. This is particularl helpful for documents published since 2016 that currently carry the margin type (Variation or Initial) only in the agreement name.
+
+_What is being released?_
 
 * New attribute `creditSupportAgreementMarginType ` added to data type name `AgreementName` 
 * Conditions added to ensure that a CSA margin type is only specified if a credit support agreement type is specified as an agreement name, and it published year `vintage` is > = 2016
@@ -17,5 +19,5 @@ Please also inspect the related conditions that have been updated in the model n
 * `LegalAgreementIdentification`
 * `AgreementName`
 
-Inspect the associated enumeration list `CreditSupportAgreementMarginTypeEnum` and its contents ‘VariationMargin`.
+Inspect the associated enumeration list `CreditSupportAgreementMarginTypeEnum` and its contents `VariationMargin`.
 
