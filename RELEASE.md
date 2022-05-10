@@ -19,7 +19,7 @@ Please also inspect the related conditions that have been updated in the model n
 
 Inspect the associated enumeration list `CreditSupportAgreementMarginTypeEnum` and its contents `VariationMargin`.
 
-# Extensions to date types Collateral, Collateral Balance and Collateral Portfolio
+# Collateral Model - Collateral, Collateral Balance and Collateral Portfolio
 
 _What is being Released_
 
