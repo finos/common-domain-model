@@ -21,7 +21,7 @@ Inspect the associated enumeration list `CreditSupportAgreementMarginTypeEnum` a
 
 # Collateral Model - Collateral, Collateral Balance and Collateral Portfolio
 
-_What is being Released_
+_What is being released?_
 
 Extensions have been made to enable the user more options for collateral related information to be referenced in the CDM. This connects trade data, collateral portfolios and balances to legal agreement data for varied use cases including DRR. The following extensions in the CDM model will enable this:
 
