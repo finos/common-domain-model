@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.regnosys.granite.ingestor.CdmTestInitialisationUtil;
 import com.regnosys.granite.ingestor.IngestionTest;
 import com.regnosys.granite.ingestor.IngestionTestExpectation;
+import com.regnosys.granite.ingestor.IngestionTestUtil;
 import com.regnosys.granite.ingestor.service.IngestionFactory;
 import com.regnosys.granite.ingestor.service.IngestionService;
 import com.regnosys.granite.ingestor.testing.Expectation;
@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -54,8 +55,8 @@ public class IsdaCreateIngestionServiceTest extends IngestionTest<LegalAgreement
 
 	@BeforeAll
 	static void setup() {
-		CdmTestInitialisationUtil cdmTestInitialisationUtil = new CdmTestInitialisationUtil();
-		initialiseIngestionFactory(new CdmRuntimeModule(), cdmTestInitialisationUtil.getPostProcessors());
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = IngestionFactory.getInstance().getIsdaCreateAll();
 	}
 
@@ -67,10 +68,6 @@ public class IsdaCreateIngestionServiceTest extends IngestionTest<LegalAgreement
 	@Override
 	protected IngestionService ingestionService() {
 		return ingestionService;
-	}
-
-	@Override
-	protected void assertEventEffect(LegalAgreement c) {
 	}
 
 	@Test
@@ -142,7 +139,9 @@ public class IsdaCreateIngestionServiceTest extends IngestionTest<LegalAgreement
 			Path path = Paths.get(updatedFilename);
 			Files.createDirectories(path.getParent());
 			try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-				writer.write(toJson(expectationFileMappingCoveragesPair.right()));
+				List<MappingCoverage> mappingCoverages = expectationFileMappingCoveragesPair.right();
+				Collections.sort(mappingCoverages);
+				writer.write(toJson(mappingCoverages));
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);

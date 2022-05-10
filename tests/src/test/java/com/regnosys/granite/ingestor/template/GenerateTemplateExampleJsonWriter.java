@@ -25,7 +25,6 @@ import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.metafields.MetaAndTemplateFields;
 import org.isda.cdm.CdmRuntimeModule;
-import org.isda.cdm.processor.EventEffectProcessStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +64,6 @@ public class GenerateTemplateExampleJsonWriter {
 			injector.getInstance(ReferenceConfig.class),
 			globalKeyProcessStep,
 			new ReKeyProcessStep(globalKeyProcessStep),
-			new EventEffectProcessStep(globalKeyProcessStep),
 			qualifyProcessorStep,
 			new PathCollector<>(),
 			validator);

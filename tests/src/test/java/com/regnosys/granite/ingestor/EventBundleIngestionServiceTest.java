@@ -24,8 +24,8 @@ class EventBundleIngestionServiceTest extends IngestionTest<EventTestBundle>{
 
 	@BeforeAll
 	static void setup() {
-		CdmTestInitialisationUtil cdmTestInitialisationUtil = new CdmTestInitialisationUtil();
-		initialiseIngestionFactory(new CdmRuntimeModule(), cdmTestInitialisationUtil.getPostProcessors());
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = IngestionFactory.getInstance().getFpml510EventsAndBundles();
 	}
 	
@@ -38,11 +38,7 @@ class EventBundleIngestionServiceTest extends IngestionTest<EventTestBundle>{
 	protected IngestionService ingestionService() {
 		return ingestionService;
 	}
-	
-	@Override
-	protected void assertEventEffect(EventTestBundle c) {
-	}
-	
+
 	@SuppressWarnings("unused")//used by the junit parameterized test
 	private static Stream<Arguments> fpMLFiles() {
 		return readExpectationsFrom(EXPECTATION_FILES);

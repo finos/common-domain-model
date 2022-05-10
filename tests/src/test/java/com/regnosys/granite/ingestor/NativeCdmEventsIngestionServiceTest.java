@@ -24,8 +24,8 @@ public class NativeCdmEventsIngestionServiceTest extends IngestionTest<WorkflowS
 
 	@BeforeAll
 	static void setup() {
-		CdmTestInitialisationUtil cdmTestInitialisationUtil = new CdmTestInitialisationUtil();
-		initialiseIngestionFactory(new CdmRuntimeModule(), cdmTestInitialisationUtil.getPostProcessors());
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = IngestionFactory.getInstance().getFpml510Processes();
 	}
 
@@ -37,10 +37,6 @@ public class NativeCdmEventsIngestionServiceTest extends IngestionTest<WorkflowS
 	@Override
 	protected IngestionService ingestionService() {
 		return ingestionService;
-	}
-
-	@Override
-	protected void assertEventEffect(WorkflowStep c) {
 	}
 
 	@SuppressWarnings("unused")//used by the junit parameterized test

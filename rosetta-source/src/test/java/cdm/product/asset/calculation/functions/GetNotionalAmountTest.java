@@ -1,7 +1,6 @@
 package cdm.product.asset.calculation.functions;
 
 import cdm.base.math.NonNegativeStep;
-import cdm.base.math.NonNegativeStepSchedule;
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.ReferenceWithMetaQuantity;
@@ -13,7 +12,6 @@ import cdm.product.common.schedule.NonNegativeQuantitySchedule;
 import cdm.product.common.settlement.ResolvablePayoutQuantity;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.metafields.FieldWithMetaString;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -77,31 +75,19 @@ public class GetNotionalAmountTest extends AbstractFunctionTest {
                         .setInitialQuantity(ReferenceWithMetaQuantity.builder()
                                 .setValue(Quantity.builder()
                                         .setAmount(BigDecimal.valueOf(9_000_000))
-                                        .setUnitOfAmount(UnitType.builder()
-                                                .setCurrency(FieldWithMetaString.builder()
-                                                        .setValue("USD").build())
-                                                .build())
-                                        .build())
-                                .build())
-                        .setStepSchedule(NonNegativeStepSchedule.builder()
-                                .addStep(NonNegativeStep.builder()
-                                        .setStepDate(Date.of(2021, 3, 10))
-                                        .setStepValue(BigDecimal.valueOf(10_000_000))
-                                        .build())
-                                .addStep(NonNegativeStep.builder()
-                                        .setStepDate(Date.of(2021, 6, 10))
-                                        .setStepValue(BigDecimal.valueOf(11_000_000))
-                                        .build())
-                                .addStep(NonNegativeStep.builder()
-                                        .setStepDate(Date.of(2021, 9, 10))
-                                        .setStepValue(BigDecimal.valueOf(12_000_000))
-                                        .build())
-                                .addStep(NonNegativeStep.builder()
-                                        .setStepDate(Date.of(2021, 12, 10))
-                                        .setStepValue(BigDecimal.valueOf(13_000_000))
-                                        .build())
-                                .build())
-                        .build())
+                                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))))
+                        .addStep(NonNegativeStep.builder()
+                                .setStepDate(Date.of(2021, 3, 10))
+                                .setStepValue(BigDecimal.valueOf(10_000_000)))
+                        .addStep(NonNegativeStep.builder()
+                                .setStepDate(Date.of(2021, 6, 10))
+                                .setStepValue(BigDecimal.valueOf(11_000_000)))
+                        .addStep(NonNegativeStep.builder()
+                                .setStepDate(Date.of(2021, 9, 10))
+                                .setStepValue(BigDecimal.valueOf(12_000_000)))
+                        .addStep(NonNegativeStep.builder()
+                                .setStepDate(Date.of(2021, 12, 10))
+                                .setStepValue(BigDecimal.valueOf(13_000_000))))
                 .build();
 
     }
