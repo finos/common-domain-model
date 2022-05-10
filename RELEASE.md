@@ -1,6 +1,6 @@
 # *Legal Agreement Model - Features to categorise CSA documents*
 
-_What is being Released_
+_Background_
 
 This change allows the explicit categorisation of the ISDA Credit Support documents. This is particularl helpful for documents published since 2016 that currently carry the margin type (Variation or Initial) only in the agreement name.
 
