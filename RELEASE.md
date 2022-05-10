@@ -1,15 +1,21 @@
-# *Reporting - CFTC*
+# *Legal Agreement Model - Features to categorise CSA documents*
 
-## _Background_
+_What is being released?_
 
-This release will fix the regulatory rule `ReportingTimestamp` to output the correct ISO8601 date time format.
+This change allows the explicit categorisation of the ISDA Credit Support documents. This is particularly helpful for documents published since 2016 that currently carry the margin type (Variation or Initial) only in the agreement name. The adjustments include:
 
-## _What is being released_
+* New attribute `creditSupportAgreementMarginType ` added to data type name `AgreementName` 
+* Conditions added to ensure that a CSA margin type is only specified if a credit support agreement type is specified as an agreement name, and it published year `vintage` is > = 2016
+* A new enumeration list `CreditSupportAgreementMarginTypeEnum` with options for `VariationMargin` and `InitialMargin`
 
-* The `Now` function used in CFTC reporting has now been updated to generate the correct timestamp format.
+_Review Directions_
 
-## _Review Directions_
+In the CDM Portal, select the Textual Browser and search and inspect the addition of `creditSupportAgreementMarginType` as an attribute to the data type `AgreementName`.
 
-- In Rosetta open up a DRR workspace and navigate to the `Reports` tab
-- Select Report `CFTC / Part45` and Dataset `CFTC Event Scenarios`
-- Scroll to column `97 Reporting timestamp` and notice the new format
+Please also inspect the related conditions that have been updated in the model named `CSAMarginType` under the data types listed here:
+
+* `LegalAgreementIdentification`
+* `AgreementName`
+
+Inspect the associated enumeration list `CreditSupportAgreementMarginTypeEnum` and its contents `VariationMargin`.
+
