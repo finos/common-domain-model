@@ -1,78 +1,39 @@
-# *Product Model - Commodity Swaps*
+# *Legal Agreement Model - Features to categorise CSA documents*
 
-## _Background_
+_What is being released?_
 
-This release enhances the financial commodity products coverage in CDM by adding a set of structures needed to fully describe commodity products. Particularly, a new Schedule structure allows full representation of a commodity swap and supports standard schedule customization. It expresses all the dates, quantities, and pricing data in a non-parametric way.
+This change allows the explicit categorisation of the ISDA Credit Support documents. This is particularly helpful for documents published since 2016 that currently carry the margin type (Variation or Initial) only in the agreement name. The adjustments include:
 
-## _What is being released_
+* New attribute `creditSupportAgreementMarginType ` added to data type name `AgreementName` 
+* Conditions added to ensure that a CSA margin type is only specified if a credit support agreement type is specified as an agreement name, and it published year `vintage` is > = 2016
+* A new enumeration list `CreditSupportAgreementMarginTypeEnum` with options for `VariationMargin` and `InitialMargin`
 
-* A new schedule structure added for commodity swaps, available in the `FixedPricePayout` and the `CommodityPayout`.
-* A new fixed price schedule added to `FixedPricePayout` to support a fixed price with steps.
-* Updated `quantitySchedule` inside `PayoutQuantity` to better support a quantity with steps.
-* A new commodity description element has been added.
-* Fixed FpML mapping issue for `instrumentId` to be able to support Commodity Reference Prices.
-* Added missing FpML mapping values for `quantityFrequency`.
+_Review Directions_
 
-### _Types_
+In the CDM Portal, select the Textual Browser and search and inspect the addition of `creditSupportAgreementMarginType` as an attribute to the data type `AgreementName`.
 
-**base-staticdata-asset-common-type**
+Please also inspect the related conditions that have been updated in the model named `CSAMarginType` under the data types listed here:
 
-Added the `description` element, of type `string`, within `Commodity`.
+* `LegalAgreementIdentification`
+* `AgreementName`
 
-**observable-asset-type**
+Inspect the associated enumeration list `CreditSupportAgreementMarginTypeEnum` and its contents `VariationMargin`.
 
-Created the `FixedPrice` type, which contains `fixedPriceSchedule` of type `NonNegativePriceSchedule`.
+# Collateral Model - Features to link transactions and collateral portfolios 
 
-**product-common-schedule-type**
+_What is being Released_
 
-Updated the `NonNegativeQuantitySchedule` type, allowing the specification of the steps at the same level as the initial quantity, not within an unnecessary `stepSchedule` element.
+This change represents the association between a trade, the corresponding collateral portfolios and balances as prescribed by underlyig legal agreements (e.g. IM/VM CSA). The following is included:
 
-Created the `NonNegativePriceSchedule` type, with the structure described before.
+* New attributes added to data type `Collateral` for `portfolioIdentifier` and `collateralPortfolio`. This allows users to identify collateral portfolios related to a trade and to list the collateral components and resulting balances.
+* New attribute `payerReceiver` added to data type `CollateralBalance`. This allows the representation of both the Payer Receiver (party1 or party2) and the Collateral direction (posted or received)
+* New attribute `collateralAgreement` added to data type `CollateralPortfolio`. This allows the direct association of a portfolio with a collateral agreements.
+* The data type `CollateralPortfolio` has been made a `[root Type]` to allow for independent use in the model
 
-**product-common-settlement-type**
+_Review Directions_
 
-Added the `schedule` element, of type `CommoditySchedule`, within `CommodityPayout`.
+In the CDM Portal, select the Textual Browser and search and inspect the additions laid out above across the following data types:
 
-**product-template-type**
-
-Updated the `FixedPricePayout` type:
-
-* Changed the type of `fixedPrice` from `Price` to `FixedPrice`.
-* Added the `schedule` element, of type `CommoditySchedule`.
-
-Created the `CommoditySchedule` type, which contains:
-
-* `unitOfAmount` and `perUnitOfAmount`of type `UnitType`.
-* `priceExpression` of type `PriceExpression`.
-* The repeatable element `schedulePeriod` of type`SchedulePeriod`.
-
-Created the `SchedulePeriod` type, which contains:
-
-* `quantity`, `totalQuantity` and `price` of type `number`.
-* `paymentDate` of type `date`.
-* `calculationPeriod` and `fixingPeriod` of type `TimeInterval`.
-
-Created the `TimeInterval` type, which contains two elements: `startDate` and `endDate` of type `date`.
-
-### _Functions_
-
-**product-asset-calculation-func**
-
-Updated the `GetQuantityScheduleStepValues` function due to the new structure of the quantity schedule.
-
-### _Synonyms_
-
-**synonym-cdm-fpml**
-
-Added mapping coverage for the FpML element `instrumentId`, mapped it into `productIdentifier` inside the commodity underlier.
-
-Expanded the coverage on the mapping of the quantity frequency by adding the synonyms for the FpML codes _PerMonth_, _PerCalculationPeriod_ and _Term_.
-
-## _Review Directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-
-In the CDM Portal, select Ingestion and review the following samples:
-
-- fpml-5-10/products/commodity
-- fpml-5-10/incomplete-products/commodity-derivatives
+* `Collateral`
+* `CollateralBalance`
+* `CollateralPortfolio`
