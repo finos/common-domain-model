@@ -623,12 +623,12 @@ class FunctionInputCreationTest {
         tradeBuilder
                 .getParty().get(0)
                 .getPartyId().get(0)
-                .setValue("LEI1RPT0001");
+                .setIdentifierValue("LEI1RPT0001");
 
         tradeBuilder
                 .getParty().get(1)
                 .getPartyId().get(0)
-                .setValue("LEI2CP0002");
+                .setIdentifierValue("LEI2CP0002");
 
         Identifier tradeIdentifier = Identifier.builder()
                 .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -684,10 +684,10 @@ class FunctionInputCreationTest {
                                         .setPartyReferenceValue(Party.builder()
                                                 .setMeta(MetaFields.builder().setExternalKey("party3"))
                                                 .setNameValue("Bank Z")
-                                                .addPartyId(FieldWithMetaString.builder()
+                                                .addPartyId(PartyIdentifier.builder()
                                                         .setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                        .setValue("LEI3RPT0003")))
+                                                        .setIdentifierValue("LEI3RPT0003")))
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -734,10 +734,10 @@ class FunctionInputCreationTest {
                                         .setPartyReferenceValue(Party.builder()
                                                 .setMeta(MetaFields.builder().setExternalKey("party3"))
                                                 .setNameValue("Bank Z")
-                                                .addPartyId(FieldWithMetaString.builder()
+                                                .addPartyId(PartyIdentifier.builder()
                                                         .setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                        .setValue("LEI3RPT0003")))
+                                                        .setIdentifierValue("LEI3RPT0003")))
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -795,10 +795,10 @@ class FunctionInputCreationTest {
                                         .setPartyReferenceValue(Party.builder()
                                                 .setMeta(MetaFields.builder().setExternalKey("clearing-svc"))
                                                 .setNameValue("ClearItAll")
-                                                .addPartyId(FieldWithMetaString.builder()
+                                                .addPartyId(PartyIdentifier.builder()
                                                         .setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                        .setValue("LEI1DCO")))
+                                                        .setIdentifierValue("LEI1DCO")))
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -815,10 +815,10 @@ class FunctionInputCreationTest {
                                         .setPartyReferenceValue(Party.builder()
                                                 .setMeta(MetaFields.builder().setExternalKey("clearing-svc"))
                                                 .setNameValue("ClearItAll")
-                                                .addPartyId(FieldWithMetaString.builder()
+                                                .addPartyId(PartyIdentifier.builder()
                                                         .setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                        .setValue("LEI1DCO")))
+                                                        .setIdentifierValue("LEI1DCO")))
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -866,10 +866,10 @@ class FunctionInputCreationTest {
                                         .setPartyReferenceValue(Party.builder()
                                                 .setMeta(MetaFields.builder().setExternalKey("party3"))
                                                 .setNameValue("Fund 2")
-                                                .addPartyId(FieldWithMetaString.builder()
+                                                .addPartyId(PartyIdentifier.builder()
                                                         .setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                        .setValue("LEI2CP00A1")))
+                                                        .setIdentifierValue("LEI2CP00A1")))
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -895,10 +895,10 @@ class FunctionInputCreationTest {
                                         .setPartyReferenceValue(Party.builder()
                                                 .setMeta(MetaFields.builder().setExternalKey("party4"))
                                                 .setNameValue("Fund 3")
-                                                .addPartyId(FieldWithMetaString.builder()
+                                                .addPartyId(PartyIdentifier.builder()
                                                         .setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                        .setValue("LEI3CP00A2")))
+                                                        .setIdentifierValue("LEI3CP00A2")))
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -1324,10 +1324,10 @@ class FunctionInputCreationTest {
         tradeStateBuilder.getTrade().getParty().stream()
                 .filter(p -> p.getName().getValue().equals(partyName))
                 .findFirst().ifPresent(party ->
-                        party.setPartyId(Collections.singletonList(FieldWithMetaString.builder()
-                                .setValue(partyId)
+                        party.addPartyId(PartyIdentifier.builder()
                                 .setMeta(MetaFields.builder()
-                                        .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))));
+                                        .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
+                                .setIdentifierValue(partyId)));
     }
 
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {
