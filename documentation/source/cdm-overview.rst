@@ -68,7 +68,7 @@ Components
 
 The ISDA CDM distribution comprises three main sets of components:
 
-* **Model definition**, which corresponds to the model as expressed in the Rosetta DSL and contained into a set of *.rosetta* files organised as *namespaces*. The primary dimensions of the model are listed below and further described in the `Common Domain Model Section`_ of the documentation.
+* **Model definition**, which corresponds to the model as expressed in the Rosetta DSL and contained into a set of *.rosetta* files organised as *namespaces*. The primary dimensions of the model are listed below and further described in the :ref:`common-domain-model` of the documentation.
 
   * Product
   * Event
@@ -81,6 +81,8 @@ The ISDA CDM distribution comprises three main sets of components:
 * **Default implementation**, comprising manually-written code (in Java) which, combined with the auto-generated code, provides a complete implementation of the model. This hand-written code is distributed together with the CDM to facilitate adoption by firms, which can directly use the CDM distribution to set-up and test an implementation. The default implementation can be used in its original state or be disabled or extended by industry participants in their implementations. For example, the default implementation uses the de-facto Java hash function to support cross-referencing in the CDM, but firms may elect to use an alternative implementation.
 
 .. note:: Only the Java executable code distribution is complete: i.e. it represents the entire CDM as defined in Rosetta (plus any associated default implementation). Other distributions may only capture parts of the model: for instance, the Scala and TypeScript distributions include the complete data model and function specifications, but not the functions' executable code.
+
+.. _cdm-versioning:
 
 Versioning
 """"""""""

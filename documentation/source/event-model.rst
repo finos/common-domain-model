@@ -1,5 +1,7 @@
 .. include:: links.rst
 
+.. _event-model-section:
+
 Event Model
 -----------
 
@@ -50,7 +52,7 @@ The trade state is defined in CDM by the ``TradeState`` data type and represents
 
 While many different types of events may occur through the trade lifecycle, the ``trade``, ``state``, ``resetHistory`` and ``transferHistory`` attributes are deemed sufficient to describe all of the possible (post-trade) states which may result from lifecycle events. The ``Trade`` data type contains the tradable product, which defines all of the economic terms of the transaction as agreed between the parties.
 
-.. note:: A tradable product is represented by the ``TradableProduct`` data type, which is further detailed in the `Tradable Product Section`_ of the documentation.
+.. note:: A tradable product is represented by the ``TradableProduct`` data type, which is further detailed in the :ref:`tradable-product` of the documentation.
 
 The ``Trade``, ``State``, ``Reset``, and ``Transfer`` data types that are utilised within ``TradeState``, are detailed in the sections below.
 
@@ -126,6 +128,8 @@ The ``ClosedState`` data type (enclosed within ``State``) captures this closed s
    Matured
    Novated
    Terminated
+
+.. _primitive-event:
 
 Primitive Event
 ^^^^^^^^^^^^^^^
@@ -259,6 +263,8 @@ By design, the CDM treats the reset and the transfer primitive events separately
 * Many transfer events are not tied to any reset: for instance, the currency settlement from an FX spot or forward transaction.
 * Conversely, not all reset events generate a cashflow: for instance, the single, final settlement that is based on all the past floating rate resets in the case of a compounding floating zero-coupon swap.
 
+.. _business-event:
+
 Business Event
 ^^^^^^^^^^^^^^
 
@@ -306,7 +312,7 @@ Other Misc. Information
 """""""""""""""""""""""
 
 * The effective date is optional as it is not applicable to certain events (e.g. observations), or may be redundant with the event date.
-* The event qualifier attribute is derived from the event qualification features. This is further detailed in the `Event Qualification Section`_.
+* The event qualifier attribute is derived from the event qualification features. This is further detailed in the :ref:`event-qualification-section`.
 
 Workflow
 ^^^^^^^^
@@ -456,6 +462,7 @@ Other Misc. Attributes
 
 .. note:: The ``lineage`` attribute is superseded by the implementation in the CDM of: (i) trade state lineage, via the ``before`` / ``after`` attributes in the primitive event component, and (ii) workflow lineage, via the ``previousWorkflowStep`` attribute.
 
+.. _event-qualification-section:
 
 Event Qualification
 ^^^^^^^^^^^^^^^^^^^

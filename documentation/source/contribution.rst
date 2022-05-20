@@ -18,7 +18,7 @@ Committee members or any user of CDM within the community can propose amendments
 
 .. figure:: images/CDM-Development-Process.png
 
-A proposal can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM `design principles <#design-principles>`_ and `agile development approach <#agile-development-approach>`_ and submitted to ISDA staff and the Architecture & Review Committee for approval. In some instances, the proposal may not be immediately approved but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
+A proposal can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM `design principles`_ and :ref:`agile-development-approach` and submitted to ISDA staff and the Architecture & Review Committee for approval. In some instances, the proposal may not be immediately approved but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
 
 Once approved, the amendment will be scheduled to be merged with the CDM's main code branch by the CDM Maintainers.
 
@@ -100,6 +100,8 @@ Each of these higher-level namespaces is further divided into lower-level namesp
 .. figure:: images/product-namespace.png
 
 **When developing new CDM components, the positioning of those components in the namespace hierarchy is critical** as part of the design (or potentially the re-organising of the hierarchy following the new development), to ensure the CDM remains well organised.
+
+.. _agile-development-approach:
 
 Agile Development Approach
 --------------------------
@@ -209,7 +211,7 @@ Before you start modelling, please make sure you have gone through the following
 - Review the `CDM Design Principles <#design-principles>`_ and `CDM Governance <#governance>`_
 - Review the `Rosetta Starter Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta>`_
 
-In addition, for large model changes or changes to core data types, it is recommended that the Contributor reviews the `agile development approach <#agile-development-approach>`_ and follows these steps:
+In addition, for large model changes or changes to core data types, it is recommended that the Contributor reviews the :ref:`agile-development-approach` and follows these steps:
 
 - **Define use case**. Identify and document one or more use cases with details (e.g. a sample trade).
 - **Draft conceptual design** (high level). Draft a conceptual view showing the set of data types, their definitions (and/or sample attributes but not the whole set of attributes), their relationships to each other, and, if applicable, a workflow.
@@ -242,41 +244,41 @@ The following sections detail that checklist.
 CDM version
 """""""""""
 
-Once ready to start modelling, the Contributor can log into Rosetta and start using the Rosetta Design application to create a workspace and edit the model, referring to the `Rosetta Design Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta>`_. To the extent possible it is recommended that the Contributor keeps working with a version of the CDM that is as close as possible to the latest to minimise the risk of backward compatibility.
+Once ready to start modelling, the Contributor can log into Rosetta and start using the Rosetta Design application to create a workspace and edit the model, referring to the `Rosetta Design Guide`_. To the extent possible it is recommended that the Contributor keeps working with a version of the CDM that is as close as possible to the latest to minimise the risk of backward compatibility.
 
-Please refer to the `Source Control Integration Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#id1>`_ for more information.
+Please refer to the `Source Control Integration Guide`_ for more information.
 
 Syntax
 """"""
 
-The model is edited using the Rosetta DSL syntax. All syntax warnings and errors must be resolved to have a valid model before contributing any changes. The syntax is automatically checked live in Rosetta Design as the user edits the model, as described in the `Rosetta Design Content Assist Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#rosetta-design-content-assist>`_.
+The model is edited using the Rosetta DSL syntax. All syntax warnings and errors must be resolved to have a valid model before contributing any changes. The syntax is automatically checked live in Rosetta Design as the user edits the model, as described in the `Rosetta Design Content Assist Guide`_.
 
-For further guidance about features of the syntax, please refer to the `Rosetta DSL Documentation <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component>`_.
+For further guidance about features of the syntax, please refer to the `Rosetta DSL Documentation`_.
 
 Compilation
 """""""""""
 
 Normally, when the model is syntactically correctly edited, valid code is being auto-generated and compiled in Rosetta. However, certain model changes can cause compilation errors when changes conflict with static code (e.g. certain mapper implementations).
 
-The Rosetta support team can help resolve these errors before the changes are contributed. In most cases you will be able to contact the team via the `In-App chat <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#in-app-chat>`_. If the Rosetta support identifies that significant work may be required to resolve these errors, they will notify the Contributor who should then contact the CDM Maintainer originally appointed for the proposed change and/or CDM Owners. The latter will be able to assist in the resolution of the issues.
+The Rosetta support team can help resolve these errors before the changes are contributed. In most cases you will be able to contact the team via the `In-App chat`_. If the Rosetta support identifies that significant work may be required to resolve these errors, they will notify the Contributor who should then contact the CDM Maintainer originally appointed for the proposed change and/or CDM Owners. The latter will be able to assist in the resolution of the issues.
 
-For more information about auto-compilation in Rosetta, please refer to the `Rosetta Auto Compilation Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#auto-compilation>`_.
+For more information about auto-compilation in Rosetta, please refer to the `Rosetta Auto Compilation Guide`_.
 
 Testing
 """""""
 
 The CDM has adopted a test-driven development approach that maps model components to existing sample data (e.g., FpML documents or other existing standards).  Mappings are specified in the CDM using ``synonym`` which are collected into a Translation Dictionary, and the sample data are collected into a Test Pack. Each new model version is regression-tested using those mappings to translate the sample data in the Test Pack and then comparing against the expected number of mapped data points, validation and qualification results.
 
-Contributors are invited to test their model changes live against the Test Pack using the Rosetta Translate application, referring to the `Rosetta Translate Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta>`_. When editing existing model components, the corresponding synonyms should be updated to maintain or improve existing levels. When adding new model components, new sample data and corresponding synonym mappings should also be provided so the new use-case can be added to the set of regression tests.
+Contributors are invited to test their model changes live against the Test Pack using the Rosetta Translate application, referring to the `Rosetta Translate Guide`_. When editing existing model components, the corresponding synonyms should be updated to maintain or improve existing levels. When adding new model components, new sample data and corresponding synonym mappings should also be provided so the new use-case can be added to the set of regression tests.
 
-Please refer to the `Mapping Guide <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component>`_ for details about the synonym mapping syntax.
+Please refer to the `Mapping Guide`_ for details about the synonym mapping syntax.
 
 Namespace
 """""""""
 
 All model components should be positioned appropriately in the existing namespace hierarchy. If the proposed contribution includes changes to the namespace hierarchy, those changes should be justified and documented. Any new namespace should have an associated description, and be imported where required.
 
-Please refer to the `Namespace documentation <documentation.html#namespace>`_ for more details.
+Please refer to the :ref:`namespace-documentation` section for more details.
 
 Descriptions
 """"""""""""
@@ -306,9 +308,9 @@ Before you start contributing your model changes, please go through the followin
 Contributing using Rosetta
 """"""""""""""""""""""""""
 
-Once the model changes have been completed, use Rosetta to submit changes for review, referring to the `Rosetta Workspace Contribution Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#contribute-workspace-changes>`_ and specifying a meaningful title and description.
+Once the model changes have been completed, use Rosetta to submit changes for review, referring to the `Rosetta Workspace Contribution Guide`_ and specifying a meaningful title and description.
 
-.. note:: All contributions are submitted as candidate changes to be incorprated under `the CDM licence <https://portal.cdm.rosetta-technology.io/#/terms-isda>`_.
+.. note:: All contributions are submitted as candidate changes to be incorporated under `the CDM licence <https://portal.cdm.rosetta-technology.io/#/terms-isda>`_.
 
 The CDM is hosted in GitHub. Any changes contributed through Rosetta are submitted as a *Pull Request* on a one-off CDM branch. This pull request will invoke a build process to compile and run all CDM unit tests and regression tests. Given the alignment:
 
@@ -328,7 +330,7 @@ The documentation includes *.rosetta* code snippets that directly illustrate exp
 Release note
 """"""""""""
 
-A release note should be provided with the proposed model change that concisely describes the high-level conceptual design, model changes and how to review. Please refer to the `Release Note Style Guide <#content-of-release-notes>`_ for further guidance on editing release notes.
+A release note should be provided with the proposed model change that concisely describes the high-level conceptual design, model changes and how to review. Please refer to the :ref:`content-of-release-notes` for further guidance on editing release notes.
 
 Reviewing model changes
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -393,7 +395,7 @@ Once the contributed model change has been merged, a new release can be built, t
 
 The following release checklist should be verified before deploying a new model:
 
-- Update CDM version, which uses the semantic version format (see `CDM Versioning Documentation <cdm-overview.html#versioning>`_)
+- Update CDM version, which uses the semantic version format (see :ref:`cdm-versioning<CDM Versioning Documentation>`)
 - Build release candidate, and test
 - Build documentation website release candidate, and test
 - Deploy release candidate and notify channels if need be
@@ -450,20 +452,23 @@ The two data definition components should be referred to as follows:
 Product
 """""""
 
-#. *Financial Product*. The user documentation defines `Financial Product <documentation.html#financial-product>`_ as the highest level of the hierarchy of the universe of products. The term *Financial Product* should be used consistently throughout the documentation and wherever applicable in the model descriptions when describing the broad set of products.
-#. *Contractual Product*. Similarly, `Contractual Product <documentation.html#contractual-product>`_ is defined as a subset of Financial Products and should be used consistently in any documentation.
+:ref:`test-ref`
+
+#. *Financial Product*. The user documentation defines `Financial Product Section`_ as the highest level of the hierarchy of the universe of products. The term *Financial Product* should be used consistently throughout the documentation and wherever applicable in the model descriptions when describing the broad set of products.
+#. *Contractual Product*. Similarly, `Contractual Product Section`_ is defined as a subset of Financial Products and should be used consistently in any documentation.
 
    #. Not *Derivatives*.
    #. Not *OTC*. Contractual Product is at a higher hierarchy level than OTC Derivatives because it can include other types of products such as Security Financing.
 
+.. _test-ref:
 Event
 """""
 
-#. *Business Event*. In the CDM, a `Business Event <documentation.html#business-event>`_ represents an event that may occur during the lifecycle of a trade, such as an amendment, a termination, a reset or a payment.
+#. *Business Event*. In the CDM, a :ref:`business-event` represents an event that may occur during the lifecycle of a trade, such as an amendment, a termination, a reset or a payment.
 
    #. Not *Lifecycle Event*. the term *Business Event* should be consistently used when referring to these data structures in the CDM documentation.
 
-#. *Primitive Event*. In the CDM, a `Primitive Event <documentation.html#primitive-event>`_ represents a building block component used to specify business events in the CDM.
+#. *Primitive Event*. In the CDM, a :ref:`primitive-event` represents a building block component used to specify business events in the CDM.
 
    #. Not *Primitive* (stand-alone). In the CDM documentation, the word *Primitive* always needs to be qualified with *Event*, because the word *Primitive* may be associated to very different meanings, e.g. in computing.
 
@@ -548,19 +553,19 @@ Heading styles and flow in the user documentation
    * - 1
      - `===============`
      - XL font and bold
-     - `The Common Domain Model <documentation.html#>`_
+     - :ref:`common-domain-model`
    * - 2
      - `---------------`
      - L font and bold
-     - `Product Model <documentation.html#product-model>`_, `Legal Agreements <documentation.html#legal-agreements>`_
+     - `Product Model`_, `Legal Agreements`_
    * - 3
      - `^^^^^^^^^^^^^^^`
      - M font and bold
-     - `Tradable Product <documentation.html#tradableproduct>`_
+     - :ref:`tradable-product`
    * - 4
      - `"""""""""""""""`
      - S font (same as content), but bold
-     - `Price Quantity <documentation.html#pricequantity>`_
+     - `Price Quantity`_
 
 The RST editing syntax in which the user documentation is written is a standard web mark-up language, for which a reference guide can be found at: https://sublime-and-sphinx-guide.readthedocs.io
 
@@ -575,6 +580,8 @@ The RST editing syntax in which the user documentation is written is a standard 
    #. In the case of a model component, the description of the component should always be followed by an example.
    #. Most or all of the explanation should occur before the example, not after, unless the example was needed as context for an explanation.
    #. Transitions from one topic to another should be used to help guide the user through the model.
+
+.. _content-of-release-notes:
 
 Content of Release Notes
 """"""""""""""""""""""""
@@ -709,5 +716,5 @@ Fonts, Text Styles, and Spaces
 Style references for additional guidance
 """"""""""""""""""""""""""""""""""""""""
 
-#. `New Hart’s Rules <https://global.oup.com/academic/product/new-harts-rules-9780199570027>`_: An updated version of this erstwhile comprehensive style guide for writers and editors using British English, published by the Oxford University Press. Invaluable as an official reference on proofreading and copy-editing.  Subjects include spelling, hyphenation, punctuation, capitalisation, languages, law, science, lists, and tables. An earlier version coined the phrase Oxford Comma in July 1905.
+#. `New Hart’s Rules`_: An updated version of this erstwhile comprehensive style guide for writers and editors using British English, published by the Oxford University Press. Invaluable as an official reference on proofreading and copy-editing.  Subjects include spelling, hyphenation, punctuation, capitalisation, languages, law, science, lists, and tables. An earlier version coined the phrase Oxford Comma in July 1905.
 #. `Eats, Shoots & Leaves: The Zero Tolerance Approach to Punctuation <https://www.lynnetruss.com/books/eats-shoots-leaves/>`_:  A light-hearted book with a serious purpose regarding common problems and correctness for using punctuation in the English language.

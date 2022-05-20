@@ -889,7 +889,7 @@ collateral, for some processes there is a requirement to use certain
 product identifiers. Data type ``productIdentifier`` can be used to express
 specific instrument identifiers such as ISINs, CUSIPs etc. There is a
 section within the CDM documentation that covers this area of the model,
-this can be found in the following link `Products with Identifiers Section`_.
+this can be found in the following link :ref:`products-with-identifiers-section`.
 
 Listing (Used within Asset Criteria)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

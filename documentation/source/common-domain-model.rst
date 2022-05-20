@@ -1,5 +1,7 @@
 .. include:: links.rst
 
+.. _common-domain-model:
+
 The Common Domain Model
 =======================
 
@@ -10,7 +12,7 @@ The Common Domain Model
 
    product-model
    event-model
-   legal-agreement
+   legal-agreements
    process-model
    reference-data-model
    mapping

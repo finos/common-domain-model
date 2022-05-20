@@ -498,12 +498,12 @@ The data type and function to generate a Security Lending Invoice:
 Lifecycle Event Process
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-While the lifecycle event model described in the `Event Model Section`_ provides a standardised data representation of those events using the concept of *primitive event* components, the CDM must further specify the processing of those events to ensure standardised implementations across the industry. This means specifying the *logic* of the state-transition as described by each primitive event component.
+While the lifecycle event model described in the :ref:`event-model-section` provides a standardised data representation of those events using the concept of *primitive event* components, the CDM must further specify the processing of those events to ensure standardised implementations across the industry. This means specifying the *logic* of the state-transition as described by each primitive event component.
 
 In particular, the CDM must ensure that:
 
 * The lifecycle event process model constructs valid CDM event objects.
-* The constructed events qualify according to the qualification logic described in the `Event Qualification Section`_.
+* The constructed events qualify according to the qualification logic described in the :ref:`event-qualification-section`.
 * The lineage between states allows an accurate reconstruction of the trade's lifecycle sequence.
 
 There are three levels of function components in the CDM to define the processing of lifecycle events:

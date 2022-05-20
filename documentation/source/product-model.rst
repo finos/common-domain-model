@@ -10,6 +10,8 @@ Where applicable, the CDM follows the data structure of the Financial Products M
 
 Regardless of whether the data structure is the same or different from FpML, the CDM includes defined Synonyms that map to FpML (and other models) and can be used for transformation purposes. More details on Synonyms are provided in the Mapping (Synonym) section of this document.
 
+.. _tradable-product:
+
 TradableProduct
 ^^^^^^^^^^^^^^^
 
@@ -543,6 +545,7 @@ For instance, Equity Swaps used by Equity Financing desks sometimes refer to a *
 
 Code libraries, written in Java and distributed with the CDM, contain tools to merge CDM objects together.  Implementors may extend these merging tools to change the merging strategy to suit their requirements.  The CDM Java Examples download, available via the `CDM Portal Downloads page <https://portal.cdm.rosetta-technology.io/#/downloads>`_, contains a example demonstrating usage of a data template and the merging tools. See ``com.regnosys.cdm.example.template.TemplateExample``.
 
+.. _products-with-identifiers-section:
 
 Products with Identifiers
 ^^^^^^^^^^^^^^^^^^^^^^^^^
