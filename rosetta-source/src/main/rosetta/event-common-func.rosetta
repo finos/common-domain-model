@@ -979,7 +979,7 @@ func Create_ContractFormationPrimitive: <"Function specification to create the p
 	set contractFormation -> after -> state -> positionState: <"Assign the position status to formed.">
   		PositionStatusEnum -> Formed
 	add trade -> contractDetails -> documentation: <"When an overlaying related legal agreement exists, the contract must reference it.">
-		if instruction -> legalAgreement exists then Create_RelatedAgreementsWithPartyReference( instruction -> legalAgreement )
+		if instruction -> legalAgreement exists then instruction -> legalAgreement
 
 func Create_ExercisePrimitive: <"Defines the process of putting into effect the rights specified in an options contract, such as to buy or sell a security.  Once exercised the option contract is terminated.">
 
@@ -1962,9 +1962,27 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 	set after: <"Initiate applying primitive instructions.">
 		stockSplit
 
-	set after -> state -> closedState -> state:
+	set after -> state -> closedState:
 		if contractFormation -> state -> positionState = PositionStatusEnum -> Closed
-			then ClosedStateEnum -> Terminated
+			then Create_ClosedState(ClosedStateEnum -> Terminated, empty,
+
+func Create_ClosedState:
+	inputs:
+		state ClosedStateEnum (1..1)
+		activityDate date (0..1)
+		effectiveDate date (0..1)
+		lastPaymentDate date (0..1)
+	output:
+		closedState ClosedState(1..1)
+
+
+	set closedState -> state: state
+	set closedState -> activityDate: activityDate
+	set closedState -> effectiveDate: effectiveDate
+	set closedState -> lastPaymentDate: lastPaymentDate
+
+
+
 
 func Create_PrimitiveInstruction:
     inputs:
