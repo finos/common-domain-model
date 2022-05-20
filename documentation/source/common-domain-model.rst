@@ -3,7 +3,7 @@
 The Common Domain Model
 =======================
 
-**There are seven modelling dimensions** to the CDM:
+**There are seven modelling dimensions** to the CDM, which are detailed in the following sections:
 
 .. toctree::
    :maxdepth: 1
@@ -16,7 +16,7 @@ The Common Domain Model
    mapping
    namespace
 
-The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure.
+In each section, selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure.
 
 The CDM is expressed in a language called the Rosetta DSL. All the language components used by the CDM including types, functions and annotations are described in the `Rosetta DSL Documentation`_.
 
