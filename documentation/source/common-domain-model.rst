@@ -1,0 +1,23 @@
+.. include:: links.rst
+
+The Common Domain Model
+=======================
+
+**There are seven modelling dimensions** to the CDM:
+
+.. toctree::
+   :maxdepth: 1
+
+   product-model
+   event-model
+   legal-agreement
+   process-model
+   reference-data-model
+   mapping
+   namespace
+
+The following sections define each of these dimensions. Selected examples of model definitions are used as illustrations to help explain each dimension and include, where applicable, data samples to help demonstrate the structure.
+
+The CDM is expressed in a language called the Rosetta DSL. All the language components used by the CDM including types, functions and annotations are described in the `Rosetta DSL Documentation`_.
+
+The complete model definition, including descriptions and other details can be viewed in the `Textual Browser`_ on the ISDA CDM Portal.

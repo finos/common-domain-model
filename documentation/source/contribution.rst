@@ -1,3 +1,5 @@
+.. include:: links.rst
+
 Development Guidelines
 ======================
 
@@ -298,7 +300,7 @@ Before you start contributing your model changes, please go through the followin
   - Documentation adjustment, if necessary
   - Release notes
   - Any other additional materials or documentation that may help with the review and approval process
- 
+
 .. note:: A contribution should be a whole `releasable unit <#what-is-a-releasable-unit>`_ and its size calibrated in accordance with the CDM's `agile development approach <#agile-development-approach>`_.
 
 Contributing using Rosetta
@@ -709,4 +711,3 @@ Style references for additional guidance
 
 #. `New Hart’s Rules <https://global.oup.com/academic/product/new-harts-rules-9780199570027>`_: An updated version of this erstwhile comprehensive style guide for writers and editors using British English, published by the Oxford University Press. Invaluable as an official reference on proofreading and copy-editing.  Subjects include spelling, hyphenation, punctuation, capitalisation, languages, law, science, lists, and tables. An earlier version coined the phrase Oxford Comma in July 1905.
 #. `Eats, Shoots & Leaves: The Zero Tolerance Approach to Punctuation <https://www.lynnetruss.com/books/eats-shoots-leaves/>`_:  A light-hearted book with a serious purpose regarding common problems and correctness for using punctuation in the English language.
-

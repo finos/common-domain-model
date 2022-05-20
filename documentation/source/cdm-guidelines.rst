@@ -1,3 +1,5 @@
+.. include:: links.rst
+
 CDM Java Distribution Guidelines
 ================================
 

@@ -1,3 +1,4 @@
+.. include:: links.rst
 .. |trade|  unicode:: U+02122 .. TRADE MARK SIGN
 
 Overview of the ISDA CDM
@@ -67,7 +68,7 @@ Components
 
 The ISDA CDM distribution comprises three main sets of components:
 
-* **Model definition**, which corresponds to the model as expressed in the Rosetta DSL and contained into a set of *.rosetta* files organised as *namespaces*. The primary dimensions of the model are listed below and further described in the `Common Domain Model Section <documentation.html>`_ of the documentation.
+* **Model definition**, which corresponds to the model as expressed in the Rosetta DSL and contained into a set of *.rosetta* files organised as *namespaces*. The primary dimensions of the model are listed below and further described in the `Common Domain Model Section`_ of the documentation.
 
   * Product
   * Event
