@@ -146,20 +146,18 @@ class SecLendingFunctionInputCreationTest {
     void validateFullReturnSettlementWorkflowFuncInputJson() throws IOException {
         assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
 
+        ReturnInstruction returnInstruction = ReturnInstruction.builder()
+                .addQuantity(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(200000))
+                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))
+                .addQuantity(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(5000000))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD")))
+                .build();
+
         RunReturnSettlementWorkflowInput actual = new RunReturnSettlementWorkflowInput(getTransferTradeState(),
-                ReturnInstruction.builder()
-                        .addQuantity(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(200000))
-                                .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
-                                .build())
-                        .addQuantity(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(5000000))
-                                .setUnitOfAmount(UnitType.builder()
-                                        .setCurrency(FieldWithMetaString.builder().setValue("USD").build()).build())
-                                .build())
-                        .build(),
-                Date.of(2020, 10, 21)
-        );
+                returnInstruction,
+                Date.of(2020, 10, 21));
 
         assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
@@ -423,7 +421,9 @@ class SecLendingFunctionInputCreationTest {
         URL resource = SecLendingFunctionInputCreationTest.class.getResource(SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON);
         ExecutionInstruction executionInstruction = STRICT_MAPPER.readValue(resource, ExecutionInstruction.class);
         RunNewSettlementWorkflow runNewSettlementWorkflow = injector.getInstance(RunNewSettlementWorkflow.class);
-        Workflow workflow = runNewSettlementWorkflow.execute(executionInstruction);
+        Workflow.WorkflowBuilder workflowBuilder = runNewSettlementWorkflow.execute(executionInstruction).toBuilder();
+        ResourcesUtils.reKey(workflowBuilder);
+        Workflow workflow = workflowBuilder.build();
 
         assertNotNull(workflow, "Expected a workflow");
         List<? extends WorkflowStep> workflowSteps = workflow.getSteps();

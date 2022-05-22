@@ -42,7 +42,9 @@ class FunctionTest {
 
 	private static final ObjectMapper ROSETTA_OBJECT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper();
 	private static final String EXECUTION_DESCRIPTOR_PATH = "cdm-sample-files/functions/execution-descriptor.json";
+	private static final String FPML_PROCESSES_DESCRIPTOR_PATH = "cdm-sample-files/functions/fpml-processes-execution-descriptor.json";
 	private static Injector injector;
+	private static ClassLoader classLoader = FunctionTest.class.getClassLoader();
 
 	@BeforeAll
 	static void setup() {
@@ -58,10 +60,12 @@ class FunctionTest {
 	}
 
 	private static Stream<Arguments> loadExecutionDescriptors() {
-		return loadFromClasspath(EXECUTION_DESCRIPTOR_PATH, FunctionTest.class.getClassLoader())
-			.map(path -> ExecutionDescriptor.loadExecutionDescriptor(ROSETTA_OBJECT_MAPPER, toUrl(path)))
-			.flatMap(Collection::stream)
-			.map(executionDescriptor -> Arguments.of(executionDescriptor.getGroup(),executionDescriptor.getName(), executionDescriptor));
+		return Stream.concat(
+						loadFromClasspath(EXECUTION_DESCRIPTOR_PATH, classLoader),
+						loadFromClasspath(FPML_PROCESSES_DESCRIPTOR_PATH, classLoader))
+				.map(path -> ExecutionDescriptor.loadExecutionDescriptor(ROSETTA_OBJECT_MAPPER, toUrl(path)))
+				.flatMap(Collection::stream)
+				.map(executionDescriptor -> Arguments.of(executionDescriptor.getGroup(), executionDescriptor.getName(), executionDescriptor));
 	}
 
 	@ParameterizedTest(name = "{0} - {1}")
