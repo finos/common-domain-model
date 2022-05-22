@@ -224,7 +224,7 @@ Editing the model
 
 The CDM can be edited using a modelling platform called `Rosetta <https://rosetta-technology.io>`_, which is accessible via a web browser.
 
-Before you start editing the CDM using Rosetta, please go through the following modelling checklist:
+When editing the CDM using Rosetta, please go through the following modelling checklist:
 
 - CDM version: use latest available version
 - Syntax: no syntax warnings or errors
@@ -240,9 +240,9 @@ The following sections detail that checklist.
 CDM version
 """""""""""
 
-Once ready to start modelling, the Contributor can log into Rosetta and start using the Rosetta Design application to create a workspace and edit the model, referring to the `Rosetta Design Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta>`_. To the extent possible it is recommended that the Contributor keeps working with a version of the CDM that is as close as possible to the latest to minimise the risk of backward compatibility.
+Once ready to start modelling, the Contributor can log into Rosetta and start using the Rosetta Design application to create a workspace and edit the model, referring to the `Rosetta Design Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/2-rosetta-design/>`_. To the extent possible it is recommended that the Contributor keeps working with a version of the CDM that is as close as possible to the latest to minimise the risk of backward compatibility.
 
-Please refer to the `Source Control Integration Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#id1>`_ for more information.
+Please refer to the `Source Control Integration Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#source-control-integration>`_ for more information.
 
 Syntax
 """"""
@@ -381,7 +381,7 @@ The CDM has a number of dependent projects that are required for the CDM to be s
 The change can be merged into the main CDM code base only upon:
 
 - approval by CDM Maintainers and/or CDM Architecture and Review Committee,
-- successful completing of all the above technical tasks, and
+- successful completion of all the above technical tasks, and
 - successful builds of the CDM and all its downstream dependencies.
 
 Releasing model changes
