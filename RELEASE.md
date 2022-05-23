@@ -6,7 +6,7 @@ The current ingestion approach requires mapping an FpML event to a fully-specifi
 
 _What is being released?_
 
-This release focuses on the synonym mapping and infrastructure changes to map FpML events to `WorkflowStep` instruction and subsequently invoke a function to create a `WorkflowStep` event.
+This release focuses on the synonym mapping and infrastructure changes to map FpML events to `WorkflowStep` instruction and subsequently invokes a function to create a `WorkflowStep` event.
 
 **Model Changes**
 
