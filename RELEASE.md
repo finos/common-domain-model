@@ -1,4 +1,4 @@
-# *Event Model - Mapping to Non-native CDM representations of business event*
+# *Event Model - Mapping to CDM representations of business event*
 
 _Background_
 
