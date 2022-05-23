@@ -11,7 +11,7 @@ Overview of the ISDA CDM
 What is the ISDA CDM
 --------------------
 
-The ISDA Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a `domain model <https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353>`_ and distributed in open source.
+The ISDA Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a `domain model`_ and distributed in open source.
 
 Purpose
 ^^^^^^^
@@ -22,7 +22,7 @@ A single, digital processing standard for trade events and actions enhances fina
 * **Accelerates financial technology innovation** by providing a common, readily operational foundation for how technologies like distributed ledger, smart contracts, cloud computing, and artificial intelligence can be applied to financial markets.
 * **Delivers better regulatory oversight**, promotes transparency and alignment between regulators and market participants and enables consistency in regulatory reporting, by providing a standard representation of trade data and supporting machine executable reporting requirements.
 
-For further information about the CDM and its applications, please consult the `CDM section <https://www.isda.org/2019/10/14/isda-common-domain-model/>`_ of the ISDA website or contact ISDA directly at marketinfrastructureandtechnology@isda.org.
+For further information about the CDM and its applications, please consult the `CDM section`_ of the ISDA website or contact ISDA directly at marketinfrastructureandtechnology@isda.org.
 
 Design Principles
 ^^^^^^^^^^^^^^^^^
@@ -35,7 +35,7 @@ To support these objectives, the CDM is built according to a set of design princ
 * **Embedded logic** to represent industry processes
 * **Modularisation** into logical layers
 
-These design principles are further detailed in the `Design Principles <contribution.html#design-principles>`_ section of the CDM documentation.
+These design principles are further detailed in the :ref:`design-principles` section of the CDM documentation.
 
 Governance
 ^^^^^^^^^^
@@ -77,7 +77,7 @@ The ISDA CDM distribution comprises three main sets of components:
   * Reference Data
   * Mapping (Synonym)
 
-* **Executable code distribution**, automatically generated from the model definitions expressed in the Rosetta DSL using `available code generators <https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available>`_. Once a code generator is implemented for a particular language, the corresponding code generation is included as part of the CDM build and release process, allowing the CDM to be automatically distributed in that language going forward.
+* **Executable code distribution**, automatically generated from the model definitions expressed in the Rosetta DSL using `available code generators`_. Once a code generator is implemented for a particular language, the corresponding code generation is included as part of the CDM build and release process, allowing the CDM to be automatically distributed in that language going forward.
 * **Default implementation**, comprising manually-written code (in Java) which, combined with the auto-generated code, provides a complete implementation of the model. This hand-written code is distributed together with the CDM to facilitate adoption by firms, which can directly use the CDM distribution to set-up and test an implementation. The default implementation can be used in its original state or be disabled or extended by industry participants in their implementations. For example, the default implementation uses the de-facto Java hash function to support cross-referencing in the CDM, but firms may elect to use an alternative implementation.
 
 .. note:: Only the Java executable code distribution is complete: i.e. it represents the entire CDM as defined in Rosetta (plus any associated default implementation). Other distributions may only capture parts of the model: for instance, the Scala and TypeScript distributions include the complete data model and function specifications, but not the functions' executable code.
@@ -100,21 +100,21 @@ The MAJOR.MINOR.PATCH numbers may increment by more than one unit because releas
 Rosetta DSL
 ^^^^^^^^^^^
 
-The CDM is written in a Domain-Specific Language (DSL) called the *Rosetta DSL*, that comprises a `language <https://github.com/REGnosys/rosetta-dsl>`_ (i.e. syntax, semantics and rules) and `code generators <https://github.com/REGnosys/rosetta-code-generators>`_.
+The CDM is written in a Domain-Specific Language (DSL) called the *Rosetta DSL*, that comprises a `language`_ (i.e. syntax, semantics and rules) and `code generators`_.
 
-The language includes one default code generator into `Java <https://www.oracle.com/java/>`_. To facilitate adoption and implementation of the CDM by the community of industry participants, the Rosetta DSL is available in open source under an Apache 2.0 license. This allows industry participants to write and share code generators into any other languages.
+The language includes one default code generator into `Java`_. To facilitate adoption and implementation of the CDM by the community of industry participants, the Rosetta DSL is available in open source under an Apache 2.0 license. This allows industry participants to write and share code generators into any other languages.
 
-.. note:: All the language components, their syntax and purpose are detailed in the `Rosetta DSL documentation <https://docs.rosetta-technology.io/rosetta/rosetta-dsl>`_. The documentation also describes the mechanism to write and use code generators.
+.. note:: All the language components, their syntax and purpose are detailed in the `Rosetta DSL Documentation`_. The documentation also describes the mechanism to write and use code generators.
 
 CDM Applications
 ^^^^^^^^^^^^^^^^
 
 An eco-system of CDM-based application components from software providers exists in order to support the adoption of CDM and the implementation of CDM-based production systems by industry participants. These applications may be open source software or licensed under commercial terms. In particular:
 
-* The `CDM Portal <https://portal.cdm.rosetta-technology.io>`_ provides a user interface allowing users to navigate through and download the CDM.
-* Rosetta is a Software Development Kit (SDK or *dev-kit*) for the Rosetta DSL, that provides an *editable* version of the CDM Portal. It allows the industry community to directly participate in the CDM development by contributing code to the CDM. Please refer to the `Rosetta Documentation <https://docs.rosetta-technology.io/rosetta/rosetta-products/>`_ for more details.
+* The `CDM Portal`_ provides a user interface allowing users to navigate through and download the CDM.
+* Rosetta is a Software Development Kit (SDK or *dev-kit*) for the Rosetta DSL, that provides an *editable* version of the CDM Portal. It allows the industry community to directly participate in the CDM development by contributing code to the CDM. Please refer to the `Rosetta Documentation`_ for more details.
 
-.. note:: The CDM Portal and Rosetta have been developed by technology firm `REGnosys <https://regnosys.com>`_. ISDA encourages the adoption of CDM by software providers but does not endorse any CDM application component.
+.. note:: The CDM Portal and Rosetta have been developed by technology firm `REGnosys`_. ISDA encourages the adoption of CDM by software providers but does not endorse any CDM application component.
 
 Using the CDM (Java)
 --------------------
@@ -123,7 +123,7 @@ The Java distribution of the CDM is designed to be built and used with Maven.
 
 It depends on some open source java artifacts which are freely available from an artifact repository. Maven can be configured to use this repository using the repository settings contained in the ``settings.xml`` file in the CDM jar.
 
-For more details, please follow the `CDM Java Distribution Guidelines <cdm-guidelines.html>`_.
+For more details, please follow the :ref:`cdm-java-distribution`.
 
 .. note:: These guidelines are intended as a technical documentation for developers to make use of the Java distribution in their implementation.
 

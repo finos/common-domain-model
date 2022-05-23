@@ -22,4 +22,4 @@ In each section, selected examples of model definitions are used as illustration
 
 The CDM is expressed in a language called the Rosetta DSL. All the language components used by the CDM including types, functions and annotations are described in the `Rosetta DSL Documentation`_.
 
-The complete model definition, including descriptions and other details can be viewed in the `Textual Browser`_ on the ISDA CDM Portal.
+The complete model definition, including descriptions and other details can be viewed in the `Textual Browser`_ in the `CDM Portal`_.

@@ -1,5 +1,7 @@
 .. include:: links.rst
 
+.. _product-model-page:
+
 Product Model
 -------------
 
@@ -85,6 +87,8 @@ For each trade lot, the quantity and price are represented by an attribute calle
    priceQuantity PriceQuantity (1..*)
 
 The ``pricequantity`` attribute is represented as an array of the ``PriceQuantity`` data type. For composite financial products that are made of different legs, each leg may require its own price and quantity attributes, and each instance of a ``PriceQuantity`` data type identifies the relevant information for the leg of a trade. For example, for an Interest Rate Swap, a trade lot would have one instance of the ``PriceQuantity`` data type for each interest leg, and potentially a third one for an upfront fee.  By comparison, the purchase or sale of a security or listed derivative would typically have a single ``PriceQuantity`` instance in the trade lot.
+
+.. _price-quantity:
 
 PriceQuantity
 """""""""""""
@@ -318,6 +322,8 @@ By convention, the direction of the settlement flows will be inferred as follows
 
 For instance in an FX spot or forward transaction, the respective units of the quantity and price will determine who is paying or receiving each currency.
 
+.. _financial-product:
+
 Financial Product
 """""""""""""""""
 
@@ -349,6 +355,8 @@ Foreign Exchange (FX) spot and forward trades (including Non-Deliverable Forward
 By contrast, in the case of the execution of a security (e.g. a listed equity), the exchange of finanical risk is a one-time event that takes place on the settlement date, which is usually within a few business days of the agreement. The other significant distinction is that securities are fungible instruments for which the terms and security identifiers are publically available.  Therefore, the terms of the security do not have to be stored in a transaction lifecycle model, but can be referenced with public identifiers.
 
 An Index product is an exception because it's not directly tradable, but is included here because it can be referenced as an underlier for a tradable product and can be identified by a public identifier.
+
+.. _contractual-product:
 
 Contractual Product
 ^^^^^^^^^^^^^^^^^^^
@@ -543,7 +551,7 @@ Financial markets often trade a high volume of trades with near identical contra
 
 For instance, Equity Swaps used by Equity Financing desks sometimes refer to a *Master Confirmation* agreement, which is an overall agreement that specifies all the standard Equity Swap terms that do not need to be renegotiated on each trade. Each contractual product would only specify the unique product details (such as start and end date, underlier, price and spread) together with a reference to the Master Confirmation containing the template product details.
 
-Code libraries, written in Java and distributed with the CDM, contain tools to merge CDM objects together.  Implementors may extend these merging tools to change the merging strategy to suit their requirements.  The CDM Java Examples download, available via the `CDM Portal Downloads page <https://portal.cdm.rosetta-technology.io/#/downloads>`_, contains a example demonstrating usage of a data template and the merging tools. See ``com.regnosys.cdm.example.template.TemplateExample``.
+Code libraries, written in Java and distributed with the CDM, contain tools to merge CDM objects together. Implementors may extend these merging tools to change the merging strategy to suit their requirements.  The CDM Java Examples download, available via the `CDM Portal Downloads page`_, contains a example demonstrating usage of a data template and the merging tools. See ``com.regnosys.cdm.example.template.TemplateExample``.
 
 .. _products-with-identifiers-section:
 

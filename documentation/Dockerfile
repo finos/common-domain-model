@@ -1,6 +1,4 @@
-FROM regnosys-sphinx-local 
-
-#regnosys-docker-registry.jfrog.io/regnosys/sphinx:latest
+FROM regnosys-docker-registry.jfrog.io/regnosys/sphinx:latest
 
 RUN pip3 install sphinx-material
 RUN pip3 install --upgrade myst-parser

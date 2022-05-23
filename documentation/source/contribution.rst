@@ -3,6 +3,8 @@
 Development Guidelines
 ======================
 
+.. _cdm-governance:
+
 Governance
 ----------
 
@@ -18,9 +20,11 @@ Committee members or any user of CDM within the community can propose amendments
 
 .. figure:: images/CDM-Development-Process.png
 
-A proposal can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM `design principles`_ and :ref:`agile-development-approach` and submitted to ISDA staff and the Architecture & Review Committee for approval. In some instances, the proposal may not be immediately approved but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
+A proposal can be defined at a conceptual level or a logical level (i.e. in code). In each case, the proposal must be developed in line with the CDM :ref:`design-principles` and :ref:`agile-development-approach` and submitted to ISDA staff and the Architecture & Review Committee for approval. In some instances, the proposal may not be immediately approved but may be assigned to an existing or new Working Group for the purpose of reviewing, revising or extending the proposal.
 
 Once approved, the amendment will be scheduled to be merged with the CDM's main code branch by the CDM Maintainers.
+
+.. _cdm-design-principles:
 
 Design Principles
 -----------------
@@ -208,8 +212,8 @@ Before you start modelling
 
 Before you start modelling, please make sure you have gone through the following pre-modelling checklist:
 
-- Review the `CDM Design Principles <#design-principles>`_ and `CDM Governance <#governance>`_
-- Review the `Rosetta Starter Guide <https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta>`_
+- Review the :ref:`cdm-design-principles` and :ref:`cdm-governance`
+- Review the `Rosetta Starter Guide`_
 
 In addition, for large model changes or changes to core data types, it is recommended that the Contributor reviews the :ref:`agile-development-approach` and follows these steps:
 
@@ -226,7 +230,7 @@ In addition, for large model changes or changes to core data types, it is recomm
 Editing the model
 ^^^^^^^^^^^^^^^^^
 
-The CDM can be edited using a modelling platform called `Rosetta <https://rosetta-technology.io>`_, which is accessible via a web browser.
+The CDM can be edited using a modelling platform called `Rosetta`_, which is accessible via a web browser.
 
 Before you start editing the CDM using Rosetta, please go through the following modelling checklist:
 
@@ -237,7 +241,7 @@ Before you start editing the CDM using Rosetta, please go through the following 
 - Namespace: all model components positioned in the correct namespace
 - Descriptions: all model components have descriptions
 
-.. note:: The CDM may also be supported through alternative modelling platforms (for instance `Legend <https://legend.finos.org/studio>`_). If you intend on using a platform other than Rosetta to edit the CDM, please go through the Rosetta check-list anyway as you will still need to validate and then contribute your code through Rosetta.
+.. note:: The CDM may also be supported through alternative modelling platforms (for instance `Legend`_). If you intend on using a platform other than Rosetta to edit the CDM, please go through the Rosetta check-list anyway as you will still need to validate and then contribute your code through Rosetta.
 
 The following sections detail that checklist.
 
@@ -310,7 +314,7 @@ Contributing using Rosetta
 
 Once the model changes have been completed, use Rosetta to submit changes for review, referring to the `Rosetta Workspace Contribution Guide`_ and specifying a meaningful title and description.
 
-.. note:: All contributions are submitted as candidate changes to be incorporated under `the CDM licence <https://portal.cdm.rosetta-technology.io/#/terms-isda>`_.
+.. note:: All contributions are submitted as candidate changes to be incorporated under `the CDM licence`_.
 
 The CDM is hosted in GitHub. Any changes contributed through Rosetta are submitted as a *Pull Request* on a one-off CDM branch. This pull request will invoke a build process to compile and run all CDM unit tests and regression tests. Given the alignment:
 
@@ -347,7 +351,7 @@ Before starting to review a contribution, the CDM Maintainer should go through t
   - Contributed model version is not stale and does not conflict with any recent changes
   - Changes are in accordance with the CDM governance guidelines
 
-.. note:: It is not yet possible to verify that mapping, validation and qualification expectations have been maintained by looking at the output of the GitHub Pull Request and CDM build only. Please refer to the `downstream dependencies <#downstream-dependencies>`_ section for more details.
+.. note:: It is not yet possible to verify that mapping, validation and qualification expectations have been maintained by looking at the output of the GitHub Pull Request and CDM build only. Please refer to the :ref:`downstream-dependencies` section for more details.
 
 - CDM build process completed with no errors or test failures
 - Review additional samples provided (if use-case is not covered by existing samples)
@@ -370,6 +374,8 @@ Following model reviews, a number of technical tasks may be required before the 
 - **Additional documentation**: If the contributor provided additional documentation, the Maintainer should update the CDM documentation by editing the *documentation.rst* file in GitHub.
 - **Documentation code snippets**: To avoid stale documentation, the CDM build process verifies that any code snippets in the documentation exists and is in line with the model itself. The Maintainer should adjust or include any code snippets by editing the *documentation.rst* file on GitHub.
 - **Code generation**: Model changes may cause code generator failures (e.g., Java, C#, Scala, Kotlin etc.). In the unlikely event of code generation failures, these will need to be addressed by the Maintainer.
+
+.. _downstream-dependencies:
 
 Downstream dependencies
 """""""""""""""""""""""
@@ -454,8 +460,8 @@ Product
 
 :ref:`test-ref`
 
-#. *Financial Product*. The user documentation defines `Financial Product Section`_ as the highest level of the hierarchy of the universe of products. The term *Financial Product* should be used consistently throughout the documentation and wherever applicable in the model descriptions when describing the broad set of products.
-#. *Contractual Product*. Similarly, `Contractual Product Section`_ is defined as a subset of Financial Products and should be used consistently in any documentation.
+#. *Financial Product*. The user documentation defines :ref:`financial-product` as the highest level of the hierarchy of the universe of products. The term *Financial Product* should be used consistently throughout the documentation and wherever applicable in the model descriptions when describing the broad set of products.
+#. *Contractual Product*. Similarly, :ref:`contractual-product` is defined as a subset of Financial Products and should be used consistently in any documentation.
 
    #. Not *Derivatives*.
    #. Not *OTC*. Contractual Product is at a higher hierarchy level than OTC Derivatives because it can include other types of products such as Security Financing.
@@ -557,7 +563,7 @@ Heading styles and flow in the user documentation
    * - 2
      - `---------------`
      - L font and bold
-     - `Product Model`_, `Legal Agreements`_
+     - :ref:`product-model-page`, :ref:`legal-agreements-page`
    * - 3
      - `^^^^^^^^^^^^^^^`
      - M font and bold
@@ -565,7 +571,7 @@ Heading styles and flow in the user documentation
    * - 4
      - `"""""""""""""""`
      - S font (same as content), but bold
-     - `Price Quantity`_
+     - :ref:`price-quantity`
 
 The RST editing syntax in which the user documentation is written is a standard web mark-up language, for which a reference guide can be found at: https://sublime-and-sphinx-guide.readthedocs.io
 
@@ -716,5 +722,5 @@ Fonts, Text Styles, and Spaces
 Style references for additional guidance
 """"""""""""""""""""""""""""""""""""""""
 
-#. `New Hart’s Rules`_: An updated version of this erstwhile comprehensive style guide for writers and editors using British English, published by the Oxford University Press. Invaluable as an official reference on proofreading and copy-editing.  Subjects include spelling, hyphenation, punctuation, capitalisation, languages, law, science, lists, and tables. An earlier version coined the phrase Oxford Comma in July 1905.
+#. `New Hart's Rules`_: An updated version of this erstwhile comprehensive style guide for writers and editors using British English, published by the Oxford University Press. Invaluable as an official reference on proofreading and copy-editing.  Subjects include spelling, hyphenation, punctuation, capitalisation, languages, law, science, lists, and tables. An earlier version coined the phrase Oxford Comma in July 1905.
 #. `Eats, Shoots & Leaves: The Zero Tolerance Approach to Punctuation <https://www.lynnetruss.com/books/eats-shoots-leaves/>`_:  A light-hearted book with a serious purpose regarding common problems and correctness for using punctuation in the English language.

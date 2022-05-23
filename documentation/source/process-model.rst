@@ -77,6 +77,7 @@ For the trade lifecycle processes that are in scope, the CDM process model cover
 #. Calculation process
 #. Event creation process
 
+.. _validation-process:
 
 Validation Process
 ^^^^^^^^^^^^^^^^^^
@@ -104,6 +105,7 @@ As an example, the *FpML ird validation rule #57*, states that if the calculatio
      and rollConvention <> RollConventionEnum -> SAT
      and rollConvention <> RollConventionEnum -> SUN
 
+.. _calculation-process:
 
 Calculation Process
 ^^^^^^^^^^^^^^^^^^^
@@ -494,6 +496,7 @@ The data type and function to generate a Security Lending Invoice:
     add invoice -> billingSummary:
       Create_BillingSummary( invoice -> billingRecord )
 
+.. _lifecycle-event-process:
 
 Lifecycle Event Process
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -512,7 +515,7 @@ There are three levels of function components in the CDM to define the processin
 #. Event creation
 #. Workflow step creation
 
-Each of those components can leverage any calculation or utility function already defined in the CDM. As part of the validation processe embedded in the CDM, an object validation step is included in all these object creation functions to ensure that they each construct valid CDM objects. Further details on the underlying calculation and validation processes are described in the `Calculation Process Section`_ and `Validation Process Section`_.
+Each of those components can leverage any calculation or utility function already defined in the CDM. As part of the validation processe embedded in the CDM, an object validation step is included in all these object creation functions to ensure that they each construct valid CDM objects. Further details on the underlying calculation and validation processes are described in the :ref:`calculation-process` and :ref:`validation-process`.
 
 Illustration of the three components are given in the sections below.
 

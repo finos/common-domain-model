@@ -1,5 +1,7 @@
 .. include:: links.rst
 
+.. _legal-agreements-page:
+
 Legal Agreements
 ----------------
 
@@ -87,7 +89,7 @@ The legal agreement model in the CDM comprises the following features:
 * **Mapping to ISDA Create derivative documentation negotiation platform** : Synonyms identified as belonging to ``ISDA_Create_1_0`` have been defined to establish mappings that support automated transformation of ISDA Create documents into objects that are compliant with the CDM.
 
   * The mapping between the two models through the use of Synonyms validated that all the necessary permutations of elections and data associated with the supported agreements have been replicated in the CDM
-  * Ingestion of JSON sample files generated from ISDA Create for samples of executed documents has been implemented in the ISDA CDM Portal to demonstrate this capability between ISDA Create and the CDM.
+  * Ingestion of JSON sample files generated from ISDA Create for samples of executed documents has been implemented in the CDM Portal to demonstrate this capability between ISDA Create and the CDM.
   * More details on Synonyms are provided in the Mapping (Synonym) section of this document.
 
 .. note:: The CDM supports the ISDA CSA for Variation Margin, but this document is not yet represented in ISDA Create - the CDM representation of this document is tested with alternative external sample data.
@@ -478,4 +480,4 @@ Financial transactions defined in CDM can be referenced in the ``ContractTradeDe
 
 Similarly, the ``ContractFormation`` business event that creates the legally binding agreement between the parties can reference a ``LegalAgreement`` governing the transaction.
 
-.. note:: The functions to create such business events are further detailed in the `Lifecycle Event Process Section`_ of the documentation.
+.. note:: The functions to create such business events are further detailed in the :ref:`lifecycle-event-process` of the documentation.
