@@ -2,7 +2,7 @@
 
 _Background_
 
-The current mapping of FpML event messages to CDM requires pointing to `BusinessEvent` with a set of `PrimitiveEvent`.  This approach deviates from the recommended design for using instead a set of `Instruction` including each a before `Tradestate` and  a set of after `TradeState`. Structurally, many FpML events messages are more analogous to the latter. A few model changes have been made and synonym have been adjusted to enable more systematic mapping to a `WorkflowStep` instruction which can then be processed by a CDM function to create the corresponding fully-specified `WorkflowStep` event.  
+The current mapping of FpML event messages to CDM requires pointing to `BusinessEvent` with a set of `PrimitiveEvent`.  This approach deviates from the recommended design that uses instead a set of after `TradeState` and a set of `Instruction` each including a before `Tradestate`. Structurally, many FpML events messages are  analogous to the latter. A few model changes have been made and synonyms have been adjusted to enable a more systematic mapping to a `WorkflowStep` instruction. The latter can then be processed by a CDM function to create the corresponding fully-specified `WorkflowStep` event.  
 
 _What is being released?_
 
