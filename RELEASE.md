@@ -1,8 +1,8 @@
-# *Event Model - Non-native event ingestion*
+# *Event Model - Mapping to Non-native CDM representations of business event*
 
 _Background_
 
-The current ingestion approach requires mapping an FpML event to a fully-specified `WorkflowStep` event (e.g., `WorkflowStep` with `BusinessEvent`).  In terms of the data structure, FpML events are more analogous to a `WorkflowStep` instruction (e.g., `WorkflowStep` with proposed `EventInstruction`), and therefore a more suitable ingestion target.  The `WorkflowStep` instruction can then be processed by a CDM function to create a fully-specified `WorkflowStep` event.  
+The current mapping of FpML event messages to CDM requires pointing to `BusinessEvent` with a set of `PrimitiveEvent`.  This approach deviates from the recommended design for using instead a set of `Instruction` including each a before `Tradestate` and  a set of after `TradeState`. Structurally, many FpML events messages are more analogous to the latter. A few model changes have been made and synonym have been adjusted to enable more systematic mapping to a `WorkflowStep` instruction which can then be processed by a CDM function to create the corresponding fully-specified `WorkflowStep` event.  
 
 _What is being released?_
 
