@@ -60,11 +60,11 @@ printf "Retrieving all release info... \n"
 
 export ALL_URL=${CORE_URL}/api/scm/releases/all
 echo "... get all url is $ALL_URL"
-#curl -sX GET "$ALL_URL" > build/releases/all.json
-#jq  '.[] | "<h4>" + .tag + "</h4>", .bodyAsHtml' build/releases/all.json > build/releases/all.txt
-#sed -i 's/^.//;s/.$//' build/releases/all.txt
-#sed -i 's/\\\"/"/g' build/releases/all.txt
-#sed -i 's/\\n//g' build/releases/all.txt
+curl -sX GET "$ALL_URL" > build/releases/all.json
+jq  '.[] | "<h4>" + .tag + "</h4>", .bodyAsHtml' build/releases/all.json > build/releases/all.txt
+sed -i 's/^.//;s/.$//' build/releases/all.txt
+sed -i 's/\\\"/"/g' build/releases/all.txt
+sed -i 's/\\n//g' build/releases/all.txt
 cp build/releases/all.txt build/releases/all.html
 
 export LATEST_RELEASE_ID=$(jq ' .tag' build/releases/latest.json | rev | cut -c2- | rev | cut -c2-)
