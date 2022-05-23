@@ -1,39 +1,33 @@
-# *Legal Agreement Model - Features to categorise CSA documents*
+# *Event Model - Non-native event ingestion*
+
+_Background_
+
+The current ingestion approach requires mapping FpML event to a fully-specified `WorkflowStep` event (e.g., `WorkflowStep` with `BusinessEvent`).  In terms of the data structure, FpML events are more analogous to a `WorkflowStep` instruction (e.g., `WorkflowStep` with proposed `EventInstruction`), and therefore a more suitable ingestion target.  The `WorkflowStep` instruction can then be processed by a CDM function to create a fully-specified `WorkflowStep` event.  
 
 _What is being released?_
 
-This change allows the explicit categorisation of the ISDA Credit Support documents. This is particularly helpful for documents published since 2016 that currently carry the margin type (Variation or Initial) only in the agreement name. The adjustments include:
+This release focuses on the synonym mapping and infrastructure changes to map FpML events to `WorkflowStep` instruction and subsequently invoke a function to create a `WorkflowStep` event.
 
-* New attribute `creditSupportAgreementMarginType ` added to data type name `AgreementName` 
-* Conditions added to ensure that a CSA margin type is only specified if a credit support agreement type is specified as an agreement name, and it published year `vintage` is > = 2016
-* A new enumeration list `CreditSupportAgreementMarginTypeEnum` with options for `VariationMargin` and `InitialMargin`
+**Model Changes**
 
-_Review Directions_
+* Add new type `EventInstruction` to group the attributes required for `BusinessEvent` creation, i.e., List of `Instruction`, an optional `EventIntentEnum` and an event date. 
+* Update `WorflowStep` attributes `proposedEvent` and `nextEvent` to use the type `EventInstruction`.
+* Add new function `Create_AcceptedWorkflowStepFromInstruction` to create a fully-specified `WorkflowStep` event from an input `WorkflowStep` instruction.
 
-In the CDM Portal, select the Textual Browser and search and inspect the addition of `creditSupportAgreementMarginType` as an attribute to the data type `AgreementName`.
+**Ingestion Changes**
 
-Please also inspect the related conditions that have been updated in the model named `CSAMarginType` under the data types listed here:
-
-* `LegalAgreementIdentification`
-* `AgreementName`
-
-Inspect the associated enumeration list `CreditSupportAgreementMarginTypeEnum` and its contents `VariationMargin`.
-
-# Collateral Model - Features to link transactions and collateral portfolios 
-
-_What is being Released_
-
-This change represents the association between a trade, the corresponding collateral portfolios and balances as prescribed by underlyig legal agreements (e.g. IM/VM CSA). The following is included:
-
-* New attributes added to data type `Collateral` for `portfolioIdentifier` and `collateralPortfolio`. This allows users to identify collateral portfolios related to a trade and to list the collateral components and resulting balances.
-* New attribute `payerReceiver` added to data type `CollateralBalance`. This allows the representation of both the Payer Receiver (party1 or party2) and the Collateral direction (posted or received)
-* New attribute `collateralAgreement` added to data type `CollateralPortfolio`. This allows the direct association of a portfolio with a collateral agreements.
-* The data type `CollateralPortfolio` has been made a `[root Type]` to allow for independent use in the model
+- The `FpML_Processes` samples for Contract Formation and Termination events have been mapped to `WorkflowStep` instruction.
+- The `WorkflowStep` instructions can then be processed by the `Create_AcceptedWorkflowStepFromInstruction` function to create a `WorkflowStep` event.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search and inspect the additions laid out above across the following data types:
+In the CDM Portal, select the Textual Browser and review types and functions mentioned above.
 
-* `Collateral`
-* `CollateralBalance`
-* `CollateralPortfolio`
+In the CDM Portal, select Ingestion and review the samples below, which have been mapped to `WorkflowStep` instructions:
+
+- fpml-5-10/processes/msg-ex51-execution-advice-trade-initiation-C01-00.xml
+- fpml-5-10/processes/msg-ex58-execution-advice-trade-initiation-F01-00.xml
+- fpml-5-10/processes/msg-ex63-execution-advice-trade-initiation.xml
+- fpml-5-10/processes/msg-partial-termination.xml
+
+In the CDM Portal, select Instance Viewer, and review the samples in the `FpML Processes` folder, which create `WorkflowStep` events from the ingested instructions.

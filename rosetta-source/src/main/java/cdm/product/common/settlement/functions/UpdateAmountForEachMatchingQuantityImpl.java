@@ -7,9 +7,9 @@ import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceExpression;
-import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.asset.metafields.FieldWithMetaPrice;
 import cdm.product.common.settlement.PriceQuantity;
+import com.rosetta.model.metafields.FieldWithMetaString;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
@@ -79,7 +79,7 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 	private List<? extends Quantity> filterQuantityByUnitOfAmount(Set<? extends Quantity> quantities, UnitType unitOfAmount) {
 		return  Optional.ofNullable(quantities).orElseGet(HashSet::new).stream()
 				.filter(quantity -> Objects.nonNull(quantity.getUnitOfAmount()))
-				.filter(quantity -> Objects.equals(quantity.getUnitOfAmount().toBuilder().prune(), unitOfAmount.toBuilder().prune()))
+				.filter(quantity -> unitTypeEquals(quantity.getUnitOfAmount(), unitOfAmount))
 				.collect(Collectors.toList());
 	}
 
@@ -106,8 +106,8 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 	private List<? extends Price> filterPrice(Set<? extends Price> prices, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceExpression priceExpression) {
 		return  Optional.ofNullable(prices).orElseGet(HashSet::new).stream()
 				.filter(price -> Objects.nonNull(price.getUnitOfAmount()))
-				.filter(price -> Objects.equals(price.getUnitOfAmount().toBuilder().prune(), unitOfAmount.toBuilder().prune()))
-				.filter(price -> Objects.equals(price.getPerUnitOfAmount().toBuilder().prune(), perUnitOfAmount.toBuilder().prune()))
+				.filter(price -> unitTypeEquals(price.getUnitOfAmount(), unitOfAmount))
+				.filter(price -> unitTypeEquals(price.getPerUnitOfAmount(), perUnitOfAmount))
 				.filter(price -> Objects.equals(price.getPriceExpression().toBuilder().prune(), priceExpression.toBuilder().prune()))
 				.collect(Collectors.toList());
 	}
@@ -121,5 +121,19 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 			default:
 				throw new IllegalArgumentException("Unexpected QuantityChangeDirectionEnum " + direction);
 		}
+	}
+
+	/**
+	 * TODO: Code generation should ignore schemes and keys
+	 */
+	private boolean unitTypeEquals(UnitType o1, UnitType o2) {
+		UnitType.UnitTypeBuilder b1 = o1.toBuilder().prune();
+		UnitType.UnitTypeBuilder b2 = o2.toBuilder().prune();
+
+		if (!Objects.equals(b1.getCapacityUnit(), b2.getCapacityUnit())) return false;
+		if (!Objects.equals(b1.getFinancialUnit(), b2.getFinancialUnit())) return false;
+		if (!Objects.equals(b1.getWeatherUnit(), b2.getWeatherUnit())) return false;
+		if (!Objects.equals(Optional.ofNullable(b1.getCurrency()).map(FieldWithMetaString::getValue), Optional.ofNullable(b2.getCurrency()).map(FieldWithMetaString::getValue))) return false;
+		return true;
 	}
 }

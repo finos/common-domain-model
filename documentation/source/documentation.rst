@@ -1008,11 +1008,11 @@ A *workflow* represents a set of actions or steps that are required to trigger a
    [metadata key]
    [rootType]
    businessEvent BusinessEvent (0..1)
-   proposedInstruction Instruction (0..1)
+   proposedEvent EventInstruction (0..1)
    rejected boolean (0..1)
    previousWorkflowStep WorkflowStep (0..1)
      [metadata reference]
-   nextWorkflowStep NextWorkflowStep (0..1)
+   nextEvent EventInstruction (0..1)
    messageInformation MessageInformation (0..1)
    timestamp EventTimestamp (1..*)
    eventIdentifier Identifier (1..*)
@@ -1020,6 +1020,7 @@ A *workflow* represents a set of actions or steps that are required to trigger a
    party Party (0..*)
    account Account (0..*)
    lineage Lineage (0..1)
+     [deprecated]
    creditLimitInformation CreditLimitInformation (0..1)
    workflowState WorkflowState (0..1)
 
