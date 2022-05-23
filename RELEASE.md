@@ -8,16 +8,16 @@ _What is being released?_
 
 This release focuses on the synonym mapping and infrastructure changes to map FpML events to `WorkflowStep` instruction and subsequently invokes a function to create a `WorkflowStep` event.
 
-**Model Changes**
+_Model changes_
 
 * Add new type `EventInstruction` to group the attributes required for `BusinessEvent` creation, i.e., List of `Instruction`, an optional `EventIntentEnum` and an event date. 
 * Update `WorflowStep` attributes `proposedEvent` and `nextEvent` to use the type `EventInstruction`.
 * Add new function `Create_AcceptedWorkflowStepFromInstruction` to create a fully-specified `WorkflowStep` event from an input `WorkflowStep` instruction.
 
-**Ingestion and Infrastructure Changes**
+_Ingestion and infrastructure changes_
 
 - The `FpML_Processes` samples for Contract Formation and Termination events have been mapped to `WorkflowStep` instruction.
-- The `WorkflowStep` instructions can then be processed by the `Create_AcceptedWorkflowStepFromInstruction` function to create a `WorkflowStep` event.
+- The `WorkflowStep` instructions are then processed by the `Create_AcceptedWorkflowStepFromInstruction` function to create a `WorkflowStep` event.
 
 _Review Directions_
 
