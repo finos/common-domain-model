@@ -1,5 +1,4 @@
 .. include:: links.rst
-.. |trade|  unicode:: U+02122 .. TRADE MARK SIGN
 
 Overview of the ISDA CDM
 ========================
@@ -82,7 +81,7 @@ The ISDA CDM distribution comprises three main sets of components:
 
 .. note:: Only the Java executable code distribution is complete: i.e. it represents the entire CDM as defined in Rosetta (plus any associated default implementation). Other distributions may only capture parts of the model: for instance, the Scala and TypeScript distributions include the complete data model and function specifications, but not the functions' executable code.
 
-.. _cdm-versioning:
+.. _versioning:
 
 Versioning
 """"""""""
@@ -123,7 +122,7 @@ The Java distribution of the CDM is designed to be built and used with Maven.
 
 It depends on some open source java artifacts which are freely available from an artifact repository. Maven can be configured to use this repository using the repository settings contained in the ``settings.xml`` file in the CDM jar.
 
-For more details, please follow the :ref:`cdm-java-distribution`.
+For more details, please follow the :ref:`java-distribution-guidelines`.
 
 .. note:: These guidelines are intended as a technical documentation for developers to make use of the Java distribution in their implementation.
 

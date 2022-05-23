@@ -3,7 +3,7 @@
 Development Guidelines
 ======================
 
-.. _cdm-governance:
+.. _governance:
 
 Governance
 ----------
@@ -24,7 +24,7 @@ A proposal can be defined at a conceptual level or a logical level (i.e. in code
 
 Once approved, the amendment will be scheduled to be merged with the CDM's main code branch by the CDM Maintainers.
 
-.. _cdm-design-principles:
+.. _design-principles:
 
 Design Principles
 -----------------
@@ -212,7 +212,7 @@ Before you start modelling
 
 Before you start modelling, please make sure you have gone through the following pre-modelling checklist:
 
-- Review the :ref:`cdm-design-principles` and :ref:`cdm-governance`
+- Review the :ref:`design-principles` and :ref:`governance`
 - Review the `Rosetta Starter Guide`_
 
 In addition, for large model changes or changes to core data types, it is recommended that the Contributor reviews the :ref:`agile-development-approach` and follows these steps:
@@ -401,7 +401,7 @@ Once the contributed model change has been merged, a new release can be built, t
 
 The following release checklist should be verified before deploying a new model:
 
-- Update CDM version, which uses the semantic version format (see :ref:`cdm-versioning<CDM Versioning Documentation>`)
+- Update CDM version, which uses the semantic version format (see CDM :ref:`versioning` Documentation )
 - Build release candidate, and test
 - Build documentation website release candidate, and test
 - Deploy release candidate and notify channels if need be
@@ -458,15 +458,12 @@ The two data definition components should be referred to as follows:
 Product
 """""""
 
-:ref:`test-ref`
-
 #. *Financial Product*. The user documentation defines :ref:`financial-product` as the highest level of the hierarchy of the universe of products. The term *Financial Product* should be used consistently throughout the documentation and wherever applicable in the model descriptions when describing the broad set of products.
 #. *Contractual Product*. Similarly, :ref:`contractual-product` is defined as a subset of Financial Products and should be used consistently in any documentation.
 
    #. Not *Derivatives*.
    #. Not *OTC*. Contractual Product is at a higher hierarchy level than OTC Derivatives because it can include other types of products such as Security Financing.
 
-.. _test-ref:
 Event
 """""
 

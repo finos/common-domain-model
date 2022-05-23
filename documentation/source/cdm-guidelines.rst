@@ -1,6 +1,6 @@
 .. include:: links.rst
 
-.. _cdm-java-distribution:
+.. _java-distribution-guidelines:
 
 CDM Java Distribution Guidelines
 ================================
