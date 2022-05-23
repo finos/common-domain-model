@@ -1,4 +1,4 @@
-# *Legal Agreement Model - Features to categorise CSA documents*
+# *Event Model - Non-native event ingestion*
 
 _What is being released?_
 
