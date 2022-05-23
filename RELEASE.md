@@ -14,7 +14,7 @@ This release focuses on the synonym mapping and infrastructure changes to map Fp
 * Update `WorflowStep` attributes `proposedEvent` and `nextEvent` to use the type `EventInstruction`.
 * Add new function `Create_AcceptedWorkflowStepFromInstruction` to create a fully-specified `WorkflowStep` event from an input `WorkflowStep` instruction.
 
-**Ingestion Changes**
+**Ingestion and Infrastructure Changes**
 
 - The `FpML_Processes` samples for Contract Formation and Termination events have been mapped to `WorkflowStep` instruction.
 - The `WorkflowStep` instructions can then be processed by the `Create_AcceptedWorkflowStepFromInstruction` function to create a `WorkflowStep` event.
