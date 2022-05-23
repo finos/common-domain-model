@@ -232,7 +232,7 @@ Editing the model
 
 The CDM can be edited using a modelling platform called `Rosetta`_, which is accessible via a web browser.
 
-Before you start editing the CDM using Rosetta, please go through the following modelling checklist:
+When editing the CDM using Rosetta, please go through the following modelling checklist:
 
 - CDM version: use latest available version
 - Syntax: no syntax warnings or errors
@@ -391,7 +391,7 @@ The CDM has a number of dependent projects that are required for the CDM to be s
 The change can be merged into the main CDM code base only upon:
 
 - approval by CDM Maintainers and/or CDM Architecture and Review Committee,
-- successful completing of all the above technical tasks, and
+- successful completion of all the above technical tasks, and
 - successful builds of the CDM and all its downstream dependencies.
 
 Releasing model changes
