@@ -2,7 +2,7 @@
 
 _Background_
 
-The current ingestion approach requires mapping FpML event to a fully-specified `WorkflowStep` event (e.g., `WorkflowStep` with `BusinessEvent`).  In terms of the data structure, FpML events are more analogous to a `WorkflowStep` instruction (e.g., `WorkflowStep` with proposed `EventInstruction`), and therefore a more suitable ingestion target.  The `WorkflowStep` instruction can then be processed by a CDM function to create a fully-specified `WorkflowStep` event.  
+The current ingestion approach requires mapping an FpML event to a fully-specified `WorkflowStep` event (e.g., `WorkflowStep` with `BusinessEvent`).  In terms of the data structure, FpML events are more analogous to a `WorkflowStep` instruction (e.g., `WorkflowStep` with proposed `EventInstruction`), and therefore a more suitable ingestion target.  The `WorkflowStep` instruction can then be processed by a CDM function to create a fully-specified `WorkflowStep` event.  
 
 _What is being released?_
 
