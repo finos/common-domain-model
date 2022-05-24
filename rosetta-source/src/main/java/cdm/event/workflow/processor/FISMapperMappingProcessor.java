@@ -10,6 +10,7 @@ import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
 import cdm.base.staticdata.asset.common.ProductIdentifier;
 import cdm.base.staticdata.asset.common.SecurityTypeEnum;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
+import cdm.base.staticdata.party.PartyIdentifier;
 import cdm.event.common.ExecutionTypeEnum;
 import cdm.event.workflow.EventTimestampQualificationEnum;
 import cdm.event.workflow.WorkflowStep.WorkflowStepBuilder;
@@ -154,7 +155,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 
 		commonMappings.put("Own_Cpty_LEI", (indexes, value, tradeState) -> {
 			PartyBuilder party = tradeState.getValue().getOrCreateTrade().getOrCreateParty(1);
-			party.getOrCreatePartyId(0).setValue(value);
+			party.getOrCreatePartyId(0).setIdentifierValue(value);
 			party.getOrCreateMeta().setExternalKey(AGENT_LENDER);
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
@@ -176,8 +177,8 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		});
 
 		commonMappings.put("Cpty_LEI", (indexes, value, tradeState) -> {
-			FieldWithMetaStringBuilder partyId = tradeState.getValue().getOrCreateTrade().getOrCreateParty(2).getOrCreatePartyId(0);
-			partyId.setValue(value);
+			PartyIdentifier.PartyIdentifierBuilder partyId = tradeState.getValue().getOrCreateTrade().getOrCreateParty(2).getOrCreatePartyId(0);
+			partyId.setIdentifierValue(value);
 			//TODO should hard code the scheme
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
@@ -477,7 +478,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getValue()
 					.getOrCreateTrade()
 					.getOrCreateParty(0);
-			party.getOrCreatePartyId(0).setValue(v);
+			party.getOrCreatePartyId(0).setIdentifierValue(v);
 			party.getOrCreateMeta().setExternalKey("Lender" + i.get("allocationNum"));
 			getTradableProduct(splitTradeState)
 					.getValue()

@@ -533,6 +533,7 @@ synonym source FpML_5_10 extends FpML
 			[value "capRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
 			[value "floorRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation" mapper "PriceCollar"]
 			[value "floatingRateMultiplierSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
+			[value "knownAmountSchedule" path "calculationPeriodAmount"]
 			// For FRAs:
 			[hint "fixedRate"]
 			// For Credit:
@@ -3071,8 +3072,6 @@ synonym source FpML_5_10 extends FpML
 
 	NaturalPerson:
 	 	[value "Person" meta "id"]
-		+ personId
-			[value "personId" meta "personIdScheme"]
 		+ honorific
 			[value "honorific"]
 		+ firstName
@@ -3088,6 +3087,12 @@ synonym source FpML_5_10 extends FpML
 		+ dateOfBirth
 			[value "dateOfBirth"]
 
+	PersonIdentifier:
+		+ identifier
+			[value "personId" meta "personIdScheme"]
+		+ country
+			[value "country" path "Person"]
+
 	NaturalPersonRole:
 		+ personReference
 			[value "personReference" meta "href"]
@@ -3096,8 +3101,6 @@ synonym source FpML_5_10 extends FpML
 
 	Party:
 	 	[value "Party" meta "id" maps 2]
-		+ partyId
-			[value "partyId" meta "partyIdScheme"]
 		+ name
 			[value "partyName" meta "entityNameScheme"]
 			[value "entityName" meta "entityNameScheme"]
@@ -3106,6 +3109,13 @@ synonym source FpML_5_10 extends FpML
 			[value "person"]
 		+ account
 			[value "account"]
+
+	PartyIdentifier:
+		+ identifier
+			[value "partyId" meta "partyIdScheme"]
+		+ identifierType
+			[set to PartyIdentifierTypeEnum -> LEI when "partyId->partyIdScheme" = "http://www.fpml.org/coding-scheme/external/iso17442"]
+			[set to PartyIdentifierTypeEnum -> BIC when "partyId->partyIdScheme" = "http://www.fpml.org/coding-scheme/external/iso9362"]
 
 	PartyContactInformation:
 		+ partyReference
