@@ -989,6 +989,8 @@ func Create_ContractFormationPrimitive: <"Function specification to create the p
 		execution -> trade -> party
 	add trade -> account: <"Assign the account input to the contract.">
         execution -> trade -> account
+    set trade -> contractDetails:
+        execution -> trade -> contractDetails
     add trade -> contractDetails -> documentation: <"When an overlaying related legal agreement exists, the contract must reference it.">
         instruction -> legalAgreement
 	add contractFormation -> after -> transferHistory:
@@ -1979,9 +1981,23 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 	set after: <"Initiate applying primitive instructions.">
 		stockSplit
 
-	set after -> state -> closedState -> state:
-		if contractFormation -> state -> positionState = PositionStatusEnum -> Closed
-			then ClosedStateEnum -> Terminated
+	set after -> state -> closedState:
+		if contractFormation -> state -> positionState = PositionStatusEnum -> Closed then
+		    Create_ClosedState( ClosedStateEnum -> Terminated, empty, empty, empty )
+
+func Create_ClosedState:
+    inputs:
+        state ClosedStateEnum (1..1)
+        activityDate date (0..1)
+        effectiveDate date (0..1)
+        lastPaymentDate date (0..1)
+    output:
+        closedState ClosedState (1..1)
+
+    set closedState -> state: state
+    set closedState -> activityDate: activityDate
+    set closedState -> effectiveDate: effectiveDate
+    set closedState -> lastPaymentDate: lastPaymentDate
 
 func Create_PrimitiveInstruction:
     inputs:
