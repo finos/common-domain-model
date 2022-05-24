@@ -15,6 +15,7 @@ import cdm.event.common.metafields.ReferenceWithMetaTradeState;
 import cdm.event.position.PositionStatusEnum;
 import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
+import cdm.legalagreement.common.ClosedState;
 import cdm.legalagreement.common.ClosedStateEnum;
 import cdm.observable.asset.Price;
 import cdm.observable.event.Observation;
@@ -238,8 +239,8 @@ class SecLendingFunctionInputCreationTest {
                 .evaluate(Lists.newArrayList(instruction.build()), EventIntentEnum.ALLOCATION, Date.of(2020, 9, 21));
 
         TradeState closedBlockTradeState = originalAllocationBusinessEvent.getAfter().stream()
-                .filter(x -> x.getState().getClosedState().getState() == ClosedStateEnum.TERMINATED)
-                .filter(x -> x.getState().getPositionState() == PositionStatusEnum.CLOSED)
+                .filter(x -> Optional.ofNullable(x.getState()).map(State::getClosedState).map(ClosedState::getState).map(ClosedStateEnum.TERMINATED::equals).orElse(false))
+                .filter(x -> Optional.ofNullable(x.getState()).map(State::getPositionState).map(PositionStatusEnum.CLOSED::equals).orElse(false))
                 .findFirst()
                 .orElseThrow(RuntimeException::new);
 
