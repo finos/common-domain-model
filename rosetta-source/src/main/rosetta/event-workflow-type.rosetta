@@ -30,16 +30,16 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">
 
 
-type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedInstruction is present and is rejected if the rejected flag is set.">
+type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedEvent is present and is rejected if the rejected flag is set.">
 	[metadata key]
 	[rootType]
 
-	businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedInstruction or rejection are present.">
-	proposedInstruction Instruction (0..1) <"The proposed instruction for the next workflow step. The proposedInstruction is optional when the businessEvent or rejection are present">
+	businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedEvent or rejection are present.">
+	proposedEvent EventInstruction (0..1) <"The proposed event for a workflow step. The proposedEvent is optional when the businessEvent or rejection are present">
 	rejected boolean (0..1) <"Flags this step as rejected.">
 	previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
 		[metadata reference]
-	nextWorkflowStep NextWorkflowStep (0..1) <"Optional next workflow step that defines the intended business event and optional instructions.">
+	nextEvent EventInstruction (0..1) <"The intended next event can be specified, even if the instructions are not known yet.">
 	messageInformation MessageInformation (0..1) <"Contains all information pertaining the FpML messaging header ">
 	timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
 	eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">
@@ -47,26 +47,28 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">
 	account Account (0..*) <"Optional account information that could be associated to the event.">
 	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the globalKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
+	    [deprecated]
 	creditLimitInformation CreditLimitInformation (0..1)
 	workflowState WorkflowState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 		
 	condition WorkflowStepStatus:
-		(WorkflowStep -> businessEvent exists and WorkflowStep -> nextWorkflowStep -> proposedInstruction is absent and WorkflowStep -> rejected is absent)
+		(WorkflowStep -> businessEvent exists and WorkflowStep -> nextEvent -> instruction is absent and WorkflowStep -> rejected is absent)
 		or
-		(WorkflowStep -> nextWorkflowStep -> proposedInstruction exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> rejected is absent)
+		(WorkflowStep -> nextEvent -> instruction exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> rejected is absent)
 		or
-		(WorkflowStep -> rejected exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> nextWorkflowStep is absent)
+		(WorkflowStep -> rejected exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> nextEvent is absent)
+        or
+        (WorkflowStep -> proposedEvent exists and WorkflowStep -> nextEvent is absent and WorkflowStep -> rejected is absent)
 
 type Workflow: <"A collection of workflow steps which together makeup an entire workflow sequence.">
 
 	steps WorkflowStep (1..*)
 
-type NextWorkflowStep: <"Optional next workflow step defined as an intended BusinessEvent or Instructions.">
+type EventInstruction: <"Specifies instructions to create a BusinessEvent.">
 
-	nextIntendedEvent EventIntentEnum (0..1) <"The intended next BusinessEvent">
-	proposedInstruction Instruction (0..1) <"The proposed business event instructions for creation of the next workflow step.">
-
-	condition: one-of
+	intent EventIntentEnum (0..1) <"The event intent.">
+	instruction Instruction (0..*) <"The instructions for creation of a business event.">
+    eventDate date (0..1) <"The date of the business event.">
 
 type EventTimestamp: <"A class to represent the various set of timestamps that can be associated with lifecycle events, as a collection of [dateTime, qualifier].">
 

@@ -15,6 +15,7 @@ import cdm.event.common.metafields.ReferenceWithMetaTradeState;
 import cdm.event.position.PositionStatusEnum;
 import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
+import cdm.legalagreement.common.ClosedState;
 import cdm.legalagreement.common.ClosedStateEnum;
 import cdm.observable.asset.Price;
 import cdm.observable.event.Observation;
@@ -146,20 +147,18 @@ class SecLendingFunctionInputCreationTest {
     void validateFullReturnSettlementWorkflowFuncInputJson() throws IOException {
         assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
 
+        ReturnInstruction returnInstruction = ReturnInstruction.builder()
+                .addQuantity(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(200000))
+                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))
+                .addQuantity(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(5000000))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD")))
+                .build();
+
         RunReturnSettlementWorkflowInput actual = new RunReturnSettlementWorkflowInput(getTransferTradeState(),
-                ReturnInstruction.builder()
-                        .addQuantity(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(200000))
-                                .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
-                                .build())
-                        .addQuantity(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(5000000))
-                                .setUnitOfAmount(UnitType.builder()
-                                        .setCurrency(FieldWithMetaString.builder().setValue("USD").build()).build())
-                                .build())
-                        .build(),
-                Date.of(2020, 10, 21)
-        );
+                returnInstruction,
+                Date.of(2020, 10, 21));
 
         assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
@@ -240,8 +239,8 @@ class SecLendingFunctionInputCreationTest {
                 .evaluate(Lists.newArrayList(instruction.build()), EventIntentEnum.ALLOCATION, Date.of(2020, 9, 21));
 
         TradeState closedBlockTradeState = originalAllocationBusinessEvent.getAfter().stream()
-                .filter(x -> x.getState().getClosedState().getState() == ClosedStateEnum.TERMINATED)
-                .filter(x -> x.getState().getPositionState() == PositionStatusEnum.CLOSED)
+                .filter(x -> Optional.ofNullable(x.getState()).map(State::getClosedState).map(ClosedState::getState).map(ClosedStateEnum.TERMINATED::equals).orElse(false))
+                .filter(x -> Optional.ofNullable(x.getState()).map(State::getPositionState).map(PositionStatusEnum.CLOSED::equals).orElse(false))
                 .findFirst()
                 .orElseThrow(RuntimeException::new);
 
@@ -423,7 +422,9 @@ class SecLendingFunctionInputCreationTest {
         URL resource = SecLendingFunctionInputCreationTest.class.getResource(SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON);
         ExecutionInstruction executionInstruction = STRICT_MAPPER.readValue(resource, ExecutionInstruction.class);
         RunNewSettlementWorkflow runNewSettlementWorkflow = injector.getInstance(RunNewSettlementWorkflow.class);
-        Workflow workflow = runNewSettlementWorkflow.execute(executionInstruction);
+        Workflow.WorkflowBuilder workflowBuilder = runNewSettlementWorkflow.execute(executionInstruction).toBuilder();
+        ResourcesUtils.reKey(workflowBuilder);
+        Workflow workflow = workflowBuilder.build();
 
         assertNotNull(workflow, "Expected a workflow");
         List<? extends WorkflowStep> workflowSteps = workflow.getSteps();

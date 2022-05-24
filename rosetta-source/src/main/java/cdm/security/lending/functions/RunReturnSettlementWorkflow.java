@@ -2,6 +2,7 @@ package cdm.security.lending.functions;
 
 import cdm.event.common.BusinessEvent;
 import cdm.event.common.Instruction;
+import cdm.event.workflow.EventInstruction;
 import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
@@ -29,7 +30,7 @@ public class RunReturnSettlementWorkflow implements ExecutableFunction<RunReturn
 
         // step 2 on trade date PM
         LocalDate settlementDate = returnDate.plus(1, ChronoUnit.DAYS);
-        Instruction transferInstruction = settlements.createReturnTransferInstruction(returnWorkflowStep.getBusinessEvent(),
+        EventInstruction transferInstruction = settlements.createReturnTransferInstruction(returnWorkflowStep.getBusinessEvent(),
                 input.getReturnInstruction().getQuantity(),
                 settlementDate);
         WorkflowStep proposedTransferWorkflowStep = workflows.createProposedWorkflowStep(returnWorkflowStep, transferInstruction, FunctionUtils.dateTime(returnDate, 15, 0));

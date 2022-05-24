@@ -54,7 +54,6 @@ import org.isda.cdm.CdmRuntimeModule;
 import org.isda.cdm.functions.testing.FunctionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -560,19 +559,19 @@ class FunctionInputCreationTest {
 
 
         instructions.add(Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-07-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
 
         instructions.add(Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-2.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-07-Submission-2.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
 
         instructions.add(Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-3.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-07-Submission-3.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
@@ -661,18 +660,12 @@ class FunctionInputCreationTest {
                 .setUnadjustedDate(terminationDate);
     }
 
-    private TradeState getWorkflowStepAfter(String resourceName) throws IOException {
-        WorkflowStep workflowStep = ResourcesUtils.getObject(WorkflowStep.class, resourceName);
-        // Get after TradeState
-        TradeState.TradeStateBuilder tradeStateBuilder = workflowStep.getBusinessEvent().getPrimitives().stream()
-                .map(PrimitiveEvent::getContractFormation)
-                .map(ContractFormationPrimitive::getAfter)
-                .map(TradeState::toBuilder)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("No ContractFormationPrimitive.after found"));
-        // Set Trade.party
-        tradeStateBuilder.getTrade().setParty(workflowStep.getParty());
-        return tradeStateBuilder.build();
+    private TradeState getProposedEventInstructionBefore(String resourceName) throws IOException {
+        return ResourcesUtils.getObject(WorkflowStep.class, resourceName).getProposedEvent()
+                .getInstruction()
+                .get(0)
+                .getBefore()
+                .getValue();
     }
 
     @Test
@@ -712,7 +705,7 @@ class FunctionInputCreationTest {
                                                                         .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-04-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-04-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
@@ -773,7 +766,7 @@ class FunctionInputCreationTest {
                                                                         .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-05-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-05-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
@@ -843,7 +836,7 @@ class FunctionInputCreationTest {
                                                                         .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-06-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-06-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
@@ -929,7 +922,7 @@ class FunctionInputCreationTest {
                                                                 .setCurrencyValue("EUR")))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-11-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-11-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
@@ -973,7 +966,7 @@ class FunctionInputCreationTest {
     @Test
     void validateExerciseCashSettledInputJson() throws IOException {
         String example8Submission1 = "result-json-files/native-cdm-events/Example-08-Submission-1.json";
-        TradeState afterTradeState = getWorkflowStepAfter(example8Submission1);
+        TradeState afterTradeState = getProposedEventInstructionBefore(example8Submission1);
 
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = createQuantityChangeInstruction(UnitType.builder().setCurrencyValue("EUR").build(), BigDecimal.ZERO);
 
@@ -1023,7 +1016,7 @@ class FunctionInputCreationTest {
     @Test
     void validateExercisePartialExerciseInputJson() throws IOException {
         String example9Submission1 = "result-json-files/native-cdm-events/Example-09-Submission-1.json";
-        TradeState afterTradeState = getWorkflowStepAfter(example9Submission1);
+        TradeState afterTradeState = getProposedEventInstructionBefore(example9Submission1);
 
         Date tradeDate = Date.of(2019, 4, 1);
 
@@ -1072,7 +1065,7 @@ class FunctionInputCreationTest {
     @Test
     void validateExerciseCancellableOptionInputJson() throws IOException {
         String example10Submission1 = "result-json-files/native-cdm-events/Example-10-Submission-1.json";
-        TradeState afterTradeState = getWorkflowStepAfter(example10Submission1);
+        TradeState afterTradeState = getProposedEventInstructionBefore(example10Submission1);
 
         Date tradeDate = Date.of(2019, 4, 1);
 

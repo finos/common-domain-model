@@ -52,7 +52,7 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 			[value "limitApplicable"]
 
 	WorkflowStep:
-        + nextWorkflowStep
+        + proposedEvent
             [value "partyTradeInformation" path "trade->tradeHeader"]
 		+ messageInformation
 			[value "header" path "clearingConfirmed"]
@@ -63,16 +63,16 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
             [value "party"]
 		+ account
 			[value "account" path "clearingConfirmed"]
+		+ lineage
+		    [value "ignore"]
 		+ creditLimitInformation
 		    [value "creditLimitInformation" path "clearingConfirmed->trade->tradeHeader"]
-		+ proposedInstruction
-		    [value "ignore"]
 
-    NextWorkflowStep:
-        + nextIntendedEvent
+    EventInstruction:
+        + intent
             [set to EventIntentEnum -> Allocation when "intentToAllocate" = True]
             [set to EventIntentEnum -> Clearing when "intentToClear" = True]
-        + proposedInstruction
+        + instruction
             [value "ignore"]
 
 	BusinessEvent:
@@ -209,11 +209,11 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 	WorkflowStep:
 		+ action
 			[value "TransTyp" path "TrdCaptRpt"]
-        + proposedInstruction
-            [value "ignore"]
+        + lineage
+		    [value "ignore"]
 
-    NextWorkflowStep:
-        + proposedInstruction
+    EventInstruction:
+        + instruction
             [value "ignore"]
 
 	EventTimestamp:
