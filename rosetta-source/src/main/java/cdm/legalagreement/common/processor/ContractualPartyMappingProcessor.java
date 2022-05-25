@@ -54,9 +54,6 @@ public class ContractualPartyMappingProcessor extends MappingProcessor {
 		setValueAndUpdateMappings(String.format("%s.entity.id", party),
 				(value) -> partyBuilder.addPartyId(PartyIdentifier.builder().setIdentifierValue(value).build()));
 
-		setValueAndUpdateMappings(String.format("%s.entity.id", party),
-				(value) -> partyBuilder.addPartyId(PartyIdentifier.builder().setIdentifier(toFieldWithMetaString(value)).build()));
-
 		// clean up mappings
 		updateMappings(Path.parse("answers.partyA.parties"), getMappings(), getModelPath());
 
