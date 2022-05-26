@@ -1,18 +1,21 @@
-# *Product Model - Mapping to CDM representation of business event*
+# *Product Model - FpML mappings for Commodity and Credit*
 
 _What is being released?_
 
-This release focuses on the synonym mapping and infrastructure changes to map FpML events to `WorkflowStep` instruction and subsequently invokes a function to create a `WorkflowStep` event.
+This release fixes various FpML product synonym mapping issues for commodity and credit samples.
+
+- _Commodity_ - synonyms added to map FpML `commoditySwaption` samples that were previously unmapped. 
+- _Credit_ - synonyms updated to fix the mapping of FpML `periodicPayment` elements into `paymentDates->paymentDateSchedule->interimPaymentDates->periodicDates`.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and review types and functions mentioned above.
+In the CDM Portal, select Ingestion and review the samples specified below.
 
-In the CDM Portal, select Ingestion and review the samples below, which have been mapped to `WorkflowStep` instructions:
+* fpml-5-10/incomplete-products/commodity-derivatives
+  * com-ex22-physical-gas-option-multiple-expiration.json
+  * com-ex23-physical-power-option-daily-expiration-efet.json 
+  * com-ex29-physical-eu-emissions-option.json
+  * com-ex31-physical-us-emissions-option.json
+  * com-ex47-physical-eu-emissions-option-pred-clearing.json
 
-- fpml-5-10/processes/msg-ex51-execution-advice-trade-initiation-C01-00.xml
-- fpml-5-10/processes/msg-ex58-execution-advice-trade-initiation-F01-00.xml
-- fpml-5-10/processes/msg-ex63-execution-advice-trade-initiation.xml
-- fpml-5-10/processes/msg-partial-termination.xml
-
-In the CDM Portal, select Instance Viewer, and review the samples in the `FpML Processes` folder, which create `WorkflowStep` events from the ingested instructions.
+* fpml-5-10/incomplete-products/credit-derivatives (all samples)
