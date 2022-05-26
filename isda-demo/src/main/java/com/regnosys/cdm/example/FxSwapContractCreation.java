@@ -7,10 +7,7 @@ import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.base.math.metafields.ReferenceWithMetaQuantity;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
-import cdm.base.staticdata.party.Counterparty;
-import cdm.base.staticdata.party.CounterpartyRoleEnum;
-import cdm.base.staticdata.party.Party;
-import cdm.base.staticdata.party.PayerReceiver;
+import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.Trade;
 import cdm.observable.asset.*;
@@ -198,10 +195,10 @@ public class FxSwapContractCreation {
     }
 
     private Party createParty(String partyId, String scheme) {
-        return Party.builder().addPartyId(FieldWithMetaString.builder()
-                .setValue(partyId)
-                .setMeta(MetaFields.builder().setScheme(scheme).build())
-                .build())
+        return Party.builder().addPartyId(PartyIdentifier.builder()
+                        .setIdentifierValue(partyId)
+                        .setMeta(MetaFields.builder().setScheme(scheme).build())
+                                .build())
                 .build();
     }
 

@@ -23,36 +23,105 @@ import cdm.event.common.*
 synonym source FpML_5_10_Processes extends FpML_5_10
 {
    WorkflowStep:
-        + action
-            [set to ActionEnum -> New when "isCorrection" = False,
-             set to ActionEnum -> Correct when "isCorrection" = True]
+        + businessEvent
+            [value "ignore"]
+        + rejected
+            [value "ignore"]
+        + previousWorkflowStep
+            [value "ignore"]
+        + nextEvent
+            [value "partyTradeInformation" path "trade->tradeHeader"]
         + messageInformation
             [value "header"]
-        + party
-            [value "party"]
         + eventIdentifier
             [value "header"]
             [value "eventIdentifier" path "tradingEvent"]
         + action
-            [set to ActionEnum -> New]
-        + proposedInstruction
+            [set to ActionEnum -> New when "isCorrection" = False]
+            [set to ActionEnum -> Correct when "isCorrection" = True]
+        + party
             [value "ignore"]
-        + nextWorkflowStep
-            [value "partyTradeInformation" path "trade->tradeHeader"]
-        + businessEvent
-            [value "tradePackage"]
-            [hint "trade", "novation", "termination", "tradingEvent", "originatingEvent"]
+        + account
+            [value "ignore"]
+        + lineage
+            [value "ignore"]
+        + creditLimitInformation
+            [value "ignore"]
 
-    NextWorkflowStep:
-        + nextIntendedEvent
+    EventInstruction:
+        + intent
             [set to EventIntentEnum -> Allocation when "intentToAllocate" = True]
             [set to EventIntentEnum -> Clearing when "intentToClear" = True]
-        + proposedInstruction
+            [set to EventIntentEnum -> ContractFormation when "trade" exists]
+            [set to EventIntentEnum -> Novation when "novation" exists]
+        + instruction
+            [merge "termination"]
+            [merge "novation"]
+            [merge "trade"]
+            [merge "party"]
+            [merge "account"]
+        + eventDate
+            [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "executionDateTime" path "termination" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "executionDateTime" path "novation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "novationTradeDate" path "novation" maps 2]
+        + effectiveDate
+            [value "effectiveDate" path "tradingEvent"]
+            [value "effectiveDate" path "termination" dateFormat "yyyy-MM-ddz"]
+
+    Instruction:
+        + before
+            [value "termination"]
+            [value "novation"]
+            [hint "trade", "party", "account"]
+
+    PrimitiveInstruction:
+        + contractFormation
+            [value "trade"]
+        + execution
+            [value "ignore"]
+        + exercise
+            [value "ignore"]
+        + partyChange
+            [value "ignore"]
+        + quantityChange
+            [value "termination"]
+        + reset
+            [value "ignore"]
+        + split
+            [value "ignore"]
+        + termsChange
+            [value "ignore"]
+        + transfer
+            [value "termination"]
+        + indexTransition
+            [value "ignore"]
+        + stockSplit
             [value "ignore"]
 
-    WorkflowState:
-		+ workflowStatus
-			[set to WorkflowStatusEnum->Cleared when "originatingEvent" = "Clearing"]
+    ContractFormationInstruction:
+        + legalAgreement
+            [value "documentation" mapper "ContractFormationInstructionLegalAgreement"]
+
+    QuantityChangeInstruction:
+        + direction
+            [set to QuantityChangeDirectionEnum -> Replace]
+        + lotIdentifier
+            [value "ignore"]
+
+    TransferState:
+        + transfer
+            [value "payment"]
+
+    TransferExpression:
+        + priceTransfer
+            [value "paymentType"]
+            [set to FeeTypeEnum->Termination when path = "termination->payment"]
+
+    PriceQuantity:
+        + quantity
+            [value "outstandingNotionalAmount"]
+            [value "outstandingNotionalAmount" path "sizeChange"]
 
     EventTimestamp:
         + dateTime
@@ -68,24 +137,6 @@ synonym source FpML_5_10_Processes extends FpML_5_10
             [set to EventTimestampQualificationEnum -> executionDateTime when path = "trade->tradeHeader->partyTradeInformation->executionDateTime"]
             [set to EventTimestampQualificationEnum -> executionDateTime when path = "termination"]
 
-    BusinessEvent:
-        + primitives
-            [merge "trade" when path <> "tradePackage"]
-        + eventDate
-            [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
-            [value "executionDateTime" path "novation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
-            [value "novationTradeDate" path "novation" maps 2]
-            // [value "agreementDate" path "tradingEvent"]
-        + effectiveDate
-            [value "effectiveDate" path "tradingEvent"]
-        + packageInformation
-            [value "packageHeader"]
-            [hint "trade"]
-        + instruction
-            [value "ignore"]
-        + after
-            [value "ignore"]
-
     MessageInformation:
         + messageId
             [value "messageId" maps 2 meta "messageIdScheme"]
@@ -98,46 +149,20 @@ synonym source FpML_5_10_Processes extends FpML_5_10
         + copyTo
             [value "copyTo"]
 
-    PrimitiveEvent:
-        + split
-            [value "ignore"]
-        + execution
-            [value "ignore"]
-        + contractFormation
-            [value "novation"]
-            [hint "trade"]
-        + quantityChange
-            [value "termination"]
-            [value "novation"]
-        + termsChange
-            [value "ignore"]
-        + transfer
-            [value "ignore"]
-
-    ContractFormationPrimitive:
-        + before
-            [hint "oldTrade"]
-
-    QuantityChangePrimitive:
-        + before
-            [hint "originalTrade"]
-            [hint "newTrade"]
-            [hint "oldTrade"]
-
     TradeState:
         [meta "id" path "trade"]
         [meta "id" path "originalTrade"]
-        [meta "id" path "newTrade"]
         [meta "id" path "oldTrade"]
         [meta "id" path "feeTrade"]
+        [meta "id" path "newTrade"]
         - trade
         + trade
             [value "trade" mapper "Party"]
             [value "originalTrade" mapper "Party"]
+            [value "oldTrade" mapper "Party"]
+            [value "feeTrade" mapper "Party"]
             [value "newTrade" mapper "Party"]
-            [value "oldTrade" mapper "NovationParty"]
-            [value "feeTrade" mapper "NovationParty"]
-            [hint "outstandingNotionalAmount", "sizeChange", "novationAmount", "novatedAmount", "novationTradeDate"]
+            [hint "party", "account"]
         + transferHistory
             // premium
             [value "bondOption" path "feeTrade", "bondOption" path "originalTrade", "bondOption" path "newTrade", "bondOption" path "oldTrade"]
@@ -161,26 +186,16 @@ synonym source FpML_5_10_Processes extends FpML_5_10
             // otherPartyPayment
             [value "feeTrade", "originalTrade", "newTrade", "oldTrade"]
 
-    Trade:
-        + tradeDate
-            [value "novationTradeDate" mapper "NovationTradeDate"]
+    ContractDetails:
+        - documentation
+        + documentation
+            [value "documentation" mapper "InstructionDocumentation"]
 
-    TradableProduct:
-        + tradeLot
-            [value "outstandingNotionalAmount",
-                "outstandingNotionalAmount" path "sizeChange",
-                "outstandingNotionalAmount" path "novationAmount",
-                "novatedAmount"
-                    mapper "OutstandingNotionalAmount"]
+    enums
 
-    ClosedState:
-        + state
-            [set to ClosedStateEnum -> Terminated when "outstandingNotionalAmount->amount" = "0"] // TODO: add support for floating point number comparison, e.g., "amount" = 0.0
-            [set to ClosedStateEnum -> Novated when path = "novation"
-                and rosettaPath = BusinessEvent -> primitives -> quantityChange -> after -> state -> closedState]
-        + activityDate
-            [value "executionDateTime" dateFormat "yyyy-MM-dd'T'HH:mm:ssz" mapper "SetIfClosed"]
-        + effectiveDate
-            [value "effectiveDate" mapper "SetIfClosed"]
-            [value "novationDate" mapper "SetIfClosed"]
+    FeeTypeEnum:
+        + Termination
+            [value "TerminationFee"]
+        + Upfront
+            [value "PrincipalExchange"]
 }
