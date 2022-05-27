@@ -42,9 +42,13 @@ type Index extends ProductBase: <"Identifies an index by referencing a product i
 	indexType IndexTypeEnum (1..1) <"Indentifies the index product type.">
 
 type Commodity extends ProductBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
-	commodityProductDefinition CommodityProductDefinition (0..1)  <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
-	priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
-	deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
+    commodityProductDefinition CommodityProductDefinition (0..1)  <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
+    priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
+    deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
+    //Manu Extension
+    multiplier number (0..1)
+	description string (0..1)
+	instrumentType string (0..1)
 
 type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
 	referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
@@ -66,15 +70,17 @@ type DeliveryDateParameters: <"Specifies a specific date or the parameters for i
 		optional choice deliveryNearby, deliveryDate
 	
 type CommodityReferenceFramework: <"Specifies the type of commodity.">
-	commodityBase string (1..1) <"Identifies the base type of the commodity being traded, using the names defined in the ISDA 2005 Commodity Definitions SubAnnex A where possible, e.g. AgriculturalProducts, CommodityCompositeIndices, Energy, Freight, Metals, or PaperAndPlastic. Implementors can define their own scheme with additional values.">
-	    [metadata scheme]
-	subCommodity string (1..1) <"Identifies the sub product type of the commodity being traded, using the names defined in the ISDA 2005 Commodity Definitions SubAnnex A where possible, e.g. under Energy, the possible values are Benzene, Coal, DieselFuel, Electricity, FuelOil, GasOil, Gasoline, HeatingOil, JetFuelKerosene, Methanol, Naphtha, NaturalGas, NaturalGasLiquids, Oil, and UltraLowSulpherDiesel. Implementors can define their own scheme with additional values.">
-	    [metadata scheme]
-	commodityName string (1..1) <"Identifies the commodity more specifically. Where possible, this should follow the naming convention used in the 2005 ISDA Commodity Definitions SubAnnex A, including the subCommodity and additional qualifiers, but should be limited to 256 characters or less.">
-	capacityUnit cdm.base.math.CapacityUnitEnum (0..1) <"Provides an enumerated value for a capacity unit, generally used in the context of defining quantities for commodities.">
-	weatherUnit cdm.base.math.WeatherUnitEnum (0..1) <"Provides an enumerated values for a weather unit, generally used in the context of defining quantities for commodities.">
-	currency string (1..1) <"Defines the currency in which the commodity is priced.">
-	    [metadata scheme]
+    commodityBase string (1..1) <"Identifies the base type of the commodity being traded, using the names defined in the ISDA 2005 Commodity Definitions SubAnnex A where possible, e.g. AgriculturalProducts, CommodityCompositeIndices, Energy, Freight, Metals, or PaperAndPlastic. Implementors can define their own scheme with additional values.">
+        [metadata scheme]
+    subCommodity string (1..1) <"Identifies the sub product type of the commodity being traded, using the names defined in the ISDA 2005 Commodity Definitions SubAnnex A where possible, e.g. under Energy, the possible values are Benzene, Coal, DieselFuel, Electricity, FuelOil, GasOil, Gasoline, HeatingOil, JetFuelKerosene, Methanol, Naphtha, NaturalGas, NaturalGasLiquids, Oil, and UltraLowSulpherDiesel. Implementors can define their own scheme with additional values.">
+        [metadata scheme]
+    commodityName string (1..1) <"Identifies the commodity more specifically. Where possible, this should follow the naming convention used in the 2005 ISDA Commodity Definitions SubAnnex A, including the subCommodity and additional qualifiers, but should be limited to 256 characters or less.">
+    capacityUnit cdm.base.math.CapacityUnitEnum (0..1) <"Provides an enumerated value for a capacity unit, generally used in the context of defining quantities for commodities.">
+    weatherUnit cdm.base.math.WeatherUnitEnum (0..1) <"Provides an enumerated values for a weather unit, generally used in the context of defining quantities for commodities.">
+    currency string (1..1) <"Defines the currency in which the commodity is priced.">
+        [metadata scheme]
+    // Manu Extension
+    commodityDetails string (1..1)
 	
 	condition CommodityReferenceFrameworkChoice: <"Requires that either the capacity unit or weather unit is populated.">
 		optional choice capacityUnit, weatherUnit

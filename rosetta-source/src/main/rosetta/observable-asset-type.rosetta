@@ -9,6 +9,7 @@ import cdm.base.staticdata.party.*
 
 import cdm.observable.common.*
 import cdm.synonyms.config.*
+import cdm.product.common.settlement.*
 
 type ObservationSource: <"The observation source can be composed of an curve and/or and information source.">
 
@@ -140,6 +141,18 @@ type Price extends MeasureBase: <"Specifies a price to be used for trade amounts
     condition CurrencyUnitForInterestRate: <"Requires that the unit of amount for an interest rate must be a currency.">
         if priceExpression -> priceType = PriceTypeEnum -> InterestRate
         then unitOfAmount -> currency exists
+
+type FixedPrice extends Price:
+
+    worldscaleRate number (0..1)
+    contractRate Money (0..1)
+    settlementPeriodsPrice Price (0..1)
+    [metadata address "pointsTo"=PriceQuantity->price]
+
+	condition FixedPriceChoice:
+		if worldscaleRate exists then worldscaleRate only exists
+		else if contractRate exists then contractRate only exists
+		else if settlementPeriodsPrice exists then settlementPeriodsPrice only exists
 
 type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
 	[metadata key]

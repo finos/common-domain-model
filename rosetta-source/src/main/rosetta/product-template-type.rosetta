@@ -370,29 +370,31 @@ type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attr
 	underlier Product (1..1) <"Underlying product that the forward is written on, which can be of any type: FX, a contractual product, a security, etc.">
 	settlementTerms SettlementTerms (1..1) <"Settlement terms for the underlier that include the settlement date, settlement method etc.">
 
-	condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
-		if ForwardFX() exists then
-		(
-			settlementTerms -> settlementDate -> valueDate exists
-			and ForwardFX() -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate is absent
-			and ForwardFX() -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate is absent
-		) or
-		(
-			settlementTerms -> settlementDate -> valueDate is absent
-			and ForwardFX() -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate exists
-			and ForwardFX() -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate exists
-			and ForwardFX() -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate = ForwardFX() -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate
-		)
+	// condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
+	// 	if ForwardFX() exists then
+	// 	(
+	// 		settlementTerms -> settlementDate -> valueDate exists
+	// 		and ForwardFX() -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate is absent
+	// 		and ForwardFX() -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate is absent
+	// 	) or
+	// 	(
+	// 		settlementTerms -> settlementDate -> valueDate is absent
+	// 		and ForwardFX() -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate exists
+	// 		and ForwardFX() -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate exists
+	// 		and ForwardFX() -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate = ForwardFX() -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate
+	// 	)
 
 	condition FxSettlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
 		if ForwardFX() exists
 		then settlementTerms -> physicalSettlementTerms is absent
 
 type FixedForwardPayout extends PayoutBase: <"Represents a forward settling, fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
-	[metadata key]
-	paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
-    fixedPrice Price (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
-        [metadata address "pointsTo"=PriceQuantity->price]
+    paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
+    fixedPrice FixedPrice (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
+        //[metadata address "pointsTo"=PriceQuantity->price]
+    //Manu Extension
+    totalPrice Money (0..1)
+    freightFlatRate FreightFlatRate (0..1)
 
 type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
 
