@@ -201,7 +201,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(Instruction.builder().setPrimitiveInstruction(primitiveInstructionBuilder)),
                 null,
-                eventDate);
+                eventDate,
+                null);
 
         assertJsonEquals(expectedJsonPath, actual);
     }
@@ -315,7 +316,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.CONTRACT_FORMATION,
-                eventDate);
+                eventDate,
+                null);
 
         assertJsonEquals(expectedJsonPath, actual);
     }
@@ -392,7 +394,8 @@ class FunctionInputCreationTest {
         Create_BusinessEvent createBusinessEvent = injector.getInstance(Create_BusinessEvent.class);
         BusinessEvent increaseOutput = createBusinessEvent.evaluate(increaseEquitySwapInput.getInstruction(),
                 increaseEquitySwapInput.getIntent(),
-                increaseEquitySwapInput.getEventDate());
+                increaseEquitySwapInput.getEventDate(),
+                null);
         TradeState increaseTradeState = increaseOutput.getAfter().get(0);
 
         // Quantity change to terminate tradeLot LOT-1.  Quantity in tradeLot LOT-2 remains unchanged.
@@ -496,8 +499,8 @@ class FunctionInputCreationTest {
         return new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 null,
-                Date.of(2021, 11, 11)
-        );
+                Date.of(2021, 11, 11),
+                null);
     }
 
     private void validateQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, String expectedJsonPath, QuantityChangeInstruction quantityChangeInstruction, FeeTypeEnum feeType) throws IOException {
@@ -510,7 +513,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 null,
-                eventDate);
+                eventDate,
+                null);
 
         assertJsonEquals(expectedJsonPath, actual);
     }
@@ -584,7 +588,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 instructions,
                 EventIntentEnum.COMPRESSION,
-                Date.of(2018, 4, 3));
+                Date.of(2018, 4, 3),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/compression/compression-func-input.json", actual);
     }
@@ -713,7 +718,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.NOVATION,
-                Date.of(2018, 4, 3));
+                Date.of(2018, 4, 3),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/novation/full-novation-func-input.json", actual);
     }
@@ -774,7 +780,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.NOVATION,
-                Date.of(2018, 4, 4));
+                Date.of(2018, 4, 4),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/novation/partial-novation-func-input.json", actual);
     }
@@ -850,7 +857,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.CLEARING,
-                Date.of(2018, 4, 1));
+                Date.of(2018, 4, 1),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/clearing/clearing-func-input.json", actual);
     }
@@ -938,7 +946,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.ALLOCATION,
-                Date.of(2018, 4, 1));
+                Date.of(2018, 4, 1),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/allocation/allocation-func-input.json", actual);
     }
@@ -966,7 +975,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.EXERCISE,
-                Date.of(2001, 8, 28));
+                Date.of(2001, 8, 28),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-swaption-full-physical-func-input.json", actual);
     }
@@ -1016,7 +1026,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.EXERCISE,
-                Date.of(2019, 4, 1));
+                Date.of(2019, 4, 1),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-cash-settled-func-input.json", actual);
     }
@@ -1065,7 +1076,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.EXERCISE,
-                tradeDate);
+                tradeDate,
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-partial-exercise-func-input.json", actual);
     }
@@ -1118,7 +1130,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.EXERCISE,
-                tradeDate);
+                tradeDate,
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-cancellable-option-func-input.json", actual);
     }
@@ -1238,7 +1251,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.INDEX_TRANSITION,
-                Date.of(2000, 10, 1));
+                Date.of(2000, 10, 1),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/index-transition/index-transition-vanilla-swap-func-input.json", actual);
     }
@@ -1291,7 +1305,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.INDEX_TRANSITION,
-                Date.of(2018, 6, 17));
+                Date.of(2018, 6, 17),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/index-transition/index-transition-xccy-swap-func-input.json", actual);
     }
@@ -1312,7 +1327,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.STOCK_SPLIT,
-                Date.of(2001, 11, 1));
+                Date.of(2001, 11, 1),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/stock-split/stock-split-equity-swap-func-input.json", actual);
     }

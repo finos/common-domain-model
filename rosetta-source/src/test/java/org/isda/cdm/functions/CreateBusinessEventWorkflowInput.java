@@ -20,13 +20,18 @@ public class CreateBusinessEventWorkflowInput {
 	@JsonProperty
 	private Date eventDate;
 
+	@JsonProperty
+	@JsonInclude
+	private Date effectiveDate;
+
 	public CreateBusinessEventWorkflowInput() {
 	}
 
-	public CreateBusinessEventWorkflowInput(List<Instruction> instruction, EventIntentEnum intent, Date eventDate) {
+	public CreateBusinessEventWorkflowInput(List<Instruction> instruction, EventIntentEnum intent, Date eventDate, Date effectiveDate) {
 		this.instruction = instruction;
 		this.intent = intent;
 		this.eventDate = eventDate;
+		this.effectiveDate = effectiveDate;
 	}
 
 	public List<Instruction> getInstruction() {
@@ -39,5 +44,9 @@ public class CreateBusinessEventWorkflowInput {
 
 	public Date getEventDate() {
 		return eventDate;
+	}
+
+	public Date getEffectiveDate() {
+		return effectiveDate;
 	}
 }

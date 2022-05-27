@@ -202,6 +202,7 @@ synonym source FpML_5_10 extends FpML
 			[value "relativeDateSequence"]
 		+ periodicDates
 			[value "periodicDates"]
+			[value "periodicPayment"]
 			[hint "amount"]
 
 	AmericanExercise:
@@ -468,8 +469,10 @@ synonym source FpML_5_10 extends FpML
 			[value "paymentFrequency"]
 		+ firstPaymentDate
 			[value "firstPaymentDate"]
+			[value "firstPaymentDate" path "periodicPayment"]
 		+ lastRegularPaymentDate
 			[value "lastRegularPaymentDate"]
+			[value "lastRegularPaymentDate" path "periodicPayment"]
 		+ payRelativeTo
 			[value "payRelativeTo"]
 		+ paymentDaysOffset
@@ -485,6 +488,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "adjustableDates"]
 			[hint "relativeDates"]
 			[hint "periodicDates"]
+			[hint "periodicPayment"]
 		+ finalPaymentDate
 			[value "paymentDateFinal"]
 
@@ -513,6 +517,8 @@ synonym source FpML_5_10 extends FpML
 			[hint "endDate"]
 		+ periodFrequency
 			[value "calculationPeriodFrequency"]
+			[value "paymentFrequency"]
+			[hint "rollConvention"]
 		+ periodDatesAdjustments
 			[value "calculationPeriodDatesAdjustments"]
 
@@ -824,6 +830,7 @@ synonym source FpML_5_10 extends FpML
 		+ physicalSettlementTerms
 			[value "physicalSettlement"]
 			[value "physicalSettlementTerms"]
+			[value "clearingInstructions"]
 
 	ValuationSource:
 	    + quotedCurrencyPair
@@ -1271,7 +1278,6 @@ synonym source FpML_5_10 extends FpML
 			[value "stubPeriodType" path "calculationPeriodDates"]
 		+ calculationPeriodFrequency
 			[value "calculationPeriodFrequency" path "calculationPeriodDates"]
-			[value "periodicPayment"]
 			// for Commodity Floating Leg (Payout)
 			[value "calculationPeriodsSchedule"]
 
@@ -1802,6 +1808,7 @@ synonym source FpML_5_10 extends FpML
             [value "volatility" path "amount" meta "vegaNotionalAmount"]
         + step
             [value "step"]
+			[value "notionalStep"]
 
     NonNegativePriceSchedule:
         + initialPrice
@@ -2073,6 +2080,7 @@ synonym source FpML_5_10 extends FpML
             [value "commodityOption" path "trade"]
             [value "commodityBasketOption" path "trade"]
             [value "capFloor" path "trade"]
+			[value "commoditySwaption" path "trade"]
             // equityPremium
             [value "equityOption" path "trade"]
             [value "brokerEquityOption" path "trade"]
@@ -2105,6 +2113,8 @@ synonym source FpML_5_10 extends FpML
 			[value "account"]
 
     TransferState:
+		[meta "id" path "singlePayment"]
+		[meta "id" path "additionalPayment"]
         + transfer
             [value "premium"]
             [value "equityPremium"]
@@ -2180,6 +2190,7 @@ synonym source FpML_5_10 extends FpML
 			[value "fxLinkedNotionalSchedule"]
 			[value "constantNotionalScheduleReference" path "fxLinkedNotionalSchedule" meta "href"]
 			[value "notionalQuantity"]
+			[value "notionalQuantitySchedule"]
 			[value "paymentAmount"]
 			[hint "amount"]
 		+ reset
@@ -2261,7 +2272,7 @@ synonym source FpML_5_10 extends FpML
 			[value "dayCountFraction" path "interestCalculation" meta "dayCountFractionScheme"]
 		+ paymentDates
 			[value "paymentDates"]
-			[value "periodicPayment"]
+			[hint "periodicPayment"]
 			[value "interestLegPaymentDates" path "interestLegCalculationPeriodDates"]
 		+ paymentDate
 			[value "paymentDate"]
@@ -2319,6 +2330,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "creditDefaultSwap"]
 			[hint "putCurrencyAmount", "callCurrencyAmount"]
 			[value "commodity"]
+			[hint "commoditySwap"]
 		+ observationTerms
 			[value "asian" path "features"]
 			[hint "pricingDates"]
@@ -2352,6 +2364,8 @@ synonym source FpML_5_10 extends FpML
 			[value "pricingDates" path "calculation"]
 		+ underlier
 		    [value "commodity"]
+		+ paymentDates
+            [value "paymentDates"]
 
 	CommodityPriceReturnTerms:
 		+ spread
@@ -2461,6 +2475,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "totalNotionalQuantity"]
 			[hint "amount"]
 			[hint "paymentAmount"]
+			[hint "notionalQuantitySchedule"]
 
     Payout:
 		+ interestRatePayout
@@ -2490,6 +2505,7 @@ synonym source FpML_5_10 extends FpML
 			[value "equityOption"]
 			[value "brokerEquityOption"]
 			[value "commodityOption"]
+			[value "commoditySwaption"]
 		+ forwardPayout
 			[value "fxSingleLeg"]
 			[value "nearLeg"]
@@ -2561,6 +2577,8 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity Option
 			[hint "commodityOption"]
 			[value "commodityOption"]
+			[hint "commoditySwaption"]
+			// [value "commoditySwaption"]
 			// For Variance / Volatility / Correlation / Dividend
 			[value "varianceSwap", "varianceSwapTransactionSupplement"]
 			[value "volatilitySwap", "volatilitySwapTransactionSupplement"]
@@ -2642,6 +2660,7 @@ synonym source FpML_5_10 extends FpML
 			[merge "commodity"]
 			[hint "notionalQuantity"] // Commodity Option
 			[value "commodityOption"]
+			[value "commoditySwaption"]
 			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"] // For Equity / Bond Option
 		+ lotIdentifier
 			[value "ignore"]

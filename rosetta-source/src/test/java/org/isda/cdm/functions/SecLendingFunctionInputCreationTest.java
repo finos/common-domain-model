@@ -198,7 +198,8 @@ class SecLendingFunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.ALLOCATION,
-                Date.of(2020, 9, 21));
+                Date.of(2020, 9, 21),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/sec-lending/allocation/allocation-sec-lending-func-input.json", actual);
     }
@@ -236,7 +237,10 @@ class SecLendingFunctionInputCreationTest {
         // we want to get the contract formation for the 40% allocated trade, and back it out by 25% causing a decrease quantity change (so notional will be 10% of the original block)
         // we then want to do a new allocation of 10% of the original block.
         BusinessEvent originalAllocationBusinessEvent = injector.getInstance(Create_BusinessEvent.class)
-                .evaluate(Lists.newArrayList(instruction.build()), EventIntentEnum.ALLOCATION, Date.of(2020, 9, 21));
+                .evaluate(Lists.newArrayList(instruction.build()),
+                        EventIntentEnum.ALLOCATION,
+                        Date.of(2020, 9, 21),
+                        null);
 
         TradeState closedBlockTradeState = originalAllocationBusinessEvent.getAfter().stream()
                 .filter(x -> Optional.ofNullable(x.getState()).map(State::getClosedState).map(ClosedState::getState).map(ClosedStateEnum.TERMINATED::equals).orElse(false))
