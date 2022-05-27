@@ -5,6 +5,7 @@ import cdm.base.staticdata.asset.common.ProductIdentifier;
 import cdm.base.staticdata.asset.common.Security;
 import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
 import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.PartyIdentifier;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.TradeState;
 import cdm.event.position.*;
@@ -290,7 +291,7 @@ public class EvaluatePortfolioStateTest extends AbstractExampleTest {
 	private ReferenceWithMetaParty toReferenceWithMetaParty(String partyId) {
 		return ReferenceWithMetaParty.builder()
 				.setValue(Party.builder()
-						.addPartyId(FieldWithMetaString.builder().setValue(partyId).build())
+						.addPartyId(PartyIdentifier.builder().setIdentifierValue(partyId).build())
 						.build())
 				.build();
 	}

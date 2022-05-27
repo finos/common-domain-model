@@ -238,13 +238,13 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 				.map(ReferenceWithMetaParty::getValue)
 				.map(Party::getPartyId)
 				.flatMap(List::stream)
-				.map(FieldWithMetaString::getValue)
+				.map(partyIdentifier -> partyIdentifier.getIdentifier().getValue())
 				.collect(Collectors.toList());
 
 		return tradeState.getTrade().getParty().stream()
 				.map(Party::getPartyId)
 				.flatMap(List::stream)
-				.map(FieldWithMetaString::getValue)
+				.map(partyIdentifier -> partyIdentifier.getIdentifier().getValue())
 				.anyMatch(partyIdToFind::contains);
 	}
 
