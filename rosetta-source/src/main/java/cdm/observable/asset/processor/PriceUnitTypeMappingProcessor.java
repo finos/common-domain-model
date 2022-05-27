@@ -57,6 +57,8 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updateCurrencyUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
 				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", Arrays.asList("currency"), FinancialUnitEnum.SHARE)
 				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", Arrays.asList("notional", "notionalAmount", "currency"), FinancialUnitEnum.SHARE)
+				|| updatePriceUnits(priceBuilder, synonymPath, "equityOption", Arrays.asList("strike", "currency"), getPerUnitOfAmountIndexOrShare())
+				|| updatePriceUnits(priceBuilder, synonymPath, "equityOption", Arrays.asList("strikePricePerUnit", "currency"), getPerUnitOfAmountIndexOrShare())
 				|| updatePriceUnits(priceBuilder, synonymPath, "equityOption", Arrays.asList("equityExercise", "settlementCurrency"), getPerUnitOfAmountIndexOrShare())
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
