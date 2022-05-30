@@ -1,21 +1,27 @@
-# *Product Model - FpML mappings for Commodity and Credit*
+# *Product Model - Party and Person Identification*
+
+_Background_
+
+This release contains a set of changes to `Party`and `Person` identification. The model now supports the enumeration of the nature of an identifier for both `partyId` and `personId`instead of relying on FpML metadata schemes to qualify the source of the identifier.
+
+In addition, this release fixes an issue with a missing mapping for FpML `knownAmountSchedule`.
 
 _What is being released?_
 
-This release fixes various FpML product synonym mapping issues for commodity and credit samples.
-
-- _Commodity_ - synonyms added to map FpML `commoditySwaption` samples that were previously unmapped. 
-- _Credit_ - synonyms updated to fix the mapping of FpML `periodicPayment` elements into `paymentDates->paymentDateSchedule->interimPaymentDates->periodicDates`.
+* Change to partyId structure
+  - Added new type `PartyIdentifier` allowing a Party to be represented by an identifier and an enumeration
+  - `partyId` updated to be of type `PartyIdentifier`
+  - Added new `PartyIdentifierTypeEnum`with two values, BIC and LEI
+* Change to personId structure
+  - Added new type `PersonIdentifier` allowing a Person to be represented by an identifier and an enumeration
+  - `personId` updated to be of type `PersonIdentifier`
+  - Added values `NPID` and `PLID`, and removed values `BIC` and `LEI` from `PersonIdentifierTypeEnum`
+* Updated model to model mappings as a result of the partyId and personId changes
+* Fix for `knownAmountSchedule` mapping
 
 _Review Directions_
 
-In the CDM Portal, select Ingestion and review the samples specified below.
+In the CDM Portal, select the Textual Browser and search and inspect the updated `partyId` and `personId` structures and the associated enumerations `PartyIdentifierTypeEnum` and `PersonIdentifierTypeEnum`.
 
-* fpml-5-10/incomplete-products/commodity-derivatives
-  * com-ex22-physical-gas-option-multiple-expiration.json
-  * com-ex23-physical-power-option-daily-expiration-efet.json 
-  * com-ex29-physical-eu-emissions-option.json
-  * com-ex31-physical-us-emissions-option.json
-  * com-ex47-physical-eu-emissions-option-pred-clearing.json
-
-* fpml-5-10/incomplete-products/credit-derivatives (all samples)
+In the CDM Portal, select Ingestion and review the following sample trade to see `partyId` and `personId` changes:
+- fpml 5-10 > products > rates> USD-Vanilla-swap
