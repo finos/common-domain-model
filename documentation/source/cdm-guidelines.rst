@@ -1,3 +1,7 @@
+.. include:: links.rst
+
+.. _java-distribution-guidelines:
+
 CDM Java Distribution Guidelines
 ================================
 
@@ -17,35 +21,35 @@ Prerequisites
 Introduction
 ---------------
 
-* The CDM in Java is built using `maven <https://maven.apache.org>`_ and is published using the REGnosys artifactory. The repository can be accessed using the maven settings file that is included in the cdm sources jar or by copying the repository information to your own settings.
+* The CDM in Java is built using `maven`_ and is published using the REGnosys artifactory. The repository can be accessed using the maven settings file that is included in the cdm sources jar or by copying the repository information to your own settings.
 
-* The CDM in Java code, a related set of examples, and a video tutorial accessing the code and loading the examples are available on the latest version of the `ISDA CDM Portal <https://portal.cdm.rosetta-technology.io/#>`_:
+* The CDM in Java code, a related set of examples, and a video tutorial accessing the code and loading the examples are available in the `CDM Portal`_:
 
 Download page for zip files of the Java code and examples
 
 .. figure:: images/cdm-portal.png
 
 * Direct links:
-    `ISDA CDM as Java Code <https://isda:isda@regnosys.jfrog.io/regnosys/libs-snapshot/com/isda/cdm-distribution>`_
+    `ISDA CDM as Java Code`_
 
-    `ISDA CDM as Java Examples <https://isda:isda@regnosys.jfrog.io/regnosys/libs-snapshot/com/regnosys/isda-cdm-examples>`_
+    `ISDA CDM as Java Examples`_
 
 Tutorials
 
 .. figure:: images/cdm-tutorials.png
 
-Direct link: `Tutorials <https://vimeo.com/359012532>`_
+Direct link: `Tutorials`_
 
 * The CDM model objects are classified into namespaces (cdm.base, cdm.base.staticdata, etc). These namespaces translate into Java packages with the same name, with each package containing a package-info file.
 
 .. figure:: images/cdm-distribution.png
 
-* The CDM uses `builder pattern <https://en.wikipedia.org/wiki/Builder_pattern>`_ for each of the pojos. The distribution ships with the json to java object serialisers.
+* The CDM uses `builder pattern`_ for each of the pojos. The distribution ships with the json to java object serialisers.
 
 Setting Up Google's Guice Injector
 ----------------------------------
 
-CDM uses `Google's Guice <https://github.com/google/guice>`_ as a dependency manager. Injector is the core of Guice that contains the whole object graph (context).
+CDM uses `Google's Guice`_ as a dependency manager. Injector is the core of Guice that contains the whole object graph (context).
 
 The first step is to initialise the injector. There are two options:
 

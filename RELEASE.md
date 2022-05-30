@@ -1,39 +1,21 @@
-# *Legal Agreement Model - Features to categorise CSA documents*
+# *Product Model - FpML mappings for Commodity and Credit*
 
 _What is being released?_
 
-This change allows the explicit categorisation of the ISDA Credit Support documents. This is particularly helpful for documents published since 2016 that currently carry the margin type (Variation or Initial) only in the agreement name. The adjustments include:
+This release fixes various FpML product synonym mapping issues for commodity and credit samples.
 
-* New attribute `creditSupportAgreementMarginType ` added to data type name `AgreementName` 
-* Conditions added to ensure that a CSA margin type is only specified if a credit support agreement type is specified as an agreement name, and it published year `vintage` is > = 2016
-* A new enumeration list `CreditSupportAgreementMarginTypeEnum` with options for `VariationMargin` and `InitialMargin`
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser and search and inspect the addition of `creditSupportAgreementMarginType` as an attribute to the data type `AgreementName`.
-
-Please also inspect the related conditions that have been updated in the model named `CSAMarginType` under the data types listed here:
-
-* `LegalAgreementIdentification`
-* `AgreementName`
-
-Inspect the associated enumeration list `CreditSupportAgreementMarginTypeEnum` and its contents `VariationMargin`.
-
-# Collateral Model - Features to link transactions and collateral portfolios 
-
-_What is being Released_
-
-This change represents the association between a trade, the corresponding collateral portfolios and balances as prescribed by underlyig legal agreements (e.g. IM/VM CSA). The following is included:
-
-* New attributes added to data type `Collateral` for `portfolioIdentifier` and `collateralPortfolio`. This allows users to identify collateral portfolios related to a trade and to list the collateral components and resulting balances.
-* New attribute `payerReceiver` added to data type `CollateralBalance`. This allows the representation of both the Payer Receiver (party1 or party2) and the Collateral direction (posted or received)
-* New attribute `collateralAgreement` added to data type `CollateralPortfolio`. This allows the direct association of a portfolio with a collateral agreements.
-* The data type `CollateralPortfolio` has been made a `[root Type]` to allow for independent use in the model
+- _Commodity_ - synonyms added to map FpML `commoditySwaption` samples that were previously unmapped. 
+- _Credit_ - synonyms updated to fix the mapping of FpML `periodicPayment` elements into `paymentDates->paymentDateSchedule->interimPaymentDates->periodicDates`.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search and inspect the additions laid out above across the following data types:
+In the CDM Portal, select Ingestion and review the samples specified below.
 
-* `Collateral`
-* `CollateralBalance`
-* `CollateralPortfolio`
+* fpml-5-10/incomplete-products/commodity-derivatives
+  * com-ex22-physical-gas-option-multiple-expiration.json
+  * com-ex23-physical-power-option-daily-expiration-efet.json 
+  * com-ex29-physical-eu-emissions-option.json
+  * com-ex31-physical-us-emissions-option.json
+  * com-ex47-physical-eu-emissions-option-pred-clearing.json
+
+* fpml-5-10/incomplete-products/credit-derivatives (all samples)

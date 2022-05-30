@@ -1,3 +1,5 @@
+.. include:: links.rst
+
 Eligible Collateral Representation
 ==================================
 
@@ -240,7 +242,7 @@ collateral asset, this includes the following data attributes:
    domesticCurrencyIssued boolean (0..1)
    listing ListingType (0..1)
 
-	condition AssetCriteriaChoice: 
+	condition AssetCriteriaChoice:
 		optional choice collateralAssetType, collateralTaxonomy, productIdentifier
 
 -  ``collateralAssetType`` Represents a filter based on the asset product type.
@@ -659,23 +661,23 @@ related information to eligible collateral
 - ``scale`` Specifies the credit rating scale, with a typical distinction between short term, long term. The data ‘string’ allows the free format field to be populated 	with a scale indicator such as ‘long term’, ‘short term'.
 
 - ``debt`` Specifies the credit rating debt type is for any credit notation associated debt related credit attributes if needed. This gives the additional flexibility option to identify amongst the credit criteria debt characteristics such as (high yield, deposits, investments grade) The data type extends to offer two options
-  
+
   - ``debtType`` This attribute is free format 'string' and used when only one debt type is specified
 
   - ``debtTypes`` This allows you to specify for than one multiple debt type characteristics and has a qualifying conditions to specify if you wish to include ‘All’ or ‘Any’ of the elements listed in scope
 
 - ``outlook`` This data attributes allows you to specify the a credit rating outlook assessment that is commonly determine by rating agencies. It is an indication of the 	  potential direction of a long-term credit rating over the intermediate term, which is generally up to two years for investment grade and generally up to one year for 	speculative grade. The enumeration list allows you to specify if required one of the following outlook terminology
-   
+
   -  Positive (A rating may be raised)
-  
+
   -  Negative (A rating may be lowered)
-  
+
   -  Stable (A rating is not likely to change)
-  
+
   -  Developing (A rating may be raised, lowered, or affirmed)
 
 - ``creditWatch`` Similar to detailing a type of credit outlook, credit agencies will also identify individual credit by a means of a monitoring (watch) status for an undefined period. This watch status can be expressed using the following data terminology under this enumeration list.
-   
+
   -  Positive (A rating may be raised)
 
   -  Negative (A rating may be lowered)
@@ -786,12 +788,12 @@ these are selected as taxonomy sources through TaxonomySourceEnum it is
 required to specify details from the related unlimited enumeration lists that
 exist under data type CollateralTaxonomyValue, these are shown below:
 
--  ``eu_EMIR_EligibleCollateral`` 
+-  ``eu_EMIR_EligibleCollateral``
 
--  ``uk_EMIR_EligibleCollateral`` 
+-  ``uk_EMIR_EligibleCollateral``
 
--  ``us_CFTC_PR_EligibleCollateral`` 
-   
+-  ``us_CFTC_PR_EligibleCollateral``
+
 -  ``nonEnumeratedTaxonomyValue``
 
 Please note: The regime codes are not mandatory and are based on
@@ -887,8 +889,7 @@ collateral, for some processes there is a requirement to use certain
 product identifiers. Data type ``productIdentifier`` can be used to express
 specific instrument identifiers such as ISINs, CUSIPs etc. There is a
 section within the CDM documentation that covers this area of the model,
-this can be found in the following link
-documentation.html#products-with-identifiers
+this can be found in the following link :ref:`products-with-identifiers-section`.
 
 Listing (Used within Asset Criteria)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -937,7 +938,7 @@ the same level in the CDM are defined as an ‘and’ relationship. However,
 opportunities exist in the CDM data structure to extended lists within a
 list and add another level to both asset and issuer criteria which will
 operate as an ‘or’ relationship. An example of this would be within data
-type ``AssetCriteria`` there is an option to define a ``denominatedCurrency`` 
+type ``AssetCriteria`` there is an option to define a ``denominatedCurrency``
 (0..*); this data attribute with an open cardinality allows for a
 definition of a list of currencies and describes where a ‘or’
 relationship exists.
@@ -984,5 +985,4 @@ details is show here:
                 "haircutPercentage": 0.005
                 },
             "isIncluded": true
-            }		
-
+            }

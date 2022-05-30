@@ -1678,18 +1678,18 @@ public class Fpml510ProjectionMapper {
 			});
 	}
 
-	private List<PartyId> getPartyIds(List<? extends FieldWithMetaString> cdmPartyIds) {
+	private List<PartyId> getPartyIds(List<? extends PartyIdentifier> cdmPartyIds) {
 		return cdmPartyIds.stream()
 			.map(this::getPartyId)
 			.flatMap(Optional::stream)
 			.collect(Collectors.toList());
 	}
 
-	private Optional<PartyId> getPartyId(FieldWithMetaString cdmPartyId) {
+	private Optional<PartyId> getPartyId(PartyIdentifier cdmPartyId) {
 		return Optional.ofNullable(cdmPartyId)
 			.map(p -> {
 				PartyId partyId = objectFactory.createPartyId();
-				getValue(p).ifPresent(partyId::setValue);
+				getValue(p.getIdentifier()).ifPresent(partyId::setValue);
 				getScheme(p.getMeta()).ifPresent(partyId::setPartyIdScheme);
 				return partyId;
 			});

@@ -28,6 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static com.regnosys.rosetta.common.util.ClassPathUtils.loadFromClasspath;
@@ -41,7 +42,12 @@ class FunctionTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FunctionTest.class);
 
 	private static final ObjectMapper ROSETTA_OBJECT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper();
-	private static final String EXECUTION_DESCRIPTOR_PATH = "cdm-sample-files/functions/execution-descriptor.json";
+
+	private static final List<String> EXECUTION_DESCRIPTOR_PATHS = List.of(
+			"cdm-sample-files/functions/execution-descriptor.json",
+			"cdm-sample-files/functions/sec-lending-execution-descriptor.json",
+			"cdm-sample-files/functions/fpml-processes-execution-descriptor.json");
+
 	private static Injector injector;
 
 	@BeforeAll
@@ -58,10 +64,10 @@ class FunctionTest {
 	}
 
 	private static Stream<Arguments> loadExecutionDescriptors() {
-		return loadFromClasspath(EXECUTION_DESCRIPTOR_PATH, FunctionTest.class.getClassLoader())
-			.map(path -> ExecutionDescriptor.loadExecutionDescriptor(ROSETTA_OBJECT_MAPPER, toUrl(path)))
-			.flatMap(Collection::stream)
-			.map(executionDescriptor -> Arguments.of(executionDescriptor.getGroup(),executionDescriptor.getName(), executionDescriptor));
+		return EXECUTION_DESCRIPTOR_PATHS.stream().flatMap(x -> loadFromClasspath(x, FunctionTest.class.getClassLoader()))
+				.map(path -> ExecutionDescriptor.loadExecutionDescriptor(ROSETTA_OBJECT_MAPPER, toUrl(path)))
+				.flatMap(Collection::stream)
+				.map(executionDescriptor -> Arguments.of(executionDescriptor.getGroup(),executionDescriptor.getName(), executionDescriptor));
 	}
 
 	@ParameterizedTest(name = "{0} - {1}")

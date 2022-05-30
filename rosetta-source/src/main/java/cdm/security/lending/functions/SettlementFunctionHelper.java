@@ -12,6 +12,7 @@ import cdm.event.common.functions.CalculateTransfer;
 import cdm.event.common.functions.Create_Execution;
 import cdm.event.common.functions.Create_Return;
 import cdm.event.common.functions.Create_Transfer;
+import cdm.event.workflow.EventInstruction;
 import cdm.event.workflow.WorkflowStep;
 import cdm.product.template.*;
 import com.google.common.collect.Iterables;
@@ -52,14 +53,13 @@ public class SettlementFunctionHelper {
     }
 
     public BusinessEvent createReturn(TradeState tradeState, ReturnInstruction returnInstruction, Date returnDate) {
-        BusinessEvent returnBusinessEvent = create_Return.evaluate(tradeState, returnInstruction, returnDate);
-        return lineageUtils.withGlobalReference(BusinessEvent.class, returnBusinessEvent);
+        return create_Return.evaluate(tradeState, returnInstruction, returnDate);
     }
 
     public BusinessEvent createTransferBusinessEvent(WorkflowStep executionWorkflowStep, WorkflowStep proposedTransferWorkflowStep, LocalDate settlementDate) {
         BusinessEvent transferBusinessEvent = create_transfer.evaluate(
                 getAfterState(executionWorkflowStep.getBusinessEvent()).orElse(null),
-                proposedTransferWorkflowStep.getProposedInstruction().getTransfer(),
+                proposedTransferWorkflowStep.getProposedEvent().getInstruction().get(0).getTransfer(),
                 Date.of(settlementDate));
         return lineageUtils.withGlobalReference(BusinessEvent.class, transferBusinessEvent);
     }
@@ -87,7 +87,7 @@ public class SettlementFunctionHelper {
                 .orElse(LocalDate.now());
     }
 
-    public Instruction createTransferInstruction(BusinessEvent executionBusinessEvent, LocalDate transferDate) {
+    public EventInstruction createTransferInstruction(BusinessEvent executionBusinessEvent, LocalDate transferDate) {
         Payout payout = getSecurityPayout(executionBusinessEvent).orElse(null);
         CalculateTransferInstruction calculateTransferInstruction = CalculateTransferInstruction.builder()
                 .setTradeState(getAfterState(executionBusinessEvent).orElse(null))
@@ -96,10 +96,10 @@ public class SettlementFunctionHelper {
                 .setDate(Date.of(transferDate))
                 .build();
         List<? extends Transfer> transfers = calculateTransfer.evaluate(calculateTransferInstruction);
-        return createTransferInstruction(transfers);
+        return createTransferInstruction(transfers, transferDate);
     }
 
-    public Instruction createReturnTransferInstruction(BusinessEvent executionBusinessEvent,
+    public EventInstruction createReturnTransferInstruction(BusinessEvent executionBusinessEvent,
                                                        List<? extends Quantity> quantities,
                                                        LocalDate transferDate) {
         Payout payout = getSecurityPayout(executionBusinessEvent).orElse(null);
@@ -112,17 +112,18 @@ public class SettlementFunctionHelper {
                 .setDate(Date.of(transferDate))
                 .build();
         List<? extends Transfer> transfers = calculateTransfer.evaluate(calculateTransferInstruction);
-        return createTransferInstruction(transfers);
+        return createTransferInstruction(transfers, transferDate);
     }
 
-    private Instruction createTransferInstruction(List<? extends Transfer> transfers) {
+    private EventInstruction createTransferInstruction(List<? extends Transfer> transfers, LocalDate transferDate) {
         List<TransferState> transferStates = transfers.stream()
                 .map(t -> TransferState.builder().setTransfer(t).build())
                 .collect(Collectors.toList());
-        return Instruction.builder()
-                .setInstructionFunction(Create_Transfer.class.getSimpleName())
-                .setTransfer(TransferInstruction.builder().setTransferState(transferStates))
-                .build();
+        return EventInstruction.builder()
+                .addInstruction(Instruction.builder()
+                        .setInstructionFunction(Create_Transfer.class.getSimpleName())
+                        .setTransfer(TransferInstruction.builder().setTransferState(transferStates)))
+                .setEventDate(Date.of(transferDate));
     }
 
     private Quantity getShareQuantity(List<? extends Quantity> quantities) {
