@@ -683,6 +683,7 @@ class FunctionInputCreationTest {
                                                 .setMeta(MetaFields.builder().setExternalKey("party3"))
                                                 .setNameValue("Bank Z")
                                                 .addPartyId(PartyIdentifier.builder()
+                                                        .setIdentifierType(PartyIdentifierTypeEnum.LEI)
                                                         .setIdentifier(FieldWithMetaString.builder().setValue("LEI3RPT0003").setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
@@ -733,6 +734,7 @@ class FunctionInputCreationTest {
                                                 .setMeta(MetaFields.builder().setExternalKey("party3"))
                                                 .setNameValue("Bank Z")
                                                 .addPartyId(PartyIdentifier.builder()
+                                                        .setIdentifierType(PartyIdentifierTypeEnum.LEI)
                                                         .setIdentifier(FieldWithMetaString.builder().setValue("LEI3RPT0003")
                                                                 .setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
@@ -1340,6 +1342,7 @@ class FunctionInputCreationTest {
                 .filter(p -> p.getName().getValue().equals(partyName))
                 .findFirst().ifPresent(party ->
                         party.addPartyId(PartyIdentifier.builder()
+                                .setIdentifierType(PartyIdentifierTypeEnum.LEI)
                                 .setIdentifier(FieldWithMetaString.builder()
                                         .setValue(partyId)
                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442")
