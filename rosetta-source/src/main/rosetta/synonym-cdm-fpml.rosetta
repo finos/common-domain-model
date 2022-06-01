@@ -184,6 +184,10 @@ synonym source FpML_5_10 extends FpML
 			[value "dividendValuationDates"]
 		+ fPVFinalPriceElectionFallback
 			[value "fPVFinalPriceElectionFallback"]
+		+ multipleExchangeIndexAnnexFallback
+			[value "multipleExchangeIndexAnnexFallback"]
+		+ componentSecurityIndexAnnexFallback
+			[value "componentSecurityIndexAnnexFallback"]
 
     DividendApplicability:
 		+ optionsExchangeDividends
@@ -301,6 +305,8 @@ synonym source FpML_5_10 extends FpML
 			[value "expirationTime"]
 			// For FX Option
 			[value "expiryTime"]
+		+ expirationTimeType
+			[value "equityExpirationTimeType"]
 		+ partialExercise
 			[value "partialExercise"]
 		+ exerciseFee
@@ -539,6 +545,7 @@ synonym source FpML_5_10 extends FpML
 			[value "capRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
 			[value "floorRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation" mapper "PriceCollar"]
 			[value "floatingRateMultiplierSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
+			[value "knownAmountSchedule" path "calculationPeriodAmount"]
 			// For FRAs:
 			[hint "fixedRate"]
 			// For Credit:
@@ -597,8 +604,8 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity
 			[value "notionalQuantity"]
 			[value "totalNotionalQuantity" mapper "TotalNotionalQuantity"]
-			// For Equity / Bond Option
-			[value "numberOfOptions" mapper "NumberOfOptions"]
+			// For Options
+			[value "numberOfOptions" mapper "NumberOfOptions"] // handles optionEntitlement
 		+ observable
 			// For Swap Streams etc
 			[value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
@@ -794,6 +801,7 @@ synonym source FpML_5_10 extends FpML
 		[meta "id"]
 		+ settlementType
 			[value "settlementType"]
+			[value "settlementType" path "equityExercise"]
 		+ settlementCurrency
 			[value "settlementCurrency" meta "currencyScheme"]
 			[value "settlementCurrency" path "settlementProvision"]
@@ -804,6 +812,7 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementCurrency" path "nonDeliverableSettlement"]
 			[value "settlementCurrency" path "cashSettlement"]
 			[value "settlementCurrency" path "exercise"]
+			[value "settlementCurrency" path "equityExercise"]
 			[value "currency" path "amount"]
 
 	SettlementTerms:
@@ -924,6 +933,7 @@ synonym source FpML_5_10 extends FpML
 		+ pricingTime
 			[value "pricingDates"]
 			[value "fixingTime"]
+			[value "valuationTime"]
 		+ observationDates
 			[hint "pricingDates"]
 			[hint "rateObservation"]
@@ -2096,6 +2106,7 @@ synonym source FpML_5_10 extends FpML
             [value "dividendSwapOptionTransactionSupplement" path "trade"]
             [value "equityOptionTransactionSupplement" path "trade"]
             [value "varianceOptionTransactionSupplement" path "trade"]
+			[value "dividendSwapOptionTransactionSupplement" path "trade"]
             // initialPayment / singlePayment
             [value "feeLeg" path "trade->creditDefaultSwap"]
             // additionalPayment
@@ -2340,10 +2351,13 @@ synonym source FpML_5_10 extends FpML
 			[hint "putCurrencyAmount", "callCurrencyAmount"]
 			[value "commodity"]
 			[hint "commoditySwap"]
+			[hint "varianceSwapTransactionSupplement"]
+			[hint "dividendSwapTransactionSupplement"]
 		+ observationTerms
 			[value "asian" path "features"]
 			[hint "pricingDates"]
 			[hint "calculationPeriodsSchedule"]
+			[value "equityValuation" path "equityExercise"]
 
 	SecurityLeg:
 		[meta "id"]
@@ -2515,6 +2529,8 @@ synonym source FpML_5_10 extends FpML
 			[value "brokerEquityOption"]
 			[value "commodityOption"]
 			[value "commoditySwaption"]
+			[value "varianceOptionTransactionSupplement"]
+			[value "dividendSwapOptionTransactionSupplement"]
 		+ forwardPayout
 			[value "fxSingleLeg"]
 			[value "nearLeg"]
@@ -2589,6 +2605,8 @@ synonym source FpML_5_10 extends FpML
 			[value "volatilitySwap", "volatilitySwapTransactionSupplement"]
 			[value "correlationSwap"]
 			[value "dividendSwapTransactionSupplement"]
+			[hint "varianceOptionTransactionSupplement"]
+			[hint "dividendSwapOptionTransactionSupplement"]
 		+ index
 			[hint "index"]
 		+ loan
@@ -2653,7 +2671,6 @@ synonym source FpML_5_10 extends FpML
 			[hint "spotRate"] // for Spot on FX Option (Barrier)
 			// Other
 			[value "repo"]
-			[value "fixedLeg"]
 			[value "floatingLeg"]
 			// Additional payment
 			// Options: Quantity and Observable (Except Swaption, Credit Default Swaption)
@@ -2695,7 +2712,10 @@ synonym source FpML_5_10 extends FpML
             [value "dividendSwapTransactionSupplement"]
             [value "correlationSwap"]
 			[value "volatilitySwapTransactionSupplement"]
-            // Other
+			[value "varianceOptionTransactionSupplement"]
+			[value "dividendSwapTransactionSupplement" path "dividendSwapOptionTransactionSupplement"]
+			[value "varianceSwapTransactionSupplement" path "varianceOptionTransactionSupplement"]
+			// Other
 			[value "commoditySwap"]
 			[hint "commoditySwap"]
 			[hint "commodityOption"]
@@ -3097,8 +3117,6 @@ synonym source FpML_5_10 extends FpML
 
 	NaturalPerson:
 	 	[value "Person" meta "id"]
-		+ personId
-			[value "personId" meta "personIdScheme"]
 		+ honorific
 			[value "honorific"]
 		+ firstName
@@ -3114,6 +3132,12 @@ synonym source FpML_5_10 extends FpML
 		+ dateOfBirth
 			[value "dateOfBirth"]
 
+	PersonIdentifier:
+		+ identifier
+			[value "personId" meta "personIdScheme"]
+		+ country
+			[value "country" path "Person"]
+
 	NaturalPersonRole:
 		+ personReference
 			[value "personReference" meta "href"]
@@ -3122,8 +3146,6 @@ synonym source FpML_5_10 extends FpML
 
 	Party:
 	 	[value "Party" meta "id" maps 2]
-		+ partyId
-			[value "partyId" meta "partyIdScheme"]
 		+ name
 			[value "partyName" meta "entityNameScheme"]
 			[value "entityName" meta "entityNameScheme"]
@@ -3132,6 +3154,13 @@ synonym source FpML_5_10 extends FpML
 			[value "person"]
 		+ account
 			[value "account"]
+
+	PartyIdentifier:
+		+ identifier
+			[value "partyId" meta "partyIdScheme"]
+		+ identifierType
+			[set to PartyIdentifierTypeEnum -> LEI when "partyId->partyIdScheme" = "http://www.fpml.org/coding-scheme/external/iso17442"]
+			[set to PartyIdentifierTypeEnum -> BIC when "partyId->partyIdScheme" = "http://www.fpml.org/coding-scheme/external/iso9362"]
 
 	PartyContactInformation:
 		+ partyReference
@@ -3682,6 +3711,22 @@ synonym source FpML_5_10 extends FpML
 			[value "entitlementCurrency" maps 2 meta "currencyScheme"]
 	
 	enums
+
+	ExpirationTimeTypeEnum:
+		+ Close
+			[value "Close"]
+		+ Open
+			[value "Open"]
+		+ OSP
+			[value "OSP"]
+		+ SpecificTime
+			[value "SpecificTime"]
+		+ XETRA
+			[value "XETRA"]
+		+ DerivativesClose
+			[value "DerivativesClose"]
+		+ AsSpecifiedInMasterConfirmation
+			[value "AsSpecifiedInMasterConfirmation"]
 
 	RealisedVarianceMethodEnum:
 		+ Previous

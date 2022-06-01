@@ -679,8 +679,7 @@ Example of how a code snippet should be edited in the documentation:
 
   type Party:
     [metadata key]
-    partyId string (1..*)
-      [metadata scheme]
+    partyId PartyIdentifier (1..*)
     name string (0..1)
       [metadata scheme]
     person NaturalPerson (0..*)
@@ -692,8 +691,7 @@ And the result will be rendered as:
 
  type Party:
    [metadata key]
-   partyId string (1..*)
-     [metadata scheme]
+   partyId PartyIdentifier (1..*)
    name string (0..1)
      [metadata scheme]
    person NaturalPerson (0..*)
