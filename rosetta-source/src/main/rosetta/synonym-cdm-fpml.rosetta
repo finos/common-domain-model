@@ -184,6 +184,10 @@ synonym source FpML_5_10 extends FpML
 			[value "dividendValuationDates"]
 		+ fPVFinalPriceElectionFallback
 			[value "fPVFinalPriceElectionFallback"]
+		+ multipleExchangeIndexAnnexFallback
+			[value "multipleExchangeIndexAnnexFallback"]
+		+ componentSecurityIndexAnnexFallback
+			[value "componentSecurityIndexAnnexFallback"]
 
     DividendApplicability:
 		+ optionsExchangeDividends
@@ -301,6 +305,8 @@ synonym source FpML_5_10 extends FpML
 			[value "expirationTime"]
 			// For FX Option
 			[value "expiryTime"]
+		+ expirationTimeType
+			[value "equityExpirationTimeType"]
 		+ partialExercise
 			[value "partialExercise"]
 		+ exerciseFee
@@ -598,8 +604,8 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity
 			[value "notionalQuantity"]
 			[value "totalNotionalQuantity" mapper "TotalNotionalQuantity"]
-			// For Equity / Bond Option
-			[value "numberOfOptions" mapper "NumberOfOptions"]
+			// For Options
+			[value "numberOfOptions" mapper "NumberOfOptions"] // handles optionEntitlement
 		+ observable
 			// For Swap Streams etc
 			[value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
@@ -927,6 +933,7 @@ synonym source FpML_5_10 extends FpML
 		+ pricingTime
 			[value "pricingDates"]
 			[value "fixingTime"]
+			[value "valuationTime"]
 		+ observationDates
 			[hint "pricingDates"]
 			[hint "rateObservation"]
@@ -2089,6 +2096,7 @@ synonym source FpML_5_10 extends FpML
             [value "dividendSwapOptionTransactionSupplement" path "trade"]
             [value "equityOptionTransactionSupplement" path "trade"]
             [value "varianceOptionTransactionSupplement" path "trade"]
+			[value "dividendSwapOptionTransactionSupplement" path "trade"]
             // initialPayment / singlePayment
             [value "feeLeg" path "trade->creditDefaultSwap"]
             // additionalPayment
@@ -2333,10 +2341,13 @@ synonym source FpML_5_10 extends FpML
 			[hint "putCurrencyAmount", "callCurrencyAmount"]
 			[value "commodity"]
 			[hint "commoditySwap"]
+			[hint "varianceSwapTransactionSupplement"]
+			[hint "dividendSwapTransactionSupplement"]
 		+ observationTerms
 			[value "asian" path "features"]
 			[hint "pricingDates"]
 			[hint "calculationPeriodsSchedule"]
+			[value "equityValuation" path "equityExercise"]
 
 	SecurityLeg:
 		[meta "id"]
@@ -2508,6 +2519,8 @@ synonym source FpML_5_10 extends FpML
 			[value "brokerEquityOption"]
 			[value "commodityOption"]
 			[value "commoditySwaption"]
+			[value "varianceOptionTransactionSupplement"]
+			[value "dividendSwapOptionTransactionSupplement"]
 		+ forwardPayout
 			[value "fxSingleLeg"]
 			[value "nearLeg"]
@@ -2586,6 +2599,8 @@ synonym source FpML_5_10 extends FpML
 			[value "volatilitySwap", "volatilitySwapTransactionSupplement"]
 			[value "correlationSwap"]
 			[value "dividendSwapTransactionSupplement"]
+			[hint "varianceOptionTransactionSupplement"]
+			[hint "dividendSwapOptionTransactionSupplement"]
 		+ index
 			[hint "index"]
 		+ loan
@@ -2650,7 +2665,6 @@ synonym source FpML_5_10 extends FpML
 			[hint "spotRate"] // for Spot on FX Option (Barrier)
 			// Other
 			[value "repo"]
-			[value "fixedLeg"]
 			[value "floatingLeg"]
 			// Additional payment
 			// Options: Quantity and Observable (Except Swaption, Credit Default Swaption)
@@ -2692,7 +2706,10 @@ synonym source FpML_5_10 extends FpML
             [value "dividendSwapTransactionSupplement"]
             [value "correlationSwap"]
 			[value "volatilitySwapTransactionSupplement"]
-            // Other
+			[value "varianceOptionTransactionSupplement"]
+			[value "dividendSwapTransactionSupplement" path "dividendSwapOptionTransactionSupplement"]
+			[value "varianceSwapTransactionSupplement" path "varianceOptionTransactionSupplement"]
+			// Other
 			[value "commoditySwap"]
 			[hint "commoditySwap"]
 			[hint "commodityOption"]
@@ -3688,6 +3705,22 @@ synonym source FpML_5_10 extends FpML
 			[value "entitlementCurrency" maps 2 meta "currencyScheme"]
 	
 	enums
+
+	ExpirationTimeTypeEnum:
+		+ Close
+			[value "Close"]
+		+ Open
+			[value "Open"]
+		+ OSP
+			[value "OSP"]
+		+ SpecificTime
+			[value "SpecificTime"]
+		+ XETRA
+			[value "XETRA"]
+		+ DerivativesClose
+			[value "DerivativesClose"]
+		+ AsSpecifiedInMasterConfirmation
+			[value "AsSpecifiedInMasterConfirmation"]
 
 	RealisedVarianceMethodEnum:
 		+ Previous
