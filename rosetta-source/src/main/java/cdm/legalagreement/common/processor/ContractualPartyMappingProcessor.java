@@ -2,6 +2,7 @@ package cdm.legalagreement.common.processor;
 
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.Party.PartyBuilder;
+import cdm.base.staticdata.party.PartyIdentifier;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.legalagreement.common.LegalAgreement.LegalAgreementBuilder;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -51,7 +52,7 @@ public class ContractualPartyMappingProcessor extends MappingProcessor {
 				});
 
 		setValueAndUpdateMappings(String.format("%s.entity.id", party),
-				(value) -> partyBuilder.addPartyId(toFieldWithMetaString(value)));
+				(value) -> partyBuilder.addPartyId(PartyIdentifier.builder().setIdentifierValue(value).build()));
 
 		// clean up mappings
 		updateMappings(Path.parse("answers.partyA.parties"), getMappings(), getModelPath());

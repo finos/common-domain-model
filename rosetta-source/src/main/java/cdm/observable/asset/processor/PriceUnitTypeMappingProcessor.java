@@ -16,6 +16,7 @@ import com.rosetta.model.metafields.MetaFields;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,8 +30,14 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 @SuppressWarnings("unused")
 public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 
+
+	private final RosettaPath unitOfAmountCurrencyModelPath;
+	private final RosettaPath perUnitOfAmountCapacityModelPath;
+
 	public PriceUnitTypeMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);
+		unitOfAmountCurrencyModelPath = getModelPath().getParent().newSubPath("unitOfAmount").newSubPath("currency").newSubPath("value");
+		perUnitOfAmountCapacityModelPath = getModelPath().getParent().newSubPath("perUnitOfAmount").newSubPath("capacityUnit");
 	}
 
 	@Override
@@ -44,28 +51,30 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 		if (unitOfAmount != null && unitOfAmount.hasData()) {
 			return;
 		}
-		if (updateCurrencyUnits(priceBuilder, synonymPath, "swapStream", "notionalSchedule", "notionalStepSchedule", "currency")
-				|| updateCurrencyUnits(priceBuilder, synonymPath, "capFloorStream", "notionalSchedule", "notionalStepSchedule", "currency")
-				|| updateCurrencyUnits(priceBuilder, synonymPath, "bondOption", "notionalAmount", "currency")
-				|| updateCurrencyUnits(priceBuilder, synonymPath, "fra", "notional", "currency")
+		boolean result =
+				// Rates
+				updateCurrencyPerCurrencyUnit(priceBuilder, synonymPath, "swapStream", "notionalSchedule", "notionalStepSchedule", "currency")
+				|| updateCurrencyPerCurrencyUnit(priceBuilder, synonymPath, "capFloorStream", "notionalSchedule", "notionalStepSchedule", "currency")
+				|| updateCurrencyPerCurrencyUnit(priceBuilder, synonymPath, "bondOption", "notionalAmount", "currency")
+				|| updateCurrencyPerCurrencyUnit(priceBuilder, synonymPath, "fra", "notional", "currency")
 				// Credit
-				|| updateCurrencyUnits(priceBuilder, synonymPath, "fixedAmountCalculation", "calculationAmount", "currency")
-				|| updateCurrencyUnits(priceBuilder, synonymPath, "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
-				|| updateCurrencyUnits(priceBuilder, synonymPath, "creditDefaultSwapOption", "notionalReference", "href")
-				|| updateCurrencyUnits(priceBuilder, synonymPath, "creditDefaultSwapOption", "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
+				|| updateCurrencyPerCurrencyUnit(priceBuilder, synonymPath, "fixedAmountCalculation", "calculationAmount", "currency")
+				|| updateCurrencyPerCurrencyUnit(priceBuilder, synonymPath, "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
+				|| updateCurrencyPerCurrencyUnit(priceBuilder, synonymPath, "creditDefaultSwapOption", "notionalReference", "href")
+				|| updateCurrencyPerCurrencyUnit(priceBuilder, synonymPath, "creditDefaultSwapOption", "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
 				// Equity
-				|| updateCurrencyUnits(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
-				|| updatePriceUnits(priceBuilder, synonymPath, "netPrice", Arrays.asList("currency"), FinancialUnitEnum.SHARE)
-				|| updatePriceUnits(priceBuilder, synonymPath, "returnLeg", Arrays.asList("notional", "notionalAmount", "currency"), FinancialUnitEnum.SHARE)
-				|| updatePriceUnits(priceBuilder, synonymPath, "equityOption", Arrays.asList("equityExercise", "settlementCurrency"), getPerUnitOfAmountIndexOrShare())
+				|| updateCurrencyPerCurrencyUnit(priceBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
+				|| updateCurrencyPerFinancialUnit(priceBuilder, synonymPath, "netPrice", Collections.singletonList("currency"), FinancialUnitEnum.SHARE)
+				|| updateCurrencyPerFinancialUnit(priceBuilder, synonymPath, "returnLeg", Arrays.asList("notional", "notionalAmount", "currency"), FinancialUnitEnum.SHARE)
+				|| updateCurrencyPerFinancialUnit(priceBuilder, synonymPath, "equityOption", Arrays.asList("strike", "currency"), getPerUnitOfAmountIndexOrShare())
+				|| updateCurrencyPerFinancialUnit(priceBuilder, synonymPath, "equityOption", Arrays.asList("strikePricePerUnit", "currency"), getPerUnitOfAmountIndexOrShare())
+				|| updateCurrencyPerFinancialUnit(priceBuilder, synonymPath, "equityOption", Arrays.asList("equityExercise", "settlementCurrency"), getPerUnitOfAmountIndexOrShare())
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
 				// Repo
-				|| updateCurrencyUnits(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")
+				|| updateCurrencyPerCurrencyUnit(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")
 				// Commodity
-				|| updatePriceUnits(priceBuilder, synonymPath, "commodityOption", Arrays.asList("strikePricePerUnit", "currency"), Arrays.asList("notionalQuantity", "quantityUnit"))) {
-			return;
-		}
+				|| updateCurrencyPerCapacityUnit(priceBuilder, synonymPath, "commodityOption", Arrays.asList("strikePricePerUnit", "currency"), Arrays.asList("notionalQuantity", "quantityUnit"));
 	}
 
 	@NotNull
@@ -73,12 +82,19 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 		return exists(Arrays.asList("underlyer", "singleUnderlyer", "index", "instrumentId")) ? FinancialUnitEnum.INDEX_UNIT : FinancialUnitEnum.SHARE;
 	}
 
-	private boolean updateCurrencyUnits(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
-		return subPath(basePathElement, synonymPath)
-				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, endsWith))
+	private boolean updateCurrencyPerCurrencyUnit(PriceBuilder builder, Path synonymPath, String basePathElement, String... endsWith) {
+		Optional<Mapping> mapping = subPath(basePathElement, synonymPath)
+				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, endsWith));
+		return mapping
 				.map(m -> m.getXmlPath().endsWith("href") ? findReference(synonymPath, m) : m)
 				.map(this::toCurrencyUnitType)
-				.map(u -> updateBuilder(builder, u, u))
+				.map(u -> {
+					// Update builder
+					updateBuilder(builder, u, u);
+					// Update mappings
+					updateEmptyMappings(mapping.get().getXmlPath(), getMappings(), unitOfAmountCurrencyModelPath);
+					return true;
+				})
 				.orElse(false);
 	}
 
@@ -88,49 +104,58 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				.map(String::valueOf)
 				.flatMap(notionalHef -> getNonNullMappingId(getBasePath(synonymPath), notionalHef))
 				.map(Mapping::getXmlPath)
-				.map(p -> p.getParent())
+				.map(Path::getParent)
 				.flatMap(referencedPath -> getNonNullMapping(getMappings(), referencedPath, "currency"))
 				.orElse(null);
 	}
 
-	private boolean updatePriceUnits(PriceBuilder builder, Path synonymPath, String basePathElement, List<String> endsWith, FinancialUnitEnum perUnitOfAmount) {
+	private boolean updateCurrencyPerFinancialUnit(PriceBuilder builder, Path synonymPath, String basePathElement, List<String> endsWith, FinancialUnitEnum perUnitOfAmount) {
 		return subPath(basePathElement, synonymPath)
 				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(endsWith)))
-				.map(currencyMapping -> updateBuilder(builder,
+				.map(currencyMapping -> {
+					// Update builder
+					updateBuilder(builder,
 						toCurrencyUnitType(currencyMapping),
-						UnitType.builder().setFinancialUnit(perUnitOfAmount)))
+						UnitType.builder().setFinancialUnit(perUnitOfAmount));
+					// Update mappings
+					updateEmptyMappings(currencyMapping.getXmlPath(), getMappings(), unitOfAmountCurrencyModelPath);
+					return true;
+				})
 				.orElse(false);
 	}
 
-	private boolean updatePriceUnits(PriceBuilder builder, Path synonymPath, String basePathElement, List<String> unitOfAmountEndsWith, List<String> perUnitOfAmountEndsWith) {
+	private boolean updateCurrencyPerCapacityUnit(PriceBuilder builder,
+												  Path synonymPath,
+												  String basePathElement,
+												  List<String> unitOfAmountEndsWith,
+												  List<String> perUnitOfAmountEndsWith) {
 		Optional<Path> basePath = subPath(basePathElement, synonymPath);
-		Optional<UnitTypeBuilder> unitOfAmount = basePath
-				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(unitOfAmountEndsWith)))
-				.map(this::toCurrencyUnitType);
-		Optional<UnitTypeBuilder> perUnitOfAmount = basePath
-				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(perUnitOfAmountEndsWith)))
-				.map(this::toCapacityUnitEnumType);
-		return unitOfAmount.flatMap(uoa -> perUnitOfAmount.map(puoa -> updateBuilder(builder, uoa, puoa)))
+		Optional<Mapping> unitOfAmountMapping = basePath
+				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(unitOfAmountEndsWith)));
+		Optional<UnitTypeBuilder> unitOfAmount = unitOfAmountMapping.map(this::toCurrencyUnitType);
+		Optional<Mapping> perUnitOfAmountMapping = basePath
+				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(perUnitOfAmountEndsWith)));
+		Optional<UnitTypeBuilder> perUnitOfAmount = perUnitOfAmountMapping .map(this::toCapacityUnitEnumType);
+		return unitOfAmount
+				.flatMap(uoa -> perUnitOfAmount
+						.map(puoa -> {
+							// Update builder
+							updateBuilder(builder, uoa, puoa);
+							// Update mappings
+							updateEmptyMappings(unitOfAmountMapping.get().getXmlPath(), getMappings(), unitOfAmountCurrencyModelPath);
+							updateEmptyMappings(perUnitOfAmountMapping.get().getXmlPath(), getMappings(), perUnitOfAmountCapacityModelPath);
+							return true;
+						}))
 				.orElse(false);
 	}
 
-	private boolean updatePriceUnits(PriceBuilder builder, Optional<FinancialUnitEnum> unitOfAmountOptional, FinancialUnitEnum perUnitOfAmount) {
-		return unitOfAmountOptional
-				.map(unitOfAmount -> updateBuilder(builder,
-						UnitType.builder().setFinancialUnit(unitOfAmount),
-						UnitType.builder().setFinancialUnit(perUnitOfAmount)))
-				.orElse(false);
-	}
-
-	@NotNull
-	private Boolean updateBuilder(PriceBuilder builder, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount) {
+	private void updateBuilder(PriceBuilder builder, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount) {
 		// unit of amount
 		builder.setUnitOfAmount(unitOfAmount);
 		// per unit of amount
 		if (builder.getPriceExpression().getPriceType() != PriceTypeEnum.MULTIPLIER_OF_INDEX_VALUE) {
 			builder.setPerUnitOfAmount(perUnitOfAmount);
 		}
-		return true;
 	}
 
 	private UnitTypeBuilder toCurrencyUnitType(Mapping currencyMapping) {
@@ -166,26 +191,33 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 	private boolean exists(List<String> pathEndsWith) {
 		return getMappings().stream()
 				.filter(m -> m.getXmlPath().endsWith(toArray(pathEndsWith)))
-				.filter(m -> m.getXmlValue() != null)
-				.findFirst().isPresent();
+				.anyMatch(m -> m.getXmlValue() != null);
 	}
 
 	private boolean updateFxOption(PriceBuilder builder, Path synonymPath) {
 		Optional<Path> subPath = subPath("fxOption", synonymPath);
-		return subPath.flatMap(p -> getValueAndUpdateMappings(p.addElement("strike").addElement("strikeQuoteBasis")))
-				.map(quoteBasis -> setFxOptionRateUnits(builder, subPath.get(), quoteBasis))
+		return subPath
+				.flatMap(p -> getValueAndUpdateMappings(p.addElement("strike").addElement("strikeQuoteBasis")))
+				.map(quoteBasis -> {
+					// Update builder
+					setFxOptionRateUnits(builder, subPath.get(), quoteBasis);
+					return true;
+				})
 				.orElse(false);
 	}
 
-	private boolean setFxOptionRateUnits(PriceBuilder builder, Path subPath, String quoteBasis) {
-		UnitTypeBuilder callCurrency = getNonNullMapping(getMappings(), subPath, "callCurrencyAmount", "currency").map(this::toCurrencyUnitType).orElse(null);
-		UnitTypeBuilder putCurrency = getNonNullMapping(getMappings(), subPath, "putCurrencyAmount", "currency").map(this::toCurrencyUnitType).orElse(null);
+	private void setFxOptionRateUnits(PriceBuilder builder, Path subPath, String quoteBasis) {
+		UnitTypeBuilder callCurrency = getNonNullMapping(getMappings(), subPath, "callCurrencyAmount", "currency")
+				.map(this::toCurrencyUnitType)
+				.orElse(null);
+		UnitTypeBuilder putCurrency = getNonNullMapping(getMappings(), subPath, "putCurrencyAmount", "currency")
+				.map(this::toCurrencyUnitType)
+				.orElse(null);
 		if (quoteBasis.equals("CallCurrencyPerPutCurrency")) {
 			builder.setUnitOfAmount(callCurrency).setPerUnitOfAmount(putCurrency);
 		} else if (quoteBasis.equals("PutCurrencyPerCallCurrency")) {
 			builder.setUnitOfAmount(putCurrency).setPerUnitOfAmount(callCurrency);
 		}
-		return true;
 	}
 
 	private Path getBasePath(Path synonymPath) {
@@ -195,6 +227,16 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 
 	@NotNull
 	private String[] toArray(List<String> a) {
-		return a.toArray(new String[a.size()]);
+		return a.toArray(new String[0]);
+	}
+
+	public static void updateEmptyMappings(Path synonymPath, List<Mapping> mappings, RosettaPath rosettaPath) {
+		mappings.stream()
+				.filter((p) -> synonymPath.fullStartMatches(p.getXmlPath()))
+				.forEach((m) -> {
+					// Update if it is not mapped yet (e.g. no model path), or has a mapping error
+					if (m.getRosettaPath() == null || m.getError() != null)
+						updateMappingSuccess(m, rosettaPath);
+				});
 	}
 }
