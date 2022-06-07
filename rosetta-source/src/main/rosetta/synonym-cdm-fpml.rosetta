@@ -41,9 +41,9 @@ synonym source FpML_5_10 extends FpML
             [value "singleUnderlyer" path "underlyer", "underlyer"]
         + fxFeature
             [value "fxFeature" path "fxFeature"]
-		+ valuationDates
-			[hint "valuationDate"]
-			[hint "valuationDateOffset"]
+		//+ valuationDates
+		//	[hint "valuationDate"]
+		//	[hint "valuationDateOffset"]
 
     EquityValuationDates:
 		+ valuationDate
@@ -57,7 +57,7 @@ synonym source FpML_5_10 extends FpML
 		+ valuationTime
 			[value "valuationTime" path "valuation"]
 
-    EquityObservation:
+    EquityObservation: // TODO, remove?
 		+ observationDates
 			[hint "amount"]
 			[hint "valuation"]
@@ -544,14 +544,15 @@ synonym source FpML_5_10 extends FpML
 		+ startDate
 			[value "calculationStartDate"]
 			[hint "startDate"]
-			[value "observationStartDate" path "amount"]
-			[hint "businessCenters"]
-			[hint "businessCentersReference"]
+			//[value "observationStartDate" path "amount"]
+			[value "observationStartDate"]
+			//[hint "businessCenters"]
+			//[hint "businessCentersReference"]
 		+ endDate
 			[value "calculationEndDate"]
 			[hint "endDate"]
-			[hint "businessCenters"]
-			[hint "businessCentersReference"]
+			//[hint "businessCenters"]
+			//[hint "businessCentersReference"]
 		+ periodFrequency
 			[value "calculationPeriodFrequency"]
 			[value "paymentFrequency"]
@@ -663,7 +664,7 @@ synonym source FpML_5_10 extends FpML
             [hint "bond", "convertibleBond"]
 			// For Commodity Swap Floating Leg
 			[hint "commodity"]
-			[hint "quotedCurrencyPair"]
+			//[hint "quotedCurrencyPair"]
 		+ settlementTerms
 			[hint "paymentDelay"]
 			[hint "paymentDate"]
@@ -697,13 +698,15 @@ synonym source FpML_5_10 extends FpML
 			// [value "fixedPrice" mapper "PriceUnitType"] mapper required
 		+ unitOfAmount
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
-			[value "quotedCurrencyPair" set when "fxVarianceSwap" is absent and "fxVolatilitySwap" is absent]
+			[value "quotedCurrencyPair"]
+            //[value "quotedCurrencyPair" set when "fxVarianceSwap" is absent and "fxVolatilitySwap" is absent]
 			[value "settlementAmount" path "nearLeg"]
 			// For Commodity Swap Fixed Leg
 			[hint "priceCurrency"]
 		+ perUnitOfAmount
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
-			[value "quotedCurrencyPair"set when "fxVarianceSwap" is absent and "fxVolatilitySwap" is absent]
+			[value "quotedCurrencyPair"]
+            //[value "quotedCurrencyPair"set when "fxVarianceSwap" is absent and "fxVolatilitySwap" is absent]
 			[value "settlementAmount" path "nearLeg"]
 			[value "amount"]
 			// For Commodity Swap Fixed Leg
@@ -971,17 +974,17 @@ synonym source FpML_5_10 extends FpML
 			[value "fixingTime"]
 			[value "fixingTime" path "fixingInformationSource"]
 			[value "valuationTime"]
-		+ observationDates
-			[hint "pricingDates"]
-			[hint "rateObservation"]
-			[hint "observationSchedule"]
-			[hint "fixingSchedule"]
+		//+ observationDates // can all these hints be removed?
+		//	[hint "pricingDates"]
+		//	[hint "rateObservation"]
+		//	[hint "observationSchedule"]
+		//	[hint "fixingSchedule"]
 		+ pricingTimeType
 			[value "pricingDates"]
 		+ calculationPeriodDates
 			[hint "calculationPeriodsSchedule"]
-		+ informationSource
-			[value "fixingInformationSource"]
+		//+ informationSource
+		//	[value "fixingInformationSource"]
 		+ numberOfObservationDates
 			[value "numberOfReturns"]
 
@@ -1161,6 +1164,7 @@ synonym source FpML_5_10 extends FpML
 		+ periodicSchedule
 			[value "observationSchedule"]
 			[value "fixingSchedule"]
+			[value "amount"]
 		+ parametricDates
 			[value "observationSchedule"]
 			[value "pricingDates"]
@@ -1330,7 +1334,7 @@ synonym source FpML_5_10 extends FpML
 			[value "stubPeriodType" path "calculationPeriodDates"]
 		+ calculationPeriodFrequency
 			[value "calculationPeriodFrequency" path "calculationPeriodDates"]
-			[value "periodicPayment"]
+			//[value "periodicPayment"]
 			// for Commodity Floating Leg (Payout)
 			[value "calculationPeriodsSchedule"]
 
@@ -1868,12 +1872,12 @@ synonym source FpML_5_10 extends FpML
 			[meta "initialValue"]
 			[meta "amount"]
 			[meta "quantity"]
-			[value "varianceAmount" path "amount->variance" meta "amount"]
+			[meta "notional"]
+            [value "varianceAmount" path "amount->variance" meta "amount"]
             [value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
             [value "notionalAmount" path "amount->correlation" meta "amount"]
             [value "volatility" path "amount" meta "vegaNotionalAmount"]
-			[value "notional"]
-        + step
+		+ step
             [value "step"]
 			[value "notionalStep"]
 
@@ -2884,8 +2888,8 @@ synonym source FpML_5_10 extends FpML
 			[value "dateAdjustments" path "paymentDate->adjustableDate"]
 			[value "dateAdjustments" path "adjustableDate"]
 			[value "dateAdjustments" path "paymentDate"]
-			[hint "businessCenters"]
-			[hint "businessCentersReference"]
+			//[hint "businessCenters"]
+			//[hint "businessCentersReference"]
 		+ dateAdjustmentsReference
 			[value "dateAdjustmentsReference" meta "href"]
 		+ adjustedDate
@@ -2946,12 +2950,12 @@ synonym source FpML_5_10 extends FpML
 		[meta "id"]
 		[meta "id" path "adjustedEffectiveDate"]
 		[meta "id" path "calculationPeriodsReference"]
-		+ adjustableDate
-			[hint "valuationDate"]
-			[hint "startDate"]
-			[hint "endDate"]
-			[hint "businessCenters"]
-			[hint "businessCentersReference"]
+		//+ adjustableDate
+		//	[hint "valuationDate"]
+		//	[hint "startDate"]
+		//	[hint "endDate"]
+		//	[hint "businessCenters"]
+		//	[hint "businessCentersReference"]
 		+ relativeDate
 			[value "relativeDate"]
 			[value "relativeDate" path "paymentDate"]
@@ -2959,7 +2963,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "period"]
 			[hint "dayType"]
 			[hint "businessDayConvention"]
-			//[hint "businessCenters"]
+			[hint "businessCenters"]
 			[hint "dateRelativeTo"]
 			[hint "relativeDateAdjustments"]
 			[value "relativeDate" path "paymentDateFinal"]
