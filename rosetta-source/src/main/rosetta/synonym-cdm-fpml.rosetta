@@ -37,6 +37,9 @@ synonym source FpML
 synonym source FpML_5_10 extends FpML
 {
     PerformancePayout:
+        + payerReceiver
+            [hint "fixedLeg"]
+            [hint "floatingLeg"]
         + underlier
             [value "singleUnderlyer" path "underlyer", "underlyer"]
         + fxFeature
@@ -56,11 +59,6 @@ synonym source FpML_5_10 extends FpML
 			[value "valuationTimeType" path "valuation"]
 		+ valuationTime
 			[value "valuationTime" path "valuation"]
-
-    EquityObservation: // TODO, remove?
-		+ observationDates
-			[hint "amount"]
-			[hint "valuation"]
 
     ReturnTerms:
 		+ varianceReturnTerms
@@ -2391,6 +2389,9 @@ synonym source FpML_5_10 extends FpML
 
 	OptionPayout:
 		[meta "id"]
+		+ payerReceiver
+		    [hint "putCurrencyAmount"]
+		    [hint "callCurrencyAmount"]
 		+ optionType
 			[value "optionType"]
 			[set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
@@ -2526,6 +2527,11 @@ synonym source FpML_5_10 extends FpML
 			[value "haircutThreshold"]
 
 	PayoutBase:
+	    + payerReceiver
+            [hint "payerPartyReference"]
+            [hint "receiverPartyReference"]
+            [hint "buyerPartyReference"]
+            [hint "sellerPartyReference"]
 		+ payoutQuantity
 			// For Swap Stream:
 			[value "calculation" path "calculationPeriodAmount"]
@@ -3106,12 +3112,16 @@ synonym source FpML_5_10 extends FpML
 		+ payer
 			[value "payerPartyReference" mapper "Payer"]
 			[value "buyerPartyReference" maps 2 mapper "Payer"]
+            [value "payerPartyReference" path "floatingLeg" mapper "Payer"]
+			[value "receiverPartyReference" path "fixedLeg" mapper "Payer"]
 			[value "putCurrencyAmount" maps 2 mapper "OptionBuyerAsPayer"]
 			[value "callCurrencyAmount" maps 2 mapper "OptionSellerAsPayer"]
 		+ receiver
 			[value "receiverPartyReference" mapper "Receiver"]
 			[value "sellerPartyReference" maps 2 mapper "Receiver"]
-			[value "putCurrencyAmount" maps 2 mapper "OptionSellerAsReceiver"]
+            [value "payerPartyReference" path "fixedLeg" mapper "Receiver"]
+			[value "receiverPartyReference" path "floatingLeg" mapper "Receiver"]
+            [value "putCurrencyAmount" maps 2 mapper "OptionSellerAsReceiver"]
 			[value "callCurrencyAmount" maps 2 mapper "OptionBuyerAsReceiver"]
 
 	PartyReferencePayerReceiver:
