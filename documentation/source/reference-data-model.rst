@@ -15,8 +15,7 @@ The ``LegalEntity`` type is used when only a legal entity reference is appropria
 
  type Party:
    [metadata key]
-   partyId string (1..*)
-     [metadata scheme]
+   partyId PartyIdentifier (1..*)
    name string (0..1)
      [metadata scheme]
    person NaturalPerson (0..*)
@@ -26,7 +25,7 @@ The ``LegalEntity`` type is used when only a legal entity reference is appropria
 
  type NaturalPerson:
    [metadata key]
-   personId string (0..*)
+   personId PersonIdentifier (0..*)
      [metadata scheme]
    honorific string (0..1)
    firstName string (0..1)

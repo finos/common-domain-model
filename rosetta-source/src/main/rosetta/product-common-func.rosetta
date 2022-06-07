@@ -624,6 +624,165 @@ func Qualify_IndexVanillaOption: <"Qualifies a product as a plain vanilla Index 
 		and (economicTerms -> payout -> optionPayout -> feature is absent
 			or economicTerms -> payout -> optionPayout -> feature -> averagingRateFeature only exists)
 
+func Qualify_EquityOption_ParameterReturnVariance_SingleName: <"Qualifies a product as an Equity Variance Single Name Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout or option payout and cashflow and 2) the underlying product is a Single Name Equity Variance Swap">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	[synonym ISDA_Taxonomy_v1 value "EquityOption_ParameterReturnVariance_SingleName"]
+	[synonym ISDA_Taxonomy_v2 value "EquityOption_ParameterReturnVariance_SingleName"]
+
+	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
+	set is_product:
+	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+        (economicTerms -> payout -> optionPayout only exists
+			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+
+        // qualifies that the underlier is a single name variance swap
+        and Qualify_EquitySwap_ParameterReturnVariance_SingleName (underlierEconomicTerms) = True
+
+func Qualify_EquityOption_ParameterReturnVariance_Index: <"Qualifies a product as an Equity Variance Index Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout or option payout and cashflow and 2) the underlying product is aan Index Equity Variance Swap">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	[synonym ISDA_Taxonomy_v1 value "EquityOption_ParameterReturnVariance_Index"]
+	[synonym ISDA_Taxonomy_v2 value "EquityOption_ParameterReturnVariance_Index"]
+
+	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
+	set is_product:
+	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+        (economicTerms -> payout -> optionPayout only exists
+			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+
+	    // qualifies that the underlier is an index variance swap
+        and Qualify_EquitySwap_ParameterReturnVariance_Index (underlierEconomicTerms) = True
+        //and Qualify_EquitySwap_ParameterReturnVariance_Index (economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element) = True
+
+func Qualify_EquityOption_ParameterReturnVariance_Basket: <"Qualifies a product as an Equity Variance Basket Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout or option payout and cashflow and 2) the underlying product is a Basket Equity Variance Swap">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	[synonym ISDA_Taxonomy_v1 value "Qualify_EquityOption_ParameterReturnVariance_Basket"]
+	[synonym ISDA_Taxonomy_v2 value "Qualify_EquityOption_ParameterReturnVariance_Basket"]
+
+	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
+	set is_product:
+	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+        (economicTerms -> payout -> optionPayout only exists
+			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+
+        // qualifies that the underlier is a basket variance swap
+        and Qualify_EquitySwap_ParameterReturnVariance_Basket (underlierEconomicTerms) = True
+
+func Qualify_EquityOption_ParameterReturnVolatility_SingleName: <"Qualifies a product as an Equity Volatility Single Name Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout or option payout and cashflow and 2) the underlying product is a Single Name Equity Volatility Swap">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	[synonym ISDA_Taxonomy_v1 value "EquityOption_ParameterReturnVolatility_SingleName"]
+	[synonym ISDA_Taxonomy_v2 value "EquityOption_ParameterReturnVolatility_SingleName"]
+
+	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
+	set is_product:
+	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+        (economicTerms -> payout -> optionPayout only exists
+			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+
+        // qualifies that the underlier is a single name volatility swap
+        and Qualify_EquitySwap_ParameterReturnVolatility_SingleName (underlierEconomicTerms) = True
+
+func Qualify_EquityOption_ParameterReturnVolatility_Index: <"Qualifies a product as an Equity Volatility Index Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout or option payout and cashflow and 2) the underlying product is aan Index Equity Volatility Swap">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	[synonym ISDA_Taxonomy_v1 value "EquityOption_ParameterReturnVolatility_Index"]
+	[synonym ISDA_Taxonomy_v2 value "EquityOption_ParameterReturnVolatility_Index"]
+
+	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
+	set is_product:
+	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+        (economicTerms -> payout -> optionPayout only exists
+			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+
+        // qualifies that the underlier is an index volatility swap
+        and Qualify_EquitySwap_ParameterReturnVolatility_Index (underlierEconomicTerms) = True
+
+func Qualify_EquityOption_ParameterReturnVolatility_Basket: <"Qualifies a product as an Equity Volatility Basket Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout or option payout and cashflow and 2) the underlying product is a Basket Equity Volatility Swap">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	[synonym ISDA_Taxonomy_v1 value "Qualify_EquityOption_ParameterReturnVolatility_Basket"]
+	[synonym ISDA_Taxonomy_v2 value "Qualify_EquityOption_ParameterReturnVaolatility_Basket"]
+
+	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
+	set is_product:
+	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+        (economicTerms -> payout -> optionPayout only exists
+			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+
+        // qualifies that the underlier is a basket volatility swap
+        and Qualify_EquitySwap_ParameterReturnVolatility_Basket (underlierEconomicTerms) = True
+
+func Qualify_EquityOption_ParameterReturnCorrelation_Basket: <"Qualifies a product as an Equity Correlation Basket Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout or option payout and cashflow and 2) the underlying product is a Basket Equity Correlation Swap">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+
+	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
+	set is_product:
+	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+        (economicTerms -> payout -> optionPayout only exists
+			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+
+        // qualifies that the underlier is a basket correlation swap
+        and Qualify_EquitySwap_ParameterReturnCorrelation_Basket (underlierEconomicTerms) = True
+
+func Qualify_EquityOption_ParameterReturnDividend_SingleName: <"Qualifies a product as an Equity Dividend Single Name Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout or option payout and cashflow and 2) the underlying product is a Single Name Equity Dividend Swap">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	[synonym ISDA_Taxonomy_v1 value "Qualify_EquityOption_ParameterReturnDividend_SingleName"]
+	[synonym ISDA_Taxonomy_v2 value "Qualify_EquityOption_ParameterReturnDividend_SingleName"]
+
+	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
+	set is_product:
+	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+        (economicTerms -> payout -> optionPayout only exists
+			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+
+        // qualifies that the underlier is a single name dividend swap
+        and Qualify_EquitySwap_ParameterReturnDividend_SingleName (underlierEconomicTerms) = True
+
+func Qualify_EquityOption_ParameterReturnDividend_Index: <"Qualifies a product as an Equity Dividend Index Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout or option payout and cashflow and 2) the underlying product is an Index Equity Dividend Swap">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	[synonym ISDA_Taxonomy_v1 value "Qualify_EquityOption_ParameterReturnDividend_Index"]
+	[synonym ISDA_Taxonomy_v2 value "Qualify_EquityOption_ParameterReturnDividend_Index"]
+
+	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
+	set is_product:
+	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+        (economicTerms -> payout -> optionPayout only exists
+			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+
+        // qualifies that the underlier is a single name dividend swap
+        and Qualify_EquitySwap_ParameterReturnDividend_Index (underlierEconomicTerms) = True
+
+func Qualify_EquityOption_ParameterReturnDividend_Basket: <"Qualifies a product as an Equity Dividend Basket Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout or option payout and cashflow and 2) the underlying product is a Basket Equity Dividend Swap">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	[synonym ISDA_Taxonomy_v1 value "Qualify_EquityOption_ParameterReturnDividend_Index"]
+	[synonym ISDA_Taxonomy_v2 value "Qualify_EquityOption_ParameterReturnDividend_Index"]
+
+	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
+	set is_product:
+	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+        (economicTerms -> payout -> optionPayout only exists
+			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+
+        // qualifies that the underlier is a single name dividend swap
+        and Qualify_EquitySwap_ParameterReturnDividend_Basket (underlierEconomicTerms) = True
+
 func Qualify_AssetClass_InterestRate_Swap: <"Qualifies a product as having the Asset Class classification Interest Rate.">
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
