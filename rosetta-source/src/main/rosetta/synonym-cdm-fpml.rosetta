@@ -383,6 +383,10 @@ synonym source FpML_5_10 extends FpML
 			[value "averagingMethod"]
 		+ negativeInterestRateTreatment
 			[value "negativeInterestRateTreatment"]
+		+ capRateSchedule
+			[value "capRateSchedule" path "floatingRateCalculation"]
+		+ floorRateSchedule
+			[value "floorRateSchedule" path "floatingRateCalculation"]
 
 	FutureValueAmount:
 		+ quantity
@@ -545,7 +549,6 @@ synonym source FpML_5_10 extends FpML
 			[value "capRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
 			[value "floorRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation" mapper "PriceCollar"]
 			[value "floatingRateMultiplierSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
-			[value "knownAmountSchedule" path "calculationPeriodAmount"]
 			// For FRAs:
 			[hint "fixedRate"]
 			// For Credit:
@@ -576,6 +579,7 @@ synonym source FpML_5_10 extends FpML
 		    [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
 		    [value "futureValueNotional" path "calculationPeriodAmount->calculation"]
 		    [value "notionalAmount"]
+			[value "knownAmountSchedule" path "calculationPeriodAmount"]
             // For FRAs:
             [value "notional"]
             // For CDS, Swaption, Index:
@@ -604,7 +608,7 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity
 			[value "notionalQuantity"]
 			[value "totalNotionalQuantity" mapper "TotalNotionalQuantity"]
-			// For Options
+// For Options
 			[value "numberOfOptions" mapper "NumberOfOptions"] // handles optionEntitlement
 		+ observable
 			// For Swap Streams etc
@@ -1092,6 +1096,7 @@ synonym source FpML_5_10 extends FpML
 	OptionStrike:
 		+ strikePrice
 			[value "price"]
+			[hint "price"]
 			[hint "strikePrice"]
 			[hint "rate"]
 			[hint "spread"]
@@ -1669,6 +1674,7 @@ synonym source FpML_5_10 extends FpML
 			[value "instrumentId" path "loan" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "commodity" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "exchangeTradedContractNearest" maps 2 meta "instrumentIdScheme"]
+			[value "instrumentId" maps 2 meta "instrumentIdScheme"]
 			[value "productId" maps 2 meta "productIdScheme"]
 		+ source
 		    // Bond
@@ -1746,9 +1752,7 @@ synonym source FpML_5_10 extends FpML
 	ProductIdentification:
 		+ primaryAssetData
 			[value "primaryAssetClass" meta "assetClassScheme"]
-			[value "primaryAssetClass" path "fra" meta "assetClassScheme"]
-			[value "primaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
-
+		
 		+ secondaryAssetData
 			[value "secondaryAssetClass" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "fra" meta "assetClassScheme"]
@@ -1757,7 +1761,7 @@ synonym source FpML_5_10 extends FpML
             [hint "productId"]
 			[value "fra"]
             [value "creditDefaultSwapOption"]
-
+		
 
 	ExternalProductType:
 		+ value
@@ -2201,6 +2205,7 @@ synonym source FpML_5_10 extends FpML
 			// For CDS Option, CDX Index Option, Bond Option, Swaption:
 			[value "notionalReference" meta "href"]
 		+ quantitySchedule
+			[value "knownAmountSchedule"]
 			[value "notionalStepSchedule" path "notionalSchedule"]
 			[value "notional"]
 			[value "notionalAmount"]
@@ -2288,7 +2293,7 @@ synonym source FpML_5_10 extends FpML
 			[value "dayCountFraction" path "calculationPeriodAmount->calculation" meta "dayCountFractionScheme"]
 			[value "dayCountFraction" path "periodicPayment->fixedAmountCalculation" meta "dayCountFractionScheme"]
 			[value "dayCountFraction" path "periodicPayment->floatingAmountCalculation" meta "dayCountFractionScheme"]
-			[value "dayCountFraction"]
+			[value "dayCountFraction" meta "dayCountFractionScheme"]
 			[value "dayCountFraction" path "interestCalculation" meta "dayCountFractionScheme"]
 		+ paymentDates
 			[value "paymentDates"]
@@ -2472,6 +2477,7 @@ synonym source FpML_5_10 extends FpML
 
 	PayoutBase:
 		+ payoutQuantity
+			[value "calculationPeriodAmount"]
 			// For Swap Stream:
 			[value "calculation" path "calculationPeriodAmount"]
 			// For FRAs and Equity Swap:
@@ -2567,6 +2573,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "capFloor"]
 			// For FRA:
 			[hint "fra"]
+			[value "fra"]
 			// For Bond Options:
 			[hint "bondOption"]
 			// For CDS:
@@ -2574,6 +2581,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "creditDefaultSwap"]
 			// For CDS Option
 			[hint "creditDefaultSwapOption"]
+			[value "creditDefaultSwapOption"]
 			// For FX:
 			[hint "fxSingleLeg"]
 			[value "fxSingleLeg"]
@@ -2715,7 +2723,7 @@ synonym source FpML_5_10 extends FpML
 			[value "varianceOptionTransactionSupplement"]
 			[value "dividendSwapTransactionSupplement" path "dividendSwapOptionTransactionSupplement"]
 			[value "varianceSwapTransactionSupplement" path "varianceOptionTransactionSupplement"]
-			// Other
+            // Other
 			[value "commoditySwap"]
 			[hint "commoditySwap"]
 			[hint "commodityOption"]
@@ -3155,7 +3163,7 @@ synonym source FpML_5_10 extends FpML
 		+ account
 			[value "account"]
 
-	PartyIdentifier:
+PartyIdentifier:
 		+ identifier
 			[value "partyId" meta "partyIdScheme"]
 		+ identifierType
@@ -3493,7 +3501,15 @@ synonym source FpML_5_10 extends FpML
 		+ securedList
 			[value "securedList"]
 
+	Bond:
+		+ couponRate
+			[value "couponRate"]
+		+ maturity
+			[value "maturity"]
+
 	ReferenceObligation:
+		+ bond
+		 	[value "bond"]
 		+ security
 			[hint "bond"]
 			[hint "convertibleBond"]
@@ -3711,8 +3727,26 @@ synonym source FpML_5_10 extends FpML
 			[value "entitlementCurrency" maps 2 meta "currencyScheme"]
 	
 	enums
+	
+CreditSeniorityEnum:
+	+ Other
+		[value "Other"]
+	+ SeniorLossAbsorbingCapacity 
+		[value "SeniorLossAbsorbingCapacity"]
+	+ SeniorSec
+		[value "SeniorSec"] 
+	+ SeniorUnSec 
+		[value "SeniorUnSec"]
+	+ SubLowerTier2 
+		[value "SubLowerTier2"]
+	+ SubTier1 
+		[value "SubTier1"]
+	+ SubTier3 
+		[value "SubTier3"]
+	+ SubUpperTier2 
+		[value "SubUpperTier2"]
 
-	ExpirationTimeTypeEnum:
+ExpirationTimeTypeEnum:
 		+ Close
 			[value "Close"]
 		+ Open
