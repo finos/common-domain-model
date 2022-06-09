@@ -7,7 +7,7 @@ The new `Payout` `performancePayout` was recently introduced to allow for repres
 _What is being released?_
 
 - Minor changes to Performance Payout to enable it to accommodate FX variance and FX volatility swaps.
-- Mapping coverage FX variance and FX volatility swaps.
+- Mapping coverage for FX variance and FX volatility swaps.
 - Minor adjustments to FX qualification functions.
 
 _Functions_
@@ -37,5 +37,5 @@ In the CDM Portal, select the Textual Browser and inspect each of the changes id
 In the CDM Portal, select Ingestion and review the following samples:
 
 fpml-5-10/incomplete-products/fx-derivatives
-- fx ex30 variance swap.xml
-- fx ex31 volatility swap.xml
+- fx-ex30-variance-swap.xml
+- fx-ex31-volatility-swap.xml
