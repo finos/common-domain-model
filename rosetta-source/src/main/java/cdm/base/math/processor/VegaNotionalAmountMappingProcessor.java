@@ -4,6 +4,7 @@ import cdm.base.math.Quantity;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
+import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
@@ -16,13 +17,27 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 @SuppressWarnings("unused")
 public class VegaNotionalAmountMappingProcessor extends MappingProcessor {
 
+    private static final String FX_VARIANCE_SWAP_PATH = "fxVarianceSwap";
+
     public VegaNotionalAmountMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
         super(modelPath, synonymPaths, context);
     }
 
     @Override
     public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
-        Consumer<String> setter = ((Quantity.QuantityBuilder) parent).getOrCreateUnitOfAmount().getOrCreateCurrency()::setValue;
+        Quantity.QuantityBuilder quantityBuilder = (Quantity.QuantityBuilder) parent;
+
+        if (isFxVarianceSwapPath(synonymPath) && isPriceQuantityModelPath()) {
+            // Update builder to be empty
+            quantityBuilder.setAmount(null);
+            // Remove mapping
+            getNonNullMapping(filterMappings(getMappings(), getModelPath()), synonymPath)
+                    .ifPresent(getMappings()::remove);
+            return;
+        }
+
+        // Set units
+        Consumer<String> setter = quantityBuilder.getOrCreateUnitOfAmount().getOrCreateCurrency()::setValue;
 
         subPath("volatilityLeg", synonymPath)
                 .flatMap(subPath -> getNonNullMappedValue(getMappings(), subPath, "settlementCurrency"))
@@ -31,5 +46,15 @@ public class VegaNotionalAmountMappingProcessor extends MappingProcessor {
         subPath("variance", synonymPath)
                 .flatMap(subPath -> getNonNullMappedValue(getMappings(), subPath, "varianceAmount", "currency"))
                 .ifPresent(setter);
+    }
+
+    private boolean isPriceQuantityModelPath() {
+        return PathUtils.toPath(getModelPath()).endsWith("priceQuantity", "quantity", "value", "amount");
+    }
+
+    private boolean isFxVarianceSwapPath(Path synonymPath) {
+        return synonymPath.getElements().stream()
+                .map(Path.PathElement::getPathName)
+                .anyMatch(VegaNotionalAmountMappingProcessor.FX_VARIANCE_SWAP_PATH::equals);
     }
 }
