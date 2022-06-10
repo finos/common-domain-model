@@ -126,6 +126,7 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	eventDate date (1..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
+	corporateActionType CorporateActionTypeEnum (0..1)
 
     // New Content
     instruction Instruction (0..*) <"Specifies the instructions that were used to create the Business Event.">
@@ -136,6 +137,10 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 			or primitives -> execution exists
 			or primitives -> contractFormation exists)
 		then intent is absent
+	
+	condition CorporateAction: <"When  must be specified.">
+		if intent = EventIntentEnum -> CorporateActionAdjustment
+		then corporateActionType exists
 
 type EventTestBundle: <"Combines several events for testing purposes, intended to be used in downstream processes.">
 
@@ -265,10 +270,6 @@ type TransferExpression: <"Specifies a transfer expression (cash price, performa
 
 type ScheduledTransfer:
 	transferType TransferTypeEnum (1..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
-	corporateActionTransferType CorporateActionTypeEnum (0..1)
-
-	condition: <"When transfer type is Performance or Transfer then the type of event must be specified.">
-		if transferType = TransferTypeEnum -> CorporateAction then corporateActionTransferType exists
 
 type SettlementOrigin: <"Defines the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
 
