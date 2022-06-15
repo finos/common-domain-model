@@ -1,76 +1,80 @@
-# *Product Model - Performance Payout - Variance and Dividend Options*
+# *Floating Rate Index Reference Data model - Extended FloatingRateIndexDefinition*
 
-_Background_
+_What is being released_
 
-The new `Payout` `performancePayout` was recently introduced to allow for representation of a wider variety of products. In this release, support for Options with a performance underlier has been introduced. In these products the use of `PerformancePayout` is not direct, but indirect, as the product underlying the option.
+_Background:_
+- The CDM Floating Rate Index Definition model was developed in the summer of 2021
+- Additional versions of the ISDA 2021 Interest Rate Definitions (V2, V3,…) have added more metadata to be included as part of the index definition
 
-_What is being released?_
+_Goal:_
+- Update the CDM model to support the latest version of the ISDA Floating Rate Options Metadata spreadsheet
 
-- Minor changes to Performance Payout to enable it to accommodate Variance and Dividend Options.
-- Mapping coverage for Variance and Dividend Equity Options.
-- Qualification functions for Variance, Volatility, Correlation and Dividend Options.
+_FROs Metadata extensions_
 
-_Types_
+Extended `FloatingRateIndexDefinition` type with: 
 
-product-asset-type
+- Changed existing `fro` element from `FloatingRateOption` type to a new `FloatingRateIndexIndentification` type
+- Added new `FloatingRateIndexIndentification` type with:
+    - New `floatingRateIndex` element of `FloatingRateIndexEnum` type
+    - New `currency` element of `ISOCurrencyCodeEnum` type
+    - New `froType` element of `string` type
+    
+- Changed existing `supportedDefinition` element from `ContractualDefinitionsEnum` type to a new `ContractualDefinition` type
+- Added new `ContractualDefinition` type with:
+    - New choice between:
+        - New `contractualDefinitionIdentifier` element of `ContratcualDefinitionIdentifier` type
+            - New `contractualDefinitionType` element of `ContractualDefinitionsEnum` type
+            - New `contractualDefinitionVersion` element of `string` type
+        - Existing `identifier` element of `identifier` type
+    - New `publicationDate` element of `date` type
+   
+- Extended existing `FloatingRateIndexMap` type with:   
+    - New choice between:
+        - New `contractualDefinitionIdentifier` element of `ContratcualDefinitionIdentifier` type
+            - New `contractualDefinitionType` element of `ContractualDefinitionsEnum` type
+            - New `contractualDefinitionVersion` element of `string` type
+        - Existing `identifier` element of `identifier` type
+        
+- Changed cardinality of `externalStandard` element within `FloatingRateIndexExternalMap` type. From required (lower bound eq 1) to optional (lower bound eq 0)
 
-- Removed `extraordinaryEvents` from `VarianceReturnTerms` type.
-- Removed `extraordinaryEvents` from `VolatilityReturnTerms` type.
-- Added `multipleExchangeIndexAnnexFallback` to `Valuation` type.
-- Added `componentSecurityIndexAnnexFallback` to  `Valuation` type.
+- Extended existing `FloatingRateIndexCalculationDefaults` with:
+    - Changed cardinality of `fixing` element of `FloatingRateIndexFixingDetails` type. From upper bound eq 1 to unbounded.
+    - Removed `fixingTime` and `fixingOffset` elements
+    - New `publicationCalendar` element of `BusinessCenterEnum` type
+    
+- Added new `inLoan` element of `boolean` type
 
-product-template-type
+- Added new `history` element of `FroHistory` type
+    - Added new `FroHistory` type with:
+        - New `startDate` element of `date` type
+        - New `firstDefinedIn` element of `ContractualDefinition` type
+        - New `updateDate` element of `date` type
+        - New `lastUpdateIn` element of `ContractualDefinition` type
+        - New `endDate` element of `date` type
 
-- Added `EquitySpecificAttributes` condition to `PerformancePayout` type.
-- Added `expirationTimeType` attribute to `EuropeanExercise` type.
+- Added new `administrator` element of `Administrator` type
+    - Added new `Administrator` type with:
+        - New `name` element of `string` type
+        - New `website` element of `string` type
+        
+- Added new `deprecationReason` element of `string` type
 
-_Enumerations_
+- Added new `fpmlDescription` element of `string` type
 
-- Added `ExpirationTimeTypeEnum`.
+- Extended existing `FloatingRateIndexFixingDetails` with:
+    - Changed cardinality of `fixingTime` element. From unbounded to upper bound eq 1
+    - Removed `alternativeFixingTime` element
+    - Changed cardinality of `fixingOffset` element. From unbounded to upper bound eq 1
+                        
+- Extended existing `FloatingRateIndexFixingTime` with:
+    - New `fixingTimeDefinition` of `string` type
+    - New `fixingReason` of `string` type
 
-_Translate_
-
-synonym-cdm-fpml
-
-Added mapping coverage for Variance, Volatility, Correlation and Dividend Options:
-
-- Qualify_EquityOption_ParameterReturnVariance_SingleName
-- Qualify_EquityOption_ParameterReturnVariance_Index
-- Qualify_EquityOption_ParameterReturnVariance_Basket
-- Qualify_EquityOption_ParameterReturnVolatility_SingleName
-- Qualify_EquityOption_ParameterReturnVolatiliy_Index
-- Qualify_EquityOption_ParameterReturnVolatiliy_Basket
-- Qualify_EquityOption_ParameterReturnCorrelation_Basket
-- Qualify_EquityOption_ParameterReturnDividend_SingleName
-- Qualify_EquityOption_ParameterReturnDividend_Index
-- Qualify_EquityOption_ParameterReturnDividend_Basket
-
+- Extended existing `BusinessDayOffset` with:
+    - New `fixingTimeDefinition` of `string` type
+    - New `fixingReason` of `string` type
+       
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In the CDM Portal, select the Textual Browser and search and inspect the `FloatingRateIndexDefinition` type
 
-In the CDM Portal, select Ingestion and review the following samples:
-
-fpml-5-10/products/variance-swaps
-
-- eqvs-ex06-variance-option-transaction-supplement
-- eqvs-ex07-variance-option-transaction-supplement-pred-clearing
-
-fpml-5-10/products/dividend-swaps
-
-- div-ex04-dividend-swap-option-transaction-supplement
-- div-ex05-dividend-swap-option-gs-example
-- div-ex06-dividend-swap-option-pred-clearing
-
-# *Product Model - FpML mappings for Equity*
-
-_What is being released?_
-
-This release fixes FpML product synonym mapping issues for FpML `equityOption` samples, focusing on settlement type and currency.
-
-_Review Directions_
-
-In the CDM Portal, select Ingestion and review the samples specified below.
-
-* fpml-5-10/incomplete-products/equity-options
-* fpml-5-10/products/equity
