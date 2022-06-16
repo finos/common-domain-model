@@ -1,49 +1,34 @@
-# *Product Model - Performance Payout - Variance and Dividend Options*
+# *Product Model - FX Variance and Volatility Swaps*
 
 _Background_
 
-The new `Payout` `performancePayout` was recently introduced to allow for representation of a wider variety of products. In this release, support for Options with a performance underlier has been introduced. In these products the use of `PerformancePayout` is not direct, but indirect, as the product underlying the option.
+The new `Payout` `performancePayout` was recently introduced to allow for representation of a wider variety of products, not only from the equity asset class, but also from any product involving a return determined by an observation. This release introduces support for the first non-equity products, namely FX variance swaps and FX volatility swaps.
 
 _What is being released?_
 
-- Minor changes to Performance Payout to enable it to accommodate Variance and Dividend Options.
-- Mapping coverage for Variance and Dividend Equity Options.
-- Qualification functions for Variance, Volatility, Correlation and Dividend Options.
+- Minor changes to Performance Payout to enable it to accommodate FX variance and FX volatility swaps.
+- Mapping coverage for FX variance and FX volatility swaps.
+- Minor adjustments to FX qualification functions.
 
-_Types_
+_Functions_
 
-product-asset-type
+- `dayType` added to `PeriodicDates` type (base-datetime-type)
+- `price`removed from `EquityObservation` type (observable-asset-type)
+- Type of `boundedCorrelation` changed from `BoundedCorrelation` to `NumberRange` (product-asset-type)
+- `numberOfObservationDates` added to `ObservationTerms` type (product-common-schedule-type)
+- Unused `AveragingObservation` type removed (product-common-settlement-type)
+- Type `performancePayout` moved to product-template-type (product-common-settlement-type)
+- `observationTerms` added to `performancePayout`(product-template-type)
 
-- Removed `extraordinaryEvents` from `VarianceReturnTerms` type.
-- Removed `extraordinaryEvents` from `VolatilityReturnTerms` type.
-- Added `multipleExchangeIndexAnnexFallback` to `Valuation` type.
-- Added `componentSecurityIndexAnnexFallback` to  `Valuation` type.
+_Qualification_
 
-product-template-type
-
-- Added `EquitySpecificAttributes` condition to `PerformancePayout` type.
-- Added `expirationTimeType` attribute to `EuropeanExercise` type.
-
-_Enumerations_
-
-- Added `ExpirationTimeTypeEnum`.
+Minor changes to:
+- Qualify_ForeignExchange_ParameterReturnVariance
+- Qualify_ForeignExchange_ParameterReturnVolatility
 
 _Translate_
 
-synonym-cdm-fpml
-
-Added mapping coverage for Variance, Volatility, Correlation and Dividend Options:
-
-- Qualify_EquityOption_ParameterReturnVariance_SingleName
-- Qualify_EquityOption_ParameterReturnVariance_Index
-- Qualify_EquityOption_ParameterReturnVariance_Basket
-- Qualify_EquityOption_ParameterReturnVolatility_SingleName
-- Qualify_EquityOption_ParameterReturnVolatiliy_Index
-- Qualify_EquityOption_ParameterReturnVolatiliy_Basket
-- Qualify_EquityOption_ParameterReturnCorrelation_Basket
-- Qualify_EquityOption_ParameterReturnDividend_SingleName
-- Qualify_EquityOption_ParameterReturnDividend_Index
-- Qualify_EquityOption_ParameterReturnDividend_Basket
+Added mapping coverage for FX variance and FX volatility swaps.
 
 _Review Directions_
 
@@ -51,26 +36,6 @@ In the CDM Portal, select the Textual Browser and inspect each of the changes id
 
 In the CDM Portal, select Ingestion and review the following samples:
 
-fpml-5-10/products/variance-swaps
-
-- eqvs-ex06-variance-option-transaction-supplement
-- eqvs-ex07-variance-option-transaction-supplement-pred-clearing
-
-fpml-5-10/products/dividend-swaps
-
-- div-ex04-dividend-swap-option-transaction-supplement
-- div-ex05-dividend-swap-option-gs-example
-- div-ex06-dividend-swap-option-pred-clearing
-
-# *Product Model - FpML mappings for Equity*
-
-_What is being released?_
-
-This release fixes FpML product synonym mapping issues for FpML `equityOption` samples, focusing on settlement type and currency.
-
-_Review Directions_
-
-In the CDM Portal, select Ingestion and review the samples specified below.
-
-* fpml-5-10/incomplete-products/equity-options
-* fpml-5-10/products/equity
+fpml-5-10/incomplete-products/fx-derivatives
+- fx-ex30-variance-swap.xml
+- fx-ex31-volatility-swap.xml

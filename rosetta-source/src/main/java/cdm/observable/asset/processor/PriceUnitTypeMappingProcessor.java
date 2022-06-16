@@ -32,11 +32,13 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 
 
 	private final RosettaPath unitOfAmountCurrencyModelPath;
+	private final RosettaPath perUnitOfAmountCurrencyModelPath;
 	private final RosettaPath perUnitOfAmountCapacityModelPath;
 
 	public PriceUnitTypeMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);
 		unitOfAmountCurrencyModelPath = getModelPath().getParent().newSubPath("unitOfAmount").newSubPath("currency").newSubPath("value");
+		perUnitOfAmountCurrencyModelPath = getModelPath().getParent().newSubPath("perUnitOfAmount").newSubPath("currency").newSubPath("value");
 		perUnitOfAmountCapacityModelPath = getModelPath().getParent().newSubPath("perUnitOfAmount").newSubPath("capacityUnit");
 	}
 
@@ -71,6 +73,8 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				|| updateCurrencyPerFinancialUnit(priceBuilder, synonymPath, "equityOption", Arrays.asList("equityExercise", "settlementCurrency"), getPerUnitOfAmountIndexOrShare())
 				// Fx
 				|| updateFxOption(priceBuilder, synonymPath)
+				|| updateCurrencyPerCurrencyUnitFromQuotedCurrencyPair(priceBuilder, synonymPath, "fxVarianceSwap",  Arrays.asList("quotedCurrencyPair", "quoteBasis"))
+				|| updateCurrencyPerCurrencyUnitFromQuotedCurrencyPair(priceBuilder, synonymPath, "fxVolatilitySwap",  Arrays.asList("quotedCurrencyPair", "quoteBasis"))
 				// Repo
 				|| updateCurrencyPerCurrencyUnit(priceBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")
 				// Commodity
@@ -107,6 +111,42 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				.map(Path::getParent)
 				.flatMap(referencedPath -> getNonNullMapping(getMappings(), referencedPath, "currency"))
 				.orElse(null);
+	}
+
+	private boolean updateCurrencyPerCurrencyUnitFromQuotedCurrencyPair(PriceBuilder builder, Path synonymPath, String basePathElement, List<String> quoteBasisRelativePath) {
+		return subPath(basePathElement, synonymPath)
+				.flatMap(subPath -> getNonNullMapping(getMappings(), subPath, toArray(quoteBasisRelativePath)))
+				.map(quoteBasisMapping -> {
+					Path quoteBasisPath = quoteBasisMapping.getXmlPath();
+					Path quotedCurrencyPairPath = quoteBasisPath.getParent();
+					// currency 1
+					Optional<Mapping> currency1Mapping = getNonNullMapping(getMappings(), quotedCurrencyPairPath.addElement("currency1"));
+					Optional<UnitTypeBuilder> currency1 = currency1Mapping.map(this::toCurrencyUnitType);
+					// currency 2
+					Optional<Mapping> currency2Mapping = getNonNullMapping(getMappings(), quotedCurrencyPairPath.addElement("currency2"));
+					Optional<UnitTypeBuilder> currency2 = currency2Mapping .map(this::toCurrencyUnitType);
+
+					if (currency1.isPresent() && currency2.isPresent()) {
+						String quoteBasis = String.valueOf(quoteBasisMapping.getXmlValue());
+						if (quoteBasis.equals("Currency1PerCurrency2")) {
+							// Update builder
+							updateBuilder(builder, currency1.get(), currency2.get());
+							// Update mappings
+							updateEmptyMappings(currency1Mapping.get().getXmlPath(), getMappings(), unitOfAmountCurrencyModelPath);
+							updateEmptyMappings(currency2Mapping.get().getXmlPath(), getMappings(), perUnitOfAmountCurrencyModelPath);
+							return true;
+						} else if (quoteBasis.equals("Currency2PerCurrency1")) {
+							// Update builder
+							updateBuilder(builder, currency2.get(), currency1.get());
+							// Update mappings
+							updateEmptyMappings(currency2Mapping.get().getXmlPath(), getMappings(), unitOfAmountCurrencyModelPath);
+							updateEmptyMappings(currency1Mapping.get().getXmlPath(), getMappings(), perUnitOfAmountCurrencyModelPath);
+							return true;
+						}
+					}
+					return false;
+				})
+				.orElse(false);
 	}
 
 	private boolean updateCurrencyPerFinancialUnit(PriceBuilder builder, Path synonymPath, String basePathElement, List<String> endsWith, FinancialUnitEnum perUnitOfAmount) {
