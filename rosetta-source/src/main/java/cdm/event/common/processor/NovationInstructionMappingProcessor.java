@@ -158,7 +158,7 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
 
         // default fee type to Novation if not specified
         if (transferBuilder.getTransferExpression() == null) {
-            transferBuilder.getTransferExpression().setPriceTransfer(FeeTypeEnum.NOVATION);
+            transferBuilder.getOrCreateTransferExpression().setPriceTransfer(FeeTypeEnum.NOVATION);
         }
 
         return transferInstructionBuilder.prune().hasData() ?
