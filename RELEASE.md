@@ -2,7 +2,7 @@
 
 _Background_
 
-Recent changes updated the FpML event mapping approach to map FpML event messages on to a `WorkflowStep` instruction, e.g. a `WorkflowStep` containing a proposed `BusinessEvent`. The `WorkflowStep` instruction is then processed by a function `Create_AcceptedWorkflowStepFromInstruction` to create the corresponding fully-specified `WorkflowStep` event.
+Recent changes updated the FpML event mapping approach to map FpML event messages to a `WorkflowStep` instruction, i.e., a `WorkflowStep` containing a proposed `BusinessEvent`. The `WorkflowStep` instruction is then processed by a function `Create_AcceptedWorkflowStepFromInstruction` to create the corresponding fully-specified `WorkflowStep` event.
 
 _What is being released?_
 
