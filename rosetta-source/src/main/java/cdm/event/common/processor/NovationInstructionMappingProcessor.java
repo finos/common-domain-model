@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 import static cdm.event.common.SplitInstruction.SplitInstructionBuilder;
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 
 public class NovationInstructionMappingProcessor extends MappingProcessor {
