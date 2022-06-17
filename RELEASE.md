@@ -2,9 +2,7 @@
 
 _Background_
 
-- The CDM Floating Rate Index Definition model was developed in the summer of 2021
-- Additional versions of the ISDA 2021 Interest Rate Definitions (V2, V3,…) have added more metadata to be included as part of the index definition
-- The goal of this change is to update the CDM model to support the latest version of the ISDA Floating Rate Options Metadata spreadsheet
+Since the design of the CDM Floating Rate Index Definition model in 2021, the ISDA 2021 Interest Rate Definitions have expanded the metadata requirements. This change reflects the latest metadata specifications for ISDA Floating Rate Options.
 
 _What is being released?_
 
@@ -81,11 +79,11 @@ In the CDM Portal, select the Textual Browser and search and inspect the `Floati
 
 _Background_
 
-Recent changes updated the FpML event mapping approach to map FpML event messages to a `WorkflowStep` instruction, i.e., a `WorkflowStep` containing a proposed `BusinessEvent`. The `WorkflowStep` instruction is then processed by a function `Create_AcceptedWorkflowStepFromInstruction` to create the corresponding fully-specified `WorkflowStep` event.
+The  FpML mapping for business events was previously adjusted to map FpML event messages to a `WorkflowStep` instruction, i.e., a `WorkflowStep` containing a proposed `BusinessEvent`. Consequently a CDM implementer can use the `WorkflowStep` instruction with function `Create_AcceptedWorkflowStepFromInstruction` to create the corresponding fully-specified `WorkflowStep` event.
 
 _What is being released?_
 
-This release adds synonym mappings for FpML novation events.
+This release extends the FPML synonym mappings to address novation events.
 
 _Review Directions_
 
