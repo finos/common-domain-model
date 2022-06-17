@@ -1,15 +1,15 @@
 # *Floating Rate Index Reference Data model - Extended FloatingRateIndexDefinition*
 
-_What is being released_
 
-_Background:_
+
+_Background_
 - The CDM Floating Rate Index Definition model was developed in the summer of 2021
 - Additional versions of the ISDA 2021 Interest Rate Definitions (V2, V3,…) have added more metadata to be included as part of the index definition
+- The goal of this change is to update the CDM model to support the latest version of the ISDA Floating Rate Options Metadata spreadsheet
 
-_Goal:_
-- Update the CDM model to support the latest version of the ISDA Floating Rate Options Metadata spreadsheet
+_What is being released?_
 
-_FROs Metadata extensions_
+FROs Metadata extensions
 
 Extended `FloatingRateIndexDefinition` type with: 
 
