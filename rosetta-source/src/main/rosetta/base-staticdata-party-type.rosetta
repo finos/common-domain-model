@@ -116,6 +116,8 @@ type NaturalPerson: <"A class to represent the attributes that are specific to a
 	surname string (0..1) <"The natural person's surname.">
 	suffix string (0..1) <"Name suffix, such as Jr., III, etc.">
 	dateOfBirth date (0..1) <"The natural person's date of birth.">
+	contactInformation ContactInformation (0..1) <"The contact information for such person, when different from the contact information associated with the party.">
+
 
 	condition NameOrIdChoice: 
         (firstName exists and surname exists) or personId exists
@@ -136,8 +138,10 @@ type Party: <"A class to specify a party, without a qualification as to whether 
 	partyId PartyIdentifier (1..*) <"The identifier associated with a party, e.g. the 20 digits LEI code.">
 	name string (0..1) <"The party name.">
 		[metadata scheme]
+	businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">
 	person NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">
 	account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">
+	contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s) or person (s), it should be associated with those.">
 
 type PartyIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the PartyIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
@@ -161,10 +165,8 @@ type PartyContactInformation: <"A class to specify contact information within a 
 	businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">
 	person NaturalPerson (0..*) <"Optional information about people involved in a transaction or business process. (These are employees of the party.)">
 	address string (0..1) <"The address specified as a string to support non-normalized contact information, such as in the case of ISDA Create.">
+	// address should be removed, this breaks an ISDA Create mapper that should be repointed to contactInformation > address > street
 	additionalInformation string (0..1) <"Specification of special instructions of the relevant party.">
-
-	condition PartyContactInformationChoice: <"The address attribute corresponds to a non-normalized alternative representation to the contactInformation. This reflects the current ISDA Create data representation.">
-		optional choice contactInformation, address
 
 type PartyRole: <"A class to specify the role(s) that party(ies) may have in relation to the execution, contract or other legal agreement.">
 
