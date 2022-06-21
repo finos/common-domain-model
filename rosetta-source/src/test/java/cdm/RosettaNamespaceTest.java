@@ -23,21 +23,20 @@ public class RosettaNamespaceTest {
 
     private static final List<String> VALID_SUFFIX = ImmutableList.of("func", "rule", "enum", "type", "synonym", "desc");
 
-    @Test
-    void assertFileNamesMatchNamespace() throws IOException {
-        String modelShortName = "cdm";
-        List<Executable> executables = Files.walk(Paths.get("src/main/rosetta"))
+
+    public void assertFileNamesMatchNamespace( String shortName, String path) throws IOException {
+        List<Executable> executables = Files.walk(Paths.get(path))
                 .filter(x -> x.getFileName().toString().endsWith(".rosetta"))
                 .map(this::extractNamespace)
                 .map(rosettaFileToNamespace ->
-                        ensureFileNameSuffix(modelShortName, rosettaFileToNamespace.left(), rosettaFileToNamespace.right()))
+                        ensureFileNameSuffix(shortName, rosettaFileToNamespace.left(), rosettaFileToNamespace.right()))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
         assertAll("ensureFileNameSuffix", executables);
     }
 
-    private List<Executable> ensureFileNameSuffix(String modelShortName, String rosettaFileName, String rosettaNamespace) {
+    public List<Executable> ensureFileNameSuffix(String modelShortName, String rosettaFileName, String rosettaNamespace) {
         List<Executable> executables = new ArrayList<>();
 
         String name = rosettaFileName.substring(0, rosettaFileName.indexOf(".rosetta"));
@@ -64,7 +63,7 @@ public class RosettaNamespaceTest {
         return executables;
     }
 
-    private Pair<String, String> extractNamespace(Path rosettaFile) {
+    public Pair<String, String> extractNamespace(Path rosettaFile) {
         try {
             return Files.readAllLines(rosettaFile).stream()
                     .filter(line -> line.contains("namespace"))
@@ -76,7 +75,7 @@ public class RosettaNamespaceTest {
         }
     }
 
-    private Pair<String, String> extractNamespaceFromLine(Path rosettaFile, String line) {
+    public Pair<String, String> extractNamespaceFromLine(Path rosettaFile, String line) {
         Pattern pattern = Pattern.compile("^namespace ([a-zA-Z\\.]*)");
         Matcher matcher = pattern.matcher(line);
         if (matcher.find() && matcher.groupCount() == 1) {
