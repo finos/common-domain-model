@@ -20,6 +20,8 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static org.isda.cdm.functions.testing.FunctionUtils.createExecutionInstructionFromTradeState;
@@ -51,11 +53,11 @@ public class RunCreateWorkflowStepNewCorrect implements ExecutableFunction<Trade
 			 .build();
     }
 
-	private EventTimestamp eventDate(FieldWithMetaDate tradeDate, LocalTime time) {
-		return EventTimestamp.builder()
-    		.setDateTime(ZonedDateTime.of(tradeDate.getValue().toLocalDate(), time, ZoneId.of("UTC")))
-    		.setQualification(EventTimestampQualificationEnum.EVENT_CREATION_DATE_TIME)
-    		.build();
+	private List<EventTimestamp> eventDate(FieldWithMetaDate tradeDate, LocalTime time) {
+		return Collections.singletonList(EventTimestamp.builder()
+				.setDateTime(ZonedDateTime.of(tradeDate.getValue().toLocalDate(), time, ZoneId.of("UTC")))
+				.setQualification(EventTimestampQualificationEnum.EVENT_CREATION_DATE_TIME)
+				.build());
 	}
 
 	private Identifier identifier(String id) {

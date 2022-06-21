@@ -15,6 +15,7 @@ import cdm.event.common.metafields.ReferenceWithMetaTradeState;
 import cdm.event.position.PositionStatusEnum;
 import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
+import cdm.legalagreement.common.ClosedState;
 import cdm.legalagreement.common.ClosedStateEnum;
 import cdm.observable.asset.Price;
 import cdm.observable.event.Observation;
@@ -146,20 +147,18 @@ class SecLendingFunctionInputCreationTest {
     void validateFullReturnSettlementWorkflowFuncInputJson() throws IOException {
         assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
 
+        ReturnInstruction returnInstruction = ReturnInstruction.builder()
+                .addQuantity(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(200000))
+                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))
+                .addQuantity(Quantity.builder()
+                        .setAmount(BigDecimal.valueOf(5000000))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD")))
+                .build();
+
         RunReturnSettlementWorkflowInput actual = new RunReturnSettlementWorkflowInput(getTransferTradeState(),
-                ReturnInstruction.builder()
-                        .addQuantity(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(200000))
-                                .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
-                                .build())
-                        .addQuantity(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(5000000))
-                                .setUnitOfAmount(UnitType.builder()
-                                        .setCurrency(FieldWithMetaString.builder().setValue("USD").build()).build())
-                                .build())
-                        .build(),
-                Date.of(2020, 10, 21)
-        );
+                returnInstruction,
+                Date.of(2020, 10, 21));
 
         assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
@@ -199,7 +198,8 @@ class SecLendingFunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.ALLOCATION,
-                Date.of(2020, 9, 21));
+                Date.of(2020, 9, 21),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/sec-lending/allocation/allocation-sec-lending-func-input.json", actual);
     }
@@ -237,11 +237,14 @@ class SecLendingFunctionInputCreationTest {
         // we want to get the contract formation for the 40% allocated trade, and back it out by 25% causing a decrease quantity change (so notional will be 10% of the original block)
         // we then want to do a new allocation of 10% of the original block.
         BusinessEvent originalAllocationBusinessEvent = injector.getInstance(Create_BusinessEvent.class)
-                .evaluate(Lists.newArrayList(instruction.build()), EventIntentEnum.ALLOCATION, Date.of(2020, 9, 21));
+                .evaluate(Lists.newArrayList(instruction.build()),
+                        EventIntentEnum.ALLOCATION,
+                        Date.of(2020, 9, 21),
+                        null);
 
         TradeState closedBlockTradeState = originalAllocationBusinessEvent.getAfter().stream()
-                .filter(x -> x.getState().getClosedState().getState() == ClosedStateEnum.TERMINATED)
-                .filter(x -> x.getState().getPositionState() == PositionStatusEnum.CLOSED)
+                .filter(x -> Optional.ofNullable(x.getState()).map(State::getClosedState).map(ClosedState::getState).map(ClosedStateEnum.TERMINATED::equals).orElse(false))
+                .filter(x -> Optional.ofNullable(x.getState()).map(State::getPositionState).map(PositionStatusEnum.CLOSED::equals).orElse(false))
                 .findFirst()
                 .orElseThrow(RuntimeException::new);
 
@@ -423,7 +426,9 @@ class SecLendingFunctionInputCreationTest {
         URL resource = SecLendingFunctionInputCreationTest.class.getResource(SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON);
         ExecutionInstruction executionInstruction = STRICT_MAPPER.readValue(resource, ExecutionInstruction.class);
         RunNewSettlementWorkflow runNewSettlementWorkflow = injector.getInstance(RunNewSettlementWorkflow.class);
-        Workflow workflow = runNewSettlementWorkflow.execute(executionInstruction);
+        Workflow.WorkflowBuilder workflowBuilder = runNewSettlementWorkflow.execute(executionInstruction).toBuilder();
+        ResourcesUtils.reKey(workflowBuilder);
+        Workflow workflow = workflowBuilder.build();
 
         assertNotNull(workflow, "Expected a workflow");
         List<? extends WorkflowStep> workflowSteps = workflow.getSteps();
@@ -453,7 +458,9 @@ class SecLendingFunctionInputCreationTest {
                         .setPartyReferenceValue(Party.builder()
                                 .setMeta(MetaFields.builder().setExternalKey(externalKey))
                                 .setNameValue(partyId)
-                                .addPartyIdValue(partyId))
+                                .addPartyId(PartyIdentifier.builder()
+                                        .setIdentifierValue(partyId)
+                                        .build()))
                         .setRole(CounterpartyRoleEnum.PARTY_1))
                 .setPartyRole(PartyRole.builder()
                         .setPartyReferenceValue(agentLenderParty)
@@ -483,7 +490,9 @@ class SecLendingFunctionInputCreationTest {
         Counterparty counterparty1 = Counterparty.builder()
                 .setPartyReferenceValue(Party.builder()
                         .setMeta(MetaFields.builder().setExternalKey(partyId))
-                        .addPartyIdValue(partyName)
+                        .addPartyId(PartyIdentifier.builder()
+                                .setIdentifierValue(partyName)
+                                .build())
                         .setNameValue(partyName))
                 .setRole(CounterpartyRoleEnum.PARTY_1)
                 .build();

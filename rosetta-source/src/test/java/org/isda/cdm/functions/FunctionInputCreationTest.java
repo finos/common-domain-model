@@ -54,7 +54,6 @@ import org.isda.cdm.CdmRuntimeModule;
 import org.isda.cdm.functions.testing.FunctionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -202,7 +201,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(Instruction.builder().setPrimitiveInstruction(primitiveInstructionBuilder)),
                 null,
-                eventDate);
+                eventDate,
+                null);
 
         assertJsonEquals(expectedJsonPath, actual);
     }
@@ -316,7 +316,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.CONTRACT_FORMATION,
-                eventDate);
+                eventDate,
+                null);
 
         assertJsonEquals(expectedJsonPath, actual);
     }
@@ -393,7 +394,8 @@ class FunctionInputCreationTest {
         Create_BusinessEvent createBusinessEvent = injector.getInstance(Create_BusinessEvent.class);
         BusinessEvent increaseOutput = createBusinessEvent.evaluate(increaseEquitySwapInput.getInstruction(),
                 increaseEquitySwapInput.getIntent(),
-                increaseEquitySwapInput.getEventDate());
+                increaseEquitySwapInput.getEventDate(),
+                null);
         TradeState increaseTradeState = increaseOutput.getAfter().get(0);
 
         // Quantity change to terminate tradeLot LOT-1.  Quantity in tradeLot LOT-2 remains unchanged.
@@ -497,8 +499,8 @@ class FunctionInputCreationTest {
         return new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 null,
-                Date.of(2021, 11, 11)
-        );
+                Date.of(2021, 11, 11),
+                null);
     }
 
     private void validateQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, String expectedJsonPath, QuantityChangeInstruction quantityChangeInstruction, FeeTypeEnum feeType) throws IOException {
@@ -511,7 +513,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 null,
-                eventDate);
+                eventDate,
+                null);
 
         assertJsonEquals(expectedJsonPath, actual);
     }
@@ -560,19 +563,19 @@ class FunctionInputCreationTest {
 
 
         instructions.add(Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-07-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
 
         instructions.add(Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-2.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-07-Submission-2.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
 
         instructions.add(Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-07-Submission-3.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-07-Submission-3.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
@@ -585,7 +588,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 instructions,
                 EventIntentEnum.COMPRESSION,
-                Date.of(2018, 4, 3));
+                Date.of(2018, 4, 3),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/compression/compression-func-input.json", actual);
     }
@@ -623,12 +627,12 @@ class FunctionInputCreationTest {
         tradeBuilder
                 .getParty().get(0)
                 .getPartyId().get(0)
-                .setValue("LEI1RPT0001");
+                .setIdentifierValue("LEI1RPT0001");
 
         tradeBuilder
                 .getParty().get(1)
                 .getPartyId().get(0)
-                .setValue("LEI2CP0002");
+                .setIdentifierValue("LEI2CP0002");
 
         Identifier tradeIdentifier = Identifier.builder()
                 .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -661,18 +665,12 @@ class FunctionInputCreationTest {
                 .setUnadjustedDate(terminationDate);
     }
 
-    private TradeState getWorkflowStepAfter(String resourceName) throws IOException {
-        WorkflowStep workflowStep = ResourcesUtils.getObject(WorkflowStep.class, resourceName);
-        // Get after TradeState
-        TradeState.TradeStateBuilder tradeStateBuilder = workflowStep.getBusinessEvent().getPrimitives().stream()
-                .map(PrimitiveEvent::getContractFormation)
-                .map(ContractFormationPrimitive::getAfter)
-                .map(TradeState::toBuilder)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("No ContractFormationPrimitive.after found"));
-        // Set Trade.party
-        tradeStateBuilder.getTrade().setParty(workflowStep.getParty());
-        return tradeStateBuilder.build();
+    private TradeState getProposedEventInstructionBefore(String resourceName) throws IOException {
+        return ResourcesUtils.getObject(WorkflowStep.class, resourceName).getProposedEvent()
+                .getInstruction()
+                .get(0)
+                .getBefore()
+                .getValue();
     }
 
     @Test
@@ -684,10 +682,10 @@ class FunctionInputCreationTest {
                                         .setPartyReferenceValue(Party.builder()
                                                 .setMeta(MetaFields.builder().setExternalKey("party3"))
                                                 .setNameValue("Bank Z")
-                                                .addPartyId(FieldWithMetaString.builder()
-                                                        .setMeta(MetaFields.builder()
-                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                        .setValue("LEI3RPT0003")))
+                                                .addPartyId(PartyIdentifier.builder()
+                                                        .setIdentifierType(PartyIdentifierTypeEnum.LEI)
+                                                        .setIdentifier(FieldWithMetaString.builder().setValue("LEI3RPT0003").setMeta(MetaFields.builder()
+                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -712,7 +710,7 @@ class FunctionInputCreationTest {
                                                                         .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-04-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-04-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
@@ -720,7 +718,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.NOVATION,
-                Date.of(2018, 4, 3));
+                Date.of(2018, 4, 3),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/novation/full-novation-func-input.json", actual);
     }
@@ -734,10 +733,11 @@ class FunctionInputCreationTest {
                                         .setPartyReferenceValue(Party.builder()
                                                 .setMeta(MetaFields.builder().setExternalKey("party3"))
                                                 .setNameValue("Bank Z")
-                                                .addPartyId(FieldWithMetaString.builder()
-                                                        .setMeta(MetaFields.builder()
-                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                        .setValue("LEI3RPT0003")))
+                                                .addPartyId(PartyIdentifier.builder()
+                                                        .setIdentifierType(PartyIdentifierTypeEnum.LEI)
+                                                        .setIdentifier(FieldWithMetaString.builder().setValue("LEI3RPT0003")
+                                                                .setMeta(MetaFields.builder()
+                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -773,7 +773,7 @@ class FunctionInputCreationTest {
                                                                         .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-05-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-05-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
@@ -781,7 +781,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.NOVATION,
-                Date.of(2018, 4, 4));
+                Date.of(2018, 4, 4),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/novation/partial-novation-func-input.json", actual);
     }
@@ -795,10 +796,13 @@ class FunctionInputCreationTest {
                                         .setPartyReferenceValue(Party.builder()
                                                 .setMeta(MetaFields.builder().setExternalKey("clearing-svc"))
                                                 .setNameValue("ClearItAll")
-                                                .addPartyId(FieldWithMetaString.builder()
-                                                        .setMeta(MetaFields.builder()
-                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                        .setValue("LEI1DCO")))
+                                                .addPartyId(PartyIdentifier.builder()
+                                                        .setIdentifier(FieldWithMetaString.builder()
+                                                                .setMeta(MetaFields.builder()
+                                                                        .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
+                                                                .setValue("LEI1DCO"))
+                                                        .setIdentifierType(PartyIdentifierTypeEnum.LEI))
+                                                        .build())
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -815,10 +819,13 @@ class FunctionInputCreationTest {
                                         .setPartyReferenceValue(Party.builder()
                                                 .setMeta(MetaFields.builder().setExternalKey("clearing-svc"))
                                                 .setNameValue("ClearItAll")
-                                                .addPartyId(FieldWithMetaString.builder()
-                                                        .setMeta(MetaFields.builder()
-                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                        .setValue("LEI1DCO")))
+                                                .addPartyId(PartyIdentifier.builder()
+                                                        .setIdentifier(FieldWithMetaString.builder()
+                                                                .setMeta(MetaFields.builder()
+                                                                        .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
+                                                                .setValue("LEI1DCO"))
+                                                        .setIdentifierType(PartyIdentifierTypeEnum.LEI))
+                                                .build())
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -843,7 +850,7 @@ class FunctionInputCreationTest {
                                                                         .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-06-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-06-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
@@ -851,7 +858,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.CLEARING,
-                Date.of(2018, 4, 1));
+                Date.of(2018, 4, 1),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/clearing/clearing-func-input.json", actual);
     }
@@ -866,10 +874,10 @@ class FunctionInputCreationTest {
                                         .setPartyReferenceValue(Party.builder()
                                                 .setMeta(MetaFields.builder().setExternalKey("party3"))
                                                 .setNameValue("Fund 2")
-                                                .addPartyId(FieldWithMetaString.builder()
-                                                        .setMeta(MetaFields.builder()
-                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                        .setValue("LEI2CP00A1")))
+                                                .addPartyId(PartyIdentifier.builder()
+                                                        .setIdentifierType(PartyIdentifierTypeEnum.LEI)
+                                                        .setIdentifier(FieldWithMetaString.builder().setValue("LEI2CP00A1")
+                                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -895,10 +903,11 @@ class FunctionInputCreationTest {
                                         .setPartyReferenceValue(Party.builder()
                                                 .setMeta(MetaFields.builder().setExternalKey("party4"))
                                                 .setNameValue("Fund 3")
-                                                .addPartyId(FieldWithMetaString.builder()
-                                                        .setMeta(MetaFields.builder()
-                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
-                                                        .setValue("LEI3CP00A2")))
+                                                .addPartyId(PartyIdentifier.builder()
+                                                        .setIdentifierType(PartyIdentifierTypeEnum.LEI)
+                                                        .setIdentifier(FieldWithMetaString.builder().setValue("LEI3CP00A2")
+                                                                .setMeta(MetaFields.builder()
+                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -929,7 +938,7 @@ class FunctionInputCreationTest {
                                                                 .setCurrencyValue("EUR")))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(getWorkflowStepAfter("result-json-files/native-cdm-events/Example-11-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-11-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         ResourcesUtils.reKey(instructions);
@@ -937,7 +946,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.ALLOCATION,
-                Date.of(2018, 4, 1));
+                Date.of(2018, 4, 1),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/allocation/allocation-func-input.json", actual);
     }
@@ -965,7 +975,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.EXERCISE,
-                Date.of(2001, 8, 28));
+                Date.of(2001, 8, 28),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-swaption-full-physical-func-input.json", actual);
     }
@@ -973,7 +984,7 @@ class FunctionInputCreationTest {
     @Test
     void validateExerciseCashSettledInputJson() throws IOException {
         String example8Submission1 = "result-json-files/native-cdm-events/Example-08-Submission-1.json";
-        TradeState afterTradeState = getWorkflowStepAfter(example8Submission1);
+        TradeState afterTradeState = getProposedEventInstructionBefore(example8Submission1);
 
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = createQuantityChangeInstruction(UnitType.builder().setCurrencyValue("EUR").build(), BigDecimal.ZERO);
 
@@ -1015,7 +1026,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.EXERCISE,
-                Date.of(2019, 4, 1));
+                Date.of(2019, 4, 1),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-cash-settled-func-input.json", actual);
     }
@@ -1023,7 +1035,7 @@ class FunctionInputCreationTest {
     @Test
     void validateExercisePartialExerciseInputJson() throws IOException {
         String example9Submission1 = "result-json-files/native-cdm-events/Example-09-Submission-1.json";
-        TradeState afterTradeState = getWorkflowStepAfter(example9Submission1);
+        TradeState afterTradeState = getProposedEventInstructionBefore(example9Submission1);
 
         Date tradeDate = Date.of(2019, 4, 1);
 
@@ -1064,7 +1076,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.EXERCISE,
-                tradeDate);
+                tradeDate,
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-partial-exercise-func-input.json", actual);
     }
@@ -1072,7 +1085,7 @@ class FunctionInputCreationTest {
     @Test
     void validateExerciseCancellableOptionInputJson() throws IOException {
         String example10Submission1 = "result-json-files/native-cdm-events/Example-10-Submission-1.json";
-        TradeState afterTradeState = getWorkflowStepAfter(example10Submission1);
+        TradeState afterTradeState = getProposedEventInstructionBefore(example10Submission1);
 
         Date tradeDate = Date.of(2019, 4, 1);
 
@@ -1117,7 +1130,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.EXERCISE,
-                tradeDate);
+                tradeDate,
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-cancellable-option-func-input.json", actual);
     }
@@ -1237,7 +1251,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.INDEX_TRANSITION,
-                Date.of(2000, 10, 1));
+                Date.of(2000, 10, 1),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/index-transition/index-transition-vanilla-swap-func-input.json", actual);
     }
@@ -1290,7 +1305,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.INDEX_TRANSITION,
-                Date.of(2018, 6, 17));
+                Date.of(2018, 6, 17),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/index-transition/index-transition-xccy-swap-func-input.json", actual);
     }
@@ -1311,7 +1327,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.STOCK_SPLIT,
-                Date.of(2001, 11, 1));
+                Date.of(2001, 11, 1),
+                null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/stock-split/stock-split-equity-swap-func-input.json", actual);
     }
@@ -1324,10 +1341,12 @@ class FunctionInputCreationTest {
         tradeStateBuilder.getTrade().getParty().stream()
                 .filter(p -> p.getName().getValue().equals(partyName))
                 .findFirst().ifPresent(party ->
-                        party.setPartyId(Collections.singletonList(FieldWithMetaString.builder()
-                                .setValue(partyId)
-                                .setMeta(MetaFields.builder()
-                                        .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))));
+                        party.addPartyId(PartyIdentifier.builder()
+                                .setIdentifierType(PartyIdentifierTypeEnum.LEI)
+                                .setIdentifier(FieldWithMetaString.builder()
+                                        .setValue(partyId)
+                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442")
+                                ))));
     }
 
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {

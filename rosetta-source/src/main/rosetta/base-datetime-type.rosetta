@@ -126,7 +126,7 @@ type Frequency: <"A class for defining a date frequency, e.g. one day, three mon
 
 	condition PositivePeriodMultiplier: <"FpML specifies periodMultiplier as a positive integer.">
 		if Frequency exists
-		then periodMultiplier >= 0
+		then periodMultiplier > 0
 
 type Offset extends Period: <"A class defining an offset used in calculating a new date relative to a reference date, e.g. calendar days, business days, commodity Business days, etc.">
 
@@ -207,6 +207,7 @@ type PeriodicDates: <"A class for specifying a calculation period schedule.">
 	endDate AdjustableOrRelativeDate (0..1) <"The end date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the termination date. It is always specified in the case of equity swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
 	periodFrequency CalculationPeriodFrequency (0..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">
 	periodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
+	dayType DayTypeEnum (0..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">
 
 type CalculationPeriodFrequency extends Frequency: <"A class to specify the frequency at which calculation period end dates occur within the regular part of the calculation period schedule and their roll date convention.">
 
@@ -228,14 +229,14 @@ type CalculationPeriodFrequency extends Frequency: <"A class to specify the freq
 	condition FpML_ird_58: <"FpML validation rule ird-58 - Context: CalculationPeriodFrequency. When the period is 'W', the rollConvention must be a week day, 'SFE' or 'NONE'.">
 		if period = PeriodExtendedEnum -> W
 		then rollConvention = RollConventionEnum -> NONE
-			and rollConvention = RollConventionEnum -> SFE
-			and rollConvention = RollConventionEnum -> MON
-			and rollConvention = RollConventionEnum -> TUE
-			and rollConvention = RollConventionEnum -> WED
-			and rollConvention = RollConventionEnum -> THU
-			and rollConvention = RollConventionEnum -> FRI
-			and rollConvention = RollConventionEnum -> SAT
-			and rollConvention = RollConventionEnum -> SUN
+			or rollConvention = RollConventionEnum -> SFE
+			or rollConvention = RollConventionEnum -> MON
+			or rollConvention = RollConventionEnum -> TUE
+			or rollConvention = RollConventionEnum -> WED
+			or rollConvention = RollConventionEnum -> THU
+			or rollConvention = RollConventionEnum -> FRI
+			or rollConvention = RollConventionEnum -> SAT
+			or rollConvention = RollConventionEnum -> SUN
 
 	condition FpML_ird_60: <"FpML validation rule ird-60 - Context: CalculationPeriodFrequency. When the period is 'T', the rollConvention must be 'NONE'.">
 		if period = PeriodExtendedEnum -> T

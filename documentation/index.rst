@@ -9,11 +9,10 @@ Welcome to the ISDA CDM documentation
    :maxdepth: 2
 
    source/cdm-overview
-   source/documentation
+   source/common-domain-model
    source/eligible-collateral-representation
    source/cdm-guidelines
    source/contribution
-   source/documentation-style-guide
    releases/latest
    releases/all
    

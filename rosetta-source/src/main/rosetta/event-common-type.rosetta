@@ -533,24 +533,7 @@ type Lineage: <"A class to provide lineage information across lifecycle events t
         [metadata reference]
 	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a globalKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
 		[metadata reference]
-	cashflowReference Cashflow (0..*) <"The reference to the instantiation of a Cashflow payout component object. An expected typical usage is to provide lineage for the payment of, say, the option premium or the swap initial fee. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
-		[metadata reference]
-	creditDefaultPayoutReference CreditDefaultPayout (0..*) <"The reference to the instantiation of a CreditdefaultPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
-		[metadata reference]
-	interestRatePayoutReference InterestRatePayout (0..*) <"The reference to the instantiation of a InterestRatePayout component object. An expected typical usage is to provide lineage for the payment of, say, an interest rate swap reset, with the ability to relate the gross cashflow amounts to the respective payout components. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
-		[metadata reference]
-	optionPayoutReference OptionPayout (0..*) <"The reference to the instantiation of a OptionPayout component object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
-		[metadata reference]
-	equityPayoutReference EquityPayout (0..*) <"The reference to the instantiation of a EquityPayout object. An expected typical usage is to provide lineage for the payment of, say, an equity dividend. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
-		[metadata reference]
-        [deprecated]
-	performancePayoutReference PerformancePayout (0..*) <"The reference to the instantiation of a EquityPayout object. An expected typical usage is to provide lineage for the payment of, say, an equity dividend. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
-        [metadata reference]
-	transferReference TransferPrimitive (0..*) <"The reference to the instantiation of a TransferPrimitive object.">
-		[metadata reference]
-	legalAgreement LegalAgreement (0..*) <"The reference to the instantiation of a Legal Agreement object. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
-		[metadata reference]
-	portfolioStateReference PortfolioState (0..*) <"The refence to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
+	portfolioStateReference PortfolioState (0..*) <"The reference to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
 		[metadata reference]
 
 type StockSplitInstruction: <"Data required to perform a stock split business event.">
@@ -791,12 +774,17 @@ type CollateralBalance: <"Represents common attributes to define a collateral ba
 	collateralBalanceStatus CollateralStatusEnum (0..1) <"Defines the collateral balance breakdown of settlement status.">
 	haircutIndicator HaircutIndicatorEnum (0..1) <"Indicates if the collateral balance amount is based on pre or post haircut, if a haircut is associated with the collateral asset">
 	amountBaseCurrency Money (1..1) <"Specifies the collateral balance amount in base currency determined within a collateral legal agreement, or defined for reporting purposes.">
+	payerReceiver PartyReferencePayerReceiver (1..1) <"Specifies each of the parties in the collateral balance and its perspective with regards to the direction of the collateral balance, posted or received.">
 
 type CollateralPortfolio: <"Represents common attributes to define the details of collateral assets, to be used in margin call messaging and contribute to collateral balances e.g securities in a collateral account.">
 	[metadata key]
+	[rootType]
 	portfolioIdentifier Identifier (0..1) <"Specifies a unique identifier for a set of collateral positions in a portfolio.">
 	collateralPosition CollateralPosition (0..*) <"Specifies the individual components of the collateral positions in the collateral portfolio.">
 	collateralBalance CollateralBalance (0..*) <"Represents the populated or calculated collateral aggregate balance amount for the collateral portfolio.">
+	legalAgreement LegalAgreement (0..1) <" The specification of a legal agreement between two parties governing the collateral relationship such as Credit Support Agreement or Collateral Transfer Agreement etc. (NB: this can be provided by reference to a global key for each LegalAgreement object).">
+     [metadata reference]
+
 
 type CollateralPosition extends Position: <"Specifies the individual components of collateral positions.">
 	

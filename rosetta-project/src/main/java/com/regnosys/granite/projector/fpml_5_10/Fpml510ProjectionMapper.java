@@ -4,7 +4,6 @@ import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
 import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
-import cdm.base.math.NonNegativeStepSchedule;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.ReferenceWithMetaQuantity;
 import cdm.base.staticdata.asset.common.ExternalProductType;
@@ -1496,8 +1495,7 @@ public class Fpml510ProjectionMapper {
 		return Optional.ofNullable(cdmInterestRatePayout)
 			.map(PayoutBase::getPayoutQuantity)
 			.map(ResolvablePayoutQuantity::getQuantitySchedule)
-			.map(NonNegativeQuantitySchedule::getStepSchedule)
-			.map(NonNegativeStepSchedule::getStep)
+			.map(NonNegativeQuantitySchedule::getStep)
 			.map(sl -> sl.stream()
 				.map(this::getNonNegativeStep)
 				.flatMap(Optional::stream)
@@ -1680,18 +1678,18 @@ public class Fpml510ProjectionMapper {
 			});
 	}
 
-	private List<PartyId> getPartyIds(List<? extends FieldWithMetaString> cdmPartyIds) {
+	private List<PartyId> getPartyIds(List<? extends PartyIdentifier> cdmPartyIds) {
 		return cdmPartyIds.stream()
 			.map(this::getPartyId)
 			.flatMap(Optional::stream)
 			.collect(Collectors.toList());
 	}
 
-	private Optional<PartyId> getPartyId(FieldWithMetaString cdmPartyId) {
+	private Optional<PartyId> getPartyId(PartyIdentifier cdmPartyId) {
 		return Optional.ofNullable(cdmPartyId)
 			.map(p -> {
 				PartyId partyId = objectFactory.createPartyId();
-				getValue(p).ifPresent(partyId::setValue);
+				getValue(p.getIdentifier()).ifPresent(partyId::setValue);
 				getScheme(p.getMeta()).ifPresent(partyId::setPartyIdScheme);
 				return partyId;
 			});

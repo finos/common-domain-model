@@ -106,12 +106,12 @@ public class TestObjectsFactory {
 				.setMeta(MetaFields.builder()
 						.setExternalKey(id)
 						.build())
-				.addPartyId(FieldWithMetaString.builder()
-						.setValue(partyId)
-						.setMeta(MetaFields.builder()
-								.setScheme("http://www.fpml.org/coding-scheme/external")
-								.build())
-						.build());
+						.addPartyId(PartyIdentifier.builder()
+								.setIdentifierValue(partyId)
+								.setMeta(MetaFields.builder()
+										.setScheme("http://www.fpml.org/coding-scheme/external")
+										.build())
+								.build());
 
 		Optional.ofNullable(account).ifPresent(partyBuilder::setAccount);
 

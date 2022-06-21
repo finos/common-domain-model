@@ -4,16 +4,6 @@ version "${project.version}"
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.identifier.*
 
-func Create_RelatedAgreementsWithPartyReference: <"Constructs a Related Legal Agreement using a reference to the contractual parties">
-	inputs:
-		legalAgreement LegalAgreement (1..*)
-	output:
-		legalAgreementWithPartyReference LegalAgreement (1..*)
-
-    add legalAgreementWithPartyReference:
-        legalAgreement
-            map [ Create_RelatedAgreement( item ) ]
-		
 func Create_LegalAgreementWithPartyReference: <"Constructs a Legal Agreement using a reference to the contractual parties">
 	inputs:
 		agreementTerms AgreementTerms (0..1) <"The set of elections specific to the contract">
@@ -47,13 +37,3 @@ func Create_LegalAgreementWithPartyReference: <"Constructs a Legal Agreement usi
 
 	add legalAgreement -> otherParty:
 	    otherParty
-
-func Create_RelatedAgreement:
-    inputs:
-        legalAgreement LegalAgreement (0..1)
-    output:
-        linkedAgreement LegalAgreement (1..1)
-
-    add linkedAgreement -> relatedAgreements: legalAgreement
-   
-

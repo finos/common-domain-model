@@ -197,9 +197,14 @@ type ReturnTerms: <"Specifies the type of return of a performance payout.">
 
 	condition: one-of
 
-type PerformancePayout extends PerformancePayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products.">
+type PerformancePayout extends PayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products.">
     [metadata key]
 
+	observationTerms ObservationTerms (0..1) <"Defines how and when a performance type option or performance type swap is to be observed.">
+	valuationDates EquityValuationDates (1..1) <"Defines how and when a performance type option or performance type swap is to be valued.">
+	paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
+	underlier Product (0..1)<"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
+	fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
 	returnTerms ReturnTerms (1..1) <"Specifies the type of return of a performance payout.">
 	averagingMethod AveragingMethodEnum (0..1) <"Specifies the method of calculation to be used when averaging rates. Per ISDA 2000 Definitions, Section 6.2. Certain Definitions Relating to Floating Amounts.">
 
@@ -219,6 +224,23 @@ type PerformancePayout extends PerformancePayoutBase: <"Contains the necessary s
 	condition CorrelationUnderlierOnlyBasket: <"Correlation Return Terms can only have a basket as underlier, since it needs to compute the correlation between two or more products.">
 	    if returnTerms -> correlationReturnTerms exists then
 	        underlier -> basket only exists
+
+	condition EquitySpecificAttributes: <"Equity specific attributes cannot be present in non-equity products.">
+		if Qualify_AssetClass_Equity( underlier ) = False then
+            returnTerms -> varianceReturnTerms -> dividendApplicability is absent
+            and returnTerms -> varianceReturnTerms -> equityUnderlierProvisions is absent
+            and returnTerms -> varianceReturnTerms -> sharePriceDividendAdjustment is absent
+            and returnTerms -> volatilityReturnTerms -> dividendApplicability is absent
+            and returnTerms -> volatilityReturnTerms -> equityUnderlierProvisions is absent
+            and returnTerms -> volatilityReturnTerms -> sharePriceDividendAdjustment is absent
+            and returnTerms -> correlationReturnTerms -> dividendApplicability is absent
+            and returnTerms -> correlationReturnTerms -> equityUnderlierProvisions is absent
+            and returnTerms -> correlationReturnTerms -> sharePriceDividendAdjustment is absent
+
+	//condition UnderlierOrObservable: <"The Performance Payout must reference either an underlier or an observable">
+		//underlier exists
+		//or
+		//ObservationTerms -> observable exists
 
 type Payout: <"A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
     [metadata key]
@@ -445,12 +467,30 @@ type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attr
 		if underlier -> foreignExchange exists
 		then settlementTerms -> physicalSettlementTerms is absent
 
+type CommoditySchedule: <"A class that allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+	unitOfAmount UnitType (1..1) <"Qualifies the unit by which the amount is measured.">
+	priceExpression PriceExpression (0..1) <"Provides a value for the type of price expression (cash price, interest rate, gross or net, clean or dirty etc.) in order to explain how to interpret the amount and use it in calculations.">
+	perUnitOfAmount UnitType (0..1) <"Provides an attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
+	schedulePeriod SchedulePeriod (1..*) <"Defines a period of a commodity schedule structure.">
+
+type SchedulePeriod: <"A class that defines the commodity period of a schedule. The period contains a set of start and end dates, quantities, fixing, and pricing data.">
+	calculationPeriod TimeInterval (1..1) <"Period for which the payment is generated.">
+    quantity number (0..1) <"Quantity per schedule period.">
+    totalQuantity number (0..1) <"Total quantity per calculation period.">
+    paymentDate date (1..1) <"Adjusted payment date.">
+    fixingPeriod TimeInterval (1..1) <"Period over which the underlying price is observed.">
+	price number (0..1) <"Price defined for the current period.">
+
+type TimeInterval: <"A class that defines a period of time between and start and an end date.">
+    startDate date (1..1) <"The start date of the period.">
+    endDate date (1..1) <"The end date of the period.">
+
 type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
 	[metadata key]
 
 	paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
-    fixedPrice Price (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
-        [metadata address "pointsTo"=PriceQuantity->price]
+    fixedPrice FixedPrice (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
+    schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
 type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
 
@@ -740,6 +780,7 @@ type EuropeanExercise: <"A class defining the exercise period for a European sty
 	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.">
 	earliestExerciseTime BusinessCenterTime (0..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) on the expiration date.">
 	expirationTime BusinessCenterTime (1..1) <"The latest time for exercise on expirationDate.">
+	expirationTimeType ExpirationTimeTypeEnum (0..1) <"The time of day at which the equity option expires, for example the official closing time of the exchange.">
 	partialExercise PartialExercise (0..1) <"As defined in the 2000 ISDA Definitions, Section 12.3. Partial Exercise, the buyer of the option has the right to exercise all or less than all the notional amount of the underlying swap on the expiration date, but may not exercise less than the minimum notional amount, and if an integral multiple amount is specified, the notional amount exercised must be equal to, or be an integral multiple of, the integral multiple amount.">
 	exerciseFee ExerciseFee (0..1) <"A fee to be paid on exercise. This could be represented as an amount or a rate and notional reference on which to apply the rate.">
 
