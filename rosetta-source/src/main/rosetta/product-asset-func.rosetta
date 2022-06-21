@@ -61,6 +61,28 @@ func ResolveRateIndex: <"The function to specify that the floating rate index en
 	inputs: index FloatingRateIndexEnum (1..1)
 	output: rate number (1..1)
 
+func ResolveEquityPeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
+	[deprecated]
+	inputs:
+		equityPayout EquityPayout (1..1)
+		price Price (0..*)
+		observable Observable (0..1)
+		date date (1..1)
+	output:
+		startPrice Price (1..1)
+
+	alias priceReturnTerms:
+		equityPayout -> priceReturnTerms
+
+	alias calculationPeriod:
+		CalculationPeriod(equityPayout -> calculationPeriodDates, date)
+
+	set startPrice: <"The initial price is taken from the original contract when Resetting for the first time i.e. when the number of updated contracts is one.">
+		if calculationPeriod -> isFirstPeriod then
+		    ResolveEquityInitialPrice (price)
+		else
+		    priceReturnTerms -> valuationPriceInterim -> price
+
 func ResolvePerformancePeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
 	inputs:
 		performancePayout PerformancePayout (1..1)
@@ -74,12 +96,31 @@ func ResolvePerformancePeriodStartPrice: <"Resolves the price from the end of th
 		performancePayout -> returnTerms -> priceReturnTerms
 
 	alias valuation:
-		ValuationPeriod (performancePayout -> valuationDates -> valuationDatesFinal, date)
+		ValuationPeriod( performancePayout -> valuationDates -> valuationDatesFinal, date )
 
 	set startPrice: <"The initial price is taken from the original contract when Resetting for the first time i.e. when the number of updated contracts is one.">
 		if valuation -> isFirstPeriod
 		then ResolveEquityInitialPrice(price)
 		else priceReturnTerms -> valuationPriceInitial // valuationPriceInterim removed since it does no longer exist. valuationPriceInitial alternative "direct" route to ResolveEquityInitialPrice( price, observable ) to get the initial price.
+
+func ResolveEquityPeriodEndPrice:
+    [deprecated]
+	inputs:
+		equityPayout EquityPayout (1..1)
+		date date (1..1)
+	output:
+		price number (1..1)
+
+	alias priceReturnTerms:
+		equityPayout -> priceReturnTerms
+
+	alias calculationPeriod:
+		CalculationPeriod(equityPayout -> calculationPeriodDates, date)
+
+	set price: <"If the last period, take the price from the Valuation Price Final, otherwise from Valuation Price Interim.">
+		if calculationPeriod -> isLastPeriod
+		then priceReturnTerms -> valuationPriceFinal -> price -> amount
+		else priceReturnTerms -> valuationPriceInterim -> price -> amount
 
 func ResolvePerformancePeriodEndPrice:
 	inputs:
@@ -92,7 +133,7 @@ func ResolvePerformancePeriodEndPrice:
 		performancePayout -> returnTerms -> priceReturnTerms
 
 	alias valuation:
-		ValuationPeriod (performancePayout -> valuationDates -> valuationDatesFinal, date)
+		ValuationPeriod( performancePayout -> valuationDates -> valuationDatesFinal, date )
 
 	set price: <"If the last period, take the price from the Valuation Price Final, otherwise from Valuation Price Interim.">
 		if valuation -> isLastPeriod

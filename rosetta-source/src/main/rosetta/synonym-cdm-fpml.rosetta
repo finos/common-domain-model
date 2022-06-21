@@ -36,8 +36,12 @@ synonym source FpML
 
 synonym source FpML_5_10 extends FpML
 {
-
-  PerformancePayout:
+	PerformancePayout:
+		+ payerReceiver
+			[hint "fixedLeg"]
+			[hint "floatingLeg"]
+		+ payoutQuantity
+			[value "vegaNotional" set when path = "fxVolatilitySwap"]
         + underlier
             [value "singleUnderlyer" path "underlyer", "underlyer"]
         + fxFeature
@@ -52,41 +56,45 @@ synonym source FpML_5_10 extends FpML
 		+ valuationDatesFinal
 			[value "valuationPriceFinal" path "rateOfReturn"]
 			[value "valuation"]
+			[hint "valuationDate"]
+			[hint "valuationDateOffset"]
 
 	EquityValuationDates:
 		+ determinationMethod
 			[value "determinationMethod"]
 			//[value "determinationMethod" path "rateOfReturn->valuationPriceFinal"]
 		+ valuationDate
-			[value "valuationDate"]// path "valuation"]
+			[value "valuationDate"]
 			[value "valuationDate" path "valuationRules"]
+			[hint "valuationDate"]
 		+ valuationDates
-			[value "valuationDates"]// path "valuation"]
+			[value "valuationDates"]
 			[value "valuationDates" path "valuationRules"]
-		//	[value "valuationDates" path "valuationRules"]
+            [hint "valuationDateOffset"]
 		+ valuationTimeType
-			[value "valuationTimeType"]// path "valuation"]
+			[value "valuationTimeType"]
 			[value "valuationTimeType" path "valuationRules"]
 		+ valuationTime
-			[value "valuationTime"]// path "valuation"]
+			[value "valuationTime"]
 			[value "valuationTime" path "valuationRules"]
 
-  ReturnTerms:
+	ReturnTerms:
+		+ priceReturnTerms
+			[value "ignore"]
 		+ varianceReturnTerms
-		    [value "variance" path "amount"]
+			[value "variance" path "amount"]
 			[hint "amount"]
 			[hint "valuation"]
+			[hint "annualizationFactor", "meanAdjustment", "vegaNotional", "fixedLeg"]
 		+ volatilityReturnTerms
 			[value "volatility" path "amount"]
-            [hint "amount"]
-			[hint "valuation"]
-		+ correlationReturnTerms
-		    [value "correlation" path "amount"]
 			[hint "amount"]
 			[hint "valuation"]
-		//+ dividendReturnTerms
-			//[value "dividendConditions"]
-            //[value "dividendConditions" path "return", "singleUnderlyer" path "underlyer","basket" path "underlyer"]
+			[hint "annualizationFactor", "meanAdjustment"]
+		+ correlationReturnTerms
+			[value "correlation" path "amount"]
+			[hint "amount"]
+			[hint "valuation"]
 
 	PriceReturnTerms:
 		+ valuationPriceInitial
@@ -94,8 +102,7 @@ synonym source FpML_5_10 extends FpML
 		+ returnType
 			[value "returnType" path "return"]
 
-
- DividendReturnTerms:
+	DividendReturnTerms:
 		+ specialDividends
 			[value "specialDividends"]
 		+ materialDividend
@@ -108,7 +115,6 @@ synonym source FpML_5_10 extends FpML
 			[hint "declaredCashDividendPercentage"]
 			[hint "declaredCashEquivalentDividendPercentage"]
 			[value "singleUnderlyer" path "underlyer"]
-
 		+ dividendReinvestment
 			[value "dividendReinvestment"]
 		+ dividendEntitlement
@@ -123,10 +129,10 @@ synonym source FpML_5_10 extends FpML
 			[value "nonCashDividendTreatment"]
 		+ dividendComposition
 			[value "dividendComposition"]
-		//+ dividendPeriod
-			//[hint "dividendPaymentDate"]
+		+ dividendPeriod
+			[value "dividendPeriod"]
 
-    DividendPeriod:
+	DividendPeriod:
 		+ dateAdjustments
 			[value "dateAdjustments"]
 		+ dividendPaymentDate
@@ -141,8 +147,6 @@ synonym source FpML_5_10 extends FpML
 		+ underlierReference
 			[value "underlierReference"]
 /*
-		+ dividendPaymentDate
-			[value "dividendPaymentDate"]
 		+ dividendPeriodEffectiveDate
 			[value "dividendPeriodEffectiveDate" meta "href"]
 		+ dividendPeriodEndDate
@@ -731,10 +735,10 @@ synonym source FpML_5_10 extends FpML
 			[value "spread" path "floatingRateCalculation" mapper "PriceUnitType"]
 			[value "referencePrice" mapper "PriceUnitType"]
 			[value "price" maps 2] // For Commodity Swap Fixed Leg
-            [value "amount" path "strikePricePerUnit" mapper "PriceUnitType"] // For Commodity Option
+			[value "amount" path "strikePricePerUnit" mapper "PriceUnitType"] // For Commodity Option
 			[value "varianceStrikePrice" mapper "PriceUnitType"]
 			[value "volatilityStrikePrice" mapper "PriceUnitType"]
-            [value "correlationStrikePrice" mapper "PriceUnitType"]
+			[value "correlationStrikePrice" mapper "PriceUnitType"]
 			[value "fixedStrike" mapper "PriceUnitType"]
 		+ unitOfAmount
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
@@ -746,7 +750,8 @@ synonym source FpML_5_10 extends FpML
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
 			[value "quotedCurrencyPair"]
 			[value "settlementAmount" path "nearLeg"]
-			[value "amount" set when "returnLeg" is absent]
+			[value "amount"]
+			//[value "amount" set when "returnLeg" is absent]
 			// For Commodity Swap Fixed Leg
 			[hint "priceUnit"]
 
@@ -2273,7 +2278,7 @@ synonym source FpML_5_10 extends FpML
 			[value "effectiveDate" path "correlationLeg"]
 			[value "effectiveDate" path "dividendLeg"]
 			[value "effectiveDate" path "fixedLeg"]
-			[value "effectiveDate" path "returnLeg"]
+			//[value "effectiveDate" path "returnLeg"]
 		+ terminationDate
 			[value "scheduledTerminationDate" path "generalTerms"]
 			[value "terminationDate"]
@@ -2282,7 +2287,7 @@ synonym source FpML_5_10 extends FpML
 			[value "terminationDate" path "correlationLeg"]
 			[value "terminationDate" path "dividendLeg"]
 			[value "terminationDate" path "fixedLeg"]
-			[value "terminationDate" path "returnLeg"]
+			//[value "terminationDate" path "returnLeg"]
 		+ dateAdjustments
 			[value "dateAdjustments" path "generalTerms"]
 		+ earlyTerminationProvision
@@ -2293,6 +2298,19 @@ synonym source FpML_5_10 extends FpML
 		+ calculationAgent
 			[value "calculationAgent"]
 			[hint "calculationAgentBusinessCenter"]
+
+	EquityPayout:
+		[meta "id"]
+		+ underlier
+			[value "singleUnderlyer" path "underlyer","underlyer"]
+		+ returnType
+			[value "returnType" path "return"]
+		+ dividendReturnTerms
+			[value "dividendConditions" path "return", "singleUnderlyer" path "underlyer","basket" path "underlyer"]
+		+ fxFeature
+			[value "fxFeature"]
+		+ paymentDates
+			[value "paymentDates" path "rateOfReturn"]
 
 	GeneralTerms:
 		+ referenceInformation
@@ -2540,7 +2558,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "paymentAmount"]
 			[hint "notionalQuantitySchedule"]
 
-   Payout:
+	Payout:
 		+ interestRatePayout
 			// For Swap Stream
 			[value "swapStream"]
@@ -2557,6 +2575,8 @@ synonym source FpML_5_10 extends FpML
 		+ creditDefaultPayout
 			[value "creditDefaultSwap"]
 			[value "generalTerms" path "creditDefaultSwap"]
+		+ equityPayout
+			[value "returnLeg"]
 		+ optionPayout
 			[value "swaption"]
 			[value "creditDefaultSwapOption"]
@@ -2585,13 +2605,15 @@ synonym source FpML_5_10 extends FpML
 			[value "fixedPayment" path "fixedLeg", "dividendPeriod" path "dividendLeg" mapper "DividendFixedLeg"]
 		+ securityFinancePayout
 			[value "ignore"]
-        + performancePayout
+		+ performancePayout
 			[value "varianceLeg"]
 			[value "volatilityLeg"]
 			[value "correlationLeg"]
 			[value "dividendLeg"]
-			[value "returnLeg"]
-			[value "dividendConditions" path "returnLeg->return"]
+			[value "fxVarianceSwap"]
+			[value "fxVolatilitySwap"]
+			//[value "returnLeg"]
+			//[value "dividendConditions" path "returnLeg->return"]
 
 	Product:
 		+ contractualProduct
@@ -2888,7 +2910,6 @@ synonym source FpML_5_10 extends FpML
 			[value "adjustedPaymentDate"]			
 			//for FX Option
 			[value "expiryDate" maps 2]
-
 
 	AdjustableDates:
 		[value "AdjustableDates" meta "id"]

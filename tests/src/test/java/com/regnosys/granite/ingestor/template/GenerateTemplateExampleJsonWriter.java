@@ -3,8 +3,8 @@ package com.regnosys.granite.ingestor.template;
 import cdm.base.staticdata.asset.common.Security;
 import cdm.event.common.TradeState;
 import cdm.observable.asset.EquityValuation;
+import cdm.product.asset.EquityPriceReturnTerms;
 import cdm.product.asset.InterestRatePayout;
-import cdm.product.asset.PriceReturnTerms;
 import cdm.product.template.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.io.Resources;
@@ -137,7 +137,7 @@ public class GenerateTemplateExampleJsonWriter {
 					.addEquityPayout(EquityPayout.builder()
 						.setCalculationPeriodDates(equityPayout.getCalculationPeriodDates())
 						.setPaymentDates(equityPayout.getPaymentDates())
-						.setPriceReturnTerms(PriceReturnTerms.builder()
+						.setPriceReturnTerms(EquityPriceReturnTerms.builder()
 							.setValuationPriceFinal(EquityValuation.builder()
 								.setValuationDate(equityPayout.getPriceReturnTerms().getValuationPriceFinal().getValuationDate()))
 							.setValuationPriceInterim(EquityValuation.builder()
