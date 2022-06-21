@@ -377,8 +377,8 @@ type DividendPaymentDate: <"A class describing the date on which the dividend wi
 
 	condition: one-of
 
-type DividendReturnTerms: <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
-    [deprecated] // To be replaced by PerformanceDividendReturnTerms
+type EquityDividendReturnTerms: <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
+    [deprecated] // To be replaced by DividendReturnTerms
 
 	dividendPayout DividendPayoutRatio (0..*) <"Specifies the dividend payout ratio associated with each underlier. In FpML 5.10 the payout is positioned at the underlier level, although there is an intent to reconsider this approach and position it at the leg level. This is approach adopted by the CDM.">
 
@@ -403,8 +403,7 @@ type DividendReturnTerms: <"A class describing the conditions governing the paym
 		then dividendPeriodEffectiveDate is absent
 			and dividendPeriodEndDate is absent
 
-// To be renamed DividendReturnTerms once deprecated type has been removed
-type PerformanceDividendReturnTerms: <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
+type DividendReturnTerms: <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
 
 	dividendPayout DividendPayoutRatio (0..*) <"Specifies the dividend payout ratio associated with each underlier. In FpML 5.10 the payout is positioned at the underlier level, although there is an intent to reconsider this approach and position it at the leg level. This is approach adopted by the CDM.">
 
@@ -424,31 +423,31 @@ type PerformanceDividendReturnTerms: <"A class describing the conditions governi
 
 	condition DividendPeriod: <"FpML specifies a choice between dividendPeriod on one end, and dividendPeriodEffectiveDate and dividendPeriodEndDate on the other end.">
 		if firstOrSecondPeriod exists
-		then dividendPeriod -> unadjustedStartDate is absent
-			and dividendPeriod -> unadjustedEndDate is absent
+		then dividendPeriod -> dividendPeriodStartDate is absent
+			and dividendPeriod -> dividendPeriodEndDate is absent
 
 	condition ExtraordinaryDividendsParty:
 		if extraordinaryDividendsParty exists
 		then extraordinaryDividendsParty = AncillaryRoleEnum -> ExtraordinaryDividendsParty
 
 type DividendPeriod: <"Time bounded dividend payment periods, each with a dividend payment date per period.">
-    unadjustedStartDate date (1..1) <"Unadjusted inclusive dividend period start date.">
-    unadjustedEndDate date (1..1) <"Unadjusted inclusive dividend period end date.">
+    dividendPeriodStartDate DividendPaymentDate (1..1) <"Dividend period start date.">
+    dividendPeriodEndDate DividendPaymentDate (1..1) <"Dividend period end date.">
     dateAdjustments BusinessDayAdjustments (1..1) <"Date adjustments for all unadjusted dates in this dividend period.">
     underlierReference Observable (0..1) <"Reference to the underlyer which is paying dividends. This should be used in all cases, and must be used where there are multiple underlying assets, to avoid any ambiguity about which asset the dividend period relates to.">
     //fixedStrike number (1..1) // fixedStrike not included in this structure because it is to be represented as a FixedPricePayout
-    dividendPaymentDate AdjustableOrRelativeDate (1..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">
+    dividendPaymentDate DividendPaymentDate (1..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">
     dividendValuationDate AdjustableOrRelativeDate (0..1) <"Specifies the dividend valuation dates of the swap.">
 
     //condition: fixedStrike > 0
 
-type PriceReturnTerms:
+type EquityPriceReturnTerms:
     [deprecated] // To be replaced by PerformancePriceReturnTerms
 
 	valuationPriceInterim EquityValuation (0..1) <"Specifies the interim valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
 	valuationPriceFinal EquityValuation (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
 
-type PerformancePriceReturnTerms: // To be renamed PriceReturnTerms once deprecated type has been removed
+type PriceReturnTerms: // To be renamed PriceReturnTerms once deprecated type has been removed
 
 	valuationPriceInitial Price (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
 	valuationPriceFinal Price (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
