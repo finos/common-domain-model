@@ -28,7 +28,10 @@ public class CDMNamespaceTest extends RosettaNamespaceTest {
     void assertFileNamesMatchNamespace() throws IOException {
         String modelShortName = "cdm";
         String path = "src/main/rosetta";
-        assertFileNamesMatchNamespace(modelShortName, path);
+        List<String> validationResults = assertFileNamesMatchNamespace(modelShortName, path);
+        List<String> noErrorReported = new ArrayList<>();
+
+        assertEquals(validationResults, noErrorReported, noErrorReported.toString());
 
     }
 

@@ -24,8 +24,8 @@ public class RosettaNamespaceTest {
     private static final List<String> VALID_SUFFIX = ImmutableList.of("func", "rule", "enum", "type", "synonym", "desc");
 
 
-    public void assertFileNamesMatchNamespace( String shortName, String path) throws IOException {
-        List<Executable> executables = Files.walk(Paths.get(path))
+    public List<String> assertFileNamesMatchNamespace( String shortName, String path) throws IOException {
+        List<String> executables = Files.walk(Paths.get(path))
                 .filter(x -> x.getFileName().toString().endsWith(".rosetta"))
                 .map(this::extractNamespace)
                 .map(rosettaFileToNamespace ->
@@ -33,34 +33,49 @@ public class RosettaNamespaceTest {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        assertAll("ensureFileNameSuffix", executables);
+        return executables;
     }
 
-    public List<Executable> ensureFileNameSuffix(String modelShortName, String rosettaFileName, String rosettaNamespace) {
-        List<Executable> executables = new ArrayList<>();
+    public List<String> ensureFileNameSuffix(String modelShortName, String rosettaFileName, String rosettaNamespace) {
+        List<String> validationResults = new ArrayList<>();
 
         String name = rosettaFileName.substring(0, rosettaFileName.indexOf(".rosetta"));
         String[] parts = name.split("-");
         if (parts.length == 0) {
-            executables.add(() ->
-                    fail("No suffix for file '" + rosettaFileName + "' with namespace '" + rosettaNamespace + "'. Should be one of " + VALID_SUFFIX));
-            return executables;
+            validationResults.add("No suffix for file '" + rosettaFileName + "' with namespace '" + rosettaNamespace + "'. Should be one of " + VALID_SUFFIX);
+            return validationResults;
         }
 
-        executables.add(() ->
-                assertEquals(modelShortName, rosettaNamespace.split("\\.")[0], "file '" + rosettaFileName + "' with namespace '" + rosettaNamespace + "' should start with model name '" + modelShortName + "' with namespace '"));
-
-
         String suffix = parts[parts.length - 1];
-        executables.add(() ->
-                assertTrue(VALID_SUFFIX.contains(suffix), "suffix for file '" + rosettaFileName + "' with namespace '" + rosettaNamespace + "'. Should be one of " + VALID_SUFFIX));
+        if(!VALID_SUFFIX.contains(suffix)) {
+            validationResults.add("suffix for file '" + rosettaFileName + "' with namespace '" + rosettaNamespace + "'. Should be one of " + VALID_SUFFIX);
 
+            return validationResults;
+        }
         String fileWithoutSuffix = modelShortName + "." + String.join(".", Arrays.copyOfRange(parts, 0, parts.length - 1));
-        executables.add(() ->
-                assertEquals(rosettaNamespace, fileWithoutSuffix, "File name '" + rosettaFileName + "' is not in line with namespace '" + rosettaNamespace + ". Namespace should be " + fileWithoutSuffix));
+
+        if(null == rosettaNamespace) {
+            validationResults.add("File name '" + rosettaFileName + "' is not in line with namespace '" + rosettaNamespace + "'. Namespace should be " + fileWithoutSuffix);
+
+            return validationResults;
+        }
+        else{
+
+            if (!modelShortName.equals(rosettaNamespace.split("\\.")[0])) {
+                validationResults.add("file '" + rosettaFileName + "' with namespace '" + rosettaNamespace + "' should start with model name '" + modelShortName + "'");
+
+                return validationResults;
+            }
 
 
-        return executables;
+            if (!rosettaNamespace.equals(fileWithoutSuffix)) {
+                validationResults.add("File name '" + rosettaFileName + "' is not in line with namespace '" + rosettaNamespace + ". Namespace should be " + fileWithoutSuffix);
+
+                return validationResults;
+            }
+
+        }
+        return validationResults;
     }
 
     public Pair<String, String> extractNamespace(Path rosettaFile) {
