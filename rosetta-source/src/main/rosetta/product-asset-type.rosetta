@@ -371,9 +371,11 @@ type DividendDateReference: <"A class to specify the dividend date by reference 
 		then dateReference = DividendDateReferenceEnum -> SharePayment
 
 type DividendPaymentDate: <"A class describing the date on which the dividend will be paid/received. This class is also used to specify the date on which the FX rate will be determined, when applicable.">
+    [metadata key]
 
 	dividendDateReference DividendDateReference (0..1)
 	adjustableDate AdjustableDate (0..1)
+    relativeDate AdjustedRelativeDateOffset (0..1)
 
 	condition: one-of
 
@@ -381,7 +383,6 @@ type EquityDividendReturnTerms: <"A class describing the conditions governing th
     [deprecated] // To be replaced by DividendReturnTerms
 
 	dividendPayout DividendPayoutRatio (0..*) <"Specifies the dividend payout ratio associated with each underlier. In FpML 5.10 the payout is positioned at the underlier level, although there is an intent to reconsider this approach and position it at the leg level. This is approach adopted by the CDM.">
-
 	dividendReinvestment boolean (0..1) <"Boolean element that defines whether the dividend will be reinvested or not.">
 	dividendEntitlement DividendEntitlementEnum (0..1) <"Defines the date on which the receiver of the equity return is entitled to the dividend.">
 	dividendAmountType DividendAmountTypeEnum (0..1) <"Specifies whether the dividend is paid with respect to the Dividend Period.">
@@ -435,11 +436,8 @@ type DividendPeriod: <"Time bounded dividend payment periods, each with a divide
     endDate DividendPaymentDate (1..1) <"Dividend period end date.">
     dateAdjustments BusinessDayAdjustments (1..1) <"Date adjustments for all unadjusted dates in this dividend period.">
     underlierReference Observable (0..1) <"Reference to the underlyer which is paying dividends. This should be used in all cases, and must be used where there are multiple underlying assets, to avoid any ambiguity about which asset the dividend period relates to.">
-    //fixedStrike number (1..1) // fixedStrike not included in this structure because it is to be represented as a FixedPricePayout
-    dividendPaymentDate AdjustableOrRelativeDate (1..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">
+    dividendPaymentDate DividendPaymentDate (1..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">
     dividendValuationDate AdjustableOrRelativeDate (0..1) <"Specifies the dividend valuation dates of the swap.">
-
-    //condition: fixedStrike > 0
 
 type EquityPriceReturnTerms:
     [deprecated] // To be replaced by PriceReturnTerms
