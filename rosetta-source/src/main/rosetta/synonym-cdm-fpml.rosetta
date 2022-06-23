@@ -71,8 +71,10 @@ synonym source FpML_5_10 extends FpML
 		+ priceReturnTerms
 			[value "ignore"]
 		+ dividendReturnTerms
-			[value "dividendConditions" path "return"]
-			[hint "dividendPeriod", "declaredCashDividendPercentage", "declaredCashEquivalentDividendPercentage", "dividendPayoutRatioNonCash", "materialDividend", "specialDividends"]
+		    // Equity swaps
+			[value "return", "underlyer"]
+			// Dividend swaps
+			[hint "declaredCashDividendPercentage", "declaredCashEquivalentDividendPercentage", "dividendPeriod", "specialDividends", "materialDividend"]
 		+ varianceReturnTerms
 			[value "variance" path "amount"]
 			[hint "amount"]
@@ -89,49 +91,53 @@ synonym source FpML_5_10 extends FpML
 			[hint "valuation"]
 
 	DividendReturnTerms:
-        //+ firstOrSecondPeriod
-        //    [value "dividendPeriod" set when "return" exists]
-        + dividendPayout
-            [hint "dividendPayout"]
-            [value "basketConstituent"]
-            [hint "declaredCashDividendPercentage"]
-            [hint "declaredCashEquivalentDividendPercentage"]
-            //[value "singleUnderlyer" path "underlyer"]
+	    + dividendPayout
+            // Equity swaps
+            [value "dividendPayout" path "singleUnderlyer", "dividendConditions"]
+            // Dividend swaps
+            [hint "declaredCashDividendPercentage", "declaredCashEquivalentDividendPercentage"]
         + dividendReinvestment
-            [value "dividendReinvestment"]
+            [value "dividendReinvestment" path "dividendConditions"]
         + dividendEntitlement
-            [value "dividendEntitlement"]
+            [value "dividendEntitlement" path "dividendConditions"]
         + dividendAmountType
-            [value "dividendAmount"]
+            [value "dividendAmount" path "dividendConditions"]
+        + firstOrSecondPeriod
+            [value "dividendPeriod" path "dividendConditions"]
         + extraordinaryDividendsParty
-            [value "extraOrdinaryDividends" mapper "ExtraordinaryDividendsParty"]
+            [value "extraOrdinaryDividends" path "dividendConditions" mapper "ExtraordinaryDividendsParty"]
         + excessDividendAmount
-            [value "excessDividendAmount"]
+            [value "excessDividendAmount" path "dividendConditions"]
         + nonCashDividendTreatment
-            [value "nonCashDividendTreatment"]
+            [value "nonCashDividendTreatment" path "dividendConditions"]
         + dividendComposition
-            [value "dividendComposition"]
+            [value "dividendComposition" path "dividendConditions"]
         + specialDividends
             [value "specialDividends"]
         + materialDividend
             [value "materialDividend"]
         + dividendPeriod
+            // Equity swaps
+            [value "dividendConditions"]
+            // Dividend swaps
             [value "dividendPeriod"]
-            [hint "dividendPeriodEffectiveDate", "dividendPeriodEndDate"]
 
 	DividendPeriod:
-		+ dateAdjustments
-			[value "dateAdjustments"]
-		+ dividendValuationDate
-			[value "valuationDate"]
-		+ endDate
-			[hint "unadjustedEndDate"]
-			[hint "dividendPeriodEndDate"]
 		+ startDate
 			[hint "unadjustedStartDate"]
 			[hint "dividendPeriodEffectiveDate"]
+        + endDate
+            [hint "unadjustedEndDate"]
+            [hint "dividendPeriodEndDate"]
+        + dateAdjustments
+			[value "dateAdjustments"]
 		+ underlierReference
-			[value "underlierReference"]
+            [value "underlierReference"]
+        + dividendPaymentDate
+            [value "dividendPaymentDate"]
+            [hint "paymentDate"]
+        + dividendValuationDate
+			[value "valuationDate"]
 
 	ReturnTermsBase:
 		+ expectedN
@@ -1950,7 +1956,7 @@ synonym source FpML_5_10 extends FpML
 		+ currency
 			[value "currency" meta "currencyScheme"]
 		+ determinationMethod
-			[value "determinationMethod"]
+			[value "determinationMethod" path "dividendConditions"]
 		+ currencyReference
 			[value "currencyReference" meta "href"]
 
@@ -1968,6 +1974,8 @@ synonym source FpML_5_10 extends FpML
             [value "paymentDate"]
 			[hint "unadjustedStartDate"]
 			[hint "unadjustedEndDate"]
+			[value "dividendPeriodEffectiveDate" meta "href"]
+			[value "dividendPeriodEndDate" meta "href"]
 
 	EquityDividendReturnTerms:
 		+ dividendPayout
@@ -3106,9 +3114,9 @@ synonym source FpML_5_10 extends FpML
 
 	DividendPayoutRatio:
 		+ underlier
-			[hint "equity"]
+			[value "ignore"]
 		+ dividendPayoutRatio
-			[value "dividendPayoutRatio" path "dividendPayout"]
+			[value "dividendPayoutRatio"]
 		+ dividendPayoutRatioCash
 			[value "dividendPayoutRatioCash"]
 			[value "declaredCashDividendPercentage"]
