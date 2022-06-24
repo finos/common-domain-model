@@ -1,76 +1,40 @@
-# *Product Model - Performance Payout - Variance and Dividend Options*
+# Product Mapping Extension Release Notes
 
-_Background_
+**_Background_**
 
-The new `Payout` `performancePayout` was recently introduced to allow for representation of a wider variety of products. In this release, support for Options with a performance underlier has been introduced. In these products the use of `PerformancePayout` is not direct, but indirect, as the product underlying the option.
+This release extends the FpML to CDM model to model mappings for various Rates and Credit products.
 
-_What is being released?_
+**_What is being released?_**
 
-- Minor changes to Performance Payout to enable it to accommodate Variance and Dividend Options.
-- Mapping coverage for Variance and Dividend Equity Options.
-- Qualification functions for Variance, Volatility, Correlation and Dividend Options.
+The enhancing of the credit default swap representation by including a bond into the reference obligation and the mapping of several FpML elements regarding Credit and Rates asset classes.
 
 _Types_
 
-product-asset-type
+**base-staticdata-asset-common-type**
+- Added the elements `couponRate` and `maturity` to the `Bond` type.
 
-- Removed `extraordinaryEvents` from `VarianceReturnTerms` type.
-- Removed `extraordinaryEvents` from `VolatilityReturnTerms` type.
-- Added `multipleExchangeIndexAnnexFallback` to `Valuation` type.
-- Added `componentSecurityIndexAnnexFallback` to  `Valuation` type.
+**base-staticdata-asset-common-enum**
+- Added the enumeration `Name` to the enumeration list `ProductIdTypeEnum`
 
-product-template-type
+**product-asset-type**
+- Added the element `bond` of type `Bond` to the `ReferenceObligation` type in order to enhance the credit default swap representation.
 
-- Added `EquitySpecificAttributes` condition to `PerformancePayout` type.
-- Added `expirationTimeType` attribute to `EuropeanExercise` type.
+_Synonyms_
 
-_Enumerations_
+**synonym-cdm-fpml**
 
-- Added `ExpirationTimeTypeEnum`.
-
-_Translate_
-
-synonym-cdm-fpml
-
-Added mapping coverage for Variance, Volatility, Correlation and Dividend Options:
-
-- Qualify_EquityOption_ParameterReturnVariance_SingleName
-- Qualify_EquityOption_ParameterReturnVariance_Index
-- Qualify_EquityOption_ParameterReturnVariance_Basket
-- Qualify_EquityOption_ParameterReturnVolatility_SingleName
-- Qualify_EquityOption_ParameterReturnVolatiliy_Index
-- Qualify_EquityOption_ParameterReturnVolatiliy_Basket
-- Qualify_EquityOption_ParameterReturnCorrelation_Basket
-- Qualify_EquityOption_ParameterReturnDividend_SingleName
-- Qualify_EquityOption_ParameterReturnDividend_Index
-- Qualify_EquityOption_ParameterReturnDividend_Basket
+- Added mapping coverage for the `description` FpML element.
+- Added mapping coverage for the `capRateSchedule` FpML element.
+- Added mapping coverage for the `schema` of the FpML element `dayCountFraction`.
+- Added mapping coverage regarding FRA trades for the following elements: `primaryAssetClass`, `productId` and `productType`.
+- Added mapping coverage regarding IR swap trades for the following elements: `floatingRateIndex` and `knownAmountSchedule`.
+- Added mapping coverage regarding CD swap trades for the following elements: `bond` and `indexReferenceInformation.seniority`.
+- Added mapping coverage regarding CD swaption trades for the following elements: `primaryAssetClass`, `productId` and `strike`.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In the CDM Portal, select Ingestion and review the samples below:
 
-In the CDM Portal, select Ingestion and review the following samples:
-
-fpml-5-10/products/variance-swaps
-
-- eqvs-ex06-variance-option-transaction-supplement
-- eqvs-ex07-variance-option-transaction-supplement-pred-clearing
-
-fpml-5-10/products/dividend-swaps
-
-- div-ex04-dividend-swap-option-transaction-supplement
-- div-ex05-dividend-swap-option-gs-example
-- div-ex06-dividend-swap-option-pred-clearing
-
-# *Product Model - FpML mappings for Equity*
-
-_What is being released?_
-
-This release fixes FpML product synonym mapping issues for FpML `equityOption` samples, focusing on settlement type and currency.
-
-_Review Directions_
-
-In the CDM Portal, select Ingestion and review the samples specified below.
-
-* fpml-5-10/incomplete-products/equity-options
-* fpml-5-10/products/equity
+- fpml-5-10 > products > equity > 
+- fpml-5-10 > products > credit > 
+- fpml-5-10 > products > rates > 

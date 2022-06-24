@@ -169,13 +169,13 @@ type PaymentCalculationPeriod: <"A data defining:  the adjusted payment date and
 			or adjustedPaymentDate exists
 
 type RateSchedule: <"A class defining a schedule of rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
-	initialValue Price (0..1) <"The initial rate. An initial rate of 5% would be represented as 0.05.">
+	initialValue Price (1..1) <"The initial rate. An initial rate of 5% would be represented as 0.05.">
 	    [metadata address "pointsTo"=PriceQuantity->price]
 	step Step (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">
 
 type ObservationDates: <"Describes date details for a set of observation dates in parametric or non-parametric form.">
    observationSchedule ObservationSchedule (0..*) <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable.  When no weight is specified, then weight of each date is assumed to be 1.0">
-   periodicSchedule PeriodicDates (0..1) <"Specifies the date range and frequency on which market observations take place.  Weights can be assigned to dates in the schedule by assigning the weight and corresponding observationReference in the observationSchedule. ">
+   periodicSchedule PeriodicDates (0..1) <"Specifies the date range and frequency on which market observations take place.  Weights can be assigned to dates in the schedule by assigning the weight and corresponding observationReference in the observationSchedule.">
    parametricDates ParametricDates (0..1) <"Specifies parametric terms to determine which days within a given calculation period the price would be observed. Typically associated with Commodities. ">
 
 type ObservationSchedule: <"Specifies a single date on which market observations take place and specifies optional associated weighting.">
@@ -192,6 +192,7 @@ type ObservationTerms: <"Class containing terms that are associated with observi
 	calculationPeriodDates CalculationPeriodDates (0..1) <"Defines parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
 	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
 	observationDates ObservationDates (1..1) <"Describes date details for a set of observation dates in parametric or non-parametric form.">
+	numberOfObservationDates int (0..1) <"The number of observation dates between observation start date and observation end date.">
 
 type ParametricDates: <"Defines rules for the dates on which the price will be determined.">
 	dayType DayTypeEnum (1..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">

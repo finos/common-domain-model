@@ -501,7 +501,7 @@ Other model structures use the ``[metadata address]`` to point to ``PriceQuantit
 .. code-block:: Haskell
 
  type RateSchedule:
-   initialValue Price (0..1)
+   initialValue Price (1..1)
      [metadata address "pointsTo"=PriceQuantity->price]
    step Step (0..*)
 
