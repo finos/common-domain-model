@@ -37,7 +37,7 @@ synonym source FpML
 synonym source FpML_5_10 extends FpML
 {
 	PerformancePayout:
-	    [meta "id"]
+		[meta "id"]
 		+ payerReceiver
 			[hint "fixedLeg"]
 			[hint "floatingLeg"]
@@ -60,7 +60,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "valuationDateOffset"]
 
 	PerformanceValuationDates:
-	    [meta "id" path "valuationRules"]
+		[meta "id" path "valuationRules"]
 		+ determinationMethod
 			[value "determinationMethod"]
 		+ valuationDate
@@ -1754,7 +1754,8 @@ synonym source FpML_5_10 extends FpML
 			[value "instrumentId" path "commodity" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "exchangeTradedContractNearest" maps 2 meta "instrumentIdScheme"]
 			[value "productId" maps 2 meta "productIdScheme"]
-			[value "description"]
+			[value "description" path "equity" maps 2]
+			[value "description" path "index" maps 2]
 		+ source
 			// Bond
 			[set to ProductIdTypeEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "CUSIP"]
@@ -1824,8 +1825,9 @@ synonym source FpML_5_10 extends FpML
 			[set to ProductIdTypeEnum -> ISIN when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN-1-0"]
 			[set to ProductIdTypeEnum -> ISIN when path = "repo->bond" and "instrumentId->instrumentIdScheme" = "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN"]
 			[set to ProductIdTypeEnum -> Other when path = "repo->bond" and "instrumentId->instrumentIdScheme" exists]
-			[set to ProductIdTypeEnum -> Name when "description" exists]
- 			// Catch all
+			// Catch all
+			[set to ProductIdTypeEnum -> Name when "equity->description" exists]
+			[set to ProductIdTypeEnum -> Name when "index->description" exists]
 			[set to ProductIdTypeEnum -> Other when path = "productId"] // catch-all
 			[value "productId" mapper "DefaultProductIdType"]
  
@@ -1859,6 +1861,7 @@ synonym source FpML_5_10 extends FpML
 			[value "convertibleBond" meta "instrumentId"]
 			[value "mortgage" meta "instrumentId"]
 			[value "equity" meta "instrumentId"]
+			[value "equity" meta "description"]
 			[meta "instrumentId"]
 			[hint "bond"]
 			[hint "convertibleBond"]
@@ -2383,7 +2386,7 @@ synonym source FpML_5_10 extends FpML
 		+ underlier
 			[value "singleUnderlyer" path "underlyer"]
 			[value "basket" path "underlyer"]
-			[hint "bond", "equity", "mortgage", "convertibleBond"]
+			[hint "bond", "equity", "mortgage", "convertibleBond", "index"]
 			[hint "swap"]
 			[hint "creditDefaultSwap"]
 			[hint "putCurrencyAmount", "callCurrencyAmount"]
@@ -2678,6 +2681,7 @@ synonym source FpML_5_10 extends FpML
 	Index:
 		+ productIdentifier
 			[value "index" meta "instrumentId"]
+			[value "index" meta "description"]
 			[hint "index"]
 
 	Basket:
