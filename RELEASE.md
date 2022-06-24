@@ -8,7 +8,7 @@ _What is being released?_
 
 This release updates the synonym mappings so FpML equity swaps are now mapped to the `PerformancePayout`, rather than the legacy `EquityPayout`.  
 
-The corresponding qualification functions have been updated:
+The corresponding qualification functions have also been updated:
 
 - `Qualify_BaseProduct_EquitySwap`
 - `Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName`
