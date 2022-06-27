@@ -62,7 +62,6 @@ This release updates the Interest Rate Product Qualification rules to more accur
 
 The composable qualification rule `Qualify_Transaction_OIS` has been updated to include additional OIS Floating Rate Options so that Interest Rate Swap OIS contracts are qualified more accurately.
 
-
 _Review Directions_
 
 In the CDM Portal, select Textual Browser and reviw the function above.
