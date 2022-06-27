@@ -1,18 +1,16 @@
-# Party Contact Information
+# Product Model - Party Contact Information
 
 **_Background_**
 
-This release extends the FpML to CDM model to model mappings for Party Contact Information.
+This release extends the Party model to include Party Contact Information.
 
 **_What is being released?_**
 
-The `ContactInformation` data type has been added to `Party` and `NaturalPerson` to allowing mapping of Party address related information.
+The `ContactInformation` data type has been added to `Party` and `NaturalPerson` to allow representation of Party address related information.
 
-The `PartyContractInformation` data type has been removed from the CDM model.  The Regulatory Reporting specific concepts it covers will be handled in the DRR model.
+The `PartyContractInformation` data type has been removed from the CDM model.  The data type handles concepts specific to Regulatory Reporting that will be handled in the DRR model.
 
-_Synonyms_
-
-Model to model mappings have been updated to reflect the adjusted model
+Synonym mappings have been updated to reflect the model changes.
 
 _Review Directions_
 
@@ -23,11 +21,11 @@ In the CDM Portal, select Ingestion and review the samples below:
 - isda-create > test-pack > production > 2018-im-csa-ny-law/2.2 > tp2-metadata2_cdm
 - fpml-5-10 > incomplete-products > loan > Loan_Bulk_ex100
 
-# Product Model to Model Mapping
+# Product Model - Product Identification Synonym Mapping
 
 **_Background_**
 
-This release extends the FpML to CDM model to model mappings for products.
+This release extends the FpML to CDM synonym mappings for product identification.
 
 **_What is being released?_**
 
@@ -52,7 +50,7 @@ In the CDM Portal, select Ingestion and review the samples below:
 - fpml-5-10 > products > equity > eqd-ex01-american-call-stock-long-form
 - fpml-5-10 > products > credit > cdm-cds-ref-ob-versioned
 
-# Interest Rate Product Qualification
+# Product Model - Interest Rate Product Qualification
 
 **_Background_**
 
