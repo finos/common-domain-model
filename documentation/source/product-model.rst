@@ -61,8 +61,10 @@ This design allows to use anonymised ``Party1`` and ``Party2`` values to specify
    partyId PartyIdentifier (1..*)
    name string (0..1)
      [metadata scheme]
+   businessUnit BusinessUnit (0..*)
    person NaturalPerson (0..*)
    account Account (0..1)
+   contactInformation ContactInformation (0..1)
 
 .. note:: The ``partyReference`` attribute in ``Counterparty`` is annotated with a ``[metadata reference]``, which means that a reference to the party object can be passed in instead of a copy. In that case, the attribute's type must itself be annotated with a ``[metadata key]``, so that it is referenceable via a key. The use of the key / reference mechanism is further detailed in the Rosetta DSL documentation.
 

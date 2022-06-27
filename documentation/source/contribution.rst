@@ -682,8 +682,10 @@ Example of how a code snippet should be edited in the documentation:
     partyId PartyIdentifier (1..*)
     name string (0..1)
       [metadata scheme]
+    businessUnit BusinessUnit (0..*)
     person NaturalPerson (0..*)
     account Account (0..1)
+    contactInformation ContactInformation (0..1)
 
 And the result will be rendered as:
 
@@ -694,8 +696,10 @@ And the result will be rendered as:
    partyId PartyIdentifier (1..*)
    name string (0..1)
      [metadata scheme]
+   businessUnit BusinessUnit (0..*)
    person NaturalPerson (0..*)
    account Account (0..1)
+   contactInformation ContactInformation (0..1)
 
 .. note:: Code snippets that appear in the user documentation are being compared against actual CDM components during the CDM build process, and any mismatch will trigger an error in the build. This mechanism ensures that the user documentation is kept in sync with the model in production prior to any release.
 
