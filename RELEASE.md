@@ -1,4 +1,4 @@
-# *Product Model - FpML mapping of Equity Basic Price Return and Total Return Swaps*
+# *Product Model - FpML mapping of Basic Price Return and Total Return Swaps*
 
 _Background_
 
