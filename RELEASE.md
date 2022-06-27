@@ -2,7 +2,7 @@
 
 _Background_
 
-The `Payout` `performancePayout` was recently introduced to allow for representation of a wider variety of products, both new (Variance, Volatility, Correlation and Dividend Swaps) and already supported products (Basic Price Return and Total Return Swaps). Since the present version the `PerformancePayout` was used exclusively to represent new products, and the deprecated `EquityPayout` was still available for Basic Price and Total Return Swaps. This version removes the deprecated Equity Payout and adapts the Performance Payout to cover the two aforementioned products in all their variants.
+The `Payout` `performancePayout` was recently introduced to allow for representation of a wider variety of products, both new (Variance, Volatility, Correlation and Dividend Swaps) and already supported products (Basic Price Return and Total Return Swaps). Since the present version the `PerformancePayout` was used exclusively to represent new products, and the deprecated `EquityPayout` was still available for Basic Price and Total Return Swaps.
 
 _What is being released?_
 
