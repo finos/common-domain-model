@@ -97,7 +97,6 @@ The ``ExecutionDetails`` data type represents details applicable to trade execut
    documentation LegalAgreement (0..*)
    governingLaw GoverningLawEnum (0..1)
      [metadata scheme]
-   partyContractInformation PartyContractInformation (0..*)
 
 State
 """""
