@@ -2,6 +2,8 @@ package cdm;
 
 import com.google.common.collect.ImmutableList;
 import com.regnosys.rosetta.common.util.Pair;
+import com.regnosys.testing.RosettaFileNameValidator;
+import com.regnosys.testing.ValidationReport;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -19,19 +21,20 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static cdm.RosettaNamespaceTest.*;
 
-public class CDMNamespaceTest extends RosettaNamespaceTest {
+public class ValidateNamespaceTest {
 
 
     @Test
-    void assertFileNamesMatchNamespace() throws IOException {
-        String modelShortName = "cdm";
-        String path = "src/main/rosetta";
-        List<String> validationResults = assertFileNamesMatchNamespace(modelShortName, path);
-        List<String> noErrorReported = new ArrayList<>();
 
-        assertEquals(validationResults, noErrorReported, noErrorReported.toString());
+    void validateFileNamesMatchNamespace() throws IOException {
+        String modelShortName = "cdm";
+        Path path = Paths.get("src/main/rosetta");
+        RosettaFileNameValidator validator = new RosettaFileNameValidator();
+
+        ValidationReport validationReport = validator.validateFileNamesMatchNamespace(modelShortName, path);
+
+        assertTrue(validationReport.getPassed(),validationReport.getErrors().toString());
 
     }
 
