@@ -1698,6 +1698,8 @@ synonym source FpML_5_10 extends FpML
 			[value "instrumentId" path "commodity" maps 2 meta "instrumentIdScheme"]
 			[value "instrumentId" path "exchangeTradedContractNearest" maps 2 meta "instrumentIdScheme"]
 			[value "productId" maps 2 meta "productIdScheme"]
+			[value "description" path "equity" maps 2]
+			[value "description" path "index" maps 2]
 		+ source
 			// Bond
 			[set to ProductIdTypeEnum -> CUSIP when "bond->instrumentId->instrumentIdScheme" = "CUSIP"]
@@ -1720,7 +1722,8 @@ synonym source FpML_5_10 extends FpML
 			[set to ProductIdTypeEnum -> Other when "equity->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
 			[set to ProductIdTypeEnum -> Other when "equity->instrumentId->instrumentIdScheme" = "http://www.fpml.org/schemes/4.1/instrumentId"]
 			[set to ProductIdTypeEnum -> Other when "equity->instrumentId->instrumentIdScheme" exists]
-			// Mortgage
+            [set to ProductIdTypeEnum -> Name when "equity->description" exists]
+            // Mortgage
 			[set to ProductIdTypeEnum -> CUSIP when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
 			[set to ProductIdTypeEnum -> CUSIP when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
 			[set to ProductIdTypeEnum -> ISIN when "mortgage->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-ISIN-1-0"]
@@ -1741,6 +1744,7 @@ synonym source FpML_5_10 extends FpML
 			[set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" = "http://www.fpml.org/schemes/4.1/instrumentId"]
 			[set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" = "http://www.abc.com/instrumentId"]
 			[set to ProductIdTypeEnum -> Other when "index->instrumentId->instrumentIdScheme" exists]
+			[set to ProductIdTypeEnum -> Name when "index->description" exists]
 			// Loan
 			[set to ProductIdTypeEnum -> CUSIP when "loan->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP-1-0"]
 			[set to ProductIdTypeEnum -> CUSIP when "loan->instrumentId->instrumentIdScheme" = "http://www.fpml.org/spec/2002/instrument-id-CUSIP"]
@@ -1770,7 +1774,7 @@ synonym source FpML_5_10 extends FpML
 			// Catch all
 			[set to ProductIdTypeEnum -> Other when path = "productId"] // catch-all
 			[value "productId" mapper "DefaultProductIdType"]
-
+ 
 	ProductIdentification:
 		+ primaryAssetData
 			[value "primaryAssetClass" meta "assetClassScheme"]
@@ -1801,6 +1805,7 @@ synonym source FpML_5_10 extends FpML
 			[value "convertibleBond" meta "instrumentId"]
 			[value "mortgage" meta "instrumentId"]
 			[value "equity" meta "instrumentId"]
+			[value "equity" meta "description"]
 			[meta "instrumentId"]
 			[hint "bond"]
 			[hint "convertibleBond"]
@@ -2379,7 +2384,7 @@ synonym source FpML_5_10 extends FpML
 		+ underlier
 			[value "singleUnderlyer" path "underlyer"]
 			[value "basket" path "underlyer"]
-			[hint "bond", "equity", "mortgage", "convertibleBond"]
+			[hint "bond", "equity", "mortgage", "convertibleBond", "index"]
 			[hint "swap"]
 			[hint "creditDefaultSwap"]
 			[hint "putCurrencyAmount", "callCurrencyAmount"]
@@ -2673,6 +2678,7 @@ synonym source FpML_5_10 extends FpML
 	Index:
 		+ productIdentifier
 			[value "index" meta "instrumentId"]
+			[value "index" meta "description"]
 			[hint "index"]
 
 	Basket:
