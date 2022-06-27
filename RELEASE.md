@@ -1,31 +1,48 @@
-# Product Mapping Extension Release Notes
+# *Product Model - FpML mapping of Basic Price Return and Total Return Swaps*
 
-**_Background_**
+_Background_
 
-This release extends the FpML to CDM model to model mappings for various Rates and Credit products.
+The `Payout` `performancePayout` was recently introduced to allow for representation of a wider variety of products, both new (Variance, Volatility, Correlation and Dividend Swaps) and already supported products (Basic Price Return and Total Return Swaps). In previous releases, the `PerformancePayout` was used to represent new products, and the deprecated `EquityPayout` was used to represent Basic Price and Total Return Swaps.
 
-**_What is being released?_**
+_What is being released?_
 
-The enhancing of the credit default swap representation by including a bond into the reference obligation and the mapping of several FpML elements regarding Credit and Rates asset classes.
+The FpML synonyms for Basic Price and Total Return Swaps have been moved from `EquityPayout` to `PerformancePayout`.
 
-_Types_
+The following types and attributes have been updated:
 
-**base-staticdata-asset-common-enum**
-- Added the enumeration `Name` to the enumeration list `ProductIdTypeEnum`
+- `ValuationDates` type added to the model
+- `EquityValuationDates` type renamed as `PerformanceValuationDates`
+- `PerformancePriceReturnTerms` type renamed as `PriceReturnTerms`
+- `PerformanceDividendReturnTerms` type renamed as `DividendReturnTerms`
+- `DividendPeriod->dividendPeriodStartDate` attribute renamed as `startDate`
+- `DividendPeriod->dividendPeriodEndDate` attribute renamed as `endDate`
+- Enum value `TradeDate`added to `DividendDateReferenceEnum`
 
-_Synonyms_
+The following qualification functions have been adapted for `PerformancePayout`:
 
-**synonym-cdm-fpml**
-
-- Added mapping coverage for the `description` FpML element.
-- Added mapping coverage regarding FRA trades for the following elements: `primaryAssetClass`, `productId` and `productType`.
-- Added mapping coverage regarding CD swap trades for the following elements: `bond` and `indexReferenceInformation.seniority`.
-- Added mapping coverage regarding CD swaption trades for the following elements: `primaryAssetClass`, `productId` and `strike`.
+- `Qualify_BaseProduct_EquitySwap`
+- `Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName`
+- `Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName`
+- `Qualify_EquitySwap_PriceReturnBasicPerformance_Index`
+- `Qualify_EquitySwap_TotalReturnBasicPerformance_Index`
+- `Qualify_EquitySwap_PriceReturnBasicPerformance_Basket`
+- `Qualify_EquitySwap_TotalReturnBasicPerformance_Basket`
 
 _Review Directions_
 
-In the CDM Portal, select Ingestion and review the samples below:
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
-- fpml-5-10 > products > equity > 
-- fpml-5-10 > products > credit > 
-- fpml-5-10 > products > rates > 
+In the CDM Portal, select Ingestion and review the following samples:
+
+fpml-5-10/products/equity
+- eqd-ex01-american-call-stock-long-form.xml
+- eqd-ex04-european-call-index-long-form.xml
+- eqs-ex01-single-underlyer-execution-long-form.xml
+- eqs-ex01-single-underlyer-execution-long-form-other-party.xml
+- eqs-ex06-single-index-long-form.xml
+- eqs-ex09-compounding-swap.xml
+- eqs-ex10-short-form-interestLeg-driving-schedule-dates.xml
+- eqs-ex11-on-european-single-stock-underlyer-short-form.xml
+- eqs-ex12-on-european-index-underlyer-short-form.xml
+- eqs-ex13-pan-asia-interdealer-share-swap-short-form.xml
+- eqs-ex14-european-interdealer-share-swap-short-form.xml
