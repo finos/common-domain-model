@@ -10,13 +10,13 @@ The FpML synonyms for Basic Price and Total Return Swaps have been moved from `E
 
 The following types and attributes have been updated:
 
-- `ValuationDates` type added to the model.
-- `EquityValuationDates` type renamed as `PerformanceValuationDates`.
-- `PerformancePriceReturnTerms` type renamed as `PriceReturnTerms`.
-- `PerformanceDividendReturnTerms` type renamed as `DividendReturnTerms`.
-- `DividendPeriod->dividendPeriodStartDate` attribute renamed as `startDate`.
-- `DividendPeriod->dividendPeriodEndDate` attribute renamed as `endDate`.
-- Enum value `TradeDate`added to `DividendDateReferenceEnum`.
+- `ValuationDates` type added to the model
+- `EquityValuationDates` type renamed as `PerformanceValuationDates`
+- `PerformancePriceReturnTerms` type renamed as `PriceReturnTerms`
+- `PerformanceDividendReturnTerms` type renamed as `DividendReturnTerms`
+- `DividendPeriod->dividendPeriodStartDate` attribute renamed as `startDate`
+- `DividendPeriod->dividendPeriodEndDate` attribute renamed as `endDate`
+- Enum value `TradeDate`added to `DividendDateReferenceEnum`
 
 The following qualification functions have been adapted for `PerformancePayout`:
 
