@@ -8,7 +8,7 @@ This release extends the Party model to include Party Contact Information.
 
 The `ContactInformation` data type has been added to `Party` and `NaturalPerson` to allow representation of Party address related information.
 
-The `PartyContractInformation` data type has been removed from the CDM model.  The Regulatory Reporting specific concepts it covers will be handled in the DRR model.
+The `PartyContractInformation` data type has been removed from the CDM model.  The data type handles concepts specific to Regulatory Reporting that will be handled in the DRR model.
 
 Synonym mappings have been updated to reflect the model changes.
 
