@@ -1891,6 +1891,18 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
 	output:
 		businessEvent BusinessEvent (1..1)
 
+	condition SecurityLendingNotifyingParty: <"Validation to ensure that at least one party is flagged as having given notification when an Extension or Non-Extension event is being performed on a securities lending evergreen or extendible trade.">
+		if intent = EventIntentEnum -> Extension or intent = EventIntentEnum -> NonExtension
+		then
+			instruction
+				map [
+					if Qualify_SecurityLendingAgreement(item -> primitiveInstruction -> termsChange -> product -> contractualProduct -> economicTerms) then
+						if item -> primitiveInstruction -> termsChange -> product -> contractualProduct -> economicTerms -> optionProvision -> extendibleProvision -> extendibleByNotification exists then
+							item -> primitiveInstruction -> termsChange -> product -> contractualProduct -> economicTerms -> optionProvision -> extendibleProvision -> extendibleByNotification -> notifyingParty exists
+						else if item -> primitiveInstruction -> termsChange -> product -> contractualProduct -> economicTerms -> optionProvision -> evergreenProvision  exists then
+							item -> primitiveInstruction -> termsChange -> product -> contractualProduct -> economicTerms -> optionProvision -> evergreenProvision -> notifyingParty exists
+				]
+
 	add businessEvent -> instruction:
 	    instruction
 
