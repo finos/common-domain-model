@@ -13,11 +13,8 @@ import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndex
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.*;
-import cdm.base.staticdata.party.metafields.FieldWithMetaCategoryEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import cdm.event.common.ContractDetails;
 import cdm.event.common.TradeState;
-import cdm.legalagreement.contract.PartyContractInformation;
 import cdm.observable.asset.FxSpotRateSource;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.*;
@@ -223,34 +220,8 @@ public class Fpml510ProjectionMapper {
 			.map(t -> {
 				TradeHeader tradeHeader = objectFactory.createTradeHeader();
 				tradeHeader.getPartyTradeIdentifier().addAll(getPartyTradeIdentifiers(t.getTradeIdentifier()));
-				Optional.ofNullable(t.getContractDetails()).map(ContractDetails::getPartyContractInformation).map(this::getPartyTradeInformation)
-					.ifPresent(pti -> tradeHeader.getPartyTradeInformation().addAll(pti));
 				getIdentifiedDate(t.getTradeDate()).ifPresent(tradeHeader::setTradeDate);
 				return tradeHeader;
-			});
-	}
-
-	private List<PartyTradeInformation> getPartyTradeInformation(List<? extends PartyContractInformation> cdmPartyContractInformation) {
-		return emptyIfNull(cdmPartyContractInformation).stream()
-			.map(i -> {
-				PartyTradeInformation partyTradeInformation = objectFactory.createPartyTradeInformation();
-				Optional.ofNullable(i.getPartyReference())
-					.map(ReferenceWithMeta::getExternalReference)
-					.flatMap(this::getPartyReference)
-					.ifPresent(partyTradeInformation::setPartyReference);
-				getCategory(i.getCategory()).ifPresent(c -> partyTradeInformation.getCategory().add(c));
-				return partyTradeInformation;
-			})
-			.collect(Collectors.toList());
-	}
-
-	private Optional<TradeCategory> getCategory(FieldWithMetaCategoryEnum cdmCategory) {
-		return Optional.ofNullable(cdmCategory)
-			.map(c -> {
-				TradeCategory tradeCategory = objectFactory.createTradeCategory();
-				getValue(c).ifPresent(tradeCategory::setValue);
-				getScheme(c.getMeta()).ifPresent(tradeCategory::setCategoryScheme);
-				return tradeCategory;
 			});
 	}
 

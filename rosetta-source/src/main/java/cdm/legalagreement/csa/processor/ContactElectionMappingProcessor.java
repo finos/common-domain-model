@@ -1,5 +1,7 @@
 package cdm.legalagreement.csa.processor;
 
+import cdm.base.staticdata.party.Address;
+import cdm.base.staticdata.party.ContactInformation;
 import cdm.base.staticdata.party.PartyContactInformation;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.legalagreement.csa.ContactElection;
@@ -33,7 +35,9 @@ public class ContactElectionMappingProcessor extends MappingProcessor {
         setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
                 address -> partyContactInformationBuilder
                         .setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(party).build())
-                        .setAddress(removeHtml(address)));
+                        .setContactInformation(ContactInformation.builder()
+                                .addAddress(Address.builder()
+                                        .addStreet(removeHtml(address)))));
         return partyContactInformationBuilder.hasData() ? Optional.of(partyContactInformationBuilder.build()) : Optional.empty();
     }
 }

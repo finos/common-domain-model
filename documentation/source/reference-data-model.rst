@@ -18,8 +18,10 @@ The ``LegalEntity`` type is used when only a legal entity reference is appropria
    partyId PartyIdentifier (1..*)
    name string (0..1)
      [metadata scheme]
+   businessUnit BusinessUnit (0..*)
    person NaturalPerson (0..*)
    account Account (0..1)
+   contactInformation ContactInformation (0..1)
 
 .. code-block:: Haskell
 
