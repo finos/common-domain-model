@@ -1,4 +1,4 @@
-package cdm;
+package cdm.namepace;
 
 import com.google.common.collect.ImmutableList;
 import com.regnosys.rosetta.common.util.Pair;
