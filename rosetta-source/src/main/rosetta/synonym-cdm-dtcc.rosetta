@@ -20,13 +20,6 @@ import cdm.event.workflow.*
 import cdm.synonyms.fpml.processes.*
 
 import org.isda.cdm.*
-	 
-synonym source DTCC_9_0 extends DTCC_BASE
-{
-	ContractFormationPrimitive:
-		+ after
-			[value "OTC_Matching" path "Body" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
-}
 
 synonym source DTCC_11_0 extends DTCC_BASE
 {
@@ -44,6 +37,34 @@ synonym source DTCC_11_0 extends DTCC_BASE
             [hint "ReportingJurisdiction"]
 }
 
+synonym source DTCC_9_0 extends DTCC_BASE
+{
+    WorkflowStep:
+        + party
+            [value "party" path "Body->OTC_Matching->Payment->FpML"]
+
+	EventInstruction:
+        + intent
+            [value "ignore"]
+        + instruction
+            [value "FpML" path "OTC_Matching->Payment"]
+
+    Instruction:
+        - before
+        + before
+            [value "ignore"]
+
+    PrimitiveInstruction:
+        - transfer
+
+    TransferInstruction:
+        + transferState
+           [value "payment"]
+
+    TransferState:
+        - transfer
+}
+
 synonym source DTCC_BASE extends FpML_5_10_Processes
 {
     AdjustableOrAdjustedOrRelativeDate:
@@ -58,11 +79,6 @@ synonym source DTCC_BASE extends FpML_5_10_Processes
         + trade
             [value "TradeMsg"]
             [value "ReportingJurisdiction"]
-
-    TransferState:
-        + transfer
-           [value "payment"]
-           [hint "adjustedPaymentDate"]
 
 	Trade:
 		- tradeIdentifier
