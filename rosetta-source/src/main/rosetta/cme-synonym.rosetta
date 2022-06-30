@@ -21,63 +21,28 @@ import org.isda.cdm.*
 
 synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 {
-	PrimitiveEvent:
-	    + termsChange
-			[value "ignore"]
-
-	ContractFormationPrimitive:
-		+ after
-			[value "clearingConfirmed"]
-
-	AssignedIdentifier:
-		+ identifier
-			[value "tradeId" meta "tradeIdScheme"]
-			[value "usi" meta "usiScheme"]
-
-	// PartyContractInformation:
-	// 	+ accountReference
-	// 		[value "accountReference" meta "href"]
-
-	Trade:
-		+ tradeIdentifier
-			[value "universalSwapIdentifier" path "tradeHeader"]
-		- account
-
-	OptionPayout:
-		+ underlier
-			[hint "swap"]
-
-	CreditLimitInformation:
-		+ limitApplicable
-			[value "limitApplicable"]
-
-	WorkflowStep:
+    WorkflowStep:
         + proposedEvent
-            [value "partyTradeInformation" path "trade->tradeHeader"]
-		+ messageInformation
-			[value "header" path "clearingConfirmed"]
-		+ timestamp
-			[value "timestamps" path "clearingConfirmed->trade->tradeHeader"]
-			[value "header" path "clearingConfirmed"]
-        + party
-            [value "party"]
-		+ account
-			[value "account" path "clearingConfirmed"]
-		+ lineage
-		    [value "ignore"]
+            [value "clearingConfirmed"]
+        + messageInformation
+            [value "header" path "clearingConfirmed"]
+        + timestamp
+            [value "timestamps" path "clearingConfirmed->trade->tradeHeader"]
+            [value "header" path "clearingConfirmed"]
 		+ creditLimitInformation
 		    [value "creditLimitInformation" path "clearingConfirmed->trade->tradeHeader"]
 
     EventInstruction:
-        + intent
-            [set to EventIntentEnum -> Allocation when "intentToAllocate" = True]
-            [set to EventIntentEnum -> Clearing when "intentToClear" = True]
-        + instruction
-            [value "ignore"]
+        + eventDate
+            [value "clearedDate" path "clearingConfirmed->trade->tradeHeader" maps 2]
 
-	BusinessEvent:
-		+ eventDate
-			[value "clearedDate" path "clearingConfirmed->trade->tradeHeader" maps 2]
+    MessageInformation:
+        - sentBy
+		+ sentBy
+			[value "sentBy" meta "messageAddressScheme"]
+		- sentTo
+		+ sentTo
+			[value "sendTo" meta "messageAddressScheme"]
 
 	EventTimestamp:
 		+ dateTime
@@ -101,13 +66,18 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 		+ limitImpactDueToTrade
 			[value "limitImpactDueToTrade"]
 
-	MessageInformation:
-		+ messageId
-			[value "messageId" meta "messageIdScheme"]
-		+ sentBy
-			[value "sentBy" meta "messageAddressScheme"]
-		+ sentTo
-			[value "sendTo" meta "messageAddressScheme"]
+	CreditLimitInformation:
+		+ limitApplicable
+			[value "limitApplicable"]
+
+	Trade:
+		+ tradeIdentifier
+			[value "universalSwapIdentifier" path "tradeHeader"]
+
+    AssignedIdentifier:
+		+ identifier
+			[value "tradeId" meta "tradeIdScheme"]
+			[value "usi" meta "usiScheme"]
 
     enums
 
@@ -136,85 +106,14 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 
 synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 {
-	PrimitiveEvent:
-		+ contractFormation
-			[value "ignore"]
-
-	TermsChangePrimitive:
-		+ before
-			[value "ignore"]
-		+ after
-		    [hint "TrdCaptRpt"]
-
-	AssignedIdentifier:
-		+ identifier
-			[value "RptID" path "TrdCaptRpt"]
-
-    TradeState:
-        [meta "id" path "TrdCaptRpt->Instrmt->SecXML->FpML->trade"]
-        - trade
-        + trade
-            [value "TrdCaptRpt"]
-            [value "trade" path "TrdCaptRpt->Instrmt->SecXML->FpML" mapper "CmeParty"]
-            [value "FpML" path "TrdCaptRpt->Instrmt->SecXML"]
-
-	ExecutionDetails:
-		+ executionType
-			[value "VenuTyp"]
-		+ executionVenue
-		    [value "Hdr" set when "VenuTyp" exists]
-
-	Payout:
-		+ performancePayout
-			[value "ignore"]
-		+ equityPayout
-			[value "ignore"]
-		+ forwardPayout
-			[value "ignore"]
-
-	PartyReferencePayerReceiver:
-    	- payerPartyReference
-		+ payerPartyReference
-			[value "payerPartyReference" mapper "TradeSideToParty"]
-			[value "buyerPartyReference" maps 2 mapper "TradeSideToParty"]
-		- receiverPartyReference
-		+ receiverPartyReference
-			[value "receiverPartyReference" mapper "TradeSideToParty"]
-			[value "sellerPartyReference" maps 2 mapper "TradeSideToParty"]
-
-	LegalEntity:
-		+ name
-			[value "SID"]
-
-	Party:
-		+ name
-			[value "SID" path "Hdr"]
-
-	CustomisedWorkflow:
-		+ itemName
-			[set to "ClientOrderId" when path = "ClOrdID"]
-			[set to "TradeOriginationSystem" when path = "InptSrc"]
-			[set to "OriginatingTradeId" when path = "OrigTrdID"]
-			[set to "ExecutionTime" when path = "TrdRegTS->TS" and "TrdRegTS->Typ" = "1"]
-			[set to "PartyType" when path = "Pty->R"]
-			[set to "PartyIdentifier" when path = "Pty->Src"]
-		+ itemValue
-			[value "ClOrdID"]
-			[value "InptSrc"]
-			[value "OrigTrdID"]
-			[value "TS" path "TrdRegTS"]
-			[set to "Customer Account" when "Pty->R" = "24"]
-			[set to "Custom" when "Pty->Src" = "D"]
-
 	WorkflowStep:
-		+ action
-			[value "TransTyp" path "TrdCaptRpt"]
-        + lineage
-		    [value "ignore"]
-
-    EventInstruction:
-        + instruction
-            [value "ignore"]
+        + proposedEvent
+            [value "TrdCaptRpt"]
+            [value "FpML" path "TrdCaptRpt->Instrmt->SecXML"]
+        + action
+            [value "TransTyp" path "TrdCaptRpt"]
+        + messageInformation
+            [value "TrdCaptRpt"]
 
 	EventTimestamp:
 		+ dateTime
@@ -234,19 +133,65 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 
 	MessageInformation:
 		+ sentBy
-			[value "SSub" path "TrdCaptRpt->Hdr"]
+			[value "SSub" path "Hdr"]
 		+ sentTo
-			[value "TID" path "TrdCaptRpt->Hdr"]
+			[value "TID" path "Hdr"]
 
 	PartyCustomisedWorkflow:
 		+ partyName
 			[value "ID" path "Pty"]
 
-	ForeignExchange:
-		- exchangedCurrency1
-		- exchangedCurrency2
-		- tenorPeriod
-		- exchangeRate
+	CustomisedWorkflow:
+		+ itemName
+			[set to "ClientOrderId" when path = "ClOrdID"]
+			[set to "TradeOriginationSystem" when path = "InptSrc"]
+			[set to "OriginatingTradeId" when path = "OrigTrdID"]
+			[set to "ExecutionTime" when path = "TrdRegTS->TS" and "TrdRegTS->Typ" = "1"]
+			[set to "PartyType" when path = "Pty->R"]
+			[set to "PartyIdentifier" when path = "Pty->Src"]
+		+ itemValue
+			[value "ClOrdID"]
+			[value "InptSrc"]
+			[value "OrigTrdID"]
+			[value "TS" path "TrdRegTS"]
+			[set to "Customer Account" when "Pty->R" = "24"]
+			[set to "Custom" when "Pty->Src" = "D"]
+
+	AssignedIdentifier:
+		+ identifier
+			[value "RptID" path "TrdCaptRpt"]
+
+    TradeState:
+        [meta "id" path "trade"]
+        - trade
+        + trade
+            [value "trade" mapper "CmeParty"]
+            [hint "party"]
+            [hint "account"]
+
+	ExecutionDetails:
+		+ executionType
+			[value "VenuTyp"]
+		+ executionVenue
+		    [value "Hdr"]
+
+	PartyReferencePayerReceiver:
+    	- payerPartyReference
+		+ payerPartyReference
+			[value "payerPartyReference" mapper "TradeSideToParty"]
+			[value "buyerPartyReference" maps 2 mapper "TradeSideToParty"]
+		- receiverPartyReference
+		+ receiverPartyReference
+			[value "receiverPartyReference" mapper "TradeSideToParty"]
+			[value "sellerPartyReference" maps 2 mapper "TradeSideToParty"]
+
+	LegalEntity:
+		+ name
+			[value "SID"]
+
+	Party:
+		+ name
+			[value "SID" path "Hdr"]
 
     enums
 
@@ -276,31 +221,12 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 			[value "0"]
 }
 
-synonym source CME_BASE extends FpML_5_10
+synonym source CME_BASE extends FpML_5_10_Processes
 {
-	BusinessEvent:
-        + instruction
-            [value "ignore"]
-        + after
-            [value "ignore"]
-
-	PrimitiveEvent:
-	    + execution
-	        [value "ignore"]
-		+ split
-			[value "ignore"]
-		+ quantityChange
-			[value "ignore"]
-		+ transfer
-			[value "ignore"]
-
-	Payout:
-		+ securityPayout
-			[value "ignore"]
-
 	InterestShortFall:
 		+ rateSource
 			[value "rateSource" meta "floatingRateIndexScheme"]
+
 	enums
 
 	LimitLevelEnum:
