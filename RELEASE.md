@@ -1,5 +1,9 @@
 # *Event Model - Mapping CME and DTCC events*
 
+**_Background_**
+
+This release follows the recent work on the event model, which introduced a composable model for representing business events.  Recent releases have updated FpML synonyms to re-map from the old to the new model.
+
 **_What is being released?_**
 
 This release updates the CME and DTCC synonym mappings to use the composable Event model.
