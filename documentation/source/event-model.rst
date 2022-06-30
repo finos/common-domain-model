@@ -5,7 +5,7 @@
 Event Model
 -----------
 
-**The CDM event model provides data structures to represent the trade lifecycle events of financial transactions**. A trade moves from one state to another as the result of *state transition* events initiated by one or both trading parties, by external factors or by contractual terms such as maturity. For example, the execution of the trade is the initial event which results in the state of an executed trade. Subsequently, one party might initiate an allocation, both parties might initiate an amendment to a contractual agreement, or a default by an underlying entity on a Credit Default Swap would trigger a settlement according to defined protection terms.
+**The CDM event model provides data structures to represent the lifecycle events of financial transactions**. A lifecycle event occurs when a transaction goes through a *state transition* initiated by one or both trading parties, by contractual terms or by external factors. For example, the execution of the trade is the initial event which results in the state of an executed trade. Subsequently, one party might initiate an allocation, both parties might initiate an amendment to a contractual agreement, or a default by an underlying entity on a Credit Default Swap would trigger a settlement according to defined protection terms.
 
 Examples of lifecycle events supported by the CDM Event Model include the following:
 
@@ -15,20 +15,21 @@ Examples of lifecycle events supported by the CDM Event Model include the follow
 * Settlement (including any future contingent cashflow payment)
 * Exercise of options
 
-The representation of state transitions in the CDM event model is based on the following design principles:
+The representation of lifecycle events in the CDM is based on the following design principles:
 
-* **A lifecycle event describes a change in the state of a trade**, i.e. there must be different before/after trade states based on that lifecycle event.
-* **The product definition that underlies the transaction remains immutable**, unless agreed (negotiated) between the parties to that transaction as part of a specific trade lifecycle event. Automated events, for instance resets or cashflow payments, should not alter the product definition.
-* **The history of the trade state can be reconstructed at any point in the trade lifecycle**, i.e. the CDM implements a *lineage* between states as the trade goes through state transitions.
+* **A lifecycle event describes a state transition**. There must be different before/after trade states based on that lifecycle event.
+* **State transitions are functional and composable**. The CDM specifies the entire business logic to transition from one state to another. The state transition logic of all in-scope events is obtained by composing a small set of functional building blocks.
+* **The history of the trade state can be reconstructed** at any point in the trade lifecycle. The CDM implements a *lineage* between states as the trade goes through state transitions.
+* **The product underlying the transaction remains immutable**, unless agreed (negotiated) between the parties to that transaction as part of a specific trade lifecycle event. Automated events, for instance resets or cashflow payments, should not alter the product definition.
 * **The state is trade-specific**, not product-specific (i.e. it is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
 
-The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below.
+To represent a state transition, the event model is organised around four main data structures described below.
 
 .. figure:: images/event-model-overview.png
 
 * **Trade state** represents the state in the lifecycle that the trade is in, from execution to settlement and maturity.
-* **Primitive event** is a building block component used to specify business events in the CDM. Each primitive event describes a fundamental state-transition component that impacts the trade state during its lifecycle.
-* **Business (i.e. trade lifecycle) event** represents a lifecycle event, which may consist of one or more primitive events.
+* **Primitive operator** is the functional building block that is used to compose business events. Each operator describes a fundamental change to the state of a trade going from a before state to an after state and is parameterised by a primitive instruction.
+* **Business event** represents a trade lifecycle event as a composite of primitive instructions. A business event can comprise several instructions, each consisting of a set of primitive instructions applied as a "chain" to a single trade state (before). The resulting trade state (after) can be multiple.
 * **Workflow** represents a set of actions or steps that are required to trigger a business event.
 
 Each of these sub-structures are described in the subsequent sections.
@@ -130,10 +131,29 @@ The ``ClosedState`` data type (enclosed within ``State``) captures this closed s
 
 .. _primitive-event:
 
-Primitive Event
-^^^^^^^^^^^^^^^
+Primitive Operator
+^^^^^^^^^^^^^^^^^^
 
-**Primitive events are the building block components used to specify business events in the CDM**. They describe the fundamental state-transition components that impact the trade state during its lifecycle. The trade state always transitions from and to a ``TradeState`` data type.
+**Primitive operators are functional building blocks used to compose business events**. Each primitive operator describes a fundamental state transition that applies to a trade.
+
+There are nine fundamental operations on trade state.
+
+- execution: instantiates a new trade.
+- contract formation: associates a legal agreement to a trade
+- quantity change: changes the quantity (and/or price) of a trade
+- party change: changes a party on a trade
+- terms change: changes the terms of the underlying product of a trade
+- exercise: exercises an option embedded in a trade
+- reset: changes a trade's resettable value based on an observation
+- transfer: transfers some asset (cash, security, commodity) from one party to another
+- split: splits a trade into multiple identical trades
+
+A primitive operator takes a before trade state as input and returns an after trade state as output, both of type ``TradeState``. The only exceptions to this rules are:
+
+- execution, for which there is no before trade state because it instantiates a new trade, and
+- split, which results in multiple trade states as copies of the original trade.
+
+Each primitive operator is associated to a primitive instruction that specifies the parameters of the state transition. The ``PrimitiveInstruction`` data types contains each of the possible primitive instruction types
 
 The primitive events include ``before`` and ``after`` attributes, which can define the evolution of the trade state by taking the differences between ``before`` and ``after`` trade states.
 
