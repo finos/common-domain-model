@@ -33,7 +33,6 @@ import com.regnosys.rosetta.common.translation.flat.FlatFileMappingProcessor;
 import com.regnosys.rosetta.common.translation.flat.IndexCapturePath;
 import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.path.RosettaPath;
-import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
 import java.math.BigDecimal;
@@ -52,7 +51,6 @@ import static cdm.event.common.TradeState.TradeStateBuilder;
 import static cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
 import static cdm.product.common.settlement.PriceQuantity.PriceQuantityBuilder;
 import static cdm.product.template.SecurityFinancePayout.SecurityFinancePayoutBuilder;
-import static com.rosetta.model.metafields.FieldWithMetaString.FieldWithMetaStringBuilder;
 
 /**
  * This instance override the version in CDM so it can be kept up to date with ISLA model changes.
@@ -131,7 +129,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 				BigDecimal rate = parseDecimal(rateCap.get().getValue());
 				Stream<InterestRatePayoutBuilder> allIRPs =
 						Streams.concat(Stream.of(getTradeState(new PathValue<>(BASE_PATH, workflow)).getValue()),
-								Streams.stream(Iterables.skip(workflow.getOrCreateBusinessEvent().getOrCreatePrimitives(0).getOrCreateSplit().getAfter(), 1)))
+								Streams.stream(Iterables.skip(workflow.getOrCreateBusinessEvent().getAfter(), 1)))
 								.map(s -> new PathValue<>(BASE_PATH, s))
 								.map(this::getIRP)
 								.map(PathValue::getValue);
@@ -420,15 +418,12 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		addMapping(IndexCapturePath.parse("FIS_TRADE.Activity[0]"), (indexes, value, workflow) -> {
 			workflow.getValue()
 					.getOrCreateBusinessEvent()
-					.getOrCreatePrimitives(0)
-					.getOrCreateSplit()
 					.getOrCreateAfter(0)
 					.getOrCreateMeta()
 					.setExternalKey("TradeState");
 			workflow.getValue()
 					.getOrCreateBusinessEvent()
-					.getOrCreatePrimitives(0)
-					.getOrCreateSplit()
+					.getOrCreateInstruction(0)
 					.getOrCreateBefore()
 					.setExternalReference("TradeState");
 			getTradableProduct(getTradeState(workflow))
@@ -527,22 +522,18 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 
 	private PathValue<TradeStateBuilder> getTradeState(PathValue<WorkflowStepBuilder> w) {
 		return new PathValue<>(
-				w.getModelPath().append(Path.parse("businessEvent.primitives[0].split.after[0]")),
+				w.getModelPath().append(Path.parse("businessEvent.after[0]")),
 				w.getValue()
 						.getOrCreateBusinessEvent()
-						.getOrCreatePrimitives(0)
-						.getOrCreateSplit()
 						.getOrCreateAfter(0));
 	}
 
 	private PathValue<TradeStateBuilder> getSplitTradeState(PathValue<WorkflowStepBuilder> w, Map<String, Integer> indexes) {
 		int i = indexes.get("allocationNum") + 1; // +1 because the first is the trade being split (in closed state)
 		return new PathValue<>(
-				w.getModelPath().append(Path.parse("businessEvent.primitives[0].split.after[" + i + "]")),
+				w.getModelPath().append(Path.parse("businessEvent.after[" + i + "]")),
 				w.getValue()
 						.getOrCreateBusinessEvent()
-						.getOrCreatePrimitives(0)
-						.getOrCreateSplit()
 						.getOrCreateAfter(i));
 	}
 

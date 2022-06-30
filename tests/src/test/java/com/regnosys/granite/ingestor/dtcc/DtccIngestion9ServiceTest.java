@@ -1,14 +1,17 @@
 package com.regnosys.granite.ingestor.dtcc;
 
 import cdm.event.workflow.WorkflowStep;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
+import com.regnosys.granite.ingestor.IngestionReport;
 import com.regnosys.granite.ingestor.IngestionTest;
 import com.regnosys.granite.ingestor.IngestionTestUtil;
 import com.regnosys.granite.ingestor.service.IngestionFactory;
 import com.regnosys.granite.ingestor.service.IngestionService;
 import com.regnosys.granite.ingestor.synonym.MappingReport;
 import com.regnosys.granite.ingestor.synonym.MappingResult;
+import com.regnosys.granite.ingestor.testing.Expectation;
 import org.isda.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.provider.Arguments;
@@ -32,7 +35,12 @@ class DtccIngestion9ServiceTest extends IngestionTest<WorkflowStep> {
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		dtcc9IngestionService = IngestionFactory.getInstance().getDtcc9();
 	}
-	
+
+	@Override
+	protected void assertExpectations(Expectation expectation, IngestionReport<WorkflowStep> ingested) throws JsonProcessingException {
+
+	}
+
 	@Override
 	protected Class<WorkflowStep> getClazz() {
 		return WorkflowStep.class;
