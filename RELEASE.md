@@ -1,13 +1,13 @@
-# *Rosetta Namespace and Filename*
+# *CDM Model: Realignement between Namespaces and Filenames*
 
 _Background_
 
-This release updates the Rosetta filename and namespaces to bring them in sync.
+Subsequent to the multiple versions of the CDM, the .rosetta filenames and namespaces have become inconsistent.
 
 _What is being released?_
 
-Rosetta filename and namespaces are refactored to bring them in sync.
+This release re-synchronises the filenames and namespaces.
 
 _Review Directions_
 
-In the CDM Portal, you can view better files structures within Namespace hierarchy view.
+In the CDM Portal, you can download a CDM distribution and inspect filenames versus namespaces.
