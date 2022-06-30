@@ -1,10 +1,10 @@
 # *Rosetta Namespace and Filename*
 
-**_Background_**
+_Background_
 
 This release updates the Rosetta filename and namespaces to bring them in sync.
 
-**_What is being released?_**
+_What is being released?_
 
 Rosetta filename and namespaces are refactored to bring them in sync.
 
