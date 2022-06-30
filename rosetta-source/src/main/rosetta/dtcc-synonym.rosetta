@@ -1,4 +1,4 @@
-namespace cdm.dtcc
+namespace cdm.synonyms.dtcc
 version "${project.version}"
 
 import cdm.base.datetime.*
@@ -17,35 +17,59 @@ import cdm.legalagreement.contract.*
 import cdm.event.common.*
 import cdm.event.workflow.*
 
-import cdm.fpml.*
+import cdm.synonyms.fpml.processes.*
 
 import org.isda.cdm.*
-	 
-synonym source DTCC_9_0 extends DTCC_BASE
-{
-	ContractFormationPrimitive:
-		+ after
-			[value "OTC_Matching" path "Body" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
-}
 
 synonym source DTCC_11_0 extends DTCC_BASE
 {
-	ContractFormationPrimitive:
-		+ after
-		    [value "Manifest" path "Header->OTC_RM", "ReportingHeader" path "Body->OTC_Matching->ReportingData", "FpML" path "Body->OTC_Matching->Trade" set when "Header->OTC_RM->Manifest->TradeMsg->TransType" = "Trade"]
+    EventInstruction:
+        + intent
+            [set to EventIntentEnum -> ContractFormation when "OTC_Matching->Trade->FpML->trade" exists]
+        + instruction
+            [value "Manifest" path "OTC_RM",
+                "ReportingHeader" path "OTC_Matching->ReportingData",
+                "FpML" path "OTC_Matching->Trade"]
+
+    Instruction:
+        + before
+            [hint "TradeMsg"]
+            [hint "ReportingJurisdiction"]
 }
 
-synonym source DTCC_BASE extends FpML_5_10
+synonym source DTCC_9_0 extends DTCC_BASE
+{
+    WorkflowStep:
+        + party
+            [value "party" path "Body->OTC_Matching->Payment->FpML"]
+
+	EventInstruction:
+        + intent
+            [value "ignore"]
+        + instruction
+            [value "FpML" path "OTC_Matching->Payment"]
+
+    Instruction:
+        - before
+        + before
+            [value "ignore"]
+
+    PrimitiveInstruction:
+        - transfer
+
+    TransferInstruction:
+        + transferState
+           [value "payment"]
+
+    TransferState:
+        - transfer
+}
+
+synonym source DTCC_BASE extends FpML_5_10_Processes
 {
     AdjustableOrAdjustedOrRelativeDate:
         + adjustedDate
             [value "adjustedPaymentDate"]
-
-    BusinessEvent:
-        + instruction
-            [value "ignore"]
-        + after
-            [value "ignore"]
 
 	CalculationAgentModel:
 		+ calculationAgentBusinessCenter
@@ -55,13 +79,6 @@ synonym source DTCC_BASE extends FpML_5_10
         + trade
             [value "TradeMsg"]
             [value "ReportingJurisdiction"]
-        + transferHistory
-            [value "FpML"]
-
-    TransferState:
-        + transfer
-           [value "payment"]
-           [hint "adjustedPaymentDate"]
 
 	Trade:
 		- tradeIdentifier
@@ -74,16 +91,6 @@ synonym source DTCC_BASE extends FpML_5_10
 			[value "OriginatingUSI"]
             [value "UTI"]
 
-	Payout:
-        + performancePayout
-            [value "ignore"]
-		+ equityPayout
-			[value "ignore"]
-		+ forwardPayout
-			[value "ignore"]
-		+ securityPayout
-			[value "ignore"]
-
 	Product:
 		+ contractualProduct
 			[hint "ProductType"]
@@ -94,30 +101,6 @@ synonym source DTCC_BASE extends FpML_5_10
 			[value "externalProductType"]
 		+ productIdentifier
 			[value "instrumentId" path "payment->calculationDetails->calculationElements->underlier->index" meta "instrumentIdScheme"]
-
-	PrimitiveEvent:
-		+ split
-			[value "ignore"]
-		+ quantityChange
-			[value "ignore"]
-		+ termsChange
-			[value "ignore"]
-		+ transfer
-			[value "Payment" path "Body->OTC_Matching"]
-
-	Observable:
-		+ productIdentifier
-			[value "ignore"]
-
-	Party:
-	 	[value "Party" meta "id" maps 2]
-
-	PartyIdentifier:
-		+ identifier
-			[value "partyId" meta "partyIdScheme"]
-		+ identifierType
-			[set to PartyIdentifierTypeEnum -> LEI when "partyId->partyIdScheme" = "http://www.fpml.org/coding-scheme/external/iso17442"]
-			[set to PartyIdentifierTypeEnum -> BIC when "partyId->partyIdScheme" = "http://www.fpml.org/coding-scheme/external/iso9362"]		
 
 	AssignedIdentifier:
 		+ identifier
@@ -138,6 +121,13 @@ synonym source DTCC_BASE extends FpML_5_10
 	InterestShortFall:
 		+ rateSource
 			[value "rateSource" meta "floatingRateIndexScheme"]
+
+	PartyIdentifier:
+		+ identifier
+			[value "partyId" meta "partyIdScheme"]
+		+ identifierType
+			[set to PartyIdentifierTypeEnum -> LEI when "partyId->partyIdScheme" = "http://www.fpml.org/coding-scheme/external/iso17442"]
+			[set to PartyIdentifierTypeEnum -> BIC when "partyId->partyIdScheme" = "http://www.fpml.org/coding-scheme/external/iso9362"]
 
 	CustomisedWorkflow:
 		+ itemName
@@ -162,6 +152,9 @@ synonym source DTCC_BASE extends FpML_5_10
 			[value "amount" path "PartyWorkflowFields->midMarketPrice"]
 
 	WorkflowStep:
+	    + proposedEvent
+	        [value "Body", "Header"]
+        - messageInformation
 		+ messageInformation
 			[value "FpML" path "Body->OTC_Matching->Trade"]
 			[value "FpML" path "Body->OTC_Matching->Payment"]
@@ -171,6 +164,7 @@ synonym source DTCC_BASE extends FpML_5_10
 			[value "header" path "Body->OTC_Matching->Trade->FpML"]
 			[value "Route" path "Header->OTC_RM->Delivery->RouteHist"]
 			[value "header" path "Body->OTC_Matching->Payment->FpML"]
+		- eventIdentifier
 		+ eventIdentifier
 			[value "Submitter" path "Header->OTC_RM->Manifest->TradeMsg"]
 			[value "ContraTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
@@ -178,17 +172,8 @@ synonym source DTCC_BASE extends FpML_5_10
 			[value "tradeIdentifyingItems" path "Header->OTC_RM->Manifest->TradeMsg"]
 		+ action
 			[value "Activity" path "Header->OTC_RM->Manifest->TradeMsg"]
-		+ party
-			[value "party" path "Body->OTC_Matching->Trade->FpML" ]
-			[value "party" path "Body->OTC_Matching->Payment->FpML" ]
-		+ lineage
-            [value "ignore"]
         + workflowState
             [value "OTC_Matching" path "Body"]
-
-    EventInstruction:
-        + instruction
-            [value "ignore"]
 
 	EventTimestamp:
 		+ dateTime
