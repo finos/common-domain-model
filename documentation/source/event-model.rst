@@ -18,7 +18,7 @@ Examples of lifecycle events supported by the CDM Event Model include the follow
 The representation of lifecycle events in the CDM is based on the following design principles:
 
 * **A lifecycle event describes a state transition**. There must be different before/after trade states based on that lifecycle event.
-* **State transitions are functional and composable**. The CDM specifies the entire business logic to transition from one state to another. The state transition logic of all in-scope events is obtained by composing a small set of functional building blocks.
+* **State transitions are functional and composable**. The CDM specifies the entire functionalm logic to transition from one state to another. The state transition logic of all in-scope events is obtained by composition from a small set of functional building blocks.
 * **The history of the trade state can be reconstructed** at any point in the trade lifecycle. The CDM implements a *lineage* between states as the trade goes through state transitions.
 * **The product underlying the transaction remains immutable**, unless agreed (negotiated) between the parties to that transaction as part of a specific trade lifecycle event. Automated events, for instance resets or cashflow payments, should not alter the product definition.
 * **The state is trade-specific**, not product-specific (i.e. it is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
@@ -136,42 +136,85 @@ Primitive Operator
 
 **Primitive operators are functional building blocks used to compose business events**. Each primitive operator describes a fundamental state transition that applies to a trade.
 
-There are nine fundamental operations on trade state.
+There are nine fundamental operations on trade state. Other than split and execution, they each impact separate attributes of a trade state and are therefore independent of each other.
 
-- execution: instantiates a new trade.
-- contract formation: associates a legal agreement to a trade
-- quantity change: changes the quantity (and/or price) of a trade
-- party change: changes a party on a trade
-- terms change: changes the terms of the underlying product of a trade
-- exercise: exercises an option embedded in a trade
-- reset: changes a trade's resettable value based on an observation
-- transfer: transfers some asset (cash, security, commodity) from one party to another
-- split: splits a trade into multiple identical trades
+#. execution: instantiates a new trade.
+#. quantity change: changes the quantity (and/or price) of a trade
+#. terms change: changes the terms of the underlying product of a trade
+#. party change: changes a party on a trade
+#. exercise: exercises an option embedded in a trade
+#. contract formation: associates a legal agreement to a trade
+#. reset: changes a trade's resettable value based on an observation
+#. transfer: transfers some asset (cash, security, commodity) from one party to another
+#. split: splits a trade into multiple identical trades
 
-A primitive operator takes a before trade state as input and returns an after trade state as output, both of type ``TradeState``. The only exceptions to this rules are:
+Primitive Function
+""""""""""""""""""
 
-- execution, for which there is no before trade state because it instantiates a new trade, and
+A primitive operator is represented by a primitive function that takes a before trade state as input and returns an after trade state as output, both of type ``TradeState``. The only exceptions to this rule are:
+
+- execution, for which there is no before state since its purpose is to instantiate a new trade, and
 - split, which results in multiple trade states as copies of the original trade.
 
-Each primitive operator is associated to a primitive instruction that specifies the parameters of the state transition. The ``PrimitiveInstruction`` data types contains each of the possible primitive instruction types
-
-The primitive events include ``before`` and ``after`` attributes, which can define the evolution of the trade state by taking the differences between ``before`` and ``after`` trade states.
-
-The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a trade state that *already* existed. By contrast, the ``after`` trade state provides a full definition of that object, because that trade state is occurring for the first time and it is the occurrence of the primitive event that triggered a transition to that new trade state. By tying each trade state in the lifecycle to a previous trade state, primitive events are one of the mechanisms by which *lineage* is implemented in the CDM.
-
-A ``PrimitiveEvent`` can only include one of the primitive components, which is captured by the ``one-of`` condition. The list of primitive events can be seen in the ``PrimitiveEvent`` type definition:
+All primitive functions are prefixed by ``Create_`` followed by the name of the primitive operator. The business logic of primitive functions is fully implemented. An example of primitive function, for the ``PartyChange`` primitive, is illustrated below.
 
 .. code-block:: Haskell
 
- type PrimitiveEvent:
-   execution ExecutionPrimitive (0..1)
-   contractFormation ContractFormationPrimitive (0..1)
-   split SplitPrimitive (0..1)
-   quantityChange QuantityChangePrimitive (0..1)
-   termsChange TermsChangePrimitive (0..1)
-   transfer TransferPrimitive (0..1)
+ func Create_PartyChange:
+   inputs:
+     counterparty Counterparty (1..1)
+     ancillaryParty AncillaryParty (0..1)
+     partyRole PartyRole (0..1)
+     tradeId Identifier (1..*)
+     originalTrade TradeState (1..1)
+   output:
+     newTrade TradeState (1..1)
 
-   condition PrimitiveEvent: one-of
+Primitive Instruction
+"""""""""""""""""""""
+
+Primitive functions take additional inputs alongside the before trade state to specify the parameters of the state transition. Each primitive operator
+is associated to a primitive instruction data type that contains the function's required parameters as attributes - illustrated below using the same ``PartyChange`` example.
+
+.. code-block:: Haskell
+
+ type PartyChangeInstruction:
+   counterparty Counterparty (1..1)
+   ancillaryParty AncillaryParty (0..1)
+   partyRole PartyRole (0..1)
+   tradeId Identifier (1..*)
+
+Primitive instructions do not include the before trade state. This separation allows to specify composite primitive instructions to be applied to a single trade state. In this case, the corresponding primitive operators are chained together, as represented in the diagram below.
+
+.. note:: When a primitive instruction is composite, interim trade states will be created when executing each primitive operator. These interim trade state may not correspond to any actual business outcome (only the final after trade state does), so implementors will usually choose not persist them.
+
+The ``PrimitiveInstruction`` data types allows to build such composite primitive instructions. It contains one instruction attribute for each of the possible nine primitive instruction types - aligned onto the nine fundamental primitive operators.
+
+.. code-block:: Haskell
+
+ type PrimitiveInstruction: <"A Primitive Instruction describes the inputs required to pass into the corresponding PrimitiveEvent function.">
+	  contractFormation ContractFormationInstruction (0..1) <"Specifies instructions describing an contract formation primitive event.">
+	  execution ExecutionInstruction (0..1) <"Specifies instructions describing an execution primitive event.">
+	  exercise ExerciseInstruction (0..1) <"Specifies instructions describing an exercise primitive event.">
+	  partyChange PartyChangeInstruction (0..1) <"Specifies instructions describing a party change primitive event.">
+	  quantityChange QuantityChangeInstruction (0..1) <"Specifies instructions describing an quantity change primitive event.">
+	  reset ResetInstruction (0..1) <"Specifies instructions describing a reset event.">
+	  split SplitInstruction (0..1) <"Specifies instructions to split a trade into multiple branches.">
+	  termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing a terms change primitive event.">
+	  transfer TransferInstruction (0..1) <"Specifies instructions describing a transfer primitive event.">
+
+The ``Create_TradeState`` function applies a set of primitive instructions to a trade state. It takes a single trade state and a composite primitive instruction as inputs and returns a single trade state. The before trade state input is optional, in case a new execution is specified in the instructions.
+
+.. code-block:: Haskell
+
+ func Create_TradeState:
+   inputs:
+     primitiveInstruction PrimitiveInstruction (0..1)
+     before TradeState (0..1)
+   output:
+     after TradeState (1..1)
+
+This function applies each of the primitive operators (other than split) to the trade state in sequence, in the order listed in the `primitive operator`_ section. Apart from execution which, when present, must always be applied first, this order does not affect the outcome because each primitive operator impacts a different part of the trade state.
 
 Examples of how primitive components can be used are illustrated below.
 
@@ -319,6 +362,8 @@ An example composition of the primitive events to represent a complete lifecycle
 * a ``QuantityChange`` primitive which includes a before attribute that defines the terms of the trade between the original parties before the novation and an after attribute the defines the terms of the trade between the original parties after the novation, in which the quantity should be less than the quantity in the before state and greater than 0 (0 would represent the case of a *full novation*).
 
 A business event is *atomic* in the sense that its underlying primitive event constituents cannot happen independently: they either all happen together or they do not happen. In the above partial novation example, the existing trade between the parties must be downsized at the same time as the new trade is instantiated.
+
+The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a trade state that *already* existed. By contrast, the ``after`` trade state provides a full definition of that object, because that trade state is occurring for the first time and it is the occurrence of the primitive event that triggered a transition to that new trade state. By tying each trade state in the lifecycle to a previous trade state, primitive events are one of the mechanisms by which *lineage* is implemented in the CDM.
 
 Selected attributes of a business event are further explained below:
 
