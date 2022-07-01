@@ -186,6 +186,8 @@ is associated to a primitive instruction data type that contains the function's 
 
 Primitive instructions do not include the before trade state. This separation allows to specify composite primitive instructions to be applied to a single trade state. In this case, the corresponding primitive operators are chained together, as represented in the diagram below.
 
+.. figure:: images/composing-primitive-operators.png
+
 .. note:: When a primitive instruction is composite, interim trade states will be created when executing each primitive operator. These interim trade state may not correspond to any actual business outcome (only the final after trade state does), so implementors will usually choose not to persist them.
 
 The ``PrimitiveInstruction`` data types allows to build such composite primitive instructions. It contains one instruction attribute for each of the possible nine primitive instruction types - aligned onto the nine fundamental primitive operators.
