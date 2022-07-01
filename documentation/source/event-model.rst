@@ -21,18 +21,18 @@ The representation of lifecycle events in the CDM is based on the following desi
 * **State transitions are functional and composable**. The CDM specifies the entire functionalm logic to transition from one state to another. The state transition logic of all in-scope events is obtained by composition from a small set of functional building blocks.
 * **The history of the trade state can be reconstructed** at any point in the trade lifecycle. The CDM implements a *lineage* between states as the trade goes through state transitions.
 * **The product underlying the transaction remains immutable**, unless agreed (negotiated) between the parties to that transaction as part of a specific trade lifecycle event. Automated events, for instance resets or cashflow payments, should not alter the product definition.
-* **The state is trade-specific**, not product-specific (i.e. it is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
+* **The state is trade-specific**, not product-specific (i.e. the CDM is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
 
-To represent a state transition, the event model is organised around four main data structures described below.
-
-.. figure:: images/event-model-overview.png
+To represent a state transition, the event model is organised around four main data structures.
 
 * **Trade state** represents the state in the lifecycle that the trade is in, from execution to settlement and maturity.
 * **Primitive operator** is the functional building block that is used to compose business events. Each operator describes a fundamental change to the state of a trade going from a before state to an after state and is parameterised by a primitive instruction.
 * **Business event** represents a trade lifecycle event as a composite of primitive instructions. A business event can comprise several instructions, each consisting of a set of primitive instructions applied as a "chain" to a single trade state (before). The resulting trade state (after) can be multiple.
 * **Workflow** represents a set of actions or steps that are required to trigger a business event.
 
-Each of these sub-structures are described in the subsequent sections.
+The below diagram illustrates the relationship between these data structures. Each of them is described in the next four sections.
+
+.. figure:: images/event-model-overview.png
 
 Trade State
 ^^^^^^^^^^^
