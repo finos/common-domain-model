@@ -322,20 +322,20 @@ Some of those calculations are presented below:
      output:
          equityCashSettlementAmount Transfer (1..1)
 
-     alias equityPayout:
-         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+     alias equityPerformancePayout:
+         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout only-element
      alias equityPerformance:
          EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
      alias payer:
-         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPayout -> payerReceiver -> payer ) -> partyReference
+         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPerformancePayout -> payerReceiver -> payer ) -> partyReference
      alias receiver:
-         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPayout -> payerReceiver -> receiver ) -> partyReference
+         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPerformancePayout -> payerReceiver -> receiver ) -> partyReference
 
      set equityCashSettlementAmount -> quantity -> amount:
-          Abs(equityPerformance)
+         Abs(equityPerformance)
      set equityCashSettlementAmount -> quantity -> unitOfAmount-> currency:
          ResolveEquityInitialPrice(
-             tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
+            tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
          ) -> unitOfAmount -> currency
      set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
          if equityPerformance >= 0 then payer else receiver
@@ -343,8 +343,8 @@ Some of those calculations are presented below:
          if equityPerformance >= 0 then receiver else payer
      set equityCashSettlementAmount -> settlementDate -> adjustedDate:
          ResolveCashSettlementDate(tradeState)
-     set equityCashSettlementAmount -> settlementOrigin -> equityPayout:
-         equityPayout as-key
+     set equityCashSettlementAmount -> settlementOrigin -> performancePayout:
+         equityPerformancePayout as-key
 
 .. code-block:: Haskell
 
@@ -552,7 +552,7 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
         else instruction -> resetDate
 
     alias observationIdentifiers:
-        if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, instruction -> resetDate)
+        if payout -> performancePayout count = 1 then ResolvePerformanceObservationIdentifiers(payout -> performancePayout only-element, instruction -> resetDate)
         else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
 
     alias observation:
@@ -565,7 +565,7 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
         tradeState
 
     add resetPrimitive -> after -> resetHistory:
-        if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, instruction -> resetDate)
+        if payout -> performancePayout count = 1 then ResolvePerformanceReset(payout -> performancePayout only-element, observation, instruction -> resetDate)
         else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
 
 
@@ -575,32 +575,32 @@ Specifying precisely which attributes from ``EquityPayout`` should be used to re
 
 .. code-block:: Haskell
 
- func ResolveEquityObservationIdentifiers:
+ func ResolvePerformanceObservationIdentifiers:
      inputs:
-         payout EquityPayout (1..1)
+         payout PerformancePayout (1..1)
          date date (1..1)
      output:
          identifiers ObservationIdentifier (1..1)
 
      alias periodEndDate:
-         CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
+         ValuationPeriod ( payout -> valuationDates, date ) -> endDate
 
-     alias equityValuation:
-         if CalculationPeriod( payout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then
-             payout -> priceReturnTerms -> valuationPriceFinal
-             else payout -> priceReturnTerms -> valuationPriceInterim
+     alias performanceValuation:
+         if ValuationPeriod( payout -> valuationDates, periodEndDate ) -> isLastPeriod then
+             payout -> valuationDates -> valuationDatesFinal
+             else payout -> valuationDates -> valuationDatesInterim
 
      add identifiers -> observable -> productIdentifier:
          payout -> underlier -> security -> productIdentifier
 
      set identifiers -> observationDate:
-         ResolveEquityValuationDate(equityValuation, date)
+         ResolvePerformanceValuationDate(performanceValuation, date)
 
      set identifiers -> observationTime:
-         ResolveEquityValuationTime(equityValuation, identifiers -> observable -> productIdentifier only-element)
+         ResolvePerformanceValuationTime(performanceValuation, identifiers -> observable -> productIdentifier only-element)
 
      set identifiers -> determinationMethodology -> determinationMethod:
-         equityValuation -> determinationMethod
+         performanceValuation -> determinationMethod
 
 ``ResolveObservation`` provides an interface for adopters to integrate their market data systems. It specifies the input types and the output type, which ensures the integrity of the observed value.
 
@@ -617,9 +617,9 @@ The construction of the ``Reset`` in our scenario then becomes trivial, once the
 
 .. code-block:: Haskell
 
- func ResolveEquityReset:
+ func ResolvePerformanceReset:
      inputs:
-         equityPayout EquityPayout (1..1)
+         performancePayout PerformancePayout (1..1)
          observation Observation (1..1)
          date date (1..1)
      output:
