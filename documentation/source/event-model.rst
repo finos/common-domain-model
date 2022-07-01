@@ -184,13 +184,7 @@ is associated to a primitive instruction data type that contains the function's 
    partyRole PartyRole (0..1)
    tradeId Identifier (1..*)
 
-Primitive instructions do not include the before trade state. This separation allows to specify composite primitive instructions to be applied to a single trade state. In this case, the corresponding primitive operators are chained together, as represented in the diagram below.
-
-.. figure:: images/composing-primitive-operators.png
-
-.. note:: When a primitive instruction is composite, interim trade states will be created when executing each primitive operator. These interim trade state may not correspond to any actual business outcome (only the final after trade state does), so implementors will usually choose not to persist them.
-
-The ``PrimitiveInstruction`` data types allows to build such composite primitive instructions. It contains one instruction attribute for each of the possible nine primitive instruction types - aligned onto the nine fundamental primitive operators.
+The ``PrimitiveInstruction`` data type allows to build composite primitive instructions and therefore compose primitive operators. This data type contains one instruction attribute for each of the possible nine primitive instruction types - aligned onto the nine fundamental primitive operators.
 
 .. code-block:: Haskell
 
@@ -205,7 +199,18 @@ The ``PrimitiveInstruction`` data types allows to build such composite primitive
    termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing a terms change primitive event.">
    transfer TransferInstruction (0..1) <"Specifies instructions describing a transfer primitive event.">
 
-The ``Create_TradeState`` function applies a set of primitive instructions to a trade state. It takes a single trade state and a composite primitive instruction as inputs and returns a single trade state. The before trade state input is optional, in case a new execution is specified in the instructions.
+Primitive Composition
+"""""""""""""""""""""
+
+The separation between the before trade state and primitive instructions allows to compose primitive operators. This is done using the ``Create_TradeState`` function. This function chains the primitive operators by applying a composite primitive instruction to a single trade state, as represented in the diagram below.
+
+.. figure:: images/composing-primitive-operators.png
+
+.. note:: When a primitive instruction is composite, interim trade states will be created when executing each primitive operator. These interim trade state may not correspond to any actual business outcome (only the final after trade state does), so implementors will usually choose not to persist them.
+
+The ``Create_TradeState`` function takes a single trade state and a composite primitive instruction as inputs and returns a single trade state. The before trade state input is optional, in case a new execution is specified in the instructions.
+
+This function applies each of the primitive operators (other than split) to the trade state in the order listed in the `primitive operator`_ section. Apart from execution which, when present, must always be applied first, the order does not affect the outcome because each primitive operator impacts a different part of the trade state.
 
 .. code-block:: Haskell
 
@@ -216,8 +221,6 @@ The ``Create_TradeState`` function applies a set of primitive instructions to a 
    output:
      after TradeState (1..1)
 
-This function applies each of the primitive operators (other than split) to the trade state in sequence, in the order listed in the `primitive operator`_ section. Apart from execution which, when present, must always be applied first, the order does not affect the outcome because each primitive operator impacts a different part of the trade state.
-
 Special Case: Split
 """""""""""""""""""
 
@@ -227,7 +230,7 @@ Split is a special case of primitive operator. It is used in many lifecycle even
 - Contrary to other operators, it outputs multiple trade states
 - Order matters: when present, a split must be executed before other operators can be applied to its multiple output
 
-Like other primitive operators, split is associated to a split function and a split instruction. But unlike other operators, the ``Create_Split`` function returns a multiple output, so a ``SplitInstruction`` cannot be handled in the ``Create_TradeState`` function. Instead, a split instruction provides a breakdown of primitive instructions to apply to each post-split trade state, using the ``Create_TradeState`` function on each.
+Like other primitive operators, split is associated to a split function and a split instruction. But unlike other operators, the split function cannot be handled in the ``Create_TradeState`` function because it returns a multiple output. Instead, a split instruction provides a breakdown of primitive instructions to apply to each post-split trade state, using the ``Create_TradeState`` function on each.
 
 The size of that breakdown directs the size of the split.
 
@@ -249,7 +252,7 @@ The size of that breakdown directs the size of the split.
      breakdown
        map [ Create_TradeState( item, originalTrade ) ]
 			
-Examples of how primitive components can be used are illustrated below.
+Examples of how primitive opearors can be used are illustrated below.
 
 Example 1: Execution and Contract Formation
 """""""""""""""""""""""""""""""""""""""""""
