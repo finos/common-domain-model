@@ -5,7 +5,7 @@
 Event Model
 -----------
 
-**The CDM event model provides data structures to represent the lifecycle events of financial transactions**. A lifecycle event occurs when a transaction goes through a *state transition* initiated by one or both trading parties, by contractual terms or by external factors. For example, the execution of the trade is the initial event which results in the state of an executed trade. Subsequently, one party might initiate an allocation, both parties might initiate an amendment to a contractual agreement, or a default by an underlying entity on a Credit Default Swap would trigger a settlement according to defined protection terms.
+**The CDM event model provides data structures to represent the lifecycle events of financial transactions**. A lifecycle event occurs when a transaction goes through a *state transition* initiated either by one or both trading parties, by contractual terms or by external factors. For example, the execution of a trade is the initial event which results in the state of an executed trade. Subsequently, one party might initiate an allocation, both parties might initiate an amendment to a contractual agreement, or a default by an underlying entity on a Credit Default Swap would trigger a settlement according to defined protection terms.
 
 Examples of lifecycle events supported by the CDM Event Model include the following:
 
@@ -186,22 +186,22 @@ is associated to a primitive instruction data type that contains the function's 
 
 Primitive instructions do not include the before trade state. This separation allows to specify composite primitive instructions to be applied to a single trade state. In this case, the corresponding primitive operators are chained together, as represented in the diagram below.
 
-.. note:: When a primitive instruction is composite, interim trade states will be created when executing each primitive operator. These interim trade state may not correspond to any actual business outcome (only the final after trade state does), so implementors will usually choose not persist them.
+.. note:: When a primitive instruction is composite, interim trade states will be created when executing each primitive operator. These interim trade state may not correspond to any actual business outcome (only the final after trade state does), so implementors will usually choose not to persist them.
 
 The ``PrimitiveInstruction`` data types allows to build such composite primitive instructions. It contains one instruction attribute for each of the possible nine primitive instruction types - aligned onto the nine fundamental primitive operators.
 
 .. code-block:: Haskell
 
  type PrimitiveInstruction: <"A Primitive Instruction describes the inputs required to pass into the corresponding PrimitiveEvent function.">
-	  contractFormation ContractFormationInstruction (0..1) <"Specifies instructions describing an contract formation primitive event.">
-	  execution ExecutionInstruction (0..1) <"Specifies instructions describing an execution primitive event.">
-	  exercise ExerciseInstruction (0..1) <"Specifies instructions describing an exercise primitive event.">
-	  partyChange PartyChangeInstruction (0..1) <"Specifies instructions describing a party change primitive event.">
-	  quantityChange QuantityChangeInstruction (0..1) <"Specifies instructions describing an quantity change primitive event.">
-	  reset ResetInstruction (0..1) <"Specifies instructions describing a reset event.">
-	  split SplitInstruction (0..1) <"Specifies instructions to split a trade into multiple branches.">
-	  termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing a terms change primitive event.">
-	  transfer TransferInstruction (0..1) <"Specifies instructions describing a transfer primitive event.">
+   contractFormation ContractFormationInstruction (0..1) <"Specifies instructions describing an contract formation primitive event.">
+   execution ExecutionInstruction (0..1) <"Specifies instructions describing an execution primitive event.">
+   exercise ExerciseInstruction (0..1) <"Specifies instructions describing an exercise primitive event.">
+   partyChange PartyChangeInstruction (0..1) <"Specifies instructions describing a party change primitive event.">
+   quantityChange QuantityChangeInstruction (0..1) <"Specifies instructions describing an quantity change primitive event.">
+   reset ResetInstruction (0..1) <"Specifies instructions describing a reset event.">
+   split SplitInstruction (0..1) <"Specifies instructions to split a trade into multiple branches.">
+   termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing a terms change primitive event.">
+   transfer TransferInstruction (0..1) <"Specifies instructions describing a transfer primitive event.">
 
 The ``Create_TradeState`` function applies a set of primitive instructions to a trade state. It takes a single trade state and a composite primitive instruction as inputs and returns a single trade state. The before trade state input is optional, in case a new execution is specified in the instructions.
 
@@ -214,8 +214,39 @@ The ``Create_TradeState`` function applies a set of primitive instructions to a 
    output:
      after TradeState (1..1)
 
-This function applies each of the primitive operators (other than split) to the trade state in sequence, in the order listed in the `primitive operator`_ section. Apart from execution which, when present, must always be applied first, this order does not affect the outcome because each primitive operator impacts a different part of the trade state.
+This function applies each of the primitive operators (other than split) to the trade state in sequence, in the order listed in the `primitive operator`_ section. Apart from execution which, when present, must always be applied first, the order does not affect the outcome because each primitive operator impacts a different part of the trade state.
 
+Special Case: Split
+"""""""""""""""""""
+
+Split is a special case of primitive operator. It is used in many lifecycle events that require a trade to be copied, such as in clearing or allocation scenarios.
+
+- In itself, it does not change the state of a trade - it just creates identical copies
+- Contrary to other operators, it outputs multiple trade states
+- Order matters: when present, a split must be executed before other operators can be applied to its multiple output
+
+Like other primitive operators, split is associated to a split function and a split instruction. But unlike other operators, the ``Create_Split`` function returns a multiple output, so a ``SplitInstruction`` cannot be handled in the ``Create_TradeState`` function. Instead, a split instruction provides a breakdown of primitive instructions to apply to each post-split trade state, using the ``Create_TradeState`` function on each.
+
+The size of that breakdown directs the size of the split.
+
+.. code-block:: Haskell
+
+ type SplitInstruction:
+   breakdown PrimitiveInstruction (1..*)
+
+.. code-block:: Haskell
+
+ func Create_Split:
+   inputs:
+     breakdown PrimitiveInstruction (1..*) <"Each primitive instruction contains the set of instructions to be applied to each post-split trade.">
+     originalTrade TradeState (1..1) <"The original trade to be split, which must be of single cardinality.">
+   output:
+     splitTrade TradeState (1..*)
+   
+   add splitTrade: <"Iterate over each breakdown and apply the set of primitive instructions to each copy of the original trade.">
+     breakdown
+       map [ Create_TradeState( item, originalTrade ) ]
+			
 Examples of how primitive components can be used are illustrated below.
 
 Example 1: Execution and Contract Formation
