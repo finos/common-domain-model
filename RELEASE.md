@@ -1,4 +1,4 @@
-# *CDM Model: Realignement between Namespaces and Filenames*
+# *CDM Model: Realignment between Namespaces and Filenames*
 
 _Background_
 
