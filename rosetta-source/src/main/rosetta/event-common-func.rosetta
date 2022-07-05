@@ -973,28 +973,12 @@ func Create_ContractFormationPrimitive: <"Function specification to create the p
 	output:
 		contractFormation ContractFormationPrimitive (1..1) <"Primitive event containing the execution as its before state and the contract as the after state.">
 
-	alias trade: contractFormation -> after -> trade
-
 	set contractFormation -> before: <"Before state must be the execution, and the contractual product in the after state must be the underlying product of the contract being formed.">
 		execution
-	set trade -> tradableProduct: <"Assign the tradable product input to the contract.">
-		execution -> trade -> tradableProduct
-	add trade -> tradeIdentifier: <"Assign the contract identifier input to the contract.">
-		execution -> trade -> tradeIdentifier
-	set trade -> tradeDate: <"Assign the trade date input to the contract.">
-		execution -> trade -> tradeDate
-	add trade -> partyRole: <"Assign the party role input to the contract.">
-		execution -> trade -> partyRole
-	add trade -> party: <"Assign the party input to the contract.">
-		execution -> trade -> party
-	add trade -> account: <"Assign the account input to the contract.">
-        execution -> trade -> account
-    set trade -> contractDetails:
-        execution -> trade -> contractDetails
-    add trade -> contractDetails -> documentation: <"When an overlaying related legal agreement exists, the contract must reference it.">
+	set contractFormation -> after:
+		execution
+	add contractFormation -> after -> trade -> contractDetails -> documentation: <"Append any legal agreements from the instructions.">
         instruction -> legalAgreement
-	add contractFormation -> after -> transferHistory:
-        execution -> transferHistory
 	set contractFormation -> after -> state -> positionState: <"Assign the position status to formed.">
         PositionStatusEnum -> Formed
 
