@@ -666,45 +666,51 @@ func ResolveReset: <"Defines the interface for adopters to resolve a reset, give
 func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the PerformancePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
 	inputs:
 		payout PerformancePayout (1..1)
-		date date (1..1)
+		adjustedDate date (1..1)
 	output:
 		identifiers ObservationIdentifier (1..1)
-	alias periodEndDate:
-		ValuationPeriod ( payout -> valuationDates, date ) -> endDate
-	alias performanceValuation: <"Represents the appropriate equity valuation representation, depending on which period the date falls in.">
-		if ValuationPeriod( payout -> valuationDates, periodEndDate ) -> isLastPeriod then
-			payout -> valuationDates -> valuationDatesFinal
-			else payout -> valuationDates -> valuationDatesInterim
+
+    alias adjustedFinalValuationDate:
+        ResolveAdjustableDate( payout -> valuationDates -> valuationDatesFinal -> valuationDate )
+    alias valuationDates: <"Determine which valuation date to get valuation time and type from.">
+        if adjustedDate < adjustedFinalValuationDate then
+            payout -> valuationDates -> valuationDatesInterim
+        else
+            payout -> valuationDates -> valuationDatesFinal
 	add identifiers -> observable -> productIdentifier: <"Represents the identifer for the equity underlier.">
 		payout -> underlier -> security -> productIdentifier
-	set identifiers -> observationDate: <"Specifies the date for which to retireve the market data value(s).">
-		ResolvePerformanceValuationDate(performanceValuation, date)
-	set identifiers -> observationTime: <"Specifies the time for which to retireve the market data value(s).">
-		ResolvePerformanceValuationTime(performanceValuation, identifiers -> observable -> productIdentifier only-element)
+	set identifiers -> observationDate: <"Specifies the date for which to retrieve the market data value(s).">
+		AdjustedValuationDates( payout -> valuationDates )
+		    filter [ item >= adjustedDate ]
+		    first
+	set identifiers -> observationTime: <"Specifies the time for which to retrieve the market data value(s).">
+		ResolvePerformanceValuationTime(valuationDates -> valuationTime,
+		    valuationDates -> valuationTimeType,
+		    identifiers -> observable -> productIdentifier only-element,
+		    valuationDates -> determinationMethod )
 	set identifiers -> determinationMethodology -> determinationMethod: <"Identifies a more specific price should multiple prices for the underlier be available at the given date time, for example bid or ask prices.">
-		performanceValuation -> determinationMethod
+		valuationDates -> determinationMethod
 
-func ResolvePerformanceValuationDate: <"Specifies how an adjusted data is derived from an EquityValuation data type, which contains a series of adjustable dates.">
-	inputs:
-		performanceValuation PerformanceValuationDates (1..1) <"Represents the Equity Valuation terms from the Equity product definition.">
-		date date (1..1) <"Specifies the date, which is a proxy for the period, for which the valuation date should be resolved.">
-	output:
-		valuationDate date (1..1)
+func AdjustedValuationDates:
+    inputs: valuationDates ValuationDates (1..1)
+    output: adjustedValuationDates date (0..*)
+    set adjustedValuationDates: <"Build sorted list of adjusted valuation dates.">
+        [ ResolveAdjustableDates( valuationDates -> valuationDatesInterim -> valuationDates ),
+            ResolveAdjustableDate( valuationDates -> valuationDatesFinal -> valuationDate ) ]
+        sort
 
 func ResolvePerformanceValuationTime: <"Defines how to resolve the observation time from those specified in the Performance Valuation type.">
 	inputs:
-		performanceValuation PerformanceValuationDates (1..1) <"Represents the Equity Valuation terms from the Equity product definition.">
+		valuationTime BusinessCenterTime (0..1) <"Represents the Equity Valuation terms from the Equity product definition.">
+		valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
 		productIdentifier ProductIdentifier (1..1) <"Specifies the product identifier, along with the source, which should be used to determine the correct valuation time i.e. close times are different across exchanges.">
+		determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
 	output:
 		time TimeZone (1..1)
-	alias valuationTime:
-	    performanceValuation -> valuationTime
-	alias timeType:
-	    performanceValuation -> valuationTimeType
 	set time:
 		if valuationTime exists then TimeZoneFromBusinessCenterTime(valuationTime)
 	set time:
-		if timeType exists then ResolveTimeZoneFromTimeType(productIdentifier, timeType, performanceValuation -> determinationMethod)
+		if valuationTimeType exists then ResolveTimeZoneFromTimeType(productIdentifier, valuationTimeType, determinationMethod)
 
 func ResolvePerformanceReset: <"Defines how to resolve the reset value for a performance payout.">
 	inputs:

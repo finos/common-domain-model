@@ -32,8 +32,8 @@ public class CalculationPeriodsImpl extends CalculationPeriods {
     @Override
     protected List<CalculationPeriodData.CalculationPeriodDataBuilder> doEvaluate(CalculationPeriodDates calculationPeriodDates) {
 
-        LocalDate adjustedStartDate = adjustDate(calculationPeriodDates.getEffectiveDate());
-        LocalDate adjustedEndDate = adjustDate(calculationPeriodDates.getTerminationDate());
+        Date adjustedStartDate = adjustDate(calculationPeriodDates.getEffectiveDate());
+        Date adjustedEndDate = adjustDate(calculationPeriodDates.getTerminationDate());
 
         List<CalculationPeriodData.CalculationPeriodDataBuilder> returnVal = new ArrayList<>();
 
@@ -46,7 +46,7 @@ public class CalculationPeriodsImpl extends CalculationPeriods {
             return returnVal;
         }
 
-        Schedule schedule = getSchedule(calculationPeriodDates, adjustedStartDate, adjustedEndDate);
+        Schedule schedule = getSchedule(calculationPeriodDates, adjustedStartDate.toLocalDate(), adjustedEndDate.toLocalDate());
         ImmutableList<SchedulePeriod> periods = schedule.getPeriods();
 
         for (SchedulePeriod period : periods) {
