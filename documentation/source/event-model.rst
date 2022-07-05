@@ -18,9 +18,9 @@ Examples of lifecycle events supported by the CDM Event Model include the follow
 The representation of lifecycle events in the CDM is based on the following design principles:
 
 * **A lifecycle event describes a state transition**. There must be different before/after trade states based on that lifecycle event.
-* **State transitions are functional and composable**. The CDM specifies the entire functionalm logic to transition from one state to another. The state transition logic of all in-scope events is obtained by composition from a small set of functional building blocks.
+* **State transitions are functional and composable**. The CDM specifies the entire functional logic to transition from one state to another. The state transition logic of all in-scope events is obtained by composition from a small set of functional building blocks.
 * **The history of the trade state can be reconstructed** at any point in the trade lifecycle. The CDM implements a *lineage* between states as the trade goes through state transitions.
-* **The product underlying the transaction remains immutable**, unless agreed (negotiated) between the parties to that transaction as part of a specific trade lifecycle event. Automated events, for instance resets or cashflow payments, should not alter the product definition.
+* **The product underlying the transaction remains immutable**. Automated events, for instance resets or cashflow payments, do not alter the product definition. Lifecycle events negotiated between the parties that give rise to a change in the trade economics generate a new instance of the product or trade as part of that specific event.
 * **The state is trade-specific**, not product-specific (i.e. the CDM is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
 
 To represent a state transition, the event model is organised around four main data structures.
@@ -110,9 +110,7 @@ The ``State`` data type defines the state of a trade at a point in the Trade's l
    closedState ClosedState (0..1)
    positionState PositionStatusEnum (0..1)
 
-*ClosedState*.
-
-In the case when a trade is closed, it is necessary to record that closure as part of the trade state.
+When a trade is closed, it is necessary to record that closure as part of the trade state.
 
 For instance in a full novation scenario, the initial state is a single ``TradeState`` and the resulting state is two ``TradeState``. The first resulting ``TradeState`` represents a new contract, which is the same as the original but where one of the parties has been changed, and the second resulting ``TradeState`` is the original contract, now marked as *closed*.
 
@@ -340,8 +338,7 @@ In addition to the observation value, a reset specifies the date from which the 
    observedValue Price (1..1)
    observationIdentifier ObservationIdentifier (1..1)
 
-
-A reset primitive consists in associating a reset object to the trade state. The reset primitive function creates an instances of the ``Reset`` data type and adds it to the ``resetHistory`` attribute of a given ``TradeState``. A reset does not modify the underlying ``Trade`` object.
+A reset primitive consists in associating a reset object to the trade state. The reset primitive function creates an instances of the ``Reset`` data type and adds it to the ``resetHistory`` attribute of a given ``TradeState``. The reset instruction specify the payout that is subject to the reset, via a reference. A reset does not modify the underlying ``Trade`` object.
 
 .. code-block:: Haskell
 
@@ -360,21 +357,29 @@ A reset primitive consists in associating a reset object to the trade state. The
    rateRecordDate date (0..1)
    resetDate date (1..1)
 
-Example 3: Transfer
-"""""""""""""""""""
+Transfer Primitive
+''''''''''''''''''
 
-A ``TransferPrimitive`` is a multi-purpose primitive that can represent the transfer of any asset, including cash, from one party to another.
+The transfer primitive is a multi-purpose primitive that can represent the transfer of any asset, including cash, from one party to another. The transfer primitive function takes a ``Transfer`` object as transfer instruction input and adds it to the ``transferHistory`` attribute of the ``TradeState``. The ``Transfer`` object is associated to an enumeration to qualify the status that the transfer is in, from instruction to settlement or rejection.
+
+By design, the CDM treats the reset and the transfer primitive events separately because there is no one-to-one relationship between reset and transfer.
+
+* Many transfer events are not tied to any reset: for instance, the currency settlement from an FX spot or forward transaction.
+* Conversely, not all reset events generate a cashflow: for instance, the single, final settlement that is based on all the past floating rate resets in the case of a compounding floating zero-coupon swap.
 
 .. code-block:: Haskell
 
- type TransferPrimitive:
+ type TransferInstruction:
+   transferState TransferState (0..*)
+
+.. code-block:: Haskell
+
+ type TransferState:
    [metadata key]
-   before TradeState (1..1)
-     [metadata reference]
-   after TradeState (1..1)
-
-The *transfer* process creates instances of the ``Transfer`` data type, which are added to ``transferHistory`` of a given ``TradeState``.
-
+   [rootType]
+   transfer Transfer (1..1)
+   transferStatus TransferStatusEnum (0..1)
+	
 .. code-block:: Haskell
 
  type Transfer extends TransferBase:
@@ -391,11 +396,6 @@ The *transfer* process creates instances of the ``Transfer`` data type, which ar
    observable Observable (0..1)
    payerReceiver PartyReferencePayerReceiver (1..1)
    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
-
-By design, the CDM treats the reset and the transfer primitive events separately because there is no one-to-one relationship between reset and transfer.
-
-* Many transfer events are not tied to any reset: for instance, the currency settlement from an FX spot or forward transaction.
-* Conversely, not all reset events generate a cashflow: for instance, the single, final settlement that is based on all the past floating rate resets in the case of a compounding floating zero-coupon swap.
 
 .. _business-event:
 
