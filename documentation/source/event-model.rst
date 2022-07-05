@@ -252,36 +252,65 @@ The split function iterates on each element of the breakdown and applies the cor
      breakdown
        map [ Create_TradeState( item, originalTrade ) ]
 			
-Examples of how primitive opearors can be used are illustrated below.
+Examples of how primitive operators work are illustrated below.
 
-Example 1: Execution and Contract Formation
-"""""""""""""""""""""""""""""""""""""""""""
+Examples of Primitive Operators
+"""""""""""""""""""""""""""""""
 
-Within the scope of the CDM, the first step in instantiating a transaction between two parties is an *execution* or a *contract formation*, which is an execution that has been confirmed between the executing parties. In some cases, there is a time delay between execution and confirmation, therefore the execution can be recorded as the first instantiation. In some other cases, the confirmation is nearly simultaneous with the execution, thus there is no need for an intermediate step.
+Execution Primitive
+'''''''''''''''''''
 
-The transition to an executed state prior to confirmation is represented by the ``ExecutionPrimitive``.
+The first step in instantiating a transaction between two parties in the CDM is an *execution*. In practice, this execution represents the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client. However, the CDM event model covers post-trade lifecycle events and therefore assumes that a trade gets instantiated "from scratch" at execution. 
 
-.. code-block:: Haskell
-
- type ExecutionPrimitive:
-   before TradeState (0..0)
-     [metadata reference]
-   after TradeState (1..1)
-
-The execution primitive does not allow any before state (as marked by the 0 cardinality of the ``before`` attribute) because the current CDM event model only covers post-trade lifecycle events. In practice, this execution state represents the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client.
-
-Following that execution, the trade is confirmed and a legally binding contract is signed between the two executing parties. In an allocation scenario, the trade would first get split into sub-accounts as designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts.
-
-The ``ContractFormationPrimitive`` represents that transition to the trade state after the trade is confirmed, which results in a ``TradeState`` containing a Trade object that can optionally reference legal documentation.
+The execution primitive function does not take any before state as input and all the trade details are contained in the execution instruction input. 
 
 .. code-block:: Haskell
 
- type ContractFormationPrimitive:
-   before TradeState (0..1)
-     [metadata reference]
-   after TradeState (1..1)
+ func Create_ExecutionPrimitive:
+   [creation PrimitiveEvent]
+   inputs:
+     instruction ExecutionInstruction (1..1)
+   output:
+     executionPrimitive ExecutionPrimitive (1..1)
 
-The before state in the contract formation primitive is optional (as marked by the 0 cardinality lower bound of the ``before`` attribute), to represent cases where a new contract may be instantiated between parties without any prior execution, for instance in a clearing or novation scenario.
+.. code-block:: Haskell
+
+ type ExecutionInstruction:
+   product Product (1..1)
+   priceQuantity PriceQuantity (1..*)
+   counterparty  Counterparty (2..2)
+   ancillaryParty AncillaryParty (0..*)
+   parties Party (2..*)
+   partyRoles PartyRole (0..*)
+   executionDetails ExecutionDetails (1..1)
+   tradeDate date (1..1)
+   tradeIdentifier Identifier (1..*)
+
+Contract Formation Primitive
+''''''''''''''''''''''''''''
+ 
+Once an execution is confirmed, a legally binding contract is signed between the two executing parties and a *contract formation* associates a legal agreement to the transaction. The contract formation primitive function represents the transition of the trade state to a legally binding legal agreement after the trade is confirmed.
+
+The function takes an existing trade state (typically, but not exclusively, an execution) as input and returns a trade state output containing the contract details. The ``ContractDetails`` object can reference some higher-order legal documentation governing the transaction - usually a *master agreement*. This legal documentation information is provided in the contract formation instruction input.
+
+.. code-block:: Haskell
+
+ func Create_ContractFormationPrimitive:
+   [creation PrimitiveEvent]
+   inputs:
+     instruction ContractFormationInstruction (1..1)
+     execution TradeState (1..1)
+   output:
+     contractFormation ContractFormationPrimitive (1..1)
+
+.. code-block:: Haskell
+
+ type ContractFormationInstruction:
+   legalAgreement LegalAgreement (0..*)
+
+Because a transaction may change through some lifecycle events before getting confirmed, the contract formation primitive is separated from the execution primitive so that it can be invoked appropriately depending on the scenario: e.g. in an allocation, the trade would first get split into sub-accounts as designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts. A contract formation may not even follow an execution and could occur as part of later lifecycle events: e.g. in a novation scenario, a new contract will need to be instantiated with the step-in party and the right legal agreement associated to that trade.
+
+In other cases, the execution and confirmation happen in one go and a contract is instantiated immediately. Such contract instantiation scenario can be represented using a compositive primitive instruction that comprises both an execution and a contract formation instruction and applies to a null trade state.
 
 Example 2: Reset
 """"""""""""""""
