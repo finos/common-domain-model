@@ -569,38 +569,44 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
         else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
 
 
-First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
+First, ``ResolvePerformanceObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
 
-Specifying precisely which attributes from ``EquityPayout`` should be used to resolve the equity price is important to ensure consistent equity price resolution for all model adopters.
+Specifying precisely which attributes from ``PerformancePayout`` should be used to resolve the equity price is important to ensure consistent equity price resolution for all model adopters.
 
 .. code-block:: Haskell
 
  func ResolvePerformanceObservationIdentifiers:
      inputs:
          payout PerformancePayout (1..1)
-         date date (1..1)
+         adjustedDate date (1..1)
      output:
          identifiers ObservationIdentifier (1..1)
 
-     alias periodEndDate:
-         ValuationPeriod ( payout -> valuationDates, date ) -> endDate
+     alias adjustedFinalValuationDate:
+         ResolveAdjustableDate( payout -> valuationDates -> valuationDatesFinal -> valuationDate )
 
-     alias performanceValuation:
-         if ValuationPeriod( payout -> valuationDates, periodEndDate ) -> isLastPeriod then
+     alias valuationDates:
+         if adjustedDate < adjustedFinalValuationDate then
+             payout -> valuationDates -> valuationDatesInterim
+         else
              payout -> valuationDates -> valuationDatesFinal
-             else payout -> valuationDates -> valuationDatesInterim
 
      add identifiers -> observable -> productIdentifier:
          payout -> underlier -> security -> productIdentifier
 
      set identifiers -> observationDate:
-         ResolvePerformanceValuationDate(performanceValuation, date)
+         AdjustedValuationDates( payout -> valuationDates )
+             filter [ item >= adjustedDate ]
+             first
 
      set identifiers -> observationTime:
-         ResolvePerformanceValuationTime(performanceValuation, identifiers -> observable -> productIdentifier only-element)
+         ResolvePerformanceValuationTime(valuationDates -> valuationTime,
+             valuationDates -> valuationTimeType,
+             identifiers -> observable -> productIdentifier only-element,
+             valuationDates -> determinationMethod )
 
      set identifiers -> determinationMethodology -> determinationMethod:
-         performanceValuation -> determinationMethod
+         valuationDates -> determinationMethod
 
 ``ResolveObservation`` provides an interface for adopters to integrate their market data systems. It specifies the input types and the output type, which ensures the integrity of the observed value.
 
