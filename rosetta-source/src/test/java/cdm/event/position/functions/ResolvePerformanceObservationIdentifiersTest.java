@@ -34,7 +34,7 @@ public class ResolvePerformanceObservationIdentifiersTest extends AbstractFuncti
     void shouldCreateObservationIdentifierWithValuationDate() {
         ObservationIdentifier observationIdentifier = func.evaluate(performancePayout, Date.of(2002, 1, 18));
 
-        assertEquals(Date.of(2002, 2, 12), observationIdentifier.getObservationDate());
+        assertEquals(Date.of(2002, 1, 14), observationIdentifier.getObservationDate());
         assertEquals("SHPGY.O", observationIdentifier.getObservable().getProductIdentifier().get(0).getValue().getIdentifier().getValue());
         assertEquals(DeterminationMethodEnum.VALUATION_TIME, observationIdentifier.getDeterminationMethodology().getDeterminationMethod());
     }

@@ -596,8 +596,8 @@ Specifying precisely which attributes from ``PerformancePayout`` should be used 
 
      set identifiers -> observationDate:
          AdjustedValuationDates( payout -> valuationDates )
-             filter [ item >= adjustedDate ]
-             first
+             filter [ item <= adjustedDate ]
+             last
 
      set identifiers -> observationTime:
          ResolvePerformanceValuationTime(valuationDates -> valuationTime,
