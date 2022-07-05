@@ -60,6 +60,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(CalculationPeriodRange.class).to(bindCalculationPeriodRange());
 		bind(CalculationPeriod.class).to(bindCalculationPeriod());
 		bind(CalculationPeriods.class).to (bindCalculationPeriods());
+		bind(ResolveAdjustableDate.class).to(bindResolveAdjustableDate());
+		bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
@@ -94,6 +96,14 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends CalculationPeriods> bindCalculationPeriods() {
 		return CalculationPeriodsImpl.class;
+	}
+
+	private Class<? extends ResolveAdjustableDate> bindResolveAdjustableDate() {
+		return ResolveAdjustableDateImpl.class;
+	}
+
+	private Class<? extends ResolveAdjustableDates> bindResolveAdjustableDates() {
+		return ResolveAdjustableDatesImpl.class;
 	}
 
 	protected Class<? extends RoundToNearest> bindRoundToNearest() {

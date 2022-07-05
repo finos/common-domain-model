@@ -27,9 +27,6 @@ import static cdm.product.common.schedule.functions.AdjustableDateUtils.adjustDa
 import static cdm.product.common.schedule.functions.CdmToStrataMapper.getFrequency;
 import static cdm.product.common.schedule.functions.CdmToStrataMapper.getRollConvention;
 
-/**
- * TODO - Move this to the CDM
- */
 public class CalculationPeriodImpl extends CalculationPeriod {
 
     private static Logger LOGGER = LoggerFactory.getLogger(CalculationPeriod.class);
@@ -40,8 +37,8 @@ public class CalculationPeriodImpl extends CalculationPeriod {
     protected CalculationPeriodDataBuilder doEvaluate(CalculationPeriodDates calculationPeriodDates, Date date) {
         CalculationPeriodDataBuilder builder = CalculationPeriodData.builder();
 
-        LocalDate adjustedStartDate = adjustDate(calculationPeriodDates.getEffectiveDate());
-        LocalDate adjustedEndDate = adjustDate(calculationPeriodDates.getTerminationDate());
+        Date adjustedStartDate = adjustDate(calculationPeriodDates.getEffectiveDate());
+        Date adjustedEndDate = adjustDate(calculationPeriodDates.getTerminationDate());
 
         if (adjustedStartDate == null) {
             LOGGER.warn("Can not build CalculationPeriodData as no adjusted start date specified.");
@@ -52,7 +49,8 @@ public class CalculationPeriodImpl extends CalculationPeriod {
             return builder;
         }
 
-        Optional<SchedulePeriod> optionalSchedulePeriod = getSchedulePeriod(calculationPeriodDates, date, adjustedStartDate, adjustedEndDate);
+        Optional<SchedulePeriod> optionalSchedulePeriod =
+                getSchedulePeriod(calculationPeriodDates, date, adjustedStartDate.toLocalDate(), adjustedEndDate.toLocalDate());
         if (!optionalSchedulePeriod.isPresent()) {
             LOGGER.warn("Can not build CalculationPeriodData as no targetPeriod could be found.");
             return builder;
