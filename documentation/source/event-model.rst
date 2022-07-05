@@ -308,37 +308,18 @@ The function takes an existing trade state (typically, but not exclusively, an e
  type ContractFormationInstruction:
    legalAgreement LegalAgreement (0..*)
 
-Because a transaction may change through some lifecycle events before getting confirmed, the contract formation primitive is separated from the execution primitive so that it can be invoked appropriately depending on the scenario: e.g. in an allocation, the trade would first get split into sub-accounts as designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts. A contract formation may not even follow an execution and could occur as part of later lifecycle events: e.g. in a novation scenario, a new contract will need to be instantiated with the step-in party and the right legal agreement associated to that trade.
+Because a transaction may change through some lifecycle events before getting confirmed, the contract formation primitive is separated from the execution primitive so that it can be invoked appropriately depending on the scenario. E.g. in an allocation, the trade would first get split into sub-accounts as designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts. A contract formation may not even follow an execution and could occur as part of later lifecycle events. E.g. in a novation scenario, a new contract will need to be instantiated with the step-in party and the right legal agreement associated to that trade.
 
 In other cases, the execution and confirmation happen in one go and a contract is instantiated immediately. Such contract instantiation scenario can be represented using a compositive primitive instruction that comprises both an execution and a contract formation instruction and applies to a null trade state.
 
-Example 2: Reset
-""""""""""""""""
+Reset Primitive
+'''''''''''''''
 
-In many cases, a trade relies on observable values which will become known in the future: for instance, a floating rate observation at the beginning of each period in the case of a Interest Rate Swap, or the equity price at the end of each period in an Equity Swap. That primitive event is known as a *reset*.
+In many cases, a trade relies on observable values which will become known in the future: for instance, a floating rate observation at the beginning of each period in the case of a Interest Rate Swap, or the equity price at the end of each period in an Equity Swap. The observation information is provided by the relevant market data provider independently from any specific trade. Such observation is captured by the ``Observation`` data type. From that observation, a trade-specifc *reset* can be built and associated to the trade state. A reset is captured by the ``Reset`` data type.
 
-When a observable value becomes known (as provided by the relevant market data provider), independently from any specific transaction, this information is captured by the ``Observation`` data type.
+Both the ``observedValue`` (in ``Observation``) and the ``resetValue`` (in ``Reset``) attributes are specified as a ``Price`` type. The value must be associated to a variable price attribute in the trade. It typically represents a number that is directly used to compute transfer amounts like cash flows. 
 
-.. code-block:: Haskell
-
- type Observation:
-   [rootType]
-   [metadata key]
-   observedValue Price (1..1)
-   observationIdentifier ObservationIdentifier (1..1)
-
-From that ``Observation``, a ``Reset`` can be built and included in ``TradeState`` without changing the ``Trade``. A reset is represented by the ``ResetPrimitive`` data type.
-
-.. code-block:: Haskell
-
- type ResetPrimitive:
-   before TradeState (1..1)
-     [metadata reference]
-   after TradeState (1..1)
-   condition Trade:
-     before -> trade = after -> trade
-
-The *reset* process creates instances of the ``Reset`` data type, which are added to ``resetHistory`` of a given ``TradeState``.
+In addition to the observation value, a reset specifies the date from which the resettable value becomes applicable in the trade's context, which could be different from the observation date if some observation lag applies. Depending on the trade's economic properties, a reset may also depend on several observation values based on some aggregation method - e.g. a compounded interest rate based on daily fixings.
 
 .. code-block:: Haskell
 
@@ -351,7 +332,33 @@ The *reset* process creates instances of the ``Reset`` data type, which are adde
      [metadata reference]
    aggregationMethodology AggregationMethod (0..1)
 
-The ``resetValue`` attribute represents the ultimate value of the reset as a number and is the number used to compute corresponding cash flows. If multiple ``observations`` were used to derive the ``resetValue``,  ``aggregationMethod`` should be used to describe how the many observations where aggregated into the single value.
+.. code-block:: Haskell
+
+ type Observation:
+   [rootType]
+   [metadata key]
+   observedValue Price (1..1)
+   observationIdentifier ObservationIdentifier (1..1)
+
+
+A reset primitive consists in associating a reset object to the trade state. The reset primitive function creates an instances of the ``Reset`` data type and adds it to the ``resetHistory`` attribute of a given ``TradeState``. A reset does not modify the underlying ``Trade`` object.
+
+.. code-block:: Haskell
+
+ func Create_ResetPrimitive:
+   inputs:
+     instruction ResetInstruction (1..1)
+     tradeState TradeState (1..1)
+   output:
+     resetPrimitive ResetPrimitive (1..1)
+
+.. code-block:: Haskell
+
+ type ResetInstruction:
+   payout Payout (1..1)
+     [metadata reference]
+   rateRecordDate date (0..1)
+   resetDate date (1..1)
 
 Example 3: Transfer
 """""""""""""""""""
