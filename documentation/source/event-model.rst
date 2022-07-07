@@ -583,7 +583,24 @@ The output of the qualification function is used to populate the ``eventQualifie
 Intent
 """"""
 
-The Intent attribute is an enumeration value that represents the intent of a particular business event, e.g. ``Allocation``, ``EarlyTermination``, ``PartialTermination`` etc. It is used in cases where the primitive events are not sufficient to uniquely infer a lifecycle event. As an example, a reduction in a trade quantity/notional could apply to a correction event or a partial termination.
+The intent attribute is an enumeration value that represents the intent of a particular business event. It is used in the event qualifcation logic in cases where the primitive composition is not sufficient to uniquely infer a lifecycle event.
+
+The description of each possible enumeration value provides an illustration of how this attribute is used.
+
+.. code-block:: Haskell
+
+ enum EventIntentEnum: <"The enumeration values to qualify the intent associated with a transaction event.">
+   Allocation <"The intent is to allocate one or more trades as part of an allocated block trade.">
+   Clearing <"The intent is to clear the contract.">
+   Compression <"The intent is to compress multiple trades as part of a netting or compression event.">
+   ContractFormation <"The intent is to form a contract from an execution.">
+   Exercise <"The intent is to Exercise the contract.">
+   Increase <"The intent is to Increase the quantity or notional of the contract.">
+   IndexTransition <"The intent is to replace an interest rate index by another one during the life of a trade and add a transition spread on top of this index (and on top of the spreads already defined in the trade, if any). ">
+   Novation <"The intent is to novate the contract.">
+   Reallocation <"The intent is to reallocate one or more trades as part of an allocated block trade.">
+   Renegotiation <"The intent is to re-negotiate some of the terms of the contract.">
+   StockSplit <"The intent is to split the contract based on an adjustment ratio.">
 
 Lineage
 """""""
@@ -592,10 +609,10 @@ The ``BusinessEvent`` data type implements *lineage* by tying each trade state t
 
 By contrast, the ``after`` trade state in the business event provides a full definition of that object. That trade state is occurring for the first time and as triggered by the application of the primitive operators specified in the business event. The after trade state is optional because it may be latent while the business event is going through some acceptance workflow.
 
-Other selected attributes of a business event are explained below:
-
 Other Misc. Information
 """""""""""""""""""""""
+
+Other selected attributes of a business event are explained below.
 
 * The effective date is optional as it is not applicable to certain events (e.g. observations), or may be redundant with the event date.
 * The event qualifier attribute is derived from the event qualification features. This is further detailed in the :ref:`event-qualification-section`.
