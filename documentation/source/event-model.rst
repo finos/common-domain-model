@@ -23,10 +23,10 @@ The representation of lifecycle events in the CDM is based on the following desi
 * **The product underlying the transaction remains immutable**. Automated events, for instance resets or cashflow payments, do not alter the product definition. Lifecycle events negotiated between the parties that give rise to a change in the trade economics generate a new instance of the product or trade as part of that specific event.
 * **The state is trade-specific**, not product-specific (i.e. the CDM is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
 
-To represent a state transition, the event model is organised around four main data structures.
+To represent a state transition, the event model is organised around four main components:
 
 * **Trade state** represents the state in the lifecycle that the trade is in, from execution to settlement and maturity.
-* **Primitive operator** is the functional building block that is used to compose business events. Each operator describes a fundamental change to the state of a trade going from a before state to an after state and is parameterised by a primitive instruction.
+* **Primitive operator** is the functional building block that is used to compose business events. Each operator describes a fundamental change to the state of a trade going from a before state to an after state and is parameterised by a primitive instruction input.
 * **Business event** represents a trade lifecycle event as a composite of primitive instructions. A business event can comprise several instructions, each consisting of a set of primitive instructions applied to a single trade state (before). The resulting trade state (after) can be multiple.
 * **Workflow** represents a set of actions or steps that are required to trigger a business event.
 
@@ -304,6 +304,9 @@ Split is a special case of primitive operator. It is used in many lifecycle even
 
 Like other primitive operators, split is associated to a split function and a split instruction. But unlike other operators, the split function cannot be executed in the ``Create_TradeState`` function because it returns a multiple output. Instead, a split instruction provides a breakdown of primitive instructions to apply to each post-split trade state.
 
+For example, an allocation instruction would be specified as a split breakdown, each with a quantity change instructions to divide the initial block trade into smaller pieces, and then a party change instruction to assign each piece
+to a different legal entity related to the executing party.
+
 The split function iterates on each element of the breakdown and applies the corresponding primitive instruction to each copy of the original trade using the ``Create_TradeState`` function. The size of that breakdown directs the size of the split.
 
 .. code-block:: Haskell
@@ -555,9 +558,11 @@ Other Misc. Information
 Workflow
 ^^^^^^^^
 
-The CDM provides support for implementors to develop workflows to process transaction lifecycle events and provides attributes to define lineage from one workflow step to another.
+The CDM provides support for implementors to develop workflows to process transaction lifecycle events.
 
 A *workflow* represents a set of actions or steps that are required to trigger a business event, including the initial execution or contract formation. A workflow is organised into a sequence in which each step is represented by a *workflow step*. A workflow may involve multiple parties in addition to the parties to the transaction, and may include automated and manual steps. A workflow may involve only one step.
+
+The CDM supports a workflow's audit trail by providing lineage from one step to another in that workflow.
 
 .. code-block:: Haskell
 
@@ -588,10 +593,10 @@ Workflow Step Business Event
 
 This attribute specifies the business event that the workflow step is meant to generate. It is optional because the workflow may require a number of interim steps before the state-transition embedded within the business event becomes effective, therefore the business event does not exist yet in those steps. The business event attribute is typically associated with the final step in the workflow.
 
-Proposed Instruction
-""""""""""""""""""""
+Proposed Event
+""""""""""""""
 
-This attribute allows for the specification of inputs that when combined with the current trade state, are referenced to generate the state-transition. For example, allocation instructions describe how to divide the initial block trade into smaller pieces, each of which is assigned to a specific party representing a legal entity related to the executing party.  It is optional because it is not required for all workflow steps.  Validation components are in place to check that the ``businessEvent`` and ``proposedInstruction`` attributes are mutually exclusive.
+This attribute specifies the inputs of the event's state transition comprising the current trade state(s), the applicable primitive instructions and the event's date and intent. It is optional because it is not required for all workflow steps. Validation components are in place to check that the ``businessEvent`` and ``proposedInstruction`` attributes are mutually exclusive.
 
 The list of business events for which this process is currently implemented in the CDM is reflected in the structure of the ``Instruction`` data type:
 
