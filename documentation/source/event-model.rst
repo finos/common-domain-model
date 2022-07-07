@@ -30,7 +30,7 @@ To represent a state transition, the event model is organised around four main c
 * **Business event** represents a trade lifecycle event as a composite of primitive instructions. A business event can comprise several instructions, each consisting of a set of primitive instructions applied to a single trade state (before). The resulting trade state (after) can be multiple.
 * **Workflow** represents a set of actions or steps that are required to trigger a business event.
 
-The below diagram illustrates the relationship between these data structures. Each of them is described in the next four sections.
+The below diagram illustrates the relationship between these components. Each of them is described in the next four sections.
 
 .. figure:: images/event-model-overview.png
 
@@ -304,8 +304,7 @@ Split is a special case of primitive operator. It is used in many lifecycle even
 
 Like other primitive operators, split is associated to a split function and a split instruction. But unlike other operators, the split function cannot be executed in the ``Create_TradeState`` function because it returns a multiple output. Instead, a split instruction provides a breakdown of primitive instructions to apply to each post-split trade state.
 
-For example, an allocation instruction would be specified as a split breakdown, each with a quantity change instructions to divide the initial block trade into smaller pieces, and then a party change instruction to assign each piece
-to a different legal entity related to the executing party.
+For example, an allocation instruction would be specified as a split breakdown, each with a quantity change instructions to divide the initial block trade into smaller pieces, and then a party change instruction to assign each piece to a different legal entity related to the executing party.
 
 The split function iterates on each element of the breakdown and applies the corresponding primitive instruction to each copy of the original trade using the ``Create_TradeState`` function. The size of that breakdown directs the size of the split.
 
@@ -458,8 +457,11 @@ Business events are built according to the following principles:
 
 The only mandatory attributes of a business event are:
 
-* The event instruction. This is a list of ``Instruction`` objects, each representing a compositive primitive instruction applied to a single (before) trade state. This attribute is of multiple cardinality, so a business event may impact multiple trades concurrently and result in multiple (after) trade states.
+* The event instruction. This is a list of ``Instruction`` objects, each representing a composite primitive instruction applied to a single (before) trade state. This attribute is of multiple cardinality, so a business event may impact multiple trades concurrently and result in multiple (after) trade states.
 * The event date. The time dimension has been purposely ommitted from the event's attributes. That is because, while a business event has a unique date, several time stamps may potentially be associated to that event depending on when it was submitted, accepted, rejected etc, all of which are *workflow* considerations.
+
+Event Composition
+"""""""""""""""""
 
 An example composition of primitive instructions to represent a complete lifecycle event is shown below. The event represents the *partial novation* of a contract, which comprises the following:
 
@@ -538,16 +540,59 @@ An example composition of primitive instructions to represent a complete lifecyc
     
 A business event is *atomic*, i.e. its primitive components cannot happen independently. They either all happen together or not at all. In the above partial novation example, the existing trade between the original parties must be downsized at the same time as the trade with the new party is instantiated. Trade compression is another example, that involves multiple before trades being downsized or terminated and new trades being created between multiple parties, all of which must happen concurrently.
 
-The ``BusinessEvent`` data type implements *lineage* by tying each trade state to the trade state(s) that came before it in the lifecyle. The ``before`` attribute in each instruction is included as a reference using the ``[metadata reference]`` annotation. By definition the primitive instruction applies to a trade state that *already* exists.
+.. _event-qualification-section:
 
-By contrast, the ``after`` trade state in the business event provides a full definition of that object. That trade state is occurring for the first time and as triggered by the application of the primitive operators specified in the business event. The after trade state is optional because it may be latent while the business event is going through some acceptance workflow.
+Event Qualification
+"""""""""""""""""""
 
-Other selected attributes of a business event are explained below:
+**The CDM qualifies lifecycle events as a function of their primitive components** rather than explicitly declaring the event type. The CDM uses the same approach for event qualification as for product qualification and is based on a set of Event Qualification functions. These functions are identified with a ``[qualification BusinessEvent]`` annotatation.
+
+Event Qualification functions apply a taxonomy-specific business logic to identify if the state-transition attributes values, which are embedded in the primitive event components, match the specified criteria for the event named in that taxonomy. Like Product Qualification functions, the Event Qualification function name begins with the word ``Qualify`` followed by an underscore ``_`` and then the taxonomy name.
+
+The CDM uses the ISDA taxonomy V2.0 leaf level to qualify the event. 22 lifecycle events have currently been qualified as part of the CDM.
+
+One distinction with the product approach is that the ``intent`` qualification is also deemed necessary to complement the primitive event information in certain cases. To this effect, the Event Qualification function allows to specify that when present, the intent must have a specified value, as illustrated by the below example.
+
+.. code-block:: Haskell
+
+ func Qualify_Termination:
+   [qualification BusinessEvent]
+   inputs:
+     businessEvent BusinessEvent (1..1)
+   output: is_event boolean (1..1)
+   alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
+   alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
+   
+   set is_event:
+     businessEvent -> intent is absent
+       and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
+         or (businessEvent -> primitives -> quantityChange exists and transfer exists)
+         or (primitiveInstruction -> quantityChange only exists
+           or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
+       and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
+         or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
+       and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+         or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
+
+If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
+
+The output of the qualification function is used to populate the ``eventQualifier`` attribute of the ``BusinessEvent`` object, similar to how product qualification works. An implementation of the CDM would call all of the Event Qualification functions following the creation of each event and then insert the appropriate value or provide an exception message.
+
+.. note:: The type of the ``eventQualifier`` attribute in ``BusinessEvent``, called ``eventType``, is a *meta-type* that indicates that its value is meant to be populated using some functional logic. That functional logic must be represented by a qualification function annotated with ``[qualification BusinessEvent]``, as in the example above. This mechanism is further detailed in the Rosetta DSL documentation.
 
 Intent
 """"""
 
 The Intent attribute is an enumeration value that represents the intent of a particular business event, e.g. ``Allocation``, ``EarlyTermination``, ``PartialTermination`` etc. It is used in cases where the primitive events are not sufficient to uniquely infer a lifecycle event. As an example, a reduction in a trade quantity/notional could apply to a correction event or a partial termination.
+
+Lineage
+"""""""
+
+The ``BusinessEvent`` data type implements *lineage* by tying each trade state to the trade state(s) that came before it in the lifecyle. The ``before`` attribute in each instruction is included as a reference using the ``[metadata reference]`` annotation. By definition the primitive instruction applies to a trade state that *already* exists.
+
+By contrast, the ``after`` trade state in the business event provides a full definition of that object. That trade state is occurring for the first time and as triggered by the application of the primitive operators specified in the business event. The after trade state is optional because it may be latent while the business event is going through some acceptance workflow.
+
+Other selected attributes of a business event are explained below:
 
 Other Misc. Information
 """""""""""""""""""""""
@@ -705,42 +750,3 @@ Other Misc. Attributes
 * The ``lineage`` attribute was previously used to reference an unbounded set of contracts, events and/or payout components, that an event may be associated to.
 
 .. note:: The ``lineage`` attribute is superseded by the implementation in the CDM of: (i) trade state lineage, via the ``before`` / ``after`` attributes in the primitive event component, and (ii) workflow lineage, via the ``previousWorkflowStep`` attribute.
-
-.. _event-qualification-section:
-
-Event Qualification
-^^^^^^^^^^^^^^^^^^^
-
-**The CDM qualifies lifecycle events as a function of their primitive event components** rather than explicitly naming the event type. The CDM uses the same approach for event qualification as for product qualification, which is based on a set of Event Qualification functions. These functions are identified with a ``[qualification BusinessEvent]`` annotatation.
-
-Event Qualification functions apply a taxonomy-specific business logic to identify if the state-transition attributes values, which are embedded in the primitive event components, match the specified criteria for the event named in that taxonomy. Like Product Qualification functions, the Event Qualification function name begins with the word ``Qualify`` followed by an underscore ``_`` and then the taxonomy name.
-
-The CDM uses the ISDA taxonomy V2.0 leaf level to qualify the event. 22 lifecycle events have currently been qualified as part of the CDM.
-
-One distinction with the product approach is that the ``intent`` qualification is also deemed necessary to complement the primitive event information in certain cases. To this effect, the Event Qualification function allows to specify that when present, the intent must have a specified value, as illustrated by the below example.
-
-.. code-block:: Haskell
-
- func Qualify_Termination:
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output: is_event boolean (1..1)
-    alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
-    alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
-    set is_event:
-        businessEvent -> intent is absent
-        and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
-            or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-            or (primitiveInstruction -> quantityChange only exists
-                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
-        and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
-            or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
-        and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
-            or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
-
-If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
-
-The output of the qualification function is used to populate the ``eventQualifier`` attribute of the ``BusinessEvent`` object, similar to how product qualification works. An implementation of the CDM would call all of the Event Qualification functions following the creation of each event and then insert the appropriate value or provide an exception message.
-
-.. note:: The type of the ``eventQualifier`` attribute in ``BusinessEvent``, called ``eventType``, is a *meta-type* that indicates that its value is meant to be populated using some functional logic. That functional logic must be represented by a qualification function annotated with ``[qualification BusinessEvent]``, as in the example above. This mechanism is further detailed in the Rosetta DSL documentation.
