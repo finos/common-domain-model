@@ -674,6 +674,13 @@ Validation components are in place to check that the ``businessEvent`` and ``pro
    eventDate date (0..1)
    effectiveDate date (0..1)
 
+Next Event
+""""""""""
+
+Parties sometimes pre-agree a follow-on event that is meant to be executed after the current event completes, but separately from it. A typical scenario is an execution that specifies that the trade is intended for clearing at a pre-specified clearing house. In this case, the parameters of the next event are known in advance need to be agreed between the parties as part of the current event.
+
+The parameters of this next event are represented by an ``EventInstruction`` data type included in the workflow process.
+
 Previous Workflow Step
 """"""""""""""""""""""
 
