@@ -322,20 +322,20 @@ Some of those calculations are presented below:
      output:
          equityCashSettlementAmount Transfer (1..1)
 
-     alias equityPayout:
-         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> equityPayout only-element
+     alias equityPerformancePayout:
+         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout only-element
      alias equityPerformance:
          EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
      alias payer:
-         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPayout -> payerReceiver -> payer ) -> partyReference
+         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPerformancePayout -> payerReceiver -> payer ) -> partyReference
      alias receiver:
-         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPayout -> payerReceiver -> receiver ) -> partyReference
+         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPerformancePayout -> payerReceiver -> receiver ) -> partyReference
 
      set equityCashSettlementAmount -> quantity -> amount:
-          Abs(equityPerformance)
+         Abs(equityPerformance)
      set equityCashSettlementAmount -> quantity -> unitOfAmount-> currency:
          ResolveEquityInitialPrice(
-             tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
+            tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
          ) -> unitOfAmount -> currency
      set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
          if equityPerformance >= 0 then payer else receiver
@@ -343,8 +343,8 @@ Some of those calculations are presented below:
          if equityPerformance >= 0 then receiver else payer
      set equityCashSettlementAmount -> settlementDate -> adjustedDate:
          ResolveCashSettlementDate(tradeState)
-     set equityCashSettlementAmount -> settlementOrigin -> equityPayout:
-         equityPayout as-key
+     set equityCashSettlementAmount -> settlementOrigin -> performancePayout:
+         equityPerformancePayout as-key
 
 .. code-block:: Haskell
 
@@ -552,7 +552,7 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
         else instruction -> resetDate
 
     alias observationIdentifiers:
-        if payout -> equityPayout count = 1 then ResolveEquityObservationIdentifiers(payout -> equityPayout only-element, instruction -> resetDate)
+        if payout -> performancePayout count = 1 then ResolvePerformanceObservationIdentifiers(payout -> performancePayout only-element, instruction -> resetDate)
         else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
 
     alias observation:
@@ -565,42 +565,48 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
         tradeState
 
     add resetPrimitive -> after -> resetHistory:
-        if payout -> equityPayout count = 1 then ResolveEquityReset(payout -> equityPayout only-element, observation, instruction -> resetDate)
+        if payout -> performancePayout count = 1 then ResolvePerformanceReset(payout -> performancePayout only-element, observation, instruction -> resetDate)
         else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
 
 
-First, ``ResolveEquityObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
+First, ``ResolvePerformanceObservationIdentifiers`` defines the specific product definition terms used to resolve ``ObservationIdentifier``s. An ``ObservationIdentifier`` uniquely identifies an ``Observation``, which inside holds a single item of market data and in this scenario will hold an equity price.
 
-Specifying precisely which attributes from ``EquityPayout`` should be used to resolve the equity price is important to ensure consistent equity price resolution for all model adopters.
+Specifying precisely which attributes from ``PerformancePayout`` should be used to resolve the equity price is important to ensure consistent equity price resolution for all model adopters.
 
 .. code-block:: Haskell
 
- func ResolveEquityObservationIdentifiers:
+ func ResolvePerformanceObservationIdentifiers:
      inputs:
-         payout EquityPayout (1..1)
-         date date (1..1)
+         payout PerformancePayout (1..1)
+         adjustedDate date (1..1)
      output:
          identifiers ObservationIdentifier (1..1)
 
-     alias periodEndDate:
-         CalculationPeriod( payout -> calculationPeriodDates, date ) -> endDate
+     alias adjustedFinalValuationDate:
+         ResolveAdjustableDate( payout -> valuationDates -> valuationDatesFinal -> valuationDate )
 
-     alias equityValuation:
-         if CalculationPeriod( payout -> calculationPeriodDates, periodEndDate ) -> isLastPeriod then
-             payout -> priceReturnTerms -> valuationPriceFinal
-             else payout -> priceReturnTerms -> valuationPriceInterim
+     alias valuationDates:
+         if adjustedDate < adjustedFinalValuationDate then
+             payout -> valuationDates -> valuationDatesInterim
+         else
+             payout -> valuationDates -> valuationDatesFinal
 
      add identifiers -> observable -> productIdentifier:
          payout -> underlier -> security -> productIdentifier
 
      set identifiers -> observationDate:
-         ResolveEquityValuationDate(equityValuation, date)
+         AdjustedValuationDates( payout -> valuationDates )
+             filter [ item <= adjustedDate ]
+             last
 
      set identifiers -> observationTime:
-         ResolveEquityValuationTime(equityValuation, identifiers -> observable -> productIdentifier only-element)
+         ResolvePerformanceValuationTime(valuationDates -> valuationTime,
+             valuationDates -> valuationTimeType,
+             identifiers -> observable -> productIdentifier only-element,
+             valuationDates -> determinationMethod )
 
      set identifiers -> determinationMethodology -> determinationMethod:
-         equityValuation -> determinationMethod
+         valuationDates -> determinationMethod
 
 ``ResolveObservation`` provides an interface for adopters to integrate their market data systems. It specifies the input types and the output type, which ensures the integrity of the observed value.
 
@@ -617,9 +623,9 @@ The construction of the ``Reset`` in our scenario then becomes trivial, once the
 
 .. code-block:: Haskell
 
- func ResolveEquityReset:
+ func ResolvePerformanceReset:
      inputs:
-         equityPayout EquityPayout (1..1)
+         performancePayout PerformancePayout (1..1)
          observation Observation (1..1)
          date date (1..1)
      output:

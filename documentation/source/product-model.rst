@@ -420,7 +420,7 @@ The CDM specifies the various sets of possible remaining economic terms using th
 Payout
 """"""
 
-The ``Payout`` type defines the composable payout types, each of which describes a set of terms and conditions for the financial responsibilities between the contractual parties. Payout types can be combined to compose a product.  For example, an Equity Swap can be composed by combining an ``InterestRatePayout`` and an ``EquityPayout``.
+The ``Payout`` type defines the composable payout types, each of which describes a set of terms and conditions for the financial responsibilities between the contractual parties. Payout types can be combined to compose a product.  For example, an Equity Swap can be composed by combining an ``InterestRatePayout`` and an ``PerformancePayout``.
 
 .. code-block:: Haskell
 
@@ -428,7 +428,6 @@ The ``Payout`` type defines the composable payout types, each of which describes
    [metadata key]
    interestRatePayout InterestRatePayout (0..*)
    creditDefaultPayout CreditDefaultPayout (0..1)
-   equityPayout EquityPayout (0..*)
    optionPayout OptionPayout (0..*)
    commodityPayout CommodityPayout (0..*)
    forwardPayout ForwardPayout (0..*)
