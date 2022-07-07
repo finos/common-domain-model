@@ -37,7 +37,7 @@ The below diagram illustrates the relationship between these data structures. Ea
 Trade State
 ^^^^^^^^^^^
 
-The trade state is defined in CDM by the ``TradeState`` data type and represents the state of a trade at each stage in its lifecycle. With each trade creation or modification event, a new ``TradeState`` instance is created. Chaining together the sequence of ``TradeState`` instances then recreates the path each trade took within its lifecycle.
+A trade state is defined in CDM by the ``TradeState`` data type and represents the state of a trade at each stage in its lifecycle. With each trade creation or modification event, a new ``TradeState`` instance is created. Chaining together the sequence of ``TradeState`` instances then recreates the path each trade took within its lifecycle.
 
 ``TradeState`` is a foundational data type in the CDM Event Model as it represents the input and output of any state transition. Therefore, all trade-related information that can change throughout the trade lifecycle are representing within ``TradeState``.
 
@@ -83,7 +83,7 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
 Additionally, ``Trade`` supports the representation of specific execution or contractual details via the ``executionDetails`` and ``contractDetails`` attributes.
 
 ExecutionDetails
-""""""""""""""""
+''''''''''''''''
 
 The ``ExecutionDetails`` data type represents details applicable to trade executions and includes attributes that describe the execution venue and execution type. Not all trades will have been 'executed', such as those created from a Swaption Exercise event. In those cases, the ``executionDetails`` attributes on ``Trade`` is expected to be empty.
 
@@ -101,7 +101,7 @@ The ``ExecutionDetails`` data type represents details applicable to trade execut
      then executionVenue exists
 
 ContractDetails
-"""""""""""""""
+'''''''''''''''
 
 ``ContractDetails`` are only applicable to trades on contractual products and are typically provided at or prior to trade confirmation.
 
@@ -140,6 +140,66 @@ The ``ClosedState`` data type (enclosed within ``State``) captures this closed s
    Matured
    Novated
    Terminated
+
+Reset
+"""""
+
+In many cases, a trade relies on the value of an observable which will become known in the future: for instance, a floating rate observation at the beginning of each period in the case of a Interest Rate Swap, or the equity price at the end of each period in an Equity Swap. This *reset* information is captured by the ``Reset`` data type and associated to the trade state.
+
+While the reet information is trade-specific, the observation itself is provided by the relevant market data provider independently of any specific trade. Such observation is captured by the ``Observation`` data type.
+
+Both the ``observedValue`` (in ``Observation``) and the ``resetValue`` (in ``Reset``) attributes are specified as a ``Price`` type. In the trade, the resettable value must be associated to a variable price attribute. It typically represents a number that is directly used to compute transfer amounts like cashflows. 
+
+In addition to the observation value, a reset specifies the date from which the resettable value becomes applicable in the trade's context, which could be different from the observation date if some observation lag applies. Depending on the trade's economic properties, a reset may also depend on several observation values based on some aggregation method - e.g. a compounded interest rate based on daily fixings.
+
+.. code-block:: Haskell
+
+ type Reset:
+   [metadata key]
+   resetValue Price (1..1)
+   resetDate date (1..1)
+   rateRecordDate date (0..1)
+   observations Observation (1..*)
+     [metadata reference]
+   aggregationMethodology AggregationMethod (0..1)
+
+.. code-block:: Haskell
+
+ type Observation:
+   [rootType]
+   [metadata key]
+   observedValue Price (1..1)
+   observationIdentifier ObservationIdentifier (1..1)
+
+Transfer
+""""""""
+
+A transfer is a multi-purpose object that represents the transfer of any asset, including cash, from one party to another. The ``Transfer`` object is associated to an enumeration to qualify the status that the transfer is in, from instruction to settlement or rejection.
+
+.. code-block:: Haskell
+
+ type TransferState:
+   [metadata key]
+   [rootType]
+   transfer Transfer (1..1)
+   transferStatus TransferStatusEnum (0..1)
+	
+.. code-block:: Haskell
+
+ type Transfer extends TransferBase:
+   settlementOrigin SettlementOrigin (0..1)
+   resetOrigin Reset (0..1)
+   transferExpression TransferExpression (1..1)
+
+.. code-block:: Haskell
+
+ type TransferBase:
+   identifier Identifier (0..*)
+     [metadata scheme]
+   quantity Quantity (1..1)
+   observable Observable (0..1)
+   payerReceiver PartyReferencePayerReceiver (1..1)
+   settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
 
 .. _primitive-event:
 
@@ -272,9 +332,9 @@ Examples of Primitive Operators
 Execution Primitive
 '''''''''''''''''''
 
-The first step in instantiating a transaction between two parties in the CDM is an *execution*. In practice, this execution represents the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client. However, the CDM event model covers post-trade lifecycle events and therefore assumes that a trade gets instantiated "from scratch" at execution. 
+The first step in instantiating a transaction between two parties in the CDM is an *execution*. In practice, this execution represents the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client. However, the CDM event model only covers post-trade lifecycle events so assumes that a trade gets instantiated "from scratch" at execution. 
 
-The execution primitive function does not take any before state as input and all the trade details are contained in the execution instruction input. 
+Therefore, the execution primitive function does not take any before state as input and all the trade details are contained in the execution instruction input. 
 
 .. code-block:: Haskell
 
@@ -303,7 +363,7 @@ Contract Formation Primitive
  
 Once an execution is confirmed, a legally binding contract is signed between the two executing parties and a *contract formation* associates a legal agreement to the transaction. The contract formation primitive function represents the transition of the trade state to a legally binding legal agreement after the trade is confirmed.
 
-The function takes an existing trade state (typically, but not exclusively, an execution) as input and returns a trade state output containing the contract details. The ``ContractDetails`` object can reference some higher-order legal documentation governing the transaction - usually a *master agreement*. This legal documentation information is provided in the contract formation instruction input.
+The function takes an existing trade state (typically, but not necessarily, an execution) as input and returns a trade state output containing the contract details. The ``ContractDetails`` object can reference some higher-order legal documentation governing the transaction - usually a *master agreement*. This legal documentation information is provided in the contract formation instruction input.
 
 .. code-block:: Haskell
 
@@ -327,32 +387,7 @@ In other cases, the execution and confirmation happen in one go and a contract i
 Reset Primitive
 '''''''''''''''
 
-In many cases, a trade relies on observable values which will become known in the future: for instance, a floating rate observation at the beginning of each period in the case of a Interest Rate Swap, or the equity price at the end of each period in an Equity Swap. The observation information is provided by the relevant market data provider independently from any specific trade. Such observation is captured by the ``Observation`` data type. From that observation, a trade-specifc *reset* can be built and associated to the trade state. A reset is captured by the ``Reset`` data type.
-
-Both the ``observedValue`` (in ``Observation``) and the ``resetValue`` (in ``Reset``) attributes are specified as a ``Price`` type. The value must be associated to a variable price attribute in the trade. It typically represents a number that is directly used to compute transfer amounts like cash flows. 
-
-In addition to the observation value, a reset specifies the date from which the resettable value becomes applicable in the trade's context, which could be different from the observation date if some observation lag applies. Depending on the trade's economic properties, a reset may also depend on several observation values based on some aggregation method - e.g. a compounded interest rate based on daily fixings.
-
-.. code-block:: Haskell
-
- type Reset:
-   [metadata key]
-   resetValue Price (1..1)
-   resetDate date (1..1)
-   rateRecordDate date (0..1)
-   observations Observation (1..*)
-     [metadata reference]
-   aggregationMethodology AggregationMethod (0..1)
-
-.. code-block:: Haskell
-
- type Observation:
-   [rootType]
-   [metadata key]
-   observedValue Price (1..1)
-   observationIdentifier ObservationIdentifier (1..1)
-
-A reset primitive consists in associating a reset object to the trade state. The reset primitive function creates an instances of the ``Reset`` data type and adds it to the ``resetHistory`` attribute of a given ``TradeState``. The reset instruction specify the payout that is subject to the reset, via a reference. A reset does not modify the underlying ``Trade`` object.
+The reset primitive function associates a reset object to the trade state. The reset primitive function creates an instances of the ``Reset`` data type and adds it to the ``resetHistory`` attribute of a given ``TradeState``. The reset instruction specifies the payout that is subject to the reset, via a reference. A reset does not modify the underlying ``Trade`` object.
 
 .. code-block:: Haskell
 
@@ -374,9 +409,9 @@ A reset primitive consists in associating a reset object to the trade state. The
 Transfer Primitive
 ''''''''''''''''''
 
-The transfer primitive is a multi-purpose primitive that can represent the transfer of any asset, including cash, from one party to another. The transfer primitive function takes a ``Transfer`` object as transfer instruction input and adds it to the ``transferHistory`` attribute of the ``TradeState``. The ``Transfer`` object is associated to an enumeration to qualify the status that the transfer is in, from instruction to settlement or rejection.
+The transfer primitive function takes a ``TransferState`` object as transfer instruction input and adds it to the ``transferHistory`` attribute of the ``TradeState``.
 
-By design, the CDM treats the reset and the transfer primitive events separately because there is no one-to-one relationship between reset and transfer.
+By design, the CDM treats the reset and the transfer primitive operators separately because there is no one-to-one relationship between reset and transfer.
 
 * Many transfer events are not tied to any reset: for instance, the currency settlement from an FX spot or forward transaction.
 * Conversely, not all reset events generate a cashflow: for instance, the single, final settlement that is based on all the past floating rate resets in the case of a compounding floating zero-coupon swap.
@@ -385,31 +420,6 @@ By design, the CDM treats the reset and the transfer primitive events separately
 
  type TransferInstruction:
    transferState TransferState (0..*)
-
-.. code-block:: Haskell
-
- type TransferState:
-   [metadata key]
-   [rootType]
-   transfer Transfer (1..1)
-   transferStatus TransferStatusEnum (0..1)
-	
-.. code-block:: Haskell
-
- type Transfer extends TransferBase:
-   settlementOrigin SettlementOrigin (0..1)
-   resetOrigin Reset (0..1)
-   transferExpression TransferExpression (1..1)
-
-.. code-block:: Haskell
-
- type TransferBase:
-   identifier Identifier (0..*)
-     [metadata scheme]
-   quantity Quantity (1..1)
-   observable Observable (0..1)
-   payerReceiver PartyReferencePayerReceiver (1..1)
-   settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
 
 .. _business-event:
 
