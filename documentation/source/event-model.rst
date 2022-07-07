@@ -438,13 +438,15 @@ Business events are built according to the following principles:
  type BusinessEvent:
    [metadata key]
    [rootType]
+   primitives PrimitiveEvent (0..*)
+     [deprecated]
    intent EventIntentEnum (0..1)
    functionCall string (0..1)
    eventQualifier eventType (0..1)
    eventDate date (1..1)
    effectiveDate date (0..1)
    packageInformation IdentifiedList (0..1)
-   instruction Instruction (1..*)
+   instruction Instruction (0..*)
    after TradeState (0..*)
 
 .. code-block:: Haskell
@@ -459,6 +461,8 @@ The only mandatory attributes of a business event are:
 
 * The event instruction. This is a list of ``Instruction`` objects, each representing a composite primitive instruction applied to a single (before) trade state. This attribute is of multiple cardinality, so a business event may impact multiple trades concurrently and result in multiple (after) trade states.
 * The event date. The time dimension has been purposely ommitted from the event's attributes. That is because, while a business event has a unique date, several time stamps may potentially be associated to that event depending on when it was submitted, accepted, rejected etc, all of which are *workflow* considerations.
+
+.. note:: The ``primitives`` attribute corresponds to a previous implementation of the primitive operators, now deprecated but maintained for backward-compatibility purposes. Because some implementations rely on this former mechanism instead of the new primitive instruction mechanism, the lower bound of the ``instruction`` attribute's cardinality is 0 instead of 1. It will be updated to 1 once the former primitive mechanism is fully retired.
 
 Event Composition
 """""""""""""""""
