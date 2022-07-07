@@ -547,7 +547,7 @@ Event Qualification
 
 **The CDM qualifies lifecycle events as a function of their primitive components** rather than explicitly declaring the event type. The CDM uses the same approach for event qualification as for product qualification and is based on a set of Event Qualification functions. These functions are identified with a ``[qualification BusinessEvent]`` annotatation.
 
-Event Qualification functions apply a taxonomy-specific business logic to identify if the state-transition attributes values, which are embedded in the primitive event components, match the specified criteria for the event named in that taxonomy. Like Product Qualification functions, the Event Qualification function name begins with the word ``Qualify`` followed by an underscore ``_`` and then the taxonomy name.
+Event Qualification functions apply a taxonomy-specific business logic to identify if the state-transition attributes values, which are embedded in the primitive event components, match the specified criteria for the event named in that taxonomy. Like Product Qualification functions, the Event Qualification function name is prefixed with the word ``Qualify_`` followed by the taxonomy name.
 
 The CDM uses the ISDA taxonomy V2.0 leaf level to qualify the event. 22 lifecycle events have currently been qualified as part of the CDM.
 
@@ -615,7 +615,7 @@ Other Misc. Information
 Other selected attributes of a business event are explained below.
 
 * The effective date is optional as it is not applicable to certain events (e.g. observations), or may be redundant with the event date.
-* The event qualifier attribute is derived from the event qualification features. This is further detailed in the :ref:`event-qualification-section`.
+* The event qualifier attribute is derived from the event qualification features. This is further detailed in the `event qualification`_ section.
 
 Workflow
 ^^^^^^^^
@@ -658,25 +658,17 @@ This attribute specifies the business event that the workflow step is meant to g
 Proposed Event
 """"""""""""""
 
-This attribute specifies the inputs of the event's state transition comprising the current trade state(s), the applicable primitive instructions and the event's date and intent. It is optional because it is not required for all workflow steps. Validation components are in place to check that the ``businessEvent`` and ``proposedInstruction`` attributes are mutually exclusive.
+This attribute specifies the inputs required to perform the event's state transition and comprises a subset of the attributes of the business event itself. It is optional because it is only required for all pre-acceptance workflow steps. Once accepted, the business event is entirely represented, including its instructions, by the ``businessEvent`` attribute.
 
-The list of business events for which this process is currently implemented in the CDM is reflected in the structure of the ``Instruction`` data type:
+Validation components are in place to check that the ``businessEvent`` and ``proposedEvent`` attributes are mutually exclusive.
 
 .. code-block:: Haskell
 
- type Instruction:
-    [rootType]
-    instructionFunction string (0..1)
-        [deprecated]
-    transfer TransferInstruction (0..1)
-        [deprecated]
-    primitiveInstruction PrimitiveInstruction (0..1)
-    before TradeState (0..1)
-        [metadata reference]
-
-    condition ExclusiveSplitPrimitive:
-       if primitiveInstruction -> split exists then primitiveInstruction -> split only exists
-
+ type EventInstruction:
+   intent EventIntentEnum (0..1)
+   instruction Instruction (0..*)
+   eventDate date (0..1)
+   effectiveDate date (0..1)
 
 Previous Workflow Step
 """"""""""""""""""""""
@@ -727,7 +719,7 @@ The benefits of the CDM generic approach are twofold:
 
 Below is an instance of a CDM representation (`serialised`_ into JSON) of this approach.
 
-.. code-block:: Javascript
+.. code-block:: JSON
 
  "timestamp": [
   {
@@ -764,6 +756,6 @@ Other Misc. Attributes
 """"""""""""""""""""""
 
 * The ``party`` and ``account`` information are optional because not applicable to certain events.
-* The ``lineage`` attribute was previously used to reference an unbounded set of contracts, events and/or payout components, that an event may be associated to.
+* The ``lineage`` attribute, now deprecated, was previously used to reference an unbounded set of contracts, events and/or payout components that an event may be associated to.
 
-.. note:: The ``lineage`` attribute is superseded by the implementation in the CDM of: (i) trade state lineage, via the ``before`` / ``after`` attributes in the primitive event component, and (ii) workflow lineage, via the ``previousWorkflowStep`` attribute.
+.. note:: The ``lineage`` attribute is superseded by the implementation in the CDM of: (i) trade state lineage, via the ``before`` reference in the primitive instructions, and (ii) workflow lineage, via the ``previousWorkflowStep`` attribute.
