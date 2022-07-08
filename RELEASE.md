@@ -2,7 +2,7 @@
 
 _Background_
 
-following Release 170.0 Subsequent changes are made .rosetta filenames and namespaces for synonyms have become inconsistent.
+Following Release 2.170.0 .rosetta filenames and namespaces for synonyms still had some inconsistency.
 
 _What is being released?_
 
