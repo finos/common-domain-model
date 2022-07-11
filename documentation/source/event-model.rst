@@ -5,7 +5,7 @@
 Event Model
 -----------
 
-**The CDM event model provides data structures to represent the lifecycle events of financial transactions**. A lifecycle event occurs when a transaction goes through a *state transition* initiated either by one or both trading parties, by contractual terms or by external factors. For example, the execution of a trade is the initial event which results in the state of an executed trade. Subsequently, one party might initiate an allocation, both parties might initiate an amendment to a contractual agreement, or a default by an underlying entity on a Credit Default Swap would trigger a settlement according to defined protection terms.
+**The CDM event model provides data structures to represent the lifecycle events of financial transactions**. A lifecycle event occurs when a transaction goes through a *state transition* initiated either by one or both trading parties, by contractual terms, or by external factors. For example, the execution of a trade is the initial event which results in the state of an executed trade. Subsequently, one party might initiate an allocation, both parties might initiate an amendment to a contractual agreement, or a default by an underlying entity on a Credit Default Swap would trigger a settlement according to defined protection terms.
 
 Examples of lifecycle events supported by the CDM Event Model include the following:
 
@@ -27,7 +27,7 @@ To represent a state transition, the event model is organised around four main c
 
 * **Trade state** represents the state in the lifecycle that the trade is in, from execution to settlement and maturity.
 * **Primitive operator** is the functional building block that is used to compose business events. Each operator describes a fundamental change to the state of a trade going from a before state to an after state and is parameterised by a primitive instruction input.
-* **Business event** represents a trade lifecycle event as a composite of primitive instructions. A business event can comprise several instructions, each consisting of a set of primitive instructions applied to a single trade state (before). The resulting trade state (after) can be multiple.
+* **Business event** represents a lifecycle event affecting one or more trades as a composite of primitive instructions. A business event can comprise several instructions, each consisting of a set of primitive instructions applied to a single trade state (before). The resulting trade state (after) can be multiple.
 * **Workflow** represents a set of actions or steps that are required to trigger a business event.
 
 The below diagram illustrates the relationship between these components. Each of them is described in the next four sections.
@@ -146,7 +146,7 @@ Reset
 
 In many cases, a trade relies on the value of an observable which will become known in the future: for instance, a floating rate observation at the beginning of each period in the case of a Interest Rate Swap, or the equity price at the end of each period in an Equity Swap. This *reset* information is captured by the ``Reset`` data type and associated to the trade state.
 
-While the reet information is trade-specific, the observation itself is provided by the relevant market data provider independently of any specific trade. Such observation is captured by the ``Observation`` data type.
+While the reset information is trade-specific, the observation itself is provided by the relevant market data provider independently of any specific trade. Such observation is captured by the ``Observation`` data type.
 
 Both the ``observedValue`` (in ``Observation``) and the ``resetValue`` (in ``Reset``) attributes are specified as a ``Price`` type. In the trade, the resettable value must be associated to a variable price attribute. It typically represents a number that is directly used to compute transfer amounts like cashflows. 
 
