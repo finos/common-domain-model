@@ -212,7 +212,7 @@ There are nine fundamental operations on trade state. Other than split and execu
 
 #. execution: instantiates a new trade.
 #. quantity change: changes the quantity (and/or price) of a trade
-#. terms change: changes the terms of the underlying product of a trade
+#. terms change: changes the terms of the product of a trade
 #. party change: changes a party on a trade
 #. exercise: exercises an option embedded in a trade
 #. contract formation: associates a legal agreement to a trade
