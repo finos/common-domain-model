@@ -78,7 +78,7 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
    account Account (0..*)
      [deprecated]
 
-.. note:: Attributes within ``Trade`` and ``ContractDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view. The ``TradableProduct`` data type is further detailed in the :ref:`tradable-product` section of the documentation.
+.. note:: Attributes within ``Trade`` and ``ContractDetails`` incorporate elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view. The ``TradableProduct`` data type is further detailed in the :ref:`tradable-product` section of the documentation.
 
 Additionally, ``Trade`` supports the representation of specific execution or contractual details via the ``executionDetails`` and ``contractDetails`` attributes.
 
