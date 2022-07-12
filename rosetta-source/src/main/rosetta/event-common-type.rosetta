@@ -183,13 +183,19 @@ type CalculateTransferInstruction: <"Defines the tradeState or payout on which t
 	date date (0..1)
 
 type TransferInstruction: <"Defines the payout on which to create a Transfer along with all necessary resets.">
- 	transferState TransferState (0..*) <"Specifies the terms and state of a transfers.">
+ 	transferState TransferState (0..*) <"Specifies the terms and state of each individual transfers.">
+	netTransfer TransferState (0..1) <"Specifies the terms and state of a unique net transfer, resulting from the aggregation of several individual transfers.">
+
+	condition:
+	if netTransfer exists
+	then transferState count > 1
+	and transferState -> transferStatus all = TransferStatusEnum -> Netted
 
 type QuantityChangeInstruction: <"Instructions required to create a Quantity Change Primitive Event, which can be either an increase, a decrease or a replacement. An increase adds a new trade lot to the original trade, whereas a decrease subtracts from an existing trade lot's quantity. A replacement updates the quantity of an existing trade lot to the new value.">
 	change PriceQuantity (1..*) <"Quantity by which the trade is being increased, decreased or replaced, and the price at which such quantity change is agreed. The quantity change should always be specified as a positive number, with the direction (increase/decrease/replacement) being specified by the direction enumeration. A fee can also be associated to the quantity change by specifying a Price component of type CashPrice, including the corresponding settlement date and direction.">
 	direction QuantityChangeDirectionEnum (1..1) <"Direction of the quantity change specified as either an increase, decrease or replacement.">
 	lotIdentifier Identifier (0..*) <"Identifier for the new lot (in case of increase) or for the existing lot to be changed(in case of decrease or replacement). This optional attribute is mandatory in case of a decrease or replacement if the initial trade state contains multiple trade lots.">
-
+	
 type IndexTransitionInstruction: <"Defines the information needed to create a Index Transition Business Event.">
 	priceQuantity PriceQuantity (1..*) <"Specifies both new floating rate index and spread adjustment for each leg to be updated.  The spread adjustment accounts for the difference between the old floating rate index relative to the new one. This spread amount is added to the existing spread to determine the new spread, which is applied from the specified effective date forward. In the case of the IBOR Fallback Rate Adjustments, the adjustment spread (also known as the Fallback Adjustment) accounts for two distinctions: i) the fact that the replacement Risk-Free Rate is an overnight rate while IBORs have term structures (e.g., 1, 3, 6-month LIBOR); and (ii) the historical spread differential between IBORs and their term equivalent Overnight Risk-Free Rate compounded rates.">
 	effectiveDate date (1..1) <"Specifies the effective date of the index transition event. This is first date on which the floating rate calculation will use the new floating rate index and adjusted spread in the floating rate calculation.">
@@ -256,6 +262,17 @@ type TransferState: <"Defines the fundamental financial information associated w
 	[rootType]
 	transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
 	transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
+	receiverPartySSIs_receiverPartyRecords CashStandardSettlementInstructions (0..1) <"Defines the SSIs details where to adress the payment, when provided by the Receiver Party, thus providing its own SSIs">
+	receiverPartySSIs_payerPartyRecords CashStandardSettlementInstructions (0..1) <"Defines the SSIs details where to adress the payment, when provided by the Payer Party, thus providing its view of Counterparty SSIs">
+
+type CashStandardSettlementInstructions:
+	currency string (0..1) <"Defines the currency to which the SSIs apply.">
+	bankIdentifierCode_BIC string (0..1) <"Describes the BIC details. Implementors may want to enforce usual standards e.g. SWIFT or others, using the scheme attribute.">
+	[metadata scheme]
+	internationalBankAccountNumber_IBAN string (0..1) <"Describes the IBAN details. Implementors may want to enforce usual standards e.g. SWIFT or others, using the scheme attribute.">
+	[metadata scheme]
+	custodianBank string (0..1) <"Name of the custodian bank where the account is held.">
+	beneficiaryAccount string (0..1) <"Name of the custodian bank where the account is held.">
 
 type Transfer extends TransferBase: <"Defines the movement of cash, securities or commodities between two parties on a date.">
 	settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
