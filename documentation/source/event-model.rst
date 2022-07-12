@@ -260,16 +260,16 @@ The ``PrimitiveInstruction`` data type allows to build composite primitive instr
 
 .. code-block:: Haskell
 
- type PrimitiveInstruction: <"A Primitive Instruction describes the inputs required to pass into the corresponding PrimitiveEvent function.">
-   contractFormation ContractFormationInstruction (0..1) <"Specifies instructions describing an contract formation primitive event.">
-   execution ExecutionInstruction (0..1) <"Specifies instructions describing an execution primitive event.">
-   exercise ExerciseInstruction (0..1) <"Specifies instructions describing an exercise primitive event.">
-   partyChange PartyChangeInstruction (0..1) <"Specifies instructions describing a party change primitive event.">
-   quantityChange QuantityChangeInstruction (0..1) <"Specifies instructions describing an quantity change primitive event.">
-   reset ResetInstruction (0..1) <"Specifies instructions describing a reset event.">
-   split SplitInstruction (0..1) <"Specifies instructions to split a trade into multiple branches.">
-   termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing a terms change primitive event.">
-   transfer TransferInstruction (0..1) <"Specifies instructions describing a transfer primitive event.">
+ type PrimitiveInstruction:
+   contractFormation ContractFormationInstruction (0..1)
+   execution ExecutionInstruction (0..1)
+   exercise ExerciseInstruction (0..1)
+   partyChange PartyChangeInstruction (0..1)
+   quantityChange QuantityChangeInstruction (0..1)
+   reset ResetInstruction (0..1)
+   split SplitInstruction (0..1)
+   termsChange TermsChangeInstruction (0..1)
+   transfer TransferInstruction (0..1)
 
 Primitive Composition
 """""""""""""""""""""
@@ -317,12 +317,12 @@ The split function iterates on each element of the breakdown and applies the cor
 
  func Create_Split:
    inputs:
-     breakdown PrimitiveInstruction (1..*) <"Each primitive instruction contains the set of instructions to be applied to each post-split trade.">
-     originalTrade TradeState (1..1) <"The original trade to be split, which must be of single cardinality.">
+     breakdown PrimitiveInstruction (1..*)
+     originalTrade TradeState (1..1)
    output:
      splitTrade TradeState (1..*)
    
-   add splitTrade: <"Iterate over each breakdown and apply the set of primitive instructions to each copy of the original trade.">
+   add splitTrade:
      breakdown
        map [ Create_TradeState( item, originalTrade ) ]
 			
@@ -453,7 +453,11 @@ Business events are built according to the following principles:
 
  type Instruction:
    [rootType]
-   primitiveInstruction PrimitiveInstruction (1..1)
+   instructionFunction string (0..1)
+   		[deprecated]
+   transfer TransferInstruction (0..1)
+   	   	[deprecated]
+   primitiveInstruction PrimitiveInstruction (0..1)
    before TradeState (0..1)
      [metadata reference]
 
@@ -593,18 +597,18 @@ The description of each possible enumeration value provides an illustration of h
 
 .. code-block:: Haskell
 
- enum EventIntentEnum: <"The enumeration values to qualify the intent associated with a transaction event.">
-   Allocation <"The intent is to allocate one or more trades as part of an allocated block trade.">
-   Clearing <"The intent is to clear the contract.">
-   Compression <"The intent is to compress multiple trades as part of a netting or compression event.">
-   ContractFormation <"The intent is to form a contract from an execution.">
-   Exercise <"The intent is to Exercise the contract.">
-   Increase <"The intent is to Increase the quantity or notional of the contract.">
-   IndexTransition <"The intent is to replace an interest rate index by another one during the life of a trade and add a transition spread on top of this index (and on top of the spreads already defined in the trade, if any). ">
-   Novation <"The intent is to novate the contract.">
-   Reallocation <"The intent is to reallocate one or more trades as part of an allocated block trade.">
-   Renegotiation <"The intent is to re-negotiate some of the terms of the contract.">
-   StockSplit <"The intent is to split the contract based on an adjustment ratio.">
+ enum EventIntentEnum:
+ 	Allocation
+ 	Clearing
+ 	Compression
+ 	ContractFormation
+ 	Exercise
+ 	Increase
+ 	IndexTransition
+ 	Novation
+ 	Reallocation
+ 	Renegotiation
+ 	StockSplit
 
 Lineage
 """""""
