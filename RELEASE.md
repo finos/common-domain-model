@@ -1,13 +1,13 @@
-# *CDM Model: Realignment between Namespaces and Filenames*
+# *Documentation: Composable event model*
 
 _Background_
 
-Following Release 2.170.0 .rosetta filenames and namespaces for synonyms still had some inconsistency.
+Following the roll-out of the composable event model, the documentation is being updated to reflect the new design.
 
 _What is being released?_
 
-This release re-synchronises the filenames and namespaces.
+This release updates al the content (text, diagrams and snippets) under the Event Model section of the user documentation.
 
 _Review Directions_
 
-In the CDM Portal, you can download a CDM distribution and inspect filenames versus namespaces.
+In the CDM Portal, navigate to the user documentation part and then go to the Event Model section, or directly at: https://cdm.docs.rosetta-technology.io/source/event-model.html.
