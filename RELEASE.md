@@ -1,10 +1,10 @@
 # Product Model - Party Contact Information Synonym Mapping
 
-**_Background_**
+_Background_
 
 This release extends the FpML to CDM syonynm mappings for Party Contact Information.
 
-**_What is being released?_**
+_What is being released?_
 
 Additional synonym mappings have been added to map Party and Business Unit contact information.
 
@@ -16,11 +16,11 @@ In the CDM Portal, select Ingestion and review `party` attribute on the sample b
 
 # Product Model - FX Variance and Volatility Synonym Mapping
 
-**_Background_**
+_Background_
 
 This release extends the FpML to CDM syonynm mappings for FX Variance and Volatility products.
 
-**_What is being released?_**
+_What is being released?_
 
 Additional synonym mappings have been added to map `informationSource` and `businessCenters`.
 
