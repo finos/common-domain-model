@@ -1,4 +1,4 @@
-# Product Model - Party Contact Information Synonym Mapping
+# *Product Model - Party Contact Information Synonym Mapping*
 
 _Background_
 
@@ -14,7 +14,7 @@ In the CDM Portal, select Ingestion and review `party` attribute on the sample b
 
 - fpml-5-10 > processes > msg-new-trade-CFTC-clearing
 
-# Product Model - FX Variance and Volatility Synonym Mapping
+# *Product Model - FX Variance and Volatility Synonym Mapping*
 
 _Background_
 
