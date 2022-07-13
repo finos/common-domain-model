@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 public class DocumentationCodeValidator {
 	
     private final String synonymRegex = "\\[synonym [^\\]]*\\]";
-    private final String definitionRegex = "<\".*\">";
+    private final String definitionRegex = "<\"[\\s\\S]*?\">";
     private final String lineCommentRegex = "[^:]\\/\\/.*$";
     private final String whitespaceRegex = "\\s+";
     private final Pattern illegalSyntaxRegex = Pattern.compile(synonymRegex+"|"+definitionRegex+"|"+lineCommentRegex, Pattern.MULTILINE);
@@ -79,7 +79,8 @@ public class DocumentationCodeValidator {
 					 .filter ( _code -> !_code.contains(".. code-block:: MD") )
 					 .filter ( _code -> !_code.contains(".. code-block:: Javascript") )
 					 .filter ( _code -> !_code.contains(".. code-block:: Java") )
-	                .filter ( _code -> {
+				 .filter ( _code -> !_code.contains(".. code-block:: JSON") )
+				 .filter ( _code -> {
 	                    String cleaned = _code
 	                            .replaceAll(".*\\.\\. code-block.*", "")
 	                            .replaceAll(whitespaceRegex, "");
