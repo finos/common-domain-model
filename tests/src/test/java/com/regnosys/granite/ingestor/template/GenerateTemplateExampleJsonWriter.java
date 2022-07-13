@@ -2,10 +2,7 @@ package com.regnosys.granite.ingestor.template;
 
 import cdm.base.staticdata.asset.common.Security;
 import cdm.event.common.TradeState;
-import cdm.observable.asset.EquityValuation;
-import cdm.product.asset.EquityPriceReturnTerms;
 import cdm.product.asset.InterestRatePayout;
-import cdm.product.asset.PriceReturnTerms;
 import cdm.product.template.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.io.Resources;
@@ -88,13 +85,12 @@ public class GenerateTemplateExampleJsonWriter {
 	private ContractualProduct getContractualProductTemplate(TradeState inputTradeState) {
 		ContractualProduct.ContractualProductBuilder templateBuilder = inputTradeState.toBuilder().getTrade().getTradableProduct().getProduct().getContractualProduct();
 
-		EquityPayout.EquityPayoutBuilder equityPayoutBuilder = templateBuilder.getEconomicTerms().getPayout().getEquityPayout().get(0);
-		equityPayoutBuilder
-			.setCalculationPeriodDates(null)
-			.setPaymentDates(null);
-		equityPayoutBuilder.getPriceReturnTerms().getValuationPriceFinal().setValuationDate(null);
-		equityPayoutBuilder.getPriceReturnTerms().getValuationPriceInterim().setValuationDates(null);
-		equityPayoutBuilder.getUnderlier().getSecurity().setProductIdentifier(null);
+		PerformancePayout.PerformancePayoutBuilder performancePayoutBuilder = templateBuilder.getEconomicTerms().getPayout().getPerformancePayout().get(0);
+		performancePayoutBuilder
+				.setValuationDates(null)
+				.setPaymentDates(null)
+				.setReturnTerms(null);
+		performancePayoutBuilder.getUnderlier().getSecurity().setProductIdentifier(null);
 
 		InterestRatePayout.InterestRatePayoutBuilder interestRatePayoutBuilder = templateBuilder.getEconomicTerms().getPayout().getInterestRatePayout().get(0);
 		interestRatePayoutBuilder
@@ -128,24 +124,20 @@ public class GenerateTemplateExampleJsonWriter {
 
 	private ContractualProduct getContractualProduct(TradeState inputContract, String templateGlobalReference) {
 		ContractualProduct contractualProduct = inputContract.getTrade().getTradableProduct().getProduct().getContractualProduct();
-		EquityPayout equityPayout = contractualProduct.getEconomicTerms().getPayout().getEquityPayout().get(0);
+		PerformancePayout performancePayout = contractualProduct.getEconomicTerms().getPayout().getPerformancePayout().get(0);
 		InterestRatePayout interestRatePayout = contractualProduct.getEconomicTerms().getPayout().getInterestRatePayout().get(0);
 
 		ContractualProduct.ContractualProductBuilder contractualProductBuilder = ContractualProduct.builder()
 			.setMeta(MetaAndTemplateFields.builder().setTemplateGlobalReference(templateGlobalReference))
 			.setEconomicTerms(EconomicTerms.builder()
 				.setPayout(Payout.builder()
-					.addEquityPayout(EquityPayout.builder()
-						.setCalculationPeriodDates(equityPayout.getCalculationPeriodDates())
-						.setPaymentDates(equityPayout.getPaymentDates())
-						.setPriceReturnTerms(EquityPriceReturnTerms.builder()
-							.setValuationPriceFinal(EquityValuation.builder()
-								.setValuationDate(equityPayout.getPriceReturnTerms().getValuationPriceFinal().getValuationDate()))
-							.setValuationPriceInterim(EquityValuation.builder()
-								.setValuationDates(equityPayout.getPriceReturnTerms().getValuationPriceInterim().getValuationDates())))
+					.addPerformancePayout(PerformancePayout.builder()
+						.setValuationDates(performancePayout.getValuationDates())
+						.setPaymentDates(performancePayout.getPaymentDates())
+						.setReturnTerms(performancePayout.getReturnTerms())
 						.setUnderlier(Product.builder()
 								.setSecurity(Security.builder()
-									.addProductIdentifier(equityPayout.getUnderlier().getSecurity().getProductIdentifier()))))
+									.addProductIdentifier(performancePayout.getUnderlier().getSecurity().getProductIdentifier()))))
 					.addInterestRatePayout(InterestRatePayout.builder()
 						.setCalculationPeriodDates(interestRatePayout.getCalculationPeriodDates())
 						.setPaymentDates(interestRatePayout.getPaymentDates()))));

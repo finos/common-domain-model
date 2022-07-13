@@ -5,9 +5,12 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.metafields.FieldWithMetaDate;
 
-import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * TODO - Move this to the CDM
@@ -22,34 +25,75 @@ public class AdjustableDateUtils {
      * @param adjustableOrRelativeDate
      * @return the adjusted date
      */
-    public static LocalDate adjustDate(AdjustableOrRelativeDate adjustableOrRelativeDate) {
+    public static Date adjustDate(AdjustableOrRelativeDate adjustableOrRelativeDate) {
+        if (adjustableOrRelativeDate == null) {
+            return null;
+        }
         if (adjustableOrRelativeDate.getAdjustableDate() != null) {
-            AdjustableDate adjustableDate = adjustableOrRelativeDate.getAdjustableDate();
-            if (adjustableDate.getAdjustedDate() != null) {
-                return adjustableDate.getAdjustedDate().getValue().toLocalDate();
-            }
-            if (adjustableDate.getUnadjustedDate() != null) {
-                BusinessDayConventionEnum businessDayConvention = Optional
-                        .ofNullable(adjustableDate.getDateAdjustments())
-                        .map(BusinessDayAdjustments::getBusinessDayConvention)
-                        .orElse(BusinessDayConventionEnum.NONE);
-
-                LocalDate unadjustedDate = adjustableDate.getUnadjustedDate().toLocalDate();
-                return BusinessDayAdjustment.builder()
-                        .convention(toBusinessDayConvention(businessDayConvention))
-                        .calendar(HolidayCalendarIds.SAT_SUN).build()
-                        .adjust(unadjustedDate, ReferenceData.minimal());
-            }
+            return adjustDate(adjustableOrRelativeDate.getAdjustableDate());
         }
-
         if (adjustableOrRelativeDate.getRelativeDate() != null) {
-            AdjustedRelativeDateOffset relativeDate = adjustableOrRelativeDate.getRelativeDate();
-            if (relativeDate.getAdjustedDate() != null) {
-                return relativeDate.getAdjustedDate().toLocalDate();
-            }
-            // adjusting relative dates are not supported yet
+            return adjustDate(adjustableOrRelativeDate.getRelativeDate());
         }
+        return null;
+    }
 
+    public static Date adjustDate(AdjustableDate adjustableDate) {
+        if (adjustableDate == null) {
+            return null;
+        }
+        if (adjustableDate.getAdjustedDate() != null) {
+            return adjustableDate.getAdjustedDate().getValue();
+        }
+        if (adjustableDate.getUnadjustedDate() != null) {
+            return adjustDate(adjustableDate.getUnadjustedDate(), adjustableDate.getDateAdjustments());
+        }
+        return null;
+    }
+
+    public static Date adjustDate(Date unadjustedDate, BusinessDayAdjustments businessDayAdjustments) {
+        if (unadjustedDate != null) {
+            BusinessDayConventionEnum businessDayConvention = Optional.ofNullable(businessDayAdjustments)
+                    .map(BusinessDayAdjustments::getBusinessDayConvention)
+                    .orElse(BusinessDayConventionEnum.NONE);
+
+            return Date.of(BusinessDayAdjustment.builder()
+                    .convention(toBusinessDayConvention(businessDayConvention))
+                    .calendar(HolidayCalendarIds.SAT_SUN).build()
+                    .adjust(unadjustedDate.toLocalDate(), ReferenceData.minimal()));
+        }
+        return null;
+    }
+
+    public static Date adjustDate(AdjustedRelativeDateOffset relativeDate) {
+        if (relativeDate == null) {
+            return null;
+        }
+        if (relativeDate.getAdjustedDate() != null) {
+            return relativeDate.getAdjustedDate();
+        }
+        // adjusting relative dates are not supported yet
+        return null;
+    }
+
+    public static List<Date> adjustDates(AdjustableRelativeOrPeriodicDates adjustableRelativeOrPeriodicDates) {
+        if (adjustableRelativeOrPeriodicDates == null) {
+            return null;
+        }
+        if (adjustableRelativeOrPeriodicDates.getAdjustableDates() != null) {
+            AdjustableDates adjustableDates = adjustableRelativeOrPeriodicDates.getAdjustableDates();
+            if (adjustableDates.getAdjustedDate() != null) {
+                return adjustableDates.getAdjustedDate().stream()
+                        .map(FieldWithMetaDate::getValue)
+                        .collect(Collectors.toList());
+            }
+            if (adjustableDates.getUnadjustedDate() != null) {
+                return adjustableDates.getUnadjustedDate().stream()
+                        .map(unadjustedDate -> adjustDate(unadjustedDate, adjustableDates.getDateAdjustments()))
+                        .collect(Collectors.toList());
+            }
+        }
+        // relative and periodic dates not supported yet
         return null;
     }
 

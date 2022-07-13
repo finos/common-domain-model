@@ -1,15 +1,13 @@
-# *Event Model - Mapping CME and DTCC events*
+# *CDM Model: Realignment between Namespaces and Filenames*
 
-**_Background_**
+_Background_
 
-This release follows the recent work on the event model, which introduced a composable model for representing business events.  Recent releases have updated FpML synonyms to re-map from the old to the new model.
+Following Release 2.170.0 .rosetta filenames and namespaces for synonyms still had some inconsistency.
 
-**_What is being released?_**
+_What is being released?_
 
-This release updates the CME and DTCC synonym mappings to use the composable Event model.
+This release re-synchronises the filenames and namespaces.
 
-**_Review Directions_**
+_Review Directions_
 
-In the CDM Portal, select Ingestion and review the samples in the cme-cleared-confirmed-1-17 and dtcc-11-0 folders.
-
-In the CDM Portal, select Instance Viewer, and review the above samples in the cme-cleared-confirmed-1-17 and dtcc-11-0 folders.
+In the CDM Portal, you can download a CDM distribution and inspect filenames versus namespaces.

@@ -3,7 +3,6 @@ package cdm.product.asset.processor;
 import cdm.base.staticdata.party.AncillaryRoleEnum;
 import cdm.legalagreement.contract.processor.PartyMappingHelper;
 import cdm.product.asset.DividendReturnTerms;
-import cdm.product.asset.EquityDividendReturnTerms;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -40,8 +39,6 @@ public class ExtraordinaryDividendsPartyMappingProcessor extends MappingProcesso
 	private Optional<Consumer<AncillaryRoleEnum>> getSetter(RosettaModelObjectBuilder parent) {
 		if (parent instanceof DividendReturnTerms.DividendReturnTermsBuilder) {
 			return Optional.of(((DividendReturnTerms.DividendReturnTermsBuilder) parent)::setExtraordinaryDividendsParty);
-		} else if (parent instanceof EquityDividendReturnTerms.EquityDividendReturnTermsBuilder) {
-			return Optional.of(((EquityDividendReturnTerms.EquityDividendReturnTermsBuilder) parent)::setExtraordinaryDividendsParty);
 		} else {
 			return Optional.empty();
 		}
