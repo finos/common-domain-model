@@ -129,7 +129,7 @@ func Qualify_BaseProduct_EquitySwap: <"Qualifies a product as having the Asset C
             or economicTerms -> payout -> performancePayout only exists
         )
 
-func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg, 2) the returnType is Price, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features.">
+func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features.">
 	[qualification Product]
     inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
@@ -146,13 +146,13 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a pr
         economicTerms -> payout -> interestRatePayout count = 1 and
         economicTerms -> payout -> performancePayout count = 1 and
 
+		// qualifies that the performance leg has priceReturnTerms
+		performancePayout -> returnTerms -> priceReturnTerms only exists and
+
         // qualifies that underlier is a security (single name)
-        performancePayout -> underlier -> security exists and
+        performancePayout -> underlier -> security exists
 
-        // qualifies that the returnType is price
-        performancePayout -> returnTerms -> priceReturnTerms -> returnType = ReturnTypeEnum -> Price
-
-func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg, 2) the returnType is Total, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features.">
+func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms and dividendReturnTerms, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
@@ -182,13 +182,11 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a pr
         )
         and
 
-        // qualifies that the returnType is total. Indirectly also requires it to have a Performance Payout with priceReturnTerms
-        economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms -> returnType all = ReturnTypeEnum -> Total and
+		// qualifies that there is a performancePayout with dividendReturnTerms and another with priceReturnTerms
+				economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists and 
+				economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms exists
 
-        // qualifies that it also has a performance Payout with dividendReturnTerms
-        economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms exists
-
-func Qualify_EquitySwap_PriceReturnBasicPerformance_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg 2) the returnType is Price 3) the underlier is an index, and 4) there are no option features.">
+func Qualify_EquitySwap_PriceReturnBasicPerformance_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms, 3) the underlier is an index, and 4) there are no option features.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
@@ -205,13 +203,13 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_Index: <"Qualifies a product
         economicTerms -> payout -> interestRatePayout count = 1 and
         economicTerms -> payout -> performancePayout count = 1 and
 
+		// qualifies that the performance leg has priceReturnTerms
+		performancePayout -> returnTerms -> priceReturnTerms only exists and
+
         // qualifies that underlier is an index
-        performancePayout -> underlier -> index exists and
+        performancePayout -> underlier -> index exists
 
-        // qualifies that the returnType is price
-        performancePayout -> returnTerms -> priceReturnTerms -> returnType = ReturnTypeEnum -> Price
-
-func Qualify_EquitySwap_TotalReturnBasicPerformance_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg 2) the returnType is Total 3) the underlier is an index, and 4) there are no option features.">
+func Qualify_EquitySwap_TotalReturnBasicPerformance_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms and dividendReturnTerms, 3) the underlier is an index, and 4) there are no option features.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
@@ -240,13 +238,11 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_Index: <"Qualifies a product
             )
         ) and
 
-        // qualifies that the returnType is total. Indirectly also requires it to have a Performance Payout with priceReturnTerms
-        economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms -> returnType all = ReturnTypeEnum -> Total and
+		// qualifies that there is a performancePayout with dividendReturnTerms and another with priceReturnTerms
+			economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists and 
+			economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms exists
 
-        // qualifies that it also has a performance Payout with dividendReturnTerms
-        economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms exists
-
-func Qualify_EquitySwap_PriceReturnBasicPerformance_Basket: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on a basket.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg 2) the returnType is Price 3) the underlier is a basket, and 4) there are no option features.">
+func Qualify_EquitySwap_PriceReturnBasicPerformance_Basket: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on a basket.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms, 3) the underlier is a basket and 4) there are no option features.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
@@ -267,10 +263,10 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_Basket: <"Qualifies a produc
             // qualifies that underlier is a basket
             performancePayout -> underlier -> basket exists and
 
-            // qualifies that the returnType is price
-            performancePayout -> returnTerms -> priceReturnTerms -> returnType = ReturnTypeEnum -> Price
+			// qualifies that the performance leg has priceReturnTerms
+			performancePayout -> returnTerms -> priceReturnTerms only exists
 
-func Qualify_EquitySwap_TotalReturnBasicPerformance_Basket: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on a basket.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one equity leg and one interest leg 2) the returnType is Total 3) the underlier is a basket, and 4) there are no option features.">
+func Qualify_EquitySwap_TotalReturnBasicPerformance_Basket: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on a basket.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms and dividendReturnTerms, 3) the underlier is a basket and 4) there are no option features.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
@@ -297,12 +293,10 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_Basket: <"Qualifies a produc
                 economicTerms -> payout -> performancePayout count = 1
             )
         ) and
-
-        // qualifies that the returnType is total. Indirectly also requires it to have a Performance Payout with priceReturnTerms
-        economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms -> returnType all = ReturnTypeEnum -> Total and
-
-        // qualifies that it also has a performance Payout with dividendReturnTerms
-        economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms exists
+		
+		// qualifies that there is a performancePayout with dividendReturnTerms and another with priceReturnTerms
+			economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists and 
+			economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms exists
 
 func Qualify_EquitySwap_ParameterReturnVariance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the variance changes on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) Is an equity product 2) of swap type, 3) with a single performance leg, 4) which has variance return terms, 4) the underlier is a single stock, and 5) there are no option features.">
 	[qualification Product]
