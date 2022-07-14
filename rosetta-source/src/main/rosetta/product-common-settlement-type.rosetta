@@ -378,6 +378,29 @@ type PrincipalExchanges: <"A class defining which principal exchanges occur for 
 	initialExchange boolean (1..1) <"A true/false flag to indicate whether there is an initial exchange of principal on the effective date.">
 	finalExchange boolean (1..1) <"A true/false flag to indicate whether there is a final exchange of principal on the termination date.">
 	intermediateExchange boolean (1..1) <"A true/false flag to indicate whether there are intermediate or interim exchanges of principal during the term of the swap.">
+	varyingLegNotionalCurrency string (0..*) <"Indicate the Payout legs which nominal amount may vary in regards of FX Fixing dates as determined in the product terms.">
+	principalExchangeSchedule PrincipalExchangesSchedule (0..1) <"Describe dates schedules for Principal Exchanges and related role of the parties when known.">
+
+type PrincipalExchangesSchedule: <"Describe dates schedules for Principal Exchanges and related role of the parties when known.">
+    initialPrincipalPayments PrincipalPayment (0..*) <"Principal Payment made at Trade inception.">
+    intermediatePrincipalPayments GenericDateSchedule (0..1) <"Principal Payment as part of the Trade lifecycle e.g. as part of notional reset adjustements in a Cross Currency Swap with a varying notional leg.">
+    finalPrincipalPayments PrincipalPayment (0..*) <"Principal Payment at Trade maturity">
+
+type PrincipalPayment: <"Any kind of principal payments when the amount is known and thus fixed.">
+    [metadata key]
+ 
+    principalPaymentDate GenericDate (1..1) <"The date where the PrincipalPayment shall be settled.">
+    payerReceiver CounterpartyRoleEnum (0..1) <"Specifies the parties responsible for making and receiving payments defined by this structure.">
+    principalAmount Quantity (0..1) <"When known at the time the transaction is made, the cash amount to be paid.">
+    discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the principal payment amount.">
+    presentValuePrincipalAmount Quantity (0..1) <"The amount representing the present value of the principal payment.">
+
+    condition:
+    required choice principalAmount, presentValuePrincipalAmount
+ 
+    condition:
+    if presentValuePrincipalAmount exists
+    then discountFactor exists
 
 type SettlementBase: <"A base class to be extended by the SettlementTerms class.">
 	[metadata key]
