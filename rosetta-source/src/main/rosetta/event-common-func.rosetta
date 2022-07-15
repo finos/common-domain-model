@@ -1842,10 +1842,27 @@ func Qualify_Reallocation: <"The qualification of a reallocation event from the 
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
+
+	alias beforeTradeState: businessEvent -> instruction -> before only-element
+    alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
+    alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
-		businessEvent -> primitives -> split count = 1
-		and businessEvent -> primitives -> split -> before -> state -> closedState -> state all = ClosedStateEnum -> Allocated
-		and businessEvent -> primitives -> quantityChange exists
+        businessEvent -> intent = EventIntentEnum -> Reallocation
+        and closedTradeStates count = 0
+        and openTradeStates count = 2
+        and businessEvent -> instruction -> primitiveInstruction -> split exists
+        and openTradeStates
+            map [
+                // before trade counterparties should not match open after trade counterparties, and neither should trade identifiers
+                ( item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+                    and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier )
+                or
+                // before trade counterparties match open after trade counterparties, and match trade identifiers, but with decreased quantity
+                ( item -> trade -> tradableProduct -> counterparty -> partyReference = beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+                    and item -> trade -> tradeIdentifier = beforeTradeState -> trade -> tradeIdentifier
+                    and QuantityDecreased( beforeTradeState, [ item ] ) )
+            ]
+            all = True
 
 func Create_BusinessEvent: <"Creates a business event from instructions containing primitive instructions and optionally a trade state.">
     [creation BusinessEvent]
