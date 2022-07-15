@@ -441,7 +441,6 @@ Business events are built according to the following principles:
    primitives PrimitiveEvent (0..*)
      [deprecated]
    intent EventIntentEnum (0..1)
-   functionCall string (0..1)
    eventQualifier eventType (0..1)
    eventDate date (1..1)
    effectiveDate date (0..1)
@@ -453,10 +452,6 @@ Business events are built according to the following principles:
 
  type Instruction:
    [rootType]
-   instructionFunction string (0..1)
-   		[deprecated]
-   transfer TransferInstruction (0..1)
-   	   	[deprecated]
    primitiveInstruction PrimitiveInstruction (0..1)
    before TradeState (0..1)
      [metadata reference]

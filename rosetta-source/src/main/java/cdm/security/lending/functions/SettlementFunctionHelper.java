@@ -59,7 +59,7 @@ public class SettlementFunctionHelper {
     public BusinessEvent createTransferBusinessEvent(WorkflowStep executionWorkflowStep, WorkflowStep proposedTransferWorkflowStep, LocalDate settlementDate) {
         BusinessEvent transferBusinessEvent = create_transfer.evaluate(
                 getAfterState(executionWorkflowStep.getBusinessEvent()).orElse(null),
-                proposedTransferWorkflowStep.getProposedEvent().getInstruction().get(0).getTransfer(),
+                proposedTransferWorkflowStep.getProposedEvent().getInstruction().get(0).getPrimitiveInstruction().getTransfer(),
                 Date.of(settlementDate));
         return postProcess(BusinessEvent.class, transferBusinessEvent);
     }
@@ -121,8 +121,9 @@ public class SettlementFunctionHelper {
                 .collect(Collectors.toList());
         return EventInstruction.builder()
                 .addInstruction(Instruction.builder()
-                        .setInstructionFunction(Create_Transfer.class.getSimpleName())
-                        .setTransfer(TransferInstruction.builder().setTransferState(transferStates)))
+                        .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                                .setTransfer(TransferInstruction.builder()
+                                        .setTransferState(transferStates))))
                 .setEventDate(Date.of(transferDate));
     }
 

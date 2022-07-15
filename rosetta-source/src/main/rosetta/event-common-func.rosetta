@@ -836,24 +836,6 @@ func Create_StockSplit: <"Function specification to create the fully-formed busi
     set after:
         Create_TradeState( primitiveInstruction, before )
 
-func Create_PrimitiveEvent:
-    inputs:
-    	execution ExecutionPrimitive (0..1)
-    	contractFormation ContractFormationPrimitive (0..1)
-    	split SplitPrimitive (0..1)
-    	quantityChange QuantityChangePrimitive (0..1)
-    	termsChange TermsChangePrimitive (0..1)
-    	transfer TransferPrimitive (0..1)
-    output:
-        primitiveEvent PrimitiveEvent (1..1)
-
-    set primitiveEvent -> execution: execution
-    set primitiveEvent -> contractFormation: contractFormation
-    set primitiveEvent -> split: split
-    set primitiveEvent -> quantityChange: quantityChange
-    set primitiveEvent -> termsChange: termsChange
-    set primitiveEvent -> transfer: transfer
-
 func Create_Execution: <"Creates the fully formed business event of executing a transaction based on execution instructions, representing the instantiation of a transaction between two parties on a financial product for a given price, quantity and settlement terms. The business event is constructed to contain a single execution primitive event, and no other primitive event.">
 	[creation BusinessEvent]
 	inputs:
@@ -1227,118 +1209,6 @@ func SecurityFinanceCashSettlementAmount:
 	set securityFinanceCashSettlementAmount -> settlementOrigin -> securityFinancePayout:
 		securityFinancePayout as-key
 
-func Create_Reallocation: <"Defines the process of reallocating a Transaction.">
-	[creation BusinessEvent]
-	inputs:
-		originalBlock TradeState (0..1) <"Represents the block trade being reallocated and should be taken from the before state of the allocation business event">
-		reallocationInstruction ReallocationInstruction (1..1) // Add comment
-	output:
-		reallocationEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the decreases, increases and splits, as a result of the input reallocation instruction.">
-
-	alias newAllocations:
-	    reallocationInstruction -> breakdowns
-	        map [ Create_SplitTrade( originalBlock, item ) ]
-
-	alias decreases:
-		reallocationInstruction -> decrease
-    	        map [ Create_DecreasedTradeQuantityChangePrimitive( item ) ]
-    	        map [ Create_PrimitiveEvent( empty, empty, empty, item, empty, empty ) ]
-
-	set reallocationEvent -> primitives -> split -> before: <"Assigns the original Block trade as the before state of a split primitive">
-		originalBlock
-
-	add reallocationEvent -> primitives -> split -> after: <"Assigns the new splits as the after state of a split primitive">
-		newAllocations
-
-	add reallocationEvent -> primitives: <"Creates and assigns the Contract Formation Primitives that represents the affirmed breakdown trades.">
-			decreases
-
-	add reallocationEvent -> primitives: <"Creates and assigns the Contract Formation Primitives that represents the affirmed breakdown trades.">
-	    newAllocations
-	        map [ Create_ContractFormationPrimitive( Create_ContractFormationInstruction( empty ), item ) ]
-	        map [ Create_PrimitiveEvent( empty, item, empty, empty, empty, empty ) ]
-
-	// condition: sum of decrease quantities (financial unit enum = share only) must = sum of increase quantities + sum of breakdowns quantities
-
-func Create_DecreasedTradeQuantityChangePrimitive:
-	inputs:
-		decrease DecreasedTrade (1..1)
-	output:
-		quantityChangePrimitive QuantityChangePrimitive (1..1)
-
-    alias changePriceQuantity:
-        Create_PriceQuantity( empty, decrease -> quantity, empty )
-
-	set quantityChangePrimitive:
-		Create_QuantityChangePrimitive(
-		    Create_QuantityChangeInstruction(
-                [ changePriceQuantity ],
-                QuantityChangeDirectionEnum -> Replace,
-                empty
-            ),
-			decrease -> tradeState
-        )
-
-func Create_SplitTrade:
-    [deprecated]
-	inputs:
-		blockTradeState TradeState (1..1) <"Block execution to be split.">
-		breakdown AllocationBreakdown (1..1) <"Split instructions to be applied.">
-	output:
-		splitTrade TradeState (1..1)
-
-	alias counterparty1:
-		if breakdown -> counterparty -> role = CounterpartyRoleEnum -> Party1
-		then Create_Counterparty(breakdown -> counterparty -> partyReference, breakdown -> counterparty -> role)
-		else ExtractCounterpartyByRole( blockTradeState -> trade -> tradableProduct -> counterparty, CounterpartyRoleEnum -> Party1 )
-
-	alias counterparty2:
-		if breakdown -> counterparty -> role = CounterpartyRoleEnum -> Party2
-		then Create_Counterparty(breakdown -> counterparty -> partyReference, breakdown -> counterparty -> role)
-		else ExtractCounterpartyByRole( blockTradeState -> trade -> tradableProduct -> counterparty, CounterpartyRoleEnum -> Party2 )
-
-	alias ancillaryParty:
-		breakdown -> ancillaryParty
-
-    alias partyToRemove:
-        ExtractCounterpartyByRole( blockTradeState -> trade -> tradableProduct -> counterparty, breakdown -> counterparty -> role ) -> partyReference
-
-    alias breakdownPriceQuantity:
-        Create_PriceQuantity( empty, breakdown -> quantity, empty )
-
-    set splitTrade -> trade -> executionDetails -> executionType:
-        blockTradeState -> trade -> executionDetails -> executionType
-
-	set splitTrade -> trade -> tradeIdentifier: <"Assigns the new trade identifiers.">
-		breakdown -> allocationTradeId
-
-	set splitTrade -> trade -> tradeDate:
-		blockTradeState -> trade -> tradeDate
-
-	set splitTrade -> trade -> tradableProduct -> counterparty: <"Assigns the new counterparty.">
-		[counterparty1, counterparty2]
-
-	set splitTrade -> trade -> tradableProduct -> product:
-		blockTradeState -> trade -> tradableProduct -> product
-
-	set splitTrade -> trade -> tradableProduct -> tradeLot -> priceQuantity: <"Assigns the new quantity amounts.">
-		UpdateAmountForEachMatchingQuantity(
-		    blockTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity,
-		    [ breakdownPriceQuantity ],
-		    QuantityChangeDirectionEnum -> Replace
-        )
-
-	set splitTrade -> trade -> party: <"Removes the existing party, and adds the new party.">
-		ReplaceParty( blockTradeState -> trade -> party,
-		    partyToRemove,
-		    breakdown -> counterparty -> partyReference )
-
-	add splitTrade -> trade -> party: <"Add ancillary party as an addition party">
-		ancillaryParty -> partyReference
-
-	add splitTrade -> trade -> partyRole: <"Add ancillary party role">
-		ancillaryParty
-
 func Create_Split: <"Defines the logic for splitting a trade into separate copies. The split instruction contains a breakdown into N set of primitive instructions. Each set contains the primitive instructions to be applied to each post-split trade, eventually producing N trades. The split function underpins a number of business events such as clearing or allocation.">
 	inputs:
 		breakdown PrimitiveInstruction (1..*) <"Each primitive instruction contains the set of instructions to be applied to each post-split trade.">
@@ -1359,8 +1229,6 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
 		originalTrade TradeState (1..1) <"The original trade on which to update the counterparty. The original trade will be terminated.">
 	output:
 		newTrade TradeState (1..1)
-
-	// The content of this function is copied from 'Create_SplitTrade' as used in the current Allocation function
 
 	alias counterparty1:
 		if counterparty -> role = CounterpartyRoleEnum -> Party1
