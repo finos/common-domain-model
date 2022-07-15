@@ -195,7 +195,7 @@ class SecLendingFunctionInputCreationTest {
 
         ResourcesUtils.reKey(instruction);
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.ALLOCATION,
                 Date.of(2020, 9, 21),

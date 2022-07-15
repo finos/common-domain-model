@@ -16,9 +16,10 @@ import cdm.event.workflow.EventInstruction;
 import cdm.event.workflow.WorkflowStep;
 import cdm.product.template.*;
 import com.google.common.collect.Iterables;
+import com.rosetta.model.lib.RosettaModelObject;
+import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaDate;
-import org.isda.cdm.functions.testing.LineageUtils;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
@@ -39,17 +40,16 @@ public class SettlementFunctionHelper {
     Create_Transfer create_transfer;
 
     @Inject
-    LineageUtils lineageUtils;
-
-    @Inject
     CalculateTransfer calculateTransfer;
 
+    @Inject
+    PostProcessor postProcessor;
+
     public BusinessEvent createExecution(ExecutionInstruction executionInstruction) {
-        ExecutionInstruction executionInstructionWithRefs = lineageUtils
-                .withGlobalReference(ExecutionInstruction.class, executionInstruction);
+        ExecutionInstruction executionInstructionWithRefs = postProcess(ExecutionInstruction.class, executionInstruction);
 
         BusinessEvent businessEvent = create_execution.evaluate(executionInstructionWithRefs);
-        return lineageUtils.withGlobalReference(BusinessEvent.class, businessEvent);
+        return postProcess(BusinessEvent.class, businessEvent);
     }
 
     public BusinessEvent createReturn(TradeState tradeState, ReturnInstruction returnInstruction, Date returnDate) {
@@ -61,7 +61,7 @@ public class SettlementFunctionHelper {
                 getAfterState(executionWorkflowStep.getBusinessEvent()).orElse(null),
                 proposedTransferWorkflowStep.getProposedEvent().getInstruction().get(0).getTransfer(),
                 Date.of(settlementDate));
-        return lineageUtils.withGlobalReference(BusinessEvent.class, transferBusinessEvent);
+        return postProcess(BusinessEvent.class, transferBusinessEvent);
     }
 
 
@@ -192,4 +192,7 @@ public class SettlementFunctionHelper {
         return Optional.empty();
     }
 
+    private <T extends RosettaModelObject> T postProcess(Class<T> modelType, T modelObject) {
+        return modelType.cast(postProcessor.postProcess(modelType, modelObject.toBuilder().prune()).build());
+    }
 }

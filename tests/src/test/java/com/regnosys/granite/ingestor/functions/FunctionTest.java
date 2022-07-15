@@ -8,7 +8,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.granite.ingestor.ExpectationUtil;
-import com.regnosys.granite.ingestor.postprocess.WorkflowPostProcessRunner;
+import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.testing.ExecutionDescriptor;
 import com.regnosys.rosetta.common.testing.FunctionRunner;
@@ -58,7 +58,7 @@ class FunctionTest {
 			.with(new AbstractModule() {
 				@Override
 				protected void configure() {
-					bind(PostProcessor.class).to(WorkflowPostProcessRunner.class);
+					bind(PostProcessor.class).to(WorkflowPostProcessor.class);
 					bind(ModelObjectValidator.class).toInstance(Mockito.mock(ModelObjectValidator.class));
 				}
 			});

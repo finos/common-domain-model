@@ -8,7 +8,7 @@ import com.rosetta.model.lib.records.Date;
 
 import java.util.List;
 
-public class CreateBusinessEventWorkflowInput {
+public class CreateBusinessEventInput {
 
 	@JsonProperty
 	private List<Instruction> instruction;
@@ -24,10 +24,10 @@ public class CreateBusinessEventWorkflowInput {
 	@JsonInclude
 	private Date effectiveDate;
 
-	public CreateBusinessEventWorkflowInput() {
+	public CreateBusinessEventInput() {
 	}
 
-	public CreateBusinessEventWorkflowInput(List<Instruction> instruction, EventIntentEnum intent, Date eventDate, Date effectiveDate) {
+	public CreateBusinessEventInput(List<Instruction> instruction, EventIntentEnum intent, Date eventDate, Date effectiveDate) {
 		this.instruction = instruction;
 		this.intent = intent;
 		this.eventDate = eventDate;
