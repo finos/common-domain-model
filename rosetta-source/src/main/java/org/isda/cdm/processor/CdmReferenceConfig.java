@@ -14,7 +14,7 @@ public class CdmReferenceConfig {
     public static ReferenceConfig get() {
         return new ReferenceConfig(
                 TradeState.class,
-                Arrays.asList(RosettaPath.valueOf("lineage"), RosettaPath.valueOf("eventEffect")));
+                Arrays.asList(RosettaPath.valueOf("lineage")));
     }
 }
 

@@ -71,9 +71,10 @@ public class ResourcesUtils {
 	}
 
 	@SuppressWarnings("unused")
-	public static void reKey(RosettaModelObjectBuilder builder) {
+	public static <T extends RosettaModelObjectBuilder> T reKey(T builder) {
 		GlobalKeyProcessStep globalKeyProcessStep = new GlobalKeyProcessStep(NonNullHashCollector::new);
 		List<PostProcessStep> postProcessors = Arrays.asList(globalKeyProcessStep, new ReKeyProcessStep(globalKeyProcessStep));
 		postProcessors.forEach(p -> p.runProcessStep(builder.getType(), builder));
+		return builder;
 	}
 }
