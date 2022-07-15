@@ -4,7 +4,6 @@ import cdm.product.asset.InterestRatePayout;
 import com.regnosys.cdm.example.InterestRatePayoutCreation;
 import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.metafields.MetaFields;
-import org.isda.cdm.globalkey.SerialisingHashFunction;
 
 import java.math.BigDecimal;
 

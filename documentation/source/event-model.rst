@@ -5,7 +5,7 @@
 Event Model
 -----------
 
-**The CDM event model provides data structures to represent the trade lifecycle events of financial transactions**. A trade moves from one state to another as the result of *state transition* events initiated by one or both trading parties, by external factors or by contractual terms such as maturity. For example, the execution of the trade is the initial event which results in the state of an executed trade. Subsequently, one party might initiate an allocation, both parties might initiate an amendment to a contractual agreement, or a default by an underlying entity on a Credit Default Swap would trigger a settlement according to defined protection terms.
+**The CDM event model provides data structures to represent the lifecycle events of financial transactions**. A lifecycle event occurs when a transaction goes through a *state transition* initiated either by one or both trading parties, by contractual terms, or by external factors. For example, the execution of a trade is the initial event which results in the state of an executed trade. Subsequently, one party might initiate an allocation, both parties might initiate an amendment to a contractual agreement, or a default by an underlying entity on a Credit Default Swap would trigger a settlement according to defined protection terms.
 
 Examples of lifecycle events supported by the CDM Event Model include the following:
 
@@ -15,30 +15,31 @@ Examples of lifecycle events supported by the CDM Event Model include the follow
 * Settlement (including any future contingent cashflow payment)
 * Exercise of options
 
-The representation of state transitions in the CDM event model is based on the following design principles:
+The representation of lifecycle events in the CDM is based on the following design principles:
 
-* **A lifecycle event describes a change in the state of a trade**, i.e. there must be different before/after trade states based on that lifecycle event.
-* **The product definition that underlies the transaction remains immutable**, unless agreed (negotiated) between the parties to that transaction as part of a specific trade lifecycle event. Automated events, for instance resets or cashflow payments, should not alter the product definition.
-* **The history of the trade state can be reconstructed at any point in the trade lifecycle**, i.e. the CDM implements a *lineage* between states as the trade goes through state transitions.
-* **The state is trade-specific**, not product-specific (i.e. it is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
+* **A lifecycle event describes a state transition**. There must be different before/after trade states based on that lifecycle event.
+* **State transitions are functional and composable**. The CDM specifies the entire functional logic to transition from one state to another. The state transition logic of all in-scope events is obtained by composition from a small set of functional building blocks.
+* **The history of the trade state can be reconstructed** at any point in the trade lifecycle. The CDM implements a *lineage* between states as the trade goes through state transitions.
+* **The product underlying the transaction remains immutable**. Automated events, for instance resets or cashflow payments, do not alter the product definition. Lifecycle events negotiated between the parties that give rise to a change in the trade economics generate a new instance of the product or trade as part of that specific event.
+* **The state is trade-specific**, not product-specific (i.e. the CDM is not an asset-servicing model). The same product may be associated to infinitely many trades, each with its own specific state, between any two parties.
 
-The data structures in the event model are organised into four main sub-structures to represent state transitions, as described below.
-
-.. figure:: images/event-model-overview.png
+To represent a state transition, the event model is organised around four main components:
 
 * **Trade state** represents the state in the lifecycle that the trade is in, from execution to settlement and maturity.
-* **Primitive event** is a building block component used to specify business events in the CDM. Each primitive event describes a fundamental state-transition component that impacts the trade state during its lifecycle.
-* **Business (i.e. trade lifecycle) event** represents a lifecycle event, which may consist of one or more primitive events.
+* **Primitive operator** is the functional building block that is used to compose business events. Each operator describes a fundamental change to the state of a trade going from a before state to an after state and is parameterised by a primitive instruction input.
+* **Business event** represents a lifecycle event affecting one or more trades as a composite of primitive instructions. A business event can comprise several instructions, each consisting of a set of primitive instructions applied to a single trade state (before). The resulting trade state (after) can be multiple.
 * **Workflow** represents a set of actions or steps that are required to trigger a business event.
 
-Each of these sub-structures are described in the subsequent sections.
+The below diagram illustrates the relationship between these components. Each of them is described in the next four sections.
+
+.. figure:: images/event-model-overview.png
 
 Trade State
 ^^^^^^^^^^^
 
-The trade state is defined in CDM by the ``TradeState`` data type and represents the state of a trade at each stage in its lifecycle. With each trade creation or modification event, a new ``TradeState`` instance is created. Chaining together the sequence of ``TradeState`` instances then recreates the path each trade took within its lifecycle.
+A trade state is defined in CDM by the ``TradeState`` data type and represents the state of a trade at each stage in its lifecycle. With each trade creation or modification event, a new ``TradeState`` instance is created. Chaining together the sequence of ``TradeState`` instances then recreates the path each trade took within its lifecycle.
 
-``TradeState`` is a foundational data type within the CDM Event Model as it represents the input and output of Primitive Events. Therefore, all trade related information that can change throughout the trade lifecycle are representing within ``TradeState``.
+``TradeState`` is a foundational data type in the CDM Event Model as it represents the input and output of any state transition. Therefore, all trade-related information that can change throughout the trade lifecycle are representing within ``TradeState``.
 
 .. code-block:: Haskell
 
@@ -52,9 +53,7 @@ The trade state is defined in CDM by the ``TradeState`` data type and represents
 
 While many different types of events may occur through the trade lifecycle, the ``trade``, ``state``, ``resetHistory`` and ``transferHistory`` attributes are deemed sufficient to describe all of the possible (post-trade) states which may result from lifecycle events. The ``Trade`` data type contains the tradable product, which defines all of the economic terms of the transaction as agreed between the parties.
 
-.. note:: A tradable product is represented by the ``TradableProduct`` data type, which is further detailed in the :ref:`tradable-product` of the documentation.
-
-The ``Trade``, ``State``, ``Reset``, and ``Transfer`` data types that are utilised within ``TradeState``, are detailed in the sections below.
+The ``Trade``, ``State``, ``Reset`` and ``Transfer`` data types that are utilised within ``TradeState`` are all detailed in the sections below.
 
 Trade
 """""
@@ -79,14 +78,30 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
    account Account (0..*)
      [deprecated]
 
-.. note:: Attributes within ``Trade`` and ``ContractDetails`` incorporates elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view.
+.. note:: Attributes within ``Trade`` and ``ContractDetails`` incorporate elements from FpML's *trade confirmation* view, whereas the ``TradableProduct`` data type corresponds to FpML's *pre-trade* view. The ``TradableProduct`` data type is further detailed in the :ref:`tradable-product` section of the documentation.
 
-Additionally, ``Trade`` supports representation of specific execution or contractual details via the ``executionDetails`` and ``contractDetails`` attributes.
+Additionally, ``Trade`` supports the representation of specific execution or contractual details via the ``executionDetails`` and ``contractDetails`` attributes.
 
-ExecutionDetails and ContractDetails
-""""""""""""""""""""""""""""""""""""
+ExecutionDetails
+''''''''''''''''
 
 The ``ExecutionDetails`` data type represents details applicable to trade executions and includes attributes that describe the execution venue and execution type. Not all trades will have been 'executed', such as those created from a Swaption Exercise event. In those cases, the ``executionDetails`` attributes on ``Trade`` is expected to be empty.
+
+.. code-block:: Haskell
+
+ type ExecutionDetails:
+   [metadata key]
+   executionType ExecutionTypeEnum (1..1)
+   executionVenue LegalEntity (0..1)
+   packageReference IdentifiedList (0..1)
+     [metadata reference]
+   
+   condition ExecutionVenue:
+     if executionType = ExecutionTypeEnum -> Electronic
+     then executionVenue exists
+
+ContractDetails
+'''''''''''''''
 
 ``ContractDetails`` are only applicable to trades on contractual products and are typically provided at or prior to trade confirmation.
 
@@ -109,9 +124,7 @@ The ``State`` data type defines the state of a trade at a point in the Trade's l
    closedState ClosedState (0..1)
    positionState PositionStatusEnum (0..1)
 
-*ClosedState*.
-
-In the case when a trade is closed, it is necessary to record that closure as part of the trade state.
+When a trade is closed, it is necessary to record that closure as part of the trade state.
 
 For instance in a full novation scenario, the initial state is a single ``TradeState`` and the resulting state is two ``TradeState``. The first resulting ``TradeState`` represents a new contract, which is the same as the original but where one of the parties has been changed, and the second resulting ``TradeState`` is the original contract, now marked as *closed*.
 
@@ -128,89 +141,16 @@ The ``ClosedState`` data type (enclosed within ``State``) captures this closed s
    Novated
    Terminated
 
-.. _primitive-event:
+Reset
+"""""
 
-Primitive Event
-^^^^^^^^^^^^^^^
+In many cases, a trade relies on the value of an observable which will become known in the future: for instance, a floating rate observation at the beginning of each period in the case of a Interest Rate Swap, or the equity price at the end of each period in an Equity Swap. This *reset* information is captured by the ``Reset`` data type and associated to the trade state.
 
-**Primitive events are the building block components used to specify business events in the CDM**. They describe the fundamental state-transition components that impact the trade state during its lifecycle. The trade state always transitions from and to a ``TradeState`` data type.
+While the reset information is trade-specific, the observation itself is provided by the relevant market data provider independently of any specific trade. Such observation is captured by the ``Observation`` data type.
 
-The primitive events include ``before`` and ``after`` attributes, which can define the evolution of the trade state by taking the differences between ``before`` and ``after`` trade states.
+Both the ``observedValue`` (in ``Observation``) and the ``resetValue`` (in ``Reset``) attributes are specified as a ``Price`` type. In the trade, the resettable value must be associated to a variable price attribute. It typically represents a number that is directly used to compute transfer amounts like cashflows. 
 
-The ``before`` attribute is included as a reference using the ``[metadata reference]`` annotation, because by definition the primitive event points to a trade state that *already* existed. By contrast, the ``after`` trade state provides a full definition of that object, because that trade state is occurring for the first time and it is the occurrence of the primitive event that triggered a transition to that new trade state. By tying each trade state in the lifecycle to a previous trade state, primitive events are one of the mechanisms by which *lineage* is implemented in the CDM.
-
-A ``PrimitiveEvent`` can only include one of the primitive components, which is captured by the ``one-of`` condition. The list of primitive events can be seen in the ``PrimitiveEvent`` type definition:
-
-.. code-block:: Haskell
-
- type PrimitiveEvent:
-   execution ExecutionPrimitive (0..1)
-   contractFormation ContractFormationPrimitive (0..1)
-   split SplitPrimitive (0..1)
-   quantityChange QuantityChangePrimitive (0..1)
-   termsChange TermsChangePrimitive (0..1)
-   transfer TransferPrimitive (0..1)
-
-   condition PrimitiveEvent: one-of
-
-Examples of how primitive components can be used are illustrated below.
-
-Example 1: Execution and Contract Formation
-"""""""""""""""""""""""""""""""""""""""""""
-
-Within the scope of the CDM, the first step in instantiating a transaction between two parties is an *execution* or a *contract formation*, which is an execution that has been confirmed between the executing parties. In some cases, there is a time delay between execution and confirmation, therefore the execution can be recorded as the first instantiation. In some other cases, the confirmation is nearly simultaneous with the execution, thus there is no need for an intermediate step.
-
-The transition to an executed state prior to confirmation is represented by the ``ExecutionPrimitive``.
-
-.. code-block:: Haskell
-
- type ExecutionPrimitive:
-   before TradeState (0..0)
-     [metadata reference]
-   after TradeState (1..1)
-
-The execution primitive does not allow any before state (as marked by the 0 cardinality of the ``before`` attribute) because the current CDM event model only covers post-trade lifecycle events. In practice, this execution state represents the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client.
-
-Following that execution, the trade is confirmed and a legally binding contract is signed between the two executing parties. In an allocation scenario, the trade would first get split into sub-accounts as designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts.
-
-The ``ContractFormationPrimitive`` represents that transition to the trade state after the trade is confirmed, which results in a ``TradeState`` containing a Trade object that can optionally reference legal documentation.
-
-.. code-block:: Haskell
-
- type ContractFormationPrimitive:
-   before TradeState (0..1)
-     [metadata reference]
-   after TradeState (1..1)
-
-The before state in the contract formation primitive is optional (as marked by the 0 cardinality lower bound of the ``before`` attribute), to represent cases where a new contract may be instantiated between parties without any prior execution, for instance in a clearing or novation scenario.
-
-Example 2: Reset
-""""""""""""""""
-
-In many cases, a trade relies on observable values which will become known in the future: for instance, a floating rate observation at the beginning of each period in the case of a Interest Rate Swap, or the equity price at the end of each period in an Equity Swap. That primitive event is known as a *reset*.
-
-When a observable value becomes known (as provided by the relevant market data provider), independently from any specific transaction, this information is captured by the ``Observation`` data type.
-
-.. code-block:: Haskell
-
- type Observation:
-   [rootType]
-   [metadata key]
-   observedValue Price (1..1)
-   observationIdentifier ObservationIdentifier (1..1)
-
-From that ``Observation``, a ``Reset`` can be built and included in ``TradeState`` without changing the ``Trade``. A reset is represented by the ``ResetPrimitive`` data type.
-
-.. code-block:: Haskell
-
- type ResetPrimitive:
-   before TradeState (1..1)
-     [metadata reference]
-   after TradeState (1..1)
-   condition Trade:
-     before -> trade = after -> trade
-
-The *reset* process creates instances of the ``Reset`` data type, which are added to ``resetHistory`` of a given ``TradeState``.
+In addition to the observation value, a reset specifies the date from which the resettable value becomes applicable in the trade's context, which could be different from the observation date if some observation lag applies. Depending on the trade's economic properties, a reset may also depend on several observation values based on some aggregation method - e.g. a compounded interest rate based on daily fixings.
 
 .. code-block:: Haskell
 
@@ -223,23 +163,27 @@ The *reset* process creates instances of the ``Reset`` data type, which are adde
      [metadata reference]
    aggregationMethodology AggregationMethod (0..1)
 
-The ``resetValue`` attribute represents the ultimate value of the reset as a number and is the number used to compute corresponding cash flows. If multiple ``observations`` were used to derive the ``resetValue``,  ``aggregationMethod`` should be used to describe how the many observations where aggregated into the single value.
+.. code-block:: Haskell
 
-Example 3: Transfer
-"""""""""""""""""""
+ type Observation:
+   [rootType]
+   [metadata key]
+   observedValue Price (1..1)
+   observationIdentifier ObservationIdentifier (1..1)
 
-A ``TransferPrimitive`` is a multi-purpose primitive that can represent the transfer of any asset, including cash, from one party to another.
+Transfer
+""""""""
+
+A transfer is a multi-purpose object that represents the transfer of any asset, including cash, from one party to another. The ``Transfer`` object is associated to an enumeration to qualify the status that the transfer is in, from instruction to settlement or rejection.
 
 .. code-block:: Haskell
 
- type TransferPrimitive:
+ type TransferState:
    [metadata key]
-   before TradeState (1..1)
-     [metadata reference]
-   after TradeState (1..1)
-
-The *transfer* process creates instances of the ``Transfer`` data type, which are added to ``transferHistory`` of a given ``TradeState``.
-
+   [rootType]
+   transfer Transfer (1..1)
+   transferStatus TransferStatusEnum (0..1)
+	
 .. code-block:: Haskell
 
  type Transfer extends TransferBase:
@@ -257,20 +201,237 @@ The *transfer* process creates instances of the ``Transfer`` data type, which ar
    payerReceiver PartyReferencePayerReceiver (1..1)
    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
 
-By design, the CDM treats the reset and the transfer primitive events separately because there is no one-to-one relationship between reset and transfer.
+.. _primitive-event:
+
+Primitive Operator
+^^^^^^^^^^^^^^^^^^
+
+**Primitive operators are functional building blocks used to compose business events**. Each primitive operator describes a fundamental state transition that applies to a trade.
+
+There are nine fundamental operations on trade state. Other than split and execution, they each impact separate attributes of a trade state and are therefore independent of each other.
+
+#. execution: instantiates a new trade.
+#. quantity change: changes the quantity (and/or price) of a trade
+#. terms change: changes the terms of the product of a trade
+#. party change: changes a party on a trade
+#. exercise: exercises an option embedded in a trade
+#. contract formation: associates a legal agreement to a trade
+#. reset: changes a trade's resettable value based on an observation
+#. transfer: transfers some asset (cash, security, commodity) from one party to another
+#. split: splits a trade into multiple identical trades
+
+Primitive Function
+""""""""""""""""""
+
+A primitive operator is represented by a primitive function that takes a before trade state as input and returns an after trade state as output, both of type ``TradeState``. The only exceptions to this rule are:
+
+- execution, for which there is no before state since its purpose is to instantiate a new trade, and
+- split, which results in multiple trade states as copies of the original trade.
+
+All primitive functions are prefixed by ``Create_`` followed by the name of the primitive operator. The business logic of primitive functions is fully implemented. An example of primitive function, for the ``PartyChange`` primitive, is illustrated below.
+
+.. code-block:: Haskell
+
+ func Create_PartyChange:
+   inputs:
+     counterparty Counterparty (1..1)
+     ancillaryParty AncillaryParty (0..1)
+     partyRole PartyRole (0..1)
+     tradeId Identifier (1..*)
+     originalTrade TradeState (1..1)
+   output:
+     newTrade TradeState (1..1)
+
+Primitive Instruction
+"""""""""""""""""""""
+
+Primitive functions take additional inputs alongside the before trade state to specify the parameters of the state transition. Each primitive operator
+is associated to a primitive instruction data type that contains the function's required parameters as attributes - illustrated below using the same ``PartyChange`` example.
+
+.. code-block:: Haskell
+
+ type PartyChangeInstruction:
+   counterparty Counterparty (1..1)
+   ancillaryParty AncillaryParty (0..1)
+   partyRole PartyRole (0..1)
+   tradeId Identifier (1..*)
+
+The ``PrimitiveInstruction`` data type allows to build composite primitive instructions and therefore compose primitive operators. This data type contains one instruction attribute for each of the possible nine primitive instruction types - aligned onto the nine fundamental primitive operators.
+
+.. code-block:: Haskell
+
+ type PrimitiveInstruction:
+   contractFormation ContractFormationInstruction (0..1)
+   execution ExecutionInstruction (0..1)
+   exercise ExerciseInstruction (0..1)
+   partyChange PartyChangeInstruction (0..1)
+   quantityChange QuantityChangeInstruction (0..1)
+   reset ResetInstruction (0..1)
+   split SplitInstruction (0..1)
+   termsChange TermsChangeInstruction (0..1)
+   transfer TransferInstruction (0..1)
+
+Primitive Composition
+"""""""""""""""""""""
+
+The separation between the before trade state and primitive instructions allows to compose primitive operators. Primitive operators can be chained by applying a composite primitive instruction to a single trade state, as represented in the diagram below.
+
+.. figure:: images/composing-primitive-operators.png
+
+.. note:: When a primitive instruction is composite, interim trade states will be created when executing each primitive operator. These interim trade states may not correspond to any actual business outcome (only the final after trade state does), so implementors will usually choose not to persist them.
+
+The ``Create_TradeState`` function performs such composition of primitive operators. It takes a single trade state and a composite primitive instruction as inputs and returns a single trade state. The before trade state input is optional, in which case a new execution must be specified in the instructions.
+
+This function applies each of the primitive operators (other than split) to the trade state in the order listed in the `primitive operator`_ section. Apart from execution which, when present, must always be applied first, the order does not affect the outcome because each primitive operator impacts a different part of the trade state.
+
+.. code-block:: Haskell
+
+ func Create_TradeState:
+   inputs:
+     primitiveInstruction PrimitiveInstruction (0..1)
+     before TradeState (0..1)
+   output:
+     after TradeState (1..1)
+
+Special Case: Split
+"""""""""""""""""""
+
+Split is a special case of primitive operator. It is used in many lifecycle events that require a trade to be copied, such as in clearing or allocation scenarios.
+
+- In itself, it does not change the state of a trade - it just creates identical copies
+- Contrary to other operators, it outputs multiple trade states
+- Order matters: when present, a split must be executed before other operators can be applied to its multiple output
+
+Like other primitive operators, split is associated to a split function and a split instruction. But unlike other operators, the split function cannot be executed in the ``Create_TradeState`` function because it returns a multiple output. Instead, a split instruction provides a breakdown of primitive instructions to apply to each post-split trade state.
+
+For example, an allocation instruction would be specified as a split breakdown, each with a quantity change instructions to divide the initial block trade into smaller pieces, and then a party change instruction to assign each piece to a different legal entity related to the executing party.
+
+The split function iterates on each element of the breakdown and applies the corresponding primitive instruction to each copy of the original trade using the ``Create_TradeState`` function. The size of that breakdown directs the size of the split.
+
+.. code-block:: Haskell
+
+ type SplitInstruction:
+   breakdown PrimitiveInstruction (1..*)
+
+.. code-block:: Haskell
+
+ func Create_Split:
+   inputs:
+     breakdown PrimitiveInstruction (1..*)
+     originalTrade TradeState (1..1)
+   output:
+     splitTrade TradeState (1..*)
+   
+   add splitTrade:
+     breakdown
+       map [ Create_TradeState( item, originalTrade ) ]
+			
+Examples of how primitive operators work are illustrated below.
+
+Examples of Primitive Operators
+"""""""""""""""""""""""""""""""
+
+Execution Primitive
+'''''''''''''''''''
+
+The first step in instantiating a transaction between two parties in the CDM is an *execution*. In practice, this execution represents the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client. However, the CDM event model only covers post-trade lifecycle events so assumes that a trade gets instantiated "from scratch" at execution. 
+
+Therefore, the execution primitive function does not take any before state as input and all the trade details are contained in the execution instruction input. 
+
+.. code-block:: Haskell
+
+ func Create_ExecutionPrimitive:
+   [creation PrimitiveEvent]
+   inputs:
+     instruction ExecutionInstruction (1..1)
+   output:
+     executionPrimitive ExecutionPrimitive (1..1)
+
+.. code-block:: Haskell
+
+ type ExecutionInstruction:
+   product Product (1..1)
+   priceQuantity PriceQuantity (1..*)
+   counterparty  Counterparty (2..2)
+   ancillaryParty AncillaryParty (0..*)
+   parties Party (2..*)
+   partyRoles PartyRole (0..*)
+   executionDetails ExecutionDetails (1..1)
+   tradeDate date (1..1)
+   tradeIdentifier Identifier (1..*)
+
+Contract Formation Primitive
+''''''''''''''''''''''''''''
+ 
+Once an execution is confirmed, a legally binding contract is signed between the two executing parties and a *contract formation* associates a legal agreement to the transaction. The contract formation primitive function represents the transition of the trade state to a legally binding legal agreement after the trade is confirmed.
+
+The function takes an existing trade state (typically, but not necessarily, an execution) as input and returns a trade state output containing the contract details. The ``ContractDetails`` object can reference some higher-order legal documentation governing the transaction - usually a *master agreement*. This legal documentation information is provided in the contract formation instruction input.
+
+.. code-block:: Haskell
+
+ func Create_ContractFormationPrimitive:
+   [creation PrimitiveEvent]
+   inputs:
+     instruction ContractFormationInstruction (1..1)
+     execution TradeState (1..1)
+   output:
+     contractFormation ContractFormationPrimitive (1..1)
+
+.. code-block:: Haskell
+
+ type ContractFormationInstruction:
+   legalAgreement LegalAgreement (0..*)
+
+Because a transaction may change through some lifecycle events before getting confirmed, the contract formation primitive is separated from the execution primitive so that it can be invoked appropriately depending on the scenario. E.g. in an allocation, the trade would first get split into sub-accounts as designated by one of the executing parties, before a set of legally binding contracts is signed with each of those sub-accounts. A contract formation may not even follow an execution and could occur as part of later lifecycle events. E.g. in a novation scenario, a new contract will need to be instantiated with the step-in party and the right legal agreement associated to that trade.
+
+In other cases, the execution and confirmation happen in one go and a contract is instantiated immediately. Such contract instantiation scenario can be represented using a compositive primitive instruction that comprises both an execution and a contract formation instruction and applies to a null trade state.
+
+Reset Primitive
+'''''''''''''''
+
+The reset primitive function associates a reset object to the trade state. The reset primitive function creates an instances of the ``Reset`` data type and adds it to the ``resetHistory`` attribute of a given ``TradeState``. The reset instruction specifies the payout that is subject to the reset, via a reference. A reset does not modify the underlying ``Trade`` object.
+
+.. code-block:: Haskell
+
+ func Create_ResetPrimitive:
+   inputs:
+     instruction ResetInstruction (1..1)
+     tradeState TradeState (1..1)
+   output:
+     resetPrimitive ResetPrimitive (1..1)
+
+.. code-block:: Haskell
+
+ type ResetInstruction:
+   payout Payout (1..1)
+     [metadata reference]
+   rateRecordDate date (0..1)
+   resetDate date (1..1)
+
+Transfer Primitive
+''''''''''''''''''
+
+The transfer primitive function takes a ``TransferState`` object as transfer instruction input and adds it to the ``transferHistory`` attribute of the ``TradeState``.
+
+By design, the CDM treats the reset and the transfer primitive operators separately because there is no one-to-one relationship between reset and transfer.
 
 * Many transfer events are not tied to any reset: for instance, the currency settlement from an FX spot or forward transaction.
 * Conversely, not all reset events generate a cashflow: for instance, the single, final settlement that is based on all the past floating rate resets in the case of a compounding floating zero-coupon swap.
+
+.. code-block:: Haskell
+
+ type TransferInstruction:
+   transferState TransferState (0..*)
 
 .. _business-event:
 
 Business Event
 ^^^^^^^^^^^^^^
 
-A Business Event represents a transaction lifecycle event and is built according to the following design principle in the CDM:
+Business events are built according to the following principles:
 
-* **Business events are specified by composition of primitive events**, which describe the fundamental state-transition components that may impact the trade state during its lifecycle.
-* **Business event qualification is inferred from those primitive event components** and, in some relevant cases, from an *intent* qualifier associated with the business event. The inferred value is populated in the ``eventQualifier`` attribute.
+* **A business event is specified functionally by composing primitive operators**, each of which representing a fundamental change to the trade state and described by a primitive instruction.
+* **Business event qualification is inferred from those primitive components** and, in some relevant cases, from an additional *intent* qualifier associated with the business event. The inferred value is populated in the ``eventQualifier`` attribute.
 
 .. code-block:: Haskell
 
@@ -280,7 +441,6 @@ A Business Event represents a transaction lifecycle event and is built according
    primitives PrimitiveEvent (0..*)
      [deprecated]
    intent EventIntentEnum (0..1)
-   functionCall string (0..1)
    eventQualifier eventType (0..1)
    eventDate date (1..1)
    effectiveDate date (0..1)
@@ -288,37 +448,186 @@ A Business Event represents a transaction lifecycle event and is built according
    instruction Instruction (0..*)
    after TradeState (0..*)
 
-As can be observed in the definition above, the only mandatory attributes of a business event are the ones listed below:
+.. code-block:: Haskell
 
-* The ``primitives`` attribute, which contains the list of one or more primitive events composing that business event, each representing one and only one fundamental state-transition.
+ type Instruction:
+   [rootType]
+   primitiveInstruction PrimitiveInstruction (0..1)
+   before TradeState (0..1)
+     [metadata reference]
+
+The only mandatory attributes of a business event are:
+
+* The event instruction. This is a list of ``Instruction`` objects, each representing a composite primitive instruction applied to a single (before) trade state. This attribute is of multiple cardinality, so a business event may impact multiple trades concurrently and result in multiple (after) trade states.
 * The event date. The time dimension has been purposely ommitted from the event's attributes. That is because, while a business event has a unique date, several time stamps may potentially be associated to that event depending on when it was submitted, accepted, rejected etc, all of which are *workflow* considerations.
 
-An example composition of the primitive events to represent a complete lifecycle event is the *partial novation* of a contract, which comprises the following:
+.. note:: The ``primitives`` attribute corresponds to a previous implementation of the primitive operators, now deprecated but maintained for backward-compatibility purposes. Because some implementations rely on this former mechanism instead of the new primitive instruction mechanism, the lower bound of the ``instruction`` attribute's cardinality is 0 instead of 1. It will be updated to 1 once the former primitive mechanism is fully retired.
 
-* a ``ContractFormation`` primitive that represents the contract between the remaining party and the step in novation party. The ``tradeDate`` in the ``ContractFormation`` primitive should reflect the date of that the novation event was agreed.
-* a ``QuantityChange`` primitive which includes a before attribute that defines the terms of the trade between the original parties before the novation and an after attribute the defines the terms of the trade between the original parties after the novation, in which the quantity should be less than the quantity in the before state and greater than 0 (0 would represent the case of a *full novation*).
+Event Composition
+"""""""""""""""""
 
-A business event is *atomic* in the sense that its underlying primitive event constituents cannot happen independently: they either all happen together or they do not happen. In the above partial novation example, the existing trade between the parties must be downsized at the same time as the new trade is instantiated.
+An example composition of primitive instructions to represent a complete lifecycle event is shown below. The event represents the *partial novation* of a contract, which comprises the following:
 
-Selected attributes of a business event are further explained below:
+* a split primitive
+* a quantity change primitive applied to each post-split trade, where the total quantity should match the quantity of the original trade and none of the quantities is 0. A quantity of 0 for the remaining trade would result in a termination and represent a *full novation*.
+* a party change primitive applied to the post-split trade whose quantity corresponds to the novated quantity.
+
+.. code-block:: JSON
+
+ "primitiveInstruction" : {
+      "split" : {
+        "breakdown" : [ {
+          "partyChange" : {
+            "counterparty" : {
+              "partyReference" : {
+                "value" : {
+                  "name" : {
+                    "value" : "Bank Z"
+                  },
+                  "partyId" : [ {
+                    "identifier" : {
+                      "value" : "LEI3RPT0003"
+                    },
+                    "identifierType" : "LEI",
+                  } ]
+                }
+              },
+              "role" : "PARTY_1"
+            },
+            "tradeId" : [ {
+              "assignedIdentifier" : [ {
+                "identifier" : {
+                  "value" : "LEI3RPT0003DDDD"
+                },
+                "identifierType" : "UNIQUE_TRANSACTION_IDENTIFIER"
+              } ],
+              "issuer" : {
+                "value" : "LEI3RPT0003"
+              },
+            } ]
+          },
+          "quantityChange" : {
+            "change" : [ {
+              "quantity" : [ {
+                "value" : {
+                  "amount" : 5000,
+                  "unitOfAmount" : {
+                    "currency" : {
+                      "value" : "USD"
+                    }
+                  }
+                }
+              } ]
+            } ],
+            "direction" : "REPLACE"
+          }
+        }, {
+          "quantityChange" : {
+            "change" : [ {
+              "quantity" : [ {
+                "value" : {
+                  "amount" : 8000,
+                  "unitOfAmount" : {
+                    "currency" : {
+                      "value" : "USD"
+                    }
+                  }
+                }
+              } ]
+            } ],
+            "direction" : "REPLACE"
+          }
+        } ]
+      }
+    }
+    
+A business event is *atomic*, i.e. its primitive components cannot happen independently. They either all happen together or not at all. In the above partial novation example, the existing trade between the original parties must be downsized at the same time as the trade with the new party is instantiated. Trade compression is another example, that involves multiple before trades being downsized or terminated and new trades being created between multiple parties, all of which must happen concurrently.
+
+.. _event-qualification-section:
+
+Event Qualification
+"""""""""""""""""""
+
+**The CDM qualifies lifecycle events as a function of their primitive components** rather than explicitly declaring the event type. The CDM uses the same approach for event qualification as for product qualification and is based on a set of Event Qualification functions. These functions are identified with a ``[qualification BusinessEvent]`` annotatation.
+
+Event Qualification functions apply a taxonomy-specific business logic to identify if the state-transition attributes values, which are embedded in the primitive event components, match the specified criteria for the event named in that taxonomy. Like Product Qualification functions, the Event Qualification function name is prefixed with the word ``Qualify_`` followed by the taxonomy name.
+
+The CDM uses the ISDA taxonomy V2.0 leaf level to qualify the event. 22 lifecycle events have currently been qualified as part of the CDM.
+
+One distinction with the product approach is that the ``intent`` qualification is also deemed necessary to complement the primitive event information in certain cases. To this effect, the Event Qualification function allows to specify that when present, the intent must have a specified value, as illustrated by the below example.
+
+.. code-block:: Haskell
+
+ func Qualify_Termination:
+   [qualification BusinessEvent]
+   inputs:
+     businessEvent BusinessEvent (1..1)
+   output: is_event boolean (1..1)
+   alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
+   alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
+   
+   set is_event:
+     businessEvent -> intent is absent
+       and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
+         or (businessEvent -> primitives -> quantityChange exists and transfer exists)
+         or (primitiveInstruction -> quantityChange only exists
+           or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
+       and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
+         or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
+       and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
+         or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
+
+If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
+
+The output of the qualification function is used to populate the ``eventQualifier`` attribute of the ``BusinessEvent`` object, similar to how product qualification works. An implementation of the CDM would call all of the Event Qualification functions following the creation of each event and then insert the appropriate value or provide an exception message.
+
+.. note:: The type of the ``eventQualifier`` attribute in ``BusinessEvent``, called ``eventType``, is a *meta-type* that indicates that its value is meant to be populated using some functional logic. That functional logic must be represented by a qualification function annotated with ``[qualification BusinessEvent]``, as in the example above. This mechanism is further detailed in the Rosetta DSL documentation.
 
 Intent
 """"""
 
-The Intent attribute is an enumeration value that represents the intent of a particular business event, e.g. ``Allocation``, ``EarlyTermination``, ``PartialTermination`` etc. It is used in cases where the primitive events are not sufficient to uniquely infer a lifecycle event. As an example, a reduction in a trade quantity/notional could apply to a correction event or a partial termination.
+The intent attribute is an enumeration value that represents the intent of a particular business event. It is used in the event qualifcation logic in cases where the primitive composition is not sufficient to uniquely infer a lifecycle event.
+
+The description of each possible enumeration value provides an illustration of how this attribute is used.
+
+.. code-block:: Haskell
+
+ enum EventIntentEnum:
+ 	Allocation
+ 	Clearing
+ 	Compression
+ 	ContractFormation
+ 	Exercise
+ 	Increase
+ 	IndexTransition
+ 	Novation
+ 	Reallocation
+ 	Renegotiation
+ 	StockSplit
+
+Lineage
+"""""""
+
+The ``BusinessEvent`` data type implements *lineage* by tying each trade state to the trade state(s) that came before it in the lifecyle. The ``before`` attribute in each instruction is included as a reference using the ``[metadata reference]`` annotation. By definition the primitive instruction applies to a trade state that *already* exists.
+
+By contrast, the ``after`` trade state in the business event provides a full definition of that object. That trade state is occurring for the first time and as triggered by the application of the primitive operators specified in the business event. The after trade state is optional because it may be latent while the business event is going through some acceptance workflow.
 
 Other Misc. Information
 """""""""""""""""""""""
 
+Other selected attributes of a business event are explained below.
+
 * The effective date is optional as it is not applicable to certain events (e.g. observations), or may be redundant with the event date.
-* The event qualifier attribute is derived from the event qualification features. This is further detailed in the :ref:`event-qualification-section`.
+* The event qualifier attribute is derived from the event qualification features. This is further detailed in the `event qualification`_ section.
 
 Workflow
 ^^^^^^^^
 
-The CDM provides support for implementors to develop workflows to process transaction lifecycle events and provides attributes to define lineage from one workflow step to another.
+The CDM provides support for implementors to develop workflows to process transaction lifecycle events.
 
 A *workflow* represents a set of actions or steps that are required to trigger a business event, including the initial execution or contract formation. A workflow is organised into a sequence in which each step is represented by a *workflow step*. A workflow may involve multiple parties in addition to the parties to the transaction, and may include automated and manual steps. A workflow may involve only one step.
+
+The CDM supports a workflow's audit trail by providing lineage from one step to another in that workflow.
 
 .. code-block:: Haskell
 
@@ -349,28 +658,27 @@ Workflow Step Business Event
 
 This attribute specifies the business event that the workflow step is meant to generate. It is optional because the workflow may require a number of interim steps before the state-transition embedded within the business event becomes effective, therefore the business event does not exist yet in those steps. The business event attribute is typically associated with the final step in the workflow.
 
-Proposed Instruction
-""""""""""""""""""""
+Proposed Event
+""""""""""""""
 
-This attribute allows for the specification of inputs that when combined with the current trade state, are referenced to generate the state-transition. For example, allocation instructions describe how to divide the initial block trade into smaller pieces, each of which is assigned to a specific party representing a legal entity related to the executing party.  It is optional because it is not required for all workflow steps.  Validation components are in place to check that the ``businessEvent`` and ``proposedInstruction`` attributes are mutually exclusive.
+This attribute specifies the inputs required to perform the event's state transition and comprises a subset of the attributes of the business event itself. It is optional because it is only required for all pre-acceptance workflow steps. Once accepted, the business event is entirely represented, including its instructions, by the ``businessEvent`` attribute.
 
-The list of business events for which this process is currently implemented in the CDM is reflected in the structure of the ``Instruction`` data type:
+Validation components are in place to check that the ``businessEvent`` and ``proposedEvent`` attributes are mutually exclusive.
 
 .. code-block:: Haskell
 
- type Instruction:
-    [rootType]
-    instructionFunction string (0..1)
-        [deprecated]
-    transfer TransferInstruction (0..1)
-        [deprecated]
-    primitiveInstruction PrimitiveInstruction (0..1)
-    before TradeState (0..1)
-        [metadata reference]
+ type EventInstruction:
+   intent EventIntentEnum (0..1)
+   instruction Instruction (0..*)
+   eventDate date (0..1)
+   effectiveDate date (0..1)
 
-    condition ExclusiveSplitPrimitive:
-       if primitiveInstruction -> split exists then primitiveInstruction -> split only exists
+Next Event
+""""""""""
 
+Parties sometimes pre-agree a follow-on event that is meant to be executed after the current event completes, but separately from it. A typical scenario is an execution that specifies that the trade is intended for clearing at a pre-specified clearing house. In this case, the parameters of the next event are known in advance need to be agreed between the parties as part of the current event.
+
+The parameters of this next event are represented by an ``EventInstruction`` data type included in the workflow process.
 
 Previous Workflow Step
 """"""""""""""""""""""
@@ -421,7 +729,7 @@ The benefits of the CDM generic approach are twofold:
 
 Below is an instance of a CDM representation (`serialised`_ into JSON) of this approach.
 
-.. code-block:: Javascript
+.. code-block:: JSON
 
  "timestamp": [
   {
@@ -458,45 +766,6 @@ Other Misc. Attributes
 """"""""""""""""""""""
 
 * The ``party`` and ``account`` information are optional because not applicable to certain events.
-* The ``lineage`` attribute was previously used to reference an unbounded set of contracts, events and/or payout components, that an event may be associated to.
+* The ``lineage`` attribute, now deprecated, was previously used to reference an unbounded set of contracts, events and/or payout components that an event may be associated to.
 
-.. note:: The ``lineage`` attribute is superseded by the implementation in the CDM of: (i) trade state lineage, via the ``before`` / ``after`` attributes in the primitive event component, and (ii) workflow lineage, via the ``previousWorkflowStep`` attribute.
-
-.. _event-qualification-section:
-
-Event Qualification
-^^^^^^^^^^^^^^^^^^^
-
-**The CDM qualifies lifecycle events as a function of their primitive event components** rather than explicitly naming the event type. The CDM uses the same approach for event qualification as for product qualification, which is based on a set of Event Qualification functions. These functions are identified with a ``[qualification BusinessEvent]`` annotatation.
-
-Event Qualification functions apply a taxonomy-specific business logic to identify if the state-transition attributes values, which are embedded in the primitive event components, match the specified criteria for the event named in that taxonomy. Like Product Qualification functions, the Event Qualification function name begins with the word ``Qualify`` followed by an underscore ``_`` and then the taxonomy name.
-
-The CDM uses the ISDA taxonomy V2.0 leaf level to qualify the event. 22 lifecycle events have currently been qualified as part of the CDM.
-
-One distinction with the product approach is that the ``intent`` qualification is also deemed necessary to complement the primitive event information in certain cases. To this effect, the Event Qualification function allows to specify that when present, the intent must have a specified value, as illustrated by the below example.
-
-.. code-block:: Haskell
-
- func Qualify_Termination:
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output: is_event boolean (1..1)
-    alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
-    alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
-    set is_event:
-        businessEvent -> intent is absent
-        and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
-            or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-            or (primitiveInstruction -> quantityChange only exists
-                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
-        and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
-            or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
-        and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
-            or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
-
-If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
-
-The output of the qualification function is used to populate the ``eventQualifier`` attribute of the ``BusinessEvent`` object, similar to how product qualification works. An implementation of the CDM would call all of the Event Qualification functions following the creation of each event and then insert the appropriate value or provide an exception message.
-
-.. note:: The type of the ``eventQualifier`` attribute in ``BusinessEvent``, called ``eventType``, is a *meta-type* that indicates that its value is meant to be populated using some functional logic. That functional logic must be represented by a qualification function annotated with ``[qualification BusinessEvent]``, as in the example above. This mechanism is further detailed in the Rosetta DSL documentation.
+.. note:: The ``lineage`` attribute is superseded by the implementation in the CDM of: (i) trade state lineage, via the ``before`` reference in the primitive instructions, and (ii) workflow lineage, via the ``previousWorkflowStep`` attribute.
