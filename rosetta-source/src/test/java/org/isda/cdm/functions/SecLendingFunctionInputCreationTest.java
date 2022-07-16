@@ -24,10 +24,8 @@ import cdm.security.lending.functions.RunReturnSettlementWorkflow;
 import cdm.security.lending.functions.RunReturnSettlementWorkflowInput;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.google.inject.AbstractModule;
@@ -251,7 +249,7 @@ class SecLendingFunctionInputCreationTest {
                 Date.of(2020, 9, 21),
                 null);
 
-        assertJsonEquals("cdm-sample-files/functions/sec-lending/create-reallocation-pre-settled-func-input.json", actual);
+        assertJsonEquals("cdm-sample-files/functions/sec-lending/reallocation/reallocation-pre-settled-func-input.json", actual);
     }
 
     @Test
