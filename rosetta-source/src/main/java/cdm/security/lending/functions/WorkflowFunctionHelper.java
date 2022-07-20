@@ -1,4 +1,4 @@
-package org.isda.cdm.functions.testing;
+package cdm.security.lending.functions;
 
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
@@ -8,8 +8,13 @@ import cdm.event.workflow.*;
 import cdm.event.workflow.functions.Create_AcceptedWorkflowStep;
 import cdm.event.workflow.functions.Create_ProposedWorkflowStep;
 import cdm.event.workflow.functions.Create_WorkflowStep;
+import com.rosetta.model.lib.RosettaModelObject;
+import com.rosetta.model.lib.process.PostProcessor;
 
 import javax.inject.Inject;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -21,9 +26,6 @@ public class WorkflowFunctionHelper {
     private final AtomicInteger workflowId = new AtomicInteger(0);
 
     @Inject
-    LineageUtils lineageUtils;
-
-    @Inject
     Create_WorkflowStep create_workflowStep;
 
     @Inject
@@ -31,6 +33,9 @@ public class WorkflowFunctionHelper {
 
     @Inject
     Create_AcceptedWorkflowStep create_acceptedWorkflowStep;
+
+    @Inject
+    PostProcessor postProcessor;
 
     public WorkflowStep createWorkflowStep(BusinessEvent businessEvent, ZonedDateTime zonedDateTime) {
         WorkflowStep workflowStep = create_workflowStep.evaluate(
@@ -42,7 +47,7 @@ public class WorkflowFunctionHelper {
                 null,
                 ActionEnum.NEW,
                 businessEvent);
-        return lineageUtils.withGlobalReference(WorkflowStep.class, workflowStep);
+        return postProcess(WorkflowStep.class, workflowStep);
     }
 
 
@@ -55,7 +60,7 @@ public class WorkflowFunctionHelper {
                 Collections.emptyList(),
                 proposedTransferWorkflowStep,
                 transferBusinessEvent);
-        return lineageUtils.withGlobalReference(WorkflowStep.class, workflowStep);
+        return postProcess(WorkflowStep.class, workflowStep);
     }
 
     public WorkflowStep createProposedWorkflowStep(WorkflowStep previousWorkflowStep, EventInstruction instruction, ZonedDateTime zonedDateTime) {
@@ -68,7 +73,7 @@ public class WorkflowFunctionHelper {
                 previousWorkflowStep,
                 ActionEnum.NEW,
                 instruction);
-        return lineageUtils.withGlobalReference(WorkflowStep.class, workflowStep);
+        return postProcess(WorkflowStep.class, workflowStep);
 
     }
 
@@ -89,5 +94,13 @@ public class WorkflowFunctionHelper {
                 .setQualification(EventTimestampQualificationEnum.EVENT_CREATION_DATE_TIME)
                 .setDateTime(zonedDateTime)
                 .build());
+    }
+
+    private <T extends RosettaModelObject> T postProcess(Class<T> modelType, T modelObject) {
+        return modelType.cast(postProcessor.postProcess(modelType, modelObject.toBuilder().prune()).build());
+    }
+
+    public static ZonedDateTime dateTime(LocalDate tradeDate, int hour, int minute) {
+        return ZonedDateTime.of(tradeDate, LocalTime.of(hour, minute), ZoneOffset.UTC.normalized());
     }
 }

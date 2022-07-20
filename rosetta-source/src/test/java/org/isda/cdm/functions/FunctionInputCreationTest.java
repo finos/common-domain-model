@@ -20,7 +20,12 @@ import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.event.common.functions.Create_BusinessEvent;
+import cdm.event.common.metafields.ReferenceWithMetaTradeState;
+import cdm.event.workflow.EventTimestamp;
+import cdm.event.workflow.EventTimestampQualificationEnum;
+import cdm.event.workflow.MessageInformation;
 import cdm.event.workflow.WorkflowStep;
+import cdm.event.workflow.functions.Create_WorkflowStep;
 import cdm.legalagreement.common.*;
 import cdm.legalagreement.master.MasterAgreementTypeEnum;
 import cdm.observable.asset.Observable;
@@ -43,6 +48,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
+import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.process.PostProcessor;
@@ -51,7 +57,6 @@ import com.rosetta.model.lib.validation.ModelObjectValidator;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.CdmRuntimeModule;
-import org.isda.cdm.functions.testing.FunctionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -65,11 +70,15 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.isda.cdm.functions.testing.FunctionUtils.guard;
+import static org.isda.cdm.functions.FunctionUtils.guard;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static util.ResourcesUtils.reKey;
 
 class FunctionInputCreationTest {
 
@@ -93,7 +102,7 @@ class FunctionInputCreationTest {
                 .with(new AbstractModule() {
                     @Override
                     protected void configure() {
-                        bind(PostProcessor.class).to(GlobalKeyProcessRunner.class);
+                        bind(PostProcessor.class).to(WorkflowPostProcessor.class);
                         bind(ModelObjectValidator.class).toInstance(Mockito.mock(ModelObjectValidator.class));
                     }
                 });
@@ -181,7 +190,16 @@ class FunctionInputCreationTest {
     }
 
     private void validateExecutionFuncInputJson(String tradeStatePath, Date eventDate, String expectedJsonPath) throws IOException {
-        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, tradeStatePath).toBuilder();
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
+
+        CreateBusinessEventInput actual = getExecutionFuncInputJson(tradeState, eventDate);
+
+        assertJsonEquals(expectedJsonPath, actual);
+    }
+
+    @NotNull
+    private CreateBusinessEventInput getExecutionFuncInputJson(TradeState tradeState, Date eventDate) {
+        TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
 
         // Get the TransferStates from the transferHistory
         List<? extends TransferState.TransferStateBuilder> transferState =
@@ -198,13 +216,11 @@ class FunctionInputCreationTest {
                     .setTransfer(TransferInstruction.builder().setTransferState(transferState));
         }
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
-                Lists.newArrayList(Instruction.builder().setPrimitiveInstruction(primitiveInstructionBuilder)),
+        return new CreateBusinessEventInput(
+                Lists.newArrayList(Instruction.builder().setPrimitiveInstruction(primitiveInstructionBuilder.build())),
                 null,
                 eventDate,
                 null);
-
-        assertJsonEquals(expectedJsonPath, actual);
     }
 
     @Test
@@ -313,7 +329,7 @@ class FunctionInputCreationTest {
                                 .addLegalAgreement(legalAgreement)))
                 .prune();
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.CONTRACT_FORMATION,
                 eventDate,
@@ -390,12 +406,8 @@ class FunctionInputCreationTest {
     @Test
     void validatePartialTerminationEquitySwapFuncInputJson() throws IOException {
         // The tradeState input to partial termination is output from increase event
-        CreateBusinessEventWorkflowInput increaseEquitySwapInput = getIncreaseEquitySwapFuncInputJson();
-        Create_BusinessEvent createBusinessEvent = injector.getInstance(Create_BusinessEvent.class);
-        BusinessEvent increaseOutput = createBusinessEvent.evaluate(increaseEquitySwapInput.getInstruction(),
-                increaseEquitySwapInput.getIntent(),
-                increaseEquitySwapInput.getEventDate(),
-                null);
+        CreateBusinessEventInput increaseEquitySwapInput = getIncreaseEquitySwapFuncInputJson();
+        BusinessEvent increaseOutput = runCreateBusinessEventFunc(increaseEquitySwapInput);
         TradeState increaseTradeState = increaseOutput.getAfter().get(0);
 
         // Quantity change to terminate tradeLot LOT-1.  Quantity in tradeLot LOT-2 remains unchanged.
@@ -423,7 +435,7 @@ class FunctionInputCreationTest {
 
     @Test
     void validateIncreaseEquitySwapFuncInputJson() throws IOException {
-        CreateBusinessEventWorkflowInput actual = getIncreaseEquitySwapFuncInputJson();
+        CreateBusinessEventInput actual = getIncreaseEquitySwapFuncInputJson();
 
         assertJsonEquals("cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-func-input.json", actual);
     }
@@ -433,7 +445,7 @@ class FunctionInputCreationTest {
      * and validatePartialTerminationEquitySwapFuncInputJson (as the input uses the output of the increase func).
      */
     @NotNull
-    private CreateBusinessEventWorkflowInput getIncreaseEquitySwapFuncInputJson() throws IOException {
+    private CreateBusinessEventInput getIncreaseEquitySwapFuncInputJson() throws IOException {
         QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.INCREASE)
                 .addLotIdentifier(Identifier.builder()
@@ -496,7 +508,7 @@ class FunctionInputCreationTest {
                         .setQuantityChange(quantityChangeInstructions)
                         .setTransfer(getTransferInstruction(tradeState, FeeTypeEnum.INCREASE)));
 
-        return new CreateBusinessEventWorkflowInput(
+        return new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 null,
                 Date.of(2021, 11, 11),
@@ -510,7 +522,7 @@ class FunctionInputCreationTest {
                         .setQuantityChange(quantityChangeInstruction)
                         .setTransfer(getTransferInstruction(tradeState, feeType)));
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 null,
                 eventDate,
@@ -585,7 +597,7 @@ class FunctionInputCreationTest {
                         .setExecution(getCompressionExecutionInstructionInputJson()))
                 .build());
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 instructions,
                 EventIntentEnum.COMPRESSION,
                 Date.of(2018, 4, 3),
@@ -647,7 +659,7 @@ class FunctionInputCreationTest {
                 .setTradeIdentifier(Lists.newArrayList(tradeIdentifier.build()))
                 .setTradeDateValue(effectiveDate);
 
-        ResourcesUtils.reKey(tradeStateBuilder);
+        reKey(tradeStateBuilder);
 
         return FunctionUtils.createExecutionInstructionFromTradeState(tradeStateBuilder.build());
     }
@@ -713,9 +725,9 @@ class FunctionInputCreationTest {
                 .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-04-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
-        ResourcesUtils.reKey(instructions);
+        reKey(instructions);
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.NOVATION,
                 Date.of(2018, 4, 3),
@@ -776,9 +788,9 @@ class FunctionInputCreationTest {
                 .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-05-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
-        ResourcesUtils.reKey(instructions);
+        reKey(instructions);
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.NOVATION,
                 Date.of(2018, 4, 4),
@@ -853,9 +865,9 @@ class FunctionInputCreationTest {
                 .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-06-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
-        ResourcesUtils.reKey(instructions);
+        reKey(instructions);
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.CLEARING,
                 Date.of(2018, 4, 1),
@@ -941,9 +953,9 @@ class FunctionInputCreationTest {
                 .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-11-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
-        ResourcesUtils.reKey(instructions);
+        reKey(instructions);
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.ALLOCATION,
                 Date.of(2018, 4, 1),
@@ -970,9 +982,9 @@ class FunctionInputCreationTest {
                         .setExercise(exerciseInstructionBuilder)
                 );
 
-        ResourcesUtils.reKey(instructions);
+        reKey(instructions);
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.EXERCISE,
                 Date.of(2001, 8, 28),
@@ -1021,9 +1033,9 @@ class FunctionInputCreationTest {
                         .setTransfer(transferInstructionBuilder)
                 );
 
-        ResourcesUtils.reKey(instructions);
+        reKey(instructions);
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructions.build()),
                 EventIntentEnum.EXERCISE,
                 Date.of(2019, 4, 1),
@@ -1070,10 +1082,10 @@ class FunctionInputCreationTest {
                         .setExercise(exerciseInstructionBuilder)
                 );
 
-        ResourcesUtils.reKey(instruction);
+        reKey(instruction);
 
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.EXERCISE,
                 tradeDate,
@@ -1125,9 +1137,9 @@ class FunctionInputCreationTest {
                         .setTransfer(transferInstructionBuilder)
                 );
 
-        ResourcesUtils.reKey(instruction);
+        reKey(instruction);
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.EXERCISE,
                 tradeDate,
@@ -1248,7 +1260,7 @@ class FunctionInputCreationTest {
                                 .setEffectiveDate(Date.of(2000, 10, 3))))
                 .prune();
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.INDEX_TRANSITION,
                 Date.of(2000, 10, 1),
@@ -1302,7 +1314,7 @@ class FunctionInputCreationTest {
                                 .setEffectiveDate(Date.of(2018, 6, 19))))
                 .prune();
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.INDEX_TRANSITION,
                 Date.of(2018, 6, 17),
@@ -1324,13 +1336,199 @@ class FunctionInputCreationTest {
                                 .setEffectiveDate(Date.of(2001, 11, 3))))
                 .prune();
 
-        CreateBusinessEventWorkflowInput actual = new CreateBusinessEventWorkflowInput(
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.STOCK_SPLIT,
                 Date.of(2001, 11, 1),
                 null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/stock-split/stock-split-equity-swap-func-input.json", actual);
+    }
+
+    @Test
+    void validateCorrectionWorkflowFuncInputJson() throws IOException {
+        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json";
+        Date eventDate = Date.of(1994, 12, 12);
+
+        // New WorkflowStep containing Execution (with incorrect quantity)
+
+        TradeState.TradeStateBuilder tradeStateWithIncorrectQuantity =
+                ResourcesUtils.getObject(TradeState.class, tradeStatePath).toBuilder();
+        // Update quantity to an incorrect value (which is corrected later)
+        tradeStateWithIncorrectQuantity.getTrade()
+                .getTradableProduct()
+                .getTradeLot()
+                .stream()
+                .map(TradeLot.TradeLotBuilder::getPriceQuantity)
+                .flatMap(Collection::stream)
+                .map(PriceQuantity.PriceQuantityBuilder::getQuantity)
+                .flatMap(Collection::stream)
+                .forEach(q -> q.getOrCreateValue().setAmount(BigDecimal.valueOf(99_999)));
+
+        WorkflowStep newExecutionWorkflowStep =
+                getExecutionWorkflowStep(tradeStateWithIncorrectQuantity,
+                        eventDate,
+                        LocalTime.of(18, 12),
+                        "msg-1",
+                        "id-1",
+                        null,
+                        ActionEnum.NEW);
+
+        // Correct WorkflowStep containing Execution (with corrected quantity)
+
+        TradeState tradeStateWithCorrectedQuantity =
+                ResourcesUtils.getObject(TradeState.class, tradeStatePath);
+
+        WorkflowStep correctExecutionWorkflowStep =
+                getExecutionWorkflowStep(tradeStateWithCorrectedQuantity,
+                        eventDate,
+                        LocalTime.of(19, 13),
+                        "msg-2",
+                        "id-2",
+                        newExecutionWorkflowStep,
+                        ActionEnum.CORRECT);
+
+        List<WorkflowStep> steps = new ArrayList<>();
+        steps.add(newExecutionWorkflowStep);
+        steps.add(correctExecutionWorkflowStep);
+
+        CreateWorkflowInput actual = new CreateWorkflowInput(steps);
+
+        assertJsonEquals("cdm-sample-files/functions/workflow-step/correction/correction-func-input.json", actual);
+    }
+
+    @Test
+    void validateCancellationWorkflowFuncInputJson() throws IOException {
+        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json";
+        Date eventDate = Date.of(1994, 12, 12);
+
+        // New WorkflowStep containing Execution (with incorrect quantity)
+
+        TradeState.TradeStateBuilder tradeStateWithIncorrectQuantity =
+                ResourcesUtils.getObject(TradeState.class, tradeStatePath).toBuilder();
+        // Update quantity to an incorrect value (which is corrected later)
+        tradeStateWithIncorrectQuantity.getTrade()
+                .getTradableProduct()
+                .getTradeLot()
+                .stream()
+                .map(TradeLot.TradeLotBuilder::getPriceQuantity)
+                .flatMap(Collection::stream)
+                .map(PriceQuantity.PriceQuantityBuilder::getQuantity)
+                .flatMap(Collection::stream)
+                .forEach(q -> q.getOrCreateValue().setAmount(BigDecimal.valueOf(99_999)));
+
+        WorkflowStep initialExecutionWorkflowStep =
+                getExecutionWorkflowStep(tradeStateWithIncorrectQuantity,
+                        eventDate,
+                        LocalTime.of(18, 12),
+                        "msg-1",
+                        "id-1",
+                        null,
+                        ActionEnum.NEW);
+
+        // Cancel WorkflowStep
+
+        CreateWorkflowStepInput cancelWorkflowStepInput =
+                new CreateWorkflowStepInput(MessageInformation.builder().setMessageIdValue("msg-2"),
+                        getEventTimestamp(eventDate, LocalTime.of(18, 55)),
+                        getIdentifier("id-2"),
+                        Collections.emptyList(),
+                        Collections.emptyList(),
+                        initialExecutionWorkflowStep,
+                        ActionEnum.CANCEL,
+                        null);
+        WorkflowStep cancelWorkflowStep = runCreateWorkflowStepFunc(cancelWorkflowStepInput);
+
+        // New WorkflowStep containing Execution (with corrected quantity)
+
+        TradeState tradeStateWithCorrectedQuantity =
+                ResourcesUtils.getObject(TradeState.class, tradeStatePath);
+
+        WorkflowStep newExecutionWorkflowStep =
+                getExecutionWorkflowStep(tradeStateWithCorrectedQuantity,
+                        eventDate,
+                        LocalTime.of(19, 13),
+                        "msg-3",
+                        "id-3",
+                        null,
+                        ActionEnum.NEW);
+
+        List<WorkflowStep> steps = new ArrayList<>();
+        steps.add(initialExecutionWorkflowStep);
+        steps.add(cancelWorkflowStep);
+        steps.add(newExecutionWorkflowStep);
+
+        CreateWorkflowInput actual = new CreateWorkflowInput(steps);
+
+        assertJsonEquals("cdm-sample-files/functions/workflow-step/cancellation/cancellation-func-input.json", actual);
+    }
+
+    private WorkflowStep getExecutionWorkflowStep(TradeState tradeState,
+                                                  Date eventDate,
+                                                  LocalTime eventTime,
+                                                  String messageId,
+                                                  String eventId,
+                                                  WorkflowStep previousWorkflowStep,
+                                                  ActionEnum action) {
+        // Create Execution BusinessEvent
+        CreateBusinessEventInput executionBusinessEventInput =  getExecutionFuncInputJson(tradeState.build(), eventDate);
+        BusinessEvent businessEvent = runCreateBusinessEventFunc(executionBusinessEventInput);
+
+        // Create WorkflowStep
+        CreateWorkflowStepInput workflowStepInput =
+                new CreateWorkflowStepInput(MessageInformation.builder().setMessageIdValue(messageId),
+                        getEventTimestamp(eventDate, eventTime),
+                        getIdentifier(eventId),
+                        getParties(businessEvent),
+                        Collections.emptyList(),
+                        previousWorkflowStep,
+                        action,
+                        businessEvent);
+        return runCreateWorkflowStepFunc(workflowStepInput);
+    }
+
+    private List<EventTimestamp> getEventTimestamp(Date date, LocalTime time) {
+        return Collections.singletonList(EventTimestamp.builder()
+                .setDateTime(ZonedDateTime.of(date.toLocalDate(), time, ZoneId.of("UTC")))
+                .setQualification(EventTimestampQualificationEnum.EVENT_CREATION_DATE_TIME));
+    }
+
+    private Identifier getIdentifier(String id) {
+        return Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue(id));
+    }
+
+    private List<Party> getParties(BusinessEvent businessEvent) {
+        if (businessEvent == null) {
+            return Collections.emptyList();
+        }
+
+        Set<? extends Party> afterTradesParties = businessEvent.getAfter().stream()
+                .map(TradeState::getTrade)
+                .map(Trade::getParty)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        Set<? extends Party> beforeTradesParties = businessEvent.getInstruction().stream()
+                .map(Instruction::getBefore)
+                .filter(Objects::nonNull)
+                .map(ReferenceWithMetaTradeState::getValue)
+                .map(TradeState::getTrade)
+                .map(Trade::getParty)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        Set<Party> distinctParties = new HashSet<>();
+        distinctParties.addAll(afterTradesParties);
+        distinctParties.addAll(beforeTradesParties);
+
+        return distinctParties.stream()
+                .sorted(Comparator.comparing(p ->
+                        Optional.ofNullable(p.getName())
+                                .map(FieldWithMetaString::getValue)
+                                .orElse("")))
+                .collect(Collectors.toList());
     }
 
     private MetaFields.MetaFieldsBuilder createKey(String s) {
@@ -1347,6 +1545,37 @@ class FunctionInputCreationTest {
                                         .setValue(partyId)
                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442")
                                 ))));
+    }
+
+
+    private BusinessEvent runCreateBusinessEventFunc(CreateBusinessEventInput input) {
+        Create_BusinessEvent func = injector.getInstance(Create_BusinessEvent.class);
+        BusinessEvent.BusinessEventBuilder businessEvent =
+                func.evaluate(input.getInstruction(),
+                                input.getIntent(),
+                                input.getEventDate(),
+                                null)
+                        .toBuilder();
+        PostProcessor postProcessor = injector.getInstance(PostProcessor.class);
+        postProcessor.postProcess(BusinessEvent.class, businessEvent);
+        return businessEvent.build();
+    }
+
+    private WorkflowStep runCreateWorkflowStepFunc(CreateWorkflowStepInput input) {
+        Create_WorkflowStep func = injector.getInstance(Create_WorkflowStep.class);
+        WorkflowStep.WorkflowStepBuilder workflowStep =
+                func.evaluate(input.getMessageInformation(),
+                                input.getTimestamp(),
+                                input.getEventIdentifier(),
+                                input.getParty(),
+                                input.getAccount(),
+                                input.getPreviousWorkflowStep(),
+                                input.getAction(),
+                                input.getBusinessEvent())
+                        .toBuilder();
+        PostProcessor postProcessor = injector.getInstance(PostProcessor.class);
+        postProcessor.postProcess(WorkflowStep.class, workflowStep);
+        return workflowStep.build();
     }
 
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {

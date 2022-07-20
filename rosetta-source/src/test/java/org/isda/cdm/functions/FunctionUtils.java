@@ -1,4 +1,4 @@
-package org.isda.cdm.functions.testing;
+package org.isda.cdm.functions;
 
 import cdm.event.common.ExecutionInstruction;
 import cdm.event.common.TradeState;
@@ -36,5 +36,4 @@ public class FunctionUtils {
     public static ZonedDateTime dateTime(LocalDate tradeDate, int hour, int minute) {
         return ZonedDateTime.of(tradeDate, LocalTime.of(hour, minute), ZoneOffset.UTC.normalized());
     }
-
 }

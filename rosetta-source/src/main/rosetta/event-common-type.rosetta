@@ -49,23 +49,6 @@ type Affirmation: <"A class to specify a trade affirmation.">
 type AllocationInstruction:
 	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
 
-type ReallocationInstruction: <"Specifies the information required for the reallocation of a transaction.">
-    decrease DecreasedTrade (1..*) <"Specifies the trades to be decreased as part of the reallocation event.">
-    increase IncreasedTrade (0..*) <"Specifies the trades to be increased as part of the reallocation event.  Note this attribute cannot be used until the Increase model has been developed in the ISDA CDM.">
-    breakdowns AllocationBreakdown (0..*) <"Specifies the breakdowns of any new trades created as part of the reallocation event.">
-    effectiveDate date (0..1) <"Specifies the effective date of the reallocation.">
-
-    condition Choice:
-        required choice increase, breakdowns
-
-type DecreasedTrade: <"Specifies details for a trade to be decreased as part of a reallocation event.">
-    tradeState TradeState (1..1) <"Specifies the trade to be decreased.">
-    quantity Quantity (1..*) <"Specifies the quantity(ies) to be decreased on the trade.">
-
-type IncreasedTrade: <"Specifies details for a trade to be increased as part of a reallocation event.">
-    tradeState TradeState (1..1) <"Specifies the trade to be increased.">
-    quantity Quantity (1..*) <"Specifies the quantity(ies) to be increased on the trade.">
-
 type AllocationBreakdown:
 	counterparty Counterparty (1..1) <"Specifies the counterparty to add.">
 	ancillaryParty PartyRole (1..1) <"Specifies an additional counterparty to add as part of the allocation process.">
@@ -79,11 +62,7 @@ type ContractFormationInstruction: <"Specifies instructions to create a fully fo
 
 type Instruction: <"Instruction to a function that will be used to perform a business event">
 	[rootType]
-  	instructionFunction string (0..1) <"Specifies the function that will be called.">
-		[deprecated]
-	transfer TransferInstruction (0..1) <"Specifies inputs needed to process a Transfer business event.">
-		[deprecated]
-	primitiveInstruction PrimitiveInstruction (0..1) <"Specifies the primitive instructions that will be used to call primitive event functions.">
+  	primitiveInstruction PrimitiveInstruction (0..1) <"Specifies the primitive instructions that will be used to call primitive event functions.">
 	before TradeState (0..1) <"Specifies the trade state that will be acted on by the primitive event functions.">
 		[metadata reference]
 
@@ -114,13 +93,10 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	primitives PrimitiveEvent (0..*) <"The elemental component(s) that specify the lifecycle events. Each of the primitive/elemental components listed as part of the PrimitiveEvent class has distinctive features that allow to specify the lifecycle event, either by itself or in combination with some other of such components.">
         [deprecated]
 	intent EventIntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
-	functionCall string (0..1) <"This is placeholder concept for a function call into a calculation that will return an outcome. This concept needs to be further firmed out.">
 	eventQualifier eventType (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
 	eventDate date (1..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
-
-    // New Content
     instruction Instruction (0..*) <"Specifies the instructions that were used to create the Business Event.">
     after TradeState (0..*) <"Specifies the after trade state(s) created.">
 
