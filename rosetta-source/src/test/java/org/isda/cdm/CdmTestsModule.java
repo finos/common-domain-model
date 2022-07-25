@@ -17,11 +17,6 @@ public class CdmTestsModule extends CdmRuntimeModule {
 	}
 
 	@Override
-	protected Class<? extends ModelObjectValidator> bindModelObjectValidator() {
-		return NoOpValidator.class;
-	}
-
-	@Override
 	protected Class<? extends CalculationPeriod> bindCalculationPeriod() {
 		return TestableCalculationPeriod.class;
 	}

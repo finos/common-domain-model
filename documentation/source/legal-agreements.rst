@@ -296,7 +296,7 @@ The ``CreditSupportAgreementElections`` data type therefore contains a super-set
 
 .. code-block:: Haskell
 
- condition agreementVerification:
+ condition AgreementVerification:
    if agreementTerms -> agreement -> securityAgreementElections exists
    then legalAgreementIdentification -> agreementName -> agreementType = LegalAgreementTypeEnum->SecurityAgreement
 

@@ -21,7 +21,7 @@ public class RunNewSettlementWorkflow implements ExecutableFunction<ExecutionIns
 
     @Override
     public Workflow execute(ExecutionInstruction executionInstruction) {
-        LocalDate tradeDate = executionInstruction.getTradeDate().toLocalDate();
+        LocalDate tradeDate = executionInstruction.getTradeDate().getValue().toLocalDate();
 
         // step 1 on trade date AM
         BusinessEvent executionBusinessEvent = settlements.createExecution(executionInstruction);

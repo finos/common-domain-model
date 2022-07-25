@@ -403,7 +403,7 @@ Some of those calculations are presented below:
     alias undisputedDeliveryAmount:
       Max(deliveryAmount - disputedDeliveryAmount -> amount, 0.0)
 
-    condition:
+    condition CurrencyMatches:
       (baseCurrency = minimumTransferAmount -> unitOfAmount -> currency
       and (baseCurrency = disputedDeliveryAmount -> unitOfAmount -> currency))
 
@@ -444,7 +444,7 @@ Some of those calculations are presented below:
    alias undisputedReturnAmount:
      Max( returnAmount - disputedReturnAmount -> amount, 0.0 )
 
-   condition:
+   condition CurrencyMatches:
      (baseCurrency = minimumTransferAmount -> unitOfAmount->currency)
        and (baseCurrency = disputedReturnAmount -> unitOfAmount->currency)
 
