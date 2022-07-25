@@ -28,7 +28,7 @@ public class FunctionUtils {
                 .addAncillaryParty(guard(tradeState.getTrade().getTradableProduct().getAncillaryParty()))
                 .addParties(guard(tradeState.getTrade().getParty()))
                 .addPartyRoles(guard(tradeState.getTrade().getPartyRole()))
-                .setTradeDate(Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null))
+                .setTradeDateValue(Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null))
                 .addTradeIdentifier(guard(tradeState.getTrade().getTradeIdentifier()))
                 .build();
     }

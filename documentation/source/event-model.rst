@@ -358,6 +358,7 @@ Therefore, the execution primitive function does not take any before state as in
    partyRoles PartyRole (0..*)
    executionDetails ExecutionDetails (1..1)
    tradeDate date (1..1)
+       [metadata id]
    tradeIdentifier Identifier (1..*)
 
 Contract Formation Primitive
