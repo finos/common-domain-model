@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release contains improvements to the Java code generation for functions related to the handling `condition` and `post-condition` failures.  The default behaviour is to throw an exception, however handling can be configured to allow for any implementor-specific requirements.    
+This release contains improvements to the Java code generation for functions related to the handling `condition` and `post-condition` failures.  The default behaviour is to throw an exception, however handling can be configured to allow for any implementor-specific requirements, e.g., additional logging, error reporting etc.   
 
 _Review Directions_
 
