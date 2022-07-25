@@ -13,13 +13,11 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.testing.ExecutionDescriptor;
 import com.regnosys.rosetta.common.testing.FunctionRunner;
 import com.rosetta.model.lib.process.PostProcessor;
-import com.rosetta.model.lib.validation.ModelObjectValidator;
 import org.isda.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +57,6 @@ class FunctionTest {
 				@Override
 				protected void configure() {
 					bind(PostProcessor.class).to(WorkflowPostProcessor.class);
-					bind(ModelObjectValidator.class).toInstance(Mockito.mock(ModelObjectValidator.class));
 				}
 			});
 		injector = Guice.createInjector(module);

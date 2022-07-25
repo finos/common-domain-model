@@ -37,14 +37,12 @@ import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.validation.ModelObjectValidator;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.CdmRuntimeModule;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +97,6 @@ class SecLendingFunctionInputCreationTest {
                     @Override
                     protected void configure() {
                         bind(PostProcessor.class).to(WorkflowPostProcessor.class);
-                        bind(ModelObjectValidator.class).toInstance(Mockito.mock(ModelObjectValidator.class));
                     }
                 });
         injector = Guice.createInjector(module);
@@ -446,39 +443,6 @@ class SecLendingFunctionInputCreationTest {
                 .setQuantityChange(quantityChangeInstruction);
     }
 
-    private static AllocationBreakdown.AllocationBreakdownBuilder createAllocationBreakdown(TradeState tradeState, String partyId, String partyName, double percent) {
-        Identifier allocationIdentifier = createAllocationIdentifier(tradeState.build()
-                .toBuilder(), "allocation-" + partyId);
-
-        Party agentLenderParty = getParty(tradeState, CounterpartyRoleEnum.PARTY_1);
-
-        PartyRole agentLenderPartyRole = PartyRole.builder()
-                .setPartyReferenceValue(agentLenderParty)
-                .setRole(PartyRoleEnum.AGENT_LENDER).build();
-
-        Counterparty counterparty1 = Counterparty.builder()
-                .setPartyReferenceValue(Party.builder()
-                        .setMeta(MetaFields.builder().setExternalKey(partyId))
-                        .addPartyId(PartyIdentifier.builder()
-                                .setIdentifierValue(partyName)
-                                .build())
-                        .setNameValue(partyName))
-                .setRole(CounterpartyRoleEnum.PARTY_1)
-                .build();
-
-        List<Quantity> allocatedQuantities = scaleQuantities(tradeState, percent);
-
-        AllocationBreakdown.AllocationBreakdownBuilder allocationBreakdownBuilder = AllocationBreakdown.builder()
-                .addAllocationTradeId(allocationIdentifier)
-                .setCounterparty(counterparty1)
-                .setQuantity(allocatedQuantities)
-                .setAncillaryParty(agentLenderPartyRole);
-
-        reKey(allocationBreakdownBuilder);
-
-        return allocationBreakdownBuilder;
-    }
-
     private static Party getParty(TradeState tradeState, CounterpartyRoleEnum counterpartyRoleEnum) {
         return tradeState.build().toBuilder().getTrade().getTradableProduct()
                 .getCounterparty().stream()
@@ -512,8 +476,8 @@ class SecLendingFunctionInputCreationTest {
     }
 
     private static String readResource(String inputJson) throws IOException {
-        //noinspection UnstableApiUsage
         URL resource = SecLendingFunctionInputCreationTest.class.getResource(inputJson);
+        //noinspection UnstableApiUsage
         return Resources.toString(Objects.requireNonNull(resource), Charset.defaultCharset());
     }
 
