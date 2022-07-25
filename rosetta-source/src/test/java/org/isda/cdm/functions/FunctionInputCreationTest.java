@@ -53,7 +53,6 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.lib.validation.ModelObjectValidator;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.CdmRuntimeModule;
@@ -103,7 +102,6 @@ class FunctionInputCreationTest {
                     @Override
                     protected void configure() {
                         bind(PostProcessor.class).to(WorkflowPostProcessor.class);
-                        bind(ModelObjectValidator.class).toInstance(Mockito.mock(ModelObjectValidator.class));
                     }
                 });
         injector = Guice.createInjector(module);

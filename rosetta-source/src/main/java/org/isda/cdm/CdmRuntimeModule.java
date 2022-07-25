@@ -13,22 +13,14 @@ import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
-import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
-import com.rosetta.model.lib.functions.ConditionValidator;
-import com.rosetta.model.lib.functions.NoOpConditionValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
-import com.rosetta.model.lib.validation.ModelObjectValidator;
-import com.rosetta.model.lib.validation.NoOpModelObjectValidator;
 import com.rosetta.model.lib.validation.ValidatorFactory;
-import org.isda.cdm.function.DefaultConditionValidator;
 import org.isda.cdm.processor.CdmReferenceConfig;
 
 public class CdmRuntimeModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(ConditionValidator.class).to(bindConditionValidator());
-		bind(ModelObjectValidator.class).to(bindModelObjectValidator());
 		bind(QualifyFunctionFactory.class).to(bindQualifyFunctionFactory());
 		bind(ValidatorFactory.class).to(bindValidatorFactory());
 		bind(ReferenceConfig.class).toInstance(CdmReferenceConfig.get());
@@ -79,20 +71,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends VectorGrowthOperation> bindVectorGrowthOperation() {
 		return VectorGrowthOperationImpl.class;
-	}
-
-	/**
-	 * The default behaviour in functions is to throw an exception on condition failures
-	 */
-	private Class<? extends ConditionValidator> bindConditionValidator() {
-		return DefaultConditionValidator.class;
-	}
-
-	/**
-	 * The default behaviour in functions is to ignore model object validation
-	 */
-	protected Class<? extends ModelObjectValidator> bindModelObjectValidator() {
-		return NoOpModelObjectValidator.class;
 	}
 
 	protected Class<? extends QualifyFunctionFactory> bindQualifyFunctionFactory() {
