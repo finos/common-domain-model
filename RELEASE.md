@@ -1,8 +1,8 @@
-# *DSL - Java Code Generation For Functions*
+# *DSL - CDM Distribution - Java Code Generation For Functions with Data Validations*
 
 _What is being released?_
 
-This release contains improvements to the Java code generation for functions related to the handling `condition` and `post-condition` failures.  The default behaviour is to throw an exception, however handling can be configured to allow for any implementor-specific requirements, e.g., additional logging, error reporting etc.   
+This release improves the Java code generation for functions related to the handling `condition` and `post-condition` failures.  The default implemetation will will throw an exception. Implementers can reconfigure or extend this outcome based on their specific requirements, for example additional logging, error reporting etc.   
 
 _Review Directions_
 
