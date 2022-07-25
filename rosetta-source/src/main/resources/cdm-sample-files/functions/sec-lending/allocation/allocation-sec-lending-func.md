@@ -6,6 +6,6 @@
 
 #### Allocation
 - Trade is allocated on `2020-9-21` resulting in:
-- `80000` shares between parties `CP001 (Borrower)` and `Fund 1`
-- `120000` shares between parties `CP001 (Borrower)` and `Fund 2`
+- `120000` shares between parties `CP001 (Borrower)` and `Fund 1`
+- `80000` shares between parties `CP001 (Borrower)` and `Fund 2`
 - Initial Execution between `KTKL (Agent Lender)` and `CP001 (Borrower)` is marked as `Closed - ALLOCATED`

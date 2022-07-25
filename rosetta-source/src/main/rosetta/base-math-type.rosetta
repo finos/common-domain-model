@@ -2,7 +2,6 @@ namespace cdm.base.math : <"Basic maths concepts: quantity and unit, rounding, c
 version "${project.version}"
 
 import cdm.observable.asset.*
-import cdm.mapping.config.*
 import cdm.base.datetime.*
 
 type UnitType: <"Defines the unit to be used for price, quantity, or other purposes">
@@ -49,6 +48,7 @@ type NonNegativeStep: <"A class defining a step date and non-negative step value
 		then stepValue >= 0.0
 
 type Rounding: <"Defines rounding rules and precision to be used in the rounding of a number.">
+
 	roundingDirection RoundingDirectionEnum (1..1) <"Specifies the rounding rounding rule as up, down, or nearest.">
 	precision int (0..1) <"Specifies the rounding precision in terms of a number of decimal places when the number is evaluated in decimal form (not percentage), e.g. 0.09876543 rounded to the nearest 5 decimal places is  0.0987654.">
 
@@ -64,19 +64,27 @@ type Step: <"A class defining a step date and step value pair. This step definit
 	stepValue number (1..1) <"The rate of amount which becomes effective on the associated step date. A rate of 5% would be represented as 0.05.">
 
 type NumberRange: <"The number range defined as either a lower and upper number bound, or both.">
+
 	lowerBound NumberBound (0..1) <"The lower bound of a number range, e.g. greater than or equal to 5.">
 	upperBound NumberBound (0..1) <"The upper bound of a number range, e.g. less than 10.">
-	condition: lowerBound exists or upperBound exists
+
+	condition AtLeastOneOf:
+	    lowerBound exists or upperBound exists
 
 type NumberBound: <"The number bound is defined as a number and whether the bound is inclusive.">
+
 	number number (1..1) <"The number to be used as the bound, e.g. 5.">
 	inclusive boolean (1..1) <"Whether the number bound is inclusive, e.g. for a lower bound, false would indicate greater than, whereas true would indicate greater than or equal to.">
 
 type MoneyRange: <"The money range defined as either a lower and upper money bound, or both.">
+
 	lowerBound MoneyBound (0..1) <"The lower bound of a money range, e.g. greater than or equal to 1,000 USD.">
 	upperBound MoneyBound (0..1) <"The upper bound of a money range, e.g. less than 10,000 USD.">
-	condition: lowerBound exists or upperBound exists
+
+	condition AtLeastOneOf:
+	    lowerBound exists or upperBound exists
 
 type MoneyBound: <"The money bound is defined as a money amount and whether the bound is inclusive.">
+
 	money Money (1..1) <"The money amount to be used as the bound, e.g. 1,000 USD.">
 	inclusive boolean (1..1) <"Whether the money amount bound is inclusive, e.g. for a lower bound, false would indicate greater than, whereas true would indicate greater than or equal to.">
