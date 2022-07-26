@@ -600,27 +600,6 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_Basket: <"Qualifies a prod
 		and (economicTerms -> payout -> optionPayout -> feature is absent
 			or economicTerms -> payout -> optionPayout -> feature -> averagingRateFeature only exists)
 
-func Qualify_IndexVanillaOption: <"Qualifies a product as a plain vanilla Index Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product for which the underlier is an index, which could be an index with any underlying type 2) No special option feature exists other than option averaging.">
-	[qualification Product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
-	[synonym ISDA_Taxonomy_v1 value "EquityOption_PriceReturnBasicPerformance_Index"]
-	[synonym ISDA_Taxonomy_v2 value "EquityOption_PriceReturnBasicPerformance_Index"]
-	set is_product:
-	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
-	 	(economicTerms -> payout -> optionPayout only exists
-			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
-
-		// qualifies that the underlier is an index
-		 and economicTerms -> payout -> optionPayout -> underlier -> index exists
-
-		// qualifies that an option style is defined and that no feature other than averaging exists
-		and	(economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
-			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists
-			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> bermudaExercise exists)
-		and (economicTerms -> payout -> optionPayout -> feature is absent
-			or economicTerms -> payout -> optionPayout -> feature -> averagingRateFeature only exists)
-
 func Qualify_EquityOption_ParameterReturnVariance_SingleName: <"Qualifies a product as an Equity Variance Single Name Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout or option payout and cashflow and 2) the underlying product is a Single Name Equity Variance Swap">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
