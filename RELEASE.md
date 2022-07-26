@@ -12,4 +12,5 @@ _What is being released?_
 _Functions_
 
 *product-common-func*
+
 Added the `Qualify_EquityOption_PriceReturnBasicPerformance_Index` and `Qualify_EquityOption_PriceReturnBasicPerformance_Basket` functions since they were missing.
