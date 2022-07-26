@@ -207,6 +207,12 @@ The purpose of this section is to provide guidance for submitting, accepting and
 - What a Maintainer should do to review the changes
 - How to release a new CDM version once changes have been approved
 
+The steps required to change the CDM are aligned with the software development lifecycle typically applicable to the development of any other software. This development lifecycle is shown in the diagram below. Development of the the CDM is supported via a modelling platform called `Rosetta`_, with components supporting each step also represented in the diagram.
+
+.. figure:: images/SDLC.png
+
+.. note:: The CDM may also be supported through alternative modelling platforms (for instance `Legend`_). If you intend on using a platform other than Rosetta to contribute to the CDM, please go through the contribution check-list anyway as you will still need to validate and then contribute your code through Rosetta.
+
 Before you start modelling
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -230,9 +236,7 @@ In addition, for large model changes or changes to core data types, it is recomm
 Editing the model
 ^^^^^^^^^^^^^^^^^
 
-The CDM can be edited using a modelling platform called `Rosetta`_, which is accessible via a web browser.
-
-When editing the CDM using Rosetta, please go through the following modelling checklist:
+Rosetta comprises a user application accessible via a web browser to edit the model. When editing the CDM using Rosetta, please go through the following modelling checklist:
 
 - CDM version: use latest available version
 - Syntax: no syntax warnings or errors
@@ -240,8 +244,6 @@ When editing the CDM using Rosetta, please go through the following modelling ch
 - Testing: all translate regression tests expectations for mapping, validation and qualification maintained or improved. Additional test samples may be needed if use-case is not covered by existing samples.
 - Namespace: all model components positioned in the correct namespace
 - Descriptions: all model components have descriptions
-
-.. note:: The CDM may also be supported through alternative modelling platforms (for instance `Legend`_). If you intend on using a platform other than Rosetta to edit the CDM, please go through the Rosetta check-list anyway as you will still need to validate and then contribute your code through Rosetta.
 
 The following sections detail that checklist.
 
