@@ -1,4 +1,4 @@
-# *Equity Qualifying Functions*
+# *Product Model - Equity Qualifying Functions*
 
 _Background_
 
