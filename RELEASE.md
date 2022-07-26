@@ -1,4 +1,4 @@
-# *Equity Qualifying Functions Release Notes*
+# *Equity Qualifying Functions*
 
 _Background_
 
