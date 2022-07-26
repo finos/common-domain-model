@@ -187,8 +187,8 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_Index: <"Qualifies a product
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "EquitySwap_PriceReturnBasicPerformance_Index"]
-		[synonym ISDA_Taxonomy_v2 value "EquitySwap_PriceReturnBasicPerformance_Index"]
+		[synonym ISDA_Taxonomy_v1 value "EquitySwap_PriceReturnBasicPerformance_SingleIndex"]
+		[synonym ISDA_Taxonomy_v2 value "EquitySwap_PriceReturnBasicPerformance_SingleIndex"]
 
 	alias performancePayout: economicTerms -> payout -> performancePayout only-element
     set is_product:
@@ -325,8 +325,8 @@ func Qualify_EquitySwap_ParameterReturnVariance_Index: <"Qualifies a product as 
     [qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "EquitySwap_ParameterReturnVariance_Index"]
-		[synonym ISDA_Taxonomy_v2 value "EquitySwap_ParameterReturnVariance_Index"]
+		[synonym ISDA_Taxonomy_v1 value "EquitySwap_ParameterReturnVariance_SingleIndex"]
+		[synonym ISDA_Taxonomy_v2 value "EquitySwap_ParameterReturnVariance_SingleIndex"]
 
 	alias performancePayout: economicTerms -> payout -> performancePayout only-element
 	set is_product:
@@ -411,8 +411,8 @@ func Qualify_EquitySwap_ParameterReturnVolatility_Index: <"Qualifies a product a
     [qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "EquitySwap_ParameterReturnVolatility_Index"]
-		[synonym ISDA_Taxonomy_v2 value "EquitySwap_ParameterReturnVolatility_Index"]
+		[synonym ISDA_Taxonomy_v1 value "EquitySwap_ParameterReturnVolatility_SingleIndex"]
+		[synonym ISDA_Taxonomy_v2 value "EquitySwap_ParameterReturnVolatility_SingleIndex"]
 
 	alias performancePayout: economicTerms -> payout -> performancePayout only-element
 	set is_product:
@@ -499,8 +499,8 @@ func Qualify_EquitySwap_ParameterReturnDividend_Index: <"Qualifies a product as 
 [qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-		[synonym ISDA_Taxonomy_v1 value "EquitySwap_ParameterReturnDividend_Index"]
-		[synonym ISDA_Taxonomy_v2 value "EquitySwap_ParameterReturnDividend_Index"]
+		[synonym ISDA_Taxonomy_v1 value "EquitySwap_ParameterReturnDividend_SingleIndex"]
+		[synonym ISDA_Taxonomy_v2 value "EquitySwap_ParameterReturnDividend_SingleIndex"]
 
 	alias performancePayout: economicTerms -> payout -> performancePayout only-element
 	set is_product:
@@ -560,20 +560,39 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a 
 		and (economicTerms -> payout -> optionPayout -> feature is absent
 			or economicTerms -> payout -> optionPayout -> feature -> averagingRateFeature only exists)
 
-func Qualify_IndexVanillaOption: <"Qualifies a product as a plain vanilla Index Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product for which the underlier is an index, which could be an index with any underlying type 2) No special option feature exists other than option averaging.">
+func Qualify_EquityOption_PriceReturnBasicPerformance_Index: <"Qualifies a product as an Equity Option with an index as underlier.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is an index and 2) No special option feature exists other than option averaging.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	[synonym ISDA_Taxonomy_v1 value "EquityOption_PriceReturnBasicPerformance_Index"]
-	[synonym ISDA_Taxonomy_v2 value "EquityOption_PriceReturnBasicPerformance_Index"]
+	[synonym ISDA_Taxonomy_v1 value "EquityOption_PriceReturnBasicPerformance_SingleIndex"]
+	[synonym ISDA_Taxonomy_v2 value "EquityOption_PriceReturnBasicPerformance_SingleIndex"]
 	set is_product:
 	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
 	 	(economicTerms -> payout -> optionPayout only exists
 			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+		// qualifies that the underlier is an equity index
+	 	and Qualify_AssetClass_Equity(economicTerms -> payout -> optionPayout only-element -> underlier) = True
+		and economicTerms -> payout -> optionPayout only-element -> underlier -> index exists
+		// qualifies that an option style is defined and that no feature other than averaging exists
+		and	(economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
+			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists
+			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> bermudaExercise exists)
+		and (economicTerms -> payout -> optionPayout -> feature is absent
+			or economicTerms -> payout -> optionPayout -> feature -> averagingRateFeature only exists)
 
-		// qualifies that the underlier is an index
-		 and economicTerms -> payout -> optionPayout -> underlier -> index exists
-
+func Qualify_EquityOption_PriceReturnBasicPerformance_Basket: <"Qualifies a product as an Equity Option with a basket underlier.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is a basket and 2) No special option feature exists other than option averaging.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+	[synonym ISDA_Taxonomy_v1 value "EquityOption_PriceReturnBasicPerformance_Basket"]
+	[synonym ISDA_Taxonomy_v2 value "EquityOption_PriceReturnBasicPerformance_Basket"]
+	set is_product:
+	    // qualifies that  only the option payout or option payout and cashflow (for the premium) exist and all other payouts are absent
+	 	(economicTerms -> payout -> optionPayout only exists
+			or (economicTerms -> payout -> optionPayout,  economicTerms -> payout -> cashflow) only exists)
+		// qualifies that the underlier is an equity basket
+	 	and Qualify_AssetClass_Equity(economicTerms -> payout -> optionPayout only-element -> underlier) = True
+		and economicTerms -> payout -> optionPayout only-element -> underlier -> basket exists
 		// qualifies that an option style is defined and that no feature other than averaging exists
 		and	(economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
 			or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists
@@ -601,8 +620,8 @@ func Qualify_EquityOption_ParameterReturnVariance_Index: <"Qualifies a product a
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	[synonym ISDA_Taxonomy_v1 value "EquityOption_ParameterReturnVariance_Index"]
-	[synonym ISDA_Taxonomy_v2 value "EquityOption_ParameterReturnVariance_Index"]
+	[synonym ISDA_Taxonomy_v1 value "EquityOption_ParameterReturnVariance_SingleIndex"]
+	[synonym ISDA_Taxonomy_v2 value "EquityOption_ParameterReturnVariance_SingleIndex"]
 
 	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
 	set is_product:
@@ -650,8 +669,8 @@ func Qualify_EquityOption_ParameterReturnVolatility_Index: <"Qualifies a product
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	[synonym ISDA_Taxonomy_v1 value "EquityOption_ParameterReturnVolatility_Index"]
-	[synonym ISDA_Taxonomy_v2 value "EquityOption_ParameterReturnVolatility_Index"]
+	[synonym ISDA_Taxonomy_v1 value "EquityOption_ParameterReturnVolatility_SingleIndex"]
+	[synonym ISDA_Taxonomy_v2 value "EquityOption_ParameterReturnVolatility_SingleIndex"]
 
 	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
 	set is_product:
@@ -712,8 +731,8 @@ func Qualify_EquityOption_ParameterReturnDividend_Index: <"Qualifies a product a
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	[synonym ISDA_Taxonomy_v1 value "Qualify_EquityOption_ParameterReturnDividend_Index"]
-	[synonym ISDA_Taxonomy_v2 value "Qualify_EquityOption_ParameterReturnDividend_Index"]
+	[synonym ISDA_Taxonomy_v1 value "Qualify_EquityOption_ParameterReturnDividend_SingleIndex"]
+	[synonym ISDA_Taxonomy_v2 value "Qualify_EquityOption_ParameterReturnDividend_SingleIndex"]
 
 	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
 	set is_product:
@@ -728,8 +747,8 @@ func Qualify_EquityOption_ParameterReturnDividend_Basket: <"Qualifies a product 
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-	[synonym ISDA_Taxonomy_v1 value "Qualify_EquityOption_ParameterReturnDividend_Index"]
-	[synonym ISDA_Taxonomy_v2 value "Qualify_EquityOption_ParameterReturnDividend_Index"]
+	[synonym ISDA_Taxonomy_v1 value "Qualify_EquityOption_ParameterReturnDividend_Basket"]
+	[synonym ISDA_Taxonomy_v2 value "Qualify_EquityOption_ParameterReturnDividend_Basket"]
 
 	alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
 	set is_product:
