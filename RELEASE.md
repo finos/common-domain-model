@@ -2,7 +2,7 @@
 
 _Background_
 
-This release follows the recent introduction of a composable business event model, and the deprecation of the legacy business event model.
+This release follows the recent introduction of a new business event model and the corresponding creation function Create_BusinessEvent.
 
 _What is being released?_
 
