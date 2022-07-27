@@ -38,16 +38,6 @@ func QuantityIncreased:
                     before -> trade -> tradableProduct -> tradeLot only-element ) = True ]
 		    all = True
 
-func QuantityDecreasedPrimitive: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is less than the Quantity (with the same unit of amount) in the before TradeState, but not decreased to zero.">
-	inputs:
-		quantityChangePrimitives QuantityChangePrimitive (0..*) <"List of QuantityChangePrimitive to be compared.">
-	output:
-		result boolean (1..1) <"Returns true if the Quantity has decreased, but not to zero, in all QuantityChangePrimitives.">
-
-	set result:
-		CompareQuantityChangePrimitives( quantityChangePrimitives, CompareOp -> LessThan ) = True
-		    and CompareTradeStatesToAmount( quantityChangePrimitives -> after, CompareOp -> GreaterThan, 0.0 ) = True
-
 func QuantityDecreased:
 	inputs:
 		before TradeState (1..1)
@@ -72,16 +62,6 @@ func QuantityDecreased:
             ]
 		    all = True
 
-func QuantityDecreasedToZeroPrimitive: <"For each QuantityChangePrimitive, check that the Quantity in the after TradeState is equal to zero.">
-	inputs:
-		quantityChangePrimitives QuantityChangePrimitive (0..*) <"List of QuantityChangePrimitive to be compared.">
-	output:
-		result boolean (1..1) <"Returns true if the after Quantity is zero in all QuantityChangePrimitives.">
-
-	set result:
-	    CompareTradeStatesToAmount( quantityChangePrimitives -> before, CompareOp -> GreaterThan, 0.0 ) = True
-	    and CompareTradeStatesToAmount( quantityChangePrimitives -> after, CompareOp -> Equals, 0.0 ) = True
-
 func QuantityDecreasedToZero:
 	inputs:
 		before TradeState (0..*)
@@ -92,31 +72,6 @@ func QuantityDecreasedToZero:
     set result:
 	    CompareTradeLotToAmount( before -> trade -> tradableProduct -> tradeLot only-element, CompareOp -> GreaterThan, 0.0 ) = True
 	    and CompareTradeStatesToAmount( after, CompareOp -> Equals, 0.0 ) = True
-
-func CompareQuantityChangePrimitives: <"For each QuantityChangePrimitive, compare the Quantity in the after TradeState to the Quantity (with the same unit of amount) in the before TradeState, based on the CompareOp enum.">
-	inputs:
-		quantityChangePrimitives QuantityChangePrimitive (0..*) <"List of QuantityChangePrimitive to be compared.">
-		op CompareOp (1..1) <"Comparison operation to use.">
-	output:
-		result boolean (1..1)
-
-	set result:
-		quantityChangePrimitives
-            map [ CompareQuantityChangePrimitive( item, op ) ]
-		    all = True
-
-func CompareQuantityChangePrimitive: <"For the QuantityChangePrimitive, compare the Quantity in the after TradeState to the Quantity (with the same unit of amount) in the before TradeState, based on the CompareOp enum.">
-	inputs:
-		quantityChangePrimitive QuantityChangePrimitive (1..1) <"QuantityChangePrimitive to be compared.">
-		op CompareOp (1..1) <"Comparison operation to use.">
-	output:
-		result boolean (1..1)
-
-	set result:
-		CompareTradeLot(
-		    quantityChangePrimitive -> after -> trade -> tradableProduct -> tradeLot only-element,
-		    op,
-		    quantityChangePrimitive -> before -> trade -> tradableProduct -> tradeLot only-element )
 
 func CompareTradeStatesToAmount: <"For each TradeState, compare the Quantity amounts in each TradeState to the given amount (regardless of unit of amount), based on the CompareOp enum.">
 	inputs:
@@ -141,25 +96,17 @@ func Qualify_Allocation: <"The qualification of allocation event from the fact t
     alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
 	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
-		(
-		    businessEvent -> primitives -> split count = 1
-            and businessEvent -> primitives -> split -> after count >= 2
-            and businessEvent -> primitives -> contractFormation exists
-            and businessEvent -> primitives -> split -> after -> state -> closedState -> state contains ClosedStateEnum -> Allocated
-        )
-		or
-		(
-		    businessEvent -> intent = EventIntentEnum -> Allocation
-            and closedTradeStates count = 1
-            and openTradeStates count >= 1
-            and businessEvent -> instruction -> primitiveInstruction -> split exists
-            // before trade counterparties should match closed after trade counterparties
-            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
-            // before trade counterparties should not match open after trade counterparties
-            and openTradeStates
-                map [ item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference ]
-                all = True
-        )
+		businessEvent -> intent = EventIntentEnum -> Allocation
+		and closedTradeStates count = 1
+		and openTradeStates count >= 1
+		and businessEvent -> instruction -> primitiveInstruction -> split exists
+		// before trade counterparties should match closed after trade counterparties
+		and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+		// before trade counterparties should not match open after trade counterparties
+		and openTradeStates
+			map [ item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference ]
+			all = True
+        
 
 func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
 	[qualification BusinessEvent]
@@ -170,26 +117,17 @@ func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact 
 	alias beforeTransfers: businessEvent -> instruction -> before -> transferHistory
 	alias afterTransfers: businessEvent -> after -> transferHistory
 	set is_event:
-	    (
-            businessEvent -> primitives count = 1
-            and businessEvent -> primitives -> transfer exists
-            and businessEvent -> primitives -> transfer -> after -> transferHistory count = 1
-            and businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer -> quantity -> unitOfAmount -> currency only exists
-            and businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer -> identifier -> scheme all <> "DTCCCashflowId"
-		)
-		or
-		(
-		    businessEvent -> instruction -> primitiveInstruction -> transfer only exists
-		    and beforeTransfers count + transferInstructions count = afterTransfers count
-		    and transferInstructions -> transferState -> transfer -> quantity -> unitOfAmount -> currency exists
-		)
+		businessEvent -> instruction -> primitiveInstruction -> transfer only exists
+		and beforeTransfers count + transferInstructions count = afterTransfers count
+		and transferInstructions -> transferState -> transfer -> quantity -> unitOfAmount -> currency exists
+	
 
 func Qualify_CashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	alias transfersForDate: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate )
+	alias transfersForDate: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate )
 	set is_event:
 		transfersForDate -> quantity -> unitOfAmount -> currency exists
 		and transfersForDate -> quantity -> unitOfAmount -> financialUnit exists
@@ -284,7 +222,7 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
-	alias transfer: TransfersForDate(businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate)
+	alias transfer: TransfersForDate(businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate)
 	set is_event:
 		businessEvent -> intent is absent
         and
@@ -295,14 +233,6 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
                 or businessEvent -> instruction -> before -> trade -> tradableProduct -> tradeLot count < businessEvent -> after -> trade -> tradableProduct -> tradeLot count)
         )
 
-func Qualify_MultipleTransfers: <"The qualification an event that combines multiple transfers from the fact that multiple transfer primitives exist.">
-	[qualification BusinessEvent]
-	inputs:
-		businessEvent BusinessEvent (1..1)
-	output: is_event boolean (1..1)
-	set is_event:
-		businessEvent -> primitives -> transfer multiple exists
-
 func Qualify_Novation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and a contract formation exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
 	inputs: businessEvent BusinessEvent (1..1)
@@ -312,25 +242,14 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
     alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
 	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
-	    (
-            businessEvent -> primitives -> quantityChange exists
-            and businessEvent -> primitives -> contractFormation exists
-            and businessEvent -> primitives -> quantityChange count = businessEvent -> primitives -> contractFormation count
-            and QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
-            and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state contains ClosedStateEnum -> Novated
-            //and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
-            and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
-        )
-        or
-        (
-            businessEvent -> intent = EventIntentEnum -> Novation
-            and closedTradeStates count = 1
-            and openTradeStates count = 1
-			and businessEvent -> instruction -> primitiveInstruction -> split exists
-            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
-            and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference <> openTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
-			and beforeTradeState -> trade -> tradeIdentifier <> openTradeStates -> trade -> tradeIdentifier
-        )
+		businessEvent -> intent = EventIntentEnum -> Novation
+		and closedTradeStates count = 1
+		and openTradeStates count = 1
+		and businessEvent -> instruction -> primitiveInstruction -> split exists
+		and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+		and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference <> openTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+		and beforeTradeState -> trade -> tradeIdentifier <> openTradeStates -> trade -> tradeIdentifier
+	
 
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
 	[qualification BusinessEvent]
@@ -342,34 +261,24 @@ func Qualify_PartialNovation: <"The qualification of a novation event from the f
     alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
 	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
-	    (
-            businessEvent -> primitives -> quantityChange exists
-            and businessEvent -> primitives -> contractFormation exists
-            and businessEvent -> primitives -> quantityChange count = businessEvent -> primitives -> contractFormation count
-            and QuantityDecreasedPrimitive(businessEvent -> primitives -> quantityChange) = True
-            //and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state contains ClosedStateEnum -> Novated
-            //and businessEvent -> primitives -> contractFormation -> after -> trade -> tradeIdentifier <> businessEvent -> primitives -> quantityChange -> before -> trade -> tradeIdentifier
-            and businessEvent -> eventDate all = businessEvent -> primitives -> contractFormation -> after -> trade -> tradeDate
-        )
-        or
-        (
-            businessEvent -> intent = EventIntentEnum -> Novation
-            and closedTradeStates count = 0
-            and openTradeStates count = 2
-			and businessEvent -> instruction -> primitiveInstruction -> split exists
-			and openTradeStates
-			    map [
-			        // before trade counterparties should not match open after trade counterparties, and neither should trade identifiers
-			        ( item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
-			            and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier )
-			        or
-			        // before trade counterparties match open after trade counterparties, and match trade identifiers, but with decreased quantity
-			        ( item -> trade -> tradableProduct -> counterparty -> partyReference = beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
-                        and item -> trade -> tradeIdentifier = beforeTradeState -> trade -> tradeIdentifier
-                        and QuantityDecreased( beforeTradeState, [ item ] ) )
-			    ]
-			    all = True
-        )
+	
+		businessEvent -> intent = EventIntentEnum -> Novation
+		and closedTradeStates count = 0
+		and openTradeStates count = 2
+		and businessEvent -> instruction -> primitiveInstruction -> split exists
+		and openTradeStates
+			map [
+				// before trade counterparties should not match open after trade counterparties, and neither should trade identifiers
+				( item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+					and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier )
+				or
+				// before trade counterparties match open after trade counterparties, and match trade identifiers, but with decreased quantity
+				( item -> trade -> tradableProduct -> counterparty -> partyReference = beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+					and item -> trade -> tradeIdentifier = beforeTradeState -> trade -> tradeIdentifier
+					and QuantityDecreased( beforeTradeState, [ item ] ) )
+			]
+			all = True
+	
 
 
 func Qualify_PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
@@ -378,15 +287,12 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
-    alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate )
+    alias transfers: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate )
 	set is_event:
 		businessEvent -> intent is absent
-		and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists
-			    or (businessEvent -> primitives -> quantityChange exists and transfers exists))
-		    or (primitiveInstruction -> quantityChange only exists
-                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
-		and (QuantityDecreasedPrimitive(businessEvent -> primitives -> quantityChange) = True or QuantityDecreased(businessEvent -> instruction -> before only-element, businessEvent -> after) = True)
-		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState is absent
+		and (primitiveInstruction -> quantityChange only exists
+                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
+		and (QuantityDecreased(businessEvent -> instruction -> before only-element, businessEvent -> after) = True)
 		and businessEvent -> after -> state -> closedState is absent
 
 func Qualify_Renegotiation: <"The qualification of a renegotiation event from the fact that (i) the intent is Renegotiation when specified, and (ii) the associated primitives instructions are the TermsChange, QuantityChange and the cash transfer.">
@@ -394,7 +300,7 @@ func Qualify_Renegotiation: <"The qualification of a renegotiation event from th
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate )
+	alias transfers: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate )
 	set is_event:
 		(businessEvent -> intent is absent or businessEvent -> intent = EventIntentEnum -> Renegotiation)
 		and (businessEvent -> instruction -> primitiveInstruction -> termsChange only exists or (businessEvent -> instruction -> primitiveInstruction -> termsChange,businessEvent -> instruction -> primitiveInstruction -> quantityChange) only exists)
@@ -419,10 +325,9 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
+	alias transfer: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
 	set is_event:
-		businessEvent -> primitives count = 1
-		and transfer -> observable -> productIdentifier exists
+		transfer -> observable -> productIdentifier exists
 		and transfer -> quantity -> unitOfAmount -> financialUnit only exists
 
 func Qualify_SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
@@ -430,13 +335,12 @@ func Qualify_SecuritySettlement: <"The qualification of a security settlement fr
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	alias transfers: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate )
+	alias transfers: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate )
 	set is_event:
 		transfers -> observable -> productIdentifier only exists
 		and transfers -> quantity -> unitOfAmount -> currency only exists
 		and FilterCashTransfers( transfers ) only-element -> payerReceiver -> payerPartyReference =
 			FilterSecurityTransfers( transfers ) only-element -> payerReceiver -> receiverPartyReference
-		and businessEvent -> primitives -> quantityChange is absent
 
 func Qualify_Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
 	[qualification BusinessEvent]
@@ -444,17 +348,13 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
-    alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
+    alias transfer: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
 	set is_event:
 		businessEvent -> intent is absent
-        and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
-            or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-            or (primitiveInstruction -> quantityChange only exists
-                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
-        and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
-		    or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
-		and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
-			or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
+        and (primitiveInstruction -> quantityChange only exists
+                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
+        and (QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
+		and (businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
 func Qualify_Execution: <"The qualification of an execution event from the fact that the only component is an execution.">
 	[qualification BusinessEvent]
@@ -463,8 +363,7 @@ func Qualify_Execution: <"The qualification of an execution event from the fact 
 	output: is_event boolean (1..1)
 	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
 	set is_event:
-		businessEvent -> primitives count = 1 and businessEvent -> primitives -> execution exists
-		or (primitiveInstruction -> execution only exists
+		(primitiveInstruction -> execution only exists
 			or (primitiveInstruction -> execution, primitiveInstruction -> transfer) only exists)
 
 func Qualify_ContractFormation: <"Qualifies a business event as a contract formation from the fact that the only component is a single Contract Formation Primitive.">
@@ -474,11 +373,10 @@ func Qualify_ContractFormation: <"Qualifies a business event as a contract forma
 	output: is_event boolean (1..1)
 	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
     set is_event:
-		businessEvent -> primitives count = 1 and businessEvent -> primitives -> contractFormation exists
-		    or (primitiveInstruction -> contractFormation only exists
-		        or (primitiveInstruction -> execution, primitiveInstruction -> contractFormation) only exists)
-		    or (primitiveInstruction is absent and businessEvent -> intent = EventIntentEnum -> ContractFormation)
-		// and businessEvent -> tradeWarehouseWorkflow is absent
+		(primitiveInstruction -> contractFormation only exists
+			or (primitiveInstruction -> execution, primitiveInstruction -> contractFormation) only exists)
+			or (primitiveInstruction is absent and businessEvent -> intent = EventIntentEnum -> ContractFormation)
+	// and businessEvent -> tradeWarehouseWorkflow is absent
 
 func Qualify_StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
 	[qualification BusinessEvent]
@@ -836,15 +734,6 @@ func Create_StockSplit: <"Function specification to create the fully-formed busi
     set after:
         Create_TradeState( primitiveInstruction, before )
 
-func Create_Execution: <"Creates the fully formed business event of executing a transaction based on execution instructions, representing the instantiation of a transaction between two parties on a financial product for a given price, quantity and settlement terms. The business event is constructed to contain a single execution primitive event, and no other primitive event.">
-	[creation BusinessEvent]
-	inputs:
-	  executionInstruction ExecutionInstruction (1..1) <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, execution details, and settlement terms.">
-	output:
-		executionEvent BusinessEvent (1..1) <"Qualified execution business event containing a single execution primitive event, and no other primitive event.">
-	set executionEvent -> primitives -> execution: <"Create and assign the execution primitive event to the execution business event, using the corresponding primitive event creation function.">
-		Create_ExecutionPrimitive( executionInstruction )
-
 func Create_ExecutionInstruction:
     inputs:
         product Product (1..1) <"Defines the financial product to be executed and contract formed.">
@@ -878,36 +767,32 @@ func Create_ExecutionInstruction:
 	add instruction -> tradeIdentifier: <"Assign the identifier input to the execution object.">
 		tradeIdentifier
 
-func Create_ExecutionPrimitive: <"Specifies the function to compose an execution based on a minimum required set of inputs: product, quantity, parties, etc.">
-	[creation PrimitiveEvent]
+func Create_Execution: <"Specifies the function to compose an execution based on a minimum required set of inputs: product, quantity, parties, etc.">
 	inputs:
 	    instruction ExecutionInstruction (1..1) <"Instructions to be used as an input to the function">
 	output:
-		executionPrimitive ExecutionPrimitive (1..1) <"Execution primitive event with absent before state and an after state containing the tradable product, parties, associated party roles and the known settlement terms.">
+		execution TradeState (1..1) <"Execution primitive event with absent before state and an after state containing the tradable product, parties, associated party roles and the known settlement terms.">
 
-	set executionPrimitive -> after -> trade -> tradableProduct -> product: <"Assign the product input to the tradable product of the execution object.">
+	set execution -> trade -> tradableProduct -> product: <"Assign the product input to the tradable product of the execution object.">
 		instruction -> product
-	add executionPrimitive -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity: <"Assign the prices and quantities input to the tradable product of the execution object.">
+	add execution -> trade -> tradableProduct -> tradeLot -> priceQuantity: <"Assign the prices and quantities input to the tradable product of the execution object.">
 		instruction -> priceQuantity
-	add executionPrimitive -> after -> trade -> tradableProduct -> counterparty: <"Assign the counterparty input to the tradable product of the execution object.">
+	add execution -> trade -> tradableProduct -> counterparty: <"Assign the counterparty input to the tradable product of the execution object.">
 		instruction -> counterparty
-	add executionPrimitive -> after -> trade -> tradableProduct -> ancillaryParty: <"Assign the ancillaryRole input to the tradable product of the execution object.">
+	add execution -> trade -> tradableProduct -> ancillaryParty: <"Assign the ancillaryRole input to the tradable product of the execution object.">
 		instruction -> ancillaryParty
-	add executionPrimitive -> after -> trade -> party: <"Assign the parties input to the execution object.">
+	add execution -> trade -> party: <"Assign the parties input to the execution object.">
 		instruction -> parties
-	add executionPrimitive -> after -> trade -> partyRole: <"Assign the party roles input to the execution object.">
+	add execution -> trade -> partyRole: <"Assign the party roles input to the execution object.">
  		instruction -> partyRoles
-	set executionPrimitive -> after -> trade -> executionDetails: <"Assign the settlement terms input to the execution object.">
+	set execution -> trade -> executionDetails: <"Assign the settlement terms input to the execution object.">
 		instruction -> executionDetails
-	set executionPrimitive -> after -> trade -> tradeDate: <"Assign the tradeDate input to the execution object.">
+	set execution-> trade -> tradeDate: <"Assign the tradeDate input to the execution object.">
 		instruction -> tradeDate
-	add executionPrimitive -> after -> trade -> tradeIdentifier: <"Assign the identifier input to the execution object.">
+	add execution-> trade -> tradeIdentifier: <"Assign the identifier input to the execution object.">
 		instruction -> tradeIdentifier
-	set executionPrimitive -> after -> state -> positionState: <"Assign the position status to executed.">
+	set execution -> state -> positionState: <"Assign the position status to executed.">
 	    PositionStatusEnum -> Executed
-
-	post-condition BeforeIsAbsent: <"The execution will be the first event in any post-trade life cycle and therefore does not have a before state. Once pre-trade elements are brought into CDM, the 'before' will be used to refer to the last of the pre-trade event states.">
-		executionPrimitive -> before is absent
 
 func Create_ContractFormationInstruction:
     inputs:
@@ -918,24 +803,21 @@ func Create_ContractFormationInstruction:
     add instruction -> legalAgreement:
         legalAgreement
 
-func Create_ContractFormationPrimitive: <"Function specification to create the primitive event that represents an executed trade for a contractual product that has been affirmed (or confirmed) by the two parties. The formed contract can reference a legal agreement for instance a master agreement, by using the optional legalAgreement input.">
-	[creation PrimitiveEvent]
+func Create_ContractFormation: <"Function specification that represents an executed trade for a contractual product that has been affirmed (or confirmed) by the two parties. The formed contract can reference a legal agreement for instance a master agreement, by using the optional legalAgreement input.">
 	inputs:
 		instruction ContractFormationInstruction (1..1) <"Instructions to be used as an input to the function">
         execution TradeState (1..1)
 	output:
-		contractFormation ContractFormationPrimitive (1..1) <"Primitive event containing the execution as its before state and the contract as the after state.">
+		contractFormation TradeState (1..1) <"Primitive event containing the execution as its before state and the contract as the after state.">
 
-	set contractFormation -> before: <"Before state must be the execution, and the contractual product in the after state must be the underlying product of the contract being formed.">
+	set contractFormation :
 		execution
-	set contractFormation -> after:
-		execution
-	add contractFormation -> after -> trade -> contractDetails -> documentation: <"Append any legal agreements from the instructions.">
+	add contractFormation -> trade -> contractDetails -> documentation: <"Append any legal agreements from the instructions.">
         instruction -> legalAgreement
-	set contractFormation -> after -> state -> positionState: <"Assign the position status to formed.">
+	set contractFormation -> state -> positionState: <"Assign the position status to formed.">
         PositionStatusEnum -> Formed
 
-func Create_ExercisePrimitive: <"Defines the process of putting into effect the rights specified in an options contract, such as to buy or sell a security.  Once exercised the option contract is terminated.">
+func Create_Exercise: <"Defines the process of putting into effect the rights specified in an options contract, such as to buy or sell a security.  Once exercised the option contract is terminated.">
 
 	inputs:
 		exerciseInstruction ExerciseInstruction (1..1) <"Instruction containing the terms of the option exercise.">
@@ -954,7 +836,7 @@ func Create_ExercisePrimitive: <"Defines the process of putting into effect the 
  		optionPayout -> underlier
 
   	alias execution: <"Creates the execution primitive describing the exchange of the underlying product, either as a cash transfer or as the formation of a new contractual product between parties.">
- 		Create_ExecutionPrimitive(
+ 		Create_Execution(
  		    Create_ExecutionInstruction(
                 underlier,
                 tradableProduct -> tradeLot only-element -> priceQuantity,
@@ -966,7 +848,7 @@ func Create_ExercisePrimitive: <"Defines the process of putting into effect the 
                 originalTrade -> trade -> tradeDate,
                 exerciseInstruction -> replacementTradeIdentifier
             )
-        ) -> after
+        ) 
 
 	condition OptionPayoutExists: <"Requires that the original contract contains an option payout.">
  		optionPayout exists
@@ -977,12 +859,12 @@ func Create_ExercisePrimitive: <"Defines the process of putting into effect the 
 	add exercise: <"Adds the replacement trade">
 		execution
 
-func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructed.">
+func Create_Reset: <"Defines how a Reset Primitive should be constructed.">
 	inputs:
 		instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
 		tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
 	output:
-		resetPrimitive ResetPrimitive (1..1)
+		reset TradeState (1..1)
 
 	alias payout: <"Specifies the payout that is resetting.">
 		instruction -> payout
@@ -999,32 +881,12 @@ func Create_ResetPrimitive: <"Defines how a Reset Primitive should be constructe
 	alias observation: <"Represents the single observation that will be used to compute the reset value.">
 		ResolveObservation([observationIdentifiers], empty)
 
-	set resetPrimitive -> before:
+	set reset:
 		tradeState
 
-	set resetPrimitive -> after:
-		tradeState
-
-	add resetPrimitive -> after -> resetHistory: <"To handle the various ways Contracts can change over time, ">
+	add reset -> resetHistory: <"To handle the various ways Contracts can change over time, ">
     	if payout -> performancePayout count = 1 then ResolvePerformanceReset(payout -> performancePayout only-element, observation, instruction -> resetDate)
 		else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
-
-func Create_Transfer: <"Function specification to build a transfer event following a reset on a contract">
-	[creation BusinessEvent]
-	inputs:
-		tradeState TradeState (1..1) <"Represents the trade and associated state, including the history of reset values and transfers.">
-		instruction TransferInstruction (1..1)
-		date date (1..1)
-	output:
-		transferEvent BusinessEvent (1..1)
-
-	set transferEvent -> primitives -> transfer:
-		Create_TransferPrimitive(instruction, tradeState)
-	set transferEvent -> eventDate:
-		date
-
-	post-condition TransferOnlyExists: <"Event must contain a transfer primitive populated with the cashflow, and no other primitive.">
-		transferEvent -> primitives -> transfer only exists
 
 func CalculateTransfer: <"Function specification to calculate a transfer, e.g. following a reset on a contract">
 	inputs:
@@ -1044,18 +906,16 @@ func CalculateTransfer: <"Function specification to calculate a transfer, e.g. f
         if instruction -> payout -> securityFinancePayout exists then
             Create_SecurityFinanceTransfer( instruction )
 			
-func Create_TransferPrimitive: <"Defines how a transfer primitive should be constructed, when representing the exchange of cash between parties.">
-	[creation PrimitiveEvent]
+func Create_Transfer: <"Defines how a transfer should be constructed, when representing the exchange of cash between parties.">
 	inputs:
 		instruction TransferInstruction (1..1)
 		tradeState TradeState (1..1) <"Represents the trade and associated state on which to construct the Transfer data type.">
 	output:
-		transfer TransferPrimitive (1..1)
+		transfer TradeState (1..1)
 
-    set transfer -> before: tradeState
-	set transfer -> after: tradeState
+	set transfer : tradeState
 
-	add transfer -> after -> transferHistory: <"Assigns the transfer contained in the transfer instruction to the transferHistory attribute.">
+	add transfer -> transferHistory: <"Assigns the transfer contained in the transfer instruction to the transferHistory attribute.">
 		instruction -> transferState
 
 func Create_CashTransfer: <"Defines how Transfer that represents an exchange of cash, should be constructed.">
@@ -1277,13 +1137,12 @@ func Create_QuantityChangeInstruction:
     set instruction -> direction: direction
     add instruction -> lotIdentifier: lotIdentifier
 
-func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs and constraints when calculating the after state of a Quantity Change Primitive Event">
-	[creation PrimitiveEvent]
+func Create_QuantityChange: <"A specification of the inputs, outputs and constraints when calculating the after state of a Quantity Change Primitive Event">
 	inputs:
 	    instruction QuantityChangeInstruction (1..1)
 		tradeState TradeState (1..1)
 	output:
-		quantityChangePrimitive QuantityChangePrimitive (1..1)
+		quantityChange TradeState (1..1)
 
     alias tradableProduct: <"TradableProduct from the input TradeState">
         tradeState -> trade -> tradableProduct
@@ -1308,10 +1167,9 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 		if instruction -> direction = QuantityChangeDirectionEnum -> Decrease and instruction -> change -> price exists
 		then instruction -> change -> price -> priceExpression -> priceType all = PriceTypeEnum -> CashPrice
 
-	set quantityChangePrimitive -> before: tradeState
-	set quantityChangePrimitive -> after: tradeState
+	set quantityChange : tradeState
 
-	set quantityChangePrimitive -> after -> trade -> tradableProduct: <"Update QuantityChangePrimitive after trade with new TradableProduct.">
+	set quantityChange -> trade -> tradableProduct: <"Update trade with new TradableProduct.">
 		Create_TradableProduct(
 			tradableProduct -> product,
 			newTradeLots,
@@ -1319,17 +1177,11 @@ func Create_QuantityChangePrimitive: <"A specification of the inputs, outputs an
 			tradableProduct -> ancillaryParty,
 			tradableProduct -> adjustment )
 
-    set quantityChangePrimitive -> after -> state -> positionState:
-        if quantityChangePrimitive -> after -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount all = 0
+    set quantityChange -> state -> positionState:
+        if quantityChange-> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount all = 0
 			then PositionStatusEnum -> Closed
 
-	post-condition ExecutionOrContractDetailsExists: <"The input and output types need to be consistent, if we started with an Execution, we should end with an Execution, likewise with Contract.">
-		if quantityChangePrimitive -> before -> trade -> executionDetails exists
-		then quantityChangePrimitive -> after -> trade -> executionDetails exists
-			and if quantityChangePrimitive -> before -> trade -> contractDetails exists
-			then quantityChangePrimitive -> after -> trade -> contractDetails exists
-
-func Create_TermsChangePrimitive: <"A specification of the inputs, outputs and constraints when calculating the after tradeState based Terms Change Primitive Instruction.">
+func Create_TermsChange: <"A specification of the inputs, outputs and constraints when calculating the after tradeState based Terms Change Primitive Instruction.">
 	inputs:
 		termsChange TermsChangeInstruction (1..1) <"Instructions to be used as an input to the function">
 		before TradeState (1..1) <"current trade to be ammended">
@@ -1443,18 +1295,17 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 		//interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and 
 		interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
-func Create_IndexTransitionTermsChangePrimitive: <"Function specification to create a terms change primitive that contains changes to the floating rate indexes and adds an adjustment spread to any existing spread.">
-	[creation PrimitiveEvent]
+func Create_IndexTransitionTermsChange: <"Function specification to create a terms change that contains changes to the floating rate indexes and adds an adjustment spread to any existing spread.">
 	inputs:
 		instruction IndexTransitionInstruction (1..1) <"Specifies the instructions containing the floating rate index, spread adjustment for each leg to be updated, and the effective date.">
 		tradeState TradeState (1..1) <"Specifies the trade to be updated.">
 	output:
-		termsChangePrimitive TermsChangePrimitive (1..1) <"Specifies the resulting term change primitive.">
+		termsChange TradeState (1..1) <"Specifies the resulting term change.">
 
-	set termsChangePrimitive -> after: <"Updates the trade based on each instruction priceQuantity (e.g. one for each floating rate leg).">
+	set termsChange : <"Updates the trade based on each instruction priceQuantity (e.g. one for each floating rate leg).">
 		UpdateSpreadAdjustmentAndRateOptions( tradeState, instruction -> priceQuantity )
 
-	set termsChangePrimitive -> before:
+	set termsChange :
 		tradeState
 
 func UpdateSpreadAdjustmentAndRateOptions: <"For each of the trade state's price quantity, find a matching price quantity instruction, and call the update function.">
@@ -1687,8 +1538,8 @@ func Create_Return: <"Defines the process of partially or fully returning a Secu
 	alias changePriceQuantity:
 	    Create_PriceQuantity( empty, returnInstruction -> quantity, empty )
 
-	set returnEvent -> primitives -> quantityChange: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially returned original contract, assuming there's a single security finance transaction in the original financial contract that is part returned.">
- 		Create_QuantityChangePrimitive( Create_QuantityChangeInstruction( [ changePriceQuantity ], QuantityChangeDirectionEnum -> Decrease, empty ), tradeState )
+	add returnEvent -> after: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially returned original contract, assuming there's a single security finance transaction in the original financial contract that is part returned.">
+ 		Create_QuantityChange( Create_QuantityChangeInstruction( [ changePriceQuantity ], QuantityChangeDirectionEnum -> Decrease, empty ), tradeState )
 
 	set returnEvent -> eventDate:
 		returnDate
@@ -1698,15 +1549,15 @@ func Qualify_FullReturn: <"The qualification of a full return event from the fac
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
+	alias transfer: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
 	set is_event:
 		(businessEvent -> intent is absent)
-		and businessEvent -> primitives -> quantityChange -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout exists
-		and (businessEvent -> primitives count = 1
-			and businessEvent -> primitives -> quantityChange exists
-			or (businessEvent -> primitives -> quantityChange exists and transfer exists))
-		and QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
-		and businessEvent -> primitives -> quantityChange -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
+		and businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout exists
+		and (businessEvent -> instruction count = 1
+			and businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
+			or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and transfer exists))
+		and QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True
+		and businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
 
 func Qualify_Reallocation: <"The qualification of a reallocation event from the fact that (i) a quantity change primitive exists, (ii) a split primitive exists, and (iii) the intent is Reallocation.">
 	[qualification BusinessEvent]
@@ -1763,7 +1614,7 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
 	            if item -> primitiveInstruction -> split exists then
                     Create_Split( item -> primitiveInstruction -> split -> breakdown, item -> before )
 				else if item -> primitiveInstruction -> exercise exists then
-					Create_ExercisePrimitive( item -> primitiveInstruction ->exercise, item -> before )
+					Create_Exercise( item -> primitiveInstruction ->exercise, item -> before )
 
                 else
                     [ Create_TradeState( item -> primitiveInstruction , item -> before ) ]
@@ -1792,15 +1643,15 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 
 	alias execution: <"Create execution if no before exists.">
 		if before exists then before
-		else Create_ExecutionPrimitive( primitiveInstruction -> execution ) -> after
+		else Create_Execution( primitiveInstruction -> execution )
 
 	alias quantityChange: <"Apply quantity change if instructions exist.">
 		if primitiveInstruction -> quantityChange is absent then execution
-		else Create_QuantityChangePrimitive( primitiveInstruction -> quantityChange, execution) -> after
+		else Create_QuantityChange( primitiveInstruction -> quantityChange, execution)
 
 	alias termsChange: <"Apply terms change if instructions exist.">
 		if primitiveInstruction -> termsChange is absent then quantityChange
-		else Create_TermsChangePrimitive( primitiveInstruction -> termsChange, quantityChange)
+		else Create_TermsChange( primitiveInstruction -> termsChange, quantityChange)
 
 	alias partyChange: <"Apply party change if instructions exist.">
 		if primitiveInstruction -> partyChange is absent then termsChange
@@ -1814,19 +1665,19 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 
 	alias contractFormation: <"Create contract formation if instructions exist.">
 		if primitiveInstruction exists and primitiveInstruction -> contractFormation is absent then partyChange
-		else Create_ContractFormationPrimitive( primitiveInstruction -> contractFormation, partyChange) -> after
+		else Create_ContractFormation( primitiveInstruction -> contractFormation, partyChange)
 
 	alias transfer:
 		if primitiveInstruction -> transfer is absent then contractFormation
-		else Create_TransferPrimitive( primitiveInstruction -> transfer, contractFormation) -> after
+		else Create_Transfer( primitiveInstruction -> transfer, contractFormation) 
 	
 	alias reset:
 		if primitiveInstruction -> reset is absent then transfer
-		else Create_ResetPrimitive( primitiveInstruction -> reset, transfer ) -> after
+		else Create_Reset( primitiveInstruction -> reset, transfer )
 
     alias indexTransition:
         if primitiveInstruction -> indexTransition is absent then reset
-        else Create_IndexTransitionTermsChangePrimitive( primitiveInstruction -> indexTransition, reset ) -> after
+        else Create_IndexTransitionTermsChange( primitiveInstruction -> indexTransition, reset )
 
     alias stockSplit:
        if primitiveInstruction -> stockSplit is absent then indexTransition
@@ -1834,9 +1685,6 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 
 	condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
 		primitiveInstruction -> split is absent
-
-	set after: <"Initiate applying primitive instructions.">
-		stockSplit
 
 	set after -> state -> closedState:
 		if contractFormation -> state -> positionState = PositionStatusEnum -> Closed then
