@@ -211,7 +211,7 @@ The steps required to change the CDM are aligned with the software development l
 
 .. figure:: images/SDLC.png
 
-.. note:: Development of the CDM is also enabled through alternative modelling platforms (for instance `Legend`_). Regardless of the modelling platform used, modelling and contribution to the CDM should go through the contribution check-list below. This check-list has been contextualised with references to Rosetta to ease understanding and align with the current process. This documentation is not an endorsement of the Rosetta modelling platform and associated products. CDM users remain invited to leverage the tools of their choosing.
+.. note:: Development of the CDM is also enabled through alternative modelling platforms (for instance `Legend`_). Regardless of the modelling platform used, modelling and contribution to the CDM should go through the contribution check-list below. This check-list has been contextualised with references to Rosetta to ease understanding and align with the current process. This documentation is not an endorsement of any modelling platform and associated products and CDM users remain invited to leverage the tools of their choosing.
 
 Before you start modelling
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
