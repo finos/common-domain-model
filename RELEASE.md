@@ -1,9 +1,16 @@
-# *DSL - CDM Distribution - Java Code Generation For Functions with Data Validations*
+# *Product Model - Equity Qualifying Functions*
+
+_Background_
+
+This release extends the qualification for equity products, in particular for basic performance equity options with an index or a basket as underlier.
 
 _What is being released?_
 
-This release improves the Java code generation for functions related to the handling `condition` and `post-condition` failures.  The default implemetation will will throw an exception. Implementers can reconfigure or extend this outcome based on their specific requirements, for example additional logging, error reporting etc.   
+* Two new qualifying functions: `Qualify_EquityOption_PriceReturnBasicPerformance_Index` and `Qualify_EquityOption_PriceReturnBasicPerformance_Basket`.
+* The fixing of the ISDA_Taxonomy synonym values for index transaction types. The current value is `Index` but it has to be `SingleIndex`.
 
-_Review Directions_
+_Functions_
 
-In the CDM Portal, download the Java distribution and inspect the generated function classes, and the default handler class `org.isda.cdm.function.DefaultConditionValidator.java`.
+*product-common-func*
+
+Added the `Qualify_EquityOption_PriceReturnBasicPerformance_Index` and `Qualify_EquityOption_PriceReturnBasicPerformance_Basket` functions since they were missing.
