@@ -207,11 +207,11 @@ The purpose of this section is to provide guidance for submitting, reviewing and
 - What a Maintainer should do to review the changes
 - How to release a new CDM version once changes have been approved
 
-The steps required to change the CDM are aligned with the software development lifecycle typically applicable to the development of any other software. This development lifecycle is illustrate in the diagram below. Each step is associated to the relevant component of the `Rosetta`_ platform that can be used to support the development of the CDM.
+The steps required to change the CDM are aligned with the software development lifecycle typically applicable to the development of any other software. This development lifecycle is illustrated in the diagram below. Each step is associated to the relevant component of the `Rosetta`_ platform that can be used to support the development of the CDM.
 
 .. figure:: images/SDLC.png
 
-.. note:: Development of the CDM is also enabled through alternative modelling platforms (for instance `Legend`_). Regardless of the modelling platform used, modelling and contribution to the CDM should go through the contribution check-list below. This check-list has been contextualised with references to Rosetta to ease understanding and align with the current process.
+.. note:: Development of the CDM is also enabled through alternative modelling platforms (for instance `Legend`_). Regardless of the modelling platform used, modelling and contribution to the CDM should go through the contribution check-list below. This check-list has been contextualised with references to Rosetta to ease understanding and align with the current process. This documentation is not an endorsement of the Rosetta modelling platform and associated products. CDM users remain invited to leverage the tools of their choosing.
 
 Before you start modelling
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
