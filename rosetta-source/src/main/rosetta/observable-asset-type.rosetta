@@ -9,17 +9,16 @@ import cdm.base.staticdata.party.*
 
 import cdm.observable.common.*
 import cdm.mapping.config.*
-import cdm.product.common.settlement.*
 import cdm.product.common.schedule.*
 
 type ObservationSource: <"The observation source can be composed of an curve and/or and information source.">
+    [deprecated]
 
 	curve Curve (0..1)
 	informationSource InformationSource (0..1)
 
 	condition CurveInformationSource: <"ObservationSource should not be empty, although the attribute cardinality would allow that.">
-		if ObservationSource exists
-		then (curve exists and informationSource exists)
+		(curve exists and informationSource exists)
 			or curve exists
 			or informationSource exists
 
@@ -46,7 +45,7 @@ type BondValuationModel: <" Bond valuation model for the security leg in a secur
 
 type BondPriceAndYieldModel: <" Bond price and yield valuation model for the security leg in a securities financing transaction, closely modelled onto the BondPriceAndYield.model in FpML.">
 	[deprecated]
-	
+
 	cleanOrDirtyPrice CleanOrDirtyPrice (0..1) <"Either the clean or dirty price of the bond.">
 	relativePrice RelativePrice (0..1) <"Bond price relative to a Benchmark.">
 	yieldToMaturity number (0..1) <"Price specified as a yield to maturity.">
@@ -54,22 +53,26 @@ type BondPriceAndYieldModel: <" Bond price and yield valuation model for the sec
 	allInPrice number (0..1) <"Bond all-in-price which is a price that includes all relevant price adjustments (i.e. accrued interest, haircut or margin ratio, inflation factor,etc.). It expresses a price in terms of percentage of nominal amount.">
 
 type CleanOrDirtyPrice: <" Class specifying the bond price as either clean or dirty in a bond valuation model.">
+    [deprecated]
 
 	cleanPrice CleanPrice (0..1) <"The clean price and accruals presented separately.">
 	dirtyPrice number (0..1) <"The dirty price presented as a single number.">
 
 type CleanPrice: <" Class to specify the clean price of a bond in a bond valuation model, with accruals presented separately, and modelled onto the cleanPrice model in BonPriceAndYield.model in FpML.">
+    [deprecated]
 
 	cleanPrice number (1..1) <"The clean price as a number.">
 	accruals number (0..1) <"The accruals as a number.">
 	dirtyPrice calculation (0..1) <"Placeholder for a calculation of dirtyPrice based on cleanPrice and accruals.">
 
 type RelativePrice: <" Bond price relative to a benchmark, as in a convertible bond.">
+    [deprecated]
 
 	spread number (1..1) <"The spread to a benchmark.">
 	bondEquityModel BondEquityModel (1..*) <"Bond equity model for convertible bonds.">
 
 type BondEquityModel: <" Bond equity model to value convertible bonds and modelled onto BondEquity.model in FpML.">
+    [deprecated]
 
 	bondchoiceModel BondChoiceModel (0..1) <"Either the bond or convertible bond.">
 	equity Equity (0..1) <"The equity.">
@@ -77,6 +80,8 @@ type BondEquityModel: <" Bond equity model to value convertible bonds and modell
 	condition: one-of
 
 type BondChoiceModel: <" Either a bond or convertible bond.">
+    [deprecated]
+
 	bond Bond (0..1)
 	convertibleBond ConvertibleBond (0..1)
 
@@ -117,6 +122,7 @@ type CashPrice: <"Specifies the nature of a cash price either as a fee type, cas
  	cashPriceType CashPriceTypeEnum (1..1) <"Specifies the type of Cash Price.">
  	premiumExpression PremiumExpression (0..1) <"Specifies a premium when expressed in a way other than an amount, and any required forward starting price definition.">
  	feeType FeeTypeEnum (0..1) <"Specifies the event type associated with a fee.">
+
  	condition PremiumType: <"Premium type can only be specified when the cash price type is a premium.">
  		if premiumExpression exists then cashPriceType = CashPriceTypeEnum -> Premium
 
@@ -143,7 +149,7 @@ type Price extends MeasureBase: <"Specifies a price to be used for trade amounts
             and priceExpression -> spreadType = SpreadTypeEnum -> Base
         then amount > 0
 
-    condition: <"Requires that any price expressed as a cash price and generating a cashflow must be positive">
+    condition PositiveCashPrice: <"Requires that any price expressed as a cash price and generating a cashflow must be positive">
         if priceExpression -> priceType = PriceTypeEnum -> CashPrice
         then amount > 0
 
@@ -182,14 +188,16 @@ type InformationSource: <"A class defining the source for a piece of information
 
 type Money extends Quantity: <"Defines a monetary amount in a specified currency.">
 	[metadata key]
-	condition:
+	condition CurrencyUnitExists:
     	unitOfAmount -> currency exists
 
 type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
     [deprecated]
+
 	crossRate CrossRate (0..*) <"An optional element that allow for definition of the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
 
 type FxRateObservable: <"Defines foreign exchange (FX) asset class specific parameters for market observations.">
+
     quotedCurrencyPair QuotedCurrencyPair (1..1) <"Describes the composition of a rate that has been quoted or is to be quoted.">
         [metadata address "pointsTo"=Observable->currencyPair]
     primaryFxSpotRateSource InformationSource (1..1) <"Specifies the primary source from which a rate should be observed.">
@@ -204,6 +212,7 @@ type QuotedCurrencyPair: <"A class that describes the composition of a rate that
 	quoteBasis QuoteBasisEnum (1..1) <"The method by which the exchange rate is quoted.">
 
 type CrossRate extends QuotedCurrencyPair: <"A class that is used for including the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
+    [deprecated]
 
 	rate number (1..1) <"The exchange rate used to cross between the traded currencies.">
 	spotRate number (0..1) <"An optional element used for FX forwards and certain types of FX OTC options. For deals consummated in the FX Forwards Market, this represents the current market rate for a particular currency pair.">

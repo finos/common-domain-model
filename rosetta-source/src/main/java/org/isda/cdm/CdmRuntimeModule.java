@@ -13,9 +13,7 @@ import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
-import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
-import com.rosetta.model.lib.validation.ModelObjectValidator;
 import com.rosetta.model.lib.validation.ValidatorFactory;
 import org.isda.cdm.processor.CdmReferenceConfig;
 
@@ -23,7 +21,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(ModelObjectValidator.class).to(bindModelObjectValidator());
 		bind(QualifyFunctionFactory.class).to(bindQualifyFunctionFactory());
 		bind(ValidatorFactory.class).to(bindValidatorFactory());
 		bind(ReferenceConfig.class).toInstance(CdmReferenceConfig.get());
@@ -74,10 +71,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends VectorGrowthOperation> bindVectorGrowthOperation() {
 		return VectorGrowthOperationImpl.class;
-	}
-
-	protected Class<? extends ModelObjectValidator> bindModelObjectValidator() {
-		return RosettaTypeValidator.class;
 	}
 
 	protected Class<? extends QualifyFunctionFactory> bindQualifyFunctionFactory() {

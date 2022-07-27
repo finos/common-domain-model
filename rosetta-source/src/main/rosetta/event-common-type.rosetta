@@ -3,7 +3,6 @@ version "${project.version}"
 
 import cdm.base.math.*
 import cdm.base.datetime.*
-import cdm.base.staticdata.asset.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
@@ -16,18 +15,12 @@ import cdm.product.common.*
 import cdm.product.asset.*
 import cdm.product.template.*
 import cdm.product.common.settlement.*
-import cdm.product.common.schedule.*
 
 import cdm.legalagreement.csa.*
-import cdm.legalagreement.contract.*
 import cdm.legalagreement.common.*
 
 import cdm.event.workflow.*
 import cdm.event.position.*
-
-import cdm.security.lending.*
-
-import cdm.mapping.config.*
 
 type Confirmation: <"A class to specify a trade confirmation.">
 
@@ -127,6 +120,7 @@ type ExecutionInstruction: <"Specifies instructions for execution of a transacti
 	partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
 	executionDetails ExecutionDetails (1..1) <"Specifies the type and venue of execution, e.g. via voice, or electronically.">
 	tradeDate date (1..1) <"Denotes the trade/execution date.">
+	    [metadata id]
 	tradeIdentifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
 
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
@@ -166,7 +160,7 @@ type IndexTransitionInstruction: <"Defines the information needed to create a In
 	effectiveDate date (1..1) <"Specifies the effective date of the index transition event. This is first date on which the floating rate calculation will use the new floating rate index and adjusted spread in the floating rate calculation.">
 	cashTransfer Transfer (0..1) <"Specifies the cash transfer that can optionally be tied to an index transition event.">
 
-	condition:
+	condition PriceQuantity:
 		priceQuantity -> price -> priceExpression -> priceType contains PriceTypeEnum -> InterestRate
 		and priceQuantity -> observable -> rateOption exists
 		and priceQuantity -> quantity is absent
@@ -176,7 +170,7 @@ type TermsChangeInstruction: <"Specifies instructions for terms change consistin
 	ancillaryParty AncillaryParty (0..*) <"ancillary party to be changed">
 	adjustment NotionalAdjustmentEnum (0..1)
 
-	condition: (product exists or ancillaryParty exists or adjustment exists)
+	condition AtLeastOneOf: (product exists or ancillaryParty exists or adjustment exists)
 
 type SplitInstruction: <"Specifies instructions for a split, consisting of a breakdown of instructions to be applied to each branch of the split. This instruction can be used to duplicate a trade, as in a clearing scenario, or to split a trade into smaller quantities (in which case each breakdown instruction needs to include a quantity change), as in an allocation.">
 	// Should cardinality be (2..*)?
@@ -205,7 +199,7 @@ type Reset: <"Defines the reset value or fixing value produced in cashflow calcu
 		[metadata reference]
 	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value and the method is not defined in a payout.">
 
-	condition: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
+	condition AggregationMethodologyExists: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
 		if observations count > 1 then aggregationMethodology exists
 
 type AggregationMethod: <"Defines the ways in which multiple values can be aggregated into a single value.">
@@ -217,7 +211,7 @@ type State: <"Defines the state of a trade at a point in the Trade's life cycle.
 	closedState ClosedState (0..1) <"Represents the qualification of what led to the trade's closure alongside the dates on which this closure took effect.">
 	positionState PositionStatusEnum (0..1) <"Identifies the state of the position, to distinguish if just executed, formed, already settled, closed, etc.">
 
-	condition: <"When the position state is identified as closed, the closed state must also be specified.">
+	condition ClosedStateExists: <"When the position state is identified as closed, the closed state must also be specified.">
 	    if positionState = PositionStatusEnum -> Closed then
 		    closedState exists
 
@@ -242,7 +236,7 @@ type ScheduledTransfer:
 	transferType TransferTypeEnum (1..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
 	corporateActionTransferType CorporateActionTypeEnum (0..1)
 
-	condition: <"When transfer type is Performance or Transfer then the type of event must be specified.">
+	condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
 		if transferType = TransferTypeEnum -> CorporateAction then corporateActionTransferType exists
 
 type SettlementOrigin: <"Defines the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
@@ -522,7 +516,7 @@ type TransferBase:
 	payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
 	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
 
-	condition:
+	condition FinancialUnitExists:
 		if observable exists
 		then quantity -> unitOfAmount -> financialUnit exists
 
@@ -553,7 +547,7 @@ type ExecutionPrimitive: <"Defines the primitive event for an execution, with 'a
 		[metadata reference]
 	after TradeState (1..1) <"Represents an execution between parties. In the case of an execution on a contractual product, some additional characteristics may need to be specified to get a fully-formed contract, for instance when the executing party acts as an agent, as is the case in an allocation scenario. This is the purpose of the 'ContractFormation' primitive event.">
 
-	condition:
+	condition ExecutionDetailsExist:
 		after -> trade -> executionDetails exists
 
 type ContractFormationPrimitive: <"Defines the primitive event that represents an executed trade that has been affirmed (or confirmed) by the two parties. If both 'after' and 'before' attributes exist, then both must have identical TradableProduct values.">
@@ -562,11 +556,11 @@ type ContractFormationPrimitive: <"Defines the primitive event that represents a
 		[metadata reference]
 	after TradeState (1..1) <"Represents the new contract being formed between the parties.">
 
-	condition: <"The underlying product should be unchanged.">
+	condition ProductUnchanged: <"The underlying product should be unchanged.">
 		if before exists then
 		before -> trade -> tradableProduct -> product = after -> trade -> tradableProduct -> product
 
-	condition: <"The trade lot, i.e. price, quantity, and observable should be unchanged.">
+	condition TradeLotUnchanged: <"The trade lot, i.e. price, quantity, and observable should be unchanged.">
         if before exists
         then before -> trade -> tradableProduct -> tradeLot = after -> trade -> tradableProduct -> tradeLot
 
@@ -576,23 +570,23 @@ type SplitPrimitive: <"Defines splitting of a single trade into one or more trad
 		[metadata reference]
 	after TradeState (2..*) <"Represents the outcome of the split. Includes the single trade (referenced in the 'before' attribute) with its Position State updated to closed, along with a reason.">
 
-	condition: <"Ensure Execution Details are not lost in the split process.">
+	condition ExecutionDetails: <"Ensure Execution Details are not lost in the split process.">
 		if before -> trade -> executionDetails exists
 		then after -> trade -> executionDetails exists
 			and after -> trade -> executionDetails exists
 			and after-> trade -> contractDetails is absent
 
-	condition: <"Ensure Contract Details are not list in the split process.">
+	condition ContractDetails: <"Ensure Contract Details are not list in the split process.">
 		if before -> trade -> contractDetails exists
 		then after -> trade -> contractDetails exists
 			and after -> trade -> contractDetails exists
 			and after-> trade -> executionDetails is absent
 
-	condition: <"Ensure the product remains unchanged.">
+	condition ProductUnchanged: <"Ensure the product remains unchanged.">
 		after -> trade -> tradableProduct -> product all = before -> trade -> tradableProduct -> product
 
     // TODO sum quantities with matching unitOfAmounts
-	condition: <"Ensure the quantities of each split trade totals that of the single trade.">
+	condition QuantityUnchanged: <"Ensure the quantities of each split trade totals that of the single trade.">
 		FilterOpenTradeStates(after) -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount sum = before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount sum
 
 type QuantityChangePrimitive: <"Defines the primitive event to represent a change in quantity, which includes notional. For details of how the TradeState is changed between the `before` and `after` TradeStates, see the corresponding Create_QuantityChangePrimitive function.">

@@ -4,8 +4,6 @@ version "${project.version}"
 import cdm.base.math.*
 import cdm.observable.asset.*
 
-import cdm.legalagreement.common.*
-
 func PostedCreditSupportItemAmount: <"Calculates the Value for the given Posted Credit Support item. Value means, unless otherwise specified in Paragraph 13, for any Calculation Date (IM) or other date for which Value is calculated and subject to Paragraph 5 in the case of a dispute, with respect to: (i) save as provided in clause (ii) below, Eligible Collateral (IM) or Posted Collateral (IM) that is: (A) an amount of Cash, the Base Currency Equivalent of such amount multiplied by (VP – HFX); and (B) a security, the Base Currency Equivalent of the bid price obtained by the Calculation Agent (IM) multiplied by (VP – HFX); where: VP equals the applicable Valuation Percentage; and HFX equals the applicable FX Haircut Percentage, provided that, for the purposes of calculating Value under Paragraph 8(b)(iv)(B) or Paragraph 11(a), the VP will be 100% and HFX will be zero; (ii) Posted Collateral (IM) that consists of items that are, in respect of the relevant posting obligation, deemed as of such date to have a Value of zero pursuant to Paragraph 13, zero; and (iii) Other Eligible Support (IM) and Other Posted Support. (IM), as specified in Paragraph 13.">
 	[calculation]
 	inputs:
@@ -29,7 +27,7 @@ func PostedCreditSupportItemAmount: <"Calculates the Value for the given Posted 
 	alias postedCreditSupportAmount:
 		cashOrSecurityValue * (1.00 - (haircutPercentage + fxHaircutPercentage + additionalHaircutPercentage))
 
-	condition:
+	condition CurrencyMatches:
 		baseCurrency = postedItem -> cashOrSecurityValue -> unitOfAmount-> currency
 			and baseCurrency = postedItem -> disputedCashOrSecurityValue -> unitOfAmount-> currency
 
@@ -58,7 +56,7 @@ func UndisputedAdjustedPostedCreditSupportAmount:
 	alias adjustedPostedCreditSupportAmount:
 		totalPostedCreditSupportAmount + priorDeliveryAmountAdjustment -> amount - priorReturnAmountAdjustment -> amount
 
-	condition:
+	condition CurrencyMatches:
 		(baseCurrency = priorDeliveryAmountAdjustment -> unitOfAmount-> currency)
 		and (baseCurrency = priorReturnAmountAdjustment -> unitOfAmount-> currency)
 		and (baseCurrency = disputedTransferredPostedCreditSupportAmount -> unitOfAmount-> currency)
@@ -83,20 +81,20 @@ func CreditSupportAmount:
 	alias creditSupportAmountCalc:
 		Max(marginAmount -> amount - threshold -> amount, 0.0)
 
-	condition:
+	condition CurrencyMatches:
 		(baseCurrency = marginAmount -> unitOfAmount-> currency)
 		and (baseCurrency = threshold -> unitOfAmount-> currency)
 		and (if marginAmountIA exists then baseCurrency = marginAmountIA -> unitOfAmount-> currency else True)
 
-	condition:
+	condition MarginAmountIA:
 		if marginApproach = MarginApproachEnum -> Distinct or marginApproach = MarginApproachEnum -> Allocated
-		then marginAmountIA is absent
+		    then marginAmountIA is absent
 		else if marginApproach = MarginApproachEnum -> GreaterOf
 			then marginAmountIA exists
 
 	set result -> amount: <"Paragraph 3 (c) (iii) Margin Approach. (A) If the Distinct Margin Flow (IM) Approach is specified as applicable in Paragraph 13, the following provisions will apply: (1) Credit Support Amount (IM) means, with respect to a party as the Pledgor, for any Calculation Date (IM), (i) the Margin Amount (IM) applicable to the Pledgor, if any, minus (ii) the Pledgor’s Threshold (IM); provided, however, that the Credit Support Amount (IM) will be deemed to be zero whenever the calculation of the Credit Support Amount (IM) yields a number less than zero. (2) No Amendment to Obligations in respect of Margin Amount (IA). The posting obligation of a Pledgor in respect of any amount that constitutes a Margin Amount (IA) under any Other CSA shall not be affected or amended in any way by the provisions of this Annex. (B) If the Allocated Margin Flow (IM/IA) Approach is specified as applicable in Paragraph 13, the following provisions will apply: (1) Credit Support Amount (IM) means, with respect to a party as the Pledgor, for any Calculation Date (IM), (i) the Margin Amount (IM) applicable to the Pledgor, if any, minus (ii) the Pledgor’s Threshold (IM); provided, however, that the Credit Support Amount (IM) will be deemed to be zero whenever the calculation of the Credit Support Amount (IM) yields a number less than zero. (2) Amendment to Obligations in respect of Margin Amount (IA). The posting obligation of a Pledgor in respect of any amount that constitutes a Margin Amount (IA) under any Other CSA shall be reduced on an aggregate basis by the amount of the Pledgor’s Credit Support Amount (IM); provided, however, that if, after such reduction, any such Margin Amount (IA) would be a negative amount, such Margin Amount (IA) will be deemed to be zero. (C) If the Greater of Margin Flow (IM/IA) Approach is specified as applicable in Paragraph 13, the following provisions will apply: (1) Credit Support Amount (IM) means, with respect to a party as the Pledgor, for any Calculation Date (IM), the greater of (i)(A) the Margin Amount (IM) applicable to the Pledgor, if any, minus (B) the Pledgor’s Threshold (IM) and (ii) the Margin Amount (IA); provided, however, that the Credit Support Amount (IM) will be deemed to be zero whenever the calculation of the Credit Support Amount (IM) yields a number less than zero. (2) Amendment to Obligations in respect of Margin Amount (IA).  The posting obligation of a Pledgor in respect of any amount that constitutes a Margin Amount (IA) under any Other CSA, other than such obligations of a Pledgor under this Annex, shall be reduced to zero.">
 		if marginApproach = MarginApproachEnum -> Distinct or marginApproach = MarginApproachEnum -> Allocated
-		then creditSupportAmountCalc
+		    then creditSupportAmountCalc
 		else if marginApproach = MarginApproachEnum -> GreaterOf
 			then Max(creditSupportAmountCalc, marginAmountIA -> amount)
 
@@ -133,7 +131,7 @@ func ReturnAmount: <"2018 Credit Support Annex For Initial Margin, Paragraph 3 (
 	alias undisputedReturnAmount:
 		Max(returnAmount - disputedReturnAmount -> amount, 0.0)
 
-	condition:
+	condition CurrencyMatches:
 		(baseCurrency = minimumTransferAmount -> unitOfAmount->currency)
 		and (baseCurrency = disputedReturnAmount -> unitOfAmount->currency)
 
@@ -143,7 +141,7 @@ func ReturnAmount: <"2018 Credit Support Annex For Initial Margin, Paragraph 3 (
 		else 0.0
 
 	set result -> unitOfAmount->currency:
-	baseCurrency
+	    baseCurrency
 
 func DeliveryAmount: <"2018 Credit Support Annex For Initial Margin, Paragraph 3 (a) Delivery Amount (IM).  Subject to Paragraphs 4 and 5, upon a demand made by the Secured Party on or promptly following a Calculation Date (IM), if the Delivery Amount (IM) applicable to the Pledgor for that Calculation Date (IM) equals or exceeds the Pledgor’s Minimum Transfer Amount (IM), then the Pledgor will Transfer to the Secured Party Eligible Credit Support (IM) having a Value as of the date of Transfer at least equal to the applicable Delivery Amount (IM) (rounded pursuant to Paragraph 13).  Unless otherwise specified in Paragraph 13, the Delivery Amount (IM) applicable to the Pledgor for any Calculation Date (IM) will equal the amount by which: (i) the Credit Support Amount (IM) applicable to the Pledgor exceeds (ii) the Value as of that Calculation Date (IM) of all Posted Credit Support (IM) held by the Secured Party (as adjusted to include any prior Delivery Amount (IM) and to exclude any prior Return Amount (IM), the transfer of which, in either case, has not yet been completed and for which the relevant Regular Settlement Day falls on or prior to such Calculation Date (IM)).">
 	[calculation]
@@ -175,7 +173,7 @@ func DeliveryAmount: <"2018 Credit Support Annex For Initial Margin, Paragraph 3
 	alias undisputedDeliveryAmount:
 		Max(deliveryAmount - disputedDeliveryAmount -> amount, 0.0)
 
-	condition:
+	condition CurrencyMatches:
 		(baseCurrency = minimumTransferAmount -> unitOfAmount -> currency
 		and (baseCurrency = disputedDeliveryAmount -> unitOfAmount -> currency))
 
