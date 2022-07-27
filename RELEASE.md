@@ -1,4 +1,4 @@
-# *Event Model - Removal of Unused Synonym Mappings for the Legacy Event Model and Mocked up Ingestion Sample*
+# *Event Model - Removal of Unused Synonym Mappings for the Legacy Event Model and Corresponding Ingestion Samples*
 
 _Background_
 
