@@ -189,6 +189,11 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
 	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_ResetPrimitive function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
 	transferHistory TransferState (0..*) <"Represents the updated Trade attributes which can change as the result of a transfer event.">
+	marketEventHistory MarketEventHistory (0..*)
+
+type MarketEventHistory:
+	creditEvent CreditEvent (1..*)
+	//corporateAction
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_ResetPrimitive function joins product definition details with observations to compute the reset value.">
 	[metadata key]
@@ -506,6 +511,22 @@ type StockSplitInstruction: <"Data required to perform a stock split business ev
 
 	adjustmentRatio number (1..1) <"The number that denotes the cumulative quantity of post-split shares issued to shareholders versus the quantity of pre-split shares previously issued to shareholders.  This number will be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.  With regard to any reference to price, the pre-split reference price will be divided by this number to determine the post-split reference price.">
 	effectiveDate date (1..1) <"The effective date of the stock split, also known as the ex-date. This is the date on which the additional shares are paid to the shareholders, or in the case of a reverse stock split, the number shares held by each shareholder is proportionally reduced.  Equity derivative transactions can be amended in firms' internal systems on such date.   In most markets, the listed stock price is reduced (or increased for a reverse stock split) to account for the split on the same date, but in some markets the price adjustment occurs on a later date.  In either case, equity derivative transactions should be amended on the date that the stocks are paid to the shareholders (or consolidated).">
+
+type CreditEvent: <"Data required to perform a credit event. The date in which the credit event occurs is covered at a higher level by the businessEvent -> eventDate">
+
+	creditEventType CreditEventTypeEnum (1..1) <"Specifies the type of credit event taking place.">
+	eventDeterminationDate date (1..1) <"The date at which a Credit Event Resolution Request Date (CERD) or Notice Delivery Date occurs.">
+	auctionDate date (1..1) <"The date on which the auction is scheduled to occur.">
+	settlementMethod SettlementTypeEnum (0..1) <"Specifies whether the process is to be physically settled or cash settled.">
+	settlementDate date (0..1) <"The date on which settlement is scheduled to occur.">
+	finalPrice number (0..1) <"The final price resulting from the auction.">
+	recoveryPercent number (0..1) <"The percentage of the original value of the asset affected by the credit event that can be recovered.">
+	publiclyAvailableInformation Resource (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not a credit event has occurred.">
+	referenceEntity LegalEntity (0..1) <"The reference entity, part of a credit basket, impacted by the credit event.">
+	newIndexReferenceInformation NewIndexReferenceInformation (0..1) <"The updated credit index after a credit event happens.">
+
+	condition EntityOrIndexChoice: <"For credit basket trades, the reference entity impacted by the credit event must be specified. For a credit index trade, the new parameters of the credit index must be specified. For a single name trade, there is no need to specify the reference entity since it is already included in the before trade.">
+		optional choice referenceEntity, newIndexReferenceInformation
 
 type TransferBase:
 
