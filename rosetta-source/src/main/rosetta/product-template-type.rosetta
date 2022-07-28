@@ -153,11 +153,17 @@ type ReturnTerms: <"Specifies the type of return of a performance payout.">
 	volatilityReturnTerms VolatilityReturnTerms (0..1) <"Return terms based upon the observed volatility of the underlier's price.">
 	correlationReturnTerms CorrelationReturnTerms (0..1) <"Return terms based upon the observed correlation between the components of the underlying basket.">
 
-    condition ReturnTypeMatchesReturnTerms: <"Checks that the return type label matches the actual return terms structure of the product.">
-		if priceReturnTerms only exists then
-		    priceReturnTerms -> returnType = ReturnTypeEnum -> Price and
-		if priceReturnTerms exists and dividendReturnTerms exists then
-		    priceReturnTerms -> returnType = ReturnTypeEnum -> Total
+    condition ReturnTermsExists: <"Checks that the return type label matches the actual return terms structure of the product.">
+        if priceReturnTerms -> returnType = ReturnTypeEnum -> Total then
+            (priceReturnTerms, dividendReturnTerms) only exists
+        else if priceReturnTerms -> returnType = ReturnTypeEnum -> Price then
+            priceReturnTerms only exists
+        else
+            priceReturnTerms only exists
+            or dividendReturnTerms only exists
+            or varianceReturnTerms only exists
+            or volatilityReturnTerms only exists
+            or correlationReturnTerms only exists
 
 type PerformancePayout extends PayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products.">
     [metadata key]
