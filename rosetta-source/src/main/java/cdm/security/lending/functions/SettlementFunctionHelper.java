@@ -9,11 +9,9 @@ import cdm.base.math.UnitType;
 import cdm.base.staticdata.party.PayerReceiver;
 import cdm.event.common.*;
 import cdm.event.common.functions.CalculateTransfer;
-import cdm.event.common.functions.Create_Execution;
+import cdm.event.common.functions.Create_BusinessEvent;
 import cdm.event.common.functions.Create_Return;
-import cdm.event.common.functions.Create_Transfer;
 import cdm.event.workflow.EventInstruction;
-import cdm.event.workflow.WorkflowStep;
 import cdm.product.template.*;
 import com.google.common.collect.Iterables;
 import com.rosetta.model.lib.RosettaModelObject;
@@ -23,6 +21,7 @@ import com.rosetta.model.metafields.FieldWithMetaDate;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -31,13 +30,7 @@ import java.util.stream.Collectors;
 public class SettlementFunctionHelper {
 
     @Inject
-    Create_Execution create_execution;
-
-    @Inject
     Create_Return create_Return;
-
-    @Inject
-    Create_Transfer create_transfer;
 
     @Inject
     CalculateTransfer calculateTransfer;
@@ -45,10 +38,18 @@ public class SettlementFunctionHelper {
     @Inject
     PostProcessor postProcessor;
 
-    public BusinessEvent createExecution(ExecutionInstruction executionInstruction) {
+    @Inject
+    Create_BusinessEvent create_businessEvent;
+
+    public BusinessEvent createExecution(ExecutionInstruction executionInstruction, Date eventDate) {
         ExecutionInstruction executionInstructionWithRefs = postProcess(ExecutionInstruction.class, executionInstruction);
 
-        BusinessEvent businessEvent = create_execution.evaluate(executionInstructionWithRefs);
+        List<Instruction> instructions = Arrays.asList(Instruction.builder()
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setExecution(executionInstructionWithRefs))
+                .build());
+
+        BusinessEvent businessEvent = create_businessEvent.evaluate(instructions,null,eventDate,null);
         return postProcess(BusinessEvent.class, businessEvent);
     }
 
@@ -56,11 +57,11 @@ public class SettlementFunctionHelper {
         return create_Return.evaluate(tradeState, returnInstruction, returnDate);
     }
 
-    public BusinessEvent createTransferBusinessEvent(WorkflowStep executionWorkflowStep, WorkflowStep proposedTransferWorkflowStep, LocalDate settlementDate) {
-        BusinessEvent transferBusinessEvent = create_transfer.evaluate(
-                getAfterState(executionWorkflowStep.getBusinessEvent()).orElse(null),
-                proposedTransferWorkflowStep.getProposedEvent().getInstruction().get(0).getPrimitiveInstruction().getTransfer(),
-                Date.of(settlementDate));
+    public BusinessEvent createTransferBusinessEvent(EventInstruction transferInstruction) {
+        BusinessEvent transferBusinessEvent = create_businessEvent.evaluate(transferInstruction.getInstruction(),
+                transferInstruction.getIntent(),
+                transferInstruction.getEventDate(),
+                transferInstruction.getEffectiveDate());
         return postProcess(BusinessEvent.class, transferBusinessEvent);
     }
 
@@ -177,20 +178,8 @@ public class SettlementFunctionHelper {
 
     private Optional<TradeState> getAfterState(BusinessEvent executionBusinessEvent) {
         return Optional.of(executionBusinessEvent)
-                .map(BusinessEvent::getPrimitives)
-                .filter(x -> !x.isEmpty()).map(Iterables::getLast)
-                .flatMap(this::getTradeState);
-    }
-
-    private Optional<TradeState> getTradeState(PrimitiveEvent p) {
-        if (p.getExecution() != null)
-            return Optional.of(p.getExecution()).map(ExecutionPrimitive::getAfter);
-        else if (p.getTransfer() != null)
-            return Optional.of(p.getTransfer()).map(TransferPrimitive::getAfter);
-        else if (p.getQuantityChange() != null)
-            return Optional.of(p.getQuantityChange()).map(QuantityChangePrimitive::getAfter);
-
-        return Optional.empty();
+                .map(BusinessEvent::getAfter)
+                .map(Iterables::getLast);
     }
 
     private <T extends RosettaModelObject> T postProcess(Class<T> modelType, T modelObject) {

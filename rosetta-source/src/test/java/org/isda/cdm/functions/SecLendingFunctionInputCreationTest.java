@@ -258,18 +258,13 @@ class SecLendingFunctionInputCreationTest {
 
 		TradeState partReturnBeforeTradeState = part.getSteps().stream()
                 .map(WorkflowStep::getBusinessEvent).filter(Objects::nonNull)
-                .map(BusinessEvent::getPrimitives).flatMap(Collection::stream).filter(Objects::nonNull)
-                .map(PrimitiveEvent::getTransfer).filter(Objects::nonNull)
-                .map(TransferPrimitive::getBefore).filter(Objects::nonNull)
-                .map(ReferenceWithMetaTradeState::getValue)
+                .map(BusinessEvent::getAfter).flatMap(Collection::stream).filter(Objects::nonNull)
                 .findFirst().orElseThrow(RuntimeException::new);
 
         TradeState partReturnAfterTradeState = part.getSteps().stream()
                 .map(WorkflowStep::getBusinessEvent).filter(Objects::nonNull)
-                .map(BusinessEvent::getPrimitives).flatMap(Collection::stream).filter(Objects::nonNull)
-                .map(PrimitiveEvent::getTransfer).filter(Objects::nonNull)
-                .map(TransferPrimitive::getAfter).filter(Objects::nonNull)
-                .findFirst().orElseThrow(RuntimeException::new);
+                .map(BusinessEvent::getAfter).flatMap(Collection::stream).filter(Objects::nonNull)
+                 .findFirst().orElseThrow(RuntimeException::new);
 
         BillingInstruction actualBillingInstruction = BillingInstruction.builder()
                 .setSendingParty(getParty(partReturnAfterTradeState, CounterpartyRoleEnum.PARTY_1))
@@ -373,18 +368,10 @@ class SecLendingFunctionInputCreationTest {
         ExecutionInstruction executionInstruction = STRICT_MAPPER.readValue(resource, ExecutionInstruction.class);
         Create_Execution createExecution = injector.getInstance(Create_Execution.class);
 
-        BusinessEvent businessEvent = createExecution.evaluate(executionInstruction);
+        TradeState tradeState = createExecution.evaluate(executionInstruction);
 
-        assertNotNull(businessEvent, "Expected a business event");
-        List<? extends PrimitiveEvent> primitives = businessEvent.getPrimitives();
-        assertNotNull(primitives, "Expected a primitive");
-        assertEquals(1, primitives.size(), "Expected 1 primitive but was " + primitives.size());
-        PrimitiveEvent primitiveEvent = primitives.get(0);
-        ExecutionPrimitive executionPrimitive = primitiveEvent.getExecution();
-        assertNotNull(executionPrimitive, "Expected an execution");
-        TradeState afterTradeState = executionPrimitive.getAfter();
-        assertNotNull(afterTradeState, "Expected an after trade state");
-        return afterTradeState;
+        assertNotNull(tradeState, "Expected an after trade state");
+        return tradeState;
     }
 
 
@@ -403,13 +390,7 @@ class SecLendingFunctionInputCreationTest {
         WorkflowStep workflowStep = workflowSteps.get(2);
         BusinessEvent businessEvent = workflowStep.getBusinessEvent();
         assertNotNull(businessEvent, "Expected a business event");
-        List<? extends PrimitiveEvent> primitives = businessEvent.getPrimitives();
-        assertNotNull(primitives, "Expected a primitive");
-        assertEquals(1, primitives.size(), "Expected 1 primitive but was " + primitives.size());
-        PrimitiveEvent primitiveEvent = primitives.get(0);
-        TransferPrimitive primitiveEventTransfer = primitiveEvent.getTransfer();
-        assertNotNull(primitiveEventTransfer, "Expected a transfer");
-        TradeState afterTradeState = primitiveEventTransfer.getAfter();
+        TradeState afterTradeState = businessEvent.getAfter().get(0);
         assertNotNull(afterTradeState, "Expected an after trade state");
         return afterTradeState;
     }
