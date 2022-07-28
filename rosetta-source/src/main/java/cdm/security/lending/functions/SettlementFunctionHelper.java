@@ -90,14 +90,16 @@ public class SettlementFunctionHelper {
 
     public EventInstruction createTransferInstruction(BusinessEvent executionBusinessEvent, LocalDate transferDate) {
         Payout payout = getSecurityPayout(executionBusinessEvent).orElse(null);
-        CalculateTransferInstruction calculateTransferInstruction = CalculateTransferInstruction.builder()
-                .setTradeState(getAfterState(executionBusinessEvent).orElse(null))
-                .setPayoutValue(payout)
-                .setPayerReceiver(getPayerReceiver(payout).orElse(null))
-                .setDate(Date.of(transferDate))
-                .build();
+        TradeState before = getAfterState(executionBusinessEvent).orElse(null);
+        CalculateTransferInstruction calculateTransferInstruction =
+                CalculateTransferInstruction.builder()
+                        .setTradeState(before)
+                        .setPayoutValue(payout)
+                        .setPayerReceiver(getPayerReceiver(payout).orElse(null))
+                        .setDate(Date.of(transferDate))
+                        .build();
         List<? extends Transfer> transfers = calculateTransfer.evaluate(calculateTransferInstruction);
-        return createTransferInstruction(transfers, transferDate);
+        return createTransferInstruction(transfers, transferDate, before);
     }
 
     public EventInstruction createReturnTransferInstruction(BusinessEvent executionBusinessEvent,
@@ -105,23 +107,26 @@ public class SettlementFunctionHelper {
                                                        LocalDate transferDate) {
         Payout payout = getSecurityPayout(executionBusinessEvent).orElse(null);
         Quantity shareQuantity = getShareQuantity(quantities);
-        CalculateTransferInstruction calculateTransferInstruction = CalculateTransferInstruction.builder()
-                .setTradeState(getAfterState(executionBusinessEvent).orElse(null))
-                .setPayoutValue(payout)
-                .setPayerReceiver(getReturnPayerReceiver(payout).orElse(null))
-                .setQuantity(shareQuantity)
-                .setDate(Date.of(transferDate))
-                .build();
+        TradeState before = getAfterState(executionBusinessEvent).orElse(null);
+        CalculateTransferInstruction calculateTransferInstruction =
+                CalculateTransferInstruction.builder()
+                        .setTradeState(before)
+                        .setPayoutValue(payout)
+                        .setPayerReceiver(getReturnPayerReceiver(payout).orElse(null))
+                        .setQuantity(shareQuantity)
+                        .setDate(Date.of(transferDate))
+                        .build();
         List<? extends Transfer> transfers = calculateTransfer.evaluate(calculateTransferInstruction);
-        return createTransferInstruction(transfers, transferDate);
+        return createTransferInstruction(transfers, transferDate, before);
     }
 
-    private EventInstruction createTransferInstruction(List<? extends Transfer> transfers, LocalDate transferDate) {
+    private EventInstruction createTransferInstruction(List<? extends Transfer> transfers, LocalDate transferDate, TradeState before) {
         List<TransferState> transferStates = transfers.stream()
                 .map(t -> TransferState.builder().setTransfer(t).build())
                 .collect(Collectors.toList());
         return EventInstruction.builder()
                 .addInstruction(Instruction.builder()
+                        .setBeforeValue(before)
                         .setPrimitiveInstruction(PrimitiveInstruction.builder()
                                 .setTransfer(TransferInstruction.builder()
                                         .setTransferState(transferStates))))
