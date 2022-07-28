@@ -46,17 +46,6 @@ type Affirmation: <"A class to specify a trade affirmation.">
 		if lineage -> tradeReference -> tradableProduct -> product -> security exists
 		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
 
-type AllocationInstruction:
-	breakdowns AllocationBreakdown (1..*) <"The set of allocation breakdowns to be applied to a block trade">
-
-type AllocationBreakdown:
-	counterparty Counterparty (1..1) <"Specifies the counterparty to add.">
-	ancillaryParty PartyRole (1..1) <"Specifies an additional counterparty to add as part of the allocation process.">
-	quantity Quantity (1..*) <"The quantity to be allocated to the party.">
-	allocationTradeId Identifier (1..*)<"The identifier to be assigned to the new trade post allocation">
-	account Account (0..1)<"The account to allocate the trade into">
-	collateral Collateral (0..1)<"The sum that must be posted upfront to collateralize against counterparty credit risk.">
-
 type ContractFormationInstruction: <"Specifies instructions to create a fully formed contract, with optional legal agreements.">
 	legalAgreement LegalAgreement (0..*) <"Optional legal agreements associated to the contract being formed, for instance a master agreement.">
 
@@ -97,11 +86,6 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade.
 	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
     instruction Instruction (0..*) <"Specifies the instructions  were used to create the Business Event.">
     after TradeState (0..*) <"Specifies the after trade state(s) created.">
-
-type EventTestBundle: <"Combines several events for testing purposes, intended to be used in downstream processes.">
-
-	event WorkflowStep (2..*)
-	computedAmount ComputedAmount (0..*)
 
 type ExecutionInstruction: <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, execution details, and settlement terms.">
 	product Product (1..1) <"Defines the financial product to be executed and contract formed.">
