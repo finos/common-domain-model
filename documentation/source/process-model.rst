@@ -532,16 +532,16 @@ An example of such use is captured in the reset event of an Equity Swap. The res
 
 At the end of each period in the life of the Equity Swap, the reset process will append further reset values onto the *trade state*. The series of equity prices then supports equity performance calculation as each reset value will represent the equity price at the end of one period and the start of the next.
 
-These above steps are codified in the ``Create_ResetPrimitive`` function, which defines how the ``ResetPrimitive`` instance should be constructed.
+These above steps are codified in the ``Create_Reset`` function, which defines how the ``Reset`` instance should be constructed.
 
 .. code-block:: Haskell
 
- func Create_ResetPrimitive:
+ func Create_Reset:
      inputs:
          instruction ResetInstruction (1..1)
          tradeState TradeState (1..1)
      output:
-         resetPrimitive ResetPrimitive (1..1)
+         reset TradeState (1..1)
 
      alias payout:
         instruction -> payout
@@ -558,13 +558,10 @@ These above steps are codified in the ``Create_ResetPrimitive`` function, which 
     alias observation:
         ResolveObservation([observationIdentifiers], empty)
 
-    set resetPrimitive -> before:
+    set reset:
         tradeState
 
-    set resetPrimitive -> after:
-        tradeState
-
-    add resetPrimitive -> after -> resetHistory:
+    add reset -> resetHistory:
         if payout -> performancePayout count = 1 then ResolvePerformanceReset(payout -> performancePayout only-element, observation, instruction -> resetDate)
         else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
 
