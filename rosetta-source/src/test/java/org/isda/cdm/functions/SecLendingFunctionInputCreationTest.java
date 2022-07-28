@@ -256,15 +256,14 @@ class SecLendingFunctionInputCreationTest {
 
         TradeState fullReturnAfterTradeState = getTransferTradeState();
 
-		TradeState partReturnBeforeTradeState = part.getSteps().stream()
-                .map(WorkflowStep::getBusinessEvent).filter(Objects::nonNull)
-                .map(BusinessEvent::getAfter).flatMap(Collection::stream).filter(Objects::nonNull)
-                .findFirst().orElseThrow(RuntimeException::new);
+        WorkflowStep partReturnWorkflowStep = part.getSteps().get(2);
 
-        TradeState partReturnAfterTradeState = part.getSteps().stream()
-                .map(WorkflowStep::getBusinessEvent).filter(Objects::nonNull)
-                .map(BusinessEvent::getAfter).flatMap(Collection::stream).filter(Objects::nonNull)
-                 .findFirst().orElseThrow(RuntimeException::new);
+        TradeState partReturnBeforeTradeState = partReturnWorkflowStep.getBusinessEvent()
+                .getInstruction().get(0)
+                .getBefore().getValue();
+
+        TradeState partReturnAfterTradeState = partReturnWorkflowStep.getBusinessEvent()
+                .getAfter().get(0);
 
         BillingInstruction actualBillingInstruction = BillingInstruction.builder()
                 .setSendingParty(getParty(partReturnAfterTradeState, CounterpartyRoleEnum.PARTY_1))
