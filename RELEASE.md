@@ -1,24 +1,25 @@
-# *Product Model - Equity Qualifying Functions*
+# *Event Model - Removal of Legacy Primitive Events*
 
 _Background_
 
-This release extends the qualification for equity products, in particular for basic performance equity product with a single name, an index or a basket as underlier.
+This release follows the recent work on the composable business event model using Instruction type and the corresponding creation function, Create_BusinessEvent.  The previous approach would composed business events with with primitive events. Theese are no longer needed. Business Events are now described through the combination of Instructions and the resulting after Trade States.
 
 _What is being released?_
 
-This release adjusts the qualification logic for equity swap products to aligned with the specified `ReturnTerms`, rather than the specified `ReturnTypeEnum`. 
-
-- `Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName`
-- `Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName`
-- `Qualify_EquitySwap_PriceReturnBasicPerformance_Basket`
-- `Qualify_EquitySwap_PriceReturnBasicPerformance_Index`
+This release removes the final legacy PrimitiveEvent and adjust the associated modelling elements.
+- Removed Types
+  - PrimitiveEvent
+  - ExecutionPrimitive
+  - ContractFormationPrimitive
+  - SplitPrimitive
+  - QuantityChangePrimitive
+  - ResetPrimitive
+  - TermsChangePrimitive
+  - TransferPrimitive
+- Renamed functions that referred to primitive but no longer returned an event primitive type, e.g Create_ExecutionPrimitive renamed to Create_Execution
+- Removed functions: QuantityDecreasedPrimitive, QuantityDecreasedToZeroPrimitive, CompareQuantityChangePrimitives, CompareQuantityChangePrimitive
+- Updated all qualification functions that referred to EventPrimitive
 
 _Review Directions_
-
-In the CDM Portal, select Textual Browser and review the corresponding qualification functions 
-
-In the CDM Portal, select Ingestion and review the samples in the folders below havve been qualified adequately:
-
-- fpml-5-10 > products > equity-swaps
-- fpml-5-10 > incomplete-products > equity-swaps
-
+ 
+In the CDM Portal, select Textual Browser and review the types and function mentioned above.
