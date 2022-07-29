@@ -35,7 +35,7 @@ public class RunReturnSettlementWorkflow implements ExecutableFunction<RunReturn
         WorkflowStep proposedTransferWorkflowStep = workflows.createProposedWorkflowStep(returnWorkflowStep, transferInstruction, dateTime(returnDate, 15, 0));
 
         // step 3 on settle date
-        BusinessEvent transferBusinessEvent = settlements.createTransferBusinessEvent(returnWorkflowStep, proposedTransferWorkflowStep, settlementDate);
+        BusinessEvent transferBusinessEvent = settlements.createTransferBusinessEvent(transferInstruction);
         WorkflowStep acceptedTransferWorkflowStep = workflows.createAcceptedWorkflowStep(proposedTransferWorkflowStep, transferBusinessEvent, dateTime(settlementDate, 18, 0));
 
         return Workflow.builder()
