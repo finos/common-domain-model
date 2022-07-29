@@ -1,8 +1,8 @@
-# *Event Model - Removal of Unused Primitive elements*
+# *Event Model - Removal of Legacy Event Model*
 
 _Background_
 
-This release extends the qualification for equity products, in particular for basic performance equity product with a single name, an index or a basket as underlier.
+This release follows the recent work on the composable business event model using Instructions and the corresponding creation function, Create_BusinessEvent. The previous approach using business events composed with primitive events was illustrated with several mocked up samples. Those were enabled with artificial XML schema and associated synonym mapping. They are no longer needed.
 
 _What is being released?_
 
