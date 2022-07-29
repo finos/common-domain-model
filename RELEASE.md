@@ -1,12 +1,12 @@
-# *Event Model - Removal of Legacy Event Model*
+# *Event Model - Removal of Legacy Primitive Events*
 
 _Background_
 
-This release follows the recent work on the composable business event model using Instruction type and the corresponding creation function, Create_BusinessEvent.  In the previous event model, BusinessEvent was composed of PrimitiveEvent types.
+This release follows the recent work on the composable business event model using Instruction type and the corresponding creation function, Create_BusinessEvent.  The previous approach would composed business events with with primitive events. Theese are no longer needed. Business Events are now described through the combination of Instructions and the resulting after Trade States.
 
 _What is being released?_
 
-This release removes the final legacy component for the primitive based event model.
+This release removes the final legacy PrimitiveEvent and adjust the associated modelling elements.
 - Removed Types
   - PrimitiveEvent
   - ExecutionPrimitive
