@@ -2,12 +2,24 @@
 
 _Background_
 
-This release follows the recent work on the composable business event model using Instructions and the corresponding creation function, Create_BusinessEvent. The previous approach using business events composed with primitive events was illustrated with several mocked up samples. Those were enabled with artificial XML schema and associated synonym mapping. They are no longer needed.
+This release follows the recent work on the composable business event model using Instruction type and the corresponding creation function, Create_BusinessEvent.  In the previous event model, BusinessEvent was composed of PrimitiveEvent types.
 
 _What is being released?_
 
 This release removes the final legacy component for the primitive based event model.
+- Removed Types
+  -- PrimitiveEvent,
+  -- ExecutionPrimitive,
+  -- ContractFormationPrimitive,
+  -- SplitPrimitive,
+  -- QuantityChangePrimitive,
+  -- ResetPrimitive,
+  -- TermsChangePrimitive,
+  -- TransferPrimitive
+- Renamed functions that referred to primitive but no longer returned an event primitive type, e.g Create_ExecutionPrimitive renamed to Create_Execution
+- Removed functions: QuantityDecreasedPrimitive, QuantityDecreasedToZeroPrimitive, CompareQuantityChangePrimitives, CompareQuantityChangePrimitive
+- Updated all qualification functions that referred to EventPrimitive
 
 _Review Directions_
-
-In the CDM Portal, select Ingestion and review that the legacy primitive events have been removed
+ 
+In the CDM Portal, select Textual Browser and review the types and function mentioned above.
