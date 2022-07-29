@@ -10,4 +10,4 @@ This release removes the final legacy component for the primitive based event mo
 
 _Review Directions_
 
-In the CDM Portal, select Ingestion and review that the legacy event samples have been removed
+In the CDM Portal, select Ingestion and review that the legacy primitive events have been removed
