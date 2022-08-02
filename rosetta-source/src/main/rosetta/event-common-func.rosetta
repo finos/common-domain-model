@@ -852,7 +852,7 @@ func Create_CreditEvent: <"Function specification to create the fully-formed bus
 		transfer TransferInstruction (0..1)
     output:
 		after TradeState (1..1)
-	
+
 	alias notionalQuantity:
 		before -> trade -> tradableProduct -> tradeLot -> priceQuantity
 
@@ -861,7 +861,7 @@ func Create_CreditEvent: <"Function specification to create the fully-formed bus
 
 	alias notionalCurrency: <"Extraction of the notional amount currency for credit products. Needed to create a Quantity structure in quantityAdjusted.">
 	before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout-> creditDefaultPayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount
-	
+
 	alias notionalAdjustment: <"For a credit index, the notional amouunt gets adjusted by multiplying it by the Index Factor.">
 		creditEvent -> newIndexReferenceInformation -> indexFactor * notionalAmount
 
@@ -873,7 +873,7 @@ func Create_CreditEvent: <"Function specification to create the fully-formed bus
         	Create_QuantityChangeInstruction( [notionalQuantity], QuantityChangeDirectionEnum -> Decrease, empty )
 		else if Qualify_CreditDefaultSwap_Index (before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms) = True or Qualify_CreditDefaultSwap_IndexTranche (before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms) then
 			Create_QuantityChangeInstruction( [quantityAdjusted], QuantityChangeDirectionEnum -> Replace, empty )
-	
+
 	alias creditPayment: <"Optional payment associated with the credit event.">
 		transfer
 

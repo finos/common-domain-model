@@ -6,6 +6,7 @@ import cdm.event.workflow.EventInstruction;
 import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
+import com.rosetta.model.lib.records.Date;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
@@ -21,19 +22,19 @@ public class RunNewSettlementWorkflow implements ExecutableFunction<ExecutionIns
 
     @Override
     public Workflow execute(ExecutionInstruction executionInstruction) {
-        LocalDate tradeDate = executionInstruction.getTradeDate().getValue().toLocalDate();
+        Date tradeDate = executionInstruction.getTradeDate().getValue();
 
         // step 1 on trade date AM
-        BusinessEvent executionBusinessEvent = settlements.createExecution(executionInstruction);
-        WorkflowStep executionWorkflowStep = workflows.createWorkflowStep(executionBusinessEvent, dateTime(tradeDate, 9, 0));
+        BusinessEvent executionBusinessEvent = settlements.createExecution(executionInstruction, tradeDate);
+        WorkflowStep executionWorkflowStep = workflows.createWorkflowStep(executionBusinessEvent, dateTime(tradeDate.toLocalDate(), 9, 0));
 
         // step 2 on trade date PM
         LocalDate settlementDate = settlements.nearSettlementDate(executionWorkflowStep.getBusinessEvent());
         EventInstruction transferInstruction = settlements.createTransferInstruction(executionWorkflowStep.getBusinessEvent(), settlementDate);
-        WorkflowStep proposedTransferWorkflowStep = workflows.createProposedWorkflowStep(executionWorkflowStep, transferInstruction, dateTime(tradeDate, 15, 0));
+        WorkflowStep proposedTransferWorkflowStep = workflows.createProposedWorkflowStep(executionWorkflowStep, transferInstruction, dateTime(tradeDate.toLocalDate(), 15, 0));
 
         // step 3 on settle date
-        BusinessEvent transferBusinessEvent = settlements.createTransferBusinessEvent(executionWorkflowStep, proposedTransferWorkflowStep, settlementDate);
+        BusinessEvent transferBusinessEvent = settlements.createTransferBusinessEvent(transferInstruction);
         WorkflowStep acceptedTransferWorkflowStep = workflows.createAcceptedWorkflowStep(proposedTransferWorkflowStep, transferBusinessEvent, dateTime(settlementDate, 18, 0));
 
         return Workflow.builder()

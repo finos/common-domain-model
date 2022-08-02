@@ -336,16 +336,15 @@ Execution Primitive
 
 The first step in instantiating a transaction between two parties in the CDM is an *execution*. In practice, this execution represents the conclusion of a pre-trade process, which may be a client order that gets filled or a quote that gets accepted by the client. However, the CDM event model only covers post-trade lifecycle events so assumes that a trade gets instantiated "from scratch" at execution. 
 
-Therefore, the execution primitive function does not take any before state as input and all the trade details are contained in the execution instruction input. 
+Therefore, the execution function does not take any before state as input and all the trade details are contained in the execution instruction input.
 
 .. code-block:: Haskell
 
- func Create_ExecutionPrimitive:
-   [creation PrimitiveEvent]
+ func Create_Execution:
    inputs:
      instruction ExecutionInstruction (1..1)
    output:
-     executionPrimitive ExecutionPrimitive (1..1)
+     execution TradeState (1..1)
 
 .. code-block:: Haskell
 
@@ -370,13 +369,12 @@ The function takes an existing trade state (typically, but not necessarily, an e
 
 .. code-block:: Haskell
 
- func Create_ContractFormationPrimitive:
-   [creation PrimitiveEvent]
+ func Create_ContractFormation:
    inputs:
      instruction ContractFormationInstruction (1..1)
      execution TradeState (1..1)
    output:
-     contractFormation ContractFormationPrimitive (1..1)
+     contractFormation TradeState (1..1)
 
 .. code-block:: Haskell
 
@@ -390,16 +388,16 @@ In other cases, the execution and confirmation happen in one go and a contract i
 Reset Primitive
 '''''''''''''''
 
-The reset primitive function associates a reset object to the trade state. The reset primitive function creates an instances of the ``Reset`` data type and adds it to the ``resetHistory`` attribute of a given ``TradeState``. The reset instruction specifies the payout that is subject to the reset, via a reference. A reset does not modify the underlying ``Trade`` object.
+The reset function associates a reset object to the trade state. The reset function creates an instances of the ``Reset`` data type and adds it to the ``resetHistory`` attribute of a given ``TradeState``. The reset instruction specifies the payout that is subject to the reset, via a reference. A reset does not modify the underlying ``Trade`` object.
 
 .. code-block:: Haskell
 
- func Create_ResetPrimitive:
+ func Create_Reset:
    inputs:
      instruction ResetInstruction (1..1)
      tradeState TradeState (1..1)
    output:
-     resetPrimitive ResetPrimitive (1..1)
+     reset TradeState (1..1)
 
 .. code-block:: Haskell
 
@@ -439,8 +437,7 @@ Business events are built according to the following principles:
  type BusinessEvent:
    [metadata key]
    [rootType]
-   primitives PrimitiveEvent (0..*)
-     [deprecated]
+
    intent EventIntentEnum (0..1)
    eventQualifier eventType (0..1)
    eventDate date (1..1)
@@ -565,18 +562,14 @@ One distinction with the product approach is that the ``intent`` qualification i
      businessEvent BusinessEvent (1..1)
    output: is_event boolean (1..1)
    alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
-   alias transfer: TransfersForDate( businessEvent -> primitives -> transfer -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
+   alias transfer: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
    
    set is_event:
      businessEvent -> intent is absent
-       and ((businessEvent -> primitives count = 1 and businessEvent -> primitives -> quantityChange exists)
-         or (businessEvent -> primitives -> quantityChange exists and transfer exists)
-         or (primitiveInstruction -> quantityChange only exists
-           or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists))
-       and (QuantityDecreasedToZeroPrimitive(businessEvent -> primitives -> quantityChange) = True
-         or QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
-       and (businessEvent -> primitives -> quantityChange only-element -> after -> state -> closedState -> state = ClosedStateEnum -> Terminated
-         or businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
+       and (primitiveInstruction -> quantityChange only exists
+           or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
+       and (QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
+       and (businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
