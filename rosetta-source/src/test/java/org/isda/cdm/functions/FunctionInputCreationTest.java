@@ -1491,10 +1491,10 @@ class FunctionInputCreationTest {
                 .setQualification(EventTimestampQualificationEnum.EVENT_CREATION_DATE_TIME));
     }
 
-    private Identifier getIdentifier(String id) {
-        return Identifier.builder()
+    private List<Identifier> getIdentifier(String id) {
+        return Collections.singletonList(Identifier.builder()
                 .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue(id));
+                        .setIdentifierValue(id)));
     }
 
     private List<Party> getParties(BusinessEvent businessEvent) {
