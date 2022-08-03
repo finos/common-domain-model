@@ -1,32 +1,25 @@
-# *Product Model - Equity Qualifying Functions*
+# *Event Model - Removal of Legacy Primitive Events*
 
 _Background_
 
-This release extends the qualification for equity products, in particular for basic performance equity options with an index or a basket as underlier.
+This release follows the recent work on the composable business event model using Instruction type and the corresponding creation function, Create_BusinessEvent.  The previous approach would composed business events with with primitive events. Theese are no longer needed. Business Events are now described through the combination of Instructions and the resulting after Trade States.
 
 _What is being released?_
 
-* Two new qualifying functions: `Qualify_EquityOption_PriceReturnBasicPerformance_Index` and `Qualify_EquityOption_PriceReturnBasicPerformance_Basket`.
-* The fixing of the ISDA_Taxonomy synonym values for index transaction types. The current value is `Index` but it has to be `SingleIndex`.
-
-_Functions_
-
-*product-common-func*
-
-Added the `Qualify_EquityOption_PriceReturnBasicPerformance_Index` and `Qualify_EquityOption_PriceReturnBasicPerformance_Basket` functions since they were missing.
-
-# *Event Model - Removal of Unused Synonym Mappings for the Legacy Event Model and Corresponding Ingestion Samples*
-
-_Background_
-
-This release follows the recent work on the composable business event model using Instructions and the corresponding creation function, `Create_BusinessEvent`. The previous approach using business events composed with primitive events was illustrated with several mocked up samples. Those were enabled with artificial XML schema and associated synonym mapping. They are no longer needed.
-
-_What is being released?_
-
-This release removes the legacy event model XML schema (based on primitive event), the corresponding synonym mappings (i.e., synonym source `Workflow_Event`), and  ingestion samples previously illustrating the business event composed with primitive events.
+This release removes the final legacy PrimitiveEvent and adjust the associated modelling elements.
+- Removed Types
+  - PrimitiveEvent
+  - ExecutionPrimitive
+  - ContractFormationPrimitive
+  - SplitPrimitive
+  - QuantityChangePrimitive
+  - ResetPrimitive
+  - TermsChangePrimitive
+  - TransferPrimitive
+- Renamed functions that referred to primitive but no longer returned an event primitive type, e.g Create_ExecutionPrimitive renamed to Create_Execution
+- Removed functions: QuantityDecreasedPrimitive, QuantityDecreasedToZeroPrimitive, CompareQuantityChangePrimitives, CompareQuantityChangePrimitive
+- Updated all qualification functions that referred to EventPrimitive
 
 _Review Directions_
-
-In the CDM Portal, select Textual Browser and review that the `Workflow_Event` synonym mappings have been removed.
-
-In the CDM Portal, select Ingestion and review that the legacy event samples have been removed.
+ 
+In the CDM Portal, select Textual Browser and review the types and function mentioned above.
