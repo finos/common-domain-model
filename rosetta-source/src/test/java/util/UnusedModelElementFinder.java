@@ -1,21 +1,16 @@
 package util;
 
-import com.regnosys.rosetta.RosettaStandaloneSetup;
 import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.rosetta.*;
 import com.regnosys.rosetta.rosetta.simple.Data;
 import com.regnosys.rosetta.rosetta.simple.Function;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.xtext.resource.XtextResourceSet;
+import com.regnosys.rosetta.transgest.ModelLoaderImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Path;
+import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * TODO: Util needs to determine if types are used or not
@@ -23,32 +18,52 @@ import java.util.stream.Collectors;
 public class UnusedModelElementFinder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnusedModelElementFinder.class);
+    private static Set<String> listOfTypes = new HashSet<>();
+    private static Set<String> listOfUsedTypes = new HashSet<>();
+    private static Set<String> listOfUnusedTypes = new HashSet<>();
+
+    private static List<RosettaModel> models;
 
     public void run() throws IOException {
-        LOGGER.debug("run");
 
-        List<Path> expandedModelPaths = ClassPathUtils
-                .findPathsFromClassPath(Arrays.asList("model", "cdm/rosetta"),
-                        ".*\\.rosetta",
-                        Optional.empty(),
-                        this.getClass().getClassLoader());
+        ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(filePaths -> ClassPathUtils.toUrl(filePaths)).toArray(URL[]::new));
 
-        List<RosettaRootElement> rootElements = loadRosettaRootElements(expandedModelPaths);
-        Set<RosettaModel> models = rootElements.stream().map(RosettaRootElement::getModel).collect(Collectors.toSet());
+        models = modelLoader.models();
+        generateTypesList();
+
+        LOGGER.info("{} Types found in Model ", listOfTypes.size());
+        LOGGER.info("{} Types are used within Model", listOfUsedTypes.size());
+        listOfUnusedTypes.addAll(listOfTypes);
+        listOfUnusedTypes.removeAll(listOfUsedTypes);
+
+        LOGGER.info("{} orphaned Types found Model", listOfUnusedTypes.size());
+
+        listOfUnusedTypes.stream()
+                .forEach(orphanedTypes -> {
+                    LOGGER.info("orphaned Type: {}", orphanedTypes);
+                });
+
+    }
+
+    private String getQualifiedName(RosettaType type) {
+        return type.getModel().getName() + "." + type.getName();
+    }
+
+    private void generateTypesList() {
 
         for (RosettaModel model : models) {
-            LOGGER.info("Processing namespace {}, containing {} model elements", model.getName(), model.getElements().size());
+            //LOGGER.info("Processing namespace {}, containing {} model elements", model.getName(), model.getElements().size());
 
             model.getElements().stream()
                     .filter(Data.class::isInstance)
                     .map(Data.class::cast)
                     .forEach(dataType -> {
-                        LOGGER.info("  Processing data type {}", getQualifiedName(dataType));
+                        listOfTypes.add(getQualifiedName(dataType));
                         dataType.getAttributes().stream()
                                 .map(RosettaTyped::getType)
                                 .filter(t -> !RosettaBuiltinType.class.isInstance(t))
                                 .forEach(attributeType -> {
-                                    LOGGER.info("    Attribute type {}", getQualifiedName(attributeType));
+                                    listOfUsedTypes.add(getQualifiedName(attributeType));
                                 });
                     });
 
@@ -56,49 +71,28 @@ public class UnusedModelElementFinder {
                     .filter(RosettaEnumeration.class::isInstance)
                     .map(RosettaEnumeration.class::cast)
                     .forEach(enumeration -> {
-                        LOGGER.info("  Processing enumeration {}", getQualifiedName(enumeration));
+                        // LOGGER.info("{}", getQualifiedName(enumeration));
+                        listOfTypes.add(getQualifiedName(enumeration));
                     });
 
             model.getElements().stream()
                     .filter(Function.class::isInstance)
                     .map(Function.class::cast)
                     .forEach(function -> {
-                        LOGGER.info("  Processing function {}.{}", function.getModel().getName(), function.getName());
+                        // LOGGER.info("{}.{}", function.getModel().getName(), function.getName());
+                        function.getInputs().stream()
+                                .forEach(inputs -> {
+                                    // LOGGER.info("  Processing input Types used within function {}", inputs.getName());
+                                    listOfUsedTypes.add(inputs.getType().getName());
+                                });
+                        if (function.getOutput() != null) {
+                            //LOGGER.info("Processing output Types used within function {}", function.getOutput().getName());
+                            listOfUsedTypes.add(function.getOutput().getType().getName());
+                        }
+                        listOfTypes.add(function.getModel().getName().concat(function.getName()));
                     });
         }
-    }
 
-    private String getQualifiedName(RosettaType type) {
-        return type.getModel().getName() + "." + type.getName();
-    }
-
-    private List<RosettaRootElement> loadRosettaRootElements(List<Path> expandedModelPaths) {
-        LOGGER.debug("loadRosettaRootElements");
-
-        RosettaStandaloneSetup.doSetup();
-        ResourceSet resourceSet = createResourceSet(expandedModelPaths);
-
-        List<RosettaRootElement> rootElements = resourceSet.getResources()
-                .stream()
-                .map(Resource::getContents)
-                .flatMap(Collection::stream)
-                .map(RosettaModel.class::cast)
-                .filter(Objects::nonNull)
-                .map(RosettaModel::getElements)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-        LOGGER.info("Found {} root elements", rootElements.size());
-
-        return rootElements;
-    }
-
-    private XtextResourceSet createResourceSet(List<Path> expandedModelPaths) {
-        LOGGER.debug("createResourceSet");
-
-        XtextResourceSet resourceSet = new XtextResourceSet();
-        expandedModelPaths.forEach(f -> resourceSet.getResource(URI.createURI(f.toUri().toString(), true), true));
-        return resourceSet;
     }
 
     public static void main(String[] args) throws IOException {
