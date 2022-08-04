@@ -18,15 +18,15 @@ import java.util.*;
 public class UnusedModelElementFinder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnusedModelElementFinder.class);
-    private static Set<String> listOfTypes = new HashSet<>();
-    private static Set<String> listOfUsedTypes = new HashSet<>();
-    private static Set<String> listOfUnusedTypes = new HashSet<>();
+    private static final Set<String> listOfTypes = new HashSet<>();
+    private static final Set<String> listOfUsedTypes = new HashSet<>();
+    private static final Set<String> listOfUnusedTypes = new HashSet<>();
 
     private static List<RosettaModel> models;
 
     public void run() throws IOException {
 
-        ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(filePaths -> ClassPathUtils.toUrl(filePaths)).toArray(URL[]::new));
+        ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(ClassPathUtils::toUrl).toArray(URL[]::new));
 
         models = modelLoader.models();
         generateTypesList();
@@ -36,12 +36,11 @@ public class UnusedModelElementFinder {
         listOfUnusedTypes.addAll(listOfTypes);
         listOfUnusedTypes.removeAll(listOfUsedTypes);
 
-        LOGGER.info("{} orphaned Types found Model", listOfUnusedTypes.size());
+        LOGGER.info("out of which {} are now orphaned types as listed below:", listOfUnusedTypes.size());
 
-        listOfUnusedTypes.stream()
-                .forEach(orphanedTypes -> {
-                    LOGGER.info("orphaned Type: {}", orphanedTypes);
-                });
+        // LOGGER.info("orphaned Type: {}", orphanedTypes);
+        Arrays.stream(listOfUnusedTypes.toArray()).sorted()
+                .forEach(System.out::println);
 
     }
 
@@ -62,9 +61,7 @@ public class UnusedModelElementFinder {
                         dataType.getAttributes().stream()
                                 .map(RosettaTyped::getType)
                                 .filter(t -> !RosettaBuiltinType.class.isInstance(t))
-                                .forEach(attributeType -> {
-                                    listOfUsedTypes.add(getQualifiedName(attributeType));
-                                });
+                                .forEach(attributeType -> listOfUsedTypes.add(getQualifiedName(attributeType)));
                     });
 
             model.getElements().stream()
@@ -80,7 +77,7 @@ public class UnusedModelElementFinder {
                     .map(Function.class::cast)
                     .forEach(function -> {
                         // LOGGER.info("{}.{}", function.getModel().getName(), function.getName());
-                        function.getInputs().stream()
+                        function.getInputs()
                                 .forEach(inputs -> {
                                     // LOGGER.info("  Processing input Types used within function {}", inputs.getName());
                                     listOfUsedTypes.add(inputs.getType().getName());
