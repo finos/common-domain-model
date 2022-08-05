@@ -2,9 +2,11 @@ package util;
 
 import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.rosetta.*;
+import com.regnosys.rosetta.rosetta.simple.Attribute;
 import com.regnosys.rosetta.rosetta.simple.Data;
 import com.regnosys.rosetta.rosetta.simple.Function;
 import com.regnosys.rosetta.transgest.ModelLoaderImpl;
+import org.eclipse.emf.common.util.EList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +22,7 @@ public class UnusedModelElementFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnusedModelElementFinder.class);
     private static final Set<String> listOfTypes = new HashSet<>();
     private static final Set<String>  listOfUsedTypes = new HashSet<>();
-    private static final Set<String> listOfUnusedTypes = new HashSet<>();
+    private static final Set<String> listOfOrphanedTypes = new HashSet<>();
 
     private static List<RosettaModel> models;
 
@@ -36,15 +38,15 @@ public class UnusedModelElementFinder {
 
         LOGGER.info("{} Types found in Model ", listOfTypes.size());
         LOGGER.info("{} Types are used within Model", listOfUsedTypes.size());
-        listOfUnusedTypes.addAll(listOfTypes);
-        listOfUnusedTypes.removeAll(listOfUsedTypes);
+        listOfOrphanedTypes.addAll(listOfTypes);
+        listOfOrphanedTypes.removeAll(listOfUsedTypes);
 
-        LOGGER.info("out of which {} are now orphaned types as listed below:", listOfUnusedTypes.size());
+        LOGGER.info("out of which {} are now orphaned types as listed below:", listOfOrphanedTypes.size());
 
         // LOGGER.info("orphaned Type: {}", orphanedTypes);
-        Arrays.stream(listOfUnusedTypes.toArray()).sorted()
+      /*  Arrays.stream(listOfOrphanedTypes.toArray()).sorted()
                 .forEach(System.out::println);
-
+*/
     }
 
     private String getQualifiedName(RosettaType type) {
@@ -62,14 +64,7 @@ public class UnusedModelElementFinder {
                     .forEach(dataType -> {
                         //LOGGER.info(" Processing data type: {}", getQualifiedName(dataType));
                         listOfTypes.add(getQualifiedName(dataType));
-                        dataType.getAttributes().stream()
-                                .map(RosettaTyped::getType)
-                                .filter(t -> !RosettaBuiltinType.class.isInstance(t))
-                                .forEach(attributeType -> {
-                                    // LOGGER.info(" Processing attribute type: {}", getQualifiedName(dataType));
-                                    if (attributeType.getModel() != null)
-                                        listOfUsedTypes.add(getQualifiedName(attributeType));
-                                });
+                        updatelistOfUsedTypes(dataType.getAttributes());
                     });
 
             model.getElements().stream()
@@ -83,22 +78,42 @@ public class UnusedModelElementFinder {
             model.getElements().stream()
                     .filter(Function.class::isInstance)
                     .map(Function.class::cast)
-                    .forEach(function -> {
-                        //LOGGER.info(" Processing function types {}.{}", function.getModel().getName(), function.getName());
-                        function.getInputs().stream()
-                                .map(RosettaTyped::getType)
-                                .filter(t -> !RosettaBuiltinType.class.isInstance(t))
-                                .forEach(inputs -> {
-                                   // LOGGER.info("  Processing input types used within function {}", getQualifiedName(inputs));
-                                    listOfUsedTypes.add(getQualifiedName(inputs));
-                                });
-                        if (function.getOutput() != null) {
-                          // LOGGER.info("Processing output types used within function {}", getQualifiedName(function.getOutput().getType()));
-                            listOfUsedTypes.add(getQualifiedName(function.getOutput().getType()));
-                        }
-                        listOfTypes.add(function.getModel().getName().concat(function.getName()));
-                    });
+                    .forEach(this::filterFunction);
         }
+
+    }
+
+    private void updatelistOfUsedTypes(EList<Attribute> attributes) {
+        attributes.stream()
+        .map(RosettaTyped::getType)
+                .filter(t -> !(t instanceof RosettaBuiltinType))
+                .forEach(attributeType -> {
+                    // LOGGER.info(" Processing attribute type: {}", getQualifiedName(dataType));
+                    listOfUsedTypes.add(getQualifiedName(attributeType));
+                });
+
+    }
+
+    private void filterFunction(Function function) {
+
+        //LOGGER.info(" Processing function types {}.{}", function.getModel().getName(), function.getName());
+        updatelistOfUsedTypes(function.getInputs());
+        if (function.getOutput() != null) {
+            // LOGGER.info("Processing output types used within function {}", getQualifiedName(function.getOutput().getType()));
+            listOfUsedTypes.add(getQualifiedName(function.getOutput().getType()));
+        }
+       /* function.getShortcuts().stream()
+                .forEach(shortCut ->{
+                        Function subFunction = (Function) shortCut.eContainer();
+                        if (shortCut.eContainer()!=null && shortCut.eContainer().eContainer() !=null) {
+                            RosettaModel eContainer = (RosettaModel) shortCut.eContainer().eContainer();
+                            String test = ".Create_" + shortCut.getName().substring(0, 1).toUpperCase().substring(1).toLowerCase());
+                            listOfUsedTypes.add(eContainer.getName().concat(test));
+                            //filterFunction(subFunction);
+
+                        }
+                });*/
+        listOfTypes.add(function.getModel().getName().concat(function.getName()));
 
     }
 }
