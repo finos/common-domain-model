@@ -1,5 +1,6 @@
 package util;
 
+import com.google.common.collect.Lists;
 import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.rosetta.*;
 import com.regnosys.rosetta.rosetta.simple.Attribute;
@@ -7,6 +8,8 @@ import com.regnosys.rosetta.rosetta.simple.Data;
 import com.regnosys.rosetta.rosetta.simple.Function;
 import com.regnosys.rosetta.transgest.ModelLoaderImpl;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.ecore.EObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,15 +23,16 @@ import java.util.*;
 public class UnusedModelElementFinder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnusedModelElementFinder.class);
-    private static final Set<String> listOfTypes = new HashSet<>();
-    private static final Set<String>  listOfUsedTypes = new HashSet<>();
-    private static final Set<String> listOfOrphanedTypes = new HashSet<>();
+    private static Set<String> listOfTypes = new HashSet<>();
+    private static Set<String> listOfUsedTypes = new HashSet<>();
+    private static Set<String> listOfOrphanedTypes = new HashSet<>();
 
     private static List<RosettaModel> models;
 
     public static void main(String[] args) throws IOException {
         new UnusedModelElementFinder().run();
     }
+
     public void run() throws IOException {
 
         ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(ClassPathUtils::toUrl).toArray(URL[]::new));
@@ -44,8 +48,8 @@ public class UnusedModelElementFinder {
         LOGGER.info("out of which {} are now orphaned types as listed below:", listOfOrphanedTypes.size());
 
         // LOGGER.info("orphaned Type: {}", orphanedTypes);
-      //  Arrays.stream(listOfOrphanedTypes.toArray()).sorted()
-       //        .forEach(System.out::println);
+        // Arrays.stream(listOfOrphanedTypes.toArray()).sorted()
+        //   .forEach(System.out::println);
 
     }
 
@@ -56,65 +60,51 @@ public class UnusedModelElementFinder {
     private void generateTypesList() {
 
         for (RosettaModel model : models) {
-           // LOGGER.info("Processing namespace {}, containing {} model elements", model.getName(), model.getElements().size());
+            // LOGGER.info("Processing namespace {}, containing {} model elements", model.getName(), model.getElements().size());
 
             model.getElements().stream()
                     .filter(Data.class::isInstance)
                     .map(Data.class::cast)
                     .forEach(dataType -> {
                         //LOGGER.info(" Processing data type: {}", getQualifiedName(dataType));
-                       listOfTypes.add(getQualifiedName(dataType));
-                        updatelistOfUsedTypes(dataType.getAttributes());
+                        listOfTypes.add(getQualifiedName(dataType));
+                        TreeIterator<EObject> eObjectTreeIterator = dataType.eAllContents();
+                        updateUsedTypes(eObjectTreeIterator);
                     });
 
             model.getElements().stream()
                     .filter(RosettaEnumeration.class::isInstance)
                     .map(RosettaEnumeration.class::cast)
                     .forEach(enumeration -> {
-                     //  LOGGER.info("Processing enumeration type {}", getQualifiedName(enumeration));
+                        //  LOGGER.info("Processing enumeration type {}", getQualifiedName(enumeration));
                         listOfTypes.add(getQualifiedName(enumeration));
                     });
 
             model.getElements().stream()
                     .filter(Function.class::isInstance)
                     .map(Function.class::cast)
-                    .forEach(this::filterFunction);
+                    .forEach(function -> {
+                        // LOGGER.info(" Processing function types {}.{}", function.getModel().getName(), function.getName());
+                        // listOfTypes.add((function.getModel().getName().concat(".")).concat(function.getName()));
+
+                        TreeIterator<EObject> eObjectTreeIterator = function.eAllContents();
+                        updateUsedTypes(eObjectTreeIterator);
+                    });
         }
 
     }
 
-    private void updatelistOfUsedTypes(EList<Attribute> attributes) {
+    private void updateUsedTypes(TreeIterator<EObject> eObjectTreeIterator) {
+        ArrayList<EObject> attributes = Lists.newArrayList(eObjectTreeIterator);
+
         attributes.stream()
-        .map(RosettaTyped::getType)
-                .filter(t -> !(t instanceof RosettaBuiltinType))
-                .forEach(attributeType -> {
-                    // LOGGER.info(" Processing attribute type: {}", getQualifiedName(attributeType));
-                   listOfUsedTypes.add(getQualifiedName(attributeType));
-                });
+                .filter(Attribute.class::isInstance)
+                .map(Attribute.class::cast)
+                .forEach(attribute -> listOfUsedTypes.add(getQualifiedName(attribute.getType())));
 
     }
 
-    private void filterFunction(Function function) {
-
-       // LOGGER.info(" Processing function types {}.{}", function.getModel().getName(), function.getName());
-        listOfTypes.add((function.getModel().getName().concat(".")).concat(function.getName()));
-
-        updatelistOfUsedTypes(function.getInputs());
-        if (function.getOutput() != null) {
-            //   LOGGER.info("Processing output types used within function {}", getQualifiedName(function.getOutput().getType()));
-            listOfUsedTypes.add(getQualifiedName(function.getOutput().getType()));
-        }
-        function.getShortcuts()
-                .forEach(shortCut -> {
-                    if (shortCut.eContainer() != null && shortCut.eContainer().eContainer() != null) {
-                        Function subFunction = (Function) shortCut.eContainer();
-                        //LOGGER.info(" Processing used function types {}.{}", subFunction.getModel().getName(), subFunction.getName());
-
-                        listOfUsedTypes.add((subFunction.getModel().getName().concat(".")).concat(subFunction.getName()));
-                        //filterFunction(subFunction);
-                    }
-
-                });
-
+    public static Set<String> getListOfOrphanedTypes() {
+        return listOfOrphanedTypes;
     }
 }
