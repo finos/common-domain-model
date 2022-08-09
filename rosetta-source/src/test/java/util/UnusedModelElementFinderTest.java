@@ -16,12 +16,7 @@ public class UnusedModelElementFinderTest {
     @Test
     public void getlistOfOrphanedTypes() throws IOException {
 
-        ClassPathUtils.findPathsFromClassPath(ImmutableList.of("rosetta"), ".*\\.rosetta", Optional.empty(), ClassPathUtils.class.getClassLoader()
-                ).stream()
-                .forEach(path -> {
-                    System.out.println(path);
-                });
-        ModelLoaderImpl modelLoader = new ModelLoaderImpl( ClassPathUtils.findPathsFromClassPath(ImmutableList.of("rosetta"), ".*\\.rosetta", Optional.empty(), ClassPathUtils.class.getClassLoader()
+        ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findPathsFromClassPath(ImmutableList.of("rosetta"), ".*\\.rosetta", Optional.empty(), ClassPathUtils.class.getClassLoader()
                 ).stream()
                 .map(ClassPathUtils::toUrl)
                 .toArray(URL[]::new));
