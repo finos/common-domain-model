@@ -23,21 +23,25 @@ import java.util.*;
 public class UnusedModelElementFinder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnusedModelElementFinder.class);
-    private static Set<String> listOfTypes = new HashSet<>();
-    private static Set<String> listOfUsedTypes = new HashSet<>();
-    private static Set<String> listOfOrphanedTypes = new HashSet<>();
+    private Set<String> listOfTypes = new HashSet<>();
+    private Set<String> listOfUsedTypes = new HashSet<>();
+    private Set<String> listOfOrphanedTypes = new HashSet<>();
 
     private static List<RosettaModel> models;
 
+    public UnusedModelElementFinder(ModelLoaderImpl modelLoader) {
+        models = modelLoader.models();
+    }
+
     public static void main(String[] args) throws IOException {
-        new UnusedModelElementFinder().run();
+        new UnusedModelElementFinder(new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(ClassPathUtils::toUrl).toArray(URL[]::new))).run();
     }
 
     public void run() throws IOException {
 
-        ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(ClassPathUtils::toUrl).toArray(URL[]::new));
+       // ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(ClassPathUtils::toUrl).toArray(URL[]::new));
 
-        models = modelLoader.models();
+       // models = modelLoader.models();
         generateTypesList();
 
         LOGGER.info("{} Types found in Model ", listOfTypes.size());
@@ -104,7 +108,7 @@ public class UnusedModelElementFinder {
 
     }
 
-    public static Set<String> getListOfOrphanedTypes() {
+    public Set<String> getListOfOrphanedTypes() {
         return listOfOrphanedTypes;
     }
 }
