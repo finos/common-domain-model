@@ -84,9 +84,9 @@ public class WorkflowFunctionHelper {
     }
 
 
-    private Identifier createWorkflowIdentifier() {
-        return Identifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierValue("workflow-id-" + workflowId.getAndIncrement()).build()).build();
+    private List<Identifier> createWorkflowIdentifier() {
+        return Collections.singletonList(Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierValue("workflow-id-" + workflowId.getAndIncrement()).build()).build());
     }
 
     private List<EventTimestamp> createEventTime(ZonedDateTime zonedDateTime) {

@@ -21,7 +21,7 @@ public class CreateWorkflowStepInput {
     private List<? extends EventTimestamp> timestamp;
 
     @JsonProperty
-    private Identifier eventIdentifier;
+    private List<? extends Identifier> eventIdentifier;
 
     @JsonProperty
     private List<? extends Party> party;
@@ -43,7 +43,7 @@ public class CreateWorkflowStepInput {
 
     public CreateWorkflowStepInput(MessageInformation messageInformation,
                                    List<? extends EventTimestamp> timestamp,
-                                   Identifier eventIdentifier,
+                                   List<? extends Identifier> eventIdentifier,
                                    List<? extends Party> party,
                                    List<? extends Account> account,
                                    WorkflowStep previousWorkflowStep,
@@ -67,7 +67,7 @@ public class CreateWorkflowStepInput {
         return timestamp;
     }
 
-    public Identifier getEventIdentifier() {
+    public List<? extends Identifier> getEventIdentifier() {
         return eventIdentifier;
     }
 
