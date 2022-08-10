@@ -1,0 +1,124 @@
+namespace cdm.repo
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.observable.asset.*
+import cdm.product.template.*
+import cdm.product.common.settlement.*
+import cdm.product.common.schedule.*
+import cdm.product.asset.*
+import cdm.legalagreement.csa.*
+import cdm.legalagreement.common.*
+import cdm.legalagreement.contract.*
+import cdm.event.common.*
+import cdm.event.workflow.*
+import cdm.base.staticdata.identifier.*
+
+func Create_Repurchase: <"Defines the process of partially or fully returning a Repo Transaction.">
+ 	[creation BusinessEvent]
+ 	inputs:
+ 		tradeState TradeState (1..1) <"Specifies a previously formed contractual product with a Security Finance payout. It is required that the description of the contractual product be contained within the previous business event, i.e. its lineage must contain the formation of a contractual product.">
+		repurchaseDate date (1..1) <"Specifies the repurchase date.">
+  	output:
+ 		repurchaseEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the transfer and termination, as a result of the input return instruction.">
+	
+	assign-output repurchaseEvent -> primitives -> quantityChange: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the returned original contract.">
+		Create_TerminationQuantityChangePrimitive(tradeState)
+	assign-output repurchaseEvent -> eventDate:
+		repurchaseDate
+
+func Create_TransferFromComponents: <"Defines the movement of cash between two parties on a date.">
+	inputs:
+		tradeState TradeState (1..1) <"Represents the trade state for which the transfer is being created">
+		identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
+		quantity Quantity (1..1) <"Represents the amount of the asset to tbe transferred.">
+        observable Observable (1..1) <"Represents the asset to tbe transferred.">
+        payerReceiver PayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
+		settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
+		settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+		repurchaseAmount number (0..1) <"Represents the repurchase amount due">
+	output:
+		repurchaseTransfer Transfer (1..1)
+
+	assign-output repurchaseTransfer -> identifier:
+		identifier
+	assign-output repurchaseTransfer -> quantity:
+		quantity
+	assign-output repurchaseTransfer -> observable:
+        observable
+    //assign-output repurchaseTransfer -> payerReceiver:
+	//	payerReceiver
+	assign-output repurchaseTransfer -> settlementDate:
+		settlementDate
+	assign-output repurchaseTransfer -> settlementOrigin:
+		settlementOrigin
+	assign-output repurchaseTransfer -> quantity -> amount:
+		if repurchaseAmount exists
+		then repurchaseAmount
+	assign-output repurchaseTransfer -> payerReceiver -> payerPartyReference:
+		if payerReceiver -> payer exists
+		then ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, payerReceiver -> payer ) -> partyReference
+		else ExtractAncillaryPartyByRole( tradeState -> trade -> tradableProduct -> ancillaryParty, payerReceiver -> payerAncillaryRole ) -> partyReference only-element
+	assign-output repurchaseTransfer -> payerReceiver -> receiverPartyReference:
+		if payerReceiver -> receiver exists
+		then ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, payerReceiver -> receiver ) -> partyReference
+		else ExtractAncillaryPartyByRole( tradeState -> trade -> tradableProduct -> ancillaryParty, payerReceiver -> receiverAncillaryRole ) -> partyReference only-element
+
+func GetLatestSecurityFinanceLegBySettlementDate: <"This function returns the security finance leg with the latest settlement date to be used for repurchaseSettleemntInstruction function.">
+	inputs:
+		securityFinanceLegs SecurityFinanceLeg (0..*)
+	output:
+		securityFinanceLeg SecurityFinanceLeg (0..1)
+
+func Create_RepurchaseSettlementInstruction: <"Defines the Repurchase Settlement Instructions, i.e. the cash and security tranfers, to be used in Repo Settlement Function.">
+	inputs:
+		tradeState TradeState (1..1) <"Specifies a previously formed contractual product with a Security Finance payout. It is required that the description of the contractual product be contained within the previous business event, i.e. its lineage must contain the formation of a contractual product.">
+		transferInstruction TransferInstruction (1..1) <""> 
+		repurchaseDate date (1..1) <"Specifies the date of the full return.">
+	output:
+		repurchaseSettlementInstruction SettlementInstruction (1..1)
+	
+	alias payout:
+		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout
+	alias securityFinancePayout:
+		payout -> securityFinancePayout
+	alias repoInterestPayout:
+		payout -> interestRatePayout only-element
+	alias purchaseCashTransfer:
+		Create_CashTransfer(tradeState, transferInstruction, repurchaseDate, empty)
+	alias PriceDifferential: <"As defined in GMRA paragraph 2(kk) Price Differential () the aggregate amount obtained by daily application of the Pricing Rate for such Transaction to the Purchase Price for such Transaction (on a 360 day, 365 day or other day basis in accordance with the applicable market convention, unless otherwise agreed between the parties for the Transaction) for the actual number of days during the period commencing on (and including) the Purchase Date for such Transaction and ending on (but excluding) the date of calculation or, if earlier, the Repurchase Date;">
+		InterestCashSettlementAmount(tradeState, repoInterestPayout, repurchaseDate)
+	alias repurchasePrice: <"GMAR: As defined in GMRA paragraph 2(rr), The Repurchase Price is the sum of Purchase Price and Price Differential. ERCC Guide: Annex II  Glossary of repo terminology The term for the sum of money to be paid by the Seller of a repo to the Buyer on the Repurchase Date to buy back equivalent collateral. It is equal to the Purchase Price plus repo interest. This term also applies to the value of the cash owed to the Buyer on any day during the term of a repo, that is, the Purchase Price plus repo interest accrued up to that particular date. In the case of Buy/Sell-Backs, the Repurchase Price is net of the amount of any coupon, dividend or other income on the collateral paid to the Buyer during the life of the transaction plus reinvestment income to compensate for the delayed payment.">
+		purchaseCashTransfer -> quantity -> amount + PriceDifferential -> cashflowAmount -> amount
+	alias repurchaseAmountCashTransfer:
+		Create_TransferFromComponents(tradeState, empty, purchaseCashTransfer -> quantity, purchaseCashTransfer -> observable, PriceDifferential -> payerReceiver, PriceDifferential -> cashflowDate, purchaseCashTransfer -> settlementOrigin, repurchasePrice)
+	alias securityTransfer:
+		Create_SecurityFinanceTransfer(tradeState, transferInstruction, repurchaseDate, empty)
+		
+	assign-output repurchaseSettlementInstruction -> transfer:
+		[securityTransfer, repurchaseAmountCashTransfer] 
+	assign-output repurchaseSettlementInstruction -> deliveryMethod: //deliveryMethod to be changed to transferSettlementType.
+		GetLatestSecurityFinanceLegBySettlementDate(securityFinancePayout -> securityFinanceLeg) -> deliveryMethod
+	assign-output repurchaseSettlementInstruction -> settlementCentre:
+		tradeState -> trade -> tradableProduct -> settlementTerms -> settlementCentre
+
+func Create_Settlement: <"Function specification to build a transfer event following a reset on a contract">
+	[creation BusinessEvent]
+	inputs:
+		tradeState TradeState (1..1) <"Represents the trade and associated state, including the history of reset values and transfers.">
+		repurchaseSettlementInstruction SettlementInstruction (1..1)
+		repurchaseDate date (1..1)
+	output:
+		transferEvent BusinessEvent (1..1)
+	assign-output transferEvent -> primitives -> transfer:
+		Create_TransferPrimitive(tradeState, empty, repurchaseSettlementInstruction, repurchaseDate)
+    assign-output transferEvent -> eventDate:
+		repurchaseDate
+	assign-output transferEvent -> eventEffect -> effectedTrade:
+	    tradeState as-key
+	post-condition: <"Event must contain a transfer primitive populated with the cashflow, and no other primitive.">
+		transferEvent -> primitives -> transfer only exists
+	post-condition: <"Event effect must include the contract generating the cashflow.">
+		transferEvent -> eventEffect -> productIdentifier is absent

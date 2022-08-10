@@ -24,9 +24,9 @@ func Max:
 		a number (1..1)
 		b number (1..1)
 	output:
-		max number (1..1)
+		result number (1..1)
 
-	assign-output max:
+	assign-output result:
 		if a > b
 		then a
 		else b
@@ -60,6 +60,18 @@ func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit ty
         financialUnit FinancialUnitEnum (1..1) <"FinancialUnitEnum unit type.">
     output:
         quantity Quantity (0..1)
+
+func FilterPriceQuantityBySecurity:
+	inputs:
+		priceQuantities PriceQuantity (0..*)
+	output:
+		priceQuantity PriceQuantity(0..*)
+
+func FilterPriceQuantityWithoutSecurity:
+	inputs:
+		priceQuantities PriceQuantity (0..*)
+	output:
+		priceQuantity PriceQuantity(0..*)
 
 func UpdateAmountForEachQuantity: <"Updates all quantities on each price quantity with the new amount.">
 	inputs:
@@ -104,9 +116,9 @@ func Create_UnitType: <"Create UnitType with given currency or financial unit.">
 		financialUnit FinancialUnitEnum (0..1)
 	output:
 		unitType UnitType (1..1)
-	
+
 	condition:
-		( currency or financialUnit ) exists
+		currency exists or financialUnit exists
 
 	assign-output unitType -> currency:
 		currency

@@ -1,7 +1,9 @@
 namespace cdm.legalagreement.csa : <"Credit support concepts: CSA, collateral, elections, initial margin, threshold, minimum transfer amount.">
 version "${project.version}"
 
+import cdm.base.*
 import cdm.base.math.*
+import cdm.base.staticdata.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
@@ -42,10 +44,19 @@ type AgencyRatingCriteria: <"A class to specify multiple credit notations alongs
 		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
 		then AgencyRatingCriteria -> referenceAgency exists
 
-type CollateralValuationPercentage: <"Specification of the valuation treatment for the specified collateral.">
+type CollateralValuationPercentage: <"Specification  of the valuation treatment for the specified collateral.">
 
 	valuationPercentage number (0..1) <"Percentage value of asset to be used as collateral once discounted haircut take into consideration,expressed as a valuation. As an example a 0.5% haircut would be expressed as 99.5% and represented as a decimal number 0.995">
+		[docReference ICMA GMRA namingConvention "Haircut"
+			provision "As defined in GMRA paragraph 2(xx)(B). The haircut for the relevant Securities, if any, as agreed by the parties from time to time, being a discount from the Market Value of the Securities."]
+		[docReference ICMA ERCCBestPractice namingConvention "Haircut"
+			provision "ERCC Guide 3.1: Initial margins and Haircuts are alternative ways to risk-adjust the value of collateral sold in a repurchase transaction in order to try to anticipate the loss of value that may be experienced if the collateral has to be liquidated following an event of default by the counterparty. Both amounts are therefore used to fix the expected liquidation value of collateral. Annex II  Glossary of repo terminology Haircut: An agreed percentage discount applied to the Market Value of collateral to fix the Purchase Price on the Purchase Date of a repo. A haircut is expressed as the percentage difference between the initial Market Value and the Purchase Price. "]
 	marginPercentage number (0..1) <"Percentage value of transaction needing to be posted as collateral expressed as a valuation. As an example a 104% requirement would be represented as a decimal number 1.04">
+		[docReference ICMA GMRA namingConvention "Margin Ratio"
+			provision "As defined in GMRA paragraph 2(bb). Margin Ratio, with respect to a Transaction, the Market Value of the Purchased Securities at the time when the Transaction was entered into divided by the Purchase Price (and so that, where a Transaction relates to Securities of different descriptions and the Purchase Price is apportioned by the parties among Purchased Securities of each such description, a separate Margin Ratio shall apply in respect of Securities of each such description), or such other proportion as the parties may agree with respect to that Transaction;"]
+		[docReference ICMA ERCCBestPractice namingConvention "Margin Ratio"
+			provision "ERCC Guide 3.1: Initial margins and Haircuts are alternative ways to risk-adjust the value of collateral sold in a repurchase transaction in order to try to anticipate the loss of value that may be experienced if the collateral has to be liquidated following an event of default by the counterparty. Both amounts are therefore used to fix the expected liquidation value of collateral. Annex II  Glossary of repo terminology: Initial margin: An agreed premium applied to the Purchase Price of a repo to determine the required Market Value of the collateral to be delivered on the Purchase Date. It is also applied each day during the term of a repo, as part of the process of Margin Maintenance, to the Repurchase Price on that day to calculate the Market Value of collateral required subsequently in order to maintain adequate collateralisation. Under the GMRA, if there is a material difference between (1) the Repurchase Price of a repo plus any initial margin and (2) the current Market Value of collateral, that repo has a Transaction Exposure. This will go into the calculation of Net Exposure, which determines if either party has the right to call for Margin Maintenance. An initial margin can be expressed either as (1) the Market Value as a percentage of the Purchase Price or (2) a ratio of the two amounts. In the GMRA, an initial margin is called a Margin Ratio and is defined as a ratio but the market tends to quote a percentage. A percentage initial margin of 100% or ratio of one means there is no initial margin. See Guide 3.2"]
+
 	fxHaircutPercentage number (0..1) <"FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin).The percentage value is expressed as the discount haircut to the value of the collateral- as an example an 8% FX haircut would be expressed as 0.08.">
 
 	condition ValuationPercentage: <"A data rule to validate that if an Valuation Percentage is specified it should be between 0 and 1.">
@@ -60,8 +71,11 @@ type CollateralValuationPercentage: <"Specification of the valuation treatment f
 		if fxHaircutPercentage exists
 		then fxHaircutPercentage > 0 and fxHaircutPercentage <= 1
 
-	condition ValuationPercentageOrMarginPercentage: <"Choice rule requiring that either a valuation percentage or margin percentage is specified.">
+	condition Choice: <"Choice rule requiring that either a valuation percentage or margin percentage is specified.">
 		required choice valuationPercentage, marginPercentage
+
+    condition ValuationPercentageOrMarginPercentage: <"Choice rule requiring that either a valuation percentage or margin percentage is specified.">
+        required choice valuationPercentage, marginPercentage
 
 type EligibleCollateralSchedule: <"Set of criteria used to specify an eligible collateral schedule.">
 	[rootType]
@@ -701,7 +715,7 @@ type ElectiveAmountElection: <"A class to specify the party elective amounts whi
 	customElection string (0..1) <"The elective amount when expressed as a custom election by the party.">
 
 	condition NonZeroAmount: <"When the elective amount is not zero either a currency amount or a custom election must exist.">
-		if electiveAmount is absent then (amount or customElection) exists
+		if electiveAmount is absent then amount exists or customElection exists
 
 type EligibilityToHoldCollateral: <"A class to specify the conditions under which a party and its custodian(s) are entitled to hold collateral. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (h)(i): Eligibility to Hold Posted Collateral (VM) Custodians (VM).">
 
@@ -1254,8 +1268,7 @@ type TerminationCurrencyAmendment: <"A class to specify the Amendment to Termina
 
 	condition Applicablity: <"The Amendment to Termination Currency elections only apply when the Amendment to Termination Currency is deemed applicable by the parties.">
 		if isApplicable = False
-		then ( effectiveDate
-		and partyElection) is absent 
+		then effectiveDate is absent and partyElection is absent
 
 type TerminationCurrencyElection: <"A class to specify the Amendment to Termination Currency election by the parties to the agreement. ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (t) (A) & (B).">
 
@@ -1266,7 +1279,6 @@ type TerminationCurrencyElection: <"A class to specify the Amendment to Terminat
 
 	condition CurrencyElection: <"A Termination Currency election should only exist when required by the affected parties election">
 		if isSpecified = False then currency is absent
-
 
 type Threshold: <"A class to specify the unsecured credit exposure that each party to the agreement is prepared to accept before asking for collateral. This threshold is specified either as an amount or as a custom election. ISDA 2016 English Law Credit Support Deed for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold. | ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (d)(vi)(A): Threshold. | ISDA 2016 New York Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (c)(vi)(A): Threshold.">
 

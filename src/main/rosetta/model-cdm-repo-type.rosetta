@@ -1,0 +1,71 @@
+namespace cdm.repo
+version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.base.math.*
+import cdm.base.staticdata.party.*
+import cdm.base.staticdata.identifier.*
+
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.observable.asset.*
+import cdm.product.template.*
+import cdm.product.common.settlement.*
+import cdm.product.asset.*
+import cdm.legalagreement.csa.*
+import cdm.legalagreement.common.*
+import cdm.legalagreement.contract.*
+import cdm.event.common.*
+import cdm.event.workflow.*
+
+type SecurityFinancePayout extends PayoutBase: <"Security finance payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction. Plus additional description for ICMA.">
+    [metadata key]
+    buyerSeller PayerReceiver (1..1) <"Whether the leg is a buyer or seller of security">
+    securityFinanceLeg SecurityFinanceLeg (1..*) <"Each SecurityFinanceLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
+    securityInformation Product (1..1) <"Specifies the Purchased Security.  Within SecurityPayout we include a condition which validates that the product must be a Security (see below condition 'ProductMustBeSecurity').">
+    duration Duration (1..1) <"Specifies the Duration Terms of the Security Lending transaction. e.g. Open or Term.">
+    marginProvisions CollateralProvisions (1..1) <"Specifies margin provisions for a Security Finance transaction, including Collateral Type and Margin Percentage.">
+    minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
+    dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
+
+    condition ProductMustBeSecurity: <"Validates that the Purchased Security must be a security.">
+        securityInformation -> security exists
+    condition DividendTermsValidation: <"Validates that if the transaction has Dividend Terms specified then the Duration should be Term.">
+        if dividendTerms exists
+        then duration -> durationType = DurationTypeEnum -> Term
+
+type DividendTerms: <"Information related to dividends and payments.">
+    manufacturedIncomeRequirement DividendPayout (1..1) <"Specifies the proportion of the value of the dividend on the borrowed shares that the borrower is legally obligated to return to the lender.">
+    dividendEntitlement DividendEntitlementEnum (0..1) <"Defines the date on which the receiver of the equity return is entitled to the dividend.">
+    minimumBillingAmount Money (0..1) <"daily fee increments accrue until a threshold is crossed, at which point payment becomes due)">
+
+type CollateralProvisions: <"Contains collateral attributes which can also inherit information from a GMRA">
+    marginType CollateralTypeEnum (1..1) <"Enumerates the collateral types which are accepted by the Seller.">
+    marginRatio CollateralValuationPercentage (0..1) <"Specification of the valuation treatment for the specified collateral.">
+
+type SecurityFinanceLeg: <"Defines each security movement of a security financing transaction.">
+    [metadata key]
+    // buyerSeller PayerReceiver (1..1) <"Whether the leg is a buyer or seller of security">
+    settlementDate AdjustableOrRelativeDate (1..1) <"Specifies the settlement date of securities.  In a repo transaction the purchase date would always be the effective date as specified under Economic Terms, the repurchase date would always be the termination date as specified under Economic Terms.">
+    deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security transaction.">
+
+type Duration: <"Specifies the Duration Terms of the Security Lending Transaction, and optionally any Evergreen terms.">
+    durationType DurationTypeEnum (1..1) <"Specifies the Duration Terms of the Security Lending transaction. e.g. Open or Term.">
+    evergreenProvision EvergreenProvision (0..1) <"A data defining: the right of a party to exercise an Evergreen option">
+    
+type EvergreenProvision extends BuyerSeller: <"Specifies a transaction which automatically extends for a specified timeframe until the exercise of an embedded option.">
+	americanExercise AmericanExercise (0..1) <"Defines the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
+	bermudaExercise BermudaExercise (0..1) <"Defines the Bermuda option exercise dates and the expiration date together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fee.">
+	europeanExercise EuropeanExercise (0..1) <"Defines the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
+	followUpConfirmation boolean (1..1) <"A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.">
+	evergreenExtensionPeriod RelativeDateOffset (1..1) <"The length of each Evergreen extension period relative to the Effective date of the preceding contract.">
+    evergreenRollFrequency CalculationPeriodFrequency (1..1) <"The frequency with which the Evergreen contract will be extended if notice is not given.">	
+    callingParty CallingPartyEnum (0..1) <"Identifies a party to that has a right to demand for termination of the Security Finance transaction.">
+	condition ExerciseChoice: <"Condition that requires the choice of exercise style to be specified.">
+		required choice americanExercise, bermudaExercise, europeanExercise
+
+type SettlementInstruction: <"Specifies the conditions and transfers required for settlement of a transaction, and optional the settlement type.">
+    transfer Transfer (1..*)
+    // transferSettlementType TransferSettlementEnum (0..1)
+    deliveryMethod DeliveryMethodEnum (0..1)
+    settlementCentre SettlementCentreEnum (0..1)

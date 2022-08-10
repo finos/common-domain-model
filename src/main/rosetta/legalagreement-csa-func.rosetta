@@ -10,30 +10,30 @@ func PostedCreditSupportItemAmount: <"Calculates the Value for the given Posted 
 	[calculation]
 
 	inputs:
-		item PostedCreditSupportItem (1..1)
+		postedItem PostedCreditSupportItem (1..1)
 		baseCurrency string (1..1)  <"Base Currency means the currency specified as such in Paragraph 13.">
 
 	output:
 		result Money (1..1)
 
 	alias cashOrSecurityValue:
-		item -> cashOrSecurityValue -> amount
+		postedItem -> cashOrSecurityValue -> amount
 
 	alias valuationPercentage:
-		item -> valuationPercentage
+		postedItem -> valuationPercentage
 
 	alias fxHaircutPercentage:
-		item -> fxHaircutPercentage
+		postedItem -> fxHaircutPercentage
 
 	alias postedCreditSupportAmount:
 		cashOrSecurityValue * (valuationPercentage - fxHaircutPercentage) / 100.0
 
 	condition:
-		baseCurrency = item -> cashOrSecurityValue -> unitOfAmount-> currency
-			and baseCurrency = item -> disputedCashOrSecurityValue -> unitOfAmount-> currency
+		baseCurrency = postedItem -> cashOrSecurityValue -> unitOfAmount-> currency
+			and baseCurrency = postedItem -> disputedCashOrSecurityValue -> unitOfAmount-> currency
 
 	assign-output result -> amount:
-		postedCreditSupportAmount - item -> disputedCashOrSecurityValue -> amount
+		postedCreditSupportAmount - postedItem -> disputedCashOrSecurityValue -> amount
 
 	assign-output result -> unitOfAmount-> currency:
 		baseCurrency
