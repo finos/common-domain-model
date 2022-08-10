@@ -7,7 +7,6 @@ import com.regnosys.rosetta.rosetta.simple.Attribute;
 import com.regnosys.rosetta.rosetta.simple.Data;
 import com.regnosys.rosetta.rosetta.simple.Function;
 import com.regnosys.rosetta.transgest.ModelLoaderImpl;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 import org.slf4j.Logger;
@@ -18,7 +17,7 @@ import java.net.URL;
 import java.util.*;
 
 /**
- * TODO: Util needs to determine if types are used or not
+ * Util needs to determine if types are used or not
  */
 public class UnusedModelElementFinder {
 
@@ -26,7 +25,6 @@ public class UnusedModelElementFinder {
     private Set<String> listOfTypes = new HashSet<>();
     private Set<String> listOfUsedTypes = new HashSet<>();
     private Set<String> listOfOrphanedTypes = new HashSet<>();
-
     private static List<RosettaModel> models;
 
     public UnusedModelElementFinder(ModelLoaderImpl modelLoader) {
@@ -39,9 +37,9 @@ public class UnusedModelElementFinder {
 
     public void run() throws IOException {
 
-       // ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(ClassPathUtils::toUrl).toArray(URL[]::new));
+        // ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(ClassPathUtils::toUrl).toArray(URL[]::new));
 
-       // models = modelLoader.models();
+        // models = modelLoader.models();
         generateTypesList();
 
         LOGGER.info("{} Types found in Model ", listOfTypes.size());
@@ -106,6 +104,14 @@ public class UnusedModelElementFinder {
                 .map(Attribute.class::cast)
                 .forEach(attribute -> listOfUsedTypes.add(getQualifiedName(attribute.getType())));
 
+    }
+
+    public Set<String> getListOfTypes() {
+        return listOfTypes;
+    }
+
+    public Set<String> getListOfUsedTypes() {
+        return listOfUsedTypes;
     }
 
     public Set<String> getListOfOrphanedTypes() {
