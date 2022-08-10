@@ -37,19 +37,15 @@ public class UnusedModelElementFinder {
 
     public void run() throws IOException {
 
-        // ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(ClassPathUtils::toUrl).toArray(URL[]::new));
-
-        // models = modelLoader.models();
         generateTypesList();
 
-        LOGGER.info("{} Types found in Model ", listOfTypes.size());
-        LOGGER.info("{} Types are used within Model", listOfUsedTypes.size());
+        LOGGER.trace("{} Types found in Model ", listOfTypes.size());
+        LOGGER.trace("{} Types are used within Model", listOfUsedTypes.size());
         listOfOrphanedTypes.addAll(listOfTypes);
         listOfOrphanedTypes.removeAll(listOfUsedTypes);
 
-        LOGGER.info("out of which {} are now orphaned types as listed below:", listOfOrphanedTypes.size());
+        LOGGER.trace("out of which {} are now orphaned types as listed below:", listOfOrphanedTypes.size());
 
-        // LOGGER.info("orphaned Type: {}", orphanedTypes);
         // Arrays.stream(listOfOrphanedTypes.toArray()).sorted()
         //   .forEach(System.out::println);
 
@@ -62,13 +58,13 @@ public class UnusedModelElementFinder {
     private void generateTypesList() {
 
         for (RosettaModel model : models) {
-            // LOGGER.info("Processing namespace {}, containing {} model elements", model.getName(), model.getElements().size());
+            LOGGER.trace("Processing namespace {}, containing {} model elements", model.getName(), model.getElements().size());
 
             model.getElements().stream()
                     .filter(Data.class::isInstance)
                     .map(Data.class::cast)
                     .forEach(dataType -> {
-                        //LOGGER.info(" Processing data type: {}", getQualifiedName(dataType));
+                        LOGGER.trace(" Processing data type: {}", getQualifiedName(dataType));
                         listOfTypes.add(getQualifiedName(dataType));
                         TreeIterator<EObject> eObjectTreeIterator = dataType.eAllContents();
                         updateUsedTypes(eObjectTreeIterator);
@@ -78,7 +74,7 @@ public class UnusedModelElementFinder {
                     .filter(RosettaEnumeration.class::isInstance)
                     .map(RosettaEnumeration.class::cast)
                     .forEach(enumeration -> {
-                        //  LOGGER.info("Processing enumeration type {}", getQualifiedName(enumeration));
+                        LOGGER.trace("Processing enumeration type {}", getQualifiedName(enumeration));
                         listOfTypes.add(getQualifiedName(enumeration));
                     });
 
@@ -86,7 +82,7 @@ public class UnusedModelElementFinder {
                     .filter(Function.class::isInstance)
                     .map(Function.class::cast)
                     .forEach(function -> {
-                        // LOGGER.info(" Processing function types {}.{}", function.getModel().getName(), function.getName());
+                        LOGGER.trace(" Processing function types {}.{}", function.getModel().getName(), function.getName());
                         // listOfTypes.add((function.getModel().getName().concat(".")).concat(function.getName()));
 
                         TreeIterator<EObject> eObjectTreeIterator = function.eAllContents();
