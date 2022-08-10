@@ -99,12 +99,23 @@ type ConcentrationLimit: <"Represents a class to describe concentration limits t
 	condition ConcentrationLimitValueChoice: <"Either a value or percentage concentration limit must be specified.">
         required choice valueLimit, percentageLimit
   
+	condition PercentageConcentrationLimit: <"concentration limit must be decribed as a percentage.">
+		if concentrationLimitCriteria -> concentrationLimitType = ConcentrationLimitTypeEnum -> MarketCapitalisation
+		then percentageLimit exists
+
 type ConcentrationLimitCriteria extends CollateralCriteriaBase: <"Respresents a class to describe a set of criteria to describe specific assets that the concentration limits apply to.">
 
     concentrationLimitType ConcentrationLimitTypeEnum (0..1) <"Specifies the type of concentration limit to be applied.">
+	averageTradingVolume AverageTradingVolume (0..1) 
 
     condition ConcentrationLimitTypeChoice: <"Either a limit type or limit criteria must be specified.">
-            required choice concentrationLimitType, issuer, asset
+            required choice concentrationLimitType, issuer, asset, averageTradingVolume
+
+type AverageTradingVolume: 
+
+	period Period (1..1)
+	methodology AverageTradingVolumeMethodologyEnum (1..1)
+	
 
 type IssuerCriteria: <"Represents a criteria used to specify eligible collateral issuers.">
 
