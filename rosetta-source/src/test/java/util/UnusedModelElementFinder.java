@@ -39,15 +39,15 @@ public class UnusedModelElementFinder {
 
         generateTypesList();
 
-        LOGGER.trace("{} Types found in Model ", listOfTypes.size());
-        LOGGER.trace("{} Types are used within Model", listOfUsedTypes.size());
+        LOGGER.info("{} Types found in Model ", listOfTypes.size());
+        LOGGER.info("{} Types are used within Model", listOfUsedTypes.size());
         listOfOrphanedTypes.addAll(listOfTypes);
         listOfOrphanedTypes.removeAll(listOfUsedTypes);
 
-        LOGGER.trace("out of which {} are now orphaned types as listed below:", listOfOrphanedTypes.size());
+        LOGGER.info("out of which {} are now orphaned types as listed below:", listOfOrphanedTypes.size());
 
-        // Arrays.stream(listOfOrphanedTypes.toArray()).sorted()
-        //   .forEach(System.out::println);
+        Arrays.stream(listOfOrphanedTypes.toArray()).sorted()
+           .forEach(System.out::println);
 
     }
 
@@ -65,7 +65,13 @@ public class UnusedModelElementFinder {
                     .map(Data.class::cast)
                     .forEach(dataType -> {
                         LOGGER.trace(" Processing data type: {}", getQualifiedName(dataType));
+                        dataType.getConditions().stream()
+                                .filter(Attribute.class::isInstance)
+                                .map(Attribute.class::cast)
+                                .forEach(attribute -> listOfUsedTypes.add(getQualifiedName(attribute.getType())));
                         listOfTypes.add(getQualifiedName(dataType));
+                        if(null!=dataType.getSuperType())
+                            listOfUsedTypes.add(getQualifiedName(dataType.getSuperType()));
                         TreeIterator<EObject> eObjectTreeIterator = dataType.eAllContents();
                         updateUsedTypes(eObjectTreeIterator);
                     });
