@@ -9,8 +9,7 @@ import cdm.event.common.*
 annotation creation: <"Annotation to describe the intent of a function">
     [prefix Create]
 
-    PrimitiveEvent PrimitiveEvent (0..1) <"A primitive event function should take as an input all of the types required to construct the event and produce a new PrimitiveEvent type.">
-	BusinessEvent BusinessEvent (0..1) <"A business event function should take as its inputs the after state of previous business event or in case where the is no before state, all of the inputs required to produce the outcome BusinessEvent.">
+    BusinessEvent BusinessEvent (0..1) <"A business event function should take as its inputs the after state of previous business event or in case where the is no before state, all of the inputs required to produce the outcome BusinessEvent.">
 	WorkflowStep WorkflowStep (0..1) <"Create a proposed, accepted or rejected WorkflowStep with details about the message, identifiers, event timestamps, parties and accounts involved in the step and allow the action to be set to New, Correct or Cancel.">
 
 func Create_WorkflowStep: <"Function to create a workflow step with a business event and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step. The function should be used when there is already a fully formed business event with the action set to signify that the step is new, or a correction/cancellation of a previous step. The action is constrained so that when a previous workflow step is specified, the valid actions are as follows; New -> New, New -> Correct, New -> Cancel, Correct -> Correct and Correct -> Cancel. When a previous workflow is not specified, the action must be New.">
@@ -18,7 +17,7 @@ func Create_WorkflowStep: <"Function to create a workflow step with a business e
 	inputs:
 		messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header.">
 		timestamp EventTimestamp (1..*) <"The dateTime and qualifier associated with this event.">
-		eventIdentifier Identifier (1..1) <"The identifier that uniquely identify this lifecycle event.">
+		eventIdentifier Identifier (1..*) <"The identifiers that uniquely identify this lifecycle event.">
 		party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
 		account Account (0..*) <"Optional account information that could be associated to the event.">
 		previousWorkflowStep WorkflowStep (0..1) <"Optional previous WorkflowStep that provides lineage to WorkflowStep that precedes it. If specified, the previous action is used to constrain the actions allows to the resulting workflow step.">
@@ -52,7 +51,7 @@ func Create_WorkflowStep: <"Function to create a workflow step with a business e
 	add workflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
 		timestamp
 
-	add workflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
+	add workflowStep -> eventIdentifier: <"Assign the identifiers that uniquely identify this lifecycle event.">
 		eventIdentifier
 
 	add workflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
@@ -67,12 +66,12 @@ func Create_WorkflowStep: <"Function to create a workflow step with a business e
 	set workflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
 		businessEvent
 
-func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed instruction that results in a workflow step containing a business event, message details, identifiers, event timestamps, parties and accounts. The previous workflow step input must exist to provide workflow lineage. The instruction from the previous workflow step should be used with a [creation BusinessEvent] function to create the input business event passed into this function e.g. AllocationInstruction from the previous step is used with Create_Allocation to produce the business event which should used as an input to this step.">
+func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed instruction that results in a workflow step containing a business event, message details, identifiers, event timestamps, parties and accounts. The previous workflow step input must exist to provide workflow lineage. The instruction from the previous workflow step should be used with a [creation BusinessEvent] function to create the input business event passed into this function e.g. PartyChangeInstruction from the previous step is used with Create_PartyChange to produce the business event which should used as an input to this step.">
 	[creation WorkflowStep]
 	inputs:
 		messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header.">
 		timestamp EventTimestamp (1..*) <"The dateTime and qualifier associated with this event.">
-		eventIdentifier Identifier (1..1) <"The identifier that uniquely identify this lifecycle event.">
+		eventIdentifier Identifier (1..*) <"The identifiers that uniquely identify this lifecycle event.">
 		party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
 		account Account (0..*) <"Optional account information that could be associated to the event.">
 		proposedWorkflowStep WorkflowStep (1..1) <"Required previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
@@ -96,7 +95,7 @@ func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed inst
 	add acceptedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
 		timestamp
 
-	add acceptedWorkflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
+	add acceptedWorkflowStep -> eventIdentifier: <"Assign the identifiers that uniquely identify this lifecycle event.">
 		eventIdentifier
 
 	add acceptedWorkflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
@@ -111,7 +110,7 @@ func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed inst
 	set acceptedWorkflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
 		businessEvent
 
-func Create_AcceptedWorkflowStepFromInstruction: <"Represents the acceptance of a proposed instruction that results in a workflow step containing a business event, message details, identifiers, event timestamps, parties and accounts. The previous workflow step input must exist to provide workflow lineage. The instruction from the previous workflow step should be used with a [creation BusinessEvent] function to create the input business event passed into this function e.g. AllocationInstruction from the previous step is used with Create_Allocation to produce the business event which should used as an input to this step.">
+func Create_AcceptedWorkflowStepFromInstruction: <"Represents the acceptance of a proposed instruction that results in a workflow step containing a business event, message details, identifiers, event timestamps, parties and accounts. The previous workflow step input must exist to provide workflow lineage. The instruction from the previous workflow step should be used with a [creation BusinessEvent] function to create the input business event passed into this function e.g. PartyChangeInstruction from the previous step is used with Create_PartyChange to produce the business event which should used as an input to this step.">
 	[creation WorkflowStep]
 	inputs:
 		proposedWorkflowStep WorkflowStep (1..1) <"WorkflowStep as instruction.">
@@ -149,7 +148,7 @@ func Create_ProposedWorkflowStep: <"Represents the proposal to create a business
 	inputs:
 		messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header">
 		timestamp EventTimestamp (1..*) <"The dateTime and qualifier associated with this event.">
-		eventIdentifier Identifier (1..1) <"The identifier that uniquely identify this lifecycle event.">
+		eventIdentifier Identifier (1..*) <"The identifiers that uniquely identify this lifecycle event.">
 		party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
 		account Account (0..*) <"Optional account information that could be associated to the event.">
 		previousWorkflowStep WorkflowStep (0..1) <"Optional previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
@@ -173,7 +172,7 @@ func Create_ProposedWorkflowStep: <"Represents the proposal to create a business
 	add proposedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
 		timestamp
 
-	add proposedWorkflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
+	add proposedWorkflowStep -> eventIdentifier: <"Assign the identifiers that uniquely identify this lifecycle event.">
 		eventIdentifier
 
 	add proposedWorkflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
@@ -193,7 +192,7 @@ func Create_RejectedWorkflowStep: <"Represents the rejection of a proposed instr
 	inputs:
 		messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header">
 		timestamp EventTimestamp (1..*) <"The dateTime and qualifier associated with this event.">
-		eventIdentifier Identifier (1..1) <"The identifier that uniquely identify this lifecycle event.">
+		eventIdentifier Identifier (1..*) <"The identifiers that uniquely identify this lifecycle event.">
 		proposedWorkflowStep WorkflowStep (1..1) <"Required previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
 
 	output:
@@ -208,7 +207,7 @@ func Create_RejectedWorkflowStep: <"Represents the rejection of a proposed instr
 	add rejectedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
 		timestamp
 
-	add rejectedWorkflowStep -> eventIdentifier: <"Assign the identifier that uniquely identify this lifecycle event.">
+	add rejectedWorkflowStep -> eventIdentifier: <"Assign the identifiers that uniquely identify this lifecycle event.">
 		eventIdentifier
 
 	set rejectedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
