@@ -17,7 +17,7 @@ public class UnusedModelElementFinderTest {
     @Test
     public void getlistOfOrphanedTypes() {
 //new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(ClassPathUtils::toUrl).toArray(URL[]::new))
-        ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findPathsFromClassPath(ImmutableList.of("rosetta"), ".*\\.rosetta", Optional.empty(), ClassPathUtils.class.getClassLoader()
+        ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findPathsFromClassPath(ImmutableList.of("model", "rosetta"), ".*\\.rosetta", Optional.empty(), ClassPathUtils.class.getClassLoader()
                 ).stream()
                 .map(ClassPathUtils::toUrl)
                 .toArray(URL[]::new));
@@ -46,6 +46,9 @@ public class UnusedModelElementFinderTest {
         assertEquals(2, unusedModelElementFinder.getListOfOrphanedTypes().size(), unusedModelElementFinder.getListOfOrphanedTypes().toString());
         assertTrue(unusedModelElementFinder.getListOfOrphanedTypes().contains("cdm.test.TestEnum2Unused"), "ListOfOrphanedTypes should contain cdm.test.TestEnum2Unused");
         assertTrue(unusedModelElementFinder.getListOfOrphanedTypes().contains("cdm.test.Test4Unused"), "ListOfOrphanedTypes should contain cdm.test.Test4Unused");
+
+        assertEquals(1, unusedModelElementFinder.getListOfDeprecatedTypes().size(), unusedModelElementFinder.getListOfDeprecatedTypes().toString());
+        assertTrue(unusedModelElementFinder.getListOfDeprecatedTypes().contains("cdm.test.Test3"), "ListOfDeprecatedTypes should contain cdm.test.Test3");
 
     }
 }
