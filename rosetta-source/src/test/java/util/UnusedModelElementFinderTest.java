@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class UnusedModelElementFinderTest {
 
     @Test
-    public void getlistOfOrphanedTypes() throws IOException {
-
+    public void getlistOfOrphanedTypes() {
+//new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(ClassPathUtils::toUrl).toArray(URL[]::new))
         ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findPathsFromClassPath(ImmutableList.of("rosetta"), ".*\\.rosetta", Optional.empty(), ClassPathUtils.class.getClassLoader()
                 ).stream()
                 .map(ClassPathUtils::toUrl)
@@ -24,26 +24,28 @@ public class UnusedModelElementFinderTest {
         UnusedModelElementFinder unusedModelElementFinder = new UnusedModelElementFinder(modelLoader);
 
         unusedModelElementFinder.run();
-        assertEquals(6, unusedModelElementFinder.getListOfTypes().size(), unusedModelElementFinder.getListOfTypes().toString());
+        assertEquals(7, unusedModelElementFinder.getListOfTypes().size(), unusedModelElementFinder.getListOfTypes().toString());
 
         assertTrue(unusedModelElementFinder.getListOfTypes().contains("cdm.test.Test1"), "ListOfTypes should contain cdm.test.Test1");
         assertTrue(unusedModelElementFinder.getListOfTypes().contains("cdm.test.Test2"), "ListOfTypes should contain cdm.test.Test2");
-        assertTrue(unusedModelElementFinder.getListOfTypes().contains("cdm.test.Test3Unused"),"ListOfTypes should contain cdm.test.Test3Unused");
+        assertTrue(unusedModelElementFinder.getListOfTypes().contains("cdm.test.Test3"), "ListOfTypes should contain cdm.test.Test3");
+        assertTrue(unusedModelElementFinder.getListOfTypes().contains("cdm.test.Test4Unused"), "ListOfTypes should contain cdm.test.Test4Unused");
         assertTrue(unusedModelElementFinder.getListOfTypes().contains("cdm.test.DirectionEnum"), "ListOfTypes should contain cdm.test.DirectionEnum");
         assertTrue(unusedModelElementFinder.getListOfTypes().contains("cdm.test.TestEnum2Unused"), "ListOfTypes should contain cdm.test.TestEnum2Unused");
         assertTrue(unusedModelElementFinder.getListOfTypes().contains("cdm.test.TestEnum3UsedInFuncOnly"), "ListOfTypes should contain cdm.test.TestEnum3UsedInFuncOnly");
 
-        assertEquals(4, unusedModelElementFinder.getListOfUsedTypes().size(), unusedModelElementFinder.getListOfUsedTypes().toString());
+        assertEquals(5, unusedModelElementFinder.getListOfUsedTypes().size(), unusedModelElementFinder.getListOfUsedTypes().toString());
 
         assertTrue(unusedModelElementFinder.getListOfUsedTypes().contains("cdm.test.Test1"), "ListOfUsedTypes should contain cdm.test.Test1");
         assertTrue(unusedModelElementFinder.getListOfUsedTypes().contains("cdm.test.Test2"), "ListOfUsedTypes should contain cdm.test.Test2");
+        assertTrue(unusedModelElementFinder.getListOfUsedTypes().contains("cdm.test.Test3"), "ListOfUsedTypes should contain cdm.test.Test3");
         assertTrue(unusedModelElementFinder.getListOfUsedTypes().contains("cdm.test.DirectionEnum"), "ListOfUsedTypes should contain cdm.test.DirectionEnum");
         assertTrue(unusedModelElementFinder.getListOfUsedTypes().contains("cdm.test.TestEnum3UsedInFuncOnly"), "ListOfUsedTypes should contain cdm.test.TestEnum3UsedInFuncOnly");
 
 
         assertEquals(2, unusedModelElementFinder.getListOfOrphanedTypes().size(), unusedModelElementFinder.getListOfOrphanedTypes().toString());
         assertTrue(unusedModelElementFinder.getListOfOrphanedTypes().contains("cdm.test.TestEnum2Unused"), "ListOfOrphanedTypes should contain cdm.test.TestEnum2Unused");
-        assertTrue(unusedModelElementFinder.getListOfOrphanedTypes().contains("cdm.test.Test3Unused"), "ListOfOrphanedTypes should contain cdm.test.Test3Unused");
+        assertTrue(unusedModelElementFinder.getListOfOrphanedTypes().contains("cdm.test.Test4Unused"), "ListOfOrphanedTypes should contain cdm.test.Test4Unused");
 
     }
 }
