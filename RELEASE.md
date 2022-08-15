@@ -17,7 +17,7 @@ fpml-5-10/incomplete-processes/msg-ex60-execution-advice-trade-amendment-correct
 
 In the CDM Portal, select Instance Viewer, and review the above samples in the `FpML Processes` folder, which create fully-specified `Workflowstep` events from the ingested instructions.
 
-# *Product Model - Mapping Product Identifier for Bond Options*
+# *Product Model - FpML Mapping Product Identifier for Bond Options*
 
 _What is being released?_
 
@@ -29,3 +29,15 @@ In the CDM Portal, select Ingestion and review the samples below, which now cont
 
 fpml-5-10/products/rates/bond-option-uti.xml
 fpml-5-10/products/rates/cb-option-usi.xml
+
+# *Product Model - FpML Mapping FX Volatility Swaps*
+
+_What is being released?_
+
+FpML mappings have been enhanced to resolve issues with mappings of FX Volatilty Swaps.  `volatilityStrike` and currency of `vegaNotional` are now both mapped
+
+_Review Directions_
+ 
+In the CDM Portal, select Ingestion and review the sample below, which now contain a product identifier:
+
+fpml-5-10/incomplete-products/fx-derivatives/fx-ex31-volatility-swap.xml
