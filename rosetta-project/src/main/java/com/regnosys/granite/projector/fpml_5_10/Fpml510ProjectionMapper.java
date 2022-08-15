@@ -754,7 +754,7 @@ public class Fpml510ProjectionMapper {
 				getDate(p.getAdjustedPaymentDate()).ifPresent(paymentCalculationPeriod::setAdjustedPaymentDate);
 				getDate(p.getUnadjustedPaymentDate()).ifPresent(paymentCalculationPeriod::setUnadjustedPaymentDate);
 				Optional.ofNullable(p.getDiscountFactor()).ifPresent(paymentCalculationPeriod::setDiscountFactor);
-				Optional.ofNullable(p.getFixedPaymentAmount()).ifPresent(paymentCalculationPeriod::setFixedPaymentAmount);
+				getMoney(p.getFixedPaymentAmount()).map(Money::getAmount).ifPresent(paymentCalculationPeriod::setFixedPaymentAmount);
 				getMoney(p.getForecastPaymentAmount()).ifPresent(paymentCalculationPeriod::setForecastPaymentAmount);
 				getMoney(p.getPresentValueAmount()).ifPresent(paymentCalculationPeriod::setPresentValueAmount);
 				return paymentCalculationPeriod;
