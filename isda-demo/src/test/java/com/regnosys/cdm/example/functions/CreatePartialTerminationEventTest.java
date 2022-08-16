@@ -52,42 +52,20 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
         // Create function input that contains workflow step instructions (i.e. tradeState and instructions)
         WorkflowStep workflowStepInstruction = getWorkflowStepInstruction();
 
-        // Invoke function to create a fully-specified event WorkflowStep (that contains a BusinessEvent)
-        WorkflowStep eventWorkflowStep = createWorkflowStep.evaluate(workflowStepInstruction);
+        // Run function to create a fully-specified event WorkflowStep (i.e. containing a BusinessEvent) from the
+        // input WorkflowStep (i.e. containing proposed EventInstruction)
+        WorkflowStep eventWorkflowStep = runFunctionAndPostProcess(workflowStepInstruction);
 
-        // Post-process the eventWorkflowStep to qualify, re-resolve references etc.
-        // This post-process step is optional depending on how you intend to process the workflow step.
-        WorkflowStep qualifiedWorkflowStep = postProcess(eventWorkflowStep);
-
-        // Assert qualified WorkflowStep
-
-        // The fully-specified event WorkflowStep should contain a newly created BusinessEvent
-        BusinessEvent businessEvent = qualifiedWorkflowStep.getBusinessEvent();
-        assertNotNull(businessEvent);
-
-        // BusinessEvent qualifies as a PartialTermination
-        assertEquals("PartialTermination", businessEvent.getEventQualifier());
-
-        // Only one after TradeState expected - i.e. the TradeState with the new decreased notional
-        assertEquals(1, businessEvent.getAfter().size());
-        TradeState afterTradeState = businessEvent.getAfter().get(0);
-
-        // Assert new decreased notional
-        Quantity quantity = afterTradeState.getTrade().getTradableProduct()
-                .getTradeLot().get(0)
-                .getPriceQuantity().get(0)
-                .getQuantity().get(0).getValue();
-        assertEquals(new BigDecimal("3000000.00"), quantity.getAmount());
-
-        // Only one transferHistory expected - i.e. the partial termination fee
-        assertEquals(1, afterTradeState.getTransferHistory().size());
-
-        // Assert transfer fee
-        Transfer transfer = afterTradeState.getTransferHistory().get(0).getTransfer();
-        assertEquals(FeeTypeEnum.PARTIAL_TERMINATION, transfer.getTransferExpression().getPriceTransfer());
-        assertEquals(new BigDecimal("2000.0"), transfer.getQuantity().getAmount());
+        // Assert
+        assertWorkflowStep(eventWorkflowStep);
     }
 
+    /**
+     * Creates function input.
+     *
+     * @return WorkflowStep containing a proposed EventInstruction
+     * @throws IOException
+     */
     private WorkflowStep getWorkflowStepInstruction() throws IOException {
         // Trade to be partially terminated.  Note that all references are resolved.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json");
@@ -147,6 +125,52 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                 .addEventIdentifier(Identifier.builder()
                         .addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierValue("PartialTerminationExample")))
                 .build(); // ensure you call build() on the function input
+    }
+
+    /**
+     * Invoke function and post-process result (e.g. qualify etc).
+     *
+     * @param workflowStepInstruction - WorkflowStep containing a proposed EventInstruction
+     * @return Qualified WorkflowStep - containing a BusinessEvent
+     */
+    private WorkflowStep runFunctionAndPostProcess(WorkflowStep workflowStepInstruction) {
+        // Invoke function to create a fully-specified event WorkflowStep (that contains a BusinessEvent)
+        WorkflowStep eventWorkflowStep = createWorkflowStep.evaluate(workflowStepInstruction);
+
+        // Post-process the eventWorkflowStep to qualify, re-resolve references etc.
+        // This post-process step is optional depending on how you intend to process the workflow step.
+        return postProcess(eventWorkflowStep);
+    }
+
+    /**
+     * Assert the result.
+     */
+    private void assertWorkflowStep(WorkflowStep eventWorkflowStep) {
+        // The fully-specified event WorkflowStep should contain a newly created BusinessEvent
+        BusinessEvent businessEvent = eventWorkflowStep.getBusinessEvent();
+        assertNotNull(businessEvent);
+
+        // BusinessEvent qualifies as a PartialTermination
+        assertEquals("PartialTermination", businessEvent.getEventQualifier());
+
+        // Only one after TradeState expected - i.e. the TradeState with the new decreased notional
+        assertEquals(1, businessEvent.getAfter().size());
+        TradeState afterTradeState = businessEvent.getAfter().get(0);
+
+        // Assert new decreased notional
+        Quantity quantity = afterTradeState.getTrade().getTradableProduct()
+                .getTradeLot().get(0)
+                .getPriceQuantity().get(0)
+                .getQuantity().get(0).getValue();
+        assertEquals(new BigDecimal("3000000.00"), quantity.getAmount());
+
+        // Only one transferHistory expected - i.e. the partial termination fee
+        assertEquals(1, afterTradeState.getTransferHistory().size());
+
+        // Assert transfer fee
+        Transfer transfer = afterTradeState.getTransferHistory().get(0).getTransfer();
+        assertEquals(FeeTypeEnum.PARTIAL_TERMINATION, transfer.getTransferExpression().getPriceTransfer());
+        assertEquals(new BigDecimal("2000.0"), transfer.getQuantity().getAmount());
     }
 
     private <T extends RosettaModelObject> T postProcess(T o) {
