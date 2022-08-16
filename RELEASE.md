@@ -1,25 +1,43 @@
-# *Event Model - Removal of Legacy Primitive Events*
+# *Event Model - FpML Synonym Mappings for amendment events*
 
 _Background_
 
-This release follows the recent work on the composable business event model using Instruction type and the corresponding creation function, Create_BusinessEvent.  The previous approach would composed business events with with primitive events. Theese are no longer needed. Business Events are now described through the combination of Instructions and the resulting after Trade States.
+The FpML mapping for business events was previously adjusted to map FpML event messages to a `WorkflowStep` instruction, i.e., a `WorkflowStep` containing a proposed `BusinessEvent`. Doing so enabled the use of the `WorkflowStep` instruction with the function `Create_AcceptedWorkflowStepFromInstruction` to create the corresponding fully-specified `WorkflowStep`.
 
 _What is being released?_
 
-This release removes the final legacy PrimitiveEvent and adjust the associated modelling elements.
-- Removed Types
-  - PrimitiveEvent
-  - ExecutionPrimitive
-  - ContractFormationPrimitive
-  - SplitPrimitive
-  - QuantityChangePrimitive
-  - ResetPrimitive
-  - TermsChangePrimitive
-  - TransferPrimitive
-- Renamed functions that referred to primitive but no longer returned an event primitive type, e.g Create_ExecutionPrimitive renamed to Create_Execution
-- Removed functions: QuantityDecreasedPrimitive, QuantityDecreasedToZeroPrimitive, CompareQuantityChangePrimitives, CompareQuantityChangePrimitive
-- Updated all qualification functions that referred to EventPrimitive
+This release extends the FPML synonym mappings to address amendment events.
 
 _Review Directions_
  
-In the CDM Portal, select Textual Browser and review the types and function mentioned above.
+In the CDM Portal, select Ingestion and review the samples below, which have been mapped to `WorkflowStep` instructions:
+
+fpml-5-10/incomplete-processes/msg-ex59-execution-advice-trade-amendment-F02-00.xml
+fpml-5-10/incomplete-processes/msg-ex60-execution-advice-trade-amendment-correction-F02-10.xml
+
+In the CDM Portal, select Instance Viewer, and review the above samples in the `FpML Processes` folder, which create fully-specified `Workflowstep` events from the ingested instructions.
+
+# *Product Model - FpML Synonym Mapping for the Product Identifier of Bond Options*
+
+_What is being released?_
+
+FpML mappings have been enhanced to support mapping of `productIdentifier` for Bond and Convertible Bond Options.
+
+_Review Directions_
+ 
+In the CDM Portal, select Ingestion and review the samples below, which now contain a product identifier:
+
+fpml-5-10/products/rates/bond-option-uti.xml
+fpml-5-10/products/rates/cb-option-usi.xml
+
+# *Product Model - FpML Synonym Mapping for FX Volatility Swaps*
+
+_What is being released?_
+
+FpML mappings have been enhanced to resolve issues with the FpML mappings for FX Volatilty Swaps.  `volatilityStrike` and currency of `vegaNotional` are now both mapped
+
+_Review Directions_
+ 
+In the CDM Portal, select Ingestion and review the sample below, which now contain a product identifier:
+
+fpml-5-10/incomplete-products/fx-derivatives/fx-ex31-volatility-swap.xml

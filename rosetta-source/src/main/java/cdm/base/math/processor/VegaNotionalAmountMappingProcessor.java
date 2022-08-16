@@ -46,6 +46,10 @@ public class VegaNotionalAmountMappingProcessor extends MappingProcessor {
         subPath("variance", synonymPath)
                 .flatMap(subPath -> getNonNullMappedValue(getMappings(), subPath, "varianceAmount", "currency"))
                 .ifPresent(setter);
+
+        subPath("fxVolatilitySwap", synonymPath)
+                .flatMap(subPath -> getNonNullMappedValue(getMappings(), subPath, "vegaNotional", "currency"))
+                .ifPresent(setter);
     }
 
     private boolean isPriceQuantityModelPath() {
