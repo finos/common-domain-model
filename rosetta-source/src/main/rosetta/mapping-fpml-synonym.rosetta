@@ -892,6 +892,7 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementCurrency" path "settlementProvision"]
 			[value "cashSettlementCurrency" meta "currencyScheme"]
 			[value "cashSettlementCurrency" path "cashSettlement->cashPriceMethod"]
+			[value "cashSettlementCurrency" path "cashSettlement->crossCurrencyMethod"]
 			[value "settlementCurrency" path "cashSettlementTerms"]
 			[value "settlementCurrency" path "physicalSettlementTerms"]
 			[value "settlementCurrency" path "nonDeliverableSettlement"]
@@ -1417,6 +1418,7 @@ synonym source FpML_5_10 extends FpML
 			[value "principalExchange"]
 		+ paymentCalculationPeriod
 			[value "paymentCalculationPeriod"]
+			[value "adjustedPaymentDates"]
 
 	SettlementDate:
 		[meta "id" path "settlementDate"]
@@ -1666,6 +1668,7 @@ synonym source FpML_5_10 extends FpML
 			[value "calculationPeriod"]
 		+ fixedPaymentAmount
 			[value "fixedPaymentAmount"]
+			[value "amount" path "paymentAmount"]
 		+ discountFactor
 			[value "discountFactor"]
 		+ forecastPaymentAmount
@@ -1841,14 +1844,22 @@ synonym source FpML_5_10 extends FpML
 			[value "primaryAssetClass" meta "assetClassScheme"]
 			[value "primaryAssetClass" path "fra" meta "assetClassScheme"]
 			[value "primaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
+			[value "primaryAssetClass" path "bondOption" meta "assetClassScheme"]
 		+ secondaryAssetData
 			[value "secondaryAssetClass" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "fra" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
+			[value "secondaryAssetClass" path "bondOption" meta "assetClassScheme"]
 		+ productIdentifier
 			[hint "productId"]
 			[value "fra"]
 			[value "creditDefaultSwapOption"]
+			[value "bondOption"]
+		+ externalProductType
+            [hint "productType"]
+			[value "fra"]
+			[value "creditDefaultSwapOption"]
+			[value "bondOption"]
 
 
 	ExternalProductType:
@@ -2318,7 +2329,7 @@ synonym source FpML_5_10 extends FpML
 			[value "dayCountFraction" path "calculationPeriodAmount->calculation" meta "dayCountFractionScheme"]
 			[value "dayCountFraction" path "periodicPayment->fixedAmountCalculation" meta "dayCountFractionScheme"]
 			[value "dayCountFraction" path "periodicPayment->floatingAmountCalculation" meta "dayCountFractionScheme"]
-			[value "dayCountFraction"]
+			[value "dayCountFraction" meta "dayCountFractionScheme"]
 			[value "dayCountFraction" path "interestCalculation" meta "dayCountFractionScheme"]
 		+ paymentDates
 			[value "paymentDates"]
@@ -2337,6 +2348,7 @@ synonym source FpML_5_10 extends FpML
 			[value "compoundingMethod" path "calculationPeriodAmount->calculation"]
 		+ cashflowRepresentation
 			[value "cashflows"]
+			[value "periodicPayment"]
 		+ stubPeriod
 			[value "stubCalculationPeriodAmount"]
 			[value "stubCalculationPeriod"]
@@ -2979,9 +2991,9 @@ Payout:
 
 	BusinessCenterTime:
 		+ hourMinuteTime
-			[value "hourMinuteTime"]
+			[value "hourMinuteTime" maps 2]
 		+ businessCenter
-			[value "businessCenter" meta "businessCenterScheme"]
+			[value "businessCenter" maps 2 meta "businessCenterScheme"]
 
 	BusinessDateRange:
 		+ businessDayConvention
