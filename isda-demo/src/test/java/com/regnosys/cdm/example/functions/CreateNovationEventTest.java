@@ -1,22 +1,23 @@
 package com.regnosys.cdm.example.functions;
 
-import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
 import cdm.base.math.Quantity;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
-import cdm.base.staticdata.party.PartyReferencePayerReceiver;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
+import cdm.base.staticdata.party.*;
 import cdm.event.common.*;
 import cdm.event.workflow.EventInstruction;
 import cdm.event.workflow.EventTimestamp;
 import cdm.event.workflow.EventTimestampQualificationEnum;
 import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_AcceptedWorkflowStepFromInstruction;
-import cdm.observable.asset.FeeTypeEnum;
+import cdm.legalagreement.common.ClosedStateEnum;
 import cdm.product.common.settlement.PriceQuantity;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.regnosys.cdm.example.AbstractExampleTest;
 import com.regnosys.cdm.example.util.ResourcesUtils;
@@ -34,13 +35,12 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This test demonstrates how to create a WorkflowStep from an input TradeState and Instructions.
  */
-public class CreatePartialTerminationEventTest extends AbstractExampleTest {
+public class CreateNovationEventTest extends AbstractExampleTest {
 
     private static final String CURRENCY_SCHEME = "http://www.fpml.org/coding-scheme/external/iso4217";
 
@@ -50,9 +50,8 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
     @Inject
     WorkflowPostProcessor postProcessor;
 
-
     @Test
-    void createPartialTerminationEvent() throws IOException {
+    void createNovationEvent() throws IOException {
         // Create function input that contains workflow step instructions (i.e. WorkflowStep containing a proposed EventInstruction)
         WorkflowStep workflowStepInstruction = getWorkflowStepInstruction();
 
@@ -70,63 +69,62 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
      * @throws IOException
      */
     private WorkflowStep getWorkflowStepInstruction() throws IOException {
-        // Trade to be partially terminated.  Note that all references are resolved here.
+        // Trade to be novated.  Note that all references are resolved here.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json");
 
         Date eventDate = Date.of(2013, 2, 12);
 
-        // QuantityChangeInstruction specifying a decrease in notional
-        QuantityChangeInstruction quantityChangeInstruction =
-                QuantityChangeInstruction.builder()
-                        .setDirection(QuantityChangeDirectionEnum.DECREASE)
-                        .addChange(PriceQuantity.builder()
-                                .addQuantity(FieldWithMetaQuantity.builder()
-                                        .setValue(Quantity.builder()
-                                                .setAmount(BigDecimal.valueOf(7000000))
-                                                .setUnitOfAmount(UnitType.builder()
-                                                        .setCurrency(FieldWithMetaString.builder()
-                                                                .setValue("USD")
-                                                                .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME)))))));
-
-        // Transfer instruction specifying the partial termination fee
-        ReferenceWithMetaParty payerPartyReference = beforeTradeState.getTrade().getTradableProduct().getCounterparty().get(0).getPartyReference();
-        ReferenceWithMetaParty receiverPartyReference = beforeTradeState.getTrade().getTradableProduct().getCounterparty().get(1).getPartyReference();
-        TransferInstruction transferInstruction = TransferInstruction.builder()
-                .addTransferState(TransferState.builder()
-                        .setTransfer(Transfer.builder()
-                                .setTransferExpression(TransferExpression.builder()
-                                        .setPriceTransfer(FeeTypeEnum.PARTIAL_TERMINATION))
-                                .setPayerReceiver(PartyReferencePayerReceiver.builder()
-                                        .setPayerPartyReference(payerPartyReference)
-                                        .setReceiverPartyReference(receiverPartyReference))
-                                .setQuantity(Quantity.builder()
-                                        .setAmount(BigDecimal.valueOf(2000.00))
-                                        .setUnitOfAmount(UnitType.builder()
-                                                .setCurrency(FieldWithMetaString.builder()
-                                                        .setValue("USD")
-                                                        .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME)))))
-                                .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
-                                        .setAdjustedDateValue(eventDate))));
+        // SplitInstruction contains two split breakdowns
+        SplitInstruction splitInstruction = SplitInstruction.builder()
+                // Split breakdown for party change, new trade id etc
+                .addBreakdown(PrimitiveInstruction.builder()
+                        .setPartyChange(PartyChangeInstruction.builder()
+                                .setCounterparty(Counterparty.builder()
+                                        .setPartyReferenceValue(Party.builder()
+                                                .setMeta(MetaFields.builder().setExternalKey("party3"))
+                                                .setNameValue("Bank Z")
+                                                .addPartyId(PartyIdentifier.builder()
+                                                        .setIdentifierType(PartyIdentifierTypeEnum.LEI)
+                                                        .setIdentifierValue("LEI-PARTY-3")))
+                                        .setRole(CounterpartyRoleEnum.PARTY_2))
+                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                        .addAssignedIdentifier(AssignedIdentifier.builder()
+                                                .setIdentifierValue("UTI-Trade-Party-3")
+                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                        .setIssuerValue("LEI-PARTY-3")))))
+                // Split breakdown to terminate the original trade
+                .addBreakdown(PrimitiveInstruction.builder()
+                        .setQuantityChange(QuantityChangeInstruction.builder()
+                                .setDirection(QuantityChangeDirectionEnum.REPLACE)
+                                .addChange(PriceQuantity.builder()
+                                        .addQuantity(FieldWithMetaQuantity.builder()
+                                                .setValue(Quantity.builder()
+                                                        .setAmount(BigDecimal.valueOf(0.0))
+                                                        .setUnitOfAmount(UnitType.builder()
+                                                                .setCurrency(FieldWithMetaString.builder()
+                                                                        .setValue("USD")
+                                                                        .setMeta(MetaFields.builder()
+                                                                                .setScheme(CURRENCY_SCHEME)))))))));
 
         // Create an Instruction that contains:
         // - before TradeState
-        // - PrimitiveInstruction containing a QuantityChangeInstruction and TransferInstruction
+        // - PrimitiveInstruction containing a SplitInstruction
         Instruction tradeStateInstruction = Instruction.builder()
                 .setBeforeValue(beforeTradeState)
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(quantityChangeInstruction)
-                        .setTransfer(transferInstruction));
+                        .setSplit(splitInstruction));
 
         // Create a workflow step instruction containing the EventInstruction, EventTimestamp and EventIdentifiers
         return WorkflowStep.builder()
                 .setProposedEvent(EventInstruction.builder()
                         .addInstruction(tradeStateInstruction)
+                        .setIntent(EventIntentEnum.NOVATION)
                         .setEventDate(eventDate))
                 .addTimestamp(EventTimestamp.builder()
                         .setDateTime(ZonedDateTime.of(eventDate.toLocalDate(), LocalTime.of(9, 0), ZoneOffset.UTC.normalized()))
                         .setQualification(EventTimestampQualificationEnum.EVENT_CREATION_DATE_TIME))
                 .addEventIdentifier(Identifier.builder()
-                        .addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierValue("PartialTerminationExample")))
+                        .addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierValue("NovationExample")))
                 .build(); // ensure you call build() on the function input
     }
 
@@ -148,32 +146,24 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
     /**
      * Assert the result.
      */
-    private void assertWorkflowStep(WorkflowStep eventWorkflowStep) {
+    private void assertWorkflowStep(WorkflowStep eventWorkflowStep) throws JsonProcessingException {
         // The fully-specified event WorkflowStep should contain a newly created BusinessEvent
         BusinessEvent businessEvent = eventWorkflowStep.getBusinessEvent();
         assertNotNull(businessEvent);
 
-        // BusinessEvent qualifies as a PartialTermination
-        assertEquals("PartialTermination", businessEvent.getEventQualifier());
+        // BusinessEvent qualifies as a Novation
+        assertEquals("Novation", businessEvent.getEventQualifier());
 
-        // Only one after TradeState expected - i.e. the TradeState with the new decreased notional
-        assertEquals(1, businessEvent.getAfter().size());
-        TradeState afterTradeState = businessEvent.getAfter().get(0);
+        // Two after TradeStates expected - i.e. the novated TradeState (i.e. with new party etc), and the terminated original TradeState
+        assertEquals(2, businessEvent.getAfter().size());
 
-        // Assert new decreased notional
-        Quantity quantity = afterTradeState.getTrade().getTradableProduct()
-                .getTradeLot().get(0)
-                .getPriceQuantity().get(0)
-                .getQuantity().get(0).getValue();
-        assertEquals(new BigDecimal("3000000.00"), quantity.getAmount());
+        // Novated TradeState
+        TradeState novatedTradeState = businessEvent.getAfter().get(0);
+        assertNull(novatedTradeState.getState());
 
-        // Only one transferHistory expected - i.e. the partial termination fee
-        assertEquals(1, afterTradeState.getTransferHistory().size());
-
-        // Assert transfer fee
-        Transfer transfer = afterTradeState.getTransferHistory().get(0).getTransfer();
-        assertEquals(FeeTypeEnum.PARTIAL_TERMINATION, transfer.getTransferExpression().getPriceTransfer());
-        assertEquals(new BigDecimal("2000.0"), transfer.getQuantity().getAmount());
+        // Terminated TradeState
+        TradeState terminatedTradeState = businessEvent.getAfter().get(1);
+        assertEquals(ClosedStateEnum.TERMINATED, terminatedTradeState.getState().getClosedState().getState());
     }
 
     private <T extends RosettaModelObject> T postProcess(T o) {
