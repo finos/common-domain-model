@@ -1,8 +1,8 @@
-# *Event Model - Mapping FpML amendment events*
+# *Event Model - FpML Synonym Mappings for amendment events*
 
 _Background_
 
-The FpML mapping for business events was previously adjusted to map FpML event messages to a `WorkflowStep` instruction, i.e., a `WorkflowStep` containing a proposed `BusinessEvent`. Consequently a CDM implementer can use the `WorkflowStep` instruction with function `Create_AcceptedWorkflowStepFromInstruction` to create the corresponding fully-specified `WorkflowStep`.
+The FpML mapping for business events was previously adjusted to map FpML event messages to a `WorkflowStep` instruction, i.e., a `WorkflowStep` containing a proposed `BusinessEvent`. Doing so enabled the use of the `WorkflowStep` instruction with the function `Create_AcceptedWorkflowStepFromInstruction` to create the corresponding fully-specified `WorkflowStep`.
 
 _What is being released?_
 
@@ -17,7 +17,7 @@ fpml-5-10/incomplete-processes/msg-ex60-execution-advice-trade-amendment-correct
 
 In the CDM Portal, select Instance Viewer, and review the above samples in the `FpML Processes` folder, which create fully-specified `Workflowstep` events from the ingested instructions.
 
-# *Product Model - FpML Mapping Product Identifier for Bond Options*
+# *Product Model - FpML Synonym Mapping for the Product Identifier of Bond Options*
 
 _What is being released?_
 
@@ -30,11 +30,11 @@ In the CDM Portal, select Ingestion and review the samples below, which now cont
 fpml-5-10/products/rates/bond-option-uti.xml
 fpml-5-10/products/rates/cb-option-usi.xml
 
-# *Product Model - FpML Mapping FX Volatility Swaps*
+# *Product Model - FpML Synonym Mapping for FX Volatility Swaps*
 
 _What is being released?_
 
-FpML mappings have been enhanced to resolve issues with mappings of FX Volatilty Swaps.  `volatilityStrike` and currency of `vegaNotional` are now both mapped
+FpML mappings have been enhanced to resolve issues with the FpML mappings for FX Volatilty Swaps.  `volatilityStrike` and currency of `vegaNotional` are now both mapped
 
 _Review Directions_
  
