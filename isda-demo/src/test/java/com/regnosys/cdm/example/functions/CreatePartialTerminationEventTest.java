@@ -37,6 +37,9 @@ import java.time.ZonedDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+/**
+ * This test demonstrates how to create a WorkflowStep from an input TradeState and Instructions.
+ */
 public class CreatePartialTerminationEventTest extends AbstractExampleTest {
 
     private static final String CURRENCY_SCHEME = "http://www.fpml.org/coding-scheme/external/iso4217";
