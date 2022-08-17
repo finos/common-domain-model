@@ -1,4 +1,4 @@
-# *Event Model - Ilustrative Reference Implementations for Workflowsteps*
+# *Event Model - Illustrative Reference Implementations for WorkflowSteps*
 
 _What is being released?_
 
