@@ -1,8 +1,8 @@
-# *Event Model - Function Examples*
+# *Event Model - Ilustrative Reference Implementations for Workflowsteps*
 
 _What is being released?_
 
-This release adds examples of how to use the Event model functions to create a `WorkflowStep` from a `TradeState` and an `Instruction`.
+This change adds programmatic examples of how to use the Event model functions to create a `WorkflowStep` from a `TradeState` and an `Instruction`.
 
 _Review Directions_
  
