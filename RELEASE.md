@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release adds examples of how to use the Event model functions to create fully-specified event `WorkflowStep` from a `TradeState` and an `Instruction`.
+This release adds examples of how to use the Event model functions to create a `WorkflowStep` from a `TradeState` and an `Instruction`.
 
 _Review Directions_
  
