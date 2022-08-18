@@ -17,10 +17,15 @@ type AdjustableDate: <"A class for defining a date that shall be subject to adju
 type AdjustableDates: <"A class for defining a series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the dates.">
 	[metadata key]
 
-	unadjustedDate date (1..*) <"A date subject to adjustment.">
-	dateAdjustments BusinessDayAdjustments (1..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
+	unadjustedDate date (0..*) <"A date subject to adjustment.">
+	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
 	adjustedDate date (0..*) <"The date(s) once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
 		[metadata id]
+
+	condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
+		 if adjustedDate is absent then
+			unadjustedDate exists and dateAdjustments exists
+
 
 type AdjustableOrAdjustedDate: <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
 	[metadata key]
@@ -31,10 +36,8 @@ type AdjustableOrAdjustedDate: <"A class for defining a date that shall be subje
 		[metadata id]
 
 	condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
-		if AdjustableOrAdjustedDate exists
-		then adjustedDate exists
-			or (unadjustedDate exists and dateAdjustments exists and adjustedDate exists)
-			or (unadjustedDate exists and dateAdjustments exists and adjustedDate is absent)
+		 if adjustedDate is absent then
+			unadjustedDate exists and dateAdjustments exists
 
 type AdjustableOrAdjustedOrRelativeDate: <"This Rosetta class specifies the date as either an unadjusted, adjusted or relative date. It supplements the features of the AdjustableOrAdjustedDate to support the credit default swap option premium, which uses the relative date construct.">
 
@@ -45,8 +48,7 @@ type AdjustableOrAdjustedOrRelativeDate: <"This Rosetta class specifies the date
 	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">
 
 	condition AdjustedDate: <"This data rule extends the data rule AdjustableOrAdjustedDate_adjustedDate by specifying logic applicable to the relative date.">
-		if AdjustableOrAdjustedOrRelativeDate exists
-		then adjustedDate exists
+		adjustedDate exists
 			or relativeDate exists
 			or unadjustedDate exists
 			or (unadjustedDate exists and dateAdjustments exists and adjustedDate is absent)

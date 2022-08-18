@@ -91,7 +91,7 @@ synonym source FpML_5_10 extends FpML
 			[value "volatility" path "amount"]
 			[hint "amount"]
 			[hint "valuation"]
-			[hint "annualizationFactor", "meanAdjustment"]
+			[hint "annualizationFactor", "meanAdjustment", "fixedLeg"]
 		+ correlationReturnTerms
 			[value "correlation" path "amount"]
 			[hint "amount"]
@@ -167,6 +167,7 @@ synonym source FpML_5_10 extends FpML
 		// Volatility specific
 		+ volatilityStrikePrice
 			[hint "volatilityStrikePrice"]
+			[value "fixedLeg" set when path = "fxVolatilitySwap"]
 		+ volatilityCapFloor
 			[value "volatilityCap"]
 		+ annualizationFactor
@@ -183,7 +184,7 @@ synonym source FpML_5_10 extends FpML
 		// Variance specific
 		+ varianceStrikePrice
 			[hint "varianceStrikePrice"]
-			[value "fixedLeg"]
+			[value "fixedLeg" set when path = "fxVarianceSwap"]
 		+ volatilityStrikePrice
 			[hint "volatilityStrikePrice"]
 		+ vegaNotionalAmount
@@ -891,6 +892,7 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementCurrency" path "settlementProvision"]
 			[value "cashSettlementCurrency" meta "currencyScheme"]
 			[value "cashSettlementCurrency" path "cashSettlement->cashPriceMethod"]
+			[value "cashSettlementCurrency" path "cashSettlement->crossCurrencyMethod"]
 			[value "settlementCurrency" path "cashSettlementTerms"]
 			[value "settlementCurrency" path "physicalSettlementTerms"]
 			[value "settlementCurrency" path "nonDeliverableSettlement"]
@@ -1416,6 +1418,7 @@ synonym source FpML_5_10 extends FpML
 			[value "principalExchange"]
 		+ paymentCalculationPeriod
 			[value "paymentCalculationPeriod"]
+			[value "adjustedPaymentDates"]
 
 	SettlementDate:
 		[meta "id" path "settlementDate"]
@@ -1665,6 +1668,7 @@ synonym source FpML_5_10 extends FpML
 			[value "calculationPeriod"]
 		+ fixedPaymentAmount
 			[value "fixedPaymentAmount"]
+			[value "amount" path "paymentAmount"]
 		+ discountFactor
 			[value "discountFactor"]
 		+ forecastPaymentAmount
@@ -1840,12 +1844,14 @@ synonym source FpML_5_10 extends FpML
 			[hint "productId"]
 			[value "fra"]
 			[value "creditDefaultSwapOption"]
+			[value "bondOption"]
 		+ productTaxonomy
 			[hint "productType"]
 			[hint "primaryAssetClass"]
 			[hint "secondaryAssetClass"]
 			[value "fra"]
 			[value "creditDefaultSwapOption"]
+			[value "bondOption"]
 
 	ProductTaxonomy:
 		+ primaryAssetClass
@@ -2321,7 +2327,7 @@ synonym source FpML_5_10 extends FpML
 			[value "dayCountFraction" path "calculationPeriodAmount->calculation" meta "dayCountFractionScheme"]
 			[value "dayCountFraction" path "periodicPayment->fixedAmountCalculation" meta "dayCountFractionScheme"]
 			[value "dayCountFraction" path "periodicPayment->floatingAmountCalculation" meta "dayCountFractionScheme"]
-			[value "dayCountFraction"]
+			[value "dayCountFraction" meta "dayCountFractionScheme"]
 			[value "dayCountFraction" path "interestCalculation" meta "dayCountFractionScheme"]
 		+ paymentDates
 			[value "paymentDates"]
@@ -2340,6 +2346,7 @@ synonym source FpML_5_10 extends FpML
 			[value "compoundingMethod" path "calculationPeriodAmount->calculation"]
 		+ cashflowRepresentation
 			[value "cashflows"]
+			[value "periodicPayment"]
 		+ stubPeriod
 			[value "stubCalculationPeriodAmount"]
 			[value "stubCalculationPeriod"]
@@ -2982,9 +2989,9 @@ Payout:
 
 	BusinessCenterTime:
 		+ hourMinuteTime
-			[value "hourMinuteTime"]
+			[value "hourMinuteTime" maps 2]
 		+ businessCenter
-			[value "businessCenter" meta "businessCenterScheme"]
+			[value "businessCenter" maps 2 meta "businessCenterScheme"]
 
 	BusinessDateRange:
 		+ businessDayConvention
