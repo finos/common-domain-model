@@ -37,11 +37,34 @@ type IdentifiedProduct: <"An abstract class to specify a product which terms are
 	productIdentifier ProductIdentifier (1..1)
 
 type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
-	productIdentifier ProductIdentifier (1..*)
-        [metadata address "pointsTo"=Observable->productIdentifier]
+	productTaxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+	productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+		[metadata address "pointsTo"=Observable->productIdentifier]
+
+type ProductTaxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+	primaryAssetClass AssetClassEnum (0..1) <"Classifies the most important risk class of the trade.">
+		[metadata scheme]
+	secondaryAssetClass AssetClassEnum (0..*) <" Classifies additional risk classes of the trade, if any.">
+		[metadata scheme]
+	taxonomyValue string (0..1) <"Specifies the taxonomy value.">
+		[metadata scheme]
+	taxonomySource TaxonomySourceEnum (0..1) <"Specifies the taxonomy source.">
+	productQualifier string (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features.">
+	// of type string rather than productType
+
+	condition TaxonomyValue: <"Requires a taxonomy value to be chosen.">
+		required choice taxonomyValue, productQualifier, primaryAssetClass, secondaryAssetClass
+
+	condition TaxonomySource: <"A taxonomy source can only be associated with a taxonomyValue or productQualifier">
+		if taxonomySource exists then
+			taxonomyValue exists or productQualifier exists
+
+type ProductIdentification: <"Combines the CDM product qualifier with other product types and identifiers. While the CDM product qualifier is derived by the CDM from the product payout features, the other product type and identification elements are assigned by external sources and correspond to values specified by other data representation protocols.">
+//TO BE REMOVED - Product Qualification should populate ProductTaxonomy -> productQualifier and ProductTaxonomy->taxonomySource = ISDA. Attribute can then be removed from EconomicTerms
+
+	productQualifier productType (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features."> 
 
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
-	indexType IndexTypeEnum (1..1) <"Indentifies the index product type.">
 
 type Commodity extends ProductBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
 	commodityProductDefinition CommodityProductDefinition (0..1)  <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
@@ -92,10 +115,6 @@ type Loan extends ProductBase: <"Identifies a loan by referencing a product iden
 	tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
 		[metadata scheme]
 
-type ProductTaxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-	taxonomyValue string (1..1) <"Specifies the taxonomy value.">
-	taxonomySource TaxonomySourceEnum (1..1) <"Specifies the taxonomy source.">
-
 type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     taxonomyValue CollateralTaxonomyValue (1..1) <"Specifies the taxonomy value.">
     taxonomySource TaxonomySourceEnum (1..1) <"Specifies the taxonomy source.">
@@ -132,6 +151,7 @@ type Security extends ProductBase: <"Identifies a security by referencing a prod
 	debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
 	equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
+	economicTerms cdm.product.template.EconomicTerms (0..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
 
 	condition DebtSubType:
 		if securityType <> SecurityTypeEnum -> Debt
@@ -144,6 +164,10 @@ type Security extends ProductBase: <"Identifies a security by referencing a prod
 	condition FundSubType:
 		if securityType <> SecurityTypeEnum -> Fund
 		then fundType is absent
+
+	condition BondEconomicTerms:
+		if economicTerms exists then
+			securityType = SecurityTypeEnum -> Debt
 
 type DebtType: <"Specifies the type of debt instrument.">
 	debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
@@ -193,10 +217,10 @@ type RegionalGovernmentIssuerType: <"Represents a class to allow specification o
 type SpecialPurposeVehicleIssuerType: <"Represents a class to allow specification of different types of special purpose vehicle (SPV) collateral.">
 	creditRisk CreditRiskEnum (0..1) <"Indicates tranched or untranched credit risk."> 
 	
-type ExternalProductType: <"Provides a classification of the type of product that is external to the product qualifications used in the CDM. Product types mapped from external models are mapped to this data type.">
-	value string (1..1) <"Stores the product type value.">
-	    [metadata scheme]
-	externalProductTypeSource ExternalProductTypeSourceEnum (0..1) <"Denotes the enumerated value to identify the source for the specified product type.">
+// type ExternalProductType: <"Provides a classification of the type of product that is external to the product qualifications used in the CDM. Product types mapped from external models are mapped to this data type.">
+// 	value string (1..1) <"Stores the product type value.">
+// 	    [metadata scheme]
+// 	externalProductTypeSource ExternalProductTypeSourceEnum (0..1) <"Denotes the enumerated value to identify the source for the specified product type.">
 
 type AssetType: <"Represents a class to allow specification of the asset product type.">
 	assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">

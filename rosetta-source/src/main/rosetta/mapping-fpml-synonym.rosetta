@@ -1835,27 +1835,31 @@ synonym source FpML_5_10 extends FpML
 			[set to ProductIdTypeEnum -> Other when path = "productId"] // catch-all
 			[value "productId" mapper "DefaultProductIdType"]
  
-	ProductIdentification:
-		+ primaryAssetData
-			[value "primaryAssetClass" meta "assetClassScheme"]
-			[value "primaryAssetClass" path "fra" meta "assetClassScheme"]
-			[value "primaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
-		+ secondaryAssetData
-			[value "secondaryAssetClass" meta "assetClassScheme"]
-			[value "secondaryAssetClass" path "fra" meta "assetClassScheme"]
-			[value "secondaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
+	ProductBase:
 		+ productIdentifier
 			[hint "productId"]
 			[value "fra"]
 			[value "creditDefaultSwapOption"]
+		+ productTaxonomy
+			[hint "productType"]
+			[hint "primaryAssetClass"]
+			[hint "secondaryAssetClass"]
+			[value "fra"]
+			[value "creditDefaultSwapOption"]
 
-
-	ExternalProductType:
-		+ value
+	ProductTaxonomy:
+		+ primaryAssetClass
+			[value "primaryAssetClass" meta "assetClassScheme"]
+		+ secondaryAssetClass
+			[value "secondaryAssetClass" meta "assetClassScheme"]
+		+ taxonomyValue
 			[value "productType" meta "productTypeScheme"]
-		+ externalProductTypeSource
-			[set to ExternalProductTypeSourceEnum -> FpMLProductType when "productType->productTypeScheme" = "http://www.fpml.org/coding-scheme/product-taxonomy"]
-			[set to ExternalProductTypeSourceEnum -> CFI when "productType->productTypeScheme" = "http://www.fpml.org/coding-scheme/external/product-classification/iso10962"]
+		+ taxonomySource
+			[set to TaxonomySourceEnum -> ISDA when "productType->productTypeScheme" = "http://www.fpml.org/coding-scheme/product-taxonomy"]
+			[set to TaxonomySourceEnum -> CFI when "productType->productTypeScheme" = "http://www.fpml.org/coding-scheme/external/product-classification/iso10962"]
+			[set to TaxonomySourceEnum -> EMIR when "productType->productTypeScheme" = "http://www.dtcc.com/coding-scheme/external/product-classification/emir-contract-type"]
+// taxonomySource being associated with the incorrect productTaxonomy.  See Rates -> EUR-Vanilla-party-roles-versioned
+
 
 	Security:
 		+ productIdentifier
