@@ -23,6 +23,11 @@ import cdm.event.position.*
 
 isEvent root BusinessEvent;
 
+annotation context: <"Annotation to describe the intent of a function">
+    [prefix Context]
+
+	BusinessEvent BusinessEvent (0..1) <"A business event function should take as its inputs the after state of previous business event or in case where the is no before state, all of the inputs required to produce the outcome BusinessEvent.">
+
 func QuantityIncreased:
 	inputs:
 		before TradeState (1..1)
@@ -476,6 +481,15 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
 		and floatingRateIndexChanged = True
 		and adjustmentSpreadAdded = True
 
+func Context_CreditEvent: <"The qualification of a credit event from the fact that there is a Market Event History and Credit Event object.">
+	[context BusinessEvent]
+	inputs:
+		businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+	set is_event:
+	//TH Review -> compare before<>after and check whether a new creditEvent has been added
+		businessEvent -> after -> marketEventHistory -> creditEvent exists
+
 func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the InterestRatePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
 	inputs:
 		payout InterestRatePayout (1..1)
@@ -730,9 +744,44 @@ func Create_StockSplit: <"Function specification to create the fully-formed busi
     alias quantityChangeInstruction:
         Create_QuantityChangeInstruction( [postSplitPriceQuantity], QuantityChangeDirectionEnum -> Replace, empty )
     alias primitiveInstruction:
-        Create_PrimitiveInstruction( empty, empty, empty, empty, quantityChangeInstruction, empty, empty, empty, empty, empty, empty )
+        Create_PrimitiveInstruction( empty, empty, empty, empty, quantityChangeInstruction, empty, empty, empty, empty, empty, empty, empty )
     set after:
         Create_TradeState( primitiveInstruction, before )
+
+//TH Review -> func naming (rem primitive)
+func Create_CreditEvent: <"Function specification to create the fully-formed business event which represents the impact of a credit event on a Credit Derivatives contract on a certain date.">
+	inputs:
+		instruction CreditEventInstruction (1..1)
+		tradeState TradeState (1..1) <"Represents the trade and associated state on which to construct the Transfer data type.">
+    output:
+		after TradeState (1..1) 
+	
+	set after : tradeState
+	add after -> marketEventHistory -> creditEvent: instruction
+
+	/*
+	TH Review -> Demonstrate how to create a quantity change instruction using the credit event instruction. Should not be part of this function
+	alias notionalQuantity:
+		tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity
+
+	alias notionalAmount: <"Extraction of the notional amount for credit products.">
+		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout-> creditDefaultPayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> amount
+
+	alias notionalCurrency: <"Extraction of the notional amount currency for credit products. Needed to create a Quantity structure in quantityAdjusted.">
+	tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout-> creditDefaultPayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount
+	
+	alias notionalAdjustment: <"For a credit index, the notional amouunt gets adjusted by multiplying it by the Index Factor.">
+		instruction -> newIndexReferenceInformation -> indexFactor * notionalAmount
+
+	alias quantityAdjusted: <"Create a PriceQuantity structure with the adjusted notional amount.">
+		Create_PriceQuantity(empty, [Create_Quantity (notionalAdjustment, notionalCurrency)], empty)
+
+	alias quantityChangeInstruction: <"In case of a Single Name CDS, the credit event terminates the contract. For Credit Indices, it reduces the notional amount.">
+	 	if Qualify_CreditDefaultSwap_SingleName (tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms) = True or Qualify_CreditDefaultSwap_Loan (tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms) = True then
+        	Create_QuantityChangeInstruction( [notionalQuantity], QuantityChangeDirectionEnum -> Decrease, empty )
+		else if Qualify_CreditDefaultSwap_Index (tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms) = True or Qualify_CreditDefaultSwap_IndexTranche (tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms) = True then
+			Create_QuantityChangeInstruction( [quantityAdjusted], QuantityChangeDirectionEnum -> Replace, empty )
+	*/
 
 func Create_ExecutionInstruction:
     inputs:
@@ -1716,7 +1765,8 @@ func Create_PrimitiveInstruction:
         termsChange TermsChangeInstruction (0..1)
         transfer TransferInstruction (0..1)
         indexTransition IndexTransitionInstruction (0..1)
-        stockSplit StockSplitInstruction (1..1)
+        stockSplit StockSplitInstruction (0..1)
+		creditEvent CreditEventInstruction (0..1)
     output:
         primitiveInstruction PrimitiveInstruction (1..1)
 
@@ -1731,3 +1781,4 @@ func Create_PrimitiveInstruction:
     set primitiveInstruction -> transfer: transfer
     set primitiveInstruction -> indexTransition: indexTransition
     set primitiveInstruction -> stockSplit: stockSplit
+	set primitiveInstruction -> creditEvent: creditEvent
