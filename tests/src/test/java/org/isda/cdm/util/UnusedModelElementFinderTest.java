@@ -1,12 +1,12 @@
-package util;
+package org.isda.cdm.util;
+
 import com.google.common.collect.ImmutableList;
 import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.transgest.ModelLoaderImpl;
 import org.junit.jupiter.api.Test;
+import util.UnusedModelElementFinder;
 
-import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

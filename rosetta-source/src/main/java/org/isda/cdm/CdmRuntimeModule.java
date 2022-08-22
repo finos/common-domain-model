@@ -13,8 +13,10 @@ import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
+import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandlerProvider;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ValidatorFactory;
+import org.isda.cdm.processor.CdmQualificationHandlerProvider;
 import org.isda.cdm.processor.CdmReferenceConfig;
 
 public class CdmRuntimeModule extends AbstractModule {
@@ -22,6 +24,7 @@ public class CdmRuntimeModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(QualifyFunctionFactory.class).to(bindQualifyFunctionFactory());
+		bind(QualificationHandlerProvider.class).to(bindQualificationConfigProvider());
 		bind(ValidatorFactory.class).to(bindValidatorFactory());
 		bind(ReferenceConfig.class).toInstance(CdmReferenceConfig.get());
 
@@ -75,6 +78,10 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends QualifyFunctionFactory> bindQualifyFunctionFactory() {
 		return QualifyFunctionFactory.Default.class;
+	}
+
+	protected Class<? extends QualificationHandlerProvider> bindQualificationConfigProvider() {
+		return CdmQualificationHandlerProvider.class;
 	}
 
 	protected Class<? extends ValidatorFactory> bindValidatorFactory() {
