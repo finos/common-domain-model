@@ -439,7 +439,7 @@ Business events are built according to the following principles:
    [rootType]
 
    intent EventIntentEnum (0..1)
-   eventQualifier eventType (0..1)
+   eventQualifier string (0..1)
    eventDate date (1..1)
    effectiveDate date (0..1)
    packageInformation IdentifiedList (0..1)

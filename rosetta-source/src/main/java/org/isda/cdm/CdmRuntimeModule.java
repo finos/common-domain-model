@@ -16,7 +16,7 @@ import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandlerProvider;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ValidatorFactory;
-import org.isda.cdm.processor.CdmQualificationHandlerProvider;
+import org.isda.cdm.qualify.CdmQualificationHandlerProvider;
 import org.isda.cdm.processor.CdmReferenceConfig;
 
 public class CdmRuntimeModule extends AbstractModule {

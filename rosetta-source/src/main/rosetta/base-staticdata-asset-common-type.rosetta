@@ -1,11 +1,13 @@
 namespace cdm.base.staticdata.asset.common : <"Basic static asset concepts that apply across asset classes: taxonomy etc.">
 version "${project.version}"
 
-import cdm.base.math.*
 import cdm.base.datetime.*
+import cdm.base.math.*
 import cdm.base.staticdata.party.*
 
 import cdm.observable.asset.*
+
+import cdm.product.template.*
 
 type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
 
@@ -50,7 +52,6 @@ type ProductTaxonomy: <"Specifies the product taxonomy, which is composed of a t
 		[metadata scheme]
 	taxonomySource TaxonomySourceEnum (0..1) <"Specifies the taxonomy source.">
 	productQualifier string (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features.">
-	// of type string rather than productType
 
 	condition TaxonomyValue: <"Requires a taxonomy value to be chosen.">
 		required choice taxonomyValue, productQualifier, primaryAssetClass, secondaryAssetClass
@@ -58,11 +59,6 @@ type ProductTaxonomy: <"Specifies the product taxonomy, which is composed of a t
 	condition TaxonomySource: <"A taxonomy source can only be associated with a taxonomyValue or productQualifier">
 		if taxonomySource exists then
 			taxonomyValue exists or productQualifier exists
-
-type ProductIdentification: <"Combines the CDM product qualifier with other product types and identifiers. While the CDM product qualifier is derived by the CDM from the product payout features, the other product type and identification elements are assigned by external sources and correspond to values specified by other data representation protocols.">
-//TO BE REMOVED - Product Qualification should populate ProductTaxonomy -> productQualifier and ProductTaxonomy->taxonomySource = ISDA. Attribute can then be removed from EconomicTerms
-
-	productQualifier productType (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features."> 
 
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
 
@@ -151,7 +147,7 @@ type Security extends ProductBase: <"Identifies a security by referencing a prod
 	debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
 	equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
-	economicTerms cdm.product.template.EconomicTerms (0..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
+	economicTerms EconomicTerms (0..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
 
 	condition DebtSubType:
 		if securityType <> SecurityTypeEnum -> Debt
