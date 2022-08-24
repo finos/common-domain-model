@@ -18,7 +18,7 @@ ProductTaxonomy is composed of the following attributes:
 - `secondaryAssetClass` - Classifies additional risk classes of the trade, if any
 - `taxonomyValue` - Specifies a taxonomy value assigned to the product, for example a CFI code, an ISDA Taxonomy value
 - `taxonomySource` - Enumerates the taxonomy source associated with the `taxonomyValue` provided
-= `productQualifier` - Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features
+- `productQualifier` - Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features
 
 When a `productQualifier` is derived for a product the associated `taxonomySource` value of `ISDA` is automatically populated as the CDM currently qualifies products using the ISDA Taxonomy classification scheme.
 
