@@ -12,18 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ValidateNamespaceTest {
 
-
     @Test
-
     void validateFileNamesMatchNamespace() throws IOException {
         String modelShortName = "cdm";
         Path path = Paths.get("src/main/rosetta");
-        RosettaFileNameValidator validator = new RosettaFileNameValidator();
 
+        RosettaFileNameValidator validator = new RosettaFileNameValidator();
         ValidationReport validationReport = validator.validateFileNamesMatchNamespace(modelShortName, path);
 
         assertTrue(validationReport.getPassed(),validationReport.getErrors().toString());
-
     }
-
 }
