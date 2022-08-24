@@ -10,7 +10,6 @@ import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
 import java.util.List;
-import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class TaxonomySourceMappingProcessor extends MappingProcessor {
@@ -23,10 +22,10 @@ public class TaxonomySourceMappingProcessor extends MappingProcessor {
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
         setValueAndUpdateMappings(synonymPath.addElement("productTypeScheme"),
                 xmlValue -> {
+                    // Update scheme
                     ((FieldWithMetaString.FieldWithMetaStringBuilder) builder).getOrCreateMeta().setScheme(xmlValue);
-
-                    Optional.ofNullable(getTaxonomySourceEnum(xmlValue))
-                            .ifPresent(source -> ((ProductTaxonomy.ProductTaxonomyBuilder) parent).setTaxonomySource(source));
+                    // Update taxonomySource
+                    ((ProductTaxonomy.ProductTaxonomyBuilder) parent).setTaxonomySource(getTaxonomySourceEnum(xmlValue));
                 });
     }
 
@@ -38,7 +37,7 @@ public class TaxonomySourceMappingProcessor extends MappingProcessor {
         } else if (scheme.contains("emir-contract-type")) {
             return TaxonomySourceEnum.EMIR;
         } else {
-            return null;
+            return TaxonomySourceEnum.OTHER;
         }
     }
 }
