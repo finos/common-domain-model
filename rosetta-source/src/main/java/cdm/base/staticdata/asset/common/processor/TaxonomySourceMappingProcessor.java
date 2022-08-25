@@ -4,7 +4,9 @@ import cdm.base.staticdata.asset.common.ProductTaxonomy;
 import cdm.base.staticdata.asset.common.TaxonomySourceEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
+import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
 import com.regnosys.rosetta.common.translation.Path;
+import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.metafields.FieldWithMetaString;
@@ -20,13 +22,16 @@ public class TaxonomySourceMappingProcessor extends MappingProcessor {
 
     @Override
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-        setValueAndUpdateMappings(synonymPath.addElement("productTypeScheme"),
-                xmlValue -> {
-                    // Update scheme
-                    ((FieldWithMetaString.FieldWithMetaStringBuilder) builder).getOrCreateMeta().setScheme(xmlValue);
-                    // Update taxonomySource
-                    ((ProductTaxonomy.ProductTaxonomyBuilder) parent).setTaxonomySource(getTaxonomySourceEnum(xmlValue));
-                });
+        MappingProcessorUtils.getNonNullMappingForModelPath(getMappings(), PathUtils.toPath(getModelPath()))
+                .map(m -> m.getXmlPath())
+                .ifPresent(xmlPath ->
+                        setValueAndUpdateMappings(xmlPath.addElement("productTypeScheme"),
+                                xmlValue -> {
+                                    // Update scheme
+                                    ((FieldWithMetaString.FieldWithMetaStringBuilder) builder).getOrCreateMeta().setScheme(xmlValue);
+                                    // Update taxonomySource
+                                    ((ProductTaxonomy.ProductTaxonomyBuilder) parent).setTaxonomySource(getTaxonomySourceEnum(xmlValue));
+                                }));
     }
 
     private TaxonomySourceEnum getTaxonomySourceEnum(String scheme) {

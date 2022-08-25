@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.observable.asset.metafields.FieldWithMetaPrice.FieldWithMetaPriceBuilder;
-import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
 import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencablePriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMapping;
@@ -66,8 +65,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 			PriceExpression priceExpression) {
 		return getNonNullMapping(getMappings(), synonymPath).map(mapping -> {
 			// update price index to ensure unique model path, otherwise any references will break
-			Path baseModelPath = toPath(getModelPath()).addElement("amount");
-			Path mappedModelPath = incrementPathElementIndex(baseModelPath, "price", priceIndex.getAndIncrement());
+			Path mappedModelPath = toPath(getModelPath()).addElement("amount");
 			String amount = String.valueOf(mapping.getXmlValue());
 			updateMappings(synonymPath, mappedModelPath, amount);
 			return toReferencablePriceBuilder(new BigDecimal(amount),
