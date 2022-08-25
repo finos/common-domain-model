@@ -1839,35 +1839,27 @@ synonym source FpML_5_10 extends FpML
 			[set to ProductIdTypeEnum -> Other when path = "productId"] // catch-all
 			[value "productId" mapper "DefaultProductIdType"]
  
-	ProductIdentification:
-		+ primaryAssetData
-			[value "primaryAssetClass" meta "assetClassScheme"]
-			[value "primaryAssetClass" path "fra" meta "assetClassScheme"]
-			[value "primaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
-			[value "primaryAssetClass" path "bondOption" meta "assetClassScheme"]
-		+ secondaryAssetData
-			[value "secondaryAssetClass" meta "assetClassScheme"]
-			[value "secondaryAssetClass" path "fra" meta "assetClassScheme"]
-			[value "secondaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
-			[value "secondaryAssetClass" path "bondOption" meta "assetClassScheme"]
+	ProductBase:
 		+ productIdentifier
 			[hint "productId"]
 			[value "fra"]
 			[value "creditDefaultSwapOption"]
 			[value "bondOption"]
-		+ externalProductType
-            [hint "productType"]
+		+ productTaxonomy
+			[hint "productType"]
+			[hint "primaryAssetClass"]
+			[hint "secondaryAssetClass"]
 			[value "fra"]
 			[value "creditDefaultSwapOption"]
 			[value "bondOption"]
 
-
-	ExternalProductType:
-		+ value
-			[value "productType" meta "productTypeScheme"]
-		+ externalProductTypeSource
-			[set to ExternalProductTypeSourceEnum -> FpMLProductType when "productType->productTypeScheme" = "http://www.fpml.org/coding-scheme/product-taxonomy"]
-			[set to ExternalProductTypeSourceEnum -> CFI when "productType->productTypeScheme" = "http://www.fpml.org/coding-scheme/external/product-classification/iso10962"]
+	ProductTaxonomy:
+		+ primaryAssetClass
+			[value "primaryAssetClass" meta "assetClassScheme"]
+		+ secondaryAssetClass
+			[value "secondaryAssetClass" meta "assetClassScheme"]
+		+ taxonomyValue
+			[value "productType" mapper "TaxonomySource"]
 
 	Security:
 		+ productIdentifier

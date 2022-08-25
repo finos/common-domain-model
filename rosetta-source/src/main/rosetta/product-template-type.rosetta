@@ -20,13 +20,15 @@ import cdm.product.common.schedule.*
 
 import cdm.mapping.config.*
 
-type ContractualProduct: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
+type ContractualProduct extends ProductBase: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
 	[metadata key]
 	[metadata template]
 
-	productIdentification ProductIdentification (0..1) <"The product identification value(s) that might be associated with a contractual product. The CDM provides the ability to associate several product identification methods with a product.">
-	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">
 	economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
+
+	condition PrimaryAssetClass: <"Specifies that when nonStandardisedTerms are True that a primary asset class must be specified.">
+	 	if economicTerms -> nonStandardisedTerms = True then
+	 		productTaxonomy -> primaryAssetClass exists
 
 type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification.">
 
@@ -38,6 +40,7 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 	optionProvision OptionProvision (0..1) <"Cancelable and/or extendible provisions.">
 	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events.">
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
+	nonStandardisedTerms boolean (0..1) <"Specifies, when boolean value is True, that additional economic terms exist that have not been included in the product representation.">
 
 	condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout.">
 		if extraordinaryEvents exists then
@@ -176,8 +179,8 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
 	returnTerms ReturnTerms (1..1) <"Specifies the type of return of a performance payout.">
 	averagingMethod AveragingMethodEnum (0..1) <"Specifies the method of calculation to be used when averaging rates. Per ISDA 2000 Definitions, Section 6.2. Certain Definitions Relating to Floating Amounts.">
 
-	condition PositiveQuantityAmount: <"Quantities for any performance payout must be strictly positive.">
-		payoutQuantity -> quantitySchedule -> initialQuantity -> amount > 0
+	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+		payoutQuantity exists
 
 	condition NoSharePriceDividendAdjustmentIndex: <"If the underlier is an index, sharePriceAdjustment and sharePriceDividendAdjustment cannot exist.">
         if underlier -> index exists then
@@ -248,11 +251,10 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
 			and interestRatePayout -> paymentDates exists
 		then interestRatePayout -> paymentDates -> paymentFrequency exists
 
-	condition Quantity: <"When there an InterestRatePayout but no creditDefaultPayout nor optionPayout, the notional must be specified. The notional of a credit default swap is expressed as part of the protection terms.">
-		if interestRatePayout exists
-			and creditDefaultPayout is absent
-			and optionPayout is absent
-		then interestRatePayout -> payoutQuantity exists
+	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+			if optionPayout exists then
+				optionPayout -> payoutQuantity exists
+					or optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
 
 	condition DayCountFraction: <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardized CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 		if interestRatePayout count = 2
@@ -443,6 +445,9 @@ type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. The
 	paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
     fixedPrice FixedPrice (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
     schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+
+	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+		payoutQuantity exists
 
 type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
 
@@ -845,6 +850,9 @@ type SecurityFinancePayout extends PayoutBase: <"Security payout specification i
     dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
     collateralProvisions CollateralProvisions (1..1) <"Specifies collateral provisions for a Security Finance transaction, including Collateral Type and Margin Percentage.">
 
+	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+		payoutQuantity exists
+
     condition ProductMustBeSecurity: <"Validates that the reference asset must be a security.">
         securityInformation -> security exists
 
@@ -882,7 +890,3 @@ type EvergreenProvision extends BuyerSeller: <"Specifies a transaction which aut
 
     condition ExerciseChoice: <"Condition that requires the choice of exercise style to be specified.">
 		required choice americanExercise, bermudaExercise, europeanExercise
-
-
-
-
