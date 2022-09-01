@@ -140,7 +140,7 @@ MeasureBase
 .. code-block:: Haskell
 
  type MeasureBase:
-   amount number (1..1)
+   amount number (0..1)
    unitOfAmount UnitType (0..1)
 
 The ``UnitType`` data type used to defined the ``unitOfAmount`` attribute requires the definition of units using one of five defined types:
@@ -165,7 +165,7 @@ The ``Price`` data type extends the ``MeasureBase`` data type with the addition 
 
 .. code-block:: Haskell
 
- type Price extends MeasureBase:
+ type PriceSchedule extends MeasureSchedule:
    priceExpression PriceExpression (1..1)
    perUnitOfAmount UnitType (0..1)
 
@@ -211,17 +211,18 @@ The ``Quantity`` data type extends the ``MeasureBase`` data type with the additi
 
 .. code-block:: Haskell
 
- type Quantity extends MeasureBase:
+ type QuantitySchedule extends MeasureSchedule:
    multiplier number (0..1)
    multiplierUnit UnitType (0..1)
    frequency Frequency (0..1)
 
-   condition UnitOfAmountExists:
-     unitOfAmount exists
-
    condition Quantity_multiplier:
      if multiplier exists
        then multiplier >= 0.0
+
+   condition UnitOfAmountExists:
+     unitOfAmount exists
+
 
 The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient to define quantity, in most cases.  The two attributes that are distinct for the ``Quantity`` data type   further qualify the ``amount``, with a multiplier, as needed for listed contracts or other purposes, as shown in the example below:
 
