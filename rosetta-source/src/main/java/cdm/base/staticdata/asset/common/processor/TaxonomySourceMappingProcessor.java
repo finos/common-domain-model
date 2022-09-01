@@ -1,6 +1,5 @@
 package cdm.base.staticdata.asset.common.processor;
 
-import cdm.base.staticdata.asset.common.ProductTaxonomy;
 import cdm.base.staticdata.asset.common.TaxonomySourceEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -9,9 +8,11 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import com.rosetta.model.metafields.FieldWithMetaString;
 
 import java.util.List;
+
+import static cdm.base.staticdata.asset.common.ProductTaxonomy.ProductTaxonomyBuilder;
+import static com.rosetta.model.metafields.FieldWithMetaString.FieldWithMetaStringBuilder;
 
 @SuppressWarnings("unused")
 public class TaxonomySourceMappingProcessor extends MappingProcessor {
@@ -24,18 +25,31 @@ public class TaxonomySourceMappingProcessor extends MappingProcessor {
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
         MappingProcessorUtils.getNonNullMappingForModelPath(getMappings(), PathUtils.toPath(getModelPath()))
                 .map(m -> m.getXmlPath())
-                .ifPresent(xmlPath ->
-                        setValueAndUpdateMappings(xmlPath.addElement("productTypeScheme"),
-                                xmlValue -> {
-                                    // Update scheme
-                                    ((FieldWithMetaString.FieldWithMetaStringBuilder) builder).getOrCreateMeta().setScheme(xmlValue);
-                                    // Update taxonomySource
-                                    ((ProductTaxonomy.ProductTaxonomyBuilder) parent).setTaxonomySource(getTaxonomySourceEnum(xmlValue));
-                                }));
+                .ifPresent(xmlPath -> {
+                    ProductTaxonomyBuilder productTaxonomyBuilder = (ProductTaxonomyBuilder) parent;
+                    FieldWithMetaStringBuilder taxonomyValueBuilder = (FieldWithMetaStringBuilder) builder;
+
+                    updateSchemeAndSource(xmlPath, productTaxonomyBuilder, taxonomyValueBuilder);
+
+                    // If unset, set to OTHER
+                    if (productTaxonomyBuilder.getTaxonomySource() == null) {
+                        productTaxonomyBuilder.setTaxonomySource(TaxonomySourceEnum.OTHER);
+                    }
+                });
     }
 
-    private TaxonomySourceEnum getTaxonomySourceEnum(String scheme) {
-        if (scheme.contains("product-taxonomy")) {
+    protected void updateSchemeAndSource(Path xmlPath, ProductTaxonomyBuilder productTaxonomyBuilder, FieldWithMetaStringBuilder taxonomyValueBuilder) {
+        setValueAndUpdateMappings(xmlPath.addElement("productTypeScheme"),
+                xmlValue -> {
+                    // Update scheme
+                    taxonomyValueBuilder.getOrCreateMeta().setScheme(xmlValue);
+                    // Update taxonomySource
+                    productTaxonomyBuilder.setTaxonomySource(getTaxonomySourceEnum(xmlValue));
+                });
+    }
+
+    protected TaxonomySourceEnum getTaxonomySourceEnum(String scheme) {
+        if (scheme.contains("www.fpml.org/coding-scheme/product-taxonomy")) {
             return TaxonomySourceEnum.ISDA;
         } else if (scheme.contains("iso10962")) {
             return TaxonomySourceEnum.CFI;
