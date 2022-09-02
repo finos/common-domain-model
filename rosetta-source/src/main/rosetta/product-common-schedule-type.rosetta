@@ -133,8 +133,10 @@ type NonNegativeQuantitySchedule: <"Class to specify a non-negative quantity sch
     step NonNegativeStep (0..*) <"The schedule specified as a set of date-value pairs. Attribute is optional, to represent the case where no schedule is specified so quantity is just constant over time.">
 
     condition NonNegativeQuantity_amount: <"For a non-negative quantity, the amount attribute must be positive.">
-        if initialQuantity exists
+        if (initialQuantity exists and initialQuantity -> amount exists)
         then initialQuantity->amount >= 0.0
+        //initialQuantity map [item -> amount]
+         //                    	        only-element >= 0.0
 
 type NonNegativePriceSchedule: <"Class to specify a non-negative price schedule, which is used to define the price of a payout leg. This price cannot be negative, while direction is specified through a BuyerSeller or PayerReceiver attribute. The only available schedule implementation is a step schedule, specified as a set of date-value pairs. The non-negativity is enforced by using the non-negative price and step schedule classes.">
 	[deprecated] // To be replaced by a normalised PriceSchedule, positioned in cdm.observable.asset
