@@ -76,13 +76,13 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 
 	private UnitTypeBuilder getUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
 		return getExchangeRatePrice(priceBuilders)
-				.map(Price.PriceBuilder::getUnitOfAmount)
+				.map(p -> p.getUnitOfAmount())
 				.orElse(null);
 	}
 
 	private UnitTypeBuilder getPerUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
 		return getExchangeRatePrice(priceBuilders)
-				.map(Price.PriceBuilder::getPerUnitOfAmount)
+				.map(p -> p.getPerUnitOfAmount())
 				.orElse(null);
 	}
 
