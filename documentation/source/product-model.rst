@@ -132,10 +132,12 @@ The ``price`` and ``quantity`` attributes in the ``PriceQuantity`` data type eac
 MeasureBase
 """""""""""
 
-``MeasureBase`` is a base data type that consists of two mandatory attributes that define a *measure* generally. It provides a common component that is useful in the definition of price and quantity :
+``MeasureBase`` is a base data type that consists of two attributes that define a *measure* generally. It provides a common component that is useful in the definition of price and quantity.
 
 - ``amount``, which is a number and could be a price or a quantity
 - ``unitOfAmount``, which defines the unit in which that amount is expressed
+
+Both attributes are optional as their existence is designed to be further constrained in the different data types that extend ``MeasureBase``.
 
 .. code-block:: Haskell
 
@@ -157,11 +159,23 @@ The ``UnitType`` data type used to defined the ``unitOfAmount`` attribute requir
    condition UnitType:
       one-of
 
-The ``Price`` and ``Quantity`` data types are both extensions of the ``MeasureBase`` data type, as shown below.
+A measure can vary over time. One often used case is a series of measures indexed by date. Such measures are all homogeneous, so the unit only needs to be represented once.
+
+To represent this, the ``MeasureSchedule`` type extends ``MeasureBase`` with a set of date and value pair attributes represented by the ``Step`` type. In that structure, the existing ``amount`` attribute can still be omitted but, when present, represents the schedule's initial value.
+
+.. code-block:: Haskell
+
+ type MeasureSchedule extends MeasureBase:
+   step Step (0..*)
+   condition ValueExists:
+     amount exists or step exists
+ 
+The price and quantity concepts for financial instruments are both modelled as extensions of the ``MeasureSchedule`` data type, as detailed below. This means that by default, price and quantity are considered as schedules although they can also represent a single value when the ``step`` attribute is omitted.
 
 Price
 """""
-The ``Price`` data type extends the ``MeasureBase`` data type with the addition of the ``priceType`` and ``perUnitOfAmount`` attributes, which together further qualify the price.
+
+The ``PriceSchedule`` data type extends the ``MeasureSchedule`` data type with the addition of the ``priceExpression`` and ``perUnitOfAmount`` attributes, which together further qualify the price.
 
 .. code-block:: Haskell
 
@@ -170,6 +184,14 @@ The ``Price`` data type extends the ``MeasureBase`` data type with the addition 
    perUnitOfAmount UnitType (0..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
+
+The ``Price`` data type further constrains the ``PriceSchedule`` data type by requiring the ``step`` attribute to be absent.
+
+.. code-block:: Haskell
+
+ type Price extends PriceSchedule:
+   condition AmountOnlyExists:
+     amount exists and step is absent
 
 Consider the example below for the initial price of the underlying equity in a single-name Equity Swap, which is a net price of 37.44 USD per Share:
 
@@ -207,7 +229,8 @@ The full form of this example can be seen in the CDM Portal Ingestion panel, pro
 
 Quantity
 """"""""
-The ``Quantity`` data type extends the ``MeasureBase`` data type with the addition of the optonal attributes ``multiplier`` and ``multiplierUnit`` attributes.
+
+The ``QuantitySchedule`` data type also extends the ``MeasureSchedule`` data type with the addition of optional multiplier attributes, and the ``Quantity`` data type constrains it by requiring the ``step`` attribute to be absent.
 
 .. code-block:: Haskell
 
@@ -223,8 +246,13 @@ The ``Quantity`` data type extends the ``MeasureBase`` data type with the additi
    condition UnitOfAmountExists:
      unitOfAmount exists
 
+.. code-block:: Haskell
 
-The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient to define quantity, in most cases.  The two attributes that are distinct for the ``Quantity`` data type   further qualify the ``amount``, with a multiplier, as needed for listed contracts or other purposes, as shown in the example below:
+ type Quantity extends QuantitySchedule:
+   condition AmountOnlyExists:
+     amount exists and step is absent
+
+The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient to define a quantity, in most cases. The additional multiplier attributes that are distinct for the ``Quantity`` data type can further qualify the ``amount`` with a multiplier, as needed for listed contracts or other purposes, as shown in the example below:
 
 .. code-block:: Javascript
 
@@ -249,7 +277,9 @@ The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient t
    }
  ]
 
-In this case, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME.  Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
+In this case, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME. Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
+
+The ``frequency`` attribute is used in a similar way when a quantity may be defined based on a given time period, e.g. per hour or per day. In this case, the quantity needs to be multiplied by the size of the relevant period where it applies, e.g. a number of days, to get the total quantity.
 
 Observable
 """"""""""
