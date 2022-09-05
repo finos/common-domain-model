@@ -1,6 +1,5 @@
 package cdm.product.common.settlement.processor;
 
-import cdm.base.math.UnitType;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
@@ -40,7 +39,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		PriceQuantity.PriceQuantityBuilder priceQuantityBuilder = (PriceQuantity.PriceQuantityBuilder) parent;
 		List<FieldWithMetaPriceBuilder> priceBuilders = emptyIfNull((List<FieldWithMetaPriceBuilder>) builders);
-		UnitType unitOfAmount = getUnitOfAmount(priceBuilders);
+		UnitTypeBuilder unitOfAmount = getUnitOfAmount(priceBuilders);
 		UnitTypeBuilder perUnitOfAmount = getPerUnitOfAmount(priceBuilders);
 
 		AtomicInteger priceIndex = new AtomicInteger(priceBuilders.size());
@@ -60,7 +59,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 	@NotNull
 	private Optional<FieldWithMetaPriceBuilder> getBuilder(Path synonymPath,
 			AtomicInteger priceIndex,
-			UnitType unitOfAmount,
+			UnitTypeBuilder unitOfAmount,
 			UnitTypeBuilder perUnitOfAmount,
 			PriceExpression priceExpression) {
 		return getNonNullMapping(getMappings(), synonymPath).map(mapping -> {
@@ -75,7 +74,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 		});
 	}
 
-	private UnitType getUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
+	private UnitTypeBuilder getUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
 		return getExchangeRatePrice(priceBuilders)
 				.map(Price.PriceBuilder::getUnitOfAmount)
 				.orElse(null);
