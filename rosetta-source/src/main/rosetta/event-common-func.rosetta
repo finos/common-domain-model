@@ -202,7 +202,7 @@ func Qualify_Exercise: <"The qualification of an exercise event from the fact th
 	output: is_event boolean (1..1)
 	alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
 	set is_event:
-		businessEvent -> intent = EventIntentEnum -> Exercise
+		businessEvent -> intent = EventIntentEnum -> OptionExercise
 		and
 		(
             (businessEvent -> instruction count = 1 and
@@ -301,7 +301,7 @@ func Qualify_Renegotiation: <"The qualification of a renegotiation event from th
 	output: is_event boolean (1..1)
 	alias transfers: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate )
 	set is_event:
-		(businessEvent -> intent is absent or businessEvent -> intent = EventIntentEnum -> Renegotiation)
+		(businessEvent -> intent is absent or businessEvent -> intent = EventIntentEnum -> ContractTermsAmendment)
 		and (businessEvent -> instruction -> primitiveInstruction -> termsChange only exists or (businessEvent -> instruction -> primitiveInstruction -> termsChange,businessEvent -> instruction -> primitiveInstruction -> quantityChange) only exists)
 		and (QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = False)
 		and businessEvent -> after -> state -> closedState is absent
