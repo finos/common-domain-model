@@ -167,7 +167,7 @@ To represent this, the ``MeasureSchedule`` type extends ``MeasureBase`` with a s
 
  type MeasureSchedule extends MeasureBase:
    step Step (0..*)
-   condition ValueExists: <"A schedule may be specified as a single value or as a set of date-value pairs. Both attributes may be specified, in which case the single amount number is the initial value.">
+   condition ValueExists:
      amount exists or step exists
  
 The price and quantity concepts for financial instruments are both modelled as extensions of the ``MeasureSchedule`` data type, as detailed below. This means that by default, price and quantity are considered as schedules although they can also represent a single value when the ``step`` attribute is omitted.
