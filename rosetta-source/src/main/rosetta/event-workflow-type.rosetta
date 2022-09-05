@@ -28,6 +28,13 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 	itemName string (1..1) <"In this initial iteration, this corresponds to the DTCC TIW element name.">
 	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">
 
+type WorkflowStepResponse:
+	[metadata key]
+	approved boolean (1..1) <"Flag whether the instruction is approved">		
+	respondingParty Party (1..1) <"Reference to the Party needing to respond to the instruction">
+		[metadata reference]
+	rejectedReason string (0..1) <"Optional reason for rejecting the instruction">
+	timestamp EventTimestamp (1..1) <"Timestamp of the response">	
 
 type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedEvent is present and is rejected if the rejected flag is set.">
 	[metadata key]
@@ -35,6 +42,7 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 
 	businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedEvent or rejection are present.">
 	proposedEvent EventInstruction (0..1) <"The proposed event for a workflow step. The proposedEvent is optional when the businessEvent or rejection are present">
+	workflowStepResponse WorkflowStepResponse (0..*) <"A response that either approves or rejects a proposed workflow step.">
 	rejected boolean (0..1) <"Flags this step as rejected.">
 	previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
 		[metadata reference]
