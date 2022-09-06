@@ -102,7 +102,7 @@ synonym source FpML_5_10 extends FpML
 			[value "returnType"]
 
 	DividendReturnTerms:
-		+ dividendPayout
+		+ dividendPayoutRatios
 			// Equity swaps
 			[value "singleUnderlyer", "basketConstituent" path "basket", "dividendConditions"]
 			// Dividend swaps
@@ -144,7 +144,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "dividendPeriodEndDate"]
 		+ dateAdjustments
 			[value "dateAdjustments"]
-		+ underlierReference
+		+ basketComponent
 			[value "underlierReference"]
 		+ dividendPaymentDate
 			[value "dividendPaymentDate"]
@@ -482,10 +482,10 @@ synonym source FpML_5_10 extends FpML
 			[value "rate"]
 
 	FxSpotRateSource:
-		+ primaryRateSource
+		+ primarySource
 			[value "primaryRateSource"]
 			[hint "rateSource"]
-		+ secondaryRateSource
+		+ secondarySource
 			[value "secondaryRateSource"]
 
 	IndependentAmount:
@@ -917,6 +917,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "paymentDate"]
 			[hint "adjustablePaymentDate"]
 			[hint "adjustedPaymentDate"]
+	//		[value "equityExercise"]
 		+ cashSettlementTerms
 			[value "cashSettlement"]
 			[value "cashSettlementTerms"]
@@ -1873,6 +1874,8 @@ synonym source FpML_5_10 extends FpML
 			[hint "convertibleBond"]
 			[hint "mortgage"]
 			[hint "equity"]
+
+			[hint "instrumentId"]
 		+ securityType
 			[set to SecurityTypeEnum -> Debt when "bond" exists]
 			[set to SecurityTypeEnum -> Debt when "convertibleBond" exists]
@@ -2676,6 +2679,8 @@ Payout:
 			[meta "specifiedPrice"]
 		+ security
 			[hint "bond", "equity", "mortgage", "convertibleBond"]
+		//	[hint "instrumentId"]
+
 		+ basket
 			[value "basket"]
 
@@ -2696,6 +2701,8 @@ Payout:
 			[value "specifiedPrice" path "commodity" maps 2]
 		+ deliveryDateReference
 			[value "commodity"]
+//		+ description
+//            [value "description" path "commodity"]
 
 	DeliveryDateParameters:
 		+ deliveryNearby
@@ -3084,6 +3091,11 @@ Payout:
 		+ dividendPayoutRatioNonCash
 			[value "dividendPayoutRatioNonCash"]
 			[value "declaredCashEquivalentDividendPercentage"]
+
+		+ basketComponent
+			//[value "basketConstituent"]
+			[value "equity" set when "basket" exists]
+			//[hint "index"]
 
 	BuyerSeller:
 		+ buyer
