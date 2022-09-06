@@ -1,4 +1,4 @@
-# *Product Model - Qualification Functions*
+# *Product Model - Product & Event Qualification Functions*
 
 _Background_
 
