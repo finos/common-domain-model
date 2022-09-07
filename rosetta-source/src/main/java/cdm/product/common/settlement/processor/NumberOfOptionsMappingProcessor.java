@@ -1,7 +1,7 @@
 package cdm.product.common.settlement.processor;
 
 import cdm.base.math.FinancialUnitEnum;
-import cdm.base.math.Quantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.product.common.settlement.PriceQuantity;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -38,7 +38,7 @@ public class NumberOfOptionsMappingProcessor extends MappingProcessor {
 
 	@Override
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-		Quantity.QuantityBuilder quantity = Quantity.builder();
+		NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity = NonNegativeQuantitySchedule.builder();
 		setAmountAndUnit(synonymPath, quantity, builder.size());
 		setMultiplierAndUnit(synonymPath, quantity);
 
@@ -47,7 +47,7 @@ public class NumberOfOptionsMappingProcessor extends MappingProcessor {
 		}
 	}
 
-	private void setAmountAndUnit(Path synonymPath, Quantity.QuantityBuilder quantity, int index) {
+	private void setAmountAndUnit(Path synonymPath, NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity, int index) {
 		Path baseModelPath = toPath(getModelPath()).getParent();
 		Path mappedModelPath = incrementPathElementIndex(baseModelPath, "quantity", 1);
 
@@ -59,7 +59,7 @@ public class NumberOfOptionsMappingProcessor extends MappingProcessor {
 				PathUtils.toRosettaPath(mappedModelPath));
 	}
 
-	private void setMultiplierAndUnit(Path synonymPath, Quantity.QuantityBuilder quantity) {
+	private void setMultiplierAndUnit(Path synonymPath, NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity) {
 		Path parentSynonymPath = synonymPath.getParent();
 
 		setValueAndUpdateMappings(parentSynonymPath.addElement("optionEntitlement"),

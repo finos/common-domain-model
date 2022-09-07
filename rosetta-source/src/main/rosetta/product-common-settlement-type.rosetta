@@ -26,7 +26,7 @@ type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcom
 	
 	condition CashflowAmount: <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
 		if payoutQuantity exists
-		then payoutQuantity -> resolvedQuantity -> amount >= 0.0
+		then payoutQuantity -> quantitySchedule -> amount >= 0.0
 
 type CashflowType: <"Characterises the type of cashflow, which can result from either a scheduled or a non-scheduled lifecycle event.">
  	cashflowType TransferTypeEnum (0..1) <"Type of cashflow corresponding to a scheduled event.">
@@ -48,8 +48,8 @@ type ResolvablePayoutQuantity: <"Generic class to specify the quantity for diffe
 	[metadata key]
 
 	resolvedQuantity Quantity (0..1) <"A product's quantity as a single, non-negative amount.  When specified as part of a product definition, this quantity attribute would not be set.  Instead it is specified on the quantity notation along with an asset identifier matching this payout's asset identifier.  This allows the quantity to be resolved for a payout leg, which can then be specified here for convenience during data processing.  There needs to be at least one resolvable quantity across payout legs of a product to define an anchor that other payout quantities can refer to.  This attribute is ignored when mapping existing FpML messages.">
-		[metadata address "pointsTo"=PriceQuantity->quantity]
 	quantitySchedule NonNegativeQuantitySchedule (0..1) <"Quantity step schedule, including an initial quantity specified as an absolute number.">
+		[metadata address "pointsTo"=PriceQuantity->quantity]
 	quantityReference ResolvablePayoutQuantity (0..1) <"Reference quantity when resolvable quantity is defined as relative to another (resolvable) quantity. A resolvable quantity needs to contain either an absolute quantity or a reference to another (resolvable) quantity. This requirement is captured by a choice rule on the class.">
 		[metadata reference]
 	quantityMultiplier QuantityMultiplier (0..1) <"Quantity multiplier is specified on top of a reference quantity and is used as a multiplying factor when resolving the quantity. A quantity multiplier can only exist when the resolvable quantity specifies a reference quantity.">
@@ -304,7 +304,7 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
 	[metadata key]
 	price Price (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
 	    [metadata location]
-	quantity Quantity (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
+	quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
 	    [metadata location]
 	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference. The cardinality is optional as some quantity / price cases have no observable (e.g. a notional and a fixed rate in a given currency).">
 	buyerSeller BuyerSeller (0..1) <"Defines the direction of the exchange. The convention is that the buyer receives the quantity / pays the price, whereas the seller receives the price / pays the quantity. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">

@@ -223,7 +223,6 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			irp.getValue()
 					.getOrCreatePayoutQuantity()
 					.getOrCreateQuantitySchedule()
-					.getOrCreateInitialQuantity()
 					.setReference(reference);
 			return Arrays.asList(
 					new PathValue<>(pq.getModelPath().append(Path.parse("quantity[0].value.amount")), value),
