@@ -132,15 +132,17 @@ The ``price`` and ``quantity`` attributes in the ``PriceQuantity`` data type eac
 MeasureBase
 """""""""""
 
-``MeasureBase`` is a base data type that consists of two mandatory attributes that define a *measure* generally. It provides a common component that is useful in the definition of price and quantity :
+``MeasureBase`` is a base data type that consists of two attributes that define a *measure* generally. It provides a common component that is useful in the definition of price and quantity.
 
 - ``amount``, which is a number and could be a price or a quantity
 - ``unitOfAmount``, which defines the unit in which that amount is expressed
 
+Both attributes are optional as their existence is designed to be further constrained in the different data types that extend ``MeasureBase``.
+
 .. code-block:: Haskell
 
  type MeasureBase:
-   amount number (1..1)
+   amount number (0..1)
    unitOfAmount UnitType (0..1)
 
 The ``UnitType`` data type used to defined the ``unitOfAmount`` attribute requires the definition of units using one of five defined types:
@@ -157,19 +159,39 @@ The ``UnitType`` data type used to defined the ``unitOfAmount`` attribute requir
    condition UnitType:
       one-of
 
-The ``Price`` and ``Quantity`` data types are both extensions of the ``MeasureBase`` data type, as shown below.
+A measure can vary over time. One often used case is a series of measures indexed by date. Such measures are all homogeneous, so the unit only needs to be represented once.
 
-Price
-"""""
-The ``Price`` data type extends the ``MeasureBase`` data type with the addition of the ``priceType`` and ``perUnitOfAmount`` attributes, which together further qualify the price.
+To represent this, the ``MeasureSchedule`` type extends ``MeasureBase`` with a set of date and value pair attributes represented by the ``Step`` type. In that structure, the existing ``amount`` attribute can still be omitted but, when present, represents the schedule's initial value.
 
 .. code-block:: Haskell
 
- type Price extends MeasureBase:
+ type MeasureSchedule extends MeasureBase:
+   step Step (0..*)
+   condition ValueExists:
+     amount exists or step exists
+ 
+The price and quantity concepts for financial instruments are both modelled as extensions of the ``MeasureSchedule`` data type, as detailed below. This means that by default, price and quantity are considered as schedules although they can also represent a single value when the ``step`` attribute is omitted.
+
+Price
+"""""
+
+The ``PriceSchedule`` data type extends the ``MeasureSchedule`` data type with the addition of the ``priceExpression`` and ``perUnitOfAmount`` attributes, which together further qualify the price.
+
+.. code-block:: Haskell
+
+ type PriceSchedule extends MeasureSchedule:
    priceExpression PriceExpression (1..1)
    perUnitOfAmount UnitType (0..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
+
+The ``Price`` data type further constrains the ``PriceSchedule`` data type by requiring the ``step`` attribute to be absent.
+
+.. code-block:: Haskell
+
+ type Price extends PriceSchedule:
+   condition AmountOnlyExists:
+     amount exists and step is absent
 
 Consider the example below for the initial price of the underlying equity in a single-name Equity Swap, which is a net price of 37.44 USD per Share:
 
@@ -207,23 +229,30 @@ The full form of this example can be seen in the CDM Portal Ingestion panel, pro
 
 Quantity
 """"""""
-The ``Quantity`` data type extends the ``MeasureBase`` data type with the addition of the optonal attributes ``multiplier`` and ``multiplierUnit`` attributes.
+
+The ``QuantitySchedule`` data type also extends the ``MeasureSchedule`` data type with the addition of optional multiplier attributes, and the ``Quantity`` data type constrains it by requiring the ``step`` attribute to be absent.
 
 .. code-block:: Haskell
 
- type Quantity extends MeasureBase:
+ type QuantitySchedule extends MeasureSchedule:
    multiplier number (0..1)
    multiplierUnit UnitType (0..1)
    frequency Frequency (0..1)
-
-   condition UnitOfAmountExists:
-     unitOfAmount exists
 
    condition Quantity_multiplier:
      if multiplier exists
        then multiplier >= 0.0
 
-The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient to define quantity, in most cases.  The two attributes that are distinct for the ``Quantity`` data type   further qualify the ``amount``, with a multiplier, as needed for listed contracts or other purposes, as shown in the example below:
+   condition UnitOfAmountExists:
+     unitOfAmount exists
+
+.. code-block:: Haskell
+
+ type Quantity extends QuantitySchedule:
+   condition AmountOnlyExists:
+     amount exists and step is absent
+
+The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient to define a quantity, in most cases. The additional multiplier attributes that are distinct for the ``Quantity`` data type can further qualify the ``amount`` with a multiplier, as needed for listed contracts or other purposes, as shown in the example below:
 
 .. code-block:: Javascript
 
@@ -248,7 +277,9 @@ The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient t
    }
  ]
 
-In this case, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME.  Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
+In this case, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME. Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
+
+The ``frequency`` attribute is used in a similar way when a quantity may be defined based on a given time period, e.g. per hour or per day. In this case, the quantity needs to be multiplied by the size of the relevant period where it applies, e.g. a number of days, to get the total quantity.
 
 Observable
 """"""""""
@@ -392,11 +423,9 @@ In the CDM, contractual products are represented by the ``ContractualProduct`` t
 
 .. code-block:: Haskell
 
- type ContractualProduct:
+ type ContractualProduct extends ProductBase:
     [metadata key]
     [metadata template]
-    productIdentification ProductIdentification (0..1)
-    productTaxonomy ProductTaxonomy (0..*)
     economicTerms EconomicTerms (1..1)
 
 Note that price, quantity and counterparties are defined in ``TradableProduct`` as these are attributes common to all products.  The remaining economic terms of the contractual product are defined in ``EconomicTerms`` which is an encapsulated type in ``ContractualProduct`` .
@@ -443,7 +472,8 @@ A number of payout types extend a common data type called ``PayoutBase``. This d
 
  type PayoutBase:
    payerReceiver PayerReceiver (1..1)
-   payoutQuantity ResolvablePayoutQuantity (1..1)
+   payoutQuantity ResolvablePayoutQuantity (0..1)
+   principalPayment PrincipalPayments (0..1)
    settlementTerms SettlementTerms (0..1)
 
 The list of payouts that extend `PayoutBase` are:
@@ -472,7 +502,6 @@ For example:
     discountingMethod DiscountingMethod (0..1)
     compoundingMethod CompoundingMethodEnum (0..1)
     cashflowRepresentation CashflowRepresentation (0..1)
-    principalExchanges PrincipalExchanges (0..1)
     stubPeriod StubPeriod (0..1)
     bondReference BondReference (0..1)
     fixedAmount calculation (0..1)
@@ -562,7 +591,8 @@ The abstract data type ProductBase serves as a base for all products that have a
 .. code-block:: Haskell
 
  type ProductBase:
-   productIdentifier ProductIdentifier (1..*)
+   productTaxonomy ProductTaxonomy (0..*)
+   productIdentifier ProductIdentifier (0..*)
 
 The data types that extend from ProductBase are Index, Commodity, Loan, and Security.  Index and Commodity do not have any additional attributes.  In the case of Commodity, the applicable product identifiers are the ISDA definitions for reference benchmarks.  Loan and Security both have a set of additional attributes, as shown below:
 
@@ -585,6 +615,7 @@ The data types that extend from ProductBase are Index, Commodity, Loan, and Secu
    debtType DebtType (0..1)
    equityType EquityTypeEnum (0..1)
    fundType FundProductTypeEnum (0..1)
+   economicTerms EconomicTerms (0..1)
 
  condition DebtSubType:
    if securityType <> SecurityTypeEnum -> Debt
@@ -626,57 +657,51 @@ If all the statements above are true, then the function evaluates to True, and t
 
 The CDM supports Product Qualification functions for Credit Derivatives, Interest Rate Derivatives, Equity Derivatives, Foreign Exchange, and Repurchase Agreements. The full scope for Interest Rate Products has been represented down to the full level of detail in the taxonomy. This is shown in the example above, where the ``ZeroCoupon`` qualifying suffix is part of the function name. Credit Default products are qualified, but not down to the full level of detail. The ISDA Product Taxonomy v2.0 references the FpML *transaction type* field instead of just the product features, whose possible values are not publicly available and hence not positioned as a CDM enumeration.
 
-The output of the qualification function is used to populate the ``productQualifier`` attribute of the ``ProductIdentification`` object, which is created when a ``ContractualProduct`` object is created. The product identification includes both the product qualification generated by the CDM and any additional product identification information which may come from the originating document, such as FpML. In this case, taxonomy schemes may be associated to such product identification information, which are also propagated in the ``ProductIdentification`` object.
+The output of the qualification function is used to populate the ``productQualifier`` attribute of the ``ProductTaxonomy`` object, which is created when a ``ContractualProduct`` object is created. The product taxonomy includes both the product qualification generated by the CDM and any additional product taxonomy information which may come from the originating document, such as FpML. In this case, taxonomy schemes may be associated to such product taxonomy information, which are also propagated in the ``ProductTaxonomy`` object.
 
-The ``productIdentification`` data structure and an instance of a CDM object (`serialised`_ into JSON) are shown below:
+The ``ProductTaxonomy`` data structure and an instance of a CDM object (`serialised`_ into JSON) are shown below:
 
 .. code-block:: Haskell
 
- type ProductIdentification:
-     productQualifier productType (0..1)
-     primaryAssetData AssetClassEnum (0..1)
+ type ProductTaxonomy:
+     primaryAssetClass AssetClassEnum (0..1)
          [metadata scheme]
-     secondaryAssetData AssetClassEnum (0..*)
+     secondaryAssetClass AssetClassEnum (0..*)
          [metadata scheme]
-     externalProductType ExternalProductType (0..*)
-     productIdentifier ProductIdentifier (0..*)
+     taxonomyValue string (0..1)
+         [metadata scheme]
+     taxonomySource TaxonomySourceEnum (0..1)
+     productQualifier string (0..1)
+
+     condition TaxonomyValue:
+         required choice taxonomyValue, productQualifier, primaryAssetClass, secondaryAssetClass
+
+     condition TaxonomySource:
+         if taxonomySource exists then
+             taxonomyValue exists or productQualifier exists
 
 .. code-block:: Javascript
 
- "productIdentification" : {
-   "externalProductType" : [ {
-     "externalProductTypeSource" : "FP_ML_PRODUCT_TYPE",
-     "externalproductType" : {
-       "value" : "InterestRate:IRSwap:FixedFloat",
-       "meta" : {
-         "scheme" : "http://www.fpml.org/coding-scheme/product-taxonomy"
-       }
-     }
-   } ],
-   "primaryAssetData" : {
-     "value" : "INTEREST_RATE",
-     "meta" : {
-       "scheme" : "http://www.fpml.org/coding-scheme/asset-class-simple"
-     }
-   },
-   "productIdentifier" : [ {
-     "identifier" : {
-       "value" : "InterestRate:IRSwap:FixedFloat",
-       "meta" : {
-         "scheme" : "http://www.fpml.org/coding-scheme/product-taxonomy"
-       }
-     },
-     "meta" : {
-       "globalKey" : "98513226"
-     },
-     "source" : "OTHER"
-   } ],
-   "productQualifier" : "InterestRate_IRSwap_FixedFloat_PlainVanilla",
-   "externalProductType" : [ {
-     "value" : "InterestRate:IRSwap:FixedFloat",
-     "externalProductTypeSource" : "FpMLProductType"
-
-   } ]
- }
-
-.. note:: The type of the ``productQualifier`` attribute in ``ProductIdentification``, called ``productType``, is a *meta-type* that indicates that its value is meant to be populated using some functional logic. That functional logic must be represented by a qualification function annotated with ``[qualification Product]``, as in the example above. This mechanism is further detailed in the Rosetta DSL documentation.
+  "productTaxonomy": [
+    {
+      "primaryAssetClass": {
+        "meta": {
+          "scheme": "http://www.fpml.org/coding-scheme/asset-class-simple"
+        },
+        "value": "INTEREST_RATE"
+      },
+    },
+    {
+      "taxonomyValue": {
+        "meta": {
+          "scheme": "http://www.fpml.org/coding-scheme/product-taxonomy"
+        },
+        "value": "InterestRate:IRSwap:FixedFloat"
+      }
+      "taxonomySource": "ISDA"
+    },
+    {
+      "productQualifier": "InterestRate_IRSwap_FixedFloat",
+      "taxonomySource": "ISDA"
+    }
+  ]

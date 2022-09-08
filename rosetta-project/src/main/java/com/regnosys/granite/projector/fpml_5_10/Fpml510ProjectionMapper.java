@@ -6,8 +6,8 @@ import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.ReferenceWithMetaQuantity;
-import cdm.base.staticdata.asset.common.ExternalProductType;
 import cdm.base.staticdata.asset.common.ProductIdentifier;
+import cdm.base.staticdata.asset.common.ProductTaxonomy;
 import cdm.base.staticdata.asset.common.metafields.FieldWithMetaAssetClassEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
@@ -24,7 +24,6 @@ import cdm.product.asset.FixedRateSpecification;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.asset.metafields.FieldWithMetaSpreadScheduleTypeEnum;
-import cdm.product.common.ProductIdentification;
 import cdm.product.common.schedule.NonNegativeQuantitySchedule;
 import cdm.product.common.schedule.metafields.ReferenceWithMetaCalculationPeriodDates;
 import cdm.product.common.schedule.metafields.ReferenceWithMetaPaymentDates;
@@ -48,6 +47,7 @@ import com.rosetta.model.metafields.FieldWithMetaDate;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.fpml.fpml_5.confirmation.CalculationAgent;
+import org.fpml.fpml_5.confirmation.Currency;
 import org.fpml.fpml_5.confirmation.EuropeanExercise;
 import org.fpml.fpml_5.confirmation.ExerciseNotice;
 import org.fpml.fpml_5.confirmation.ExerciseProcedure;
@@ -73,10 +73,7 @@ import javax.xml.namespace.QName;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -90,11 +87,12 @@ public class Fpml510ProjectionMapper {
 	private final DatatypeFactory datatypeFactory;
 
 	private final List<String> SUPPORTED_QUALIFICATIONS =
-		List.of("InterestRate_IRSwap_FixedFloat_PlainVanilla",
-			"InterestRate_IRSwap_FixedFloat",
-			"InterestRate_IRSwap_FixedFloat_ZeroCoupon",
-			"InterestRate_IRSwap_Basis",
-			"InterestRate_Option_Swaption");
+			List.of("InterestRate_IRSwap_FixedFloat",
+					"InterestRate_IRSwap_FixedFloat_OIS",
+					"InterestRate_IRSwap_FixedFloat_ZeroCoupon",
+					"InterestRate_IRSwap_Basis",
+					"InterestRate_IRSwap_Basis_OIS",
+					"InterestRate_Option_Swaption");
 
 	public Fpml510ProjectionMapper() {
 		this.objectFactory = new ObjectFactory();
@@ -154,13 +152,16 @@ public class Fpml510ProjectionMapper {
 
 	private String getProductQualifier(TradeState tradeState) {
 		return Optional.ofNullable(tradeState)
-			.map(TradeState::getTrade)
-			.map(cdm.event.common.Trade::getTradableProduct)
-			.map(TradableProduct::getProduct)
-			.map(Product::getContractualProduct)
-			.map(ContractualProduct::getProductIdentification)
-			.map(ProductIdentification::getProductQualifier)
-			.orElse(null);
+				.map(TradeState::getTrade)
+				.map(cdm.event.common.Trade::getTradableProduct)
+				.map(TradableProduct::getProduct)
+				.map(Product::getContractualProduct)
+				.map(ContractualProduct::getProductTaxonomy)
+				.orElse(Collections.emptyList()).stream()
+				.map(ProductTaxonomy::getProductQualifier)
+				.filter(Objects::nonNull)
+				.findFirst()
+				.orElse(null);
 	}
 
 	private Optional<Trade> getTrade(TradeState cdmTradeState, String cdmProductQualifier) {
@@ -289,7 +290,6 @@ public class Fpml510ProjectionMapper {
 		return Optional.ofNullable(cdmProduct)
 			.map(p -> {
 				Swap swap = objectFactory.createSwap();
-				setProductIdentification(p, swap);
 				swap.getSwapStream().addAll(getSwapStreams(p, cdmCounterparties));
 				swap.getAdditionalPayment().addAll(getPayments(cdmCounterparties, cdmPriceQuantity));
 				return swap;
@@ -300,7 +300,6 @@ public class Fpml510ProjectionMapper {
 		return Optional.ofNullable(cdmTradableProduct)
 			.map(t -> {
 				Swaption swaption = objectFactory.createSwaption();
-				setProductIdentification(t.getProduct(), swaption);
 				Optional.ofNullable(t.getProduct())
 					.map(Product::getContractualProduct)
 					.map(ContractualProduct::getEconomicTerms)
@@ -586,17 +585,6 @@ public class Fpml510ProjectionMapper {
 			});
 	}
 
-	private void setProductIdentification(Product cdmProduct, org.fpml.fpml_5.confirmation.Product product) {
-		Optional.ofNullable(cdmProduct)
-			.map(Product::getContractualProduct)
-			.flatMap(contractualProduct -> Optional.ofNullable(contractualProduct.getProductIdentification()))
-			.ifPresent(i -> {
-				getAssetClass(i.getPrimaryAssetData()).ifPresent(product::setPrimaryAssetClass);
-				getProductTypes(i.getExternalProductType()).ifPresent(t -> product.getProductType().addAll(t));
-				getProductIds(i.getProductIdentifier()).ifPresent(p -> product.getProductId().addAll(p));
-			});
-	}
-
 	private Optional<AssetClass> getAssetClass(FieldWithMetaAssetClassEnum cdmPrimaryAssetClass) {
 		return Optional.ofNullable(cdmPrimaryAssetClass)
 			.map(a -> {
@@ -605,15 +593,6 @@ public class Fpml510ProjectionMapper {
 				getScheme(a.getMeta()).ifPresent(assetClass::setAssetClassScheme);
 				return assetClass;
 			});
-	}
-
-	private Optional<List<ProductType>> getProductTypes(List<? extends ExternalProductType> cdmProductTypes) {
-		return Optional.ofNullable(cdmProductTypes)
-			.map(t -> t.stream()
-				.map(ExternalProductType::getValue)
-				.map(this::getProductType)
-				.flatMap(Optional::stream)
-				.collect(Collectors.toList()));
 	}
 
 	private Optional<ProductType> getProductType(FieldWithMetaString cdmProductType) {

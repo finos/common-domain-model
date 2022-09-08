@@ -1,13 +1,15 @@
-# *Event Model - Illustrative Reference Implementations for WorkflowSteps*
+# *Product & Event Model - Qualification Functions*
+
+_Background_
+
+This release reorganises the Qualification functions into their own namespace to improve organisation of the model code.
 
 _What is being released?_
 
-This change adds programmatic examples of how to use the Event model functions to create a `WorkflowStep` from a `TradeState` and an `Instruction`.
+All Qualification functions previously under `cdm.product.common` have been moved into a new namespace  `cdm.product.qualification`. 
+
+All Qualification functions previously under `cdm.event.common` have been moved into a new namespace `cdm.event.qualification`.
 
 _Review Directions_
  
-In the CDM Portal, select Downloads page, and download the ISDA CDM as Java Examples project.  Open the project and review the Java classes below:
-
-- `com.regnosys.cdm.example.functions.CreatePartialTerminationEventTest`
-- `com.regnosys.cdm.example.functions.CreateNovationEventTest`
-
+In the CDM Portal, select Textual Browser and view the functions mentioned above.

@@ -63,20 +63,9 @@ type ResolvablePayoutQuantity: <"Generic class to specify the quantity for diffe
 type PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
 
 	payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each payout leg.">
-	payoutQuantity ResolvablePayoutQuantity (1..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
+	payoutQuantity ResolvablePayoutQuantity (0..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
 	principalPayment PrincipalPayments (0..1) <"The specification of the principal exchange. Optional as only applicable in the case of cross-currency.">
 	settlementTerms SettlementTerms (0..1) <"Each payout leg must specifies its settlement terms, including the delivery type (i.e. cash vs physical, and their respective terms), the transfer type (DvP etc.) and settlement date, if any.">
-
-type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of a referenced underlier. (e.g. Commodities). Can represent both average (average of many) & bullet (average of 1) pricing">
-	[metadata key]
-	averagingMethod AveragingMethodEnum (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted.">
-	commodityPriceReturnTerms CommodityPriceReturnTerms (0..1) <"Defines parameters in which the commodity price is assessed.">
-	pricingDates PricingDates (1..1) <"Specifies specific dates or parametric rules for the dates on which the price will be determined.">
-    schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
-	calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule.">
-    paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
-    underlier Product (1..1)<"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
-    fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
 
 type CommodityPriceReturnTerms: <"Defines parameters in which the commodity price is assessed.">
 	rounding Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of a number.">
@@ -316,10 +305,10 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
 	settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
 	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
 
-	condition NonNegativeQuantity: <"All quantities must be positive. The direction of a leg is expressed via the payer/receiver attribute.">
-	    if quantity -> amount exists
-	    then quantity -> amount all >= 0
-	
+	//condition NonNegativeQuantity: <"All quantities must be positive. The direction of a leg is expressed via the payer/receiver attribute.">
+	  //  if quantity -> amount exists
+	 //   then quantity -> amount all >= 0
+
 	condition RateOptionObservable: <"When the observable is a rate option, the price type must correspond to one of the interest rate price expressions.">
 	    if observable -> rateOption exists and price exists
 	    then 
@@ -368,7 +357,7 @@ type PrincipalPayment: <"Any kind of principal payments when the amount is known
 
     condition PrincipalAmount:
     	required choice principalAmount, presentValuePrincipalAmount
-	
+
     condition DiscountFactor:
     	if presentValuePrincipalAmount exists
     	then discountFactor exists
