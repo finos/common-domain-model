@@ -81,6 +81,7 @@ type OptionExercise: <" A class to represent the applicable terms to qualify an 
 	optionStyle OptionStyle (1..1) <"The option exercise can be of American style, Bermuda style or European style. The FpML implementation makes use of a substitution group.">
 	strike OptionStrike (0..1) <"Specifies the strike of the option on credit default swap.">
 	exerciseProcedure ExerciseProcedure (0..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">
+	paymentDates AdjustableOrRelativeDates (0..1) <"Date at which the option strike is paid.">
 
 type OptionPayout extends PayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
@@ -91,6 +92,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 	underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
 	observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
+	schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
 	condition ClearedPhysicalSettlementExists:
 		if settlementTerms -> physicalSettlementTerms exists
@@ -652,7 +654,7 @@ type OptionFeature: <"Defines additional optional features that can be included 
 
 	fxFeature FxFeature (0..*) <"Describes a quanto or composite FX feature.">
 	strategyFeature StrategyFeature (0..1) <"Defines a simple strategy feature.">
-	averagingRateFeature AveragingCalculation (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
+	averagingFeature AveragingCalculation (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
 	barrier Barrier (0..1) <"Specifies a barrier feature.">
 	knock Knock (0..1) <"Specifies a knock in or knock out feature.">
 	passThrough PassThrough (0..1) <"Specifies the rules for pass-through payments from the underlier, such as dividends.">
