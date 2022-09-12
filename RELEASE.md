@@ -1,15 +1,13 @@
-# *Product & Event Model - Qualification Functions*
+# *DSL Update: better validation of only-element*
 
 _Background_
 
-This release reorganises the Qualification functions into their own namespace to improve organisation of the model code.
+The new release of the Rosetta DSL includes improved validation of `only-element` expressions. This change notified us on current faulty uses of `only-element` in the model.
 
 _What is being released?_
 
-All Qualification functions previously under `cdm.product.common` have been moved into a new namespace  `cdm.product.qualification`. 
-
-All Qualification functions previously under `cdm.event.common` have been moved into a new namespace `cdm.event.qualification`.
+Faulty `only-element` uses where resolved.
 
 _Review Directions_
  
-In the CDM Portal, select Textual Browser and view the functions mentioned above.
+Try to apply the `only-element` operator on a singular expression. Rosetta will not accept this anymore.
