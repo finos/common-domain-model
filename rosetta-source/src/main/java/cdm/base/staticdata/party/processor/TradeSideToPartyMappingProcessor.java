@@ -30,9 +30,9 @@ public class TradeSideToPartyMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	public void map(Path synonymPath, Optional<RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		if (!getModelPath().containsPath(PRODUCT_SUB_PATH)) {
-			ReferenceWithMetaPartyBuilder partyReference = (ReferenceWithMetaPartyBuilder) parent;
+			ReferenceWithMetaPartyBuilder partyReference = (ReferenceWithMetaPartyBuilder) builder;
 			setValueAndUpdateMappings(synonymPath.addElement("href"),
 					(tradeSideId) -> tradeSideToPartyTranslator.apply(tradeSideId)
 							.ifPresent(partyId -> {

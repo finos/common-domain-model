@@ -57,7 +57,8 @@ public class TotalNotionalQuantityMappingProcessor extends MappingProcessor {
 	private Optional<Quantity.QuantityBuilder> getTotalNotionalQuantity(Path synonymPath, int index) {
 		Quantity.QuantityBuilder quantity = Quantity.builder();
 
-		Path mappedModelPath = toPath(getModelPath()).addElement("amount");
+		Path baseModelPath = toPath(getModelPath()).addElement("amount");
+		Path mappedModelPath = incrementPathElementIndex(baseModelPath, "quantity", index);
 
 		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath,
 				(xmlValue) -> quantity
