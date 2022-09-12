@@ -292,14 +292,14 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		});
 
 		// SecLendingPayout
-		commonMappings.put("Net_Dividend_pct", (indexes, value, tradeState) -> {
-			getSecPO(tradeState)
-					.getValue()
-					.getOrCreateDividendTerms()
-					.getOrCreateManufacturedIncomeRequirement()
-					.setDividendPayoutRatio(parseDecimal(value).divide(BigDecimal.valueOf(100)));
-			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
-		});
+//		commonMappings.put("Net_Dividend_pct", (indexes, value, tradeState) -> {
+//			getSecPO(tradeState)
+//					.getValue()
+//					.getOrCreateDividendTerms()
+//					.getOrCreateManufacturedIncomeRequirement()
+//					.setDividendPayoutRatio(parseDecimal(value).divide(BigDecimal.valueOf(100)));
+//			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
+//		});
 
 		commonMappings.put("Collateral_Type_IND", (indexes, value, tradeState) -> {
 			getSecPO(tradeState)
