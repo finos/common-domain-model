@@ -48,8 +48,8 @@ public class NumberOfOptionsMappingProcessor extends MappingProcessor {
 	}
 
 	private void setAmountAndUnit(Path synonymPath, Quantity.QuantityBuilder quantity, int index) {
-		Path baseModelPath = toPath(getModelPath()).getParent();
-		Path mappedModelPath = incrementPathElementIndex(baseModelPath, "quantity", 1);
+		Path baseModelPath = toPath(getModelPath());
+		Path mappedModelPath = incrementPathElementIndex(baseModelPath, "quantity", index);
 
 		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath,
 				(xmlValue) -> quantity
