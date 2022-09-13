@@ -3,55 +3,43 @@ package cdm.SchemeImport;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 public class LatestSchemesImpportsTest {
 
     private static final String schemaPath = "src/main/resources/coding-schemes/fpml";
-    private static final String codelist = "src/main/resources/coding-schemes/fpml/codelist.zip";
+    private static final String codeListZip = "src/main/resources/coding-schemes/fpml/codelist.zip";
 
+    private static final String codeList = "src/main/resources/coding-schemes/fpml/codelist";
 
     @Test
     public void downloadLatestVersions() throws IOException {
 
         URL website = new URL("https://www.fpml.org/spec/coding-scheme/codelist.zip");
 
-        File codeListZip = new File(codelist);
-        if (codeListZip.exists()){
-            codeListZip.delete();
-        }
-
-        File codeList = new File("src/main/resources/coding-schemes/fpml/codelist");
-        if (codeList.exists()){
-            codeList.delete();
-        }
         ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-        FileOutputStream fos = new FileOutputStream(codelist);
+        FileOutputStream fos = new FileOutputStream(LatestSchemesImpportsTest.codeListZip);
         fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 
+        //Unzip from CodeList just being downloaded
         unzip();
-      //  InputStream inputStream = new URL("https://www.fpml.org/coding-scheme/set-of-schemes").openStream();
-      //  Files.copy(inputStream, Paths.get("src/main/resources/" + schemaPath), StandardCopyOption.REPLACE_EXISTING);
+        //Move the unzipped files to SchemePath if not already exists
+        moveFilesToFpml();
+        //  InputStream inputStream = new URL("https://www.fpml.org/coding-scheme/set-of-schemes").openStream();
+        //  Files.copy(inputStream, Paths.get("src/main/resources/" + schemaPath), StandardCopyOption.REPLACE_EXISTING);
+        deletFileFolder(new File(LatestSchemesImpportsTest.codeListZip));
+        deletFileFolder(new File(LatestSchemesImpportsTest.codeList));
     }
 
-    public static void unzip(){
-        try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(codelist).toFile().toPath())))
-
-        {
+    public static void unzip() {
+        try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(codeListZip).toFile().toPath()))) {
 
             // list files in zip
             ZipEntry zipEntry = zipInputStream.getNextEntry();
@@ -86,6 +74,7 @@ public class LatestSchemesImpportsTest {
             throw new RuntimeException(e);
         }
     }
+
     // Check for zip slip attack
     public static Path zipSlipVulnerabilityProtect(ZipEntry zipEntry, Path targetDir)
             throws IOException {
@@ -108,6 +97,36 @@ public class LatestSchemesImpportsTest {
         }
 
         return normalizePath;
+    }
+
+
+    public void moveFilesToFpml() {
+        Path sourceDir = Paths.get(codeList);
+        Path destinationDir = Paths.get(schemaPath);
+
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(sourceDir)) {
+            for (Path path : directoryStream) {
+                System.out.println("copying " + path.toString());
+                Path d2 = destinationDir.resolve(path.getFileName());
+                System.out.println("destination File=" + d2);
+                if (Files.notExists(d2))
+                    Files.move(path, d2, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void deletFileFolder(File fileToBeDeleted) {
+        File[] contents = fileToBeDeleted.listFiles();
+        if (contents != null) {
+            for (File f : contents) {
+                if (!Files.isSymbolicLink(f.toPath())) {
+                    deletFileFolder(f);
+                }
+            }
+        }
+        fileToBeDeleted.delete();
     }
 
 }
