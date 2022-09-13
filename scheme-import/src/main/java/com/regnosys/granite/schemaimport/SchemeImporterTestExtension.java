@@ -26,10 +26,6 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
     private URL[] rosettaPaths;
     private SchemeImporter schemeImporter;
 
-    public void setSchemaPath(String schemaPath) {
-        this.schemaPath = schemaPath;
-    }
-
     private String schemaPath;
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemeImporterTestExtension.class);
     private final String rosettaPathRoot;
@@ -37,6 +33,7 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
     public SchemeImporterTestExtension(String rosettaPathRoot) {
         this.rosettaPathRoot = rosettaPathRoot;
     }
+
 
     @Override
     public void beforeEach(ExtensionContext context) {
@@ -142,6 +139,6 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
 
     @Override
     public void beforeAll(ExtensionContext extensionContext) throws Exception {
-        setSchemaPath(getLatestSetOfSchemeFile());
+       this.schemaPath = getLatestSetOfSchemeFile();
     }
 }
