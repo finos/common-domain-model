@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -110,21 +111,22 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
 
     public String getLatestSetOfSchemeFile() throws URISyntaxException, IOException {
         Path baseFolder = Paths.get(Resources.getResource("coding-schemes/fpml").toURI());
-        HashMap<String, Integer> versionNumberFileName = new HashMap<>();
+        HashMap<String, BigDecimal> versionNumberFileName = new HashMap<>();
         try (Stream<Path> walk = Files.walk(baseFolder)) {
             walk.filter(this::isSetOfSchemeXmlFile)
                     .forEach(inFile -> {
                         String fileName = inFile.getFileName().toString();
                         String versionNumber = fileName.substring(15, fileName.indexOf(".")).replace("-", ".");
 
-                        versionNumberFileName.put(fileName,Integer.parseInt(versionNumber));
+                        versionNumberFileName.put(fileName,new BigDecimal(versionNumber));
                     });
         }
 
-        Integer highestVersion =0;
+        BigDecimal highestVersion = new BigDecimal(0);
         String latestSetOfSchemesFile = "coding-schemes/fpml/set-of-schemes-2-2.xml";
-        for (Map.Entry<String, Integer> entry : versionNumberFileName.entrySet()) {
-            if (entry.getValue()>highestVersion){
+        for (Map.Entry<String, BigDecimal> entry : versionNumberFileName.entrySet()) {
+            if (entry.getValue().compareTo(highestVersion)>0){
+                highestVersion = entry.getValue();
                 latestSetOfSchemesFile = "coding-schemes/fpml/" + entry.getKey();
             }
 
