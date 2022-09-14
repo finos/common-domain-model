@@ -63,26 +63,4 @@ public class PriceQuantityHelper {
 		quantityBuilder.getOrCreateMeta().addKey(Key.builder().setScope("DOCUMENT"));
 		return quantityBuilder;
 	}
-
-//	public static Map<Path, Quantity.QuantityBuilder> getQuantityMap(RosettaPath modelPath, List<? extends TradeLot.TradeLotBuilder> tradeLots) {
-//		Map<Path, Quantity.QuantityBuilder> quantityMap = new HashMap<>();
-//
-//		AtomicInteger tradeLotIndex = new AtomicInteger(0);
-//		for (TradeLot.TradeLotBuilder tradeLot : emptyIfNull(tradeLots)) {
-//			Path tradeLotPath = PathUtils.toPath(modelPath.getParent()).addElement("tradeLot", tradeLotIndex.getAndIncrement());
-//
-//			AtomicInteger priceQuantityIndex = new AtomicInteger(0);
-//			for (PriceQuantity.PriceQuantityBuilder priceQuantity : emptyIfNull(tradeLot.getPriceQuantity())) {
-//				Path priceQuantityPath = tradeLotPath.addElement("priceQuantity", priceQuantityIndex.getAndIncrement());
-//
-//				AtomicInteger quantityIndex = new AtomicInteger(0);
-//				for (FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder quantity : emptyIfNull(priceQuantity.getQuantity())) {
-//					Path quantityPath = priceQuantityPath.addElement("quantity", quantityIndex.getAndIncrement()).addElement("value");
-//
-//					quantityMap.put(quantityPath, quantity.getValue());
-//				}
-//			}
-//		}
-//		return quantityMap;
-//	}
 }

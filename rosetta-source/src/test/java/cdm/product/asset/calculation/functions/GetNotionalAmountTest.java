@@ -1,14 +1,12 @@
 package cdm.product.asset.calculation.functions;
 
-import cdm.base.math.NonNegativeStep;
-import cdm.base.math.Quantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
+import cdm.base.math.Step;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.ReferenceWithMetaQuantity;
 import cdm.observable.asset.Money;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriod;
 import cdm.product.common.schedule.CalculationPeriodBase;
-import cdm.product.common.schedule.NonNegativeQuantitySchedule;
 import cdm.product.common.settlement.ResolvablePayoutQuantity;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
@@ -71,21 +69,19 @@ public class GetNotionalAmountTest extends AbstractFunctionTest {
 
     public static ResolvablePayoutQuantity initNotionalSchedule() {
         return ResolvablePayoutQuantity.builder()
-                .setQuantitySchedule(NonNegativeQuantitySchedule.builder()
-                        .setInitialQuantity(ReferenceWithMetaQuantity.builder()
-                                .setValue(Quantity.builder()
-                                        .setAmount(BigDecimal.valueOf(9_000_000))
-                                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))))
-                        .addStep(NonNegativeStep.builder()
+                .setQuantityScheduleValue(NonNegativeQuantitySchedule.builder()
+                        .setAmount(BigDecimal.valueOf(9_000_000))
+                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                        .addStep(Step.builder()
                                 .setStepDate(Date.of(2021, 3, 10))
                                 .setStepValue(BigDecimal.valueOf(10_000_000)))
-                        .addStep(NonNegativeStep.builder()
+                        .addStep(Step.builder()
                                 .setStepDate(Date.of(2021, 6, 10))
                                 .setStepValue(BigDecimal.valueOf(11_000_000)))
-                        .addStep(NonNegativeStep.builder()
+                        .addStep(Step.builder()
                                 .setStepDate(Date.of(2021, 9, 10))
                                 .setStepValue(BigDecimal.valueOf(12_000_000)))
-                        .addStep(NonNegativeStep.builder()
+                        .addStep(Step.builder()
                                 .setStepDate(Date.of(2021, 12, 10))
                                 .setStepValue(BigDecimal.valueOf(13_000_000))))
                 .build();

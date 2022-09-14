@@ -1,5 +1,6 @@
 package cdm.event.position.functions;
 
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
 import cdm.event.common.Trade;
@@ -58,12 +59,12 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
     }
 
     private static Trade createFxFwdContract(String curr1, String curr2, int quantityAmount1, int quantityAmount2) {
-        Quantity.QuantityBuilder quantity1 = Quantity.builder()
+        NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity1 = NonNegativeQuantitySchedule.builder()
                 .setAmount(BigDecimal.valueOf(quantityAmount1))
                 .setUnitOfAmount(UnitType.builder()
                         .setCurrency(FieldWithMetaString.builder()
                                 .setValue(curr1)));
-        Quantity.QuantityBuilder quantity2 = Quantity.builder()
+        NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity2 = NonNegativeQuantitySchedule.builder()
                 .setAmount(BigDecimal.valueOf(quantityAmount2))
                 .setUnitOfAmount(UnitType.builder()
                         .setCurrency(FieldWithMetaString.builder()

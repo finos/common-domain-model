@@ -3,11 +3,8 @@ package org.isda.cdm.functions;
 import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
 import cdm.base.datetime.Period;
 import cdm.base.datetime.PeriodEnum;
-import cdm.base.math.FinancialUnitEnum;
-import cdm.base.math.Quantity;
-import cdm.base.math.QuantityChangeDirectionEnum;
-import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.base.math.*;
+import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
 import cdm.base.staticdata.asset.common.ProductIdentifier;
 import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
@@ -59,7 +56,6 @@ import org.isda.cdm.CdmRuntimeModule;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.ResourcesUtils;
@@ -341,8 +337,8 @@ class FunctionInputCreationTest {
         QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaQuantity.builder()
-                                .setValue(Quantity.builder()
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setValue(NonNegativeQuantitySchedule.builder()
                                         .setAmount(BigDecimal.valueOf(10000))
                                         .setUnitOfAmount(UnitType.builder()
                                                 .setCurrency(FieldWithMetaString.builder()
@@ -364,12 +360,12 @@ class FunctionInputCreationTest {
         QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaQuantity.builder()
-                                .setValue(Quantity.builder()
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setValue(NonNegativeQuantitySchedule.builder()
                                         .setAmount(BigDecimal.valueOf(760400))
                                         .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
-                        .addQuantity(FieldWithMetaQuantity.builder()
-                                .setValue(Quantity.builder()
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setValue(NonNegativeQuantitySchedule.builder()
                                         .setAmount(BigDecimal.valueOf(28469376))
                                         .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD")))));
 
@@ -385,8 +381,8 @@ class FunctionInputCreationTest {
         QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaQuantity.builder()
-                                .setValue(Quantity.builder()
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setValue(NonNegativeQuantitySchedule.builder()
                                         .setAmount(BigDecimal.valueOf(3000))
                                         .setUnitOfAmount(UnitType.builder()
                                                 .setCurrency(FieldWithMetaString.builder()
@@ -415,12 +411,12 @@ class FunctionInputCreationTest {
                         .addAssignedIdentifier(AssignedIdentifier.builder()
                                 .setIdentifierValue("LOT-1")))
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaQuantity.builder()
-                                .setValue(Quantity.builder()
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setValue(NonNegativeQuantitySchedule.builder()
                                         .setAmount(BigDecimal.valueOf(760400))
                                         .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
-                        .addQuantity(FieldWithMetaQuantity.builder()
-                                .setValue(Quantity.builder()
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setValue(NonNegativeQuantitySchedule.builder()
                                         .setAmount(BigDecimal.valueOf(28469376))
                                         .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD")))));
 
@@ -459,9 +455,9 @@ class FunctionInputCreationTest {
                                                 .setIdentifier(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
                                                         .setValue("SHPGY.O")))))
-                        .addQuantity(FieldWithMetaQuantity.builder()
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-2"))
-                                .setValue(Quantity.builder()
+                                .setValue(NonNegativeQuantitySchedule.builder()
                                         .setAmount(BigDecimal.valueOf(250000))
                                         .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
                         .addPrice(FieldWithMetaPrice.builder()
@@ -483,9 +479,9 @@ class FunctionInputCreationTest {
                                                 .setIndexTenor(Period.builder()
                                                         .setPeriod(PeriodEnum.M)
                                                         .setPeriodMultiplier(1)))))
-                        .addQuantity(FieldWithMetaQuantity.builder()
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-1"))
-                                .setValue(Quantity.builder()
+                                .setValue(NonNegativeQuantitySchedule.builder()
                                         .setAmount(BigDecimal.valueOf(7500000))
                                         .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))))
                         .addPrice(FieldWithMetaPrice.builder()
@@ -538,8 +534,8 @@ class FunctionInputCreationTest {
                 .flatMap(Collection::stream)
                 .map(PriceQuantity::getQuantity)
                 .flatMap(Collection::stream)
-                .map(FieldWithMetaQuantity::getValue)
-                .map(Quantity::getUnitOfAmount)
+                .map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
+                .map(NonNegativeQuantitySchedule::getUnitOfAmount)
                 .filter(unit -> unit.getCurrency() != null)
                 .findFirst()
                 .orElse(null);
@@ -563,8 +559,8 @@ class FunctionInputCreationTest {
         QuantityChangeInstruction terminateInstructions = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaQuantity.builder()
-                                .setValue(Quantity.builder()
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setValue(NonNegativeQuantitySchedule.builder()
                                         .setAmount(BigDecimal.valueOf(0.0))
                                         .setUnitOfAmount(UnitType.builder()
                                                 .setCurrency(FieldWithMetaString.builder()
@@ -710,8 +706,8 @@ class FunctionInputCreationTest {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaQuantity.builder()
-                                                .setValue(Quantity.builder()
+                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                                .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setAmount(BigDecimal.valueOf(0.0))
                                                         .setUnitOfAmount(UnitType.builder()
                                                                 .setCurrency(FieldWithMetaString.builder()
@@ -747,7 +743,7 @@ class FunctionInputCreationTest {
                                                         .setIdentifierType(PartyIdentifierTypeEnum.LEI)
                                                         .setIdentifier(FieldWithMetaString.builder().setValue("LEI3RPT0003")
                                                                 .setMeta(MetaFields.builder()
-                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
+                                                                        .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -761,8 +757,8 @@ class FunctionInputCreationTest {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaQuantity.builder()
-                                                .setValue(Quantity.builder()
+                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                                .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setAmount(BigDecimal.valueOf(5000.0))
                                                         .setUnitOfAmount(UnitType.builder()
                                                                 .setCurrency(FieldWithMetaString.builder()
@@ -773,8 +769,8 @@ class FunctionInputCreationTest {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaQuantity.builder()
-                                                .setValue(Quantity.builder()
+                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                                .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setAmount(BigDecimal.valueOf(8000.0))
                                                         .setUnitOfAmount(UnitType.builder()
                                                                 .setCurrency(FieldWithMetaString.builder()
@@ -812,7 +808,7 @@ class FunctionInputCreationTest {
                                                                         .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
                                                                 .setValue("LEI1DCO"))
                                                         .setIdentifierType(PartyIdentifierTypeEnum.LEI))
-                                                        .build())
+                                                .build())
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -850,8 +846,8 @@ class FunctionInputCreationTest {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaQuantity.builder()
-                                                .setValue(Quantity.builder()
+                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                                .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setAmount(BigDecimal.valueOf(0.0))
                                                         .setUnitOfAmount(UnitType.builder()
                                                                 .setCurrency(FieldWithMetaString.builder()
@@ -901,8 +897,8 @@ class FunctionInputCreationTest {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaQuantity.builder()
-                                                .setValue(Quantity.builder()
+                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                                .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setAmount(BigDecimal.valueOf(7000.0))
                                                         .setUnitOfAmount(UnitType.builder()
                                                                 .setCurrencyValue("EUR")))))))
@@ -917,7 +913,7 @@ class FunctionInputCreationTest {
                                                         .setIdentifierType(PartyIdentifierTypeEnum.LEI)
                                                         .setIdentifier(FieldWithMetaString.builder().setValue("LEI3CP00A2")
                                                                 .setMeta(MetaFields.builder()
-                                                                .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
+                                                                        .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(Identifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -931,8 +927,8 @@ class FunctionInputCreationTest {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaQuantity.builder()
-                                                .setValue(Quantity.builder()
+                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                                .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setAmount(BigDecimal.valueOf(3000.0))
                                                         .setUnitOfAmount(UnitType.builder()
                                                                 .setCurrencyValue("EUR")))))))
@@ -941,8 +937,8 @@ class FunctionInputCreationTest {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaQuantity.builder()
-                                                .setValue(Quantity.builder()
+                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                                .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setAmount(BigDecimal.valueOf(0.0))
                                                         .setUnitOfAmount(UnitType.builder()
                                                                 .setCurrencyValue("EUR")))))));
@@ -1150,7 +1146,7 @@ class FunctionInputCreationTest {
     private QuantityChangeInstruction.QuantityChangeInstructionBuilder createQuantityChangeInstruction(UnitType unitOfAmount, BigDecimal amount) {
         return QuantityChangeInstruction.builder()
                 .addChange(PriceQuantity.builder()
-                        .addQuantityValue(Quantity.builder()
+                        .addQuantityValue(NonNegativeQuantitySchedule.builder()
                                 .setAmount(amount)
                                 .setUnitOfAmount(unitOfAmount)))
                 .setDirection(QuantityChangeDirectionEnum.REPLACE);
@@ -1210,7 +1206,7 @@ class FunctionInputCreationTest {
                 .flatMap(Collection::stream)
                 .map(PriceQuantity.PriceQuantityBuilder::getQuantity)
                 .flatMap(Collection::stream)
-                .map(FieldWithMetaQuantity.FieldWithMetaQuantityBuilder::getValue)
+                .map(FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder::getValue)
                 .forEach(quantity -> quantity.setAmount(new BigDecimal(10000)));
         // trade id
         tradeStateBuilder.getTrade().getTradeIdentifier().get(0).getAssignedIdentifier().get(0).setIdentifierValue("LEI1RPT0001KKKK");
@@ -1542,7 +1538,7 @@ class FunctionInputCreationTest {
                                 .setIdentifier(FieldWithMetaString.builder()
                                         .setValue(partyId)
                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442")
-                                ))));
+                                        ))));
     }
 
 
