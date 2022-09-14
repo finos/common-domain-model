@@ -50,15 +50,17 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 	}
 
 	@Override
-	public List<RosettaEnumValue> generateEnumFromScheme(String schemeLocation) {
+	public List<RosettaEnumValue> generateEnumFromScheme(String annotatedEnumName) {
 		try {
 			Map<String, CodeListDocument> stringCodeListDocumentMap = readSchemaFiles();
-			CodeListDocument codeListDocument = stringCodeListDocumentMap.get(schemeLocation);
+			String annotatedEnumNameWithoutSuffix = annotatedEnumName.replace("Enum","").toLowerCase();
+
+			CodeListDocument codeListDocument = stringCodeListDocumentMap.get(annotatedEnumNameWithoutSuffix);
 			if (codeListDocument != null) {
 				Pair<List<RosettaEnumValue>, String> transform = transform(codeListDocument);
 				return transform.getFirst();
 			} else {
-				LOGGER.warn("No document found for schema location {}", schemeLocation);
+				LOGGER.warn("No document found for Enum {}", annotatedEnumName);
 			}
 		} catch (JAXBException | IOException | XMLStreamException e) {
 			throw new RuntimeException(e);
