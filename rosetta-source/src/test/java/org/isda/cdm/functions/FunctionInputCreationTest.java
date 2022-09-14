@@ -984,7 +984,7 @@ class FunctionInputCreationTest {
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructions.build()),
-                EventIntentEnum.EXERCISE,
+                EventIntentEnum.OPTION_EXERCISE,
                 Date.of(2001, 8, 28),
                 null);
 
@@ -1035,7 +1035,7 @@ class FunctionInputCreationTest {
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructions.build()),
-                EventIntentEnum.EXERCISE,
+                EventIntentEnum.OPTION_EXERCISE,
                 Date.of(2019, 4, 1),
                 null);
 
@@ -1085,7 +1085,7 @@ class FunctionInputCreationTest {
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instruction.build()),
-                EventIntentEnum.EXERCISE,
+                EventIntentEnum.OPTION_EXERCISE,
                 tradeDate,
                 null);
 
@@ -1139,7 +1139,7 @@ class FunctionInputCreationTest {
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instruction.build()),
-                EventIntentEnum.EXERCISE,
+                EventIntentEnum.OPTION_EXERCISE,
                 tradeDate,
                 null);
 
@@ -1336,7 +1336,7 @@ class FunctionInputCreationTest {
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
-                EventIntentEnum.STOCK_SPLIT,
+                EventIntentEnum.CORPORATE_ACTION_ADJUSTMENT,
                 Date.of(2001, 11, 1),
                 null);
 

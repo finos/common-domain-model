@@ -9,7 +9,6 @@ import cdm.base.staticdata.asset.credit.*
 import cdm.observable.asset.*
 
 import cdm.product.asset.*
-import cdm.product.template.*
 import cdm.product.common.schedule.*
 
 type ComputedAmount: <"A class to specify the outcome of a computed amount, for testing purposes.">
@@ -64,14 +63,8 @@ type PayoutBase: <" Base class that all payout types should extend. Use case is 
 
 	payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each payout leg.">
 	payoutQuantity ResolvablePayoutQuantity (0..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
+	principalPayment PrincipalPayments (0..1) <"The specification of the principal exchange. Optional as only applicable in the case of cross-currency.">
 	settlementTerms SettlementTerms (0..1) <"Each payout leg must specifies its settlement terms, including the delivery type (i.e. cash vs physical, and their respective terms), the transfer type (DvP etc.) and settlement date, if any.">
-
-type ObservationPayout extends PayoutBase: <"Defines payout terms relevant where the underlier is an asset (e.g. equities, commodities) or a referenced benchmark that is observed to obtain a price">
-
-	calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule.">
-    paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
-    underlier Product (1..1)<"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
-    fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
 
 type CommodityPriceReturnTerms: <"Defines parameters in which the commodity price is assessed.">
 	rounding Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of a number.">
@@ -278,15 +271,6 @@ type FxFixingDate extends Offset: <"Extends the Offset structure to specify an F
 	condition DateChoice: <"condition to represent an FpML choice construct.">
 		required choice dateRelativeToPaymentDates, dateRelativeToCalculationPeriodDates, dateRelativeToValuationDates, fxFixingDate
 
-type PrincipalExchange: <"A data for:  defining a principal exchange amount and adjusted exchange date. This data forms:  part of the cashflow representation of a swap stream.">
-	[metadata key]
-
-	unadjustedPrincipalExchangeDate date (0..1) <"The non adjusted principal exchange date.">
-	adjustedPrincipalExchangeDate date (0..1) <"The adjusted principal exchange date. This date should already be adjusted for any applicable business day convention.">
-	principalExchangeAmount number (0..1) <"The principal exchange amount. This amount should be positive if the stream payer is paying the exchange amount and signed negative if they are receiving it.">
-	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the principal exchange amount.">
-	presentValuePrincipalExchangeAmount Money (0..1) <"The amount representing the present value of the principal exchange.">
-
 type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, which can either be cash, physical, or fx-based cash-settlement. This class can be used for the settlement of options and forwards, cash transactions (e.g. securities or foreign exchange), or in case of credit event.">
 	cashSettlementTerms CashSettlementTerms (0..*) <"Specifies the parameters associated with the cash settlement procedure.">
 	physicalSettlementTerms PhysicalSettlementTerms (0..1) <"Specifies the physical settlement terms which apply to the transaction.">
@@ -339,12 +323,34 @@ type PaymentRule: <"A class defining the payment calculation rule. As of FpML 5.
 
 	percentageRule PercentageRule (0..1) <"This attribute is not present as part of the FpML construct, as the payment rule is specialised by means of runtime type extension through the xsi:type.">
 
-type PrincipalExchanges: <"A class defining which principal exchanges occur for the stream.">
+type PrincipalPayments: <"A class defining which principal exchanges occur for the stream.">
 	[metadata key]
 
-	initialExchange boolean (1..1) <"A true/false flag to indicate whether there is an initial exchange of principal on the effective date.">
-	finalExchange boolean (1..1) <"A true/false flag to indicate whether there is a final exchange of principal on the termination date.">
-	intermediateExchange boolean (1..1) <"A true/false flag to indicate whether there are intermediate or interim exchanges of principal during the term of the swap.">
+	initialPayment boolean (1..1) <"A true/false flag to indicate whether there is an initial exchange of principal on the effective date.">
+	finalPayment boolean (1..1) <"A true/false flag to indicate whether there is a final exchange of principal on the termination date.">
+	intermediatePayment boolean (1..1) <"A true/false flag to indicate whether there are intermediate or interim exchanges of principal during the term of the swap.">
+	varyingLegNotionalCurrency string (0..*) <"Indicate the Payout legs which nominal amount may vary in regards of FX Fixing dates as determined in the product terms.">
+	principalPaymentSchedule PrincipalPaymentSchedule (0..1) <"Describe dates schedules for Principal Exchanges and related role of the parties when known.">
+
+type PrincipalPaymentSchedule: <"Describe dates schedules for Principal Exchanges and related role of the parties when known.">
+    initialPrincipalPayment PrincipalPayment (0..1) <"Principal Payment made at Trade inception.">
+    intermediatePrincipalPayment AdjustableRelativeOrPeriodicDates (0..1) <"Principal Payment as part of the Trade lifecycle e.g. as part of notional reset adjustements in a Cross Currency Swap with a varying notional leg.">
+    finalPrincipalPayment PrincipalPayment (0..1) <"Principal Payment at Trade maturity">
+
+type PrincipalPayment: <"Any kind of principal payments when the amount is known and thus fixed.">
+    [metadata key]
+    principalPaymentDate AdjustableDate (0..1) <"The date where the PrincipalPayment shall be settled.">
+    payerReceiver PayerReceiver (0..1) <"Specifies the parties responsible for making and receiving payments defined by this structure.">
+    principalAmount Money (0..1) <"When known at the time the transaction is made, the cash amount to be paid.">
+    discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the principal payment amount.">
+    presentValuePrincipalAmount Money (0..1) <"The amount representing the present value of the principal payment.">
+
+    condition PrincipalAmount:
+    	required choice principalAmount, presentValuePrincipalAmount
+
+    condition DiscountFactor:
+    	if presentValuePrincipalAmount exists
+    	then discountFactor exists
 
 type SettlementBase: <"A base class to be extended by the SettlementTerms class.">
 	[metadata key]
