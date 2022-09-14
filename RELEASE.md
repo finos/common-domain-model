@@ -63,7 +63,7 @@ This release of the Rosetta DSL resolves a technical issue in the performance of
 
 _What is being released?_
 
-Faulty `only-element` uses where resolved, in particular when `only-element` operator is used on a singular expression. Rosetta will not accept this anymore.
+The incorrect outcome of `only-element`, in particular when `only-element` operator is used on a singular expression, has been resolved. 
 
 _Review Directions_
 
