@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAllCallback {
     private URL[] rosettaPaths;
@@ -106,8 +107,14 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
         }
     }
 
-    public String getLatestSetOfSchemeFile() throws URISyntaxException, IOException {
-        Path baseFolder = Paths.get(Resources.getResource("coding-schemes/fpml").toURI());
+    public String getLatestSetOfSchemeFile() throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        Path baseFolder = ClassPathUtils
+                .loadFromClasspath("coding-schemes/fpml", classLoader)
+                .findFirst()
+                .orElseThrow();
+        assertNotNull(baseFolder);
+                //Paths.get(String.valueOf(classLoader.getResource("coding-schemes/fpml")));
         HashMap<String, BigDecimal> versionNumberFileName = new HashMap<>();
         try (Stream<Path> walk = Files.walk(baseFolder)) {
             walk.filter(this::isSetOfSchemeXmlFile)
