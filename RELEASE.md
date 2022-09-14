@@ -68,7 +68,7 @@ Enumerations removed:
 -	StockIdentifierChange
 -	RightsIssue
 
-The following changes have been made to TransferTypeEnum:
+The following changes have been made to `TransferTypeEnum`:
 
 Enumerations added:
 - FixedRateReturn
