@@ -2,7 +2,7 @@
 
 _Background_ 
 
-After the release of the Performance Payout, an in-depth review of its structures and components was carried out in which several regression issues were identified, particularly regarding cardinality, former commodity-related attributes, and the dividend structure. This release addresses these issues, and adds minor mapping improvements for performance and commodity payouts.
+A review of the Performance Payout has identified enhancements opportunities to resolve issues in its structural definition e.g. cardinality, former commodity-related attributes, and the dividend structure. This release addresses these issues, and adds minor mapping improvements for performance and commodity payouts.
 
 _What is being released?_
 
@@ -59,7 +59,7 @@ In the CDM Portal, select Ingestion and review the following samples:
 
 _Background_
 
-This release of the Rosetta DSL includes improved validation of `only-element` expressions. This change notified us on current faulty uses of `only-element` in the model.
+This release of the Rosetta DSL resolves a technical issue in the performance of the `only-element` expressions.
 
 _What is being released?_
 
