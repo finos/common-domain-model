@@ -1,5 +1,6 @@
 package cdm.SchemeImport;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -20,6 +21,7 @@ public class LatestSchemesImpportsTest {
     private static final String codeList = "src/main/resources/coding-schemes/fpml/codelist";
 
     @Test
+    @Disabled
     public void downloadLatestVersions() throws IOException {
 
         URL website = new URL("https://www.fpml.org/spec/coding-scheme/codelist.zip");
