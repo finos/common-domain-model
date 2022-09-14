@@ -24,7 +24,6 @@ public class LatestSchemesImpportsTest {
     private static final boolean execute_Download_Latest_Version = ExpectationUtil.WRITE_EXPECTATIONS;
 
     @Test
-    @Disabled
     public void downloadLatestVersions() throws IOException {
         if (execute_Download_Latest_Version) {
             URL website = new URL("https://www.fpml.org/spec/coding-scheme/codelist.zip");
