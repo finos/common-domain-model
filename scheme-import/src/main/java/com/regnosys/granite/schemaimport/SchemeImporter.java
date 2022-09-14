@@ -24,11 +24,12 @@ public class SchemeImporter {
 	public Map<String, String> generateRosettaEnums(String body, String corpus) {
 		List<RosettaEnumeration> annotatedEnums = enumReader.getAnnotatedEnum(body, corpus);
 		for (RosettaEnumeration annotatedEnum : annotatedEnums) {
-			Optional<String> schemaLocationForEnumMaybe = enumReader.getSchemaLocationForEnum(annotatedEnum, body, corpus);
+			/*Optional<String> schemaLocationForEnumMaybe = enumReader.getSchemaLocationForEnum(annotatedEnum, body, corpus);
 			if (schemaLocationForEnumMaybe.isEmpty()) {
 				continue;
-			}
-			List<RosettaEnumValue> newEnumValues = fpMLSchemeEnumReader.generateEnumFromScheme(schemaLocationForEnumMaybe.get());
+			}*/
+			String annotatedEnumName = annotatedEnum.getName().replace("Enum","").toLowerCase();
+			List<RosettaEnumValue> newEnumValues = fpMLSchemeEnumReader.generateEnumFromScheme(annotatedEnumName);
 			overwriteEnums(annotatedEnum, newEnumValues);
 		}
 
