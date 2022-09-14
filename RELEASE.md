@@ -1,13 +1,13 @@
-# *Product Model - Performance Payout*
+# *Product Model - Performance Payout - Structural Definition Enhancements*
 
 _Background_ 
 
-A review of the Performance Payout has identified enhancements opportunities to resolve issues in its structural definition e.g. cardinality, former commodity-related attributes, and the dividend structure. This release addresses these issues, and adds minor mapping improvements for performance and commodity payouts.
+A review of the Performance Payout has identified opportunities for structured enhancements e.g. cardinality, former commodity-related attributes, and the dividend structure. This release also  addresses minor mapping improvements for performance and commodity payouts.
 
 _What is being released?_
 
 - Updated cardinality for several attributes in `PerformancePayout`.
-- Removed commodity-endemic attributes from `PerformancePayout`.
+- Removed commodity related attributes from `PerformancePayout`.
 - Renamed several `PerformancePayout` attributes.
 - Added model support for basket component-specific `DividendPayoutRatio`.
 - Minor mapping improvements.
