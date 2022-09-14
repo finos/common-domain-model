@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface SchemeEnumReader {
 
-	List<RosettaEnumValue> generateEnumFromScheme(String annotatedEnum);
+	List<RosettaEnumValue> generateEnumFromScheme(String schemeLocation);
 
 }

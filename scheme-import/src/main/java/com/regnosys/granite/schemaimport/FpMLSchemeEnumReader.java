@@ -50,17 +50,15 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 	}
 
 	@Override
-	public List<RosettaEnumValue> generateEnumFromScheme(String annotatedEnumName) {
+	public List<RosettaEnumValue> generateEnumFromScheme(String schemeLocation) {
 		try {
 			Map<String, CodeListDocument> stringCodeListDocumentMap = readSchemaFiles();
-			String annotatedEnumNameWithoutSuffix = annotatedEnumName.replace("Enum","").toLowerCase();
-
-			CodeListDocument codeListDocument = stringCodeListDocumentMap.get(annotatedEnumNameWithoutSuffix);
+			CodeListDocument codeListDocument = stringCodeListDocumentMap.get(schemeLocation);
 			if (codeListDocument != null) {
 				Pair<List<RosettaEnumValue>, String> transform = transform(codeListDocument);
 				return transform.getFirst();
 			} else {
-				LOGGER.warn("No document found for Enum {}", annotatedEnumName);
+				LOGGER.warn("No document found for schema location {}", schemeLocation);
 			}
 		} catch (JAXBException | IOException | XMLStreamException e) {
 			throw new RuntimeException(e);
@@ -154,9 +152,7 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 		if (localUrl != null) {
 			CodeListDocument codeListDocument = readUrl(jaxbContext, inputFactory, localUrl);
 			if (codeListDocument != null) {
-				String canonicalUri = codeListRef.getCanonicalUri().substring(codeListRef.getCanonicalUri().lastIndexOf("/")+1);
-				canonicalUri = canonicalUri.replace("-","");
-				return Map.entry(canonicalUri, codeListDocument);
+				return Map.entry(codeListRef.getCanonicalUri(), codeListDocument);
 			}
 		} else {
 			LOGGER.warn("The resource: " + locationUri + " cannot be loaded");
