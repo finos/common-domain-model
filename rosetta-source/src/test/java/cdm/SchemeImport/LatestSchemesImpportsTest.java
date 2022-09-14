@@ -1,5 +1,6 @@
 package cdm.SchemeImport;
 
+import com.regnosys.granite.ingestor.ExpectationUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -20,24 +21,27 @@ public class LatestSchemesImpportsTest {
 
     private static final String codeList = "src/main/resources/coding-schemes/fpml/codelist";
 
+    private static final boolean execute_Download_Latest_Version = ExpectationUtil.WRITE_EXPECTATIONS;
+
     @Test
     @Disabled
     public void downloadLatestVersions() throws IOException {
+        if (execute_Download_Latest_Version) {
+            URL website = new URL("https://www.fpml.org/spec/coding-scheme/codelist.zip");
 
-        URL website = new URL("https://www.fpml.org/spec/coding-scheme/codelist.zip");
+            ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+            FileOutputStream fos = new FileOutputStream(LatestSchemesImpportsTest.codeListZip);
+            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 
-        ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-        FileOutputStream fos = new FileOutputStream(LatestSchemesImpportsTest.codeListZip);
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-
-        //Unzip from CodeList just being downloaded
-        unzip();
-        //Move the unzipped files to SchemePath if not already exists
-        moveFilesToFpml();
-        //  InputStream inputStream = new URL("https://www.fpml.org/coding-scheme/set-of-schemes").openStream();
-        //  Files.copy(inputStream, Paths.get("src/main/resources/" + schemaPath), StandardCopyOption.REPLACE_EXISTING);
-        deletFileFolder(new File(LatestSchemesImpportsTest.codeListZip));
-        deletFileFolder(new File(LatestSchemesImpportsTest.codeList));
+            //Unzip from CodeList just being downloaded
+            unzip();
+            //Move the unzipped files to SchemePath if not already exists
+            moveFilesToFpml();
+            //  InputStream inputStream = new URL("https://www.fpml.org/coding-scheme/set-of-schemes").openStream();
+            //  Files.copy(inputStream, Paths.get("src/main/resources/" + schemaPath), StandardCopyOption.REPLACE_EXISTING);
+            deletFileFolder(new File(LatestSchemesImpportsTest.codeListZip));
+            deletFileFolder(new File(LatestSchemesImpportsTest.codeList));
+        }
     }
 
     public static void unzip() {
