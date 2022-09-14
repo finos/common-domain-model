@@ -496,7 +496,7 @@ public class Fpml510ProjectionMapper {
 
 	private Optional<InformationSource> getInformationSource(FxSpotRateSource cdmFxSpotRateSource) {
 		return Optional.ofNullable(cdmFxSpotRateSource)
-			.map(FxSpotRateSource::getPrimaryRateSource)
+			.map(FxSpotRateSource::getPrimarySource)
 			.map(s -> {
 				InformationSource informationSource = objectFactory.createInformationSource();
 				getSourcePage(s.getSourcePage()).ifPresent(informationSource::setRateSourcePage);

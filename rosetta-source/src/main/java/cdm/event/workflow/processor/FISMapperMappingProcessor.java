@@ -296,7 +296,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getValue()
 					.getOrCreateDividendTerms()
 					.getOrCreateManufacturedIncomeRequirement()
-					.setDividendPayoutRatio(parseDecimal(value).divide(BigDecimal.valueOf(100)));
+					.setTotalRatio(parseDecimal(value).divide(BigDecimal.valueOf(100)));
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 

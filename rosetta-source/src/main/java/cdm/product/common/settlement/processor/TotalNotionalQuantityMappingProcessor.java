@@ -2,7 +2,6 @@ package cdm.product.common.settlement.processor;
 
 import cdm.base.math.CapacityUnitEnum;
 import cdm.base.math.NonNegativeQuantitySchedule;
-import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.product.common.settlement.PriceQuantity;
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
 import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencableQuantityBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.util.PathUtils.toPath;
@@ -58,7 +58,8 @@ public class TotalNotionalQuantityMappingProcessor extends MappingProcessor {
 	private Optional<NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder> getTotalNotionalQuantity(Path synonymPath, int index) {
 		NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity = NonNegativeQuantitySchedule.builder();
 
-		Path mappedModelPath = toPath(getModelPath()).addElement("amount");
+		Path baseModelPath = toPath(getModelPath()).addElement("amount");
+		Path mappedModelPath = incrementPathElementIndex(baseModelPath, "quantity", index);
 
 		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath,
 				(xmlValue) -> quantity
