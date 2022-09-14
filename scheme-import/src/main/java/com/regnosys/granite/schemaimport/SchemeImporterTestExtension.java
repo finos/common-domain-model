@@ -114,7 +114,7 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
                 .findFirst()
                 .orElseThrow();
         assertNotNull(baseFolder);
-                //Paths.get(String.valueOf(classLoader.getResource("coding-schemes/fpml")));
+
         HashMap<String, BigDecimal> versionNumberFileName = new HashMap<>();
         try (Stream<Path> walk = Files.walk(baseFolder)) {
             walk.filter(this::isSetOfSchemeXmlFile)
