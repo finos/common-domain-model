@@ -168,24 +168,25 @@ type RateSpecification: <" A class to specify the fixed interest rate, floating 
 
 type DividendPayoutRatio: <"A class describing the dividend payout ratio associated with an equity underlier. In certain cases the actual ratio is not known on trade inception, and only general conditions are then specified.">
 
-	dividendPayoutRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
-	dividendPayoutRatioCash number (0..1) <"Specifies the cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
-	dividendPayoutRatioNonCash number (0..1) <"Specifies the non cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+	totalRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+	cashRatio number (0..1) <"Specifies the cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+	nonCashRatio number (0..1) <"Specifies the non cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+	basketConstituent Product (0..1) <"In the case of a basket underlier, specifies to which component of the basket this particular set of dividend payout ratios correspond.">
 
-	condition DividendPayoutRatio: <"The dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		if dividendPayoutRatio exists
-		then dividendPayoutRatio >= 0
-			and dividendPayoutRatio <= 1
+	condition DividendPayoutRatioTotal: <"The dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
+		if totalRatio exists
+		then totalRatio >= 0
+			and totalRatio <= 1
 
 	condition DividendPayoutRatioCash: <"The cash dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		if dividendPayoutRatioCash exists
-		then dividendPayoutRatioCash >= 0
-			and dividendPayoutRatio <= 1
+		if cashRatio exists
+		then cashRatio >= 0
+			and totalRatio <= 1
 
 	condition DividendPayoutRatioNonCash: <"The non cash dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		if dividendPayoutRatioNonCash exists
-		then dividendPayoutRatioNonCash >= 0
-			and dividendPayoutRatio <= 1
+		if nonCashRatio exists
+		then nonCashRatio >= 0
+			and totalRatio <= 1
 
 type AdditionalFixedPayments: <"A class to specify the events that will give rise to the payment additional fixed payments.">
 
@@ -395,8 +396,7 @@ type DividendPaymentDate: <"A class describing the date on which the dividend wi
 
 type DividendReturnTerms: <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
 
-	dividendPayout DividendPayoutRatio (0..*) <"Specifies the dividend payout ratio associated with each underlier. In FpML 5.10 the payout is positioned at the underlier level, although there is an intent to reconsider this approach and position it at the leg level. This is approach adopted by the CDM.">
-
+	dividendPayoutRatio DividendPayoutRatio (0..*) <"Specifies the dividend payout ratio associated with each underlier. In FpML 5.10 the payout is positioned at the underlier level, although there is an intent to reconsider this approach and position it at the leg level. This is approach adopted by the CDM.">
 	dividendReinvestment boolean (0..1) <"Boolean element that defines whether the dividend will be reinvested or not.">
 	dividendEntitlement DividendEntitlementEnum (0..1) <"Defines the date on which the receiver of the equity return is entitled to the dividend.">
 	dividendAmountType DividendAmountTypeEnum (0..1) <"Specifies whether the dividend is paid with respect to the Dividend Period.">
@@ -421,10 +421,11 @@ type DividendReturnTerms: <"A class describing the conditions governing the paym
 		then extraordinaryDividendsParty = AncillaryRoleEnum -> ExtraordinaryDividendsParty
 
 type DividendPeriod: <"Time bounded dividend payment periods, each with a dividend payment date per period.">
-    startDate DividendPaymentDate (1..1) <"Dividend period start date.">
-    endDate DividendPaymentDate (1..1) <"Dividend period end date.">
+
+    startDate DividendPaymentDate (0..1) <"Dividend period start date.">
+    endDate DividendPaymentDate (0..1) <"Dividend period end date.">
     dateAdjustments BusinessDayAdjustments (1..1) <"Date adjustments for all unadjusted dates in this dividend period.">
-    underlierReference Observable (0..1) <"Reference to the underlyer which is paying dividends. This should be used in all cases, and must be used where there are multiple underlying assets, to avoid any ambiguity about which asset the dividend period relates to.">
+    basketConstituent Product (0..1) <"For basket undeliers, reference to the basket component which is paying dividends in the specified period.">
     dividendPaymentDate DividendPaymentDate (1..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">
     dividendValuationDate AdjustableOrRelativeDate (0..1) <"Specifies the dividend valuation dates of the swap.">
 
@@ -433,10 +434,7 @@ type PriceReturnTerms:
 	valuationPriceInitial Price (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
 	valuationPriceFinal Price (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
 	returnType ReturnTypeEnum (1..1) <"The type of return associated with the equity swap.">
-	rounding Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of a number.">
 	conversionFactor number (0..1) <"Defines the conversion applied if the quantity unit on contract is different from unit on referenced underlier.">
-   	spread SpreadSchedule (0..1) <"Defines a spread value for one or more defined dates.">
-   	rollFeature RollFeature (0..1) <"Used in conjunction with an exchange-based pricing source. Identifies a way in which the futures contracts referenced will roll between periods. ">
 	performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
 
 type ReturnTermsBase: <"Contains all common elements in variance, volatility and correlation return Terms.">
