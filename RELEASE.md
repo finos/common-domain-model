@@ -67,4 +67,4 @@ Faulty `only-element` uses where resolved, in particular when `only-element` ope
 
 _Review Directions_
 
-In the CDM Portal, select Textual Browser and review usages of the `only-element` operator.
+This change does not impact the CDM model.
