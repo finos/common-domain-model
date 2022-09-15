@@ -16,7 +16,7 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 /**
  * FpML mapper.
  *
- * Removes mappings that have been incorrectly mapped into dividendPayoutRatio->basketConstituent.
+ * Removes mappings that have been incorrectly mapped into dividendPayoutRatio.basketConstituent.
  */
 @SuppressWarnings("unused")
 public class BasketConstituentMappingProcessor extends MappingProcessor {
@@ -30,7 +30,7 @@ public class BasketConstituentMappingProcessor extends MappingProcessor {
     }
 
     /**
-     * If this is mapped under dividendPayoutRatio->basketConstituent, then we need to check if there's any
+     * If this is mapped under dividendPayoutRatio.basketConstituent, then we need to check if there's any
      * incorrectly mapped data that we need to remove.
      */
     @Override

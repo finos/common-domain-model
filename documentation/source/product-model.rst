@@ -473,6 +473,7 @@ A number of payout types extend a common data type called ``PayoutBase``. This d
  type PayoutBase:
    payerReceiver PayerReceiver (1..1)
    payoutQuantity ResolvablePayoutQuantity (0..1)
+   principalPayment PrincipalPayments (0..1)
    settlementTerms SettlementTerms (0..1)
 
 The list of payouts that extend `PayoutBase` are:
@@ -501,7 +502,6 @@ For example:
     discountingMethod DiscountingMethod (0..1)
     compoundingMethod CompoundingMethodEnum (0..1)
     cashflowRepresentation CashflowRepresentation (0..1)
-    principalExchanges PrincipalExchanges (0..1)
     stubPeriod StubPeriod (0..1)
     bondReference BondReference (0..1)
     fixedAmount calculation (0..1)

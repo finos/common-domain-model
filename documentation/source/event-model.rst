@@ -439,6 +439,7 @@ Business events are built according to the following principles:
    [rootType]
 
    intent EventIntentEnum (0..1)
+   corporateActionIntent CorporateActionTypeEnum (0..1)
    eventQualifier string (0..1)
    eventDate date (1..1)
    effectiveDate date (0..1)
@@ -588,16 +589,25 @@ The description of each possible enumeration value provides an illustration of h
 
  enum EventIntentEnum:
  	Allocation
+ 	CashFlow
  	Clearing
  	Compression
  	ContractFormation
- 	Exercise
+ 	ContractTermsAmendment
+ 	CorporateActionAdjustment
+ 	Decrease
+ 	EarlyTerminationProvision
  	Increase
  	IndexTransition
+ 	NotionalReset
+ 	NotionalStep
  	Novation
+ 	ObservationRecord
+ 	OptionExercise
+ 	OptionalExtension
+ 	OptionalCancellation
+ 	PrincipalExchange
  	Reallocation
- 	Renegotiation
- 	StockSplit
 
 Lineage
 """""""

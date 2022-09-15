@@ -811,14 +811,16 @@ synonym source FpML_5_10 extends FpML
  		+ feeType
 			[value "paymentType"]
 
-	PrincipalExchanges:
+	PrincipalPayments:
 	 	[value "PrincipalExchanges" meta "id"]
-		+ initialExchange
+		+ initialPayment
 			[value "initialExchange"]
-		+ finalExchange
+		+ finalPayment
 			[value "finalExchange"]
-		+ intermediateExchange
+		+ intermediatePayment
 			[value "intermediateExchange"]
+		+ principalPaymentSchedule
+		    [value "cashflows" mapper "PrincipalPaymentSchedule"]
 
 	QuotedCurrencyPair:
 		+ currency1
@@ -1162,7 +1164,7 @@ synonym source FpML_5_10 extends FpML
 	OptionFeature:
 		+ fxFeature
 			[value "fxFeature"]
-		+ averagingRateFeature
+		+ averagingFeature
 			[value "asian"]
 			[value "fixingSchedule"]
 		+ barrier
@@ -1415,8 +1417,6 @@ synonym source FpML_5_10 extends FpML
 	CashflowRepresentation:
 		+ cashflowsMatchParameters
 			[value "cashflowsMatchParameters"]
-		+ principalExchange
-			[value "principalExchange"]
 		+ paymentCalculationPeriod
 			[value "paymentCalculationPeriod"]
 			[value "adjustedPaymentDates"]
@@ -1680,19 +1680,6 @@ synonym source FpML_5_10 extends FpML
 	PriceSourceDisruption:
 		+ fallbackReferencePrice
 			[value "fallbackReferencePrice"]
-
-	PrincipalExchange:
-	 	[value "PrincipalExchange" meta "id"]
-		+ unadjustedPrincipalExchangeDate
-			[value "unadjustedPrincipalExchangeDate"]
-		+ adjustedPrincipalExchangeDate
-			[value "adjustedPrincipalExchangeDate"]
-		+ principalExchangeAmount
-			[value "principalExchangeAmount"]
-		+ discountFactor
-			[value "discountFactor"]
-		+ presentValuePrincipalExchangeAmount
-			[value "presentValuePrincipalExchangeAmount"]
 
 	ResetDates:
 	 	[value "ResetDates" meta "id" path "resetDates"]
@@ -2333,8 +2320,9 @@ synonym source FpML_5_10 extends FpML
 		+ discountingMethod
 			[value "discounting" path "calculationPeriodAmount->calculation"]
 			[hint "fraDiscounting"]
-		+ principalExchanges
+		+ principalPayment
 			[value "principalExchanges"]
+			[hint "cashflows"]
 		+ compoundingMethod
 			[value "compoundingMethod" path "calculationPeriodAmount->calculation"]
 		+ cashflowRepresentation
@@ -2408,14 +2396,6 @@ synonym source FpML_5_10 extends FpML
 		+ deliveryMethod
 			[value "deliveryMethod"]
 
-	ObservationPayout:
-		+ paymentDates
-			[value "relativePaymentDates"]
-		+ fxFeature
-			[value "fxFeature"]
-		+ calculationPeriodDates
-			[hint "calculationPeriodsSchedule"]
-
 	CommodityPayout:
 		+ averagingMethod
 			[value "averagingMethod" path "calculation"]
@@ -2425,6 +2405,11 @@ synonym source FpML_5_10 extends FpML
 			[value "commodity"]
 		+ paymentDates
 			[value "paymentDates"]
+			[value "relativePaymentDates"]
+		+ fxFeature
+			[value "fxFeature"]
+		+ calculationPeriodDates
+			[hint "calculationPeriodsSchedule"]
 
 	CommodityPriceReturnTerms:
 		+ spread
@@ -2882,8 +2867,6 @@ Payout:
 			[value "unadjustedEndDate"]
 		+ dateAdjustments
 			[value "dateAdjustments"]
-			[value "dateAdjustments" path "calculationPeriodDates->terminationDate"]
-			[value "dateAdjustments" path "calculationPeriodDates->effectiveDate"]
 			[value "dateAdjustments" path "paymentDate->adjustableDate"]
 			[value "dateAdjustments" path "adjustableDate"]
 			[value "dateAdjustments" path "paymentDate"]
@@ -8059,7 +8042,7 @@ Payout:
 			[value "InterestReturn"]
 		+ Performance
 			[value "PriceReturn"]
-		+ PrincipalExchange
+		+ PrincipalPayment
 			[value "PrincipleExchange"]
 
 	FeeTypeEnum:
