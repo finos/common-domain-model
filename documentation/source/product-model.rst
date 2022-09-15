@@ -106,7 +106,7 @@ The price and quantity attributes of a trade, or of a leg of a trade in the case
    [metadata key]
    price Price (0..*)
      [metadata location]
-   quantity Quantity (0..*)
+   quantity NonNegativeQuantitySchedule (0..*)
      [metadata location]
    observable Observable (0..1)
    buyerSeller BuyerSeller (0..1)
@@ -516,8 +516,8 @@ The quantity attribute in the `PayoutBase` structure does not use the `Quantity`
  type ResolvablePayoutQuantity:
    [metadata key]
    resolvedQuantity Quantity (0..1)
-     [metadata address "pointsTo"=PriceQuantity->quantity]
    quantitySchedule NonNegativeQuantitySchedule (0..1)
+     [metadata address "pointsTo"=PriceQuantity->quantity]
    quantityReference ResolvablePayoutQuantity (0..1)
      [metadata reference]
    quantityMultiplier QuantityMultiplier (0..1)

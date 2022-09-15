@@ -1,10 +1,10 @@
 package com.regnosys.cdm.example.functions;
 
 import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.Quantity;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.PartyReferencePayerReceiver;
@@ -80,13 +80,12 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                 QuantityChangeInstruction.builder()
                         .setDirection(QuantityChangeDirectionEnum.DECREASE)
                         .addChange(PriceQuantity.builder()
-                                .addQuantity(FieldWithMetaQuantity.builder()
-                                        .setValue(Quantity.builder()
+                                .addQuantityValue(NonNegativeQuantitySchedule.builder()
                                                 .setAmount(BigDecimal.valueOf(7000000))
                                                 .setUnitOfAmount(UnitType.builder()
                                                         .setCurrency(FieldWithMetaString.builder()
                                                                 .setValue("USD")
-                                                                .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME)))))));
+                                                                .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME))))));
 
         // Transfer instruction specifying the partial termination fee
         ReferenceWithMetaParty payerPartyReference = beforeTradeState.getTrade().getTradableProduct().getCounterparty().get(0).getPartyReference();
@@ -161,7 +160,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
         TradeState afterTradeState = businessEvent.getAfter().get(0);
 
         // Assert new decreased notional
-        Quantity quantity = afterTradeState.getTrade().getTradableProduct()
+        NonNegativeQuantitySchedule quantity = afterTradeState.getTrade().getTradableProduct()
                 .getTradeLot().get(0)
                 .getPriceQuantity().get(0)
                 .getQuantity().get(0).getValue();
