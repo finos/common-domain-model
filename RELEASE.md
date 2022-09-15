@@ -1,70 +1,86 @@
-# *Product Model - Performance Payout - Structural Definition Enhancements*
-
-_Background_ 
-
-A review of the Performance Payout has identified opportunities for structured enhancements e.g. cardinality, former commodity-related attributes, and the dividend structure. This release also  addresses minor mapping improvements for performance and commodity payouts.
-
-_What is being released?_
-
-- Updated cardinality for several attributes in `PerformancePayout`.
-- Removed commodity related attributes from `PerformancePayout`.
-- Renamed several `PerformancePayout` attributes.
-- Added model support for basket component-specific `DividendPayoutRatio`.
-- Minor mapping improvements.
-
-_Data types_
-
-- The attribute `primaryRateSource` in type `FxSpotRateSource`renamed as `primarySource`.
-- The attribute `secondaryRateSource` in type `FxSpotRateSource` renamed as `secondarySource`.
-- The attribute `dividendPayoutRatio` in type `DividendPayout` (now `DividendPayoutRatio`) renamed as `totalRatio`.
-- The attribute `dividendPayout` in type `DividendReturnTerms` renamed as `dividendPayoutRatio`.
-- The attribute `dividendPayoutRatioCash` in type `DividendPayout` (now `DividendPayoutRatio`) renamed as `cashRatio`.
-- The attribute `dividendPayoutRatioNonCash` in type `DividendPayout` (now `DividendPayoutRatio`) renamed as `nonCashRatio`.
-
-- Removed `rounding` attribute from type `PriceReturnTerms`.
-- Removed `spread` attribute from type `PriceReturnTerms`.
-- Removed `rollFeature` attribute from type `PriceReturnTerms`.
-- Removed `averagingMethod` attribute from type `PerformancePayout`.
-
-- Cardinality for `fxFeature` changed to `(0..*)` in type `PerformancePayout`.
-- Cardinality for `pricingTime` changed to `(0..1)` in type `ObservationTerms`.
-- Condition `PricingTime` added to type `ObsevationTerms`
-
-_Translate_
-
-- Mappings adapted to changes introduced in this contribution.
-- Minor mapping improvements for `PerformancePayout` and `CommodityPayout`.
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-
-In the CDM Portal, select Ingestion and review the following samples:
-
-- fpml-5-10/products/equity
-  - eqs-ex01-single-underlyer-execution-long-form
-  - eqs-ex01-single-underlyer-execution-long-form-other-party
-  - eqs-ex06-single-index-long-form
-  - eqs-ex09-compounding-swap
-  - eqs-ex10-short-form-interestLeg-driving-schedule-dates
-  - eqs-ex11-on-european-single-stock-underlyer-short-form
-  - eqs-ex12-on-european-index-underlyer-short-form
-  - eqs-ex13-pan-asia-interdealer-share-swap-short-form
-
-- fpml-5-10/incomplete-products/equity-swaps
-  - eqs-ex08-composite-basket-long-form-separate-spreads
-  - trs-ex01-equity-basket
-
-# *DSL Update: Improved validation of only-element*
+# *Product Model - Principal Payments*
 
 _Background_
 
-This release of the Rosetta DSL resolves a technical issue in the performance of the `only-element` expressions.
+This release refactors the data types and attributes used to specify Principal Payments in the CDM.
 
 _What is being released?_
 
-The incorrect outcome of `only-element`, in particular when `only-element` operator is used on a singular expression, has been resolved. 
+Data type `PrincipalExchanges` has been renamed `PrincipalPayments` and added to `PayoutBase` so that all Payouts that extend `PayoutBase` can describe Principal Payment features.  These features define whether intial, intermediate and final exchanges should occur, using a boolean attribute.  The timing, value and direction of initial and final payments.  And a schedule of intermediate payments.
+
+A new attribute `principalPaymentSchedule` has been added to `PrincipalPayments` allowing the definition of initial and final principal payments, and a schedule of intermediate principal payments.
+
+Data type `PrincipalExchange` has been renamed `PrincipalPayment` and refactored to explicitly define the direction of movement using a `payerReceiver` attribute, and the amount of principal to be paid, defined using the complex type `Money`.
+
+The attribute `principalExchange` has been removed from data type `CashflowRepresentation`.
 
 _Review Directions_
 
-This change does not impact the CDM model.
+In the CDM Portal, select Textual Browser and view the data types and attributes identified above.
+In the CDM Portal, select Ingestion and view the following example trade to review the new model structure:
+
+- fpml-5-10 > products > rates > ird-ex06-xccy-swap-uti.xml
+
+# *Event Model - BusinessEvent and Transfer Intent Enumerations*
+
+_Background_
+
+The Enumeration lists used to specify the intent of a `BusinessEvent` and `Transfer` have been updated to enable a greater set of scenarios to be described using the CDM.
+
+_What is being released_
+
+The enumeration list `EventIntentEnum` has been extended to allow declarative indication of intent for additional types of Business Events.  A new enumeration list `CorporateActionTypeEnum` has been added to identify the specific nature of a Corporate Action.  The enumeration list `TransferTypeEnum` has been updated to allow declarative indication of additional Transfer Types.
+
+The following changes have been made to `EventIntentEnum`:
+
+Enumerations added:
+
+- CashFlow
+- PrincipalExchange
+- CorporateActionAdjustment
+- ObservationRecord
+- NotionalStep
+- NotionalReset
+- EarlyTermination
+- OptionalExtension
+- OptionalCancellation
+- Decrease
+
+Enumerations updated:
+
+- ContractTermsAmendment (previously Renegotiation)
+- OptionExercise (previously Exercise)
+
+Enumerations removed:
+
+- StockSplit
+
+`CorporateActionTypeEnum` has been created containing the following enumerations:
+
+- CashDividend
+- StockDividend
+-	StockSplit
+-	ReverseStockSplit
+-	SpinOff
+-	Merger
+-	Delisting
+-	StockNameChange
+-	StockIdentifierChange
+-	RightsIssue
+
+The following changes have been made to `TransferTypeEnum`:
+
+Enumerations added:
+- FixedRateReturn
+- FloatingRateReturn
+- FractionalAmount
+
+Enumerations updated:
+- PrincipalPayment (previously PrincipalExchange)
+
+Enumerations removed:
+- Interest
+
+_Review Directions_
+
+In the CDM Portal, select Textual Browser and view the enumerations identified above.
