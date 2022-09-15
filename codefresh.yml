@@ -26,12 +26,14 @@ steps:
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}
 
-  BuildNormal:
+  BuildNormalSchemeImport:
     stage: 'build'
     title: Maven build
     fail_fast: false
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
     working_directory: ./
+    build_arguments:
+      - execute_Download_Latest_Version=TRUE
     when:
       condition:
         all:
@@ -42,6 +44,7 @@ steps:
       - mvn -U -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
       - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*" -x "isda-demo/target/*"
       - mvn -U -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
+
 
   BuildRelease:
     stage: 'build'
