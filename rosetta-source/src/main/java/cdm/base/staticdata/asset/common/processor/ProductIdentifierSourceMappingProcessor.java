@@ -44,9 +44,19 @@ public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
                 xmlValue -> {
                     // Update scheme
                     productIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
-                    // Update taxonomySource
+                    // Update Source
                     productIdentifierBuilder.setSource(getSourceEnum(xmlValue));
                 });
+        setValueAndUpdateMappings(xmlPath.addElement("productIdScheme"),
+                xmlValue -> {
+                    // Update scheme
+                    productIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
+                    // Update Source
+                    productIdentifierBuilder.setSource(getSourceEnum(xmlValue));
+                });
+        if (xmlPath.endsWith("description")) {
+            productIdentifierBuilder.setSource(ProductIdTypeEnum.NAME);
+        }
     }
 
     protected ProductIdTypeEnum getSourceEnum(String scheme) {
