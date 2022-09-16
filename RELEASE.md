@@ -2,11 +2,11 @@
 
 _Background_
 
-The `Product Identifier.source` had complex mapping condition. 
+The `Product Identifier.source` had complex mapping condition to decide whether it should be ISIN, CUSIP, RIC etc. 
 
 _What is being released?_
 
-- `Product Identifier` - Build mapper for ProductIdentifier.source mappings.
+- `Product Identifier` - Build mapper for ProductIdentifier.source mappings has been created to simplify the conditions to correctly Map values.
 
 _Review directions_
 
