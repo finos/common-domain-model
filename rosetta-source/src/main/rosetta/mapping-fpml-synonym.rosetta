@@ -1161,9 +1161,10 @@ synonym source FpML_5_10 extends FpML
 	OptionFeature:
 		+ fxFeature
 			[value "fxFeature"]
-		+ averagingRateFeature
+		+ averagingFeature
 			[value "asian"]
 			[value "fixingSchedule"]
+			[hint "averagingMethod"]
 		+ barrier
 			[value "barrier"]
 		+ knock
@@ -2385,6 +2386,7 @@ synonym source FpML_5_10 extends FpML
 		+ feature
 			[value "feature"]
 			[value "features"]
+			[hint "averagingMethod"]
 		+ underlier
 			[value "singleUnderlyer" path "underlyer"]
 			[value "basket" path "underlyer"]
@@ -2401,6 +2403,8 @@ synonym source FpML_5_10 extends FpML
 			[hint "pricingDates"]
 			[hint "calculationPeriodsSchedule"]
 			[value "equityValuation" path "equityExercise"]
+		+ schedule
+			[value "schedule"]
 
 	SecurityLeg:
 		[meta "id"]
@@ -2424,8 +2428,6 @@ synonym source FpML_5_10 extends FpML
 			[hint "calculationPeriodsSchedule"]
 
 	CommodityPayout:
-		+ averagingMethod
-			[value "averagingMethod" path "calculation"]
 		+ pricingDates
 			[value "pricingDates" path "calculation"]
 		+ underlier
@@ -2946,6 +2948,8 @@ Payout:
 		+ relativeDate
 			[value "relativeDate"]
 			[value "relativeDate" path "paymentDate"]
+			[hint "paymentDaysOffset"]
+			[hint "businessCenters"]
 
 	AdjustableOrRelativeDate:
 		[meta "id"]
@@ -3068,6 +3072,14 @@ Payout:
 			[value "payRelativeTo" meta "href"]
 		+ adjustedDate
 			[value "adjustedDate"]
+		+ period
+			[value "period" path "paymentDaysOffset"]
+		+ periodMultiplier
+			[value "periodMultiplier" path "paymentDaysOffset"]
+		+ dayType
+			[value "dayType" path "paymentDaysOffset"]
+		+ businessDayConvention
+			[value "businessDayConvention" path "paymentDaysOffset"]
 
 	ConstituentWeight:
 		+ openUnits
@@ -3785,6 +3797,14 @@ Payout:
 			[value "priceCurrency" maps 2 set when rosettaPath = Price->unitOfAmount->currency]
 			// For Bond Option
 			[value "entitlementCurrency" maps 2 meta "currencyScheme"]
+
+	AveragingCalculationMethod:
+		+ averagingCalculationMethod
+			[value "averagingMethod" path "calculation" maps 2]
+			[value "averagingMethod" maps 2]
+		+ averagingWeightingMethod
+			[value "averagingMethod" path "calculation" maps 2]
+			[value "averagingMethod" maps 2]
 	
 	enums
 
@@ -8031,11 +8051,24 @@ Payout:
 		+ TBILL
 			[value "TBILL"]
 
-	AveragingMethodEnum:
+	AveragingWeightingMethodEnum:
 		+ Unweighted
 			[value "Unweighted"]
+			[value "Arithmetic"]
+			[value "Geometric"]
+			[value "Harmonic"]
 		+ Weighted
 			[value "Weighted"]
+
+	AveragingCalculationMethodEnum:
+		+ Arithmetic
+			[value "Unweighted"]
+			[value "Weighted"]
+			[value "Arithmetic"]
+		+ Geometric
+			[value "Geometric"]
+		+ Harmonic
+			[value "Harmonic"]
 
 	RoundingDirectionEnum:
 		+ Up
@@ -8467,12 +8500,6 @@ Payout:
 		[value "ValuePerDay"]
 		+ ValuePerPercent
 		[value "ValuePerPercent"]
-
-	AveragingMethodEnum:
-		+ Unweighted
-			[value "Unweighted"]
-		+ Weighted
-			[value "Weighted"]
 
 	DayDistributionEnum:
 		+ All
