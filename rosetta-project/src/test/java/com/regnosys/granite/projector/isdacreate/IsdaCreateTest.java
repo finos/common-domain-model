@@ -2,6 +2,7 @@ package com.regnosys.granite.projector.isdacreate;
 
 import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import org.apache.commons.io.Charsets;
 import org.isda.isdacreate.isda.csaim2016.jpnlaw.IsdaCreateIsdaCsaIm2016JpnLaw;
 import org.isda.isdacreate.isda.csaim2016.nylaw.IsdaCreateIsdaCsaIm2016NyLaw;
 import org.isda.isdacreate.isda.csdim2016.englaw.IsdaCreateIsdaCsdIm2016EngLaw;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -74,7 +76,7 @@ class IsdaCreateTest {
 
 	private <T> T deserialize(String path, Class<T> clazz) throws IOException {
 		URL resource = Resources.getResource(path);
-		String json = removeBom(Resources.toString(resource, Charset.defaultCharset()));
+		String json = removeBom(Resources.toString(resource, StandardCharsets.UTF_8));
 
 		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, clazz);
 	}
