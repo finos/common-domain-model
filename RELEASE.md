@@ -1,3 +1,17 @@
+# *Event Model - Product Identifier*
+
+_Background_
+
+The `Product Identifier.source` had complex mapping condition. 
+
+_What is being released?_
+
+- `Product Identifier` - Build mapper for ProductIdentifier.source mappings.
+
+_Review directions_
+
+In the CDM Portal, select Textual Browser and review the types mentioned above.
+
 # *Event Model - Price of Packaged Transaction*
 
 _Background_
