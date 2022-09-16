@@ -488,16 +488,13 @@ type EarlyTerminationEvent: <"A data to:  define the adjusted dates associated w
 	adjustedExerciseFeePaymentDate date (0..1) <"The date on which the exercise fee amount is paid. This date should already be adjusted for any applicable business day convention.">
 
 	condition FpML_ird_39: <"FpML validation rule ird-39 - AdjustedExerciseDate must be before or equal to adjustedEarlyTerminationDate.">
-		if EarlyTerminationEvent exists
-		then adjustedExerciseDate <= adjustedEarlyTerminationDate
+		adjustedExerciseDate <= adjustedEarlyTerminationDate
 
 	condition FpML_ird_40: <"FpML validation rule ird-40 - AdjustedExerciseDate must be before or equal to adjustedCashSettlementValuationDate.">
-		if EarlyTerminationEvent exists
-		then adjustedExerciseDate <= adjustedCashSettlementValuationDate
+		adjustedExerciseDate <= adjustedCashSettlementValuationDate
 
 	condition FpML_ird_41: <"FpML validation rule ird-41 - AdjustedCashSettlementValuationDate must be before or equal to adjustedCashSettlementPaymentDate.">
-		if EarlyTerminationEvent exists
-		then adjustedCashSettlementValuationDate <= adjustedCashSettlementPaymentDate
+		adjustedCashSettlementValuationDate <= adjustedCashSettlementPaymentDate
 
 type EarlyTerminationProvision: <"A data defining:  an early termination provision for a swap. This early termination is at fair value, i.e. on termination the fair value of the product must be settled between the parties.">
 	[metadata key]
@@ -508,8 +505,7 @@ type EarlyTerminationProvision: <"A data defining:  an early termination provisi
 	optionalEarlyTerminationParameters ExercisePeriod (0..1) <"Definition of the first early termination date and the frequency of the termination dates subsequent to that. American exercise is defined by having a frequency of one day.">
 
 	condition MandatoryEarlyTermination: <"The FpML MandatoryEarlyTermination.model specifies a required choice node. The choice node associated with the FpML EarlyTerminationProvision is quite complex and using the data rule provides a more flexible approach than adding complexity to the condition grammar.">
-		if EarlyTerminationProvision exists
-		then (mandatoryEarlyTermination exists or optionalEarlyTermination exists)
+		(mandatoryEarlyTermination exists or optionalEarlyTermination exists)
 			or (mandatoryEarlyTermination exists and optionalEarlyTermination exists)
 
 type ExercisePeriod: <"This defines the time interval to the start of the exercise period, i.e. the earliest exercise date, and the frequency of subsequent exercise dates (if any).">
@@ -546,8 +542,7 @@ type ExtensionEvent: <"A data to:  define the adjusted dates associated with an 
 	adjustedExtendedTerminationDate date (1..1) <"The termination date if an extendible provision is exercised. This date should already be adjusted for any applicable business day convention.">
 
 	condition FpML_ird_42: <"FpML validation rule ird-42 - adjustedExerciseDate must be before adjustedExtendedTerminationDate.">
-		if ExtensionEvent exists
-		then adjustedExerciseDate < adjustedExtendedTerminationDate
+		adjustedExerciseDate < adjustedExtendedTerminationDate
 
 type MandatoryEarlyTermination: <"A data to:  define an early termination provision for which exercise is mandatory.">
 	[metadata key]
@@ -568,8 +563,7 @@ type MandatoryEarlyTerminationAdjustedDates: <"A data defining:  the adjusted da
 	adjustedCashSettlementPaymentDate date (1..1) <"The date on which the cash settlement amount is paid. This date should already be adjusted for any applicable business date convention.">
 
 	condition FpML_ird_44: <"FpML validation rule ird-44 - AdjustedEarlyTerminationDate must be before or equal to adjustedCashSettlementValuationDate must be before or the same as adjustedCashSettlementPaymentDate">
-		if MandatoryEarlyTerminationAdjustedDates exists
-		then adjustedEarlyTerminationDate <= adjustedCashSettlementValuationDate
+		adjustedEarlyTerminationDate <= adjustedCashSettlementValuationDate
 			and adjustedCashSettlementValuationDate <= adjustedCashSettlementPaymentDate
 
 type OptionalEarlyTermination: <"A data defining:  an early termination provision where either or both parties have the right to exercise.">
