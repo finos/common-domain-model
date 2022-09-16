@@ -2,7 +2,7 @@
 
 _Background_
 
-The `BusinessEvent` type allows for the representation of packages details with the packageInformation attribute which of type `IdentifiedList`.  This release adds a `price` attribute to this type to reflect the price of the related package.
+The `BusinessEvent` type allows for the representation of packages details with the packageInformation attribute which is of type `IdentifiedList`.  This release adds a `price` attribute to this type to reflect the price of the related package.
 
 _What is being released?_
 
