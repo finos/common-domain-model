@@ -2209,17 +2209,15 @@ synonym source FpML_5_10 extends FpML
 		[meta "id" path "calculationAmount"]
 		+ resolvedQuantity
 			[value "ignore"]
-		+ quantityMultiplier
-			[value "fxLinkedNotionalSchedule"]
 		+ quantityReference
 			[value "relativeNotionalAmount" path "notional" meta "href"]
-			[value "constantNotionalScheduleReference" path "fxLinkedNotionalSchedule" meta "href"]
+			[value "constantNotionalScheduleReference" meta "href"]
 			// For CDS Option, CDX Index Option, Bond Option, Swaption:
 			[value "notionalReference" meta "href"]
 		+ quantitySchedule
 			// Swap Stream
 			[value "notionalStepSchedule" path "notionalSchedule" meta "initialValue"]
-			[value "fxLinkedNotionalSchedule" meta "initialValue"]
+			[meta "initialValue"]
 			// FRA
 			[value "notional" meta "amount"]
 			// Equity Swap - Only mapping the notional amount in the payout, not the no. shares
@@ -2510,7 +2508,8 @@ synonym source FpML_5_10 extends FpML
 		+ payoutQuantity
 			// For Swap Stream:
 			[value "calculation" path "calculationPeriodAmount"]
-			// For FRAs and Equity Swap:
+			[value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
+            // For FRAs and Equity Swap:
 			[hint "notional"]
 			// For Options:
 			[hint "numberOfOptions"]
@@ -2538,7 +2537,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "notionalQuantitySchedule"]
 
 
-Payout:
+	Payout:
 		+ interestRatePayout
 			// For Swap Stream
 			[value "swapStream"]
