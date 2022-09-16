@@ -10,7 +10,10 @@ _What is being released?_
 
 _Review directions_
 
-In the CDM Portal, select Textual Browser and review the types mentioned above.
+In the CDM Portal, select Ingestion and review the FpML examples, including:
+
+- fpml-5-10 > products > credit > cdm-cds-ref-ob-versioned.xml
+- fpml-5-10 > products > equity > eqd-ex01-american-call-stock-long-form.xml
 
 # *Event Model - Price of Packaged Transaction*
 
