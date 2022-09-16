@@ -1,7 +1,6 @@
 package cdm.event.position.functions;
 
 import cdm.base.math.NonNegativeQuantitySchedule;
-import cdm.base.math.Quantity;
 import cdm.base.math.UnitType;
 import cdm.event.common.Trade;
 import cdm.observable.asset.Price;
