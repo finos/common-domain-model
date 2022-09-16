@@ -1,8 +1,8 @@
-# *Event Model - Package Price*
+# *Event Model - Price of Packaged Transaction*
 
 _Background_
 
-The `BusinessEvent` type allows for the representation of packages in the form of the `packageInformation` structure.  This release adds a `price` attribute to this structure to enable a package price to be specified.
+The `BusinessEvent` type allows for the representation of packages details with the packageInformation attribute which of type `IdentifiedList`.  This release adds a `price` attribute to this type to reflect the price of the related package.
 
 _What is being released?_
 
