@@ -1,8 +1,8 @@
-# *Event Model - Product Identifier*
+# *Product Model - FpML Mapping of Product Identifier Source*
 
 _Background_
 
-The `Product Identifier.source` had complex mapping condition to decide whether it should be ISIN, CUSIP, RIC etc. 
+The data type `ProductIdentifier` comprises an identifier and source to uniquely identify a product. For example, a Security identifier may be assigned a source of ISIN.  The previous FpML mapping approach contained a number of issues where the identifier and source were mismatched.
 
 _What is being released?_
 
