@@ -6,7 +6,7 @@ The data type `ProductIdentifier` comprises an identifier and source to uniquely
 
 _What is being released?_
 
-- `Product Identifier` - Build mapper for ProductIdentifier.source mappings has been created to simplify the conditions to correctly Map values.
+- `Product Identifier` - A Build mapper for for the attribute `source` has been created to simplify the conditions and correctly map the relevant values.
 
 _Review directions_
 
