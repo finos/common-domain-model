@@ -460,8 +460,6 @@ synonym source FpML_5_10 extends FpML
 	FloatingRateSpecification:
 		+ finalRateRounding
 			[value "finalRateRounding"]
-		+ averagingMethod
-			[value "averagingMethod"]
 		+ negativeInterestRateTreatment
 			[value "negativeInterestRateTreatment"]
 
@@ -1424,7 +1422,7 @@ synonym source FpML_5_10 extends FpML
 	SettlementDate:
 		[meta "id" path "settlementDate"]
 		[meta "id" path "cashSettlementPaymentDate"]
-		+ adjustedDate
+		+ adjustableOrRelativeDate
 			[hint "relativeDate"]
 			[value "settlementDate"]
 			[value "relativePaymentDates"]
@@ -3799,14 +3797,26 @@ Payout:
 			[value "entitlementCurrency" maps 2 meta "currencyScheme"]
 
 	AveragingCalculationMethod:
-		+ averagingCalculationMethod
+		+ calculationMethod
 			[value "averagingMethod" path "calculation" maps 2]
 			[value "averagingMethod" maps 2]
-		+ averagingWeightingMethod
-			[value "averagingMethod" path "calculation" maps 2]
-			[value "averagingMethod" maps 2]
+		+ isWeighted
+			[set to False when "averagingMethod" = "Unweighted"]
+			[set to False when "averagingMethod" = "Arithmetic"]
+			[set to False when "averagingMethod" = "Geometric"]
+			[set to False when "averagingMethod" = "Harmonic"]
+			[set to True when "averagingMethod" = "Weighted"]
 	
 	enums
+
+	AveragingWeightingMethodEnum:
+		+ Unweighted
+			[value "Unweighted"]
+			[value "Arithmetic"]
+			[value "Geometric"]
+			[value "Harmonic"]
+		+ Weighted
+			[value "Weighted"]
 
 	ExpirationTimeTypeEnum:
 		+ Close
@@ -8050,15 +8060,6 @@ Payout:
 	WeeklyRollConventionEnum:
 		+ TBILL
 			[value "TBILL"]
-
-	AveragingWeightingMethodEnum:
-		+ Unweighted
-			[value "Unweighted"]
-			[value "Arithmetic"]
-			[value "Geometric"]
-			[value "Harmonic"]
-		+ Weighted
-			[value "Weighted"]
 
 	AveragingCalculationMethodEnum:
 		+ Arithmetic
