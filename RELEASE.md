@@ -10,7 +10,10 @@ _What is being released?_
 
 _Review directions_
 
-In the CDM Portal, select Textual Browser and review the types mentioned above.
+In the CDM Portal, select Textual Browser and review the types mentioned above. E.g:
+- func Qualify_AssetClass_CreditDefault
+- func Qualify_CreditDefaultSwap_SingleName
+- func Qualify_CreditDefaultSwap_Index
 
 # *Product Model - FpML Mapping of Product Identifier Source*
 
