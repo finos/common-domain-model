@@ -230,7 +230,7 @@ The full form of this example can be seen in the CDM Portal Ingestion panel, pro
 Quantity
 """"""""
 
-The ``QuantitySchedule`` data type also extends the ``MeasureSchedule`` data type with the addition of optional multiplier attributes, and the ``Quantity`` data type constrains it by requiring the ``step`` attribute to be absent.
+The ``QuantitySchedule`` data type also extends the ``MeasureSchedule`` data type with the addition of optional ``multiplier`` attributes. The ``NonNegativeQuantitySchedule`` data type constrains it by requiring that all the values are non-negative.
 
 .. code-block:: Haskell
 
@@ -248,11 +248,15 @@ The ``QuantitySchedule`` data type also extends the ``MeasureSchedule`` data typ
 
 .. code-block:: Haskell
 
- type Quantity extends QuantitySchedule:
-   condition AmountOnlyExists:
-     amount exists and step is absent
+ type NonNegativeQuantitySchedule extends QuantitySchedule:
+ 
+   condition NonNegativeQuantity_amount:
+     if amount exists then amount >= 0.0 and
+     if step exists then step -> stepValue all >= 0.0
 
-The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient to define a quantity, in most cases. The additional multiplier attributes that are distinct for the ``Quantity`` data type can further qualify the ``amount`` with a multiplier, as needed for listed contracts or other purposes, as shown in the example below:
+The inherited attributes of ``amount``, ``step`` (in case the quantity is provided as a schedule) and ``unitOfAmount`` are sufficient to define a quantity, in most cases.
+
+The additional attributes that are provided for the ``QuantitySchedule`` data type allow to further qualify the ``amount`` with a multiplier. This is needed for listed contracts or other purposes, as shown below. In this example, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME. Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
 
 .. code-block:: Javascript
 
@@ -276,8 +280,6 @@ The two inherited attributes of ``amount`` and ``unitOfAmount`` are sufficient t
      }
    }
  ]
-
-In this case, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME. Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
 
 The ``frequency`` attribute is used in a similar way when a quantity may be defined based on a given time period, e.g. per hour or per day. In this case, the quantity needs to be multiplied by the size of the relevant period where it applies, e.g. a number of days, to get the total quantity.
 
