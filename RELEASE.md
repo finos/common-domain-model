@@ -12,8 +12,9 @@ _Review directions_
 
 In the CDM Portal, select Textual Browser and review the types mentioned above. E.g:
 - func Qualify_AssetClass_CreditDefault
-- func Qualify_CreditDefaultSwap_SingleName
-- func Qualify_CreditDefaultSwap_Index
+- func Qualify_CreditDefaultSwaption
+- func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName
+- Qualify_EquityOption_PriceReturnBasicPerformance_Basket
 
 # *Product Model - FpML Mapping of Product Identifier Source*
 
