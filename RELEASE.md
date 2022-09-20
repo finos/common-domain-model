@@ -2,7 +2,7 @@
 
 _Background_
 
-`Product` qualification functions contain logic referring to legacy product model concepts (e.g. using cashflow to represent payments)
+The `Product` qualification functions contain logic referring to legacy product model concepts, specifically references to the cashflow payout that was previously used to represent payments.
 
 _What is being released?_
 
