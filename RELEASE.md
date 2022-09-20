@@ -1,3 +1,17 @@
+# *Product Model - Legacy Product Model Concepts*
+
+_Background_
+
+`Product` qualification functions contain logic referring to legacy product model concepts (e.g. using cashflow to represent payments)
+
+_What is being released?_
+
+- Removed product qualification logic that refers to legacy product model concepts (e.g. using cashflow to represent payments)
+
+_Review directions_
+
+In the CDM Portal, select Textual Browser and review the types mentioned above.
+
 # *Product Model - FpML Mapping of Product Identifier Source*
 
 _Background_
