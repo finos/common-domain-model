@@ -1,9 +1,8 @@
 package com.regnosys.cdm.example.functions;
 
-import cdm.base.math.Quantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
@@ -16,7 +15,6 @@ import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_AcceptedWorkflowStepFromInstruction;
 import cdm.legalagreement.common.ClosedStateEnum;
 import cdm.product.common.settlement.PriceQuantity;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.regnosys.cdm.example.AbstractExampleTest;
@@ -97,14 +95,13 @@ public class CreateNovationEventTest extends AbstractExampleTest {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaQuantity.builder()
-                                                .setValue(Quantity.builder()
-                                                        .setAmount(BigDecimal.valueOf(0.0))
-                                                        .setUnitOfAmount(UnitType.builder()
-                                                                .setCurrency(FieldWithMetaString.builder()
-                                                                        .setValue("USD")
-                                                                        .setMeta(MetaFields.builder()
-                                                                                .setScheme(CURRENCY_SCHEME)))))))));
+                                        .addQuantityValue(NonNegativeQuantitySchedule.builder()
+                                                .setAmount(BigDecimal.valueOf(0.0))
+                                                .setUnitOfAmount(UnitType.builder()
+                                                        .setCurrency(FieldWithMetaString.builder()
+                                                                .setValue("USD")
+                                                                .setMeta(MetaFields.builder()
+                                                                        .setScheme(CURRENCY_SCHEME))))))));
 
         // Create an Instruction that contains:
         // - before TradeState
@@ -146,7 +143,7 @@ public class CreateNovationEventTest extends AbstractExampleTest {
     /**
      * Assert the result.
      */
-    private void assertWorkflowStep(WorkflowStep eventWorkflowStep) throws JsonProcessingException {
+    private void assertWorkflowStep(WorkflowStep eventWorkflowStep) {
         // The fully-specified event WorkflowStep should contain a newly created BusinessEvent
         BusinessEvent businessEvent = eventWorkflowStep.getBusinessEvent();
         assertNotNull(businessEvent);

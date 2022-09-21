@@ -1,10 +1,10 @@
 package com.regnosys.cdm.example;
 
 import cdm.base.datetime.AdjustableDates;
-import cdm.base.math.Quantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
-import cdm.base.math.metafields.ReferenceWithMetaQuantity;
+import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
+import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.*;
@@ -106,21 +106,21 @@ public class FxSwapContractCreation {
                                         .setCurrencyValue(currency2Str))
                                 .setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.EXCHANGE_RATE)))
                 )
-                .addQuantity(FieldWithMetaQuantity.builder()
+                .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                         .setMeta(MetaFields.builder()
                                 .addKey(Key.builder()
                                         .setScope("DOCUMENT")
                                         .setKeyValue("quantity-1")))
-                        .setValue(Quantity.builder()
+                        .setValue(NonNegativeQuantitySchedule.builder()
                                 .setAmount(BigDecimal.valueOf(quantity1))
                                 .setUnitOfAmount(UnitType.builder()
                                         .setCurrencyValue(currency1Str))))
-                .addQuantity(FieldWithMetaQuantity.builder()
+                .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                         .setMeta(MetaFields.builder()
                                 .addKey(Key.builder()
                                         .setScope("DOCUMENT")
                                         .setKeyValue("quantity-2")))
-                        .setValue(Quantity.builder()
+                        .setValue(NonNegativeQuantitySchedule.builder()
                                 .setAmount(BigDecimal.valueOf(quantity2))
                                 .setUnitOfAmount(UnitType.builder()
                                         .setCurrencyValue(currency2Str))))
@@ -170,7 +170,7 @@ public class FxSwapContractCreation {
     private Cashflow createExchangeCurrency(CounterpartyRoleEnum payer, CounterpartyRoleEnum receiver) {
         return Cashflow.builder()
                 .setPayoutQuantity(ResolvablePayoutQuantity.builder()
-                        .setResolvedQuantity(ReferenceWithMetaQuantity.builder()
+                        .setQuantitySchedule(ReferenceWithMetaNonNegativeQuantitySchedule.builder()
                                 .setReference(Reference.builder()
                                         .setScope("DOCUMENT")
                                         .setReference("quantity-2"))))

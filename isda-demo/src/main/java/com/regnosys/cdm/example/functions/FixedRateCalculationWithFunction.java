@@ -42,7 +42,7 @@ public class FixedRateCalculationWithFunction extends AbstractExample {
 
         // Calculate the fixed amount, using the function implementations from above
         //
-		BigDecimal fixedAmountResult = fixedAmount.evaluate(fixedRatePayout, notional, Date.of(fixedLegPeriodStart), null);
+		BigDecimal fixedAmountResult = fixedAmount.evaluate(fixedRatePayout, notional.getAmount(), Date.of(fixedLegPeriodStart), null);
 
 
         // Make assertions on the calculation results
