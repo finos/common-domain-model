@@ -5,7 +5,7 @@ import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceExpression;
-import cdm.observable.asset.metafields.FieldWithMetaPrice;
+import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.meta.Key;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static cdm.observable.asset.metafields.FieldWithMetaPrice.FieldWithMetaPriceBuilder;
+import static cdm.observable.asset.metafields.FieldWithMetaPriceSchedule.FieldWithMetaPriceScheduleBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.subPath;
 
 public class PriceQuantityHelper {
@@ -43,9 +43,9 @@ public class PriceQuantityHelper {
 	/**
 	 * Creates a Price instance that can be referenced, e.g. the meta key is added with the DOCUMENT scope.
 	 */
-	public static FieldWithMetaPriceBuilder toReferencablePriceBuilder(
+	public static FieldWithMetaPriceScheduleBuilder toReferencablePriceBuilder(
 			BigDecimal price, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceExpression priceExpression) {
-		FieldWithMetaPriceBuilder priceBuilder = FieldWithMetaPrice.builder()
+		FieldWithMetaPriceScheduleBuilder priceBuilder = FieldWithMetaPriceSchedule.builder()
 				.setValue(Price.builder()
 						.setAmount(price)
 						.setPriceExpression(priceExpression)

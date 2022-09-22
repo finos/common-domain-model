@@ -5,10 +5,10 @@ import cdm.base.datetime.*
 import cdm.base.math.*
 
 import cdm.observable.asset.calculatedrate.*
+import cdm.observable.asset.fro.*
 
 import cdm.product.asset.*
 import cdm.product.asset.calculation.*
-import cdm.observable.asset.fro.*
 import cdm.product.common.schedule.*
 
 //-------------------------------------------------------
@@ -276,7 +276,7 @@ func FloorRateAmount: <"Look up the floor rate amount for a calculation period."
 
 func GetRateScheduleAmount: <"Get the rate for the period start date.">
 	inputs:
-		schedule RateSchedule (1..1) <"The rate schedule.">
+		schedule cdm.observable.asset.PriceSchedule (1..1) <"The rate schedule.">
 		periodStartDate date (1..1) <"The start date for which you want the rate.">
 	output:
 		amount number (1..1)
@@ -285,13 +285,13 @@ func GetRateScheduleAmount: <"Get the rate for the period start date.">
 
 func GetRateScheduleStepValues: <"Get all rate schedule step values whose stepDate is before or equal to the supplied periodStartDate.  Returns a list of step values starting from the initial rate.">
 	inputs:
-		schedule RateSchedule (1..1) <"The rate schedule.">
+		schedule cdm.observable.asset.PriceSchedule (1..1) <"The rate schedule.">
 		periodStartDate date (1..1) <"The start date for which you want the rate.">
 	output:
 		stepValues number (0..*)
 
     add stepValues: <"Add initial step value.">
-        schedule -> initialValue -> amount
+        schedule -> amount
     add stepValues: <"Add all schedule step values whose stepDate is before or equal to the supplied periodStartDate.">
 	    schedule -> step
             filter [ item -> stepDate <= periodStartDate ]
