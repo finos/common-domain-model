@@ -98,10 +98,10 @@ func FilterQuantity: <"Filter list of quantities based on unit type.">
 
 func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
     inputs:
-        quantities Quantity (0..*) <"List of quantities to filter.">
+        quantities QuantitySchedule (0..*) <"List of quantities to filter.">
         currency string (1..1) <"Currency unit type.">
     output:
-        filteredQuantities Quantity (0..*)
+        filteredQuantities QuantitySchedule (0..*)
 
     add filteredQuantities:
         quantities
@@ -109,9 +109,9 @@ func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
 
 func FilterQuantityByCurrencyExists: <"Filter list of quantities based on unit type.">
     inputs:
-        quantities Quantity (0..*) <"List of quantities to filter.">
+        quantities QuantitySchedule (0..*) <"List of quantities to filter.">
     output:
-        filteredQuantities Quantity (0..*)
+        filteredQuantities QuantitySchedule (0..*)
 
     add filteredQuantities:
         quantities
@@ -119,21 +119,31 @@ func FilterQuantityByCurrencyExists: <"Filter list of quantities based on unit t
 
 func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit type.">
     inputs:
-        quantities Quantity (0..*) <"List of quantities to filter.">
+        quantities QuantitySchedule (0..*) <"List of quantities to filter.">
         financialUnit FinancialUnitEnum (1..1) <"FinancialUnitEnum unit type.">
     output:
-        filteredQuantities Quantity (0..*)
+        filteredQuantities QuantitySchedule (0..*)
 
     add filteredQuantities:
         quantities
             filter [ item -> unitOfAmount -> financialUnit = financialUnit ]
 
-func Create_Quantity: <"Create Quantity with given amount and unit of amount.">
+func Create_NonNegativeQuantity: <"Create a non-negative quantity with given amount and unit of amount.">
 	inputs:
 		amount number (1..1)
 		unitOfAmount UnitType (1..1)
 	output:
-		quantity Quantity (1..1)
+		quantity NonNegativeQuantity (1..1)
+
+	set quantity -> amount: amount
+	set quantity -> unitOfAmount: unitOfAmount
+
+func Create_NonNegativeQuantitySchedule: <"Create Quantity with given amount and unit of amount.">
+	inputs:
+		amount number (1..1)
+		unitOfAmount UnitType (1..1)
+	output:
+		quantity NonNegativeQuantitySchedule (1..1)
 
 	set quantity -> amount: amount
 	set quantity -> unitOfAmount: unitOfAmount

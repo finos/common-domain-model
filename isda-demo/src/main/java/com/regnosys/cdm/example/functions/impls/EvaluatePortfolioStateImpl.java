@@ -2,8 +2,8 @@ package com.regnosys.cdm.example.functions.impls;
 
 import cdm.base.datetime.AdjustableDates;
 import cdm.base.math.MeasureBase;
-import cdm.base.math.Quantity;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
+import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.ProductIdentifier;
 import cdm.base.staticdata.asset.common.Security;
 import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
@@ -36,7 +36,6 @@ import com.regnosys.rosetta.common.hashing.ReKeyProcessStep;
 import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaDate;
-import com.rosetta.model.metafields.FieldWithMetaString;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
@@ -96,7 +95,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 		Set<Position> aggregatedPositions = positionQuantity.keySet().stream()
 				.map(p -> p.toBuilder()
 						.addPositionComponent(PriceQuantity.builder()
-								.addQuantityValue(Quantity.builder()
+								.addQuantityValue(NonNegativeQuantitySchedule.builder()
 										.setAmount(positionQuantity.get(p))))
 						.setCashBalance(Money.builder().setAmount(positionCashBalance.get(p))) // TODO add currency
 						.build())
@@ -289,7 +288,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	/**
 	 * @return trade quantity corresponding to the trade product identifier
 	 */
-	private Quantity getQuantity(TradeState tradeState) {
+	private NonNegativeQuantitySchedule getQuantity(TradeState tradeState) {
 		List<? extends ProductIdentifier> productIdentifiers = tradeState.getTrade().getTradableProduct()
 				.getProduct()
 				.getSecurity()
@@ -309,7 +308,8 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 								.map(FieldWithMetaProductIdentifier::getValue)
 								.anyMatch(pqid -> areEqual(pid, pqid))))
 				.map(PriceQuantity::getQuantity)
-				.flatMap(Collection::stream).map(FieldWithMetaQuantity::getValue)
+				.flatMap(Collection::stream)
+				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
 				.findFirst()
 				.orElseThrow(() -> new RuntimeException(String.format("Unable to determine quantity for product identifier [%s]", productIdentifiers)));
 	}

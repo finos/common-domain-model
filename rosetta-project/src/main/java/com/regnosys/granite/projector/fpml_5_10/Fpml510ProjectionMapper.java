@@ -4,11 +4,10 @@ import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
 import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.ReferenceWithMetaQuantity;
-import cdm.base.staticdata.asset.common.ProductIdentifier;
+import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.ProductTaxonomy;
-import cdm.base.staticdata.asset.common.metafields.FieldWithMetaAssetClassEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
@@ -24,7 +23,6 @@ import cdm.product.asset.FixedRateSpecification;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.asset.metafields.FieldWithMetaSpreadScheduleTypeEnum;
-import cdm.product.common.schedule.NonNegativeQuantitySchedule;
 import cdm.product.common.schedule.metafields.ReferenceWithMetaCalculationPeriodDates;
 import cdm.product.common.schedule.metafields.ReferenceWithMetaPaymentDates;
 import cdm.product.common.settlement.PhysicalSettlementTerms;
@@ -572,7 +570,6 @@ public class Fpml510ProjectionMapper {
 				getAdjustableOrRelativeDates(e.getRelevantUnderlyingDate()).ifPresent(europeanExercise::setRelevantUnderlyingDate);
 				return europeanExercise;
 			});
-
 	}
 
 	private Optional<BusinessCenterTime> getBusinessCenterTime(cdm.base.datetime.BusinessCenterTime cdmBusinessCenterTime) {
@@ -582,45 +579,6 @@ public class Fpml510ProjectionMapper {
 				getBusinessCenter(t.getBusinessCenter()).ifPresent(businessCenterTime::setBusinessCenter);
 				getHourMinuteTime(t.getHourMinuteTime()).ifPresent(businessCenterTime::setHourMinuteTime);
 				return businessCenterTime;
-			});
-	}
-
-	private Optional<AssetClass> getAssetClass(FieldWithMetaAssetClassEnum cdmPrimaryAssetClass) {
-		return Optional.ofNullable(cdmPrimaryAssetClass)
-			.map(a -> {
-				AssetClass assetClass = objectFactory.createAssetClass();
-				getValue(a).map(c -> CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, c)).ifPresent(assetClass::setValue);
-				getScheme(a.getMeta()).ifPresent(assetClass::setAssetClassScheme);
-				return assetClass;
-			});
-	}
-
-	private Optional<ProductType> getProductType(FieldWithMetaString cdmProductType) {
-		return Optional.ofNullable(cdmProductType)
-			.map(t -> {
-				ProductType productType = objectFactory.createProductType();
-				getValue(t).ifPresent(productType::setValue);
-				getScheme(t.getMeta()).ifPresent(productType::setProductTypeScheme);
-				return productType;
-			});
-	}
-
-	private Optional<List<ProductId>> getProductIds(List<? extends ProductIdentifier> cdmProductIds) {
-		return Optional.ofNullable(cdmProductIds)
-			.map(p -> p.stream()
-				.map(ProductIdentifier::getIdentifier)
-				.map(this::getProductId)
-				.flatMap(Optional::stream)
-				.collect(Collectors.toList()));
-	}
-
-	private Optional<ProductId> getProductId(FieldWithMetaString cdmProductId) {
-		return Optional.ofNullable(cdmProductId)
-			.map(p -> {
-				ProductId productId = objectFactory.createProductId();
-				getValue(p).ifPresent(productId::setValue);
-				getScheme(p.getMeta()).ifPresent(productId::setProductIdScheme);
-				return productId;
 			});
 	}
 
@@ -1430,21 +1388,21 @@ public class Fpml510ProjectionMapper {
 			.map(ResolvablePayoutQuantity::getQuantitySchedule)
 			.map(qs -> {
 				NonNegativeAmountSchedule notionalStepSchedule = objectFactory.createNonNegativeAmountSchedule();
-				Optional.ofNullable(qs.getInitialQuantity())
-					.map(ReferenceWithMetaQuantity::getValue)
+				Optional.ofNullable(qs.getValue())
 					.ifPresent(q -> {
 						Optional.ofNullable(q.getAmount()).ifPresent(notionalStepSchedule::setInitialValue);
 						getCurrency(q.getUnitOfAmount()).ifPresent(notionalStepSchedule::setCurrency);
 					});
-				getNonNegativeSteps(cdmInterestRatePayout).ifPresent(notionalStepSchedule.getStep()::addAll);
+				getSteps(cdmInterestRatePayout).ifPresent(notionalStepSchedule.getStep()::addAll);
 				return notionalStepSchedule;
 			});
 	}
 
-	private Optional<List<? extends NonNegativeStep>> getNonNegativeSteps(InterestRatePayout cdmInterestRatePayout) {
+	private Optional<List<? extends NonNegativeStep>> getSteps(InterestRatePayout cdmInterestRatePayout) {
 		return Optional.ofNullable(cdmInterestRatePayout)
 			.map(PayoutBase::getPayoutQuantity)
 			.map(ResolvablePayoutQuantity::getQuantitySchedule)
+			.map(ReferenceWithMetaNonNegativeQuantitySchedule::getValue)
 			.map(NonNegativeQuantitySchedule::getStep)
 			.map(sl -> sl.stream()
 				.map(this::getNonNegativeStep)
@@ -1452,7 +1410,7 @@ public class Fpml510ProjectionMapper {
 				.collect(Collectors.toList()));
 	}
 
-	private Optional<NonNegativeStep> getNonNegativeStep(cdm.base.math.NonNegativeStep nonNegativeStep) {
+	private Optional<NonNegativeStep> getNonNegativeStep(cdm.base.math.Step nonNegativeStep) {
 		return Optional.ofNullable(nonNegativeStep)
 			.map(s -> {
 				NonNegativeStep step = objectFactory.createNonNegativeStep();
