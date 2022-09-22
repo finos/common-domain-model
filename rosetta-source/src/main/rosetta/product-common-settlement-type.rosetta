@@ -286,7 +286,7 @@ type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, w
 
 type PriceQuantity: <"Defines a settlement as an exchange between two parties of a specified quantity of an asset (the quantity) against a specified quantity of another asset (the price). The settlement is optional and can be either cash or physical. In the case of non-cash products, the settlement of the price/quantity would not be specified here and instead would be delegated to the product mechanics, as parameterised by the price/quantity values.">
 	[metadata key]
-	price Price (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
+	price PriceSchedule (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
 	    [metadata location]
 	quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
 	    [metadata location]
@@ -303,6 +303,15 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
 
 	condition ActualSettlement: <"Settlement terms must be present when the settlement direction is specified.">
 		if buyerSeller exists then settlementTerms exists
+
+type FixedPrice: <"A predefined price accorded by the counterparties.">
+
+    fixedPriceSchedule PriceSchedule (0..1) <"Fixed price step schedule, including an initial price specified as an absolute number.">
+		[metadata address "pointsTo"=PriceQuantity->price]
+	
+	condition NonNegativePrice_amount: <"For a non-negative price, the amount attribute must be positive.">
+        if fixedPriceSchedule -> amount exists then fixedPriceSchedule -> amount >= 0.0 and
+		if fixedPriceSchedule -> step exists then fixedPriceSchedule -> step -> stepValue all >= 0.0
 
 type PaymentDetail:
 	[metadata key]
