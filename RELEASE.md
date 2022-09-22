@@ -8,7 +8,7 @@ _What is being released?_
 
 - Removed product qualification logic that refers to legacy product model concepts (e.g. using cashflow to represent payments)
 
-_Review directions_
+_Background_
 
 In the CDM Portal, select Textual Browser and review the types mentioned above. E.g:
 - func Qualify_AssetClass_CreditDefault

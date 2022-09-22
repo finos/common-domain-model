@@ -2,6 +2,7 @@ namespace cdm.product.asset.calculation: <"Product-related, asset class-specific
 version "${project.version}"
 
 import cdm.base.datetime.daycount.*
+import cdm.base.math.*
 
 import cdm.observable.asset.*
 
@@ -128,7 +129,7 @@ func CalculateFloatingCashFlow:
 	alias annualAccrual: notional * appliedRate
 	alias notionalAccrual: notional * yearFraction
 	alias cashflow: notionalAccrual * appliedRate
-	alias spreadExclusiveCashflow: if spreadExclusiveRate exists then notionalAccrual * spreadExclusiveRate
+	alias spreadExclusiveCashflow: notionalAccrual * spreadExclusiveRate
 
 	// record results
 	set result -> calculationPeriod: calculationPeriod
@@ -136,7 +137,7 @@ func CalculateFloatingCashFlow:
 	set result -> calculationPeriodNotionalAmount -> unitOfAmount -> currency:  currency
 	set result -> floatingRate:  if floatingRateSetting exists then floatingRateSetting
 
-	set result -> processingDetails: if processedRateDetails exists then processedRateDetails
+	set result -> processingDetails: processedRateDetails
 	set result -> appliedRate: appliedRate
 	set result -> yearFraction: yearFraction
 	set result -> calculatedAmount: cashflow
@@ -167,7 +168,7 @@ func GetNotionalAmount: <"Look up the notional amount in effect for a calculatio
 	        interestRatePayout -> payoutQuantity -> quantitySchedule,
 	        calculationPeriod -> adjustedStartDate ) last
 	set notional -> unitOfAmount -> currency:
-		interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+		interestRatePayout -> payoutQuantity -> quantitySchedule -> unitOfAmount -> currency
 
 func GetQuantityScheduleStepValues: <"Find all schedule step values whose stepDate is before or equal to the supplied periodStartDate.  Returns a list of step values starting from the initial quantity value, to the last step value before the periodStartDate.">
 	inputs:
@@ -177,7 +178,7 @@ func GetQuantityScheduleStepValues: <"Find all schedule step values whose stepDa
 		stepValues number (0..*)
 
     add stepValues: <"Add initial step value.">
-        schedule -> initialQuantity -> amount
+        schedule -> amount
     add stepValues: <"Add all schedule step values whose stepDate is before or equal to the supplied periodStartDate.">
 	    schedule -> step
             filter [ item -> stepDate <= periodStartDate ]

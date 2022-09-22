@@ -249,14 +249,12 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
    inputs:
        interestRatePayout InterestRatePayout (1..1)
        rate number (0..1)
-       quantity Quantity (0..1)
+       notional number (0..1)
        date date (0..1)
        calculationPeriodData CalculationPeriodData (0..1)
    output:
        floatingAmount number (1..1)
 
-   alias notional:
-       if quantity exists then quantity -> amount
    alias calculationPeriod:
        if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
    alias calcPeriodBase : Create_CalculationPeriodBase(calculationPeriod)

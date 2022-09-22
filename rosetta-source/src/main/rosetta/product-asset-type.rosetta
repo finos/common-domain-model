@@ -127,7 +127,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 	condition CashSettlementTerms: <"Cash Settlements Terms must exist when the settlement currency is different to the notional currency of the trade.">
 		if settlementTerms -> settlementCurrency exists and
-			(settlementTerms -> settlementCurrency <> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+			(settlementTerms -> settlementCurrency <> payoutQuantity -> quantitySchedule -> unitOfAmount -> currency
 			or settlementTerms -> settlementCurrency <> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
 		then (settlementTerms -> cashSettlementTerms -> valuationMethod exists and settlementTerms -> cashSettlementTerms -> valuationDate exists)
 		    or payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
@@ -174,8 +174,7 @@ type DividendPayoutRatio: <"A class describing the dividend payout ratio associa
 	basketConstituent Product (0..1) <"In the case of a basket underlier, specifies to which component of the basket this particular set of dividend payout ratios correspond.">
 
 	condition DividendPayoutRatioTotal: <"The dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		if totalRatio exists
-		then totalRatio >= 0
+		totalRatio >= 0
 			and totalRatio <= 1
 
 	condition DividendPayoutRatioCash: <"The cash dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
@@ -356,16 +355,13 @@ type Tranche: <"The class to represent a CDS Tranche.">
 	incurredRecoveryApplicable boolean (0..1) <"Outstanding Swap Notional Amount is defined at any time on any day, as the greater of: (a) Zero; If Incurred Recovery Amount Applicable: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts and all Incurred Recovery Amounts (if any) determined under this Confirmation at or prior to such time.Incurred Recovery Amount not populated: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts determined under this Confirmation at or prior to such time.">
 
 	condition AttachmentPoint: <"FpML definition associated with the attachmentPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
-		if Tranche exists
-		then attachmentPoint >= 0.0 and attachmentPoint <= 1.0
+		attachmentPoint >= 0.0 and attachmentPoint <= 1.0
 
 	condition ExhaustionPoint: <"FpML definition associated with the exhaustionPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
-		if Tranche exists
-		then exhaustionPoint >= 0.0 and exhaustionPoint <= 1.0
+		exhaustionPoint >= 0.0 and exhaustionPoint <= 1.0
 
 	condition AttachmentPointLessThanExhaustionPoint: <"FpML validation rule cd-40 - Context: Tranche (complex type) attachmentPoint must be less or equal to exhaustionPoint.">
-		if Tranche exists
-		then attachmentPoint <= exhaustionPoint
+		attachmentPoint <= exhaustionPoint
 
 type DividendCurrency: <"A class to specify the currency in which the dividends will be denominated, i.e. either in the dividend currency or in a currency specified as part of the contract.">
 
@@ -463,7 +459,7 @@ type VarianceReturnTerms extends ReturnTermsBase:
 	volatilityStrikePrice Price (0..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
 	varianceCapFloor VarianceCapFloor (0..1) <"Contains possible barriers for variance products, both variance-based and underlier price based">
 	volatilityCapFloor VolatilityCapFloor (0..1) <"Contains containing volatility-based barriers">
-	vegaNotionalAmount Quantity (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
+	vegaNotionalAmount NonNegativeQuantitySchedule (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
 		//vegaNotionalAmount is only present here in varianceReturnTerms because it is an optional complement to the varianceAmount expressed in payoutQuantity.quantitySchedule.initialQuantity.amount.   In volatilityReturnTerms this element does not exist because the vegaNotionalAmount is compulsory and should therefore be expressed in payoutQuantity.quantitySchedule.initialQuantity.amount. in the corresponding units.
 	exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
 
@@ -488,7 +484,7 @@ type VolatilityReturnTerms extends ReturnTermsBase:
 
 	volatilityStrikePrice Price (1..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
 	volatilityCapFloor VolatilityCapFloor (0..1) <"Contains volatility-based barriers">
-	//vegaNotionalAmount Quantity (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
+	//vegaNotionalAmount NonNegativeQuantitySchedule (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
 	exchangeTradedContractNearest Observable (0..1)  <"Specification of the exchange traded contract nearest.">
 
 	condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
@@ -657,7 +653,7 @@ type FixedRateSpecification: <"Type defining the specification for a fixed rate.
 	rateSchedule RateSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 
 type FutureValueAmount: <"A class defining a currency and a future value date.">
-    quantity Quantity (0..1)
+    quantity NonNegativeQuantitySchedule (0..1)
         [metadata address "pointsTo"=PriceQuantity->quantity]
 	currency string (1..1) <"The currency in which the an amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
@@ -665,8 +661,7 @@ type FutureValueAmount: <"A class defining a currency and a future value date.">
 	valueDate date (1..1) <"Adjusted value date of the future value amount.">
 
 	condition PositiveCalculationPeriodNumberOfDays: <"FpML specifies calculationPeriodNumberOfDays as a positiveInteger.">
-		if FutureValueAmount exists
-		then calculationPeriodNumberOfDays >= 0
+		calculationPeriodNumberOfDays >= 0
 
 type SpreadSchedule extends RateSchedule: <"Adds an optional spread type element to the Schedule to identify a long or short spread value.">
 

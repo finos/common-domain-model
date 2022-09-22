@@ -1793,13 +1793,7 @@ synonym source FpML_5_10 extends FpML
 			[set to SecurityTypeEnum -> Debt when "mortgage" exists]
 			[set to SecurityTypeEnum -> Equity when "equity" exists]
 
-    QuantitySchedule:
-        + multiplier
-            [value "ignore"]
-        + multiplierUnit
-            [value "ignore"]
-
-	Quantity:
+	QuantitySchedule:
 		+ amount
 			[value "initialValue" maps 2]
 			[value "amount" maps 2]
@@ -1831,16 +1825,6 @@ synonym source FpML_5_10 extends FpML
 			[value "Frequency"]
 			// For Commodity Swap Fixed Leg
 			[hint "quantityFrequency"]
-
-	NonNegativeQuantitySchedule:
-		+ initialQuantity
-			[meta "initialValue"]
-			[meta "amount"]
-			[meta "quantity"]
-			[value "varianceAmount" path "amount->variance" meta "amount"]
-			[value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
-			[value "notionalAmount" path "amount->correlation" meta "amount"]
-			[value "volatility" path "amount" meta "vegaNotionalAmount"]
 		+ step
 			[value "step"]
 			[value "notionalStep"]
@@ -1871,9 +1855,9 @@ synonym source FpML_5_10 extends FpML
 	Step:
 	 	[value "Step" meta "id"]
 		+ stepDate
-			[value "stepDate"]
+			[value "stepDate" maps 2]
 		+ stepValue
-			[value "stepValue"]
+			[value "stepValue" maps 2]
 
 	AdditionalDisruptionEvents:
 		+ changeInLaw
@@ -2150,33 +2134,43 @@ synonym source FpML_5_10 extends FpML
 		[meta "id" path "notional->notionalAmount"]
 		[meta "id" path "calculationAmount"]
 		+ resolvedQuantity
+			[value "ignore"]
+		+ quantityReference
+			[value "relativeNotionalAmount" path "notional" meta "href"]
+			[value "constantNotionalScheduleReference" meta "href"]
+			// For CDS Option, CDX Index Option, Bond Option, Swaption:
+			[value "notionalReference" meta "href"]
+		+ quantitySchedule
+			// Swap Stream
+			[value "notionalStepSchedule" path "notionalSchedule" meta "initialValue"]
+			[meta "initialValue"]
+			// FRA
+			[value "notional" meta "amount"]
+			// Equity Swap - Only mapping the notional amount in the payout, not the no. shares
+			[value "notionalAmount" meta "amount"]
+			[value "notionalAmount" path "notional" meta "amount"]
+			[value "relativeNotionalAmount" path "notional" meta "href" mapper "RelativeNotionalAmount"]
+            // Div Swaps
 			[value "singleUnderlyer" meta "openUnits"]
+			// Credit
+			[value "calculationAmount" meta "amount"]
+			// Repo
+			[value "settlementAmount" meta "amount"]
+			// FX
 			[value "paymentAmount" path "exchangedCurrency1" meta "amount"]
 			[value "paymentAmount" path "exchangedCurrency2" meta "amount"]
 			[value "putCurrencyAmount" meta "amount"]
 			[value "callCurrencyAmount" meta "amount"]
+			// Bond Option
 			[meta "numberOfOptions"]
+			// Commodity
 			[meta "totalNotionalQuantity"]
-		+ quantityMultiplier
-			[value "fxLinkedNotionalSchedule"]
-		+ quantityReference
-			[value "relativeNotionalAmount" path "notional" meta "href"]
-			[value "constantNotionalScheduleReference" path "fxLinkedNotionalSchedule" meta "href"]
-			// For CDS Option, CDX Index Option, Bond Option, Swaption:
-			[value "notionalReference" meta "href"]
-		+ quantitySchedule
-			[value "notionalStepSchedule" path "notionalSchedule"]
-			[value "notional"]
-			[value "notionalAmount"]
-			[value "notionalAmount" path "notional"]
-			[value "calculationAmount"]
-			[value "settlementAmount"]
-			[value "fxLinkedNotionalSchedule"]
-			[value "constantNotionalScheduleReference" path "fxLinkedNotionalSchedule" meta "href"]
-			[value "notionalQuantity"]
-			[value "notionalQuantitySchedule"]
-			[value "paymentAmount"]
-			[hint "amount"]
+			// Var / Vol / Corr Swap
+			[value "varianceAmount" path "amount->variance" meta "amount"]
+			[value "volatility" path "amount" meta "vegaNotionalAmount"]
+			[value "notionalAmount" path "amount->correlation" meta "amount"]
+			// Div Swap
+			[value "paymentAmount" meta "amount"]
 		+ reset
 			[value "notionalReset"]
 		+ futureValueNotional
@@ -2440,7 +2434,8 @@ synonym source FpML_5_10 extends FpML
 		+ payoutQuantity
 			// For Swap Stream:
 			[value "calculation" path "calculationPeriodAmount"]
-			// For FRAs and Equity Swap:
+			[value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
+            // For FRAs and Equity Swap:
 			[hint "notional"]
 			// For Options:
 			[hint "numberOfOptions"]
@@ -2452,7 +2447,8 @@ synonym source FpML_5_10 extends FpML
 			[hint "notionalReference"]
 			[value "floatingAmountCalculation" path "periodicPayment"]
 			// For Equity Swap:
-			[value "rateOfReturn", "underlyer"]
+			[value "rateOfReturn"]
+			[value "underlyer" set when path = "dividendLeg"]
 			// For FX:
 			[hint "exchangedCurrency1"]
 			[hint "exchangedCurrency2"]
@@ -2467,7 +2463,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "notionalQuantitySchedule"]
 
 
-Payout:
+	Payout:
 		+ interestRatePayout
 			// For Swap Stream
 			[value "swapStream"]
