@@ -18,9 +18,12 @@ public class VectorScalarOperationTest extends AbstractFunctionTest {
 	private VectorScalarOperation vectorScalarOp;
 
 	@Test
-	void shouldHandleNull() {
+	void shouldHandleNulls() {
 		List<BigDecimal> emptyList = new ArrayList<>();
+		List<BigDecimal> shortList = Arrays.asList(BigDecimal.valueOf(10.0), BigDecimal.valueOf(20.0));
 
+		check(emptyList, vectorScalarOp.evaluate(ArithmeticOperationEnum.ADD, null, null));
+		check(shortList, vectorScalarOp.evaluate(ArithmeticOperationEnum.ADD, shortList, null));
 		check(emptyList, vectorScalarOp.evaluate(ArithmeticOperationEnum.ADD, null, BigDecimal.valueOf(10.0)));
 	}
 

@@ -185,13 +185,18 @@ func VectorScalarOperation: <"Generates a result vector by applying the supplied
 	inputs:
 		arithmeticOp ArithmeticOperationEnum (1..1) <"Arithmetic operator to be applied.">
 		left number (0..*) <"Left vector.">
-		right number (1..1) <"Scalar number - a single value to be applied to all elements of vector.">
+		right number (0..1) <"Scalar number - a single value to be applied to all elements of vector.">
 	output:
 	    result number (0..*) <"Result vector.">
 
+    alias rightOrDefault:
+        if right exists then
+            right
+        else 0.0
+
 	add result:
         left
-            map [ ArithmeticOperation( item, arithmeticOp, right ) ]
+            map [ ArithmeticOperation( item, arithmeticOp, rightOrDefault ) ]
 
 func VectorGrowthOperation: <"Generates a result vector by starting with the supplied base value (typically 1), and then multiplying it in turn by each growth factor, which is typically a number just above 1. For instance, a growth factor of 1.1 reprsents a 10% increase, and 0.9 a 10% decrease. The results will show the successive results of applying the successive growth factors, with the first value of the list being the supplied baseValue, and final value of the results list being the product of all of the supplied values.  i.e. result[1] = baseValue * factor[1], result[n] = result[n-1] * factor[n]. The resulting list will have the one more element than the supplied list of factors.">
     inputs:
