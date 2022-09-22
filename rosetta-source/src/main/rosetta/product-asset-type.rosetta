@@ -32,7 +32,7 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
     fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
 
 	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-		payoutQuantity exists
+		priceQuantity exists
 
 type CreditDefaultPayout extends PayoutBase: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated globalKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
@@ -46,7 +46,7 @@ type CreditDefaultPayout extends PayoutBase: <" The credit default payout specif
 		then generalTerms -> referenceInformation -> referencePrice -> amount >= 0
 	
 	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-		payoutQuantity exists
+		priceQuantity exists
 
 type GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
 
@@ -94,18 +94,18 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 	floatingAmount calculation (0..1) <"Floating Amount Calculation">
 
 	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-		payoutQuantity exists
+		priceQuantity exists
 
 	condition InterestRatePayoutChoice: <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">
 		optional choice paymentDates, paymentDate
 
 	condition FutureValueNotional: <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
 		if rateSpecification -> fixedRate is absent
-		then payoutQuantity -> futureValueNotional is absent
+		then priceQuantity -> futureValueNotional is absent
 
 	condition TerminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
-		if payoutQuantity -> futureValueNotional exists
-		then payoutQuantity -> futureValueNotional -> valueDate = calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
+		if priceQuantity -> futureValueNotional exists
+		then priceQuantity -> futureValueNotional -> valueDate = calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
 
 	condition FpML_ird_6: <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
 		if paymentDates -> firstPaymentDate exists
@@ -127,10 +127,10 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 	condition CashSettlementTerms: <"Cash Settlements Terms must exist when the settlement currency is different to the notional currency of the trade.">
 		if settlementTerms -> settlementCurrency exists and
-			(settlementTerms -> settlementCurrency <> payoutQuantity -> quantitySchedule -> unitOfAmount -> currency
-			or settlementTerms -> settlementCurrency <> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
+			(settlementTerms -> settlementCurrency <> priceQuantity -> quantitySchedule -> unitOfAmount -> currency
+			or settlementTerms -> settlementCurrency <> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
 		then (settlementTerms -> cashSettlementTerms -> valuationMethod exists and settlementTerms -> cashSettlementTerms -> valuationDate exists)
-		    or payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
+		    or priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
 
 	condition FpML_ird_7_1: <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
 		if paymentDates -> paymentFrequency -> period = calculationPeriodDates -> calculationPeriodFrequency -> period
@@ -639,7 +639,7 @@ type FloatingRate: <"A class defining a floating interest rate through the speci
         [metadata address "pointsTo"=Observable->rateOption]
 	calculationParameters FloatingRateCalculationParameters (0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
 	fallbackRate FallbackRateParameters (0..1) <"Definition of any fallback rate that may be applicable.">
-	floatingRateMultiplierSchedule RateSchedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
+	floatingRateMultiplierSchedule PriceSchedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
 	spreadSchedule SpreadSchedule (0..1) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
 	rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
 	capRateSchedule StrikeSchedule (0..1) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
@@ -654,7 +654,7 @@ type FloatingRateSpecification extends FloatingRate: <"A class to specify the fl
 
 type FixedRateSpecification: <"Type defining the specification for a fixed rate.">
 	[metadata key]
-	rateSchedule RateSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
+	rateSchedule PriceSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 
 type FutureValueAmount: <"A class defining a currency and a future value date.">
     quantity NonNegativeQuantitySchedule (0..1)
@@ -668,7 +668,7 @@ type FutureValueAmount: <"A class defining a currency and a future value date.">
 		if FutureValueAmount exists
 		then calculationPeriodNumberOfDays >= 0
 
-type SpreadSchedule extends RateSchedule: <"Adds an optional spread type element to the Schedule to identify a long or short spread value.">
+type SpreadSchedule extends PriceSchedule: <"Adds an optional spread type element to the Schedule to identify a long or short spread value.">
 
 	spreadScheduleType SpreadScheduleTypeEnum (0..1) <"An element which purpose is to identify a long or short spread value.">
 		[metadata scheme]

@@ -126,16 +126,6 @@ type FxLinkedNotionalSchedule: <"A data to:  describe a notional schedule where 
 	fixingTime BusinessCenterTime (0..1) <"The time at which the spot currency exchange rate will be observed. It is specified as a time in a business day calendar location, e.g. 11:00am London time.">
 	varyingNotionalInterimExchangePaymentDates RelativeDateOffset (1..1) <"The dates on which interim exchanges of notional are paid. Interim exchanges will arise as a result of changes in the spot currency exchange amount or changes in the constant notional schedule (e.g. amortisation).">
 
-type NonNegativePriceSchedule: <"Class to specify a non-negative price schedule, which is used to define the price of a payout leg. This price cannot be negative, while direction is specified through a BuyerSeller or PayerReceiver attribute. The only available schedule implementation is a step schedule, specified as a set of date-value pairs. The non-negativity is enforced by using the non-negative price and step schedule classes.">
-	[deprecated] // To be replaced by a normalised PriceSchedule, positioned in cdm.observable.asset
-    initialPrice Price (1..1) <"The initial price of a schedule represented as a single, non-negative number. In the case where no schedule is specified, the constant price is specified at a higher level. Can be referenced from TradableProduct">
-	        [metadata address "pointsTo"=PriceQuantity->price]
-    step NonNegativeStep (0..*) <"The schedule specified as a set of date-value pairs. Attribute is optional, to represent the case where no schedule is specified so price is just constant over time.">
-
-	condition NonNegativePrice_amount: <"For a non-negative price, the amount attribute must be positive.">
-        if initialPrice exists
-        then initialPrice->amount >= 0.0
-
 type PaymentCalculationPeriod: <"A data defining:  the adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. This data forms:  part of the cashflow representation of a swap stream.">
 	[metadata key]
 
@@ -160,10 +150,9 @@ type PaymentCalculationPeriod: <"A data defining:  the adjusted payment date and
 			or adjustedPaymentDate exists
 
 type RateSchedule: <"A class defining a schedule of rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
-	initialValue Price (1..1) <"The initial rate. An initial rate of 5% would be represented as 0.05.">
+	price PriceSchedule (1..1) <"The initial rate. An initial rate of 5% would be represented as 0.05.">
 	    [metadata address "pointsTo"=PriceQuantity->price]
-	step Step (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">
-
+	
 type ObservationDates: <"Describes date details for a set of observation dates in parametric or non-parametric form.">
    observationSchedule ObservationSchedule (0..*) <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable.  When no weight is specified, then weight of each date is assumed to be 1.0">
    periodicSchedule PeriodicDates (0..1) <"Specifies the date range and frequency on which market observations take place.  Weights can be assigned to dates in the schedule by assigning the weight and corresponding observationReference in the observationSchedule.">
