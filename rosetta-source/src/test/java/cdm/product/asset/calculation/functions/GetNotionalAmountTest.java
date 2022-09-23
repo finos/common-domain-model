@@ -7,7 +7,7 @@ import cdm.observable.asset.Money;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriod;
 import cdm.product.common.schedule.CalculationPeriodBase;
-import cdm.product.common.settlement.ResolvablePayoutQuantity;
+import cdm.product.common.settlement.ResolvablePriceQuantity;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -25,7 +25,7 @@ public class GetNotionalAmountTest extends AbstractFunctionTest {
     @Test
     void shouldLookupValue() {
         InterestRatePayout interestRatePayout = InterestRatePayout.builder()
-                .setPayoutQuantity(initNotionalSchedule())
+                .setPriceQuantity(initNotionalSchedule())
                 .build();
 
         CalculationPeriodBase dec1_2020 = CalculationPeriod.builder()
@@ -67,8 +67,8 @@ public class GetNotionalAmountTest extends AbstractFunctionTest {
         assertEquals(twelveMillion, func.evaluate(interestRatePayout, sep1));
     }
 
-    public static ResolvablePayoutQuantity initNotionalSchedule() {
-        return ResolvablePayoutQuantity.builder()
+    public static ResolvablePriceQuantity initNotionalSchedule() {
+        return ResolvablePriceQuantity.builder()
                 .setQuantityScheduleValue(NonNegativeQuantitySchedule.builder()
                         .setAmount(BigDecimal.valueOf(9_000_000))
                         .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))

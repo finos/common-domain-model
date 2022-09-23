@@ -28,7 +28,7 @@ import cdm.legalagreement.master.MasterAgreementTypeEnum;
 import cdm.observable.asset.Observable;
 import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.FieldWithMetaFloatingRateOption;
-import cdm.observable.asset.metafields.FieldWithMetaPrice;
+import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
@@ -460,9 +460,9 @@ class FunctionInputCreationTest {
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setAmount(BigDecimal.valueOf(250000))
                                         .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
-                        .addPrice(FieldWithMetaPrice.builder()
+                        .addPrice(FieldWithMetaPriceSchedule.builder()
                                 .setMeta(createKey("price-2"))
-                                .setValue(Price.builder()
+                                .setValue(PriceSchedule.builder()
                                         .setAmount(BigDecimal.valueOf(30))
                                         .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
                                         .setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
@@ -484,9 +484,9 @@ class FunctionInputCreationTest {
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setAmount(BigDecimal.valueOf(7500000))
                                         .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))))
-                        .addPrice(FieldWithMetaPrice.builder()
+                        .addPrice(FieldWithMetaPriceSchedule.builder()
                                 .setMeta(createKey("price-1"))
-                                .setValue(Price.builder()
+                                .setValue(PriceSchedule.builder()
                                         .setAmount(BigDecimal.valueOf(0.0020))
                                         .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
                                         .setPerUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
