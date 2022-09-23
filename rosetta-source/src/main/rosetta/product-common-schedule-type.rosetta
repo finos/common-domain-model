@@ -145,14 +145,13 @@ type PaymentCalculationPeriod: <"A data defining:  the adjusted payment date and
 		required choice calculationPeriod, fixedPaymentAmount
 
 	condition FpML_ird_34: <"FpML validation rule ird-34 - Either unadjustedPaymentDate or adjustedPaymentDate must exist.">
-		if PaymentCalculationPeriod exists
-		then unadjustedPaymentDate exists
+		unadjustedPaymentDate exists
 			or adjustedPaymentDate exists
 
 type RateSchedule: <"A class defining a schedule of rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
 	price PriceSchedule (1..1) <"The initial rate. An initial rate of 5% would be represented as 0.05.">
 	    [metadata address "pointsTo"=PriceQuantity->price]
-	
+
 type ObservationDates: <"Describes date details for a set of observation dates in parametric or non-parametric form.">
    observationSchedule ObservationSchedule (0..*) <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable.  When no weight is specified, then weight of each date is assumed to be 1.0">
    periodicSchedule PeriodicDates (0..1) <"Specifies the date range and frequency on which market observations take place.  Weights can be assigned to dates in the schedule by assigning the weight and corresponding observationReference in the observationSchedule.">
@@ -257,8 +256,7 @@ type WeightedAveragingObservation: <"A single weighted averaging observation.">
 		then observationNumber >= 0
 
 	condition PositiveWeight: <" FpML specifies observationNumber as a non-negative decimal.">
-		if weight exists
-		then weight >= 0.0
+		weight >= 0.0
 
 type AmountSchedule extends Schedule: <"A class to specify a currency amount or a currency amount schedule.">
 

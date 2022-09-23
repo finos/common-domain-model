@@ -104,7 +104,7 @@ The price and quantity attributes of a trade, or of a leg of a trade in the case
 
  type PriceQuantity:
    [metadata key]
-   price Price (0..*)
+   price PriceSchedule (0..*)
      [metadata location]
    quantity NonNegativeQuantitySchedule (0..*)
      [metadata location]
@@ -474,7 +474,7 @@ A number of payout types extend a common data type called ``PayoutBase``. This d
 
  type PayoutBase:
    payerReceiver PayerReceiver (1..1)
-   payoutQuantity ResolvablePayoutQuantity (0..1)
+   priceQuantity ResolvablePriceQuantity (0..1)
    principalPayment PrincipalPayments (0..1)
    settlementTerms SettlementTerms (0..1)
 
@@ -515,12 +515,12 @@ The quantity attribute in the `PayoutBase` structure does not use the `Quantity`
 
 .. code-block:: Haskell
 
- type ResolvablePayoutQuantity:
+ type ResolvablePriceQuantity:
    [metadata key]
    resolvedQuantity Quantity (0..1)
    quantitySchedule NonNegativeQuantitySchedule (0..1)
      [metadata address "pointsTo"=PriceQuantity->quantity]
-   quantityReference ResolvablePayoutQuantity (0..1)
+   quantityReference ResolvablePriceQuantity (0..1)
      [metadata reference]
    quantityMultiplier QuantityMultiplier (0..1)
    reset boolean (0..1)
@@ -533,9 +533,8 @@ Other model structures use the ``[metadata address]`` to point to ``PriceQuantit
 .. code-block:: Haskell
 
  type RateSchedule:
-   initialValue Price (1..1)
+   price PriceSchedule (1..1)
      [metadata address "pointsTo"=PriceQuantity->price]
-   step Step (0..*)
 
 Reusable Components
 """""""""""""""""""
