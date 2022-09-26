@@ -11,7 +11,7 @@ import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.Trade;
 import cdm.observable.asset.*;
-import cdm.observable.asset.metafields.FieldWithMetaPrice;
+import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.ForeignExchange;
 import cdm.product.common.settlement.*;
 import cdm.product.template.*;
@@ -93,7 +93,7 @@ public class FxSwapContractCreation {
 
     private PriceQuantity createPriceQuantity(String currency1Str, long quantity1, String currency2Str, long quantity2, double rate) {
         return PriceQuantity.builder()
-                .addPrice(FieldWithMetaPrice.builder()
+                .addPrice(FieldWithMetaPriceSchedule.builder()
                         .setMeta(MetaFields.builder()
                                 .addKey(Key.builder()
                                         .setScope("DOCUMENT")
@@ -169,7 +169,7 @@ public class FxSwapContractCreation {
 
     private Cashflow createExchangeCurrency(CounterpartyRoleEnum payer, CounterpartyRoleEnum receiver) {
         return Cashflow.builder()
-                .setPayoutQuantity(ResolvablePayoutQuantity.builder()
+                .setPriceQuantity(ResolvablePriceQuantity.builder()
                         .setQuantitySchedule(ReferenceWithMetaNonNegativeQuantitySchedule.builder()
                                 .setReference(Reference.builder()
                                         .setScope("DOCUMENT")

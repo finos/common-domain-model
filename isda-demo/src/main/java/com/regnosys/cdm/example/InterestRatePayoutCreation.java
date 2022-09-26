@@ -14,7 +14,7 @@ import cdm.observable.asset.FloatingRateOption;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
-import cdm.observable.asset.metafields.ReferenceWithMetaPrice;
+import cdm.observable.asset.metafields.ReferenceWithMetaPriceSchedule;
 import cdm.product.asset.FixedRateSpecification;
 import cdm.product.asset.FloatingRateSpecification;
 import cdm.product.asset.InterestRatePayout;
@@ -23,7 +23,7 @@ import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.schedule.PayRelativeToEnum;
 import cdm.product.common.schedule.PaymentDates;
 import cdm.product.common.schedule.RateSchedule;
-import cdm.product.common.settlement.ResolvablePayoutQuantity;
+import cdm.product.common.settlement.ResolvablePriceQuantity;
 import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.records.Date;
 
@@ -38,7 +38,7 @@ public class InterestRatePayoutCreation {
 
     public static InterestRatePayout getFloatingRatePayout() {
         return InterestRatePayout.builder()
-                .setPayoutQuantity(ResolvablePayoutQuantity.builder()
+                .setPriceQuantity(ResolvablePriceQuantity.builder()
                         .setQuantitySchedule(ReferenceWithMetaNonNegativeQuantitySchedule.builder()
                                 .setReference(Reference.builder()
                                         .setScope("DOCUMENT")
@@ -91,7 +91,7 @@ public class InterestRatePayoutCreation {
 
     public static InterestRatePayout getFixedRatePayout(BigDecimal fixedRate) {
         return InterestRatePayout.builder()
-                .setPayoutQuantity(ResolvablePayoutQuantity.builder()
+                .setPriceQuantity(ResolvablePriceQuantity.builder()
                         .setQuantitySchedule(ReferenceWithMetaNonNegativeQuantitySchedule.builder()
                                 .setReference(Reference.builder()
                                         .setScope("DOCUMENT")
@@ -132,7 +132,7 @@ public class InterestRatePayoutCreation {
                 .setRateSpecification(RateSpecification.builder()
                         .setFixedRate(FixedRateSpecification.builder()
                                 .setRateSchedule(RateSchedule.builder()
-                                        .setInitialValue(ReferenceWithMetaPrice.builder()
+                                        .setPrice(ReferenceWithMetaPriceSchedule.builder()
                                                 .setReference(Reference.builder()
                                                         .setScope("DOCUMENT")
                                                         .setReference("price-1"))
