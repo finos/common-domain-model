@@ -82,6 +82,7 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 		// clear errors
 		mapping.setError(null);
 		mapping.setCondition(true);
+		mapping.setDuplicate(false);
 	}
 
 	private List<Step.StepBuilder> getSteps(Path floorScheduleSynonymPath, Path priceScheduleModelPath) {
