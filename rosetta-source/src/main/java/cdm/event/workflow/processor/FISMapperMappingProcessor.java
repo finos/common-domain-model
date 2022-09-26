@@ -223,7 +223,6 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			irp.getValue()
 					.getOrCreatePayoutQuantity()
 					.getOrCreateQuantitySchedule()
-					.getOrCreateInitialQuantity()
 					.setReference(reference);
 			return Arrays.asList(
 					new PathValue<>(pq.getModelPath().append(Path.parse("quantity[0].value.amount")), value),
@@ -297,7 +296,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getValue()
 					.getOrCreateDividendTerms()
 					.getOrCreateManufacturedIncomeRequirement()
-					.setDividendPayoutRatio(parseDecimal(value).divide(BigDecimal.valueOf(100)));
+					.setTotalRatio(parseDecimal(value).divide(BigDecimal.valueOf(100)));
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 

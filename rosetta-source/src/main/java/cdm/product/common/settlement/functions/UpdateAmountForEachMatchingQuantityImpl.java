@@ -1,10 +1,10 @@
 package cdm.product.common.settlement.functions;
 
 import cdm.base.math.MeasureBase;
-import cdm.base.math.Quantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.metafields.FieldWithMetaPrice;
@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule.*;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEachMatchingQuantity {
@@ -33,11 +34,11 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 			List<? extends PriceQuantity> change,
 			QuantityChangeDirectionEnum direction) {
 		// Get new quantities
-		Set<? extends Quantity> newQuantities = emptyIfNull(change).stream()
+		Set<? extends NonNegativeQuantitySchedule> newQuantities = emptyIfNull(change).stream()
 				.map(PriceQuantity::getQuantity)
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
-				.map(FieldWithMetaQuantity::getValue)
+				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 		// Get new prices
@@ -60,14 +61,14 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 	}
 
 	@NotNull
-	private List<? extends FieldWithMetaQuantity> updateAmountForEachMatchingQuantity(List<? extends FieldWithMetaQuantity> quantitiesToUpdate,
-			Set<? extends Quantity> newQuantities,
-			QuantityChangeDirectionEnum direction) {
+	private List<? extends FieldWithMetaNonNegativeQuantitySchedule> updateAmountForEachMatchingQuantity(List<? extends FieldWithMetaNonNegativeQuantityScheduleBuilder> quantitiesToUpdate,
+																					  Set<? extends NonNegativeQuantitySchedule> newQuantities,
+																					  QuantityChangeDirectionEnum direction) {
 		return emptyIfNull(quantitiesToUpdate)
 				.stream()
 				.filter(Objects::nonNull)
 				.filter(fieldWithMeta -> fieldWithMeta.getValue() != null)
-				.map(FieldWithMetaQuantity::toBuilder)
+				.map(FieldWithMetaNonNegativeQuantitySchedule::toBuilder)
 				.peek(quantityToUpdate ->
 						filterQuantityByUnitOfAmount(newQuantities, quantityToUpdate.getValue().getUnitOfAmount())
 								.forEach(newQuantity ->
@@ -76,7 +77,7 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 	}
 
 	@NotNull
-	private List<? extends Quantity> filterQuantityByUnitOfAmount(Set<? extends Quantity> quantities, UnitType unitOfAmount) {
+	private List<? extends NonNegativeQuantitySchedule> filterQuantityByUnitOfAmount(Set<? extends NonNegativeQuantitySchedule> quantities, UnitType unitOfAmount) {
 		return  Optional.ofNullable(quantities).orElseGet(HashSet::new).stream()
 				.filter(quantity -> Objects.nonNull(quantity.getUnitOfAmount()))
 				.filter(quantity -> unitTypeEquals(quantity.getUnitOfAmount(), unitOfAmount))

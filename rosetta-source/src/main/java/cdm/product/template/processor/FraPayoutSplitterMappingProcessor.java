@@ -96,10 +96,10 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	private void addFloatingLegQuantityReference(Mapping mapping, InterestRatePayoutBuilder floatingLeg) {
 		// create new dummy synonym path to differentiate it from the fixed leg path
 		Path newSynonymPath = getDummyFloatingLegPath(mapping.getXmlPath());
-		// create new reference object so it can be linked to the price quantity
+		// create new reference object, so it can be linked to the price quantity
 		Reference.ReferenceBuilder reference = Reference.builder();
 		// update mapped object with new reference object
-		floatingLeg.getOrCreatePayoutQuantity().getOrCreateQuantitySchedule().getOrCreateInitialQuantity().setReference(reference);
+		floatingLeg.getOrCreatePayoutQuantity().getOrCreateQuantitySchedule().setReference(reference);
 		// add new mapping
 		getMappings().add(new Mapping(newSynonymPath,
 				mapping.getXmlValue(),

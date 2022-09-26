@@ -46,7 +46,7 @@ public class FloatingRateCalculationWithFunction extends AbstractExample {
 
         // Calculate the floating amount
         //
-		BigDecimal floatingAmountResult = floatingAmount.evaluate(floatingRatePayout, rate, quantity, Date.of(floatingLegPeriodStart), null);
+		BigDecimal floatingAmountResult = floatingAmount.evaluate(floatingRatePayout, rate, quantity.getAmount(), Date.of(floatingLegPeriodStart), null);
 
 
         // Make assertions on the calculation results

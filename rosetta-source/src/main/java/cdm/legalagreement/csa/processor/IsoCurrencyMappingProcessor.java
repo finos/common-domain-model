@@ -26,20 +26,20 @@ public class IsoCurrencyMappingProcessor extends MappingProcessor {
 	}
 
 	@Override
-	public <T> void mapBasic(Path synonymPath, T value, RosettaModelObjectBuilder parent) {
-		if (value instanceof String && parent instanceof FieldWithMetaString.FieldWithMetaStringBuilder) {
-			FieldWithMetaString.FieldWithMetaStringBuilder currencyBuilder = (FieldWithMetaString.FieldWithMetaStringBuilder) parent;
-			String currencyValue = (String) value;
+	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+		if (builder instanceof FieldWithMetaString.FieldWithMetaStringBuilder) {
+			FieldWithMetaString.FieldWithMetaStringBuilder currencyBuilder = (FieldWithMetaString.FieldWithMetaStringBuilder) builder;
+			String currencyValue = currencyBuilder.getValue();
 			// Currency value should either already be a ISO Currency Code or maps to one via synonym
 			if (setCurrency(currencyBuilder, getSynonymToEnumMap().getEnumValueOptional(ISOCurrencyCodeEnum.class, currencyValue)
 					.orElse(Enums.getIfPresent(ISOCurrencyCodeEnum.class, currencyValue)
 							.orNull()))) {
 				return;
 			}
+			// Update mapping to failed if could not be mapped to an ISO currency code
+			filterMappings(getMappings(), getModelPath()).forEach(m ->
+					updateMappingFail(m, String.format("Element with value \"%s\" could not be mapped to a ISO currency code", currencyValue)));
 		}
-		// Update mapping to failed if could not be mapped to an ISO currency code
-		filterMappings(getMappings(), getModelPath()).forEach(m ->
-				updateMappingFail(m, String.format("Element with value \"%s\" could not be mapped to a ISO currency code", value)));
 	}
 
 	private boolean setCurrency(FieldWithMetaString.FieldWithMetaStringBuilder currencyBuilder, ISOCurrencyCodeEnum isoCurrencyCode) {
