@@ -34,5 +34,4 @@ In the CDM Portal, select Textual Browser and review the types mentioned above.
 To view an example of how rate schedules are now represented, select the Ingestion panel and review the following sample:
 
 - fpml-5-10 > products > rates
-
   - ird ex24 collar
