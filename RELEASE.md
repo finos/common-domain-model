@@ -33,3 +33,9 @@ _Synonyms_
 _Review Directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+
+In the CDM Portal, select Ingestion and review commodity examples, including:
+
+- fpml-5-10 > products > commodity > com-ex03-gas-swap-prices-last-three-days
+- fpml-5-10 > products > commodity > com-ex04-electricity-swap-hourly-off-peak
+- fpml-5-10 > products > commodity > com-ex05-gas-v-electricity-spark-spread
