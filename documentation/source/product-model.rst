@@ -225,7 +225,7 @@ Consider the example below for the initial price of the underlying equity in a s
      }
    ]
 
-The full form of this example can be seen in the CDM Portal Ingestion panel, products->equity->eqs-ex01-single-underlyer-execution-long-form-other-party.xml.  As can be seen in the full example, for an interest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency (e.g. 0.002 USD per USD). The  ``priceType`` would be an InterestRate and, in the case of a floating leg, the ``spreadType`` would be a Spread.
+The full form of this example can be seen by ingesting one of the samples provided in the CDM distribution under products / equity / eqs-ex01-single-underlyer-execution-long-form-other-party.xml. As can be seen in the full example, for an interest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency (e.g. 0.002 USD per USD). The  ``priceType`` would be an InterestRate and, in the case of a floating leg, the ``spreadType`` would be a Spread.
 
 Quantity
 """"""""
@@ -468,7 +468,7 @@ The ``Payout`` type defines the composable payout types, each of which describes
    cashflow Cashflow (0..*)
    performancePayout PerformancePayout (0..*)
 
-A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantities, settlement terms and the payer/receiver direction which are expected to be common across many payouts.
+A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantity, price, settlement terms and the payer/receiver direction which are expected to be common across many payouts.
 
 .. code-block:: Haskell
 
@@ -511,7 +511,9 @@ For example:
 
 .. note:: The code snippets above excludes the conditions in this data type for purposes of brevity.
 
-The quantity attribute in the `PayoutBase` structure does not use the `Quantity` type and uses `ResolvablePayoutQuantity` instead. In addition to the quantity, that data type supports the definition of additional information such as a schedule, a quantity reference, or the indication that the quantity is resettable.
+The price and quantity attributes in the `PayoutBase` structure are positioned in the `ResolvablePriceQuantity` data type. This data type mirrors the `PriceQuantity` data type and contains both the price and quantity schedules.
+
+In addition that data type supports the definition of additional information such as a quantity reference, a quantity multiplier or the indication that the quantity is resettable. Those are used to describe the quantity of a payout leg that may need to be calculated based on other inputs: e.g. an exchange rate for the foreign leg in a Cross-Currency Swap or a share price for the funding leg of an Equity Swap.
 
 .. code-block:: Haskell
 
@@ -525,10 +527,14 @@ The quantity attribute in the `PayoutBase` structure does not use the `Quantity`
    quantityMultiplier QuantityMultiplier (0..1)
    reset boolean (0..1)
    futureValueNotional FutureValueAmount (0..1)
+   priceSchedule PriceSchedule (0..*)
+     [metadata address "pointsTo"=PriceQuantity->price]
 
-The ``resolvedQuantity`` attribute has a metadata address that points to the quantity attribute in the ``PriceQuantity`` data type. This special cross-referencing annotation in the Rosetta DSL allows to parameterise an attribute whose value may be variable by associating it to an address. The attribute value does not need to be populated in the persisted object and can be provided by another object, using the address as a reference.
+By design, the CDM requires that each payout leg can only be associated with a single quantity schedule that defines this leg's contractual behaviour (e.g. for the payment of cashflows). In the ``PriceQuantity`` object, where that attribute is of multiple cardinality, other quantities may be provided "for information only" which can be inferred from the main quantity used in the payout leg: e.g. when a commodity quantity is associated to a frequency and needs to be multiplied by the period to get the total quantity.
 
-Other model structures use the ``[metadata address]`` to point to ``PriceQuantity->price``. An example include the ``initialValue`` attribute in the ``RateSchedule`` data type, which is illustrated below:
+Both the ``quantitySchedule`` and ``priceSchedule`` attributes have a metadata address that point respectively to the ``quantity`` and ``price`` attributes in the ``PriceQuantity`` data type. This special cross-referencing annotation in the Rosetta DSL allows to parameterise an attribute whose value may be variable by associating it to an address. The attribute value does not need to be populated in the persisted object and can be provided by another object, using the address as a reference.
+
+Other model structures use the ``[metadata address]`` to point to ``PriceQuantity->price``. An example include the ``price`` attribute in the ``RateSchedule`` data type, which is illustrated below:
 
 .. code-block:: Haskell
 
