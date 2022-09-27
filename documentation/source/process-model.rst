@@ -610,7 +610,7 @@ Specifying precisely which attributes from ``PerformancePayout`` should be used 
  func ResolveObservation:
      inputs:
          identifiers ObservationIdentifier (1..*)
-         averagingMethod AveragingMethodEnum (0..1)
+         averagingMethod AveragingCalculationMethod (0..1)
      output:
          observation Observation (1..1)
 
