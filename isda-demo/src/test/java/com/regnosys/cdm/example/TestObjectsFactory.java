@@ -14,7 +14,7 @@ import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.legalagreement.common.ClosedState;
 import cdm.observable.asset.*;
-import cdm.observable.asset.metafields.FieldWithMetaPrice;
+import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.*;
 import cdm.product.template.Product;
 import cdm.product.template.TradableProduct;
@@ -128,7 +128,7 @@ public class TestObjectsFactory {
 
 	private PriceQuantity getPriceQuantity(double notional, String productIdentifier, double cleanPrice, String tradedCurrency, SettlementTerms settlementTerms) {
 		return PriceQuantity.builder()
-				.addPrice(FieldWithMetaPrice.builder()
+				.addPrice(FieldWithMetaPriceSchedule.builder()
 						.setMeta(MetaFields.builder()
 								.addKey(Key.builder()
 								.setScope("DOCUMENT")

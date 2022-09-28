@@ -99,7 +99,7 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 		// create new reference object, so it can be linked to the price quantity
 		Reference.ReferenceBuilder reference = Reference.builder();
 		// update mapped object with new reference object
-		floatingLeg.getOrCreatePayoutQuantity().getOrCreateQuantitySchedule().setReference(reference);
+		floatingLeg.getOrCreatePriceQuantity().getOrCreateQuantitySchedule().setReference(reference);
 		// add new mapping
 		getMappings().add(new Mapping(newSynonymPath,
 				mapping.getXmlValue(),
