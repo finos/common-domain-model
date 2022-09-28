@@ -3,8 +3,8 @@ package cdm.observable.common.functions;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.event.common.TradeState;
-import cdm.observable.asset.Price;
-import cdm.observable.asset.metafields.FieldWithMetaPrice;
+import cdm.observable.asset.PriceSchedule;
+import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.template.TradableProduct;
 import com.google.inject.Inject;
@@ -40,11 +40,11 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		List<? extends Price> price = priceQuantity.stream()
+		List<? extends PriceSchedule> price = priceQuantity.stream()
 				.map(PriceQuantity::getPrice)
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
-				.map(FieldWithMetaPrice::getValue)
+				.map(FieldWithMetaPriceSchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 		boolean success = func.evaluate(quantity, price);
@@ -65,11 +65,11 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		List<? extends Price> price = priceQuantity.stream()
+		List<? extends PriceSchedule> price = priceQuantity.stream()
 				.map(PriceQuantity::getPrice)
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
-				.map(FieldWithMetaPrice::getValue)
+				.map(FieldWithMetaPriceSchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 		boolean success = func.evaluate(quantity, price);

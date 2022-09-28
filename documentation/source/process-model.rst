@@ -348,8 +348,8 @@ Some of those calculations are presented below:
 
  func RateOfReturn:
     inputs:
-        initialPrice Price (1..1)
-        finalPrice Price (1..1)
+        initialPrice PriceSchedule (1..1)
+        finalPrice PriceSchedule (1..1)
     output:
         rateOfReturn number (1..1)
 

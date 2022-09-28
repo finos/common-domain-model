@@ -161,14 +161,14 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 		if interestRatePayout -> rateSpecification -> fixedRate exists
 		then FixedAmount(
 			interestRatePayout,
-            interestRatePayout -> payoutQuantity -> quantitySchedule -> amount,
+            interestRatePayout -> priceQuantity -> quantitySchedule -> amount,
 			date,
 			empty)
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
 			resets only-element -> resetValue -> amount,
-			interestRatePayout -> payoutQuantity -> quantitySchedule -> amount,
+			interestRatePayout -> priceQuantity -> quantitySchedule -> amount,
 			date,
 			empty)
 	alias payer:
@@ -178,7 +178,7 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 	set interestCashSettlementAmount -> quantity -> amount:
 		performance
 	set interestCashSettlementAmount -> quantity -> unitOfAmount -> currency:
-		interestRatePayout -> payoutQuantity -> quantitySchedule -> unitOfAmount -> currency
+		interestRatePayout -> priceQuantity -> quantitySchedule -> unitOfAmount -> currency
 	set interestCashSettlementAmount -> payerReceiver -> payerPartyReference:
 	    if performance >= 0 then payer else receiver
 	set interestCashSettlementAmount -> payerReceiver -> receiverPartyReference:
@@ -310,7 +310,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 	alias periodEndPrice:
 		observation
 	alias numberOfSecurities:
-		performancePayout -> payoutQuantity -> quantitySchedule -> amount / periodStartPrice -> amount
+		performancePayout -> priceQuantity -> quantitySchedule -> amount / periodStartPrice -> amount
 	alias rateOfReturn:
 		RateOfReturn(periodStartPrice, periodEndPrice)
 	alias notionalAmount:
@@ -324,8 +324,8 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 
 func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
 	inputs:
-		initialPrice Price (1..1)
-		finalPrice Price (1..1)
+		initialPrice PriceSchedule (1..1)
+		finalPrice PriceSchedule (1..1)
 	output:
 		rateOfReturn number (1..1)
 
@@ -1129,7 +1129,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 		performance
 
 	set transfer -> quantity -> unitOfAmount -> currency:
-        interestRatePayout -> payoutQuantity -> quantitySchedule -> unitOfAmount -> currency
+        interestRatePayout -> priceQuantity -> quantitySchedule -> unitOfAmount -> currency
 
 	set transfer -> payerReceiver -> payerPartyReference:
 	    if performance >= 0 then payerPartyReference else receiverPartyReference

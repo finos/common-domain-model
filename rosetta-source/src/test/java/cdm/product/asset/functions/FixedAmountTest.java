@@ -6,8 +6,7 @@ import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.UnitType;
 import cdm.observable.asset.Money;
-import cdm.observable.asset.Price;
-import cdm.observable.asset.metafields.ReferenceWithMetaPrice;
+import cdm.observable.asset.PriceSchedule;
 import cdm.product.asset.FixedRateSpecification;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
@@ -76,7 +75,7 @@ class FixedAmountTest extends AbstractFunctionTest {
                                 .build())
                         .build())
                 .setRateSpecification(RateSpecification.builder().setFixedRate(FixedRateSpecification.builder()
-                        .setRateSchedule(RateSchedule.builder().setInitialValue(ReferenceWithMetaPrice.builder().setValue(Price.builder().setAmount(price))))))
+                        .setRateSchedule(RateSchedule.builder().setPriceValue(PriceSchedule.builder().setAmount(price)))))
                 .build();
 
         assertThat(fixedAmount.evaluate(interestRatePayout, notional.getAmount(), Date.of(2018, 8, 22), null), is(new BigDecimal("750000.0000")));

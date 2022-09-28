@@ -203,11 +203,11 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getOrCreateRateSpecification()
 					.getOrCreateFixedRate()
 					.getOrCreateRateSchedule()
-					.getOrCreateInitialValue()
+					.getOrCreatePrice()
 					.setReference(reference);
 			return Arrays.asList(
 					new PathValue<>(pq.getModelPath().append(Path.parse("price[0].value.amount")), value),
-					new PathValue<>(irp.getModelPath().append(Path.parse("rateSpecification.fixedRate.rateSchedule.initialValue")), reference));
+					new PathValue<>(irp.getModelPath().append(Path.parse("rateSpecification.fixedRate.rateSchedule.price")), reference));
 		});
 
 		commonMappings.put("Loan_Value", (indexes, value, tradeState) -> {
@@ -221,12 +221,12 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			Reference.ReferenceBuilder reference = Reference.builder();
 			PathValue<InterestRatePayoutBuilder> irp = getIRP(tradeState);
 			irp.getValue()
-					.getOrCreatePayoutQuantity()
+					.getOrCreatePriceQuantity()
 					.getOrCreateQuantitySchedule()
 					.setReference(reference);
 			return Arrays.asList(
 					new PathValue<>(pq.getModelPath().append(Path.parse("quantity[0].value.amount")), value),
-					new PathValue<>(irp.getModelPath().append(Path.parse("payoutQuantity.quantitySchedule.initialQuantity")), reference));
+					new PathValue<>(irp.getModelPath().append(Path.parse("priceQuantity.quantitySchedule")), reference));
 		});
 
 		commonMappings.put("Loan_Value_Currency", (indexes, value, tradeState) -> {
