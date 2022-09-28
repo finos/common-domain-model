@@ -43,7 +43,7 @@ func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact 
 	set is_event:
 		businessEvent -> instruction -> primitiveInstruction -> transfer only exists
 		and beforeTransfers count + transferInstructions count = afterTransfers count
-		and transferInstructions -> transferState -> transfer -> quantity -> unitOfAmount -> currency exists
+		and transferInstructions -> transferState -> transfer -> quantity -> unit -> currency exists
 
 func Qualify_CashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
 	[qualification BusinessEvent]
@@ -52,8 +52,8 @@ func Qualify_CashAndSecurityTransfer: <"The qualification of a security settleme
 	output: is_event boolean (1..1)
 	alias transfersForDate: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate )
 	set is_event:
-		transfersForDate -> quantity -> unitOfAmount -> currency exists
-		and transfersForDate -> quantity -> unitOfAmount -> financialUnit exists
+		transfersForDate -> quantity -> unit -> currency exists
+		and transfersForDate -> quantity -> unit -> financialUnit exists
 		and transfersForDate count = 2
 
         func Qualify_ClearedTrade:
@@ -220,7 +220,7 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
 	alias transfer: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
 	set is_event:
 		transfer -> observable -> productIdentifier exists
-		and transfer -> quantity -> unitOfAmount -> financialUnit only exists
+		and transfer -> quantity -> unit -> financialUnit only exists
 
 func Qualify_SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
 	[qualification BusinessEvent]
@@ -230,7 +230,7 @@ func Qualify_SecuritySettlement: <"The qualification of a security settlement fr
 	alias transfers: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate )
 	set is_event:
 		transfers -> observable -> productIdentifier only exists
-		and transfers -> quantity -> unitOfAmount -> currency only exists
+		and transfers -> quantity -> unit -> currency only exists
 		and FilterCashTransfers( transfers ) only-element -> payerReceiver -> payerPartyReference =
 			FilterSecurityTransfers( transfers ) only-element -> payerReceiver -> receiverPartyReference
 
@@ -286,30 +286,30 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 		beforeTradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity
 	
 	alias beforeNoOfUnits:
-		FilterQuantityByFinancialUnit( beforeQuantities, FinancialUnitEnum -> Share ) only-element -> amount
+		FilterQuantityByFinancialUnit( beforeQuantities, FinancialUnitEnum -> Share ) only-element -> value
 	
 	alias afterQuantities:
 		afterTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity
 	
 	alias afterNoOfUnits:
-		FilterQuantityByFinancialUnit( afterQuantities, FinancialUnitEnum -> Share ) only-element -> amount
+		FilterQuantityByFinancialUnit( afterQuantities, FinancialUnitEnum -> Share ) only-element -> value
 
 	alias beforeCurrencyAmount:
-		FilterQuantityByCurrencyExists( beforeQuantities ) -> amount distinct only-element
+		FilterQuantityByCurrencyExists( beforeQuantities ) -> value distinct only-element
 	
 	alias afterCurrencyAmount:
-		FilterQuantityByCurrencyExists( afterQuantities ) -> amount distinct only-element
+		FilterQuantityByCurrencyExists( afterQuantities ) -> value distinct only-element
 
 	alias beforePrice: <"Only works in the case of a single trade lot and price.">
 		beforeTradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
-		    filter [ item -> perUnitOfAmount -> financialUnit = FinancialUnitEnum -> Share ]
-		    map [ item -> amount ]
+		    filter [ item -> perUnitOf -> financialUnit = FinancialUnitEnum -> Share ]
+		    map [ item -> value ]
 		    only-element
 
 	alias afterPrice: <"Only works in the case of a single trade lot and price.">
 		afterTradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
-		    filter [ item -> perUnitOfAmount -> financialUnit = FinancialUnitEnum -> Share ]
-		    map [ item -> amount ]
+		    filter [ item -> perUnitOf -> financialUnit = FinancialUnitEnum -> Share ]
+		    map [ item -> value ]
 		    only-element
 
 	alias currencyAmountUnchanged:
@@ -361,7 +361,7 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
 
 	alias adjustmentSpreadAdded:
 		if spread exists
-		then spread -> amount <> 0
+		then spread -> value <> 0
 		else True
 
 	set is_event:
