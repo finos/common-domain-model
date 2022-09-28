@@ -32,7 +32,7 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
     fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
 
 	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-		payoutQuantity exists
+		priceQuantity exists
 
 type CreditDefaultPayout extends PayoutBase: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated globalKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
@@ -46,7 +46,7 @@ type CreditDefaultPayout extends PayoutBase: <" The credit default payout specif
 		then generalTerms -> referenceInformation -> referencePrice -> amount >= 0
 	
 	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-		payoutQuantity exists
+		priceQuantity exists
 
 type GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
 
@@ -94,18 +94,18 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 	floatingAmount calculation (0..1) <"Floating Amount Calculation">
 
 	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-		payoutQuantity exists
+		priceQuantity exists
 
 	condition InterestRatePayoutChoice: <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">
 		optional choice paymentDates, paymentDate
 
 	condition FutureValueNotional: <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
 		if rateSpecification -> fixedRate is absent
-		then payoutQuantity -> futureValueNotional is absent
+		then priceQuantity -> futureValueNotional is absent
 
 	condition TerminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
-		if payoutQuantity -> futureValueNotional exists
-		then payoutQuantity -> futureValueNotional -> valueDate = calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
+		if priceQuantity -> futureValueNotional exists
+		then priceQuantity -> futureValueNotional -> valueDate = calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
 
 	condition FpML_ird_6: <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
 		if paymentDates -> firstPaymentDate exists
@@ -127,10 +127,10 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 	condition CashSettlementTerms: <"Cash Settlements Terms must exist when the settlement currency is different to the notional currency of the trade.">
 		if settlementTerms -> settlementCurrency exists and
-			(settlementTerms -> settlementCurrency <> payoutQuantity -> quantitySchedule -> unitOfAmount -> currency
-			or settlementTerms -> settlementCurrency <> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
+			(settlementTerms -> settlementCurrency <> priceQuantity -> quantitySchedule -> unitOfAmount -> currency
+			or settlementTerms -> settlementCurrency <> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
 		then (settlementTerms -> cashSettlementTerms -> valuationMethod exists and settlementTerms -> cashSettlementTerms -> valuationDate exists)
-		    or payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
+		    or priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
 
 	condition FpML_ird_7_1: <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
 		if paymentDates -> paymentFrequency -> period = calculationPeriodDates -> calculationPeriodFrequency -> period
@@ -427,8 +427,8 @@ type DividendPeriod: <"Time bounded dividend payment periods, each with a divide
 
 type PriceReturnTerms:
 
-	valuationPriceInitial Price (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
-	valuationPriceFinal Price (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+	valuationPriceInitial PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+	valuationPriceFinal PriceSchedule (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
 	returnType ReturnTypeEnum (1..1) <"The type of return associated with the equity swap.">
 	conversionFactor number (0..1) <"Defines the conversion applied if the quantity unit on contract is different from unit on referenced underlier.">
 	performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">

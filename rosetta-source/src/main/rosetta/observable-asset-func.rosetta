@@ -5,7 +5,7 @@ import cdm.base.math.*
 
 func FilterPrice: <"Filter list of prices based on price type.">
     inputs:
-        prices Price (0..*) <"List of prices to filter.">
+        prices PriceSchedule (0..*) <"List of prices to filter.">
         priceType PriceTypeEnum (1..1) <"The price type to filter by: asset price, cash price, exchange rate etc.">
  	    priceExpression PriceExpressionEnum (0..1) <"Optionally filter by type of price expression: percentage of notional, par value fraction">
  	    grossOrNet GrossOrNetEnum (0..1) <"Optionally filter between gross / net price.">
@@ -14,7 +14,7 @@ func FilterPrice: <"Filter list of prices based on price type.">
  	    capFloor CapFloorEnum (0..1) <"Optionally filter by type of interest rate cap / floor.">
  	    spreadType SpreadTypeEnum (0..1) <"Optionally filter by type of spread / base price.">
     output:
-        price Price (0..1)
+        price PriceSchedule (0..1)
 
     set price: <"Return as single element rather than a list.">
         prices
@@ -35,6 +35,20 @@ func Create_Price: <"Populates a price object based on inputs.">
 		priceExpression PriceExpression (1..1)
 	output:
 		price Price (1..1)
+
+	set price -> amount: amount
+	set price -> unitOfAmount: unitOfAmount
+	set price -> perUnitOfAmount: perUnitOfAmount
+	set price -> priceExpression: priceExpression
+
+func Create_PriceSchedule: <"Populates a price schedule object based on inputs.">
+	inputs:
+		amount number (1..1)
+		unitOfAmount UnitType (1..1)
+		perUnitOfAmount UnitType (1..1)
+		priceExpression PriceExpression (1..1)
+	output:
+		price PriceSchedule (1..1)
 
 	set price -> amount: amount
 	set price -> unitOfAmount: unitOfAmount

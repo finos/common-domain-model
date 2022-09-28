@@ -5,9 +5,9 @@ import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
-import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceExpression;
-import cdm.observable.asset.metafields.FieldWithMetaPrice;
+import cdm.observable.asset.PriceSchedule;
+import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.PriceQuantity;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule.*;
+import static cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEachMatchingQuantity {
@@ -42,11 +42,11 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 		// Get new prices
-		Set<? extends Price> newPrices = emptyIfNull(change).stream()
+		Set<? extends PriceSchedule> newPrices = emptyIfNull(change).stream()
 				.map(PriceQuantity::getPrice)
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
-				.map(FieldWithMetaPrice::getValue)
+				.map(FieldWithMetaPriceSchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 		// Update matching quantities and prices for each price quantity
@@ -85,14 +85,14 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 	}
 
 	@NotNull
-	private List<? extends FieldWithMetaPrice> updateAmountForEachMatchingPrice(List<? extends FieldWithMetaPrice> pricesToUpdate,
-																				Set<? extends Price> newPrices,
+	private List<? extends FieldWithMetaPriceSchedule> updateAmountForEachMatchingPrice(List<? extends FieldWithMetaPriceSchedule> pricesToUpdate,
+																				Set<? extends PriceSchedule> newPrices,
 																				QuantityChangeDirectionEnum direction) {
 		return emptyIfNull(pricesToUpdate)
 				.stream()
 				.filter(Objects::nonNull)
 				.filter(fieldWithMeta -> fieldWithMeta.getValue() != null)
-				.map(FieldWithMetaPrice::toBuilder)
+				.map(FieldWithMetaPriceSchedule::toBuilder)
 				.peek(priceToUpdate ->
 						filterPrice(newPrices,
 								priceToUpdate.getValue().getUnitOfAmount(),
@@ -104,7 +104,7 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 	}
 
 	@NotNull
-	private List<? extends Price> filterPrice(Set<? extends Price> prices, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceExpression priceExpression) {
+	private List<? extends PriceSchedule> filterPrice(Set<? extends PriceSchedule> prices, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceExpression priceExpression) {
 		return  Optional.ofNullable(prices).orElseGet(HashSet::new).stream()
 				.filter(price -> Objects.nonNull(price.getUnitOfAmount()))
 				.filter(price -> unitTypeEquals(price.getUnitOfAmount(), unitOfAmount))
