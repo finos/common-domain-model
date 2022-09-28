@@ -177,15 +177,10 @@ type Reset: <"Defines the reset value or fixing value produced in cashflow calcu
 	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
 	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
 		[metadata reference]
-	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value and the method is not defined in a payout.">
+	averagingMethodology AveragingCalculation (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value and the method is not defined in a payout.">
 
-	condition AggregationMethodologyExists: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
-		if observations count > 1 then aggregationMethodology exists
-
-type AggregationMethod: <"Defines the ways in which multiple values can be aggregated into a single value.">
-	averagingMethod AveragingMethodEnum (0..1) <"Identifies whether the average values will be weighted.">
-	averagingCalculationMethod AveragingCalculationMethodEnum (0..1) <"Identifies which of the Pythagorean means is being used to compute an average value.">
-	condition: one-of
+	condition AveragingMethodologyExists: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
+		if observations count > 1 then averagingMethodology exists
 
 type State: <"Defines the state of a trade at a point in the Trade's life cycle. Trades have many state dimensions, all of which are represented here. For example, states useful for position keeping are represented alongside those needed for regulatory reporting.">
 	closedState ClosedState (0..1) <"Represents the qualification of what led to the trade's closure alongside the dates on which this closure took effect.">
