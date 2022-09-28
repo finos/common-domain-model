@@ -1,12 +1,10 @@
-# *Product Model - Custom Commodity Schedule*
+# *Product Model - Simplification of the Commodity Schedule Type*
 
 _What is being released?_
 
-This release updates the Commodity Schedule data type following the recent changes to the price and quantity schedules.
+This release updates the Commodity Schedule data type following the recent changes to the price and quantity schedules to only represents the custom period dates (start and end dates, fixing and payment dates). It no longer contains either price or quantity attributes. The price and quantity will be represented with the generic price and quantity schedules positioned in every payout structure.
 
-This data type that defines a custom commodity schedule only represents the custom period dates (start and end dates, fixing and payment dates) and no longer contains either price or quantity attributes. The price and quantity are now meant to be represented by the generic price and quantity schedules positioned in every payout structure.
-
-As no existing trade sample with custom commodity schedule existed, no mapping has been done to map those to the new structure.
+As no existing trade sample with custom commodity schedule existed, no mapping has been done to map those to the new structure for now.
 
 _Details_
 
