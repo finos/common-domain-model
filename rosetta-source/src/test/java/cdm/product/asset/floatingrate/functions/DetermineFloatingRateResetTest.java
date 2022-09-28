@@ -52,7 +52,7 @@ public class DetermineFloatingRateResetTest extends AbstractFunctionTest {
 
 		return InterestRatePayout.builder()
 				.setResetDates(resetDates)
-				.setPayoutQuantity(GetNotionalAmountTest.initNotionalSchedule())
+				.setPriceQuantity(GetNotionalAmountTest.initNotionalSchedule())
 				.setRateSpecification(RateSpecification.builder()
 						.setFloatingRate(initFloatingRate(fro)).build())
 				.build();

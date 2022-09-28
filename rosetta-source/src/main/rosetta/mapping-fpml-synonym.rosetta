@@ -38,7 +38,7 @@ synonym source FpML_5_10 extends FpML
 		+ payerReceiver
 			[hint "fixedLeg"]
 			[hint "floatingLeg"]
-		+ payoutQuantity
+		+ priceQuantity
 			[value "vegaNotional" set when path = "fxVolatilitySwap"]
 		+ paymentDates
 			[value "paymentDates" path "rateOfReturn"]
@@ -726,7 +726,7 @@ synonym source FpML_5_10 extends FpML
 		+ effectiveDate
 			[value "ignore"] // Do not map, until a canonical representation of effective date is built in the CDM and existing effective date attributes can be re-directed here
 
-	Price:
+	PriceSchedule:
 		+ amount
 			[value "initialRate" mapper "PriceUnitType"]
 			[value "initialValue" mapper "PriceUnitType"]
@@ -758,6 +758,8 @@ synonym source FpML_5_10 extends FpML
 			[value "amount"]
 			// For Commodity Swap Fixed Leg
 			[hint "priceUnit"]
+		+ step
+			[value "step"]
 
 	PriceExpression:
  		+ priceType
@@ -958,13 +960,11 @@ synonym source FpML_5_10 extends FpML
 			[value "paymentDate"]
 
 	RateSchedule:
-		+ initialValue
+		+ price
 			[meta "initialValue"]
 			[meta "fixedRate"]
 			[value "spread" maps 2 meta "amount"]
-		+ step
-			[value "step"]
-
+	
 	SpreadSchedule:
 		+ spreadScheduleType
 			[value "SpreadScheduleType" meta "spreadScheduleTypeScheme"]
@@ -1829,8 +1829,8 @@ synonym source FpML_5_10 extends FpML
 			[value "step"]
 			[value "notionalStep"]
 
-	NonNegativePriceSchedule:
-		+ initialPrice
+	FixedPrice:
+		+ price
 			[value "fixedPrice" meta "price"]
 			[hint "fixedStrike"]
 
@@ -2015,7 +2015,7 @@ synonym source FpML_5_10 extends FpML
 
 	Cashflow:
 		[meta "id"]
-		+ payoutQuantity
+		+ priceQuantity
 			// For FX Option
 			[hint "putCurrencyAmount"]
 			[hint "callCurrencyAmount"]
@@ -2127,7 +2127,7 @@ synonym source FpML_5_10 extends FpML
 			[value "fixedAmountCalculation"]
 			[hint "fixedRate"]
 
-	ResolvablePayoutQuantity:
+	ResolvablePriceQuantity:
 		[meta "id" path "notionalSchedule"]
 		[meta "id" path "notionalSchedule->notionalStepSchedule"]
 		[meta "id" path "notional"]
@@ -2175,6 +2175,8 @@ synonym source FpML_5_10 extends FpML
 			[value "notionalReset"]
 		+ futureValueNotional
 			[value "futureValueNotional"]
+		+ priceSchedule
+			[value "ignore"]
 
 	CreditDefaultPayout:
 		[meta "id"]
@@ -2431,7 +2433,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "receiverPartyReference"]
 			[hint "buyerPartyReference"]
 			[hint "sellerPartyReference"]
-		+ payoutQuantity
+		+ priceQuantity
 			// For Swap Stream:
 			[value "calculation" path "calculationPeriodAmount"]
 			[value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
@@ -3669,11 +3671,11 @@ synonym source FpML_5_10 extends FpML
 		+ capacityUnit
 			[value "quantityUnit" maps 2]
 			// For Commodity Swap Fixed Leg
-			[value "priceUnit" maps 2 set when rosettaPath = Price->perUnitOfAmount]
+			[value "priceUnit" maps 2 set when rosettaPath = PriceSchedule->perUnitOfAmount]
 		+ weatherUnit
 			[value "quantityUnit"]
 			// For Commodity Swap Fixed Leg
-			// [value "priceUnit" set when rosettaPath = Price->perUnitOfAmount]
+			// [value "priceUnit" set when rosettaPath = PriceSchedule->perUnitOfAmount]
 		+ financialUnit
 			[value "quantityUnit"]
 			[value "openUnits" mapper "OpenUnits"]

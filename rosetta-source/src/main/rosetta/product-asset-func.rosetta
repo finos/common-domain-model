@@ -59,11 +59,11 @@ func ResolveRateIndex: <"The function to specify that the floating rate index en
 func ResolvePerformancePeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
 	inputs:
 		performancePayout PerformancePayout (1..1)
-		price Price (0..*)
+		price PriceSchedule (0..*)
 		observable Observable (0..1)
 		adjustedDate date (1..1)
 	output:
-		startPrice Price (1..1)
+		startPrice PriceSchedule (1..1)
 
 	alias priceReturnTerms:
 		performancePayout -> returnTerms -> priceReturnTerms
@@ -79,13 +79,14 @@ func ResolvePerformancePeriodStartPrice: <"Resolves the price from the end of th
 
 func ResolveEquityInitialPrice: <"To be replaced by full resolve price function implementation.">
 	inputs:
-		price Price (0..*)
+		price PriceSchedule (0..*)
 	output:
-		initialPrice Price (0..1)
+		initialPrice PriceSchedule (0..1)
 
 	set initialPrice:
 	    price
 	        filter [ item -> perUnitOfAmount -> financialUnit = FinancialUnitEnum -> Share ]
+			map [ Create_Price ( item -> amount, item -> unitOfAmount, item -> perUnitOfAmount, item -> priceExpression ) ]
 	        only-element
 
 func DividendCashSettlementAmount: <"Based on the following legal text: means, in respect of a Dividend Period and the related Dividend Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent for such Dividend Period to which the Dividend Cash Settlement Amount relates, pursuant to the following formula: Dividend Cash Settlement Amount = Record Amount × Number Of Securities.">

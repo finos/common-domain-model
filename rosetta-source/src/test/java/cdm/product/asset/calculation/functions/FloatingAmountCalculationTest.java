@@ -80,7 +80,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
         return InterestRatePayout.builder()
                 .setCalculationPeriodDates(calculationPeriodDates)
                 .setResetDates(resetDates)
-                .setPayoutQuantity(GetNotionalAmountTest.initNotionalSchedule())
+                .setPriceQuantity(GetNotionalAmountTest.initNotionalSchedule())
                 .setRateSpecification(RateSpecification.builder()
                         .setFloatingRate(initFloatingRate(fro)).build())
                 .setDayCountFractionValue(DayCountFractionEnum.ACT_360)
