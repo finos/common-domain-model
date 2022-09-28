@@ -52,20 +52,20 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 		if payout -> creditDefaultPayout exists
 			and payout -> cashflow exists
 			and effectiveDate exists
-			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> unadjustedDate exists
-			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate is absent
-		then payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> unadjustedDate all > effectiveDate -> adjustableDate -> unadjustedDate
-			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate all > effectiveDate -> adjustableDate -> adjustedDate
-			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate
+			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate exists
+			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate is absent
+		then payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate all > effectiveDate -> adjustableDate -> unadjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> adjustedDate all > effectiveDate -> adjustableDate -> adjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate
 
 	condition FpML_cd_27: <"FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 		if payout -> creditDefaultPayout exists
 			and payout -> cashflow exists
 			and terminationDate exists
-			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate exists
-		then payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> unadjustedDate all < terminationDate -> adjustableDate -> unadjustedDate
-			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
-			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
+			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
+		then payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate all < terminationDate -> adjustableDate -> unadjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 		if payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate exists and terminationDate exists
@@ -91,6 +91,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 	underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
 	observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
+	schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
 	condition ClearedPhysicalSettlementExists:
 		if settlementTerms -> physicalSettlementTerms exists
@@ -407,14 +408,14 @@ type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attr
 		if underlier -> foreignExchange exists then
 		(
 			settlementTerms -> settlementDate -> valueDate exists
-			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate is absent
-			and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate is absent
+			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent
+			and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent
 		) or
 		(
 			settlementTerms -> settlementDate -> valueDate is absent
-			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate exists
-			and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate exists
-			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate = underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate
+			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
+			and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
+			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate = underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate
 		)
 
 	condition FxSettlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
@@ -596,7 +597,7 @@ type Asian: <"As per ISDA 2002 Definitions.">
 	averagingPeriodOut AveragingPeriod (0..1) <"The averaging out period.">
 
 type AveragingCalculation: <"Defines parameters for use in cases when a valuation or other term is based on an average of market observations.">
-   calculationMethod AveragingCalculationMethodEnum (1..1) <"Specifies enumerations for the type of averaging calculation.">
+   averagingMethod AveragingCalculationMethod (1..1) <"Specifies enumerations for the type of averaging calculation.">
    precision Rounding (1..1) <"Rounding applied to the average calculation. ">
 
 type AveragingStrikeFeature: <"Defines the terms required to calculate the average observations associated with an averaging strike.">
@@ -643,7 +644,6 @@ type OptionFeature: <"Defines additional optional features that can be included 
 	barrier Barrier (0..1) <"Specifies a barrier feature.">
 	knock Knock (0..1) <"Specifies a knock in or knock out feature.">
 	passThrough PassThrough (0..1) <"Specifies the rules for pass-through payments from the underlier, such as dividends.">
-
 
 type OptionProvision: <"A class for defining option provisions.">
 	cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">
