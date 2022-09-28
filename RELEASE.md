@@ -1,4 +1,4 @@
-# *Product Model - Simplification of the Commodity Schedule type*
+# *Product Model - Simplification of the Commodity Schedule Type*
 
 _What is being released?_
 
