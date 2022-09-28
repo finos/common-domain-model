@@ -240,7 +240,7 @@ type PercentageRule: <"A class defining a content model for a calculation rule d
 type SettlementDate: <"A data defining the settlement date(s) for cash or physical settlement as either a set of explicit dates, together with applicable adjustments, or as a date relative to some other (anchor) date, or as any date in a range of contiguous business days. This data type provides a level of abstraction on top of the different legacy methods used to specify a settlement / payment date, which vary across product types, asset classes and delivery types.">
 	[metadata key]
 
-	adjustedDate AdjustableOrAdjustedOrRelativeDate (0..1) <"A single settlement date subject to adjustment or specified as relative to another date (e.g. the trade date). This attribute was formerly part of 'SettlementTerms', which is now being harmonised to include a common 'SettlementDate', as inherited from 'SettlementBase'.">
+	adjustableOrRelativeDate AdjustableOrAdjustedOrRelativeDate (0..1) <"A single settlement date subject to adjustment or specified as relative to another date (e.g. the trade date). This attribute was formerly part of 'SettlementTerms', which is now being harmonised to include a common 'SettlementDate', as inherited from 'SettlementBase'.">
 	valueDate date (0..1) <"The settlement date for a forward settling product. For Foreign Exchange contracts, this represents a common settlement date between both currency legs. To specify different settlement dates for each currency leg, see the ForeignExchange class. This attribute was formerly part of 'SettlementTerms', which is now being harmonised to include a common 'SettlementDate', as inherited from 'SettlementBase'.">
 	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date. This attributes was formerly part of 'CashSettlementPaymentDate' as included into 'OptionCashSettlement' (which is now merged into a unique 'CashSettlementTerms' data type.">
 	businessDateRange BusinessDateRange (0..1) <"A range of contiguous business days. This attribute is meant to be merged with the 'settlementDate' at some future point once we refactor 'Date' to use a single complex type across the model. This attributes was formerly part of 'CashSettlementPaymentDate', as included into 'OptionCashSettlement' (which is now merged into a unique 'CashSettlementTerms' data type.">
@@ -251,10 +251,10 @@ type SettlementDate: <"A data defining the settlement date(s) for cash or physic
 		if cashSettlementBusinessDays exists
 			then cashSettlementBusinessDays >= 0
 		else
-			adjustedDate exists or valueDate exists or adjustableDates exists or businessDateRange exists
+			adjustableOrRelativeDate exists or valueDate exists or adjustableDates exists or businessDateRange exists
 
 	condition DateChoice: <"Settlement date must be specified either throught the 'settlementDate' or 'valueDate' attribute. This is a temporary work-around until such time when we can retire the 'valueDate' attribute.">
-		optional choice adjustedDate, valueDate, adjustableDates, businessDateRange
+		optional choice adjustableOrRelativeDate, valueDate, adjustableDates, businessDateRange
 
 type FxFixingDate extends Offset: <"Extends the Offset structure to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
 
