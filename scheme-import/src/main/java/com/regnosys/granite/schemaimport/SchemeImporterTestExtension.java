@@ -1,7 +1,7 @@
 package com.regnosys.granite.schemaimport;
 
-import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.util.ClassPathUtils;
+import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.transgest.ModelLoaderImpl;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -70,13 +69,13 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
                         Optional.empty(),
                         SchemeImporter.class.getClassLoader()
                 ).stream()
-                .map(ClassPathUtils::toUrl)
+                .map(UrlUtils::toUrl)
                 .toArray(URL[]::new);
     }
 
     private URL schemeUrl() {
         return ClassPathUtils.loadFromClasspath(schemaPath, getClass().getClassLoader())
-                .map(ClassPathUtils::toUrl)
+                .map(UrlUtils::toUrl)
                 .findFirst().orElseThrow();
     }
 
@@ -84,7 +83,7 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
         URL rosettaPath = Arrays.stream(rosettaPaths)
                 .filter(x -> getFileName(x.getFile()).equals(fileName))
                 .findFirst().orElseThrow();
-        String contents = new String(rosettaPath.openStream().readAllBytes());
+        String contents = new String(rosettaPath.openStream().readAllBytes(), StandardCharsets.UTF_8);
         return RosettaResourceWriter.rewriteProjectVersion(contents);
     }
 
@@ -102,7 +101,7 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
 
         for (String fileName : rosettaExpected.keySet()) {
             Path outputPath = basePath.resolve(fileName);
-            Files.write(outputPath, rosettaExpected.get(fileName).getBytes(StandardCharsets.UTF_8));
+            Files.writeString(outputPath, rosettaExpected.get(fileName), StandardCharsets.UTF_8);
             LOGGER.info("Wrote test output to {}", outputPath.toAbsolutePath());
         }
     }

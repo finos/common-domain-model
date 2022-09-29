@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.regnosys.rosetta.common.util.ClassPathUtils.loadFromClasspath;
-import static com.regnosys.rosetta.common.util.ClassPathUtils.toUrl;
+import static com.regnosys.rosetta.common.util.UrlUtils.toUrl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 //TODO: move this into the ingestion-test infrastructure
