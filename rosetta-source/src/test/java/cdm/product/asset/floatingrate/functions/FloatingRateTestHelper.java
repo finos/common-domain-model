@@ -1,11 +1,10 @@
 package cdm.product.asset.floatingrate.functions;
 
 import cdm.base.datetime.*;
-import cdm.base.math.Step;
+import cdm.base.math.DatedValue;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateOption;
-import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationTestDataProvider;
@@ -93,11 +92,11 @@ public class FloatingRateTestHelper {
                 Date.of(2021, 12, 10));
         PriceSchedule.PriceScheduleBuilder priceSchedule =
                 PriceSchedule.builder()
-                        .setAmount(BigDecimal.valueOf(initVal));
+                        .setValue(BigDecimal.valueOf(initVal));
         for (int i = 0; i < sched.length; i++) {
-            priceSchedule.addStep(Step.builder()
-                    .setStepValue(BigDecimal.valueOf(sched[i]))
-                    .setStepDate(dates.get(i)));
+            priceSchedule.addDatedValue(DatedValue.builder()
+                    .setValue(BigDecimal.valueOf(sched[i]))
+                    .setDate(dates.get(i)));
         }
         return scheduleBuilder
                 .setPriceValue(priceSchedule)

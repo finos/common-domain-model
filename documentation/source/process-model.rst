@@ -329,12 +329,12 @@ Some of those calculations are presented below:
      alias receiver:
          ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPerformancePayout -> payerReceiver -> receiver ) -> partyReference
 
-     set equityCashSettlementAmount -> quantity -> amount:
+     set equityCashSettlementAmount -> quantity -> value:
          Abs(equityPerformance)
-     set equityCashSettlementAmount -> quantity -> unitOfAmount-> currency:
+     set equityCashSettlementAmount -> quantity -> unit -> currency:
          ResolveEquityInitialPrice(
             tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
-         ) -> unitOfAmount -> currency
+         ) -> unit -> currency
      set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
          if equityPerformance >= 0 then payer else receiver
      set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
@@ -354,9 +354,9 @@ Some of those calculations are presented below:
         rateOfReturn number (1..1)
 
     alias initialPriceValue:
-        initialPrice->amount
+        initialPrice->value
     alias finalPriceValue:
-        finalPrice->amount
+        finalPrice->value
     set rateOfReturn:
         if finalPriceValue exists and initialPriceValue exists and initialPriceValue > 0 then
             (finalPriceValue - initialPriceValue) / initialPriceValue
@@ -396,21 +396,21 @@ Some of those calculations are presented below:
       CreditSupportAmount(marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency)
 
     alias deliveryAmount:
-      Max(creditSupportAmount -> amount - undisputedAdjustedPostedCreditSupportAmount -> amount, 0.0)
+      Max(creditSupportAmount -> value - undisputedAdjustedPostedCreditSupportAmount -> value, 0.0)
 
     alias undisputedDeliveryAmount:
-      Max(deliveryAmount - disputedDeliveryAmount -> amount, 0.0)
+      Max(deliveryAmount - disputedDeliveryAmount -> value, 0.0)
 
     condition CurrencyMatches:
-      (baseCurrency = minimumTransferAmount -> unitOfAmount -> currency
-      and (baseCurrency = disputedDeliveryAmount -> unitOfAmount -> currency))
+      (baseCurrency = minimumTransferAmount -> unit -> currency
+      and (baseCurrency = disputedDeliveryAmount -> unit -> currency))
 
-    set result -> amount:
-      if undisputedDeliveryAmount >= minimumTransferAmount -> amount
+    set result -> value:
+      if undisputedDeliveryAmount >= minimumTransferAmount -> value
       then RoundToNearest(undisputedDeliveryAmount, rounding -> deliveryAmount, RoundingModeEnum -> Up)
       else 0.0
 
-    set result -> unitOfAmount -> currency:
+    set result -> unit -> currency:
       baseCurrency
 
 .. code-block:: Haskell
@@ -438,20 +438,20 @@ Some of those calculations are presented below:
    alias creditSupportAmount:
      CreditSupportAmount( marginAmount, threshold, marginApproach, marginAmountIA, baseCurrency )
    alias returnAmount:
-     Max( undisputedAdjustedPostedCreditSupportAmount -> amount - creditSupportAmount -> amount, 0.0 )
+     Max( undisputedAdjustedPostedCreditSupportAmount -> value - creditSupportAmount -> value, 0.0 )
    alias undisputedReturnAmount:
-     Max( returnAmount - disputedReturnAmount -> amount, 0.0 )
+     Max( returnAmount - disputedReturnAmount -> value, 0.0 )
 
    condition CurrencyMatches:
-     (baseCurrency = minimumTransferAmount -> unitOfAmount->currency)
-       and (baseCurrency = disputedReturnAmount -> unitOfAmount->currency)
+     (baseCurrency = minimumTransferAmount -> unit->currency)
+       and (baseCurrency = disputedReturnAmount -> unit->currency)
 
-   set result -> amount:
-     if undisputedReturnAmount >= minimumTransferAmount -> amount
+   set result -> value:
+     if undisputedReturnAmount >= minimumTransferAmount -> value
      then RoundToNearest( undisputedReturnAmount, rounding -> returnAmount, RoundingModeEnum -> Down )
      else 0.0
 
-   set result -> unitOfAmount->currency:
+   set result -> unit->currency:
      baseCurrency
 
 Billing

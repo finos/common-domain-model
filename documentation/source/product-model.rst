@@ -135,17 +135,17 @@ MeasureBase
 ``MeasureBase`` is a base data type that consists of two attributes that define a *measure* generally. It provides a common component that is useful in the definition of price and quantity.
 
 - ``amount``, which is a number and could be a price or a quantity
-- ``unitOfAmount``, which defines the unit in which that amount is expressed
+- ``unit``, which defines the unit in which that amount is expressed
 
 Both attributes are optional as their existence is designed to be further constrained in the different data types that extend ``MeasureBase``.
 
 .. code-block:: Haskell
 
  type MeasureBase:
-   amount number (0..1)
-   unitOfAmount UnitType (0..1)
+   value number (0..1)
+   unit UnitType (0..1)
 
-The ``UnitType`` data type used to defined the ``unitOfAmount`` attribute requires the definition of units using one of five defined types:
+The ``UnitType`` data type used to defined the ``unit`` attribute requires the definition of units using one of five defined types:
 
 .. code-block:: Haskell
 
@@ -166,22 +166,23 @@ To represent this, the ``MeasureSchedule`` type extends ``MeasureBase`` with a s
 .. code-block:: Haskell
 
  type MeasureSchedule extends MeasureBase:
-   step Step (0..*)
+   datedValue DatedValue (0..*)
+
    condition ValueExists:
-     amount exists or step exists
+     value exists or datedValue exists
  
 The price and quantity concepts for financial instruments are both modelled as extensions of the ``MeasureSchedule`` data type, as detailed below. This means that by default, price and quantity are considered as schedules although they can also represent a single value when the ``step`` attribute is omitted.
 
 Price
 """""
 
-The ``PriceSchedule`` data type extends the ``MeasureSchedule`` data type with the addition of the ``priceExpression`` and ``perUnitOfAmount`` attributes, which together further qualify the price.
+The ``PriceSchedule`` data type extends the ``MeasureSchedule`` data type with the addition of the ``priceExpression`` and ``perUnitOf`` attributes, which together further qualify the price.
 
 .. code-block:: Haskell
 
  type PriceSchedule extends MeasureSchedule:
    priceExpression PriceExpression (1..1)
-   perUnitOfAmount UnitType (0..1)
+   perUnitOf UnitType (0..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
 
@@ -191,7 +192,7 @@ The ``Price`` data type further constrains the ``PriceSchedule`` data type by re
 
  type Price extends PriceSchedule:
    condition AmountOnlyExists:
-     amount exists and step is absent
+     value exists and datedValue is absent
 
 Consider the example below for the initial price of the underlying equity in a single-name Equity Swap, which is a net price of 37.44 USD per Share:
 
@@ -200,13 +201,13 @@ Consider the example below for the initial price of the underlying equity in a s
  "price": [
    {
      "value": {
-       "amount": 37.44,
-       "unitOfAmount": {
+       "value": 37.44,
+       "unit": {
          "currency": {
            "value": "USD"
            }
          },
-         "perUnitOfAmount": {
+         "perUnitOf": {
            "financialUnit": "SHARE"
          },
          "priceExpression": {
@@ -225,7 +226,7 @@ Consider the example below for the initial price of the underlying equity in a s
      }
    ]
 
-The full form of this example can be seen by ingesting one of the samples provided in the CDM distribution under products / equity / eqs-ex01-single-underlyer-execution-long-form-other-party.xml. As can be seen in the full example, for an interest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency (e.g. 0.002 USD per USD). The  ``priceType`` would be an InterestRate and, in the case of a floating leg, the ``spreadType`` would be a Spread.
+The full form of this example can be seen by ingesting one of the samples provided in the CDM distribution under products / equity / eqs-ex01-single-underlyer-execution-long-form-other-party.xml. As can be seen in the full example, for an interest rate leg, the ``unit`` and the ``perUnitOf`` would both be a currency (e.g. 0.002 USD per USD). The  ``priceType`` would be an InterestRate and, in the case of a floating leg, the ``spreadType`` would be a Spread.
 
 Quantity
 """"""""
@@ -235,26 +236,23 @@ The ``QuantitySchedule`` data type also extends the ``MeasureSchedule`` data typ
 .. code-block:: Haskell
 
  type QuantitySchedule extends MeasureSchedule:
-   multiplier number (0..1)
-   multiplierUnit UnitType (0..1)
+   multiplier Measure (0..1)
    frequency Frequency (0..1)
 
    condition Quantity_multiplier:
-     if multiplier exists
-       then multiplier >= 0.0
-
+       if multiplier exists then multiplier -> value >= 0.0
    condition UnitOfAmountExists:
-     unitOfAmount exists
+       unit exists
 
 .. code-block:: Haskell
 
  type NonNegativeQuantitySchedule extends QuantitySchedule:
  
    condition NonNegativeQuantity_amount:
-     if amount exists then amount >= 0.0 and
-     if step exists then step -> stepValue all >= 0.0
+     if value exists then value >= 0.0 and
+     if datedValue exists then datedValue -> value all >= 0.0
 
-The inherited attributes of ``amount``, ``step`` (in case the quantity is provided as a schedule) and ``unitOfAmount`` are sufficient to define a quantity, in most cases.
+The inherited attributes of ``amount``, ``step`` (in case the quantity is provided as a schedule) and ``unit`` are sufficient to define a quantity, in most cases.
 
 The additional attributes that are provided for the ``QuantitySchedule`` data type allow to further qualify the ``amount`` with a multiplier. This is needed for listed contracts or other purposes, as shown below. In this example, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME. Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
 
@@ -264,7 +262,7 @@ The additional attributes that are provided for the ``QuantitySchedule`` data ty
    {
      "value": {
        "amount": 200,
-       "unitOfAmount": {
+       "unit": {
          "financialUnit": "CONTRACT"
        },
        "multiplier": 1000,

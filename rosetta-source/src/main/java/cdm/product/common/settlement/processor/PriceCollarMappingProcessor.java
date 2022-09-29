@@ -1,6 +1,6 @@
 package cdm.product.common.settlement.processor;
 
-import cdm.base.math.Step;
+import cdm.base.math.DatedValue;
 import cdm.observable.asset.CapFloorEnum;
 import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceSchedule;
@@ -57,7 +57,7 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 					Path amountModelPath = incrementPathElementIndex(frm.getRosettaPath(), "price", 1);
 					updateMapping(frm, amountModelPath);
 					// add schedule (if exists)
-					priceScheduleBuilder.setStep(getSteps(frm.getXmlPath().getParent(), amountModelPath.getParent()));
+					priceScheduleBuilder.setDatedValue(getSteps(frm.getXmlPath().getParent(), amountModelPath.getParent()));
 					// add to PriceQuantity
 					((PriceQuantity.PriceQuantityBuilder) parent).addPrice(fieldWithPriceScheduleBuilder);
 
@@ -85,11 +85,11 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 		mapping.setDuplicate(false);
 	}
 
-	private List<Step.StepBuilder> getSteps(Path floorScheduleSynonymPath, Path priceScheduleModelPath) {
-		List<Step.StepBuilder> steps = new ArrayList<>();
+	private List<DatedValue.DatedValueBuilder> getSteps(Path floorScheduleSynonymPath, Path priceScheduleModelPath) {
+		List<DatedValue.DatedValueBuilder> steps = new ArrayList<>();
 		int index = 0;
 		while (true) {
-			Optional<Step.StepBuilder> step = getStep(floorScheduleSynonymPath, priceScheduleModelPath, index++);
+			Optional<DatedValue.DatedValueBuilder> step = getStep(floorScheduleSynonymPath, priceScheduleModelPath, index++);
 			if (!step.isPresent()) {
 				break;
 			}
@@ -98,19 +98,19 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 		return steps;
 	}
 
-	private Optional<Step.StepBuilder> getStep(Path floorScheduleSynonymPath, Path priceScheduleModelPath, int index) {
-		Step.StepBuilder stepBuilder = Step.builder();
+	private Optional<DatedValue.DatedValueBuilder> getStep(Path floorScheduleSynonymPath, Path priceScheduleModelPath, int index) {
+		DatedValue.DatedValueBuilder stepBuilder = DatedValue.builder();
 
 		Path synonymPath = floorScheduleSynonymPath.addElement("step", index);
 		Path modelPath = priceScheduleModelPath.addElement("step", index);
 
 		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath.addElement("stepValue"),
-				(xmlValue) -> stepBuilder.setStepValue(new BigDecimal(xmlValue)),
+				(xmlValue) -> stepBuilder.setValue(new BigDecimal(xmlValue)),
 				getMappings(),
 				PathUtils.toRosettaPath(modelPath.addElement("stepValue")));
 
 		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath.addElement("stepDate"),
-				(xmlValue) -> stepBuilder.setStepDate(Date.parse(xmlValue)),
+				(xmlValue) -> stepBuilder.setDate(Date.parse(xmlValue)),
 				getMappings(),
 				PathUtils.toRosettaPath(modelPath.addElement("stepDate")));
 

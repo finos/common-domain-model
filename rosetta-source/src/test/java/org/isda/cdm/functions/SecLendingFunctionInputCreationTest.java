@@ -116,12 +116,12 @@ class SecLendingFunctionInputCreationTest {
         RunReturnSettlementWorkflowInput actual = new RunReturnSettlementWorkflowInput(getTransferTradeState(),
                 ReturnInstruction.builder()
                         .addQuantity(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(50000))
-                                .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
+                                .setValue(BigDecimal.valueOf(50000))
+                                .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build())
                                 .build())
                         .addQuantity(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(1250000))
-                                .setUnitOfAmount(UnitType.builder()
+                                .setValue(BigDecimal.valueOf(1250000))
+                                .setUnit(UnitType.builder()
                                         .setCurrency(FieldWithMetaString.builder().setValue("USD").build()).build())
                                 .build())
                         .build(),
@@ -139,11 +139,11 @@ class SecLendingFunctionInputCreationTest {
 
         ReturnInstruction returnInstruction = ReturnInstruction.builder()
                 .addQuantity(Quantity.builder()
-                        .setAmount(BigDecimal.valueOf(200000))
-                        .setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))
+                        .setValue(BigDecimal.valueOf(200000))
+                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))
                 .addQuantity(Quantity.builder()
-                        .setAmount(BigDecimal.valueOf(5000000))
-                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD")))
+                        .setValue(BigDecimal.valueOf(5000000))
+                        .setUnit(UnitType.builder().setCurrencyValue("USD")))
                 .build();
 
         RunReturnSettlementWorkflowInput actual = new RunReturnSettlementWorkflowInput(getTransferTradeState(),
@@ -186,12 +186,12 @@ class SecLendingFunctionInputCreationTest {
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
                                         .addQuantityValue(NonNegativeQuantitySchedule.builder()
-                                                .setAmount(BigDecimal.valueOf(0.0))
-                                                .setUnitOfAmount(UnitType.builder()
+                                                .setValue(BigDecimal.valueOf(0.0))
+                                                .setUnit(UnitType.builder()
                                                         .setCurrencyValue("USD")))
                                         .addQuantityValue(NonNegativeQuantitySchedule.builder()
-                                                .setAmount(BigDecimal.valueOf(0.0))
-                                                .setUnitOfAmount(UnitType.builder()
+                                                .setValue(BigDecimal.valueOf(0.0))
+                                                .setUnit(UnitType.builder()
                                                         .setFinancialUnit(FinancialUnitEnum.SHARE))))));
 
         Instruction.InstructionBuilder instruction = Instruction.builder()
@@ -352,8 +352,8 @@ class SecLendingFunctionInputCreationTest {
                         .setObservationDate(Date.of(LocalDate.parse(date)))
                         .build())
                 .setObservedValue(Price.builder()
-                        .setAmount(BigDecimal.valueOf(price))
-                        .setUnitOfAmount(UnitType.builder().setCurrencyValue(currency).build())
+                        .setValue(BigDecimal.valueOf(price))
+                        .setUnit(UnitType.builder().setCurrencyValue(currency).build())
                         .build())
                 .build();
     }
@@ -439,7 +439,7 @@ class SecLendingFunctionInputCreationTest {
                 .flatMap(Collection::stream)
                 .map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
                 .map(NonNegativeQuantitySchedule::toBuilder)
-                .map(q -> q.setAmount(q.getAmount().multiply(BigDecimal.valueOf(percent))))
+                .map(q -> q.setValue(q.getValue().multiply(BigDecimal.valueOf(percent))))
                 .map(NonNegativeQuantitySchedule::build)
                 .collect(Collectors.toList());
     }
