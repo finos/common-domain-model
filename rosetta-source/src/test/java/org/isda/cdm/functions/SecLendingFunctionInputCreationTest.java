@@ -38,7 +38,6 @@ import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.CdmRuntimeModule;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -455,7 +454,7 @@ class SecLendingFunctionInputCreationTest {
     private static String readResource(String inputJson) throws IOException {
         URL resource = SecLendingFunctionInputCreationTest.class.getResource(inputJson);
         //noinspection UnstableApiUsage
-        return Resources.toString(Objects.requireNonNull(resource), Charset.defaultCharset());
+        return Resources.toString(Objects.requireNonNull(resource), StandardCharsets.UTF_8);
     }
 
     private <T> T assertJsonConformsToRosettaType(String inputJson, Class<T> rosettaType) throws IOException {

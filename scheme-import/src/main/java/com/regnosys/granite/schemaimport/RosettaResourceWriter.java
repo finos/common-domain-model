@@ -6,6 +6,8 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +51,7 @@ public class RosettaResourceWriter {
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		BufferedOutputStream out = new BufferedOutputStream(byteArrayOutputStream);
 		eResource.save(out, null);
-		return byteArrayOutputStream.toString();
+		return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(byteArrayOutputStream.toByteArray())).toString();
 	}
 
 }
