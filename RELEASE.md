@@ -11,7 +11,8 @@ _Details_
 The following data types and attributes have been modified:
 
 - `SchedulePeriod`: removed `quantity`, `totalQuantity` and `price`.
-- `CommoditySchedule`: removed `unitOfAmount`, `priceExpression` and `perUnitOfAmount`
+- `CommoditySchedule`: removed `unitOfAmount`, `priceExpression` and `perUnitOfAmount`.
+- `CommodityPayout`: added a `CalculationPeriod` choice condition that requires the period dates to be specified either as a parametric `CalculationPeriodDates` or a non-parametric `CommoditySchedule`.
 
 _Review directions_
 
