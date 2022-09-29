@@ -1,41 +1,19 @@
-# *Product Model - Commodity Option*
-
-_Background_
-
-This release extends the representation of the `OptionPayout` type to over the gaps that commodity options currently have in the model. It also extends the possible ways of calculating averages in commodity products.
+# *Product Model - Simplification of the Commodity Schedule Type*
 
 _What is being released?_
 
-- The addition of the attribute `schedule` of type `CommoditySchedule` to `OptionPayout`.
-- Modification of the averaging calculation representation to determine which type of weighting and which Pythagorean mean is being used.
-- Mapping additions to support the changes above, and also the mappings of the payment dates on `SettlementTerms`.
+This release updates the Commodity Schedule data type following the recent changes to the price and quantity schedules to only represents the custom period dates (start and end dates, fixing and payment dates). It no longer contains either price or quantity attributes. The price and quantity will be represented with the generic price and quantity schedules positioned in every payout structure.
 
-_Data Types_
+As no existing trade sample with custom commodity schedule existed, no mapping has been done to map those to the new structure for now.
 
-- Created type `AveragingCalculationMethod`, which contains `isWeighted` and `calculationMethod` and their respective types: `boolean` and `AveragingCalculationMethodEnum`.
-- In `Reset`, changed `aggregationMethodology` of type `AggregationMethod` to `averagingMethodology` of type `AveragingCalculation`.
-- Modified the attribute name `averagingMethod` in `CommodityPayout` to `averagingFeature` and changed its type to `AveragingCalculation`.
-- In `settlementDate`, changed the name of `adjustedDate` to `adjustedOrRelativeDate`.
-- Added the attribute `schedule` of type `CommoditySchedule` to `OptionPayout` so that commodity option products support the overwriting of their original schedule.
-- In `AveragingCalculation`, changed the name of `calculationMethod` to `averagingMethod`.
-- Changed `averagingRateFeature` to `averagingFeature` in type `OptionFeature`.
-- In `PerformancePayout`, changed `averagingMethod` type from `AveragingMethodEnum` to `AveragingCalculationMethod`.
+_Details_
 
-_Functions_
+The following data types and attributes have been modified:
 
-- Updated `Create_SecurityFinanceReset` to support the changes on `AveragingCalculationMethodEnum`.
-- Updated `Qualify_EquityOption_PriceReturnBasicPerformance_SingleName`, `Qualify_EquityOption_PriceReturnBasicPerformance_Index`, `Qualify_EquityOption_PriceReturnBasicPerformance_Basket` and  `Qualify_ForeignExchange_VanillaOption` in order to support the change of the `averagingRateFeature` attribute name to `averagingFeature` in `OptionFeature`.
+- `SchedulePeriod`: removed `quantity`, `totalQuantity` and `price`.
+- `CommoditySchedule`: removed `unitOfAmount`, `priceExpression` and `perUnitOfAmount`.
+- `CommodityPayout`: added a `CalculationPeriod` choice condition that requires the period dates to be specified either as a parametric `CalculationPeriodDates` or a non-parametric `CommoditySchedule`.
 
-_Synonyms_
+_Review directions_
 
-- Added the synonyms needed to map the FpML attribute `averagingMethod` to the new averaging structure, as well as the `schedule` mappings and the `relativePaymentDates` to `settlementTerms`.
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-
-In the CDM Portal, select Ingestion and review commodity examples, including:
-
-- fpml-5-10 > products > commodity > com-ex03-gas-swap-prices-last-three-days
-- fpml-5-10 > products > commodity > com-ex04-electricity-swap-hourly-off-peak
-- fpml-5-10 > products > commodity > com-ex05-gas-v-electricity-spark-spread
+In the CDM Portal, select Textual Browser and review the types mentioned above.
