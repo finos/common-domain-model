@@ -8,9 +8,9 @@ _Details_
 
 The following data types and attributes have been modified:
 
-- `TimeInterval`: removed.
-- `SchedulePeriod`: updated to use the `DateRange` type for the `calculationPeriod` and `fixingPeriod` attributes.
-- `DateRange`: attribute names changed to `startDate` and `endDate` (in line with how attribute were named in `TimeInterval`).
+- `SchedulePeriod` (as used in `CommoditySchedule`): updated to use the `DateRange` type instead of `TimeInterval` for the `calculationPeriod` and `fixingPeriod` attributes.
+- `DateRange`: attribute names changed to `startDate` and `endDate` (in line with how attributes were named in `TimeInterval`).
+- `TimeInterval`: data type removed.
 
 Synonyms have been adjsuted to reflect the new attribute names.
 
