@@ -1140,8 +1140,8 @@ public class Fpml510ProjectionMapper {
 		return Optional.ofNullable(cdmDateRange)
 			.map(d -> {
 				DateRange dateRange = objectFactory.createDateRange();
-				getDate(d.getUnadjustedFirstDate()).ifPresent(dateRange::setUnadjustedFirstDate);
-				getDate(d.getUnadjustedLastDate()).ifPresent(dateRange::setUnadjustedLastDate);
+				getDate(d.getStartDate()).ifPresent(dateRange::setUnadjustedFirstDate);
+				getDate(d.getEndDate()).ifPresent(dateRange::setUnadjustedLastDate);
 				return dateRange;
 			});
 	}
