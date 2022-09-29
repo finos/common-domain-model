@@ -458,7 +458,7 @@ public class Fpml510ProjectionMapper {
 				CashSettlementPaymentDate cashSettlementPaymentDate = objectFactory.createCashSettlementPaymentDate();
 				getAdjustableDates(d.getAdjustableDates()).ifPresent(cashSettlementPaymentDate::setAdjustableDates);
 				//				getBusinessDateRange(d.getBusinessDateRange()).ifPresent(cashSettlementPaymentDate::setBusinessDateRange);
-				Optional.ofNullable(d.getAdjustedDate()).map(AdjustableOrAdjustedOrRelativeDate::getRelativeDate).flatMap(this::getRelativeDateOffset).ifPresent(cashSettlementPaymentDate::setRelativeDate);
+				Optional.ofNullable(d.getAdjustableOrRelativeDate()).map(AdjustableOrAdjustedOrRelativeDate::getRelativeDate).flatMap(this::getRelativeDateOffset).ifPresent(cashSettlementPaymentDate::setRelativeDate);
 				return cashSettlementPaymentDate;
 			});
 	}
@@ -597,7 +597,7 @@ public class Fpml510ProjectionMapper {
 				Payment payment = objectFactory.createPayment();
 				getNonNegativeMoney(pricePayment).ifPresent(payment::setPaymentAmount);
 				Optional.ofNullable(cdmPriceQuantity.getSettlementTerms()).map(SettlementBase::getSettlementDate)
-					.map(SettlementDate::getAdjustedDate).flatMap(this::getAdjustableOrAdjustedDate).ifPresent(payment::setPaymentDate);
+					.map(SettlementDate::getAdjustableOrRelativeDate).flatMap(this::getAdjustableOrAdjustedDate).ifPresent(payment::setPaymentDate);
 				getBuyerPartyReference(cdmPriceQuantity.getBuyerSeller(), cdmCounterparties).ifPresent(payment::setPayerPartyReference);
 				getSellerPartyReference(cdmPriceQuantity.getBuyerSeller(), cdmCounterparties).ifPresent(payment::setReceiverPartyReference);
 				return payment;
@@ -1140,8 +1140,8 @@ public class Fpml510ProjectionMapper {
 		return Optional.ofNullable(cdmDateRange)
 			.map(d -> {
 				DateRange dateRange = objectFactory.createDateRange();
-				getDate(d.getUnadjustedFirstDate()).ifPresent(dateRange::setUnadjustedFirstDate);
-				getDate(d.getUnadjustedLastDate()).ifPresent(dateRange::setUnadjustedLastDate);
+				getDate(d.getStartDate()).ifPresent(dateRange::setUnadjustedFirstDate);
+				getDate(d.getEndDate()).ifPresent(dateRange::setUnadjustedLastDate);
 				return dateRange;
 			});
 	}

@@ -161,7 +161,7 @@ In addition to the observation value, a reset specifies the date from which the 
    rateRecordDate date (0..1)
    observations Observation (1..*)
      [metadata reference]
-   aggregationMethodology AggregationMethod (0..1)
+   averagingMethodology AveragingCalculation (0..1)
 
 .. code-block:: Haskell
 
