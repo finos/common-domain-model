@@ -70,17 +70,17 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 				.filter(fieldWithMeta -> fieldWithMeta.getValue() != null)
 				.map(FieldWithMetaNonNegativeQuantitySchedule::toBuilder)
 				.peek(quantityToUpdate ->
-						filterQuantityByUnitOfAmount(newQuantities, quantityToUpdate.getValue().getUnitOfAmount())
+						filterQuantityByUnitOfAmount(newQuantities, quantityToUpdate.getValue().getUnit())
 								.forEach(newQuantity ->
-										updateAmount(quantityToUpdate.getValue(), newQuantity.getAmount(), direction)))
+										updateAmount(quantityToUpdate.getValue(), newQuantity.getValue(), direction)))
 				.collect(Collectors.toList());
 	}
 
 	@NotNull
 	private List<? extends NonNegativeQuantitySchedule> filterQuantityByUnitOfAmount(Set<? extends NonNegativeQuantitySchedule> quantities, UnitType unitOfAmount) {
 		return  Optional.ofNullable(quantities).orElseGet(HashSet::new).stream()
-				.filter(quantity -> Objects.nonNull(quantity.getUnitOfAmount()))
-				.filter(quantity -> unitTypeEquals(quantity.getUnitOfAmount(), unitOfAmount))
+				.filter(quantity -> Objects.nonNull(quantity.getUnit()))
+				.filter(quantity -> unitTypeEquals(quantity.getUnit(), unitOfAmount))
 				.collect(Collectors.toList());
 	}
 
@@ -95,20 +95,20 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 				.map(FieldWithMetaPriceSchedule::toBuilder)
 				.peek(priceToUpdate ->
 						filterPrice(newPrices,
-								priceToUpdate.getValue().getUnitOfAmount(),
-								priceToUpdate.getValue().getPerUnitOfAmount(),
+								priceToUpdate.getValue().getUnit(),
+								priceToUpdate.getValue().getPerUnitOf(),
 								priceToUpdate.getValue().getPriceExpression())
 								.forEach(matchingPrice ->
-										updateAmount(priceToUpdate.getValue(), matchingPrice.getAmount(), direction)))
+										updateAmount(priceToUpdate.getValue(), matchingPrice.getValue(), direction)))
 				.collect(Collectors.toList());
 	}
 
 	@NotNull
 	private List<? extends PriceSchedule> filterPrice(Set<? extends PriceSchedule> prices, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceExpression priceExpression) {
 		return  Optional.ofNullable(prices).orElseGet(HashSet::new).stream()
-				.filter(price -> Objects.nonNull(price.getUnitOfAmount()))
-				.filter(price -> unitTypeEquals(price.getUnitOfAmount(), unitOfAmount))
-				.filter(price -> unitTypeEquals(price.getPerUnitOfAmount(), perUnitOfAmount))
+				.filter(price -> Objects.nonNull(price.getUnit()))
+				.filter(price -> unitTypeEquals(price.getUnit(), unitOfAmount))
+				.filter(price -> unitTypeEquals(price.getPerUnitOf(), perUnitOfAmount))
 				.filter(price -> Objects.equals(price.getPriceExpression().toBuilder().prune(), priceExpression.toBuilder().prune()))
 				.collect(Collectors.toList());
 	}
@@ -116,9 +116,9 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 	private <T extends MeasureBase.MeasureBaseBuilder> T updateAmount(T priceToUpdate, BigDecimal newAmount, QuantityChangeDirectionEnum direction) {
 		switch (direction) {
 			case DECREASE:
-				return (T) priceToUpdate.setAmount(priceToUpdate.getAmount().subtract(newAmount));
+				return (T) priceToUpdate.setValue(priceToUpdate.getValue().subtract(newAmount));
 			case REPLACE:
-				return (T) priceToUpdate.setAmount(newAmount);
+				return (T) priceToUpdate.setValue(newAmount);
 			default:
 				throw new IllegalArgumentException("Unexpected QuantityChangeDirectionEnum " + direction);
 		}

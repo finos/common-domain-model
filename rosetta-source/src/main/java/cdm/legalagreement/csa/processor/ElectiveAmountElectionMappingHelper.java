@@ -38,11 +38,11 @@ class ElectiveAmountElectionMappingHelper {
 		Money.MoneyBuilder moneyBuilder = Money.builder();
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_amount"),
-				(value) -> moneyBuilder.setAmount(new BigDecimal(value)), mappings, path);
+				(value) -> moneyBuilder.setValue(new BigDecimal(value)), mappings, path);
 
 		setValueAndOptionallyUpdateMappings(synonymPath.addElement(party + "_currency"),
 				(value) -> setIsoCurrency(synonymToEnumMap.getEnumValue(ISOCurrencyCodeEnum.class, value),
-						cur -> moneyBuilder.getOrCreateUnitOfAmount().setCurrency(cur)),
+						cur -> moneyBuilder.getOrCreateUnit().setCurrency(cur)),
 				mappings,
 				path);
 

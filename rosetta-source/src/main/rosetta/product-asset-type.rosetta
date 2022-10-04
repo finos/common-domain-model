@@ -43,7 +43,7 @@ type CreditDefaultPayout extends PayoutBase: <" The credit default payout specif
 
 	condition FpML_cd_12: <"FpML validation rule cd-12 - If referencePrice exists, referencePrice must be greater or equal to 0">
 		if generalTerms -> referenceInformation -> referencePrice exists
-		then generalTerms -> referenceInformation -> referencePrice -> amount >= 0
+		then generalTerms -> referenceInformation -> referencePrice -> value >= 0
 	
 	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
 		priceQuantity exists
@@ -127,7 +127,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 	condition CashSettlementTerms: <"Cash Settlements Terms must exist when the settlement currency is different to the notional currency of the trade.">
 		if settlementTerms -> settlementCurrency exists and
-			(settlementTerms -> settlementCurrency <> priceQuantity -> quantitySchedule -> unitOfAmount -> currency
+			(settlementTerms -> settlementCurrency <> priceQuantity -> quantitySchedule -> unit -> currency
 			or settlementTerms -> settlementCurrency <> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
 		then (settlementTerms -> cashSettlementTerms -> valuationMethod exists and settlementTerms -> cashSettlementTerms -> valuationDate exists)
 		    or priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
@@ -464,7 +464,7 @@ type VarianceReturnTerms extends ReturnTermsBase:
 	exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
 
 	condition Positive_VegaNotionalAmount: <"When the optional vegaNotionalAmount is present in the varianceReturnTerms, it needs to have a positive value.">
-		if vegaNotionalAmount -> amount exists then vegaNotionalAmount -> amount > 0
+		if vegaNotionalAmount -> value exists then vegaNotionalAmount -> value > 0
 
 	condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
 		if exchangeTradedContractNearest exists
@@ -477,8 +477,8 @@ type VarianceReturnTerms extends ReturnTermsBase:
 		required choice volatilityStrikePrice, varianceStrikePrice
 
 	condition NonNegativeStrikePrice: <"The strike price must have a positive value">
-		if volatilityStrikePrice -> amount  exists then volatilityStrikePrice -> amount >= 0 and
-		if varianceStrikePrice -> amount exists then varianceStrikePrice -> amount >= 0
+		if volatilityStrikePrice -> value  exists then volatilityStrikePrice -> value >= 0 and
+		if varianceStrikePrice -> value exists then varianceStrikePrice -> value >= 0
 
 type VolatilityReturnTerms extends ReturnTermsBase:
 
@@ -501,7 +501,7 @@ type CorrelationReturnTerms extends ReturnTermsBase:
 		if numberOfDataSeries exists then numberOfDataSeries > 0
 
 	condition CorrelationValue: <"The correlation strike price is a decimal with allowed values only between 1 and -1">
-		correlationStrikePrice -> amount > -1 and correlationStrikePrice -> amount > 1
+		correlationStrikePrice -> value > -1 and correlationStrikePrice -> value > 1
 
 type Valuation:
 	futuresPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions.">
