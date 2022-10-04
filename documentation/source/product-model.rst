@@ -129,21 +129,28 @@ The effective date attribute is optional and will usually be specified when a si
 
 The ``price`` and ``quantity`` attributes in the ``PriceQuantity`` data type each have a metadata location which can reference a metadata address in one of the  ``Payout`` data types.  The metadata address-location pair allows for a reference to link objects without populating the address object in persistence.  This capability helps to support an agnostic definition of the product in a trade (i.e. a product definition without a price and quantity). However, the reference can be used to populate values for an input into a function or for other purposes.
 
-MeasureBase
-"""""""""""
+Measure
+"""""""
 
-``MeasureBase`` is a base data type that consists of two attributes that define a *measure* generally. It provides a common component that is useful in the definition of price and quantity.
+A *measure* is a basic component that is useful in the definition of price and quantity (both things that can be measured) and consists of two attributes:
 
-- ``amount``, which is a number and could be a price or a quantity
-- ``unit``, which defines the unit in which that amount is expressed
+- ``value``, which is defined as a number and could be a price or a quantity
+- ``unit``, which defines the unit in which that value is expressed
 
-Both attributes are optional as their existence is designed to be further constrained in the different data types that extend ``MeasureBase``.
+``MeasureBase`` defines the basic structure of a measure in which both attributes are optional. Various other data types that extend ``MeasureBase`` can further constrain the existence of those attributes: for instance, a ``Measure`` requires the ``value`` attribute to be present (but ``unit`` is still optional because a measure could be unit-less).
 
 .. code-block:: Haskell
 
  type MeasureBase:
    value number (0..1)
    unit UnitType (0..1)
+
+.. code-block:: Haskell
+
+ type Measure extends MeasureBase:
+ 
+   condition ValueExists:
+     value exists
 
 The ``UnitType`` data type used to defined the ``unit`` attribute requires the definition of units using one of five defined types:
 
@@ -161,7 +168,7 @@ The ``UnitType`` data type used to defined the ``unit`` attribute requires the d
 
 A measure can vary over time. One often used case is a series of measures indexed by date. Such measures are all homogeneous, so the unit only needs to be represented once.
 
-To represent this, the ``MeasureSchedule`` type extends ``MeasureBase`` with a set of date and value pair attributes represented by the ``Step`` type. In that structure, the existing ``amount`` attribute can still be omitted but, when present, represents the schedule's initial value.
+To represent this, the ``MeasureSchedule`` type extends ``MeasureBase`` with a set of date and value pair attributes represented by the ``DatedValue`` type. In that structure, the existing ``value`` attribute can still be omitted but, when present, represents the schedule's initial value.
 
 .. code-block:: Haskell
 
@@ -171,7 +178,7 @@ To represent this, the ``MeasureSchedule`` type extends ``MeasureBase`` with a s
    condition ValueExists:
      value exists or datedValue exists
  
-The price and quantity concepts for financial instruments are both modelled as extensions of the ``MeasureSchedule`` data type, as detailed below. This means that by default, price and quantity are considered as schedules although they can also represent a single value when the ``step`` attribute is omitted.
+The price and quantity concepts for financial instruments are both modelled as extensions of the ``MeasureSchedule`` data type, as detailed below. This means that by default, price and quantity are considered as schedules although they can also represent a single value when the ``datedValue`` attribute is omitted.
 
 Price
 """""
@@ -186,7 +193,7 @@ The ``PriceSchedule`` data type extends the ``MeasureSchedule`` data type with t
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
 
-The ``Price`` data type further constrains the ``PriceSchedule`` data type by requiring the ``step`` attribute to be absent.
+The ``Price`` data type further constrains the ``PriceSchedule`` data type by requiring the ``datedValue`` attribute to be absent.
 
 .. code-block:: Haskell
 
@@ -231,7 +238,7 @@ The full form of this example can be seen by ingesting one of the samples provid
 Quantity
 """"""""
 
-The ``QuantitySchedule`` data type also extends the ``MeasureSchedule`` data type with the addition of optional ``multiplier`` attributes. The ``NonNegativeQuantitySchedule`` data type constrains it by requiring that all the values are non-negative.
+The ``QuantitySchedule`` data type also extends the ``MeasureSchedule`` data type with the addition of an optional ``multiplier`` attributes. It also requires the ``unit`` attribute to exist, i.e. a quantity cannot be unit-less. The ``NonNegativeQuantitySchedule`` data type further constrains it by requiring that all the values are non-negative.
 
 .. code-block:: Haskell
 
@@ -252,21 +259,23 @@ The ``QuantitySchedule`` data type also extends the ``MeasureSchedule`` data typ
      if value exists then value >= 0.0 and
      if datedValue exists then datedValue -> value all >= 0.0
 
-The inherited attributes of ``amount``, ``step`` (in case the quantity is provided as a schedule) and ``unit`` are sufficient to define a quantity, in most cases.
+The inherited attributes of ``value``, ``unit`` and ``datedValue`` (in case the quantity is provided as a schedule) are sufficient to define a quantity in most cases.
 
-The additional attributes that are provided for the ``QuantitySchedule`` data type allow to further qualify the ``amount`` with a multiplier. This is needed for listed contracts or other purposes, as shown below. In this example, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME. Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
+The additional ``multiplier`` attribute that is provided for the ``QuantitySchedule`` data type allows to further qualify the ``value``. This is needed for listed contracts or other purposes, as shown below. In this example, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME. Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
 
 .. code-block:: Javascript
 
  "quantity": [
    {
      "value": {
-       "amount": 200,
+       "value": 200,
        "unit": {
          "financialUnit": "CONTRACT"
        },
-       "multiplier": 1000,
-       "multiplierUnit": "BBL"
+       "multiplier": {
+         "value": 1000,
+         "unit": "BBL"
+       }
      },
      "meta": {
        "location": [
