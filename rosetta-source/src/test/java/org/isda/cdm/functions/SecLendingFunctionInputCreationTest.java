@@ -1,17 +1,13 @@
 package org.isda.cdm.functions;
 
-import cdm.base.math.FinancialUnitEnum;
-import cdm.base.math.Quantity;
-import cdm.base.math.QuantityChangeDirectionEnum;
-import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.base.math.*;
+import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.event.common.functions.Create_BusinessEvent;
 import cdm.event.common.functions.Create_Execution;
-import cdm.event.common.metafields.ReferenceWithMetaTradeState;
 import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
 import cdm.observable.asset.Price;
@@ -42,6 +38,7 @@ import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.CdmRuntimeModule;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +47,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -188,11 +186,11 @@ class SecLendingFunctionInputCreationTest {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantityValue(Quantity.builder()
+                                        .addQuantityValue(NonNegativeQuantitySchedule.builder()
                                                 .setAmount(BigDecimal.valueOf(0.0))
                                                 .setUnitOfAmount(UnitType.builder()
                                                         .setCurrencyValue("USD")))
-                                        .addQuantityValue(Quantity.builder()
+                                        .addQuantityValue(NonNegativeQuantitySchedule.builder()
                                                 .setAmount(BigDecimal.valueOf(0.0))
                                                 .setUnitOfAmount(UnitType.builder()
                                                         .setFinancialUnit(FinancialUnitEnum.SHARE))))));
@@ -397,7 +395,7 @@ class SecLendingFunctionInputCreationTest {
     private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, CounterpartyRoleEnum role, double percent) {
         Party agentLenderParty = getParty(tradeState, role);
         Identifier allocationIdentifier = createAllocationIdentifier(tradeState.build().toBuilder(), "allocation-" + externalKey);
-        List<Quantity> allocatedQuantities = scaleQuantities(tradeState, percent);
+        List<NonNegativeQuantitySchedule> allocatedQuantities = scaleQuantities(tradeState, percent);
 
         PartyChangeInstruction.PartyChangeInstructionBuilder partyChangeInstruction = PartyChangeInstruction.builder()
                 .setCounterparty(Counterparty.builder()
@@ -433,17 +431,17 @@ class SecLendingFunctionInputCreationTest {
     }
 
     @NotNull
-    private static List<Quantity> scaleQuantities(TradeState tradeState, double percent) {
+    private static List<NonNegativeQuantitySchedule> scaleQuantities(TradeState tradeState, double percent) {
         return tradeState.build().toBuilder().getTrade().getTradableProduct()
                 .getTradeLot().stream()
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity::getQuantity)
                 .flatMap(Collection::stream)
-                .map(FieldWithMetaQuantity::getValue)
-                .map(Quantity::toBuilder)
+                .map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
+                .map(NonNegativeQuantitySchedule::toBuilder)
                 .map(q -> q.setAmount(q.getAmount().multiply(BigDecimal.valueOf(percent))))
-                .map(Quantity::build)
+                .map(NonNegativeQuantitySchedule::build)
                 .collect(Collectors.toList());
     }
 
@@ -458,7 +456,7 @@ class SecLendingFunctionInputCreationTest {
     private static String readResource(String inputJson) throws IOException {
         URL resource = SecLendingFunctionInputCreationTest.class.getResource(inputJson);
         //noinspection UnstableApiUsage
-        return Resources.toString(Objects.requireNonNull(resource), Charset.defaultCharset());
+        return Resources.toString(Objects.requireNonNull(resource), StandardCharsets.UTF_8);
     }
 
     private <T> T assertJsonConformsToRosettaType(String inputJson, Class<T> rosettaType) throws IOException {

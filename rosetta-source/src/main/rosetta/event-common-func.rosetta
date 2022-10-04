@@ -116,8 +116,6 @@ func FilterSecurityTransfers:
         transfers
             filter [ item -> observable -> productIdentifier exists ]
 
-
-
 func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the InterestRatePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
 	inputs:
 		payout InterestRatePayout (1..1)
@@ -163,14 +161,14 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 		if interestRatePayout -> rateSpecification -> fixedRate exists
 		then FixedAmount(
 			interestRatePayout,
-            interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
+            interestRatePayout -> priceQuantity -> quantitySchedule -> amount,
 			date,
 			empty)
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
 			resets only-element -> resetValue -> amount,
-			interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
+			interestRatePayout -> priceQuantity -> quantitySchedule -> amount,
 			date,
 			empty)
 	alias payer:
@@ -180,7 +178,7 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 	set interestCashSettlementAmount -> quantity -> amount:
 		performance
 	set interestCashSettlementAmount -> quantity -> unitOfAmount -> currency:
-		interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+		interestRatePayout -> priceQuantity -> quantitySchedule -> unitOfAmount -> currency
 	set interestCashSettlementAmount -> payerReceiver -> payerPartyReference:
 	    if performance >= 0 then payer else receiver
 	set interestCashSettlementAmount -> payerReceiver -> receiverPartyReference:
@@ -312,7 +310,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 	alias periodEndPrice:
 		observation
 	alias numberOfSecurities:
-		performancePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> amount / periodStartPrice -> amount
+		performancePayout -> priceQuantity -> quantitySchedule -> amount / periodStartPrice -> amount
 	alias rateOfReturn:
 		RateOfReturn(periodStartPrice, periodEndPrice)
 	alias notionalAmount:
@@ -326,8 +324,8 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 
 func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
 	inputs:
-		initialPrice Price (1..1)
-		finalPrice Price (1..1)
+		initialPrice PriceSchedule (1..1)
+		finalPrice PriceSchedule (1..1)
 	output:
 		rateOfReturn number (1..1)
 
@@ -360,7 +358,7 @@ func Create_StockSplit: <"Function specification to create the fully-formed busi
 	alias preSplitNumberOfShares: <"Only works in the case of a single trade lot.">
 		FilterQuantityByFinancialUnit( before -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity, FinancialUnitEnum -> Share ) only-element -> amount
 	alias postSplitNumberOfShares: <"The adjustment ratio is be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.">
-		Create_Quantity( preSplitNumberOfShares * stockSplitInstruction -> adjustmentRatio, Create_UnitType( empty, FinancialUnitEnum -> Share ))
+		Create_NonNegativeQuantitySchedule( preSplitNumberOfShares * stockSplitInstruction -> adjustmentRatio, Create_UnitType( empty, FinancialUnitEnum -> Share ))
 	alias preSplitPrice:
 		before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price
 		    filter [ item -> perUnitOfAmount -> financialUnit = FinancialUnitEnum -> Share ]
@@ -384,7 +382,7 @@ func Create_ExecutionInstruction:
         ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
         parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
         partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
-        executionDetails ExecutionDetails (1..1) <"Specifies the type of execution, e.g. via voice or electronically.">
+        executionDetails ExecutionDetails (0..1) <"Specifies the type of execution, e.g. via voice or electronically.">
         tradeDate date (1..1) <"Denotes the trade/execution date.">
         tradeIdentifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
     output:
@@ -592,10 +590,13 @@ func Create_SecurityFinanceTransfer: <"Defines how Transfer that represents an e
 	alias securityFinancePayout:
 		instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout only-element
 
+	alias tradeQuantity: <"Security quantity obtained by filtering on the trade quantity">
+		FilterQuantityByFinancialUnit(instruction -> tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, FinancialUnitEnum -> Share) only-element
+
 	alias securityQuantity:
 		if instruction -> quantity exists
 		then instruction -> quantity
-        else FilterQuantityByFinancialUnit(instruction -> tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, FinancialUnitEnum -> Share) only-element
+        else Create_NonNegativeQuantity( tradeQuantity -> amount, tradeQuantity -> unitOfAmount )
 
     alias securityPrice:
         FilterPrice(instruction -> tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> AssetPrice, empty, empty, empty, empty, empty, empty)
@@ -605,7 +606,7 @@ func Create_SecurityFinanceTransfer: <"Defines how Transfer that represents an e
 		then instruction -> quantity -> unitOfAmount -> financialUnit = FinancialUnitEnum -> Share
 
 	set transfer -> quantity:
-		securityQuantity
+		Create_NonNegativeQuantity( securityQuantity -> amount, securityQuantity -> unitOfAmount )
 
 	add transfer -> observable -> productIdentifier:
     	securityFinancePayout -> securityInformation -> security -> productIdentifier
@@ -1095,7 +1096,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 		else 1.0
 
 	alias billingQuantity:
-		Create_Quantity( reset -> resetValue -> amount * securityQuantity -> amount * marginRatio, empty )
+		reset -> resetValue -> amount * securityQuantity -> amount * marginRatio
 
 	alias calculationPeriodRange: CalculationPeriodRange(recordStartDate, recordEndDate, empty)
 
@@ -1128,7 +1129,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 		performance
 
 	set transfer -> quantity -> unitOfAmount -> currency:
-        interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+        interestRatePayout -> priceQuantity -> quantitySchedule -> unitOfAmount -> currency
 
 	set transfer -> payerReceiver -> payerPartyReference:
 	    if performance >= 0 then payerPartyReference else receiverPartyReference
@@ -1159,7 +1160,6 @@ func Create_BillingSummary: <"Creates a billing summary to be included in a Secu
 //sums all billing records and assigns value to billing summary
 //sets enum to ParentTotal
 
-
 func Create_Return: <"Defines the process of partially or fully returning a Security Lending Transaction.">
  	[creation BusinessEvent]
 
@@ -1174,8 +1174,12 @@ func Create_Return: <"Defines the process of partially or fully returning a Secu
 	alias tradableProduct:
 			tradeState -> trade -> tradableProduct
 
+	alias quantitySchedule:
+		returnInstruction -> quantity
+			map [ Create_NonNegativeQuantitySchedule( item -> amount, item -> unitOfAmount ) ]
+
 	alias changePriceQuantity:
-	    Create_PriceQuantity( empty, returnInstruction -> quantity, empty )
+	    Create_PriceQuantity( empty, quantitySchedule, empty )
 
 	add returnEvent -> after: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially returned original contract, assuming there's a single security finance transaction in the original financial contract that is part returned.">
  		Create_QuantityChange( Create_QuantityChangeInstruction( [ changePriceQuantity ], QuantityChangeDirectionEnum -> Decrease, empty ), tradeState )
@@ -1317,7 +1321,7 @@ func Create_PrimitiveInstruction:
         termsChange TermsChangeInstruction (0..1)
         transfer TransferInstruction (0..1)
         indexTransition IndexTransitionInstruction (0..1)
-        stockSplit StockSplitInstruction (1..1)
+        stockSplit StockSplitInstruction (0..1)
     output:
         primitiveInstruction PrimitiveInstruction (1..1)
 

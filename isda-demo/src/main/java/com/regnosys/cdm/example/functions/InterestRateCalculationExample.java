@@ -48,12 +48,12 @@ public class InterestRateCalculationExample extends AbstractExample {
 		// Calculate the fixed amount, using the function implementations from above
         //
 		BigDecimal fixedAmountResult = fixedAmount
-                .evaluate(InterestRatePayoutCreation.getFixedRatePayout(fixedRate), notional, REFERENCE_DATE, null);
+                .evaluate(InterestRatePayoutCreation.getFixedRatePayout(fixedRate), notional.getAmount(), REFERENCE_DATE, null);
 
 
         // Calculate the floating amount
         //
-        BigDecimal floatingAmountResult = floatingAmount.evaluate(InterestRatePayoutCreation.getFloatingRatePayout(), rate, notional, REFERENCE_DATE, null);
+        BigDecimal floatingAmountResult = floatingAmount.evaluate(InterestRatePayoutCreation.getFloatingRatePayout(), rate, notional.getAmount(), REFERENCE_DATE, null);
 
 
         // Make some assertions on the calculation results

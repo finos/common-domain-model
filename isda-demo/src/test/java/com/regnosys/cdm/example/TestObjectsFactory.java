@@ -1,9 +1,9 @@
 package com.regnosys.cdm.example;
 
 import cdm.base.datetime.AdjustableDates;
-import cdm.base.math.Quantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
 import cdm.base.staticdata.asset.common.ProductIdentifier;
 import cdm.base.staticdata.asset.common.Security;
@@ -14,7 +14,7 @@ import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.legalagreement.common.ClosedState;
 import cdm.observable.asset.*;
-import cdm.observable.asset.metafields.FieldWithMetaPrice;
+import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.*;
 import cdm.product.template.Product;
 import cdm.product.template.TradableProduct;
@@ -128,7 +128,7 @@ public class TestObjectsFactory {
 
 	private PriceQuantity getPriceQuantity(double notional, String productIdentifier, double cleanPrice, String tradedCurrency, SettlementTerms settlementTerms) {
 		return PriceQuantity.builder()
-				.addPrice(FieldWithMetaPrice.builder()
+				.addPrice(FieldWithMetaPriceSchedule.builder()
 						.setMeta(MetaFields.builder()
 								.addKey(Key.builder()
 								.setScope("DOCUMENT")
@@ -138,11 +138,11 @@ public class TestObjectsFactory {
 								.setUnitOfAmount(UnitType.builder()
 										.setCurrencyValue(tradedCurrency))
 								.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.ASSET_PRICE))))
-				.addQuantity(FieldWithMetaQuantity.builder()
+				.addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
 						.setMeta(MetaFields.builder().addKey(Key.builder()
 								.setScope("DOCUMENT")
 								.setKeyValue("notional-1")))
-						.setValue(Quantity.builder()
+						.setValue(NonNegativeQuantitySchedule.builder()
 								.setAmount(BigDecimal.valueOf(notional))
 								.setUnitOfAmount(UnitType.builder()
 										.setCurrencyValue(tradedCurrency))))

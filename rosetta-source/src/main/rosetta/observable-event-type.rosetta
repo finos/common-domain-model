@@ -4,7 +4,6 @@ version "${project.version}"
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.party.*
-import cdm.base.staticdata.asset.common.*
 
 import cdm.observable.asset.*
 import cdm.observable.common.*
@@ -173,17 +172,17 @@ type Observation: <"Defines a single, numerical value that was observed in the m
 type ObservationIdentifier:	<"Defines the parameters needed to uniquely identify a piece of data among the population of all available market data.">
 	observable Observable (1..1) <"Represents the asset or rate to which the observation relates.">
 	observationDate date (1..1) <"Specifies the date value to use when resolving the market data.">
-	observationTime TimeZone (1..1) <"Represents the time and time-zone.">
+	observationTime TimeZone (0..1) <"Represents the time and time-zone.">
 	informationSource InformationSource (0..1) <"Represents where the market data published and should be observed.">
-	determinationMethodology DeterminationMethodology (0..1) <"">
+	determinationMethodology DeterminationMethodology (0..1) <"Specifies the method according to which an amount or a date is determined.">
 	
-type DeterminationMethodology:
+type DeterminationMethodology: <"Specifies the method according to which an amount or a date is determined.">
 	determinationMethod DeterminationMethodEnum (0..1) <"Represents a more granular dimention of observation. Typically relevent for resolving a unique equity price, which can be expressed as trade-weighted or volume-weighted averages.">
-	averagingMethod AveragingCalculationMethodEnum (0..1)
+	averagingMethod AveragingCalculationMethodEnum (0..1) <"Specifies enumerations for the type of averaging calculation.">
 
 func ResolveObservation: <"Specifies the interface that should be used by implementors to resolve a single observation when provided many, applying the averaging method, if one is provided.">
 	inputs:
 		identifiers ObservationIdentifier (1..*)
-		averagingMethod AveragingMethodEnum (0..1)
+		averagingMethod AveragingCalculationMethod (0..1)
 	output:
 		observation Observation (1..1)

@@ -249,14 +249,12 @@ The CDM expressions of ``FixedAmount`` and ``FloatingAmount`` are similar in str
    inputs:
        interestRatePayout InterestRatePayout (1..1)
        rate number (0..1)
-       quantity Quantity (0..1)
+       notional number (0..1)
        date date (0..1)
        calculationPeriodData CalculationPeriodData (0..1)
    output:
        floatingAmount number (1..1)
 
-   alias notional:
-       if quantity exists then quantity -> amount
    alias calculationPeriod:
        if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
    alias calcPeriodBase : Create_CalculationPeriodBase(calculationPeriod)
@@ -350,8 +348,8 @@ Some of those calculations are presented below:
 
  func RateOfReturn:
     inputs:
-        initialPrice Price (1..1)
-        finalPrice Price (1..1)
+        initialPrice PriceSchedule (1..1)
+        finalPrice PriceSchedule (1..1)
     output:
         rateOfReturn number (1..1)
 
@@ -612,7 +610,7 @@ Specifying precisely which attributes from ``PerformancePayout`` should be used 
  func ResolveObservation:
      inputs:
          identifiers ObservationIdentifier (1..*)
-         averagingMethod AveragingMethodEnum (0..1)
+         averagingMethod AveragingCalculationMethod (0..1)
      output:
          observation Observation (1..1)
 

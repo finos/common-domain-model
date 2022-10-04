@@ -9,6 +9,7 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,6 +61,7 @@ public class FraPriceQuantitySplitterMappingProcessor extends MappingProcessor {
 	private Optional<Mapping> getNonReferenceMapping(Path synonymPath) {
 		return filterMappings(getContext().getMappings(), synonymPath).stream()
 				.filter(m -> !(m.getRosettaValue() instanceof ReferenceBuilder))
+				.filter(m -> Arrays.stream(m.getRosettaPath().getPathNames()).anyMatch("tradeLot"::equals))
 				.filter(m -> m.getXmlValue() != null)
 				.findFirst();
 	}

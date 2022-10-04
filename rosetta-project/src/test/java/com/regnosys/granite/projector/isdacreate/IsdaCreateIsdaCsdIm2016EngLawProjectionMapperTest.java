@@ -8,6 +8,7 @@ import com.regnosys.granite.ingestor.service.IngestionFactory;
 import com.regnosys.granite.ingestor.service.IngestionService;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.RosettaModelObject;
 import org.junit.jupiter.api.BeforeAll;
@@ -356,7 +357,7 @@ class IsdaCreateIsdaCsdIm2016EngLawProjectionMapperTest {
 	}
 
 	private <R extends RosettaModelObject> R ingest(Class<R> clazz, URL url) throws IOException {
-		var ingested = ingestionServiceEnglishLaw.ingestAndPostProcessJson(clazz, new InputStreamReader(url.openStream()));
+		var ingested = ingestionServiceEnglishLaw.ingestAndPostProcessJson(clazz, UrlUtils.openURL(url));
 		return ingested.getRosettaModelInstance();
 	}
 }
