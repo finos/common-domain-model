@@ -17,7 +17,6 @@ import com.regnosys.rosetta.common.testing.MappingCoverage;
 import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.common.util.MutablePair;
 import com.regnosys.rosetta.common.util.Pair;
-
 import org.isda.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

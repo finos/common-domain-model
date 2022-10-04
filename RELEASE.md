@@ -1,39 +1,28 @@
-# *Product Model - Simplification of the Commodity Schedule Type*
+# *Base Model - Naming Consistency for Measure Types*
 
 _What is being released?_
 
-This release updates the Commodity Schedule data type following the recent changes to the price and quantity schedules to only represents the custom period dates (start and end dates, fixing and payment dates). It no longer contains either price or quantity attributes. The price and quantity will be represented with the generic price and quantity schedules positioned in every payout structure.
-
-As no existing trade sample with custom commodity schedule existed, no mapping has been done to map those to the new structure for now.
+This release adjusts the name of types and attributes related to the Measure and Step data types to make them more consistent. It also folds the multiplier attributes that can be associated to a quantity into a a single, complex multiplier attribute.
 
 _Details_
 
 The following data types and attributes have been modified:
 
-- `SchedulePeriod`: removed `quantity`, `totalQuantity` and `price`.
-- `CommoditySchedule`: removed `unitOfAmount`, `priceExpression` and `perUnitOfAmount`.
-- `CommodityPayout`: added a `CalculationPeriod` choice condition that requires the period dates to be specified either as a parametric `CalculationPeriodDates` or a non-parametric `CommoditySchedule`.
+- `MeasureBase`: renamed attributes `amount` into `value` (more neutral, amount is generally associated with money) and `unitOfAmount` into `unit`.
+- `Measure`: added data type as an extension of `MeasureBase` with a condition requiring the `value` attribute to be present.
+- `Step`: renamed as `DatedValue` (previously a step could be mis-interpreted in a schedule as representing a 'delta').
+- `Step`: renamed attributes `stepValue` as `value` (in line with the `value` attribute on a `Measure`) and `stepDate` as `date`.
+- `MeasureSchedule`: renamed `step` attribute as `datedValue`, in line with the change in type.
+- `PriceSchedule`: renamed attribute `perUnitOfAmount` as `perUnitOf`.
+- `QuantitySchedule`: folded the `multiplier` (number) and `multiplierUnit` attributes into a single, optional `multiplier` attribute of type `Measure`.
+
+All synonyms and functional expressions have been updated to reflect the new structure and preserve existing behaviour.
 
 _Review directions_
 
 In the CDM Portal, select Textual Browser and review the types mentioned above.
 
-# *Base Model - Deprecation of Duplicate TimeInterval Type*
+For examples of how the quantity multiplier is now handled, select the Ingestion panel and review the following samples:
 
-_What is being released?_
-
-This release removes the TimeInterval data type which is a duplicate of the existing DateRange data type. This clean-up follows from the commodity schedule work, where that type was used to express period dates.
-
-_Details_
-
-The following data types and attributes have been modified:
-
-- `SchedulePeriod` (as used in `CommoditySchedule`): updated to use the `DateRange` type instead of `TimeInterval` for the `calculationPeriod` and `fixingPeriod` attributes.
-- `DateRange`: attribute names changed to `startDate` and `endDate` (in line with how attributes were named in `TimeInterval`).
-- `TimeInterval`: data type removed.
-
-Synonyms have been adjsuted to reflect the new attribute names.
-
-_Review directions_
-
-In the CDM Portal, select Textual Browser and review the types mentioned above.
+- FpML 5.10 > products > rates > `bond option uti`
+- FpML 5.10 > products > equity > `eqd ex04 european call index long form`
