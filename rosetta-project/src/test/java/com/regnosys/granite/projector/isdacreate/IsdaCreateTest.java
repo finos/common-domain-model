@@ -2,7 +2,6 @@ package com.regnosys.granite.projector.isdacreate;
 
 import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import org.apache.commons.io.Charsets;
 import org.isda.isdacreate.isda.csaim2016.jpnlaw.IsdaCreateIsdaCsaIm2016JpnLaw;
 import org.isda.isdacreate.isda.csaim2016.nylaw.IsdaCreateIsdaCsaIm2016NyLaw;
 import org.isda.isdacreate.isda.csdim2016.englaw.IsdaCreateIsdaCsdIm2016EngLaw;
@@ -10,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 

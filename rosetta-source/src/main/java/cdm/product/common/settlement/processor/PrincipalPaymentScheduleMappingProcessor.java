@@ -82,7 +82,7 @@ public class PrincipalPaymentScheduleMappingProcessor extends MappingProcessor {
                     BigDecimal amount = new BigDecimal(xmlValue);
 
                     Money.MoneyBuilder moneyBuilder = principalPaymentBuilder.getOrCreatePrincipalAmount();
-                    moneyBuilder.setAmount(amount.abs());
+                    moneyBuilder.setValue(amount.abs());
 
                     setCurrency(swapStreamPath, moneyBuilder);
 
@@ -117,7 +117,7 @@ public class PrincipalPaymentScheduleMappingProcessor extends MappingProcessor {
                                 .addElement("settlementCurrency"),
                         getMappings());
         if (settlementCurrency.isPresent()) {
-            moneyBuilder.setUnitOfAmount(UnitType.builder().setCurrencyValue(settlementCurrency.get()));
+            moneyBuilder.setUnit(UnitType.builder().setCurrencyValue(settlementCurrency.get()));
             return;
         }
         Optional<String> notionalCurrency =
@@ -129,7 +129,7 @@ public class PrincipalPaymentScheduleMappingProcessor extends MappingProcessor {
                                 .addElement("currency"),
                         getMappings());
         if (notionalCurrency.isPresent()) {
-            moneyBuilder.setUnitOfAmount(UnitType.builder().setCurrencyValue(notionalCurrency.get()));
+            moneyBuilder.setUnit(UnitType.builder().setCurrencyValue(notionalCurrency.get()));
             return;
         }
     }

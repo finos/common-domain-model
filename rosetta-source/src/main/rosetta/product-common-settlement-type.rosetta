@@ -25,7 +25,7 @@ type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcom
 	
 	condition CashflowAmount: <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
 		if priceQuantity exists
-		then priceQuantity -> quantitySchedule -> amount >= 0.0
+		then priceQuantity -> quantitySchedule -> value >= 0.0
 
 type CashflowType: <"Characterises the type of cashflow, which can result from either a scheduled or a non-scheduled lifecycle event.">
  	cashflowType TransferTypeEnum (0..1) <"Type of cashflow corresponding to a scheduled event.">
@@ -312,8 +312,8 @@ type FixedPrice: <"A predefined price accorded by the counterparties.">
 		[metadata address "pointsTo"=PriceQuantity->price]
 	
 	condition NonNegativePrice_amount: <"For a non-negative price, the amount attribute must be positive.">
-        if price -> amount exists then price -> amount >= 0.0 and
-		if price -> step exists then price -> step -> stepValue all >= 0.0
+        if price -> value exists then price -> value >= 0.0 and
+		if price -> datedValue exists then price -> datedValue -> value all >= 0.0
 
 type PaymentDetail:
 	[metadata key]
@@ -375,5 +375,5 @@ type SimplePayment extends PartyReferencePayerReceiver: <"A class to specified p
 	paymentDate AdjustableOrRelativeDate (1..1) <"The payment date. This date is subject to adjustment in accordance with any applicable business day convention.">
 
 	condition NonNegativePaymentAmount: <"FpML specifies paymentAmount as NonNegativeMoney.">
-		paymentAmount -> amount > 0.0
+		paymentAmount -> value > 0.0
 

@@ -47,10 +47,10 @@ public class PriceQuantityHelper {
 			BigDecimal price, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceExpression priceExpression) {
 		FieldWithMetaPriceScheduleBuilder priceBuilder = FieldWithMetaPriceSchedule.builder()
 				.setValue(Price.builder()
-						.setAmount(price)
+						.setValue(price)
 						.setPriceExpression(priceExpression)
-						.setUnitOfAmount(unitOfAmount)
-						.setPerUnitOfAmount(perUnitOfAmount));
+						.setUnit(unitOfAmount)
+						.setPerUnitOf(perUnitOfAmount));
 		priceBuilder.getOrCreateMeta().addKey(Key.builder().setScope("DOCUMENT"));
 		return priceBuilder;
 	}
