@@ -1,10 +1,10 @@
 package com.regnosys.cdm.example.functions;
 
 import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.Quantity;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.PartyReferencePayerReceiver;
@@ -80,13 +80,12 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                 QuantityChangeInstruction.builder()
                         .setDirection(QuantityChangeDirectionEnum.DECREASE)
                         .addChange(PriceQuantity.builder()
-                                .addQuantity(FieldWithMetaQuantity.builder()
-                                        .setValue(Quantity.builder()
-                                                .setAmount(BigDecimal.valueOf(7000000))
-                                                .setUnitOfAmount(UnitType.builder()
+                                .addQuantityValue(NonNegativeQuantitySchedule.builder()
+                                                .setValue(BigDecimal.valueOf(7000000))
+                                                .setUnit(UnitType.builder()
                                                         .setCurrency(FieldWithMetaString.builder()
                                                                 .setValue("USD")
-                                                                .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME)))))));
+                                                                .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME))))));
 
         // Transfer instruction specifying the partial termination fee
         ReferenceWithMetaParty payerPartyReference = beforeTradeState.getTrade().getTradableProduct().getCounterparty().get(0).getPartyReference();
@@ -100,8 +99,8 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                                         .setPayerPartyReference(payerPartyReference)
                                         .setReceiverPartyReference(receiverPartyReference))
                                 .setQuantity(Quantity.builder()
-                                        .setAmount(BigDecimal.valueOf(2000.00))
-                                        .setUnitOfAmount(UnitType.builder()
+                                        .setValue(BigDecimal.valueOf(2000.00))
+                                        .setUnit(UnitType.builder()
                                                 .setCurrency(FieldWithMetaString.builder()
                                                         .setValue("USD")
                                                         .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME)))))
@@ -161,11 +160,11 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
         TradeState afterTradeState = businessEvent.getAfter().get(0);
 
         // Assert new decreased notional
-        Quantity quantity = afterTradeState.getTrade().getTradableProduct()
+        NonNegativeQuantitySchedule quantity = afterTradeState.getTrade().getTradableProduct()
                 .getTradeLot().get(0)
                 .getPriceQuantity().get(0)
                 .getQuantity().get(0).getValue();
-        assertEquals(new BigDecimal("3000000.00"), quantity.getAmount());
+        assertEquals(new BigDecimal("3000000.00"), quantity.getValue());
 
         // Only one transferHistory expected - i.e. the partial termination fee
         assertEquals(1, afterTradeState.getTransferHistory().size());
@@ -173,7 +172,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
         // Assert transfer fee
         Transfer transfer = afterTradeState.getTransferHistory().get(0).getTransfer();
         assertEquals(FeeTypeEnum.PARTIAL_TERMINATION, transfer.getTransferExpression().getPriceTransfer());
-        assertEquals(new BigDecimal("2000.0"), transfer.getQuantity().getAmount());
+        assertEquals(new BigDecimal("2000.0"), transfer.getQuantity().getValue());
     }
 
     private <T extends RosettaModelObject> T postProcess(T o) {

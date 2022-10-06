@@ -1,7 +1,7 @@
 namespace cdm.observable.event : <"Observable event concepts: extraordinary event, trigger event, disruption event etc.">
 version "${project.version}"
 
-import cdm.base.staticdata.asset.common.*
+import cdm.base.math.*
 
 import cdm.observable.asset.*
 import cdm.event.common.*
@@ -43,7 +43,7 @@ func Create_SecurityFinanceReset: <"Defines how to resolve the reset value for a
 	add reset -> observations: <"Assigns the observation required to compute the rest value as audit.">
 		observation
 
-	set reset -> aggregationMethodology -> averagingCalculationMethod: AveragingCalculationMethodEnum -> Arithmetic
+	set reset -> averagingMethodology -> averagingMethod -> calculationMethod: AveragingCalculationMethodEnum -> Arithmetic
 
 func ResolveObservationAverage: <"Specifies the interface that should be used by implementors to resolve a single observation when provided many, applying the averaging method, if one is provided.">
 	inputs:
@@ -55,9 +55,9 @@ func ResolveObservationAverage: <"Specifies the interface that should be used by
         observations -> observedValue first
 
     condition UnitsMatch:
-        observations -> observedValue -> unitOfAmount all = firstObservedValue -> unitOfAmount
+        observations -> observedValue -> unit all = firstObservedValue -> unit
 
-	set resetValue -> amount: observations -> observedValue -> amount sum / observations count
-	set resetValue -> unitOfAmount: firstObservedValue -> unitOfAmount
-	set resetValue -> perUnitOfAmount: firstObservedValue -> perUnitOfAmount
+	set resetValue -> value: observations -> observedValue -> value sum / observations count
+	set resetValue -> unit: firstObservedValue -> unit
+	set resetValue -> perUnitOf: firstObservedValue -> perUnitOf
 	set resetValue -> priceExpression: firstObservedValue -> priceExpression

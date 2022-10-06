@@ -1,7 +1,7 @@
 package cdm.event.common.processor;
 
-import cdm.base.math.Quantity;
 import cdm.base.math.QuantityChangeDirectionEnum;
+import cdm.base.math.QuantitySchedule;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Counterparty;
@@ -104,7 +104,7 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder =
                 QuantityChangeInstruction.builder();
 
-        Quantity.QuantityBuilder novatedQuantityBuilder = quantityChangeInstructionBuilder
+        QuantitySchedule.QuantityScheduleBuilder novatedQuantityBuilder = quantityChangeInstructionBuilder
                 .getOrCreateChange(0)
                 .getOrCreateQuantity(0)
                 .getOrCreateValue();
@@ -169,7 +169,7 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder =
                 QuantityChangeInstruction.builder();
 
-        Quantity.QuantityBuilder remainingQuantityBuilder = quantityChangeInstructionBuilder
+        QuantitySchedule.QuantityScheduleBuilder remainingQuantityBuilder = quantityChangeInstructionBuilder
                 .getOrCreateChange(0)
                 .getOrCreateQuantity(0)
                 .getOrCreateValue();
@@ -180,7 +180,7 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
 
         // remainingAmount is optional, so if not found, just decrease by the novated amount
         QuantityChangeDirectionEnum directionEnum;
-        if (remainingQuantityBuilder.getAmount() == null) {
+        if (remainingQuantityBuilder.getValue() == null) {
             setQuantity(remainingQuantityBuilder, synonymPath.addElement("novatedAmount"));
             directionEnum = QuantityChangeDirectionEnum.DECREASE;
         } else {
@@ -192,10 +192,10 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
                 Optional.empty();
     }
 
-    private void setQuantity(Quantity.QuantityBuilder quantityBuilder, Path basePath) {
+    private void setQuantity(QuantitySchedule.QuantityScheduleBuilder quantityBuilder, Path basePath) {
         setValueAndUpdateMappings(basePath.addElement("amount"),
-                xmlValue -> quantityBuilder.setAmount(new BigDecimal(xmlValue)));
+                xmlValue -> quantityBuilder.setValue(new BigDecimal(xmlValue)));
         setValueAndUpdateMappings(basePath.addElement("currency"),
-                quantityBuilder.getOrCreateUnitOfAmount().getOrCreateCurrency()::setValue);
+                quantityBuilder.getOrCreateUnit().getOrCreateCurrency()::setValue);
     }
 }

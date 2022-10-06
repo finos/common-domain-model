@@ -42,8 +42,8 @@ synonym source ORE_1_0_39 extends ORE
 		+ role
 			[set to CounterpartyRoleEnum -> Party2 when rosettaPath = TradeState -> trade -> tradableProduct -> counterparty]
 
-	 Price:
-        + amount
+	 PriceSchedule:
+        + value
             [value "Rate"]
             [value "Spread"]
 
@@ -69,11 +69,13 @@ synonym source ORE_1_0_39 extends ORE
 			[value "CounterParty" maps 2]
 			[value "party_id" path "AdditionalFields"]
 
-	Quantity:
-		+ amount
+	QuantitySchedule:
+		+ value
 			[value "Notional"]
-		+ multiplierUnit
+		+ multiplier
 		    [value "ignore"]
+		+ datedValue
+			[value "step"]
 
 	Product:
 		+ contractualProduct
@@ -85,17 +87,18 @@ synonym source ORE_1_0_39 extends ORE
 			[value "LegData"]
 
 	InterestRatePayout:
-	    + payoutQuantity
+	    + priceQuantity
 	        [value "Notionals"]
 		+ calculationPeriodDates
 			[value "Rules" path "ScheduleData"]
 		+ paymentDates
 			[value "Rules" path "ScheduleData"]
+        + principalPayment
+            [value "ignore"]
 		+ cashflowRepresentation
 		    [value "ignore"]
 		+ stubPeriod
 		    [value "ignore"]
-
 
 	Frequency:
 		+ periodMultiplier
@@ -135,19 +138,29 @@ synonym source ORE_1_0_39 extends ORE
             [value "Spreads"]
 
     RateSchedule:
-        + initialValue
+        + price
             [meta "Rate"]
             [meta "Spread"]
 
-    NonNegativeQuantitySchedule:
-        + initialQuantity
-            [meta "Notional"]
-        + step
-        	[value "step"]
-
+	ResolvablePriceQuantity:
+		+ quantitySchedule
+			[meta "Notional"]
+		+ resolvedQuantity
+			[value "ignore"]
+		+ priceSchedule
+			[value "ignore"]
+    
 	UnitType:
 		+ currency
 			[value "Currency"]
+
+    PrincipalPaymentSchedule:
+		+ initialPrincipalPayment
+            [value "ignore"]
+		+ intermediatePrincipalPayment
+            [value "ignore"]
+		+ finalPrincipalPayment
+            [value "ignore"]
 
     enums
 

@@ -1,10 +1,10 @@
 package cdm.observable.common.functions;
 
-import cdm.base.math.Quantity;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
+import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.event.common.TradeState;
-import cdm.observable.asset.Price;
-import cdm.observable.asset.metafields.FieldWithMetaPrice;
+import cdm.observable.asset.PriceSchedule;
+import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.template.TradableProduct;
 import com.google.inject.Inject;
@@ -33,18 +33,18 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 
 		List<? extends PriceQuantity> priceQuantity = tradableProduct.getTradeLot().get(0).getPriceQuantity();
-		List<? extends Quantity> quantity = priceQuantity.stream()
+		List<? extends NonNegativeQuantitySchedule> quantity = priceQuantity.stream()
 				.map(PriceQuantity::getQuantity)
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
-				.map(FieldWithMetaQuantity::getValue)
+				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		List<? extends Price> price = priceQuantity.stream()
+		List<? extends PriceSchedule> price = priceQuantity.stream()
 				.map(PriceQuantity::getPrice)
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
-				.map(FieldWithMetaPrice::getValue)
+				.map(FieldWithMetaPriceSchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 		boolean success = func.evaluate(quantity, price);
@@ -58,18 +58,18 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 
 		List<? extends PriceQuantity> priceQuantity = tradableProduct.getTradeLot().get(0).getPriceQuantity();
-		List<? extends Quantity> quantity = priceQuantity.stream()
+		List<? extends NonNegativeQuantitySchedule> quantity = priceQuantity.stream()
 				.map(PriceQuantity::getQuantity)
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
-				.map(FieldWithMetaQuantity::getValue)
+				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		List<? extends Price> price = priceQuantity.stream()
+		List<? extends PriceSchedule> price = priceQuantity.stream()
 				.map(PriceQuantity::getPrice)
 				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
-				.map(FieldWithMetaPrice::getValue)
+				.map(FieldWithMetaPriceSchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 		boolean success = func.evaluate(quantity, price);

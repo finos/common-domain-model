@@ -104,7 +104,7 @@ func FilterCashTransfers:
 
     add cashTransfers:
         transfers
-            filter [ item -> quantity -> unitOfAmount -> currency exists ]
+            filter [ item -> quantity -> unit -> currency exists ]
 
 func FilterSecurityTransfers:
 	inputs:
@@ -115,8 +115,6 @@ func FilterSecurityTransfers:
     add securityTransfers:
         transfers
             filter [ item -> observable -> productIdentifier exists ]
-
-
 
 func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the InterestRatePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
 	inputs:
@@ -163,24 +161,24 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 		if interestRatePayout -> rateSpecification -> fixedRate exists
 		then FixedAmount(
 			interestRatePayout,
-            interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
+            interestRatePayout -> priceQuantity -> quantitySchedule -> value,
 			date,
 			empty)
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			resets only-element -> resetValue -> amount,
-			interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity,
+			resets only-element -> resetValue -> value,
+			interestRatePayout -> priceQuantity -> quantitySchedule -> value,
 			date,
 			empty)
 	alias payer:
 		ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, interestRatePayout -> payerReceiver -> payer ) -> partyReference
 	alias receiver:
 		ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, interestRatePayout -> payerReceiver -> receiver ) -> partyReference
-	set interestCashSettlementAmount -> quantity -> amount:
+	set interestCashSettlementAmount -> quantity -> value:
 		performance
-	set interestCashSettlementAmount -> quantity -> unitOfAmount -> currency:
-		interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+	set interestCashSettlementAmount -> quantity -> unit -> currency:
+		interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
 	set interestCashSettlementAmount -> payerReceiver -> payerPartyReference:
 	    if performance >= 0 then payer else receiver
 	set interestCashSettlementAmount -> payerReceiver -> receiverPartyReference:
@@ -278,12 +276,12 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
 	alias receiver:
 		ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPerformancePayout -> payerReceiver -> receiver ) -> partyReference
 
-	set equityCashSettlementAmount -> quantity -> amount: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
+	set equityCashSettlementAmount -> quantity -> value: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
 	 	Abs(equityPerformance)
-	set equityCashSettlementAmount -> quantity -> unitOfAmount-> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
+	set equityCashSettlementAmount -> quantity -> unit-> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
         ResolveEquityInitialPrice(
             tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
-        ) -> unitOfAmount -> currency
+        ) -> unit -> currency
 	set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
 	    if equityPerformance >= 0 then payer else receiver
 	set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
@@ -312,7 +310,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 	alias periodEndPrice:
 		observation
 	alias numberOfSecurities:
-		performancePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> amount / periodStartPrice -> amount
+		performancePayout -> priceQuantity -> quantitySchedule -> value / periodStartPrice -> value
 	alias rateOfReturn:
 		RateOfReturn(periodStartPrice, periodEndPrice)
 	alias notionalAmount:
@@ -326,15 +324,15 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
 
 func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 139. 'Rate Of Return' means, in respect of any Equity Valuation Date, the amount determined pursuant to the following formula: Rate Of Return = (Final Price - Initial Price) / Initial Price.">
 	inputs:
-		initialPrice Price (1..1)
-		finalPrice Price (1..1)
+		initialPrice PriceSchedule (1..1)
+		finalPrice PriceSchedule (1..1)
 	output:
 		rateOfReturn number (1..1)
 
 	alias initialPriceValue:
-		initialPrice->amount
+		initialPrice->value
 	alias finalPriceValue:
-		finalPrice->amount
+		finalPrice->value
 	set rateOfReturn:
 	    if finalPriceValue exists and initialPriceValue exists and initialPriceValue > 0 then
 		    (finalPriceValue - initialPriceValue) / initialPriceValue
@@ -346,7 +344,7 @@ func EquityNotionalAmount: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confi
 	output:
 		equityNotionalAmount number (1..1)
 	alias priceValue:
-		price->amount
+		price->value
 	set equityNotionalAmount:
 		numberOfSecurities * priceValue
 
@@ -358,15 +356,15 @@ func Create_StockSplit: <"Function specification to create the fully-formed busi
 		after TradeState (1..1)
 
 	alias preSplitNumberOfShares: <"Only works in the case of a single trade lot.">
-		FilterQuantityByFinancialUnit( before -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity, FinancialUnitEnum -> Share ) only-element -> amount
+		FilterQuantityByFinancialUnit( before -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity, FinancialUnitEnum -> Share ) only-element -> value
 	alias postSplitNumberOfShares: <"The adjustment ratio is be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.">
-		Create_Quantity( preSplitNumberOfShares * stockSplitInstruction -> adjustmentRatio, Create_UnitType( empty, FinancialUnitEnum -> Share ))
+		Create_NonNegativeQuantitySchedule( preSplitNumberOfShares * stockSplitInstruction -> adjustmentRatio, Create_UnitType( empty, FinancialUnitEnum -> Share ))
 	alias preSplitPrice:
 		before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price
-		    filter [ item -> perUnitOfAmount -> financialUnit = FinancialUnitEnum -> Share ]
+		    filter [ item -> perUnitOf -> financialUnit = FinancialUnitEnum -> Share ]
 		    only-element
 	alias postSplitPrice: <"The pre-split price is divided by the adjustment ratio to determine the post-split price.">
-		Create_Price( preSplitPrice -> amount / stockSplitInstruction -> adjustmentRatio, preSplitPrice -> unitOfAmount, preSplitPrice -> perUnitOfAmount, preSplitPrice -> priceExpression )
+		Create_Price( preSplitPrice -> value / stockSplitInstruction -> adjustmentRatio, preSplitPrice -> unit, preSplitPrice -> perUnitOf, preSplitPrice -> priceExpression )
 	alias postSplitPriceQuantity:
 		Create_PriceQuantity( [postSplitPrice],[postSplitNumberOfShares], empty )
     alias quantityChangeInstruction:
@@ -384,7 +382,7 @@ func Create_ExecutionInstruction:
         ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
         parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
         partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
-        executionDetails ExecutionDetails (1..1) <"Specifies the type of execution, e.g. via voice or electronically.">
+        executionDetails ExecutionDetails (0..1) <"Specifies the type of execution, e.g. via voice or electronically.">
         tradeDate date (1..1) <"Denotes the trade/execution date.">
         tradeIdentifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
     output:
@@ -580,7 +578,7 @@ func Create_SecurityTransfer: <"Defines the creation of a Transfer, given a Trad
 	post-condition UnitsAndObservable:
 		if tradeState -> trade -> tradableProduct -> product -> security exists
 			and tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> settlementTerms -> transferSettlementType only-element = TransferSettlementEnum -> DeliveryVersusPayment
-		then transfer -> quantity -> unitOfAmount -> currency only exists
+		then transfer -> quantity -> unit -> currency only exists
 			and transfer -> observable -> productIdentifier exists
 
 func Create_SecurityFinanceTransfer: <"Defines how Transfer that represents an exchange of security based on a security finance payout, should be constructed.">
@@ -592,20 +590,23 @@ func Create_SecurityFinanceTransfer: <"Defines how Transfer that represents an e
 	alias securityFinancePayout:
 		instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout only-element
 
+	alias tradeQuantity: <"Security quantity obtained by filtering on the trade quantity">
+		FilterQuantityByFinancialUnit(instruction -> tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, FinancialUnitEnum -> Share) only-element
+
 	alias securityQuantity:
 		if instruction -> quantity exists
 		then instruction -> quantity
-        else FilterQuantityByFinancialUnit(instruction -> tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity, FinancialUnitEnum -> Share) only-element
+        else Create_NonNegativeQuantity( tradeQuantity -> value, tradeQuantity -> unit )
 
     alias securityPrice:
         FilterPrice(instruction -> tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> AssetPrice, empty, empty, empty, empty, empty, empty)
 
 	condition ShareUnits:
 		if instruction -> quantity exists
-		then instruction -> quantity -> unitOfAmount -> financialUnit = FinancialUnitEnum -> Share
+		then instruction -> quantity -> unit -> financialUnit = FinancialUnitEnum -> Share
 
 	set transfer -> quantity:
-		securityQuantity
+		Create_NonNegativeQuantity( securityQuantity -> value, securityQuantity -> unit )
 
 	add transfer -> observable -> productIdentifier:
     	securityFinancePayout -> securityInformation -> security -> productIdentifier
@@ -682,16 +683,16 @@ func SecurityFinanceCashSettlementAmount:
 
 	condition ShareUnitExists:
 		if quantity exists
-		then quantity -> unitOfAmount -> financialUnit = FinancialUnitEnum -> Share
+		then quantity -> unit -> financialUnit = FinancialUnitEnum -> Share
 
     condition ProductIdentifiersMatch:
         tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable -> productIdentifier = securityFinancePayout -> securityInformation -> security -> productIdentifier
 
-	set securityFinanceCashSettlementAmount -> quantity -> amount:
-        securityPrice -> amount * securityQuantity -> amount * marginRatio
+	set securityFinanceCashSettlementAmount -> quantity -> value:
+        securityPrice -> value * securityQuantity -> value * marginRatio
 
-	set securityFinanceCashSettlementAmount -> quantity -> unitOfAmount -> currency:
-         securityPrice -> unitOfAmount -> currency
+	set securityFinanceCashSettlementAmount -> quantity -> unit -> currency:
+         securityPrice -> unit -> currency
 
 	set securityFinanceCashSettlementAmount -> payerReceiver -> payerPartyReference:
 		if payerReceiver exists then
@@ -820,7 +821,7 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
 			tradableProduct -> adjustment )
 
     set quantityChange -> state -> positionState:
-        if newTradeLots-> priceQuantity -> quantity -> amount all = 0
+        if newTradeLots-> priceQuantity -> quantity -> value all = 0
 			then PositionStatusEnum -> Closed
 
 func Create_TermsChange: <"A specification of the inputs, outputs and constraints when calculating the after tradeState based Terms Change Primitive Instruction.">
@@ -955,7 +956,7 @@ before TradeState (1..1) <"Specifies the trade to be updated.">
 output:
 after TradeState (1..1) <"Specifies the resulting trade state incorporating the observation event in the observation history.">
 
-set after : before 
+set after : before
 add after -> observationHistory  : instruction
 
 func UpdateSpreadAdjustmentAndRateOptions: <"For each of the trade state's price quantity, find a matching price quantity instruction, and call the update function.">
@@ -980,11 +981,11 @@ func UpdateIndexTransitionPriceAndRateOption:
 
     set updatedPriceQuantity: priceQuantity
 
-    set updatedPriceQuantity -> price -> amount: <"If instruction exists, sum the existing and instruction spread adjustments.">
+    set updatedPriceQuantity -> price -> value: <"If instruction exists, sum the existing and instruction spread adjustments.">
         if instruction exists then
-            priceQuantity -> price only-element -> amount + instruction -> price only-element -> amount
+            priceQuantity -> price only-element -> value + instruction -> price only-element -> value
         else
-            priceQuantity -> price only-element -> amount
+            priceQuantity -> price only-element -> value
 
     set updatedPriceQuantity -> observable -> rateOption: <"If instruction exists, update the rate option.">
         if instruction exists then
@@ -1008,8 +1009,8 @@ func FindMatchingIndexTransitionInstruction:
                 and item -> observable -> rateOption -> indexTenor -> periodMultiplier = priceQuantity -> observable -> rateOption -> indexTenor -> periodMultiplier
                 // quantity currency or price currency matches
                 and (
-                    item -> quantity -> unitOfAmount -> currency = priceQuantity -> quantity -> unitOfAmount -> currency
-                    or item -> price -> unitOfAmount -> currency = priceQuantity -> price -> unitOfAmount -> currency
+                    item -> quantity -> unit -> currency = priceQuantity -> quantity -> unit -> currency
+                    or item -> price -> unit -> currency = priceQuantity -> price -> unit -> currency
                 )
             ] first
 
@@ -1106,7 +1107,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 		else 1.0
 
 	alias billingQuantity:
-		Create_Quantity( reset -> resetValue -> amount * securityQuantity -> amount * marginRatio, empty )
+		reset -> resetValue -> value * securityQuantity -> value * marginRatio
 
 	alias calculationPeriodRange: CalculationPeriodRange(recordStartDate, recordEndDate, empty)
 
@@ -1120,7 +1121,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
 		else if interestRatePayout -> rateSpecification -> floatingRate exists
 		then FloatingAmount(
 			interestRatePayout,
-			reset -> resetValue -> amount,
+			reset -> resetValue -> value,
             billingQuantity,
 			recordEndDate,
 			calculationPeriodRange)
@@ -1135,11 +1136,11 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
             tradeState -> trade -> tradableProduct -> counterparty,
             interestRatePayout -> payerReceiver -> receiver ) -> partyReference
 
-	set transfer -> quantity -> amount:
+	set transfer -> quantity -> value:
 		performance
 
-	set transfer -> quantity -> unitOfAmount -> currency:
-        interestRatePayout -> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
+	set transfer -> quantity -> unit -> currency:
+        interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
 
 	set transfer -> payerReceiver -> payerPartyReference:
 	    if performance >= 0 then payerPartyReference else receiverPartyReference
@@ -1156,8 +1157,8 @@ func ToMoney:
 	output:
 		money Money (1..1)
 
-	assign-output money -> amount: quantity -> amount
-    assign-output money -> unitOfAmount -> currency: quantity -> unitOfAmount -> currency
+	assign-output money -> value: quantity -> value
+    assign-output money -> unit -> currency: quantity -> unit -> currency
 
 func Create_BillingSummary: <"Creates a billing summary to be included in a Security Lending Billing Invoice.">
 
@@ -1169,7 +1170,6 @@ func Create_BillingSummary: <"Creates a billing summary to be included in a Secu
 
 //sums all billing records and assigns value to billing summary
 //sets enum to ParentTotal
-
 
 func Create_Return: <"Defines the process of partially or fully returning a Security Lending Transaction.">
  	[creation BusinessEvent]
@@ -1185,8 +1185,12 @@ func Create_Return: <"Defines the process of partially or fully returning a Secu
 	alias tradableProduct:
 			tradeState -> trade -> tradableProduct
 
+	alias quantitySchedule:
+		returnInstruction -> quantity
+			map [ Create_NonNegativeQuantitySchedule( item -> value, item -> unit ) ]
+
 	alias changePriceQuantity:
-	    Create_PriceQuantity( empty, returnInstruction -> quantity, empty )
+	    Create_PriceQuantity( empty, quantitySchedule, empty )
 
 	add returnEvent -> after: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially returned original contract, assuming there's a single security finance transaction in the original financial contract that is part returned.">
  		Create_QuantityChange( Create_QuantityChangeInstruction( [ changePriceQuantity ], QuantityChangeDirectionEnum -> Decrease, empty ), tradeState )
@@ -1228,7 +1232,7 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
                 else
                     [ Create_TradeState( item -> primitiveInstruction , item -> before ) ]
 	        ] flatten
-			
+
 	// TODO: we should have a condition to ensure that no trade is 'lost' between the before(s) and the after(s).
 	// This can be implemented by looking at the trade identifier attribute on the before state, and making sure it exists in the after state.
 	// So for instance where there is a party change (which results in a different trade with a different trade id), the original trade should be split first, and one of the copies should 'close' the trade.
@@ -1270,8 +1274,8 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 			primitiveInstruction -> partyChange -> partyRole,
             primitiveInstruction -> partyChange -> tradeId,
 			termsChange /*after*/
-        ) 
-	  
+        )
+
 	alias contractFormation: <"Create contract formation if instructions exist.">
 		if primitiveInstruction exists and primitiveInstruction -> contractFormation is absent then partyChange
 		else Create_ContractFormation( primitiveInstruction -> contractFormation, partyChange)
@@ -1333,7 +1337,7 @@ func Create_PrimitiveInstruction:
         transfer TransferInstruction (0..1)
         indexTransition IndexTransitionInstruction (0..1)
 		observation ObservationEvent (0..1)
-        stockSplit StockSplitInstruction (1..1)
+        stockSplit StockSplitInstruction (0..1)
     output:
         primitiveInstruction PrimitiveInstruction (1..1)
 

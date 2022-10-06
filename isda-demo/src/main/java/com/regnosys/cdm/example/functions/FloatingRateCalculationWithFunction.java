@@ -34,7 +34,7 @@ public class FloatingRateCalculationWithFunction extends AbstractExample {
 		FieldWithMetaDayCountFractionEnum floatingLegDCF = FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum.ACT_365_FIXED).build();
 
 		NonNegativeQuantity quantity = NonNegativeQuantity.builder()
-				.setAmount(notional)
+				.setValue(notional)
 				.build();
 
         // Create a interest rate payout CDM object and stamp input data onto it.  This approach re-uses an existing
@@ -46,7 +46,7 @@ public class FloatingRateCalculationWithFunction extends AbstractExample {
 
         // Calculate the floating amount
         //
-		BigDecimal floatingAmountResult = floatingAmount.evaluate(floatingRatePayout, rate, quantity, Date.of(floatingLegPeriodStart), null);
+		BigDecimal floatingAmountResult = floatingAmount.evaluate(floatingRatePayout, rate, quantity.getValue(), Date.of(floatingLegPeriodStart), null);
 
 
         // Make assertions on the calculation results

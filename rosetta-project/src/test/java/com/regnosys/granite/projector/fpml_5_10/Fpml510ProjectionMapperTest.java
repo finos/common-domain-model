@@ -13,6 +13,7 @@ import com.regnosys.granite.ingestor.service.IngestionService;
 import com.regnosys.granite.ingestor.synonym.MappingResult;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.regnosys.rosetta.common.util.UrlUtils;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.process.PostProcessStep;
 import org.fpml.fpml_5.confirmation.DataDocument;
@@ -29,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -159,7 +159,7 @@ class Fpml510ProjectionMapperTest {
 	@MethodSource("fpmlDocumentFiles")
 	<T extends Document> void shouldIngestContractAndBuildFpmlDocument(URL fpmlUrl, String name, Class<T> fpmlDocument, Expectations expectations) throws JAXBException, IOException, URISyntaxException {
 		System.out.println("---------------------- Running Test for file: " + name + " ----------------------");
-		IngestionReport<TradeState> ingestionReport = ingestionService.ingestValidateAndPostProcess(TradeState.class, new InputStreamReader(fpmlUrl.openStream()));
+		IngestionReport<TradeState> ingestionReport = ingestionService.ingestValidateAndPostProcess(TradeState.class, UrlUtils.openURL(fpmlUrl));
 		TradeState tradeState = ingestionReport.getRosettaModelInstance();
 		assertNotNull(tradeState);
 		LOGGER.debug(RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(tradeState));

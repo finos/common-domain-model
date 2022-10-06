@@ -81,62 +81,72 @@ func CompareQuantityByUnitOfAmount:
         FilterQuantity( quantity1, unitOfAmount )
             map q1 [
                 FilterQuantity( quantity2, unitOfAmount )
-                    map q2 [ CompareNumbers( q1 -> amount, op, q2 -> amount ) ]
+                    map q2 [ CompareNumbers( q1 -> value, op, q2 -> value ) ]
             ] flatten
             all = True
 
 func FilterQuantity: <"Filter list of quantities based on unit type.">
     inputs:
         quantities Quantity (0..*) <"List of quantities to filter.">
-        unitOfAmount UnitType (1..1) <"Currency unit type.">
+        unit UnitType (1..1) <"Currency unit type.">
     output:
         filteredQuantities Quantity (0..*)
 
     add filteredQuantities:
         quantities
-            filter [ item -> unitOfAmount = unitOfAmount ]
+            filter [ item -> unit = unit ]
 
 func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
     inputs:
-        quantities Quantity (0..*) <"List of quantities to filter.">
+        quantities QuantitySchedule (0..*) <"List of quantities to filter.">
         currency string (1..1) <"Currency unit type.">
     output:
-        filteredQuantities Quantity (0..*)
+        filteredQuantities QuantitySchedule (0..*)
 
     add filteredQuantities:
         quantities
-            filter [ item -> unitOfAmount -> currency = currency ]
+            filter [ item -> unit -> currency = currency ]
 
 func FilterQuantityByCurrencyExists: <"Filter list of quantities based on unit type.">
     inputs:
-        quantities Quantity (0..*) <"List of quantities to filter.">
+        quantities QuantitySchedule (0..*) <"List of quantities to filter.">
     output:
-        filteredQuantities Quantity (0..*)
+        filteredQuantities QuantitySchedule (0..*)
 
     add filteredQuantities:
         quantities
-            filter [ item -> unitOfAmount -> currency exists ]
+            filter [ item -> unit -> currency exists ]
 
 func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit type.">
     inputs:
-        quantities Quantity (0..*) <"List of quantities to filter.">
+        quantities QuantitySchedule (0..*) <"List of quantities to filter.">
         financialUnit FinancialUnitEnum (1..1) <"FinancialUnitEnum unit type.">
     output:
-        filteredQuantities Quantity (0..*)
+        filteredQuantities QuantitySchedule (0..*)
 
     add filteredQuantities:
         quantities
-            filter [ item -> unitOfAmount -> financialUnit = financialUnit ]
+            filter [ item -> unit -> financialUnit = financialUnit ]
 
-func Create_Quantity: <"Create Quantity with given amount and unit of amount.">
+func Create_NonNegativeQuantity: <"Create a non-negative quantity with given amount and unit of amount.">
 	inputs:
 		amount number (1..1)
-		unitOfAmount UnitType (1..1)
+		unit UnitType (1..1)
 	output:
-		quantity Quantity (1..1)
+		quantity NonNegativeQuantity (1..1)
 
-	set quantity -> amount: amount
-	set quantity -> unitOfAmount: unitOfAmount
+	set quantity -> value: amount
+	set quantity -> unit: unit
+
+func Create_NonNegativeQuantitySchedule: <"Create Quantity with given amount and unit of amount.">
+	inputs:
+		amount number (1..1)
+		unit UnitType (1..1)
+	output:
+		quantity NonNegativeQuantitySchedule (1..1)
+
+	set quantity -> value: amount
+	set quantity -> unit: unit
 
 
 func Create_UnitType: <"Create UnitType with given currency or financial unit.">
@@ -175,7 +185,7 @@ func VectorScalarOperation: <"Generates a result vector by applying the supplied
 	inputs:
 		arithmeticOp ArithmeticOperationEnum (1..1) <"Arithmetic operator to be applied.">
 		left number (0..*) <"Left vector.">
-		right number (1..1) <"Scalar number - a single value to be applied to all elements of vector.">
+		right number (0..1) <"Scalar number - a single value to be applied to all elements of vector.">
 	output:
 	    result number (0..*) <"Result vector.">
 

@@ -1,34 +1,36 @@
 package com.regnosys.granite.schemaimport;
 
 import com.regnosys.rosetta.common.util.ClassPathUtils;
+import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.transgest.ModelLoaderImpl;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class SchemeImporterTestExtension implements BeforeEachCallback {
+public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAllCallback {
     private URL[] rosettaPaths;
     private SchemeImporter schemeImporter;
-    private final String schemaPath;
+
+    private String schemaPath;
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemeImporterTestExtension.class);
     private final String rosettaPathRoot;
 
-    public SchemeImporterTestExtension(String schemaPath, String rosettaPathRoot) {
-        this.schemaPath = schemaPath;
+    public SchemeImporterTestExtension(String rosettaPathRoot) {
         this.rosettaPathRoot = rosettaPathRoot;
     }
 
@@ -67,13 +69,13 @@ public class SchemeImporterTestExtension implements BeforeEachCallback {
                         Optional.empty(),
                         SchemeImporter.class.getClassLoader()
                 ).stream()
-                .map(ClassPathUtils::toUrl)
+                .map(UrlUtils::toUrl)
                 .toArray(URL[]::new);
     }
 
     private URL schemeUrl() {
         return ClassPathUtils.loadFromClasspath(schemaPath, getClass().getClassLoader())
-                .map(ClassPathUtils::toUrl)
+                .map(UrlUtils::toUrl)
                 .findFirst().orElseThrow();
     }
 
@@ -81,7 +83,7 @@ public class SchemeImporterTestExtension implements BeforeEachCallback {
         URL rosettaPath = Arrays.stream(rosettaPaths)
                 .filter(x -> getFileName(x.getFile()).equals(fileName))
                 .findFirst().orElseThrow();
-        String contents = new String(rosettaPath.openStream().readAllBytes());
+        String contents = new String(rosettaPath.openStream().readAllBytes(), StandardCharsets.UTF_8);
         return RosettaResourceWriter.rewriteProjectVersion(contents);
     }
 
@@ -99,8 +101,50 @@ public class SchemeImporterTestExtension implements BeforeEachCallback {
 
         for (String fileName : rosettaExpected.keySet()) {
             Path outputPath = basePath.resolve(fileName);
-            Files.write(outputPath, rosettaExpected.get(fileName).getBytes(StandardCharsets.UTF_8));
+            Files.writeString(outputPath, rosettaExpected.get(fileName), StandardCharsets.UTF_8);
             LOGGER.info("Wrote test output to {}", outputPath.toAbsolutePath());
         }
+    }
+
+    public String getLatestSetOfSchemeFile() throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        Path baseFolder = ClassPathUtils
+                .loadFromClasspath("coding-schemes/fpml", classLoader)
+                .findFirst()
+                .orElseThrow();
+        assertNotNull(baseFolder);
+
+        HashMap<String, BigDecimal> versionNumberFileName = new HashMap<>();
+        try (Stream<Path> walk = Files.walk(baseFolder)) {
+            walk.filter(this::isSetOfSchemeXmlFile)
+                    .forEach(inFile -> {
+                        String fileName = inFile.getFileName().toString();
+                        String versionNumber = fileName.substring(15, fileName.indexOf(".")).replace("-", ".");
+
+                        versionNumberFileName.put(fileName,new BigDecimal(versionNumber));
+                    });
+        }
+
+        BigDecimal highestVersion = new BigDecimal(0);
+        String latestSetOfSchemesFile = "coding-schemes/fpml/set-of-schemes-2-2.xml";
+        for (Map.Entry<String, BigDecimal> entry : versionNumberFileName.entrySet()) {
+            if (entry.getValue().compareTo(highestVersion)>0){
+                highestVersion = entry.getValue();
+                latestSetOfSchemesFile = "coding-schemes/fpml/" + entry.getKey();
+            }
+
+        }
+
+        return latestSetOfSchemesFile;
+    }
+
+
+    private boolean isSetOfSchemeXmlFile(Path inFile) {
+        return inFile.getFileName().toString().endsWith(".xml") && inFile.getFileName().toString().contains("set-of-schemes-");
+    }
+
+    @Override
+    public void beforeAll(ExtensionContext extensionContext) throws Exception {
+       this.schemaPath = getLatestSetOfSchemeFile();
     }
 }

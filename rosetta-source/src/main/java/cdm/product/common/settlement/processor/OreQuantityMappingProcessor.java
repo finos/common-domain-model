@@ -11,7 +11,7 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 import java.util.List;
 import java.util.Objects;
 
-import static cdm.base.math.metafields.FieldWithMetaQuantity.FieldWithMetaQuantityBuilder;
+import static cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.subPath;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
@@ -30,11 +30,11 @@ public class OreQuantityMappingProcessor extends MappingProcessor {
 		subPath("LegData", synonymPath)
 				.map(subPath -> subPath.addElement("Currency"))
 				.flatMap(this::getValueAndUpdateMappings)
-				.ifPresent(currency -> emptyIfNull((List<FieldWithMetaQuantityBuilder>) builders).stream()
-						.map(FieldWithMetaQuantityBuilder::getValue)
+				.ifPresent(currency -> emptyIfNull((List<FieldWithMetaNonNegativeQuantityScheduleBuilder>) builders).stream()
+						.map(FieldWithMetaNonNegativeQuantityScheduleBuilder::getValue)
 						.filter(Objects::nonNull)
 						.forEach(quantityBuilder ->
-								quantityBuilder.setUnitOfAmount(UnitType.builder()
+								quantityBuilder.setUnit(UnitType.builder()
 										.setCurrency(FieldWithMetaString.builder()
 												.setValue(currency)))));
 	}

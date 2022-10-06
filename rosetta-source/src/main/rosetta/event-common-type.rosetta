@@ -81,12 +81,16 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade.
 	[rootType]
 
 	intent EventIntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
-	eventQualifier string (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
+	corporateActionIntent CorporateActionTypeEnum (0..1)
+    eventQualifier string (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
 	eventDate date (1..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
     instruction Instruction (0..*) <"Specifies the instructions  were used to create the Business Event.">
     after TradeState (0..*) <"Specifies the after trade state(s) created.">
+
+	condition CorporateAction:
+		if corporateActionIntent exists then intent = EventIntentEnum -> CorporateActionAdjustment
 
 type ExecutionInstruction: <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, execution details, and settlement terms.">
 	product Product (1..1) <"Defines the financial product to be executed and contract formed.">
@@ -178,15 +182,10 @@ type Reset: <"Defines the reset value or fixing value produced in cashflow calcu
 	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
 	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
 		[metadata reference]
-	aggregationMethodology AggregationMethod (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value and the method is not defined in a payout.">
+	averagingMethodology AveragingCalculation (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value and the method is not defined in a payout.">
 
-	condition AggregationMethodologyExists: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
-		if observations count > 1 then aggregationMethodology exists
-
-type AggregationMethod: <"Defines the ways in which multiple values can be aggregated into a single value.">
-	averagingMethod AveragingMethodEnum (0..1) <"Identifies whether the average values will be weighted.">
-	averagingCalculationMethod AveragingCalculationMethodEnum (0..1) <"Identifies which of the Pythagorean means is being used to compute an average value.">
-	condition: one-of
+	condition AveragingMethodologyExists: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
+		if observations count > 1 then averagingMethodology exists
 
 type State: <"Defines the state of a trade at a point in the Trade's life cycle. Trades have many state dimensions, all of which are represented here. For example, states useful for position keeping are represented alongside those needed for regulatory reporting.">
 	closedState ClosedState (0..1) <"Represents the qualification of what led to the trade's closure alongside the dates on which this closure took effect.">
@@ -449,8 +448,8 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
 		    and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> payoutQuantity exists
-			and tradableProduct -> tradeLot -> priceQuantity -> quantity -> amount exists
+			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> priceQuantity exists
+			and tradableProduct -> tradeLot -> priceQuantity -> quantity -> value exists
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
 
 	condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
@@ -508,7 +507,7 @@ type TransferBase:
 
 	condition FinancialUnitExists:
 		if observable exists
-		then quantity -> unitOfAmount -> financialUnit exists
+		then quantity -> unit -> financialUnit exists
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
 	alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
@@ -632,9 +631,9 @@ type MarginCallExposure extends MarginCallBase: <"Represents attributes required
 
 	condition OverallExposureSumOfSimmAndScheduleIM: <"Represents a condition to ensure that if Simm IM exposure and Schedule/Grid IM exposure are specified the sum value must equate to overall exposure amount.">
 		if simmIMExposure exists and scheduleGridIMExposure exists
-			then (overallExposure -> aggregateValue -> amount = simmIMExposure -> aggregateValue -> amount + scheduleGridIMExposure -> aggregateValue -> amount) 
-				and (overallExposure -> aggregateValue -> unitOfAmount -> currency = simmIMExposure -> aggregateValue -> unitOfAmount -> currency) 
-				and (overallExposure -> aggregateValue -> unitOfAmount -> currency = scheduleGridIMExposure -> aggregateValue -> unitOfAmount -> currency)
+			then (overallExposure -> aggregateValue -> value = simmIMExposure -> aggregateValue -> value + scheduleGridIMExposure -> aggregateValue -> value) 
+				and (overallExposure -> aggregateValue -> unit -> currency = simmIMExposure -> aggregateValue -> unit -> currency) 
+				and (overallExposure -> aggregateValue -> unit -> currency = scheduleGridIMExposure -> aggregateValue -> unit -> currency)
 
 	condition ExposureSimmAndScheduleIMOnly: <"Specifies a condition to ensure that if margin exposure is defined as Simm IM and Schedule/Grid IM Exposure this is only applicable if the Reg margin type is defined as RegIM (Regulatory Initial Margin).">
 		if simmIMExposure exists and scheduleGridIMExposure exists

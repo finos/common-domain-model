@@ -49,38 +49,38 @@ class TradeSideToPartyMappingProcessorTest {
 
     @Test
     void shouldMapTradeSide1ToPartyA() {
-        ReferenceWithMetaPartyBuilder parent = ReferenceWithMetaParty.builder();
+        ReferenceWithMetaPartyBuilder builder = ReferenceWithMetaParty.builder();
 
         Path synonymPath = Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].payerPartyReference");
         TradeSideToPartyMappingProcessor processor =
                 new TradeSideToPartyMappingProcessor(OUTSIDE_PRODUCT_PATH, Collections.emptyList(), mappingContext);
-        processor.map(synonymPath, Optional.empty(), parent);
+        processor.map(synonymPath, builder, null);
 
-        assertEquals(PARTY_A, parent.getExternalReference());
+        assertEquals(PARTY_A, builder.getExternalReference());
     }
 
     @Test
     void shouldMapTradeSide2ToPartyB() {
-        ReferenceWithMetaPartyBuilder parent =  ReferenceWithMetaParty.builder();
+        ReferenceWithMetaPartyBuilder builder =  ReferenceWithMetaParty.builder();
 
         Path synonymPath = Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].receiverPartyReference");
         TradeSideToPartyMappingProcessor processor =
                 new TradeSideToPartyMappingProcessor(OUTSIDE_PRODUCT_PATH, Collections.emptyList(), mappingContext);
-        processor.map(synonymPath, Optional.empty(), parent);
+        processor.map(synonymPath, builder, null);
 
-        assertEquals(PARTY_B, parent.getExternalReference());
+        assertEquals(PARTY_B, builder.getExternalReference());
     }
 
     @Test
     void shouldNotMapTradeSideForPathOutsideProductPath() {
-        ReferenceWithMetaPartyBuilder parent =  ReferenceWithMetaParty.builder();
+        ReferenceWithMetaPartyBuilder builder =  ReferenceWithMetaParty.builder();
 
         Path synonymPath = Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].payerPartyReference");
         TradeSideToPartyMappingProcessor processor =
                 new TradeSideToPartyMappingProcessor(INSIDE_PRODUCT_PATH, Collections.emptyList(), mappingContext);
-        processor.map(synonymPath, Optional.empty(), parent);
+        processor.map(synonymPath, builder, null);
 
-        assertNull(parent.getExternalReference());
+        assertNull(builder.getExternalReference());
     }
 
     @NotNull

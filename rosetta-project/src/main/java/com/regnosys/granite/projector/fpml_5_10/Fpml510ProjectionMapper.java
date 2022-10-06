@@ -4,11 +4,11 @@ import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
 import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
+import cdm.base.math.MeasureSchedule;
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.ReferenceWithMetaQuantity;
-import cdm.base.staticdata.asset.common.ProductIdentifier;
+import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.ProductTaxonomy;
-import cdm.base.staticdata.asset.common.metafields.FieldWithMetaAssetClassEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
@@ -24,7 +24,7 @@ import cdm.product.asset.FixedRateSpecification;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.asset.metafields.FieldWithMetaSpreadScheduleTypeEnum;
-import cdm.product.common.schedule.NonNegativeQuantitySchedule;
+import cdm.product.common.schedule.RateSchedule;
 import cdm.product.common.schedule.metafields.ReferenceWithMetaCalculationPeriodDates;
 import cdm.product.common.schedule.metafields.ReferenceWithMetaPaymentDates;
 import cdm.product.common.settlement.PhysicalSettlementTerms;
@@ -458,7 +458,7 @@ public class Fpml510ProjectionMapper {
 				CashSettlementPaymentDate cashSettlementPaymentDate = objectFactory.createCashSettlementPaymentDate();
 				getAdjustableDates(d.getAdjustableDates()).ifPresent(cashSettlementPaymentDate::setAdjustableDates);
 				//				getBusinessDateRange(d.getBusinessDateRange()).ifPresent(cashSettlementPaymentDate::setBusinessDateRange);
-				Optional.ofNullable(d.getAdjustedDate()).map(AdjustableOrAdjustedOrRelativeDate::getRelativeDate).flatMap(this::getRelativeDateOffset).ifPresent(cashSettlementPaymentDate::setRelativeDate);
+				Optional.ofNullable(d.getAdjustableOrRelativeDate()).map(AdjustableOrAdjustedOrRelativeDate::getRelativeDate).flatMap(this::getRelativeDateOffset).ifPresent(cashSettlementPaymentDate::setRelativeDate);
 				return cashSettlementPaymentDate;
 			});
 	}
@@ -496,7 +496,7 @@ public class Fpml510ProjectionMapper {
 
 	private Optional<InformationSource> getInformationSource(FxSpotRateSource cdmFxSpotRateSource) {
 		return Optional.ofNullable(cdmFxSpotRateSource)
-			.map(FxSpotRateSource::getPrimaryRateSource)
+			.map(FxSpotRateSource::getPrimarySource)
 			.map(s -> {
 				InformationSource informationSource = objectFactory.createInformationSource();
 				getSourcePage(s.getSourcePage()).ifPresent(informationSource::setRateSourcePage);
@@ -530,7 +530,7 @@ public class Fpml510ProjectionMapper {
 		return Optional.ofNullable(cdmValuationMethod)
 			.map(m -> {
 				CashPriceMethod cashPriceMethod = objectFactory.createCashPriceMethod();
-				getCurrency(m.getQuotationAmount().getUnitOfAmount()).ifPresent(cashPriceMethod::setCashSettlementCurrency);
+				getCurrency(m.getQuotationAmount().getUnit()).ifPresent(cashPriceMethod::setCashSettlementCurrency);
 				getQuotationRateTypeEnum(m.getQuotationMethod()).ifPresent(cashPriceMethod::setQuotationRateType);
 				return cashPriceMethod;
 			});
@@ -572,7 +572,6 @@ public class Fpml510ProjectionMapper {
 				getAdjustableOrRelativeDates(e.getRelevantUnderlyingDate()).ifPresent(europeanExercise::setRelevantUnderlyingDate);
 				return europeanExercise;
 			});
-
 	}
 
 	private Optional<BusinessCenterTime> getBusinessCenterTime(cdm.base.datetime.BusinessCenterTime cdmBusinessCenterTime) {
@@ -582,45 +581,6 @@ public class Fpml510ProjectionMapper {
 				getBusinessCenter(t.getBusinessCenter()).ifPresent(businessCenterTime::setBusinessCenter);
 				getHourMinuteTime(t.getHourMinuteTime()).ifPresent(businessCenterTime::setHourMinuteTime);
 				return businessCenterTime;
-			});
-	}
-
-	private Optional<AssetClass> getAssetClass(FieldWithMetaAssetClassEnum cdmPrimaryAssetClass) {
-		return Optional.ofNullable(cdmPrimaryAssetClass)
-			.map(a -> {
-				AssetClass assetClass = objectFactory.createAssetClass();
-				getValue(a).map(c -> CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, c)).ifPresent(assetClass::setValue);
-				getScheme(a.getMeta()).ifPresent(assetClass::setAssetClassScheme);
-				return assetClass;
-			});
-	}
-
-	private Optional<ProductType> getProductType(FieldWithMetaString cdmProductType) {
-		return Optional.ofNullable(cdmProductType)
-			.map(t -> {
-				ProductType productType = objectFactory.createProductType();
-				getValue(t).ifPresent(productType::setValue);
-				getScheme(t.getMeta()).ifPresent(productType::setProductTypeScheme);
-				return productType;
-			});
-	}
-
-	private Optional<List<ProductId>> getProductIds(List<? extends ProductIdentifier> cdmProductIds) {
-		return Optional.ofNullable(cdmProductIds)
-			.map(p -> p.stream()
-				.map(ProductIdentifier::getIdentifier)
-				.map(this::getProductId)
-				.flatMap(Optional::stream)
-				.collect(Collectors.toList()));
-	}
-
-	private Optional<ProductId> getProductId(FieldWithMetaString cdmProductId) {
-		return Optional.ofNullable(cdmProductId)
-			.map(p -> {
-				ProductId productId = objectFactory.createProductId();
-				getValue(p).ifPresent(productId::setValue);
-				getScheme(p.getMeta()).ifPresent(productId::setProductIdScheme);
-				return productId;
 			});
 	}
 
@@ -637,7 +597,7 @@ public class Fpml510ProjectionMapper {
 				Payment payment = objectFactory.createPayment();
 				getNonNegativeMoney(pricePayment).ifPresent(payment::setPaymentAmount);
 				Optional.ofNullable(cdmPriceQuantity.getSettlementTerms()).map(SettlementBase::getSettlementDate)
-					.map(SettlementDate::getAdjustedDate).flatMap(this::getAdjustableOrAdjustedDate).ifPresent(payment::setPaymentDate);
+					.map(SettlementDate::getAdjustableOrRelativeDate).flatMap(this::getAdjustableOrAdjustedDate).ifPresent(payment::setPaymentDate);
 				getBuyerPartyReference(cdmPriceQuantity.getBuyerSeller(), cdmCounterparties).ifPresent(payment::setPayerPartyReference);
 				getSellerPartyReference(cdmPriceQuantity.getBuyerSeller(), cdmCounterparties).ifPresent(payment::setReceiverPartyReference);
 				return payment;
@@ -645,13 +605,13 @@ public class Fpml510ProjectionMapper {
 	}
 
 	@NotNull
-	private Optional<Price> getPricePayment(PriceQuantity pq) {
+	private Optional<PriceSchedule> getPricePayment(PriceQuantity pq) {
 		return Optional.ofNullable(pq)
 			.map(PriceQuantity::getPrice)
 			.map(Collection::stream).orElse(Stream.of())
-			.map(FieldWithMetaPrice::getValue)
+			.map(FieldWithMetaPriceSchedule::getValue)
 			.filter(p -> Optional.ofNullable(p)
-				.map(Price::getPriceExpression)
+				.map(PriceSchedule::getPriceExpression)
 				.map(PriceExpression::getPriceType)
 				.map(t -> t == PriceTypeEnum.CASH_PRICE)
 				.orElse(false))
@@ -745,18 +705,18 @@ public class Fpml510ProjectionMapper {
 		return Optional.ofNullable(cdmMoney)
 			.map(m -> {
 				Money money = objectFactory.createMoney();
-				Optional.ofNullable(m.getAmount()).ifPresent(money::setAmount);
-				getCurrency(m.getUnitOfAmount().getCurrency()).ifPresent(money::setCurrency);
+				Optional.ofNullable(m.getValue()).ifPresent(money::setAmount);
+				getCurrency(m.getUnit().getCurrency()).ifPresent(money::setCurrency);
 				return money;
 			});
 	}
 
-	private Optional<NonNegativeMoney> getNonNegativeMoney(Price cdmPrice) {
+	private Optional<NonNegativeMoney> getNonNegativeMoney(PriceSchedule cdmPrice) {
 		return Optional.ofNullable(cdmPrice)
 			.map(p -> {
 				NonNegativeMoney nonNegativeMoney = objectFactory.createNonNegativeMoney();
-				Optional.ofNullable(p.getAmount()).ifPresent(nonNegativeMoney::setAmount);
-				getCurrency(p.getUnitOfAmount()).ifPresent(nonNegativeMoney::setCurrency);
+				Optional.ofNullable(p.getValue()).ifPresent(nonNegativeMoney::setAmount);
+				getCurrency(p.getUnit()).ifPresent(nonNegativeMoney::setCurrency);
 				return nonNegativeMoney;
 			});
 	}
@@ -866,7 +826,7 @@ public class Fpml510ProjectionMapper {
 					.flatMap(this::getFxFixingDate)
 					.ifPresent(settlement::setFxFixingDate);
 				Optional.ofNullable(d.getCashSettlementAmount())
-					.map(cdm.observable.asset.Money::getUnitOfAmount)
+					.map(cdm.observable.asset.Money::getUnit)
 					.flatMap(this::getCurrency)
 					.ifPresent(settlement::setReferenceCurrency);
 				Optional.ofNullable(d.getValuationMethod())
@@ -1180,8 +1140,8 @@ public class Fpml510ProjectionMapper {
 		return Optional.ofNullable(cdmDateRange)
 			.map(d -> {
 				DateRange dateRange = objectFactory.createDateRange();
-				getDate(d.getUnadjustedFirstDate()).ifPresent(dateRange::setUnadjustedFirstDate);
-				getDate(d.getUnadjustedLastDate()).ifPresent(dateRange::setUnadjustedLastDate);
+				getDate(d.getStartDate()).ifPresent(dateRange::setUnadjustedFirstDate);
+				getDate(d.getEndDate()).ifPresent(dateRange::setUnadjustedLastDate);
 				return dateRange;
 			});
 	}
@@ -1389,7 +1349,7 @@ public class Fpml510ProjectionMapper {
 				getFixedRateSchedule(p.getRateSpecification()).ifPresent(calculation::setFixedRateSchedule);
 				getFloatingRateCalculation(p.getRateSpecification()).ifPresent(calculation::setRateCalculation);
 				getDayCountFraction(p.getDayCountFraction()).ifPresent(calculation::setDayCountFraction);
-				getFutureValueNotional(p.getPayoutQuantity()).ifPresent(calculation::setFutureValueNotional);
+				getFutureValueNotional(p.getPriceQuantity()).ifPresent(calculation::setFutureValueNotional);
 				Optional.ofNullable(p.getCompoundingMethod())
 					.map(Objects::toString)
 					.map(CompoundingMethodEnum::valueOf)
@@ -1398,9 +1358,9 @@ public class Fpml510ProjectionMapper {
 			});
 	}
 
-	private Optional<FutureValueAmount> getFutureValueNotional(ResolvablePayoutQuantity payoutQuantity) {
+	private Optional<FutureValueAmount> getFutureValueNotional(ResolvablePriceQuantity payoutQuantity) {
 		return Optional.ofNullable(payoutQuantity)
-			.map(ResolvablePayoutQuantity::getFutureValueNotional)
+			.map(ResolvablePriceQuantity::getFutureValueNotional)
 			.map(n -> {
 				FutureValueAmount futureValueAmount = objectFactory.createFutureValueAmount();
 				getBigInteger(n.getCalculationPeriodNumberOfDays())
@@ -1416,7 +1376,7 @@ public class Fpml510ProjectionMapper {
 				Notional notional = objectFactory.createNotional();
 				notional.setNotionalStepSchedule(s);
 				Optional.ofNullable(cdmInterestRatePayout)
-					.map(PayoutBase::getPayoutQuantity)
+					.map(PayoutBase::getPriceQuantity)
 					.map(GlobalKey::getMeta)
 					.flatMap(this::getExternalKey)
 					.ifPresent(notional::setId);
@@ -1426,38 +1386,38 @@ public class Fpml510ProjectionMapper {
 
 	private Optional<NonNegativeAmountSchedule> getNotionalStepSchedule(InterestRatePayout cdmInterestRatePayout) {
 		return Optional.ofNullable(cdmInterestRatePayout)
-			.map(InterestRatePayout::getPayoutQuantity)
-			.map(ResolvablePayoutQuantity::getQuantitySchedule)
+			.map(InterestRatePayout::getPriceQuantity)
+			.map(ResolvablePriceQuantity::getQuantitySchedule)
 			.map(qs -> {
 				NonNegativeAmountSchedule notionalStepSchedule = objectFactory.createNonNegativeAmountSchedule();
-				Optional.ofNullable(qs.getInitialQuantity())
-					.map(ReferenceWithMetaQuantity::getValue)
+				Optional.ofNullable(qs.getValue())
 					.ifPresent(q -> {
-						Optional.ofNullable(q.getAmount()).ifPresent(notionalStepSchedule::setInitialValue);
-						getCurrency(q.getUnitOfAmount()).ifPresent(notionalStepSchedule::setCurrency);
+						Optional.ofNullable(q.getValue()).ifPresent(notionalStepSchedule::setInitialValue);
+						getCurrency(q.getUnit()).ifPresent(notionalStepSchedule::setCurrency);
 					});
-				getNonNegativeSteps(cdmInterestRatePayout).ifPresent(notionalStepSchedule.getStep()::addAll);
+				getSteps(cdmInterestRatePayout).ifPresent(notionalStepSchedule.getStep()::addAll);
 				return notionalStepSchedule;
 			});
 	}
 
-	private Optional<List<? extends NonNegativeStep>> getNonNegativeSteps(InterestRatePayout cdmInterestRatePayout) {
+	private Optional<List<? extends NonNegativeStep>> getSteps(InterestRatePayout cdmInterestRatePayout) {
 		return Optional.ofNullable(cdmInterestRatePayout)
-			.map(PayoutBase::getPayoutQuantity)
-			.map(ResolvablePayoutQuantity::getQuantitySchedule)
-			.map(NonNegativeQuantitySchedule::getStep)
+			.map(PayoutBase::getPriceQuantity)
+			.map(ResolvablePriceQuantity::getQuantitySchedule)
+			.map(ReferenceWithMetaNonNegativeQuantitySchedule::getValue)
+			.map(NonNegativeQuantitySchedule::getDatedValue)
 			.map(sl -> sl.stream()
 				.map(this::getNonNegativeStep)
 				.flatMap(Optional::stream)
 				.collect(Collectors.toList()));
 	}
 
-	private Optional<NonNegativeStep> getNonNegativeStep(cdm.base.math.NonNegativeStep nonNegativeStep) {
+	private Optional<NonNegativeStep> getNonNegativeStep(cdm.base.math.DatedValue nonNegativeStep) {
 		return Optional.ofNullable(nonNegativeStep)
 			.map(s -> {
 				NonNegativeStep step = objectFactory.createNonNegativeStep();
-				Optional.ofNullable(s.getStepValue()).ifPresent(step::setStepValue);
-				Optional.ofNullable(s.getStepDate()).flatMap(this::getDate).ifPresent(step::setStepDate);
+				Optional.ofNullable(s.getValue()).ifPresent(step::setStepValue);
+				Optional.ofNullable(s.getDate()).flatMap(this::getDate).ifPresent(step::setStepDate);
 				return step;
 			});
 	}
@@ -1482,20 +1442,20 @@ public class Fpml510ProjectionMapper {
 		return Optional.ofNullable(cdmRateSpecification)
 			.map(RateSpecification::getFixedRate)
 			.map(FixedRateSpecification::getRateSchedule)
+			.map(RateSchedule::getPrice)
+			.map(ReferenceWithMetaPriceSchedule::getValue)
 			.map(s -> {
 				Schedule fixedRateSchedule = objectFactory.createSchedule();
-				Optional.ofNullable(s.getInitialValue())
-					.map(ReferenceWithMetaPrice::getValue)
-					.map(Price::getAmount)
+				Optional.ofNullable(s.getValue())
 					.ifPresent(fixedRateSchedule::setInitialValue);
-				Optional.ofNullable(s.getStep())
+				Optional.ofNullable(s.getDatedValue())
 					.flatMap(this::getSteps)
 					.ifPresent(fixedRateSchedule.getStep()::addAll);
 				return fixedRateSchedule;
 			});
 	}
 
-	private Optional<List<Step>> getSteps(List<? extends cdm.base.math.Step> steps) {
+	private Optional<List<Step>> getSteps(List<? extends cdm.base.math.DatedValue> steps) {
 		return Optional.ofNullable(steps)
 			.map(sl -> sl.stream()
 				.map(this::getStep)
@@ -1503,12 +1463,12 @@ public class Fpml510ProjectionMapper {
 				.collect(Collectors.toList()));
 	}
 
-	private Optional<Step> getStep(cdm.base.math.Step cdmStep) {
+	private Optional<Step> getStep(cdm.base.math.DatedValue cdmStep) {
 		return Optional.ofNullable(cdmStep)
 			.map(s -> {
 				Step step = objectFactory.createStep();
-				Optional.ofNullable(s.getStepValue()).ifPresent(step::setStepValue);
-				Optional.ofNullable(s.getStepDate()).flatMap(this::getDate).ifPresent(step::setStepDate);
+				Optional.ofNullable(s.getValue()).ifPresent(step::setStepValue);
+				Optional.ofNullable(s.getDate()).flatMap(this::getDate).ifPresent(step::setStepDate);
 				return step;
 			});
 	}
@@ -1523,7 +1483,7 @@ public class Fpml510ProjectionMapper {
 					getPeriod(o.getIndexTenor()).ifPresent(floatingRateCalculation::setIndexTenor);
 				});
 				Optional.ofNullable(floatingRate.getInitialRate())
-					.map(Price::getAmount)
+					.map(Price::getValue)
 					.ifPresent(floatingRateCalculation::setInitialRate);
 				getSpreadSchedule(floatingRate.getSpreadSchedule())
 					.ifPresent(floatingRateCalculation.getSpreadSchedule()::add);
@@ -1535,12 +1495,16 @@ public class Fpml510ProjectionMapper {
 		return Optional.ofNullable(spreadSchedule)
 			.map(s -> {
 				SpreadSchedule schedule = objectFactory.createSpreadSchedule();
-				Optional.ofNullable(s.getInitialValue())
-					.map(ReferenceWithMetaPrice::getValue)
-					.map(Price::getAmount)
-					.ifPresent(schedule::setInitialValue);
+				Optional<PriceSchedule> priceSchedule = Optional.ofNullable(s.getPrice())
+						.map(ReferenceWithMetaPriceSchedule::getValue);
+				priceSchedule
+						.map(PriceSchedule::getValue)
+						.ifPresent(schedule::setInitialValue);
 				getSpreadScheduleType(s.getSpreadScheduleType()).ifPresent(schedule::setType);
-				getSteps(s.getStep()).ifPresent(schedule.getStep()::addAll);
+				priceSchedule
+						.map(MeasureSchedule::getDatedValue)
+						.flatMap(this::getSteps)
+						.ifPresent(schedule.getStep()::addAll);
 				return schedule;
 			});
 	}

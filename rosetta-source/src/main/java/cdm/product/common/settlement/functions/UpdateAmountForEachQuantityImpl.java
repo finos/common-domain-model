@@ -1,7 +1,7 @@
 package cdm.product.common.settlement.functions;
 
-import cdm.base.math.Quantity;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
+import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.product.common.settlement.PriceQuantity;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule.*;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 public class UpdateAmountForEachQuantityImpl extends UpdateAmountForEachQuantity {
@@ -24,13 +25,13 @@ public class UpdateAmountForEachQuantityImpl extends UpdateAmountForEachQuantity
 	}
 
 	@NotNull
-	private List<? extends Quantity> updateAmountForEachQuantity(List<? extends FieldWithMetaQuantity> quantitiesToUpdate, BigDecimal newAmount) {
+	private List<? extends NonNegativeQuantitySchedule> updateAmountForEachQuantity(List<? extends FieldWithMetaNonNegativeQuantityScheduleBuilder> quantitiesToUpdate, BigDecimal newAmount) {
 		return emptyIfNull(quantitiesToUpdate)
 				.stream()
-				.map(FieldWithMetaQuantity::getValue)
+				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
 				.filter(Objects::nonNull)
-				.map(Quantity::toBuilder)
-				.map(quantityToUpdate -> quantityToUpdate.setAmount(newAmount))
+				.map(NonNegativeQuantitySchedule::toBuilder)
+				.map(quantityToUpdate -> quantityToUpdate.setValue(newAmount))
 				.collect(Collectors.toList());
 	}
 }
