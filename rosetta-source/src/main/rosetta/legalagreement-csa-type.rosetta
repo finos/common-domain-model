@@ -84,6 +84,21 @@ type EligibleCollateralCriteria extends CollateralCriteriaBase: <"Represents a s
 
 	treatment CollateralTreatment (1..1) <"Identifies the treatment of specified collateral, e.g., haircuts,holding limits or exclusions.">
 
+	condition ConcentrationLimitTypeIssueOSAmountDebtOnly: <"Specifies a condition that concentration limit type 'IssueOutstandingAmount' is restricted to be used only if the asset type is described as 'Security' and 'Debt'.">
+	 	if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> IssueOutstandingAmount
+		then asset -> collateralAssetType -> securityType all = SecurityTypeEnum -> Debt or
+			treatment -> concentrationLimit -> concentrationLimitCriteria -> asset -> collateralAssetType -> securityType all = SecurityTypeEnum -> Debt
+		
+	condition ConcentrationLimitTypeMarketCapEquityOnly: <"Specifies a condition that concentration limit type 'MarketCapitalisation' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
+		if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> MarketCapitalisation 
+		then asset -> collateralAssetType -> securityType all = SecurityTypeEnum -> Equity or 
+			treatment -> concentrationLimit -> concentrationLimitCriteria -> asset -> collateralAssetType -> securityType all = SecurityTypeEnum -> Equity
+
+	condition AverageTradingVolumeEquityOnly: <"Specifies a condition that concentration limit 'AverageTradingVolume' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
+		if treatment -> concentrationLimit -> concentrationLimitCriteria -> averageTradingVolume exists
+		then asset -> collateralAssetType -> securityType all = SecurityTypeEnum -> Equity or
+			treatment -> concentrationLimit -> concentrationLimitCriteria -> asset -> collateralAssetType -> securityType all = SecurityTypeEnum -> Equity
+
 type CollateralTreatment: <"Specifies the treatment terms for the eligible collateral criteria specified.">
 
 	valuationTreatment CollateralValuationTreatment (0..1) <"Specification of the valuation treatment for the specified collateral.">
@@ -99,23 +114,22 @@ type ConcentrationLimit: <"Represents a class to describe concentration limits t
 	condition ConcentrationLimitValueChoice: <"Either a value or percentage concentration limit must be specified.">
         required choice valueLimit, percentageLimit
   
-	condition PercentageConcentrationLimit: <"concentration limit must be decribed as a percentage.">
-		if concentrationLimitCriteria -> concentrationLimitType = ConcentrationLimitTypeEnum -> MarketCapitalisation
+	condition PercentageConcentrationLimit: <"concentration limit must be described as a percentage.">
+		if concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> MarketCapitalisation
 		then percentageLimit exists
 
 type ConcentrationLimitCriteria extends CollateralCriteriaBase: <"Respresents a class to describe a set of criteria to describe specific assets that the concentration limits apply to.">
 
     concentrationLimitType ConcentrationLimitTypeEnum (0..1) <"Specifies the type of concentration limit to be applied.">
-	averageTradingVolume AverageTradingVolume (0..1) 
+	averageTradingVolume AverageTradingVolume (0..1) <"Specifies an average trading volume on an exchange in relation to Equity products.">
 
     condition ConcentrationLimitTypeChoice: <"Either a limit type or limit criteria must be specified.">
             required choice concentrationLimitType, issuer, asset, averageTradingVolume
 
-type AverageTradingVolume: 
+type AverageTradingVolume: <"Represents the average trading volume of an Equity product upon an exchange or set of exchanges.">
 
-	period Period (1..1)
-	methodology AverageTradingVolumeMethodologyEnum (1..1)
-	
+	period Period (1..1) <"Represents the period of the equities average trading volume on the exchange/s.">
+	methodology AverageTradingVolumeMethodologyEnum (1..1) <"Indicates the type of equity average trading volume being stated (single) the highest amount on one exchange, or (consolidated) volumes across multiple exchanges.">
 
 type IssuerCriteria: <"Represents a criteria used to specify eligible collateral issuers.">
 
