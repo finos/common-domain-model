@@ -866,7 +866,7 @@ class FunctionInputCreationTest {
                 Date.of(2018, 4, 1),
                 null);
 
-        assertJsonEquals("cdm-sample-files/functions/business-event/clearing/clearing-func-output.json", actual);
+        assertJsonEquals("cdm-sample-files/functions/business-event/clearing/clearing-func-input.json", actual);
     }
 
     @Test
