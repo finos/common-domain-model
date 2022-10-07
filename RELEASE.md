@@ -2,7 +2,7 @@
 
 _Background_
 
-This release introduces the representation of credit events and how they are documented in the lifecycle of a trade. The focus is about the generic information published by the Determinations Committee on  the occurence of a credit event that can be associated to a trade. The observation of a `creditEvent` is instructed  with a new `ObservationInstruction`. This results in the details of the event being instanciated  as part of the `observationHistory` of the trade state. This change does not include a functional model on how to compute and represent the effect of such business event on the trade state.
+This release introduces the representation of credit events and how they are documented in the lifecycle of a trade. The focus is about the generic information published by the Determinations Committee on  the occurence of a credit event that can be associated to a trade. The observation of a `creditEvent` is instructed  with a new `ObservationInstruction`. This results in the details of the event being instanciated  as part of the `observationHistory` of the trade state as an `ObservationEvent`. This change does not include a functional model on how to compute and represent the effect of such business event on the trade state.
 
 _What is being released?_
 
