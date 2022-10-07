@@ -29,6 +29,7 @@ import cdm.observable.asset.Observable;
 import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.FieldWithMetaFloatingRateOption;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
+import cdm.observable.event.Observation;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
@@ -40,9 +41,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.collect.Lists;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.*;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
@@ -867,7 +866,7 @@ class FunctionInputCreationTest {
                 Date.of(2018, 4, 1),
                 null);
 
-        assertJsonEquals("cdm-sample-files/functions/business-event/clearing/clearing-func-input.json", actual);
+        assertJsonEquals("cdm-sample-files/functions/business-event/clearing/clearing-func-output.json", actual);
     }
 
     @Test
@@ -956,6 +955,86 @@ class FunctionInputCreationTest {
                 null);
 
         assertJsonEquals("cdm-sample-files/functions/business-event/allocation/allocation-func-input.json", actual);
+    }
+
+    @Test
+    void validateCreditEventFuncInputJson() throws IOException {
+
+        ObservationEvent observation = ObservationEvent.builder()
+                .setCreditEvent(CreditEvent.builder()
+                        .setCreditEventType(CreditEventTypeEnum.BANKRUPTCY)
+                        .setEventDeterminationDate(Date.of(2022, 2, 4))
+                        .setAuctionDate(Date.of(2022, 3, 3))
+                        .setReferenceEntity(LegalEntity.builder()
+                                .setEntityId(Collections.singletonList(FieldWithMetaString.builder()
+                                        .setValue("UE2136O97NLB5BYP9H04")))
+                                .setName(FieldWithMetaString.builder()
+                                        .setValue("McDonald's Corporation")))
+
+                );
+
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/credit/cdindex-ex01-cdx-uti.json");
+
+        Instruction.InstructionBuilder instructions = Instruction.builder()
+                .setBeforeValue( tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder().setObservation(observation));
+
+        reKey(instructions);
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
+                Lists.newArrayList(instructions.build()),
+                null,
+                Date.of(2022, 2, 4),
+                null);
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/credit-event/credit-event-func-input.json", actual);
+    }
+
+    @Test
+    void validateCreditEventWithObservationFuncInputJson() throws IOException {
+
+        ObservationEvent observationHistory = ObservationEvent.builder()
+                .setCreditEvent(CreditEvent.builder()
+                        .setCreditEventType(CreditEventTypeEnum.BANKRUPTCY)
+                        .setEventDeterminationDate(Date.of(2022, 2, 4))
+                        .setAuctionDate(Date.of(2022, 3, 3))
+                        .setReferenceEntity(LegalEntity.builder()
+                                .setEntityId(Collections.singletonList(FieldWithMetaString.builder()
+                                        .setValue("UE2136O97NLB5BYP9H04")))
+                                .setName(FieldWithMetaString.builder()
+                                        .setValue("McDonald's Corporation")))
+
+                );
+
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/credit/cdindex-ex01-cdx-uti.json");
+        TradeState tradeStateWithObs = tradeState.toBuilder().setObservationHistory(Collections.singletonList(observationHistory)).build();
+
+        ObservationEvent observation = ObservationEvent.builder()
+                .setCreditEvent(CreditEvent.builder()
+                        .setCreditEventType(CreditEventTypeEnum.FAILURE_TO_PAY)
+                        .setEventDeterminationDate(Date.of(2023, 2, 4))
+                        .setAuctionDate(Date.of(2023, 3, 3))
+                        .setReferenceEntity(LegalEntity.builder()
+                                .setEntityId(Collections.singletonList(FieldWithMetaString.builder()
+                                        .setValue("UE2136O97NLB5BYP9H04")))
+                                .setName(FieldWithMetaString.builder()
+                                        .setValue("McDonald's Corporation")))
+
+                );
+
+        Instruction.InstructionBuilder instructions = Instruction.builder()
+                .setBeforeValue( tradeStateWithObs)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder().setObservation(observation));
+
+        reKey(instructions);
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
+                Lists.newArrayList(instructions.build()),
+                null,
+                Date.of(2023, 2, 2),
+                Date.of(2023, 2, 2));
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/credit-event/credit-event-abs-func-input.json", actual);
     }
 
     @Test
