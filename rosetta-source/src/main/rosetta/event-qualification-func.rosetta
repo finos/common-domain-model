@@ -411,3 +411,24 @@ func Qualify_Reallocation: <"The qualification of a reallocation event from the 
             ]
             all = True
 
+func Qualify_CreditEventDetermined: <"The qualification of the ocurrence of a credit event determination from the fact that a credit event is present in either the observation or observation history structures.">
+	[qualification BusinessEvent]
+	inputs: businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+	set is_event:
+		businessEvent -> instruction -> primitiveInstruction -> observation -> creditEvent exists
+		or
+		businessEvent -> instruction -> before -> observationHistory -> creditEvent exists
+		or
+		businessEvent -> after -> observationHistory -> creditEvent exists
+
+func Qualify_CorporateActionDetermined: <"The qualification of the ocurrence of a corporate action form the fact that a corporate action is present in either the observation or the observation history structures.">
+	[qualification BusinessEvent]
+	inputs: businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+	set is_event:
+		businessEvent -> instruction -> primitiveInstruction -> observation -> corporateAction exists
+		or
+		businessEvent -> instruction -> before -> observationHistory -> corporateAction exists
+		or
+		businessEvent -> after -> observationHistory -> corporateAction exists

@@ -74,6 +74,10 @@ type PrimitiveInstruction: <"A Primitive Instruction describes the inputs requir
 	transfer TransferInstruction (0..1) <"Specifies instructions describing a transfer primitive event.">
     indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
     stockSplit StockSplitInstruction (0..1) <"Specifies inputs needed to process a Stock Split business event.">
+	
+	// Change already present in Credit Events contribution
+	
+	observation ObservationEvent (0..1) <"Specifies inputs needed to process an observation.">
 
 type BusinessEvent: <"A business event represents a life cycle event of a trade. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -81,7 +85,7 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade.
 
 	intent EventIntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
 	corporateActionIntent CorporateActionTypeEnum (0..1)
-    eventQualifier string (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
+	eventQualifier string (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
 	eventDate date (1..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
@@ -169,6 +173,15 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
 	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
 	transferHistory TransferState (0..*) <"Represents the updated Trade attributes which can change as the result of a transfer event.">
+	// Change already present in Credit Events contribution
+	
+	observationHistory ObservationEvent (0..*) <"Represents the observed events related to a particular product or process, such as credit events or corporate actions.">
+
+type ObservationEvent: <"Specifies the necessary information to create any observation event.">
+	creditEvent CreditEvent (0..1) <"Specifies the necessary information to create a credit event.">
+	corporateAction CorporateAction (0..1) <"Specifies the necessary information to create a corporate action.">
+
+	condition: one-of
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
 	[metadata key]
@@ -481,6 +494,24 @@ type StockSplitInstruction: <"Data required to perform a stock split business ev
 
 	adjustmentRatio number (1..1) <"The number that denotes the cumulative quantity of post-split shares issued to shareholders versus the quantity of pre-split shares previously issued to shareholders.  This number will be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.  With regard to any reference to price, the pre-split reference price will be divided by this number to determine the post-split reference price.">
 	effectiveDate date (1..1) <"The effective date of the stock split, also known as the ex-date. This is the date on which the additional shares are paid to the shareholders, or in the case of a reverse stock split, the number shares held by each shareholder is proportionally reduced.  Equity derivative transactions can be amended in firms' internal systems on such date.   In most markets, the listed stock price is reduced (or increased for a reverse stock split) to account for the split on the same date, but in some markets the price adjustment occurs on a later date.  In either case, equity derivative transactions should be amended on the date that the stocks are paid to the shareholders (or consolidated).">
+// Change already present in Credit Events contribution
+
+type CreditEvent: <"Specifies the relevant data regarding a credit event.">
+	creditEventType CreditEventTypeEnum (1..1) <"The type of credit event taking place.">
+	eventDeterminationDate date (1..1) <"The date in which the credit event is determined by the Credit Derivatives Determinations Comitee.">
+	auctionDate date (0..1) <"The date on which the auction is scheduled to occur.">
+	finalPrice number (0..1) <"The final price resulting from the auction.">
+	recoveryPercent number (0..1) <"The percentage of the original value of the asset affected by the credit event that can be recovered.">
+	publiclyAvailableInformation Resource (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not a credit event has occurred.">
+	referenceEntity LegalEntity (1..1) <"The entity impacted by the credit event.">
+
+//------------------
+
+type CorporateAction: <"Specifies the relevant data regarding a corporate action">
+	corporateActionType CorporateActionTypeEnum (1..1) <"The type of corporate action taking place.">
+	exDate date (1..1) <"The date on which the corporate action is known to have taken place.">
+	payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
+	underlier Product (1..1) <"The entity impacted by the corporate action.">
 
 type TransferBase:
 
