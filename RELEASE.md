@@ -1,4 +1,4 @@
-# _Business Events - Credit Events_
+# _Business Events - Credit Events_ #
 
 _Background_
 
@@ -14,7 +14,6 @@ plus an `observationHistory` with the specified `creditEvent`.
 The representation of credit events currently does not include information about the impact of
 the event on a particular trade but only the generic information published by the Determinations
 Committee, which can be associated to a trade as described above without modifying it.
-
 
 _What is being released?_
 
@@ -32,12 +31,10 @@ _Data types_
 - `observationHistory` attribute of type `ObservableEvent` added to `TradeState`.
 - Type of `excludedReferenceEntity` in `IndexReference information` changed to `ExcludedReferenceEntity`.
 
-
 _Enumerations_
 
 - Added new `CreditEventTypeEnum` enumeraion.
 - Updated `FeeTypeEnum` enumeration to support credit events.
-
 
 _Functions_
 
@@ -47,13 +44,10 @@ _Functions_
 - Updated `Create_PrimitiveInstruction` function to support `observation`.
 - Updated function `Create_StockSplit` to work with the introduced changes.
 
-
 _Review Directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-
 In the CDM Portal, select the Visualisation tab and select Credit Event from the menu in the left.
-
 In the CDM Portal, select the Functions tab and select the function `Create_BusinessEvent`.
 Upload one of the files:
 
