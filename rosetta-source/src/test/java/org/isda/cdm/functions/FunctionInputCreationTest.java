@@ -985,7 +985,7 @@ class FunctionInputCreationTest {
                 Lists.newArrayList(instructions.build()),
                 null,
                 Date.of(2022, 2, 4),
-                null);
+                Date.of(2022, 2, 4));
 
         assertJsonEquals("cdm-sample-files/functions/business-event/credit-event/credit-event-func-input.json", actual);
     }
@@ -1034,7 +1034,7 @@ class FunctionInputCreationTest {
                 Date.of(2023, 2, 2),
                 Date.of(2023, 2, 2));
 
-        assertJsonEquals("cdm-sample-files/functions/business-event/credit-event/credit-event-abs-func-input.json", actual);
+        assertJsonEquals("cdm-sample-files/functions/business-event/credit-event/credit-event-obs-func-input.json", actual);
     }
 
     @Test
