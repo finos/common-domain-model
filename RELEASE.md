@@ -2,7 +2,7 @@
 
 _Background_
 
-The present release adds CDM model support for credit events and its related functions. Credit events are represented as `primitiveInstructions` of a new `observation` type, which can be expanded in the future to include other observation-related events such as corporate actions. The added functions also allow for the addition of the `creditEvent` as a part of the `observationHistory` of a trade state. Thus, with an `instruction` containing a `creditEvent`, a trade and the corresponding dates will be able to generate a `businessEvent`, the `after` trade state of which contains the trade plus an `observationHistory` with the specified `creditEvent`. The representation of credit events currently does not include information about the impact of the event on a particular trade but only the generic information published by the Determinations Committee, which can be associated to a trade as described above without modifying it.
+This release introduces the representation of credit events and how they are documented in the lifecycle of a trade. The focus is about the generic information published by the Determinations Committee on  the occurence of a credit event that can be associated to a trade. The observation of a `creditEvent` is instructed  with a new `ObservationInstruction`. This results in the details of the event being instanciated  as part of the `observationHistory` of the trade state. This change does not include a functional model on how to compute and represent the effect of such business event on the trade state.
 
 _What is being released?_
 
