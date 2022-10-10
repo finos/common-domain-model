@@ -1,41 +1,18 @@
-# *Product Model - Commodity Option*
+# *Product Model - FpML Mapping of FX, Credit and IR Products*
 
 _Background_
 
-This release extends the representation of the `OptionPayout` type to over the gaps that commodity options currently have in the model. It also extends the possible ways of calculating averages in commodity products.
+This release extends the product mapping coverage for FX, Credit and Rates, according to the gaps that samples show.
 
 _What is being released?_
 
-- The addition of the attribute `schedule` of type `CommoditySchedule` to `OptionPayout`.
-- Modification of the averaging calculation representation to determine which type of weighting and which Pythagorean mean is being used.
-- Mapping additions to support the changes above, and also the mappings of the payment dates on `SettlementTerms`.
-
-_Data Types_
-
-- Created type `AveragingCalculationMethod`, which contains `isWeighted` and `calculationMethod` and their respective types: `boolean` and `AveragingCalculationMethodEnum`.
-- In `Reset`, changed `aggregationMethodology` of type `AggregationMethod` to `averagingMethodology` of type `AveragingCalculation`.
-- Modified the attribute name `averagingMethod` in `CommodityPayout` to `averagingFeature` and changed its type to `AveragingCalculation`.
-- In `settlementDate`, changed the name of `adjustedDate` to `adjustedOrRelativeDate`.
-- Added the attribute `schedule` of type `CommoditySchedule` to `OptionPayout` so that commodity option products support the overwriting of their original schedule.
-- In `AveragingCalculation`, changed the name of `calculationMethod` to `averagingMethod`.
-- Changed `averagingRateFeature` to `averagingFeature` in type `OptionFeature`.
-- In `PerformancePayout`, changed `averagingMethod` type from `AveragingMethodEnum` to `AveragingCalculationMethod`.
-
-_Functions_
-
-- Updated `Create_SecurityFinanceReset` to support the changes on `AveragingCalculationMethodEnum`.
-- Updated `Qualify_EquityOption_PriceReturnBasicPerformance_SingleName`, `Qualify_EquityOption_PriceReturnBasicPerformance_Index`, `Qualify_EquityOption_PriceReturnBasicPerformance_Basket` and  `Qualify_ForeignExchange_VanillaOption` in order to support the change of the `averagingRateFeature` attribute name to `averagingFeature` in `OptionFeature`.
-
-_Synonyms_
-
-- Added the synonyms needed to map the FpML attribute `averagingMethod` to the new averaging structure, as well as the `schedule` mappings and the `relativePaymentDates` to `settlementTerms`.
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-
-In the CDM Portal, select Ingestion and review commodity examples, including:
-
-- fpml-5-10 > products > commodity > com-ex03-gas-swap-prices-last-three-days
-- fpml-5-10 > products > commodity > com-ex04-electricity-swap-hourly-off-peak
-- fpml-5-10 > products > commodity > com-ex05-gas-v-electricity-spark-spread
+* The currency scheme supporting for FX non deliverable forwards, as well as its settlement date. 
+* For FX options, the optional FpML element `soldAs` that represents whether the product was originally sold as a put or a call is now represented in the `optionType` CDM attribute.
+* Mapping coverage for the strike price and the product identifier of some Credit Default Swaptions. 
+* Coverage for the possible FpML values for credit seniority. 
+* For rates, changes in the type of `maximumNotionalAmount` and `minimumNotionalAmount` in `MultipleExercise` from `number` to `NonNegativeQuantitySchedule`, and mapping coverage of this two elements. 
+* Mapping coverage for the FpML element `floatingRateMultiplierSchedule`.
+* Mapping coverage for FRA product identifier too. 
+* It forces to map the adjustable date identifier into an external key. 
+* Mapping coverage for payer and receiver account references. 
+* Expansion of the mapping coverage to `AssetClassEnum`.
