@@ -30,7 +30,7 @@ func QuantityIncreased:
 
     set result: <"Check each after (list item) is greater than before (func input).">
 		after
-            map [ CompareTradeLot(
+            extract [ CompareTradeLot(
                     item -> trade -> tradableProduct -> tradeLot only-element,
                     CompareOp -> GreaterThan,
                     before -> trade -> tradableProduct -> tradeLot only-element ) = True ]
@@ -45,7 +45,7 @@ func QuantityDecreased:
 
     set result:
 		after
-            map [
+            extract [
                 // check each after (item) is less than before (input)
                 CompareTradeLot(
                     item -> trade -> tradableProduct -> tradeLot only-element,
@@ -81,7 +81,7 @@ func CompareTradeStatesToAmount: <"For each TradeState, compare the Quantity amo
 
 	set result:
         tradeStates
-            map [ CompareTradeLotToAmount( item -> trade -> tradableProduct -> tradeLot only-element, op, amount ) ]
+            extract [ CompareTradeLotToAmount( item -> trade -> tradableProduct -> tradeLot only-element, op, amount ) ]
             all = True
 
 
@@ -721,7 +721,7 @@ func Create_Split: <"Defines the logic for splitting a trade into separate copie
 
 	add splitTrade: <"Iterate over each breakdown and apply the set of primitive instructions to each copy of the original trade.">
 		breakdown
-			map [ Create_TradeState( item, originalTrade ) ]
+			extract [ Create_TradeState( item, originalTrade ) ]
 
 func Create_PartyChange: <"Defines the logic for changing one of the counterparties on a trade. A new trade identifier must be specified as a change of party results in a new trade. An ancillary party can also be specified, for instance to refer to the original executing party on the new trade.">
 	inputs:
@@ -959,7 +959,7 @@ func UpdateSpreadAdjustmentAndRateOptions: <"For each of the trade state's price
 
     set updatedTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity:
         tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity
-            map [ UpdateIndexTransitionPriceAndRateOption( item, FindMatchingIndexTransitionInstruction( instructions, item ) ) ]
+            extract [ UpdateIndexTransitionPriceAndRateOption( item, FindMatchingIndexTransitionInstruction( instructions, item ) ) ]
 
 func UpdateIndexTransitionPriceAndRateOption:
     inputs:
@@ -1036,7 +1036,7 @@ func Create_BillingRecords: <"Creates for each billing instruction an individual
 
     add billingRecord:
         billingInstruction
-            map [ Create_BillingRecord( item ) ]
+            extract [ Create_BillingRecord( item ) ]
 
 func Create_BillingRecord: <"Creates an individual billing record to be included in a Security Lending Billing Invoice">
 	inputs:
@@ -1176,7 +1176,7 @@ func Create_Return: <"Defines the process of partially or fully returning a Secu
 
 	alias quantitySchedule:
 		returnInstruction -> quantity
-			map [ Create_NonNegativeQuantitySchedule( item -> value, item -> unit ) ]
+			extract [ Create_NonNegativeQuantitySchedule( item -> value, item -> unit ) ]
 
 	alias changePriceQuantity:
 	    Create_PriceQuantity( empty, quantitySchedule, empty )
@@ -1212,7 +1212,7 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
 
 	add businessEvent -> after:
 	    instruction
-	        map [
+	        extract [
 	            if item -> primitiveInstruction -> split exists then
                     Create_Split( item -> primitiveInstruction -> split -> breakdown, item -> before )
 				else if item -> primitiveInstruction -> exercise exists then
