@@ -522,6 +522,7 @@ synonym source FpML_5_10 extends FpML
 	MultipleExercise:
 		+ maximumNotionalAmount
 			[value "maximumNotionalAmount"]
+			[hint "maximumNotionalAmount"]
 		+ maximumNumberOfOptions
 			[value "maximumNumberOfOptions"]
 
@@ -543,6 +544,7 @@ synonym source FpML_5_10 extends FpML
 			[value "integralMultipleExercise"]
 		+ minimumNotionalAmount
 			[value "minimumNotionalAmount"]
+			[hint "minimumNotionalAmount"]
 		+ minimumNumberOfOptions
 			[value "minimumNumberOfOptions"]
 
@@ -743,6 +745,7 @@ synonym source FpML_5_10 extends FpML
 			[value "volatilityStrikePrice" mapper "PriceUnitType"]
 			[value "correlationStrikePrice" mapper "PriceUnitType"]
 			[value "fixedStrike" mapper "PriceUnitType"]
+			[value "price" path "strike" mapper "PriceUnitType"]
 		+ unitOfAmount
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
 			[value "quotedCurrencyPair"]
@@ -788,6 +791,7 @@ synonym source FpML_5_10 extends FpML
  			[set to PriceTypeEnum->InterestRate when path = "calculation->spread"]
  			// For Commodity Option
  			[set to PriceTypeEnum->AssetPrice when "strikePricePerUnit->amount" exists]
+			[set to PriceTypeEnum->AssetPrice when "strike->price" exists]
  		+ spreadType
  			[set to SpreadTypeEnum->Spread when "spread" exists]
  			[set to SpreadTypeEnum->Spread when "floatingRateCalculation->spread" exists]
@@ -1188,7 +1192,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "rate"]
 			[hint "spread"]
 			[hint "strikePricePerUnit"]
-			[hint "price"]
+			[hint "strike"]
 		+ strikeReference
 			[value "strikeReference" meta "href"]
 		+ referenceSwapCurve
@@ -1615,6 +1619,8 @@ synonym source FpML_5_10 extends FpML
 			[value "initialIndexLevel"]
 		+ fallbackBondApplicable
 			[value "fallbackBondApplicable"]
+        + floatingRateMultiplierSchedule
+            [value "floatingRateMultiplierSchedule"]
 
 	MandatoryEarlyTermination:
 	 	[value "MandatoryEarlyTermination" meta "id"]
@@ -1759,7 +1765,7 @@ synonym source FpML_5_10 extends FpML
 	ProductBase:
 		+ productIdentifier
 			[hint "productId"]
-			[value "fra"]
+			[hint "fra"]
 			[hint "creditDefaultSwapOption"]
 			[value "bondOption"]
 		+ productTaxonomy
@@ -1810,6 +1816,8 @@ synonym source FpML_5_10 extends FpML
 			[value "amount" path "notionalAmount"]
 			[value "vegaNotionalAmount" mapper "VegaNotionalAmount"]
 			[value "amount" path "vegaNotional" mapper "VegaNotionalAmount"]
+			[value "amount" path "maximumNotionalAmount"]
+			[value "amount" path "minimumNotionalAmount"]
 		+ unitOfAmount
 			[value "singleUnderlyer"]
 			[value "basket"]
@@ -1819,6 +1827,8 @@ synonym source FpML_5_10 extends FpML
 			[value "fixedAmount"]
 			[value "varianceAmount"]
 			[value "notionalAmount"]
+			[value "maximumNotionalAmount"]
+			[value "minimumNotionalAmount"]
 		+ multiplier
 			[value "optionEntitlement"]
 		+ multiplierUnit
@@ -2282,6 +2292,7 @@ synonym source FpML_5_10 extends FpML
 		+ strike
 			[value "strike"]
 			[hint "strikePricePerUnit"]
+			[hint "strike"]
 		+ exerciseProcedure
 			[value "exerciseProcedure"]
 			[value "exercise"]
@@ -2789,6 +2800,7 @@ synonym source FpML_5_10 extends FpML
 
 	AdjustableDate:
 		[value "AdjustableDate" meta "id" path "adjustableDate"]
+		[value "AdjustableDate" meta "id"]
 		+ unadjustedDate
 			[value "unadjustedDate" maps 2]
 			[value "unadjustedDate" path "adjustableDate" maps 2]
@@ -3030,6 +3042,11 @@ synonym source FpML_5_10 extends FpML
 			[value "payerPartyReference" meta "href"]
 		+ receiverPartyReference
 			[value "receiverPartyReference" meta "href"]
+	    + payerAccountReference
+            [value "payerAccountReference" meta "href"]
+        + receiverAccountReference
+            [value "receiverAccountReference" meta "href"]
+
 
 	ReferenceBank:
 		+ referenceBankId
@@ -8279,6 +8296,7 @@ synonym source FpML_5_10 extends FpML
 			[value "Equity"]
 		+ ForeignExchange
 			[value "ForeignExchange"]
+			[value "FOREIGNEXCHANGE"]
 		+ InterestRate
 			[value "InterestRate"]
 
