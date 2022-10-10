@@ -897,7 +897,7 @@ synonym source FpML_5_10 extends FpML
 			[value "cashSettlementCurrency" path "cashSettlement->crossCurrencyMethod"]
 			[value "settlementCurrency" path "cashSettlementTerms"]
 			[value "settlementCurrency" path "physicalSettlementTerms"]
-			[value "settlementCurrency" path "nonDeliverableSettlement"]
+			[value "settlementCurrency" path "nonDeliverableSettlement" meta "currencyScheme"]
 			[value "settlementCurrency" path "cashSettlement"]
 			[value "settlementCurrency" path "exercise"]
 			[value "settlementCurrency" path "equityExercise"]
@@ -920,6 +920,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "adjustablePaymentDate"]
 			[hint "adjustedPaymentDate"]
 			[value "equityExercise"]
+			[hint "nonDeliverableSettlement"]
 		+ cashSettlementTerms
 			[value "cashSettlement"]
 			[value "cashSettlementTerms"]
@@ -1187,6 +1188,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "rate"]
 			[hint "spread"]
 			[hint "strikePricePerUnit"]
+			[hint "price"]
 		+ strikeReference
 			[value "strikeReference" meta "href"]
 		+ referenceSwapCurve
@@ -1431,6 +1433,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "adjustablePaymentDate"]
 			[hint "adjustedPaymentDate"]			
 			[value "paymentDate" set when "paymentAmount" exists /*and rosettaPath = PriceQuantity->settlementTerms->settlementDate*/]
+			[value "settlementDate" path "nonDeliverableSettlement"]
 		+ valueDate
 			[value "valueDate"]
 			[value "latestValueDate"]
@@ -1749,6 +1752,7 @@ synonym source FpML_5_10 extends FpML
 			[value "instrumentId" path "commodity" maps 2 mapper "ProductIdentifierSource"]
 			[value "instrumentId" path "exchangeTradedContractNearest" maps 2 mapper "ProductIdentifierSource"]
 			[value "productId" maps 2 mapper "ProductIdentifierSource"]
+			[value "productId" path "creditDefaultSwapOption" maps 2 mapper "ProductIdentifierSource"]
 			[value "description" path "equity" maps 2 mapper "ProductIdentifierSource"]
 			[value "description" path "index" maps 2 mapper "ProductIdentifierSource"]
 
@@ -1756,7 +1760,7 @@ synonym source FpML_5_10 extends FpML
 		+ productIdentifier
 			[hint "productId"]
 			[value "fra"]
-			[value "creditDefaultSwapOption"]
+			[hint "creditDefaultSwapOption"]
 			[value "bondOption"]
 		+ productTaxonomy
 			[hint "productType"]
@@ -2292,6 +2296,7 @@ synonym source FpML_5_10 extends FpML
 		+ optionType
 			[value "optionType"]
 			[set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
+			[value "soldAs"]
 		+ feature
 			[value "feature"]
 			[value "features"]
@@ -8411,6 +8416,24 @@ synonym source FpML_5_10 extends FpML
 			[value "Last"]
 		+ Penultimate
 			[value "Penultimate"]
+
+	CreditSeniorityEnum:
+        + Other
+            [value "Other"]
+        + SeniorLossAbsorbingCapacity
+            [value "SeniorLossAbsorbingCapacity"]
+        + SeniorSec
+            [value "SeniorSec"]
+        + SeniorUnSec
+            [value "SeniorUnSec"]
+        + SubLowerTier2
+            [value "SubLowerTier2"]
+        + SubTier1
+            [value "SubTier1"]
+        + SubTier3
+            [value "SubTier3"]
+        + SubUpperTier2
+            [value "SubUpperTier2"]
 }
 
 synonym source FpML_5_12 extends FpML_5_10
