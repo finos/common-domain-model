@@ -6,7 +6,7 @@ This release extends the product mapping coverage for FX, Credit and Rates, acco
 
 _What is being released?_
 
-- The currency scheme supporting for FX non deliverable forwards, as well as its settlement date. 
+-  The currency scheme supporting for FX non deliverable forwards, as well as its settlement date. 
 - For FX options, the optional FpML element `soldAs` that represents whether the product was originally sold as a put or a call is now represented in the `optionType` CDM attribute. 
 - Mapping coverage for the strike price and the product identifier of some Credit Default Swaptions. 
 - Coverage for the possible FpML values for credit seniority. 
