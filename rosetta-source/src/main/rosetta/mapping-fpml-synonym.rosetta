@@ -727,7 +727,7 @@ synonym source FpML_5_10 extends FpML
 			[value "ignore"] // Do not map, until a canonical representation of effective date is built in the CDM and existing effective date attributes can be re-directed here
 
 	PriceSchedule:
-		+ amount
+		+ value
 			[value "initialRate" mapper "PriceUnitType"]
 			[value "initialValue" mapper "PriceUnitType"]
 			[value "rate" maps 2 mapper "PriceUnitType"]
@@ -746,20 +746,20 @@ synonym source FpML_5_10 extends FpML
 			[value "correlationStrikePrice" mapper "PriceUnitType"]
 			[value "fixedStrike" mapper "PriceUnitType"]
 			[value "price" path "strike" mapper "PriceUnitType"]
-		+ unitOfAmount
+		+ unit
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
 			[value "quotedCurrencyPair"]
 			[value "settlementAmount" path "nearLeg"]
 			// For Commodity Swap Fixed Leg
 			[hint "priceCurrency"]
-		+ perUnitOfAmount
+		+ perUnitOf
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
 			[value "quotedCurrencyPair"]
 			[value "settlementAmount" path "nearLeg"]
 			[value "amount"]
 			// For Commodity Swap Fixed Leg
 			[hint "priceUnit"]
-		+ step
+		+ datedValue
 			[value "step"]
 
 	PriceExpression:
@@ -1803,7 +1803,7 @@ synonym source FpML_5_10 extends FpML
 			[set to SecurityTypeEnum -> Equity when "equity" exists]
 
 	QuantitySchedule:
-		+ amount
+		+ value
 			[value "initialValue" maps 2]
 			[value "amount" maps 2]
 			[value "openUnits" maps 2]
@@ -1818,7 +1818,7 @@ synonym source FpML_5_10 extends FpML
 			[value "amount" path "vegaNotional" mapper "VegaNotionalAmount"]
 			[value "amount" path "maximumNotionalAmount"]
 			[value "amount" path "minimumNotionalAmount"]
-		+ unitOfAmount
+		+ unit
 			[value "singleUnderlyer"]
 			[value "basket"]
 			[value "basketPercentage"]
@@ -1830,17 +1830,23 @@ synonym source FpML_5_10 extends FpML
 			[value "maximumNotionalAmount"]
 			[value "minimumNotionalAmount"]
 		+ multiplier
-			[value "optionEntitlement"]
-		+ multiplierUnit
-			[hint "quantityFrequency"] // To be removed
+			[hint "optionEntitlement"]
 			[hint "entitlementCurrency"]
 		+ frequency
 			[value "Frequency"]
 			// For Commodity Swap Fixed Leg
 			[hint "quantityFrequency"]
-		+ step
+		+ datedValue
 			[value "step"]
 			[value "notionalStep"]
+
+	Measure:
+	// Only used to map quantity multiplier
+	// TBD: merge Measure, PriceSchedule and QuantitySchedule synonyms into a single "MeasureBase"
+		+ value
+			[value "optionEntitlement"]
+		+ unit
+			[hint "entitlementCurrency"]
 
 	FixedPrice:
 		+ price
@@ -1860,16 +1866,16 @@ synonym source FpML_5_10 extends FpML
 			[value "precision"]
 
 	Schedule:
-		+ initialValue
+		+ value
 			[value "initialValue" set when "step" exists]
-		+ step
+		+ datedValue
 			[value "step"]
 
-	Step:
+	DatedValue:
 	 	[value "Step" meta "id"]
-		+ stepDate
+		+ date
 			[value "stepDate" maps 2]
-		+ stepValue
+		+ value
 			[value "stepValue" maps 2]
 
 	AdditionalDisruptionEvents:
@@ -2931,9 +2937,9 @@ synonym source FpML_5_10 extends FpML
 			[value "businessDayConvention" maps 2]
 
 	DateRange:
-		+ unadjustedFirstDate
+		+ startDate
 			[value "unadjustedFirstDate"]
-		+ unadjustedLastDate
+		+ endDate
 			[value "unadjustedLastDate"]
 
 	DateList:
@@ -3695,7 +3701,7 @@ synonym source FpML_5_10 extends FpML
 		+ capacityUnit
 			[value "quantityUnit" maps 2]
 			// For Commodity Swap Fixed Leg
-			[value "priceUnit" maps 2 set when rosettaPath = PriceSchedule->perUnitOfAmount]
+			[value "priceUnit" maps 2 set when rosettaPath = PriceSchedule->perUnitOf]
 		+ weatherUnit
 			[value "quantityUnit"]
 			// For Commodity Swap Fixed Leg
@@ -3710,12 +3716,12 @@ synonym source FpML_5_10 extends FpML
 		+ currency
 			[value "currency" maps 2 meta "currencyScheme"]
 			[value "varyingNotionalCurrency" maps 2 meta "currencyScheme"]
-			[value "currency1" maps 2 set when "quoteBasis" = "Currency1PerCurrency2" and rosettaPath = Price->unitOfAmount->currency]
-			[value "currency2" maps 2 set when "quoteBasis" = "Currency1PerCurrency2" and rosettaPath = Price->perUnitOfAmount->currency]
-			[value "currency2" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->unitOfAmount->currency]
-			[value "currency1" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->perUnitOfAmount->currency]
+			[value "currency1" maps 2 set when "quoteBasis" = "Currency1PerCurrency2" and rosettaPath = Price->unit->currency]
+			[value "currency2" maps 2 set when "quoteBasis" = "Currency1PerCurrency2" and rosettaPath = Price->perUnitOf->currency]
+			[value "currency2" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->unit->currency]
+			[value "currency1" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->perUnitOf->currency]
 			// For Commodity Swap Fixed Leg
-			[value "priceCurrency" maps 2 set when rosettaPath = Price->unitOfAmount->currency]
+			[value "priceCurrency" maps 2 set when rosettaPath = Price->unit->currency]
 			// For Bond Option
 			[value "entitlementCurrency" maps 2 meta "currencyScheme"]
 
@@ -3728,7 +3734,7 @@ synonym source FpML_5_10 extends FpML
 			[set to False when "calculation->averagingMethod" = "Geometric"]
 			[set to False when "calculation->averagingMethod" = "Harmonic"]
 			[set to True when "calculation->averagingMethod" = "Weighted"]
-	
+
 	enums
 
 	AveragingWeightingMethodEnum:

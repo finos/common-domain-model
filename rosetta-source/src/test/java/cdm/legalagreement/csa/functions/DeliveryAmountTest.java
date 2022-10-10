@@ -267,13 +267,13 @@ class DeliveryAmountTest extends AbstractFunctionTest {
 				getMoney(disputedDeliveryAmount),
 				BASE_CURRENCY_USD);
 
-		return deliveryAmountMoney.getAmount().doubleValue();
+		return deliveryAmountMoney.getValue().doubleValue();
 	}
 
 	private Money getMoney(double amount) {
 		return Money.builder()
-				.setAmount(BigDecimal.valueOf(amount))
-				.setUnitOfAmount(UnitType.builder()
+				.setValue(BigDecimal.valueOf(amount))
+				.setUnit(UnitType.builder()
 						.setCurrency(FieldWithMetaString.builder()
 								.setValue(BASE_CURRENCY_USD)
 								.setMeta(MetaFields.builder()

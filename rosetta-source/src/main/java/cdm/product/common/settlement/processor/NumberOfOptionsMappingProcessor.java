@@ -53,8 +53,8 @@ public class NumberOfOptionsMappingProcessor extends MappingProcessor {
 
 		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath,
 				(xmlValue) -> quantity
-						.setAmount(new BigDecimal(xmlValue))
-						.setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.CONTRACT)),
+						.setValue(new BigDecimal(xmlValue))
+						.setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.CONTRACT)),
 				getMappings(),
 				PathUtils.toRosettaPath(mappedModelPath));
 	}
@@ -62,21 +62,22 @@ public class NumberOfOptionsMappingProcessor extends MappingProcessor {
 	private void setMultiplierAndUnit(Path synonymPath, NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity) {
 		Path parentSynonymPath = synonymPath.getParent();
 
+
 		setValueAndUpdateMappings(parentSynonymPath.addElement("optionEntitlement"),
-				(xmlValue) -> quantity.setMultiplier(new BigDecimal(xmlValue)));
+				(xmlValue) -> quantity.getOrCreateMultiplier().setValue(new BigDecimal(xmlValue)));
 
 		// bond option multiplier unit
 		setValueAndUpdateMappings(parentSynonymPath.addElement("entitlementCurrency"),
-				(xmlValue) -> quantity.setMultiplierUnit(UnitType.builder().setCurrencyValue(xmlValue)));
+				(xmlValue) -> quantity.getOrCreateMultiplier().setUnit(UnitType.builder().setCurrencyValue(xmlValue)));
 		setValueAndUpdateMappings(parentSynonymPath.addElement("entitlementCurrency").addElement("currencyScheme"),
-				(xmlValue) -> quantity.getOrCreateMultiplierUnit().getOrCreateCurrency().getOrCreateMeta().setScheme(xmlValue));
+				(xmlValue) -> quantity.getOrCreateMultiplier().getOrCreateUnit().getOrCreateCurrency().getOrCreateMeta().setScheme(xmlValue));
 		// equity multiplier unit
 		if (pathExists(EQUITY_UNDERLIER_PATH)) {
-			quantity.setMultiplierUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE));
+			quantity.getOrCreateMultiplier().setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE));
 		}
 		// index multiplier unit
 		if (pathExists(INDEX_UNDERLIER_PATH)) {
-			quantity.setMultiplierUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.INDEX_UNIT));
+			quantity.getOrCreateMultiplier().setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.INDEX_UNIT));
 		}
 	}
 

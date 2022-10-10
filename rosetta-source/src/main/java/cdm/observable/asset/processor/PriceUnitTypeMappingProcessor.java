@@ -49,7 +49,7 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 		if (!Optional.ofNullable(PriceScheduleBuilder.getPriceExpression()).map(PriceExpression::getPriceType).isPresent()) {
 			return;
 		}
-		UnitTypeBuilder unitOfAmount = PriceScheduleBuilder.getUnitOfAmount();
+		UnitTypeBuilder unitOfAmount = PriceScheduleBuilder.getUnit();
 		if (unitOfAmount != null && unitOfAmount.hasData()) {
 			return;
 		}
@@ -191,10 +191,10 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 
 	private void updateBuilder(PriceScheduleBuilder builder, UnitTypeBuilder unitOfAmount, UnitTypeBuilder perUnitOfAmount) {
 		// unit of amount
-		builder.setUnitOfAmount(unitOfAmount);
+		builder.setUnit(unitOfAmount);
 		// per unit of amount
 		if (builder.getPriceExpression().getPriceType() != PriceTypeEnum.MULTIPLIER_OF_INDEX_VALUE) {
-			builder.setPerUnitOfAmount(perUnitOfAmount);
+			builder.setPerUnitOf(perUnitOfAmount);
 		}
 	}
 
@@ -254,9 +254,9 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				.map(this::toCurrencyUnitType)
 				.orElse(null);
 		if (quoteBasis.equals("CallCurrencyPerPutCurrency")) {
-			builder.setUnitOfAmount(callCurrency).setPerUnitOfAmount(putCurrency);
+			builder.setUnit(callCurrency).setPerUnitOf(putCurrency);
 		} else if (quoteBasis.equals("PutCurrencyPerCallCurrency")) {
-			builder.setUnitOfAmount(putCurrency).setPerUnitOfAmount(callCurrency);
+			builder.setUnit(putCurrency).setPerUnitOf(callCurrency);
 		}
 	}
 

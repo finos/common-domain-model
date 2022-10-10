@@ -31,18 +31,18 @@ class ResolveObservationAverageTest extends AbstractFunctionTest {
                 getObservation(37.8));
         Price averagePrice = func.evaluate(observations);
 
-        assertEquals(BigDecimal.valueOf(37.4), averagePrice.getAmount());
-        assertEquals("USD", averagePrice.getUnitOfAmount().getCurrency().getValue());
-        assertEquals(FinancialUnitEnum.SHARE, averagePrice.getPerUnitOfAmount().getFinancialUnit());
+        assertEquals(BigDecimal.valueOf(37.4), averagePrice.getValue());
+        assertEquals("USD", averagePrice.getUnit().getCurrency().getValue());
+        assertEquals(FinancialUnitEnum.SHARE, averagePrice.getPerUnitOf().getFinancialUnit());
         assertEquals(PriceTypeEnum.ASSET_PRICE, averagePrice.getPriceExpression().getPriceType());
     }
 
     private Observation.ObservationBuilder getObservation(double amount) {
         return Observation.builder()
                 .setObservedValue(Price.builder()
-                        .setAmount(BigDecimal.valueOf(amount))
-                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-                        .setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
+                        .setValue(BigDecimal.valueOf(amount))
+                        .setUnit(UnitType.builder().setCurrencyValue("USD"))
+                        .setPerUnitOf(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
                         .setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.ASSET_PRICE)));
     }
 }

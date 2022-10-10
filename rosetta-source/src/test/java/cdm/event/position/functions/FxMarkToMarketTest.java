@@ -59,13 +59,13 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
 
     private static Trade createFxFwdContract(String curr1, String curr2, int quantityAmount1, int quantityAmount2) {
         NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity1 = NonNegativeQuantitySchedule.builder()
-                .setAmount(BigDecimal.valueOf(quantityAmount1))
-                .setUnitOfAmount(UnitType.builder()
+                .setValue(BigDecimal.valueOf(quantityAmount1))
+                .setUnit(UnitType.builder()
                         .setCurrency(FieldWithMetaString.builder()
                                 .setValue(curr1)));
         NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity2 = NonNegativeQuantitySchedule.builder()
-                .setAmount(BigDecimal.valueOf(quantityAmount2))
-                .setUnitOfAmount(UnitType.builder()
+                .setValue(BigDecimal.valueOf(quantityAmount2))
+                .setUnit(UnitType.builder()
                         .setCurrency(FieldWithMetaString.builder()
                                 .setValue(curr2)));
         return Trade.builder()
@@ -80,9 +80,9 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
                                         .addQuantityValue(quantity1)
                                         .addQuantityValue(quantity2)
                                         .addPriceValue(Price.builder()
-                                                .setAmount(BigDecimal.valueOf(1.234))
-                                                .setUnitOfAmount(UnitType.builder().setCurrencyValue(curr1))
-                                                .setPerUnitOfAmount(UnitType.builder().setCurrencyValue(curr2))
+                                                .setValue(BigDecimal.valueOf(1.234))
+                                                .setUnit(UnitType.builder().setCurrencyValue(curr1))
+                                                .setPerUnitOf(UnitType.builder().setCurrencyValue(curr2))
                                                 .setPriceExpression(PriceExpression.builder()
                                                         .setPriceType(PriceTypeEnum.EXCHANGE_RATE))))))
                 .build();

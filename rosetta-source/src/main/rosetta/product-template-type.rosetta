@@ -132,11 +132,11 @@ type InitialMargin: <" Defines initial margin applied to a repo transaction. Ini
 
 	condition MarginThreshold:
 		if marginThreshold exists
-		then marginThreshold -> amount > 0
+		then marginThreshold -> value > 0
 
 	condition MinimumTransferAmount:
 		if minimumTransferAmount exists
-		then minimumTransferAmount -> amount > 0
+		then minimumTransferAmount -> value > 0
 
 type InitialMarginCalculation: <" Defines the initial margin calculation applicable to a single piece of collateral.">
     [deprecated]
@@ -423,23 +423,12 @@ type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attr
 		then settlementTerms -> physicalSettlementTerms is absent
 
 type CommoditySchedule: <"A class that allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
-	[metadata key]
-	unitOfAmount UnitType (1..1) <"Qualifies the unit by which the amount is measured.">
-	priceExpression PriceExpression (0..1) <"Provides a value for the type of price expression (cash price, interest rate, gross or net, clean or dirty etc.) in order to explain how to interpret the amount and use it in calculations.">
-	perUnitOfAmount UnitType (0..1) <"Provides an attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
 	schedulePeriod SchedulePeriod (1..*) <"Defines a period of a commodity schedule structure.">
 
 type SchedulePeriod: <"A class that defines the commodity period of a schedule. The period contains a set of start and end dates, quantities, fixing, and pricing data.">
-	calculationPeriod TimeInterval (1..1) <"Period for which the payment is generated.">
-    quantity number (0..1) <"Quantity per schedule period.">
-    totalQuantity number (0..1) <"Total quantity per calculation period.">
+	calculationPeriod DateRange (1..1) <"Period for which the payment is generated.">
     paymentDate date (1..1) <"Adjusted payment date.">
-    fixingPeriod TimeInterval (1..1) <"Period over which the underlying price is observed.">
-	price number (0..1) <"Price defined for the current period.">
-
-type TimeInterval: <"A class that defines a period of time between and start and an end date.">
-    startDate date (1..1) <"The start date of the period.">
-    endDate date (1..1) <"The end date of the period.">
+    fixingPeriod DateRange (1..1) <"Period over which the underlying price is observed.">
 
 type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
 	[metadata key]

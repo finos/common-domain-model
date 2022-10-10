@@ -18,6 +18,7 @@ import com.regnosys.rosetta.common.hashing.ReKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.postprocess.qualify.QualifyProcessorStep;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
@@ -28,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -67,7 +67,7 @@ public class GenerateTemplateExampleJsonWriter {
 			validator);
 
 		IngestionReport<TradeState> ingest = IngestionFactory.getInstance().getFpml510()
-			.ingestValidateAndPostProcess(TradeState.class, new InputStreamReader(Resources.getResource(SAMPLE_PATH).openStream()));
+			.ingestValidateAndPostProcess(TradeState.class, UrlUtils.openURL(Resources.getResource(SAMPLE_PATH)));
 		generateTemplateExamples(ingest.getRosettaModelInstance(), outputPath);
 	}
 

@@ -2,6 +2,7 @@ package org.isda.cdm.util;
 
 import com.google.common.collect.ImmutableList;
 import com.regnosys.rosetta.common.util.ClassPathUtils;
+import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.transgest.ModelLoaderImpl;
 import org.junit.jupiter.api.Test;
 import util.UnusedModelElementFinder;
@@ -19,7 +20,7 @@ public class UnusedModelElementFinderTest {
 //new ModelLoaderImpl(ClassPathUtils.findRosettaFilePaths().stream().map(ClassPathUtils::toUrl).toArray(URL[]::new))
         ModelLoaderImpl modelLoader = new ModelLoaderImpl(ClassPathUtils.findPathsFromClassPath(ImmutableList.of("model", "rosetta"), ".*\\.rosetta", Optional.empty(), ClassPathUtils.class.getClassLoader()
                 ).stream()
-                .map(ClassPathUtils::toUrl)
+                .map(UrlUtils::toUrl)
                 .toArray(URL[]::new));
         UnusedModelElementFinder unusedModelElementFinder = new UnusedModelElementFinder(modelLoader);
 
