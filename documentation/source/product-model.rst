@@ -129,23 +129,30 @@ The effective date attribute is optional and will usually be specified when a si
 
 The ``price`` and ``quantity`` attributes in the ``PriceQuantity`` data type each have a metadata location which can reference a metadata address in one of the  ``Payout`` data types.  The metadata address-location pair allows for a reference to link objects without populating the address object in persistence.  This capability helps to support an agnostic definition of the product in a trade (i.e. a product definition without a price and quantity). However, the reference can be used to populate values for an input into a function or for other purposes.
 
-MeasureBase
-"""""""""""
+Measure
+"""""""
 
-``MeasureBase`` is a base data type that consists of two attributes that define a *measure* generally. It provides a common component that is useful in the definition of price and quantity.
+A *measure* is a basic component that is useful in the definition of price and quantity (both things that can be measured) and consists of two attributes:
 
-- ``amount``, which is a number and could be a price or a quantity
-- ``unitOfAmount``, which defines the unit in which that amount is expressed
+- ``value``, which is defined as a number and could be a price or a quantity
+- ``unit``, which defines the unit in which that value is expressed
 
-Both attributes are optional as their existence is designed to be further constrained in the different data types that extend ``MeasureBase``.
+``MeasureBase`` defines the basic structure of a measure in which both attributes are optional. Various other data types that extend ``MeasureBase`` can further constrain the existence of those attributes: for instance, a ``Measure`` requires the ``value`` attribute to be present (but ``unit`` is still optional because a measure could be unit-less).
 
 .. code-block:: Haskell
 
  type MeasureBase:
-   amount number (0..1)
-   unitOfAmount UnitType (0..1)
+   value number (0..1)
+   unit UnitType (0..1)
 
-The ``UnitType`` data type used to defined the ``unitOfAmount`` attribute requires the definition of units using one of five defined types:
+.. code-block:: Haskell
+
+ type Measure extends MeasureBase:
+ 
+   condition ValueExists:
+     value exists
+
+The ``UnitType`` data type used to defined the ``unit`` attribute requires the definition of units using one of five defined types:
 
 .. code-block:: Haskell
 
@@ -161,37 +168,38 @@ The ``UnitType`` data type used to defined the ``unitOfAmount`` attribute requir
 
 A measure can vary over time. One often used case is a series of measures indexed by date. Such measures are all homogeneous, so the unit only needs to be represented once.
 
-To represent this, the ``MeasureSchedule`` type extends ``MeasureBase`` with a set of date and value pair attributes represented by the ``Step`` type. In that structure, the existing ``amount`` attribute can still be omitted but, when present, represents the schedule's initial value.
+To represent this, the ``MeasureSchedule`` type extends ``MeasureBase`` with a set of date and value pair attributes represented by the ``DatedValue`` type. In that structure, the existing ``value`` attribute can still be omitted but, when present, represents the schedule's initial value.
 
 .. code-block:: Haskell
 
  type MeasureSchedule extends MeasureBase:
-   step Step (0..*)
+   datedValue DatedValue (0..*)
+
    condition ValueExists:
-     amount exists or step exists
+     value exists or datedValue exists
  
-The price and quantity concepts for financial instruments are both modelled as extensions of the ``MeasureSchedule`` data type, as detailed below. This means that by default, price and quantity are considered as schedules although they can also represent a single value when the ``step`` attribute is omitted.
+The price and quantity concepts for financial instruments are both modelled as extensions of the ``MeasureSchedule`` data type, as detailed below. This means that by default, price and quantity are considered as schedules although they can also represent a single value when the ``datedValue`` attribute is omitted.
 
 Price
 """""
 
-The ``PriceSchedule`` data type extends the ``MeasureSchedule`` data type with the addition of the ``priceExpression`` and ``perUnitOfAmount`` attributes, which together further qualify the price.
+The ``PriceSchedule`` data type extends the ``MeasureSchedule`` data type with the addition of the ``priceExpression`` and ``perUnitOf`` attributes, which together further qualify the price.
 
 .. code-block:: Haskell
 
  type PriceSchedule extends MeasureSchedule:
    priceExpression PriceExpression (1..1)
-   perUnitOfAmount UnitType (0..1)
+   perUnitOf UnitType (0..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
 
-The ``Price`` data type further constrains the ``PriceSchedule`` data type by requiring the ``step`` attribute to be absent.
+The ``Price`` data type further constrains the ``PriceSchedule`` data type by requiring the ``datedValue`` attribute to be absent.
 
 .. code-block:: Haskell
 
  type Price extends PriceSchedule:
    condition AmountOnlyExists:
-     amount exists and step is absent
+     value exists and datedValue is absent
 
 Consider the example below for the initial price of the underlying equity in a single-name Equity Swap, which is a net price of 37.44 USD per Share:
 
@@ -200,13 +208,13 @@ Consider the example below for the initial price of the underlying equity in a s
  "price": [
    {
      "value": {
-       "amount": 37.44,
-       "unitOfAmount": {
+       "value": 37.44,
+       "unit": {
          "currency": {
            "value": "USD"
            }
          },
-         "perUnitOfAmount": {
+         "perUnitOf": {
            "financialUnit": "SHARE"
          },
          "priceExpression": {
@@ -225,50 +233,49 @@ Consider the example below for the initial price of the underlying equity in a s
      }
    ]
 
-The full form of this example can be seen by ingesting one of the samples provided in the CDM distribution under products / equity / eqs-ex01-single-underlyer-execution-long-form-other-party.xml. As can be seen in the full example, for an interest rate leg, the ``unitOfAmount`` and the ``perUnitOfAmount`` would both be a currency (e.g. 0.002 USD per USD). The  ``priceType`` would be an InterestRate and, in the case of a floating leg, the ``spreadType`` would be a Spread.
+The full form of this example can be seen by ingesting one of the samples provided in the CDM distribution under products / equity / eqs-ex01-single-underlyer-execution-long-form-other-party.xml. As can be seen in the full example, for an interest rate leg, the ``unit`` and the ``perUnitOf`` would both be a currency (e.g. 0.002 USD per USD). The  ``priceType`` would be an InterestRate and, in the case of a floating leg, the ``spreadType`` would be a Spread.
 
 Quantity
 """"""""
 
-The ``QuantitySchedule`` data type also extends the ``MeasureSchedule`` data type with the addition of optional ``multiplier`` attributes. The ``NonNegativeQuantitySchedule`` data type constrains it by requiring that all the values are non-negative.
+The ``QuantitySchedule`` data type also extends the ``MeasureSchedule`` data type with the addition of an optional ``multiplier`` attributes. It also requires the ``unit`` attribute to exist, i.e. a quantity cannot be unit-less. The ``NonNegativeQuantitySchedule`` data type further constrains it by requiring that all the values are non-negative.
 
 .. code-block:: Haskell
 
  type QuantitySchedule extends MeasureSchedule:
-   multiplier number (0..1)
-   multiplierUnit UnitType (0..1)
+   multiplier Measure (0..1)
    frequency Frequency (0..1)
 
    condition Quantity_multiplier:
-     if multiplier exists
-       then multiplier >= 0.0
-
+       if multiplier exists then multiplier -> value >= 0.0
    condition UnitOfAmountExists:
-     unitOfAmount exists
+       unit exists
 
 .. code-block:: Haskell
 
  type NonNegativeQuantitySchedule extends QuantitySchedule:
  
    condition NonNegativeQuantity_amount:
-     if amount exists then amount >= 0.0 and
-     if step exists then step -> stepValue all >= 0.0
+     if value exists then value >= 0.0 and
+     if datedValue exists then datedValue -> value all >= 0.0
 
-The inherited attributes of ``amount``, ``step`` (in case the quantity is provided as a schedule) and ``unitOfAmount`` are sufficient to define a quantity, in most cases.
+The inherited attributes of ``value``, ``unit`` and ``datedValue`` (in case the quantity is provided as a schedule) are sufficient to define a quantity in most cases.
 
-The additional attributes that are provided for the ``QuantitySchedule`` data type allow to further qualify the ``amount`` with a multiplier. This is needed for listed contracts or other purposes, as shown below. In this example, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME. Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
+The additional ``multiplier`` attribute that is provided for the ``QuantitySchedule`` data type allows to further qualify the ``value``. This is needed for listed contracts or other purposes, as shown below. In this example, the trade involves the purchase or sale of 200 contracts of the WTI Crude Oil futures contract on the CME. Each contract represents 1,000 barrels, therefore the total quantity of the trade is for 200,000 barrels.
 
 .. code-block:: Javascript
 
  "quantity": [
    {
      "value": {
-       "amount": 200,
-       "unitOfAmount": {
+       "value": 200,
+       "unit": {
          "financialUnit": "CONTRACT"
        },
-       "multiplier": 1000,
-       "multiplierUnit": "BBL"
+       "multiplier": {
+         "value": 1000,
+         "unit": "BBL"
+       }
      },
      "meta": {
        "location": [
