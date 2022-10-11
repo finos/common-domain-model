@@ -1,8 +1,8 @@
-# *Product Model - FpML Mapping of FX, Credit and IR Products*
+# *Product Model - Enhancements of the FpML Mapping for FX, Credit and IR Products*
 
 _Background_
 
-This release extends the product mapping coverage for FX, Credit and Rates, according to the gaps that samples show.
+This release extends the product mapping coverage for several FX, Credit and Rates festures.
 
 _What is being released?_
 
