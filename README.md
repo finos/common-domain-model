@@ -2,9 +2,9 @@
 
 # CDM - Common Domain Model
 
-## What is the ISDA CDM
+## What is the CDM
 
-The ISDA Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a `domain model`_ and distributed in open source.
+The Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a `domain model`_ and distributed in open source.
 
 ## Purpose
 
@@ -60,7 +60,7 @@ The product scope of the CDM includes OTC derivatives, cash securities, securiti
 ## CDM Components
 
 
-**The CDM is made of three sets of components**, as laid-out in the ISDA CDM components diagram below:
+**The CDM is made of three sets of components**, as laid-out in the CDM components diagram below:
 
 * The ISDA CDM Distribution (in *blue*)
 * The Rosetta DSL (in *grey*)
