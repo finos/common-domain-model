@@ -692,6 +692,7 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity
 			[value "notionalQuantity"]
 			[value "totalNotionalQuantity" mapper "TotalNotionalQuantity"]
+			[value "notionalQuantitySchedule"] // Commodity Option
 			// For Options
 			[value "numberOfOptions" mapper "NumberOfOptions"] // handles optionEntitlement
 		+ observable
@@ -1797,6 +1798,10 @@ synonym source FpML_5_10 extends FpML
 			[set to SecurityTypeEnum -> Debt when "mortgage" exists]
 			[set to SecurityTypeEnum -> Equity when "equity" exists]
 
+	MeasureSchedule:
+		+ datedValue
+			[value "ignore"]
+
 	QuantitySchedule:
 		+ value
 			[value "initialValue" maps 2]
@@ -1820,6 +1825,7 @@ synonym source FpML_5_10 extends FpML
 			[value "fixedAmount"]
 			[value "varianceAmount"]
 			[value "notionalAmount"]
+			[value "notionalStep"]
 		+ multiplier
 			[hint "optionEntitlement"]
 			[hint "entitlementCurrency"]
@@ -1827,6 +1833,7 @@ synonym source FpML_5_10 extends FpML
 			[value "Frequency"]
 			// For Commodity Swap Fixed Leg
 			[hint "quantityFrequency"]
+			[value "notionalStep"]
 		+ datedValue
 			[value "step"]
 			[value "notionalStep"]
@@ -1868,6 +1875,7 @@ synonym source FpML_5_10 extends FpML
 			[value "stepDate" maps 2]
 		+ value
 			[value "stepValue" maps 2]
+			[value "quantity"]
 
 	AdditionalDisruptionEvents:
 		+ changeInLaw
@@ -2670,7 +2678,6 @@ synonym source FpML_5_10 extends FpML
 			[merge "commodity"]
 			[hint "notionalQuantity"] // Commodity Option
 			[value "commodityOption"]
-			[value "commoditySwaption"]
 			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"] // For Equity / Bond Option
 		+ lotIdentifier
 			[value "ignore"]
@@ -2707,8 +2714,8 @@ synonym source FpML_5_10 extends FpML
 			[hint "fxVolatilitySwap"]
 			// Other
 			[value "commoditySwap"]
-			[hint "commoditySwap"]
 			[hint "commodityOption"]
+			[value "commoditySwap" path "commoditySwaption"]
 			[hint "repo"]
 		+ adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
