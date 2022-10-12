@@ -1,6 +1,6 @@
 # *Product Model - FpmL Mapping Enhancements for Commodity Products*
 
-_Bachground_
+_Background_
 
 The recent price and quantity schedule refactoring highlighted gaps in the coverage of the FpML commodity test pack related to FpML mappings.
 
