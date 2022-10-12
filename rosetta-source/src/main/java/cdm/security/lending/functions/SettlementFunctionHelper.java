@@ -136,7 +136,7 @@ public class SettlementFunctionHelper {
     private Quantity getShareQuantity(List<? extends Quantity> quantities) {
         List<Quantity> quantitiesO = quantities.stream()
                 .filter(q -> Optional.ofNullable(q)
-                        .map(MeasureBase::getUnitOfAmount)
+                        .map(MeasureBase::getUnit)
                         .map(UnitType::getFinancialUnit)
                         .filter(u -> u == FinancialUnitEnum.SHARE).isPresent())
                 .collect(Collectors.toList());

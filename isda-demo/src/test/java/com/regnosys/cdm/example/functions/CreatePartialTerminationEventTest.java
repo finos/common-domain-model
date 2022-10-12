@@ -81,8 +81,8 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                         .setDirection(QuantityChangeDirectionEnum.DECREASE)
                         .addChange(PriceQuantity.builder()
                                 .addQuantityValue(NonNegativeQuantitySchedule.builder()
-                                                .setAmount(BigDecimal.valueOf(7000000))
-                                                .setUnitOfAmount(UnitType.builder()
+                                                .setValue(BigDecimal.valueOf(7000000))
+                                                .setUnit(UnitType.builder()
                                                         .setCurrency(FieldWithMetaString.builder()
                                                                 .setValue("USD")
                                                                 .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME))))));
@@ -99,8 +99,8 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                                         .setPayerPartyReference(payerPartyReference)
                                         .setReceiverPartyReference(receiverPartyReference))
                                 .setQuantity(Quantity.builder()
-                                        .setAmount(BigDecimal.valueOf(2000.00))
-                                        .setUnitOfAmount(UnitType.builder()
+                                        .setValue(BigDecimal.valueOf(2000.00))
+                                        .setUnit(UnitType.builder()
                                                 .setCurrency(FieldWithMetaString.builder()
                                                         .setValue("USD")
                                                         .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME)))))
@@ -164,7 +164,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                 .getTradeLot().get(0)
                 .getPriceQuantity().get(0)
                 .getQuantity().get(0).getValue();
-        assertEquals(new BigDecimal("3000000.00"), quantity.getAmount());
+        assertEquals(new BigDecimal("3000000.00"), quantity.getValue());
 
         // Only one transferHistory expected - i.e. the partial termination fee
         assertEquals(1, afterTradeState.getTransferHistory().size());
@@ -172,7 +172,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
         // Assert transfer fee
         Transfer transfer = afterTradeState.getTransferHistory().get(0).getTransfer();
         assertEquals(FeeTypeEnum.PARTIAL_TERMINATION, transfer.getTransferExpression().getPriceTransfer());
-        assertEquals(new BigDecimal("2000.0"), transfer.getQuantity().getAmount());
+        assertEquals(new BigDecimal("2000.0"), transfer.getQuantity().getValue());
     }
 
     private <T extends RosettaModelObject> T postProcess(T o) {

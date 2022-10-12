@@ -1,41 +1,23 @@
-# *Product Model - Commodity Option*
+# *Product Model - FpML Mapping Enhancements for Equity Index Products*
 
 _Background_
 
-This release extends the representation of the `OptionPayout` type to over the gaps that commodity options currently have in the model. It also extends the possible ways of calculating averages in commodity products.
+The recent price and quantity schedule refactoring left some inconsistency in the treatment of the quantity of equity index vs single-name options.
+
+In the single-name case the quantity being referenced in the option payout is a number of shares, whereas in the index case the quantity was a monetary amount (unless that monetary amount was itself absent, in which case the number of index units was referenced). This means that any post-trade processing of an option contract would have to be forked between those cases, including for reporting.
 
 _What is being released?_
 
-- The addition of the attribute `schedule` of type `CommoditySchedule` to `OptionPayout`.
-- Modification of the averaging calculation representation to determine which type of weighting and which Pythagorean mean is being used.
-- Mapping additions to support the changes above, and also the mappings of the payment dates on `SettlementTerms`.
+The index treatment has been aligned onto the single-name one and the quantity now reflects the number of index units in all cases.
 
-_Data Types_
-
-- Created type `AveragingCalculationMethod`, which contains `isWeighted` and `calculationMethod` and their respective types: `boolean` and `AveragingCalculationMethodEnum`.
-- In `Reset`, changed `aggregationMethodology` of type `AggregationMethod` to `averagingMethodology` of type `AveragingCalculation`.
-- Modified the attribute name `averagingMethod` in `CommodityPayout` to `averagingFeature` and changed its type to `AveragingCalculation`.
-- In `settlementDate`, changed the name of `adjustedDate` to `adjustedOrRelativeDate`.
-- Added the attribute `schedule` of type `CommoditySchedule` to `OptionPayout` so that commodity option products support the overwriting of their original schedule.
-- In `AveragingCalculation`, changed the name of `calculationMethod` to `averagingMethod`.
-- Changed `averagingRateFeature` to `averagingFeature` in type `OptionFeature`.
-- In `PerformancePayout`, changed `averagingMethod` type from `AveragingMethodEnum` to `AveragingCalculationMethod`.
-
-_Functions_
-
-- Updated `Create_SecurityFinanceReset` to support the changes on `AveragingCalculationMethodEnum`.
-- Updated `Qualify_EquityOption_PriceReturnBasicPerformance_SingleName`, `Qualify_EquityOption_PriceReturnBasicPerformance_Index`, `Qualify_EquityOption_PriceReturnBasicPerformance_Basket` and  `Qualify_ForeignExchange_VanillaOption` in order to support the change of the `averagingRateFeature` attribute name to `averagingFeature` in `OptionFeature`.
-
-_Synonyms_
-
-- Added the synonyms needed to map the FpML attribute `averagingMethod` to the new averaging structure, as well as the `schedule` mappings and the `relativePaymentDates` to `settlementTerms`.
+Since there was no equity index option featuring both a monetary amount and a number of index units available in the FpML test pack, a new one has been synthesized based on an existing record-keeping sample and used to adjust the mapping.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In the CDM Portal, select Ingestion and review the new sample to illustrate the new behaviour:
 
-In the CDM Portal, select Ingestion and review commodity examples, including:
+- fpml-5-10 > products > equity > `equity-option-price-return-index-ex03-european-call`
 
-- fpml-5-10 > products > commodity > com-ex03-gas-swap-prices-last-three-days
-- fpml-5-10 > products > commodity > com-ex04-electricity-swap-hourly-off-peak
-- fpml-5-10 > products > commodity > com-ex05-gas-v-electricity-spark-spread
+and compare for consistency with an existing sample:
+
+- fpml-5-10 > products > equity > `eqd-ex04-european-call-index-long-form`
