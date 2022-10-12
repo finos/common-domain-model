@@ -2,20 +2,24 @@
 
 # Rosetta CDM
 
-Short blurb about what your project does.
+## What is the ISDA CDM
+
+The ISDA Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a `domain model`_ and distributed in open source.
+
+## Purpose
+
+A single, digital processing standard for trade events and actions enhances financial markets' operational efficiency in several ways:
+
+* **Enables inter-operability and straight-through processing** across firms, solutions and platforms, reducing the need for reconciliation caused by variations in how each firm records trade lifecycle events.
+* **Accelerates financial technology innovation** by providing a common, readily operational foundation for how technologies like distributed ledger, smart contracts, cloud computing, and artificial intelligence can be applied to financial markets.
+* **Delivers better regulatory oversight**, promotes transparency and alignment between regulators and market participants and enables consistency in regulatory reporting, by providing a standard representation of trade data and supporting machine executable reporting requirements.
 
 ## Installation
 
-OS X & Linux:
+OS X, Linux and Windows:
 
 ```sh
-npm install my-crazy-module --save
-```
-
-Windows:
-
-```sh
-edit autoexec.bat
+mvn clean install
 ```
 
 ## Usage example
@@ -33,15 +37,52 @@ make install
 npm test
 ```
 
+## Design Principles
+
+To support these objectives, the CDM is built according to a set of design principles that include the following concepts:
+
+* **Normalisation** through abstraction of common components
+* **Composability** where objects are composed and qualified from the bottom up
+* **Mapping** to existing industry messaging formats
+* **Embedded logic** to represent industry processes
+* **Modularisation** into logical layers
+
+These design principles are further detailed in the :ref:`design-principles` section of the CDM documentation.
+
+## Governance
+
+The CDM `governance framework <contribution.html#governance>`_ regulates the development of the CDM in open source.
+
+## Scope
+
+The product scope of the CDM includes OTC derivatives, cash securities, securities financing, and commodities.
+
+## CDM Components
+
+
+**The CDM is made of three sets of components**, as laid-out in the ISDA CDM components diagram below:
+
+* The ISDA CDM Distribution (in *blue*)
+* The Rosetta DSL (in *grey*)
+* CDM Applications (in *green*)
+
+.. figure:: images/cdm-components-diagram.png
+
+## ISDA CDM Distribution
+
+The ISDA CDM distribution is openly accessible to all industry participants, subject to the ISDA CDM open source licence. This distribution is fully downloadable.
+
+
 ## Roadmap
 
-List the roadmap steps; alternatively link the Confluence Wiki page where the project roadmap is published.
-
-1. Item 1
-2. Item 2
-3. ....
+ TO BE FILLED IN BY ISDA/ICMA/ISLA
 
 ## Contributing
+
+REGNOSYS TO FILL IN: SECTION ON CONTRIBUTING VIA ROSETTA
+FINOS TO FILL IN: SECTION ON CONTRIBUTING VIA LEGEND
+
+### Contributing via GitHub
 
 1. Fork it (<https://github.com/finos/{project slug}/fork>)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
@@ -57,8 +98,10 @@ _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted fr
 
 ## License
 
-Copyright {yyyy} {name of copyright owner}
+TO BE FILLED IN BY ISDA/ICMA/ISLA
 
-Distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+?? Copyright 2022 
 
-SPDX-License-Identifier: [Apache-2.0](https://spdx.org/licenses/Apache-2.0)
+?? Distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+?? SPDX-License-Identifier: [Apache-2.0](https://spdx.org/licenses/Apache-2.0)
