@@ -7,6 +7,8 @@ import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
 
+import cdm.event.workflow.*
+
 import cdm.legalagreement.csa.*
 
 import cdm.observable.event.*
@@ -37,8 +39,7 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 	terminationDate AdjustableOrRelativeDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention. It can also be specified in relation to another scheduled date (e.g. the last payment date).">
 	dateAdjustments BusinessDayAdjustments (0..1) <"The business day adjustment convention when it applies across all the payout components. This specification of the business day convention and financial business centers is used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
 	payout Payout (1..1) <"The payout specifies the future cashflow computation methodology which characterizes a financial product.">
-	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">
-	optionProvision OptionProvision (0..1) <"Cancelable and/or extendible provisions.">
+	terminationProvision TerminationProvision (0..1) <"Contains optional provisions pertaining to the termination characteristics of a contract.">
 	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events.">
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 	nonStandardisedTerms boolean (0..1) <"Specifies, when boolean value is True, that additional economic terms exist that have not been included in the product representation.">
@@ -75,6 +76,27 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 		if calculationAgent -> calculationAgentParty exists
 		then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> CalculationAgentIndependent
 
+    condition SecurityFinancePayoutDividendTermsValidation: <"Validates that if the transaction has Dividend Terms specified then it should be a Term trade.">
+        if payout -> securityFinancePayout -> dividendTerms exists
+        then terminationDate exists
+
+	condition ExtendibleProvisionExerciseDetails: <"Ensure that the correct details are specified for an extendible contract.">
+		if payout -> securityFinancePayout is absent then
+			// Not Security Lending/Repo so must be Interest Rate Swap, which must set an exercise option type
+			if terminationProvision -> extendibleProvision exists then
+				(terminationProvision -> extendibleProvision -> americanExercise exists
+				and	terminationProvision -> extendibleProvision -> bermudaExercise is absent
+				and terminationProvision -> extendibleProvision -> europeanExercise is absent)
+				or
+				(terminationProvision -> extendibleProvision -> americanExercise is absent
+				and	terminationProvision -> extendibleProvision -> bermudaExercise exists
+				and terminationProvision -> extendibleProvision -> europeanExercise is absent)
+				or
+				(terminationProvision -> extendibleProvision -> americanExercise is absent
+				and	terminationProvision -> extendibleProvision -> bermudaExercise is absent
+				and terminationProvision -> extendibleProvision -> europeanExercise exists)
+				and
+				terminationProvision -> extendibleProvision -> followUpConfirmation exists
 
 type OptionExercise: <" A class to represent the applicable terms to qualify an option exercise: the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 
@@ -348,22 +370,22 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		then product -> contractualProduct -> economicTerms -> payout -> optionPayout -> exerciseTerms -> exerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticeReceiver exists
 
 	condition ExerciseNoticeReceiverPartyOptionalEarlyTermination:
-		if product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseNotice -> exerciseNoticeReceiver  exists
+		if product -> contractualProduct -> economicTerms -> terminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseNotice -> exerciseNoticeReceiver  exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyOptionalEarlyTermination
 		and if ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyOptionalEarlyTermination
-		then product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseNotice -> exerciseNoticeReceiver  exists
+		then product -> contractualProduct -> economicTerms -> terminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseNotice -> exerciseNoticeReceiver  exists
 
 	condition ExerciseNoticeReceiverPartyCancelableProvision:
-		if product -> contractualProduct -> economicTerms -> optionProvision -> cancelableProvision  -> exerciseNotice -> exerciseNoticeReceiver exists
+		if product -> contractualProduct -> economicTerms -> terminationProvision -> cancelableProvision  -> exerciseNotice -> exerciseNoticeReceiver exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyCancelableProvision
 		and if ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyCancelableProvision
-		then product -> contractualProduct -> economicTerms -> optionProvision -> cancelableProvision  -> exerciseNotice -> exerciseNoticeReceiver exists
+		then product -> contractualProduct -> economicTerms -> terminationProvision -> cancelableProvision  -> exerciseNotice -> exerciseNoticeReceiver exists
 
 	condition ExerciseNoticeReceiverPartyExtendibleProvision:
-		if product -> contractualProduct -> economicTerms -> optionProvision -> extendibleProvision  -> exerciseNotice -> exerciseNoticeReceiver exists
+		if product -> contractualProduct -> economicTerms -> terminationProvision -> extendibleProvision  -> exerciseNotice -> exerciseNoticeReceiver exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyExtendibleProvision
 		and if ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyExtendibleProvision
-		then product -> contractualProduct -> economicTerms -> optionProvision -> extendibleProvision  -> exerciseNotice -> exerciseNoticeReceiver exists
+		then product -> contractualProduct -> economicTerms -> terminationProvision -> extendibleProvision  -> exerciseNotice -> exerciseNoticeReceiver exists
 
 	condition CalculationAgentIndependent:
 		if product -> contractualProduct -> economicTerms -> calculationAgent -> calculationAgentParty exists
@@ -372,16 +394,16 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		then product -> contractualProduct -> economicTerms -> calculationAgent -> calculationAgentParty exists
 
 	condition CalculationAgentOptionalEarlyTermination:
-		if product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> optionalEarlyTermination -> calculationAgent -> calculationAgentParty exists
+		if product -> contractualProduct -> economicTerms -> terminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> calculationAgent -> calculationAgentParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentOptionalEarlyTermination
 		and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentOptionalEarlyTermination
-		then product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> optionalEarlyTermination -> calculationAgent -> calculationAgentParty exists
+		then product -> contractualProduct -> economicTerms -> terminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> calculationAgent -> calculationAgentParty exists
 
 	condition CalculationAgentMandatoryEarlyTermination:
-		if product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
+		if product -> contractualProduct -> economicTerms -> terminationProvision -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentMandatoryEarlyTermination
 		and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentMandatoryEarlyTermination
-		then product -> contractualProduct -> economicTerms -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
+		then product -> contractualProduct -> economicTerms -> terminationProvision -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
 
 	// condition CalculationAgentFallback:
 	// 	if product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement -> priceSourceDisruption -> fallbackReferencePrice -> calculationAgentDetermination -> calculationAgentParty exists
@@ -520,12 +542,15 @@ type ExtendibleProvision extends BuyerSeller: <"A data defining:  an option to e
 	bermudaExercise BermudaExercise (0..1) <"Bermuda exercise. FpML implementations consists in an exercise substitution group.">
 	europeanExercise EuropeanExercise (0..1) <"European exercise. FpML implementations consists in an exercise substitution group.">
 	exerciseNotice ExerciseNotice (0..1) <"Definition of the party to whom notice of exercise should be given.">
-	followUpConfirmation boolean (1..1) <"A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.">
+	followUpConfirmation boolean (0..1) <"A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.">
 	extendibleProvisionAdjustedDates ExtendibleProvisionAdjustedDates (0..1) <"The adjusted dates associated with an extendible provision. These dates have been adjusted for any applicable business day convention.">
 	callingParty CallingPartyEnum (0..1)
 
-	condition ExerciseChoice: <"condition to represent an FpML choice construct.">
-		required choice americanExercise, bermudaExercise, europeanExercise
+	singlePartyOption PartyRole (0..1) <"If the ability to extend the contract is not available to both parties then this component specifies the buyer and seller of the option.">
+	noticeDeadlinePeriod RelativeDateOffset (0..1) <"Defines the minimum period before a contract is scheduled to terminate that notice can be given that it will terminate beyond the scheduled termination date.">
+	noticeDeadlineDateTime EventTimestamp (0..1) <"A specific date and time for the notice deadline">
+	extensionTerm RelativeDateOffset (0..1) <"The length of each extension period relative to the effective date of the preceding contract.">
+    extensionPeriod AdjustableRelativeOrPeriodicDates (0..1) <"The period within which notice can be given that the contract will be extended.">
 
 	condition ExtendibleProvisionExerciseNoticeReceiverParty:
 		if exerciseNotice -> exerciseNoticeReceiver exists
@@ -650,13 +675,14 @@ type OptionFeature: <"Defines additional optional features that can be included 
 	knock Knock (0..1) <"Specifies a knock in or knock out feature.">
 	passThrough PassThrough (0..1) <"Specifies the rules for pass-through payments from the underlier, such as dividends.">
 
-
-type OptionProvision: <"A class for defining option provisions.">
+type TerminationProvision: <"A class for defining option provisions.">
 	cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">
+	earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">
+    evergreenProvision EvergreenProvision (0..1) <"A data defining: the right of a party to exercise an Evergreen option">
 	extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">
-
-	condition OptionProvisionChoice: 
-		cancelableProvision exists or extendibleProvision exists
+	
+	condition TerminationProvisionChoice: 
+		required choice cancelableProvision, extendibleProvision, evergreenProvision, earlyTerminationProvision
 
 type OptionStrike: <"Defines the strike price of an option.">
 
@@ -839,7 +865,6 @@ type SecurityFinancePayout extends PayoutBase: <"Security payout specification i
     [metadata key]
     securityFinanceLeg SecurityFinanceLeg (1..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
     securityInformation Product (1..1) <"Specifies the reference asset.  This is The base type which all products extend (similar to FpML model). Within SecurityPayout we include a condition which validates that the product must be a Security (see below condition 'ProductMustBeSecurity').">
-    durationType Duration (1..1) <"Specifies the Duration Terms of the Security Finance transaction. e.g. Open or Term.">
     minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
     dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
     collateralProvisions CollateralProvisions (1..1) <"Specifies collateral provisions for a Security Finance transaction, including Collateral Type and Margin Percentage.">
@@ -849,10 +874,6 @@ type SecurityFinancePayout extends PayoutBase: <"Security payout specification i
 
     condition ProductMustBeSecurity: <"Validates that the reference asset must be a security.">
         securityInformation -> security exists
-
-    condition DividendTermsValidation: <"Validates that if the transaction has Dividend Terms specified then the Duration should be Term.">
-        if dividendTerms exists
-        then durationType -> durationType = DurationTypeEnum -> Term
 
 type DividendTerms: <"Information related to dividends and payments.">
     manufacturedIncomeRequirement DividendPayoutRatio (1..1) <"Specifies the proportion of the value of the dividend on the borrowed shares that the borrower is legally obligated to return to the lender.">
@@ -869,18 +890,10 @@ type SecurityFinanceLeg: <"Defines each security movement of a security financin
     settlementDate AdjustableOrRelativeDate (1..1) <"Settlement date of the security movement.">
     deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security movement.">
 
-type Duration: <"Specifies the Duration Terms of the Security Financing Transaction, and optionally any Evergreen terms.">
-    durationType DurationTypeEnum (1..1) <"Specifies the Duration Terms of the Security Financing transaction. e.g. Open or Term.">
-    evergreenProvision EvergreenProvision (0..1) <"A data defining: the right of a party to exercise an Evergreen option">
-
-type EvergreenProvision extends BuyerSeller: <"Specifies a transaction which automatically extends for a specified timeframe until the exercise of an embedded option.">
-	americanExercise AmericanExercise (0..1) <"Defines the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
-	bermudaExercise BermudaExercise (0..1) <"Defines the Bermuda option exercise dates and the expiration date together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fee.">
-	europeanExercise EuropeanExercise (0..1) <"Defines the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
-	followUpConfirmation boolean (1..1) <"A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.">
-	evergreenExtensionPeriod RelativeDateOffset (1..1) <"The length of each Evergreen extension period relative to the Effective date of the preceding contract.">
-    evergreenRollFrequency CalculationPeriodFrequency (1..1) <"The frequency with which the Evergreen contract will be extended if notice is not given.">
-    callingParty CallingPartyEnum (0..1) <"Identifies a party to that has a right to demand for termination of the Security Finance transaction.">
-
-    condition ExerciseChoice: <"Condition that requires the choice of exercise style to be specified.">
-		required choice americanExercise, bermudaExercise, europeanExercise
+type EvergreenProvision: <"Specifies a transaction which automatically extends for a specified timeframe until the exercise of an embedded option.">
+	singlePartyOption PartyRole (0..1) <"If evergreen termination is not available to both parties then this component specifies the buyer and seller of the option.">
+	noticePeriod RelativeDateOffset (1..1) <"The length of each evergreen extension period relative to the effective date of the preceding contract.">
+	noticeDeadlinePeriod RelativeDateOffset (0..1) <"Defines the minimum period before an evergreen is scheduled to terminate that notice can be given that it will terminate beyond the scheduled termination date.">
+	noticeDeadlineDateTime EventTimestamp (0..1) <"A specific date and time for the notice deadline">
+    extensionFrequency AdjustableRelativeOrPeriodicDates (1..1) <"The frequency with which the evergreen contract will be extended if notice is not given.">
+    finalPeriodFeeAdjustment Price (0..1) <"An optional adjustment to the rate for the last period of the evergreen i.e. the period from when notice is given to stop rolling the contract through to the termination date.">
