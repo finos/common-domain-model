@@ -42,8 +42,8 @@ public class OrePriceMappingProcessor extends MappingProcessor {
 						// if mapped price has priceType interestRate then update the unitOfAmount and perUnitOfAmount with currency.
 						.filter(p -> filterPriceType(p, PriceTypeEnum.INTEREST_RATE))
 						.forEach(priceBuilder -> priceBuilder
-								.setUnitOfAmount(unitType)
-								.setPerUnitOfAmount(unitType)));
+								.setUnit(unitType)
+								.setPerUnitOf(unitType)));
 	}
 
 	private boolean filterPriceType(PriceSchedule.PriceScheduleBuilder price, PriceTypeEnum priceType) {

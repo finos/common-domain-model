@@ -81,20 +81,20 @@ func CompareQuantityByUnitOfAmount:
         FilterQuantity( quantity1, unitOfAmount )
             map q1 [
                 FilterQuantity( quantity2, unitOfAmount )
-                    map q2 [ CompareNumbers( q1 -> amount, op, q2 -> amount ) ]
+                    map q2 [ CompareNumbers( q1 -> value, op, q2 -> value ) ]
             ] flatten
             all = True
 
 func FilterQuantity: <"Filter list of quantities based on unit type.">
     inputs:
         quantities Quantity (0..*) <"List of quantities to filter.">
-        unitOfAmount UnitType (1..1) <"Currency unit type.">
+        unit UnitType (1..1) <"Currency unit type.">
     output:
         filteredQuantities Quantity (0..*)
 
     add filteredQuantities:
         quantities
-            filter [ item -> unitOfAmount = unitOfAmount ]
+            filter [ item -> unit = unit ]
 
 func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
     inputs:
@@ -105,7 +105,7 @@ func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
 
     add filteredQuantities:
         quantities
-            filter [ item -> unitOfAmount -> currency = currency ]
+            filter [ item -> unit -> currency = currency ]
 
 func FilterQuantityByCurrencyExists: <"Filter list of quantities based on unit type.">
     inputs:
@@ -115,7 +115,7 @@ func FilterQuantityByCurrencyExists: <"Filter list of quantities based on unit t
 
     add filteredQuantities:
         quantities
-            filter [ item -> unitOfAmount -> currency exists ]
+            filter [ item -> unit -> currency exists ]
 
 func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit type.">
     inputs:
@@ -126,27 +126,27 @@ func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit ty
 
     add filteredQuantities:
         quantities
-            filter [ item -> unitOfAmount -> financialUnit = financialUnit ]
+            filter [ item -> unit -> financialUnit = financialUnit ]
 
 func Create_NonNegativeQuantity: <"Create a non-negative quantity with given amount and unit of amount.">
 	inputs:
 		amount number (1..1)
-		unitOfAmount UnitType (1..1)
+		unit UnitType (1..1)
 	output:
 		quantity NonNegativeQuantity (1..1)
 
-	set quantity -> amount: amount
-	set quantity -> unitOfAmount: unitOfAmount
+	set quantity -> value: amount
+	set quantity -> unit: unit
 
 func Create_NonNegativeQuantitySchedule: <"Create Quantity with given amount and unit of amount.">
 	inputs:
 		amount number (1..1)
-		unitOfAmount UnitType (1..1)
+		unit UnitType (1..1)
 	output:
 		quantity NonNegativeQuantitySchedule (1..1)
 
-	set quantity -> amount: amount
-	set quantity -> unitOfAmount: unitOfAmount
+	set quantity -> value: amount
+	set quantity -> unit: unit
 
 
 func Create_UnitType: <"Create UnitType with given currency or financial unit.">

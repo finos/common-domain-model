@@ -29,7 +29,7 @@ public class VegaNotionalAmountMappingProcessor extends MappingProcessor {
 
         if (isFxVarianceSwapPath(synonymPath) && isPriceQuantityModelPath()) {
             // Update builder to be empty
-            quantityBuilder.setAmount(null);
+            quantityBuilder.setValue(null);
             // Remove mapping
             getNonNullMapping(filterMappings(getMappings(), getModelPath()), synonymPath)
                     .ifPresent(getMappings()::remove);
@@ -37,7 +37,7 @@ public class VegaNotionalAmountMappingProcessor extends MappingProcessor {
         }
 
         // Set units
-        Consumer<String> setter = quantityBuilder.getOrCreateUnitOfAmount().getOrCreateCurrency()::setValue;
+        Consumer<String> setter = quantityBuilder.getOrCreateUnit().getOrCreateCurrency()::setValue;
 
         subPath("volatilityLeg", synonymPath)
                 .flatMap(subPath -> getNonNullMappedValue(getMappings(), subPath, "settlementCurrency"))
