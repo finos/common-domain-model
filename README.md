@@ -14,29 +14,6 @@ A single, digital processing standard for trade events and actions enhances fina
 * **Accelerates financial technology innovation** by providing a common, readily operational foundation for how technologies like distributed ledger, smart contracts, cloud computing, and artificial intelligence can be applied to financial markets.
 * **Delivers better regulatory oversight**, promotes transparency and alignment between regulators and market participants and enables consistency in regulatory reporting, by providing a standard representation of trade data and supporting machine executable reporting requirements.
 
-## Installation
-
-OS X, Linux and Windows:
-
-```sh
-mvn clean install
-```
-
-## Usage example
-
-A few motivating and useful examples of how your project can be used. Spice this up with code blocks and potentially screenshots / videos ([LiceCap](https://www.cockos.com/licecap/) is great for this kind of thing).
-
-_For more examples and usage, please refer to the [Wiki][wiki]._
-
-## Development setup
-
-Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms.
-
-```sh
-make install
-npm test
-```
-
 ## Design Principles
 
 To support these objectives, the CDM is built according to a set of design principles that include the following concepts:
@@ -71,6 +48,29 @@ The product scope of the CDM includes OTC derivatives, cash securities, securiti
 ## ISDA CDM Distribution
 
 The ISDA CDM distribution is openly accessible to all industry participants, subject to the ISDA CDM open source licence. This distribution is fully downloadable.
+
+## Installation
+
+OS X, Linux and Windows:
+
+```sh
+mvn clean install
+```
+
+## Usage example
+
+A few motivating and useful examples of how your project can be used. Spice this up with code blocks and potentially screenshots / videos ([LiceCap](https://www.cockos.com/licecap/) is great for this kind of thing).
+
+_For more examples and usage, please refer to the [Wiki][wiki]._
+
+## Development setup
+
+Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms.
+
+```sh
+make install
+npm test
+```
 
 
 ## Roadmap
