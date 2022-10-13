@@ -1,28 +1,42 @@
-# *Base Model - Naming Consistency for Measure Types*
+# *Product Model - FpmL Mapping Enhancements for Commodity Products*
+
+_Background_
+
+The recent price and quantity schedule refactoring highlighted gaps in the coverage of the FpML commodity test pack related to FpML mappings.
 
 _What is being released?_
 
-This release adjusts the name of types and attributes related to the Measure and Step data types to make them more consistent. It also folds the multiplier attributes that can be associated to a quantity into a a single, complex multiplier attribute.
+This release completes mappings for 2 additional commodity products: a commodity swaption and a commodity swap with a custom schedule.
 
-_Details_
+_Review Directions_
 
-The following data types and attributes have been modified:
+In the CDM Portal, select Ingestion and review the following new samples:
 
-- `MeasureBase`: renamed attributes `amount` into `value` (more neutral, amount is generally associated with money) and `unitOfAmount` into `unit`.
-- `Measure`: added data type as an extension of `MeasureBase` with a condition requiring the `value` attribute to be present.
-- `Step`: renamed as `DatedValue` (previously a step could be mis-interpreted in a schedule as representing a 'delta').
-- `Step`: renamed attributes `stepValue` as `value` (in line with the `value` attribute on a `Measure`) and `stepDate` as `date`.
-- `MeasureSchedule`: renamed `step` attribute as `datedValue`, in line with the change in type.
-- `PriceSchedule`: renamed attribute `perUnitOfAmount` as `perUnitOf`.
-- `QuantitySchedule`: folded the `multiplier` (number) and `multiplierUnit` attributes into a single, optional `multiplier` attribute of type `Measure`.
+- fpml-5-10 > products > commodity
 
-All synonyms and functional expressions have been updated to reflect the new structure and preserve existing behaviour.
+    - `commodity-option-energy-oil-ex01-cash`
+    - `commodity-option-energy-nat-gas-ex02-cash`
 
-_Review directions_
+# *Product Model - FpML Mapping Enhancements for Equity Index Products*
 
-In the CDM Portal, select Textual Browser and review the types mentioned above.
+_Background_
 
-For examples of how the quantity multiplier is now handled, select the Ingestion panel and review the following samples:
+The recent price and quantity schedule refactoring left some inconsistency in the treatment of the quantity of equity index vs single-name options.
 
-- FpML 5.10 > products > rates > `bond option uti`
-- FpML 5.10 > products > equity > `eqd ex04 european call index long form`
+In the single-name case the quantity being referenced in the option payout is a number of shares, whereas in the index case the quantity was a monetary amount (unless that monetary amount was itself absent, in which case the number of index units was referenced). This means that any post-trade processing of an option contract would have to be forked between those cases, including for reporting.
+
+_What is being released?_
+
+The index treatment has been aligned onto the single-name one and the quantity now reflects the number of index units in all cases.
+
+Since there was no equity index option featuring both a monetary amount and a number of index units available in the FpML test pack, a new one has been synthesized based on an existing record-keeping sample and used to adjust the mapping.
+
+_Review Directions_
+
+In the CDM Portal, select Ingestion and review the new sample to illustrate the new behaviour:
+
+- fpml-5-10 > products > equity > `equity-option-price-return-index-ex03-european-call`
+
+and compare for consistency with an existing sample:
+
+- fpml-5-10 > products > equity > `eqd-ex04-european-call-index-long-form`
