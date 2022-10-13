@@ -39,7 +39,7 @@ public class InterestRateCalculationExample extends AbstractExample {
         // CalculationPeriodDates CDM object
         //
 		NonNegativeQuantity notional = NonNegativeQuantity.builder()
-				.setAmount(BigDecimal.valueOf(50_000_000))
+				.setValue(BigDecimal.valueOf(50_000_000))
 				.build();
 		BigDecimal fixedRate = BigDecimal.valueOf(0.06);
 		BigDecimal rate = BigDecimal.valueOf(0.0875);
@@ -48,12 +48,12 @@ public class InterestRateCalculationExample extends AbstractExample {
 		// Calculate the fixed amount, using the function implementations from above
         //
 		BigDecimal fixedAmountResult = fixedAmount
-                .evaluate(InterestRatePayoutCreation.getFixedRatePayout(fixedRate), notional, REFERENCE_DATE, null);
+                .evaluate(InterestRatePayoutCreation.getFixedRatePayout(fixedRate), notional.getValue(), REFERENCE_DATE, null);
 
 
         // Calculate the floating amount
         //
-        BigDecimal floatingAmountResult = floatingAmount.evaluate(InterestRatePayoutCreation.getFloatingRatePayout(), rate, notional, REFERENCE_DATE, null);
+        BigDecimal floatingAmountResult = floatingAmount.evaluate(InterestRatePayoutCreation.getFloatingRatePayout(), rate, notional.getValue(), REFERENCE_DATE, null);
 
 
         // Make some assertions on the calculation results

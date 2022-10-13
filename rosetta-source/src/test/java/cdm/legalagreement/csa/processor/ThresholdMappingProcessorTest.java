@@ -56,8 +56,8 @@ class ThresholdMappingProcessorTest {
 		ElectiveAmountElection partyA = getPartyElection(threshold, CounterpartyRoleEnum.PARTY_1);
 		assertNull(partyA.getCustomElection());
 		Money amount = partyA.getAmount();
-		assertEquals(10, amount.getAmount().intValue());
-		assertEquals("EUR", amount.getUnitOfAmount().getCurrency().getValue());
+		assertEquals(10, amount.getValue().intValue());
+		assertEquals("EUR", amount.getUnit().getCurrency().getValue());
 
 		ElectiveAmountElection partyB = getPartyElection(threshold, CounterpartyRoleEnum.PARTY_2);
 		assertNull(partyB.getCustomElection());

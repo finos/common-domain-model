@@ -608,11 +608,11 @@ type ExecutionTerms: <"A class to specify execution location and language of exe
 type FrenchLawAddendum: <"A class to specify party specific elections when a Collateral Transfer Agreement is governed by French Law.">
 
 	isApplicable boolean (1..1) <"The qualification of whether the French Law Addendum is deemed applicable by the parties (True) or not (False).">
-	partyElection FrenchLawAddendumElection (2..2) <"The parties French Law Addendum Elections.">
+	partyElection FrenchLawAddendumElection (0..2) <"The parties French Law Addendum Elections.">
 
 	condition Applicable: <"A data rule to enforce that the French Law Addendum party elections must be specified when applicable.">
 		if isApplicable = True
-		then partyElection exists
+		then partyElection count = 2
 
 type FrenchLawAddendumElection: <"A class to specify party specific French Law Addendum language">
 
@@ -813,10 +813,6 @@ type RecalculationOfValueElection: <"A class to specify Recalculation of Value t
 	recalculationOfValueElection RecalculationOfValueElectionEnum (1..1) <"The procedure for Recalculation of Value.">
 	recalculationOfValueTerms string (0..1) <"Additional Recalculation of Value terms when specified">
 
-	condition RecalculationOfValueTerms: <"A data rule to enforce that additional Recalculation of Value terms are only specified when applicable">
-		if RecalculationOfValueElection exists
-		then recalculationOfValueTerms is absent
-
 type Regime: <"A class to specify one or more regimes that may be specified as relevant to a legal agreement. 2016/2018 ISDA Credit Support Annex for Initial Margin: Regime.">
 	[synonym AcadiaSoft_AM_1_0 value "Regime"]
 
@@ -987,7 +983,7 @@ type TerminationCurrencyElection: <"A class to specify the Amendment to Terminat
 
 	party CounterpartyRoleEnum (1..2) <"The elective party.">
 	isSpecified boolean (1..1) <"The qualification of whether the Termination Currency is specified in this document (True) or in an Eligible Support Credit Support (IM) Schedule (False)">
-	currency string (1..1) <"The Termination Currency associated with the party that referenced as part of this class. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+	currency string (0..1) <"The Termination Currency associated with the party that referenced as part of this class. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
 
 	condition CurrencyElection: <"A Termination Currency election should only exist when required by the affected parties election">

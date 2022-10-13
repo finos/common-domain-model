@@ -1,6 +1,6 @@
 package cdm.event.position.functions;
 
-import cdm.base.math.Quantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.event.common.Trade;
 import cdm.observable.asset.Price;
@@ -58,14 +58,14 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
     }
 
     private static Trade createFxFwdContract(String curr1, String curr2, int quantityAmount1, int quantityAmount2) {
-        Quantity.QuantityBuilder quantity1 = Quantity.builder()
-                .setAmount(BigDecimal.valueOf(quantityAmount1))
-                .setUnitOfAmount(UnitType.builder()
+        NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity1 = NonNegativeQuantitySchedule.builder()
+                .setValue(BigDecimal.valueOf(quantityAmount1))
+                .setUnit(UnitType.builder()
                         .setCurrency(FieldWithMetaString.builder()
                                 .setValue(curr1)));
-        Quantity.QuantityBuilder quantity2 = Quantity.builder()
-                .setAmount(BigDecimal.valueOf(quantityAmount2))
-                .setUnitOfAmount(UnitType.builder()
+        NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity2 = NonNegativeQuantitySchedule.builder()
+                .setValue(BigDecimal.valueOf(quantityAmount2))
+                .setUnit(UnitType.builder()
                         .setCurrency(FieldWithMetaString.builder()
                                 .setValue(curr2)));
         return Trade.builder()
@@ -80,9 +80,9 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
                                         .addQuantityValue(quantity1)
                                         .addQuantityValue(quantity2)
                                         .addPriceValue(Price.builder()
-                                                .setAmount(BigDecimal.valueOf(1.234))
-                                                .setUnitOfAmount(UnitType.builder().setCurrencyValue(curr1))
-                                                .setPerUnitOfAmount(UnitType.builder().setCurrencyValue(curr2))
+                                                .setValue(BigDecimal.valueOf(1.234))
+                                                .setUnit(UnitType.builder().setCurrencyValue(curr1))
+                                                .setPerUnitOf(UnitType.builder().setCurrencyValue(curr2))
                                                 .setPriceExpression(PriceExpression.builder()
                                                         .setPriceType(PriceTypeEnum.EXCHANGE_RATE))))))
                 .build();

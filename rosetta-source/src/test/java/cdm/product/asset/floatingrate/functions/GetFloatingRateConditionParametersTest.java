@@ -34,7 +34,7 @@ public class GetFloatingRateConditionParametersTest extends AbstractFunctionTest
 
 	private InterestRatePayout initInterestPayout() {
 		return InterestRatePayout.builder()
-				.setPayoutQuantity(GetNotionalAmountTest.initNotionalSchedule())
+				.setPriceQuantity(GetNotionalAmountTest.initNotionalSchedule())
 				.setRateSpecification(RateSpecification.builder()
 						.setFloatingRate(initFloatingRate(null)).build())
 				.build();

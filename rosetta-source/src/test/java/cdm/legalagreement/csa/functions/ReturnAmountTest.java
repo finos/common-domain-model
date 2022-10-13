@@ -267,13 +267,13 @@ class ReturnAmountTest extends AbstractFunctionTest {
 				getMoney(disputedReturnAmount),
 				BASE_CURRENCY_USD);
 
-		return returnAmountMoney.getAmount().doubleValue();
+		return returnAmountMoney.getValue().doubleValue();
 	}
 
 	private Money getMoney(double amount) {
 		return Money.builder()
-				.setAmount(BigDecimal.valueOf(amount))
-				.setUnitOfAmount(UnitType.builder()
+				.setValue(BigDecimal.valueOf(amount))
+				.setUnit(UnitType.builder()
 						.setCurrency(FieldWithMetaString.builder()
 								.setValue(BASE_CURRENCY_USD)
 								.setMeta(MetaFields.builder()

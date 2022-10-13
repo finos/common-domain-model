@@ -20,6 +20,23 @@ import cdm.observable.asset.calculatedrate.*
 
 import cdm.mapping.config.*
 
+type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of a referenced underlier. (e.g. Commodities). Can represent both average (average of many) & bullet (average of 1) pricing">
+	[metadata key]
+	averagingFeature AveragingCalculation (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted.">
+	commodityPriceReturnTerms CommodityPriceReturnTerms (0..1) <"Defines parameters in which the commodity price is assessed.">
+	pricingDates PricingDates (1..1) <"Specifies specific dates or parametric rules for the dates on which the price will be determined.">
+    schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+	calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule.">
+    paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
+    underlier Product (1..1)<"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
+    fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
+
+	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+		priceQuantity exists
+
+    condition CalculationPeriod: <"The calculation periods are either specified parametrically via CalculationPeriodDates or non-parametrically via SchedulePeriod.">
+		required choice schedule, calculationPeriodDates
+
 type CreditDefaultPayout extends PayoutBase: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated globalKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 
@@ -29,7 +46,10 @@ type CreditDefaultPayout extends PayoutBase: <" The credit default payout specif
 
 	condition FpML_cd_12: <"FpML validation rule cd-12 - If referencePrice exists, referencePrice must be greater or equal to 0">
 		if generalTerms -> referenceInformation -> referencePrice exists
-		then generalTerms -> referenceInformation -> referencePrice -> amount >= 0
+		then generalTerms -> referenceInformation -> referencePrice -> value >= 0
+	
+	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+		priceQuantity exists
 
 type GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
 
@@ -57,7 +77,6 @@ type GeneralTerms: <" A class specifying a set of non-monetary terms for the Cre
 		then basketReferenceInformation -> basketName exists
 			or basketReferenceInformation -> basketId exists
 
-
 type InterestRatePayout extends PayoutBase: <" A class to specify all of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate. The interest rate payout can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg). The associated globalKey denotes the ability to associate a hash value to the InterestRatePayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 
@@ -72,22 +91,24 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 	discountingMethod DiscountingMethod (0..1) <"The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies.">
 	compoundingMethod CompoundingMethodEnum (0..1) <"If one or more calculation period contributes to a single payment amount this element specifies whether compounding is applicable and, if so, what compounding method is to be used. This element must only be included when more than one calculation period contributes to a single payment amount.">
 	cashflowRepresentation CashflowRepresentation (0..1) <"The cashflow representation of the swap stream.">
-	principalExchanges PrincipalExchanges (0..1) <"The specification of the principal exchange. Optional as only applicable in the case of cross-currency.">
 	stubPeriod StubPeriod (0..1) <"The stub calculation period amount parameters. This element must only be included if there is an initial or final stub calculation period. Even then, it must only be included if either the stub references a different floating rate tenor to the regular calculation periods, or if the stub is calculated as a linear interpolation of two different floating rate tenors, or if a specific stub rate or stub amount has been negotiated.">
 	bondReference BondReference (0..1) <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
 	fixedAmount calculation (0..1) <"Fixed Amount Calculation">
 	floatingAmount calculation (0..1) <"Floating Amount Calculation">
+
+	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+		priceQuantity exists
 
 	condition InterestRatePayoutChoice: <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">
 		optional choice paymentDates, paymentDate
 
 	condition FutureValueNotional: <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
 		if rateSpecification -> fixedRate is absent
-		then payoutQuantity -> futureValueNotional is absent
+		then priceQuantity -> futureValueNotional is absent
 
 	condition TerminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
-		if payoutQuantity -> futureValueNotional exists
-		then payoutQuantity -> futureValueNotional -> valueDate = calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
+		if priceQuantity -> futureValueNotional exists
+		then priceQuantity -> futureValueNotional -> valueDate = calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
 
 	condition FpML_ird_6: <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
 		if paymentDates -> firstPaymentDate exists
@@ -109,10 +130,10 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 	condition CashSettlementTerms: <"Cash Settlements Terms must exist when the settlement currency is different to the notional currency of the trade.">
 		if settlementTerms -> settlementCurrency exists and
-			(settlementTerms -> settlementCurrency <> payoutQuantity -> quantitySchedule -> initialQuantity -> unitOfAmount -> currency
-			or settlementTerms -> settlementCurrency <> payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
+			(settlementTerms -> settlementCurrency <> priceQuantity -> quantitySchedule -> unit -> currency
+			or settlementTerms -> settlementCurrency <> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
 		then (settlementTerms -> cashSettlementTerms -> valuationMethod exists and settlementTerms -> cashSettlementTerms -> valuationDate exists)
-		    or payoutQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
+		    or priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
 
 	condition FpML_ird_7_1: <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
 		if paymentDates -> paymentFrequency -> period = calculationPeriodDates -> calculationPeriodFrequency -> period
@@ -150,24 +171,24 @@ type RateSpecification: <" A class to specify the fixed interest rate, floating 
 
 type DividendPayoutRatio: <"A class describing the dividend payout ratio associated with an equity underlier. In certain cases the actual ratio is not known on trade inception, and only general conditions are then specified.">
 
-	dividendPayoutRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
-	dividendPayoutRatioCash number (0..1) <"Specifies the cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
-	dividendPayoutRatioNonCash number (0..1) <"Specifies the non cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+	totalRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+	cashRatio number (0..1) <"Specifies the cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+	nonCashRatio number (0..1) <"Specifies the non cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+	basketConstituent Product (0..1) <"In the case of a basket underlier, specifies to which component of the basket this particular set of dividend payout ratios correspond.">
 
-	condition DividendPayoutRatio: <"The dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		if dividendPayoutRatio exists
-		then dividendPayoutRatio >= 0
-			and dividendPayoutRatio <= 1
+	condition DividendPayoutRatioTotal: <"The dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
+		totalRatio >= 0
+			and totalRatio <= 1
 
 	condition DividendPayoutRatioCash: <"The cash dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		if dividendPayoutRatioCash exists
-		then dividendPayoutRatioCash >= 0
-			and dividendPayoutRatio <= 1
+		if cashRatio exists
+		then cashRatio >= 0
+			and totalRatio <= 1
 
 	condition DividendPayoutRatioNonCash: <"The non cash dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		if dividendPayoutRatioNonCash exists
-		then dividendPayoutRatioNonCash >= 0
-			and dividendPayoutRatio <= 1
+		if nonCashRatio exists
+		then nonCashRatio >= 0
+			and totalRatio <= 1
 
 type AdditionalFixedPayments: <"A class to specify the events that will give rise to the payment additional fixed payments.">
 
@@ -337,16 +358,13 @@ type Tranche: <"The class to represent a CDS Tranche.">
 	incurredRecoveryApplicable boolean (0..1) <"Outstanding Swap Notional Amount is defined at any time on any day, as the greater of: (a) Zero; If Incurred Recovery Amount Applicable: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts and all Incurred Recovery Amounts (if any) determined under this Confirmation at or prior to such time.Incurred Recovery Amount not populated: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts determined under this Confirmation at or prior to such time.">
 
 	condition AttachmentPoint: <"FpML definition associated with the attachmentPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
-		if Tranche exists
-		then attachmentPoint >= 0.0 and attachmentPoint <= 1.0
+		attachmentPoint >= 0.0 and attachmentPoint <= 1.0
 
 	condition ExhaustionPoint: <"FpML definition associated with the exhaustionPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
-		if Tranche exists
-		then exhaustionPoint >= 0.0 and exhaustionPoint <= 1.0
+		exhaustionPoint >= 0.0 and exhaustionPoint <= 1.0
 
 	condition AttachmentPointLessThanExhaustionPoint: <"FpML validation rule cd-40 - Context: Tranche (complex type) attachmentPoint must be less or equal to exhaustionPoint.">
-		if Tranche exists
-		then attachmentPoint <= exhaustionPoint
+		attachmentPoint <= exhaustionPoint
 
 type DividendCurrency: <"A class to specify the currency in which the dividends will be denominated, i.e. either in the dividend currency or in a currency specified as part of the contract.">
 
@@ -377,8 +395,7 @@ type DividendPaymentDate: <"A class describing the date on which the dividend wi
 
 type DividendReturnTerms: <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
 
-	dividendPayout DividendPayoutRatio (0..*) <"Specifies the dividend payout ratio associated with each underlier. In FpML 5.10 the payout is positioned at the underlier level, although there is an intent to reconsider this approach and position it at the leg level. This is approach adopted by the CDM.">
-
+	dividendPayoutRatio DividendPayoutRatio (0..*) <"Specifies the dividend payout ratio associated with each underlier. In FpML 5.10 the payout is positioned at the underlier level, although there is an intent to reconsider this approach and position it at the leg level. This is approach adopted by the CDM.">
 	dividendReinvestment boolean (0..1) <"Boolean element that defines whether the dividend will be reinvested or not.">
 	dividendEntitlement DividendEntitlementEnum (0..1) <"Defines the date on which the receiver of the equity return is entitled to the dividend.">
 	dividendAmountType DividendAmountTypeEnum (0..1) <"Specifies whether the dividend is paid with respect to the Dividend Period.">
@@ -403,22 +420,20 @@ type DividendReturnTerms: <"A class describing the conditions governing the paym
 		then extraordinaryDividendsParty = AncillaryRoleEnum -> ExtraordinaryDividendsParty
 
 type DividendPeriod: <"Time bounded dividend payment periods, each with a dividend payment date per period.">
-    startDate DividendPaymentDate (1..1) <"Dividend period start date.">
-    endDate DividendPaymentDate (1..1) <"Dividend period end date.">
+
+    startDate DividendPaymentDate (0..1) <"Dividend period start date.">
+    endDate DividendPaymentDate (0..1) <"Dividend period end date.">
     dateAdjustments BusinessDayAdjustments (1..1) <"Date adjustments for all unadjusted dates in this dividend period.">
-    underlierReference Observable (0..1) <"Reference to the underlyer which is paying dividends. This should be used in all cases, and must be used where there are multiple underlying assets, to avoid any ambiguity about which asset the dividend period relates to.">
+    basketConstituent Product (0..1) <"For basket undeliers, reference to the basket component which is paying dividends in the specified period.">
     dividendPaymentDate DividendPaymentDate (1..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">
     dividendValuationDate AdjustableOrRelativeDate (0..1) <"Specifies the dividend valuation dates of the swap.">
 
 type PriceReturnTerms:
 
-	valuationPriceInitial Price (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
-	valuationPriceFinal Price (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+	valuationPriceInitial PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+	valuationPriceFinal PriceSchedule (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
 	returnType ReturnTypeEnum (1..1) <"The type of return associated with the equity swap.">
-	rounding Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of a number.">
 	conversionFactor number (0..1) <"Defines the conversion applied if the quantity unit on contract is different from unit on referenced underlier.">
-   	spread SpreadSchedule (0..1) <"Defines a spread value for one or more defined dates.">
-   	rollFeature RollFeature (0..1) <"Used in conjunction with an exchange-based pricing source. Identifies a way in which the futures contracts referenced will roll between periods. ">
 	performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
 
 type ReturnTermsBase: <"Contains all common elements in variance, volatility and correlation return Terms.">
@@ -447,12 +462,12 @@ type VarianceReturnTerms extends ReturnTermsBase:
 	volatilityStrikePrice Price (0..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
 	varianceCapFloor VarianceCapFloor (0..1) <"Contains possible barriers for variance products, both variance-based and underlier price based">
 	volatilityCapFloor VolatilityCapFloor (0..1) <"Contains containing volatility-based barriers">
-	vegaNotionalAmount Quantity (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
+	vegaNotionalAmount NonNegativeQuantitySchedule (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
 		//vegaNotionalAmount is only present here in varianceReturnTerms because it is an optional complement to the varianceAmount expressed in payoutQuantity.quantitySchedule.initialQuantity.amount.   In volatilityReturnTerms this element does not exist because the vegaNotionalAmount is compulsory and should therefore be expressed in payoutQuantity.quantitySchedule.initialQuantity.amount. in the corresponding units.
 	exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
 
 	condition Positive_VegaNotionalAmount: <"When the optional vegaNotionalAmount is present in the varianceReturnTerms, it needs to have a positive value.">
-		if vegaNotionalAmount -> amount exists then vegaNotionalAmount -> amount > 0
+		if vegaNotionalAmount -> value exists then vegaNotionalAmount -> value > 0
 
 	condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
 		if exchangeTradedContractNearest exists
@@ -465,14 +480,14 @@ type VarianceReturnTerms extends ReturnTermsBase:
 		required choice volatilityStrikePrice, varianceStrikePrice
 
 	condition NonNegativeStrikePrice: <"The strike price must have a positive value">
-		if volatilityStrikePrice -> amount  exists then volatilityStrikePrice -> amount >= 0 and
-		if varianceStrikePrice -> amount exists then varianceStrikePrice -> amount >= 0
+		if volatilityStrikePrice -> value  exists then volatilityStrikePrice -> value >= 0 and
+		if varianceStrikePrice -> value exists then varianceStrikePrice -> value >= 0
 
 type VolatilityReturnTerms extends ReturnTermsBase:
 
 	volatilityStrikePrice Price (1..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
 	volatilityCapFloor VolatilityCapFloor (0..1) <"Contains volatility-based barriers">
-	//vegaNotionalAmount Quantity (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
+	//vegaNotionalAmount NonNegativeQuantitySchedule (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
 	exchangeTradedContractNearest Observable (0..1)  <"Specification of the exchange traded contract nearest.">
 
 	condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
@@ -489,7 +504,7 @@ type CorrelationReturnTerms extends ReturnTermsBase:
 		if numberOfDataSeries exists then numberOfDataSeries > 0
 
 	condition CorrelationValue: <"The correlation strike price is a decimal with allowed values only between 1 and -1">
-		correlationStrikePrice -> amount > -1 and correlationStrikePrice -> amount > 1
+		correlationStrikePrice -> value > -1 and correlationStrikePrice -> value > 1
 
 type Valuation:
 	futuresPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions.">
@@ -575,8 +590,6 @@ type BondReference: <"Reference to a bond underlier to represent an asset swap o
 type CashflowRepresentation: <"A data defining:  the cashflow representation of a swap trade.">
 
 	cashflowsMatchParameters boolean (1..1) <"A true/false flag to indicate whether the cashflows match the parametric definition of the stream, i.e. whether the cashflows could be regenerated from the parameters without loss of information.">
-
-	principalExchange PrincipalExchange (0..*) <"The initial, intermediate and final principal exchange amounts. Typically required on cross currency interest rate swaps where actual exchanges of principal occur. A list of principal exchange elements may be ordered in the document by ascending adjusted principal exchange date. An FpML document containing an unordered principal exchange list is still regarded as a conformant document.">
 	paymentCalculationPeriod PaymentCalculationPeriod (0..*) <"The adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. A list of payment calculation period elements may be ordered in the document by ascending adjusted payment date. An FpML document containing an unordered list of payment calculation periods is still regarded as a conformant document.">
 
 type DiscountingMethod: <"A data defining:  discounting information. The 2000 ISDA definitions, section 8.4. discounting (related to the calculation of a discounted fixed amount or floating amount) apply. This type must only be included if discounting applies.">
@@ -635,7 +648,7 @@ type FloatingRateSpecification extends FloatingRate: <"A class to specify the fl
 
 	initialRate Price (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
 	finalRateRounding Rounding (0..1) <"The rounding convention to apply to the final rate used in determination of a calculation period amount.">
-	averagingMethod AveragingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
+	averagingMethod AveragingWeightingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
 	negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
 
 type FixedRateSpecification: <"Type defining the specification for a fixed rate.">
@@ -643,7 +656,7 @@ type FixedRateSpecification: <"Type defining the specification for a fixed rate.
 	rateSchedule RateSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 
 type FutureValueAmount: <"A class defining a currency and a future value date.">
-    quantity Quantity (0..1)
+    quantity NonNegativeQuantitySchedule (0..1)
         [metadata address "pointsTo"=PriceQuantity->quantity]
 	currency string (1..1) <"The currency in which the an amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
@@ -651,8 +664,7 @@ type FutureValueAmount: <"A class defining a currency and a future value date.">
 	valueDate date (1..1) <"Adjusted value date of the future value amount.">
 
 	condition PositiveCalculationPeriodNumberOfDays: <"FpML specifies calculationPeriodNumberOfDays as a positiveInteger.">
-		if FutureValueAmount exists
-		then calculationPeriodNumberOfDays >= 0
+		calculationPeriodNumberOfDays >= 0
 
 type SpreadSchedule extends RateSchedule: <"Adds an optional spread type element to the Schedule to identify a long or short spread value.">
 

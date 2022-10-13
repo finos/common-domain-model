@@ -31,7 +31,7 @@ public class FixedRateCalculationWithFunction extends AbstractExample {
         LocalDate fixedLegPeriodStart = LocalDate.of(2018, 7, 3);
         FieldWithMetaDayCountFractionEnum fixedLegDCF = FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build();
 		BigDecimal fixedRate = BigDecimal.valueOf(0.06);
-		NonNegativeQuantity notional = NonNegativeQuantity.builder().setAmount(BigDecimal.valueOf(50_000_000)).build();
+		NonNegativeQuantity notional = NonNegativeQuantity.builder().setValue(BigDecimal.valueOf(50_000_000)).build();
 
         // Create a interest rate payout CDM object and stamp input data onto it
         //
@@ -42,7 +42,7 @@ public class FixedRateCalculationWithFunction extends AbstractExample {
 
         // Calculate the fixed amount, using the function implementations from above
         //
-		BigDecimal fixedAmountResult = fixedAmount.evaluate(fixedRatePayout, notional, Date.of(fixedLegPeriodStart), null);
+		BigDecimal fixedAmountResult = fixedAmount.evaluate(fixedRatePayout, notional.getValue(), Date.of(fixedLegPeriodStart), null);
 
 
         // Make assertions on the calculation results

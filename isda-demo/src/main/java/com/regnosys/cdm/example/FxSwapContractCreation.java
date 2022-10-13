@@ -1,17 +1,17 @@
 package com.regnosys.cdm.example;
 
 import cdm.base.datetime.AdjustableDates;
-import cdm.base.math.Quantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
-import cdm.base.math.metafields.ReferenceWithMetaQuantity;
+import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
+import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.Trade;
 import cdm.observable.asset.*;
-import cdm.observable.asset.metafields.FieldWithMetaPrice;
+import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.ForeignExchange;
 import cdm.product.common.settlement.*;
 import cdm.product.template.*;
@@ -93,36 +93,36 @@ public class FxSwapContractCreation {
 
     private PriceQuantity createPriceQuantity(String currency1Str, long quantity1, String currency2Str, long quantity2, double rate) {
         return PriceQuantity.builder()
-                .addPrice(FieldWithMetaPrice.builder()
+                .addPrice(FieldWithMetaPriceSchedule.builder()
                         .setMeta(MetaFields.builder()
                                 .addKey(Key.builder()
                                         .setScope("DOCUMENT")
                                         .setKeyValue("price-1")))
                         .setValue(Price.builder()
-                                .setAmount(BigDecimal.valueOf(rate))
-                                .setUnitOfAmount(UnitType.builder()
+                                .setValue(BigDecimal.valueOf(rate))
+                                .setUnit(UnitType.builder()
                                         .setCurrencyValue(currency1Str))
-                                .setPerUnitOfAmount(UnitType.builder()
+                                .setPerUnitOf(UnitType.builder()
                                         .setCurrencyValue(currency2Str))
                                 .setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.EXCHANGE_RATE)))
                 )
-                .addQuantity(FieldWithMetaQuantity.builder()
+                .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                         .setMeta(MetaFields.builder()
                                 .addKey(Key.builder()
                                         .setScope("DOCUMENT")
                                         .setKeyValue("quantity-1")))
-                        .setValue(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(quantity1))
-                                .setUnitOfAmount(UnitType.builder()
+                        .setValue(NonNegativeQuantitySchedule.builder()
+                                .setValue(BigDecimal.valueOf(quantity1))
+                                .setUnit(UnitType.builder()
                                         .setCurrencyValue(currency1Str))))
-                .addQuantity(FieldWithMetaQuantity.builder()
+                .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                         .setMeta(MetaFields.builder()
                                 .addKey(Key.builder()
                                         .setScope("DOCUMENT")
                                         .setKeyValue("quantity-2")))
-                        .setValue(Quantity.builder()
-                                .setAmount(BigDecimal.valueOf(quantity2))
-                                .setUnitOfAmount(UnitType.builder()
+                        .setValue(NonNegativeQuantitySchedule.builder()
+                                .setValue(BigDecimal.valueOf(quantity2))
+                                .setUnit(UnitType.builder()
                                         .setCurrencyValue(currency2Str))))
                 .setObservable(Observable.builder()
                         .setCurrencyPairValue(QuotedCurrencyPair.builder()
@@ -169,8 +169,8 @@ public class FxSwapContractCreation {
 
     private Cashflow createExchangeCurrency(CounterpartyRoleEnum payer, CounterpartyRoleEnum receiver) {
         return Cashflow.builder()
-                .setPayoutQuantity(ResolvablePayoutQuantity.builder()
-                        .setResolvedQuantity(ReferenceWithMetaQuantity.builder()
+                .setPriceQuantity(ResolvablePriceQuantity.builder()
+                        .setQuantitySchedule(ReferenceWithMetaNonNegativeQuantitySchedule.builder()
                                 .setReference(Reference.builder()
                                         .setScope("DOCUMENT")
                                         .setReference("quantity-2"))))

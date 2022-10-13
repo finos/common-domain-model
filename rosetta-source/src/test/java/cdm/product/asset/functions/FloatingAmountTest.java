@@ -29,7 +29,7 @@ class FloatingAmountTest extends AbstractFunctionTest {
     Provider<FloatingAmount> floatingAmount;
 
     private static final BigDecimal RATE = BigDecimal.valueOf(0.0875);
-    private static final Money QUANTITY = Money.builder().setAmount(BigDecimal.valueOf(50_000_000)).build();
+    private static final Money QUANTITY = Money.builder().setValue(BigDecimal.valueOf(50_000_000)).build();
 
     private static final InterestRatePayout INTEREST_RATE_PAYOUT = InterestRatePayout.builder()
             .setRateSpecification(RateSpecification.builder()
@@ -80,7 +80,7 @@ class FloatingAmountTest extends AbstractFunctionTest {
     @Test
     void shouldApplyMultiplication() {
         FloatingAmount floatingAmount = this.floatingAmount.get();
-        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, RATE, QUANTITY, Date.of(2018, 1, 3), null);
+        BigDecimal result = floatingAmount.evaluate(INTEREST_RATE_PAYOUT, RATE, QUANTITY.getValue(), Date.of(2018, 1, 3), null);
         assertThat(result, closeTo(BigDecimal.valueOf(1093750), BigDecimal.valueOf(0.0000001)));
     }
 }

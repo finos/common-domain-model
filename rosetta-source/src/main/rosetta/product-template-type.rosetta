@@ -17,16 +17,19 @@ import cdm.product.asset.*
 import cdm.product.common.*
 import cdm.product.common.settlement.*
 import cdm.product.common.schedule.*
+import cdm.product.qualification.*
 
 import cdm.mapping.config.*
 
-type ContractualProduct: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
+type ContractualProduct extends ProductBase: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
 	[metadata key]
 	[metadata template]
 
-	productIdentification ProductIdentification (0..1) <"The product identification value(s) that might be associated with a contractual product. The CDM provides the ability to associate several product identification methods with a product.">
-	productTaxonomy ProductTaxonomy (0..*) <"The product taxonomy value(s) associated with a contractual product.">
 	economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
+
+	condition PrimaryAssetClass: <"Specifies that when nonStandardisedTerms are True that a primary asset class must be specified.">
+	 	if economicTerms -> nonStandardisedTerms = True then
+	 		productTaxonomy -> primaryAssetClass exists
 
 type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification.">
 
@@ -38,6 +41,7 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 	optionProvision OptionProvision (0..1) <"Cancelable and/or extendible provisions.">
 	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events.">
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
+	nonStandardisedTerms boolean (0..1) <"Specifies, when boolean value is True, that additional economic terms exist that have not been included in the product representation.">
 
 	condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout.">
 		if extraordinaryEvents exists then
@@ -48,20 +52,20 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 		if payout -> creditDefaultPayout exists
 			and payout -> cashflow exists
 			and effectiveDate exists
-			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> unadjustedDate exists
-			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate is absent
-		then payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> unadjustedDate all > effectiveDate -> adjustableDate -> unadjustedDate
-			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate all > effectiveDate -> adjustableDate -> adjustedDate
-			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate
+			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate exists
+			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate is absent
+		then payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate all > effectiveDate -> adjustableDate -> unadjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> adjustedDate all > effectiveDate -> adjustableDate -> adjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate
 
 	condition FpML_cd_27: <"FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 		if payout -> creditDefaultPayout exists
 			and payout -> cashflow exists
 			and terminationDate exists
-			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate exists
-		then payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> unadjustedDate all < terminationDate -> adjustableDate -> unadjustedDate
-			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
-			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustedDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
+			and payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
+		then payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate all < terminationDate -> adjustableDate -> unadjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
+			or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
 
 	condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
 		if payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate exists and terminationDate exists
@@ -87,6 +91,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 	exerciseTerms OptionExercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
 	underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
 	observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
+	schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
 	condition ClearedPhysicalSettlementExists:
 		if settlementTerms -> physicalSettlementTerms exists
@@ -127,11 +132,11 @@ type InitialMargin: <" Defines initial margin applied to a repo transaction. Ini
 
 	condition MarginThreshold:
 		if marginThreshold exists
-		then marginThreshold -> amount > 0
+		then marginThreshold -> value > 0
 
 	condition MinimumTransferAmount:
 		if minimumTransferAmount exists
-		then minimumTransferAmount -> amount > 0
+		then minimumTransferAmount -> value > 0
 
 type InitialMarginCalculation: <" Defines the initial margin calculation applicable to a single piece of collateral.">
     [deprecated]
@@ -172,12 +177,11 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
 	valuationDates ValuationDates (1..1) <"Defines how and when a performance type option or performance type swap is to be valued, including both interim and final valuation.">
 	paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
 	underlier Product (0..1)<"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
-	fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
+	fxFeature FxFeature (0..*) <"Defines quanto or composite FX features that are included in the swap leg.">
 	returnTerms ReturnTerms (1..1) <"Specifies the type of return of a performance payout.">
-	averagingMethod AveragingMethodEnum (0..1) <"Specifies the method of calculation to be used when averaging rates. Per ISDA 2000 Definitions, Section 6.2. Certain Definitions Relating to Floating Amounts.">
 
-	condition PositiveQuantityAmount: <"Quantities for any performance payout must be strictly positive.">
-		payoutQuantity -> quantitySchedule -> initialQuantity -> amount > 0
+	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+		priceQuantity exists
 
 	condition NoSharePriceDividendAdjustmentIndex: <"If the underlier is an index, sharePriceAdjustment and sharePriceDividendAdjustment cannot exist.">
         if underlier -> index exists then
@@ -248,11 +252,10 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
 			and interestRatePayout -> paymentDates exists
 		then interestRatePayout -> paymentDates -> paymentFrequency exists
 
-	condition Quantity: <"When there an InterestRatePayout but no creditDefaultPayout nor optionPayout, the notional must be specified. The notional of a credit default swap is expressed as part of the protection terms.">
-		if interestRatePayout exists
-			and creditDefaultPayout is absent
-			and optionPayout is absent
-		then interestRatePayout -> payoutQuantity exists
+	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+			if optionPayout exists then
+				optionPayout -> priceQuantity exists
+					or optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
 
 	condition DayCountFraction: <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardized CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
 		if interestRatePayout count = 2
@@ -268,13 +271,13 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
 			and creditDefaultPayout -> transactedPrice -> marketPrice is absent
 
 	condition NotionalResetOnPerformancePayout: <"Notional reset only applies to return swaps, and therefore can only exist on an performancePayout.">
-		interestRatePayout -> payoutQuantity -> reset is absent
-		and creditDefaultPayout -> payoutQuantity -> reset is absent
-		and optionPayout -> payoutQuantity -> reset is absent
-		and cashflow -> payoutQuantity -> reset is absent
+		interestRatePayout -> priceQuantity -> reset is absent
+		and creditDefaultPayout -> priceQuantity -> reset is absent
+		and optionPayout -> priceQuantity -> reset is absent
+		and cashflow -> priceQuantity -> reset is absent
 
 	condition NotionalResetInterestRatePayoutExists: <"As the performancePayout->payoutQuantity->reset attribute applies to return swaps, the interestRatePayout needs to be present alongside it.">
-		if  performancePayout -> payoutQuantity -> reset contains True
+		if  performancePayout -> priceQuantity -> reset contains True
 		then interestRatePayout exists
 
 type Product: <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
@@ -282,12 +285,12 @@ type Product: <"Defines the product that is the subject of a tradable product de
 
 	contractualProduct ContractualProduct (0..1) <"Specifies the contractual product's economic terms, product identifier, and product taxonomy.">
 	index Index (0..1) <"Identifies an index by referencing a product identifier.">
-	loan Loan (0..1) <"Identifies a loan by referencing a product identifier and an optiional set of attributes.">
+	loan Loan (0..1) <"Identifies a loan by referencing a product identifier and an optional set of attributes.">
 	foreignExchange ForeignExchange (0..1) <"Defines a foreign exchange spot or forward transaction.">
 	commodity Commodity (0..1) <"Identifies a commodity by referencing a product identifier.">
 	    [metadata address "pointsTo"=Observable->commodity]
 	security Security (0..1) <"Identifies a security by referencing a product identifier and a security type, plus an optional set of attributes.">
-	basket Basket (0..1) <"Identifies a custom basket by referencing a product identifier and its consituents.">
+	basket Basket (0..1) <"Identifies a custom basket by referencing a product identifier and its constituents.">
 
 	condition: one-of
 
@@ -405,14 +408,14 @@ type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attr
 		if underlier -> foreignExchange exists then
 		(
 			settlementTerms -> settlementDate -> valueDate exists
-			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate is absent
-			and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate is absent
+			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent
+			and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent
 		) or
 		(
 			settlementTerms -> settlementDate -> valueDate is absent
-			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate exists
-			and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate exists
-			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustedDate = underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustedDate
+			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
+			and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
+			and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate = underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate
 		)
 
 	condition FxSettlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
@@ -420,22 +423,12 @@ type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attr
 		then settlementTerms -> physicalSettlementTerms is absent
 
 type CommoditySchedule: <"A class that allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
-	unitOfAmount UnitType (1..1) <"Qualifies the unit by which the amount is measured.">
-	priceExpression PriceExpression (0..1) <"Provides a value for the type of price expression (cash price, interest rate, gross or net, clean or dirty etc.) in order to explain how to interpret the amount and use it in calculations.">
-	perUnitOfAmount UnitType (0..1) <"Provides an attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
 	schedulePeriod SchedulePeriod (1..*) <"Defines a period of a commodity schedule structure.">
 
 type SchedulePeriod: <"A class that defines the commodity period of a schedule. The period contains a set of start and end dates, quantities, fixing, and pricing data.">
-	calculationPeriod TimeInterval (1..1) <"Period for which the payment is generated.">
-    quantity number (0..1) <"Quantity per schedule period.">
-    totalQuantity number (0..1) <"Total quantity per calculation period.">
+	calculationPeriod DateRange (1..1) <"Period for which the payment is generated.">
     paymentDate date (1..1) <"Adjusted payment date.">
-    fixingPeriod TimeInterval (1..1) <"Period over which the underlying price is observed.">
-	price number (0..1) <"Price defined for the current period.">
-
-type TimeInterval: <"A class that defines a period of time between and start and an end date.">
-    startDate date (1..1) <"The start date of the period.">
-    endDate date (1..1) <"The end date of the period.">
+    fixingPeriod DateRange (1..1) <"Period over which the underlying price is observed.">
 
 type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
 	[metadata key]
@@ -443,6 +436,9 @@ type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. The
 	paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
     fixedPrice FixedPrice (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
     schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+
+	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+		priceQuantity exists
 
 type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
 
@@ -483,16 +479,13 @@ type EarlyTerminationEvent: <"A data to:  define the adjusted dates associated w
 	adjustedExerciseFeePaymentDate date (0..1) <"The date on which the exercise fee amount is paid. This date should already be adjusted for any applicable business day convention.">
 
 	condition FpML_ird_39: <"FpML validation rule ird-39 - AdjustedExerciseDate must be before or equal to adjustedEarlyTerminationDate.">
-		if EarlyTerminationEvent exists
-		then adjustedExerciseDate <= adjustedEarlyTerminationDate
+		adjustedExerciseDate <= adjustedEarlyTerminationDate
 
 	condition FpML_ird_40: <"FpML validation rule ird-40 - AdjustedExerciseDate must be before or equal to adjustedCashSettlementValuationDate.">
-		if EarlyTerminationEvent exists
-		then adjustedExerciseDate <= adjustedCashSettlementValuationDate
+		adjustedExerciseDate <= adjustedCashSettlementValuationDate
 
 	condition FpML_ird_41: <"FpML validation rule ird-41 - AdjustedCashSettlementValuationDate must be before or equal to adjustedCashSettlementPaymentDate.">
-		if EarlyTerminationEvent exists
-		then adjustedCashSettlementValuationDate <= adjustedCashSettlementPaymentDate
+		adjustedCashSettlementValuationDate <= adjustedCashSettlementPaymentDate
 
 type EarlyTerminationProvision: <"A data defining:  an early termination provision for a swap. This early termination is at fair value, i.e. on termination the fair value of the product must be settled between the parties.">
 	[metadata key]
@@ -503,8 +496,7 @@ type EarlyTerminationProvision: <"A data defining:  an early termination provisi
 	optionalEarlyTerminationParameters ExercisePeriod (0..1) <"Definition of the first early termination date and the frequency of the termination dates subsequent to that. American exercise is defined by having a frequency of one day.">
 
 	condition MandatoryEarlyTermination: <"The FpML MandatoryEarlyTermination.model specifies a required choice node. The choice node associated with the FpML EarlyTerminationProvision is quite complex and using the data rule provides a more flexible approach than adding complexity to the condition grammar.">
-		if EarlyTerminationProvision exists
-		then (mandatoryEarlyTermination exists or optionalEarlyTermination exists)
+		(mandatoryEarlyTermination exists or optionalEarlyTermination exists)
 			or (mandatoryEarlyTermination exists and optionalEarlyTermination exists)
 
 type ExercisePeriod: <"This defines the time interval to the start of the exercise period, i.e. the earliest exercise date, and the frequency of subsequent exercise dates (if any).">
@@ -541,8 +533,7 @@ type ExtensionEvent: <"A data to:  define the adjusted dates associated with an 
 	adjustedExtendedTerminationDate date (1..1) <"The termination date if an extendible provision is exercised. This date should already be adjusted for any applicable business day convention.">
 
 	condition FpML_ird_42: <"FpML validation rule ird-42 - adjustedExerciseDate must be before adjustedExtendedTerminationDate.">
-		if ExtensionEvent exists
-		then adjustedExerciseDate < adjustedExtendedTerminationDate
+		adjustedExerciseDate < adjustedExtendedTerminationDate
 
 type MandatoryEarlyTermination: <"A data to:  define an early termination provision for which exercise is mandatory.">
 	[metadata key]
@@ -563,8 +554,7 @@ type MandatoryEarlyTerminationAdjustedDates: <"A data defining:  the adjusted da
 	adjustedCashSettlementPaymentDate date (1..1) <"The date on which the cash settlement amount is paid. This date should already be adjusted for any applicable business date convention.">
 
 	condition FpML_ird_44: <"FpML validation rule ird-44 - AdjustedEarlyTerminationDate must be before or equal to adjustedCashSettlementValuationDate must be before or the same as adjustedCashSettlementPaymentDate">
-		if MandatoryEarlyTerminationAdjustedDates exists
-		then adjustedEarlyTerminationDate <= adjustedCashSettlementValuationDate
+		adjustedEarlyTerminationDate <= adjustedCashSettlementValuationDate
 			and adjustedCashSettlementValuationDate <= adjustedCashSettlementPaymentDate
 
 type OptionalEarlyTermination: <"A data defining:  an early termination provision where either or both parties have the right to exercise.">
@@ -603,7 +593,7 @@ type Asian: <"As per ISDA 2002 Definitions.">
 	averagingPeriodOut AveragingPeriod (0..1) <"The averaging out period.">
 
 type AveragingCalculation: <"Defines parameters for use in cases when a valuation or other term is based on an average of market observations.">
-   calculationMethod AveragingCalculationMethodEnum (1..1) <"Specifies enumerations for the type of averaging calculation.">
+   averagingMethod AveragingCalculationMethod (1..1) <"Specifies enumerations for the type of averaging calculation.">
    precision Rounding (1..1) <"Rounding applied to the average calculation. ">
 
 type AveragingStrikeFeature: <"Defines the terms required to calculate the average observations associated with an averaging strike.">
@@ -646,11 +636,10 @@ type OptionFeature: <"Defines additional optional features that can be included 
 
 	fxFeature FxFeature (0..*) <"Describes a quanto or composite FX feature.">
 	strategyFeature StrategyFeature (0..1) <"Defines a simple strategy feature.">
-	averagingRateFeature AveragingCalculation (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
+	averagingFeature AveragingCalculation (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
 	barrier Barrier (0..1) <"Specifies a barrier feature.">
 	knock Knock (0..1) <"Specifies a knock in or knock out feature.">
 	passThrough PassThrough (0..1) <"Specifies the rules for pass-through payments from the underlier, such as dividends.">
-
 
 type OptionProvision: <"A class for defining option provisions.">
 	cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">
@@ -845,6 +834,9 @@ type SecurityFinancePayout extends PayoutBase: <"Security payout specification i
     dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
     collateralProvisions CollateralProvisions (1..1) <"Specifies collateral provisions for a Security Finance transaction, including Collateral Type and Margin Percentage.">
 
+	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+		priceQuantity exists
+
     condition ProductMustBeSecurity: <"Validates that the reference asset must be a security.">
         securityInformation -> security exists
 
@@ -882,7 +874,3 @@ type EvergreenProvision extends BuyerSeller: <"Specifies a transaction which aut
 
     condition ExerciseChoice: <"Condition that requires the choice of exercise style to be specified.">
 		required choice americanExercise, bermudaExercise, europeanExercise
-
-
-
-

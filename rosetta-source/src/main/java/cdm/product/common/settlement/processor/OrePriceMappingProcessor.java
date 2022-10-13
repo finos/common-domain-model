@@ -3,6 +3,7 @@ package cdm.product.common.settlement.processor;
 import cdm.base.math.UnitType;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceExpression;
+import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.PriceTypeEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static cdm.observable.asset.metafields.FieldWithMetaPrice.FieldWithMetaPriceBuilder;
+import static cdm.observable.asset.metafields.FieldWithMetaPriceSchedule.FieldWithMetaPriceScheduleBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.subPath;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
@@ -35,17 +36,17 @@ public class OrePriceMappingProcessor extends MappingProcessor {
 				.map(subPath -> subPath.addElement("Currency"))
 				.flatMap(this::getValueAndUpdateMappings)
 				.map(this::toUnitType)
-				.ifPresent(unitType -> emptyIfNull((List<FieldWithMetaPriceBuilder>) builders).stream()
-						.map(FieldWithMetaPriceBuilder::getValue)
+				.ifPresent(unitType -> emptyIfNull((List<FieldWithMetaPriceScheduleBuilder>) builders).stream()
+						.map(FieldWithMetaPriceScheduleBuilder::getValue)
 						.filter(Objects::nonNull)
 						// if mapped price has priceType interestRate then update the unitOfAmount and perUnitOfAmount with currency.
 						.filter(p -> filterPriceType(p, PriceTypeEnum.INTEREST_RATE))
 						.forEach(priceBuilder -> priceBuilder
-								.setUnitOfAmount(unitType)
-								.setPerUnitOfAmount(unitType)));
+								.setUnit(unitType)
+								.setPerUnitOf(unitType)));
 	}
 
-	private boolean filterPriceType(Price.PriceBuilder price, PriceTypeEnum priceType) {
+	private boolean filterPriceType(PriceSchedule.PriceScheduleBuilder price, PriceTypeEnum priceType) {
 		return Optional.ofNullable(price.getPriceExpression())
 				.map(PriceExpression::getPriceType)
 				.map(priceType::equals)

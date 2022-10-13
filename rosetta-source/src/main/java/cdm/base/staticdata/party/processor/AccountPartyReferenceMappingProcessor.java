@@ -53,7 +53,7 @@ public class AccountPartyReferenceMappingProcessor extends MappingProcessor {
 							.collect(Collectors.toList());
 					if (partyRefs.size() == 1) {
 						// Set value
-						((ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder) parent).setExternalReference(partyRefs.get(0));
+						((ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder) builder).setExternalReference(partyRefs.get(0));
 						// Update mapping report using the AccountReference mappings
 						partyRefMappings.stream()
 								.map(Mapping::getXmlPath)

@@ -1,16 +1,18 @@
-package cdm.product.common.schedule.processor;
+package cdm.product.common.settlement.processor;
 
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.path.RosettaPath;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMapping;
 
 public class RelativeNotionalAmountMappingProcessor extends MappingProcessor {
@@ -22,20 +24,21 @@ public class RelativeNotionalAmountMappingProcessor extends MappingProcessor {
     /*
      * This mapper updates the PriceQuantity->quantity reference for Equity Swaps that contain a relative notional amount.
      *
-     * `Payout->interestRatePayout->payoutQuantity->quantitySchedule->initialQuantity` now references the
+     * `Payout->interestRatePayout->payoutQuantity->quantitySchedule` now references the
      * existing `PriceQuantity->quantity`. The `PriceQuantity->quantity` is now referenced by both
      * `EquityPayout` and `InterestRatePayout`.
      */
     @Override
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-        getNonNullMapping(getMappings(), synonymPath)
+        // find the href mapping that contains a reference object used to build the PQ references
+        getNotionalAmountHrefMapping(synonymPath)
                 .ifPresent(hrefMapping ->
-                        getNotionalAmountIdMapping(hrefMapping)
-                                .flatMap(this::getNotionalAmountMapping)
-                                .ifPresent(notionalMapping -> {
+                        // find the synonym path that is associated with the id that corresponds to the href
+                        getNotionalAmountIdSynonymPath(hrefMapping)
+                                .ifPresent(notionalIdPath -> {
                                     // add new reference mapping with correct synonym path and value
-                                    getMappings().add(new Mapping(notionalMapping.getXmlPath(),
-                                            notionalMapping.getXmlValue(),
+                                    getMappings().add(new Mapping(convertPath(notionalIdPath),
+                                            hrefMapping.getXmlValue(),
                                             hrefMapping.getRosettaPath(),
                                             hrefMapping.getRosettaValue(),
                                             null, false, true, false));
@@ -45,15 +48,24 @@ public class RelativeNotionalAmountMappingProcessor extends MappingProcessor {
     }
 
     @NotNull
-    private Optional<Mapping> getNotionalAmountIdMapping(Mapping relativeNotionalAmountHrefMapping) {
-        return getMappings().stream()
-                .filter(mapping -> mapping.getXmlPath().endsWith(Path.parse("notionalAmount.id")))
-                .filter(m -> m.getXmlValue().equals(relativeNotionalAmountHrefMapping.getXmlValue()))
+    private Optional<Mapping> getNotionalAmountHrefMapping(Path synonymPath) {
+        return filterMappings(getMappings(), synonymPath).stream()
+                .filter(m -> m.getRosettaValue() instanceof Reference.ReferenceBuilder)
                 .findFirst();
     }
 
     @NotNull
-    private Optional<Mapping> getNotionalAmountMapping(Mapping idMapping) {
-        return getNonNullMapping(getMappings(), idMapping.getXmlPath().getParent().addElement("amount"));
+    private Optional<Path> getNotionalAmountIdSynonymPath(Mapping relativeNotionalAmountHrefMapping) {
+        return getMappings().stream()
+                .filter(mapping -> mapping.getXmlPath().endsWith(Path.parse("notionalAmount.id")))
+                .filter(m -> m.getXmlValue().equals(relativeNotionalAmountHrefMapping.getXmlValue()))
+                .map(Mapping::getXmlPath)
+                .distinct()
+                .findFirst();
+    }
+
+    @NotNull
+    private Path convertPath(Path idPath) {
+        return idPath.getParent().addElement("amount");
     }
 }

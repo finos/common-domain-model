@@ -1,8 +1,7 @@
 package cdm.product.common.settlement.processor;
 
-import cdm.base.math.UnitType;
-import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceExpression;
+import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.asset.SpreadTypeEnum;
 import cdm.product.common.settlement.PriceQuantity;
@@ -19,8 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static cdm.base.math.UnitType.UnitTypeBuilder;
-import static cdm.observable.asset.metafields.FieldWithMetaPrice.FieldWithMetaPriceBuilder;
-import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
+import static cdm.observable.asset.metafields.FieldWithMetaPriceSchedule.FieldWithMetaPriceScheduleBuilder;
 import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencablePriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMapping;
@@ -40,9 +38,9 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 	@Override
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		PriceQuantity.PriceQuantityBuilder priceQuantityBuilder = (PriceQuantity.PriceQuantityBuilder) parent;
-		List<FieldWithMetaPriceBuilder> priceBuilders = emptyIfNull((List<FieldWithMetaPriceBuilder>) builders);
-		UnitType unitOfAmount = getUnitOfAmount(priceBuilders);
-		UnitTypeBuilder perUnitOfAmount = getPerUnitOfAmount(priceBuilders);
+		List<FieldWithMetaPriceScheduleBuilder> priceBuilders = emptyIfNull((List<FieldWithMetaPriceScheduleBuilder>) builders);
+		UnitTypeBuilder unitOfAmount = getUnit(priceBuilders);
+		UnitTypeBuilder perUnitOfAmount = getPerUnitOf(priceBuilders);
 
 		AtomicInteger priceIndex = new AtomicInteger(priceBuilders.size());
 
@@ -59,15 +57,14 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 	}
 
 	@NotNull
-	private Optional<FieldWithMetaPriceBuilder> getBuilder(Path synonymPath,
+	private Optional<FieldWithMetaPriceScheduleBuilder> getBuilder(Path synonymPath,
 			AtomicInteger priceIndex,
-			UnitType unitOfAmount,
+			UnitTypeBuilder unitOfAmount,
 			UnitTypeBuilder perUnitOfAmount,
 			PriceExpression priceExpression) {
 		return getNonNullMapping(getMappings(), synonymPath).map(mapping -> {
 			// update price index to ensure unique model path, otherwise any references will break
-			Path baseModelPath = toPath(getModelPath()).addElement("amount");
-			Path mappedModelPath = incrementPathElementIndex(baseModelPath, "price", priceIndex.getAndIncrement());
+			Path mappedModelPath = toPath(getModelPath()).addElement("amount");
 			String amount = String.valueOf(mapping.getXmlValue());
 			updateMappings(synonymPath, mappedModelPath, amount);
 			return toReferencablePriceBuilder(new BigDecimal(amount),
@@ -77,24 +74,24 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 		});
 	}
 
-	private UnitType getUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
+	private UnitTypeBuilder getUnit(List<FieldWithMetaPriceScheduleBuilder> priceBuilders) {
 		return getExchangeRatePrice(priceBuilders)
-				.map(Price.PriceBuilder::getUnitOfAmount)
+				.map(p -> p.getUnit())
 				.orElse(null);
 	}
 
-	private UnitTypeBuilder getPerUnitOfAmount(List<FieldWithMetaPriceBuilder> priceBuilders) {
+	private UnitTypeBuilder getPerUnitOf(List<FieldWithMetaPriceScheduleBuilder> priceBuilders) {
 		return getExchangeRatePrice(priceBuilders)
-				.map(Price.PriceBuilder::getPerUnitOfAmount)
+				.map(p -> p.getPerUnitOf())
 				.orElse(null);
 	}
 
 	@NotNull
-	private Optional<Price.PriceBuilder> getExchangeRatePrice(List<FieldWithMetaPriceBuilder> priceBuilders) {
+	private Optional<PriceSchedule.PriceScheduleBuilder> getExchangeRatePrice(List<FieldWithMetaPriceScheduleBuilder> priceBuilders) {
 		return priceBuilders.stream()
-				.map(FieldWithMetaPriceBuilder::getValue)
+				.map(FieldWithMetaPriceScheduleBuilder::getValue)
 				.filter(p -> Optional.ofNullable(p)
-						.map(Price::getPriceExpression)
+						.map(PriceSchedule::getPriceExpression)
 						.map(PriceExpression::getPriceType)
 						.map(PriceTypeEnum.EXCHANGE_RATE::equals)
 						.orElse(false))

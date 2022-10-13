@@ -1,9 +1,9 @@
 package com.regnosys.cdm.example;
 
 import cdm.base.datetime.AdjustableDates;
-import cdm.base.math.Quantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaQuantity;
+import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
 import cdm.base.staticdata.asset.common.ProductIdentifier;
 import cdm.base.staticdata.asset.common.Security;
@@ -14,7 +14,7 @@ import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.legalagreement.common.ClosedState;
 import cdm.observable.asset.*;
-import cdm.observable.asset.metafields.FieldWithMetaPrice;
+import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.*;
 import cdm.product.template.Product;
 import cdm.product.template.TradableProduct;
@@ -128,23 +128,23 @@ public class TestObjectsFactory {
 
 	private PriceQuantity getPriceQuantity(double notional, String productIdentifier, double cleanPrice, String tradedCurrency, SettlementTerms settlementTerms) {
 		return PriceQuantity.builder()
-				.addPrice(FieldWithMetaPrice.builder()
+				.addPrice(FieldWithMetaPriceSchedule.builder()
 						.setMeta(MetaFields.builder()
 								.addKey(Key.builder()
 								.setScope("DOCUMENT")
 								.setKeyValue("cleanPrice-1")))
 						.setValue(Price.builder()
-								.setAmount(BigDecimal.valueOf(cleanPrice))
-								.setUnitOfAmount(UnitType.builder()
+								.setValue(BigDecimal.valueOf(cleanPrice))
+								.setUnit(UnitType.builder()
 										.setCurrencyValue(tradedCurrency))
 								.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.ASSET_PRICE))))
-				.addQuantity(FieldWithMetaQuantity.builder()
+				.addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
 						.setMeta(MetaFields.builder().addKey(Key.builder()
 								.setScope("DOCUMENT")
 								.setKeyValue("notional-1")))
-						.setValue(Quantity.builder()
-								.setAmount(BigDecimal.valueOf(notional))
-								.setUnitOfAmount(UnitType.builder()
+						.setValue(NonNegativeQuantitySchedule.builder()
+								.setValue(BigDecimal.valueOf(notional))
+								.setUnit(UnitType.builder()
 										.setCurrencyValue(tradedCurrency))))
 				.setObservable(Observable.builder()
 						.addProductIdentifierValue(ProductIdentifier.builder()
@@ -169,8 +169,8 @@ public class TestObjectsFactory {
 										.addAdjustedDateValue(Date.of(settlementDate))))
 				.addCashSettlementTerms(CashSettlementTerms.builder()
 						.setCashSettlementAmount(Money.builder()
-								.setAmount(BigDecimal.valueOf(dirtyPrice * quantity))
-								.setUnitOfAmount(UnitType.builder()
+								.setValue(BigDecimal.valueOf(dirtyPrice * quantity))
+								.setUnit(UnitType.builder()
 										.setCurrencyValue(settlementCurrency))))
 				.setSettlementCurrencyValue(settlementCurrency)
 				.setTransferSettlementType(TransferSettlementEnum.DELIVERY_VERSUS_PAYMENT)

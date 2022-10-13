@@ -9,7 +9,6 @@ import cdm.base.staticdata.party.*
 
 import cdm.observable.common.*
 import cdm.mapping.config.*
-import cdm.product.common.schedule.*
 
 type ObservationSource: <"The observation source can be composed of an curve and/or and information source.">
     [deprecated]
@@ -126,36 +125,41 @@ type CashPrice: <"Specifies the nature of a cash price either as a fee type, cas
  	condition PremiumType: <"Premium type can only be specified when the cash price type is a premium.">
  		if premiumExpression exists then cashPriceType = CashPriceTypeEnum -> Premium
 
-type Price extends MeasureBase: <"Specifies a price to be used for trade amounts and other purposes.">
+type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial instrument in a trade as a schedule of measures. A price generically expresses the value of an exchange as a ratio: it measures the amount of one thing needed to be exchanged for 1 unit of another thing (e.g. cash in a specific currency in exchange for a bond or share). This generic representation can be used to support any type of financial price beyond just cash price: e.g. an interest rate, a foreign exchange rate, etc. This data type is generically based on a schedule and can also be used to represent a price as a single value.">
 
 	priceExpression PriceExpression (1..1) <"Provides a value for the type of price expression (cash price, interest rate, gross or net, clean or dirty etc.) in order to explain how to interpret the amount and use it in calculations.">
-	perUnitOfAmount UnitType (0..1) <"Provides an attribute to define the unit being priced.  For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
+	perUnitOf UnitType (0..1) <"Provides an attribute to define the unit of the thing being priced. For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
 
     condition UnitOfAmountExists: <"Requires that a unit of amount must be specified for price unless price type is Variance, Volatility or Correlation.">
         if priceExpression -> priceType = PriceTypeEnum -> Variance
                 or priceExpression -> priceType = PriceTypeEnum -> Volatility
                 or priceExpression -> priceType = PriceTypeEnum -> Correlation then
-    	    unitOfAmount is absent and perUnitOfAmount is absent
+    	    unit is absent and perUnitOf is absent
         else
-            unitOfAmount exists and perUnitOfAmount exists
+            unit exists and perUnitOf exists
 
     condition PositiveFXRate: <"Requires that per FpML rules, the FX rate must be a positive value.">
         if ( priceExpression -> priceType = PriceTypeEnum -> ExchangeRate or priceExpression -> priceType = PriceTypeEnum -> AssetPrice )
             and priceExpression -> spreadType is absent
-        then amount > 0
+        then value > 0
 
     condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
         if ( priceExpression -> priceType = PriceTypeEnum -> ExchangeRate or priceExpression -> priceType = PriceTypeEnum -> AssetPrice )
             and priceExpression -> spreadType = SpreadTypeEnum -> Base
-        then amount > 0
+        then value > 0
 
     condition PositiveCashPrice: <"Requires that any price expressed as a cash price and generating a cashflow must be positive">
         if priceExpression -> priceType = PriceTypeEnum -> CashPrice
-        then amount > 0
+        then value > 0
 
     condition CurrencyUnitForInterestRate: <"Requires that the unit of amount for an interest rate must be a currency.">
         if priceExpression -> priceType = PriceTypeEnum -> InterestRate
-        then unitOfAmount -> currency exists
+        then unit -> currency exists
+
+type Price extends PriceSchedule: <"Specifies a price as a single value to be associated to a financial product. This data type extends PriceSchedule and requires that only the amount value exists.">
+
+	condition AmountOnlyExists: <"The amount must exist when the price represents a single value, and steps must be absent.">
+		value exists and datedValue is absent
 
 type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
 	[metadata key]
@@ -173,10 +177,6 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
 	condition ObservableChoice: <"An observable can only be composed of one type any time.">
 		required choice rateOption, commodity, productIdentifier, currencyPair
 
-type FixedPrice: <"A predefined price accorded by the counterparties.">
-
-    fixedPriceSchedule NonNegativePriceSchedule (0..1) <"Fixed price step schedule, including an initial price specified as an absolute number.">
-
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
 	sourceProvider InformationProviderEnum (1..1)  <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate, etc.">
@@ -189,7 +189,7 @@ type InformationSource: <"A class defining the source for a piece of information
 type Money extends Quantity: <"Defines a monetary amount in a specified currency.">
 	[metadata key]
 	condition CurrencyUnitExists:
-    	unitOfAmount -> currency exists
+    	unit -> currency exists
 
 type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
     [deprecated]
@@ -323,8 +323,8 @@ type FxRate: <"A class describing the rate of a currency conversion: pair of cur
 
 type FxSpotRateSource: <"A class defining the rate source and fixing time for an FX rate.">
 
-	primaryRateSource InformationSource (1..1) <"The primary source for where the rate observation will occur. Will typically be either a page or a reference bank published rate.">
-	secondaryRateSource InformationSource (0..1) <"An alternative, or secondary, source for where the rate observation will occur. Will typically be either a page or a reference bank published rate.">
+	primarySource InformationSource (1..1) <"The primary source for where the rate observation will occur. Will typically be either a page or a reference bank published rate.">
+	secondarySource InformationSource (0..1) <"An alternative, or secondary, source for where the rate observation will occur. Will typically be either a page or a reference bank published rate.">
 
 type RateObservation: <"A class defining parameters associated with an individual observation or fixing. This class forms part of the cashflow representation of a stream.">
 	[metadata key]
@@ -453,8 +453,8 @@ type ValuationMethod: <"Specifies the parameters required to obtain a valuation,
 
 	condition FpML_cd_37: <"FpML validation rule cd-37 - If condition quotationAmount is true, and if condition minimumQuotationAmount is true, and if both amounts have the same-currency, then quotationAmount/amount must be greater or equal to minimumQuotationAmount/amount.">
 		if (quotationAmount exists and minimumQuotationAmount exists)
-			and quotationAmount -> unitOfAmount -> currency = minimumQuotationAmount -> unitOfAmount -> currency
-		then quotationAmount -> amount > minimumQuotationAmount -> amount
+			and quotationAmount -> unit -> currency = minimumQuotationAmount -> unit -> currency
+		then quotationAmount -> value > minimumQuotationAmount -> value
 
 	condition Dealer: <"When a quotation amount is specified, the dealer from which to obtain the quotation must be specified in the valuation source. This is typically applicable to determine the recovery amount in a credit event.">
 		if quotationAmount exists or minimumQuotationAmount exists
