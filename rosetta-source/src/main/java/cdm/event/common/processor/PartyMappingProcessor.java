@@ -12,7 +12,7 @@ import java.util.List;
  * Mapper must be in same namespace as the type it is used for.
  */
 @SuppressWarnings("unused")
-	public class PartyMappingProcessor extends cdm.legalagreement.contract.processor.PartyMappingProcessor {
+	public class PartyMappingProcessor extends cdm.legaldocumentation.contract.processor.PartyMappingProcessor {
 
 	public PartyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);

@@ -1,5 +1,6 @@
 package cdm.event.common.processor;
 
+import cdm.legaldocumentation.contract.processor.PartyMappingProcessor;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -20,7 +21,7 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.upda
  * FpML mapping processor.
  */
 @SuppressWarnings("unused")
-public class NovationPartyMappingProcessor extends cdm.legalagreement.contract.processor.PartyMappingProcessor {
+public class NovationPartyMappingProcessor extends PartyMappingProcessor {
 
 	public NovationPartyMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, MappingContext context) {
 		super(rosettaPath, synonymPaths, context, new NovationPartyReferenceTranslator(rosettaPath, context.getMappings()));

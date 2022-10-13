@@ -4,7 +4,7 @@ import cdm.base.datetime.AdjustableDate;
 import cdm.base.math.UnitType;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.PayerReceiver;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.observable.asset.Money;
 import cdm.product.common.settlement.PrincipalPayment;
 import com.regnosys.rosetta.common.translation.MappingContext;
