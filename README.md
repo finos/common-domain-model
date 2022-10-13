@@ -80,8 +80,18 @@ npm test
 ## Contributing
 
 
-REGNOSYS TO FILL IN: SECTION ON CONTRIBUTING VIA ROSETTA
+### Contribution via Rosetta
 
+The [Rosetta Design](https://rosetta-technology.io/design) application can be used to contribute to the CDM without setting up any development environment. Rosetta Design’s [source control integration](https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#source-control-integration) means that a PR is automatically created to a fork of the FINOS CDM under the [Rosetta Models](https://github.com/rosetta-models) GitHub Organisation.
+
+Steps:
+  1. Create a Workspace for the CDM in Rosetta Design
+  2. Review change in Rosetta Design
+  3. Contribute change in Rosetta Design which will create PR in the rosetta-models organisation
+  4. Create a PR to the Finos Github. See instructions [here](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
+
+
+### Contribution via Legend
 
 FINOS TO FILL IN: SECTION ON CONTRIBUTING VIA LEGEND
 
