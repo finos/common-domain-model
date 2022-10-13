@@ -16,7 +16,7 @@ The representation of concentration limits for Eligible Collateral applied to Eq
   •	`methodology` for indicating the type of equity trading volume’
   
 4.	Attribute `methodology` has an associated enumeration modelled named `AverageTradingVolumeMethodologyEnum` which allows the user to specify a single or consolidated average trading volume across exchange/s
-5.	Another option has been added to the `ConcentrationLimitTypeEnum` list named `MarketCapitalisation` to indicate a limit of the issue calculated as a percentage of the market capitalisation of the asset on the market. 
+5.	An additional enumeration has been added to the `ConcentrationLimitTypeEnum` list named `MarketCapitalisation` to indicate a limit of the issue calculated as a percentage of the market capitalisation of the asset on the market. 
 6.	Existing description for `IssueOutstandingAmount` under the `ConcentrationLimitTypeEnum` list had been updated as per member suggestions.
 7.	Conditions have been added beneath the data type `EligibleCollateralCriteria` as follows:
 
