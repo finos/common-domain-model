@@ -28,7 +28,7 @@ These design principles are further detailed in the :ref:`design-principles` sec
 
 ## Governance
 
-The CDM `governance framework <contribution.html#governance>`_ regulates the development of the CDM in open source.
+The CDM [governance framework](https://cdm.docs.rosetta-technology.io/source/contribution.html#governance) regulates the development of the CDM in open source.
 
 ## Scope
 
@@ -79,8 +79,12 @@ npm test
 
 ## Contributing
 
+
 REGNOSYS TO FILL IN: SECTION ON CONTRIBUTING VIA ROSETTA
+
+
 FINOS TO FILL IN: SECTION ON CONTRIBUTING VIA LEGEND
+
 
 ### Contributing via GitHub
 
