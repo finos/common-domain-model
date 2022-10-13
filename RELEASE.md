@@ -1,42 +1,44 @@
-# *Product Model - FpmL Mapping Enhancements for Commodity Products*
+# _Business Events - Credit Events_ #
 
 _Background_
 
-The recent price and quantity schedule refactoring highlighted gaps in the coverage of the FpML commodity test pack related to FpML mappings.
+This release introduces the representation of credit events and how they are documented in the lifecycle of a trade. The focus is about the generic information published by the Determinations Committee on  the occurence of a credit event that can be associated to a trade. The observation of a `creditEvent` is instructed  with a new `ObservationInstruction`. This results in the details of the event being instanciated  as part of the `observationHistory` of the trade state as an `ObservationEvent`. This change does not include a functional model on how to compute and represent the effect of such business event on the trade state.
 
 _What is being released?_
 
-This release completes mappings for 2 additional commodity products: a commodity swaption and a commodity swap with a custom schedule.
+- Model coverage for the determination of credit events.
+- Qualification functions for the determination of a credit event.
+- Creation functions for credit events.
+
+_Data types_
+
+- Added new `ObservableEvent` type.
+- Added new `CreditEvent` type.
+- Added new `ObservationInstruction` type.
+- Added new `ObservationEvent` type.
+- `observation` attribute of type `ObservationEvent` added to `PrimitiveInstruction`.
+- `observationHistory` attribute of type `ObservableEvent` added to `TradeState`.
+- Type of `excludedReferenceEntity` in `IndexReference information` changed to `ExcludedReferenceEntity`.
+
+_Enumerations_
+
+- Added new `CreditEventTypeEnum` enumeraion.
+- Updated `FeeTypeEnum` enumeration to support credit events.
+
+_Functions_
+
+- Added new `Create_Observation` function.
+- Added new `Qualify_CreditEventDetermined` function.
+- Updated `Create_TradeState`function to support `observation`.
+- Updated `Create_PrimitiveInstruction` function to support `observation`.
+- Updated function `Create_StockSplit` to work with the introduced changes.
 
 _Review Directions_
 
-In the CDM Portal, select Ingestion and review the following new samples:
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In the CDM Portal, select the Visualisation tab and select Credit Event from the menu in the left.
+In the CDM Portal, select the Functions tab and select the function `Create_BusinessEvent`.
+Upload one of the files:
 
-- fpml-5-10 > products > commodity
-
-    - `commodity-option-energy-oil-ex01-cash`
-    - `commodity-option-energy-nat-gas-ex02-cash`
-
-# *Product Model - FpML Mapping Enhancements for Equity Index Products*
-
-_Background_
-
-The recent price and quantity schedule refactoring left some inconsistency in the treatment of the quantity of equity index vs single-name options.
-
-In the single-name case the quantity being referenced in the option payout is a number of shares, whereas in the index case the quantity was a monetary amount (unless that monetary amount was itself absent, in which case the number of index units was referenced). This means that any post-trade processing of an option contract would have to be forked between those cases, including for reporting.
-
-_What is being released?_
-
-The index treatment has been aligned onto the single-name one and the quantity now reflects the number of index units in all cases.
-
-Since there was no equity index option featuring both a monetary amount and a number of index units available in the FpML test pack, a new one has been synthesized based on an existing record-keeping sample and used to adjust the mapping.
-
-_Review Directions_
-
-In the CDM Portal, select Ingestion and review the new sample to illustrate the new behaviour:
-
-- fpml-5-10 > products > equity > `equity-option-price-return-index-ex03-european-call`
-
-and compare for consistency with an existing sample:
-
-- fpml-5-10 > products > equity > `eqd-ex04-european-call-index-long-form`
+../credit_event_examples/example_1/business_event_creation_input.json
+../credit_event_examples/example_2/business_event_creation_input.json
