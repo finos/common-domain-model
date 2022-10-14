@@ -950,14 +950,14 @@ func Create_IndexTransitionTermsChange: <"Function specification to create a ter
 
 func Create_Observation: <"Function specification to create an observation that incorporates an observation event into the observation history of a given trade state.">
 inputs:
-instruction ObservationEvent (1..1)
+instruction ObservationInstruction (1..1)
 before TradeState (1..1) <"Specifies the trade to be updated.">
 
 output:
 after TradeState (1..1) <"Specifies the resulting trade state incorporating the observation event in the observation history.">
 
-set after : before
-add after -> observationHistory  : instruction
+set after : before 
+add after -> observationHistory  : instruction -> observationEvent
 
 func UpdateSpreadAdjustmentAndRateOptions: <"For each of the trade state's price quantity, find a matching price quantity instruction, and call the update function.">
 	inputs:
@@ -1188,7 +1188,7 @@ func Create_Return: <"Defines the process of partially or fully returning a Secu
 	alias quantitySchedule:
 		returnInstruction -> quantity
 			map [ Create_NonNegativeQuantitySchedule( item -> value, item -> unit ) ]
-
+	
 	alias changePriceQuantity:
 	    Create_PriceQuantity( empty, quantitySchedule, empty )
 
@@ -1232,7 +1232,7 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
                 else
                     [ Create_TradeState( item -> primitiveInstruction , item -> before ) ]
 	        ] flatten
-
+			
 	// TODO: we should have a condition to ensure that no trade is 'lost' between the before(s) and the after(s).
 	// This can be implemented by looking at the trade identifier attribute on the before state, and making sure it exists in the after state.
 	// So for instance where there is a party change (which results in a different trade with a different trade id), the original trade should be split first, and one of the copies should 'close' the trade.
@@ -1274,8 +1274,8 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 			primitiveInstruction -> partyChange -> partyRole,
             primitiveInstruction -> partyChange -> tradeId,
 			termsChange /*after*/
-        )
-
+        ) 
+	  
 	alias contractFormation: <"Create contract formation if instructions exist.">
 		if primitiveInstruction exists and primitiveInstruction -> contractFormation is absent then partyChange
 		else Create_ContractFormation( primitiveInstruction -> contractFormation, partyChange)
@@ -1294,11 +1294,11 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 
 	alias observation:
 		if primitiveInstruction -> observation is absent then indexTransition
-		else Create_Observation ( primitiveInstruction -> observation -> observationEvent, before)
+		else Create_Observation ( primitiveInstruction -> observation, indexTransition)
 
     alias stockSplit:
        if primitiveInstruction -> stockSplit is absent then observation
-       else Create_StockSplit( primitiveInstruction -> stockSplit, indexTransition )
+       else Create_StockSplit( primitiveInstruction -> stockSplit, observation )
 
 	condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
 		primitiveInstruction -> split is absent
@@ -1336,7 +1336,7 @@ func Create_PrimitiveInstruction:
         termsChange TermsChangeInstruction (0..1)
         transfer TransferInstruction (0..1)
         indexTransition IndexTransitionInstruction (0..1)
-		observation ObservationEvent (0..1)
+		observation ObservationInstruction (0..1)
         stockSplit StockSplitInstruction (0..1)
     output:
         primitiveInstruction PrimitiveInstruction (1..1)
@@ -1351,5 +1351,6 @@ func Create_PrimitiveInstruction:
     set primitiveInstruction -> termsChange: termsChange
     set primitiveInstruction -> transfer: transfer
     set primitiveInstruction -> indexTransition: indexTransition
-	set primitiveInstruction -> observation -> observationEvent : observation
+	set primitiveInstruction -> observation : observation 
     set primitiveInstruction -> stockSplit: stockSplit
+	
