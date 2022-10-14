@@ -370,7 +370,7 @@ func Create_StockSplit: <"Function specification to create the fully-formed busi
     alias quantityChangeInstruction:
         Create_QuantityChangeInstruction( [postSplitPriceQuantity], QuantityChangeDirectionEnum -> Replace, empty )
     alias primitiveInstruction:
-        Create_PrimitiveInstruction( empty, empty, empty, empty, quantityChangeInstruction, empty, empty, empty, empty, empty, empty )
+        Create_PrimitiveInstruction( empty, empty, empty, empty, quantityChangeInstruction, empty, empty, empty, empty, empty, empty, empty)
     set after:
         Create_TradeState( primitiveInstruction, before )
 
@@ -948,6 +948,17 @@ func Create_IndexTransitionTermsChange: <"Function specification to create a ter
 	set termsChange : <"Updates the trade based on each instruction priceQuantity (e.g. one for each floating rate leg).">
 		UpdateSpreadAdjustmentAndRateOptions( tradeState, instruction -> priceQuantity )
 
+func Create_Observation: <"Function specification to create an observation that incorporates an observation event into the observation history of a given trade state.">
+inputs:
+instruction ObservationEvent (1..1)
+before TradeState (1..1) <"Specifies the trade to be updated.">
+
+output:
+after TradeState (1..1) <"Specifies the resulting trade state incorporating the observation event in the observation history.">
+
+set after : before
+add after -> observationHistory  : instruction
+
 func UpdateSpreadAdjustmentAndRateOptions: <"For each of the trade state's price quantity, find a matching price quantity instruction, and call the update function.">
 	inputs:
 		tradeState TradeState (1..1) <"Specifies the trade to be updated.">
@@ -1281,8 +1292,12 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
         if primitiveInstruction -> indexTransition is absent then reset
         else Create_IndexTransitionTermsChange( primitiveInstruction -> indexTransition, reset )
 
+	alias observation:
+		if primitiveInstruction -> observation is absent then indexTransition
+		else Create_Observation ( primitiveInstruction -> observation -> observationEvent, before)
+
     alias stockSplit:
-       if primitiveInstruction -> stockSplit is absent then indexTransition
+       if primitiveInstruction -> stockSplit is absent then observation
        else Create_StockSplit( primitiveInstruction -> stockSplit, indexTransition )
 
 	condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
@@ -1321,6 +1336,7 @@ func Create_PrimitiveInstruction:
         termsChange TermsChangeInstruction (0..1)
         transfer TransferInstruction (0..1)
         indexTransition IndexTransitionInstruction (0..1)
+		observation ObservationEvent (0..1)
         stockSplit StockSplitInstruction (0..1)
     output:
         primitiveInstruction PrimitiveInstruction (1..1)
@@ -1335,4 +1351,5 @@ func Create_PrimitiveInstruction:
     set primitiveInstruction -> termsChange: termsChange
     set primitiveInstruction -> transfer: transfer
     set primitiveInstruction -> indexTransition: indexTransition
+	set primitiveInstruction -> observation -> observationEvent : observation
     set primitiveInstruction -> stockSplit: stockSplit
