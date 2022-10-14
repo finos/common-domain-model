@@ -1,42 +1,40 @@
-# *Product Model - FpmL Mapping Enhancements for Commodity Products*
+# *Legal Agreement Model - Enhancements for Eligible Collateral Concentration Limits*
 
 _Background_
 
-The recent price and quantity schedule refactoring highlighted gaps in the coverage of the FpML commodity test pack related to FpML mappings.
+This release follows recent work with ISDA members in the form of workshops to extend the eligible collateral representation in preperation for mapping and adoption.
 
 _What is being released?_
 
-This release completes mappings for 2 additional commodity products: a commodity swaption and a commodity swap with a custom schedule.
+The representation of concentration limits for Eligible Collateral applied to Equity Products has been enhanced with the below:
+1.	New attribute added to data type ` ConcentrationLimitCriteria ` named `averageTradingVolume` to enable the user to specify an average trading volume on an exchange in relation to Equity products
+2.	New data type added ` AverageTradingVolume` for representing the average trading volume of an Equity product upon an exchange or set of exchanges
+3.	Attributes added to data type `AverageTradingVolume` 
+
+    - `period` for representing the period of the equities average trading volume on the exchange/s
+    - `methodology` for indicating the type of equity trading volume’
+  
+4.	Attribute `methodology` has an associated enumeration modelled named `AverageTradingVolumeMethodologyEnum` which allows the user to specify a single or consolidated average trading volume across exchange/s
+5.	An additional enumeration has been added to the `ConcentrationLimitTypeEnum` list named `MarketCapitalisation` to indicate a limit of the issue calculated as a percentage of the market capitalisation of the asset on the market. 
+6.	Existing description for `IssueOutstandingAmount` under the `ConcentrationLimitTypeEnum` list had been updated as per member suggestions.
+7.	Conditions have been added beneath the data type `EligibleCollateralCriteria` as follows:
+
+    - `ConcentrationLimitTypeIssueOSAmountDebtOnly` a condition that concentration limit type 'IssueOutstandingAmount' is restricted to be used only if the asset type is described as 'Security' and 'Debt'.
+    - `ConcentrationLimitTypeMarketCaplitalisationEquityOnly` a condition that concentration limit type `MarketCapitalisation` is restricted to be used only if the asset type is described as `Security` and `Equity`.
+    - `AverageTradingVolumeEquityOnly` a condition that concentration limit `AverageTradingVolume` is restricted to be used only if the asset type is described as `Security` and `Equity`
+  
+8.	A condition has been added beneath the data type `ConcentrationLimit` as follows 
+
+    - `PercentageConcentrationLimit` to enforce that percentage limit exists if the concentration limit type is `MarketCapitalisation`
+
 
 _Review Directions_
+ 
+In the CDM Portal, select the Textual Browser and inspect the changes mentioned above and across the following data types and enumerations: 
 
-In the CDM Portal, select Ingestion and review the following new samples:
+1.	`ConcentrationLimit`
+2.	`ConcentrationLimitCriteria`
+3.	`AverageTradingVolume`
+4.	`ConcentrationLimitTypeEnum`
+5.	`AverageTradingVolumeMethodologyEnum`
 
-- fpml-5-10 > products > commodity
-
-    - `commodity-option-energy-oil-ex01-cash`
-    - `commodity-option-energy-nat-gas-ex02-cash`
-
-# *Product Model - FpML Mapping Enhancements for Equity Index Products*
-
-_Background_
-
-The recent price and quantity schedule refactoring left some inconsistency in the treatment of the quantity of equity index vs single-name options.
-
-In the single-name case the quantity being referenced in the option payout is a number of shares, whereas in the index case the quantity was a monetary amount (unless that monetary amount was itself absent, in which case the number of index units was referenced). This means that any post-trade processing of an option contract would have to be forked between those cases, including for reporting.
-
-_What is being released?_
-
-The index treatment has been aligned onto the single-name one and the quantity now reflects the number of index units in all cases.
-
-Since there was no equity index option featuring both a monetary amount and a number of index units available in the FpML test pack, a new one has been synthesized based on an existing record-keeping sample and used to adjust the mapping.
-
-_Review Directions_
-
-In the CDM Portal, select Ingestion and review the new sample to illustrate the new behaviour:
-
-- fpml-5-10 > products > equity > `equity-option-price-return-index-ex03-european-call`
-
-and compare for consistency with an existing sample:
-
-- fpml-5-10 > products > equity > `eqd-ex04-european-call-index-long-form`
