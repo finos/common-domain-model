@@ -1,7 +1,7 @@
 package com.regnosys.granite.projector.isdacreate;
 
 import cdm.event.common.TradeState;
-import cdm.legalagreement.common.LegalAgreement;
+import cdm.legaldocumentation.common.LegalAgreement;
 import com.google.inject.Inject;
 import com.regnosys.granite.projector.AbstractTest;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;

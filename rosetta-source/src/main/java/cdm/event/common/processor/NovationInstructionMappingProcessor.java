@@ -8,7 +8,7 @@ import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.observable.asset.FeeTypeEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;

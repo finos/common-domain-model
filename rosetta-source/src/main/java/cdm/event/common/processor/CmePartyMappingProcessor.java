@@ -10,7 +10,7 @@ import java.util.List;
  * FpML mapping processor.
  */
 @SuppressWarnings("unused")
-public class CmePartyMappingProcessor extends cdm.legalagreement.contract.processor.CmePartyMappingProcessor {
+public class CmePartyMappingProcessor extends cdm.legaldocumentation.contract.processor.CmePartyMappingProcessor {
 
 	public CmePartyMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, MappingContext context) {
 		super(rosettaPath, synonymPaths, context);
