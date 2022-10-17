@@ -1,7 +1,7 @@
 package cdm.product.template.processor;
 
 import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
 import cdm.product.common.settlement.processor.PriceQuantityHelper;
 import com.regnosys.rosetta.common.translation.Mapping;

@@ -13,7 +13,7 @@ import cdm.event.workflow.EventTimestamp;
 import cdm.event.workflow.EventTimestampQualificationEnum;
 import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_AcceptedWorkflowStepFromInstruction;
-import cdm.legalagreement.common.ClosedStateEnum;
+import cdm.legaldocumentation.common.ClosedStateEnum;
 import cdm.product.common.settlement.PriceQuantity;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
