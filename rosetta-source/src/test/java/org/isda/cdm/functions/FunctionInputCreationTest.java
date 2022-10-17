@@ -970,7 +970,8 @@ class FunctionInputCreationTest {
                                                 .setEntityId(Collections.singletonList(FieldWithMetaString.builder()
                                                         .setValue("UE2136O97NLB5BYP9H04")))
                                                 .setName(FieldWithMetaString.builder()
-                                                        .setValue("McDonald's Corporation"))))
+                                                        .setValue("McDonald's Corporation")))
+                                .setNoReferenceObligation(true))
 
                 );
 
