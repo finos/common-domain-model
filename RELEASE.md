@@ -1,40 +1,37 @@
-# *Legal Agreement Model - Enhancements for Eligible Collateral Concentration Limits*
+# *DSL update: `extract` is now a synonym of `map`*
 
 _Background_
 
-This release follows recent work with ISDA members in the form of workshops to extend the eligible collateral representation in preperation for mapping and adoption.
+This release is part of the [Core and Rule Syntax Harmonisation](https://github.com/REGnosys/rosetta-dsl/wiki/Core-and-Rule-Syntax-Harmonisation) project.
 
 _What is being released?_
 
-The representation of concentration limits for Eligible Collateral applied to Equity Products has been enhanced with the below:
-1.	New attribute added to data type ` ConcentrationLimitCriteria ` named `averageTradingVolume` to enable the user to specify an average trading volume on an exchange in relation to Equity products
-2.	New data type added ` AverageTradingVolume` for representing the average trading volume of an Equity product upon an exchange or set of exchanges
-3.	Attributes added to data type `AverageTradingVolume` 
-
-    - `period` for representing the period of the equities average trading volume on the exchange/s
-    - `methodology` for indicating the type of equity trading volume’
-  
-4.	Attribute `methodology` has an associated enumeration modelled named `AverageTradingVolumeMethodologyEnum` which allows the user to specify a single or consolidated average trading volume across exchange/s
-5.	An additional enumeration has been added to the `ConcentrationLimitTypeEnum` list named `MarketCapitalisation` to indicate a limit of the issue calculated as a percentage of the market capitalisation of the asset on the market. 
-6.	Existing description for `IssueOutstandingAmount` under the `ConcentrationLimitTypeEnum` list had been updated as per member suggestions.
-7.	Conditions have been added beneath the data type `EligibleCollateralCriteria` as follows:
-
-    - `ConcentrationLimitTypeIssueOSAmountDebtOnly` a condition that concentration limit type 'IssueOutstandingAmount' is restricted to be used only if the asset type is described as 'Security' and 'Debt'.
-    - `ConcentrationLimitTypeMarketCaplitalisationEquityOnly` a condition that concentration limit type `MarketCapitalisation` is restricted to be used only if the asset type is described as `Security` and `Equity`.
-    - `AverageTradingVolumeEquityOnly` a condition that concentration limit `AverageTradingVolume` is restricted to be used only if the asset type is described as `Security` and `Equity`
-  
-8.	A condition has been added beneath the data type `ConcentrationLimit` as follows 
-
-    - `PercentageConcentrationLimit` to enforce that percentage limit exists if the concentration limit type is `MarketCapitalisation`
-
+`extract` can now be used as a synonym to `map`. Using `extract` is preffered.
 
 _Review Directions_
  
-In the CDM Portal, select the Textual Browser and inspect the changes mentioned above and across the following data types and enumerations: 
+In the CDM Portal, open the Textual Browser and inspect the changes across the following functions: 
 
-1.	`ConcentrationLimit`
-2.	`ConcentrationLimitCriteria`
-3.	`AverageTradingVolume`
-4.	`ConcentrationLimitTypeEnum`
-5.	`AverageTradingVolumeMethodologyEnum`
-
+1.	`func Create_Split`
+2.	`func BusinessCenterHolidaysMultiple`
+3.	`func CompareQuantityByUnitOfAmount`
+4.	`func VectorScalarOperation`
+5.	`func ReplaceParty`
+6.  `func QuantityIncreased`
+7.  `func QuantityDecreased`
+8.  `func CompareTradeStatesToAmount`
+9.  `func Create_Split`
+10. `func UpdateSpreadAdjustmentAndRateOptions`
+11. `func Create_BillingRecords`
+12. `func Create_Return`
+13. `func Create_BusinessEvent`
+14. `func Qualify_Allocation`
+15. `func Qualify_CashAndSecurityTransfer`
+16. `func Qualify_PartialNovation`
+17. `func Qualify_StockSplit`
+18. `func Qualify_Reallocation`
+19. `func UndisputedAdjustedPostedCreditSupportAmount`
+20. `func DetermineObservationPeriod`
+21. `func IndexValueObservationMultiple`
+22. `func CashPriceQuantityNoOfUnitsTriangulation`
+23. `func GetQuantityScheduleStepValues`
