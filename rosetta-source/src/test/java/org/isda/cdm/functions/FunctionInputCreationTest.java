@@ -958,9 +958,7 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/business-event/allocation/allocation-func-input.json", actual);
     }
 
-    @Test
-    void validateCreditEventFuncInputJson() throws IOException {
-
+    ObservationEvent getObservationEvent(){
         ObservationEvent observationEvent = ObservationEvent.builder()
                 .setCreditEvent(CreditEvent.builder()
                         .setCreditEventType(CreditEventTypeEnum.BANKRUPTCY)
@@ -976,8 +974,13 @@ class FunctionInputCreationTest {
 
                 );
 
+        return observationEvent;
+    }
+    @Test
+    void validateCreditEventFuncInputJson() throws IOException {
+
         ObservationInstruction observationInstruction = ObservationInstruction.builder()
-                .setObservationEvent(observationEvent);
+                .setObservationEvent(getObservationEvent());
 
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/credit/cdindex-ex01-cdx-uti.json");
 
@@ -999,22 +1002,8 @@ class FunctionInputCreationTest {
     @Test
     void validateCreditEventWithObservationFuncInputJson() throws IOException {
 
-        ObservationEvent observationHistory = ObservationEvent.builder()
-                .setCreditEvent(CreditEvent.builder()
-                        .setCreditEventType(CreditEventTypeEnum.BANKRUPTCY)
-                        .setEventDeterminationDate(Date.of(2022, 2, 4))
-                        .setAuctionDate(Date.of(2022, 3, 3))
-                        .setReferenceInformation(ReferenceInformation.builder()
-                                .setReferenceEntity(LegalEntity.builder()
-                                        .setEntityId(Collections.singletonList(FieldWithMetaString.builder()
-                                                .setValue("UE2136O97NLB5BYP9H04")))
-                                        .setName(FieldWithMetaString.builder()
-                                                .setValue("McDonald's Corporation"))))
-
-                );
-
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/credit/cdindex-ex01-cdx-uti.json");
-        TradeState tradeStateWithObs = tradeState.toBuilder().setObservationHistory(Collections.singletonList(observationHistory)).build();
+        TradeState tradeStateWithObs = tradeState.toBuilder().setObservationHistory(Collections.singletonList(getObservationEvent())).build();
 
         ObservationEvent observationEvent = ObservationEvent.builder()
                 .setCreditEvent(CreditEvent.builder()
@@ -1026,7 +1015,8 @@ class FunctionInputCreationTest {
                                         .setEntityId(Collections.singletonList(FieldWithMetaString.builder()
                                                 .setValue("UE2136O97NLB5BYP9H04")))
                                         .setName(FieldWithMetaString.builder()
-                                                .setValue("McDonald's Corporation"))))
+                                                .setValue("McDonald's Corporation")))
+                                .setNoReferenceObligation(true))
 
                 );
 
