@@ -1083,8 +1083,8 @@ class FunctionInputCreationTest {
         CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructions.build()),
                 null,
-                Date.of(2022, 2, 4),
-                Date.of(2022, 2, 4));
+                Date.of(2009, 2, 1),
+                Date.of(2009, 2, 1));
 
         assertJsonEquals("cdm-sample-files/functions/business-event/corporate-actions/corporate-actions-func-input.json", actual);
     }
@@ -1127,8 +1127,9 @@ class FunctionInputCreationTest {
         CreateBusinessEventInput actual = new CreateBusinessEventInput(
                 Lists.newArrayList(instructions.build()),
                 null,
-                Date.of(2023, 2, 2),
-                Date.of(2023, 2, 2));
+                Date.of(2009, 2, 13),
+                Date.of(2009, 2, 13));
+
 
         assertJsonEquals("cdm-sample-files/functions/business-event/corporate-actions/corporate-actions-obs-func-input.json", actual);
     }

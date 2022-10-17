@@ -1,10 +1,11 @@
-### Credit Event
+### Corporate Action
 
 New Instruction
 
-a second Credit Event is taking place on the same trade as Example 1
+A second Corporate Action is taking place on the same trade that has suffered a corporate action before.
+
 Credit Event
 
-- Trade with event date `2022-02-02` containing:
-- An `observationHistory` containg details of previous `credit Event` instruction of type `BANKRUPTCY` with event determination date of `2022-02-04` and auction date of `2022-03-03`.
--A `Primitive Instruction` containing a `credit Event` instruction of type `FAILURE_TO_PAY` with event determination date of `2022-02-04` and auction date of `2022-03-03`.
+- Trade with event date `2009-02-01` containing:
+- An `observationHistory` contains details of previous `Corporate Action` of type `STOCK_SPLIT` with `underlier` for `security` with `securityType` Equity'.
+- A `Primitive Instruction` containing a `Corporate Action` of type `CASH_DIVIDEND` with `underlier` for `security` with `securityType` Equity'.

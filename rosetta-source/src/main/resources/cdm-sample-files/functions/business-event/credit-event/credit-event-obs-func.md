@@ -2,7 +2,7 @@
 
 New Instruction
 
-a second Credit Event is taking place on the same trade as Example 1
+a second Credit Event is taking place on a trade that has suffered a credit event before.
 Credit Event
 
 - Trade with event date `2022-02-02` containing:
