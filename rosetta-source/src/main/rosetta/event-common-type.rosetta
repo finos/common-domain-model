@@ -176,8 +176,11 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	observationHistory ObservationEvent (0..*) <"Represents the observed events related to a particular product or process, such as credit events or corporate actions.">
 
 type ObservationEvent: <"Specifies the necessary information to create any observation event.">
-	creditEvent CreditEvent (1..1) <"Specifies the necessary information to create a credit event.">
-	
+	creditEvent CreditEvent (0..1) <"Specifies the necessary information to create a credit event.">
+	corporateAction CorporateAction (0..1) <"Specifies the necessary information to create a corporate action.">
+
+	condition: one-of
+
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
 	[metadata key]
 	resetValue Price (1..1) <"Specifies the reset or fixing value. The fixing value could be a cash price, interest rate, or other value.">
@@ -497,7 +500,13 @@ type CreditEvent: <"Specifies the relevant data regarding a credit event.">
 	finalPrice Price (0..1) <"The final price resulting from the auction.">
 	recoveryPercent number (0..1) <"The percentage of the original value of the asset affected by the credit event that can be recovered.">
 	publiclyAvailableInformation Resource (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not a credit event has occurred.">
-	referenceEntity ReferenceInformation (1..1) <"The reference entity, part of a credit basket, impacted by the credit event.">
+	referenceInformation ReferenceInformation (1..1) <"The reference entity, part of a credit basket, impacted by the credit event.">
+
+type CorporateAction: <"Specifies the relevant data regarding a corporate action">
+	corporateActionType CorporateActionTypeEnum (1..1) <"The type of corporate action taking place.">
+	exDate date (1..1) <"The date on which the corporate action is known to have taken place.">
+	payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
+	underlier Product (1..1) <"The entity impacted by the corporate action.">
 
 type TransferBase:
 
@@ -688,4 +697,4 @@ type MarginCallResponse extends MarginCallBase: <"Represents common attributes r
 	
 	marginCallResponseAction MarginCallResponseAction (1..*) <"Specifies the margin call action details, including collateral to be moved and direction.">
 	marginResponseType MarginCallResponseTypeEnum (1..1) <"Indicates the response type, such as, is the margin call response a 'full' 'part' agreement or 'dispute'.">
-	agreedAmountBaseCurrency Money (1..1) <"Indicates the amount that posting entity agrees to remit in response to margin call (in base currency).">   
+	agreedAmountBaseCurrency Money (1..1) <"Indicates the amount that posting entity agrees to remit in response to margin call (in base currency).">
