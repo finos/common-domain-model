@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-Following feedback from CDM users, this release adjust the DSL keyword used to process list items.  The keyword `map` has been replaced with the keyword `extract`.  For backwards compatibility, using the`map` keyword will remain possible for a limited time.
+Following feedback from CDM users, this release adjust the DSL keyword used to process a list of items.  The keyword `map` has been replaced with the keyword `extract`.  For backwards compatibility, using the`map` keyword will remain possible for a limited time.
 
 _Syntax_
 
