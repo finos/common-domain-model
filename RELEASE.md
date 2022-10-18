@@ -3,9 +3,12 @@
 
 _Background_
 
-The representation of credit events and corporate actions has been addressed along with related functions. Both credit events and corporate actions are represented as `primitiveInstructions` of a new `observation` type, which can be expanded in the future to include other observation-related events.  The added functions also allow for the addition of the `creditEvent` or `corporateAction`as a part of the `observationHistory` of a trade state. Thus, with an `instruction` containing a `creditEvent`, a trade and the corresponding dates the model will be able to generate a `businessEvent` (the `after` trade state of which contains the same trade) plus an `observationHistory` with the specified `creditEvent`.
 
-The representation of credit events and corporate actcurrently does not include information about the impact of the event on a particular trade but only the generic information published by the Determinations Committee (in the case of credit events) or the basic information about the ocurrence of the event (in the case of corporate actions) which can be associated to a trade as described above without modifying it.
+_Background_
+
+The representation of credit events and corporate actions and the corresponding functional elements have been introduced in the model. Both types of events are represented as components of an `ObservationEvent`. The later can be recorded in the new `observationHistory` of a `TradeState` by using the new primitive instruction `ObservationInstruction` .
+
+The representation of credit events and corporate actions does not include information about the impact of the event on a particular trade. The focus of this change is  only to document the generic information published by the Determinations Committee on the occurence of a credit event or the basic information describing the ocurrence of a corporate action events.
 
 _What is being released?_
 
