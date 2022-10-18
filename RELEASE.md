@@ -1,9 +1,9 @@
-# _Business Events - Credit Events and Corporate Actions_
+# _Event Model - Representation of Credit Events and Corporate Actions_
 
 
 _Background_
 
-The present release adds CDM model support for credit events and corporate actions and its related functions. Both credit events and corporate actions are represented as `primitiveInstructions` of a new `observation` type, which can be expanded in the future to include other observation-related events.  The added functions also allow for the addition of the `creditEvent` or `corporateAction`as a part of the `observationHistory` of a trade state. Thus, with an `instruction` containing a `creditEvent`, a trade and the corresponding dates the model will be able to generate a `businessEvent` (the `after` trade state of which contains the same trade) plus an `observationHistory` with the specified `creditEvent`.
+The representation of credit events and corporate actions has been addressed along with related functions. Both credit events and corporate actions are represented as `primitiveInstructions` of a new `observation` type, which can be expanded in the future to include other observation-related events.  The added functions also allow for the addition of the `creditEvent` or `corporateAction`as a part of the `observationHistory` of a trade state. Thus, with an `instruction` containing a `creditEvent`, a trade and the corresponding dates the model will be able to generate a `businessEvent` (the `after` trade state of which contains the same trade) plus an `observationHistory` with the specified `creditEvent`.
 
 The representation of credit events and corporate actcurrently does not include information about the impact of the event on a particular trade but only the generic information published by the Determinations Committee (in the case of credit events) or the basic information about the ocurrence of the event (in the case of corporate actions) which can be associated to a trade as described above without modifying it.
 
