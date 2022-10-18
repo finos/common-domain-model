@@ -1,37 +1,85 @@
-# *DSL update: `extract` is now a synonym of `map`*
-
-_Background_
-
-This release is part of the [Core and Rule Syntax Harmonisation](https://github.com/REGnosys/rosetta-dsl/wiki/Core-and-Rule-Syntax-Harmonisation) project.
+# *DSL Syntax: List `extract` Keyword*
 
 _What is being released?_
 
-`extract` can now be used instead of `map`. Using `extract` is preferred.
+Following feedback from members, the release contains a change to the DSL keyword used to process list items.  The keyword `map` has been replaced with the keyword `extract`.  For backwards compatibility, the `map` keyword is still allowed for a limited time.
+
+The following syntax and examples show expressions that contain a default list parameter, `item`.  There are further examples in the Appendix that use a named list parameter.  
+
+_Syntax_
+
+_Before_
+
+```
+set outputList:
+    inputList
+        map [<Expression to modify item>]
+```
+
+_After_
+
+```
+set outputList:
+    inputList
+        extract [<Expression to modify item>]
+```
+
+_Example_
+
+_Before_
+
+```
+func ExtractPriceType: 
+    inputs:
+        prices Price (0..*)
+    output:
+        priceTypeEnums PriceTypeEnum (0..*)
+
+    set priceTypeEnums:
+        prices 
+            map [ item -> priceType ]
+```
+
+_After_
+
+```
+func ExtractPriceType: 
+    inputs:
+        prices Price (0..*)
+    output:
+        priceTypeEnums PriceTypeEnum (0..*)
+
+    set priceTypeEnums:
+        prices 
+            extract [ item -> priceType ]
+```
+
+This change was covered by the [Core and Rule Syntax Harmonisation](https://github.com/REGnosys/rosetta-dsl/wiki/Core-and-Rule-Syntax-Harmonisation) proposal.
 
 _Review Directions_
  
 In the CDM Portal, open the Textual Browser and inspect the changes across the following functions: 
 
-1.	`func Create_Split`
-2.	`func BusinessCenterHolidaysMultiple`
-3.	`func CompareQuantityByUnitOfAmount`
-4.	`func VectorScalarOperation`
-5.	`func ReplaceParty`
-6.  `func QuantityIncreased`
-7.  `func QuantityDecreased`
-8.  `func CompareTradeStatesToAmount`
-9.  `func Create_Split`
-10. `func UpdateSpreadAdjustmentAndRateOptions`
-11. `func Create_BillingRecords`
-12. `func Create_Return`
-13. `func Create_BusinessEvent`
-14. `func Qualify_Allocation`
-15. `func Qualify_CashAndSecurityTransfer`
-16. `func Qualify_PartialNovation`
-17. `func Qualify_StockSplit`
-18. `func Qualify_Reallocation`
-19. `func UndisputedAdjustedPostedCreditSupportAmount`
-20. `func DetermineObservationPeriod`
-21. `func IndexValueObservationMultiple`
-22. `func CashPriceQuantityNoOfUnitsTriangulation`
-23. `func GetQuantityScheduleStepValues`
+*	`func Create_Split`
+*	`func BusinessCenterHolidaysMultiple`
+*	`func CompareQuantityByUnitOfAmount`
+*	`func VectorScalarOperation`
+*	`func ReplaceParty`
+*	`func QuantityIncreased`
+*	`func QuantityDecreased`
+*	`func CompareTradeStatesToAmount`
+*	`func Create_Split`
+*	`func UpdateSpreadAdjustmentAndRateOptions`
+*	`func Create_BillingRecords`
+*	`func Create_Return`
+*	`func Create_BusinessEvent`
+*	`func Qualify_Allocation`
+*	`func Qualify_CashAndSecurityTransfer`
+*	`func Qualify_PartialNovation`
+*	`func Qualify_StockSplit`
+*	`func Qualify_Reallocation`
+*	`func UndisputedAdjustedPostedCreditSupportAmount`
+*	`func DetermineObservationPeriod`
+*	`func IndexValueObservationMultiple`
+*	`func CashPriceQuantityNoOfUnitsTriangulation`
+*	`func GetQuantityScheduleStepValues`
