@@ -6,7 +6,7 @@ This release is part of the [Core and Rule Syntax Harmonisation](https://github.
 
 _What is being released?_
 
-`extract` can now be used as a synonym to `map`. Using `extract` is preffered.
+`extract` can now be used instead of `map`. Using `extract` is preferred.
 
 _Review Directions_
  
