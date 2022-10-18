@@ -1,10 +1,10 @@
 package com.regnosys.granite.projector.isdacreate;
 
 import cdm.base.datetime.BusinessCenterEnum;
-import cdm.legalagreement.common.GoverningLawEnum;
-import cdm.legalagreement.common.LegalAgreementPublisherEnum;
-import cdm.legalagreement.csa.AmendmentEffectiveDateEnum;
-import cdm.legalagreement.csa.SensitivitiesEnum;
+import cdm.legaldocumentation.common.GoverningLawEnum;
+import cdm.legaldocumentation.common.LegalAgreementPublisherEnum;
+import cdm.legaldocumentation.csa.AmendmentEffectiveDateEnum;
+import cdm.legaldocumentation.csa.SensitivitiesEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
