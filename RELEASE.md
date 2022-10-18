@@ -1,8 +1,8 @@
-# *DSL Syntax: List `extract` Keyword*
+# *DSL Syntax: List `extract` Keyword to replace `map`
 
 _What is being released?_
 
-Following feedback from members, the release contains a change to the DSL keyword used to process list items.  The keyword `map` has been replaced with the keyword `extract`.  For backwards compatibility, the `map` keyword is still allowed for a limited time.
+Following feedback from CDM users, this release adjust the DSL keyword used to process list items.  The keyword `map` has been replaced with the keyword `extract`.  For backwards compatibility, using the`map` keyword will remain possible for a limited time.
 
 _Syntax_
 
@@ -51,8 +51,6 @@ func ExtractPriceType:
         prices 
             extract [ item -> priceType ]
 ```
-
-This change was covered by the [Core and Rule Syntax Harmonisation](https://github.com/REGnosys/rosetta-dsl/wiki/Core-and-Rule-Syntax-Harmonisation) proposal.
 
 _Review Directions_
  
