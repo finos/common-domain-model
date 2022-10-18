@@ -1,15 +1,37 @@
-# *Legal Documentation Model - Rename Legal Agreement Namespace to Legal Document*
+# *DSL update: `extract` is now a synonym of `map`*
 
 _Background_
 
-As part of the transition of the Core CDM to a new repository, an analysis of the present CDM namespaces has been undertaken. A number of appropriate but minor changes have been identified which will be rolled out in coming weeks. One of which is to rename the namespace where legal agreement data models have been developed to be more generic and appropriate name and reposition some of the collateral work which may be more appropriately held in a namespace in the cdm.product namespace. 
+This release is part of the [Core and Rule Syntax Harmonisation](https://github.com/REGnosys/rosetta-dsl/wiki/Core-and-Rule-Syntax-Harmonisation) project.
 
 _What is being released?_
 
-The `cdm.legalagreement` namespace has been renamed to `cdm.legaldocumentation`.
-Created new namespace: `cdm.product.collateral`
+`extract` can now be used as a synonym to `map`. Using `extract` is preffered.
 
 _Review Directions_
+ 
+In the CDM Portal, open the Textual Browser and inspect the changes across the following functions: 
 
-In the CDM Portal, download the CDM Distribution and see the updated namespaces.
-
+1.	`func Create_Split`
+2.	`func BusinessCenterHolidaysMultiple`
+3.	`func CompareQuantityByUnitOfAmount`
+4.	`func VectorScalarOperation`
+5.	`func ReplaceParty`
+6.  `func QuantityIncreased`
+7.  `func QuantityDecreased`
+8.  `func CompareTradeStatesToAmount`
+9.  `func Create_Split`
+10. `func UpdateSpreadAdjustmentAndRateOptions`
+11. `func Create_BillingRecords`
+12. `func Create_Return`
+13. `func Create_BusinessEvent`
+14. `func Qualify_Allocation`
+15. `func Qualify_CashAndSecurityTransfer`
+16. `func Qualify_PartialNovation`
+17. `func Qualify_StockSplit`
+18. `func Qualify_Reallocation`
+19. `func UndisputedAdjustedPostedCreditSupportAmount`
+20. `func DetermineObservationPeriod`
+21. `func IndexValueObservationMultiple`
+22. `func CashPriceQuantityNoOfUnitsTriangulation`
+23. `func GetQuantityScheduleStepValues`
