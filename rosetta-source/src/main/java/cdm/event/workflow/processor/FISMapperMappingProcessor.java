@@ -18,7 +18,6 @@ import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.common.settlement.DeliveryMethodEnum;
 import cdm.product.template.CollateralTypeEnum;
-import cdm.product.template.DurationTypeEnum;
 import cdm.product.template.EconomicTerms.EconomicTermsBuilder;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradableProduct.TradableProductBuilder;
@@ -94,7 +93,6 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		getIRP(tradeState).getValue().getOrCreatePaymentDates().getOrCreatePaymentFrequency().setPeriodMultiplier(1);
 
 		//sec lending payout
-		getSecPO(tradeState).getValue().getOrCreateDurationType().setDurationType(DurationTypeEnum.OPEN);
 		getSecPO(tradeState).getValue().getOrCreateSecurityInformation().getOrCreateSecurity().setSecurityType(SecurityTypeEnum.EQUITY);
 
 		getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setPayer(CounterpartyRoleEnum.PARTY_1);
@@ -194,7 +192,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			pq.getValue()
 					.getOrCreatePrice(0)
 					.getOrCreateValue()
-					.setAmount(parseDecimal(value))
+					.setValue(parseDecimal(value))
 					.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.INTEREST_RATE));
 			// reference
 			Reference.ReferenceBuilder reference = Reference.builder();
@@ -216,7 +214,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			pq.getValue()
 					.getOrCreateQuantity(0)
 					.getOrCreateValue()
-					.setAmount(parseDecimal(value));
+					.setValue(parseDecimal(value));
 			// reference
 			Reference.ReferenceBuilder reference = Reference.builder();
 			PathValue<InterestRatePayoutBuilder> irp = getIRP(tradeState);
@@ -235,12 +233,12 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			pq.getValue()
 					.getOrCreatePrice(0)
 					.getOrCreateValue()
-					.setUnitOfAmount(currencyUnit)
-					.setPerUnitOfAmount(currencyUnit);
+					.setUnit(currencyUnit)
+					.setPerUnitOf(currencyUnit);
 			pq.getValue()
 					.getOrCreateQuantity(0)
 					.getOrCreateValue()
-					.setUnitOfAmount(currencyUnit);
+					.setUnit(currencyUnit);
 			return Arrays.asList(
 					new PathValue<>(pq.getModelPath().append(Path.parse("price[0].value.unitOfAmount.currency.value")), value),
 					new PathValue<>(pq.getModelPath().append(Path.parse("price[0].value.perUnitOfAmount.currency.value")), value),
@@ -252,9 +250,9 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getValue()
 					.getOrCreatePrice(0)
 					.getOrCreateValue()
-					.setAmount(parseDecimal(value))
+					.setValue(parseDecimal(value))
 					.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.ASSET_PRICE))
-					.setPerUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE));
+					.setPerUnitOf(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE));
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 
@@ -263,7 +261,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getValue()
 					.getOrCreatePrice(0)
 					.getOrCreateValue()
-					.getOrCreateUnitOfAmount()
+					.getOrCreateUnit()
 					.getOrCreateCurrency()
 					.setValue(value);
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
@@ -274,8 +272,8 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.getValue()
 					.getOrCreateQuantity(0)
 					.getOrCreateValue()
-					.setAmount(parseDecimal(value))
-					.setUnitOfAmount(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE));
+					.setValue(parseDecimal(value))
+					.setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE));
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 
@@ -321,7 +319,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			getSecPO(tradeState)
 					.getValue()
 					.getOrCreateMinimumFee()
-					.getOrCreateUnitOfAmount()
+					.getOrCreateUnit()
 					.getOrCreateCurrency()
 					.setValue(value);
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
@@ -331,7 +329,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			getSecPO(tradeState)
 					.getValue()
 					.getOrCreateMinimumFee()
-					.setAmount(parseDecimal(value));
+					.setValue(parseDecimal(value));
 			return Collections.singletonList(new PathValue<>(tradeState.getModelPath(), value));
 		});
 

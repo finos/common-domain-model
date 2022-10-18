@@ -1,6 +1,6 @@
 package com.regnosys.granite.projector.isdacreate;
 
-import cdm.legalagreement.common.LegalAgreement;
+import cdm.legaldocumentation.common.LegalAgreement;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
 import com.regnosys.granite.ingestor.postprocess.pathduplicates.PathCollector;
@@ -8,6 +8,7 @@ import com.regnosys.granite.ingestor.service.IngestionFactory;
 import com.regnosys.granite.ingestor.service.IngestionService;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.RosettaModelObject;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 
 import static com.regnosys.granite.projector.isdacreate.IsdaCreateIsdaCsaIm2016ProjectionMapper.*;
@@ -638,7 +638,7 @@ class IsdaCreateIsdaCsaIm2016NyLawProjectionMapperTest {
 	}
 
 	private <R extends RosettaModelObject> R ingest(Class<R> clazz, URL url) throws IOException {
-		var ingested = ingestionServiceEnglishLaw.ingestAndPostProcessJson(clazz, new InputStreamReader(url.openStream()));
+		var ingested = ingestionServiceEnglishLaw.ingestAndPostProcessJson(clazz, UrlUtils.openURL(url));
 		return ingested.getRosettaModelInstance();
 	}
 }

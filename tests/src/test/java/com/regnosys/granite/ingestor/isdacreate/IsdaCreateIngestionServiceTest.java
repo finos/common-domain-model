@@ -1,6 +1,6 @@
 package com.regnosys.granite.ingestor.isdacreate;
 
-import cdm.legalagreement.common.LegalAgreement;
+import cdm.legaldocumentation.common.LegalAgreement;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableList;
@@ -14,6 +14,7 @@ import com.regnosys.granite.ingestor.service.IngestionService;
 import com.regnosys.granite.ingestor.testing.Expectation;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.testing.MappingCoverage;
+import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.common.util.MutablePair;
 import com.regnosys.rosetta.common.util.Pair;
 import org.isda.cdm.CdmRuntimeModule;
@@ -115,9 +116,9 @@ public class IsdaCreateIngestionServiceTest extends IngestionTest<LegalAgreement
 	 * Builds an IsdaCreateSchema object from the file path of the expectations file
 	 */
 	private static IsdaCreateSchema schema(Expectation e) {
-		String[] parts = e.getFileName().split("/");
-		List<String> pathData = Lists.newArrayList(parts).subList(parts.length - 4, parts.length - 1);
-		return new IsdaCreateSchema(pathData.get(0), pathData.get(1), pathData.get(2));
+		List<Path> parts = Lists.newArrayList(ClassPathUtils.loadSingleFromClasspath(e.getFileName()).iterator());
+		List<Path> pathData = parts.subList(parts.size() - 4, parts.size() - 1);
+		return new IsdaCreateSchema(pathData.get(0).toString(), pathData.get(1).toString(), pathData.get(2).toString());
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package com.regnosys.granite.schemaimport;
 
 import com.google.common.collect.Lists;
+import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.rosetta.RosettaEnumValue;
 import com.regnosys.rosetta.rosetta.RosettaFactory;
 import com.regnosys.rosetta.rosetta.impl.RosettaFactoryImpl;
@@ -128,7 +129,7 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 		JAXBContext jaxbContext = JAXBContext.newInstance(CodeListDocument.class);
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		XMLStreamReader reader = inputFactory.createXMLStreamReader(codingSchemeUrl.openStream());
+		XMLStreamReader reader = inputFactory.createXMLStreamReader(UrlUtils.openURL(codingSchemeUrl));
 		JAXBElement<CodeListSetDocument> doc = unmarshaller.unmarshal(reader, CodeListSetDocument.class);
 		CodeListSetDocument schemeList = doc.getValue();
 
@@ -152,7 +153,7 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 		if (localUrl != null) {
 			CodeListDocument codeListDocument = readUrl(jaxbContext, inputFactory, localUrl);
 			if (codeListDocument != null) {
-				return Map.entry(codeListRef.getCanonicalVersionUri(), codeListDocument);
+				return Map.entry(codeListRef.getCanonicalUri(), codeListDocument);
 			}
 		} else {
 			LOGGER.warn("The resource: " + locationUri + " cannot be loaded");
@@ -177,7 +178,7 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 	private  CodeListDocument readUrl(JAXBContext jaxbContext, XMLInputFactory inputFactory, URL url) {
 		try {
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			XMLStreamReader reader = inputFactory.createXMLStreamReader(url.openStream());
+			XMLStreamReader reader = inputFactory.createXMLStreamReader(UrlUtils.openURL(url));
 			JAXBElement<CodeListDocument> codeListDocumentJAXBElement = unmarshaller.unmarshal(reader, CodeListDocument.class);
 			return codeListDocumentJAXBElement.getValue();
 		} catch (XMLStreamException | IOException | JAXBException e) {

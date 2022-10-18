@@ -1,7 +1,7 @@
 package cdm.product.asset.calculation.functions;
 
+import cdm.base.math.DatedValue;
 import cdm.base.math.NonNegativeQuantitySchedule;
-import cdm.base.math.Step;
 import cdm.base.math.UnitType;
 import cdm.observable.asset.Money;
 import cdm.product.asset.InterestRatePayout;
@@ -45,20 +45,20 @@ public class GetNotionalAmountTest extends AbstractFunctionTest {
                 .setAdjustedEndDate(Date.of(2022, 3, 10)).build();
 
         Money nineMillion = Money.builder()
-                .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-                .setAmount(BigDecimal.valueOf(9_000_000));
+                .setUnit(UnitType.builder().setCurrencyValue("USD"))
+                .setValue(BigDecimal.valueOf(9_000_000));
         Money tenMillion = Money.builder()
-                .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-                .setAmount(BigDecimal.valueOf(10_000_000));
+                .setUnit(UnitType.builder().setCurrencyValue("USD"))
+                .setValue(BigDecimal.valueOf(10_000_000));
         Money elevenMillion = Money.builder()
-                .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-                .setAmount(BigDecimal.valueOf(11_000_000));
+                .setUnit(UnitType.builder().setCurrencyValue("USD"))
+                .setValue(BigDecimal.valueOf(11_000_000));
         Money twelveMillion = Money.builder()
-                .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-                .setAmount(BigDecimal.valueOf(12_000_000));
+                .setUnit(UnitType.builder().setCurrencyValue("USD"))
+                .setValue(BigDecimal.valueOf(12_000_000));
         Money thirteenMillion = Money.builder()
-                .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-                .setAmount(BigDecimal.valueOf(13_000_000));
+                .setUnit(UnitType.builder().setCurrencyValue("USD"))
+                .setValue(BigDecimal.valueOf(13_000_000));
 
         assertEquals(thirteenMillion, func.evaluate(interestRatePayout, dec1));
         assertEquals(elevenMillion, func.evaluate(interestRatePayout, jun1));
@@ -70,20 +70,20 @@ public class GetNotionalAmountTest extends AbstractFunctionTest {
     public static ResolvablePriceQuantity initNotionalSchedule() {
         return ResolvablePriceQuantity.builder()
                 .setQuantityScheduleValue(NonNegativeQuantitySchedule.builder()
-                        .setAmount(BigDecimal.valueOf(9_000_000))
-                        .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-                        .addStep(Step.builder()
-                                .setStepDate(Date.of(2021, 3, 10))
-                                .setStepValue(BigDecimal.valueOf(10_000_000)))
-                        .addStep(Step.builder()
-                                .setStepDate(Date.of(2021, 6, 10))
-                                .setStepValue(BigDecimal.valueOf(11_000_000)))
-                        .addStep(Step.builder()
-                                .setStepDate(Date.of(2021, 9, 10))
-                                .setStepValue(BigDecimal.valueOf(12_000_000)))
-                        .addStep(Step.builder()
-                                .setStepDate(Date.of(2021, 12, 10))
-                                .setStepValue(BigDecimal.valueOf(13_000_000))))
+                        .setValue(BigDecimal.valueOf(9_000_000))
+                        .setUnit(UnitType.builder().setCurrencyValue("USD"))
+                        .addDatedValue(DatedValue.builder()
+                                .setDate(Date.of(2021, 3, 10))
+                                .setValue(BigDecimal.valueOf(10_000_000)))
+                        .addDatedValue(DatedValue.builder()
+                                .setDate(Date.of(2021, 6, 10))
+                                .setValue(BigDecimal.valueOf(11_000_000)))
+                        .addDatedValue(DatedValue.builder()
+                                .setDate(Date.of(2021, 9, 10))
+                                .setValue(BigDecimal.valueOf(12_000_000)))
+                        .addDatedValue(DatedValue.builder()
+                                .setDate(Date.of(2021, 12, 10))
+                                .setValue(BigDecimal.valueOf(13_000_000))))
                 .build();
 
     }

@@ -32,8 +32,8 @@ class FixedAmountTest extends AbstractFunctionTest {
         BigDecimal price = BigDecimal.valueOf(0.06);
 
         Money notional = Money.builder()
-                .setAmount(BigDecimal.valueOf(50_000_000))
-                .setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+                .setValue(BigDecimal.valueOf(50_000_000))
+                .setUnit(UnitType.builder().setCurrencyValue("USD"))
                 .build();
 
         InterestRatePayout interestRatePayout = InterestRatePayout.builder()
@@ -75,9 +75,9 @@ class FixedAmountTest extends AbstractFunctionTest {
                                 .build())
                         .build())
                 .setRateSpecification(RateSpecification.builder().setFixedRate(FixedRateSpecification.builder()
-                        .setRateSchedule(RateSchedule.builder().setPriceValue(PriceSchedule.builder().setAmount(price)))))
+                        .setRateSchedule(RateSchedule.builder().setPriceValue(PriceSchedule.builder().setValue(price)))))
                 .build();
 
-        assertThat(fixedAmount.evaluate(interestRatePayout, notional.getAmount(), Date.of(2018, 8, 22), null), is(new BigDecimal("750000.0000")));
+        assertThat(fixedAmount.evaluate(interestRatePayout, notional.getValue(), Date.of(2018, 8, 22), null), is(new BigDecimal("750000.0000")));
     }
 }

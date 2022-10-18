@@ -39,8 +39,8 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		PriceQuantity.PriceQuantityBuilder priceQuantityBuilder = (PriceQuantity.PriceQuantityBuilder) parent;
 		List<FieldWithMetaPriceScheduleBuilder> priceBuilders = emptyIfNull((List<FieldWithMetaPriceScheduleBuilder>) builders);
-		UnitTypeBuilder unitOfAmount = getUnitOfAmount(priceBuilders);
-		UnitTypeBuilder perUnitOfAmount = getPerUnitOfAmount(priceBuilders);
+		UnitTypeBuilder unitOfAmount = getUnit(priceBuilders);
+		UnitTypeBuilder perUnitOfAmount = getPerUnitOf(priceBuilders);
 
 		AtomicInteger priceIndex = new AtomicInteger(priceBuilders.size());
 
@@ -74,15 +74,15 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 		});
 	}
 
-	private UnitTypeBuilder getUnitOfAmount(List<FieldWithMetaPriceScheduleBuilder> priceBuilders) {
+	private UnitTypeBuilder getUnit(List<FieldWithMetaPriceScheduleBuilder> priceBuilders) {
 		return getExchangeRatePrice(priceBuilders)
-				.map(p -> p.getUnitOfAmount())
+				.map(p -> p.getUnit())
 				.orElse(null);
 	}
 
-	private UnitTypeBuilder getPerUnitOfAmount(List<FieldWithMetaPriceScheduleBuilder> priceBuilders) {
+	private UnitTypeBuilder getPerUnitOf(List<FieldWithMetaPriceScheduleBuilder> priceBuilders) {
 		return getExchangeRatePrice(priceBuilders)
-				.map(p -> p.getPerUnitOfAmount())
+				.map(p -> p.getPerUnitOf())
 				.orElse(null);
 	}
 

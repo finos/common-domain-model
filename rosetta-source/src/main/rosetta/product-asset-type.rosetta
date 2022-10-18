@@ -22,7 +22,7 @@ import cdm.mapping.config.*
 
 type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of a referenced underlier. (e.g. Commodities). Can represent both average (average of many) & bullet (average of 1) pricing">
 	[metadata key]
-	averagingMethod AveragingMethodEnum (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted.">
+	averagingFeature AveragingCalculation (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted.">
 	commodityPriceReturnTerms CommodityPriceReturnTerms (0..1) <"Defines parameters in which the commodity price is assessed.">
 	pricingDates PricingDates (1..1) <"Specifies specific dates or parametric rules for the dates on which the price will be determined.">
     schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
@@ -34,6 +34,9 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
 	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
 		priceQuantity exists
 
+    condition CalculationPeriod: <"The calculation periods are either specified parametrically via CalculationPeriodDates or non-parametrically via SchedulePeriod.">
+		required choice schedule, calculationPeriodDates
+
 type CreditDefaultPayout extends PayoutBase: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated globalKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 
@@ -43,7 +46,7 @@ type CreditDefaultPayout extends PayoutBase: <" The credit default payout specif
 
 	condition FpML_cd_12: <"FpML validation rule cd-12 - If referencePrice exists, referencePrice must be greater or equal to 0">
 		if generalTerms -> referenceInformation -> referencePrice exists
-		then generalTerms -> referenceInformation -> referencePrice -> amount >= 0
+		then generalTerms -> referenceInformation -> referencePrice -> value >= 0
 	
 	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
 		priceQuantity exists
@@ -127,7 +130,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 	condition CashSettlementTerms: <"Cash Settlements Terms must exist when the settlement currency is different to the notional currency of the trade.">
 		if settlementTerms -> settlementCurrency exists and
-			(settlementTerms -> settlementCurrency <> priceQuantity -> quantitySchedule -> unitOfAmount -> currency
+			(settlementTerms -> settlementCurrency <> priceQuantity -> quantitySchedule -> unit -> currency
 			or settlementTerms -> settlementCurrency <> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
 		then (settlementTerms -> cashSettlementTerms -> valuationMethod exists and settlementTerms -> cashSettlementTerms -> valuationDate exists)
 		    or priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
@@ -464,7 +467,7 @@ type VarianceReturnTerms extends ReturnTermsBase:
 	exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
 
 	condition Positive_VegaNotionalAmount: <"When the optional vegaNotionalAmount is present in the varianceReturnTerms, it needs to have a positive value.">
-		if vegaNotionalAmount -> amount exists then vegaNotionalAmount -> amount > 0
+		if vegaNotionalAmount -> value exists then vegaNotionalAmount -> value > 0
 
 	condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
 		if exchangeTradedContractNearest exists
@@ -477,8 +480,8 @@ type VarianceReturnTerms extends ReturnTermsBase:
 		required choice volatilityStrikePrice, varianceStrikePrice
 
 	condition NonNegativeStrikePrice: <"The strike price must have a positive value">
-		if volatilityStrikePrice -> amount  exists then volatilityStrikePrice -> amount >= 0 and
-		if varianceStrikePrice -> amount exists then varianceStrikePrice -> amount >= 0
+		if volatilityStrikePrice -> value  exists then volatilityStrikePrice -> value >= 0 and
+		if varianceStrikePrice -> value exists then varianceStrikePrice -> value >= 0
 
 type VolatilityReturnTerms extends ReturnTermsBase:
 
@@ -501,7 +504,7 @@ type CorrelationReturnTerms extends ReturnTermsBase:
 		if numberOfDataSeries exists then numberOfDataSeries > 0
 
 	condition CorrelationValue: <"The correlation strike price is a decimal with allowed values only between 1 and -1">
-		correlationStrikePrice -> amount > -1 and correlationStrikePrice -> amount > 1
+		correlationStrikePrice -> value > -1 and correlationStrikePrice -> value > 1
 
 type Valuation:
 	futuresPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions.">
@@ -645,7 +648,7 @@ type FloatingRateSpecification extends FloatingRate: <"A class to specify the fl
 
 	initialRate Price (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
 	finalRateRounding Rounding (0..1) <"The rounding convention to apply to the final rate used in determination of a calculation period amount.">
-	averagingMethod AveragingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
+	averagingMethod AveragingWeightingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
 	negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
 
 type FixedRateSpecification: <"Type defining the specification for a fixed rate.">

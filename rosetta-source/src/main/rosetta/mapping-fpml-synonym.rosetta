@@ -21,10 +21,10 @@ import cdm.product.template.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 
-import cdm.legalagreement.csa.*
-import cdm.legalagreement.contract.*
-import cdm.legalagreement.common.*
-import cdm.legalagreement.master.*
+import cdm.legaldocumentation.csa.*
+import cdm.legaldocumentation.contract.*
+import cdm.legaldocumentation.common.*
+import cdm.legaldocumentation.master.*
 
 import cdm.event.common.*
 import cdm.event.workflow.*
@@ -40,6 +40,11 @@ synonym source FpML_5_10 extends FpML
 			[hint "floatingLeg"]
 		+ priceQuantity
 			[value "vegaNotional" set when path = "fxVolatilitySwap"]
+			// For Equity Swap
+			[value "rateOfReturn"]
+			[value "underlyer" set when path = "dividendLeg"]
+			[value "notional"] // when monetary amount
+			[hint "notional"] // for FX Variance Swap
 		+ paymentDates
 			[value "paymentDates" path "rateOfReturn"]
 		+ underlier
@@ -460,8 +465,6 @@ synonym source FpML_5_10 extends FpML
 	FloatingRateSpecification:
 		+ finalRateRounding
 			[value "finalRateRounding"]
-		+ averagingMethod
-			[value "averagingMethod"]
 		+ negativeInterestRateTreatment
 			[value "negativeInterestRateTreatment"]
 
@@ -689,6 +692,7 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity
 			[value "notionalQuantity"]
 			[value "totalNotionalQuantity" mapper "TotalNotionalQuantity"]
+			[value "notionalQuantitySchedule"] // Commodity Option
 			// For Options
 			[value "numberOfOptions" mapper "NumberOfOptions"] // handles optionEntitlement
 		+ observable
@@ -727,7 +731,7 @@ synonym source FpML_5_10 extends FpML
 			[value "ignore"] // Do not map, until a canonical representation of effective date is built in the CDM and existing effective date attributes can be re-directed here
 
 	PriceSchedule:
-		+ amount
+		+ value
 			[value "initialRate" mapper "PriceUnitType"]
 			[value "initialValue" mapper "PriceUnitType"]
 			[value "rate" maps 2 mapper "PriceUnitType"]
@@ -745,20 +749,20 @@ synonym source FpML_5_10 extends FpML
 			[value "volatilityStrikePrice" mapper "PriceUnitType"]
 			[value "correlationStrikePrice" mapper "PriceUnitType"]
 			[value "fixedStrike" mapper "PriceUnitType"]
-		+ unitOfAmount
+		+ unit
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
 			[value "quotedCurrencyPair"]
 			[value "settlementAmount" path "nearLeg"]
 			// For Commodity Swap Fixed Leg
 			[hint "priceCurrency"]
-		+ perUnitOfAmount
+		+ perUnitOf
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
 			[value "quotedCurrencyPair"]
 			[value "settlementAmount" path "nearLeg"]
 			[value "amount"]
 			// For Commodity Swap Fixed Leg
 			[hint "priceUnit"]
-		+ step
+		+ datedValue
 			[value "step"]
 
 	PriceExpression:
@@ -1167,6 +1171,7 @@ synonym source FpML_5_10 extends FpML
 		+ averagingFeature
 			[value "asian"]
 			[value "fixingSchedule"]
+			[hint "averagingMethod"]
 		+ barrier
 			[value "barrier"]
 		+ knock
@@ -1427,7 +1432,7 @@ synonym source FpML_5_10 extends FpML
 	SettlementDate:
 		[meta "id" path "settlementDate"]
 		[meta "id" path "cashSettlementPaymentDate"]
-		+ adjustedDate
+		+ adjustableOrRelativeDate
 			[hint "relativeDate"]
 			[value "settlementDate"]
 			[value "relativePaymentDates"]
@@ -1796,8 +1801,12 @@ synonym source FpML_5_10 extends FpML
 			[set to SecurityTypeEnum -> Debt when "mortgage" exists]
 			[set to SecurityTypeEnum -> Equity when "equity" exists]
 
+	MeasureSchedule:
+		+ datedValue
+			[value "ignore"]
+
 	QuantitySchedule:
-		+ amount
+		+ value
 			[value "initialValue" maps 2]
 			[value "amount" maps 2]
 			[value "openUnits" maps 2]
@@ -1810,7 +1819,7 @@ synonym source FpML_5_10 extends FpML
 			[value "amount" path "notionalAmount"]
 			[value "vegaNotionalAmount" mapper "VegaNotionalAmount"]
 			[value "amount" path "vegaNotional" mapper "VegaNotionalAmount"]
-		+ unitOfAmount
+		+ unit
 			[value "singleUnderlyer"]
 			[value "basket"]
 			[value "basketPercentage"]
@@ -1819,18 +1828,26 @@ synonym source FpML_5_10 extends FpML
 			[value "fixedAmount"]
 			[value "varianceAmount"]
 			[value "notionalAmount"]
+			[value "notionalStep"]
 		+ multiplier
-			[value "optionEntitlement"]
-		+ multiplierUnit
-			[hint "quantityFrequency"] // To be removed
+			[hint "optionEntitlement"]
 			[hint "entitlementCurrency"]
 		+ frequency
 			[value "Frequency"]
 			// For Commodity Swap Fixed Leg
 			[hint "quantityFrequency"]
-		+ step
+			[value "notionalStep"]
+		+ datedValue
 			[value "step"]
 			[value "notionalStep"]
+
+	Measure:
+	// Only used to map quantity multiplier
+	// TBD: merge Measure, PriceSchedule and QuantitySchedule synonyms into a single "MeasureBase"
+		+ value
+			[value "optionEntitlement"]
+		+ unit
+			[hint "entitlementCurrency"]
 
 	FixedPrice:
 		+ price
@@ -1850,17 +1867,18 @@ synonym source FpML_5_10 extends FpML
 			[value "precision"]
 
 	Schedule:
-		+ initialValue
+		+ value
 			[value "initialValue" set when "step" exists]
-		+ step
+		+ datedValue
 			[value "step"]
 
-	Step:
+	DatedValue:
 	 	[value "Step" meta "id"]
-		+ stepDate
+		+ date
 			[value "stepDate" maps 2]
-		+ stepValue
+		+ value
 			[value "stepValue" maps 2]
+			[value "quantity"]
 
 	AdditionalDisruptionEvents:
 		+ changeInLaw
@@ -2131,11 +2149,12 @@ synonym source FpML_5_10 extends FpML
 			[hint "fixedRate"]
 
 	ResolvablePriceQuantity:
+		[meta "id"]
 		[meta "id" path "notionalSchedule"]
 		[meta "id" path "notionalSchedule->notionalStepSchedule"]
-		[meta "id" path "notional"]
-		[meta "id" path "notional->notionalAmount"]
+		[meta "id" path "notionalAmount"]
 		[meta "id" path "calculationAmount"]
+		[meta "id" path "protectionTerms->calculationAmount"]
 		+ resolvedQuantity
 			[value "ignore"]
 		+ quantityReference
@@ -2147,16 +2166,16 @@ synonym source FpML_5_10 extends FpML
 			// Swap Stream
 			[value "notionalStepSchedule" path "notionalSchedule" meta "initialValue"]
 			[meta "initialValue"]
-			// FRA
+			// FRA and FX Variance Swap
 			[value "notional" meta "amount"]
 			// Equity Swap - Only mapping the notional amount in the payout, not the no. shares
 			[value "notionalAmount" meta "amount"]
-			[value "notionalAmount" path "notional" meta "amount"]
-			[value "relativeNotionalAmount" path "notional" meta "href" mapper "RelativeNotionalAmount"]
-            // Div Swaps
+			[value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
+            		// Div Swaps
 			[value "singleUnderlyer" meta "openUnits"]
 			// Credit
 			[value "calculationAmount" meta "amount"]
+			[value "calculationAmount" path "protectionTerms" meta "amount"]
 			// Repo
 			[value "settlementAmount" meta "amount"]
 			// FX
@@ -2274,6 +2293,14 @@ synonym source FpML_5_10 extends FpML
 			// For Repo:
 			[hint "fixedRateSchedule"]
 			[hint "floatingRateCalculation"]
+		+ priceQuantity
+			// For Swap Stream:
+			[value "calculation" path "calculationPeriodAmount"]
+			[value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
+            		// For FRAs:
+			[hint "notional"]
+			// For the interest leg of Equity Swap:
+			[value "notional"]
 
 	OptionExercise:
 		+ strike
@@ -2296,6 +2323,7 @@ synonym source FpML_5_10 extends FpML
 		+ feature
 			[value "feature"]
 			[value "features"]
+			[hint "averagingMethod"]
 		+ underlier
 			[value "singleUnderlyer" path "underlyer"]
 			[value "basket" path "underlyer"]
@@ -2312,6 +2340,8 @@ synonym source FpML_5_10 extends FpML
 			[hint "pricingDates"]
 			[hint "calculationPeriodsSchedule"]
 			[value "equityValuation" path "equityExercise"]
+		+ schedule
+			[value "schedule"]
 
 	SecurityLeg:
 		[meta "id"]
@@ -2327,8 +2357,6 @@ synonym source FpML_5_10 extends FpML
 			[value "deliveryMethod"]
 
 	CommodityPayout:
-		+ averagingMethod
-			[value "averagingMethod" path "calculation"]
 		+ pricingDates
 			[value "pricingDates" path "calculation"]
 		+ underlier
@@ -2434,23 +2462,17 @@ synonym source FpML_5_10 extends FpML
 			[hint "buyerPartyReference"]
 			[hint "sellerPartyReference"]
 		+ priceQuantity
-			// For Swap Stream:
-			[value "calculation" path "calculationPeriodAmount"]
-			[value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
-            // For FRAs and Equity Swap:
-			[hint "notional"]
+			// For Swap Stream and FRA: moved to InterestRatePayout
 			// For Options:
 			[hint "numberOfOptions"]
 			// For Bond Option:
 			[hint "notionalAmount"]
 			// For Credit:
 			[value "fixedAmountCalculation" path "periodicPayment"]
-			[value "protectionTerms"]
+			[hint "protectionTerms"]
 			[hint "notionalReference"]
 			[value "floatingAmountCalculation" path "periodicPayment"]
-			// For Equity Swap:
-			[value "rateOfReturn"]
-			[value "underlyer" set when path = "dividendLeg"]
+			// For Equity Swap: moved to PerformancePayout
 			// For FX:
 			[hint "exchangedCurrency1"]
 			[hint "exchangedCurrency2"]
@@ -2656,7 +2678,6 @@ synonym source FpML_5_10 extends FpML
 			[merge "commodity"]
 			[hint "notionalQuantity"] // Commodity Option
 			[value "commodityOption"]
-			[value "commoditySwaption"]
 			[hint "numberOfOptions", "optionEntitlement", "entitlementCurrency"] // For Equity / Bond Option
 		+ lotIdentifier
 			[value "ignore"]
@@ -2693,8 +2714,8 @@ synonym source FpML_5_10 extends FpML
 			[hint "fxVolatilitySwap"]
 			// Other
 			[value "commoditySwap"]
-			[hint "commoditySwap"]
 			[hint "commodityOption"]
+			[value "commoditySwap" path "commoditySwaption"]
 			[hint "repo"]
 		+ adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
@@ -2855,6 +2876,8 @@ synonym source FpML_5_10 extends FpML
 		+ relativeDate
 			[value "relativeDate"]
 			[value "relativeDate" path "paymentDate"]
+			[value "paymentDaysOffset"]
+			[hint "businessCenters"]
 
 	AdjustableOrRelativeDate:
 		[meta "id"]
@@ -2912,9 +2935,9 @@ synonym source FpML_5_10 extends FpML
 			[value "businessDayConvention" maps 2]
 
 	DateRange:
-		+ unadjustedFirstDate
+		+ startDate
 			[value "unadjustedFirstDate"]
-		+ unadjustedLastDate
+		+ endDate
 			[value "unadjustedLastDate"]
 
 	DateList:
@@ -3671,7 +3694,7 @@ synonym source FpML_5_10 extends FpML
 		+ capacityUnit
 			[value "quantityUnit" maps 2]
 			// For Commodity Swap Fixed Leg
-			[value "priceUnit" maps 2 set when rosettaPath = PriceSchedule->perUnitOfAmount]
+			[value "priceUnit" maps 2 set when rosettaPath = PriceSchedule->perUnitOf]
 		+ weatherUnit
 			[value "quantityUnit"]
 			// For Commodity Swap Fixed Leg
@@ -3686,16 +3709,35 @@ synonym source FpML_5_10 extends FpML
 		+ currency
 			[value "currency" maps 2 meta "currencyScheme"]
 			[value "varyingNotionalCurrency" maps 2 meta "currencyScheme"]
-			[value "currency1" maps 2 set when "quoteBasis" = "Currency1PerCurrency2" and rosettaPath = Price->unitOfAmount->currency]
-			[value "currency2" maps 2 set when "quoteBasis" = "Currency1PerCurrency2" and rosettaPath = Price->perUnitOfAmount->currency]
-			[value "currency2" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->unitOfAmount->currency]
-			[value "currency1" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->perUnitOfAmount->currency]
+			[value "currency1" maps 2 set when "quoteBasis" = "Currency1PerCurrency2" and rosettaPath = Price->unit->currency]
+			[value "currency2" maps 2 set when "quoteBasis" = "Currency1PerCurrency2" and rosettaPath = Price->perUnitOf->currency]
+			[value "currency2" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->unit->currency]
+			[value "currency1" maps 2 set when "quoteBasis" = "Currency2PerCurrency1" and rosettaPath = Price->perUnitOf->currency]
 			// For Commodity Swap Fixed Leg
-			[value "priceCurrency" maps 2 set when rosettaPath = Price->unitOfAmount->currency]
+			[value "priceCurrency" maps 2 set when rosettaPath = Price->unit->currency]
 			// For Bond Option
 			[value "entitlementCurrency" maps 2 meta "currencyScheme"]
-	
+
+	AveragingCalculationMethod:
+		+ calculationMethod
+			[value "averagingMethod" path "calculation"]
+		+ isWeighted
+			[set to False when "calculation->averagingMethod" = "Unweighted"]
+			[set to False when "calculation->averagingMethod" = "Arithmetic"]
+			[set to False when "calculation->averagingMethod" = "Geometric"]
+			[set to False when "calculation->averagingMethod" = "Harmonic"]
+			[set to True when "calculation->averagingMethod" = "Weighted"]
+
 	enums
+
+	AveragingWeightingMethodEnum:
+		+ Unweighted
+			[value "Unweighted"]
+			[value "Arithmetic"]
+			[value "Geometric"]
+			[value "Harmonic"]
+		+ Weighted
+			[value "Weighted"]
 
 	ExpirationTimeTypeEnum:
 		+ Close
@@ -7940,11 +7982,15 @@ synonym source FpML_5_10 extends FpML
 		+ TBILL
 			[value "TBILL"]
 
-	AveragingMethodEnum:
-		+ Unweighted
+	AveragingCalculationMethodEnum:
+		+ Arithmetic
 			[value "Unweighted"]
-		+ Weighted
 			[value "Weighted"]
+			[value "Arithmetic"]
+		+ Geometric
+			[value "Geometric"]
+		+ Harmonic
+			[value "Harmonic"]
 
 	RoundingDirectionEnum:
 		+ Up
@@ -8376,12 +8422,6 @@ synonym source FpML_5_10 extends FpML
 		[value "ValuePerDay"]
 		+ ValuePerPercent
 		[value "ValuePerPercent"]
-
-	AveragingMethodEnum:
-		+ Unweighted
-			[value "Unweighted"]
-		+ Weighted
-			[value "Weighted"]
 
 	DayDistributionEnum:
 		+ All

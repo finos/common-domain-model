@@ -16,7 +16,7 @@ import org.isda.cdm.processor.CdmReferenceConfig;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class ResourcesUtils {
 
 	public static String getJson(String resourceName) throws IOException {
 		URL url = Resources.getResource(resourceName);
-		String json = Resources.toString(url, Charset.defaultCharset());
+		String json = Resources.toString(url, StandardCharsets.UTF_8);
 		return json;
 	}
 

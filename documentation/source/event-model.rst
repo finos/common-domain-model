@@ -161,7 +161,7 @@ In addition to the observation value, a reset specifies the date from which the 
    rateRecordDate date (0..1)
    observations Observation (1..*)
      [metadata reference]
-   aggregationMethodology AggregationMethod (0..1)
+   averagingMethodology AveragingCalculation (0..1)
 
 .. code-block:: Haskell
 
@@ -324,7 +324,7 @@ The split function iterates on each element of the breakdown and applies the cor
    
    add splitTrade:
      breakdown
-       map [ Create_TradeState( item, originalTrade ) ]
+       extract [ Create_TradeState( item, originalTrade ) ]
 			
 Examples of how primitive operators work are illustrated below.
 
