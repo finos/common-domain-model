@@ -1,6 +1,6 @@
 package cdm.observable.event.processor;
 
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.observable.event.CreditEventNotice;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;

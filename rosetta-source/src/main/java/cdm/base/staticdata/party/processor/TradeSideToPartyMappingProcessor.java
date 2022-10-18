@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static cdm.legalagreement.contract.processor.PartyMappingHelper.PRODUCT_SUB_PATH;
+import static cdm.legaldocumentation.contract.processor.PartyMappingHelper.PRODUCT_SUB_PATH;
 
 /**
  * TradeSide.id to TradeSide.orderer.party.id CME Submission mapping processor.
