@@ -7,8 +7,6 @@ import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
 
-import cdm.event.workflow.*
-
 import cdm.legaldocumentation.csa.*
 
 import cdm.observable.event.*
@@ -539,7 +537,7 @@ type ExtendibleProvision extends BuyerSeller: <"A data defining:  an option to e
 
 	singlePartyOption PartyRole (0..1) <"If the ability to extend the contract is not available to both parties then this component specifies the buyer and seller of the option.">
 	noticeDeadlinePeriod RelativeDateOffset (0..1) <"Defines the minimum period before a contract is scheduled to terminate that notice can be given that it will terminate beyond the scheduled termination date.">
-	noticeDeadlineDateTime EventTimestamp (0..1) <"A specific date and time for the notice deadline">
+	noticeDeadlineDateTime zonedDateTime (0..1) <"A specific date and time for the notice deadline">
 	extensionTerm RelativeDateOffset (0..1) <"The length of each extension period relative to the effective date of the preceding contract.">
     extensionPeriod AdjustableRelativeOrPeriodicDates (0..1) <"The period within which notice can be given that the contract will be extended.">
 
@@ -856,6 +854,8 @@ type SecurityFinancePayout extends PayoutBase: <"Security payout specification i
     [metadata key]
     securityFinanceLeg SecurityFinanceLeg (1..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
     securityInformation Product (1..1) <"Specifies the reference asset.  This is The base type which all products extend (similar to FpML model). Within SecurityPayout we include a condition which validates that the product must be a Security (see below condition 'ProductMustBeSecurity').">
+    durationType Duration (1..1) <"Specifies the Duration Terms of the Security Finance transaction. e.g. Open or Term.">
+	[deprecated]
     minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
     dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
     collateralProvisions CollateralProvisions (1..1) <"Specifies collateral provisions for a Security Finance transaction, including Collateral Type and Margin Percentage.">
@@ -881,10 +881,15 @@ type SecurityFinanceLeg: <"Defines each security movement of a security financin
     settlementDate AdjustableOrRelativeDate (1..1) <"Settlement date of the security movement.">
     deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security movement.">
 
+type Duration: <"Specifies the Duration Terms of the Security Financing Transaction, and optionally any Evergreen terms.">
+    [deprecated]
+    durationType DurationTypeEnum (1..1) <"Specifies the Duration Terms of the Security Financing transaction. e.g. Open or Term.">
+    evergreenProvision EvergreenProvision (0..1) <"A data defining: the right of a party to exercise an Evergreen option">
+    
 type EvergreenProvision: <"Specifies a transaction which automatically extends for a specified timeframe until the exercise of an embedded option.">
 	singlePartyOption PartyRole (0..1) <"If evergreen termination is not available to both parties then this component specifies the buyer and seller of the option.">
 	noticePeriod RelativeDateOffset (1..1) <"The length of each evergreen extension period relative to the effective date of the preceding contract.">
 	noticeDeadlinePeriod RelativeDateOffset (0..1) <"Defines the minimum period before an evergreen is scheduled to terminate that notice can be given that it will terminate beyond the scheduled termination date.">
-	noticeDeadlineDateTime EventTimestamp (0..1) <"A specific date and time for the notice deadline">
+	noticeDeadlineDateTime zonedDateTime (0..1) <"A specific date and time for the notice deadline">
     extensionFrequency AdjustableRelativeOrPeriodicDates (1..1) <"The frequency with which the evergreen contract will be extended if notice is not given.">
     finalPeriodFeeAdjustment Price (0..1) <"An optional adjustment to the rate for the last period of the evergreen i.e. the period from when notice is given to stop rolling the contract through to the termination date.">
