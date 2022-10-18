@@ -4,8 +4,6 @@ _What is being released?_
 
 Following feedback from members, the release contains a change to the DSL keyword used to process list items.  The keyword `map` has been replaced with the keyword `extract`.  For backwards compatibility, the `map` keyword is still allowed for a limited time.
 
-The following syntax and examples show expressions that contain a default list parameter, `item`.  There are further examples in the Appendix that use a named list parameter.  
-
 _Syntax_
 
 _Before_
