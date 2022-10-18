@@ -1,4 +1,4 @@
-# *DSL Syntax: List `extract` Keyword to replace `map`
+# *DSL Syntax: List `extract` Keyword to replace `map`*
 
 _What is being released?_
 
