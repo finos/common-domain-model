@@ -18,6 +18,7 @@ import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.common.settlement.DeliveryMethodEnum;
 import cdm.product.template.CollateralTypeEnum;
+import cdm.product.template.DurationTypeEnum;
 import cdm.product.template.EconomicTerms.EconomicTermsBuilder;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradableProduct.TradableProductBuilder;
@@ -93,6 +94,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 		getIRP(tradeState).getValue().getOrCreatePaymentDates().getOrCreatePaymentFrequency().setPeriodMultiplier(1);
 
 		//sec lending payout
+		getSecPO(tradeState).getValue().getOrCreateDurationType().setDurationType(DurationTypeEnum.OPEN);
 		getSecPO(tradeState).getValue().getOrCreateSecurityInformation().getOrCreateSecurity().setSecurityType(SecurityTypeEnum.EQUITY);
 
 		getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setPayer(CounterpartyRoleEnum.PARTY_1);
