@@ -1,55 +1,54 @@
-# _Event Model - Representation of Credit Events and Corporate Actions_
+# _Product Model - Enhancements for Representation of Termination Provisions_
 
 _Background_
 
-The representation of credit events and corporate actions and the corresponding functional elements have been introduced in the model. Both types of events are represented as components of an `ObservationEvent`. The later can be recorded in the new `observationHistory` of a `TradeState` by using the new primitive instruction `ObservationInstruction`.
-
-The representation of credit events and corporate actions does not include information about the impact of the event on a particular trade. The focus of this change is  only to document the generic information published by the Determinations Committee on the occurence of a credit event or the basic information describing the ocurrence of a corporate action events.
+The CDM represents termination provisions such as optional or mandatory termination, extendible and cancellable provisions. Security finance transactions can have specific termination features such as open, extendible or evergreen. Those features have been introduced in the payout details  using the existing termination provisions.
 
 _What is being released?_
 
-- Model coverage for the determination of credit events.
-- Model coverage for the ocurrence of corporate actions.
-- Qualification functions for the determination of a credit event and corporate actions.
-- Creation functions for credit events and corporate actions.
+This release positions a new dedicated termination provision component, applicable across asset classes, inside the product's economic terms. This component assembles the existing termination provisions (early termination, extendible and cancellable) plus the evergreen provisions into a single data type.
+
+In turn, the evergreen provisions and the associated duration components have become redundant and have been removed from the security finance payout. 
 
 _Data types_
 
-- Added new `ObservationInstruction` type.
-- Added new `ObservationEvent` type.
-- Added new `CreditEvent` type.
-- Added new `CorporateAction` type.
-- `observationHistory` attribute of type `ObservableEvent` added to `TradeState`.
-- `observation` attribute of type `ObservationInstruction` added to `PrimitiveInstruction`.
-- Type of `excludedReferenceEntity` in `IndexReference information` changed to `ReferenceInformation`.
+- Modified `EvergreenProvision` type:
 
-_Enumerations_
+  - Removed all its existing attributes
+  - Added `singlePartyOption`, `noticePeriod`, `noticeDeadlinePeriod`, `noticeDeadlineDateTime`, `extensionFrequency` and `finalPeriodFeeAdjustment` attributes
 
-- Added new `CreditEventTypeEnum` enumeration.
-- Updated `EventIntentEnum` to support credit events.
-- Updated `CorporateActionTypeEnum` with more values and documentation.
-- Updated `FeeTypeEnum` enumeration to support credit events and corporate actions.
+- Modified `ExtendibleProvision` type:
 
+  - Added `singlePartyOption`, `noticeDeadlinePeriod` and `noticeDeadlineDateTime` attributes (same as in `EvergreenProvision`)
+  - Added `extensionTerm` and `extensionPeriod` attributes
+  - Marked `followUpConfirmation` attribute as optional
 
-_Functions_
+- Added new `TerminationProvision` type:
 
-- Added new `Create_Observation` function.
-- Updated `Create_TradeState`function to support `observation`.
-- Updated `Create_PrimitiveInstruction` function to support `observation`.
-- Updated function `Create_StockSplit` to work with the introduced changes.
+  - Included `cancellableProvision`, `earlyTerminationProvision` and `extendibleProvision` attributes in that data type
+  - Added `evergreenProvision` attribute in that data type
 
-_Qualification_
+- Modified `EconomicTerms` type:
 
-- Added new `Qualify_CreditEventDetermined` function.
-- Added new `Qualify_CorporateActionDetermined` function.
+  - Added `terminationProvision` attribute
+  - Removed `cancellableProvision`, `earlyTerminationProvision` and `extendibleProvision` attributes (now encapsulated into `terminationProvision`)
+  - Added `SecurityFinancePayoutDividendTermsValidation` condition (to enforce that a transaction with dividend terms specified must be a term trade)
+  - Added `ExtendibleProvisionExerciseDetails` condition (to enforce that the appropriate exercise type is associated with each termination provision)
+
+- Removed `Duration` type (just marked as deprecated, for backward compatibility reasons), which previously contained `evergreenProvision`
+- Modified `SecurityFinancePayout` type:
+
+  - Marked `duration` attribute as deprecated (its underlying `evergreenProvision` attribute is now encapsulated in `terminationProvision`)
+  - Removed `DividendTermsValidation` condition (condition now positioned in `EconomicTerms`)
+
+- Modified `TradableProduct` type, so that paths used in conditions use the new `terminationProvision` attribute
 
 _Review Directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above. 
 
-In the CDM Portal, select the Instance Viewer, and review examples:
+In the CDM Portal, select the Ingestion Panel and review the following examples:
 
-* Credit Event Business Event > Credit Event
-* Credit Event Business Event > Credit Event With Observation History
-* Corporate Actions Business Event > Corporate Actions
-* Corporate Actions Business Event > Corporate Actions With Observation History
+- products > equity > `eqs-ex09-compounding-swap`
+- products > rates > `ird-ex16-mand-term-swap`
+- products > repo > `repo-ex02-repo-open-fixed-rate`
