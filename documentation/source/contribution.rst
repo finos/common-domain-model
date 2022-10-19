@@ -24,6 +24,50 @@ A proposal can be defined at a conceptual level or a logical level (i.e. in code
 
 Once approved, the amendment will be scheduled to be merged with the CDM's main code branch by the CDM Maintainers.
 
+.. _versioning:
+
+Version Management
+------------------
+
+The CDM is developed, built and released using standard software source-control management. Each new released version is announced to users via a *release note* that describes the change introduced by that new version. The CDM release history is available in the `Release Section <../releases/all.html>`_ of the CDM documentation.
+
+Semantic Versioning
+^^^^^^^^^^^^^^^^^^^
+
+The CDM is released using the semantic versioning 2.0 system - See `SemVer 2.0.0 <https://semver.org/spec/v2.0.0.html>`_. At high-level, the format of a version number is MAJOR.MINOR.PATCH (e.g. ``1.23.456``), where:
+
+* MAJOR (``1``) version may introduce backward-incompatible changes and will be used as high level release name (e.g. ``ISDA CDM Version 1``).
+* MINOR (``23``) version change may introduce new features but in a backward-compatible way, for example supporting a new type of event or function.
+* PATCH (``456``) version is for backward-compatible bug fixes, for example fixing the logic of a condition.
+
+In addition, pre-release versions of a major release will be denoted with a DEV tag as follows:
+
+* MAJOR.0.0-DEV.X (e.g. ``1.0.0-DEV.789``), where X gets incremented with each new pre-release version until it becomes the MAJOR.0.0 release.
+
+The minor, patch and pre-release numbers may sometimes increment by more than one unit. This is because release candidates may be created but not immediately released. Subsequently, a version associated with the next incremental unit may be released that includes the changes from the earlier release candidate. Unless under exceptional circumstances, the major number will be incremented by one unit only.
+
+Backward Compatibility
+^^^^^^^^^^^^^^^^^^^^^^
+
+Like other types of software, *backwards compatibility* in the context of a domain model means that an implementor of that model would not have to make any change to update to such version.
+
+* Prohibited changes:
+
+  * Change to the structure (e.g. the attributes of a data type or the inputs of a function) or removal of any model element
+  * Change to the name of any model element (e.g., types, attributes, enums, functions or reporting rules)
+  * Change to any condition or cardinality constraint that makes validation more restrictive
+  * Change to the DSL that results in any existing expression becoming invalid
+  * Change to the DSL that results in change to any of the generated code's public interfaces
+
+* Allowed changes:
+
+  * Change that relax conditions or cardinality constraints
+  * Changes to synonym that improve mapping coverage
+  * Addition of new examples or test packs
+  * Addition of new data types, attributes, enumerations, rules or functions?
+
+Exceptions on backwards compatibility may be granted for emergency bug fixes following decision from the relevant governance body.
+
 .. _design-principles:
 
 Design Principles
