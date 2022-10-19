@@ -1,8 +1,8 @@
-# _Product Model - Enhancements for Representations of Termination Provisions_
+# _Product Model - Enhancements for Representation of Termination Provisions_
 
 _Background_
 
-The CDM represent termination provisions such as optional or mandatory termination, extendible and cancellable provisions. Security finance transactions can have specific termination features such as open, extendible or evergreen. Those features have been introduced in the payout details  using the existing termination provisions.
+The CDM represents termination provisions such as optional or mandatory termination, extendible and cancellable provisions. Security finance transactions can have specific termination features such as open, extendible or evergreen. Those features have been introduced in the payout details  using the existing termination provisions.
 
 _What is being released?_
 
