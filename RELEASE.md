@@ -1,4 +1,4 @@
-# _Product Model - Representation of Termination Provisions_
+# _Product Model - Enhancements for Representations of Termination Provisions_
 
 _Background_
 
