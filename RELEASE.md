@@ -45,12 +45,11 @@ _Qualification_
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above. In the CDM Portal, select the Visualisation tab and select Credit Event from the menu on the left. In the CDM Portal, select the Functions tab and select the function `Create_BusinessEvent`.
-Upload one of the files:
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above. 
 
-../credit_event_examples/crev_example_1/updated_crev_ex1_business_event_creation_input.json
-../credit_event_examples/crev_example_2/updated_crev_ex2_business_event_creation_input.json
+In the CDM Portal, select the Instance Viewer, and review examples:
 
-../credit_event_examples/coac_example_1/updated_coac_ex1_business_event_creation_input.json
-../credit_event_examples/coac_example_2/updated_coac_ex2_business_event_creation_input.json
-
+* Credit Event Business Event > Credit Event
+* Credit Event Business Event > Credit Event With Observation History
+* Corporate Actions Business Event > Corporate Actions
+* Corporate Actions Business Event > Corporate Actions With Observation History
