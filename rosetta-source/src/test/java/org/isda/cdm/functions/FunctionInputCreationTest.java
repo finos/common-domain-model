@@ -7,7 +7,10 @@ import cdm.base.math.*;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
 import cdm.base.staticdata.asset.common.ProductIdentifier;
+import cdm.base.staticdata.asset.common.Security;
+import cdm.base.staticdata.asset.common.SecurityTypeEnum;
 import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
+import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
@@ -30,9 +33,11 @@ import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.FieldWithMetaFloatingRateOption;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.InterestRatePayout;
+import cdm.product.asset.ReferenceInformation;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.common.settlement.TransferTypeEnum;
+import cdm.product.template.Product;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -40,9 +45,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.collect.Lists;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.*;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
@@ -957,6 +960,180 @@ class FunctionInputCreationTest {
 
         assertJsonEquals("cdm-sample-files/functions/business-event/allocation/allocation-func-input.json", actual);
     }
+
+    ObservationEvent getCreditEventObservationEvent(){
+        ObservationEvent observationEvent = ObservationEvent.builder()
+                .setCreditEvent(CreditEvent.builder()
+                        .setCreditEventType(CreditEventTypeEnum.BANKRUPTCY)
+                        .setEventDeterminationDate(Date.of(2022, 2, 4))
+                        .setAuctionDate(Date.of(2022, 3, 3))
+                        .setReferenceInformation(ReferenceInformation.builder()
+                                .setReferenceEntity(
+                                        LegalEntity.builder()
+                                                .setEntityId(Collections.singletonList(FieldWithMetaString.builder()
+                                                        .setValue("UE2136O97NLB5BYP9H04")))
+                                                .setName(FieldWithMetaString.builder()
+                                                        .setValue("McDonald's Corporation")))
+                                .setNoReferenceObligation(true))
+
+                );
+
+        return observationEvent;
+    }
+    @Test
+    void validateCreditEventFuncInputJson() throws IOException {
+
+        ObservationInstruction observationInstruction = ObservationInstruction.builder()
+                .setObservationEvent(getCreditEventObservationEvent());
+
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/credit/cdindex-ex01-cdx-uti.json");
+
+        Instruction.InstructionBuilder instructions = Instruction.builder()
+                .setBeforeValue(tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder().setObservation(observationInstruction));
+
+        reKey(instructions);
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
+                Lists.newArrayList(instructions.build()),
+                null,
+                Date.of(2022, 2, 4),
+                Date.of(2022, 2, 4));
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/credit-event/credit-event-func-input.json", actual);
+    }
+
+    @Test
+    void validateCreditEventWithObservationFuncInputJson() throws IOException {
+
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/credit/cdindex-ex01-cdx-uti.json");
+        TradeState tradeStateWithObs = tradeState.toBuilder().setObservationHistory(Collections.singletonList(getCreditEventObservationEvent())).build();
+
+        ObservationEvent observationEvent = ObservationEvent.builder()
+                .setCreditEvent(CreditEvent.builder()
+                        .setCreditEventType(CreditEventTypeEnum.FAILURE_TO_PAY)
+                        .setEventDeterminationDate(Date.of(2023, 2, 4))
+                        .setAuctionDate(Date.of(2023, 3, 3))
+                        .setReferenceInformation(ReferenceInformation.builder()
+                                .setReferenceEntity(LegalEntity.builder()
+                                        .setEntityId(Collections.singletonList(FieldWithMetaString.builder()
+                                                .setValue("UE2136O97NLB5BYP9H04")))
+                                        .setName(FieldWithMetaString.builder()
+                                                .setValue("McDonald's Corporation")))
+                                .setNoReferenceObligation(true))
+
+                );
+
+        ObservationInstruction observationInstruction = ObservationInstruction.builder()
+                .setObservationEvent(observationEvent);
+        Instruction.InstructionBuilder instructions = Instruction.builder()
+                .setBeforeValue(tradeStateWithObs)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder().setObservation(observationInstruction));
+
+        reKey(instructions);
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
+                Lists.newArrayList(instructions.build()),
+                null,
+                Date.of(2023, 2, 2),
+                Date.of(2023, 2, 2));
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/credit-event/credit-event-obs-func-input.json", actual);
+    }
+
+    ObservationEvent getCorporateActionObservationEvent() {
+        ObservationEvent observationEvent = ObservationEvent.builder()
+                .setCorporateAction(CorporateAction.builder()
+                        .setCorporateActionType(CorporateActionTypeEnum.STOCK_SPLIT)
+                        .setExDate(Date.of(2009, 2, 1))
+                        .setPayDate(Date.of(2009, 2, 1))
+                        .setUnderlier(Product.builder()
+                                .setSecurity(Security.builder()
+                                        .setSecurityType(SecurityTypeEnum.EQUITY)
+                                        .setProductIdentifier(Collections.singletonList(ReferenceWithMetaProductIdentifier.builder()
+                                                .setValue(ProductIdentifier.builder()
+                                                        .setIdentifier(FieldWithMetaString.builder()
+                                                                .setValue("VOLKSWAGEN AG VZO O.N.")
+                                                        )
+                                                        .setSource(ProductIdTypeEnum.NAME))
+
+                                        ))
+                                )
+                        )
+
+
+                );
+
+        return observationEvent;
+    }
+    @Test
+    void validateCorporateActionFuncInputJson() throws IOException {
+
+        ObservationInstruction observationInstruction = ObservationInstruction.builder()
+                .setObservationEvent(getCorporateActionObservationEvent());
+
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex12-on-european-index-underlyer-short-form.json");
+
+        Instruction.InstructionBuilder instructions = Instruction.builder()
+                .setBeforeValue(tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder().setObservation(observationInstruction));
+
+        reKey(instructions);
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
+                Lists.newArrayList(instructions.build()),
+                null,
+                Date.of(2009, 2, 1),
+                Date.of(2009, 2, 1));
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/corporate-actions/corporate-actions-func-input.json", actual);
+    }
+    @Test
+    void validateCorporateActionWithObservationFuncInputJson() throws IOException {
+
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex12-on-european-index-underlyer-short-form.json");
+        TradeState tradeStateWithObs = tradeState.toBuilder().setObservationHistory(Collections.singletonList(getCorporateActionObservationEvent())).build();
+
+        ObservationEvent observationEvent = ObservationEvent.builder()
+                .setCorporateAction(CorporateAction.builder()
+                        .setCorporateActionType(CorporateActionTypeEnum.CASH_DIVIDEND)
+                        .setExDate(Date.of(2009, 2, 13))
+                        .setPayDate(Date.of(2009, 2, 13))
+                        .setUnderlier(Product.builder()
+                                .setSecurity(Security.builder()
+                                        .setSecurityType(SecurityTypeEnum.EQUITY)
+                                        .setProductIdentifier(Collections.singletonList(ReferenceWithMetaProductIdentifier.builder()
+                                                .setValue(ProductIdentifier.builder()
+                                                        .setIdentifier(FieldWithMetaString.builder()
+                                                                .setValue("VOLKSWAGEN AG VZO O.N.")
+                                                        )
+                                                        .setSource(ProductIdTypeEnum.NAME))
+
+                                        ))
+                                )
+                        )
+
+
+                );
+
+        ObservationInstruction observationInstruction = ObservationInstruction.builder()
+                .setObservationEvent(observationEvent);
+        Instruction.InstructionBuilder instructions = Instruction.builder()
+                .setBeforeValue(tradeStateWithObs)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder().setObservation(observationInstruction));
+
+        reKey(instructions);
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
+                Lists.newArrayList(instructions.build()),
+                null,
+                Date.of(2009, 2, 13),
+                Date.of(2009, 2, 13));
+
+
+        assertJsonEquals("cdm-sample-files/functions/business-event/corporate-actions/corporate-actions-obs-func-input.json", actual);
+    }
+
 
     @Test
     void validateExerciseSwaptionFullPhysicalInputJson() throws IOException {
