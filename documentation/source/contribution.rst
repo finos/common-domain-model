@@ -36,9 +36,9 @@ Semantic Versioning
 
 The CDM is released using the semantic versioning 2.0 system - See `SemVer 2.0.0 <https://semver.org/spec/v2.0.0.html>`_. At high-level, the format of a version number is MAJOR.MINOR.PATCH (e.g. ``1.23.456``), where:
 
-* MAJOR (``1``) version may introduce backward-incompatible changes and will be used as high level release name (e.g. ``ISDA CDM Version 1``).
-* MINOR (``23``) version change may introduce new features but in a backward-compatible way, for example supporting a new type of event or function.
-* PATCH (``456``) version is for backward-compatible bug fixes, for example fixing the logic of a condition.
+* A MAJOR (``1``) version may introduce backward-incompatible changes and will be used as high level release name (e.g. "CDM Version 1").
+* A MINOR (``23``) version may introduce new features but in a backward-compatible way, for example supporting a new type of event or function.
+* A PATCH (``456``) version is for backward-compatible bug fixes, for example fixing the logic of a condition.
 
 In addition, pre-release versions of a major release will be denoted with a DEV tag as follows:
 
@@ -46,7 +46,7 @@ In addition, pre-release versions of a major release will be denoted with a DEV 
 
 The minor, patch and pre-release numbers may sometimes increment by more than one unit. This is because release candidates may be created but not immediately released. Subsequently, a version associated with the next incremental unit may be released that includes the changes from the earlier release candidate. Unless under exceptional circumstances, the major number will be incremented by one unit only.
 
-Backward Compatibility
+Backwards Compatibility
 ^^^^^^^^^^^^^^^^^^^^^^
 
 Like other types of software, *backwards compatibility* in the context of a domain model means that an implementor of that model would not have to make any change to update to such version.
@@ -54,19 +54,27 @@ Like other types of software, *backwards compatibility* in the context of a doma
 * Prohibited changes:
 
   * Change to the structure (e.g. the attributes of a data type or the inputs of a function) or removal of any model element
-  * Change to the name of any model element (e.g., types, attributes, enums, functions or reporting rules)
+  * Change to the name of any model element (e.g. types, attributes, enums, functions or reporting rules)
   * Change to any condition or cardinality constraint that makes validation more restrictive
   * Change to the DSL that results in any existing expression becoming invalid
   * Change to the DSL that results in change to any of the generated code's public interfaces
 
 * Allowed changes:
 
-  * Change that relax conditions or cardinality constraints
-  * Changes to synonym that improve mapping coverage
+  * Change that relaxes any condition or cardinality constraint
+  * Change to any synonym that improves, or at least does not degrade, the mapping coverage
   * Addition of new examples or test packs
-  * Addition of new data types, attributes, enumerations, rules or functions?
+  * Addition of new data types, attributes, enumerations, rules or functions - TBD?
 
 Exceptions on backwards compatibility may be granted for emergency bug fixes following decision from the relevant governance body.
+
+Version Availability
+^^^^^^^^^^^^^^^^^^^^
+
+Several versions of the CDM will be made available concurrently, with the dual objective of:
+
+* Fostering a continued, rapid change development that involves contribution from the industry community
+* Offering a stable and well-supported production environment for consumers of the model
 
 .. _design-principles:
 
