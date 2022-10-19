@@ -2,13 +2,13 @@
 
 _Background_
 
-The CDM already provides termination provisions such as optional or mandatory termination, extendible and cancellable provisions. Some security finance transactions can have specific features such as open, extendible or evergreen that also affect the way they are terminated, but those features were not all represented using the existing CDM termination provisions and were instead nested within the payout details.
+The CDM represent termination provisions such as optional or mandatory termination, extendible and cancellable provisions. Security finance transactions can have specific termination features such as open, extendible or evergreen. Those features have been introduced in the payout details  using the existing termination provisions.
 
 _What is being released?_
 
-This release positions a new dedicated termination provision component, applicable across asset classes, inside a product's economic terms. This component assembles the existing termination provisions (early termination, extendible and cancellable) plus the evergreen provisions into a single data type.
+This release positions a new dedicated termination provision component, applicable across asset classes, inside the product's economic terms. This component assembles the existing termination provisions (early termination, extendible and cancellable) plus the evergreen provisions into a single data type.
 
-In turn, evergreen provisions and the associated duration components are being removed from the security finance payout. 
+In turn, the evergreen provisions and the associated duration components have become redundant and have been removed from the security finance payout. 
 
 _Data types_
 
