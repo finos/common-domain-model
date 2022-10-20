@@ -153,7 +153,7 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 		if (localUrl != null) {
 			CodeListDocument codeListDocument = readUrl(jaxbContext, inputFactory, localUrl);
 			if (codeListDocument != null) {
-				return Map.entry(codeListRef.getCanonicalVersionUri(), codeListDocument);
+				return Map.entry(codeListRef.getCanonicalUri(), codeListDocument);
 			}
 		} else {
 			LOGGER.warn("The resource: " + locationUri + " cannot be loaded");

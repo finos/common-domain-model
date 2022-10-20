@@ -324,7 +324,7 @@ The split function iterates on each element of the breakdown and applies the cor
    
    add splitTrade:
      breakdown
-       map [ Create_TradeState( item, originalTrade ) ]
+       extract [ Create_TradeState( item, originalTrade ) ]
 			
 Examples of how primitive operators work are illustrated below.
 
@@ -589,25 +589,26 @@ The description of each possible enumeration value provides an illustration of h
 
  enum EventIntentEnum:
  	Allocation
- 	CashFlow
- 	Clearing
- 	Compression
- 	ContractFormation
- 	ContractTermsAmendment
- 	CorporateActionAdjustment
- 	Decrease
- 	EarlyTerminationProvision
- 	Increase
- 	IndexTransition
- 	NotionalReset
- 	NotionalStep
- 	Novation
- 	ObservationRecord
- 	OptionExercise
- 	OptionalExtension
- 	OptionalCancellation
- 	PrincipalExchange
- 	Reallocation
+	CashFlow
+	Clearing
+	Compression
+	ContractFormation
+	ContractTermsAmendment
+	CorporateActionAdjustment
+	CreditEvent
+	Decrease
+    EarlyTerminationProvision
+	Increase
+	IndexTransition
+    NotionalReset
+	NotionalStep
+	Novation
+	ObservationRecord
+    OptionExercise
+	OptionalExtension
+	OptionalCancellation
+	PrincipalExchange
+	Reallocation
 
 Lineage
 """""""

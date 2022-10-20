@@ -1,28 +1,54 @@
-# *Base Model - Naming Consistency for Measure Types*
+# _Product Model - Enhancements for Representation of Termination Provisions_
+
+_Background_
+
+The CDM represents termination provisions such as optional or mandatory termination, extendible and cancellable provisions. Security finance transactions can have specific termination features such as open, extendible or evergreen. Those features have been introduced in the payout details  using the existing termination provisions.
 
 _What is being released?_
 
-This release adjusts the name of types and attributes related to the Measure and Step data types to make them more consistent. It also folds the multiplier attributes that can be associated to a quantity into a a single, complex multiplier attribute.
+This release positions a new dedicated termination provision component, applicable across asset classes, inside the product's economic terms. This component assembles the existing termination provisions (early termination, extendible and cancellable) plus the evergreen provisions into a single data type.
 
-_Details_
+In turn, the evergreen provisions and the associated duration components have become redundant and have been removed from the security finance payout. 
 
-The following data types and attributes have been modified:
+_Data types_
 
-- `MeasureBase`: renamed attributes `amount` into `value` (more neutral, amount is generally associated with money) and `unitOfAmount` into `unit`.
-- `Measure`: added data type as an extension of `MeasureBase` with a condition requiring the `value` attribute to be present.
-- `Step`: renamed as `DatedValue` (previously a step could be mis-interpreted in a schedule as representing a 'delta').
-- `Step`: renamed attributes `stepValue` as `value` (in line with the `value` attribute on a `Measure`) and `stepDate` as `date`.
-- `MeasureSchedule`: renamed `step` attribute as `datedValue`, in line with the change in type.
-- `PriceSchedule`: renamed attribute `perUnitOfAmount` as `perUnitOf`.
-- `QuantitySchedule`: folded the `multiplier` (number) and `multiplierUnit` attributes into a single, optional `multiplier` attribute of type `Measure`.
+- Modified `EvergreenProvision` type:
 
-All synonyms and functional expressions have been updated to reflect the new structure and preserve existing behaviour.
+  - Removed all its existing attributes
+  - Added `singlePartyOption`, `noticePeriod`, `noticeDeadlinePeriod`, `noticeDeadlineDateTime`, `extensionFrequency` and `finalPeriodFeeAdjustment` attributes
 
-_Review directions_
+- Modified `ExtendibleProvision` type:
 
-In the CDM Portal, select Textual Browser and review the types mentioned above.
+  - Added `singlePartyOption`, `noticeDeadlinePeriod` and `noticeDeadlineDateTime` attributes (same as in `EvergreenProvision`)
+  - Added `extensionTerm` and `extensionPeriod` attributes
+  - Marked `followUpConfirmation` attribute as optional
 
-For examples of how the quantity multiplier is now handled, select the Ingestion panel and review the following samples:
+- Added new `TerminationProvision` type:
 
-- FpML 5.10 > products > rates > `bond option uti`
-- FpML 5.10 > products > equity > `eqd ex04 european call index long form`
+  - Included `cancellableProvision`, `earlyTerminationProvision` and `extendibleProvision` attributes in that data type
+  - Added `evergreenProvision` attribute in that data type
+
+- Modified `EconomicTerms` type:
+
+  - Added `terminationProvision` attribute
+  - Removed `cancellableProvision`, `earlyTerminationProvision` and `extendibleProvision` attributes (now encapsulated into `terminationProvision`)
+  - Added `SecurityFinancePayoutDividendTermsValidation` condition (to enforce that a transaction with dividend terms specified must be a term trade)
+  - Added `ExtendibleProvisionExerciseDetails` condition (to enforce that the appropriate exercise type is associated with each termination provision)
+
+- Removed `Duration` type (just marked as deprecated, for backward compatibility reasons), which previously contained `evergreenProvision`
+- Modified `SecurityFinancePayout` type:
+
+  - Marked `duration` attribute as deprecated (its underlying `evergreenProvision` attribute is now encapsulated in `terminationProvision`)
+  - Removed `DividendTermsValidation` condition (condition now positioned in `EconomicTerms`)
+
+- Modified `TradableProduct` type, so that paths used in conditions use the new `terminationProvision` attribute
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above. 
+
+In the CDM Portal, select the Ingestion Panel and review the following examples:
+
+- products > equity > `eqs-ex09-compounding-swap`
+- products > rates > `ird-ex16-mand-term-swap`
+- products > repo > `repo-ex02-repo-open-fixed-rate`

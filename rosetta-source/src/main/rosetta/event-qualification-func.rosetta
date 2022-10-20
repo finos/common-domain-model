@@ -4,7 +4,7 @@ version "${project.version}"
 
 import cdm.event.common.*
 import cdm.base.staticdata.party.*
-import cdm.legalagreement.common.*
+import cdm.legaldocumentation.common.*
 import cdm.base.math.*
 import cdm.observable.asset.*
 
@@ -28,7 +28,7 @@ func Qualify_Allocation: <"The qualification of allocation event from the fact t
 		and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
 		// before trade counterparties should not match open after trade counterparties
 		and openTradeStates
-			map [ item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference ]
+			extract [ item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference ]
 			all = True
         
 
@@ -72,7 +72,7 @@ func Qualify_CashAndSecurityTransfer: <"The qualification of a security settleme
         and businessEvent -> instruction -> primitiveInstruction -> split exists
         and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
         and openTradeStates
-            map [
+            extract [
                 item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
                 and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier
                 and item -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
@@ -159,7 +159,7 @@ func Qualify_PartialNovation: <"The qualification of a novation event from the f
 		and openTradeStates count = 2
 		and businessEvent -> instruction -> primitiveInstruction -> split exists
 		and openTradeStates
-			map [
+			extract [
 				// before trade counterparties should not match open after trade counterparties, and neither should trade identifiers
 				( item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
 					and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier )
@@ -303,13 +303,13 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 	alias beforePrice: <"Only works in the case of a single trade lot and price.">
 		beforeTradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
 		    filter [ item -> perUnitOf -> financialUnit = FinancialUnitEnum -> Share ]
-		    map [ item -> value ]
+		    extract [ item -> value ]
 		    only-element
 
 	alias afterPrice: <"Only works in the case of a single trade lot and price.">
 		afterTradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
 		    filter [ item -> perUnitOf -> financialUnit = FinancialUnitEnum -> Share ]
-		    map [ item -> value ]
+		    extract [ item -> value ]
 		    only-element
 
 	alias currencyAmountUnchanged:
@@ -399,7 +399,7 @@ func Qualify_Reallocation: <"The qualification of a reallocation event from the 
         and openTradeStates count = 2
         and businessEvent -> instruction -> primitiveInstruction -> split exists
         and openTradeStates
-            map [
+            extract [
                 // before trade counterparties should not match open after trade counterparties, and neither should trade identifiers
                 ( item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
                     and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier )
@@ -410,4 +410,27 @@ func Qualify_Reallocation: <"The qualification of a reallocation event from the 
                     and QuantityDecreased( beforeTradeState, [ item ] ) )
             ]
             all = True
+
+func Qualify_CreditEventDetermined: <"The qualification of the ocurrence of a credit event determination from the fact that a credit event is present in either the observation or observation history structures.">
+	[qualification BusinessEvent]
+	inputs: businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+	set is_event:
+		businessEvent -> instruction -> primitiveInstruction -> observation -> observationEvent -> creditEvent exists
+		or
+		businessEvent -> instruction -> before -> observationHistory -> creditEvent exists
+		or
+		businessEvent -> after -> observationHistory -> creditEvent exists
+
+
+func Qualify_CorporateActionDetermined: <"The qualification of the ocurrence of a corporate action form the fact that a corporate action is present in either the observation or the observation history structures.">
+	[qualification BusinessEvent]
+	inputs: businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+	set is_event:
+		businessEvent -> instruction -> primitiveInstruction -> observation -> observationEvent -> corporateAction exists
+		or
+		businessEvent -> instruction -> before -> observationHistory -> corporateAction exists
+		or
+		businessEvent -> after -> observationHistory -> corporateAction exists
 
