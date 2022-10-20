@@ -83,6 +83,16 @@ type AllocationBreakdown:
 
 type ContractFormationInstruction: <"Specifies instructions to create a fully formed contract, with optional legal agreements.">
 	legalAgreement LegalAgreement (0..*) <"Optional legal agreements associated to the contract being formed, for instance a master agreement.">
+	//governingLaw GoverningLawEnum (0..1) <"Represents the law governing the trade and associated contractual product terms.">
+		[metadata scheme]
+	//partyContractInformation PartyContractInformation (0..*) <"Represents additional contractual information provided by each involved party.">
+	//calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
+	//calculationAgentFallback string (0..1) <"Custom field when Parties may further describe fallback language related to Calculation Agent role.">
+	//determiningPartyFallback string (0..1) <"Custom field when Parties may further describe fallback language related to Determining Party role.">
+	//hedgingPartyFallback string (0..1) <"Custom field when Parties may further describe fallback language related to Hedging Party role.">
+	//partyRole PartyRole (0..*) <"A class to specify the role(s) that party(ies) may have in relation to the execution, contract or other legal agreement.">
+	//extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events.">
+	//substitutionProvisions SubstitutionProvisions (0..1) 
 
 type Instruction: <"Instruction to a function that will be used to perform a business event">
 	[rootType]
@@ -126,6 +136,7 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 	eventDate date (1..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
+	corporateActionType CorporateActionTypeEnum (0..1)
 
     // New Content
     instruction Instruction (0..*) <"Specifies the instructions that were used to create the Business Event.">
@@ -136,6 +147,10 @@ type BusinessEvent: <"A business event represents a life cycle event of a trade 
 			or primitives -> execution exists
 			or primitives -> contractFormation exists)
 		then intent is absent
+	
+	condition CorporateAction: <"When  must be specified.">
+		if intent = EventIntentEnum -> CorporateActionAdjustment
+		then corporateActionType exists
 
 type EventTestBundle: <"Combines several events for testing purposes, intended to be used in downstream processes.">
 
@@ -178,13 +193,19 @@ type CalculateTransferInstruction: <"Defines the tradeState or payout on which t
 	date date (0..1)
 
 type TransferInstruction: <"Defines the payout on which to create a Transfer along with all necessary resets.">
- 	transferState TransferState (0..*) <"Specifies the terms and state of a transfers.">
+ 	transferState TransferState (0..*) <"Specifies the terms and state of each individual transfers.">
+	netTransfer TransferState (0..1) <"Specifies the terms and state of a unique net transfer, resulting from the aggregation of several individual transfers.">
+
+	condition MultipleIndividualTransferExistInNetTransfer:
+	if netTransfer exists
+	then transferState count > 1
+	and transferState -> transferStatus all = TransferStatusEnum -> Netted
 
 type QuantityChangeInstruction: <"Instructions required to create a Quantity Change Primitive Event, which can be either an increase, a decrease or a replacement. An increase adds a new trade lot to the original trade, whereas a decrease subtracts from an existing trade lot's quantity. A replacement updates the quantity of an existing trade lot to the new value.">
 	change PriceQuantity (1..*) <"Quantity by which the trade is being increased, decreased or replaced, and the price at which such quantity change is agreed. The quantity change should always be specified as a positive number, with the direction (increase/decrease/replacement) being specified by the direction enumeration. A fee can also be associated to the quantity change by specifying a Price component of type CashPrice, including the corresponding settlement date and direction.">
 	direction QuantityChangeDirectionEnum (1..1) <"Direction of the quantity change specified as either an increase, decrease or replacement.">
-	lotIdentifier Identifier (0..*) <"Identifier for the new lot (in case of increase) or for the existing lot to be changed(in case of decrease or replacement). This optional attribute is mandatory in case of a decrease or replacement if the initial trade state contains multiple trade lots.">
-
+	lotIdentifier Identifier (0..*) <"Identifier for the new lot (in case of increase) or for the existing lot to be changed (in case of decrease or replacement). This optional attribute is mandatory in case of a decrease or replacement if the initial trade state contains multiple trade lots.">
+	
 type IndexTransitionInstruction: <"Defines the information needed to create a Index Transition Business Event.">
 	priceQuantity PriceQuantity (1..*) <"Specifies both new floating rate index and spread adjustment for each leg to be updated.  The spread adjustment accounts for the difference between the old floating rate index relative to the new one. This spread amount is added to the existing spread to determine the new spread, which is applied from the specified effective date forward. In the case of the IBOR Fallback Rate Adjustments, the adjustment spread (also known as the Fallback Adjustment) accounts for two distinctions: i) the fact that the replacement Risk-Free Rate is an overnight rate while IBORs have term structures (e.g., 1, 3, 6-month LIBOR); and (ii) the historical spread differential between IBORs and their term equivalent Overnight Risk-Free Rate compounded rates.">
 	effectiveDate date (1..1) <"Specifies the effective date of the index transition event. This is first date on which the floating rate calculation will use the new floating rate index and adjusted spread in the floating rate calculation.">
@@ -199,8 +220,18 @@ type TermsChangeInstruction: <"Specifies instructions for terms change consistin
 	product Product (0..1) <"product to be changed">
 	ancillaryParty AncillaryParty (0..*) <"ancillary party to be changed">
 	adjustment NotionalAdjustmentEnum (0..1)
+	tradeLot TradeLot (0..*)
+	legalAgreement LegalAgreement (0..*) <"Optional legal agreements associated to the contract being formed, for instance a master agreement.">
+	governingLaw GoverningLawEnum (0..1) <"Represents the law governing the trade and associated contractual product terms.">
+	partyContractInformation PartyContractInformation (0..*) <"Represents additional contractual information provided by each involved party.">
+	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
+	calculationAgentFallback string (0..1) <"Custom field when Parties may further describe fallback language related to Calculation Agent role.">
+	determiningPartyFallback string (0..1) <"Custom field when Parties may further describe fallback language related to Determining Party role.">
+	hedgingPartyFallback string (0..1) <"Custom field when Parties may further describe fallback language related to Hedging Party role.">
+	partyRole PartyRole (0..*) <"A class to specify the role(s) that party(ies) may have in relation to the execution, contract or other legal agreement.">
+	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events.">
 
-	condition: (product exists or ancillaryParty exists or adjustment exists)
+	condition: (product exists or ancillaryParty exists or adjustment exists or tradeLot exists)
 
 type SplitInstruction: <"Specifies instructions for a split, consisting of a breakdown of instructions to be applied to each branch of the split. This instruction can be used to duplicate a trade, as in a clearing scenario, or to split a trade into smaller quantities (in which case each breakdown instruction needs to include a quantity change), as in an allocation.">
 	// Should cardinality be (2..*)?
@@ -250,6 +281,21 @@ type TransferState: <"Defines the fundamental financial information associated w
 	[rootType]
 	transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
 	transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
+	receiverPartyCashSSIs StandardSettlementInstructions (0..1) <"Defines the SSIs details where to adress the payment">
+	receiverPartyPhysicalSSIs StandardSettlementInstructions (0..1) <"Defines the SSIs details where to deliever the asset">
+
+	condition ChoiceForEitherCashOrPhysicalSSIs :
+	if receiverPartyCashSSIs exists 
+	then receiverPartyPhysicalSSIs is absent
+	or if receiverPartyPhysicalSSIs exists then receiverPartyCashSSIs is absent
+
+type StandardSettlementInstructions:
+	currency string (0..1) <"Defines the currency to which the SSIs apply.">
+	bankIdentifierCode_BIC string (0..1) <"Describes the BIC details. Implementors may want to enforce usual standards e.g. SWIFT or others, using the scheme attribute.">
+	[metadata scheme]
+	internationalBankAccountNumber_IBAN string (0..1) <"Describes the IBAN details. Implementors may want to enforce usual standards e.g. SWIFT or others, using the scheme attribute.">
+	[metadata scheme]
+	account Account (0..1) <"A class to specify an account as an account number alongside, optionally. an account name, an account type, an account beneficiary and a servicing party.">
 
 type Transfer extends TransferBase: <"Defines the movement of cash, securities or commodities between two parties on a date.">
 	settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
@@ -264,10 +310,6 @@ type TransferExpression: <"Specifies a transfer expression (cash price, performa
 
 type ScheduledTransfer:
 	transferType TransferTypeEnum (1..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
-	corporateActionTransferType CorporateActionTypeEnum (0..1)
-
-	condition: <"When transfer type is Performance or Transfer then the type of event must be specified.">
-		if transferType = TransferTypeEnum -> CorporateAction then corporateActionTransferType exists
 
 type SettlementOrigin: <"Defines the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
 
@@ -527,6 +569,19 @@ type ContractDetails: <"Defines specific attributes that relate to contractual d
 	governingLaw GoverningLawEnum (0..1) <"Represents the law governing the trade and associated contractual product terms.">
 		[metadata scheme]
 	partyContractInformation PartyContractInformation (0..*) <"Represents additional contractual information provided by each involved party.">
+	//calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
+	//calculationAgentFallback string (0..1) <"Custom field when Parties may further describe fallback language related to Calculation Agent role.">
+	//determiningPartyFallback string (0..1) <"Custom field when Parties may further describe fallback language related to Determining Party role.">
+	//hedgingPartyFallback string (0..1) <"Custom field when Parties may further describe fallback language related to Hedging Party role.">
+	//partyRole PartyRole (0..*) <"A class to specify the role(s) that party(ies) may have in relation to the execution, contract or other legal agreement.">
+	//extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events.">
+	//substitutionProvisions SubstitutionProvisions (0..1) <"Define the provisions which relate to substitution that is when one or more shares step out in exchange of one or more shares to step in.">
+
+type SubstitutionProvisions: <"Define the provisions which relate to substitution that is when one or more shares step out in exchange of one or more shares to step in.">
+	substitutionTriggerEvents ExtraordinaryEvents (0..*) <"Define the list of events which occurrence would trigger a substitution.">
+	substitutionRight PartyRole (0..*) <"Define the parties which may decide to substitute.">
+	substituteShareQualifyingCriteria string (0..1) <"Describe the eligibility criteria for a share to be considered as a potential Substitute Share for the purpose of replacing the Affected Shares.">
+	substituteSharePriceCalculationFormula string (0..1) <"Describe the formula how to calculate the theoretical price at which the Substitute Share shall be recorded for the purpose of replacing the Affected Shares at fair price in regards of the Performance of the Affected Share since the last reset price as of the effective date of gthe substitution.">
 
 type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an contractFormation event is corrected, the correction event will have a lineage into the initial event, which takes the form of a globalKey into that initial contract formation event. Two referencing mechanisms are provided as part of the CDM: either the globalKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the globalKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.globalKey.GlobalKeyHashCalculator. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
     tradeReference Trade (0..*)

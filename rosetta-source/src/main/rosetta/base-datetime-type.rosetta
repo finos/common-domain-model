@@ -100,9 +100,26 @@ type BusinessDateRange extends DateRange: <"A class defining a range of contiguo
 
 type BusinessDayAdjustments: <"A class defining the business day convention and financial business centers used for adjusting any relevant date if it would otherwise fall on a day that is not a business day in the specified business center.">
 	[metadata key]
+	[deprecated]
 
 	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">
 	businessCenters BusinessCenters (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">
+
+type NewBusinessDayAdjustments: <"A class defining the business day convention and financial business centers used for adjusting any relevant date if it would otherwise fall on a day that is not a business day in the specified business center.">
+	[metadata key]
+
+	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">
+	businessCenters NewBusinessCenters (0..*) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">
+
+	businessCentersReference BusinessCenters (0..1) <"A reference to a financial business center location specified elsewhere in the instance document.">
+		[metadata reference]
+
+type NewBusinessCenters: <"A class for specifying the business day calendar location used in determining whether a day is a business day or not, either by specifying this business center by reference to an enumerated list that is maintained by the FpML standard, or by reference to such specification when it exists elsewhere as part of the instance document. This class corresponds to the FpML BusinessCentersOrReference.model.">
+	[metadata key]
+
+	businessCenter BusinessCenterEnum (0..1) <"A code identifying one or several business day calendar location(s). The set of business day calendar locations are specified by the business day calendar location enumeration which is maintained by the FpML standard.">
+		[metadata scheme]
+	businessCenterTime time (0..1) <"A class for defining a time with respect to a business day calendar location. For example, 11:00:00 GBLO.">
 
 type DateRange: <"A class defining a contiguous series of calendar dates. The date range is defined as all the dates between and including the first and the last date. The first date must fall before the last date.">
 
@@ -240,3 +257,40 @@ type CalculationPeriodFrequency extends Frequency: <"A class to specify the freq
 	condition FpML_ird_60: <"FpML validation rule ird-60 - Context: CalculationPeriodFrequency. When the period is 'T', the rollConvention must be 'NONE'.">
 		if period = PeriodExtendedEnum -> T
 		then rollConvention = RollConventionEnum -> NONE
+
+
+type GenericDate: <"A class giving the choice between defining a date as an explicit date together with applicable adjustments or as relative to some other (anchor) date.">
+    [metadata key]
+ 
+    adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
+    relativeDate RelativeDate (0..1) <"A date specified as some offset to another date (the anchor date).">
+ 
+    condition AdjustableOrRelativeDateChoice: <"Choice rule to represent an FpML choice construct.">
+        required choice adjustableDate, relativeDate
+ 
+type GenericDateSchedule: <"A class giving the choice between defining a series of dates as an explicit list of dates together with applicable adjustments or as relative to some other series of (anchor) dates, or as a calculation period schedule.">
+    [metadata key]
+ 
+    adjustableDateSchedule AdjustableDate (0..*) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
+    relativeDateSchedule RelativeDate (0..*) <"A series of dates specified as some offset to another series of dates (the anchor dates).">
+    periodicDateSchedule PeriodicDates (0..1) <"A calculation period schedule.">
+ 
+    condition DateScheduleChoice: <"Choice rule to represent an FpML choice construct.">
+        required choice adjustableDateSchedule, relativeDateSchedule, periodicDateSchedule
+
+type RelativeDate: <"A class describing a date, or a set of dates, defined as relative to another date, which is notably referred to as the Anchor Date when an Offset exists for the purpose of defining the Relative Date ">
+
+    offsetPeriod Offset (0..1) <"A class defining an offset used in calculating a new date relative to a reference date, e.g. calendar days, business days, commodity Business days, etc.">
+    offsetAnchorDate AnchorDate (1..1) <"Specifies the anchor date, to which the Offset period of time is added.">
+    offsetDateAdjustment NewBusinessDayAdjustments (0..1) <"A class defining the business day convention and financial business centers used for adjusting any relevant date if it would otherwise fall on a day that is not a business day in the specified business center.">
+
+type AnchorDate: <"Specifies the anchor date, either as an explicit date, or by reference to the concept of a date type defined elsewhere in the product terms">
+
+    adjustedDates date (0..*) <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">
+	[metadata reference]
+    datesType DateRelativeToEnum (0..1) <"A class describing a set of dates defined as relative to another date concept i.e. dateType, which is defined elsewhere e.g. Payment Date, Valuation Date, Observation Date, either as an object present in the Trade or in any relevant documentation to which the Trade may refer to, in an explicit or implicit manner e.g. ISDA Definitions, Master Confirmation Agreement, etc.">
+
+    condition AnchorDatesChoice:
+    one-of
+
+
