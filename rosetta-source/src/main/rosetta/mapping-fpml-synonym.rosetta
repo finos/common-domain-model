@@ -644,8 +644,6 @@ synonym source FpML_5_10 extends FpML
 			[value "spreadSchedule" path "interestCalculation->floatingRateCalculation"]
 			[value "floatingRateMultiplierSchedule" path "interestCalculation->floatingRateCalculation"]
 			[value "underlyerPrice"]
-			// For Options:
-			[hint "premium"]
 			// For FX:
 			[hint "spotRate"]
 			[value "exchangeRate" mapper "ExchangeRate"]
@@ -751,7 +749,6 @@ synonym source FpML_5_10 extends FpML
 			[value "volatilityStrikePrice" mapper "PriceUnitType"]
 			[value "correlationStrikePrice" mapper "PriceUnitType"]
 			[value "fixedStrike" mapper "PriceUnitType"]
-			[value "amount" path "premium->premiumPerUnit" mapper "PriceUnitType"]
 		+ unit
 			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
 			[value "quotedCurrencyPair"]
@@ -797,7 +794,6 @@ synonym source FpML_5_10 extends FpML
  			[set to PriceTypeEnum->InterestRate when path = "calculation->spread"]
  			// For Commodity Option
  			[set to PriceTypeEnum->AssetPrice when "strikePricePerUnit->amount" exists]
-			[set to PriceTypeEnum -> AssetPrice when "premium->premiumPerUnit" exists]
  		+ spreadType
  			[set to SpreadTypeEnum->Spread when "spread" exists]
  			[set to SpreadTypeEnum->Spread when "floatingRateCalculation->spread" exists]
@@ -1780,7 +1776,6 @@ synonym source FpML_5_10 extends FpML
 			[value "instrumentId" path "exchangeTradedContractNearest" maps 2 mapper "ProductIdentifierSource"]
 			[value "productId" maps 2 mapper "ProductIdentifierSource"]
 			[value "productId" path "commoditySwaption" maps 2 mapper "ProductIdentifierSource"]
-            //[value "productId" path "fra" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" path "creditDefaultSwapOption" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" path "bondOption" maps 2 mapper "ProductIdentifierSource"]
 			[value "description" path "equity" maps 2 mapper "ProductIdentifierSource"]
@@ -1805,19 +1800,16 @@ synonym source FpML_5_10 extends FpML
 	ProductTaxonomy:
 		+ primaryAssetClass
 			[value "primaryAssetClass" meta "assetClassScheme"]
-			//[value "primaryAssetClass" path "fra" meta "assetClassScheme"]
 			[value "primaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
 			[value "primaryAssetClass" path "bondOption" meta "assetClassScheme"]
 			[value "primaryAssetClass" path "commoditySwaption" meta "assetClassScheme"]
 		+ secondaryAssetClass
 			[value "secondaryAssetClass" meta "assetClassScheme"]
-			//[value "secondaryAssetClass" path "fra" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "bondOption" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "commoditySwaption" meta "assetClassScheme"]
 		+ taxonomyValue
 			[value "productType" mapper "TaxonomySource"]
-			//[value "productType" path "fra" mapper "TaxonomySource"]
 			[value "productType" path "creditDefaultSwapOption" mapper "TaxonomySource"]
 			[value "productType" path "bondOption" mapper "TaxonomySource"]
 			[value "productType" path "commoditySwaption" mapper "TaxonomySource"]
@@ -3747,11 +3739,11 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity Swap Fixed Leg
 			[value "priceUnit" maps 2 set when rosettaPath = PriceSchedule->perUnitOf]
 		+ weatherUnit
-			[value "quantityUnit"]
+			[value "quantityUnit" maps 2]
 			// For Commodity Swap Fixed Leg
 			// [value "priceUnit" set when rosettaPath = PriceSchedule->perUnitOfAmount]
 		+ financialUnit
-			[value "quantityUnit"]
+			[value "quantityUnit" maps 2]
 			[value "openUnits" mapper "OpenUnits"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "bulletPayment->payment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->Weight when path = "basketPercentage"]
