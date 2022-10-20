@@ -1189,13 +1189,18 @@ synonym source FpML_5_10 extends FpML
 		+ passThrough
 			[value "passThrough"]
 
-	OptionProvision:
+	TerminationProvision:
 		+ cancelableProvision
 			[value "cancelableProvision"]
 			[value "repo"]
+		+ earlyTerminationProvision
+			[value "earlyTerminationProvision"]
+			[hint "mutualEarlyTermination"]
 		+ extendibleProvision
 			[value "extendibleProvision"]
-
+		+ evergreenProvision
+			[value "ignore"]
+			
 	OptionStrike:
 		+ strikePrice
 			[hint "price"]
@@ -2256,9 +2261,6 @@ synonym source FpML_5_10 extends FpML
 			[value "terminationDate" path "returnLeg"]
 		+ dateAdjustments
 			[value "dateAdjustments" path "generalTerms"]
-		+ earlyTerminationProvision
-			[value "earlyTerminationProvision"]
-			[hint "mutualEarlyTermination"]
 		+ extraordinaryEvents
 			[value "extraordinaryEvents"]
 		+ calculationAgent
@@ -2990,14 +2992,18 @@ synonym source FpML_5_10 extends FpML
 		+ periodMultiplier
 			[value "periodMultiplier"]
 			[value "periodMultiplier" path "paymentDatesInterim->relativeDates"]
+			[set to 1 when "quantityFrequency" = "PerHour"]
 			[set to 1 when "quantityFrequency" = "PerCalendarDay"]
-			[set to 1 when "quantityFrequency" = "PerCalculationPeriod"]
 			[set to 1 when "quantityFrequency" = "PerMonth"]
+			[set to 1 when "quantityFrequency" = "PerCalculationPeriod"]
+			[set to 1 when "quantityFrequency" = "PerSettlementPeriod"]
 		+ period
 			[value "period"]
 			[value "period" path "paymentDatesInterim->relativeDates"]
 			[value "quantityFrequency" set when rosettaPath = Quantity->frequency]
+			[set to PeriodExtendedEnum -> H when "quantityFrequency" = "PerHour"]
 			[set to PeriodExtendedEnum -> C when "quantityFrequency" = "PerCalculationPeriod"]
+			[set to PeriodExtendedEnum -> C when "quantityFrequency" = "PerSettlementPeriod"]
 
 	Offset:
 		+ dayType
