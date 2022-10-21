@@ -19,7 +19,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import  com.regnosys.testing.WhitespaceAgnosticAssert;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAllCallback {
@@ -58,7 +58,7 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
 
         for (String fileName : generatedFromScheme.keySet()) {
             String contents = getContents(fileName);
-            assertEquals(contents, generatedFromScheme.get(fileName));
+            WhitespaceAgnosticAssert.assertEquals(contents, generatedFromScheme.get(fileName));
         }
     }
 
