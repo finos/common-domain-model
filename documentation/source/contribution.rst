@@ -24,8 +24,6 @@ A proposal can be defined at a conceptual level or a logical level (i.e. in code
 
 Once approved, the amendment will be scheduled to be merged with the CDM's main code branch by the CDM Maintainers.
 
-.. _versioning:
-
 Version Management
 ------------------
 
