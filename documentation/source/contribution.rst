@@ -77,16 +77,14 @@ Version Availability
 Several versions of the CDM will be made available concurrently, with a dual objective.
 
 * The latest *development* version (i.e. with a pre-release tag) fosters continued, rapid change development and involves model contributions made by the industry community. Changes that break backward compatibility are allowed. This development version is available in read-only and read-write access on the CDM's :ref:`modelling-platforms`.
-* The latest *production* version (i.e. without any pre-release tag) offers a stable, well-supported production environment for consumers of the model. Safe in exceptional circumstances, no new disruptive feature shall be introduced, mostly bug fixes. Any change will follow a strict governance process as it must be backward-compatible. This production version is available in read-only access through the CDM's :ref:`modelling-platforms`.
+* The latest *production* version (i.e. without any pre-release tag) offers a stable, well-supported production environment for consumers of the model. Safe in exceptional circumstances, no new disruptive feature shall be introduced, mostly bug fixes only. Any change shall adhere to a strict governance process as it must be backward-compatible. Generally, it can only be developed by a CDM Maintainer. This production version is available in read-only access through the CDM's :ref:`modelling-platforms`.
 * Earlier production versions, when still supported, are also available in read-only access for industry members who are still implementing older versions of the model. Over time, those earlier production versions enter *long-term support* in which supportability will be degraded, until they eventually become unsupported.
 
-**Example**
+**Example**. Assume that the latest major release of the model is 5. The various versions available would be as follows:
 
-Assume that the latest major release of the model is 5. The various versions would be as follows:
-
-* 5.0.0 and any subsequent 5.x would be the latest production version. Backward-compatibility would be maintained for any 5.x successor version.
+* 5.0.0 and any subsequent 5.x would be the latest production version. Backward-compatibility to the initial 5.0.0 version would be maintained for any 5.x successor version.
 * The latest 4.x and 3.x may also be supported, but 2.x could be under long-term support and 1.x unsupported altogether.
-* 6.0.0-DEV.x would be the latest development version. It can, and will generally contain, changes that are not backward-compatible with version 5. Backward-compatibility between successive 6.0.0-DEV.x versions is also not assured. Once fully developed, version 6.0.0 can be tagged as a major release and becomes the new latest production version.
+* 6.0.0-DEV.x would be the latest development version. It can, and will generally, contain changes that are not backward-compatible with version 5. Backward-compatibility between successive 6.0.0-DEV.x versions is also not assured. Once fully developed, version 6.0.0 can be tagged as a major release and becomes the new latest production version.
 
 .. note:: The above example is for illustration only and not indicative of actually supported CDM versions.
 
@@ -303,14 +301,16 @@ In addition, for large model changes or changes to core data types, it is recomm
 
 - **Quality assurance**. Seek the early appointment of at least one CDM Maintainer who can assist modelling discussions and provide early feedback. CDM Maintainers are appointed by the CDM Owners as and when relevant. Please contact `cdmInfo@isda.org <cdminfo@isda.org>`_.
 
+.. note:: Unless explicitly instructed by a CDM Maintainer, a Contributor can only ever develop changes to a development (i.e. pre-release) version of the CDM.
+
 Editing the model
 ^^^^^^^^^^^^^^^^^
 
 When editing the CDM, please go through the following modelling checklist:
 
-- CDM version: use latest available version
+- CDM version: use the latest available `development version <#version-availability>`_
 - Syntax: no syntax warnings or errors
-- Compilation: model compiles ok with no "static compilation" errors
+- Compilation: model compiles ok with no *static compilation* errors
 - Testing: all translate regression tests expectations for mapping, validation and qualification maintained or improved. Additional test samples may be needed if use-case is not covered by existing samples.
 - Namespace: all model components positioned in the correct namespace
 - Descriptions: all model components have descriptions
@@ -480,7 +480,7 @@ Once the contributed model change has been merged, a new release can be built, t
 
 The following release checklist should be verified before deploying a new model:
 
-- Update CDM version, which uses the semantic version format (see CDM :ref:`versioning` Documentation )
+- Update the CDM version number, using the `semantic versioning <#semantic-versioning>`_ format
 - Build release candidate, and test
 - Build documentation website release candidate, and test
 - Deploy release candidate and notify channels if need be
