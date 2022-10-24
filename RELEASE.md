@@ -1,54 +1,20 @@
-# _Product Model - Enhancements for Representation of Termination Provisions_
+# _Product Model - Day Count Fractions 2021 ISDA Definitions_
 
 _Background_
 
-The CDM represents termination provisions such as optional or mandatory termination, extendible and cancellable provisions. Security finance transactions can have specific termination features such as open, extendible or evergreen. Those features have been introduced in the payout details  using the existing termination provisions.
+
 
 _What is being released?_
 
-This release positions a new dedicated termination provision component, applicable across asset classes, inside the product's economic terms. This component assembles the existing termination provisions (early termination, extendible and cancellable) plus the evergreen provisions into a single data type.
+This release adds to the model the day count fractions as defined in the 2021 ISDA Definitions. The model already contained day count fractions, as defined in the 2006 ISDA Definitions or the 2000 ISDA Definitions, hence this release aims at including the relevant text from the new interest rate derivatives definitions booklet, adding new day count fractions only present in the 2021 ISDA Definitions and reviewing that the day count fraction calculations to see if any needed to be added in the model.
 
-In turn, the evergreen provisions and the associated duration components have become redundant and have been removed from the security finance payout. 
-
-_Data types_
-
-- Modified `EvergreenProvision` type:
-
-  - Removed all its existing attributes
-  - Added `singlePartyOption`, `noticePeriod`, `noticeDeadlinePeriod`, `noticeDeadlineDateTime`, `extensionFrequency` and `finalPeriodFeeAdjustment` attributes
-
-- Modified `ExtendibleProvision` type:
-
-  - Added `singlePartyOption`, `noticeDeadlinePeriod` and `noticeDeadlineDateTime` attributes (same as in `EvergreenProvision`)
-  - Added `extensionTerm` and `extensionPeriod` attributes
-  - Marked `followUpConfirmation` attribute as optional
-
-- Added new `TerminationProvision` type:
-
-  - Included `cancellableProvision`, `earlyTerminationProvision` and `extendibleProvision` attributes in that data type
-  - Added `evergreenProvision` attribute in that data type
-
-- Modified `EconomicTerms` type:
-
-  - Added `terminationProvision` attribute
-  - Removed `cancellableProvision`, `earlyTerminationProvision` and `extendibleProvision` attributes (now encapsulated into `terminationProvision`)
-  - Added `SecurityFinancePayoutDividendTermsValidation` condition (to enforce that a transaction with dividend terms specified must be a term trade)
-  - Added `ExtendibleProvisionExerciseDetails` condition (to enforce that the appropriate exercise type is associated with each termination provision)
-
-- Removed `Duration` type (just marked as deprecated, for backward compatibility reasons), which previously contained `evergreenProvision`
-- Modified `SecurityFinancePayout` type:
-
-  - Marked `duration` attribute as deprecated (its underlying `evergreenProvision` attribute is now encapsulated in `terminationProvision`)
-  - Removed `DividendTermsValidation` condition (condition now positioned in `EconomicTerms`)
-
-- Modified `TradableProduct` type, so that paths used in conditions use the new `terminationProvision` attribute
+- The 2021 ISDA Definitions text for the following DayCountFractionEnum were added to the existing ones:
+ACT/360, ACT/365L, ACT/365.FIXED, ACT/ACT.ICMA, ACT/ACT.ISDA, 30E/360, 30E/360.ISDA, 30/360, RBA Bond Basis (quarter), RBA Bond Basis (semi-annual), RBA Bond Basis (annual).
+- The following DayCountFractionEnum was created as such day count fraction is newly added in the 2021 ISDA Definitions and not present in previous booklets:
+CAL/252
+- The functions for the day count fractions listed under i. above were amended to include the relevant text from the 2021 ISDA Definitions and the calculations already present in the model were checked to ensure alignment with calculations from the 2021 ISDA Definitions. The 2021 ISDA Definitions did not change the calculation method of the day count fractions that were carried over from the 2006 ISDA Definitions, hence no changes were required to the calculation functions.
+- The function for CAL/252 was added to the model since this day count fraction did not exist in previous ISDA Definitions.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above. 
-
-In the CDM Portal, select the Ingestion Panel and review the following examples:
-
-- products > equity > `eqs-ex09-compounding-swap`
-- products > rates > `ird-ex16-mand-term-swap`
-- products > repo > `repo-ex02-repo-open-fixed-rate`
+In the CDM Portal, select the Textual Browser and navigate to the above enumerations and functions.
