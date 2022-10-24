@@ -42,7 +42,7 @@ The CDM is released using the semantic versioning 2.0 system - See `SemVer 2.0.0
 
 In addition, pre-release versions of a major release will be denoted with a DEV tag as follows:
 
-* MAJOR.0.0-DEV.X (e.g. ``1.0.0-DEV.789``), where X gets incremented with each new pre-release version until it becomes the MAJOR.0.0 release.
+* MAJOR.0.0-DEV.x (e.g. ``1.0.0-DEV.789``), where x gets incremented with each new pre-release version until it becomes the MAJOR.0.0 release.
 
 The minor, patch and pre-release numbers may sometimes increment by more than one unit. This is because release candidates may be created but not immediately released. Subsequently, a version associated with the next incremental unit may be released that includes the changes from the earlier release candidate.
 
@@ -66,6 +66,7 @@ Like other types of software, *backward compatibility* in the context of a domai
   * Change that relaxes any condition or cardinality constraint
   * Change to any synonym that improves, or at least does not degrade, the mapping coverage
   * Addition of new examples or test packs
+  * Change to the user documentation or model descriptions
   * Addition of new data types, attributes, enumerations, rules or functions - TBD?
 
 Exceptions to backward compatibility may be granted for emergency bug fixes following decision from the relevant governance body.
@@ -75,8 +76,8 @@ Version Availability
 
 Several versions of the CDM will be made available concurrently, with a dual objective.
 
-* The latest *development* version (i.e. with a pre-release tag) fosters continued, rapid change development and involves model contributions made by the industry community. Changes that break backward compatibility are allowed. This development version is available in read-only and read-write access on the CDM's modelling platforms.
-* The latest *production* version (i.e. without any pre-release tag) offers a stable, well-supported production environment for consumers of the model. Safe in exceptional circumstances, no new disruptive feature shall be introduced, mostly bug fixes. Any change will follow a strict governance process as it must be backward-compatible. This production version is available in read-only access through the CDM's modelling platforms.
+* The latest *development* version (i.e. with a pre-release tag) fosters continued, rapid change development and involves model contributions made by the industry community. Changes that break backward compatibility are allowed. This development version is available in read-only and read-write access on the CDM's :ref:`modelling-platforms`.
+* The latest *production* version (i.e. without any pre-release tag) offers a stable, well-supported production environment for consumers of the model. Safe in exceptional circumstances, no new disruptive feature shall be introduced, mostly bug fixes. Any change will follow a strict governance process as it must be backward-compatible. This production version is available in read-only access through the CDM's :ref:`modelling-platforms`.
 * Earlier production versions, when still supported, are also available in read-only access for industry members who are still implementing older versions of the model. Over time, those earlier production versions enter *long-term support* in which supportability will be degraded, until they eventually become unsupported.
 
 **Example**
@@ -252,7 +253,7 @@ To maintain on-going momentum in the development of the CDM, delivery is organis
 
  1 contribution = 1 releasable unit = 1 user story
 
-.. note:: A CDM `release <cdm-overview.html#versioning>`_ may contain more than 1 releasable unit. Every unit should still be shippable in isolation, even if they may end-up being shipped as a group.
+.. note:: A CDM `release <#version-management>`_ may contain more than 1 releasable unit. Every unit should still be shippable in isolation, even if they may end-up being shipped as a group.
 
 Epics
 """""
@@ -272,13 +273,15 @@ The purpose of this section is to provide guidance for submitting, reviewing and
 - What a Maintainer should do to review the changes
 - How to release a new CDM version once changes have been approved
 
-The steps required to change the CDM are aligned with the software development lifecycle typically applicable to the development of any other software. This development lifecycle is illustrated in the diagram below. Each step is associated to the relevant component of the `Rosetta`_ platform that can be used to support the development of the CDM.
+.. _modelling-platforms:
+
+Development of the CDM is supported through various modelling platforms, including `Rosetta`_ and `Legend`_. Regardless of the modelling platform used, modelling and contribution to the CDM should go through the contribution check-list below.
+
+The steps required to change the CDM are aligned with the software development lifecycle typically applicable to the development of any other software. This development lifecycle is illustrated in the diagram below. Each step is associated to the relevant component of the Rosetta platform that can be used to support the development of the CDM.
 
 .. figure:: images/SDLC.png
 
-Development of the CDM is also enabled through alternative modelling platforms (for instance `Legend`_). Regardless of the modelling platform used, modelling and contribution to the CDM should go through the contribution check-list below.
-
-.. note:: This documentation is not an endorsement of any modelling platform and associated products and CDM users remain invited to leverage the tools of their choosing. This contributiob guide has been contextualised with references to Rosetta to ease understanding and align with the current process.
+.. note:: This documentation is not an endorsement of any modelling platform and associated products and CDM users remain invited to leverage the tools of their choosing. This contribution guide has been contextualised with references to Rosetta to ease understanding and align with the current process.
 
 Before you start modelling
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
