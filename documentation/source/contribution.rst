@@ -44,12 +44,14 @@ In addition, pre-release versions of a major release will be denoted with a DEV 
 
 * MAJOR.0.0-DEV.X (e.g. ``1.0.0-DEV.789``), where X gets incremented with each new pre-release version until it becomes the MAJOR.0.0 release.
 
-The minor, patch and pre-release numbers may sometimes increment by more than one unit. This is because release candidates may be created but not immediately released. Subsequently, a version associated with the next incremental unit may be released that includes the changes from the earlier release candidate. Unless under exceptional circumstances, the major number will be incremented by one unit only.
+The minor, patch and pre-release numbers may sometimes increment by more than one unit. This is because release candidates may be created but not immediately released. Subsequently, a version associated with the next incremental unit may be released that includes the changes from the earlier release candidate.
 
-Backwards Compatibility
+Unless under exceptional circumstances, the major number will be incremented by one unit only.
+
+Backward Compatibility
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Like other types of software, *backwards compatibility* in the context of a domain model means that an implementor of that model would not have to make any change to update to such version.
+Like other types of software, *backward compatibility* in the context of a domain model means that an implementor of that model would not have to make any change to update to such version.
 
 * Prohibited changes:
 
@@ -66,15 +68,26 @@ Like other types of software, *backwards compatibility* in the context of a doma
   * Addition of new examples or test packs
   * Addition of new data types, attributes, enumerations, rules or functions - TBD?
 
-Exceptions on backwards compatibility may be granted for emergency bug fixes following decision from the relevant governance body.
+Exceptions to backward compatibility may be granted for emergency bug fixes following decision from the relevant governance body.
 
 Version Availability
 ^^^^^^^^^^^^^^^^^^^^
 
-Several versions of the CDM will be made available concurrently, with the dual objective of:
+Several versions of the CDM will be made available concurrently, with a dual objective.
 
-* Fostering a continued, rapid change development that involves contribution from the industry community
-* Offering a stable and well-supported production environment for consumers of the model
+* The latest *development* version (i.e. with a pre-release tag) fosters continued, rapid change development and involves model contributions made by the industry community. Changes that break backward compatibility are allowed. This development version is available in read-only and read-write access on the CDM's modelling platforms.
+* The latest *production* version (i.e. without any pre-release tag) offers a stable, well-supported production environment for consumers of the model. Safe in exceptional circumstances, no new disruptive feature shall be introduced, mostly bug fixes. Any change will follow a strict governance process as it must be backward-compatible. This production version is available in read-only access through the CDM's modelling platforms.
+* Earlier production versions, when still supported, are also available in read-only access for industry members who are still implementing older versions of the model. Over time, those earlier production versions enter *long-term support* in which supportability will be degraded, until they eventually become unsupported.
+
+**Example**
+
+Assume that the latest major release of the model is 5. The various versions would be as follows:
+
+* 5.0.0 and any subsequent 5.x would be the latest production version. Backward-compatibility would be maintained for any 5.x successor version.
+* The latest 4.x and 3.x may also be supported, but 2.x could be under long-term support and 1.x unsupported altogether.
+* 6.0.0-DEV.x would be the latest development version. It can, and will generally contain, changes that are not backward-compatible with version 5. Backward-compatibility between successive 6.0.0-DEV.x versions is also not assured. Once fully developed, version 6.0.0 can be tagged as a major release and becomes the new latest production version.
+
+.. note:: The above example is for illustration only and not indicative of actually supported CDM versions.
 
 .. _design-principles:
 
