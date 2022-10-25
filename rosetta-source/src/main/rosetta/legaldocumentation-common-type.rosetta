@@ -73,14 +73,17 @@ type AgreementTerms: <"Specification of the content of a legal agreement.">
 	clauseLibrary boolean (0..1) <"Specification of whether the agreement terms have been negotiated using the clause library methodology.">
 	counterparty Counterparty (2..2) <"Specification of the roles of the counterparties to the agreement.">
 
-type LegalAgreement extends LegalAgreementBase: <"The specification of a legal agreement between two parties, including the baseline information and the optional specification of agreement terms allowing .">
+type LegalAgreement extends LegalAgreementBase: <"The specification of a legal agreement between two parties, being negotiated or having been executed. This includes the baseline information and the optional specialised elections">
 	[metadata key]
 	[rootType]
 
 	agreementTerms AgreementTerms (0..1) <"Specification of the content of the legal agreement.">
 	relatedAgreements LegalAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
-
+	
+	condition ConsistentlyExecutedAgreements: <"An executed agreement can only point to executed related agreements if any.">
+		if relatedAgreements exists and agreementDate exists then relatedAgreements -> agreementDate exists
+	
 	condition AgreementVerification: <"A validation rule to ensure that the agreement elections are associated with the correct legal agreement type as specified.">
 		if agreementTerms -> agreement -> securityAgreementElections exists
 		then legalAgreementIdentification -> agreementName -> agreementType = LegalAgreementTypeEnum->SecurityAgreement
@@ -92,9 +95,8 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
 		else if agreementTerms -> agreement -> masterAgreementSchedule exists
 		then legalAgreementIdentification -> agreementName -> agreementType = LegalAgreementTypeEnum->MasterAgreement
 
-type LegalAgreementBase: <"Specifies the legal agreement baseline information, other than the specialized elections: type of legal agreement, agreement date and effective date, parties to the agreement, ... The purpose of this abstract class is to provide the ability to associate a 'one of' feature to the LegalAgreement class as a way to enforce a systematic choice between its attributes.">
-
-	agreementDate date (1..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
+type LegalAgreementBase: <"Specifies the legal agreement baseline information, being negotiated or having been executed. It excludes specialized elections">
+	agreementDate date (0..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
 	effectiveDate date (0..1) <"The date on which, or as of which, the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">
 	identifier Identifier (0..*) <"The legal agreement identifier. Several identifiers can be specified.">
 	legalAgreementIdentification LegalAgreementIdentification (1..1) <"The type of legal agreement, identified via a set of composable attributes: agreementName, publisher, governing law and version, e.g. ISDA 2013 Standard Credit Support Annex English Law.">

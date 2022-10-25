@@ -433,12 +433,17 @@ func Create_Execution: <"Specifies the function to compose an execution based on
 		instruction -> tradeIdentifier
 	set execution -> state -> positionState: <"Assign the position status to executed.">
 	    PositionStatusEnum -> Executed
+	set execution -> trade -> collateral: <"Assign the anticpated collateral details to the tradable product of the excution object.">
+		instruction ->collateral
+
 
 func Create_ContractFormationInstruction:
     inputs:
         legalAgreement LegalAgreement (0..*)
     output:
         instruction ContractFormationInstruction (1..1)
+	condition ExecutedAgreement:<"The full formation of a contract can only be completed with executed legal agreements if any.">
+		legalAgreement-> agreementDate exists
 
     add instruction -> legalAgreement:
         legalAgreement
