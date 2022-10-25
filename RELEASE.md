@@ -10,7 +10,7 @@ _What is being released?_
 
 This release includes the following 
 1.	Relax the cardinality of `agreementDate` to optional within `LegalAgreement` type and introduce logical conditions to enforce the presence of this data attribute when the legal document is supposed to have been agreed (signed) (e.g. for the `contractFormationInstruction` or associated functions) 
-2.	Add collateral details as an optional data input for an execution Instruction and augment the corresponding `create_Execution` function to link these details to the execution.
+2.	Add `Collateral` details as an optional data input for an `ExecutionInstruction` and augment the corresponding `create_Execution` function to link these details to the execution.
 3.	Relax the `independentAmount` attribute of the Collateral type to optional and add the relevant optional choice to enforce that at least one attribute component between `independentAmount`, `portfolioIdentifier` and `collateralPortfolio` is present.
 
 _Review Directions_
