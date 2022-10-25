@@ -1,4 +1,4 @@
-# _Legal Agreement – Simulated Collateral Exposure for an Execution_
+# _Legal Agreement – Simulated IM/VM Collateral Exposure for an Execution_
 
 _Background_
 
