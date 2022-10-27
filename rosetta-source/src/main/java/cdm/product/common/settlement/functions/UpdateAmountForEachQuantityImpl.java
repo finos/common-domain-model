@@ -31,7 +31,7 @@ public class UpdateAmountForEachQuantityImpl extends UpdateAmountForEachQuantity
 				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
 				.filter(Objects::nonNull)
 				.map(NonNegativeQuantitySchedule::toBuilder)
-				.map(quantityToUpdate -> quantityToUpdate.setAmount(newAmount))
+				.map(quantityToUpdate -> quantityToUpdate.setValue(newAmount))
 				.collect(Collectors.toList());
 	}
 }

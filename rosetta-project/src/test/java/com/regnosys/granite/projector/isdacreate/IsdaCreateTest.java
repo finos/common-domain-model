@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -74,7 +74,7 @@ class IsdaCreateTest {
 
 	private <T> T deserialize(String path, Class<T> clazz) throws IOException {
 		URL resource = Resources.getResource(path);
-		String json = removeBom(Resources.toString(resource, Charset.defaultCharset()));
+		String json = removeBom(Resources.toString(resource, StandardCharsets.UTF_8));
 
 		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, clazz);
 	}

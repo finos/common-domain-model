@@ -63,8 +63,8 @@ public class TotalNotionalQuantityMappingProcessor extends MappingProcessor {
 
 		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath,
 				(xmlValue) -> quantity
-						.setAmount(new BigDecimal(xmlValue))
-						.setUnitOfAmount(UnitType.builder().setCapacityUnit(getCapacityUnitEnum(synonymPath))),
+						.setValue(new BigDecimal(xmlValue))
+						.setUnit(UnitType.builder().setCapacityUnit(getCapacityUnitEnum(synonymPath))),
 				getMappings(),
 				PathUtils.toRosettaPath(mappedModelPath));
 

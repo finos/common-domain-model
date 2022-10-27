@@ -1,41 +1,19 @@
-# *Product Model - Commodity Option*
+# _Legal Documentation & Collateral – Simulated IM/VM Collateral Exposure for an Execution_
 
 _Background_
 
-This release extends the representation of the `OptionPayout` type to over the gaps that commodity options currently have in the model. It also extends the possible ways of calculating averages in commodity products.
+This change allows collateral requirements to be associated to trade details at the pre-execution stage of the trade i.e. when necessary legal agreements may not be signed. The key limitation currently is that the CDM makes the agreement date a mandatory attribute of any legal documentation/agreement object. As a result the CDM is limited to only represent signed (i.e. executed) agreements.
+
+In addition, the Independent Amount attribute of the `Collateral` type has been incorrectly made mandatory. It is not always necessary, so this has been corrected.
 
 _What is being released?_
 
-- The addition of the attribute `schedule` of type `CommoditySchedule` to `OptionPayout`.
-- Modification of the averaging calculation representation to determine which type of weighting and which Pythagorean mean is being used.
-- Mapping additions to support the changes above, and also the mappings of the payment dates on `SettlementTerms`.
-
-_Data Types_
-
-- Created type `AveragingCalculationMethod`, which contains `isWeighted` and `calculationMethod` and their respective types: `boolean` and `AveragingCalculationMethodEnum`.
-- In `Reset`, changed `aggregationMethodology` of type `AggregationMethod` to `averagingMethodology` of type `AveragingCalculation`.
-- Modified the attribute name `averagingMethod` in `CommodityPayout` to `averagingFeature` and changed its type to `AveragingCalculation`.
-- In `settlementDate`, changed the name of `adjustedDate` to `adjustedOrRelativeDate`.
-- Added the attribute `schedule` of type `CommoditySchedule` to `OptionPayout` so that commodity option products support the overwriting of their original schedule.
-- In `AveragingCalculation`, changed the name of `calculationMethod` to `averagingMethod`.
-- Changed `averagingRateFeature` to `averagingFeature` in type `OptionFeature`.
-- In `PerformancePayout`, changed `averagingMethod` type from `AveragingMethodEnum` to `AveragingCalculationMethod`.
-
-_Functions_
-
-- Updated `Create_SecurityFinanceReset` to support the changes on `AveragingCalculationMethodEnum`.
-- Updated `Qualify_EquityOption_PriceReturnBasicPerformance_SingleName`, `Qualify_EquityOption_PriceReturnBasicPerformance_Index`, `Qualify_EquityOption_PriceReturnBasicPerformance_Basket` and  `Qualify_ForeignExchange_VanillaOption` in order to support the change of the `averagingRateFeature` attribute name to `averagingFeature` in `OptionFeature`.
-
-_Synonyms_
-
-- Added the synonyms needed to map the FpML attribute `averagingMethod` to the new averaging structure, as well as the `schedule` mappings and the `relativePaymentDates` to `settlementTerms`.
+This release includes the following 
+1.	Relax the cardinality of `agreementDate` to optional within `LegalAgreement` type and introduce logical conditions to enforce the presence of this data attribute when the legal document is supposed to have been agreed (signed) (e.g. for the `contractFormationInstruction` or associated functions).
+2.	Add `Collateral` details as an optional data input for an `ExecutionInstruction` and augment the corresponding `create_Execution` function to link these details to the execution.
+3.	Relax the cardinality of the `independentAmount` attribute in the Collateral type so as to be optional and add the relevant condition to enforce that at least one  component between `independentAmount`, `portfolioIdentifier` and `collateralPortfolio` is present.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In the CDM Portal, select the Textual Browser, navigate to types mentioned above and inspect their structure definitions and associated data conditions.
 
-In the CDM Portal, select Ingestion and review commodity examples, including:
-
-- fpml-5-10 > products > commodity > com-ex03-gas-swap-prices-last-three-days
-- fpml-5-10 > products > commodity > com-ex04-electricity-swap-hourly-off-peak
-- fpml-5-10 > products > commodity > com-ex05-gas-v-electricity-spark-spread

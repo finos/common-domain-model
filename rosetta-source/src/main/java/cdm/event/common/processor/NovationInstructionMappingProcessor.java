@@ -8,7 +8,7 @@ import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.observable.asset.FeeTypeEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -180,7 +180,7 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
 
         // remainingAmount is optional, so if not found, just decrease by the novated amount
         QuantityChangeDirectionEnum directionEnum;
-        if (remainingQuantityBuilder.getAmount() == null) {
+        if (remainingQuantityBuilder.getValue() == null) {
             setQuantity(remainingQuantityBuilder, synonymPath.addElement("novatedAmount"));
             directionEnum = QuantityChangeDirectionEnum.DECREASE;
         } else {
@@ -194,8 +194,8 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
 
     private void setQuantity(QuantitySchedule.QuantityScheduleBuilder quantityBuilder, Path basePath) {
         setValueAndUpdateMappings(basePath.addElement("amount"),
-                xmlValue -> quantityBuilder.setAmount(new BigDecimal(xmlValue)));
+                xmlValue -> quantityBuilder.setValue(new BigDecimal(xmlValue)));
         setValueAndUpdateMappings(basePath.addElement("currency"),
-                quantityBuilder.getOrCreateUnitOfAmount().getOrCreateCurrency()::setValue);
+                quantityBuilder.getOrCreateUnit().getOrCreateCurrency()::setValue);
     }
 }

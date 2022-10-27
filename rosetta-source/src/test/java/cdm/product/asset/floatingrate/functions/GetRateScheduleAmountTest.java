@@ -1,6 +1,6 @@
 package cdm.product.asset.floatingrate.functions;
 
-import cdm.base.math.Step;
+import cdm.base.math.DatedValue;
 import cdm.base.math.UnitType;
 import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceSchedule;
@@ -27,18 +27,18 @@ public class GetRateScheduleAmountTest extends AbstractFunctionTest {
 		RateSchedule rateSchedule = RateSchedule.builder()
 				.setPriceValue(
 						getSpread(0.01)
-								.addStep(Step.builder()
-										.setStepDate(Date.of(2021, 03, 01))
-										.setStepValue(BigDecimal.valueOf(0.0101)))
-								.addStep(Step.builder()
-										.setStepDate(Date.of(2021, 06, 01))
-										.setStepValue(BigDecimal.valueOf(0.0102)))
-								.addStep(Step.builder()
-										.setStepDate(Date.of(2021, 9, 01))
-										.setStepValue(BigDecimal.valueOf(0.0103)))
-								.addStep(Step.builder()
-										.setStepDate(Date.of(2021, 12, 01))
-										.setStepValue(BigDecimal.valueOf(0.0104))))
+								.addDatedValue(DatedValue.builder()
+										.setDate(Date.of(2021, 03, 01))
+										.setValue(BigDecimal.valueOf(0.0101)))
+								.addDatedValue(DatedValue.builder()
+										.setDate(Date.of(2021, 06, 01))
+										.setValue(BigDecimal.valueOf(0.0102)))
+								.addDatedValue(DatedValue.builder()
+										.setDate(Date.of(2021, 9, 01))
+										.setValue(BigDecimal.valueOf(0.0103)))
+								.addDatedValue(DatedValue.builder()
+										.setDate(Date.of(2021, 12, 01))
+										.setValue(BigDecimal.valueOf(0.0104))))
 				.build();
 
 		check(0.01, func.evaluate(rateSchedule, Date.of(2021, 01, 01)));
@@ -54,9 +54,9 @@ public class GetRateScheduleAmountTest extends AbstractFunctionTest {
 	@NotNull
 	private PriceSchedule.PriceScheduleBuilder getSpread(double spreadAmount) {
 		return PriceSchedule.builder()
-				.setAmount(BigDecimal.valueOf(spreadAmount))
-				.setUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
-				.setPerUnitOfAmount(UnitType.builder().setCurrencyValue("USD"))
+				.setValue(BigDecimal.valueOf(spreadAmount))
+				.setUnit(UnitType.builder().setCurrencyValue("USD"))
+				.setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
 				.setPriceExpression(PriceExpression.builder()
 						.setPriceType(PriceTypeEnum.INTEREST_RATE)
 						.setSpreadType(SpreadTypeEnum.SPREAD));

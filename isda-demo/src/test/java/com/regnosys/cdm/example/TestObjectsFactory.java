@@ -12,7 +12,7 @@ import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
-import cdm.legalagreement.common.ClosedState;
+import cdm.legaldocumentation.common.ClosedState;
 import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.*;
@@ -134,8 +134,8 @@ public class TestObjectsFactory {
 								.setScope("DOCUMENT")
 								.setKeyValue("cleanPrice-1")))
 						.setValue(Price.builder()
-								.setAmount(BigDecimal.valueOf(cleanPrice))
-								.setUnitOfAmount(UnitType.builder()
+								.setValue(BigDecimal.valueOf(cleanPrice))
+								.setUnit(UnitType.builder()
 										.setCurrencyValue(tradedCurrency))
 								.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.ASSET_PRICE))))
 				.addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
@@ -143,8 +143,8 @@ public class TestObjectsFactory {
 								.setScope("DOCUMENT")
 								.setKeyValue("notional-1")))
 						.setValue(NonNegativeQuantitySchedule.builder()
-								.setAmount(BigDecimal.valueOf(notional))
-								.setUnitOfAmount(UnitType.builder()
+								.setValue(BigDecimal.valueOf(notional))
+								.setUnit(UnitType.builder()
 										.setCurrencyValue(tradedCurrency))))
 				.setObservable(Observable.builder()
 						.addProductIdentifierValue(ProductIdentifier.builder()
@@ -169,8 +169,8 @@ public class TestObjectsFactory {
 										.addAdjustedDateValue(Date.of(settlementDate))))
 				.addCashSettlementTerms(CashSettlementTerms.builder()
 						.setCashSettlementAmount(Money.builder()
-								.setAmount(BigDecimal.valueOf(dirtyPrice * quantity))
-								.setUnitOfAmount(UnitType.builder()
+								.setValue(BigDecimal.valueOf(dirtyPrice * quantity))
+								.setUnit(UnitType.builder()
 										.setCurrencyValue(settlementCurrency))))
 				.setSettlementCurrencyValue(settlementCurrency)
 				.setTransferSettlementType(TransferSettlementEnum.DELIVERY_VERSUS_PAYMENT)

@@ -19,8 +19,8 @@ import cdm.event.position.*;
 import cdm.event.position.PortfolioState.PortfolioStateBuilder;
 import cdm.event.position.functions.EvaluatePortfolioState;
 import cdm.event.position.metafields.ReferenceWithMetaPortfolioState;
-import cdm.legalagreement.common.ClosedState;
-import cdm.legalagreement.common.ClosedStateEnum;
+import cdm.legaldocumentation.common.ClosedState;
+import cdm.legaldocumentation.common.ClosedStateEnum;
 import cdm.observable.asset.Money;
 import cdm.product.common.settlement.CashSettlementTerms;
 import cdm.product.common.settlement.PriceQuantity;
@@ -96,8 +96,8 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 				.map(p -> p.toBuilder()
 						.addPositionComponent(PriceQuantity.builder()
 								.addQuantityValue(NonNegativeQuantitySchedule.builder()
-										.setAmount(positionQuantity.get(p))))
-						.setCashBalance(Money.builder().setAmount(positionCashBalance.get(p))) // TODO add currency
+										.setValue(positionQuantity.get(p))))
+						.setCashBalance(Money.builder().setValue(positionCashBalance.get(p))) // TODO add currency
 						.build())
 				.collect(Collectors.toSet());
 
@@ -319,7 +319,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 	 */
 	private BigDecimal getAggregationQuantity(TradeState e) {
 		PartyRoleEnum buyOrSell = getExecutingEntityBuyOrSell(e);
-		BigDecimal quantity = getQuantity(e).getAmount();
+		BigDecimal quantity = getQuantity(e).getValue();
 		return buyOrSell == PartyRoleEnum.SELLER ?
 				quantity.negate() : // if selling, reduce position
 				quantity; // if buying, increase position
@@ -336,7 +336,7 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 				.map(Collection::stream)
 				.flatMap(Stream::findFirst)
 				.map(CashSettlementTerms::getCashSettlementAmount)
-				.map(MeasureBase::getAmount)
+				.map(MeasureBase::getValue)
 				.map(settlementAmount ->
 						buyOrSell == PartyRoleEnum.SELLER ?
 								settlementAmount : // if selling, increase cash

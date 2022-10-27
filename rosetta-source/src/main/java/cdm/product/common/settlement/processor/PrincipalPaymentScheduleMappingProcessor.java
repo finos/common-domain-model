@@ -4,7 +4,7 @@ import cdm.base.datetime.AdjustableDate;
 import cdm.base.math.UnitType;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.PayerReceiver;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.observable.asset.Money;
 import cdm.product.common.settlement.PrincipalPayment;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -82,7 +82,7 @@ public class PrincipalPaymentScheduleMappingProcessor extends MappingProcessor {
                     BigDecimal amount = new BigDecimal(xmlValue);
 
                     Money.MoneyBuilder moneyBuilder = principalPaymentBuilder.getOrCreatePrincipalAmount();
-                    moneyBuilder.setAmount(amount.abs());
+                    moneyBuilder.setValue(amount.abs());
 
                     setCurrency(swapStreamPath, moneyBuilder);
 
@@ -117,7 +117,7 @@ public class PrincipalPaymentScheduleMappingProcessor extends MappingProcessor {
                                 .addElement("settlementCurrency"),
                         getMappings());
         if (settlementCurrency.isPresent()) {
-            moneyBuilder.setUnitOfAmount(UnitType.builder().setCurrencyValue(settlementCurrency.get()));
+            moneyBuilder.setUnit(UnitType.builder().setCurrencyValue(settlementCurrency.get()));
             return;
         }
         Optional<String> notionalCurrency =
@@ -129,7 +129,7 @@ public class PrincipalPaymentScheduleMappingProcessor extends MappingProcessor {
                                 .addElement("currency"),
                         getMappings());
         if (notionalCurrency.isPresent()) {
-            moneyBuilder.setUnitOfAmount(UnitType.builder().setCurrencyValue(notionalCurrency.get()));
+            moneyBuilder.setUnit(UnitType.builder().setCurrencyValue(notionalCurrency.get()));
             return;
         }
     }
