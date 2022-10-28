@@ -1,15 +1,15 @@
-# _Product Model - FpML Synonym Mapping Enhancements_
+# *Product Model - FpML Mapping of Interest Rate Known Amount Schedule*
+
+_Background_
+
+This release extends the product mapping coverage for the FpML Intererst Rates Known Amount Schedule structure.
 
 _What is being released?_
 
-This release fixes various FpML product synonym mapping issues identified through a review of unmapped fields.
-
-- Product Identification - synonyms added to map `productTaxonomy` and `productIdentifier` more accurately
-- Various other mappings have been added to resolve validation issues previously appearing
+* Relax the cardinality of `rateSpecification` to optional instead of required and add a condition that `rateSpecification` or `principalPayment` must be present.
+* Update the mapping for the FpML element `knownAmountSchedule` to `PayoutBase`’s `PriceQuantity`.
+* Refine the qualification function for fixed float interest rate swap to cover the use case of single final payment.
 
 _Review Directions_
 
-In the CDM Portal, select Ingestion and review the samples below
-
-- products > rates > `bond-option-uti` - `productIdentifier` no longer incorrectly mapped on to bond option
-- incomplete-products > commodity-derivatives > `com-ex29-physical-eu-emissions-option` - `productTaxonomy` correctly mapped
+In the CDM Portal, select the Textual Browser, navigate to types mentioned above and inspect their structural definitions and associated data conditions.
