@@ -441,9 +441,9 @@ synonym source FpML_5_10 extends FpML
 
 	FloatingRateOption:
 		+ floatingRateIndex
-			[value "floatingRateIndex" meta "floatingRateIndexScheme" ]
+			[value "floatingRateIndex" maps 2 meta "floatingRateIndexScheme"]
 		+ inflationRateIndex
-			[value "floatingRateIndex" meta "floatingRateIndexScheme"]
+			[value "floatingRateIndex" maps 2 meta "floatingRateIndexScheme"]
 		+ indexTenor
 			[value "indexTenor" maps 2]
 
@@ -632,7 +632,6 @@ synonym source FpML_5_10 extends FpML
 			[value "capRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
 			[value "floorRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation" mapper "PriceCollar"]
 			[value "floatingRateMultiplierSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
-			[value "knownAmountSchedule" path "calculationPeriodAmount"]
 			// For FRAs:
 			[hint "fixedRate"]
 			// For Credit:
@@ -662,6 +661,7 @@ synonym source FpML_5_10 extends FpML
 			[value "notionalStepSchedule" path "calculationPeriodAmount->calculation->notionalSchedule"]
 			[value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
 			[value "futureValueNotional" path "calculationPeriodAmount->calculation"]
+			[value "knownAmountSchedule" path "calculationPeriodAmount"]
 			[value "notionalAmount"]
 			// For FRAs:
 			[value "notional"]
@@ -821,10 +821,13 @@ synonym source FpML_5_10 extends FpML
 	 	[value "PrincipalExchanges" meta "id"]
 		+ initialPayment
 			[value "initialExchange"]
+			[set to False when "knownAmountSchedule" exists]
 		+ finalPayment
 			[value "finalExchange"]
+			[set to True when "knownAmountSchedule" exists]
 		+ intermediatePayment
 			[value "intermediateExchange"]
+			[set to False when "knownAmountSchedule" exists]
 		+ principalPaymentSchedule
 		    [value "cashflows" mapper "PrincipalPaymentSchedule"]
 
@@ -896,14 +899,14 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementType"]
 			[value "settlementType" path "equityExercise"]
 		+ settlementCurrency
-			[value "settlementCurrency" meta "currencyScheme"]
+			[value "settlementCurrency" maps 2 meta "currencyScheme"]
 			[value "settlementCurrency" path "settlementProvision"]
 			[value "cashSettlementCurrency" meta "currencyScheme"]
 			[value "cashSettlementCurrency" path "cashSettlement->cashPriceMethod"]
 			[value "cashSettlementCurrency" path "cashSettlement->crossCurrencyMethod"]
 			[value "settlementCurrency" path "cashSettlementTerms"]
 			[value "settlementCurrency" path "physicalSettlementTerms"]
-			[value "settlementCurrency" path "nonDeliverableSettlement"]
+			[value "settlementCurrency" path "nonDeliverableSettlement" meta "currencyScheme"]
 			[value "settlementCurrency" path "cashSettlement"]
 			[value "settlementCurrency" path "exercise"]
 			[value "settlementCurrency" path "equityExercise"]
@@ -926,6 +929,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "adjustablePaymentDate"]
 			[hint "adjustedPaymentDate"]
 			[value "equityExercise"]
+			[hint "nonDeliverableSettlement"]
 		+ cashSettlementTerms
 			[value "cashSettlement"]
 			[value "cashSettlementTerms"]
@@ -968,7 +972,8 @@ synonym source FpML_5_10 extends FpML
 			[meta "initialValue"]
 			[meta "fixedRate"]
 			[value "spread" maps 2 meta "amount"]
-	
+			[value "floatingRateMultiplierSchedule"]
+
 	SpreadSchedule:
 		+ spreadScheduleType
 			[value "SpreadScheduleType" meta "spreadScheduleTypeScheme"]
@@ -1038,6 +1043,14 @@ synonym source FpML_5_10 extends FpML
 		+ informationSource
 			[value "fixingInformationSource"]
 			[hint "primaryRateSource"]
+		+ observationDates
+			[hint "pricingDates"]
+			[value "pricingDates" path "pricingDates"]
+			[hint "amount"]
+			[hint "observationSchedule"]
+			[hint "rateObservation"]
+			[hint "valuationDate"]
+			[hint "fixingSchedule"]
 
 	AveragingObservationList:
 		+ averagingObservation
@@ -1190,9 +1203,10 @@ synonym source FpML_5_10 extends FpML
 			[value "extendibleProvision"]
 		+ evergreenProvision
 			[value "ignore"]
-			
+
 	OptionStrike:
 		+ strikePrice
+			[hint "price"]
 			[value "price"]
 			[hint "strikePrice"]
 			[hint "rate"]
@@ -1218,6 +1232,7 @@ synonym source FpML_5_10 extends FpML
 	ObservationDates:
 		+ observationSchedule
 			[value "rateObservation"]
+			[hint "adjustedDate"]
 		+ periodicSchedule
 			[value "observationSchedule"]
 			[value "fixingSchedule"]
@@ -1437,6 +1452,7 @@ synonym source FpML_5_10 extends FpML
 		+ adjustableOrRelativeDate
 			[hint "relativeDate"]
 			[value "settlementDate"]
+			[value "settlementDate" path "nonDeliverableSettlement"]
 			[value "relativePaymentDates"]
 			[value "paymentDates"]
 			[hint "adjustablePaymentDate"]
@@ -1623,6 +1639,8 @@ synonym source FpML_5_10 extends FpML
 			[value "initialIndexLevel"]
 		+ fallbackBondApplicable
 			[value "fallbackBondApplicable"]
+        + floatingRateMultiplierSchedule
+            [hint "floatingRateMultiplierSchedule"]
 
 	MandatoryEarlyTermination:
 	 	[value "MandatoryEarlyTermination" meta "id"]
@@ -1760,30 +1778,44 @@ synonym source FpML_5_10 extends FpML
 			[value "instrumentId" path "commodity" maps 2 mapper "ProductIdentifierSource"]
 			[value "instrumentId" path "exchangeTradedContractNearest" maps 2 mapper "ProductIdentifierSource"]
 			[value "productId" maps 2 mapper "ProductIdentifierSource"]
+			[value "productId" path "commoditySwaption" maps 2 mapper "ProductIdentifierSource"]
+            [value "productId" path "creditDefaultSwapOption" maps 2 mapper "ProductIdentifierSource"]
+            [value "productId" path "bondOption" maps 2 mapper "ProductIdentifierSource"]
 			[value "description" path "equity" maps 2 mapper "ProductIdentifierSource"]
 			[value "description" path "index" maps 2 mapper "ProductIdentifierSource"]
 
 	ProductBase:
 		+ productIdentifier
 			[hint "productId"]
-			[value "fra"]
-			[value "creditDefaultSwapOption"]
-			[value "bondOption"]
+            [hint "commoditySwaption"]
+            [value "fra"]
+            [hint "creditDefaultSwapOption"]
+            [hint "bondOption"]
 		+ productTaxonomy
-			[hint "productType"]
+            [hint "productType"]
 			[hint "primaryAssetClass"]
 			[hint "secondaryAssetClass"]
-			[value "fra"]
-			[value "creditDefaultSwapOption"]
-			[value "bondOption"]
+            [hint "commoditySwaption"]
+            [value "fra"]
+            [hint "creditDefaultSwapOption"]
+            [hint "bondOption"]
 
 	ProductTaxonomy:
 		+ primaryAssetClass
 			[value "primaryAssetClass" meta "assetClassScheme"]
+			[value "primaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
+			[value "primaryAssetClass" path "bondOption" meta "assetClassScheme"]
+			[value "primaryAssetClass" path "commoditySwaption" meta "assetClassScheme"]
 		+ secondaryAssetClass
 			[value "secondaryAssetClass" meta "assetClassScheme"]
+			[value "secondaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
+			[value "secondaryAssetClass" path "bondOption" meta "assetClassScheme"]
+			[value "secondaryAssetClass" path "commoditySwaption" meta "assetClassScheme"]
 		+ taxonomyValue
 			[value "productType" mapper "TaxonomySource"]
+			[value "productType" path "creditDefaultSwapOption" mapper "TaxonomySource"]
+			[value "productType" path "bondOption" mapper "TaxonomySource"]
+			[value "productType" path "commoditySwaption" mapper "TaxonomySource"]
 
 	Security:
 		+ productIdentifier
@@ -2274,6 +2306,7 @@ synonym source FpML_5_10 extends FpML
 		+ principalPayment
 			[value "principalExchanges"]
 			[hint "cashflows"]
+			[value "calculationPeriodAmount"]
 		+ compoundingMethod
 			[value "compoundingMethod" path "calculationPeriodAmount->calculation"]
 		+ cashflowRepresentation
@@ -2359,6 +2392,7 @@ synonym source FpML_5_10 extends FpML
 			[value "deliveryMethod"]
 
 	CommodityPayout:
+        [meta "id"]
 		+ pricingDates
 			[value "pricingDates" path "calculation"]
 		+ underlier
@@ -2394,7 +2428,14 @@ synonym source FpML_5_10 extends FpML
 		+ lag
 			[value "lag"]
 
+    Lag:
+        + lagDuration
+            [value "lagDuration"]
+        + firstObservationDateOffset
+            [value "firstObservationDateOffset"]
+
 	FixedPricePayout:
+		[meta "id"]
 		+ paymentDates
 			[value "paymentDates"]
 			[value "relativePaymentDates"]
@@ -2465,6 +2506,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "sellerPartyReference"]
 		+ priceQuantity
 			// For Swap Stream and FRA: moved to InterestRatePayout
+			[value "knownAmountSchedule" path "calculationPeriodAmount"]
 			// For Options:
 			[hint "numberOfOptions"]
 			// For Bond Option:
@@ -3702,11 +3744,11 @@ synonym source FpML_5_10 extends FpML
 			// For Commodity Swap Fixed Leg
 			[value "priceUnit" maps 2 set when rosettaPath = PriceSchedule->perUnitOf]
 		+ weatherUnit
-			[value "quantityUnit"]
+			[value "quantityUnit" maps 2]
 			// For Commodity Swap Fixed Leg
 			// [value "priceUnit" set when rosettaPath = PriceSchedule->perUnitOfAmount]
 		+ financialUnit
-			[value "quantityUnit"]
+			[value "quantityUnit" maps 2]
 			[value "openUnits" mapper "OpenUnits"]
 			[set to FinancialUnitEnum->ContractualProduct when path = "bulletPayment->payment->paymentAmount->amount"]
 			[set to FinancialUnitEnum->Weight when path = "basketPercentage"]
