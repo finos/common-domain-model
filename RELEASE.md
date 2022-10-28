@@ -7,4 +7,4 @@ _What is being released?_
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser, navigate to model components mentioned above.
+In the CDM Portal, select the Textual Browser, navigate to the model components mentioned above.
