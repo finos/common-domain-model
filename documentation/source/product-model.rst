@@ -501,7 +501,7 @@ For example:
 
  type InterestRatePayout extends PayoutBase:
     [metadata key]
-    rateSpecification RateSpecification (1..1)
+    rateSpecification RateSpecification (0..1)
     dayCountFraction DayCountFractionEnum (0..1)
        [metadata scheme]
     calculationPeriodDates CalculationPeriodDates (0..1)
