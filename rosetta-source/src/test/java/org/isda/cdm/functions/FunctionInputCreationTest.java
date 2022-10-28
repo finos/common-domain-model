@@ -36,7 +36,7 @@ import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.ReferenceInformation;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
-import cdm.product.common.settlement.TransferTypeEnum;
+import cdm.product.common.settlement.ScheduledTransferEnum;
 import cdm.product.template.Product;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
@@ -1195,7 +1195,7 @@ class FunctionInputCreationTest {
 
         transferBuilder.getOrCreateTransferExpression()
                 .getOrCreateScheduledTransfer()
-                .setTransferType(TransferTypeEnum.EXERCISE);
+                .setTransferType(ScheduledTransferEnum.EXERCISE);
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
                 .setBeforeValue(afterTradeState)
@@ -1299,7 +1299,7 @@ class FunctionInputCreationTest {
 
         transferBuilder.getOrCreateTransferExpression()
                 .getOrCreateScheduledTransfer()
-                .setTransferType(TransferTypeEnum.EXERCISE);
+                .setTransferType(ScheduledTransferEnum.EXERCISE);
 
         Instruction.InstructionBuilder instruction = Instruction.builder()
                 .setBeforeValue(afterTradeState)
