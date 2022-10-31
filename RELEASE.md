@@ -1,3 +1,14 @@
+# *Product Model - Transfer Type Enumeration*
+
+_What is being released?_
+
+* The Enumeration list `TransferTypeEnum` has been renamed `ScheduledTransferTypeEnum` to identify more clearly cashflows associated with lifecycle events.
+* The Enumeration value `BrokerageCommission` has been repositioned from the relabeled `ScheduledTransferTypeEnum` to `FeeTypeEnum`.
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser, navigate to the model components mentioned above.
+
 # *Product Model - FpML Mapping of Interest Rate Known Amount Schedule*
 
 _Background_
