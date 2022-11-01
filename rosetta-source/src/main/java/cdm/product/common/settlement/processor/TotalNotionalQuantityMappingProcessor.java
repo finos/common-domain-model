@@ -12,13 +12,11 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
 import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencableQuantityBuilder;
@@ -37,7 +35,8 @@ public class TotalNotionalQuantityMappingProcessor extends MappingProcessor {
 
 	@Override
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
-		List<FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder> quantityBuilders = filterEmpty(builders);
+		List<FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder> quantityBuilders =
+				(List<FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder>) builders;
 
 		getTotalNotionalQuantity(synonymPath, quantityBuilders.size()).ifPresent(totalNotionalQuantity -> {
 			// add to quantity list
@@ -45,14 +44,6 @@ public class TotalNotionalQuantityMappingProcessor extends MappingProcessor {
 			// set Quantity list on PriceQuantity
 			((PriceQuantity.PriceQuantityBuilder) parent).setQuantity(quantityBuilders);
 		});
-	}
-
-	@NotNull
-	@SuppressWarnings("unchecked")
-	private List<FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder> filterEmpty(List<? extends RosettaModelObjectBuilder> builders) {
-		return (List<FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder>) builders.stream()
-				.filter(RosettaModelObjectBuilder::hasData)
-				.collect(Collectors.toList());
 	}
 
 	private Optional<NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder> getTotalNotionalQuantity(Path synonymPath, int index) {
