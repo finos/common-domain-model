@@ -32,65 +32,9 @@ public class CalculationPeriodsImpl extends CalculationPeriods {
     @Override
     protected List<CalculationPeriodData.CalculationPeriodDataBuilder> doEvaluate(CalculationPeriodDates calculationPeriodDates) {
 
-        LocalDate adjustedStartDate = adjustDate(calculationPeriodDates.getEffectiveDate());
-        LocalDate adjustedEndDate = adjustDate(calculationPeriodDates.getTerminationDate());
-
         List<CalculationPeriodData.CalculationPeriodDataBuilder> returnVal = new ArrayList<>();
-
-        if (adjustedStartDate == null) {
-            LOGGER.warn("Can not build CalculationPeriodData as no adjusted start date specified.");
-            return returnVal;
-        }
-        if (adjustedEndDate == null) {
-            LOGGER.warn("Can not build CalculationPeriodData as no adjusted end date specified.");
-            return returnVal;
-        }
-
-        Schedule schedule = getSchedule(calculationPeriodDates, adjustedStartDate, adjustedEndDate);
-        ImmutableList<SchedulePeriod> periods = schedule.getPeriods();
-
-        for (SchedulePeriod period : periods) {
-            CalculationPeriodDataBuilder calcPeriod = getCalcPeriod(period);
-            returnVal.add(calcPeriod);
-        }
 
         return returnVal;
     }
 
-    private CalculationPeriodData.CalculationPeriodDataBuilder getCalcPeriod(SchedulePeriod targetPeriod) {
-        CalculationPeriodDataBuilder builder = CalculationPeriodData.builder();
-        int daysThatAreInLeapYear = getDaysThatAreInLeapYear(targetPeriod);
-
-        return builder
-                .setStartDate(Date.of(targetPeriod.getStartDate()))
-                .setEndDate(Date.of(targetPeriod.getEndDate()))
-                .setDaysInLeapYearPeriod(daysThatAreInLeapYear)
-                .setDaysInPeriod((int) ChronoUnit.DAYS.between(targetPeriod.getStartDate(), targetPeriod.getEndDate()))
-                .setIsFirstPeriod(false)
-                .setIsLastPeriod(false);
-    }
-
-    private int getDaysThatAreInLeapYear(SchedulePeriod targetPeriod) {
-        int daysThatAreInLeapYear = 0;
-        for (LocalDate startDate = targetPeriod.getStartDate(); startDate.isBefore(targetPeriod.getEndDate()); startDate = startDate.plusDays(1)) {
-            if (IsoChronology.INSTANCE.isLeapYear(startDate.getYear())) {
-                daysThatAreInLeapYear++;
-            }
-        }
-        return daysThatAreInLeapYear;
-    }
-
-    @NotNull
-    private Schedule getSchedule(CalculationPeriodDates calculationPeriodDates, LocalDate adjustedStartDate, LocalDate adjustedEndDate) {
-        // The api expects unadjusted dates, but we are passing in adjusted dates and using BusinessDayAdjustment.NONE.
-        PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
-                adjustedStartDate,
-                adjustedEndDate,
-                getFrequency(calculationPeriodDates),
-                BusinessDayAdjustment.NONE,
-                StubConvention.NONE,
-                getRollConvention(calculationPeriodDates));
-
-        return periodicSchedule.createSchedule(ReferenceData.minimal());
-    }
 }

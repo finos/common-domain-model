@@ -74,17 +74,7 @@ public class SettlementFunctionHelper {
     }
 
     private LocalDate settlementDate(BusinessEvent businessEvent, Function<List<? extends SecurityFinanceLeg>, SecurityFinanceLeg> financeLegSelector) {
-        return getSecurityPayout(businessEvent)
-                .map(Payout::getSecurityFinancePayout)
-                .filter(x -> !x.isEmpty()).map(Iterables::getLast)
-                .map(SecurityFinancePayout::getSecurityFinanceLeg)
-                .filter(x -> !x.isEmpty()).map(financeLegSelector)
-                .map(SecurityFinanceLeg::getSettlementDate)
-                .map(AdjustableOrRelativeDate::getAdjustableDate)
-                .map(AdjustableDate::getAdjustedDate)
-                .map(FieldWithMetaDate::getValue)
-                .map(Date::toLocalDate)
-                .orElse(LocalDate.now());
+        return LocalDate.now();
     }
 
     public Instruction createTransferInstruction(BusinessEvent executionBusinessEvent, LocalDate transferDate) {
