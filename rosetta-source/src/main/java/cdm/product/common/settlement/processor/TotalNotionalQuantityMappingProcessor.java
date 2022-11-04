@@ -4,7 +4,6 @@ import cdm.base.math.CapacityUnitEnum;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
-import cdm.product.common.settlement.PriceQuantity;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
-import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencableQuantityBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 
@@ -29,44 +27,47 @@ import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 @SuppressWarnings("unused")
 public class TotalNotionalQuantityMappingProcessor extends MappingProcessor {
 
-	public TotalNotionalQuantityMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
-		super(modelPath, synonymPaths, context);
-	}
+    public TotalNotionalQuantityMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
+        super(modelPath, synonymPaths, context);
+    }
 
-	@Override
-	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
-		List<FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder> quantityBuilders =
-				(List<FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder>) builders;
+    @Override
+    public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
+        List<FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder> quantityBuilders =
+                (List<FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder>) builders;
 
-		getTotalNotionalQuantity(synonymPath, quantityBuilders.size()).ifPresent(totalNotionalQuantity -> {
-			// add to quantity list
-			quantityBuilders.add(toReferencableQuantityBuilder(totalNotionalQuantity));
-			// set Quantity list on PriceQuantity
-			((PriceQuantity.PriceQuantityBuilder) parent).setQuantity(quantityBuilders);
-		});
-	}
+        getTotalNotionalQuantity(synonymPath, quantityBuilders.size())
+                .map(PriceQuantityHelper::toReferencableQuantityBuilder)
+                .ifPresent(quantityBuilders::add);
+    }
 
-	private Optional<NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder> getTotalNotionalQuantity(Path synonymPath, int index) {
-		NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity = NonNegativeQuantitySchedule.builder();
+    private Optional<NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder> getTotalNotionalQuantity(Path synonymPath, int index) {
+        NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity = NonNegativeQuantitySchedule.builder();
 
-		Path baseModelPath = toPath(getModelPath()).addElement("amount");
-		Path mappedModelPath = incrementPathElementIndex(baseModelPath, "quantity", index);
+        Path baseModelPath = toPath(getModelPath()).addElement("amount");
+        Path mappedModelPath = incrementPathElementIndex(baseModelPath, "quantity", index);
 
-		MappingProcessorUtils.setValueAndUpdateMappings(synonymPath,
-				(xmlValue) -> quantity
-						.setValue(new BigDecimal(xmlValue))
-						.setUnit(UnitType.builder().setCapacityUnit(getCapacityUnitEnum(synonymPath))),
-				getMappings(),
-				PathUtils.toRosettaPath(mappedModelPath));
+        MappingProcessorUtils.setValueAndUpdateMappings(synonymPath,
+                (xmlValue) -> quantity
+                        .setValue(new BigDecimal(xmlValue))
+                        .setUnit(UnitType.builder().setCapacityUnit(findCapacityUnitEnum(synonymPath.getParent()))),
+                getMappings(),
+                PathUtils.toRosettaPath(mappedModelPath));
 
-		return quantity.hasData() ? Optional.of(quantity) : Optional.empty();
-	}
+        return quantity.hasData() ? Optional.of(quantity) : Optional.empty();
+    }
 
-	@Nullable
-	private CapacityUnitEnum getCapacityUnitEnum(Path baseSynonymPath) {
-		Path quantityUnitPath = baseSynonymPath.getParent().addElement("notionalQuantity").addElement("quantityUnit");
-		return getNonNullMappedValue(quantityUnitPath, getMappings())
-				.flatMap(xmlValue -> getSynonymToEnumMap().getEnumValueOptional(CapacityUnitEnum.class, xmlValue))
-				.orElse(null);
-	}
+    @Nullable
+    private CapacityUnitEnum findCapacityUnitEnum(Path legSynonymPath) {
+        // check both notionalQuantity and notionalQuantitySchedule paths
+        return getCapacityUnitEnum(legSynonymPath.addElement("notionalQuantity").addElement("quantityUnit"))
+                .orElse(getCapacityUnitEnum(legSynonymPath.addElement("notionalQuantitySchedule").addElement("notionalStep").addElement("quantityUnit"))
+                        .orElse(null));
+    }
+
+    @Nullable
+    private Optional<CapacityUnitEnum> getCapacityUnitEnum(Path quantityUnitPath) {
+        return getNonNullMappedValue(quantityUnitPath, getMappings())
+                .flatMap(xmlValue -> getSynonymToEnumMap().getEnumValueOptional(CapacityUnitEnum.class, xmlValue));
+    }
 }

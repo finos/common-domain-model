@@ -78,7 +78,8 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 				// Repo
 				|| updateCurrencyPerCurrencyUnit(PriceScheduleBuilder, synonymPath, "repo", "nearLeg", "settlementAmount", "currency")
 				// Commodity
-				|| updateCurrencyPerCapacityUnit(PriceScheduleBuilder, synonymPath, "commodityOption", Arrays.asList("strikePricePerUnit", "currency"), Arrays.asList("notionalQuantity", "quantityUnit"));
+				|| updateCurrencyPerCapacityUnit(PriceScheduleBuilder, synonymPath, "commodityOption", Arrays.asList("strikePricePerUnit", "currency"), Arrays.asList("notionalQuantity", "quantityUnit"))
+				|| updateCurrencyPerCapacityUnit(PriceScheduleBuilder, synonymPath, "commodityOption", Arrays.asList("strikePricePerUnit", "currency"), Arrays.asList("notionalQuantitySchedule", "notionalStep", "quantityUnit"));
 	}
 
 	@NotNull
