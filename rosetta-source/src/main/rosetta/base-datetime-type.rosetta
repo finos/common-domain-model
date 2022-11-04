@@ -1,6 +1,10 @@
 namespace cdm.base.datetime : <"Basic date and time concepts: relative date, date range, offset, business centre etc.">
 version "${project.version}"
 
+import cdm.observable.common.*
+import cdm.product.common.schedule.*
+import cdm.product.asset.*
+
 type AdjustableDate: <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
 	[metadata key]
 
@@ -53,6 +57,15 @@ type AdjustableOrAdjustedOrRelativeDate: <"This Rosetta class specifies the date
 			or unadjustedDate exists
 			or (unadjustedDate exists and dateAdjustments exists and adjustedDate is absent)
 
+type GenericDate: <"A class giving the choice between defining a date as an explicit date together with applicable adjustments or as relative to some other (anchor) date.">
+	[metadata key]
+
+	adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
+	relativeDate RelativeDate (0..1) <"A date specified as some offset to another date (the anchor date).">
+
+	condition AdjustableOrRelativeDateChoice: <"Choice rule to represent an FpML choice construct.">
+		required choice adjustableDate, relativeDate
+
 type AdjustableOrRelativeDate: <"A class giving the choice between defining a date as an explicit date together with applicable adjustments or as relative to some other (anchor) date.">
 	[metadata key]
 
@@ -66,7 +79,7 @@ type AdjustableOrRelativeDates: <"A class giving the choice between defining a s
 	[metadata key]
 
 	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	relativeDates RelativeDates (0..1) <"A series of dates specified as some offset to another series of dates (the anchor dates).">
+	relativeDates RelativeDate (0..1) <"A series of dates specified as some offset to another series of dates (the anchor dates).">
 
 	condition AdjustableOrRelativeDatesChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice adjustableDates, relativeDates
@@ -81,10 +94,19 @@ type BusinessCenters: <"A class for specifying the business day calendar locatio
 	businessCenter BusinessCenterEnum (0..*) <"A code identifying one or several business day calendar location(s). The set of business day calendar locations are specified by the business day calendar location enumeration which is maintained by the FpML standard.">
 		[metadata scheme]
 	businessCentersReference BusinessCenters (0..1) <"A reference to a financial business center location specified elsewhere in the instance document.">
-		[metadata reference]
+		[metadata reference]	
+	businessCenterTime time (0..1) <"A class for defining a time with respect to a business day calendar location. For example, 11:00:00 GBLO.">
 
 	condition BusinessCentersChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice businessCenter, businessCentersReference
+
+type BusinessCentersNew: <"A class for specifying the business day calendar location used in determining whether a day is a business day or not, either by specifying this business center by reference to an enumerated list that is maintained by the FpML standard, or by reference to such specification when it exists elsewhere as part of the instance document. This class corresponds to the FpML BusinessCentersOrReference.model.">
+	[metadata key]
+
+	businessCenter BusinessCenterEnum (0..1) <"A code identifying one or several business day calendar location(s). The set of business day calendar locations are specified by the business day calendar location enumeration which is maintained by the FpML standard.">
+		[metadata scheme]
+
+	businessCenterTime time (0..1) <"A class for defining a time with respect to a business day calendar location. For example, 11:00:00 GBLO.">
 
 type BusinessCenterTime: <"A class for defining a time with respect to a business day calendar location. For example, 11:00:00 GBLO.">
 
@@ -102,6 +124,15 @@ type BusinessDayAdjustments: <"A class defining the business day convention and 
 
 	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">
 	businessCenters BusinessCenters (0..1) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">
+
+type BusinessDayAdjustmentsNew: <"A class defining the business day convention and financial business centers used for adjusting any relevant date if it would otherwise fall on a day that is not a business day in the specified business center.">
+	[metadata key]
+
+	businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day.">
+	businessCenters BusinessCentersNew (0..*) <"The business center(s), specified either explicitly or by reference to those specified somewhere else in the instance document.">
+
+	businessCentersReference BusinessCenters (0..1) <"A reference to a financial business center location specified elsewhere in the instance document.">
+		[metadata reference]
 
 type DateRange: <"A class defining a contiguous series of calendar dates. The date range is defined as all the dates between and including the start and the end date. The start date must fall on or before the end date.">
 
@@ -153,6 +184,49 @@ type Period: <"A class to define recurring periods or time offsets.">
 		if periodMultiplier = 0
 		then period = PeriodEnum -> D
 
+type RelativeDateToReferences : <"A class describing a set of dates defined as relative to another set of dates of a particular type present in the Trade, referenced in an explicit manner, possibly as anchor dates series for the purpose of calculating the referencing dates with an offset">
+
+	dateRelativeToPaymentDates DateRelativeToPaymentDates (0..1) <"The date is referencing a particular type of date present in the Trade, which is Payment Date.">
+	dateRelativeToCalculationPeriodStartDates DateRelativeToCalculationPeriodDates (0..1) <"The date is referencing a particular type of date present in the Trade, which is Calculation Period Start Date.">
+	dateRelativeToCalculationPeriodEndDates DateRelativeToCalculationPeriodDates (0..1) <"The date is referencing a particular type of date present in the Trade, which is Calculation Period End Date.">
+	dateRelativeToObservationDates DateRelativeToObservationDates (0..1) <"The date is referencing a particular type of date present in the Trade, which is Observation Date.">
+	dateRelativeToValuationDates DateRelativeToValuationDates (0..1) <"The date is referencing a particular type of date present in the Trade, which is Valuation Date.">
+
+	condition RelativeDatesToReferencesChoice: <"condition to represent an FpML choice construct.">
+		one-of
+
+type RelativeDate: <"A class describing a date, or a set of dates, defined as relative to another date, which is notably referred to as the Anchor Date when an Offset exists for the purpose of defining the Relative Date ">
+
+	offsetPeriod Offset (0..1) <".................">
+	offsetAnchorDate AnchorDate (1..1) <".................">
+	offsetDateAdjustment BusinessDayAdjustmentsNew (0..1) <".................">
+
+type AnchorDate: <"................">
+
+	adjustableDate AdjustableDate (0..1) <".................">
+	dateType DateRelativeToEnum (0..1) <".........">
+
+	condition AnchorDateChoice:
+	one-of
+
+type AnchorDateBackLog: <"................">
+
+	adjustedDate date (0..1) <".................">
+	referencedDate RelativeDateToReferences (0..1) <".....">
+	dateType DateRelativeToEnum (0..1) <".........">
+
+	condition AnchorDateChoice:
+	one-of
+
+type AnchorDates: <"................">
+
+	adjustedDates date (0..*) <".................">
+	referencedDates RelativeDateToReferences (0..1) <"A class describing a set of dates defined as relative to another set of explicit dates present in the Trade">
+	datesType DateRelativeToEnum (0..1) <"A class describing a set of dates defined as relative to another date concept i.e. dateType, which is defined elsewhere e.g. Payment Date, Valuation Date, Observation Date, either as an object present in the Trade or in any relevant documentation to which the Trade may refer to, in an explicit or implicit manner e.g. ISDA Definitions, Master Confirmation Agreement, etc.">
+
+	condition AnchorDatesChoice:
+	one-of
+
 type RelativeDates extends RelativeDateOffset: <"A class describing a set of dates defined as relative to another set of dates.">
 
 	periodSkip int (0..1) <"The number of periods in the referenced date schedule that are between each date in the relative date schedule. Thus a skip of 2 would mean that dates are relative to every second date in the referenced schedule. If present this should have a value greater than 1.">
@@ -171,6 +245,26 @@ type RelativeDateOffset extends Offset: <"A class defining a date (referred to a
 	dateRelativeTo date (0..1) <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">
 		[metadata reference]
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+
+type ObservationTime: <"The time on which a value is observed">
+	time BusinessCenterTime (0..1) <"The observation time.">
+	timePeriod TimePeriod (0..1) <"The observation time is a lengh of time i.e. a Time Period defined between a start time and en end time.">
+	timeType TimeTypeEnum (0..1) <"The observation time is relative to a concept, defined somewhere else, either in another Trade object, else in ISDA or Master Confirmation or any documentation the Trade may refer to where such concept would be defined">
+
+	condition ObservationTimeChoice: one-of
+
+	condition ObservationTimeTypeChoice: 
+		timeType <> TimeTypeEnum -> ObservationTime
+
+type TimePeriod: <"An interval of time inside which a value is observed">
+	startTime BusinessCenterTime (0..1) <"The observation start time of the Time Period.">
+	endTime BusinessCenterTime (0..1) <"The observation end time of the Time Period.">
+	timeType TimeTypeEnum (0..1) <"The observation time is relative to a concept, defined somewhere else, either in another Trade object, else in ISDA or Master Confirmation or any documentation the Trade may refer to where such concept would be defined">
+
+	condition TimePeriodHasTwoBoundaries:
+	startTime exists and endTime exists and timeType is absent
+	or startTime exists and timeType exists and endTime is absent
+	or endTime exists and timeType exists and startTime is absent
 
 type TimeZone: <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
 	time time (1..1) <"The observation time.">
@@ -193,27 +287,66 @@ type AveragingSchedule: <"Class to representing a method for generating a series
 	endDate date (1..1) <"Date on which this period ends.">
 	averagingPeriodFrequency CalculationPeriodFrequency (1..1) <"The frequency at which averaging period occurs with the regular part of the valuation schedule and their roll date convention.">
 
-type AdjustableRelativeOrPeriodicDates: <"A class giving the choice between defining a series of dates as an explicit list of dates together with applicable adjustments or as relative to some other series of (anchor) dates, or as a calculation period schedule.">
+type GenericDateSchedule: <"A class giving the choice between defining a series of dates as an explicit list of dates together with applicable adjustments or as relative to some other series of (anchor) dates, or as a calculation period schedule.">
 	[metadata key]
 
-	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
-	relativeDates RelativeDates (0..1) <"A series of dates specified as some offset to another series of dates (the anchor dates).">
-	periodicDates PeriodicDates (0..1) <"A calculation period schedule.">
+	adjustableDateSchedule AdjustableDate (0..*) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
+	relativeDateSchedule RelativeDate (0..*) <"A series of dates specified as some offset to another series of dates (the anchor dates).">
+	periodicDateSchedule PeriodicDates (0..1) <"A calculation period schedule.">
 
-	condition AdjustableRelativeOrPeriodicDatesChoice: <"Choice rule to represent an FpML choice construct.">
-		required choice adjustableDates, relativeDates, periodicDates
+	condition DateScheduleChoice: <"Choice rule to represent an FpML choice construct.">
+		required choice adjustableDateSchedule, relativeDateSchedule, periodicDateSchedule
 
 type PeriodicDates: <"A class for specifying a calculation period schedule.">
 
-	startDate AdjustableOrRelativeDate (0..1) <"The start date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the effective date. It is always specified in the case of equity swaps and credit default swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
-	endDate AdjustableOrRelativeDate (0..1) <"The end date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the termination date. It is always specified in the case of equity swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
-	periodFrequency CalculationPeriodFrequency (0..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">
-	periodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
-	dayType DayTypeEnum (0..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">
+initialStub GenericDate (0..1) <"Either an explicit adjustableDate or a relativeDate calculated as an Offset with regards to an anchor date. In the particular situation where such anchor would be the firstStartDate, then the Offset multiplier shall be a negative integer (or null) so that the initial stub date always falls prior (or on) the firstStartDate">
+	finalStub GenericDate (0..1) <"Either an explicit adjustableDate or a relativeDate calculated as an Offset with regards to an anchor date. In the particular situation where such anchor would be the lastEndDate, then the Offset multiplier is a positive integer (or null) so that the final stub date always falls after (or on) the lastEndDate.">
+	firstStartDate GenericDate (0..1) <"The first start date of the calculated period(s), either an explicit adjustableDate or a relativeDate calculated as an Offset with regards to an anchor date. When several periods exist, each period is defined by a pair of startDate and endDate, as resolved in accordance with the relevant periodFrequency and datesAdjustment features.">
+	lastEndDate GenericDate (0..1) <"The last end date of the calculated period(s), either an explicit adjustableDate or a relativeDate calculated as an Offset with regards to an anchor date.  When several periods exist, each period is defined by a pair of startDate and endDate, as resolved in accordance with the relevant periodFrequency and datesAdjustment features.">
+	relativeAnchorDate RelativeDate (0..1) <"When the Periodic Dates are defined as relative to another dateSchedule">
+	periodFrequency CalculationPeriodFrequency (0..1) <"A class for defining a date frequency, e.g. one day, three months, through the combination of an integer value and a standardized period value that is specified as part of an enumeration ; optionally with their roll day convention.">
+	periodDatesAdjustments BusinessDayAdjustmentsNew (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
+	distributionFrequencyPerPeriod DistributionFrequencyPerPeriod (0..1) <"A class for further specifiying a sub-set of recurrent periods or recurrent dates inside the periods or dates series defined by the periodFrequency. As an example of recurrent period e.g. every first week inside each periodFrequency made of 4 weeks. As an example of recurrent date e.g. every 3rd Friday inside each periodFrequency made of 1 month, etc.">
+
+	condition BoundariesDatesMustExist1: <"In order to ensure the shedule is a limited timeline as a whole, either initial and final boundaries exist with both firstStartDate and lastEndDate being defined, else the boundaries are defined by the actual dates series defined via relativeAnchorDate">
+		if relativeAnchorDate is absent
+		then firstStartDate exists
+
+	condition BoundariesDatesMustExist2: <"In order to ensure the shedule is a limited timeline as a whole, either initial and final boundaries exist with both firstStartDate and lastEndDate being defined, else the boundaries are defined by the actual dates series defined via relativeAnchorDate">
+		if relativeAnchorDate is absent
+		then lastEndDate exists
+
+	condition RollingOrAnchorDateChoice: <"The anchor date of the schedule shall be defined either 'every' roll day, as per rollConventionEnum value, else as a relative date to 'every' adjustable dates or a series of dates designated by a dayType ; as an example of the latter case (e.g. if relative to dayType), a Payment Date Schedule could be defined as relative to every dates falling on a Calculation Period End Date">
+		if relativeAnchorDate exists
+		then periodFrequency -> rollConvention is absent
+
+	condition InitialStubPriorStartDate: <"When initialStub is relativeDate to the firstStartDate as the anchor date, then the Offset multiplier shall be a negative integer (or null) so that the initial stub date always falls prior (or on) the firstStartDate">
+		if initialStub -> relativeDate exists
+		then initialStub -> relativeDate -> offsetPeriod -> periodMultiplier <= 0
+
+	condition FinalStubAfterEndDate: <"When finalStub is relativeDate to the lastEndDate as the anchor date, then the Offset multiplier shall be a positive integer (or null) so that the final stub date always falls after (or on) the lastEndDate">
+		if finalStub -> relativeDate exists
+		then finalStub -> relativeDate -> offsetPeriod-> periodMultiplier >= 0
+
+type DistributionFrequencyPerPeriod: <"A class for further specifying a sub-set of dates per period, by defining how to distribute dates inside each period. As an example, the periodFrequency is monthly (= 1M) but one wants to further restrict the dates to every 3rd, 4th and 5th days per each month.">
+
+	periodType PeriodEnum (0..1) <"The type of sub-period which is distributed per period">
+	periodTypeIsDayOfWeek DayOfWeekEnum (0..6) <"A particular type of sub-period which is distributed per period, which is dayOfWeek. For clarity, up to 6 among the  7 days of a week, being assumed than selecting all the 7 days of a week is prevented and shall instead be defined with : periodTypeEnum = Week.">
+	dayType DayTypeEnum (1..1) <"...............">
+	periodTypeOrdinalValue int (0..*) <"The ordinal designation of the sub-periods being scheduled. As an example, say periodFrequency = 1Month ; if periodType = Day and periodTypeOrdinalValue array = 10, 15 and 20, then the 10th day, the 15th day and the 20th of each month are scheduled. Another example with same periodFrequency: if periodTypeIsDayOfWeek = FRIDAY and periodTypeOrdinalValue = 3, then every 3rd Friday per month is scheduled. Another example still same perdiodFrequency : if periodType = Week and periodTypeOrdinalValue array = 2 and 4, then the 2nd week and the 4th week are scheduled every month.">
+	distributionMethod DistributionMethodEnum (1..1) <"By default, every sub-period type defined is distributed per Period. Yet one may want to further specify the sub-periods series as either First or Penultimate or Last. As an example, say periodFrequency = 3Months ; if periodTypeIsDayOfWeek array = THURSDAY and FRIDAY and DistributionMethodEnum = Last, then the Thursday and Friday of the last week of the 3rd month are scheduled, which are effectively the last ones of a 3Months periods.">
+	periodSkip int (0..1) <"The number of periods in the referenced date schedule that are between each date in the relative date schedule. Thus a skip of 2 would mean that dates are relative to every second date in the referenced schedule. If present this should have a value greater than 1.">
+
+	condition PeriodSkipGreaterThanOne: <"FpML specifies that, if present, the period skip should have a value greater than 1.">
+		if periodSkip exists
+		then periodSkip > 1
+
+	condition DatesDistributionParametersChoice:
+		required choice periodType, periodTypeIsDayOfWeek
 
 type CalculationPeriodFrequency extends Frequency: <"A class to specify the frequency at which calculation period end dates occur within the regular part of the calculation period schedule and their roll date convention.">
 
-	rollConvention RollConventionEnum (1..1) <"The roll convention specifies the period term as part of a periodic schedule, i.e. the calculation period end date within the regular part of the calculation period. The value could be a rule, e.g. IMM Settlement Dates, which is the 3rd Wednesday of the month, or it could be a specific day of the month, such as the first day of the applicable month. It is used in conjunction with a frequency and the regular period start date of a calculation period.">
+	rollConvention RollConventionEnum (0..1) <"The roll convention specifies the period term as part of a periodic schedule, i.e. the calculation period end date within the regular part of the calculation period. The value could be a rule, e.g. IMM Settlement Dates, which is the 3rd Wednesday of the month, or it could be a specific day of the month, such as the first day of the applicable month. It is used in conjunction with a frequency and the regular period start date of a calculation period.">
 	balanceOfFirstPeriod boolean (0..1) <"Indicates, when true, that that the first Calculation Period should run from the Effective Date to the end of the calendar period in which the Effective Date falls, e.g. Jan 15 - Jan 31 if the calculation periods are one month long and Effective Date is Jan 15. If false, the first Calculation Period should run from the Effective Date for one whole period, e.g. Jan 15 to Feb 14 if the calculation periods are one month long and Effective Date is Jan 15. Mostly used in Commmodity Swaps.">
 
 	condition FpML_ird_57: <"FpML validation rule ird-57 - Context: CalculationPeriodFrequency. [period eq ('M', 'Y')] not(rollConvention = ('NONE', 'SFE', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT','SUN')).">

@@ -105,17 +105,17 @@ func Qualify_BaseProduct_EquitySwap: <"Qualifies a product as having the Asset C
 
 	set is_product:
         // all underliers must be equity asset class
-        economicTerms -> payout -> performancePayout -> underlier
-            extract [ Qualify_AssetClass_Equity( item ) ]
-            all = True
-        and (
+        // economicTerms -> payout -> performancePayout -> underlier
+        //     extract [ Qualify_AssetClass_Equity( item ) ]
+        //     all = True
+        // and (
             // Interest Rate Payout + Performance Payout (Price Return Swap, Total Return Swap)
             (economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
             // Performance Payout + Fixed Price Payout (Dividend Swap)
             or (economicTerms -> payout -> performancePayout, economicTerms -> payout -> fixedPricePayout) only exists
             // Performance Payout only (Variance, Volatility and Correlation Swap)
             or economicTerms -> payout -> performancePayout only exists
-        )
+        // )
 
 func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features.">
 	[qualification Product]
@@ -1201,7 +1201,7 @@ func Qualify_ForeignExchange_ParameterReturnCorrelation: <"Qualifies a product a
 		performancePayout -> underlier -> basket only exists and
 
 		// qualifies that the product is FX (i.e.: the basket is constituted by foreign exchange constituents)
-		performancePayout -> underlier -> basket -> basketConstituent -> foreignExchange only exists and
+		// performancePayout -> underlier -> basket -> basketConstituent -> foreignExchange only exists and
 
 		// qualifies that all basket constituents are FX - are these necessary?  Should be covered by the "only exists" above
 		performancePayout -> underlier -> basket -> basketConstituent -> basket is absent and

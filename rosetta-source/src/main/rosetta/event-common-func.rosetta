@@ -204,26 +204,26 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
 	output:
 		identifiers ObservationIdentifier (1..1)
 
-    alias adjustedFinalValuationDate:
-        ResolveAdjustableDate( payout -> valuationDates -> valuationDatesFinal -> valuationDate )
-    alias valuationDates: <"Determine which valuation date to get valuation time and type from.">
-        if adjustedDate < adjustedFinalValuationDate then
-            payout -> valuationDates -> valuationDatesInterim
-        else
-            payout -> valuationDates -> valuationDatesFinal
-	add identifiers -> observable -> productIdentifier: <"Represents the identifer for the equity underlier.">
-		payout -> underlier -> security -> productIdentifier
-	set identifiers -> observationDate: <"Specifies the date for which to retrieve the market data value(s). Selects the most recent valuation date.">
-		AdjustedValuationDates( payout -> valuationDates )
-		    filter [ item <= adjustedDate ]
-		    last
-	set identifiers -> observationTime: <"Specifies the time for which to retrieve the market data value(s).">
-		ResolvePerformanceValuationTime(valuationDates -> valuationTime,
-		    valuationDates -> valuationTimeType,
-		    identifiers -> observable -> productIdentifier only-element,
-		    valuationDates -> determinationMethod )
-	set identifiers -> determinationMethodology -> determinationMethod: <"Identifies a more specific price should multiple prices for the underlier be available at the given date time, for example bid or ask prices.">
-		valuationDates -> determinationMethod
+    // alias adjustedFinalValuationDate:
+    //     ResolveAdjustableDate( payout -> valuationDates -> valuationDatesFinal -> valuationDate )
+    // alias valuationDates: <"Determine which valuation date to get valuation time and type from.">
+    //     if adjustedDate < adjustedFinalValuationDate then
+    //         payout -> valuationDates -> valuationDatesInterim
+    //     else
+            // payout -> valuationDates -> valuationDatesFinal
+	// add identifiers -> observable -> productIdentifier: <"Represents the identifer for the equity underlier.">
+	// 	payout -> underlier -> security -> productIdentifier
+	// set identifiers -> observationDate: <"Specifies the date for which to retrieve the market data value(s). Selects the most recent valuation date.">
+	// 	AdjustedValuationDates( payout -> valuationDates )
+	// 	    filter [ item <= adjustedDate ]
+	// 	    last
+	// set identifiers -> observationTime: <"Specifies the time for which to retrieve the market data value(s).">
+	// 	ResolvePerformanceValuationTime(valuationDates -> valuationTime,
+	// 	    valuationDates -> valuationTimeType,
+	// 	    identifiers -> observable -> productIdentifier only-element,
+	// 	    valuationDates -> determinationMethod )
+	// set identifiers -> determinationMethodology -> determinationMethod: <"Identifies a more specific price should multiple prices for the underlier be available at the given date time, for example bid or ask prices.">
+	// 	valuationDates -> determinationMethod
 
 func AdjustedValuationDates:
     inputs: valuationDates ValuationDates (1..1)
@@ -929,7 +929,7 @@ func NewSingleNameEquityPerformancePayout: <"Function specification to create th
 
 	set performancePayout -> valuationDates: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
 		masterConfirmation -> valuationDates
-	set performancePayout -> paymentDates: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
+	set performancePayout -> paymentDateSchedule: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
 		masterConfirmation -> equityCashSettlementDates
 	set performancePayout -> settlementTerms: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
 		masterConfirmation -> settlementTerms
