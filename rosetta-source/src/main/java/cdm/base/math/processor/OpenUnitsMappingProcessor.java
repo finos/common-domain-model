@@ -23,11 +23,26 @@ public class OpenUnitsMappingProcessor extends MappingProcessor {
 
 	@Override
 	public <T> void mapBasic(Path openUnitPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
-		getNonNullMapping(getMappings(), openUnitPath)
-				.flatMap(x -> getNonNullMappedValue(getMappings(), openUnitPath.getParent().addElement("equity")))
-				.ifPresent(x -> ((UnitType.UnitTypeBuilder) parent).setFinancialUnit(FinancialUnitEnum.SHARE));
-		getNonNullMapping(getMappings(), openUnitPath)
-				.flatMap(x -> getNonNullMappedValue(getMappings(), openUnitPath.getParent().addElement("index")))
-				.ifPresent(x -> ((UnitType.UnitTypeBuilder) parent).setFinancialUnit(FinancialUnitEnum.INDEX_UNIT));
+		UnitType.UnitTypeBuilder unitTypeBuilder = (UnitType.UnitTypeBuilder) parent;
+		setPerUnitOf(unitTypeBuilder, getPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
+		setPerUnitOf(unitTypeBuilder, getPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
+		setPerUnitOf(unitTypeBuilder, getPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
+		// for basketConstituent
+		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath.getParent(), "equity"), FinancialUnitEnum.SHARE);
+		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath.getParent(), "bond"), FinancialUnitEnum.SHARE);
+		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath.getParent(), "index"), FinancialUnitEnum.INDEX_UNIT);
+	}
+
+	private Path getPath(Path openUnitPath, String equity) {
+		return openUnitPath.getParent().addElement(equity);
+	}
+
+	private Path getBasketConstituentPath(Path openUnitPath, String equity) {
+		return openUnitPath.getParent().addElement(equity);
+	}
+
+	private void setPerUnitOf(UnitType.UnitTypeBuilder unitTypeBuilder, Path synonymPath, FinancialUnitEnum financialUnit) {
+		getNonNullMappedValue(getMappings(), synonymPath)
+				.ifPresent(x -> unitTypeBuilder.setFinancialUnit(financialUnit));
 	}
 }
