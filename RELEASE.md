@@ -6,7 +6,7 @@ This release extends the product mapping coverage for the FpML Equity Swaps stru
 
 _What is being released?_
 
-* Mappings for FpML component `openUnits` have been added to the model to map `PriceQuantity.price.perUnitOf` correctly for `equity` and `index` basket constituents.
+* Mappings for FpML component `openUnits` have been added to the model to map `Quantity.unit.financialUnit` correctly for `equity` and `index` basket constituents.
 
 _Review Directions_
 

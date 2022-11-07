@@ -25,15 +25,13 @@ public class OpenUnitsMappingProcessor extends MappingProcessor {
 	public <T> void mapBasic(Path openUnitPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		UnitType.UnitTypeBuilder unitTypeBuilder = (UnitType.UnitTypeBuilder) parent;
 		// for single underliers
-		setPerUnitOf(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
-		setPerUnitOf(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
-		setPerUnitOf(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
-		setPerUnitOf(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "commodity"), FinancialUnitEnum.CONTRACT);
+		setQuantityUnit(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
+		setQuantityUnit(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
+		setQuantityUnit(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
 		// for basketConstituent
-		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
-		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
-		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
-		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "commodity"), FinancialUnitEnum.CONTRACT);
+		setQuantityUnit(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
+		setQuantityUnit(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
+		setQuantityUnit(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
 	}
 
 	private Path getSingleUnderlierPath(Path openUnitPath, String lastElement) {
@@ -52,7 +50,7 @@ public class OpenUnitsMappingProcessor extends MappingProcessor {
 		return openUnitPath.getParent().getParent().addElement(lastElement);
 	}
 
-	private void setPerUnitOf(UnitType.UnitTypeBuilder unitTypeBuilder, Path synonymPath, FinancialUnitEnum financialUnit) {
+	private void setQuantityUnit(UnitType.UnitTypeBuilder unitTypeBuilder, Path synonymPath, FinancialUnitEnum financialUnit) {
 		getNonNullMappedValue(getMappings(), synonymPath)
 				.ifPresent(x -> unitTypeBuilder.setFinancialUnit(financialUnit));
 	}
