@@ -24,16 +24,16 @@ public class OpenUnitsMappingProcessor extends MappingProcessor {
 	@Override
 	public <T> void mapBasic(Path openUnitPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
 		UnitType.UnitTypeBuilder unitTypeBuilder = (UnitType.UnitTypeBuilder) parent;
-		setPerUnitOf(unitTypeBuilder, getPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
-		setPerUnitOf(unitTypeBuilder, getPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
-		setPerUnitOf(unitTypeBuilder, getPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
+		setPerUnitOf(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
+		setPerUnitOf(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
+		setPerUnitOf(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
 		// for basketConstituent
 		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
 		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
 		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
 	}
 
-	private Path getPath(Path openUnitPath, String lastElement) {
+	private Path getSingleUnderlierPath(Path openUnitPath, String lastElement) {
 		// openUnits path:
 		// /underlyer/singleUnderlyer/openUnits
 		// underlier type:
