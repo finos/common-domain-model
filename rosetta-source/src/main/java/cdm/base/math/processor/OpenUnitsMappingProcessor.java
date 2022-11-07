@@ -28,17 +28,25 @@ public class OpenUnitsMappingProcessor extends MappingProcessor {
 		setPerUnitOf(unitTypeBuilder, getPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
 		setPerUnitOf(unitTypeBuilder, getPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
 		// for basketConstituent
-		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath.getParent(), "equity"), FinancialUnitEnum.SHARE);
-		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath.getParent(), "bond"), FinancialUnitEnum.SHARE);
-		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath.getParent(), "index"), FinancialUnitEnum.INDEX_UNIT);
+		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
+		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
+		setPerUnitOf(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
 	}
 
-	private Path getPath(Path openUnitPath, String equity) {
-		return openUnitPath.getParent().addElement(equity);
+	private Path getPath(Path openUnitPath, String lastElement) {
+		// openUnits path:
+		// /underlyer/singleUnderlyer/openUnits
+		// underlier type:
+		// /underlyer/singleUnderlyer/equity|bond|index
+		return openUnitPath.getParent().addElement(lastElement);
 	}
 
-	private Path getBasketConstituentPath(Path openUnitPath, String equity) {
-		return openUnitPath.getParent().addElement(equity);
+	private Path getBasketConstituentPath(Path openUnitPath, String lastElement) {
+		// openUnits path:
+		// /underlyer/basket/basketConstituent/constituentWeight/openUnits
+		// underlier type:
+		// /underlyer/basket/basketConstituent/equity|bond|index
+		return openUnitPath.getParent().getParent().addElement(lastElement);
 	}
 
 	private void setPerUnitOf(UnitType.UnitTypeBuilder unitTypeBuilder, Path synonymPath, FinancialUnitEnum financialUnit) {
