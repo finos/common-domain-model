@@ -49,10 +49,6 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 		if (!Optional.ofNullable(PriceScheduleBuilder.getPriceExpression()).map(PriceExpression::getPriceType).isPresent()) {
 			return;
 		}
-//		UnitTypeBuilder unitOfAmount = PriceScheduleBuilder.getUnit();
-//		if (unitOfAmount != null && unitOfAmount.hasData()) {
-//			return;
-//		}
 		boolean result =
 				// Rates
 				updateCurrencyPerCurrencyUnit(PriceScheduleBuilder, synonymPath, "swapStream", "notionalSchedule", "notionalStepSchedule", "currency")
