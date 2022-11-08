@@ -139,7 +139,7 @@ The CDM provides support for implementors to uniquely identify a legal agreement
 .. code-block:: Haskell
 
  type LegalAgreementBase:
-   agreementDate date (1..1)
+   agreementDate date (0..1)
    effectiveDate date (0..1)
    identifier Identifier (0..*)
    legalAgreementIdentification LegalAgreementIdentification (1..1)

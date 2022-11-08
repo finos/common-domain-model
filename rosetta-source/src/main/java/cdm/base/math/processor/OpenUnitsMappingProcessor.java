@@ -23,11 +23,35 @@ public class OpenUnitsMappingProcessor extends MappingProcessor {
 
 	@Override
 	public <T> void mapBasic(Path openUnitPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
-		getNonNullMapping(getMappings(), openUnitPath)
-				.flatMap(x -> getNonNullMappedValue(getMappings(), openUnitPath.getParent().addElement("equity")))
-				.ifPresent(x -> ((UnitType.UnitTypeBuilder) parent).setFinancialUnit(FinancialUnitEnum.SHARE));
-		getNonNullMapping(getMappings(), openUnitPath)
-				.flatMap(x -> getNonNullMappedValue(getMappings(), openUnitPath.getParent().addElement("index")))
-				.ifPresent(x -> ((UnitType.UnitTypeBuilder) parent).setFinancialUnit(FinancialUnitEnum.INDEX_UNIT));
+		UnitType.UnitTypeBuilder unitTypeBuilder = (UnitType.UnitTypeBuilder) parent;
+		// for single underliers
+		setQuantityUnit(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
+		setQuantityUnit(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
+		setQuantityUnit(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
+		// for basketConstituent
+		setQuantityUnit(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
+		setQuantityUnit(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
+		setQuantityUnit(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
+	}
+
+	private Path getSingleUnderlierPath(Path openUnitPath, String lastElement) {
+		// openUnits path:
+		// /underlyer/singleUnderlyer/openUnits
+		// underlier type:
+		// /underlyer/singleUnderlyer/equity|bond|index
+		return openUnitPath.getParent().addElement(lastElement);
+	}
+
+	private Path getBasketConstituentPath(Path openUnitPath, String lastElement) {
+		// openUnits path:
+		// /underlyer/basket/basketConstituent/constituentWeight/openUnits
+		// underlier type:
+		// /underlyer/basket/basketConstituent/equity|bond|index
+		return openUnitPath.getParent().getParent().addElement(lastElement);
+	}
+
+	private void setQuantityUnit(UnitType.UnitTypeBuilder unitTypeBuilder, Path synonymPath, FinancialUnitEnum financialUnit) {
+		getNonNullMappedValue(getMappings(), synonymPath)
+				.ifPresent(x -> unitTypeBuilder.setFinancialUnit(financialUnit));
 	}
 }

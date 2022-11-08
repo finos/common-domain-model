@@ -48,6 +48,8 @@ type Affirmation: <"A class to specify a trade affirmation.">
 
 type ContractFormationInstruction: <"Specifies instructions to create a fully formed contract, with optional legal agreements.">
 	legalAgreement LegalAgreement (0..*) <"Optional legal agreements associated to the contract being formed, for instance a master agreement.">
+	condition ExecutedAgreements: <"The full formation of a contract can only be completed with executed legal agreements.">
+		if legalAgreement exists then legalAgreement-> agreementDate exists
 
 type Instruction: <"Instruction to a function that will be used to perform a business event">
 	[rootType]
@@ -106,6 +108,7 @@ type ExecutionInstruction: <"Specifies instructions for execution of a transacti
 	tradeDate date (1..1) <"Denotes the trade/execution date.">
 	    [metadata id]
 	tradeIdentifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
+	collateral Collateral (0..1) <"Detail the collateral requirement anticipated with the transaction.">
 
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 
@@ -219,11 +222,11 @@ type TransferExpression: <"Specifies a transfer expression (cash price, performa
 	condition: one-of
 
 type ScheduledTransfer:
-	transferType TransferTypeEnum (1..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
+	transferType ScheduledTransferEnum (1..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
 	corporateActionTransferType CorporateActionTypeEnum (0..1)
 
 	condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
-		if transferType = TransferTypeEnum -> CorporateAction then corporateActionTransferType exists
+		if transferType = ScheduledTransferEnum -> CorporateAction then corporateActionTransferType exists
 
 type SettlementOrigin: <"Defines the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
 
@@ -479,6 +482,8 @@ type ContractDetails: <"Defines specific attributes that relate to contractual d
 	documentation LegalAgreement (0..*) <"Represents the legal document(s) that governs a trade and associated contractual product terms, either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
 	governingLaw GoverningLawEnum (0..1) <"Represents the law governing the trade and associated contractual product terms.">
 		[metadata scheme]
+	condition ExecutedAgreement: <"Contract details can only only point to  executed legal agreements.">
+		if documentation exists then documentation-> agreementDate exists
 
 type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an contractFormation event is corrected, the correction event will have a lineage into the initial event, which takes the form of a globalKey into that initial contract formation event. Two referencing mechanisms are provided as part of the CDM: either the globalKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the globalKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.globalKey.GlobalKeyHashCalculator. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
     tradeReference Trade (0..*)
