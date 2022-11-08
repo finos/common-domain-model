@@ -53,7 +53,7 @@ public class VegaNotionalAmountMappingProcessor extends MappingProcessor {
     }
 
     private boolean isPriceQuantityModelPath() {
-        return PathUtils.toPath(getModelPath()).endsWith("priceQuantity", "quantity", "value", "amount");
+        return PathUtils.toPath(getModelPath()).endsWith("priceQuantity", "quantity", "value");
     }
 
     private boolean isFxVarianceSwapPath(Path synonymPath) {

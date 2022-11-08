@@ -451,9 +451,10 @@ The CDM specifies the various sets of possible remaining economic terms using th
    terminationDate AdjustableOrRelativeDate (0..1)
    dateAdjustments BusinessDayAdjustments (0..1)
    payout Payout (1..1)
-   earlyTerminationProvision EarlyTerminationProvision (0..1)
-   optionProvision OptionProvision (0..1)
+   terminationProvision TerminationProvision (0..1)
    extraordinaryEvents ExtraordinaryEvents (0..1)
+   calculationAgent CalculationAgent (0..1)
+   nonStandardisedTerms boolean (0..1)
 
 Payout
 """"""
@@ -500,7 +501,7 @@ For example:
 
  type InterestRatePayout extends PayoutBase:
     [metadata key]
-    rateSpecification RateSpecification (1..1)
+    rateSpecification RateSpecification (0..1)
     dayCountFraction DayCountFractionEnum (0..1)
        [metadata scheme]
     calculationPeriodDates CalculationPeriodDates (0..1)

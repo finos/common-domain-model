@@ -2,7 +2,7 @@ package com.regnosys.granite.projector.isdacreate;
 
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
-import cdm.legalagreement.common.LegalAgreement;
+import cdm.legaldocumentation.common.LegalAgreement;
 import com.rosetta.model.lib.meta.FieldWithMeta;
 import org.isda.isdacreate.shared.Document;
 
