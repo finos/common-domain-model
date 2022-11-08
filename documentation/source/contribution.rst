@@ -65,7 +65,7 @@ Like other types of software, *backward compatibility* in the context of a domai
   * Change to any synonym that improves, or at least does not degrade, the mapping coverage
   * Addition of new examples or test packs
   * Change to the user documentation or model descriptions
-  * Addition of new data types, attributes, enumerations, rules or functions - TBD?
+  * Addition of new data types, attributes, enumerations, rules or functions that do not impact current functionality
 
 Exceptions to backward compatibility may be granted for emergency bug fixes following decision from the relevant governance body.
 
