@@ -11,4 +11,4 @@ ISDA stable version CDM 3.0.0 provides the following coverage:
 - Complete representation of the ISDA new generation collateral documentation including integration with CreateiQ documents, and standardised approach for digital representation of Eligible Collateral Schedules.
 - Comprehensive mapping syntax with external data representation, supporting integration with FpML version 5.10 and 5.12, CreateiQ, ORE XMLDTCC Trade Warehouse Submission and Cash Notification protocols, and with the CME Clearing Submission and Clearing Notification protocols, for interest rate swap.
 - Comprehensive set of examples, default implementation components, contribution guidelines and documentation to facilitate the CDM on-boarding by market participants, service providers and technology firms.
-- Distribution of the Model as code represented in nine different commonly used languages
+- Distribution of the Model as code represented in nine different commonly used languages.
