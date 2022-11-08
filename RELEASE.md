@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-ISDA stable version CDM 3.0.0 provides the following coverage:
+ISDA CDM 3.0.0 provides the following coverage:
 
 - Complete representation of Interest Rate, Equity, Credit, and Foreign Exchange derivative products, Financial Commodity products, and Security Lending products including product qualification aligned with the ISDA Product Taxonomy v.2.0.
 - Comprehensive Event model based on a set of functional building blocks used to compose business events in a product- and asset-class agnostic way.
