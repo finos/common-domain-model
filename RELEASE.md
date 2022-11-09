@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-ISDA CDM 3.0.0 broadly addresses the following scope:
+ISDA CDM 3.0 broadly addresses the following scope:
 
 - Comprehensive representation of Interest Rate, Equity, Credit, and Foreign Exchange derivative products, Financial Commodity products, and Security Lending products including product qualification aligned with the ISDA Product Taxonomy v.2.0.
 - Extensive event model based on a set of functional building blocks used to compose the business events that mark the post-trade life-cycle of financial transactions.
