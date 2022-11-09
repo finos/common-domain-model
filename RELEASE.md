@@ -1,4 +1,4 @@
-# *CDM Model - Stable Version 3*
+# *CDM Model - Version 3*
 
 _What is being released?_
 
