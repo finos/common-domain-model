@@ -1,26 +1,17 @@
-# *Product Model - Transfer Type Enumeration*
-
-_What is being released?_
-
-* The Enumeration list `TransferTypeEnum` has been renamed `ScheduledTransferTypeEnum` to identify more clearly cashflows associated with lifecycle events.
-* The Enumeration value `BrokerageCommission` has been repositioned from the relabeled `ScheduledTransferTypeEnum` to `FeeTypeEnum`.
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser, navigate to the model components mentioned above.
-
-# *Product Model - FpML Mapping of Interest Rate Known Amount Schedule*
+# *Product Model - FpML Mapping of Open Units for Baskets*
 
 _Background_
 
-This release extends the product mapping coverage for the FpML Intererst Rates Known Amount Schedule structure.
+This release extends the product mapping coverage for the FpML Equity Swaps structure.
 
 _What is being released?_
 
-* Relax the cardinality of `rateSpecification` to optional instead of required and add a condition that `rateSpecification` or `principalPayment` must be present.
-* Update the mapping for the FpML element `knownAmountSchedule` to `PayoutBase`’s `PriceQuantity`.
-* Refine the qualification function for fixed float interest rate swap to cover the use case of single final payment.
+* Mappings for FpML component `openUnits` have been added to the model to map `Quantity.unit.financialUnit` correctly for `equity` and `index` basket constituents.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser, navigate to types mentioned above and inspect their structural definitions and associated data conditions.
+In the CDM Portal, select Ingestion and review the following examples:
+
+- fpml-5-10 > incomplete-products > equity-swaps > eqs-ex07-long-form-with-stub
+- fpml-5-10 > incomplete-products > equity-swaps > eqs-ex08-composite-basket-long-form-separate-spreads
+- fpml-5-10 > incomplete-products > equity-swaps > trs-ex01-equity-basket

@@ -1,7 +1,6 @@
-package cdm.SchemeImport;
+package cdm.schemeimport;
 
 import com.regnosys.granite.ingestor.ExpectationUtil;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -14,44 +13,42 @@ import java.nio.file.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class LatestSchemesImpportsTest {
+public class LatestSchemesImportTest {
 
-    private static final String schemaPath = "src/main/resources/coding-schemes/fpml";
-    private static final String codeListZip = "src/main/resources/coding-schemes/fpml/codelist.zip";
-
-    private static final String codeList = "src/main/resources/coding-schemes/fpml/codelist";
-
-    private static final boolean execute_Download_Latest_Version = ExpectationUtil.WRITE_EXPECTATIONS;
+    private static final String SCHEMA_PATH = "src/main/resources/coding-schemes/fpml";
+    private static final String CODE_LIST_ZIP = "src/main/resources/coding-schemes/fpml/codelist.zip";
+    private static final String CODE_LIST = "src/main/resources/coding-schemes/fpml/codelist";
+    private static final boolean EXECUTE_DOWNLOAD_LATEST_VERSION = ExpectationUtil.WRITE_EXPECTATIONS;
 
     @Test
     public void downloadLatestVersions() throws IOException {
-        if (execute_Download_Latest_Version) {
+        if (EXECUTE_DOWNLOAD_LATEST_VERSION) {
             URL website = new URL("https://www.fpml.org/spec/coding-scheme/codelist.zip");
 
             ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-            FileOutputStream fos = new FileOutputStream(LatestSchemesImpportsTest.codeListZip);
+            FileOutputStream fos = new FileOutputStream(LatestSchemesImportTest.CODE_LIST_ZIP);
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 
             //Unzip from CodeList just being downloaded
             unzip();
             //Move the unzipped files to SchemePath if not already exists
             moveFilesToFpml();
-            //  InputStream inputStream = new URL("https://www.fpml.org/coding-scheme/set-of-schemes").openStream();
-            //  Files.copy(inputStream, Paths.get("src/main/resources/" + schemaPath), StandardCopyOption.REPLACE_EXISTING);
-            deletFileFolder(new File(LatestSchemesImpportsTest.codeListZip));
-            deletFileFolder(new File(LatestSchemesImpportsTest.codeList));
+            // InputStream inputStream = new URL("https://www.fpml.org/coding-scheme/set-of-schemes").openStream();
+            // Files.copy(inputStream, Paths.get("src/main/resources/" + schemaPath), StandardCopyOption.REPLACE_EXISTING);
+            deleteFileFolder(new File(LatestSchemesImportTest.CODE_LIST_ZIP));
+            deleteFileFolder(new File(LatestSchemesImportTest.CODE_LIST));
         }
     }
 
-    public static void unzip() {
-        try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(codeListZip).toFile().toPath()))) {
+    private static void unzip() {
+        try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(CODE_LIST_ZIP).toFile().toPath()))) {
 
             // list files in zip
             ZipEntry zipEntry = zipInputStream.getNextEntry();
 
             while (zipEntry != null) {
                 // Check for zip slip vulnerability attack
-                Path newUnzipPath = zipSlipVulnerabilityProtect(zipEntry, Paths.get(schemaPath));
+                Path newUnzipPath = zipSlipVulnerabilityProtect(zipEntry, Paths.get(SCHEMA_PATH));
 
                 boolean isDirectory = false;
                 //check for files or directory
@@ -81,7 +78,7 @@ public class LatestSchemesImpportsTest {
     }
 
     // Check for zip slip attack
-    public static Path zipSlipVulnerabilityProtect(ZipEntry zipEntry, Path targetDir)
+    private static Path zipSlipVulnerabilityProtect(ZipEntry zipEntry, Path targetDir)
             throws IOException {
 
         /*
@@ -104,10 +101,9 @@ public class LatestSchemesImpportsTest {
         return normalizePath;
     }
 
-
-    public void moveFilesToFpml() {
-        Path sourceDir = Paths.get(codeList);
-        Path destinationDir = Paths.get(schemaPath);
+    private void moveFilesToFpml() {
+        Path sourceDir = Paths.get(CODE_LIST);
+        Path destinationDir = Paths.get(SCHEMA_PATH);
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(sourceDir)) {
             for (Path path : directoryStream) {
@@ -122,16 +118,15 @@ public class LatestSchemesImpportsTest {
         }
     }
 
-    public void deletFileFolder(File fileToBeDeleted) {
+    private void deleteFileFolder(File fileToBeDeleted) {
         File[] contents = fileToBeDeleted.listFiles();
         if (contents != null) {
             for (File f : contents) {
                 if (!Files.isSymbolicLink(f.toPath())) {
-                    deletFileFolder(f);
+                    deleteFileFolder(f);
                 }
             }
         }
         fileToBeDeleted.delete();
     }
-
 }
