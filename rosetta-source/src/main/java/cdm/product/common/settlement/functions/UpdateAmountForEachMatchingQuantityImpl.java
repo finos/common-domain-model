@@ -17,22 +17,26 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder;
+import static cdm.observable.asset.metafields.FieldWithMetaPriceSchedule.FieldWithMetaPriceScheduleBuilder;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEachMatchingQuantity {
 
 	@Override
 	protected List<PriceQuantity.PriceQuantityBuilder> doEvaluate(List<? extends PriceQuantity> priceQuantity,
-			List<? extends PriceQuantity> change,
-			QuantityChangeDirectionEnum direction) {
-		List<PriceQuantity.PriceQuantityBuilder> priceQuantityBuilders = emptyIfNull(priceQuantity).stream().map(PriceQuantity::toBuilder).collect(Collectors.toList());
+																  List<? extends PriceQuantity> change,
+																  QuantityChangeDirectionEnum direction) {
+		List<PriceQuantity.PriceQuantityBuilder> priceQuantityBuilders =
+				emptyIfNull(priceQuantity).stream()
+						.map(pq -> pq.build().toBuilder())
+						.collect(Collectors.toList());
 		return update(priceQuantityBuilders, change, direction);
 	}
 
 	@NotNull
-	private List<PriceQuantity.PriceQuantityBuilder> update(List<PriceQuantity.PriceQuantityBuilder> priceQuantity,
-			List<? extends PriceQuantity> change,
-			QuantityChangeDirectionEnum direction) {
+	private List<PriceQuantity.PriceQuantityBuilder> update(List<PriceQuantity.PriceQuantityBuilder> priceQuantityBuilders,
+															List<? extends PriceQuantity> change,
+															QuantityChangeDirectionEnum direction) {
 		// Get new quantities
 		Set<? extends NonNegativeQuantitySchedule> newQuantities = emptyIfNull(change).stream()
 				.map(PriceQuantity::getQuantity)
@@ -50,75 +54,69 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 		// Update matching quantities and prices for each price quantity
-		List<PriceQuantity.PriceQuantityBuilder> updatedPriceQuantity = emptyIfNull(priceQuantity)
-				.stream()
-				.map(pq -> pq
-						.setQuantity(updateAmountForEachMatchingQuantity(pq.getQuantity(), newQuantities, direction))
-						.setPrice(updateAmountForEachMatchingPrice(pq.getPrice(), newPrices, direction)))
-				.collect(Collectors.toList());
+		emptyIfNull(priceQuantityBuilders)
+				.forEach(pq -> {
+					updateAmountForEachMatchingQuantity(pq.getQuantity(), newQuantities, direction);
+					updateAmountForEachMatchingPrice(pq.getPrice(), newPrices, direction);
+				});
 
-		return updatedPriceQuantity;
+		return priceQuantityBuilders;
 	}
 
-	@NotNull
-	private List<? extends FieldWithMetaNonNegativeQuantitySchedule> updateAmountForEachMatchingQuantity(List<? extends FieldWithMetaNonNegativeQuantityScheduleBuilder> quantitiesToUpdate,
-																					  Set<? extends NonNegativeQuantitySchedule> newQuantities,
-																					  QuantityChangeDirectionEnum direction) {
-		return emptyIfNull(quantitiesToUpdate)
+	private void updateAmountForEachMatchingQuantity(List<? extends FieldWithMetaNonNegativeQuantityScheduleBuilder> quantitiesToUpdate,
+													 Set<? extends NonNegativeQuantitySchedule> newQuantities,
+													 QuantityChangeDirectionEnum direction) {
+		emptyIfNull(quantitiesToUpdate)
 				.stream()
 				.filter(Objects::nonNull)
-				.filter(fieldWithMeta -> fieldWithMeta.getValue() != null)
-				.map(FieldWithMetaNonNegativeQuantitySchedule::toBuilder)
-				.peek(quantityToUpdate ->
-						filterQuantityByUnitOfAmount(newQuantities, quantityToUpdate.getValue().getUnit())
-								.forEach(newQuantity ->
-										updateAmount(quantityToUpdate.getValue(), newQuantity.getValue(), direction)))
-				.collect(Collectors.toList());
+				.map(FieldWithMetaNonNegativeQuantityScheduleBuilder::getValue)
+				.filter(Objects::nonNull)
+				.forEach(quantityToUpdate ->
+						findQuantityByUnitOfAmount(newQuantities, quantityToUpdate.getUnit())
+								.ifPresent(newQuantity -> updateAmount(quantityToUpdate, newQuantity.getValue(), direction)));
 	}
 
-	@NotNull
-	private List<? extends NonNegativeQuantitySchedule> filterQuantityByUnitOfAmount(Set<? extends NonNegativeQuantitySchedule> quantities, UnitType unitOfAmount) {
-		return  Optional.ofNullable(quantities).orElseGet(HashSet::new).stream()
+	private Optional<? extends NonNegativeQuantitySchedule> findQuantityByUnitOfAmount(Set<? extends NonNegativeQuantitySchedule> quantities, UnitType unitOfAmount) {
+		return Optional.ofNullable(quantities).orElseGet(HashSet::new).stream()
 				.filter(quantity -> Objects.nonNull(quantity.getUnit()))
 				.filter(quantity -> unitTypeEquals(quantity.getUnit(), unitOfAmount))
-				.collect(Collectors.toList());
+				.findFirst();
 	}
 
-	@NotNull
-	private List<? extends FieldWithMetaPriceSchedule> updateAmountForEachMatchingPrice(List<? extends FieldWithMetaPriceSchedule> pricesToUpdate,
-																				Set<? extends PriceSchedule> newPrices,
-																				QuantityChangeDirectionEnum direction) {
-		return emptyIfNull(pricesToUpdate)
+	private void updateAmountForEachMatchingPrice(List<? extends FieldWithMetaPriceScheduleBuilder> pricesToUpdate,
+												  Set<? extends PriceSchedule> newPrices,
+												  QuantityChangeDirectionEnum direction) {
+		emptyIfNull(pricesToUpdate)
 				.stream()
 				.filter(Objects::nonNull)
-				.filter(fieldWithMeta -> fieldWithMeta.getValue() != null)
-				.map(FieldWithMetaPriceSchedule::toBuilder)
-				.peek(priceToUpdate ->
-						filterPrice(newPrices,
-								priceToUpdate.getValue().getUnit(),
-								priceToUpdate.getValue().getPerUnitOf(),
-								priceToUpdate.getValue().getPriceExpression())
-								.forEach(matchingPrice ->
-										updateAmount(priceToUpdate.getValue(), matchingPrice.getValue(), direction)))
-				.collect(Collectors.toList());
+				.map(FieldWithMetaPriceScheduleBuilder::getValue)
+				.forEach(priceToUpdate ->
+						findPrice(newPrices, priceToUpdate.getUnit(), priceToUpdate.getPerUnitOf(), priceToUpdate.getPriceExpression())
+								.ifPresent(matchingPrice ->
+										updateAmount(priceToUpdate, matchingPrice.getValue(), direction)));
 	}
 
 	@NotNull
-	private List<? extends PriceSchedule> filterPrice(Set<? extends PriceSchedule> prices, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceExpression priceExpression) {
-		return  Optional.ofNullable(prices).orElseGet(HashSet::new).stream()
+	private Optional<? extends PriceSchedule> findPrice(Set<? extends PriceSchedule> prices, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceExpression priceExpression) {
+		return Optional.ofNullable(prices).orElseGet(HashSet::new).stream()
 				.filter(price -> Objects.nonNull(price.getUnit()))
 				.filter(price -> unitTypeEquals(price.getUnit(), unitOfAmount))
 				.filter(price -> unitTypeEquals(price.getPerUnitOf(), perUnitOfAmount))
 				.filter(price -> Objects.equals(price.getPriceExpression().toBuilder().prune(), priceExpression.toBuilder().prune()))
-				.collect(Collectors.toList());
+				.findFirst();
 	}
 
-	private <T extends MeasureBase.MeasureBaseBuilder> T updateAmount(T priceToUpdate, BigDecimal newAmount, QuantityChangeDirectionEnum direction) {
+	private void updateAmount(MeasureBase.MeasureBaseBuilder measureBaseToUpdate, BigDecimal newAmount, QuantityChangeDirectionEnum direction) {
+		if (measureBaseToUpdate.getValue() == null) {
+			return;
+		}
 		switch (direction) {
 			case DECREASE:
-				return (T) priceToUpdate.setValue(priceToUpdate.getValue().subtract(newAmount));
+				measureBaseToUpdate.setValue(measureBaseToUpdate.getValue().subtract(newAmount));
+				break;
 			case REPLACE:
-				return (T) priceToUpdate.setValue(newAmount);
+				measureBaseToUpdate.setValue(newAmount);
+				break;
 			default:
 				throw new IllegalArgumentException("Unexpected QuantityChangeDirectionEnum " + direction);
 		}
@@ -134,7 +132,8 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 		if (!Objects.equals(b1.getCapacityUnit(), b2.getCapacityUnit())) return false;
 		if (!Objects.equals(b1.getFinancialUnit(), b2.getFinancialUnit())) return false;
 		if (!Objects.equals(b1.getWeatherUnit(), b2.getWeatherUnit())) return false;
-		if (!Objects.equals(Optional.ofNullable(b1.getCurrency()).map(FieldWithMetaString::getValue), Optional.ofNullable(b2.getCurrency()).map(FieldWithMetaString::getValue))) return false;
+		if (!Objects.equals(Optional.ofNullable(b1.getCurrency()).map(FieldWithMetaString::getValue), Optional.ofNullable(b2.getCurrency()).map(FieldWithMetaString::getValue)))
+			return false;
 		return true;
 	}
 }
