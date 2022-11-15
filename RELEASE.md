@@ -1,26 +1,12 @@
-# *Product Model - Transfer Type Enumeration*
+# *CDM Model - Function Bug Fixes*
 
 _What is being released?_
 
-* The Enumeration list `TransferTypeEnum` has been renamed `ScheduledTransferTypeEnum` to identify more clearly cashflows associated with lifecycle events.
-* The Enumeration value `BrokerageCommission` has been repositioned from the relabeled `ScheduledTransferTypeEnum` to `FeeTypeEnum`.
+This release contains two bug fixes related to functions that compare quantities.
+
+- func `CompareTradeLotToAmount` - change required to compare `Quantity->value` only if it exists. This change will fix the use-case where the `Quantity` contains a schedule, hence the `value` attribute will be empty and should not be compared. 
+- func `QuantityDecreasedToZero` - change required to comparison of the before and after `Quantity` values.  The function previously compared that all before `Quantity` values were greater than zero, but has now been changed to greater or equal to zero to handle the use-case where one of the before trade `Quantity` values are zero. 
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser, navigate to the model components mentioned above.
-
-# *Product Model - FpML Mapping of Interest Rate Known Amount Schedule*
-
-_Background_
-
-This release extends the product mapping coverage for the FpML Intererst Rates Known Amount Schedule structure.
-
-_What is being released?_
-
-* Relax the cardinality of `rateSpecification` to optional instead of required and add a condition that `rateSpecification` or `principalPayment` must be present.
-* Update the mapping for the FpML element `knownAmountSchedule` to `PayoutBase`’s `PriceQuantity`.
-* Refine the qualification function for fixed float interest rate swap to cover the use case of single final payment.
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser, navigate to types mentioned above and inspect their structural definitions and associated data conditions.
+In the CDM Portal, select the Textual Browser, and review the functions mentioned above.
