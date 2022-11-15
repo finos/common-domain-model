@@ -64,7 +64,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 			PriceExpression priceExpression) {
 		return getNonNullMapping(getMappings(), synonymPath).map(mapping -> {
 			// update price index to ensure unique model path, otherwise any references will break
-			Path mappedModelPath = toPath(getModelPath()).addElement("amount");
+			Path mappedModelPath = toPath(getModelPath()).addElement("value");
 			String amount = String.valueOf(mapping.getXmlValue());
 			updateMappings(synonymPath, mappedModelPath, amount);
 			return toReferencablePriceBuilder(new BigDecimal(amount),
