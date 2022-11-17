@@ -36,14 +36,14 @@ synonym source FpML
 
 synonym source FpML_5_10 extends FpML
 {
-	AdjustableRelativeOrPeriodicDates:
+	GenericDateSchedule:
 		[meta "id"]
-		+ adjustableDates
+		+ adjustableDateSchedule
 			[value "adjustableDates"]
-		+ relativeDates
+		+ relativeDateSchedule
 			[value "relativeDates"]
 			[value "relativeDateSequence"]
-		+ periodicDates
+		+ periodicDateSchedule
 			[value "periodicDates"]
 
 	AmericanExercise:
@@ -247,11 +247,11 @@ synonym source FpML_5_10 extends FpML
 			[value "paymentDetail"]
 
 	InformationSource:
-		+ sourceProvider
+		+ sourceProviderName
 			[value "rateSource" meta "informationProviderScheme"]
-		+ sourcePage
+		+ sourceProviderPage
 			[value "rateSourcePage" meta "rateSourcePageScheme"]
-		+ sourcePageHeading
+		+ sourceProviderPageHeading
 			[value "rateSourcePageHeading"]
 
 	InitialFixingDate:
@@ -346,10 +346,10 @@ synonym source FpML_5_10 extends FpML
 			[value "presentValueAmount"]
 
 	PeriodicDates:
-		+ startDate
+		+ firstStartDate
 			[value "calculationStartDate"]
 			[hint "startDate"]
-		+ endDate
+		+ lastEndDate
 			[value "calculationEndDate"]
 			[hint "endDate"]
 		+ periodFrequency
@@ -506,7 +506,7 @@ synonym source FpML_5_10 extends FpML
  			[set to PriceTypeEnum->InterestRate when path = "floatingRateIndex"]
  			[set to PriceTypeEnum->InterestRate when path = "floorRateSchedule"]
  			[set to PriceTypeEnum->InterestRate when path = "capRateSchedule"]
- 			[set to PriceTypeEnum->MultiplierOfIndexValue when path = "floatingRateMultiplierSchedule"]
+ 		//	[set to PriceTypeEnum->MultiplierOfIndexValue when path = "floatingRateMultiplierSchedule"]
  			[set to PriceTypeEnum->AssetPrice when "referencePrice" exists]
  			[set to PriceTypeEnum->AssetPrice when "strikePrice" exists]
  			[set to PriceTypeEnum->AssetPrice when "initialPrice->netPrice->amount" exists]
@@ -529,9 +529,9 @@ synonym source FpML_5_10 extends FpML
 			// FX: SpreadTypeEnum->Base when "forwardPoints" exists is set by ExchangeRate mapper
             [set to SpreadTypeEnum->Base when path = "fxOption" and "spotRate" exists]
 			[set to SpreadTypeEnum->Base when "referencePrice" exists]
-		+ capFloor
- 			[set to CapFloorEnum->Floor when path = "floorRateSchedule"]
- 			[set to CapFloorEnum->Cap when path = "capRateSchedule"]
+		//+ capFloor
+ 			//[set to CapFloorEnum->Floor when path = "floorRateSchedule"]
+ 			//[set to CapFloorEnum->Cap when path = "capRateSchedule"]
  		+ grossOrNet
  			[set to GrossOrNetEnum->Net when "initialPrice->netPrice->amount" exists]
 
@@ -786,8 +786,8 @@ synonym source FpML_5_10 extends FpML
 	CalendarSpread:
 		+ expirationDateTwo
 			[value "expirationDateTwo"]
-
-	Composite:
+/*
+	Composite
 		+ determinationMethod
 			[value "determinationMethod"]
 		+ relativeDate
@@ -796,7 +796,7 @@ synonym source FpML_5_10 extends FpML
 			[value "fxSpotRateSource"]
 		+fixingTime
 			[value "fixingTime" path "fxSpotRateSource"]
-
+*/
 	CreditEvents:
 	 	[value "CreditEvents" meta "id"]
 		+ bankruptcy
@@ -862,12 +862,12 @@ synonym source FpML_5_10 extends FpML
 	FxFeature:
 		+ referenceCurrency
 			[value "referenceCurrency" meta "id", "currencyScheme"]
-		+ composite
-			[value "composite"]
-		+ quanto
-			[value "quanto"]
-		+ crossCurrency
-			[value "crossCurrency"]
+		// + composite
+		// 	[value "composite"]
+		// + quanto
+		// 	[value "quanto"]
+		// + crossCurrency
+		// 	[value "crossCurrency"]
 
 	GracePeriodExtension:
 		+ applicable
@@ -968,13 +968,13 @@ synonym source FpML_5_10 extends FpML
 		+ specifiedNumber
 			[value "specifiedNumber"]
 
-	Quanto:
-		+ fxRate
-			[value "fxRate"]
-		+ fxSpotRateSource
-			[value "fxSpotRateSource"]
-		+ fixingTime
-			[value "fixingTime" path "fxSpotRateSource"]
+	// Quanto:
+	// 	+ fxRate
+	// 		[value "fxRate"]
+	// 	+ fxSpotRateSource
+	// 		[value "fxSpotRateSource"]
+	// 	+ fixingTime
+	// 		[value "fixingTime" path "fxSpotRateSource"]
 
 	Restructuring:
 		+ applicable
@@ -1284,20 +1284,20 @@ synonym source FpML_5_10 extends FpML
 		+ floorRate
 			[value "floorRate"]
 
-	FxFixingDate:
-		+ businessDayConvention
-			[value "businessDayConvention"]
-		+ businessCenters
-			[value "businessCenters"]
-		+ businessCentersReference
-			[value "businessCentersReference" meta "href"]
-		+ dateRelativeToPaymentDates
-			[value "dateRelativeToPaymentDates"]
-		+ dateRelativeToCalculationPeriodDates
-			[value "dateRelativeToCalculationPeriodDates"]
-		+ fxFixingDate
-			[value "fixingDate"]
-			[hint "fixingDate"]
+	// FxFixingDate:
+	// 	+ businessDayConvention
+	// 		[value "businessDayConvention"]
+	// 	+ businessCenters
+	// 		[value "businessCenters"]
+	// 	+ businessCentersReference
+	// 		[value "businessCentersReference" meta "href"]
+	// 	+ dateRelativeToPaymentDates
+	// 		[value "dateRelativeToPaymentDates"]
+	// 	+ dateRelativeToCalculationPeriodDates
+	// 		[value "dateRelativeToCalculationPeriodDates"]
+	// 	+ fxFixingDate
+	// 		[value "fixingDate"]
+	// 		[hint "fixingDate"]
 
 	FxLinkedNotionalAmount:
 		+ resetDate
@@ -1312,8 +1312,8 @@ synonym source FpML_5_10 extends FpML
 	FxLinkedNotionalSchedule:
 		+ varyingNotionalCurrency
 			[value "varyingNotionalCurrency" meta "currencyScheme"]
-		+ varyingNotionalFixingDates
-			[value "varyingNotionalFixingDates"]
+		// + varyingNotionalFixingDates
+		// 	[value "varyingNotionalFixingDates"]
 		+ fxSpotRateSource
 			[value "fxSpotRateSource"]
 		+fixingTime
@@ -1634,7 +1634,7 @@ synonym source FpML_5_10 extends FpML
 	Schedule:
 		+ initialValue
 			[value "initialValue" set when "step" exists]
-		+ step
+		+ valueSchedule
 			[value "step"]
 
 	Step:
@@ -2106,7 +2106,7 @@ synonym source FpML_5_10 extends FpML
 		[meta "id"]
 		+ optionType
 			[value "optionType"]
-			[set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
+			//[set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
 		+ feature
 			[value "feature"]
 			[value "features"]
@@ -2137,7 +2137,7 @@ synonym source FpML_5_10 extends FpML
 			[value "deliveryMethod"]
 
 	ObservationPayout:
-		+ paymentDates
+		+ paymentDateSchedule
 			[value "relativePaymentDates"]
 		+ fxFeature
 			[value "fxFeature"]
@@ -2547,8 +2547,8 @@ synonym source FpML_5_10 extends FpML
 			[value "dateAdjustments" path "paymentDate->adjustableDate"]
 			[value "dateAdjustments" path "adjustableDate"]
 			[value "dateAdjustments" path "paymentDate"]
-		+ dateAdjustmentsReference
-			[value "dateAdjustmentsReference" meta "href"]
+		//+ dateAdjustmentsReference
+			//[value "dateAdjustmentsReference" meta "href"]
 		+ adjustedDate
 			[value "adjustedDate" meta "id"]
 			[value "adjustedDate" path "paymentDate" meta "id"]
@@ -2601,7 +2601,7 @@ synonym source FpML_5_10 extends FpML
 			[value "relativeDate"]
 			[value "relativeDate" path "paymentDate"]
 
-	AdjustableOrRelativeDate:
+	GenericDate:
 		[meta "id"]
 		[meta "id" path "adjustedEffectiveDate"]
 		[meta "id" path "calculationPeriodsReference"]
@@ -2702,10 +2702,10 @@ synonym source FpML_5_10 extends FpML
 			[set to PeriodEnum-> M when "deliveryDates" exists]
 
 
-	RelativeDates:
-		+ periodSkip
+//RelativeDates:
+	//	+ periodSkip
 			[value "periodSkip"]
-		+ scheduleBounds
+	//	+ scheduleBounds
 			[value "scheduleBounds"]
 
 	RelativeDateOffset:
@@ -3272,8 +3272,8 @@ synonym source FpML_5_10 extends FpML
 			[hint "fixingDate"]
 			[value "fxFixingDate"]
 			[hint "rateSourceFixing"]
-		+ fxFixingSchedule
-			[value "fxFixingSchedule"]
+		// + fxFixingSchedule
+		// 	[value "fxFixingSchedule"]
 
 	ForeignExchange:
 		+ exchangedCurrency1
@@ -5956,14 +5956,14 @@ synonym source FpML_5_10 extends FpML
 			[value "30/360"]
 
 	DeterminationMethodEnum:
-		+ AgreedInitialPrice
-			[value "AgreedInitialPrice"]
+		//+ AgreedInitialPrice
+		//	[value "AgreedInitialPrice"]
 		+ AsSpecifiedInMasterConfirmation
 			[value "AsSpecifiedInMasterConfirmation"]
 		+ CalculationAgent
 			[value "CalculationAgent"]
-		+ ClosingPrice
-			[value "ClosingPrice"]
+		// + ClosingPrice
+		// 	[value "ClosingPrice"]
 		+ DividendCurrency
 			[value "DividendCurrency"]
 		+ ExpiringContractLevel
@@ -5974,19 +5974,19 @@ synonym source FpML_5_10 extends FpML
 			[value "IssuerPaymentCurrency"]
 		+ NAV
 			[value "NAV"]
-		+ OpenPrice
-			[value "OpenPrice"]
-		+ OSPPrice
-			[value "OSPPrice"]
+		// + OpenPrice
+		// 	[value "OpenPrice"]
+		// + OSPPrice
+		// 	[value "OSPPrice"]
 		+ SettlementCurrency
 			[value "SettlementCurrency"]
 		+ StrikeDateDetermination
 			[value "StrikeDateDetermination"]
-		+ TWAPPrice
+		+ TWAP
 			[value "TWAPPrice"]
 		+ ValuationTime
 			[value "ValuationTime"]
-		+ VWAPPrice
+		+ VWAP
 			[value "VWAPPrice"]
 
 	DiscountingTypeEnum:
@@ -6706,20 +6706,20 @@ synonym source FpML_5_10 extends FpML
 			[value "Payer"]
 		+ Receiver
 			[value "Receiver"]
-		+ Straddle
+		//+ Straddle
 			[value "Straddle"]
 
-	PayRelativeToEnum:
-		+ CalculationPeriodStartDate
-			[value "CalculationPeriodStartDate"]
-		+ CalculationPeriodEndDate
-			[value "CalculationPeriodEndDate"]
-		+ LastPricingDate
-			[value "LastPricingDate"]
-		+ ResetDate
-			[value "ResetDate"]
-		+ ValuationDate
-			[value "ValuationDate"]
+	// PayRelativeToEnum:
+	// 	+ CalculationPeriodStartDate
+	// 		[value "CalculationPeriodStartDate"]
+	// 	+ CalculationPeriodEndDate
+	// 		[value "CalculationPeriodEndDate"]
+	// 	+ LastPricingDate
+	// 		[value "LastPricingDate"]
+	// 	+ ResetDate
+	// 		[value "ResetDate"]
+	// 	+ ValuationDate
+	// 		[value "ValuationDate"]
 
 	PremiumTypeEnum:
 		+ PrePaid
@@ -6841,12 +6841,12 @@ synonym source FpML_5_10 extends FpML
 			[value "R"]
 
 	ReturnTypeEnum:
-		+ Dividend
-			[value "Dividend"]
-		+ Price
-			[value "Price"]
-		+ Total
-			[value "Total"]
+		//+ Dividend
+			//[value "Dividend"]
+		//+ Price
+			//[value "Price"]
+		//+ Total
+			//[value "Total"]
 
 	RollConventionEnum:
 		+ EOM
@@ -7279,18 +7279,18 @@ synonym source FpML_5_10 extends FpML
 			[value "Greater"]
 
 	TimeTypeEnum:
-		+ Close
-			[value "Close"]
-		+ Open
-			[value "Open"]
-		+ OSP
-			[value "OSP"]
-		+ SpecificTime
-			[value "SpecificTime"]
-		+ XETRA
-			[value "XETRA"]
-		+ DerivativesClose
-			[value "DerivativesClose"]
+		// + Close
+		// 	[value "Close"]
+		// + Open
+		// 	[value "Open"]
+		// + OSP
+		// 	[value "OSP"]
+		// + SpecificTime
+		// 	[value "SpecificTime"]
+		// + XETRA
+		// 	[value "XETRA"]
+		// + DerivativesClose
+		// 	[value "DerivativesClose"]
 		+ AsSpecifiedInMasterConfirmation
 			[value "AsSpecifiedInMasterConfirmation"]
 
@@ -7355,8 +7355,8 @@ synonym source FpML_5_10 extends FpML
 			[value "InterestReturn"]
 		+ Performance
 			[value "PriceReturn"]
-		+ PrincipalExchange
-			[value "PrincipleExchange"]
+		// + PrincipalExchange
+		// 	[value "PrincipleExchange"]
 
     FeeTypeEnum:
         + Renegotiation
@@ -7764,14 +7764,14 @@ synonym source FpML_5_10 extends FpML
 		+ Weighted
 			[value "Weighted"]
 
-	DayDistributionEnum:
-		+ All
+	//DayDistributionEnum:
+	//	+ Every
 			[value "All"]
-		+ First
+		//+ First
 			[value "First"]
-		+ Last
+		//+ Last
 			[value "Last"]
-		+ Penultimate
+		//+ Penultimate
 			[value "Penultimate"]
 }
 

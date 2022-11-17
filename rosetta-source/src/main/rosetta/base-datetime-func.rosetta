@@ -6,7 +6,7 @@ func TimeZoneFromBusinessCenterTime: <"Function to resolve a time passed as Busi
 	output: result TimeZone (1..1)
 
 func ResolveAdjustableDate:
-	inputs: terminationDate AdjustableOrRelativeDate (1..1)
+	inputs: terminationDate GenericDate (1..1)
 	output: adjustedDate date (1..1)
 
 func ToDateTime:
@@ -18,7 +18,7 @@ func ConvertToAdjustableOrRelativeDate: <"Utility function to convert from Adjus
 		adjustableOrAdjustedOrRelativeDate AdjustableOrAdjustedOrRelativeDate (0..1)
 
 	output:
-		adjustableOrRelativeDate AdjustableOrRelativeDate (0..1)
+		adjustableOrRelativeDate GenericDate (0..1)
 
 	alias relativeDate:
 		adjustableOrAdjustedOrRelativeDate -> relativeDate
@@ -32,30 +32,30 @@ func ConvertToAdjustableOrRelativeDate: <"Utility function to convert from Adjus
 	set adjustableOrRelativeDate -> adjustableDate -> dateAdjustments:
 		adjustableOrAdjustedOrRelativeDate -> dateAdjustments
 
-	set adjustableOrRelativeDate -> relativeDate -> adjustedDate:
+	set adjustableOrRelativeDate -> relativeDate -> offsetAnchorDate -> adjustableDate -> adjustedDate:
 		if relativeDate exists then relativeDate -> adjustedDate
 
-	set adjustableOrRelativeDate -> relativeDate -> businessCenters:
-		if relativeDate exists then relativeDate -> businessCenters
+	//set adjustableOrRelativeDate -> relativeDate -> offsetDateAdjustment -> businessCenters:
+		//if relativeDate exists then relativeDate -> businessCenters -> businessCenter
 
-	set adjustableOrRelativeDate -> relativeDate -> businessDayConvention:
+	set adjustableOrRelativeDate -> relativeDate -> offsetDateAdjustment -> businessDayConvention:
 		if relativeDate exists then relativeDate -> businessDayConvention
 
-	set adjustableOrRelativeDate -> relativeDate -> dateRelativeTo:
+	set adjustableOrRelativeDate -> relativeDate -> offsetAnchorDate -> adjustableDate -> adjustedDate:
 		if relativeDate exists then relativeDate -> dateRelativeTo
 
-	set adjustableOrRelativeDate -> relativeDate -> dayType:
+	set adjustableOrRelativeDate -> relativeDate -> offsetPeriod ->dayType:
 		if relativeDate exists then relativeDate -> dayType
 
-	set adjustableOrRelativeDate -> relativeDate -> period:
+	set adjustableOrRelativeDate -> relativeDate -> offsetPeriod -> period:
 		if relativeDate exists then relativeDate -> period
 
-	set adjustableOrRelativeDate -> relativeDate -> periodMultiplier:
+	set adjustableOrRelativeDate -> relativeDate -> offsetPeriod -> periodMultiplier:
 		if relativeDate exists then relativeDate -> periodMultiplier
 
 func ConvertToAdjustableOrAdjustedOrRelativeDate: <"Utility function to convert from AdjustableOrAdjustedOrRelativeDate to AdjustableOrAdjustedOrRelativeDate">
     inputs:
-        adjustableOrRelativeDate AdjustableOrRelativeDate (0..1)
+        adjustableOrRelativeDate GenericDate (0..1)
 
     output:
         adjustableOrAdjustedOrRelativeDate AdjustableOrAdjustedOrRelativeDate (0..1)
@@ -72,26 +72,26 @@ func ConvertToAdjustableOrAdjustedOrRelativeDate: <"Utility function to convert 
 	set adjustableOrAdjustedOrRelativeDate -> dateAdjustments:
 		adjustableOrRelativeDate -> adjustableDate -> dateAdjustments
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> adjustedDate:
-		if relativeDate exists then relativeDate -> adjustedDate
+	//set adjustableOrAdjustedOrRelativeDate -> relativeDate -> adjustedDate:
+	//	if relativeDate exists then relativeDate -> adjustedDate
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> businessCenters:
-		if relativeDate exists then relativeDate -> businessCenters
+	//set adjustableOrAdjustedOrRelativeDate -> relativeDate -> businessCenters:
+	//	if relativeDate exists then relativeDate -> businessCenters
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> businessDayConvention:
-		if relativeDate exists then relativeDate -> businessDayConvention
+	//set adjustableOrAdjustedOrRelativeDate -> relativeDate -> businessDayConvention:
+	//	if relativeDate exists then relativeDate -> businessDayConvention
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> dateRelativeTo:
-		if relativeDate exists then relativeDate -> dateRelativeTo
+	//set adjustableOrAdjustedOrRelativeDate -> relativeDate -> dateRelativeTo:
+	//	if relativeDate exists then relativeDate -> dateRelativeTo
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> dayType:
-		if relativeDate exists then relativeDate -> dayType
+	//set adjustableOrAdjustedOrRelativeDate -> relativeDate -> dayType:
+	//	if relativeDate exists then relativeDate -> dayType
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> period:
-		if relativeDate exists then relativeDate -> period
+//	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> period:
+	//	if relativeDate exists then relativeDate -> period
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> periodMultiplier:
-		if relativeDate exists then relativeDate -> periodMultiplier
+	//set adjustableOrAdjustedOrRelativeDate -> relativeDate -> periodMultiplier:
+	//	if relativeDate exists then relativeDate -> periodMultiplier
 
 func Now: <"Current date time.">
 	output: now zonedDateTime (1..1)
