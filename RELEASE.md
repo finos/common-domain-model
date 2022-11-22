@@ -2,4 +2,4 @@
 
 _What is being released?_
 
-Third party software libraries upgraded to be inline with security standards.
+Third party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
