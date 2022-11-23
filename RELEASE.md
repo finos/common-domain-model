@@ -1,4 +1,4 @@
-# *CDM Model - Qualification*
+# *Infrastructure - Qualification*
 
 _What is being released?_
 
