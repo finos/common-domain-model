@@ -6,4 +6,6 @@ This release contains a bug fix related to qualification.  If multiple qualifica
 
 _Review Directions_
 
-This bug fix does not affect any examples in CDM as none were qualifying with multiple matches.
+This bug fix does not affect any examples in CDM as none were qualifying with multiple matches.  
+
+The fixed can be found in com.regnosys.rosetta.common.postprocess.qualify.QualificationResult.java.
