@@ -10,7 +10,6 @@ import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.PriceQuantity;
 import com.rosetta.model.metafields.FieldWithMetaString;
-import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.*;

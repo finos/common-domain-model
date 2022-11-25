@@ -8,7 +8,6 @@ import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.meta.Key;
-import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.Optional;

@@ -4,7 +4,6 @@ import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
-import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

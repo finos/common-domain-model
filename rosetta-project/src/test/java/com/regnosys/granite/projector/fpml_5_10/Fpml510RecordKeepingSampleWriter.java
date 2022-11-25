@@ -4,7 +4,6 @@ import com.google.common.io.Resources;
 import org.fpml.fpml_5.confirmation.DataDocument;
 import org.fpml.fpml_5.confirmation.Party;
 import org.fpml.fpml_5.confirmation.Trade;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;

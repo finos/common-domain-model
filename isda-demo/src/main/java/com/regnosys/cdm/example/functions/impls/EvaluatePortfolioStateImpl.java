@@ -36,7 +36,6 @@ import com.regnosys.rosetta.common.hashing.ReKeyProcessStep;
 import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaDate;
-import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

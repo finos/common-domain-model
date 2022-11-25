@@ -62,7 +62,6 @@ import org.fpml.fpml_5.confirmation.SettlementRateOption;
 import org.fpml.fpml_5.confirmation.Strike;
 import org.fpml.fpml_5.confirmation.*;
 import org.isda.cdm.processor.CdmReferenceConfig;
-import org.jetbrains.annotations.NotNull;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
