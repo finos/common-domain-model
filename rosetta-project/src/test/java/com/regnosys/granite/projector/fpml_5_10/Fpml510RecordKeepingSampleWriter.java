@@ -54,13 +54,11 @@ public class Fpml510RecordKeepingSampleWriter {
 		return inFile.getFileName().toString().endsWith(".xml");
 	}
 
-	@NotNull
 	private Path toOutFile(Path inFile) {
 		return Paths.get(inFile.toString()
 			.replace("cdm-sample-files", "generated-sample-files"));
 	}
 
-	@NotNull
 	private String toResourcesPath(Path inFile) {
 		return inFile.toString()
 			.substring(inFile.toString().lastIndexOf("cdm-sample-files"));

@@ -50,7 +50,6 @@ public class GetRateScheduleAmountTest extends AbstractFunctionTest {
 		check(0.0104, func.evaluate(rateSchedule, Date.of(2021, 12, 31)));
 	}
 
-	@NotNull
 	private PriceSchedule.PriceScheduleBuilder getSpread(double spreadAmount) {
 		return PriceSchedule.builder()
 				.setValue(BigDecimal.valueOf(spreadAmount))

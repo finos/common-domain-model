@@ -32,7 +32,6 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 		return update(priceQuantityBuilders, change, direction);
 	}
 
-	@NotNull
 	private List<PriceQuantity.PriceQuantityBuilder> update(List<PriceQuantity.PriceQuantityBuilder> priceQuantityBuilders,
 															List<? extends PriceQuantity> change,
 															QuantityChangeDirectionEnum direction) {
@@ -95,7 +94,6 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 										updateAmount(priceToUpdate, matchingPrice.getValue(), direction)));
 	}
 
-	@NotNull
 	private Optional<? extends PriceSchedule> findPrice(Set<? extends PriceSchedule> prices, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceExpression priceExpression) {
 		return Optional.ofNullable(prices).orElseGet(HashSet::new).stream()
 				.filter(price -> Objects.nonNull(price.getUnit()))

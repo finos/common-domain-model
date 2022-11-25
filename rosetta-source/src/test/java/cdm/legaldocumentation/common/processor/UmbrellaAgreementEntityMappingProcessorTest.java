@@ -111,7 +111,6 @@ class UmbrellaAgreementEntityMappingProcessorTest {
 				.addElement(new PathElement(attribute));
 	}
 
-	@NotNull
 	private Mapping getEmptyMapping(Path xmlPath, String xmlValue) {
 		return new Mapping(xmlPath, xmlValue, null, null, "no destination", false, false, false);
 	}

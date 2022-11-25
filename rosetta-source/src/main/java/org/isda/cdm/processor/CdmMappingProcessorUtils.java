@@ -17,14 +17,12 @@ public class CdmMappingProcessorUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MappingProcessorUtils.class);
 
-	@NotNull
 	public static FieldWithMetaString toFieldWithMetaString(String c) {
 		return FieldWithMetaString.builder()
 				.setValue(c)
 				.build();
 	}
 
-	@NotNull
 	public static FieldWithMetaString toFieldWithMetaString(String c, String scheme) {
 		return FieldWithMetaString.builder()
 				.setValue(c)
@@ -40,7 +38,6 @@ public class CdmMappingProcessorUtils {
 		return isoCurrencyCode.isPresent();
 	}
 
-	@NotNull
 	public static String removeHtml(String value) {
 		return Jsoup.parse(value).text();
 	}

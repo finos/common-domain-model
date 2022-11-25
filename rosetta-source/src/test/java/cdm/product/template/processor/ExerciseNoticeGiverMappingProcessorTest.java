@@ -82,7 +82,6 @@ class ExerciseNoticeGiverMappingProcessorTest {
 		assertTrue(updatedMapping.isCondition());
 	}
 
-	@NotNull
 	private List<Mapping> getMappings(String synonymValue) {
 		return Arrays.asList(
 				// exercise notice giver mapping (initially unmapped)

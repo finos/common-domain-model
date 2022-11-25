@@ -150,7 +150,6 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 				.findAny().orElse(true);
 	}
 
-	@NotNull
 	private List<Date> getSettlementDates(TradeState tradeState) {
 		return getSettlementTerms(tradeState).stream()
 				.map(SettlementTerms::getSettlementDate)
@@ -161,7 +160,6 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 				.collect(Collectors.toList());
 	}
 
-	@NotNull
 	private List<SettlementTerms> getSettlementTerms(TradeState tradeState) {
 		return Optional.ofNullable(tradeState)
 				.map(TradeState::getTrade)

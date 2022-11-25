@@ -34,7 +34,6 @@ public class ExtraordinaryDividendsPartyMappingProcessor extends MappingProcesso
 						.setAncillaryRoleEnum(getModelPath(), synonymPath, setter, AncillaryRoleEnum.EXTRAORDINARY_DIVIDENDS_PARTY));
 	}
 
-	@NotNull
 	private Optional<Consumer<AncillaryRoleEnum>> getSetter(RosettaModelObjectBuilder parent) {
 		if (parent instanceof DividendReturnTerms.DividendReturnTermsBuilder) {
 			return Optional.of(((DividendReturnTerms.DividendReturnTermsBuilder) parent)::setExtraordinaryDividendsParty);

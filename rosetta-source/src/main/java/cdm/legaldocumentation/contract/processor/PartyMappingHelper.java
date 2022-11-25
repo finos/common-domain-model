@@ -57,7 +57,6 @@ public class PartyMappingHelper {
 	/**
 	 * Get an instance of this party mapping helper from the MappingContext params.
 	 */
-	@NotNull
 	public synchronized static Optional<PartyMappingHelper> getInstance(MappingContext mappingContext) {
 		return Optional.ofNullable((PartyMappingHelper) mappingContext.getMappingParams().get(PARTY_MAPPING_HELPER_KEY));
 	}
@@ -65,7 +64,6 @@ public class PartyMappingHelper {
 	/**
 	 * Get an instance of this party mapping helper from the MappingContext params, or if not found throw exception.
 	 */
-	@NotNull
 	public synchronized static PartyMappingHelper getInstanceOrThrow(MappingContext mappingContext) {
 		return getInstance(mappingContext).orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."));
 	}

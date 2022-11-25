@@ -56,7 +56,6 @@ public class FraPriceQuantitySplitterMappingProcessor extends MappingProcessor {
 				.ifPresent(this::updateRateOption);
 	}
 
-	@NotNull
 	private Optional<Mapping> getNonReferenceMapping(Path synonymPath) {
 		return filterMappings(getContext().getMappings(), synonymPath).stream()
 				.filter(m -> !(m.getRosettaValue() instanceof ReferenceBuilder))

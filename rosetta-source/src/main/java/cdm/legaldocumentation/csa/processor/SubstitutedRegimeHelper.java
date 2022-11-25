@@ -29,7 +29,6 @@ public class SubstitutedRegimeHelper {
 		this.synonymToEnumMap = synonymToEnumMap;
 	}
 
-	@NotNull
 	public List<SubstitutedRegime> getSubstitutedRegimes(Path synonymPath) {
 		List<SubstitutedRegime> substitutedRegimes = mappings.stream()
 				// find all sub-paths, e.g. partyA.answers.substitutedRegime.partyA_emir

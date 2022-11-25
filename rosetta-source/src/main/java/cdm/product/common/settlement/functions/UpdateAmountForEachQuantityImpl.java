@@ -23,7 +23,6 @@ public class UpdateAmountForEachQuantityImpl extends UpdateAmountForEachQuantity
 						.collect(Collectors.toList());
 	}
 
-	@NotNull
 	private List<? extends NonNegativeQuantitySchedule> updateAmountForEachQuantity(List<? extends FieldWithMetaNonNegativeQuantityScheduleBuilder> quantitiesToUpdate, BigDecimal newAmount) {
 		return emptyIfNull(quantitiesToUpdate)
 				.stream()

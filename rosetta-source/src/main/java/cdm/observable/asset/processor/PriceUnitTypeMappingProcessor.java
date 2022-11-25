@@ -79,7 +79,6 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 						|| updateCurrencyPerCapacityUnit(PriceScheduleBuilder, synonymPath, "floatingLeg", Arrays.asList("calculation", "spread", "currency"), Arrays.asList("notionalQuantitySchedule", "notionalStep", "quantityUnit"));
 	}
 
-	@NotNull
 	private FinancialUnitEnum getPerUnitOfIndexOrShare() {
 		return exists(Arrays.asList("underlyer", "singleUnderlyer", "index", "instrumentId")) ? FinancialUnitEnum.INDEX_UNIT : FinancialUnitEnum.SHARE;
 	}
@@ -262,7 +261,6 @@ public class PriceUnitTypeMappingProcessor extends MappingProcessor {
 		return new Path().addElement(basePathElement);
 	}
 
-	@NotNull
 	private String[] toArray(List<String> a) {
 		return a.toArray(new String[0]);
 	}

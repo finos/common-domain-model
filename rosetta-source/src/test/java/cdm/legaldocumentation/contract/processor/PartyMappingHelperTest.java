@@ -184,7 +184,6 @@ class PartyMappingHelperTest {
 		assertFalse(updatedMapping.isCondition());
 	}
 
-	@NotNull
 	private List<Mapping> getMappings(Path payerXmlPath, String payerXmlValue, Path receiverXmlPath, String receiverXmlValue) {
 		return Arrays.asList(
 				new Mapping(payerXmlPath,

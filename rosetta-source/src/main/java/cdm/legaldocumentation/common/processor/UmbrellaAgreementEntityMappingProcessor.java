@@ -42,7 +42,6 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 		}
 	}
 
-	@NotNull
 	private Optional<UmbrellaAgreementEntity> getUmbrellaAgreementEntity(Path synonymPath, Integer index) {
 		UmbrellaAgreementEntityBuilder umbrellaAgreementEntityBuilder = UmbrellaAgreementEntity.builder();
 

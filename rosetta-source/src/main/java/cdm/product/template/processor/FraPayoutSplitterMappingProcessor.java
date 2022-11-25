@@ -85,7 +85,6 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 		updateFloatingLegParties(floatingLeg);
 	}
 
-	@NotNull
 	private Optional<Mapping> getReferenceMapping(Path synonymPath) {
 		return filterMappings(getContext().getMappings(), synonymPath).stream()
 				.filter(m -> m.getRosettaValue() instanceof Reference.ReferenceBuilder)

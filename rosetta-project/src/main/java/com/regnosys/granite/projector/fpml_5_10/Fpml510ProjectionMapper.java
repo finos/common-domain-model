@@ -603,7 +603,6 @@ public class Fpml510ProjectionMapper {
 		});
 	}
 
-	@NotNull
 	private Optional<PriceSchedule> getPricePayment(PriceQuantity pq) {
 		return Optional.ofNullable(pq)
 			.map(PriceQuantity::getPrice)

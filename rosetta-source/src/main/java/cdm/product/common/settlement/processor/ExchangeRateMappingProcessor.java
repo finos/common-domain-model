@@ -55,7 +55,6 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 		return PriceExpression.builder().setPriceType(PriceTypeEnum.EXCHANGE_RATE).setSpreadType(base);
 	}
 
-	@NotNull
 	private Optional<FieldWithMetaPriceScheduleBuilder> getBuilder(Path synonymPath,
 			AtomicInteger priceIndex,
 			UnitTypeBuilder unitOfAmount,
@@ -85,7 +84,6 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 				.orElse(null);
 	}
 
-	@NotNull
 	private Optional<PriceSchedule.PriceScheduleBuilder> getExchangeRatePrice(List<FieldWithMetaPriceScheduleBuilder> priceBuilders) {
 		return priceBuilders.stream()
 				.map(FieldWithMetaPriceScheduleBuilder::getValue)
