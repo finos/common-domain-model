@@ -3,10 +3,10 @@ package com.regnosys.granite.ingestor.cme;
 import cdm.event.workflow.WorkflowStep;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
-import com.regnosys.granite.ingestor.IngestionTest;
-import com.regnosys.granite.ingestor.IngestionTestUtil;
-import com.regnosys.granite.ingestor.service.IngestionFactory;
-import com.regnosys.granite.ingestor.service.IngestionService;
+import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
+import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
+import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
+import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.isda.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.provider.Arguments;
@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.net.URL;
 import java.util.stream.Stream;
 
-class CMEClearedConfirmTest extends IngestionTest<WorkflowStep>{
+class CMEClearedConfirmTest extends IngestionTest<WorkflowStep> {
 
 	private static final String CME_CLEARED_1_17_FILES_DIR = "cdm-sample-files/cme-cleared-confirm-1-17/";
 
