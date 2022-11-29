@@ -17,7 +17,6 @@ import com.regnosys.rosetta.common.translation.SynonymToEnumMap;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.records.Date;
-import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -118,7 +117,7 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
                 Optional.empty();
     }
 
-    @NotNull
+
     private Optional<TransferInstruction> getTransferInstruction(Path synonymPath) {
         TransferInstruction.TransferInstructionBuilder transferInstructionBuilder = TransferInstruction.builder();
         TransferState.TransferStateBuilder tradeStateBuilder = transferInstructionBuilder.getOrCreateTransferState(0);

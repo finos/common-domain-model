@@ -1,6 +1,5 @@
 package com.regnosys.granite.schemaimport;
 
-import com.regnosys.granite.ingestor.ExpectationUtil;
 import com.regnosys.rosetta.rosetta.RosettaEnumeration;
 import com.regnosys.rosetta.rosetta.RosettaExternalEnum;
 import com.regnosys.rosetta.rosetta.RosettaExternalSynonymSource;
@@ -11,12 +10,14 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class SchemeImporterTest {
-    private static final boolean WRITE_TEST_OUTPUT = ExpectationUtil.WRITE_EXPECTATIONS;
+    private static final boolean WRITE_TEST_OUTPUT = Optional.ofNullable(System.getenv("WRITE_EXPECTATIONS"))
+    		.map(Boolean::parseBoolean).orElse(false);;
 	public static final String FPML_SET_OF_SCHEMES_2_2_XML = "coding-schemes/fpml/set-of-schemes-2-2.xml";
     public static final String BODY = "ISDA";
     public static final String CODING_SCHEME = "FpML_Coding_Scheme";

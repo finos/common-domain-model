@@ -36,7 +36,6 @@ import com.regnosys.rosetta.common.hashing.ReKeyProcessStep;
 import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaDate;
-import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -151,7 +150,6 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 				.findAny().orElse(true);
 	}
 
-	@NotNull
 	private List<Date> getSettlementDates(TradeState tradeState) {
 		return getSettlementTerms(tradeState).stream()
 				.map(SettlementTerms::getSettlementDate)
@@ -162,7 +160,6 @@ public class EvaluatePortfolioStateImpl extends EvaluatePortfolioState {
 				.collect(Collectors.toList());
 	}
 
-	@NotNull
 	private List<SettlementTerms> getSettlementTerms(TradeState tradeState) {
 		return Optional.ofNullable(tradeState)
 				.map(TradeState::getTrade)
