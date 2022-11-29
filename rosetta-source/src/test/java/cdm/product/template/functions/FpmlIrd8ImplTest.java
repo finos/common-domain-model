@@ -13,7 +13,6 @@ import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import org.isda.cdm.functions.AbstractFunctionTest;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -87,7 +86,6 @@ class FpmlIrd8ImplTest extends AbstractFunctionTest {
 				.build();
 	}
 
-	@NotNull
 	private List<Account> getAccounts(Party party1, String account1, Party party2, String account2) {
 		return Arrays.asList(getAccount(party1, account1), getAccount(party2, account2));
 	}

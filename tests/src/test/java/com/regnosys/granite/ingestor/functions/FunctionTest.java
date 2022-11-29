@@ -7,7 +7,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
-import com.regnosys.granite.ingestor.ExpectationUtil;
+import com.regnosys.ingest.test.framework.ingestor.ExpectationUtil;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.testing.ExecutionDescriptor;

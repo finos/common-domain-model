@@ -1,6 +1,5 @@
 package cdm.schemeimport;
 
-import com.regnosys.granite.ingestor.ExpectationUtil;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -10,6 +9,7 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.*;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -18,7 +18,8 @@ public class LatestSchemesImportTest {
     private static final String SCHEMA_PATH = "src/main/resources/coding-schemes/fpml";
     private static final String CODE_LIST_ZIP = "src/main/resources/coding-schemes/fpml/codelist.zip";
     private static final String CODE_LIST = "src/main/resources/coding-schemes/fpml/codelist";
-    private static final boolean EXECUTE_DOWNLOAD_LATEST_VERSION = ExpectationUtil.WRITE_EXPECTATIONS;
+    private static final boolean EXECUTE_DOWNLOAD_LATEST_VERSION = Optional.ofNullable(System.getenv("WRITE_EXPECTATIONS"))
+                    .map(Boolean::parseBoolean).orElse(false);
 
     @Test
     public void downloadLatestVersions() throws IOException {
