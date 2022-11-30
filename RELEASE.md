@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-A part of the CDM Contribution to FINOS, the CDM build process, test and validation process has been modified so that it only depends on open source resources.
+A part of the CDM Contribution to FINOS, the CDM build, test and validation process has been modified so that it only depends on open source resources.
 
 _Review Directions_
 
