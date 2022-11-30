@@ -1,11 +1,24 @@
-# *Infrastructure - Qualification*
+# *Infrastructure - Stand alone build process*
 
 _What is being released?_
 
-This release contains a bug fix related to qualification.  If multiple qualification matches are found, no qualifier will now be set, and an error will be generated.
+A part of the CDM Contribution to FINOS, the CDM build process, test and validation process has been modified so that it only depends on open source resources.
 
 _Review Directions_
 
-This bug fix does not affect any examples in CDM as none were qualifying with multiple matches.  
+The following Rosetta libraries have been open sources
+- https://github.com/REGnosys/rosetta-testing
+- https://github.com/REGnosys/rosetta-common
 
-The fixed can be found in com.regnosys.rosetta.common.postprocess.qualify.QualificationResult.java.
+# *Qualification Example - Java example to show how to run CDM Qualification*
+
+_What is being released?_
+
+A Trade Association member would like an example of how Qualification Logic is executed in Java and see debug info of rules run. 
+
+_Review Directions_
+
+The following Rosetta libraries have been open sources
+
+
+[Download](https://cdm.docs.rosetta-technology.io/source/download.html) the CDM Examples and open the Java file:  `src/main/java/com/regnosys/cdm/example/qualify/QualificationReportExample.java`
