@@ -18,7 +18,4 @@ A Trade Association member would like an example of how Qualification Logic is e
 
 _Review Directions_
 
-The following Rosetta libraries have been open sources
-
-
 [Download](https://cdm.docs.rosetta-technology.io/source/download.html) the CDM Examples and open the Java file:  `src/main/java/com/regnosys/cdm/example/qualify/QualificationReportExample.java`
