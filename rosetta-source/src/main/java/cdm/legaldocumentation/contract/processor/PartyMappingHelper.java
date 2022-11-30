@@ -10,7 +10,6 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +57,6 @@ public class PartyMappingHelper {
 	/**
 	 * Get an instance of this party mapping helper from the MappingContext params.
 	 */
-	@NotNull
 	public synchronized static Optional<PartyMappingHelper> getInstance(MappingContext mappingContext) {
 		return Optional.ofNullable((PartyMappingHelper) mappingContext.getMappingParams().get(PARTY_MAPPING_HELPER_KEY));
 	}
@@ -66,7 +64,6 @@ public class PartyMappingHelper {
 	/**
 	 * Get an instance of this party mapping helper from the MappingContext params, or if not found throw exception.
 	 */
-	@NotNull
 	public synchronized static PartyMappingHelper getInstanceOrThrow(MappingContext mappingContext) {
 		return getInstance(mappingContext).orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."));
 	}

@@ -10,7 +10,6 @@ import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -185,7 +184,6 @@ class PartyMappingHelperTest {
 		assertFalse(updatedMapping.isCondition());
 	}
 
-	@NotNull
 	private List<Mapping> getMappings(Path payerXmlPath, String payerXmlValue, Path receiverXmlPath, String receiverXmlValue) {
 		return Arrays.asList(
 				new Mapping(payerXmlPath,
