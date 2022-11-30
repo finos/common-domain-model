@@ -68,6 +68,8 @@ type Agreement: <"Specification of the standard set of terms that define a legal
 	collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">
 	securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">
 	masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
+	confirmation ConfirmationBase (0..1)
+	masterConfirmation MasterConfirmationBase (0..1)
 
 	condition: one-of
 
@@ -117,7 +119,14 @@ type LegalAgreementIdentification: <"Specifies the type of legal agreement, iden
 		[synonym AcadiaSoft_AM_1_0 value "publisher"]
 	vintage int (0..1) <"In the case where successive definitions of the legal agreement have been developed, the vintage identification. This is typically (but not necessarily) done by referencing the year, e.g. 2013 in the case of the ISDA 2013 Standard Credit Support Annex.">
 		[synonym AcadiaSoft_AM_1_0 value "csaVersion"]
+	beSpokeFallbackTerms string (0..1) 
+	extraordinaryEvents cdm.observable.event.ExtraordinaryEvents (0..1) <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
 
+	condition ExtraordinaryEvents: <"A condition to ensure that the agreement type specified is consistent with the presence of ExtraordinaryEvents in such agreement.">
+		if extraordinaryEvents exists 
+		then agreementName -> agreementType <> LegalAgreementTypeEnum -> Confirmation exists
+		or agreementName -> agreementType <> LegalAgreementTypeEnum -> MasterAgreement exists
+	
 	condition CSAMarginType: <"A condition to ensure that CSA margin type is only specified if a credit support agreemnt type is specified and its published vintage year is equal to or after 2016.">
             if agreementName -> creditSupportAgreementMarginType exists then
             agreementName -> creditSupportAgreementType exists and vintage >= 2016

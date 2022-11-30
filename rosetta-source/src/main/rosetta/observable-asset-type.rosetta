@@ -409,9 +409,16 @@ type CalculationAgent: <"A class defining the ISDA calculation agent responsible
 	calculationAgentPartyEnum PartyDeterminationEnum (0..1) <"Specifies the ISDA calculation agent responsible for performing duties as defined in the applicable product definitions. For example, the Calculation Agent may be defined as being the Non-exercising Party.">
 	calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located The short-form confirm for a trade that is executed under a Sovereign or Asia Pacific Master Confirmation Agreement ( MCA ), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent City. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent City.">
 		[metadata scheme]
+	partyReference Party (1..2) <"A reference to the party to which the role refers to.">
+		[metadata reference]
+	onBehalfOf CounterpartyRoleEnum (0..1) <"Optionally specifies the counterparty that the ancillary party is acting on behalf of.">
 
 	condition CalculationAgentChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice calculationAgentParty, calculationAgentPartyEnum
+	
+	condition JointCalculationAgent:
+		if partyReference count = 2
+		then calculationAgentPartyEnum = PartyDeterminationEnum -> Both
 
 type SettlementRateOption: <"Defines the settlement rate option to use for fixing in case of cash settlement. Currently only applicable to foreign exchange fixing in case of cross-currency settlement.">
 	settlementRateOption SettlementRateOptionEnum (1..1) <"The rate source for the conversion to the settlement currency. This source is specified through a scheme that reflects the terms of the Annex A to the 1998 FX and Currency Option Definitions.">
