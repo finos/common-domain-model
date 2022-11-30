@@ -616,8 +616,11 @@ type Asian: <"As per ISDA 2002 Definitions.">
 	averagingPeriodOut AveragingPeriod (0..1) <"The averaging out period.">
 
 type AveragingCalculation: <"Defines parameters for use in cases when a valuation or other term is based on an average of market observations.">
-   averagingMethod AveragingCalculationMethod (1..1) <"Specifies enumerations for the type of averaging calculation.">
-   precision Rounding (1..1) <"Rounding applied to the average calculation. ">
+	averagingInOut AveragingInOutEnum (0..1) <"The enumerated values to specify the type of averaging used in an Asian option.">
+	averagingMethod AveragingCalculationMethod (1..1) <"Specifies enumerations for the type of averaging calculation.">
+	marketDisruption MarketDisruptionEnum (0..1) <"The enumerated values to specify the handling of an averaging date market disruption for an equity derivative transaction.">
+	precision Rounding (1..1) <"Rounding applied to the average calculation. ">
+	schedule AveragingSchedule (0..*) <"A derivative schedule.">
 
 type AveragingStrikeFeature: <"Defines the terms required to calculate the average observations associated with an averaging strike.">
    averagingCalculation AveragingCalculation (1..1) <"Defines parameters for use in cases when a valuation or other term is based on an average of market observations.">
@@ -730,7 +733,9 @@ type AmericanExercise: <"A class defining the exercise period for an American st
 
 type AutomaticExercise: <"A type to define automatic exercise of a swaption. With automatic exercise the option is deemed to have exercised if it is in the money by more than the threshold amount on the exercise date.">
 
-	thresholdRate number (1..1) <"A threshold rate. The threshold of 0.10% would be represented as 0.001">
+	thresholdRate number (0..1) <"A threshold rate. The threshold of 0.10% would be represented as 0.001">
+	isApplicable boolean (0..1) <"Boolean that indicates if it has an automaticExercise">
+
 
 type BermudaExercise: <"A class defining the Bermuda option exercise dates and the expiration date together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fee.">
 	[metadata key]
@@ -793,7 +798,7 @@ type ExerciseProcedure: <"A class describing how notice of exercise should be gi
 	splitTicket boolean (0..1) <"Typically applicable to the physical settlement of bond and convertible bond options. If present, means that the party required to deliver the bonds will divide those to be delivered as notifying party desires to facilitate delivery obligations.">
 
 	condition ExerciseProcedureChoice: <"Choice rule to represent an FpML choice construct.">
-		required choice manualExercise, automaticExercise
+		required choice manualExercise, automaticExercise	
 
 type ManualExercise: <"A class defining manual exercise, i.e. that the option buyer counterparty must give notice to the option seller of exercise.">
 

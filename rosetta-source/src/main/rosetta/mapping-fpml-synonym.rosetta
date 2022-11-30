@@ -79,7 +79,7 @@ synonym source FpML_5_10 extends FpML
 		+ valuationTime
 			[value "valuationTime"]
 
-		ReturnTerms:
+	ReturnTerms:
 		+ priceReturnTerms
 			[value "return"]
 		+ dividendReturnTerms
@@ -312,7 +312,9 @@ synonym source FpML_5_10 extends FpML
 			[value "expirationTime"]
 			[value "expiryTime"]
 		+ expirationTimeType
-			[value "equityExpirationTimeType"]
+			[value "equityExpirationTimeType" set when "latestExerciseTimeType" exists]
+			[value "equityExpirationTimeType" set when "latestExerciseTimeType" is absent] 
+			[value "latestExerciseTimeType" set when "equityExpirationTimeType" is absent]
 		+ multipleExercise
 			[value "multipleExercise"]
 			[value "equityMultipleExercise"]
@@ -325,7 +327,9 @@ synonym source FpML_5_10 extends FpML
 
 	AutomaticExercise:
 		+ thresholdRate
-			[value "thresholdRate"]
+			[value "thresholdRate" path "automaticExercise"]
+		+ isApplicable
+			[value "automaticExercise"]
 
 	BermudaExercise:
 	 	[value "BermudaExercise" meta "id"]
@@ -340,7 +344,9 @@ synonym source FpML_5_10 extends FpML
 		+ expirationTime
 			[value "expirationTime"]
 		+ expirationTimeType
-			[value "equityExpirationTimeType"]
+			[value "equityExpirationTimeType" set when "latestExerciseTimeType" exists]
+			[value "equityExpirationTimeType" set when "latestExerciseTimeType" is absent] 
+			[value "latestExerciseTimeType" set when "equityExpirationTimeType" is absent]
 		+ multipleExercise
 			[value "multipleExercise"]
 		+ exerciseFeeSchedule
@@ -432,7 +438,7 @@ synonym source FpML_5_10 extends FpML
 		+ manualExercise
 			[value "manualExercise"]
 		+ automaticExercise
-			[value "automaticExercise"]
+			[hint "automaticExercise"]
 		+ followUpConfirmation
 			[value "followUpConfirmation"]
 			[value "writtenConfirmation"]
@@ -559,6 +565,7 @@ synonym source FpML_5_10 extends FpML
 		[value "relativePaymentDates" meta "id" path "calculationPeriodsScheduleReference"]
 		+ paymentFrequency
 			[value "paymentFrequency"]
+			[value "paymentDate"]
 		+ firstPaymentDate
 			[value "firstPaymentDate"]
 			[value "firstPaymentDate" path "periodicPayment"]
@@ -572,6 +579,7 @@ synonym source FpML_5_10 extends FpML
 		+ paymentDatesAdjustments
 			[value "paymentDatesAdjustments"]
 			[value "paymentDaysOffset"]
+			[value "paymentDate"] 
 			[hint "businessCenters"]
 
 	PaymentDateSchedule:
@@ -811,6 +819,9 @@ synonym source FpML_5_10 extends FpML
  			[set to CapFloorEnum->Cap when path = "capRateSchedule"]
  		+ grossOrNet
  			[set to GrossOrNetEnum->Net when "initialPrice->netPrice->amount" exists]
+		+ priceExpression
+			[set to PriceExpressionEnum->AbsoluteTerms when "initialPrice->netPrice->priceExpression" exists]
+			[set to PriceExpressionEnum->PercentageOfNotional when "initialPrice->netPrice->priceExpression" exists]
 
 	 CashPrice:
  		+ cashPriceType
@@ -911,10 +922,11 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementCurrency" path "nonDeliverableSettlement" meta "currencyScheme"]
 			[value "settlementCurrency" path "cashSettlement"]
 			[value "settlementCurrency" path "exercise"]
-			[value "settlementCurrency" path "equityExercise"]
+			[value "settlementCurrency" path "equityExercise" maps 2 meta "currencyScheme"]
 			[value "currency" path "amount"]
 
 	SettlementTerms:
+		[meta "id"]
 		+ settlementDate
 			[value "cashSettlement"]
 			[value "cashSettlementPaymentDate" path "cashSettlement"]
@@ -1031,6 +1043,7 @@ synonym source FpML_5_10 extends FpML
 			[value "averagingPeriodOut"]
 
 	ObservationTerms:
+		[meta "id"]
 		+ pricingTime
 			[value "pricingDates"]
 			[value "fixingTime"]
@@ -1052,7 +1065,11 @@ synonym source FpML_5_10 extends FpML
 			[hint "observationSchedule"]
 			[hint "rateObservation"]
 			[hint "valuationDate"]
+			[value "valuationDates"]
+			[value "averagingObservations" path "averagingPeriodOut"]
+			//[value "adjustableDates" path "valuationDates"]
 			[hint "fixingSchedule"]
+			[hint "averagingPeriodOut"]
 
 	AveragingObservationList:
 		+ averagingObservation
@@ -1190,10 +1207,22 @@ synonym source FpML_5_10 extends FpML
 		+ barrier
 			[value "barrier"]
 		+ knock
+			[value "asian"]
 			[value "knock"]
 		+ passThrough
 			[value "passThrough"]
 
+	AveragingCalculation:
+		+ averagingInOut 
+			[value "averagingInOut"]
+		+ averagingMethod
+			[value "ignore"]
+		+ marketDisruption
+			[value "marketDisruption" path "averagingPeriodOut"]
+		+ precision
+			[value "ignore"]
+		+ schedule
+			[value "schedule" path "averagingPeriodOut"]
 	TerminationProvision:
 		+ cancelableProvision
 			[value "cancelableProvision"]
@@ -1235,16 +1264,27 @@ synonym source FpML_5_10 extends FpML
 		+ observationSchedule
 			[value "rateObservation"]
 			[hint "adjustedDate"]
+			//[hint "unadjustedDate"]
+			//[hint "dateAdjustments"]
+			[hint "averagingObservation"]
+			[hint "averagingPeriodOut"]
+			[hint "adjustableDates"]
 		+ periodicSchedule
 			[value "observationSchedule"]
 			[value "fixingSchedule"]
 			[value "amount"]
+			[value "periodicDates"]
 		+ parametricDates
 			[value "observationSchedule"]
 			[value "pricingDates"]
 
 	ObservationSchedule:
+		+ date 
+			[value "adjustableDates"] //in order to map the id and the businessDay it needs to be consumed in this level
+			//[hint "unadjustedDate"]
+			//[hint "dateAdjustments"]
 		+ weight
+			[value "weight" path "averagingObservation"]
 			[value "averageRateWeightingFactor"]
 
 	OptionStyle:
@@ -1818,6 +1858,15 @@ synonym source FpML_5_10 extends FpML
 			[value "productType" path "commoditySwaption" mapper "TaxonomySource"]
 
 	Security:
+		+ exchangeId
+			[value "exchangeId" path "equity" maps 2 meta "exchangeIdScheme"]
+			//[value "relatedExchangeId" path "index" maps 2 meta "exchangeIdScheme"]
+		+ optionsExchangeId
+			[value "optionsExchangeId" path "equity" maps 2 meta "exchangeIdScheme"]
+		+ relatedExchangeId
+			[value "relatedExchangeId" path "equity" maps 2 meta "exchangeIdScheme"]
+		+ specifiedExchangeId
+			[value "specifiedExchangeId" path "equity" maps 2 meta "exchangeIdScheme"]
 		+ productIdentifier
 			[value "bond" meta "instrumentId" mapper "BasketConstituent"]
 			[value "convertibleBond" meta "instrumentId" mapper "BasketConstituent"]
@@ -2107,6 +2156,7 @@ synonym source FpML_5_10 extends FpML
 			[value "equityOption" path "trade"]
 			[value "brokerEquityOption" path "trade"]
 			[value "dividendSwapOptionTransactionSupplement" path "trade"]
+			[hint "equityOptionTransactionSupplement"]
 			[value "equityOptionTransactionSupplement" path "trade"]
 			[value "varianceOptionTransactionSupplement" path "trade"]
 			[value "dividendSwapOptionTransactionSupplement" path "trade"]
@@ -2370,10 +2420,11 @@ synonym source FpML_5_10 extends FpML
 			[hint "putCurrencyAmount", "callCurrencyAmount"]
 			[value "commodity"]
 			[hint "commoditySwap"]
+			[hint "equityOptionTransactionSupplement"]
 			[hint "varianceSwapTransactionSupplement"]
 			[hint "dividendSwapTransactionSupplement"]
 		+ observationTerms
-			[value "asian" path "features"]
+			[value "asian" path "feature"]
 			[hint "pricingDates"]
 			[hint "calculationPeriodsSchedule"]
 			[value "equityValuation" path "equityExercise"]
@@ -2560,6 +2611,7 @@ synonym source FpML_5_10 extends FpML
 			[value "brokerEquityOption"]
 			[value "commodityOption"]
 			[value "commoditySwaption"]
+			[value "equityOptionTransactionSupplement"]
 			[value "varianceOptionTransactionSupplement"]
 			[value "dividendSwapOptionTransactionSupplement"]
 		+ forwardPayout
@@ -2637,6 +2689,7 @@ synonym source FpML_5_10 extends FpML
 			[value "varianceSwap", "varianceSwapTransactionSupplement"]
 			[value "volatilitySwap", "volatilitySwapTransactionSupplement"]
 			[value "correlationSwap"]
+			[hint "equityOptionTransactionSupplement"]
 			[value "dividendSwapTransactionSupplement"]
 			[hint "varianceOptionTransactionSupplement"]
 			[hint "dividendSwapOptionTransactionSupplement"]
@@ -2657,10 +2710,20 @@ synonym source FpML_5_10 extends FpML
 			[value "basket"]
 
 	Index:
+		+ exchangeId
+			[value "exchangeId" path "index" maps 2 meta "exchangeIdScheme"]
+			//[value "relatedExchangeId" path "index" maps 2 meta "exchangeIdScheme"]
+		+ futureId
+			[value "futureId" path "index" maps 2 meta "futureIdScheme"]
+		+ relatedExchangeId
+			[value "relatedExchangeId" path "index" maps 2 meta "exchangeIdScheme"]
 		+ productIdentifier
 			[value "index" meta "instrumentId" mapper "BasketConstituent"]
 			[value "index" meta "description"]
 			[hint "index"]
+		+ unit
+			[value "index"]
+			[hint "currency"]
 
 	Basket:
 		+ basketConstituent
@@ -2752,6 +2815,7 @@ synonym source FpML_5_10 extends FpML
 			[value "varianceSwap"]
 			[value "dividendSwapTransactionSupplement"]
 			[value "correlationSwap"]
+			[value "equityOptionTransactionSupplement"]
 			[value "volatilitySwapTransactionSupplement"]
 			[value "varianceOptionTransactionSupplement"]
 			[value "dividendSwapTransactionSupplement" path "dividendSwapOptionTransactionSupplement"]
@@ -2887,7 +2951,7 @@ synonym source FpML_5_10 extends FpML
 		+ unadjustedDate
 			[value "unadjustedDate"]
 		+ dateAdjustments
-			[value "dateAdjustments"]
+			[value "dateAdjustments"] //[value "dateAdjustments" path "adjustableDates"]
 		+ adjustedDate
 			[value "adjustedDate" meta "id"]
 
@@ -2960,6 +3024,7 @@ synonym source FpML_5_10 extends FpML
 		[meta "id" path "businessCenters"]
 		[meta "id"]
 		+ businessCenter
+			[value "businessCenter" maps 2]  
 			[value "businessCenter" meta "businessCenterScheme"]
 			[value "businessCenter" path "businessCenters" meta "businessCenterScheme"]
 			[value "businessCalendar"]
@@ -2978,6 +3043,8 @@ synonym source FpML_5_10 extends FpML
 
 	BusinessDayAdjustments:
 		[value "BusinessDayAdjustments" meta "id"]
+		+ businessCenters
+            [value "businessCenters" maps 2]
 		+ businessDayConvention
 			[value "businessDayConvention" maps 2]
 
