@@ -8,7 +8,7 @@ import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.observable.asset.FeeTypeEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -17,7 +17,6 @@ import com.regnosys.rosetta.common.translation.SynonymToEnumMap;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.records.Date;
-import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -118,7 +117,7 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
                 Optional.empty();
     }
 
-    @NotNull
+
     private Optional<TransferInstruction> getTransferInstruction(Path synonymPath) {
         TransferInstruction.TransferInstructionBuilder transferInstructionBuilder = TransferInstruction.builder();
         TransferState.TransferStateBuilder tradeStateBuilder = transferInstructionBuilder.getOrCreateTransferState(0);

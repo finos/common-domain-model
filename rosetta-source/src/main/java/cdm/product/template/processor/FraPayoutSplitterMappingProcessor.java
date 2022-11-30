@@ -1,7 +1,7 @@
 package cdm.product.template.processor;
 
 import cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
 import cdm.product.common.settlement.processor.PriceQuantityHelper;
 import com.regnosys.rosetta.common.translation.Mapping;
@@ -11,7 +11,6 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +85,6 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 		updateFloatingLegParties(floatingLeg);
 	}
 
-	@NotNull
 	private Optional<Mapping> getReferenceMapping(Path synonymPath) {
 		return filterMappings(getContext().getMappings(), synonymPath).stream()
 				.filter(m -> m.getRosettaValue() instanceof Reference.ReferenceBuilder)

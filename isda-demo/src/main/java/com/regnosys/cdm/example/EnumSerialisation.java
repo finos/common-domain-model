@@ -1,6 +1,6 @@
 package com.regnosys.cdm.example;
 
-import cdm.legalagreement.contract.BrokerConfirmationTypeEnum;
+import cdm.legaldocumentation.contract.BrokerConfirmationTypeEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 

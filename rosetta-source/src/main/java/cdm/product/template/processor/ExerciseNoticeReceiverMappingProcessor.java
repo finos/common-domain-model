@@ -1,7 +1,7 @@
 package cdm.product.template.processor;
 
 import cdm.base.staticdata.party.AncillaryRoleEnum;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.product.template.ExerciseNotice;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;

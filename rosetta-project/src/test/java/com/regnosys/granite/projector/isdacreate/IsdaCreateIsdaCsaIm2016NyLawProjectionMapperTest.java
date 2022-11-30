@@ -1,11 +1,11 @@
 package com.regnosys.granite.projector.isdacreate;
 
-import cdm.legalagreement.common.LegalAgreement;
+import cdm.legaldocumentation.common.LegalAgreement;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
-import com.regnosys.granite.ingestor.postprocess.pathduplicates.PathCollector;
-import com.regnosys.granite.ingestor.service.IngestionFactory;
-import com.regnosys.granite.ingestor.service.IngestionService;
+import com.regnosys.ingest.test.framework.ingestor.postprocess.pathduplicates.PathCollector;
+import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
+import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.util.UrlUtils;

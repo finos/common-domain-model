@@ -4,7 +4,7 @@ import cdm.base.datetime.AdjustableDate;
 import cdm.base.math.UnitType;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.PayerReceiver;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.observable.asset.Money;
 import cdm.product.common.settlement.PrincipalPayment;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -14,7 +14,6 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaDate;
-import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -49,7 +48,7 @@ public class PrincipalPaymentScheduleMappingProcessor extends MappingProcessor {
         }
     }
 
-    @NotNull
+
     private LinkedList<PrincipalPayment> getPrincipalPayments(Path synonymPath) {
         LinkedList<PrincipalPayment> principalPayments = new LinkedList<>();
         for (int i = 0; i < 2; i++) {
@@ -62,7 +61,7 @@ public class PrincipalPaymentScheduleMappingProcessor extends MappingProcessor {
         return principalPayments;
     }
 
-    @NotNull
+
     private LocalDate getAdjustedOrUnadjustedDate(PrincipalPayment o) {
         return Optional.ofNullable(o.getPrincipalPaymentDate())
                 .map(AdjustableDate::getAdjustedDate)
