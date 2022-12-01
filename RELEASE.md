@@ -1,14 +1,11 @@
-# *Infrastructure - Stand alone build process*
+# *FINOS Contribution Preparation - CVE (Common Vulnerabilities and Exposures) Scanning and Open Source License checks *
 
 _What is being released?_
 
-A part of the CDM Contribution to FINOS, the CDM build, test and validation process has been modified so that it only depends on open source resources.
+A part of the CDM Contribution to FINOS, all third party dependencies have scanned, and validated and updated as needed according the FINOS requirements.
 
-_Review Directions_
-
-The following Rosetta libraries have been open sources
-- https://github.com/REGnosys/rosetta-testing
-- https://github.com/REGnosys/rosetta-common
+Common Vulnerabilities and Exposures (CVE): https://community.finos.org/docs/governance/software-projects/cve-responsible-disclosure/
+License Validation: https://community.finos.org/docs/governance/Software-Projects/license-categories
 
 # *Qualification Example - Java example to show how to run CDM Qualification*
 
