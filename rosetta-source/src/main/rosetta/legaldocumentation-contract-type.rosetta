@@ -1,6 +1,9 @@
 namespace cdm.legaldocumentation.contract : <"Contract (i.e. transaction confirmation) concepts.">
 version "${project.version}"
 
+import cdm.observable.event.*
+import cdm.base.staticdata.party.*
+
 type BrokerConfirmation: <"Identifies the market sector in which the trade has been arranged.">
 
 	brokerConfirmationType BrokerConfirmationTypeEnum (1..1) <"The type of broker confirmation executed between the parties.">
@@ -15,3 +18,37 @@ type IssuerTradeId: <"A class for a two-parts identifier, such as a USI.">
 
 type TransactionConfirmation: <"See existing Contract type">
 
+type TransactionConfirmationSupplement: <"Any additional terms which mainly intend to specify the extraordinary events that may affect a trade and the related contractual rights and obligation of the parties when this happens. Such terms are typically required to extend the economics terms, for the purpose of producing the final legal contractual form of the Transaction. As an indication, in terms of workflow, when considering the whole front-to-middle sequence per which a trade is executed, booked, complemented and processed until it is eventually confirmed and signed by both counterparties as a final legal contractual form : Execution of economic terms which affect the pricing of the trade comes as a first Event, then some additional terms may be processed as a Contract Formation event.">
+
+	extraordinaryEvents NewExtraordinaryEvents (0..1)
+	determinationTerms DeterminationRolesAndTerms (1..*)
+	substitutionProvisions SubstitutionProvisions (0..1)
+
+type SubstitutionProvisions: <"Where parties describe any substitution terms.">
+
+	whoMaySubstitute Counterparty (1..2) <"Designates which Counterparty to the transaction who has the right to trigger a substitution or to provide related determination e.g. for instance to qualify the effectiveness of an Event which may be a trigger for substitution, determine the replacement Share to substitute, etc. ; cardinality of this object is 2, in case parties jointly have this role.">
+	substitutionBeSpokeTerms string (1..1) <"Where parties describe any substitution terms e.g. for instance the election criteria for an Asset to be eligible as the Substitute Asset to the prior Affected Asset in terms of sector of activity, currency, market capitalisation, liquidity, volatility, or any additional features that parties would agree to take into considerations, etc.">
+	substitutionTriggerEvents NewExtraordinaryEvents (0..*) <"Where the parties may optionnally explictly specify the list of Events to be considered as a trigger for a Substitution.">
+	disputingParty Counterparty (0..1) <"Where the party who is not granted with the substitution role at least has a right to dispute the determination given by the counterparty with such role. As an example, a given PartyA is the unique Counterparty with the Role of WhoMaySubstitute, yet PartyB could be Disputing Party in regard of such Role.">
+
+	condition DisputingPartyCannotHaveOriginalRole:
+	if whoMaySubstitute -> role = CounterpartyRoleEnum -> Party1
+	then disputingParty -> role <> CounterpartyRoleEnum -> Party1
+	and (if whoMaySubstitute -> role = CounterpartyRoleEnum -> Party2
+	then disputingParty -> role <> CounterpartyRoleEnum -> Party2)
+
+type NewExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
+
+	additionalEventsBeSpokeTerms string (0..*) <"Where parties may optionnaly describe any extra bespoke agreements, in regards of the standardized Extraordinary Events.">
+	mergerEvents EquityCorporateEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event shall occur if a Merger occurs and the Merger Date is on or before the final Equity Valuation Date | Occurs when the underlying ceases to exist following a merger between the Issuer and another company.">
+	tenderOfferEvents EquityCorporateEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Tender Offers | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Tender Offer Event">
+	compositionOfCombinedConsideration boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Composition of Combined Consideration | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Combined Consideration | If present and true, then composition of combined consideration is applicable.">
+	indexAdjustmentEvents IndexAdjustmentEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Adjustments to Indices | ">
+	additionalDisruptionEvents AdditionalDisruptionEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Additional Disruption Events | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Additional Disruption Events means each Additional Disruption Event specified in the Confirmation Side Letter. For the avoidance of doubt, each Additional Disruption Event shall be an Extraordinary Event.">
+	failureToDeliver boolean (0..1) <"If true, failure to deliver is applicable.">
+	representations Representations (0..1)
+	nationalizationOrInsolvency NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Nationalization and Insolvency | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Nationalization shall occur if all the Securities or all or substantially all the assets of an Issuer are nationalized, expropriated or are otherwise required to be transferred to any governmental agency, authority, entity or instrumentality thereof. Insolvency Filing means as defined in the Confirmation Side Letter.">
+	delisting NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Delisting | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Delisting means Delisting (Broad Relisting) or Delisting (Narrow Relisting), as specified in the Relationship Supplement.">
+
+	condition ExtraordinaryEventsChoice: <"condition to represent an FpML choice construct.">
+		required choice additionalDisruptionEvents, failureToDeliver
