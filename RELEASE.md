@@ -14,7 +14,7 @@ The following Rosetta libraries have been open sources
 
 _What is being released?_
 
-A Trade Association member would like an example of how Qualification Logic is executed in Java and see debug info of rules run. 
+A CDM developer would like an example of how Qualification Logic is executed in Java and see debug info of rules run. 
 
 _Review Directions_
 
