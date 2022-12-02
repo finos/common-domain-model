@@ -22,20 +22,24 @@ type TransactionConfirmationSupplement: <"Any additional terms which mainly inte
 
 	extraordinaryEvents NewExtraordinaryEvents (0..1)
 	determinationTerms DeterminationRolesAndTerms (1..*)
-	substitutionProvisions SubstitutionProvisions (0..1)
+	substitutionProvisions SubstitutionProvisions (0..*)
+
+	condition DisruptionEventsDeterminingParty:
+	if determinationTerms -> determinationRole = DeterminationRoleEnum -> DeterminingParty
+	then extraordinaryEvents -> additionalDisruptionEvents exists
 
 type SubstitutionProvisions: <"Where parties describe any substitution terms.">
 
-	whoMaySubstitute Counterparty (1..2) <"Designates which Counterparty to the transaction who has the right to trigger a substitution or to provide related determination e.g. for instance to qualify the effectiveness of an Event which may be a trigger for substitution, determine the replacement Share to substitute, etc. ; cardinality of this object is 2, in case parties jointly have this role.">
+	whoMaySubstitute CounterpartyRoleEnum (1..2) <"Designates which Counterparty to the transaction who has the right to trigger a substitution or to provide related determination e.g. for instance to qualify the effectiveness of an Event which may be a trigger for substitution, determine the replacement Share to substitute, etc. ; cardinality of this object is 2, in case parties jointly have this role.">
 	substitutionBeSpokeTerms string (1..1) <"Where parties describe any substitution terms e.g. for instance the election criteria for an Asset to be eligible as the Substitute Asset to the prior Affected Asset in terms of sector of activity, currency, market capitalisation, liquidity, volatility, or any additional features that parties would agree to take into considerations, etc.">
 	substitutionTriggerEvents NewExtraordinaryEvents (0..*) <"Where the parties may optionnally explictly specify the list of Events to be considered as a trigger for a Substitution.">
-	disputingParty Counterparty (0..1) <"Where the party who is not granted with the substitution role at least has a right to dispute the determination given by the counterparty with such role. As an example, a given PartyA is the unique Counterparty with the Role of WhoMaySubstitute, yet PartyB could be Disputing Party in regard of such Role.">
+	disputingParty CounterpartyRoleEnum (0..1) <"Where the party who is not granted with the substitution role at least has a right to dispute the determination given by the counterparty with such role. As an example, a given PartyA is the unique Counterparty with the Role of WhoMaySubstitute, yet PartyB could be Disputing Party in regard of such Role.">
 
 	condition DisputingPartyCannotHaveOriginalRole:
-	if whoMaySubstitute -> role = CounterpartyRoleEnum -> Party1
-	then disputingParty -> role <> CounterpartyRoleEnum -> Party1
-	and (if whoMaySubstitute -> role = CounterpartyRoleEnum -> Party2
-	then disputingParty -> role <> CounterpartyRoleEnum -> Party2)
+	if whoMaySubstitute = CounterpartyRoleEnum -> Party1
+	then disputingParty <> CounterpartyRoleEnum -> Party1
+	and (if whoMaySubstitute = CounterpartyRoleEnum -> Party2
+	then disputingParty <> CounterpartyRoleEnum -> Party2)
 
 type NewExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
 
