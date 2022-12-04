@@ -1,7 +1,6 @@
 package cdm.legaldocumentation.common.processor;
 
 import cdm.legaldocumentation.common.*;
-import cdm.legaldocumentation.csa.CreditSupportAgreementTypeEnum;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -90,8 +89,7 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
                 legalAgreementBuilder
                         .getOrCreateLegalAgreementIdentification()
                         .getOrCreateAgreementName()
-                        .setAgreementType(LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT)
-                        .setCreditSupportAgreementTypeValue(CreditSupportAgreementTypeEnum.COLLATERAL_TRANSFER_AGREEMENT);
+                        .setAgreementType(LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT);
                 return true;
             case "date_of_isda_master_agreement":
                 legalAgreementBuilder
