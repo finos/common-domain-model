@@ -8,7 +8,6 @@ import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.translation.Path.PathElement;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -112,7 +111,6 @@ class UmbrellaAgreementEntityMappingProcessorTest {
 				.addElement(new PathElement(attribute));
 	}
 
-	@NotNull
 	private Mapping getEmptyMapping(Path xmlPath, String xmlValue) {
 		return new Mapping(xmlPath, xmlValue, null, null, "no destination", false, false, false);
 	}

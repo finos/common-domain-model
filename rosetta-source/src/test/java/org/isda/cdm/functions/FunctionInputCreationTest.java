@@ -56,7 +56,6 @@ import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.CdmRuntimeModule;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -194,7 +193,7 @@ class FunctionInputCreationTest {
         assertJsonEquals(expectedJsonPath, actual);
     }
 
-    @NotNull
+
     private CreateBusinessEventInput getExecutionFuncInputJson(TradeState tradeState, Date eventDate) {
         TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
 
@@ -441,7 +440,7 @@ class FunctionInputCreationTest {
      * This is in a separate method because it is used by validateIncreaseEquitySwapFuncInputJson (to validate input),
      * and validatePartialTerminationEquitySwapFuncInputJson (as the input uses the output of the increase func).
      */
-    @NotNull
+
     private CreateBusinessEventInput getIncreaseEquitySwapFuncInputJson() throws IOException {
         QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.INCREASE)
@@ -528,7 +527,7 @@ class FunctionInputCreationTest {
         assertJsonEquals(expectedJsonPath, actual);
     }
 
-    @NotNull
+
     private TransferInstruction.TransferInstructionBuilder getTransferInstruction(TradeState tradeState, FeeTypeEnum feeType) {
         Trade trade = tradeState.getTrade();
         List<? extends Counterparty> counterparties = trade.getTradableProduct().getCounterparty();
@@ -1319,7 +1318,7 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/business-event/exercise/exercise-cancellable-option-func-input.json", actual);
     }
 
-    @NotNull
+
     private QuantityChangeInstruction.QuantityChangeInstructionBuilder createQuantityChangeInstruction(UnitType unitOfAmount, BigDecimal amount) {
         return QuantityChangeInstruction.builder()
                 .addChange(PriceQuantity.builder()
@@ -1332,7 +1331,7 @@ class FunctionInputCreationTest {
     /**
      * Use record-ex01-vanilla-swap.json sample and modify it to look exactly like CFTC example 3 (used in regs termination example)
      */
-    @NotNull
+
     private TradeState.TradeStateBuilder getTerminationVanillaSwapTradeState() throws IOException {
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json");
         // parties
@@ -1395,7 +1394,7 @@ class FunctionInputCreationTest {
     /**
      * eqs-ex01-single-underlyer-execution-long-form.json with LOT-1 trade lot identifier
      */
-    @NotNull
+
     private TradeState getQuantityChangeEquitySwapTradeState() throws IOException {
         TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
         TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().get(0);

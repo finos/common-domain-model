@@ -1,12 +1,29 @@
-# *CDM Model - Function Bug Fixes*
+# *CDM Distribution - Upgrade per Common Vulnerabilities and Exposures (CVE) Standards*
 
 _What is being released?_
 
-This release contains two bug fixes related to functions that compare quantities.
+A part of the CDM Contribution to FINOS, all third party dependencies have been verified and updated when necessary according the FINOS requirements for Common Vulnerabilities and Exposures 
 
-- func `CompareTradeLotToAmount` - change required to compare `Quantity->value` only if it exists. This change will fix the use-case where the `Quantity` contains a schedule, hence the `value` attribute will be empty and should not be compared. 
-- func `QuantityDecreasedToZero` - change required to comparison of the before and after `Quantity` values.  The function previously compared that all before `Quantity` values were greater than zero, but has now been changed to greater or equal to zero to handle the use-case where one of the before trade `Quantity` values are zero. 
+More details on requirements is available with:
+- Common Vulnerabilities and Exposures (CVE): https://community.finos.org/docs/governance/software-projects/cve-responsible-disclosure/
+- License Validation: https://community.finos.org/docs/governance/Software-Projects/license-categories
+
+# *CDM Distribution - Implementation examples for Qualification*
+
+_What is being released?_
+
+Examples of Qualification Logic have been included in the Java distribution to illustrate usage and inform implementation.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser, and review the functions mentioned above.
+[Download](https://cdm.docs.rosetta-technology.io/source/download.html) and inspect the CDM Examples and open the Java file:  `src/main/java/com/regnosys/cdm/example/qualify/QualificationReportExample.java`
+
+# *Infrastructure - 5.13 Synonym Source*
+
+_What is being released?_
+
+Infrastructure changes required to work with FpML 5.13 Synonym Source.
+
+_Review Directions_
+
+[Download](https://cdm.docs.rosetta-technology.io/source/download.html) and inspect the additional `FpML_5_13` Synonym source in the following file:  `src/main/rosetta/mapping-fpml-synonym.rosetta`

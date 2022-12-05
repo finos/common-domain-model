@@ -10,7 +10,6 @@ import cdm.product.common.schedule.RateSchedule;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -51,7 +50,6 @@ public class GetRateScheduleAmountTest extends AbstractFunctionTest {
 		check(0.0104, func.evaluate(rateSchedule, Date.of(2021, 12, 31)));
 	}
 
-	@NotNull
 	private PriceSchedule.PriceScheduleBuilder getSpread(double spreadAmount) {
 		return PriceSchedule.builder()
 				.setValue(BigDecimal.valueOf(spreadAmount))
