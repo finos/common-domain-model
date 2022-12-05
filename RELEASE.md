@@ -8,7 +8,7 @@ More details on requirements is available with:
 - Common Vulnerabilities and Exposures (CVE): https://community.finos.org/docs/governance/software-projects/cve-responsible-disclosure/
 - License Validation: https://community.finos.org/docs/governance/Software-Projects/license-categories
 
-# *CDM Distribution - Implementation examples for Qualification *
+# *CDM Distribution - Implementation examples for Qualification*
 
 _What is being released?_
 
