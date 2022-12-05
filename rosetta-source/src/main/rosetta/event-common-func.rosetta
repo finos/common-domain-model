@@ -228,7 +228,7 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
 func AdjustedValuationDates:
     inputs: valuationDates ValuationDates (1..1)
     output: adjustedValuationDates date (0..*)
-    set adjustedValuationDates: <"Build sorted list of adjusted valuation dates.">
+    add adjustedValuationDates: <"Build sorted list of adjusted valuation dates.">
         [ ResolveAdjustableDates( valuationDates -> valuationDatesInterim -> valuationDates ),
             ResolveAdjustableDate( valuationDates -> valuationDatesFinal -> valuationDate ) ]
         sort
@@ -751,13 +751,13 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
 
 	set newTrade: <"Copy the original trade.">
 		originalTrade
-	set newTrade -> trade -> tradableProduct -> counterparty: <"Assigns the new counterparties.">
+	add newTrade -> trade -> tradableProduct -> counterparty: <"Assigns the new counterparties.">
 		[counterparty1, counterparty2]
-	set newTrade -> trade -> party: <"Removes the existing party, and adds the new party.">
+	add newTrade -> trade -> party: <"Removes the existing party, and adds the new party.">
 		ReplaceParty( originalTrade -> trade -> party,
 		    partyToRemove,
 		    counterparty -> partyReference )
-	set newTrade -> trade -> tradeIdentifier: <"Replaces the existing trade identifier with the new trade identifier"> 
+	add newTrade -> trade -> tradeIdentifier: <"Replaces the existing trade identifier with the new trade identifier"> 
 		tradeId
 	add newTrade -> trade -> party: <"Add ancillary party as an additional party">
 		ancillaryParty -> partyReference
@@ -767,7 +767,7 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
         partyRole -> partyReference
     add newTrade -> trade -> partyRole: <"Add party role">
         partyRole
-    set newTrade -> transferHistory: <"Clear transfer history.">
+    add newTrade -> transferHistory: <"Clear transfer history.">
         EmptyTransferHistory()
 
 func EmptyTransferHistory:
@@ -973,7 +973,7 @@ func UpdateSpreadAdjustmentAndRateOptions: <"For each of the trade state's price
 
     set updatedTradeState: tradeState
 
-    set updatedTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity:
+    add updatedTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity:
         tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity
             extract [ UpdateIndexTransitionPriceAndRateOption( item, FindMatchingIndexTransitionInstruction( instructions, item ) ) ]
 
