@@ -28,7 +28,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 class PartyMappingHelperTest {
 
@@ -92,6 +91,23 @@ class PartyMappingHelperTest {
 		assertNull(updatedMapping.getRosettaValue());
 		assertNull(updatedMapping.getError());
 		assertTrue(updatedMapping.isCondition());
+	}
+
+	@Test
+	void shouldMapPayerRefToParty1AndReceiverRefToParty2() {
+		PartyMappingHelper helper = new PartyMappingHelper(context, tradableProductBuilder, null);
+
+		PayerReceiverBuilder builder = PayerReceiver.builder();
+
+		helper.setCounterpartyRoleEnum(PAYER_PARTY_REF, builder::setPayer);
+
+		assertEquals(CounterpartyRoleEnum.PARTY_1, builder.getPayer());
+		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
+
+		helper.setCounterpartyRoleEnum(RECEIVER_PARTY_REF, builder::setReceiver);
+
+		assertEquals(CounterpartyRoleEnum.PARTY_2, builder.getReceiver());
+		assertTrue(helper.getBothCounterpartiesCollectedFuture().isDone());
 	}
 
 	@Test
