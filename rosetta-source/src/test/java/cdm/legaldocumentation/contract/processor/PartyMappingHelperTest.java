@@ -180,26 +180,6 @@ class PartyMappingHelperTest {
 		assertTrue(receiverUpdatedMapping.isCondition());
 	}
 
-	@Test
-	void shouldMapCounterpartyBecauseModelPathOutsideProduct() {
-		PartyMappingHelper helper = new PartyMappingHelper(context, tradableProductBuilder, null);
-
-		PayerReceiverBuilder builder = PayerReceiver.builder();
-		Path synonymPath = PAYER_XML_PATH.getParent();
-		helper.setCounterpartyRoleEnum(RosettaPath.valueOf("Contract.collateral.independentAmount.payer"), synonymPath, builder::setPayer);
-
-		assertNull(builder.getPayer());
-		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
-
-		Mapping updatedMapping = context.getMappings().get(0);
-		assertEquals(PAYER_XML_PATH, updatedMapping.getXmlPath());
-		assertEquals(PAYER_PARTY_REF, updatedMapping.getXmlValue());
-		assertNull(updatedMapping.getRosettaPath());
-		assertNull(updatedMapping.getRosettaValue());
-		assertEquals("no destination", updatedMapping.getError());
-		assertFalse(updatedMapping.isCondition());
-	}
-
 	private List<Mapping> getMappings(Path payerXmlPath, String payerXmlValue, Path receiverXmlPath, String receiverXmlValue) {
 		return Arrays.asList(
 				new Mapping(payerXmlPath,
