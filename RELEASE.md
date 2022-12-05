@@ -17,3 +17,13 @@ Examples of Qualification Logic have been included in the Java distribution to i
 _Review Directions_
 
 [Download](https://cdm.docs.rosetta-technology.io/source/download.html) and inspect the CDM Examples and open the Java file:  `src/main/java/com/regnosys/cdm/example/qualify/QualificationReportExample.java`
+
+# *Infrastructure - 5.13 Synonym Source*
+
+_What is being released?_
+
+Infrastructure changes required to work with FpML 5.13 Synonym Source.
+
+_Review Directions_
+
+[Download](https://cdm.docs.rosetta-technology.io/source/download.html) and inspect the additional `FpML_5_13` Synonym source in the following file:  `src/main/rosetta/mapping-fpml-synonym.rosetta`
