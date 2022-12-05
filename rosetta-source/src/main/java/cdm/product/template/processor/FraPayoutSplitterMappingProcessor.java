@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 
 import static cdm.observable.asset.metafields.ReferenceWithMetaFloatingRateOption.ReferenceWithMetaFloatingRateOptionBuilder;
 import static cdm.product.asset.FloatingRate.FloatingRateBuilder;
@@ -35,11 +34,8 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FraPayoutSplitterMappingProcessor.class);
 
-	private final ExecutorService executor;
-
 	public FraPayoutSplitterMappingProcessor(RosettaPath path, List<Path> synonymPaths, MappingContext context) {
 		super(path, synonymPaths, context);
-		this.executor = context.getExecutor();
 	}
 
 	@Override
@@ -121,22 +117,16 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	}
 
 	private void updateFloatingLegParties(InterestRatePayoutBuilder floatingLeg) {
-		PartyMappingHelper helper = PartyMappingHelper.getInstanceOrThrow(getContext());
+		LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
+		PayerReceiverBuilder newBuilder = floatingLeg.getPayerReceiver().toBuilder();
 
-		addInvokedTask(helper.getBothCounterpartiesCollectedFuture()
-				.thenAcceptAsync(map -> {
-					LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
-					PayerReceiverBuilder newBuilder = floatingLeg.getPayerReceiver().toBuilder();
-					// Get party references from xml mappings rather than rosetta mapped objects to avoid race conditions
-					getPartyReference("buyerPartyReference")
-							.map(helper::translatePartyExternalReference)
-							.map(map::get)
-							.ifPresent(newBuilder::setReceiver);
-					getPartyReference("sellerPartyReference")
-							.map(helper::translatePartyExternalReference)
-							.map(map::get)
-							.ifPresent(newBuilder::setPayer);
-				}, executor));
+		PartyMappingHelper helper = PartyMappingHelper.getInstanceOrThrow(getContext());
+		getPartyReference("buyerPartyReference")
+				.ifPresent(partyReference ->
+						helper.setCounterpartyRoleEnum(partyReference, newBuilder::setReceiver));
+		getPartyReference("sellerPartyReference")
+				.ifPresent(partyReference -> helper.setCounterpartyRoleEnum(partyReference,
+						newBuilder::setPayer));
 	}
 
 	private Optional<String> getPartyReference(String endsWith) {
