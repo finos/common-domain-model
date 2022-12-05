@@ -1,10 +1,10 @@
 package com.regnosys.granite.ingestor.fpml;
 
 import cdm.event.common.TradeState;
-import com.regnosys.granite.ingestor.IngestionTest;
-import com.regnosys.granite.ingestor.IngestionTestUtil;
-import com.regnosys.granite.ingestor.service.IngestionFactory;
-import com.regnosys.granite.ingestor.service.IngestionService;
+import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
+import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
+import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
+import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.isda.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.provider.Arguments;
