@@ -8,7 +8,6 @@ import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.meta.Key;
-import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -23,7 +22,6 @@ public class PriceQuantityHelper {
 	 * If xml values have been mapped to the model instance, each Mapping will contain the same path.
 	 * If fixed with a mapper, then the path must be updated accordingly.
 	 */
-	@NotNull
 	public static Path incrementPathElementIndex(Path mappedModelPath, String lastElement, int indexDiff) {
 		// find price/quantity path element that needs updating, e.g. the path will likely be price.value or quantity.value.
 		Path.PathElement pricePathElement = subPath(lastElement, mappedModelPath)

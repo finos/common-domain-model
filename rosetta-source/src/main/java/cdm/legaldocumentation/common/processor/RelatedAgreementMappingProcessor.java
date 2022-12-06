@@ -9,7 +9,6 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.records.Date;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -81,7 +80,7 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
         return relatedAgreementBuilder.hasData() ? Optional.of(relatedAgreementBuilder.build()) : Optional.empty();
     }
 
-    @NotNull
+
     private Boolean setAgreementDetails(Path synonymPath, LegalAgreementBuilder legalAgreementBuilder, String date) {
         legalAgreementBuilder.setAgreementDate(Date.parse(date));
         switch (synonymPath.getLastElement().getPathName()) {

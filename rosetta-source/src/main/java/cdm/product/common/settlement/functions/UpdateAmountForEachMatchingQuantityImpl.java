@@ -10,7 +10,6 @@ import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.PriceQuantity;
 import com.rosetta.model.metafields.FieldWithMetaString;
-import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -34,7 +33,7 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 	}
 
 	@NotNull
-	private List<PriceQuantity.PriceQuantityBuilder> update(List<PriceQuantity.PriceQuantityBuilder> priceQuantityBuilders,
+	private List<PriceQuantity.PriceQuantityBuilder> update(List<PriceQuantity.PriceQuantityBuilder> priceQuantity,
 															List<? extends PriceQuantity> change,
 															QuantityChangeDirectionEnum direction) {
 		// Get new quantities
