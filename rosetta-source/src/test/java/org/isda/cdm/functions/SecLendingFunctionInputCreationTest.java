@@ -36,7 +36,6 @@ import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.isda.cdm.CdmRuntimeModule;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -161,7 +160,7 @@ class SecLendingFunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/sec-lending/allocation/allocation-sec-lending-func-input.json", actual);
     }
 
-    @NotNull
+
     private CreateBusinessEventInput getAllocationInput() throws IOException {
         // Agent Lender lends 200k SDOL to Borrower CP001
         TradeState blockExecutionTradeState = getBlockExecutionTradeState();
@@ -428,7 +427,7 @@ class SecLendingFunctionInputCreationTest {
                 .findFirst().orElseThrow(RuntimeException::new);
     }
 
-    @NotNull
+
     private static List<NonNegativeQuantitySchedule> scaleQuantities(TradeState tradeState, double percent) {
         return tradeState.build().toBuilder().getTrade().getTradableProduct()
                 .getTradeLot().stream()
