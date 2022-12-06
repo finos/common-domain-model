@@ -12,7 +12,6 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -72,7 +71,6 @@ class ThresholdMappingProcessorTest {
 				.orElseThrow(() -> new RuntimeException("No partyElection found for " + party));
 	}
 
-	@NotNull
 	private Mapping getEmptyMapping(Path xmlPath, String xmlValue) {
 		return new Mapping(xmlPath, xmlValue, null, null, "no destination", false, false, false);
 	}
