@@ -1,4 +1,4 @@
-# *Product Model - FpML Mapping of Commodity Swaption Exercise Terms*
+# *Product Model - Performance Payout - Valuation dates*
 Background
 
 This release completes the representation of the valuation dates for a performance payout with the specification of the initial dates, that was previously missing. 
