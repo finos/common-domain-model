@@ -4,7 +4,7 @@ _What is being released?_
 
 This release contains a bug fixe related to functions that compare quantities.
 
-- func `Qualify_SubProduct_FixedFloat` - changes applied to identify floating legs with inflation rates. 
+- func `Qualify_SubProduct_FixedFloat` - Fix in Qualify_SubProduct_FixedFloat to include products where the fixed leg has a principal payment with a final payment and the floating leg contains an inflation rate. Previously, these products were not identified as there was only support for the cases where the floating leg had a floating rate.
 
 _Review Directions_
 
