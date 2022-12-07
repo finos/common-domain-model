@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release fixes a defect related to the following function when comparing quantities.
+This release fixes a defect related to the following function `Qualify_SubProduct_FixedFloat`.
 
 Previously, the qualification function `Qualify_SubProduct_FixedFloat` did not cater for product featuring an inflation rate on the `interestRatePayout`. This issue has now been resolved.   
 
