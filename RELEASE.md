@@ -2,9 +2,9 @@
 
 _What is being released?_
 
-This release contains a bug fixe related to functions that compare quantities.
+This release fixes a defect related to the following function that compares quantities.
 
-- func `Qualify_SubProduct_FixedFloat` - Fix in Qualify_SubProduct_FixedFloat to identify products with a floating leg containing an inflation rate. Previously, these products were not identified as there was only support for the cases where the floating leg had a floating rate.
+Previously, the qualification function `Qualify_SubProduct_FixedFloat` did not cater for product featuring an inflation rate on the `interestRatePayout`. This issue has now been resolved.   
 
 _Review Directions_
 
