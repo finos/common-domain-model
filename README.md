@@ -2,6 +2,8 @@
 
 # CDM - Common Domain Model
 
+Read the full docs [here](https://cdm.docs.rosetta-technology.io/source/cdm-overview.html#what-is-the-isda-cdm)!
+
 ## What is the CDM
 
 The Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a `domain model`_ and distributed in open source.
