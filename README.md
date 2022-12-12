@@ -70,13 +70,13 @@ _For more examples and usage, please refer to the [Wiki][wiki]._
 
 ## Development setup
 
-Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms.
+The CDM is built using maven and can be built using the standard maven convensions
 
 ```sh
-make install
-npm test
+mvn clean install
 ```
 
+See [here](https://cdm.docs.rosetta-technology.io/source/cdm-guidelines.html) for more infomation. 
 
 ## Roadmap
 
@@ -84,7 +84,7 @@ TBD
 
 ## Contributing
 
-See guidelines (here)[See https://cdm.docs.rosetta-technology.io/source/contribution.html#source-contribution--page-root]
+See guidelines (here)[See https://cdm.docs.rosetta-technology.io/source/contribution.html#how-to-contribute]
 
 ### Contribution via Rosetta
 
