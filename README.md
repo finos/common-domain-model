@@ -8,6 +8,8 @@ Read the full docs [here](https://cdm.docs.rosetta-technology.io/source/cdm-over
 
 The Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a `domain model`_ and distributed in open source.
 
+See more [here](https://cdm.docs.rosetta-technology.io/source/common-domain-model.html)
+
 ## Purpose
 
 A single, digital processing standard for trade events and actions enhances financial markets' operational efficiency in several ways:
@@ -26,7 +28,7 @@ To support these objectives, the CDM is built according to a set of design princ
 * **Embedded logic** to represent industry processes
 * **Modularisation** into logical layers
 
-These design principles are further detailed in the :ref:`design-principles` section of the CDM documentation.
+These design principles are further detailed in the [https://cdm.docs.rosetta-technology.io/source/contribution.html#design-principles](design-principles) section of the CDM documentation.
 
 ## Governance
 
