@@ -84,7 +84,7 @@ TBD
 
 ## Contributing
 
-See guidelines (here)[See https://cdm.docs.rosetta-technology.io/source/contribution.html#how-to-contribute]
+See guidelines [here](https://cdm.docs.rosetta-technology.io/source/contribution.html#how-to-contribute).
 
 ### Contribution via Rosetta
 
@@ -97,12 +97,12 @@ Steps:
 
 ### Contributing via GitHub
 
-1. Fork it (<https://github.com/finos/{project slug}/fork>)
-1. Create your feature branch (`git checkout -b feature/fooBar`)
+1. Fork it (<https://github.com/finos/cdm)
+1. Create your feature branch (`git checkout -b feature/my-new-feature`)
 1. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rosetta VS Code plugin](https://github.com/REGnosys/rosetta-dsl/tree/master/vscode-plugin)
-1. Read our [contribution guidelines](.github/CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
-1. Commit your changes (`git commit -am 'Add some fooBar'`)
-1. Push to the branch (`git push origin feature/fooBar`)
+1. Read our [contribution guidelines](https://cdm.docs.rosetta-technology.io/source/contribution.html#how-to-contribute) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
+1. Commit your changes (`git commit -am 'My New Feature'`)
+1. Push to the branch (`git push origin feature/my-new-feature`)
 1. Create a new Pull Request
 
 
