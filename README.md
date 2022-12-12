@@ -51,6 +51,7 @@ The product scope of the CDM includes OTC derivatives, cash securities, securiti
 
 The ISDA CDM distribution is openly accessible to all industry participants, subject to the ISDA CDM open source licence. This distribution is fully downloadable.
 
+
 ## Installation
 
 OS X, Linux and Windows:
@@ -81,7 +82,7 @@ TBD
 
 ## Contributing
 
-TBD
+See guidelines (here)[See https://cdm.docs.rosetta-technology.io/source/contribution.html#source-contribution--page-root]
 
 ### Contribution via Rosetta
 
