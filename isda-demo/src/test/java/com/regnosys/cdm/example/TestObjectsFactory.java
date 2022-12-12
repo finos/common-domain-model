@@ -12,7 +12,7 @@ import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
-import cdm.legalagreement.common.ClosedState;
+import cdm.legaldocumentation.common.ClosedState;
 import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.*;

@@ -1,14 +1,13 @@
 package cdm.product.asset.processor;
 
 import cdm.base.staticdata.party.AncillaryRoleEnum;
-import cdm.legalagreement.contract.processor.PartyMappingHelper;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.product.asset.DividendReturnTerms;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,6 @@ public class ExtraordinaryDividendsPartyMappingProcessor extends MappingProcesso
 						.setAncillaryRoleEnum(getModelPath(), synonymPath, setter, AncillaryRoleEnum.EXTRAORDINARY_DIVIDENDS_PARTY));
 	}
 
-	@NotNull
 	private Optional<Consumer<AncillaryRoleEnum>> getSetter(RosettaModelObjectBuilder parent) {
 		if (parent instanceof DividendReturnTerms.DividendReturnTermsBuilder) {
 			return Optional.of(((DividendReturnTerms.DividendReturnTermsBuilder) parent)::setExtraordinaryDividendsParty);

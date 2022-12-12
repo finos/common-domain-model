@@ -1,6 +1,6 @@
 package com.regnosys.granite.projector.isdacreate;
 
-import cdm.legalagreement.common.LegalAgreement;
+import cdm.legaldocumentation.common.LegalAgreement;
 import org.isda.isdacreate.isda.csdim2016.englaw.Answers;
 import org.isda.isdacreate.isda.csdim2016.englaw.IsdaCreateIsdaCsdIm2016EngLaw;
 

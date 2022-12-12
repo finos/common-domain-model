@@ -15,4 +15,5 @@ Welcome to the ISDA CDM documentation
    source/contribution
    releases/latest
    releases/all
+   source/download
    

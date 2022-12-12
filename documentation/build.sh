@@ -69,4 +69,5 @@ cp build/releases/all.txt build/releases/all.html
 
 export LATEST_RELEASE_ID=$(jq ' .tag' build/releases/latest.json | rev | cut -c2- | rev | cut -c2-)
 envsubst \$LATEST_RELEASE_ID < latest-template.rst >  build/releases/latest.rst
+envsubst \$LATEST_RELEASE_ID < source/links-template.rst >  build/source/links.rst
 cp all.rst build/releases/all.rst

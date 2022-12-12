@@ -1,17 +1,17 @@
 package com.regnosys.granite.ingestor.isdacreate;
 
-import cdm.legalagreement.common.LegalAgreement;
+import cdm.legaldocumentation.common.LegalAgreement;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.regnosys.granite.ingestor.IngestionTest;
-import com.regnosys.granite.ingestor.IngestionTestExpectation;
-import com.regnosys.granite.ingestor.IngestionTestUtil;
-import com.regnosys.granite.ingestor.service.IngestionFactory;
-import com.regnosys.granite.ingestor.service.IngestionService;
-import com.regnosys.granite.ingestor.testing.Expectation;
+import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
+import com.regnosys.ingest.test.framework.ingestor.IngestionTestExpectation;
+import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
+import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
+import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
+import com.regnosys.ingest.test.framework.ingestor.testing.Expectation;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.testing.MappingCoverage;
 import com.regnosys.rosetta.common.util.ClassPathUtils;

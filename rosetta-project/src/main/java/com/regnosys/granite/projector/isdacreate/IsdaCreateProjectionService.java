@@ -1,6 +1,6 @@
 package com.regnosys.granite.projector.isdacreate;
 
-import cdm.legalagreement.common.LegalAgreement;
+import cdm.legaldocumentation.common.LegalAgreement;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.regnosys.granite.ingestor.parser.InputValidationReport;
 import com.regnosys.granite.projector.ProjectionReport;

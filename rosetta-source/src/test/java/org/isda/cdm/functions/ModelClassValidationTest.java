@@ -28,7 +28,7 @@ public class ModelClassValidationTest {
 
 		ValidationResult<? super Trade> result = new TradeMeta().validator().validate(null, tradeState);
 		assertEquals(
-				"tradeIdentifier - Expected cardinality lower bound of [1] found [0]; tradeDate - Expected cardinality lower bound of [1] found [0]; tradableProduct - Expected cardinality lower bound of [1] found [0]",
+				"Minimum of 1 'tradeIdentifier' is expected but found 0; Minimum of 1 'tradeDate' is expected but found 0; Minimum of 1 'tradableProduct' is expected but found 0",
 				result.getFailureReason().orElse("No error message"));
 	}
 
