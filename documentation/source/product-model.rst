@@ -631,6 +631,14 @@ The data types that extend from ProductBase are Index, Commodity, Loan, and Secu
    equityType EquityTypeEnum (0..1)
    fundType FundProductTypeEnum (0..1)
    economicTerms EconomicTerms (0..1)
+   exchangeId string (0..1)
+     [metadata scheme]
+   relatedExchangeId string (0..1)
+     [metadata scheme]
+   optionsExchangeId string (0..1)
+     [metadata scheme]
+   specifiedExchangeId string (0..1)
+     [metadata scheme]
 
  condition DebtSubType:
    if securityType <> SecurityTypeEnum -> Debt
