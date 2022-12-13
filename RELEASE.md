@@ -2,8 +2,12 @@
 
 _Background_
 
-A review FpMl scheme has identified that CDM Enumeration have become outdated and needed to be re-synced with FpMl Source.
+FpML version 5.13 contains scheme updates.  The CDM Enumerations have been re-synced with the FpML source in order to contain the latest information.
 
 _What is being released?_
 
-- Updating Enumeration with new values. 
+- `FloatingRateIndexEnum` has been updated to contain additional values.
+
+_Review Directions_
+
+- In the CDM Portal, select the Textual Browser, and review the enumeration mentioned above.
