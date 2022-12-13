@@ -14,6 +14,9 @@ env:
 jobs:
   scan:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module-folder: ["./", "./isda-demo", "./rosetta-source", "./rosetta-project", "./cdm-distribution", "./scheme-import"]
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 11
@@ -34,6 +37,7 @@ jobs:
         LINES_FOUND=`echo $LICENSE_REPORT | wc -l`
         echo "License issues found ..."
         if [ $LINES_FOUND -gt 1 ]; then echo $LICENSE_REPORT ; exit -1; fi
+      working-directory: ${{ matrix.module-folder }}
     - name: Upload license reports
       uses: actions/upload-artifact@v3
       with:
