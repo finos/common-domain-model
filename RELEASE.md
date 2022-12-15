@@ -1,11 +1,13 @@
-# *Product Model - Qualification Functions - Bug Fixes*
+# *Product Model - FpML Scheme - Enumeration Update*
+
+_Background_
+
+FpML version 5.13 contains scheme updates.  The CDM Enumerations have been re-synced with the FpML source in order to contain the latest information.
 
 _What is being released?_
 
-This release fixes a defect related to the following function `Qualify_SubProduct_FixedFloat`.
-
-Previously, the qualification function `Qualify_SubProduct_FixedFloat` did not cater for product featuring an inflation rate on the `interestRatePayout`. This issue has now been resolved.   
+- `FloatingRateIndexEnum` has been updated to contain additional values.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser, and review the functions mentioned above.
+- In the CDM Portal, select the Textual Browser, and review the enumeration mentioned above.
