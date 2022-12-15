@@ -11,11 +11,11 @@ _Review Directions_
 
 In the CDM Portal, select the textual representation of the model and inspect the representation of the valuation dates of a `PerformancePayout`.
 
-# *Product Model - FpML Mappings - Bond Reference*
+# *Product Model - FpML Mappings - Bond Reference for Interest Rate Payout*
 
 _What is being released?_
 
-Synonym mapping has been added to populate the `bondReference` attribute in data type `InterestRatePayout` in order to reference a bond underlier to represent an asset swap of Condition Precedent bond.
+Synonym mapping has been added to populate the `bondReference` attribute in data type `InterestRatePayout` so that the reference to a bond underlier and the applicability of the Precedent bond condition. The latter denotes that the contract is only valid if the bond is issued and that if there is any dispute over the terms of the fixed stream then the bond terms will be used.
 
 _Review Directions_
 
