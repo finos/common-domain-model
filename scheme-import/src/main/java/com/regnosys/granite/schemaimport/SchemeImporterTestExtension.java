@@ -128,8 +128,9 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
         BigDecimal highestVersion = new BigDecimal(0);
         String latestSetOfSchemesFile = "coding-schemes/fpml/set-of-schemes-2-2.xml";
         for (Map.Entry<String, BigDecimal> entry : versionNumberFileName.entrySet()) {
-            if (entry.getValue().compareTo(highestVersion)>0){
-                highestVersion = entry.getValue();
+            BigDecimal value = entry.getValue();
+            if (value.unscaledValue().compareTo(highestVersion.unscaledValue())>0){
+                highestVersion = value;
                 latestSetOfSchemesFile = "coding-schemes/fpml/" + entry.getKey();
             }
 
