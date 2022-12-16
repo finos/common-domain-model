@@ -8,7 +8,6 @@ import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -33,7 +32,7 @@ public class PostingObligationsMappingProcessor extends MappingProcessor {
         PARTIES.forEach(party -> getPostingObligationsElectionBuilder(synonymPath, party).ifPresent(obligationsBuilder::addPartyElection));
     }
 
-    @NotNull
+
     private Optional<PostingObligationsElection> getPostingObligationsElectionBuilder(Path synonymPath, String party) {
         PostingObligationsElection.PostingObligationsElectionBuilder postingObligationsElectionBuilder = PostingObligationsElection.builder();
         // if we find partyX_type, then set partyX as the party
