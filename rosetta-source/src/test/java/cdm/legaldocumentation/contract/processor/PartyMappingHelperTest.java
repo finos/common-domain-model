@@ -99,12 +99,15 @@ class PartyMappingHelperTest {
 
 		PayerReceiverBuilder builder = PayerReceiver.builder();
 
-		helper.setCounterpartyRoleEnum(PAYER_PARTY_REF, builder::setPayer);
+		Path payerSynonymPath = PAYER_XML_PATH.getParent();
+		helper.setCounterpartyRoleEnum(PAYER_MODEL_PATH, payerSynonymPath, builder::setPayer);
 
 		assertEquals(CounterpartyRoleEnum.PARTY_1, builder.getPayer());
 		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
 
-		helper.setCounterpartyRoleEnum(RECEIVER_PARTY_REF, builder::setReceiver);
+		Path recieverSynonymPath = RECEIVER_XML_PATH.getParent();
+
+		helper.setCounterpartyRoleEnum(RECEIVER_MODEL_PATH, recieverSynonymPath, builder::setReceiver);
 
 		assertEquals(CounterpartyRoleEnum.PARTY_2, builder.getReceiver());
 		assertTrue(helper.getBothCounterpartiesCollectedFuture().isDone());
