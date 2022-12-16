@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.rosetta.model.lib.records.Date;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +97,7 @@ public class CalculationPeriodImpl extends CalculationPeriod {
         return Optional.of(Iterables.getOnlyElement(targetPeriods));
     }
 
-
+    @NotNull
     private Schedule getSchedule(CalculationPeriodDates calculationPeriodDates, LocalDate adjustedStartDate, LocalDate adjustedEndDate) {
         // The api expects unadjusted dates but we are passing in adjusted dates and using BusinessDayAdjustment.NONE.
         PeriodicSchedule periodicSchedule = PeriodicSchedule.of(
