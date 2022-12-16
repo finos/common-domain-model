@@ -11,6 +11,7 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -56,6 +57,7 @@ public class TotalNotionalQuantityMappingProcessor extends MappingProcessor {
         return quantity.hasData() ? Optional.of(quantity) : Optional.empty();
     }
 
+    @Nullable
     private CapacityUnitEnum findCapacityUnitEnum(Path legSynonymPath) {
         // check both notionalQuantity and notionalQuantitySchedule paths
         return getCapacityUnitEnum(legSynonymPath.addElement("notionalQuantity").addElement("quantityUnit"))
@@ -63,6 +65,7 @@ public class TotalNotionalQuantityMappingProcessor extends MappingProcessor {
                         .orElse(null));
     }
 
+    @Nullable
     private Optional<CapacityUnitEnum> getCapacityUnitEnum(Path quantityUnitPath) {
         return getNonNullMappedValue(quantityUnitPath, getMappings())
                 .flatMap(xmlValue -> getSynonymToEnumMap().getEnumValueOptional(CapacityUnitEnum.class, xmlValue));

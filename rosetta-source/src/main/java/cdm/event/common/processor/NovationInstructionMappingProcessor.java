@@ -5,6 +5,7 @@ import cdm.base.math.QuantitySchedule;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Counterparty;
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
@@ -16,54 +17,66 @@ import com.regnosys.rosetta.common.translation.SynonymToEnumMap;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.records.Date;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 import static cdm.event.common.SplitInstruction.SplitInstructionBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 
 public class NovationInstructionMappingProcessor extends MappingProcessor {
 
+    private final ExecutorService executor;
     private final SynonymToEnumMap synonymToEnumMap;
 
     public NovationInstructionMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, MappingContext context) {
         super(rosettaPath, synonymPaths, context);
+        this.executor = context.getExecutor();
         this.synonymToEnumMap = context.getSynonymToEnumMap();
     }
 
     @Override
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-        // Breakdown 1
-        PrimitiveInstruction.PrimitiveInstructionBuilder breakdown1Builder = PrimitiveInstruction.builder();
-        getIncomingPartyChangeInstruction(synonymPath).ifPresent(breakdown1Builder::setPartyChange);
-        getIncomingQuantityChangeInstruction(synonymPath).ifPresent(breakdown1Builder::setQuantityChange);
-        getTransferInstruction(synonymPath).ifPresent(breakdown1Builder::setTransfer);
+        PartyMappingHelper helper = PartyMappingHelper.getInstanceOrThrow(getContext());
 
-        // Breakdown 2
-        PrimitiveInstruction.PrimitiveInstructionBuilder breakdown2Builder = PrimitiveInstruction.builder();
-        getOutgoingQuantityChangeInstruction(synonymPath).ifPresent(breakdown2Builder::setQuantityChange);
+        addInvokedTask(helper.getBothCounterpartiesCollectedFuture()
+                .thenAcceptAsync(counterpartyMap -> {
+                    // Breakdown 1
+                    PrimitiveInstruction.PrimitiveInstructionBuilder breakdown1Builder = PrimitiveInstruction.builder();
+                    getIncomingPartyChangeInstruction(synonymPath, counterpartyMap).ifPresent(breakdown1Builder::setPartyChange);
+                    getIncomingQuantityChangeInstruction(synonymPath).ifPresent(breakdown1Builder::setQuantityChange);
+                    getTransferInstruction(synonymPath).ifPresent(breakdown1Builder::setTransfer);
 
-        List<PrimitiveInstruction> breakdowns = new ArrayList<>();
-        breakdowns.add(breakdown1Builder.build());
-        breakdowns.add(breakdown2Builder.build());
+                    // Breakdown 2
+                    PrimitiveInstruction.PrimitiveInstructionBuilder breakdown2Builder = PrimitiveInstruction.builder();
+                    getOutgoingQuantityChangeInstruction(synonymPath).ifPresent(breakdown2Builder::setQuantityChange);
 
-        SplitInstructionBuilder splitInstructionBuilder = (SplitInstructionBuilder) parent;
-        splitInstructionBuilder.setBreakdown(breakdowns);
+                    List<PrimitiveInstruction> breakdowns = new ArrayList<>();
+                    breakdowns.add(breakdown1Builder.build());
+                    breakdowns.add(breakdown2Builder.build());
+
+                    SplitInstructionBuilder splitInstructionBuilder = (SplitInstructionBuilder) parent;
+                    splitInstructionBuilder.setBreakdown(breakdowns);
+                }, executor));
     }
 
-    private Optional<PartyChangeInstruction> getIncomingPartyChangeInstruction(Path synonymPath) {
+    private Optional<PartyChangeInstruction> getIncomingPartyChangeInstruction(Path synonymPath, Map<String, CounterpartyRoleEnum> counterpartyMap) {
         PartyChangeInstruction.PartyChangeInstructionBuilder partyChangeInstructionBuilder = PartyChangeInstruction.builder();
         Counterparty.CounterpartyBuilder counterpartyBuilder = partyChangeInstructionBuilder.getOrCreateCounterparty();
 
-        PartyMappingHelper helper = PartyMappingHelper.getInstanceOrThrow(getContext());
-
-        Path outgoingPartyPath = synonymPath.addElement("transferor");
-        helper.setCounterpartyRoleEnum(getModelPath(),
-                outgoingPartyPath,
-                counterpartyBuilder::setRole);
+        Path outgoingPartyPath = synonymPath.addElement("transferor").addElement("href");
+        setValueAndOptionallyUpdateMappings(outgoingPartyPath,
+                xmlValue ->
+                    Optional.ofNullable(counterpartyMap.get(xmlValue))
+                            .map(counterpartyBuilder::setRole)
+                            .isPresent(),
+                getMappings(),
+                getModelPath());
 
         Path incomingPartyPath = synonymPath.addElement("transferee").addElement("href");
         setValueAndUpdateMappings(incomingPartyPath,
@@ -105,7 +118,7 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
                 Optional.empty();
     }
 
-
+    @NotNull
     private Optional<TransferInstruction> getTransferInstruction(Path synonymPath) {
         TransferInstruction.TransferInstructionBuilder transferInstructionBuilder = TransferInstruction.builder();
         TransferState.TransferStateBuilder tradeStateBuilder = transferInstructionBuilder.getOrCreateTransferState(0);
