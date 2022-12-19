@@ -509,7 +509,7 @@ synonym source FpML_5_10 extends FpML
 		+ relativeDateOffset
 			[value "initialFixingDate" path "resetDates"]
 		+ initialFixingDate
-			[value "initialFixingDate" path "periodicPayment->floatingAmountCalculation"]
+			[value "initialFixingDate" path "feeLeg->periodicPayment->floatingAmountCalculation"]
 
 	IssuerTradeId:
 		+ issuer
@@ -900,14 +900,16 @@ synonym source FpML_5_10 extends FpML
 		+ settlementType
 			[value "settlementType"]
 			[value "settlementType" path "equityExercise"]
+			[set to SettlementTypeEnum->Cash when "cashSettlementTerms" exists]
+			[set to SettlementTypeEnum->Physical when "physicalSettlementTerms" exists]
 		+ settlementCurrency
 			[value "settlementCurrency" maps 2 meta "currencyScheme"]
 			[value "settlementCurrency" path "settlementProvision"]
 			[value "cashSettlementCurrency" meta "currencyScheme"]
 			[value "cashSettlementCurrency" path "cashSettlement->cashPriceMethod"]
 			[value "cashSettlementCurrency" path "cashSettlement->crossCurrencyMethod"]
-			[value "settlementCurrency" path "cashSettlementTerms"]
-			[value "settlementCurrency" path "physicalSettlementTerms"]
+			[value "settlementCurrency" path "cashSettlementTerms" set when rosettaPath = CreditDefaultPayout->settlementTerms->settlementCurrency]
+			[value "settlementCurrency" path "physicalSettlementTerms" set when rosettaPath = CreditDefaultPayout->settlementTerms->settlementCurrency]
 			[value "settlementCurrency" path "nonDeliverableSettlement" meta "currencyScheme"]
 			[value "settlementCurrency" path "cashSettlement"]
 			[value "settlementCurrency" path "exercise"]
@@ -934,12 +936,12 @@ synonym source FpML_5_10 extends FpML
 			[hint "nonDeliverableSettlement"]
 		+ cashSettlementTerms
 			[value "cashSettlement"]
-			[value "cashSettlementTerms"]
+			[value "cashSettlementTerms" set when rosettaPath = CreditDefaultPayout->settlementTerms]
 			[value "settlementProvision" /*set when rosettaPath = Payout->interestRatePayout->settlementTerms*/]
 			[value "nonDeliverableSettlement"]
 		+ physicalSettlementTerms
 			[value "physicalSettlement"]
-			[value "physicalSettlementTerms"]
+			[value "physicalSettlementTerms" set when rosettaPath = CreditDefaultPayout->settlementTerms]
 			[value "clearingInstructions"]
 
 	ValuationSource:
@@ -1726,7 +1728,7 @@ synonym source FpML_5_10 extends FpML
 			[value "relativeDate" path "interestLegCalculationPeriodDates->interestLegResetDates->fixingDates"]
 			[value "fixingDateOffset"]
 		+ finalFixingDate
-			[value "finalFixingDate" path "periodicPayment->floatingAmountCalculation"]
+			[value "finalFixingDate" path "feeLeg->periodicPayment->floatingAmountCalculation"]
 		+ rateCutOffDaysOffset
 			[value "resetCutOffDaysOffset" path "resetDates"]
 		+ resetFrequency
@@ -2289,16 +2291,17 @@ synonym source FpML_5_10 extends FpML
 		[meta "id"]
 		+ dayCountFraction
 			[value "dayCountFraction" path "calculationPeriodAmount->calculation" meta "dayCountFractionScheme"]
-			[value "dayCountFraction" path "periodicPayment->fixedAmountCalculation" meta "dayCountFractionScheme"]
-			[value "dayCountFraction" path "periodicPayment->floatingAmountCalculation" meta "dayCountFractionScheme"]
+			[value "dayCountFraction" path "feeLeg->periodicPayment->fixedAmountCalculation" meta "dayCountFractionScheme"]
+			[value "dayCountFraction" path "feeLeg->periodicPayment->floatingAmountCalculation" meta "dayCountFractionScheme"]
 			[value "dayCountFraction" meta "dayCountFractionScheme"]
 			[value "dayCountFraction" path "interestCalculation" meta "dayCountFractionScheme"]
 		+ paymentDates
 			[value "paymentDates"]
-			[hint "periodicPayment"]
+			[value "periodicPayment" path "feeLeg"]
 			[value "interestLegPaymentDates" path "interestLegCalculationPeriodDates"]
 		+ paymentDate
 			[value "paymentDate"]
+			[value "feeLeg"]
 		+ paymentDelay
 			[value "paymentDelay"]
 		+ discountingMethod
@@ -2323,7 +2326,7 @@ synonym source FpML_5_10 extends FpML
 			// For FRAs:
 			[hint "fixedRate", "floatingRateIndex", "indexTenor"]
 			// For CDS:
-			[value "periodicPayment"]
+			[value "periodicPayment" path "feeLeg"]
 			// For Equity:
 			[value "interestCalculation"]
 			// For Repo:
@@ -2506,6 +2509,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "receiverPartyReference"]
 			[hint "buyerPartyReference"]
 			[hint "sellerPartyReference"]
+			[value "generalTerms"]
 		+ priceQuantity
 			// For Swap Stream and FRA: moved to InterestRatePayout
 			[value "knownAmountSchedule" path "calculationPeriodAmount"]
@@ -2542,7 +2546,8 @@ synonym source FpML_5_10 extends FpML
 			// For FRA:
 			[value "fra" mapper "FraPayoutSplitter"]
 			// For CDS:
-			[value "generalTerms", "feeLeg" set when "feeLeg->periodicPayment" exists]
+			// [value "generalTerms", "feeLeg" set when "feeLeg->periodicPayment" exists]
+			[value "creditDefaultSwap" set when "creditDefaultSwap->feeLeg->periodicPayment" exists]
 			// For Equity Swap
 			[value "interestLeg"]
 			// For Repo:
