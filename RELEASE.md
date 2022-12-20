@@ -1,22 +1,29 @@
-# *Core CDM Contribution to FINOS - Repositioning of Collateral & ISDA Legal Documentation components in Preparation for Open Sourcing*
+# *Core CDM Contribution to FINOS - Repositioning of Collateral & Removal of ISDA Legal Documentation components in Preparation for Open Sourcing*
+
+_Background_
+
+As part of the CDM transition to the Finance Open Source Foundation (FINOS), a new "Core CDM" has been constructed and will be transferred to FINOS. 
+
+All ISDA Legal Documentation components have been removed from this Core CDM. These will continue to be managed as extensions of the model and  positioned in a seperate repository under a license at ISDA. 
+
+Collateral components (non legal) which have been developed by the CDM Collateral Working Group have been moved to a new namespace that is more appropriate for their further development through a new CDM Collateral working group at FINOS.
 
 _What is being released?_
 
-As part of the CDM transition to Open Source at FINOS, a code contribution has been constructed, the "Core CDM", that will be transferred to a FINOS managed repository. In this Core CDM, all ISDA Legal Documentation components have been removed, these components (data types, attributes and functions) will continue to be managed in a repository and under a license at ISDA. Similarly, in the Core CDM, collateral components (non legal) which have been developed by the CDM Collateral Working Group have been moved to a new namespace that is more appropriate for their further development through a new CDM Collateral working group at FINOS.
+- The Agreement type in the namespace cdm.legaldocumentation.contract still contains 4 attributes and their respective type definition remains in place for existing and other legal agreement components to be added. However, the the structural details of these definition are now hollowed out as empty types. Their content will continue to be managed at ISDA seperately
+	-  creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Elections to specify a Credit Support Annex or Credit Support Deed for Intial or Variation Margin.">
+	-  collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">
+	-  securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">
+	-  masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
 
-More details on this release:
-- The type 'Agreement' in the namespace cdm.legaldocumentation.contract still contains 4 data types and the structure remains in place for existing and other legal agreement components to be added.
-- However, the 4 existing types are now hollowed out to be empty data types as the content of them should continue to be managed at ISDA; namely:
-	  
-	  creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Elections to specify a Credit Support Annex or Credit Support Deed for Intial or Variation Margin.">
-	  
-	  collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">
-	  
-	  securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">
-	  
-	  masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
-	  
--  The data type 'Collateral' and associated components have been moved to a new namespace cdm.product.collateral for further development outside the legaldocumentation namespace which was no longer appropriate.
--  Additional attributes and content related to ISDA FLoating Rate Optopms (Indices) meta and reference data has also been removed from cdm.observable.asset.fro as it is proprietary ISDA IP and should be managed separately.
--  Associated Synonym file and in line mappings to data types and attributes that have been removed and other related content have also been removed so that the contribution is functionally complete and stand alone without any errors or omissions.
--  A model containing the content above which has been excluded from the Core CDM contribution to FINOS will be maintained by ISDA and can be integrated with the FINOS Core CDM for use cases where this content is applicable and on CDM development platforms where users have access to the content (e.g., for ISDA members).
+-  The  Collateral type and associated components have been moved to a new namespace cdm.product.collateral for further development outside the legaldocumentation namespace which was no longer appropriate.
+
+-  Content related to ISDA FLoating Rate Indices meta and reference data has also been removed from cdm.observable.asset.fro as it is proprietary ISDA IP.
+
+-  Associated Synonym file and in line mappings to the types mentioned afore and other related content have also been removed so that the contribution is functionally complete and stands alone without any errors or omissions.
+
+-  A model containing the content mentioned will be published in an upcoming release and will be maintained by ISDA. Implementer will be able to integrated this model extension with the FINOS Core CDM for applicable use cases.
+
+Review Directions
+
+In the CDM Portal, select the textual representation of the model and inspect the differnt model components mentioned above.
