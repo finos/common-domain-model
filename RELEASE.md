@@ -1,29 +1,16 @@
-# *CDM Distribution - Upgrade per Common Vulnerabilities and Exposures (CVE) Standards*
+# *Core CDM Contribution to FINOS - Repositioning of Collateral & ISDA Legal Documentation components in Preparation for Open Sourcing*
 
 _What is being released?_
 
-A part of the CDM Contribution to FINOS, all third party dependencies have been verified and updated when necessary according the FINOS requirements for Common Vulnerabilities and Exposures 
+As part of the CDM Contribution to FINOS, a contribution has been constructed, the "Core CDM", that will be transferred to FINOS. In this Core CDM, all ISDA Legal Documentation components have been removed, these components will continue to be managed in a repository and under a license at ISDA. Similarly, in the Core CDM, collateral components (non legal) which have been developed by the CDM Collateral Working Group have been moved to a new namespace that is more appropriate for their further development through a new CDM Collateral working group at FINOS.
 
-More details on requirements is available with:
-- Common Vulnerabilities and Exposures (CVE): https://community.finos.org/docs/governance/software-projects/cve-responsible-disclosure/
-- License Validation: https://community.finos.org/docs/governance/Software-Projects/license-categories
-
-# *CDM Distribution - Implementation examples for Qualification*
-
-_What is being released?_
-
-Examples of Qualification Logic have been included in the Java distribution to illustrate usage and inform implementation.
-
-_Review Directions_
-
-[Download](https://cdm.docs.rosetta-technology.io/source/download.html) and inspect the CDM Examples and open the Java file:  `src/main/java/com/regnosys/cdm/example/qualify/QualificationReportExample.java`
-
-# *Infrastructure - 5.13 Synonym Source*
-
-_What is being released?_
-
-Infrastructure changes required to work with FpML 5.13 Synonym Source.
-
-_Review Directions_
-
-[Download](https://cdm.docs.rosetta-technology.io/source/download.html) and inspect the additional `FpML_5_13` Synonym source in the following file:  `src/main/rosetta/mapping-fpml-synonym.rosetta`
+More details on this release:
+- The type Agreement in the namespace cdm.legaldocumentation.contract still contains 4 types and the structure remains in place for existing and other legal agreement components to be added. However the 4 existing types are now hollowed out to be empty types as the content of them should continue to be managed at ISDA; namely:
+	  creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Elections to specify a Credit Support Annex or Credit Support Deed for Intial or Variation Margin.">
+	  collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">
+	  securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">
+	  masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
+-  The type Collateral and associated components have been moved to a new namespace cdm.product.collateral for further development outside the legaldocumentation namespace which was no longer appropriate.
+-  Additional content related to ISDA FLoating Rate Indices meta and reference data has also been removed from cdm.observable.asset.fro as it is proprietary ISDA IP.
+-  Associated Synonym file and in line mappings to types that have been removed and other related content have also been removed so that the contribution is functionally complete and stand alone without any errors or omissions.
+-  A model containing the content above which has been excluded from the Core CDM contribution to FINOS will be maintained by ISDA and can be integrated with the FINOS Core CDM for use cases where this content is applicable.
