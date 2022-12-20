@@ -22,7 +22,7 @@ _What is being released?_
 
 -  Associated Synonym file and in line mappings to the types mentioned afore and other related content have also been removed so that the contribution is functionally complete and stands alone without any errors or omissions.
 
--  A model containing the content mentioned will be published in an upcoming release and will be maintained by ISDA. Implementer will be able to integrated this model extension with the FINOS Core CDM for applicable use cases.
+-  A model containing the content mentioned will be published in an upcoming release and will be maintained by ISDA. Implementers will be able to integrate this model extension with the FINOS Core CDM for applicable use cases.
 
 _Review Directions_
 
