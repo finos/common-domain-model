@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-As part of the CDM transition to Open Source at FINOS, a code contribution has been constructed, the "Core CDM", that will be transferred to FINOS. In this Core CDM, all ISDA Legal Documentation components have been removed, these components will continue to be managed in a repository and under a license at ISDA. Similarly, in the Core CDM, collateral components (non legal) which have been developed by the CDM Collateral Working Group have been moved to a new namespace that is more appropriate for their further development through a new CDM Collateral working group at FINOS.
+As part of the CDM transition to Open Source at FINOS, a code contribution has been constructed, the "Core CDM", that will be transferred to a FINOS managed repository. In this Core CDM, all ISDA Legal Documentation components have been removed, these components will continue to be managed in a repository and under a license at ISDA. Similarly, in the Core CDM, collateral components (non legal) which have been developed by the CDM Collateral Working Group have been moved to a new namespace that is more appropriate for their further development through a new CDM Collateral working group at FINOS.
 
 More details on this release:
 - The type Agreement in the namespace cdm.legaldocumentation.contract still contains 4 types and the structure remains in place for existing and other legal agreement components to be added. However the 4 existing types are now hollowed out to be empty types as the content of them should continue to be managed at ISDA; namely:
