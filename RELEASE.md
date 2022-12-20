@@ -7,6 +7,7 @@ As part of the CDM transition to Open Source at FINOS, a code contribution has b
 More details on this release:
 - The type _Agreement_ in the namespace cdm.legaldocumentation.contract still contains 4 types and the structure remains in place for existing and other legal agreement components to be added.
 - However, the 4 existing types are now hollowed out to be empty types as the content of them should continue to be managed at ISDA; namely:
+	  
 	  _creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Elections to specify a Credit Support Annex or Credit Support Deed for Intial or Variation Margin.">
 	  
 	  collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">
