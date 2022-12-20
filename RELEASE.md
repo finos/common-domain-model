@@ -24,6 +24,6 @@ _What is being released?_
 
 -  A model containing the content mentioned will be published in an upcoming release and will be maintained by ISDA. Implementer will be able to integrated this model extension with the FINOS Core CDM for applicable use cases.
 
-Review Directions
+_Review Directions_
 
 In the CDM Portal, select the textual representation of the model and inspect the different model components mentioned above.
