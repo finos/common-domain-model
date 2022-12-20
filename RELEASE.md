@@ -16,7 +16,7 @@ More details on this release:
 	  
 	  masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
 	  
--  The data type 'Collateral' and associated attributes and components have been moved to a new namespace cdm.product.collateral for further development outside the legaldocumentation namespace which was no longer appropriate.
+-  The data type 'Collateral' and associated components have been moved to a new namespace cdm.product.collateral for further development outside the legaldocumentation namespace which was no longer appropriate.
 -  Additional attributes and content related to ISDA FLoating Rate Optopms (Indices) meta and reference data has also been removed from cdm.observable.asset.fro as it is proprietary ISDA IP and should be managed separately.
 -  Associated Synonym file and in line mappings to data types and attributes that have been removed and other related content have also been removed so that the contribution is functionally complete and stand alone without any errors or omissions.
 -  A model containing the content above which has been excluded from the Core CDM contribution to FINOS will be maintained by ISDA and can be integrated with the FINOS Core CDM for use cases where this content is applicable and on CDM development platforms where users have access to the content (e.g., for ISDA members).
