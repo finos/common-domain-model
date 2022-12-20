@@ -62,7 +62,6 @@ import org.fpml.fpml_5.confirmation.SettlementRateOption;
 import org.fpml.fpml_5.confirmation.Strike;
 import org.fpml.fpml_5.confirmation.*;
 import org.isda.cdm.processor.CdmReferenceConfig;
-import org.jetbrains.annotations.NotNull;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -604,7 +603,6 @@ public class Fpml510ProjectionMapper {
 		});
 	}
 
-	@NotNull
 	private Optional<PriceSchedule> getPricePayment(PriceQuantity pq) {
 		return Optional.ofNullable(pq)
 			.map(PriceQuantity::getPrice)

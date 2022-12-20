@@ -12,7 +12,6 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.translation.SynonymToEnumMap;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.records.Date;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -255,7 +254,7 @@ public class DocumentationHelper {
         return setAgreementType(builder, LegalAgreementTypeEnum.CONFIRMATION);
     }
 
-    @NotNull
+
     private Date parseDate(String xmlValue) {
         return Date.parse(xmlValue.replace("Z", ""));
     }
@@ -283,7 +282,7 @@ public class DocumentationHelper {
         return setAgreementType(builder, LegalAgreementTypeEnum.OTHER);
     }
 
-    @NotNull
+
     private Optional<LegalAgreement> setAgreementType(LegalAgreement.LegalAgreementBuilder builder, LegalAgreementTypeEnum masterAgreement) {
         if (builder.hasData()) {
             builder.getOrCreateLegalAgreementIdentification()
