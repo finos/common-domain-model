@@ -4,19 +4,19 @@ _Background_
 
 As part of the CDM transition to the Finance Open Source Foundation (FINOS), a new "Core CDM" has been constructed and will be transferred to FINOS. 
 
-All ISDA Legal Documentation components have been removed from this Core CDM. These will continue to be managed as extensions of the model and  positioned in a seperate repository under a license at ISDA. 
+All ISDA Legal Documentation components have been removed from this Core CDM. These will be managed as extensions of the model and positioned in a separate repository under a license at ISDA. 
 
 Collateral components (non legal) which have been developed by the CDM Collateral Working Group have been moved to a new namespace that is more appropriate for their further development through a new CDM Collateral working group at FINOS.
 
 _What is being released?_
 
-- The Agreement type in the namespace cdm.legaldocumentation.contract still contains 4 attributes and their respective type definition remains in place for existing and other legal agreement components to be added. However, the the structural details of these definition are now hollowed out as empty types. Their content will continue to be managed at ISDA seperately
-	-  creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Elections to specify a Credit Support Annex or Credit Support Deed for Intial or Variation Margin.">
-	-  collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">
-	-  securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">
-	-  masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
+- The `Agreement` type in the namespace cdm.legaldocumentation.contract still contains 4 attributes and their respective type definition remains in place for existing and other legal agreement components to be added. However, the structural details of these definition are now hollowed out as empty types. Their content will continue to be managed at ISDA separately
+	-  `creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Elections to specify a Credit Support Annex or Credit Support Deed for Initial or Variation Margin.">`
+	-  `collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">`
+	-  `securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">`
+	-  `masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">`
 
--  The  Collateral type and associated components have been moved to a new namespace cdm.product.collateral for further development outside the legaldocumentation namespace which was no longer appropriate.
+-  The  `Collateral` type and associated components have been moved to a new namespace cdm.product.collateral for further development outside the legaldocumentation namespace which was no longer appropriate.
 
 -  Content related to ISDA FLoating Rate Indices meta and reference data has also been removed from cdm.observable.asset.fro as it is proprietary ISDA IP.
 
@@ -26,4 +26,4 @@ _What is being released?_
 
 Review Directions
 
-In the CDM Portal, select the textual representation of the model and inspect the differnt model components mentioned above.
+In the CDM Portal, select the textual representation of the model and inspect the different model components mentioned above.
