@@ -1,34 +1,29 @@
-# *Product Model - Performance Payout - Valuation dates*
+# *Core CDM Contribution to FINOS - Repositioning of Collateral & Removal of ISDA Legal Documentation components in Preparation for Open Sourcing*
+
 _Background_
 
-This release completes the representation of the valuation dates for a performance payout with the specification of the initial dates, that was previously missing. 
+As part of the CDM transition to the Finance Open Source Foundation (FINOS), a new "Core CDM" has been constructed and will be transferred to FINOS. 
+
+All ISDA Legal Documentation components have been removed from this Core CDM. These will be managed as extensions of the model and positioned in a separate repository under a license at ISDA. 
+
+Collateral components (non legal) which have been developed by the CDM Collateral Working Group have been moved to a new namespace that is more appropriate for their further development through a new CDM Collateral working group at FINOS.
 
 _What is being released?_
 
-The attribute `valuationDatesInitial` of type `PerformanceValuationDates` has been added to specify the initial valuation dates of the underlyer. The corresponding synonym mapping has also been introduced.
+- The `Agreement` type in the namespace cdm.legaldocumentation.contract still contains 4 attributes and their respective type definition remains in place for existing and other legal agreement components to be added. However, the structural details of these definition are now hollowed out as empty types. Their content will continue to be managed at ISDA separately
+	-  `creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Elections to specify a Credit Support Annex or Credit Support Deed for Initial or Variation Margin.">`
+	-  `collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">`
+	-  `securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">`
+	-  `masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">`
+
+-  The  `Collateral` type and associated components have been moved to a new namespace cdm.product.collateral for further development outside the legaldocumentation namespace which was no longer appropriate.
+
+-  Content related to ISDA FLoating Rate Indices meta and reference data has also been removed from cdm.observable.asset.fro as it is proprietary ISDA IP.
+
+-  Associated Synonym file and in line mappings to the types mentioned afore and other related content have also been removed so that the contribution is functionally complete and stands alone without any errors or omissions.
+
+-  A model containing the content mentioned will be published in an upcoming release and will be maintained by ISDA. Implementer will be able to integrated this model extension with the FINOS Core CDM for applicable use cases.
 
 _Review Directions_
 
-In the CDM Portal, select the textual representation of the model and inspect the representation of the valuation dates of a `PerformancePayout`.
-
-# *Product Model - FpML Mappings - Bond Reference for Interest Rate Payout*
-
-_What is being released?_
-
-Synonym mapping has been added to populate the `bondReference` attribute in data type `InterestRatePayout` so that the reference to a bond underlier and the applicability of the Precedent bond condition. The latter denotes that the contract is only valid if the bond is issued and that if there is any dispute over the terms of the fixed stream then the bond terms will be used.
-
-_Review Directions_
-
-In the CDM Portal, select Ingestion and review the following example:
-
-- fpml-5-10 > incomplete-products > inflation-swaps > inflation-swaps-ex02-yoy-bond-reference
-
-# *Product Model - Enumeration Referencing FpML Scheme*
-
-_What is being released?_
-
-InflationRateIndexEnum is now linked to the FpML Coding Scheme through use of the `docReference` functionality.  The contents of the enumeration list will now be automatically kept in line with the latest FpML scheme information.
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser and review `InflationRateIndexEnum`.
+In the CDM Portal, select the textual representation of the model and inspect the different model components mentioned above.

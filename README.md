@@ -43,15 +43,15 @@ The product scope of the CDM includes OTC derivatives, cash securities, securiti
 
 **The CDM is made of three sets of components**, as laid-out in the CDM components diagram below:
 
-* The ISDA CDM Distribution (in *blue*)
+* The CDM Distribution (in *blue*)
 * The Rosetta DSL (in *grey*)
 * CDM Applications (in *green*)
 
 .. figure:: images/cdm-components-diagram.png
 
-## ISDA CDM Distribution
+## CDM Distribution
 
-The ISDA CDM distribution is openly accessible to all industry participants, subject to the ISDA CDM open source licence. This distribution is fully downloadable.
+The CDM distribution is openly accessible to all industry participants, subject to the CDM open source licence. This distribution is fully downloadable.
 
 ## Development setup
 
