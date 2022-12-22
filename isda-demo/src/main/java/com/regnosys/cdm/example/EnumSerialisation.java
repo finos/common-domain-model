@@ -1,6 +1,6 @@
 package com.regnosys.cdm.example;
 
-import cdm.legaldocumentation.contract.BrokerConfirmationTypeEnum;
+import cdm.base.datetime.daycount.DayCountFractionEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 
@@ -22,22 +22,21 @@ public class EnumSerialisation extends AbstractExample {
 
         // Instantiate the pre-configured Rosetta ObjectMapper
         //
-        ObjectMapper rosettaObjectMapper = RosettaObjectMapper.getDefaultRosettaObjectMapper();
+        ObjectMapper rosettaObjectMapper = RosettaObjectMapper.getNewRosettaObjectMapper();
 
         // Check an instance of an enumeration without a displayName
-        // 	ABX <"Broker Confirmation Type representing ABX index trades.">
         System.out.println("Example of enum without a displayName");
-        checkSerialisation(rosettaObjectMapper, BrokerConfirmationTypeEnum.ABX);
+        checkSerialisation(rosettaObjectMapper, DayCountFractionEnum.ACT_360);
 
         System.out.println("-------------------------------------------------");
 
         System.out.println("Example of enum with a displayName");
         // Check an instance of an enumeration with a displayName
         // DJ_CDX_EM_ displayName "DJ.CDX.EM " <"Broker Confirmation Type for CDS Index trades relating to Dow Jones CDX.EM index series.">
-        checkSerialisation(rosettaObjectMapper, BrokerConfirmationTypeEnum.DJ_CDX_EM_);
+        checkSerialisation(rosettaObjectMapper, DayCountFractionEnum.ACT_365L);
     }
 
-	private static void checkSerialisation(ObjectMapper rosettaObjectMapper, BrokerConfirmationTypeEnum myEnum) {
+	private static void checkSerialisation(ObjectMapper rosettaObjectMapper, DayCountFractionEnum myEnum) {
         try {
 
             // Serialise to JSON
@@ -49,7 +48,7 @@ public class EnumSerialisation extends AbstractExample {
 
             // Deserialise back to Java
             //
-            BrokerConfirmationTypeEnum deserializedObject = rosettaObjectMapper.readValue(json, myEnum.getClass());
+            DayCountFractionEnum deserializedObject = rosettaObjectMapper.readValue(json, myEnum.getClass());
 
             System.out.println("Deserialised Enum: " + deserializedObject.name());
 
