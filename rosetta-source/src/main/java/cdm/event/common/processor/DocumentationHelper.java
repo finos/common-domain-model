@@ -2,11 +2,10 @@ package cdm.event.common.processor;
 
 import cdm.legaldocumentation.common.*;
 import cdm.legaldocumentation.common.metafields.FieldWithMetaContractualDefinitionsEnum;
-import cdm.legaldocumentation.contract.BrokerConfirmationTypeEnum;
-import cdm.legaldocumentation.csa.CreditSupportAgreementTypeEnum;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import cdm.legaldocumentation.master.MasterConfirmationAnnexTypeEnum;
 import cdm.legaldocumentation.master.MasterConfirmationTypeEnum;
+import cdm.product.collateral.CreditSupportAgreementTypeEnum;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -127,19 +126,7 @@ public class DocumentationHelper {
     }
 
     private Optional<LegalAgreement> getBrokerConfirmation(Path synonymPath) {
-        Path brokerConfirmationPath = synonymPath.addElement("brokerConfirmation");
-
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
-
-        setValueAndUpdateMappings(brokerConfirmationPath.addElement("brokerConfirmationType"),
-                xmlValue -> {
-                    AgreementName.AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
-                    synonymToEnumMap.getEnumValueOptional(BrokerConfirmationTypeEnum.class, xmlValue)
-                            .ifPresent(agreementName::setBrokerConfirmationType);
-                },
-                mappings,
-                rosettaPath);
-
         return setAgreementType(builder, LegalAgreementTypeEnum.BROKER_CONFIRMATION);
     }
 
