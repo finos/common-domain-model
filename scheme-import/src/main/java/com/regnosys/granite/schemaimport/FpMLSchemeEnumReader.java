@@ -36,34 +36,26 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 	public static final String DESCRIPTION = "Description";
 	public static final String CODING_SCHEME = "http://www.fpml.org/coding-scheme/";
 
-	private final URL codingSchemeUrl;
-	private final String codingSchemeRelativePath;
-
-
-	/**
-	 *
-	 * @param codingSchemeUrl this is the url of the set-of-schemes-n-n.xml published by FpML
-	 * @param codingSchemeRelativePath
-	 */
-	public FpMLSchemeEnumReader(URL codingSchemeUrl, String codingSchemeRelativePath) {
-		this.codingSchemeUrl = codingSchemeUrl;
-		this.codingSchemeRelativePath = codingSchemeRelativePath;
-	}
-
+    /**
+     *
+     * @param codingSchemeUrl this is the url of the set-of-schemes-n-n.xml published by FpML
+     * @param codingSchemeRelativePath
+     * @param schemeLocation
+     */
 	@Override
-	public List<RosettaEnumValue> generateEnumFromScheme(String schemeLocation) {
-		try {
-			Map<String, CodeListDocument> stringCodeListDocumentMap = readSchemaFiles();
-			CodeListDocument codeListDocument = stringCodeListDocumentMap.get(schemeLocation);
-			if (codeListDocument != null) {
-				Pair<List<RosettaEnumValue>, String> transform = transform(codeListDocument);
-				return transform.getFirst();
-			} else {
-				LOGGER.warn("No document found for schema location {}", schemeLocation);
-			}
-		} catch (JAXBException | IOException | XMLStreamException e) {
-			throw new RuntimeException(e);
-		}
+	public List<RosettaEnumValue> generateEnumFromScheme(URL codingSchemeUrl, String codingSchemeRelativePath, String schemeLocation) {
+        try {
+            Map<String, CodeListDocument> stringCodeListDocumentMap = readSchemaFiles(codingSchemeUrl, codingSchemeRelativePath);
+            CodeListDocument codeListDocument = stringCodeListDocumentMap.get(schemeLocation);
+            if (codeListDocument != null) {
+                Pair<List<RosettaEnumValue>, String> transform = transform(codeListDocument);
+                return transform.getFirst();
+            } else {
+                LOGGER.warn("No document found for schema location {}", schemeLocation);
+            }
+        } catch (JAXBException | IOException | XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
 		return new ArrayList<>();
 	}
 
@@ -125,7 +117,7 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 		return replaced;
 	}
 
-	private Map<String, CodeListDocument> readSchemaFiles() throws JAXBException, IOException, XMLStreamException {
+	private Map<String, CodeListDocument> readSchemaFiles(URL codingSchemeUrl, String codingSchemeRelativePath) throws JAXBException, IOException, XMLStreamException {
 		JAXBContext jaxbContext = JAXBContext.newInstance(CodeListDocument.class);
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
@@ -141,14 +133,14 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 				}
 				return true;
 			})
-			.map(r -> loadCodeListDocumentEntry(r, jaxbContext, inputFactory))
+			.map(r -> loadCodeListDocumentEntry(codingSchemeRelativePath, r, jaxbContext, inputFactory))
 			.filter(Objects::nonNull)
 			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
-	private Map.Entry<String, CodeListDocument> loadCodeListDocumentEntry(CodeListRef codeListRef, JAXBContext jaxbContext, XMLInputFactory inputFactory) {
+	private Map.Entry<String, CodeListDocument> loadCodeListDocumentEntry(String codingSchemeRelativePath, CodeListRef codeListRef, JAXBContext jaxbContext, XMLInputFactory inputFactory) {
 		List<String> locationUri = codeListRef.getLocationUri();
-		URL localUrl = makeUriLocal(codeListRef);
+		URL localUrl = makeUriLocal(codingSchemeRelativePath, codeListRef);
 
 		if (localUrl != null) {
 			CodeListDocument codeListDocument = readUrl(jaxbContext, inputFactory, localUrl);
@@ -161,7 +153,7 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 		return null;
 	}
 
-	private URL makeUriLocal(CodeListRef codeListRef) {
+	private URL makeUriLocal(String codingSchemeRelativePath, CodeListRef codeListRef) {
 		List<String> locationUris = codeListRef.getLocationUri();
 
 		if (locationUris.size() == 1) {

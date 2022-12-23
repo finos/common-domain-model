@@ -2,33 +2,32 @@ package com.regnosys.granite.schemaimport;
 
 import com.regnosys.rosetta.rosetta.RosettaEnumValue;
 import com.regnosys.rosetta.rosetta.RosettaEnumeration;
+import com.regnosys.rosetta.rosetta.RosettaModel;
 import org.eclipse.emf.ecore.resource.Resource;
 
+import javax.inject.Inject;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class SchemeImporter {
-	private final SchemeEnumReader fpMLSchemeEnumReader;
-	private final AnnotatedRosettaEnumReader enumReader;
-	private final RosettaResourceWriter rosettaResourceWriter;
+    @Inject
+	private FpMLSchemeEnumReader fpMLSchemeEnumReader;
+    @Inject
+	private AnnotatedRosettaEnumReader enumReader;
+    @Inject
+	private RosettaResourceWriter rosettaResourceWriter;
 
-	public SchemeImporter(FpMLSchemeEnumReader fpMLSchemeEnumReader,
-						  AnnotatedRosettaEnumReader enumReader, RosettaResourceWriter rosettaEnumWriter) {
-		this.fpMLSchemeEnumReader = fpMLSchemeEnumReader;
-		this.enumReader = enumReader;
-		this.rosettaResourceWriter = rosettaEnumWriter;
-	}
-
-	public Map<String, String> generateRosettaEnums(String body, String corpus) {
-		List<RosettaEnumeration> annotatedEnums = enumReader.getAnnotatedEnum(body, corpus);
+	public Map<String, String> generateRosettaEnums(URL enumCodingSchemeUrl, String enumCodingSchemeRelativePath, List<RosettaModel> models, String body, String corpus) {
+		List<RosettaEnumeration> annotatedEnums = enumReader.getAnnotatedEnum(models, body, corpus);
 		for (RosettaEnumeration annotatedEnum : annotatedEnums) {
 			Optional<String> schemaLocationForEnumMaybe = enumReader.getSchemaLocationForEnum(annotatedEnum, body, corpus);
 			if (schemaLocationForEnumMaybe.isEmpty()) {
 				continue;
 			}
-			List<RosettaEnumValue> newEnumValues = fpMLSchemeEnumReader.generateEnumFromScheme(schemaLocationForEnumMaybe.get());
+			List<RosettaEnumValue> newEnumValues = fpMLSchemeEnumReader.generateEnumFromScheme(enumCodingSchemeUrl, enumCodingSchemeRelativePath, schemaLocationForEnumMaybe.get());
 			overwriteEnums(annotatedEnum, newEnumValues);
 		}
 

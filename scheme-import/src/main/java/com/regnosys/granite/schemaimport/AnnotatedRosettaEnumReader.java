@@ -1,7 +1,9 @@
 package com.regnosys.granite.schemaimport;
 
+import com.google.inject.Inject;
 import com.regnosys.rosetta.rosetta.RosettaDocReference;
 import com.regnosys.rosetta.rosetta.RosettaEnumeration;
+import com.regnosys.rosetta.rosetta.RosettaModel;
 import com.regnosys.rosetta.rosetta.RosettaSegmentRef;
 import com.regnosys.rosetta.transgest.ModelLoader;
 
@@ -11,14 +13,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AnnotatedRosettaEnumReader {
-	private final ModelLoader modelLoader;
+    @Inject
+	private ModelLoader modelLoader;
 
-	 public AnnotatedRosettaEnumReader(ModelLoader modelLoader) {
-		 this.modelLoader = modelLoader;
-	 }
-
-	public List<RosettaEnumeration> getAnnotatedEnum(String body, String corpus) {
-		List<RosettaEnumeration> allRosettaEnums = modelLoader.rosettaElements(RosettaEnumeration.class);
+	public List<RosettaEnumeration> getAnnotatedEnum(List<RosettaModel> models, String body, String corpus) {
+		List<RosettaEnumeration> allRosettaEnums = modelLoader.rosettaElements(models, RosettaEnumeration.class);
 
 		return allRosettaEnums.stream()
 			.filter(rosettaEnum -> enumIsAnnotatedWithBodyAndCorpusDocRef(rosettaEnum, body, corpus))

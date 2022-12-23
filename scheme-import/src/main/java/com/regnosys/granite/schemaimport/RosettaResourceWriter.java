@@ -14,10 +14,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class RosettaResourceWriter {
-
-	public RosettaResourceWriter() {
-	}
-
 	public Map<String, String> generateRosettaFiles(Collection<Resource> resources) {
 		Map<String, String> results = new HashMap<>();
 		for (Resource resource : resources) {

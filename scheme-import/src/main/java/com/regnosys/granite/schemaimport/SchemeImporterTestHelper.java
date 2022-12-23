@@ -2,13 +2,12 @@ package com.regnosys.granite.schemaimport;
 
 import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.common.util.UrlUtils;
-import com.regnosys.rosetta.transgest.ModelLoaderImpl;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
+import com.regnosys.rosetta.rosetta.RosettaModel;
+import com.regnosys.rosetta.transgest.ModelLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -22,42 +21,33 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAllCallback {
-    private URL[] rosettaPaths;
+public class SchemeImporterTestHelper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SchemeImporterTestHelper.class);
+
+    @Inject
     private SchemeImporter schemeImporter;
-
-    private String schemaPath;
-    private static final Logger LOGGER = LoggerFactory.getLogger(SchemeImporterTestExtension.class);
-    private final String rosettaPathRoot;
-
-    public SchemeImporterTestExtension(String rosettaPathRoot) {
-        this.rosettaPathRoot = rosettaPathRoot;
-    }
+    @Inject
+    private ModelLoader modelLoader;
 
 
-    @Override
-    public void beforeEach(ExtensionContext context) {
-        rosettaPaths = getRosettaPaths(rosettaPathRoot);
-        ModelLoaderImpl modelLoader = new ModelLoaderImpl(rosettaPaths);
-        schemeImporter = new SchemeImporter(
-                new FpMLSchemeEnumReader(
-                        schemeUrl(),
-                        "coding-schemes/fpml/"
-                ),
-                new AnnotatedRosettaEnumReader(modelLoader),
-                new RosettaResourceWriter()
-        );
-    }
-
-    public void checkEnumsAreValid(String body, String codingScheme, boolean writeTestOutput) throws IOException {
-        Map<String, String> generatedFromScheme = schemeImporter.generateRosettaEnums(body, codingScheme);
+    public void checkEnumsAreValid(String rosettaPathRoot, String body, String codingScheme, boolean writeTestOutput) throws IOException {
+        URL[] rosettaPaths = getRosettaPaths(rosettaPathRoot);
+        List<RosettaModel> models = modelLoader.loadRosettaModels(rosettaPaths);
+        String schemaPath = getLatestSetOfSchemeFile();
+        Map<String, String> generatedFromScheme =
+                schemeImporter.generateRosettaEnums(
+                        schemeUrl(schemaPath),
+                        "coding-schemes/fpml/",
+                        models,
+                        body,
+                        codingScheme);
 
         if (writeTestOutput) {
             writeTestOutput(generatedFromScheme);
         }
 
         for (String fileName : generatedFromScheme.keySet()) {
-            String contents = getContents(fileName);
+            String contents = getContents(rosettaPaths, fileName);
             assertEquals(contents, generatedFromScheme.get(fileName));
         }
     }
@@ -73,13 +63,13 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
                 .toArray(URL[]::new);
     }
 
-    private URL schemeUrl() {
+    private URL schemeUrl(String schemaPath) {
         return ClassPathUtils.loadFromClasspath(schemaPath, getClass().getClassLoader())
                 .map(UrlUtils::toUrl)
                 .findFirst().orElseThrow();
     }
 
-    private String getContents(String fileName) throws IOException {
+    private String getContents(URL[] rosettaPaths, String fileName) throws IOException {
         URL rosettaPath = Arrays.stream(rosettaPaths)
                 .filter(x -> getFileName(x.getFile()).equals(fileName))
                 .findFirst().orElseThrow();
@@ -141,10 +131,5 @@ public class SchemeImporterTestExtension implements BeforeEachCallback, BeforeAl
 
     private boolean isSetOfSchemeXmlFile(Path inFile) {
         return inFile.getFileName().toString().endsWith(".xml") && inFile.getFileName().toString().contains("set-of-schemes-");
-    }
-
-    @Override
-    public void beforeAll(ExtensionContext extensionContext) throws Exception {
-       this.schemaPath = getLatestSetOfSchemeFile();
     }
 }
