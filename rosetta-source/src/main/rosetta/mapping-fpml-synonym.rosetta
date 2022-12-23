@@ -2209,7 +2209,7 @@ synonym source FpML_5_10 extends FpML
 			// Equity Swap - Only mapping the notional amount in the payout, not the no. shares
 			[value "notionalAmount" meta "amount"]
 			[value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
-            		// Div Swaps
+            // Div Swaps
 			[value "singleUnderlyer" meta "openUnits"]
 			// Credit
 			[value "calculationAmount" meta "amount"]
@@ -2244,6 +2244,8 @@ synonym source FpML_5_10 extends FpML
 			[value "generalTerms"]
 		+ protectionTerms
 			[value "protectionTerms"]
+        + priceQuantity
+			[hint "protectionTerms"]
 
 	EconomicTerms:
 		+ effectiveDate
@@ -2340,6 +2342,9 @@ synonym source FpML_5_10 extends FpML
 			[hint "notional"]
 			// For the interest leg of Equity Swap:
 			[value "notional"]
+			// For the fee leg of CDS
+			[value "fixedAmountCalculation" path "feeLeg->periodicPayment"]
+			[value "floatingAmountCalculation" path "feeLeg->periodicPayment"]
 
 	OptionExercise:
 		+ strike
@@ -2517,13 +2522,11 @@ synonym source FpML_5_10 extends FpML
 			[hint "numberOfOptions"]
 			// For Bond Option:
 			[hint "notionalAmount"]
-			// For Credit:
-			[value "fixedAmountCalculation" path "periodicPayment"]
-			[hint "protectionTerms"]
+			// For Credit Option:
 			[hint "notionalReference"]
-			[value "floatingAmountCalculation" path "periodicPayment"]
-			// For Equity Swap: moved to PerformancePayout
-			// For FX:
+			// For CDS protectionTerms see CreditDefaultPayout
+			// For CDS feeLeg see InterestRatePayout
+            // For FX:
 			[hint "exchangedCurrency1"]
 			[hint "exchangedCurrency2"]
 			// For Repo:
@@ -2535,7 +2538,6 @@ synonym source FpML_5_10 extends FpML
 			[hint "amount"]
 			[hint "paymentAmount"]
 			[hint "notionalQuantitySchedule"]
-
 
 	Payout:
 		+ interestRatePayout
