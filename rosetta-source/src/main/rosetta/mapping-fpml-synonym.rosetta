@@ -38,7 +38,8 @@ synonym source FpML_5_10 extends FpML
 		+ payerReceiver
 			[hint "fixedLeg"]
 			[hint "floatingLeg"]
-		+ priceQuantity
+		- priceQuantity
+        + priceQuantity
 			[value "vegaNotional" set when path = "fxVolatilitySwap"]
 			// For Equity Swap
 			[value "rateOfReturn"]
@@ -2187,12 +2188,11 @@ synonym source FpML_5_10 extends FpML
 			[hint "fixedRate"]
 
 	ResolvablePriceQuantity:
-		[meta "id"]
+	    [meta "id" path "notional"]
 		[meta "id" path "notionalSchedule"]
 		[meta "id" path "notionalSchedule->notionalStepSchedule"]
 		[meta "id" path "notionalAmount"]
 		[meta "id" path "calculationAmount"]
-		[meta "id" path "protectionTerms->calculationAmount"]
 		+ resolvedQuantity
 			[value "ignore"]
 		+ quantityReference
@@ -2213,7 +2213,7 @@ synonym source FpML_5_10 extends FpML
 			[value "singleUnderlyer" meta "openUnits"]
 			// Credit
 			[value "calculationAmount" meta "amount"]
-			[value "calculationAmount" path "protectionTerms" meta "amount"]
+			//[value "calculationAmount" path "protectionTerms" meta "amount"]
 			// Repo
 			[value "settlementAmount" meta "amount"]
 			// FX
@@ -2244,8 +2244,9 @@ synonym source FpML_5_10 extends FpML
 			[value "generalTerms"]
 		+ protectionTerms
 			[value "protectionTerms"]
+        - priceQuantity
         + priceQuantity
-			[hint "protectionTerms"]
+			[value "protectionTerms"]
 
 	EconomicTerms:
 		+ effectiveDate
@@ -2334,6 +2335,7 @@ synonym source FpML_5_10 extends FpML
 			// For Repo:
 			[hint "fixedRateSchedule"]
 			[hint "floatingRateCalculation"]
+		- priceQuantity
 		+ priceQuantity
 			// For Swap Stream:
 			[value "calculation" path "calculationPeriodAmount"]
