@@ -10,6 +10,7 @@ import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.Trade;
+import cdm.event.common.TradeIdentifier;
 import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.ForeignExchange;
@@ -82,10 +83,10 @@ public class FxSwapContractCreation {
 
         ContractualProduct contractualProduct = createContractualProduct(underlier, settlementDate);
 
-        Identifier citi123 = createIdentifier("CITI123", "http://www.citi.com/fx/trade-id", party1);
-        Identifier barc987 = createIdentifier("BARC987", "http://www.barclays.com/fx/trade-id", party2);
+        TradeIdentifier citi123 = createIdentifier("CITI123", "http://www.citi.com/fx/trade-id", party1);
+        TradeIdentifier barc987 = createIdentifier("BARC987", "http://www.barclays.com/fx/trade-id", party2);
 
-        List<Identifier> identifiers = List.of(citi123, barc987);
+        List<TradeIdentifier> identifiers = List.of(citi123, barc987);
         List<Party> parties = List.of(party1, party2);
 
         return createFxSwapContract(identifiers, parties, priceQuantity, contractualProduct, tradeDate, party1, party2);
@@ -132,7 +133,7 @@ public class FxSwapContractCreation {
                 .build();
     }
 
-    private Trade createFxSwapContract(List<Identifier> identifiers,
+    private Trade createFxSwapContract(List<TradeIdentifier> identifiers,
                                        List<Party> parties,
                                        PriceQuantity priceQuantity,
                                        ContractualProduct contractualProduct,
@@ -202,8 +203,8 @@ public class FxSwapContractCreation {
                 .build();
     }
 
-    private Identifier createIdentifier(String identifier, String scheme, Party issuer) {
-        return Identifier.builder().addAssignedIdentifier(
+    private TradeIdentifier createIdentifier(String identifier, String scheme, Party issuer) {
+        return TradeIdentifier.builder().addAssignedIdentifier(
                 AssignedIdentifier.builder().setIdentifier(
                         FieldWithMetaString.builder().setValue(identifier)
                                 .setMeta(MetaFields.builder()

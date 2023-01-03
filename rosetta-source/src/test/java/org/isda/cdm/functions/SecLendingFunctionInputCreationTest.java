@@ -391,7 +391,7 @@ class SecLendingFunctionInputCreationTest {
 
     private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, CounterpartyRoleEnum role, double percent) {
         Party agentLenderParty = getParty(tradeState, role);
-        Identifier allocationIdentifier = createAllocationIdentifier(tradeState.build().toBuilder(), "allocation-" + externalKey);
+        TradeIdentifier allocationIdentifier = createAllocationIdentifier(tradeState.build().toBuilder(), "allocation-" + externalKey);
         List<NonNegativeQuantitySchedule> allocatedQuantities = scaleQuantities(tradeState, percent);
 
         PartyChangeInstruction.PartyChangeInstructionBuilder partyChangeInstruction = PartyChangeInstruction.builder()
@@ -442,8 +442,8 @@ class SecLendingFunctionInputCreationTest {
                 .collect(Collectors.toList());
     }
 
-    private static Identifier createAllocationIdentifier(TradeState tradeState, String allocationName) {
-        Identifier.IdentifierBuilder allocationIdentifierBuilder = tradeState.getTrade().getTradeIdentifier().get(0)
+    private static TradeIdentifier createAllocationIdentifier(TradeState tradeState, String allocationName) {
+        TradeIdentifier.TradeIdentifierBuilder allocationIdentifierBuilder = tradeState.getTrade().getTradeIdentifier().get(0)
                 .build().toBuilder();
         allocationIdentifierBuilder.getAssignedIdentifier()
                 .forEach(c -> c.setIdentifierValue(c.getIdentifier().getValue() + "-" + allocationName));
