@@ -24,7 +24,7 @@ A tradable product represents a financial product that is ready to be traded, me
  type TradableProduct:
     product Product (1..1)
     tradeLot TradeLot (1..*)
-    counterparty Counterparty (0..2)
+    counterparty Counterparty (2..2)
       [docReference ICMA GMRA namingConvention "Party"
 			provision "Parties entering into GMRA, as specified on page 1 of the GMRA and under 1. (a)."]
     ancillaryParty AncillaryParty (0..*)

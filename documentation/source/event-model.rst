@@ -69,7 +69,7 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
    tradeIdentifier TradeIdentifier (1..*)
    tradeDate date (1..1)
      [metadata id]
-   tradableProduct TradableProduct (0..1)
+   tradableProduct TradableProduct (1..1)
    party Party (0..*)
    partyRole PartyRole (0..*)
    executionDetails ExecutionDetails (0..1)
