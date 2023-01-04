@@ -352,7 +352,7 @@ Therefore, the execution function does not take any before state as input and al
  type ExecutionInstruction:
    product Product (1..1)
    priceQuantity PriceQuantity (1..*)
-   counterparty  Counterparty (0..2)
+   counterparty  Counterparty (2..2)
    ancillaryParty AncillaryParty (0..*)
    parties Party (2..*)
    partyRoles PartyRole (0..*)
