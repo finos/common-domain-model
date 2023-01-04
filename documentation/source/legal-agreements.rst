@@ -321,6 +321,7 @@ The following code snippets represent these three components of the eligible col
 
  type CollateralTreatment:
    valuationTreatment CollateralValuationTreatment (0..1)
+        [docReference ICMA GMRA namingConvention "marginRatio"]
    concentrationLimit ConcentrationLimit (0..*)
    isIncluded boolean (1..1)
 

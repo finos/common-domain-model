@@ -64,10 +64,12 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
 
  type Trade:
    [metadata key]
-   tradeIdentifier Identifier (1..*)
+   [docReference ICMA GMRA namingConvention "Transaction"
+			provision "As defined in the GMRA, paragraph 1(a) and 1(b) Referring to the agreement between Buyer and Seller in which a Seller agrees to sell Securities against the payment of the purchase price by Buyer to Seller, with a simultaneous agreement by Buyer to sell to Seller Equivalent Securities at a future date. May be a Repurchase Transaction or Buy/Sell Back Transaction."]
+   tradeIdentifier TradeIdentifier (1..*)
    tradeDate date (1..1)
      [metadata id]
-   tradableProduct TradableProduct (1..1)
+   tradableProduct TradableProduct (0..1)
    party Party (0..*)
    partyRole PartyRole (0..*)
    executionDetails ExecutionDetails (0..1)
@@ -94,7 +96,6 @@ The ``ExecutionDetails`` data type represents details applicable to trade execut
    executionType ExecutionTypeEnum (1..1)
    executionVenue LegalEntity (0..1)
    packageReference IdentifiedList (0..1)
-     [metadata reference]
    
    condition ExecutionVenue:
      if executionType = ExecutionTypeEnum -> Electronic
@@ -237,7 +238,7 @@ All primitive functions are prefixed by ``Create_`` followed by the name of the 
      counterparty Counterparty (1..1)
      ancillaryParty AncillaryParty (0..1)
      partyRole PartyRole (0..1)
-     tradeId Identifier (1..*)
+     tradeId TradeIdentifier (1..*)
      originalTrade TradeState (1..1)
    output:
      newTrade TradeState (1..1)
@@ -254,7 +255,7 @@ is associated to a primitive instruction data type that contains the function's 
    counterparty Counterparty (1..1)
    ancillaryParty AncillaryParty (0..1)
    partyRole PartyRole (0..1)
-   tradeId Identifier (1..*)
+   tradeId TradeIdentifier (1..*)
 
 The ``PrimitiveInstruction`` data type allows to build composite primitive instructions and therefore compose primitive operators. This data type contains one instruction attribute for each of the possible nine primitive instruction types - aligned onto the nine fundamental primitive operators.
 
@@ -351,14 +352,19 @@ Therefore, the execution function does not take any before state as input and al
  type ExecutionInstruction:
    product Product (1..1)
    priceQuantity PriceQuantity (1..*)
-   counterparty  Counterparty (2..2)
+   counterparty  Counterparty (0..2)
    ancillaryParty AncillaryParty (0..*)
    parties Party (2..*)
    partyRoles PartyRole (0..*)
    executionDetails ExecutionDetails (1..1)
    tradeDate date (1..1)
        [metadata id]
-   tradeIdentifier Identifier (1..*)
+   tradeIdentifier TradeIdentifier (1..*)
+   collateral Collateral (0..1)
+
+    condition Counterparty:
+		if product -> contractualProduct exists
+			then counterparty count = 2
 
 Contract Formation Primitive
 ''''''''''''''''''''''''''''
@@ -756,6 +762,8 @@ The Event Identifier provides a unique id that can be used for reference by othe
 
  type Identifier:
    [metadata key]
+   [docReference ICMA GMRA namingConvention "Identifier"
+		provision "As referenced in GMRA paragraph 3(b) Securities may be identified using identifying numbers such as CUSIP or ISIN"]
    issuerReference Party (0..1)
      [metadata reference]
    issuer string (0..1)

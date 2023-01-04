@@ -24,7 +24,9 @@ A tradable product represents a financial product that is ready to be traded, me
  type TradableProduct:
     product Product (1..1)
     tradeLot TradeLot (1..*)
-    counterparty Counterparty (2..2)
+    counterparty Counterparty (0..2)
+      [docReference ICMA GMRA namingConvention "Party"
+			provision "Parties entering into GMRA, as specified on page 1 of the GMRA and under 1. (a)."]
     ancillaryParty AncillaryParty (0..*)
     adjustment NotionalAdjustmentEnum (0..1)
 
@@ -344,7 +346,13 @@ Cash and physical settlement methods require different, specific parameters whic
    transferSettlementType TransferSettlementEnum (0..1)
    settlementCurrency string (0..1)
      [metadata scheme]
+     [docReference ICMA GMRA namingConvention "Contractual Currency"
+		    provision "As defined in GMRA paragraph 2(k)/ paragraph 7(a) All the payments made in respect of the Purchase Price or the Repurchase Price of any Transaction shall be made in the currency of the Purchase Price (the Contractual Currency) save as provided in paragraph 10(d)(ii). Notwithstanding the foregoing, the payee of any money may, at its option, accept tender thereof in any other currency, provided, however, that, to the extent permitted by applicable law, the obligation of the payer to pay such money will be discharged only to the extent of the amount of the Contractual Currency that such payee may, consistent with normal banking procedures, purchase with such other currency (after deduction of any premium and costs of exchange) for delivery within the customary delivery period for spot transactions in respect of the relevant currency."]
    settlementDate SettlementDate (0..1)
+   settlementCentre SettlementCentreEnum (0..1)
+   settlementProvision SettlementProvision (0..1)
+   standardSettlementStyle StandardSettlementStyleEnum (0..1)
+
 
 BuyerSeller
 """"""""""""
@@ -448,13 +456,22 @@ The CDM specifies the various sets of possible remaining economic terms using th
 
  type EconomicTerms:
    effectiveDate AdjustableOrRelativeDate (0..1)
+   	[docReference ICMA GMRA namingConvention "Purchase Date"
+			provision "As defined in GMRA paragraph 2(mm) The date on which Purchased Securities are sold or are to be sold by Seller to Buyer."]
+    [docReference ICMA ERCCBestPractice namingConvention "Purchase Date"
+			provision "ERCC Guide: Annex II  Glossary of repo terminology. The term for the value date of a repo."]
    terminationDate AdjustableOrRelativeDate (0..1)
+   	[docReference ICMA GMRA namingConvention "Repurchase Date"
+			provision "As defined in GMRA paragraph 2(qq) The date on which Buyer is to sell Equivalent Securities to Seller."]
+    [docReference ICMA ERCCBestPractice namingConvention "Repurchase Date"
+			provision "ERCC Guide: Annex II  Glossary of repo terminology. The term for the maturity date of a repo."]
    dateAdjustments BusinessDayAdjustments (0..1)
    payout Payout (1..1)
    terminationProvision TerminationProvision (0..1)
    extraordinaryEvents ExtraordinaryEvents (0..1)
    calculationAgent CalculationAgent (0..1)
    nonStandardisedTerms boolean (0..1)
+   collateral Collateral (0..1)
 
 Payout
 """"""
@@ -472,9 +489,12 @@ The ``Payout`` type defines the composable payout types, each of which describes
    forwardPayout ForwardPayout (0..*)
    fixedPricePayout FixedPricePayout (0..*)
    securityPayout SecurityPayout (0..*)
+        [deprecated]
    securityFinancePayout SecurityFinancePayout (0..*)
+        [deprecated]
    cashflow Cashflow (0..*)
    performancePayout PerformancePayout (0..*)
+   assetPayout AssetPayout (0..*)
 
 A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantity, price, settlement terms and the payer/receiver direction which are expected to be common across many payouts.
 
@@ -626,6 +646,8 @@ The data types that extend from ProductBase are Index, Commodity, Loan, and Secu
 .. code-block:: Haskell
 
  type Security extends ProductBase:
+   [docReference ICMA GMRA namingConvention "Purchased Security"
+		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
    securityType SecurityTypeEnum (1..1)
    debtType DebtType (0..1)
    equityType EquityTypeEnum (0..1)
@@ -678,22 +700,27 @@ The ``ProductTaxonomy`` data structure and an instance of a CDM object (`seriali
 
 .. code-block:: Haskell
 
- type ProductTaxonomy:
+ type ProductTaxonomy extends Taxonomy:
      primaryAssetClass AssetClassEnum (0..1)
          [metadata scheme]
      secondaryAssetClass AssetClassEnum (0..*)
          [metadata scheme]
      taxonomyValue string (0..1)
          [metadata scheme]
+         [deprecated]
      taxonomySource TaxonomySourceEnum (0..1)
+         [deprecated]
      productQualifier string (0..1)
 
-     condition TaxonomyValue:
-         required choice taxonomyValue, productQualifier, primaryAssetClass, secondaryAssetClass
+     condition TaxonomyType:
+         required choice source, primaryAssetClass, secondaryAssetClass, taxonomySource
 
      condition TaxonomySource:
-         if taxonomySource exists then
-             taxonomyValue exists or productQualifier exists
+         if source exists then value exists and
+		 if taxonomySource exists then productQualifier exists
+
+     condition TaxonomyValue:
+         optional choice value, productQualifier
 
 .. code-block:: Javascript
 
