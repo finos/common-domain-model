@@ -362,10 +362,6 @@ Therefore, the execution function does not take any before state as input and al
    tradeIdentifier TradeIdentifier (1..*)
    collateral Collateral (0..1)
 
-    condition Counterparty:
-		if product -> contractualProduct exists
-			then counterparty count = 2
-
 Contract Formation Primitive
 ''''''''''''''''''''''''''''
  
