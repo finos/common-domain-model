@@ -315,18 +315,11 @@ type FixedPrice: <"A predefined price accorded by the counterparties.">
         if price -> value exists then price -> value >= 0.0 and
 		if price -> datedValue exists then price -> datedValue -> value all >= 0.0
 
-type PaymentDetail:
-	[metadata key]
-
-	paymentDate AdjustableOrRelativeDate (0..1)
-	paymentRule PaymentRule (1..1) <"The calculation rule.">
-	paymentAmount Money (0..1) <"A fixed payment amount.">
-
 type PaymentDiscounting: <"This class corresponds to the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
 	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the cash flow.">
 	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">
 
-type PaymentRule: <"A class defining the payment calculation rule. As of FpML 5.10, percentage rule is the only calculation rule that has been specified as part of the standard.">
+type PaymentRule: <"Defines the payment calculation rule. As of FpML 5.10, percentage rule is the only calculation rule that has been specified as part of the standard.">
 
 	percentageRule PercentageRule (0..1) <"This attribute is not present as part of the FpML construct, as the payment rule is specialised by means of runtime type extension through the xsi:type.">
 
@@ -367,13 +360,3 @@ type SettlementBase: <"A base class to be extended by the SettlementTerms class.
 	settlementCurrency string (0..1) <"The settlement currency is to be specified when the Settlement Amount cannot be known in advance. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
 	settlementDate SettlementDate (0..1) <"The date on which the settlement amount will be paid, subject to adjustment in accordance with any applicable business day convention. This component would not be present for a mandatory early termination provision where the cash settlement payment date is the mandatory early termination date.">
-
-type SimplePayment extends PartyReferencePayerReceiver: <"A class to specified payments in a simpler fashion than the Payment type. This construct should be used from the FpML version 4.3 onwards.">
-	[metadata key]
-
-	paymentAmount Money (1..1) <"The payment amount.">
-	paymentDate AdjustableOrRelativeDate (1..1) <"The payment date. This date is subject to adjustment in accordance with any applicable business day convention.">
-
-	condition NonNegativePaymentAmount: <"FpML specifies paymentAmount as NonNegativeMoney.">
-		paymentAmount -> value > 0.0
-
