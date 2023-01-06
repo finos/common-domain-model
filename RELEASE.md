@@ -2,7 +2,7 @@
 
 _Background_
 
-This release extends the product model and event model to cover repurchase agreements and the associated lifecycle events.
+This release covers two phases of the ICMA CDM for Repo and Bonds Initiative. Phase 1 covered CDM design of a classic repurchase agreements with a fixed term and fixed rate, and events for purchase and repurchase. Phase 2 extended the CDM product model and event model to cover open term and floating rate repurchase agreements, and the associated lifecycle events.
 
 _What is being released?_
 
@@ -14,17 +14,14 @@ This release includes the following:
 * Replaced SecurityFinancePayout and SecurityFinanceLeg with AssetPayout and AssetLeg.
 * Additional provisions for cancellation (early termination of a repo contract).
 * Additional provisions for pairoff.
-* Added the following functions to create primitive instructions:
+* Added the functions to create primitive instructions and qualifications for the following lifecycle events:
 
   * Roll
   * Early Termination
   * On-Demand Rate Change
   * On-Demand Interest Payment
-  * Substitution
   * Shaping
   * PairOff
-  * Partial Delivery
-  * Reprice
 
 _Review Directions_
 
