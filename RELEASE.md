@@ -1,14 +1,25 @@
-# *Product Model - FpML Mappings - Credit Default Swaps*
+# *Product Model - Day Count Fractions*
 
 _What is being released?_
 
-This release updates and extends the FpML mapping coverage for Credit Default Swap products.
+This release updates the enumeration list `DayCountFractionEnum` and associated functions to reference the ISDA 2021 Definitions.
 
-- Mappings added to populate CDM attribute `creditDefaultPayout->settlementTerms->settlementType`
-- Mappings updated for FpML component `creditDefaultSwap->feeLeg` to correctly populate CDM attributes `InterestRatePayout->calculationPeriodDates` and `InterestRatePayout->paymentDates`. 
+- All enumerations now contain reference to both the 2021 definitions and 2006 definitions where appropriate.
+- BUS/252 has been renamed CAL/252 in line with the ISDA 2021 definitions.
+- FpML Mappings for BUS/252 and CAL/252 both map to the single CDM CAL/252 enumeration.
 
 _Review Directions_
 
-In the CDM Portal, select Ingestion and review examples in the folder `fpml-5-10 > products > credit`
-- fpml-5-10 > products > credit > cd-ex01-long-asia-corp-fixreg-versioned
-- fpml-5-10 > products > credit > cd-ex16-short-us-corp-fixreg-recovery-factor-versioned
+In the CDM Portal, select Textual Browser and review enumeration `DayCountFractionEnum`
+In the CDM Portal, select Ingestion and review:
+- fpml-5-10 > products > rates > ird-ex33-BRL-CDI-swap-versioned
+
+# *Product Model - Simple Payment*
+
+_What is being released?_
+
+Data type `SimplePayment` has been removed from the CDM as it replicates content contained in `Transfer`.  Attribute `initialFee` of data type `CancelableProvision` has been updated to be of type `Transfer`.
+
+_Review Directions_
+
+In the CDM Portal, select Textual Browser and review data type `CancelableProvision`
