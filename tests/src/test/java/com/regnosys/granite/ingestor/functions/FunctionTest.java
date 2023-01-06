@@ -46,7 +46,8 @@ class FunctionTest {
 			"cdm-sample-files/functions/sec-lending-execution-descriptor.json",
 			"cdm-sample-files/functions/fpml-processes-execution-descriptor.json",
 			"cdm-sample-files/functions/cme-cleared-confirm-1-17-execution-descriptor.json",
-			"cdm-sample-files/functions/dtcc-11-0-execution-descriptor.json");
+			"cdm-sample-files/functions/dtcc-11-0-execution-descriptor.json",
+			"cdm-sample-files/functions/repo-and-bond-execution-descriptor.json");
 
 	private static Injector injector;
 
