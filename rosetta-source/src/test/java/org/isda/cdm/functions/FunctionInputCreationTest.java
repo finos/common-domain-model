@@ -548,7 +548,7 @@ class FunctionInputCreationTest {
                                 .setPayerReceiver(PartyReferencePayerReceiver.builder()
                                         .setPayerPartyReference(counterparties.get(0).getPartyReference())
                                         .setReceiverPartyReference(counterparties.get(1).getPartyReference()))
-                                .setQuantity(Quantity.builder()
+                                .setQuantity(NonNegativeQuantity.builder()
                                         .setValue(BigDecimal.valueOf(2000.00))
                                         .setUnit(currencyUnitType))
                                 .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()

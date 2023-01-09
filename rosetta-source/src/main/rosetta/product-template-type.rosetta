@@ -12,6 +12,8 @@ import cdm.observable.event.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
 
+import cdm.event.common.*
+
 import cdm.product.asset.*
 import cdm.product.common.*
 import cdm.product.common.settlement.*
@@ -419,12 +421,6 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentMandatoryEarlyTermination
 		then product -> contractualProduct -> economicTerms -> terminationProvision -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
 
-	// condition CalculationAgentFallback:
-	// 	if product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement -> priceSourceDisruption -> fallbackReferencePrice -> calculationAgentDetermination -> calculationAgentParty exists
-	// 	then ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentFallback
-	// 	and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentFallback
-	// 	then product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> crossCurrencyTerms -> settlementProvision -> nonDeliverableSettlement -> priceSourceDisruption -> fallbackReferencePrice -> calculationAgentDetermination -> calculationAgentParty exists
-
 type ConstituentWeight: <"A class describing the weight of each of the underlier constituent within the basket, either in absolute or relative terms.">
 
 	openUnits number (0..1) <"The number of units (index or securities) that constitute the underlier of the swap. In the case of a basket swap, this element is used to reference both the number of basket units, and the number of each asset components of the basket when these are expressed in absolute terms.">
@@ -484,14 +480,13 @@ type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a
 	followUpConfirmation boolean (1..1) <"A flag to indicate whether follow-up confirmation of exercise (written or electronic) is required following telephonic notice by the buyer to the seller or seller's agent.">
 	cancelableProvisionAdjustedDates CancelableProvisionAdjustedDates (0..1) <"The adjusted dates associated with a cancelable provision. These dates have been adjusted for any applicable business day convention.">
 	finalCalculationPeriodDateAdjustment FinalCalculationPeriodDateAdjustment (0..*) <"Business date convention adjustment to final payment period per leg (swapStream) upon exercise event. The adjustments can be made in-line with leg level BDC's or they can be specified separately.">
-	initialFee SimplePayment (0..1) <"An initial fee for the cancelable option.">
+	initialFee Transfer (0..1) <"An initial fee for the cancelable option.">
 	callingParty CallingPartyEnum (0..1) <"The party with right to exercise a cancellation. Allows for buyer, seller or either.">
-	earliestDate AdjustableOrRelativeDate (0..1) <"The first day when cancelation is permitted to take effect. A party may give notice prior to this date and taken together with the effective period would be necessary to cancel on this date.">
-	expirationDate AdjustableOrRelativeDate (0..1) <"The last day within the term of the contract that cancelation is allowed.">
-	effectiveDate AdjustableOrRelativeDates (0..1) <"The effective date if cancelation is invoked otherwise the cancellation period defines the cancellation date.">
-	effectivePeriod Period (0..1) <"Effective period for cancelation when notice is given. This is the period after notice is given that cancellation becomes effecticve.">
-	earliestCancellationTime BusinessCenterTime (0..1) <"The earliest time in a business day that notice of cancelation can be given.">
-	latestCancelationTime BusinessCenterTime (0..1 ) <"The latest time at which notice of cancelation can be given.">
+    earliestDate AdjustableOrRelativeDate (0..1) <"The first day when cancelation is permitted to take effect. A party may give notice prior to this date and taken together with the effective period would be necessary to cancel on this date.">
+   	expirationDate AdjustableOrRelativeDate (0..1) <"The last day within the term of the contract that cancelation is allowed.">
+   	effectiveDate AdjustableOrRelativeDates (0..1) <"The effective date if cancelation is invoked otherwise the cancellation period defines the cancellation date.">
+   	effectivePeriod Period (0..1) <"Effective period for cancelation when notice is given. This is the period after notice is given that cancellation becomes effecticve.">
+   	earliestCancellationTime BusinessCenterTime (0..1) <"The earliest time in a business day that notice of cancelation can be given.">    	latestCancelationTime BusinessCenterTime (0..1 ) <"The latest time at which notice of cancelation can be given.">
 
 	// condition ExerciseChoice: <"condition to represent an FpML substitution group construct.">
 		// optional choice americanExercise, bermudaExercise, europeanExercise
