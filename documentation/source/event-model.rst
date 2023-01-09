@@ -196,7 +196,7 @@ A transfer is a multi-purpose object that represents the transfer of any asset, 
  type TransferBase:
    identifier Identifier (0..*)
      [metadata scheme]
-   quantity Quantity (1..1)
+   quantity NonNegativeQuantity (1..1)
    observable Observable (0..1)
    payerReceiver PartyReferencePayerReceiver (1..1)
    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
