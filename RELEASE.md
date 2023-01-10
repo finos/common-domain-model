@@ -1,14 +1,9 @@
-# *Product Model - FpML Mappings - Credit Default Swaps*
+# *Infrastructure - Java 8 Support*
 
 _What is being released?_
 
-This release updates and extends the FpML mapping coverage for Credit Default Swap products.
-
-- Mappings added to populate CDM attribute `creditDefaultPayout->settlementTerms->settlementType`
-- Mappings updated for FpML component `creditDefaultSwap->feeLeg` to correctly populate CDM attributes `InterestRatePayout->calculationPeriodDates` and `InterestRatePayout->paymentDates`. 
+To provide a wider compatibility for CDM Java implementors, this release changes the Java version of the distributed CDM Java artefacts from version 11 to 8.
 
 _Review Directions_
 
-In the CDM Portal, select Ingestion and review examples in the folder `fpml-5-10 > products > credit`
-- fpml-5-10 > products > credit > cd-ex01-long-asia-corp-fixreg-versioned
-- fpml-5-10 > products > credit > cd-ex16-short-us-corp-fixreg-recovery-factor-versioned
+CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId `com.isda`, artifactId `cdm`) and recompile with Java 8 (or later).
