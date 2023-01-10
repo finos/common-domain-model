@@ -6,4 +6,4 @@ To provide a wider compatibility for CDM implementors, this release changes the 
 
 _Review Directions_
 
-CDM maven artefacts com.isda.cdm, and dependencies com.regnosys.rosetta-common and com.regnosys.rosetta.lib can now be used in Java 8 environments.
+CDM maven artefacts `com.isda.cdm`, and dependencies `com.regnosys.rosetta-common` and `com.regnosys.rosetta.lib` can now be used in Java 8 environments.
