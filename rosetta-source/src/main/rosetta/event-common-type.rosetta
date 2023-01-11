@@ -1,6 +1,7 @@
 namespace cdm.event.common : <"Business event concepts: primitives, contract state and associated state transition function specifications.">
 version "${project.version}"
 
+import cdm.base.*
 import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
@@ -108,7 +109,7 @@ type ExecutionInstruction: <"Specifies instructions for execution of a transacti
 	executionDetails ExecutionDetails (1..1) <"Specifies the type and venue of execution, e.g. via voice, or electronically.">
 	tradeDate date (1..1) <"Denotes the trade/execution date.">
 	    [metadata id]
-	tradeIdentifier Identifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
+	tradeIdentifier TradeIdentifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
 	collateral Collateral (0..1) <"Detail the collateral requirement anticipated with the transaction.">
 
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
@@ -118,7 +119,7 @@ type ExerciseInstruction: <"Specifies the information required to communicate th
 		[metadata reference]
 	exerciseDate AdjustableOrAdjustedDate (0..1) <"Specifies the date on which an option contained within the financial product would be exercised. The date may be omitted if the contractual product allows for only a single date of exercise (European exercise).">
 	exerciseTime BusinessCenterTime (0..1) <"Specifies the time at which an option contained within the financial product woulld be exercised. The time may be omitted if the contractual product allows for only a single time of exercise (European exercise). ">
-	replacementTradeIdentifier Identifier (0..*) <"Specifies the trade identifier to apply to the replacement trade for physical exercise.">
+	replacementTradeIdentifier TradeIdentifier (0..*) <"Specifies the trade identifier to apply to the replacement trade for physical exercise.">
 	
 type ResetInstruction: <"Defines the information needed to create a Reset Business Event. ">
  	payout Payout (1..1)
@@ -168,7 +169,7 @@ type PartyChangeInstruction: <"Specifies instruction to change the party on a tr
 	counterparty Counterparty (1..1) <"The new counterparty who is stepping into the trade. The stepping out counterparty is inferred based on the counterparty role that is being updated.">
 	ancillaryParty AncillaryParty (0..1) <"Specifies an ancillary party to be added onto the new transaction, e.g. the original executing party in an allocation.">
 	partyRole PartyRole (0..1) <"Specifies an additional party roles to be added on to the new transaction.">
-    tradeId Identifier (1..*) <"The identifier to be assigned to the new trade post change of party.">
+    tradeId TradeIdentifier (1..*) <"The identifier to be assigned to the new trade post change of party.">
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
 	[metadata key]
@@ -252,9 +253,14 @@ type SettlementOrigin: <"Defines the origin to the transfer as a reference for l
 
 	condition: one-of	
 
+type TradeIdentifier extends Identifier: <"Defines a trade identifier as a special case of the generic identifier type, that also includes the trade identifier class.">
+	identifierType TradeIdentifierTypeEnum (0..1) <"The enumerated classification of the identifier. Optional as a trade identifier may be party-specific, in which case it may not correspond to any established classification.">	
+
 type Trade: <"Defines the output of a financial transaction between parties - a Business Event. A Trade impacts the financial position (i.e. the balance sheet) of involved parties.">
 	[metadata key]
-	tradeIdentifier Identifier (1..*) <"Represents the identifier(s) that uniquely identify a trade for an identity issuer. A trade can include multiple identifiers, for example a trade that is reportable to both the CFTC and ESMA, and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">
+		[docReference ICMA GMRA namingConvention "Transaction"
+			provision "As defined in the GMRA, paragraph 1(a) and 1(b) Referring to the agreement between Buyer and Seller in which a Seller agrees to sell Securities against the payment of the purchase price by Buyer to Seller, with a simultaneous agreement by Buyer to sell to Seller Equivalent Securities at a future date. May be a Repurchase Transaction or Buy/Sell Back Transaction."]
+	tradeIdentifier TradeIdentifier (1..*) <"Represents the identifier(s) that uniquely identify a trade for an identity issuer. A trade can include multiple identifiers, for example a trade that is reportable to both the CFTC and ESMA, and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">
 	tradeDate date (1..1) <"Specifies the date which the trade was agreed.">
         [metadata id]
 	tradableProduct TradableProduct (1..1) <"Represents the financial instrument The corresponding FpML construct is the product abstract element and the associated substitution group.">
@@ -268,9 +274,9 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 	account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
 	    [deprecated]
 	
-	condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
-		if tradableProduct -> product -> security exists
-		then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
+	// condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
+	// 	if tradableProduct -> product -> security exists
+	// 	then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
 
 	condition SecurityPartyRoleBuyerSeller: <"When the executed product is a security, both buyer and seller party roles must exist.">
 		if tradableProduct -> product -> security exists
@@ -286,7 +292,7 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 
 	condition PackageTrade: <"When the trade is part of a package as specified in the execution details, the trade identifier must be found as one of the package components.">
 		if executionDetails -> packageReference exists
-		then executionDetails -> packageReference -> componentId contains tradeIdentifier
+		then executionDetails -> packageReference -> componentId -> assignedIdentifier contains tradeIdentifier -> assignedIdentifier
 
 	condition DeliverableObligationsPhysicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
 		if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
@@ -472,7 +478,7 @@ type ExecutionDetails: <"Defines specific attributes that relate to trade execut
 	executionType ExecutionTypeEnum (1..1) <"Identifies the type of execution, e.g. via voice, electronically...">
 	executionVenue LegalEntity (0..1) <"Represents the venue on which a trade was executed.">
 	packageReference IdentifiedList (0..1) <"A reference to the package linking the trade with other trades, in case the trade was executed as part of a package (hence this attribute is optional).">
-		[metadata reference]
+		// [metadata reference]
 
 	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
 		if executionType = ExecutionTypeEnum -> Electronic
@@ -536,6 +542,7 @@ type ClearingInstruction: <"All information required to perform the clear life c
 
 	clearerParty1 Party (0..1) <"Optional party facing the CCP, acting as clearing member for party1.">
 	clearerParty2 Party (0..1) <"Optional party facing the CCP, acting as clearing member for party2.">
+	isOpenOffer boolean (0..1) <"Open Offer">
 
 type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
 	[deprecated]

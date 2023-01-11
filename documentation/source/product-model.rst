@@ -345,6 +345,10 @@ Cash and physical settlement methods require different, specific parameters whic
    settlementCurrency string (0..1)
      [metadata scheme]
    settlementDate SettlementDate (0..1)
+   settlementCentre SettlementCentreEnum (0..1)
+   settlementProvision SettlementProvision (0..1)
+   standardSettlementStyle StandardSettlementStyleEnum (0..1)
+
 
 BuyerSeller
 """"""""""""
@@ -455,6 +459,7 @@ The CDM specifies the various sets of possible remaining economic terms using th
    extraordinaryEvents ExtraordinaryEvents (0..1)
    calculationAgent CalculationAgent (0..1)
    nonStandardisedTerms boolean (0..1)
+   collateral Collateral (0..1)
 
 Payout
 """"""
@@ -472,9 +477,12 @@ The ``Payout`` type defines the composable payout types, each of which describes
    forwardPayout ForwardPayout (0..*)
    fixedPricePayout FixedPricePayout (0..*)
    securityPayout SecurityPayout (0..*)
+        [deprecated]
    securityFinancePayout SecurityFinancePayout (0..*)
+        [deprecated]
    cashflow Cashflow (0..*)
    performancePayout PerformancePayout (0..*)
+   assetPayout AssetPayout (0..*)
 
 A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantity, price, settlement terms and the payer/receiver direction which are expected to be common across many payouts.
 
@@ -678,22 +686,27 @@ The ``ProductTaxonomy`` data structure and an instance of a CDM object (`seriali
 
 .. code-block:: Haskell
 
- type ProductTaxonomy:
+ type ProductTaxonomy extends Taxonomy:
      primaryAssetClass AssetClassEnum (0..1)
          [metadata scheme]
      secondaryAssetClass AssetClassEnum (0..*)
          [metadata scheme]
      taxonomyValue string (0..1)
          [metadata scheme]
+         [deprecated]
      taxonomySource TaxonomySourceEnum (0..1)
+         [deprecated]
      productQualifier string (0..1)
 
-     condition TaxonomyValue:
-         required choice taxonomyValue, productQualifier, primaryAssetClass, secondaryAssetClass
+     condition TaxonomyType:
+         required choice source, primaryAssetClass, secondaryAssetClass, taxonomySource
 
      condition TaxonomySource:
-         if taxonomySource exists then
-             taxonomyValue exists or productQualifier exists
+         if source exists then value exists and
+		 if taxonomySource exists then productQualifier exists
+
+     condition TaxonomyValue:
+         optional choice value, productQualifier
 
 .. code-block:: Javascript
 

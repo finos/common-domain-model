@@ -64,7 +64,7 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
 
  type Trade:
    [metadata key]
-   tradeIdentifier Identifier (1..*)
+   tradeIdentifier TradeIdentifier (1..*)
    tradeDate date (1..1)
      [metadata id]
    tradableProduct TradableProduct (1..1)
@@ -94,7 +94,6 @@ The ``ExecutionDetails`` data type represents details applicable to trade execut
    executionType ExecutionTypeEnum (1..1)
    executionVenue LegalEntity (0..1)
    packageReference IdentifiedList (0..1)
-     [metadata reference]
    
    condition ExecutionVenue:
      if executionType = ExecutionTypeEnum -> Electronic
@@ -237,7 +236,7 @@ All primitive functions are prefixed by ``Create_`` followed by the name of the 
      counterparty Counterparty (1..1)
      ancillaryParty AncillaryParty (0..1)
      partyRole PartyRole (0..1)
-     tradeId Identifier (1..*)
+     tradeId TradeIdentifier (1..*)
      originalTrade TradeState (1..1)
    output:
      newTrade TradeState (1..1)
@@ -254,7 +253,7 @@ is associated to a primitive instruction data type that contains the function's 
    counterparty Counterparty (1..1)
    ancillaryParty AncillaryParty (0..1)
    partyRole PartyRole (0..1)
-   tradeId Identifier (1..*)
+   tradeId TradeIdentifier (1..*)
 
 The ``PrimitiveInstruction`` data type allows to build composite primitive instructions and therefore compose primitive operators. This data type contains one instruction attribute for each of the possible nine primitive instruction types - aligned onto the nine fundamental primitive operators.
 
@@ -358,7 +357,8 @@ Therefore, the execution function does not take any before state as input and al
    executionDetails ExecutionDetails (1..1)
    tradeDate date (1..1)
        [metadata id]
-   tradeIdentifier Identifier (1..*)
+   tradeIdentifier TradeIdentifier (1..*)
+   collateral Collateral (0..1)
 
 Contract Formation Primitive
 ''''''''''''''''''''''''''''

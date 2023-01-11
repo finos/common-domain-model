@@ -1,5 +1,7 @@
 package org.isda.cdm.documentation;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -23,12 +25,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DocumentationCodeValidator {
-	
-    private final String synonymRegex = "\\[synonym [^\\]]*\\]";
+
+	public static final List<String> ANNOTATIONS = Lists.newArrayList(
+			"synonym",
+			"docReference");
+	private final String annotationRegex = "\\[(" + Joiner.on('|').join(ANNOTATIONS) + ") [^\\]]*\\]";
     private final String definitionRegex = "<\"[\\s\\S]*?\">";
     private final String lineCommentRegex = "[^:]\\/\\/.*$";
     private final String whitespaceRegex = "\\s+";
-    private final Pattern illegalSyntaxRegex = Pattern.compile(synonymRegex+"|"+definitionRegex+"|"+lineCommentRegex, Pattern.MULTILINE);
+    private final Pattern illegalSyntaxRegex = Pattern.compile(annotationRegex+"|"+definitionRegex+"|"+lineCommentRegex, Pattern.MULTILINE);
 	private static final PatternStreamer codeBlockRegex = new PatternStreamer("(\\.\\. code-block:: .*\\s+$)((\\n[ \\t]+.*|\\s)+)");
 
 	private String modelPath;
