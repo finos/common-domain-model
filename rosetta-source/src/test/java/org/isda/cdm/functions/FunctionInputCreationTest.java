@@ -1772,7 +1772,25 @@ class FunctionInputCreationTest {
         CreateBusinessEventInput actual = new CreateBusinessEventInput(List.of(rollInstructionBuilder.build()), null, unadjustedRollDate, unadjustedRollDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/roll-input.json", actual);
     }
+    @Test
+    void validateOnDemandRateChangeInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/on-demand-rate-change-primitive-instruction-effective-date.json");
+        BigDecimal agreedRate = new BigDecimal("0.005");
 
+        Create_OnDemandRateChangePrimitiveInstruction create_onDemandRateChangePrimitiveInstruction = injector.getInstance(Create_OnDemandRateChangePrimitiveInstruction.class);
+        PrimitiveInstruction onDemandRateChangePrimitiveInstruction = create_onDemandRateChangePrimitiveInstruction.evaluate(executionTradeState, effectiveDate, agreedRate);
+
+        Date unadjustedEffectiveDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
+        Instruction.InstructionBuilder onDemandRateChangeInstructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(onDemandRateChangePrimitiveInstruction);
+
+        reKey(onDemandRateChangeInstructionBuilder);
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(List.of(onDemandRateChangeInstructionBuilder.build()), null, unadjustedEffectiveDate, unadjustedEffectiveDate);
+        assertJsonEquals("functions/on-demand-rate-change-input.json", actual);
+    }
     @Test
     void validatePairOffInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
