@@ -41,7 +41,7 @@ public class PriceUnitTypeHelper {
     }
 
     public boolean mapUnitType(Path synonymPath, PriceSchedule.PriceScheduleBuilder priceScheduleBuilder) {
-        if (Optional.ofNullable(priceScheduleBuilder.getPriceExpression()).map(PriceExpression::getPriceType).isEmpty()) {
+        if (!Optional.ofNullable(priceScheduleBuilder.getPriceExpression()).map(PriceExpression::getPriceType).isPresent()) {
             return false;
         }
         return
