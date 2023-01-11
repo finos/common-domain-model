@@ -1,6 +1,7 @@
 package org.isda.cdm.documentation;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -25,7 +26,7 @@ import java.util.stream.Stream;
 
 public class DocumentationCodeValidator {
 
-	public static final List<String> ANNOTATIONS = List.of(
+	public static final List<String> ANNOTATIONS = Lists.newArrayList(
 			"synonym",
 			"docReference");
 	private final String annotationRegex = "\\[(" + Joiner.on('|').join(ANNOTATIONS) + ") [^\\]]*\\]";

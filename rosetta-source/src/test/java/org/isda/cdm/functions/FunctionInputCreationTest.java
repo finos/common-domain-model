@@ -1769,7 +1769,7 @@ class FunctionInputCreationTest {
 
         reKey(rollInstructionBuilder);
 
-        CreateBusinessEventInput actual = new CreateBusinessEventInput(List.of(rollInstructionBuilder.build()), null, unadjustedRollDate, unadjustedRollDate);
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(rollInstructionBuilder.build()), null, unadjustedRollDate, unadjustedRollDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/roll-input.json", actual);
     }
     @Test
@@ -1788,7 +1788,7 @@ class FunctionInputCreationTest {
 
         reKey(onDemandRateChangeInstructionBuilder);
 
-        CreateBusinessEventInput actual = new CreateBusinessEventInput(List.of(onDemandRateChangeInstructionBuilder.build()), null, unadjustedEffectiveDate, unadjustedEffectiveDate);
+        CreateBusinessEventInput actual = new CreateBusinessEventInput( Lists.newArrayList(onDemandRateChangeInstructionBuilder.build()), null, unadjustedEffectiveDate, unadjustedEffectiveDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/on-demand-rate-change-input.json", actual);
     }
     @Test
@@ -1801,7 +1801,7 @@ class FunctionInputCreationTest {
 
         Create_PairOffInstruction create_pairOffInstruction = injector.getInstance(Create_PairOffInstruction.class);
 
-        List<? extends Instruction> pairOffInstruction = create_pairOffInstruction.evaluate(List.of(executionTradeState, executionTradeState), pairReferenceIdentifierBuilder.build());
+        List<? extends Instruction> pairOffInstruction = create_pairOffInstruction.evaluate(Lists.newArrayList(executionTradeState, executionTradeState), pairReferenceIdentifierBuilder.build());
         List<Instruction> rekeyedPairOffInstruction = pairOffInstruction.stream().map(i -> {
             Instruction.InstructionBuilder instructionBuilder = i.toBuilder();
             reKey(instructionBuilder);
@@ -1829,7 +1829,7 @@ class FunctionInputCreationTest {
         reKey(cancellationInstructionBuilder);
 
         Date unadjustedCancellationDate = cancellationDate.getAdjustableDate().getUnadjustedDate();
-        CreateBusinessEventInput actual = new CreateBusinessEventInput(List.of(cancellationInstructionBuilder.build()), null, unadjustedCancellationDate, unadjustedCancellationDate);
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(cancellationInstructionBuilder.build()), null, unadjustedCancellationDate, unadjustedCancellationDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/cancellation-input.json", actual);
     }
 
@@ -1855,7 +1855,7 @@ class FunctionInputCreationTest {
 
         Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
 
-        CreateBusinessEventInput actual = new CreateBusinessEventInput(List.of(instructionBuilder.build()), null, tradeDate, tradeDate);
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, tradeDate, tradeDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/on-demand-interest-payment-input.json", actual);
     }
 
@@ -1877,7 +1877,7 @@ class FunctionInputCreationTest {
 
         Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
 
-        CreateBusinessEventInput actual = new CreateBusinessEventInput(List.of(instructionBuilder.build()), null, tradeDate, tradeDate);
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, tradeDate, tradeDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/shaping-input.json", actual);
     }
 
