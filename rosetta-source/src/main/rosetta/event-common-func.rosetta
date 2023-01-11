@@ -1252,78 +1252,7 @@ func ResolveRepurchaseTransferInstruction: <"Resolves an instruction for settlem
 
 	assign-output repurchaseInstruction -> instruction -> primitiveInstruction -> quantityChange:
 		Create_QuantityChangeInstruction( [changePriceQuantity], QuantityChangeDirectionEnum->Replace, empty )
-
-	// assign-output repurchaseInstruction -> instruction -> primitiveInstruction -> transfer:
-	// 	ResolveTransfer(empty)
 	
-/** No longer required.  Create_BusinessEvent using an instruction containing quantity change -> 0 and EventIntentEnum -> Repurchase
-
-func Create_Repurchase: <"Defines the process of partially or fully returning a Repo Transaction.">
- 	[creation BusinessEvent]
- 	inputs:
- 		tradeState TradeState (1..1) <"Specifies a previously formed contractual product with a Security Finance payout. It is required that the description of the contractual product be contained within the previous business event, i.e. its lineage must contain the formation of a contractual product.">
-		repurchaseDate date (1..1) <"Specifies the repurchase date.">
-  	output:
- 		repurchaseEvent BusinessEvent (1..1) <"Produces the business event composed of primitive events describing the transfer and termination, as a result of the input return instruction.">
-	
-	assign-output repurchaseEvent -> primitives -> quantityChange: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the returned original contract.">
-		Create_TerminationQuantityChangePrimitive(tradeState)
-	assign-output repurchaseEvent -> eventDate:
-		repurchaseDate
-
-func Create_RepurchaseSettlementInstruction: <"Defines the Repurchase Settlement Instructions, i.e. the cash and security tranfers, to be used in Repo Settlement Function.">
-	inputs:
-		tradeState TradeState (1..1) <"Specifies a previously formed contractual product with a Security Finance payout. It is required that the description of the contractual product be contained within the previous business event, i.e. its lineage must contain the formation of a contractual product.">
-		transferInstruction TransferInstruction (1..1) <""> 
-		repurchaseDate date (1..1) <"Specifies the date of the full return.">
-	output:
-		repurchaseSettlementInstruction SettlementInstruction (1..1)
-	
-	alias payout:
-		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout
-	alias securityFinancePayout:
-		payout -> securityFinancePayout
-	alias repoInterestPayout:
-		payout -> interestRatePayout only-element
-	alias purchaseCashTransfer:
-		Create_CashTransfer(tradeState, transferInstruction, repurchaseDate, empty)
-	alias PriceDifferential: <"As defined in GMRA paragraph 2(kk) Price Differential () the aggregate amount obtained by daily application of the Pricing Rate for such Transaction to the Purchase Price for such Transaction (on a 360 day, 365 day or other day basis in accordance with the applicable market convention, unless otherwise agreed between the parties for the Transaction) for the actual number of days during the period commencing on (and including) the Purchase Date for such Transaction and ending on (but excluding) the date of calculation or, if earlier, the Repurchase Date;">
-		InterestCashSettlementAmount(tradeState, repoInterestPayout, empty, repurchaseDate)
-	alias repurchasePrice: <"GMAR: As defined in GMRA paragraph 2(rr), The Repurchase Price is the sum of Purchase Price and Price Differential. ERCC Guide: Annex II  Glossary of repo terminology The term for the sum of money to be paid by the Seller of a repo to the Buyer on the Repurchase Date to buy back equivalent collateral. It is equal to the Purchase Price plus repo interest. This term also applies to the value of the cash owed to the Buyer on any day during the term of a repo, that is, the Purchase Price plus repo interest accrued up to that particular date. In the case of Buy/Sell-Backs, the Repurchase Price is net of the amount of any coupon, dividend or other income on the collateral paid to the Buyer during the life of the transaction plus reinvestment income to compensate for the delayed payment.">
-		purchaseCashTransfer -> quantity -> amount + PriceDifferential -> quantity -> amount
-	alias repurchaseAmountCashTransfer:
-		Create_TransferFromComponents(tradeState, empty, purchaseCashTransfer -> quantity, purchaseCashTransfer -> observable, PriceDifferential -> payerReceiver, PriceDifferential -> settlementDate, purchaseCashTransfer -> settlementOrigin, repurchasePrice)
-	alias securityTransfer:
-		Create_SecurityFinanceTransfer(tradeState, transferInstruction, repurchaseDate, empty)
-		
-	assign-output repurchaseSettlementInstruction -> transfer:
-		[securityTransfer, repurchaseAmountCashTransfer] 
-	assign-output repurchaseSettlementInstruction -> deliveryMethod: //deliveryMethod to be changed to transferSettlementType.
-		GetLatestSecurityFinanceLegBySettlementDate(securityFinancePayout -> securityFinanceLeg) -> deliveryMethod
-	assign-output repurchaseSettlementInstruction -> settlementCentre:
-		tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout -> settlementTerms -> settlementCentre
-
-func Create_Settlement: <"Function specification to build a transfer event following a reset on a contract">
-	[creation BusinessEvent]
-	inputs:
-		tradeState TradeState (1..1) <"Represents the trade and associated state, including the history of reset values and transfers.">
-		repurchaseSettlementInstruction SettlementInstruction (1..1)
-		repurchaseDate date (1..1)
-	output:
-		transferEvent BusinessEvent (1..1)
-	assign-output transferEvent -> primitives -> transfer:
-		Create_TransferPrimitive(tradeState, empty, repurchaseSettlementInstruction, repurchaseDate)
-    assign-output transferEvent -> eventDate:
-		repurchaseDate
-	assign-output transferEvent -> eventEffect -> effectedTrade:
-	    tradeState as-key
-	post-condition: <"Event must contain a transfer primitive populated with the cashflow, and no other primitive.">
-		transferEvent -> primitives -> transfer only exists
-	post-condition: <"Event effect must include the contract generating the cashflow.">
-		transferEvent -> eventEffect -> productIdentifier is absent
-
-**/
-
 //ICMA - Phase 2 Contribution
 
 func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a trade roll. A trade roll consists in closing an existing trade and entering into a new one which has the same characteristics as the old one, except with an extended termination date and (possibly) a different price.">
