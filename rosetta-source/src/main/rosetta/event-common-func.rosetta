@@ -1257,13 +1257,10 @@ func ResolveRepurchaseTransferInstruction: <"Resolves an instruction for settlem
 
 func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a trade roll. A trade roll consists in closing an existing trade and entering into a new one which has the same characteristics as the old one, except with an extended termination date and (possibly) a different price.">
 	inputs:
-		//ICMA-P2 Instructions
 		tradeState TradeState (1..1) <"The original trade to be rolled.">
 		effectiveRollDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
 		terminationDate AdjustableOrRelativeDate (1..1) <"The new termination date.">
 		priceQuantity PriceQuantity (1..*) <"The price and quantity of the trade to roll into.">
-		// TBD: the trade being rolled into should have a new trade identifier - maybe need a dedicated tradeIdentifierChange primitive?
-		// tradeIdentifier Identifier (1..*) <"The identifier for the new trade that is being rolled into.">
 	output:
 		instruction PrimitiveInstruction (1..1)
 
@@ -1575,14 +1572,6 @@ func Qualify_PairOff: <"Qualifies an event as a pair-off when all the details of
 	alias newTradeInstruction: <"New trade instructions, that contain only an execution primitive and (optionally) a contract formation primitive.">
 		businessEvent -> instruction
 		filter [ NewTradeInstructionOnlyExists( item -> primitiveInstruction ) ]
-
-	// This is the proper way of comparing that all trade details before / after are the same, except for execution details:
-	// alias openTradeNoExecutionDetails: <"List of open trades with no execution details on, for comparison.">
-	// 	openTradeState
-	// 	extract [ TradeNoExecutionDetails( item -> trade) ]
-	// alias beforeTradeNoExecutionDetails: <"List of before trades with no execution details on, for comparison.">
-	// 	newTradeInstruction -> before
-	// 	extract [ TradeNoExecutionDetails( item -> trade ) ]
 
 	alias packageRef: <"Package details on the new trades.">
 		openTradeState -> trade -> executionDetails -> packageReference
