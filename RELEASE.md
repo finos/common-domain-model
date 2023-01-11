@@ -25,6 +25,9 @@ This release includes the following:
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser, navigate to types mentioned above and inspect their structure definitions and associated data conditions.
+In the CDM Portal, select the Textual Browser, navigate to types and event functions mentioned above and inspect their structure definitions and associated data conditions.
 
-For the new events, select the Functions tab and upload a test file that matches the input parameters of the primitive instruction generator function. Use the output of the function to upload to Create_BusinessEvent.
+In addition for the new events, there are 2 ways to review how they work:
+
+1. In Rosetta, select the Visualisation tab and select the Repo and Bond section, where a set of pre-canned event inputs and their output can be inspected.
+2. In Rosetta, select the Functions tab and then select the `Create_BusinessEvent` function, where an arbitrary event instruction object can be passed. To build that instruction input, each new event is associated to an instruction generator function (e.g. `Create_RollPrimitiveInstruction` for the Roll event) that can be invoked in the Functions tab as well.
