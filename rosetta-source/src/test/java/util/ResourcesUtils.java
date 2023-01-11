@@ -3,6 +3,7 @@ package util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
@@ -17,6 +18,7 @@ import org.isda.cdm.processor.CdmReferenceConfig;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +29,12 @@ public class ResourcesUtils {
 		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, clazz);
 	}
 
+	public static <T extends RosettaModelObject> List<T> getObjectList(Class<T> clazz, String resourceName) throws IOException {
+		String json = getJson(resourceName);
+		ObjectMapper rosettaObjectMapper = RosettaObjectMapper.getNewRosettaObjectMapper();
+		CollectionType collectionType = rosettaObjectMapper.getTypeFactory().constructCollectionType(ArrayList.class, clazz);
+		return rosettaObjectMapper.readValue(json, collectionType);
+	}
 	public static <T extends RosettaModelObject> T getObjectAndResolveReferences(Class<T> clazz, String resourceName) throws IOException {
 		T object = getObject(clazz, resourceName);
 		return resolveReferences(object);
@@ -57,7 +65,7 @@ public class ResourcesUtils {
 		return object;
 	}
 
-	private static <T extends RosettaModelObject> T resolveReferences(T object) {
+	public static <T extends RosettaModelObject> T resolveReferences(T object) {
 		RosettaModelObject builder = object.toBuilder();
 		new ReferenceResolverProcessStep(CdmReferenceConfig.get()).runProcessStep(builder.getType(), builder);
 		return (T) builder.build();

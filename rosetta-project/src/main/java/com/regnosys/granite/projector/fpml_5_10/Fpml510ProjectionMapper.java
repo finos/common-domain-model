@@ -58,6 +58,7 @@ import org.fpml.fpml_5.confirmation.Money;
 import org.fpml.fpml_5.confirmation.Party;
 import org.fpml.fpml_5.confirmation.QuotationRateTypeEnum;
 import org.fpml.fpml_5.confirmation.RateObservation;
+import org.fpml.fpml_5.confirmation.SettlementProvision;
 import org.fpml.fpml_5.confirmation.SettlementRateOption;
 import org.fpml.fpml_5.confirmation.Strike;
 import org.fpml.fpml_5.confirmation.*;

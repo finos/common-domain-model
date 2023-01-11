@@ -1,6 +1,7 @@
 namespace cdm.product.common.settlement : <"Common product settlement concepts: cash vs physical, non-deliverable, money and cashflow, delivery vs payment.">
 version "${project.version}"
 
+import cdm.base.*
 import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
@@ -10,6 +11,7 @@ import cdm.observable.asset.*
 
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
+
 
 type ComputedAmount: <"A class to specify the outcome of a computed amount, for testing purposes.">
 
@@ -310,7 +312,7 @@ type FixedPrice: <"A predefined price accorded by the counterparties.">
 
     price PriceSchedule (0..1) <"Fixed price step schedule, including an initial price specified as an absolute number.">
 		[metadata address "pointsTo"=PriceQuantity->price]
-	
+
 	condition NonNegativePrice_amount: <"For a non-negative price, the amount attribute must be positive.">
         if price -> value exists then price -> value >= 0.0 and
 		if price -> datedValue exists then price -> datedValue -> value all >= 0.0
@@ -366,4 +368,16 @@ type SettlementBase: <"A base class to be extended by the SettlementTerms class.
 	transferSettlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
 	settlementCurrency string (0..1) <"The settlement currency is to be specified when the Settlement Amount cannot be known in advance. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
+		[docReference ICMA GMRA namingConvention "Contractual Currency"
+		    provision "As defined in GMRA paragraph 2(k)/ paragraph 7(a) All the payments made in respect of the Purchase Price or the Repurchase Price of any Transaction shall be made in the currency of the Purchase Price (the Contractual Currency) save as provided in paragraph 10(d)(ii). Notwithstanding the foregoing, the payee of any money may, at its option, accept tender thereof in any other currency, provided, however, that, to the extent permitted by applicable law, the obligation of the payer to pay such money will be discharged only to the extent of the amount of the Contractual Currency that such payee may, consistent with normal banking procedures, purchase with such other currency (after deduction of any premium and costs of exchange) for delivery within the customary delivery period for spot transactions in respect of the relevant currency."]
 	settlementDate SettlementDate (0..1) <"The date on which the settlement amount will be paid, subject to adjustment in accordance with any applicable business day convention. This component would not be present for a mandatory early termination provision where the cash settlement payment date is the mandatory early termination date.">
+	settlementCentre SettlementCentreEnum (0..1) <"Optional settlement centre as an enumerated list: Euroclear, Clearstream.">
+	settlementProvision SettlementProvision (0..1) <"Optionally defines the parameters that regulate a settlement.">
+	standardSettlementStyle StandardSettlementStyleEnum (0..1) <"Settlement Style.">
+
+//ICMA-P2
+type SettlementProvision: <"Defines parameters that regulate a settlement, for instance whether this settlement should be netted with other ones or broken-down into smaller amounts.">
+ 	shapingProvisions ShapingProvision (0..1) <"Defines the parameters that are necessary to 'shape' a settlement, i.e. break it down into smaller amounts.">
+
+type ShapingProvision: <"Defines the applicable settlement limits that may require a settlement to be 'shaped', i.e. broken-down into smaller amounts.">
+ 	shapeSchedule Money (1..*) <"Defines applicable settlement limits in each currency.">
