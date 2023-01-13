@@ -75,7 +75,8 @@ public class PriceUnitTypeHelper {
                         || updateCurrencyPerCapacityUnit(priceScheduleBuilder, synonymPath, "floatingLeg", Arrays.asList("calculation", "spread", "currency"), Arrays.asList("notionalQuantity", "quantityUnit"))
                         || updateCurrencyPerCapacityUnit(priceScheduleBuilder, synonymPath, "floatingLeg", Arrays.asList("calculation", "spread", "currency"), Arrays.asList("notionalQuantitySchedule", "notionalStep", "quantityUnit"))
                         // Package
-                        || updatePackagePriceOrSpread(priceScheduleBuilder, synonymPath);
+                        || updatePackagePrice(priceScheduleBuilder, synonymPath)
+                        || updatePackageSpread(priceScheduleBuilder, synonymPath);
 
     }
 
@@ -186,13 +187,13 @@ public class PriceUnitTypeHelper {
                 .orElse(false);
     }
 
-    protected boolean updatePackagePriceOrSpread(PriceSchedule.PriceScheduleBuilder builder, Path valueSynonymPath) {
+    protected boolean updatePackagePrice(PriceSchedule.PriceScheduleBuilder builder, Path valueSynonymPath) {
         if (valueSynonymPath.endsWith("quote", "value")) {
             Optional<PriceExpression.PriceExpressionBuilder> priceExpression = Optional.ofNullable(builder.getPriceExpression());
             PriceTypeEnum priceType = priceExpression.map(PriceExpression::getPriceType).orElse(null);
-
             if (priceType == PriceTypeEnum.ASSET_PRICE) {
-                Path currencySynonymPath = valueSynonymPath.getParent().addElement("currency");
+                Path quoteSynonymPath = valueSynonymPath.getParent();
+                Path currencySynonymPath = quoteSynonymPath.addElement("currency");
                 Optional<Mapping> unitMapping = getNonNullMapping(mappings, currencySynonymPath);
                 Optional<UnitType.UnitTypeBuilder> unit = unitMapping.map(this::toCurrencyUnitType);
                 return unit.map(u -> {
@@ -204,11 +205,17 @@ public class PriceUnitTypeHelper {
                         })
                         .orElse(false);
             }
+        }
+        return false;
+    }
 
+    protected boolean updatePackageSpread(PriceSchedule.PriceScheduleBuilder builder, Path valueSynonymPath) {
+        if (valueSynonymPath.endsWith("quote", "value")) {
+            Optional<PriceExpression.PriceExpressionBuilder> priceExpression = Optional.ofNullable(builder.getPriceExpression());
+            PriceTypeEnum priceType = priceExpression.map(PriceExpression::getPriceType).orElse(null);
             SpreadTypeEnum spreadType = priceExpression.map(PriceExpression::getSpreadType).orElse(null);
             if (priceType == PriceTypeEnum.INTEREST_RATE && spreadType == SpreadTypeEnum.SPREAD) {
-                Path currencySynonymPath = valueSynonymPath.getParent().addElement("currency");
-                Optional<Mapping> unitMapping = getNonNullMapping(mappings, currencySynonymPath);
+                Optional<Mapping> unitMapping = getPackageSpreadCurrency(valueSynonymPath.getParent());
                 Optional<UnitType.UnitTypeBuilder> unit = unitMapping.map(this::toCurrencyUnitType);
                 return unit.map(u -> {
                             // Update builder
@@ -221,6 +228,14 @@ public class PriceUnitTypeHelper {
             }
         }
         return false;
+    }
+
+    private Optional<Mapping> getPackageSpreadCurrency(Path quoteSynonymPath) {
+        Optional<Mapping> quoteCurrencyMapping = getNonNullMapping(mappings, quoteSynonymPath.addElement("currency"));
+        if (quoteCurrencyMapping.isPresent()) {
+            return quoteCurrencyMapping;
+        }
+        return getNonNullMapping(mappings, quoteSynonymPath.getParent(), "notionalStepSchedule", "currency");
     }
 
     protected void updateBuilder(PriceSchedule.PriceScheduleBuilder builder, UnitType.UnitTypeBuilder unit, UnitType.UnitTypeBuilder perUnitOf) {
