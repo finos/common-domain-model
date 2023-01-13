@@ -191,7 +191,7 @@ public class PriceUnitTypeHelper {
         if (valueSynonymPath.endsWith("quote", "value")) {
             Optional<PriceExpression.PriceExpressionBuilder> priceExpression = Optional.ofNullable(builder.getPriceExpression());
             PriceTypeEnum priceType = priceExpression.map(PriceExpression::getPriceType).orElse(null);
-            if (priceType == PriceTypeEnum.ASSET_PRICE) {
+            if (priceType == PriceTypeEnum.CASH_PRICE) {
                 Path quoteSynonymPath = valueSynonymPath.getParent();
                 Path currencySynonymPath = quoteSynonymPath.addElement("currency");
                 Optional<Mapping> unitMapping = getNonNullMapping(mappings, currencySynonymPath);
