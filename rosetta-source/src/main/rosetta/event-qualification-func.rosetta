@@ -1,5 +1,4 @@
 namespace cdm.event.qualification
-
 version "${project.version}"
 
 import cdm.event.common.*
@@ -73,6 +72,31 @@ func Qualify_CashAndSecurityTransfer: <"The qualification of a security settleme
         and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
         and openTradeStates
             extract [
+                item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+                and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier
+                and item -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
+            ]
+            all = True
+
+func Qualify_OpenOfferClearedTrade:
+	[qualification BusinessEvent]
+	inputs:
+		businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+	//this is going to require some rework based on composable event model
+	//2 x instructions each containing a primitiveInstruction execution + contractFormation
+	//partyRole -> ClearingOrganisation appears on both
+	alias beforeTradeState: businessEvent -> instruction -> before
+    // alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
+	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
+	set is_event:
+        businessEvent -> intent = EventIntentEnum -> Clearing
+		and businessEvent -> instruction count = 2
+        and openTradeStates count = 2
+        and (businessEvent -> instruction -> primitiveInstruction -> execution, businessEvent -> instruction -> primitiveInstruction -> contractFormation) only exists
+        // and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
+        and openTradeStates
+            map [
                 item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
                 and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier
                 and item -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
@@ -369,7 +393,7 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
 		and floatingRateIndexChanged = True
 		and adjustmentSpreadAdded = True
 
-        func Qualify_FullReturn: <"The qualification of a full return event from the fact that (i) a quantityChange primitive and a transfer primitive exists, (ii) a securityFinancePayout exists, (iii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
+func Qualify_FullReturn: <"The qualification of a full return event from the fact that (i) a quantityChange primitive and a transfer primitive exists, (ii) a securityFinancePayout exists, (iii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent (1..1)
@@ -422,7 +446,6 @@ func Qualify_CreditEventDetermined: <"The qualification of the ocurrence of a cr
 		or
 		businessEvent -> after -> observationHistory -> creditEvent exists
 
-
 func Qualify_CorporateActionDetermined: <"The qualification of the ocurrence of a corporate action form the fact that a corporate action is present in either the observation or the observation history structures.">
 	[qualification BusinessEvent]
 	inputs: businessEvent BusinessEvent (1..1)
@@ -433,4 +456,3 @@ func Qualify_CorporateActionDetermined: <"The qualification of the ocurrence of 
 		businessEvent -> instruction -> before -> observationHistory -> corporateAction exists
 		or
 		businessEvent -> after -> observationHistory -> corporateAction exists
-

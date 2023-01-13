@@ -1,6 +1,7 @@
 namespace cdm.base.staticdata.asset.common : <"Basic static asset concepts that apply across asset classes: taxonomy etc.">
 version "${project.version}"
 
+import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.party.*
@@ -41,24 +42,42 @@ type IdentifiedProduct: <"An abstract class to specify a product which terms are
 type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
 	productTaxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 	productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-		[metadata address "pointsTo"=Observable->productIdentifier]
+        [metadata address "pointsTo"=Observable->productIdentifier]
 
-type ProductTaxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a more granular expression with class names and values for each class.">
+	
+	name string (0..1) <"Specifies the taxonomy value as a simple string, which may be associated to an external scheme.">
+		[metadata scheme]
+	classification TaxonomyClassification (0..*) <"Specifies the taxonomy value as a set of class names and values for each class.">
+
+	condition ValueExists:
+		name exists or classification exists
+
+type Taxonomy: <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object).">
+	source TaxonomySourceEnum (0..1) <"The source of the taxonomy that defines the rules for classifying the object. The taxonomy source is taken from a enumerated list of taxonomy names. Optional as the taxonomy source may not be provided.">
+	value TaxonomyValue (0..1) <"The value according to that taxonomy. Optional as it may not be possible to classify the object in that taxonomy.">
+	
+type ProductTaxonomy extends Taxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 	primaryAssetClass AssetClassEnum (0..1) <"Classifies the most important risk class of the trade.">
 		[metadata scheme]
 	secondaryAssetClass AssetClassEnum (0..*) <" Classifies additional risk classes of the trade, if any.">
 		[metadata scheme]
-	taxonomyValue string (0..1) <"Specifies the taxonomy value.">
+	taxonomyValue string (0..1)
 		[metadata scheme]
-	taxonomySource TaxonomySourceEnum (0..1) <"Specifies the taxonomy source.">
+		[deprecated]
+	taxonomySource TaxonomySourceEnum (0..1)
+		[deprecated]
 	productQualifier string (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features.">
 
-	condition TaxonomyValue: <"Requires a taxonomy value to be chosen.">
-		required choice taxonomyValue, productQualifier, primaryAssetClass, secondaryAssetClass
+	condition TaxonomyType: <"Requires a taxonomy type to be chosen, either from a taxonomy source or using asset classes.">
+		required choice source, primaryAssetClass, secondaryAssetClass, taxonomySource
 
-	condition TaxonomySource: <"A taxonomy source can only be associated with a taxonomyValue or productQualifier">
-		if taxonomySource exists then
-			taxonomyValue exists or productQualifier exists
+	condition TaxonomySource: <"A taxonomy source can only be associated with a taxonomy value or productQualifier">
+		if source exists then value exists and
+		if taxonomySource exists then productQualifier exists
+	
+	condition TaxonomyValue: <"A taxonomy value and product qualifier are mutually exclusive. Choice is optional as it only applies when source exists.">
+		optional choice value, productQualifier
 
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
 	exchangeId string (0..1) <" Identifies the exchange from which the reference price should be sourced, using the scheme at the following url: http://www.fpml.org/coding-scheme/external/exchange-id-MIC-1-0">
@@ -151,6 +170,8 @@ type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either 
     condition: one-of
 
 type Security extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
+	[docReference ICMA GMRA namingConvention "Purchased Security"
+		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
 	securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
 	debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
 	equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
@@ -231,17 +252,24 @@ type RegionalGovernmentIssuerType: <"Represents a class to allow specification o
 type SpecialPurposeVehicleIssuerType: <"Represents a class to allow specification of different types of special purpose vehicle (SPV) collateral.">
 	creditRisk CreditRiskEnum (0..1) <"Indicates tranched or untranched credit risk."> 
 
+type TaxonomyClassification:
+	className string (1..1) <"The name defined by the classification system for a specific attribute in the taxonomy.">
+	value string (1..1) <"The value set by the taxonomu that is specific to the className attribute.">
+	description string (0..1) <"A descuription of the class.">
+
 type AssetType: <"Represents a class to allow specification of the asset product type.">
 	assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
 	securityType SecurityTypeEnum (0..1) <"Represents a filter based on the type of security.">
 	debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
 	equityType EquityTypeEnum (0..1) <"Represents a filter based on the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
+	// TBD: should this be a sub-category of SecurityType or even a DebtType?
+	// moneyMarketType MoneyMarketTypeEnum (0..1) <"Represents a filter based on the type of money-market asset.">
 	otherAssetType string (0..*) <"Specifies the eligible asset type when not enumerated.">
-
+	
 	condition SecuritySubType:
 		if assetType <> AssetTypeEnum -> Security
-		then securityType is absent and debtType is absent and equityType is absent
+		then securityType is absent and debtType is absent and equityType is absent and fundType is absent
 	
 	condition BondSubType:
 		if securityType <> SecurityTypeEnum -> Debt
@@ -258,7 +286,11 @@ type AssetType: <"Represents a class to allow specification of the asset product
 	condition OtherAssetSubType:
 		if assetType = AssetTypeEnum -> Other 
 		then otherAssetType exists
-		
+
+	// condition MoneyMarketType:
+	// 	if assetType <> AssetTypeEnum -> MoneyMarket
+	// 	then moneyMarketType is absent
+	
 type PriceSource: <"Specifies a publication that provides the commodity price, including, where applicable, the details of where in the publication the price is published.">
 	pricePublisher string (1..1) <"Defines a publication in which the price can be found. (e.g Gas Daily, Platts Bloomberg. Commodity publishers can be found at this URL:  http://www.fpml.org/coding-scheme/commodity-information-provider>">
 	    [metadata scheme]
