@@ -52,7 +52,6 @@ synonym source FpML_5_10_Processes extends FpML_5_13
             [merge "trade"]
             [merge "party"]
             [merge "account"]
-            [merge "quote"]
         + eventDate
             // [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
             [value "agreementDate" path "amendment" maps 2 dateFormat "yyyy-MM-ddz"]
@@ -68,13 +67,16 @@ synonym source FpML_5_10_Processes extends FpML_5_13
             [value "effectiveDate" path "termination" maps 2]
             [value "effectiveDate" path "amendment" maps 2]
             [value "effectiveDate" path "novation" maps 2]
+        + packageInformation
+            [value "originatingPackage" path "trade->tradeHeader"]
+            [hint "quote"]
 
     Instruction:
         + before
             [value "termination"]
             [value "novation"]
             [value "amendment"]
-            [hint "trade", "party", "account", "quote"]
+            [hint "trade", "party", "account"]
 
     PrimitiveInstruction:
         + contractFormation
@@ -125,15 +127,10 @@ synonym source FpML_5_10_Processes extends FpML_5_13
             [set to FeeTypeEnum->Termination when path = "termination->payment"]
             [set to FeeTypeEnum->Renegotiation when path = "amendment->payment"]
 
-    TradeState:
-        + trade
-            [hint "quote"]
-
     PriceQuantity:
         + quantity
             [value "outstandingNotionalAmount"]
             [value "outstandingNotionalAmount" path "sizeChange"]
-
 
     Price:
         + value
@@ -212,10 +209,6 @@ synonym source FpML_5_10_Processes extends FpML_5_13
         - documentation
         + documentation
             [value "documentation" mapper "InstructionDocumentation"]
-
-    ExecutionDetails:
-        + packageReference
-            [hint "quote"]
 
     IdentifiedList:
         + price
