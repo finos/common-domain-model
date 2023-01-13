@@ -434,17 +434,11 @@ Business events are built according to the following principles:
 
 .. code-block:: Haskell
 
- type BusinessEvent:
+ type BusinessEvent extends EventInstruction:
    [metadata key]
    [rootType]
 
-   intent EventIntentEnum (0..1)
-   corporateActionIntent CorporateActionTypeEnum (0..1)
    eventQualifier string (0..1)
-   eventDate date (1..1)
-   effectiveDate date (0..1)
-   packageInformation IdentifiedList (0..1)
-   instruction Instruction (0..*)
    after TradeState (0..*)
 
 .. code-block:: Haskell
@@ -539,7 +533,7 @@ An example composition of primitive instructions to represent a complete lifecyc
         } ]
       }
     }
-    
+
 A business event is *atomic*, i.e. its primitive components cannot happen independently. They either all happen together or not at all. In the above partial novation example, the existing trade between the original parties must be downsized at the same time as the trade with the new party is instantiated. Trade compression is another example, that involves multiple before trades being downsized or terminated and new trades being created between multiple parties, all of which must happen concurrently.
 
 .. _event-qualification-section:
@@ -564,7 +558,7 @@ One distinction with the product approach is that the ``intent`` qualification i
    output: is_event boolean (1..1)
    alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
    alias transfer: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
-   
+
    set is_event:
      businessEvent -> intent is absent
        and (primitiveInstruction -> quantityChange only exists
@@ -674,9 +668,11 @@ Validation components are in place to check that the ``businessEvent`` and ``pro
 
  type EventInstruction:
    intent EventIntentEnum (0..1)
-   instruction Instruction (0..*)
+   corporateActionIntent CorporateActionTypeEnum (0..1)
    eventDate date (0..1)
    effectiveDate date (0..1)
+   packageInformation IdentifiedList (0..1)
+   instruction Instruction (0..*)
 
 Next Event
 """"""""""
