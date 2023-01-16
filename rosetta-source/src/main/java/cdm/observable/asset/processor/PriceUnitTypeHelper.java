@@ -6,6 +6,7 @@ import cdm.base.math.UnitType;
 import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.PriceTypeEnum;
+import cdm.observable.asset.SpreadTypeEnum;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -72,7 +73,11 @@ public class PriceUnitTypeHelper {
                         || updateCurrencyPerCapacityUnit(priceScheduleBuilder, synonymPath, "commodityOption", Arrays.asList("strikePricePerUnit", "currency"), Arrays.asList("notionalQuantity", "quantityUnit"))
                         || updateCurrencyPerCapacityUnit(priceScheduleBuilder, synonymPath, "commodityOption", Arrays.asList("strikePricePerUnit", "currency"), Arrays.asList("notionalQuantitySchedule", "notionalStep", "quantityUnit"))
                         || updateCurrencyPerCapacityUnit(priceScheduleBuilder, synonymPath, "floatingLeg", Arrays.asList("calculation", "spread", "currency"), Arrays.asList("notionalQuantity", "quantityUnit"))
-                        || updateCurrencyPerCapacityUnit(priceScheduleBuilder, synonymPath, "floatingLeg", Arrays.asList("calculation", "spread", "currency"), Arrays.asList("notionalQuantitySchedule", "notionalStep", "quantityUnit"));
+                        || updateCurrencyPerCapacityUnit(priceScheduleBuilder, synonymPath, "floatingLeg", Arrays.asList("calculation", "spread", "currency"), Arrays.asList("notionalQuantitySchedule", "notionalStep", "quantityUnit"))
+                        // Package
+                        || updatePackagePrice(priceScheduleBuilder, synonymPath)
+                        || updatePackageSpread(priceScheduleBuilder, synonymPath);
+
     }
 
     protected FinancialUnitEnum getPerUnitOfIndexOrShare() {
@@ -180,6 +185,57 @@ public class PriceUnitTypeHelper {
                             return true;
                         }))
                 .orElse(false);
+    }
+
+    protected boolean updatePackagePrice(PriceSchedule.PriceScheduleBuilder builder, Path valueSynonymPath) {
+        if (valueSynonymPath.endsWith("quote", "value")) {
+            Optional<PriceExpression.PriceExpressionBuilder> priceExpression = Optional.ofNullable(builder.getPriceExpression());
+            PriceTypeEnum priceType = priceExpression.map(PriceExpression::getPriceType).orElse(null);
+            if (priceType == PriceTypeEnum.CASH_PRICE) {
+                Path quoteSynonymPath = valueSynonymPath.getParent();
+                Path currencySynonymPath = quoteSynonymPath.addElement("currency");
+                Optional<Mapping> unitMapping = getNonNullMapping(mappings, currencySynonymPath);
+                Optional<UnitType.UnitTypeBuilder> unit = unitMapping.map(this::toCurrencyUnitType);
+                return unit.map(u -> {
+                            // Update builder
+                            updateBuilder(builder, u, UnitType.builder().setFinancialUnit(FinancialUnitEnum.CONTRACT));
+                            // Update mappings
+                            updateEmptyMappings(unitMapping.get().getXmlPath(), mappings, unitCurrencyModelPath);
+                            return true;
+                        })
+                        .orElse(false);
+            }
+        }
+        return false;
+    }
+
+    protected boolean updatePackageSpread(PriceSchedule.PriceScheduleBuilder builder, Path valueSynonymPath) {
+        if (valueSynonymPath.endsWith("quote", "value")) {
+            Optional<PriceExpression.PriceExpressionBuilder> priceExpression = Optional.ofNullable(builder.getPriceExpression());
+            PriceTypeEnum priceType = priceExpression.map(PriceExpression::getPriceType).orElse(null);
+            SpreadTypeEnum spreadType = priceExpression.map(PriceExpression::getSpreadType).orElse(null);
+            if (priceType == PriceTypeEnum.INTEREST_RATE && spreadType == SpreadTypeEnum.SPREAD) {
+                Optional<Mapping> unitMapping = getPackageSpreadCurrency(valueSynonymPath.getParent());
+                Optional<UnitType.UnitTypeBuilder> unit = unitMapping.map(this::toCurrencyUnitType);
+                return unit.map(u -> {
+                            // Update builder
+                            updateBuilder(builder, u, u);
+                            // Update mappings
+                            updateEmptyMappings(unitMapping.get().getXmlPath(), mappings, unitCurrencyModelPath);
+                            return true;
+                        })
+                        .orElse(false);
+            }
+        }
+        return false;
+    }
+
+    private Optional<Mapping> getPackageSpreadCurrency(Path quoteSynonymPath) {
+        Optional<Mapping> quoteCurrencyMapping = getNonNullMapping(mappings, quoteSynonymPath.addElement("currency"));
+        if (quoteCurrencyMapping.isPresent()) {
+            return quoteCurrencyMapping;
+        }
+        return getNonNullMapping(mappings, quoteSynonymPath.getParent(), "notionalStepSchedule", "currency");
     }
 
     protected void updateBuilder(PriceSchedule.PriceScheduleBuilder builder, UnitType.UnitTypeBuilder unit, UnitType.UnitTypeBuilder perUnitOf) {
