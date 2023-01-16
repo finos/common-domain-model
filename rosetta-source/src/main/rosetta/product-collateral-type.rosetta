@@ -14,12 +14,10 @@ import cdm.event.common.*
 
 type Collateral: <"A type for defining the obligations of the counterparty subject to credit support requirements.">
 
-	// TODO: remove Independent Amount and reposition its attributes in Collateral Portfolio and/or Collateral Provisions
 	independentAmount IndependentAmount (0..1) <"Independent Amount is an amount that usually less creditworthy counterparties are asked to provide. It can either be a fixed amount or a percentage of the Transaction's value. The Independent Amount can be: (i) transferred before any trading between the parties occurs (as a deposit at a third party's account or with the counterparty) or (ii) callable after trading has occurred (typically because a downgrade has occurred). In situation (i), the Independent Amount is not included in the calculation of Exposure, but in situation (ii), it is included in the calculation of Exposure. Thus, for situation (ii), the Independent Amount may be transferred along with any collateral call. Independent Amount is a defined term in the ISDA Credit Support Annex. ('with respect to a party, the amount specified as such for that party in Paragraph 13; if no amount is specified, zero').">
     portfolioIdentifier Identifier (0..*) <"A list of identifiers pointing to the collateral portfolios which contain the collateral which covers a trade.">
     collateralPortfolio CollateralPortfolio (0..*) <"The collateral portfolios which contain the collateral which covers a trade. (NB: this can be provided by reference to a global key for each CollateralPortfolio object)">
     	[metadata reference]
-	// collateralProvisions should be renamed to marginProvisions in the core CDM
 	collateralProvisions CollateralProvisions (0..1) <"specifies the collateral provisions of the product.">
 
 	condition CollateralExists: <"Collateral must represent either a simple independent amount or full collateral portfolio.">
@@ -33,13 +31,10 @@ type Collateral: <"A type for defining the obligations of the counterparty subje
 
 type CollateralProvisions: <"Contains collateral attributes which can also inherit information from a GMRA">
 
-    // This attribute and enum should be revisited to potentially be folded into one or more of the existing eligible collateral schedule attributes (e.g. 'AssetType')
     collateralType CollateralTypeEnum (1..1) <"Enumerates the collateral types which are accepted by the Seller.">
-		[docReference ICMA GMRA namingConvention "marginType"] // Follow up with Trade Associations for the naming of the attribute marginType / MarginTypeEnum"
-    marginPercentage CollateralValuationTreatment (0..1) <"Specification of the valuation treatment for the specified collateral.">
-		[deprecated] // This attribute is contained in the moe complete eligible collateral schedule
-	eligibleCollateral EligibleCollateralSchedule (0..*) <"The eligible collateral as specified in relation to the transaction.">
-   substitutionProvisions SubstitutionProvisions (0..1) <"The provisions for collateral substitutions such as how many and when they are allowed.">
+		[docReference ICMA GMRA namingConvention "marginType"]
+    eligibleCollateral EligibleCollateralSchedule (0..*) <"The eligible collateral as specified in relation to the transaction.">
+    substitutionProvisions SubstitutionProvisions (0..1) <"The provisions for collateral substitutions such as how many and when they are allowed.">
 
 type SubstitutionProvisions: <"Defines collateral substitution provisions such as how many and with how much notice are substitutions allowed.">
 
@@ -132,7 +127,7 @@ type EligibleCollateralCriteria extends CollateralCriteriaBase: <"Represents a s
 type CollateralTreatment: <"Specifies the treatment terms for the eligible collateral criteria specified.">
 
 	valuationTreatment CollateralValuationTreatment (0..1) <"Specification of the valuation treatment for the specified collateral.">
-		[docReference ICMA GMRA namingConvention "marginRatio"] // Follow up with Trade Associations for the naming of the attribute marginPercentage / MarginValuationTreatment"
+		[docReference ICMA GMRA namingConvention "marginRatio"]
 	concentrationLimit ConcentrationLimit (0..*) <"Specification of concentration limits applicable to the collateral criteria.">
 	isIncluded boolean (1..1) <"A boolean attribute to specify whether collateral critieria are inclusion (True) or exclusion (False) criteria.">
 
