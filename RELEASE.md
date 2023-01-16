@@ -6,8 +6,8 @@ This release enhances and coverage some of the `Equity` samples mappings that ar
 
 _What is being released?_
 
-This release updates and extends the FpML mapping coverage for Equity products and modelling changes.
-It contains changes in Index, Security, Asian and AutomaticExercise types as well as its synonym mappings.
+This release updates and extends the FpML mapping coverage for `Equity products' and modelling changes.
+It contains changes in `Index, Security, Asian and AutomaticExercise` types as well as its synonym mappings.
 
 
 _Types_
@@ -48,6 +48,7 @@ In the CDM Portal, select the Textual Browser and inspect each of the changes id
 
 In the CDM Portal, select Ingestion and review the following samples/packs:
 
-fpml-5-10->incomplete-products->equity-options
-fpml-5-10->incomplete-products->equity-swaps
+- fpml-5-10->incomplete-products->equity-options
+
+- fpml-5-10->incomplete-products->equity-swaps
 
