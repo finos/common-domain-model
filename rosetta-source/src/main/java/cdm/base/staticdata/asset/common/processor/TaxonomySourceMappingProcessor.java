@@ -1,6 +1,8 @@
 package cdm.base.staticdata.asset.common.processor;
 
 import cdm.base.staticdata.asset.common.TaxonomySourceEnum;
+import cdm.base.staticdata.asset.common.TaxonomyValue;
+import cdm.base.staticdata.asset.common.metafields.FieldWithMetaTaxonomyValue;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
@@ -27,24 +29,24 @@ public class TaxonomySourceMappingProcessor extends MappingProcessor {
                 .map(m -> m.getXmlPath())
                 .ifPresent(xmlPath -> {
                     ProductTaxonomyBuilder productTaxonomyBuilder = (ProductTaxonomyBuilder) parent;
-                    FieldWithMetaStringBuilder taxonomyValueBuilder = (FieldWithMetaStringBuilder) builder;
+                    FieldWithMetaTaxonomyValue.FieldWithMetaTaxonomyValueBuilder taxonomyValueBuilder = (FieldWithMetaTaxonomyValue.FieldWithMetaTaxonomyValueBuilder) builder;
 
                     updateSchemeAndSource(xmlPath, productTaxonomyBuilder, taxonomyValueBuilder);
 
                     // If unset, set to OTHER
-                    if (productTaxonomyBuilder.getTaxonomySource() == null) {
-                        productTaxonomyBuilder.setTaxonomySource(TaxonomySourceEnum.OTHER);
+                    if (productTaxonomyBuilder.getSource() == null) {
+                        productTaxonomyBuilder.setSource(TaxonomySourceEnum.OTHER);
                     }
                 });
     }
 
-    protected void updateSchemeAndSource(Path xmlPath, ProductTaxonomyBuilder productTaxonomyBuilder, FieldWithMetaStringBuilder taxonomyValueBuilder) {
+    protected void updateSchemeAndSource(Path xmlPath, ProductTaxonomyBuilder productTaxonomyBuilder, FieldWithMetaTaxonomyValue.FieldWithMetaTaxonomyValueBuilder taxonomyValueBuilder) {
         setValueAndUpdateMappings(xmlPath.addElement("productTypeScheme"),
                 xmlValue -> {
                     // Update scheme
-                    taxonomyValueBuilder.getOrCreateMeta().setScheme(xmlValue);
+                    taxonomyValueBuilder.getOrCreateValue().getOrCreateName().getOrCreateMeta().setScheme(xmlValue);
                     // Update taxonomySource
-                    productTaxonomyBuilder.setTaxonomySource(getTaxonomySourceEnum(xmlValue));
+                    productTaxonomyBuilder.setSource(getTaxonomySourceEnum(xmlValue));
                 });
     }
 

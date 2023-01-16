@@ -62,19 +62,13 @@ type ProductTaxonomy extends Taxonomy: <"Specifies the product taxonomy, which i
 		[metadata scheme]
 	secondaryAssetClass AssetClassEnum (0..*) <" Classifies additional risk classes of the trade, if any.">
 		[metadata scheme]
-	taxonomyValue string (0..1)
-		[metadata scheme]
-		[deprecated]
-	taxonomySource TaxonomySourceEnum (0..1)
-		[deprecated]
 	productQualifier string (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features.">
 
 	condition TaxonomyType: <"Requires a taxonomy type to be chosen, either from a taxonomy source or using asset classes.">
-		required choice source, primaryAssetClass, secondaryAssetClass, taxonomySource
+		required choice source, primaryAssetClass, secondaryAssetClass
 
 	condition TaxonomySource: <"A taxonomy source can only be associated with a taxonomy value or productQualifier">
-		if source exists then value exists and
-		if taxonomySource exists then productQualifier exists
+		if source exists then ( value exists or productQualifier exists )
 	
 	condition TaxonomyValue: <"A taxonomy value and product qualifier are mutually exclusive. Choice is optional as it only applies when source exists.">
 		optional choice value, productQualifier
