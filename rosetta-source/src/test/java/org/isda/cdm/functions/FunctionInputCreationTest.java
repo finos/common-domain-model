@@ -1886,7 +1886,7 @@ class FunctionInputCreationTest {
         ContractualProduct.ContractualProductBuilder contractualProductBuilder =
                 tradeStateBuilder.getTrade().getTradableProduct().getProduct().getContractualProduct();
         List<? extends ProductTaxonomy.ProductTaxonomyBuilder> newProductTaxonomies = contractualProductBuilder.getProductTaxonomy().stream()
-                .filter(taxonomy -> taxonomy.getTaxonomySource() == null || !taxonomy.getTaxonomySource().equals(TaxonomySourceEnum.ISDA))
+                .filter(taxonomy -> taxonomy.getSource() == null || !taxonomy.getSource().equals(TaxonomySourceEnum.ISDA))
                 .collect(Collectors.toList());
         contractualProductBuilder.setProductTaxonomy(newProductTaxonomies);
         return tradeStateBuilder.build();
