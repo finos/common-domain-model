@@ -86,12 +86,12 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 		if calculationAgent -> calculationAgentParty exists
 		then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> CalculationAgentIndependent
 
-    condition SecurityFinancePayoutDividendTermsValidation: <"Validates that if the transaction has Dividend Terms specified then it should be a Term trade.">
-        if payout -> securityFinancePayout -> dividendTerms exists
+    condition AssetPayoutDividendTermsValidation: <"Validates that if the transaction has Dividend Terms specified then it should be a Term trade.">
+        if payout -> assetPayout -> dividendTerms exists
         then terminationDate exists
 
 	condition ExtendibleProvisionExerciseDetails: <"Ensure that the correct details are specified for an extendible contract.">
-		if payout -> securityFinancePayout is absent then
+		if payout -> assetPayout is absent then
 			// Not Security Lending/Repo so must be Interest Rate Swap, which must set an exercise option type
 			if terminationProvision -> extendibleProvision exists then
 				(terminationProvision -> extendibleProvision -> americanExercise exists
@@ -257,9 +257,7 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
 	fixedPricePayout FixedPricePayout (0..*) <"Defines a payout in which one or more payouts are defined as a fixed price.">
 	securityPayout SecurityPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
 		[deprecated]
-	securityFinancePayout SecurityFinancePayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
-		[deprecated]
-    cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
+	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
 	performancePayout PerformancePayout (0..*) <"The performance payout, which encompasses the equity price returns, dividend returns, volatility return, variance return and correlation provisions.">
 	assetPayout AssetPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
 
@@ -874,53 +872,30 @@ type CalculationAgentModel: <"This class corresponds to the FpML CalculationAgen
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 	calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located. The short-form confirm for a trade that is executed under a Sovereign or Asia-Pacific Master Confirmation Agreement (MCA), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent city. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent city.">
 
-type SecurityFinancePayout extends PayoutBase: <"Security finance payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction. Plus additional description for ICMA.">
-    [metadata key]
-	[deprecated]
-    buyerSeller PayerReceiver (1..1) <"Whether the leg is a buyer or seller of security">
-    securityFinanceLeg SecurityFinanceLeg (1..*) <"Each SecurityFinanceLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
-    securityInformation Product (1..1) <"Specifies the Purchased Security.  Within SecurityPayout we include a condition which validates that the product must be a Security (see below condition 'ProductMustBeSecurity').">
-    durationType Duration (1..1) <"Specifies the Duration Terms of the Security Finance transaction. e.g. Open or Term.">
-	[deprecated]
-    minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
-    dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
-	// collateralProvisions should be renamed to marginProvisions in the core CDM
-    collateralProvisions CollateralProvisions (1..1) <"Specifies collateral provisions for a Security Finance transaction, including Collateral Type and Margin Percentage.">
-
-	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-		priceQuantity exists
-
-    condition ProductMustBeSecurity: <"Validates that the Purchased Security must be a security.">
-        securityInformation -> security exists
-
-    condition DividendTermsValidation: <"Validates that if the transaction has Dividend Terms specified then the Duration should be Term.">
-        if dividendTerms exists
-        then durationType -> durationType = DurationTypeEnum -> Term
-
 type AssetPayout extends PayoutBase: <"Security finance payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction. Plus additional description for ICMA.">
     [metadata key]
 
     assetLeg AssetLeg (1..*) <"Defines each asset movement as a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
     securityInformation Product (1..1) <"Specifies the Purchased Security.  Within SecurityPayout we include a condition which validates that the product must be a Security (see below condition 'ProductMustBeSecurity').">
     durationType Duration (1..1) <"Specifies the Duration Terms of the Security Finance transaction. e.g. Open or Term.">
-	[deprecated]
+		[deprecated]
     minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
     dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
 
-    condition ProductMustBeSecurity: <"Validates that the Purchased Security must be a security.">
+    condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+		priceQuantity exists
+
+	condition ProductMustBeSecurity: <"Validates that the Purchased Security must be a security.">
         securityInformation -> security exists
+
+	condition DividendTermsValidation: <"Validates that if the transaction has Dividend Terms specified then the Duration should be Term.">
+        if dividendTerms exists
+        then durationType -> durationType = DurationTypeEnum -> Term
 
 type DividendTerms: <"Information related to dividends and payments.">
     manufacturedIncomeRequirement DividendPayoutRatio (1..1) <"Specifies the proportion of the value of the dividend on the borrowed shares that the borrower is legally obligated to return to the lender.">
     dividendEntitlement DividendEntitlementEnum (0..1) <"Defines the date on which the receiver of the equity return is entitled to the dividend.">
     minimumBillingAmount Money (0..1) <"daily fee increments accrue until a threshold is crossed, at which point payment becomes due)">
-
-type SecurityFinanceLeg: <"Defines each security movement of a security financing transaction.">
-    [metadata key]
-	[deprecated]
-    // buyerSeller PayerReceiver (1..1) <"Whether the leg is a buyer or seller of security">
-    settlementDate AdjustableOrRelativeDate (1..1) <"Specifies the settlement date of securities.  In a repo transaction the purchase date would always be the effective date as specified under Economic Terms, the repurchase date would always be the termination date as specified under Economic Terms.">
-    deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security transaction.">
 
 type AssetLeg: <"Defines each asset movement of an asset payout.">
     settlementDate AdjustableOrRelativeDate (1..1) <"Specifies the settlement date of securities.  In a repo transaction the purchase date would always be the effective date as specified under Economic Terms, the repurchase date would always be the termination date as specified under Economic Terms.">

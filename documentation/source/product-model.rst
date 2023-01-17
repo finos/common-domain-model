@@ -478,8 +478,6 @@ The ``Payout`` type defines the composable payout types, each of which describes
    fixedPricePayout FixedPricePayout (0..*)
    securityPayout SecurityPayout (0..*)
         [deprecated]
-   securityFinancePayout SecurityFinancePayout (0..*)
-        [deprecated]
    cashflow Cashflow (0..*)
    performancePayout PerformancePayout (0..*)
    assetPayout AssetPayout (0..*)
@@ -699,19 +697,13 @@ The ``ProductTaxonomy`` data structure and an instance of a CDM object (`seriali
          [metadata scheme]
      secondaryAssetClass AssetClassEnum (0..*)
          [metadata scheme]
-     taxonomyValue string (0..1)
-         [metadata scheme]
-         [deprecated]
-     taxonomySource TaxonomySourceEnum (0..1)
-         [deprecated]
      productQualifier string (0..1)
 
      condition TaxonomyType:
-         required choice source, primaryAssetClass, secondaryAssetClass, taxonomySource
+         required choice source, primaryAssetClass, secondaryAssetClass
 
      condition TaxonomySource:
-         if source exists then value exists and
-		 if taxonomySource exists then productQualifier exists
+         if source exists then ( value exists or productQualifier exists )
 
      condition TaxonomyValue:
          optional choice value, productQualifier
