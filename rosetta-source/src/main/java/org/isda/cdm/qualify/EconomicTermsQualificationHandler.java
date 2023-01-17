@@ -54,12 +54,12 @@ public class EconomicTermsQualificationHandler implements QualificationHandler<E
         if (productTaxonomyBuilder != null) {
             productTaxonomyBuilder
                     .setProductQualifier(qualifier)
-                    .setTaxonomySource(TaxonomySourceEnum.ISDA);
+                    .setSource(TaxonomySourceEnum.ISDA);
         } else {
             // Or add new ProductTaxonomy
             contractualProductBuilder.addProductTaxonomy(ProductTaxonomy.builder()
                     .setProductQualifier(qualifier)
-                    .setTaxonomySource(TaxonomySourceEnum.ISDA));
+                    .setSource(TaxonomySourceEnum.ISDA));
         }
     }
 }

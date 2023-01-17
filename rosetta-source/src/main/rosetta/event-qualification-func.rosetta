@@ -83,18 +83,13 @@ func Qualify_OpenOfferClearedTrade:
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	//this is going to require some rework based on composable event model
-	//2 x instructions each containing a primitiveInstruction execution + contractFormation
-	//partyRole -> ClearingOrganisation appears on both
 	alias beforeTradeState: businessEvent -> instruction -> before
-    // alias closedTradeStates: FilterClosedTradeStates( businessEvent -> after )
-	alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
+    alias openTradeStates: FilterOpenTradeStates( businessEvent -> after )
 	set is_event:
         businessEvent -> intent = EventIntentEnum -> Clearing
 		and businessEvent -> instruction count = 2
         and openTradeStates count = 2
         and (businessEvent -> instruction -> primitiveInstruction -> execution, businessEvent -> instruction -> primitiveInstruction -> contractFormation) only exists
-        // and beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference = closedTradeStates only-element -> trade -> tradableProduct -> counterparty -> partyReference
         and openTradeStates
             map [
                 item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
@@ -393,7 +388,7 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
 		and floatingRateIndexChanged = True
 		and adjustmentSpreadAdded = True
 
-func Qualify_FullReturn: <"The qualification of a full return event from the fact that (i) a quantityChange primitive and a transfer primitive exists, (ii) a securityFinancePayout exists, (iii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
+func Qualify_FullReturn: <"The qualification of a full return event from the fact that (i) a quantityChange primitive and a transfer primitive exists, (ii) an assetPayout exists, (iii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
 	[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent (1..1)
@@ -401,7 +396,7 @@ func Qualify_FullReturn: <"The qualification of a full return event from the fac
 	alias transfer: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
 	set is_event:
 		(businessEvent -> intent is absent)
-		and businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> securityFinancePayout exists
+		and businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> assetPayout exists
 		and (businessEvent -> instruction count = 1
 			and businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
 			or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and transfer exists))

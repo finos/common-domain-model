@@ -1,18 +1,15 @@
 package cdm.base.staticdata.asset.common.processor;
 
 import cdm.base.staticdata.asset.common.TaxonomySourceEnum;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
-import com.regnosys.rosetta.common.translation.Path;
+import com.regnosys.rosetta.common.translation.*;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.List;
+import java.util.Optional;
 
 import static cdm.base.staticdata.asset.common.ProductTaxonomy.ProductTaxonomyBuilder;
-import static com.rosetta.model.metafields.FieldWithMetaString.FieldWithMetaStringBuilder;
 
 @SuppressWarnings("unused")
 public class TaxonomySourceMappingProcessor extends MappingProcessor {
@@ -22,32 +19,33 @@ public class TaxonomySourceMappingProcessor extends MappingProcessor {
     }
 
     @Override
-    public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-        MappingProcessorUtils.getNonNullMappingForModelPath(getMappings(), PathUtils.toPath(getModelPath().newSubPath("value")))
-                .map(m -> m.getXmlPath())
+    public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
+        Path productTaxonomyModelPath = PathUtils.toPath(getModelPath()).getParent();
+        Path taxomomyValueModelPath = productTaxonomyModelPath.addElement("value");
+        Path nameModelPath = taxomomyValueModelPath.addElement("name").addElement("value");
+        // Find xml path from name model path due to mapping bug where schemes on multi-cardinality basic types get
+        // mapped to the wrong list item
+        MappingProcessorUtils.getNonNullMappingForModelPath(getMappings(), nameModelPath)
+                .map(Mapping::getXmlPath)
                 .ifPresent(xmlPath -> {
                     ProductTaxonomyBuilder productTaxonomyBuilder = (ProductTaxonomyBuilder) parent;
-                    FieldWithMetaStringBuilder taxonomyValueBuilder = (FieldWithMetaStringBuilder) builder;
-
-                    updateSchemeAndSource(xmlPath, productTaxonomyBuilder, taxonomyValueBuilder);
+                    updateSchemeAndSource(xmlPath, productTaxonomyBuilder);
 
                     // If unset, set to OTHER
-                    if (productTaxonomyBuilder.getTaxonomySource() == null) {
-                        productTaxonomyBuilder.setTaxonomySource(TaxonomySourceEnum.OTHER);
+                    if (productTaxonomyBuilder.getSource() == null) {
+                        productTaxonomyBuilder.setSource(TaxonomySourceEnum.OTHER);
                     }
                 });
     }
-
-    protected void updateSchemeAndSource(Path xmlPath, ProductTaxonomyBuilder productTaxonomyBuilder, FieldWithMetaStringBuilder taxonomyValueBuilder) {
+    protected void updateSchemeAndSource(Path xmlPath, ProductTaxonomyBuilder productTaxonomyBuilder) {
         setValueAndUpdateMappings(xmlPath.addElement("productTypeScheme"),
                 xmlValue -> {
                     // Update scheme
-                    taxonomyValueBuilder.getOrCreateMeta().setScheme(xmlValue);
+                    productTaxonomyBuilder.getOrCreateValue().getOrCreateName().getOrCreateMeta().setScheme(xmlValue);
                     // Update taxonomySource
-                    productTaxonomyBuilder.setTaxonomySource(getTaxonomySourceEnum(xmlValue));
+                    productTaxonomyBuilder.setSource(getTaxonomySourceEnum(xmlValue));
                 });
     }
-
     protected TaxonomySourceEnum getTaxonomySourceEnum(String scheme) {
         if (scheme.contains("www.fpml.org/coding-scheme/product-taxonomy")) {
             return TaxonomySourceEnum.ISDA;

@@ -56,25 +56,19 @@ type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a mo
 type Taxonomy: <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object).">
 	source TaxonomySourceEnum (0..1) <"The source of the taxonomy that defines the rules for classifying the object. The taxonomy source is taken from a enumerated list of taxonomy names. Optional as the taxonomy source may not be provided.">
 	value TaxonomyValue (0..1) <"The value according to that taxonomy. Optional as it may not be possible to classify the object in that taxonomy.">
-	
+		
 type ProductTaxonomy extends Taxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 	primaryAssetClass AssetClassEnum (0..1) <"Classifies the most important risk class of the trade.">
 		[metadata scheme]
 	secondaryAssetClass AssetClassEnum (0..*) <" Classifies additional risk classes of the trade, if any.">
 		[metadata scheme]
-	taxonomyValue string (0..1)
-		[metadata scheme]
-		[deprecated]
-	taxonomySource TaxonomySourceEnum (0..1)
-		[deprecated]
 	productQualifier string (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features.">
 
 	condition TaxonomyType: <"Requires a taxonomy type to be chosen, either from a taxonomy source or using asset classes.">
-		required choice source, primaryAssetClass, secondaryAssetClass, taxonomySource
+		required choice source, primaryAssetClass, secondaryAssetClass
 
 	condition TaxonomySource: <"A taxonomy source can only be associated with a taxonomy value or productQualifier">
-		if source exists then value exists and
-		if taxonomySource exists then productQualifier exists
+		if source exists then ( value exists or productQualifier exists )
 	
 	condition TaxonomyValue: <"A taxonomy value and product qualifier are mutually exclusive. Choice is optional as it only applies when source exists.">
 		optional choice value, productQualifier
@@ -245,8 +239,6 @@ type AssetType: <"Represents a class to allow specification of the asset product
 	debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
 	equityType EquityTypeEnum (0..1) <"Represents a filter based on the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
-	// TBD: should this be a sub-category of SecurityType or even a DebtType?
-	// moneyMarketType MoneyMarketTypeEnum (0..1) <"Represents a filter based on the type of money-market asset.">
 	otherAssetType string (0..*) <"Specifies the eligible asset type when not enumerated.">
 	
 	condition SecuritySubType:
@@ -269,10 +261,6 @@ type AssetType: <"Represents a class to allow specification of the asset product
 		if assetType = AssetTypeEnum -> Other 
 		then otherAssetType exists
 
-	// condition MoneyMarketType:
-	// 	if assetType <> AssetTypeEnum -> MoneyMarket
-	// 	then moneyMarketType is absent
-	
 type PriceSource: <"Specifies a publication that provides the commodity price, including, where applicable, the details of where in the publication the price is published.">
 	pricePublisher string (1..1) <"Defines a publication in which the price can be found. (e.g Gas Daily, Platts Bloomberg. Commodity publishers can be found at this URL:  http://www.fpml.org/coding-scheme/commodity-information-provider>">
 	    [metadata scheme]

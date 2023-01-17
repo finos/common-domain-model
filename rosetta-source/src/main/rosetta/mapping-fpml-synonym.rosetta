@@ -1805,12 +1805,20 @@ synonym source FpML_5_10 extends FpML
 			[value "secondaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "bondOption" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "commoditySwaption" meta "assetClassScheme"]
-		+ taxonomyValue
+		+ source
 			[value "productType" mapper "TaxonomySource"]
 			[value "productType" path "fra" mapper "TaxonomySource"]
 			[value "productType" path "creditDefaultSwapOption" mapper "TaxonomySource"]
 			[value "productType" path "bondOption" mapper "TaxonomySource"]
 			[value "productType" path "commoditySwaption" mapper "TaxonomySource"]
+
+    TaxonomyValue:
+        + name
+            [value "productType"]
+            [value "productType" path "fra"]
+            [value "productType" path "creditDefaultSwapOption"]
+            [value "productType" path "bondOption"]
+            [value "productType" path "commoditySwaption"]
 
 	Security:
 		+ productIdentifier
@@ -2010,16 +2018,17 @@ synonym source FpML_5_10 extends FpML
 			[value "tradeId" path "versionedTradeId" meta "tradeIdScheme"]
 			[value "businessUnitId" meta "unitScheme"]
 			[value "eventId"]
+		+ version
+			[value "version" path "versionedTradeId"]
+			[value "version"]
+
+	TradeIdentifier:
 		+ identifierType
 			// [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier" and "issuer->issuerIdScheme" = "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"]
 			[set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/uti"]
 			[set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"]
 			[set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/usi"]
 			[set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-swap-identifier"]
-
-		+ version
-			[value "version" path "versionedTradeId"]
-			[value "version"]
 
 	Identifier:
 		[meta "id"]
@@ -2577,7 +2586,7 @@ synonym source FpML_5_10 extends FpML
 		+ fixedPricePayout
 			[value "fixedLeg" path "commoditySwap"]
 			[value "fixedPayment" path "fixedLeg", "dividendPeriod" path "dividendLeg" mapper "DividendFixedLeg"]
-		+ securityFinancePayout
+		+ assetPayout
 			[value "ignore"]
 		+ assetPayout
 			[value "ignore"]
