@@ -39,7 +39,7 @@ product-template-type
 _Synonyms_
 -  Support improved for equity option mappings from FpML element `equityOptionTransactionSupplement`
 -  Mapping support for new attribute types described in Types section
--  Added conditional mapping in `priceExpression` that sets to `PriceExpressionEnum->AbsoluteTerms` when "initialPrice->netPrice->priceExpression" exists and set to `PriceExpressionEnum->PercentageOfNotional` when `initialPrice->netPrice->priceExpression` exists
+-  Added conditional mapping in `priceExpression` that sets to `PriceExpressionEnum->AbsoluteTerms` when `initialPrice->netPrice->priceExpression` exists and set to `PriceExpressionEnum->PercentageOfNotional` when `initialPrice->netPrice->priceExpression` exists
 
 _Review Directions_
 
