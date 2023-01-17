@@ -53,5 +53,7 @@ In addition, the functional model has been amended as follows:
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect the types and functions.
+
 In the CDM Portal, select Ingestion and review the sample in the "fis" folder.
+
 In Rosetta, select the Visualisation tab and review the event examples in the "Security Lending" folder.
