@@ -16,7 +16,6 @@ import cdm.event.workflow.EventTimestampQualificationEnum;
 import cdm.event.workflow.WorkflowStep.WorkflowStepBuilder;
 import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
-import cdm.product.collateral.Collateral;
 import cdm.product.collateral.CollateralProvisions;
 import cdm.product.collateral.CollateralTypeEnum;
 import cdm.product.common.settlement.DeliveryMethodEnum;

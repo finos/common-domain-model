@@ -1,11 +1,7 @@
 package cdm.base.staticdata.asset.common.processor;
 
 import cdm.base.staticdata.asset.common.TaxonomySourceEnum;
-import cdm.base.staticdata.asset.common.TaxonomyValue;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
-import com.regnosys.rosetta.common.translation.Path;
+import com.regnosys.rosetta.common.translation.*;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -14,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static cdm.base.staticdata.asset.common.ProductTaxonomy.ProductTaxonomyBuilder;
-import static com.rosetta.model.metafields.FieldWithMetaString.FieldWithMetaStringBuilder;
 
 @SuppressWarnings("unused")
 public class TaxonomySourceMappingProcessor extends MappingProcessor {
@@ -31,7 +26,7 @@ public class TaxonomySourceMappingProcessor extends MappingProcessor {
         // Find xml path from name model path due to mapping bug where schemes on multi-cardinality basic types get
         // mapped to the wrong list item
         MappingProcessorUtils.getNonNullMappingForModelPath(getMappings(), nameModelPath)
-                .map(m -> m.getXmlPath())
+                .map(Mapping::getXmlPath)
                 .ifPresent(xmlPath -> {
                     ProductTaxonomyBuilder productTaxonomyBuilder = (ProductTaxonomyBuilder) parent;
                     updateSchemeAndSource(xmlPath, productTaxonomyBuilder);
