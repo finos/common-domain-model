@@ -11,6 +11,8 @@ import cdm.base.staticdata.identifier.*
 import cdm.observable.asset.*
 
 import cdm.product.common.settlement.*
+import cdm.product.template.MarginTypeEnum
+
 
 import cdm.legaldocumentation.common.*
 
@@ -435,7 +437,10 @@ type CreditSupportAgreementElections: <"The set of elections which specify a Cre
 	holdingAndUsingPostedCollateral HoldingAndUsingPostedCollateral (1..1) <"The elections for the holding and using of posted collateral by the respective parties to the Credit Support Annex for Variation Margin.">
 	rightsEvents RightsEvents (1..1) <"The bespoke provisions that might be specified by the parties to the agreement to specify the rights of Security Taker and/or Security Provider when an Early Termination or Access Condition event has occurred..">
 	custodyArrangements CustodyArrangements (0..1) <"The Custodian and Segregated Account details in respect of each party to the agreement.">
-	distributionAndInterestPayment DistributionAndInterestPayment (0..1) <"The Distributions and Interest Payment terms specified as part of the agreement.">
+    distributionAndInterestPayment DistributionAndInterestPayment(0..1) <"The Distributions and Interest Payment terms specified as part of the agreement.">
+
+
+
 	creditSupportOffsets boolean (1..1) <"The specification of whether the standard Credit Support Offset provisions are applicable (true) or not applicable (false).">
 	additionalRepresentations AdditionalRepresentations (1..1) <"The specification Additional Representations that may be applicable to the agreement.">
 	otherEligibleAndPostedSupport OtherEligibleAndPostedSupport (1..1) <"The Other Eligible Support elections associated with margin agreements.">
@@ -451,6 +456,8 @@ type CreditSupportAgreementElections: <"The set of elections which specify a Cre
 	additionalAmendments string (0..1) <"Any additional amendments that might be specified by the parties to the agreement.">
 	additionalBespokeTerms string (0..1) <"Any additional terms that might be specified applicable.">
 	trustSchemeAddendum boolean (1..1) <"The qualification of whether Trust Scheme Addendum is applicable (True) or not applicable (False).">
+
+
 
 type CreditSupportObligationsVariationMargin: <"A class to specify the Credit Support Obligations applicable to the Variation Margin Credit Support Annex and which are common among the English, Japanese and New York governing laws. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c): Credit Support Obligations.">
 
@@ -529,7 +536,7 @@ type DisputeResolution: <"A class to specify the election terms under which a pa
 	alternativeTerms string (0..1) <"The alternative dispute resolution procedure if specified">
 	recalculationOfValue RecalculationOfValue (0..1) <"The elections to specify terms for recalculation of the market value of posted collateral.">
 
-type DistributionAndInterestPayment: <"A class to specify the Distributions and Interest Payment provisions applicable to the Japanese Law ISDA 2016 CSA for Initial Margin and the New York Law ISDA 2016 CSA for Variation Margin. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Distributions and Interest Payment (IM). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (i): Distributions and Interest Payment (VM).">
+type DistributionAndInterestPaymentOld: <"A class to specify the Distributions and Interest Payment provisions applicable to the Japanese Law ISDA 2016 CSA for Initial Margin and the New York Law ISDA 2016 CSA for Variation Margin. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n): Distributions and Interest Payment (IM). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (i): Distributions and Interest Payment (VM).">
 
 	interestRate EligibleCurrencyInterestRate (1..*) <"The interest rate associated with initial or variation margin collateral, depending upon the type of credit agreement that this election is associated with. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(i): Interest Rate (IM). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (i)(i): Interest Rate (VM).">
 	interestPaymentTransfer boolean (1..1) <"The Interest Payment Transfer is applicable when True. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii): Transfer of Interest Payment (IM) or application of Interest Amount (IM). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (i)(ii): Transfer of Interest Payment (VM) or application of Interest Amount (VM).">
@@ -664,23 +671,24 @@ type IneligibleCreditSupport: <"A class to specify the parties to which the prov
 	specifiedParty Party (0..2) <"The parties to which the provisions of Paragraph 11(g) of the ISDA 2016 Credit Support Annex for Variation Margin will apply to, as the Secured Party. ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (c)(iii): Legally Ineligible Credit Support (VM).">
 		[metadata reference]
 
+
 type InterestAdjustment: <"A class to specify whether the Interest Adjustment is applicable and what its periodicity is. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii).">
 
 	isApplicable boolean (1..1) <"The Interest Adjustment is applicable when True and not applicable when False">
 	periodicity InterestAdjustmentPeriodicity (1..1) <"The qualification of the Interest Adjustment periodicity.">
 
-type InterestAdjustmentPeriodicity: <"A class to specify the Interest Adjustment periodicity either through a standardized election or a custom one. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii).">
+type InterestAdjustmentPeriodicity: <"A class to specify the Interest Adjustment periodicity either through a standardized election or a custom one..">
 
 	standardElection InterestAdjustmentPeriodicityEnum (0..1) <"The Interest Adjustment periodicity when specified through a standardized election.">
 	customElection string (0..1) <"The Interest Adjustment periodicity when specified through a custom election.">
 
 	condition: one-of
 
+
 type InterestAmount: <"A class to specify the application of Interest Amount with respect to the Delivery Amount and the Return Amount. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii).">
 
 	returnAmount ReturnAmount (1..1) <"The application of Interest Amount with respect the Return Amount. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii).">
 	deliveryAmount DeliveryAmount (1..1) <"The application of Interest Amount with respect the Delivery Amount. ISDA 2016 Japanese Law Credit Support Annex for Initial Margin, paragraph 13, General Principles, (n)(ii).">
-
 type JapaneseSecuritiesProvisions: <"A class to specify Japanese Securities Provision elections.">
 
 	isApplicable boolean (1..1) <"Japanese Securities Provisions are applicable when True and Not Applicable when False">
@@ -1050,3 +1058,122 @@ type ListingType: <"Specifies a filter based on an underlying corporate financia
 	sector string (0..1) <"Represents a filter based on an industry sector defined under a system for classifying industry types such as ‘Global Industry Classification Standard (GICS)’ and ‘North American Industry Classification System (NAICS)’">
 		[metadata scheme]
 	index Index (0..1) <"Represents a filter based on an index that measures a stock market, or a subset of a stock market.">
+
+
+/* collateral interest calculation parameters */
+
+type DistributionAndInterestPayment: <"A class to specify the Distributions and Interest Payment provisions applicable to the collateral agreement.">
+	interestParameters CollateralInterestParameters(0..*)  <"Represents the interest parameters for the various currencies, margin types, posting parties.">
+/*	previousModel DistributionAndInterestPaymentOld (0..1) <"Represents the previous version of this model"> */
+
+condition: one-of
+
+
+
+
+type CollateralInterestParameters: <"Represents the floating interest calculation and distribution parameters for a single currency.">
+    postingParty CounterpartyRoleEnum(0..1) <"Represents the party to which these parameters apply (the applicable party).  In other words, if the parameters are different depending on which party is posting/holding the collateral, for which party to the CSA (Party 1 or Party 2) that is posting the collateral do these parameters apply?">
+    marginType CreditSupportAgreementMarginTypeEnum(0..1) <"Specifies the type of margin for which interest is being calculated, if the parameters are different depending on type of margin (initial or variation).">
+    currency string(0..1) <"Specifies the currency for which the parameters are captured.">
+    interestCalculationParameters CollateralInterestCalculationParameters(0..1) <"Represents the basic interest calculation parameters.">
+    interestCalculationFrequency  CollateralInterestFrequency(0..1) <"Represents how often and when interest is calculated.">
+    interestHandlingParameters CollateralInterestHandlingParameters(0..1)  <"Represents the parameters describing how and when interest transfer occurs.">
+
+type CollateralInterestCalculationParameters: <"Represents parameters for calculating the amount the floating interest calculation, e.g.  for a single currency or defaults for all currencies.">
+    fixedRate number(0..1) <"Specifies the applicable fixed rate  if used.">
+    floatingRate CsaFloatingRate(0..1) <"Specifies the floating interest rate to be used.">
+    inBaseCurrency boolean(1..1) <"Specifies whether valuation transfers should be converted to base currency equivalent.">
+    compoundingType CompoundingTypeEnum(0..1) <"Specifies the type of compounding to be applied (None, Business, Calendar).">
+    compoundingBusinessCenter BusinessCenterEnum(0..*) <"Specifies the applicable business centers for compounding.">
+    dayCountFraction DayCountFractionEnum(1..1) <"Specifies the day count fraction to use for that currency.">
+    rounding Rounding(0..1) <"Specifies the rounding rules for settling in that currency.">
+    roundingFrequency RoundingFrequencyEnum(0..1) <"Specifies when/how often is rounding applied?">
+    withholdingTaxRate number(0..1) <"Specifies the withholding tax rate if a withholding tax is applicable.">
+
+    condition  InterestRate: required choice fixedRate, floatingRate
+    condition DCF:  dayCountFraction = DayCountFractionEnum->ACT_360 or dayCountFraction = DayCountFractionEnum->ACT_365_FIXED
+    condition CompoundingBC1:  if compoundingType = CompoundingTypeEnum->Business then compoundingBusinessCenter exists
+    condition CompoundingBC2:  if compoundingType <> CompoundingTypeEnum->Business then compoundingBusinessCenter is absent
+
+type CsaFloatingRate: <"Represents the parameters needed to calculate the floating rate paid on collateral holdings.">
+    index string(1..1) <"Specifies the floating rate index to use for that currency.">
+    spread number(0..1) <"Specifies any fixed spread added to the floating rate.">
+    capRate number(0..1) <"Specifies any cap rate applicable;  if a cap is applicable, the rate used is the maximum of the cap rate and the floating rate.">
+    floorRate number(0..1) <"Specifies any floor rate applicable; if provided, the rate used is the minimum of the floor rate and the floating rate.">
+    negativeInterest boolean (1..1) <"Specifies how negative rates should be applied.  If rates go negative, should the payment be reversed (true) or zeroed out (false)?">
+    compressibleSpread boolean( 1..1) <"Specifies how spreads should be applied in a low/negative rate environment.  If true, spread is applied only if rate is positive.">
+
+    /*  Following is a table that shows how to apply the negativeInterest and compressibleSpread indicators
+    Abbreviations:   
+    PP : Posting party
+    HP : Holding Party
+	Rate : index rate prior to application of any spread
+	Spread : amount of spread added to the rate
+
+                Negative Interest / Compressible Spread
+Rate    Spread  TRUE/TRUE       FALSE/FALSE     TRUE/FALSE      FALSE/TRUE
+ 1.00    0.50   HP Pays 1.5     HP Pays 1.5     HP Pays 1.5     HP Pays 1.5 
+ 1.00    (0.50) HP Pays 0.5     HP Pays 0.5     HP Pays 0.5     HP Pays 0.5 
+ 1.00    (1.00) No Payment      No Payment      No Payment      No Payment  
+ 1.00    (1.25) PP Pays 0.25    No Payment      PP Pays 0.25    No Payment  
+ -       0.50   HP Pays 0.5     HP Pays 0.5     HP Pays 0.5     HP Pays 0.5 
+ -       (0.50) PP Pays 0.5     No Payment      PP Pays 0.5     No Payment  
+ (1.00)  0.50   PP Pays 1.0     No Payment      PP Pays 0.5     No Payment  
+ (1.00)  (0.50) PP Pays 1.0     No Payment      PP Pays 1.5     No Payment  
+ (1.00)  (1.00) PP Pays 1.0     No Payment      PP Pays 2.0     No Payment  
+ (1.00)  1.00   PP Pays 1.0     No Payment      No Payment      No Payment  
+ (1.00)  1.25   PP Pays 1.0     HP Pays 0.25    HP Pays 0.25    No Payment  
+
+    
+    */
+
+type CollateralInterestHandlingParameters: <"Represents parameters that describe how calculated interest amounts are handled, i.e. are they transferred/distributed, or is the collateral balance adjusted, is netting done, and any other special handling.">
+    interestPaymentHandling CollateralInterestHandlingEnum (1..1) <"Specifies how the collateral interest is to be handled.">
+    paymentBusinessCenter BusinessCenterEnum(0..*) <"Specifies applicable business centers for payments.">
+    netPostedAndHeldInterest boolean(1..1) <"Indicates whether to net Held and Posted Interest Payments (i.e. whether interest payable for a period can be netted with interest receivable).">
+    netInterestWithMarginCalls boolean (1..1) <"Indicates whether the interest amount may be offset against any margin call deliver or return amounts?   (aka 'net payments' indicator).">
+    includeAccrualInMarginCalc boolean(1..1) <"Indicates whether or not to include the open interest accrual in the margin calculation.">
+    accrueInterestOnUnsettledInterest boolean(0..1) <"Indicates whether interest accruing on unsettled interest amount is included (continues to be accrued) in the following period.">
+    interestRolloverLimit NumberBound(0..1) <"Specifies the level below which the interest will be rolled over.">
+
+    writeoffLimit NumberBound(0..1) <"Specifies the level below which the interest will be written off; if omitted write-off is not applicable.">
+
+    alternativeToInterestAmount AlternativeToInterestAmountEnum (0..1) <"Specifies the alternative to interest amounts.">
+    alternativeProvision string (0..1) <"Specifies an alternative to interest amount, when the alternative provision clause is specified.">
+
+    cutoffTime time(0..1)  <"Specifies the time of day that interest needs to be confirmed by.">
+    notification CollateralInterestNotification(0..1) <"Specifies the terms describing notification requirements.">
+    onFullReturn boolean(1..1) <"Indicates the option that accrued interest should be calculated and distributed when a full return of collateral occurs.">
+    onPartialReturn boolean(1..1) <"Indicates the option that accrued interest should be calculated and distributed when a partial return collateral occurs.">
+
+
+
+type CollateralInterestFrequency: <"Represents the parameters for describing how often collateral interest is to be calculated.">
+    period  Period(1..1)    <"Specifies the time period at which interest is calculated, e.g. 1 month.">
+    monthOfYear number(0..1) <"Specifies the month of the year if used.">
+    dayOfMonth number(0..1) <"Specifies the day of the month if used.">
+    dayOfWeek DayOfWeekEnum(0..1) <"Specifies the day of the week if used.">
+    weekOfMonth number(0..1) <"Specifies the week of the month if used.">
+    offsetDays number(1..1) <"Specifies how many days from the trigger event should the payment occur.">
+    dateLocation BusinessCenterTime(1..1)  <"Specifies where is the time measured.">
+    businessCenter BusinessCenterEnum(0..*) <"Specifies the business center for adjustment of interest period.">
+
+    condition Moy : if monthOfYear exists then monthOfYear <= 12
+    condition Dom : if dayOfMonth exists then dayOfMonth <= 31
+    condition Wom : if weekOfMonth exists then weekOfMonth <= 5
+
+	condition MoyTerm : if monthOfYear exists then (period->period = PeriodEnum->Y) 
+	condition DomTerm : if dayOfMonth exists then (period->period = PeriodEnum->M)
+	condition DowTerm : if dayOfWeek exists then (period->period = PeriodEnum->W)
+	condition WomTerm : if weekOfMonth exists then (period->period = PeriodEnum->M)
+
+// We add additional constraints to ensure that the correct combination of fields is supplied
+
+
+type CollateralInterestNotification: <"Represents the parameters describing when notifications should be made for required collateral interest transfers.">
+    trigger string(1..1)   <"Specifies what triggers notification (should be enum) Interest Statement Frequency, Period End Date.">
+    offset number(1..1) <"Specifies the number of days before (negative) or after (positive) the trigger event.">
+    notificationTime time(1..1) <"Specifies the time of day that the notification should occur.">
+    notificationDayType DayTypeEnum(1..1) <"The type of days on which notification should occur.">
+
+
