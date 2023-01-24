@@ -14,23 +14,23 @@ import cdm.mapping.fpml.processes.*
 
 synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 {
-    WorkflowStep:
-        + proposedEvent
-            [value "clearingConfirmed"]
-        + messageInformation
-            [value "header" path "clearingConfirmed"]
-        + timestamp
-            [value "timestamps" path "clearingConfirmed->trade->tradeHeader"]
-            [value "header" path "clearingConfirmed"]
+	WorkflowStep:
+		+ proposedEvent
+			[value "clearingConfirmed"]
+		+ messageInformation
+			[value "header" path "clearingConfirmed"]
+		+ timestamp
+			[value "timestamps" path "clearingConfirmed->trade->tradeHeader"]
+			[value "header" path "clearingConfirmed"]
 		+ creditLimitInformation
-		    [value "creditLimitInformation" path "clearingConfirmed->trade->tradeHeader"]
+			[value "creditLimitInformation" path "clearingConfirmed->trade->tradeHeader"]
 
-    EventInstruction:
-        + eventDate
-            [value "clearedDate" path "clearingConfirmed->trade->tradeHeader" maps 2]
+	EventInstruction:
+		+ eventDate
+			[value "clearedDate" path "clearingConfirmed->trade->tradeHeader" maps 2]
 
-    MessageInformation:
-        - sentBy
+	MessageInformation:
+		- sentBy
 		+ sentBy
 			[value "sentBy" meta "messageAddressScheme"]
 		- sentTo
@@ -67,19 +67,18 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 		+ tradeIdentifier
 			[value "universalSwapIdentifier" path "tradeHeader"]
 
-    AssignedIdentifier:
+	AssignedIdentifier:
 		+ identifier
 			[value "tradeId" meta "tradeIdScheme"]
 			[value "usi" meta "usiScheme"]
 
-    enums
+	enums
 
 	// CategoryEnum:
-	// 	+ Customer
-	// 		[value "CUST"]
-	// 	+ Principal
-	// 		[value "HOUS"]
-
+	// + Customer
+	// [value "CUST"]
+	// + Principal
+	// [value "HOUS"]
 	WorkflowStatusEnum:
 		+ Accepted
 			[value "Accepted"]
@@ -100,13 +99,13 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 {
 	WorkflowStep:
-        + proposedEvent
-            [value "TrdCaptRpt"]
-            [value "FpML" path "TrdCaptRpt->Instrmt->SecXML"]
-        + action
-            [value "TransTyp" path "TrdCaptRpt"]
-        + messageInformation
-            [value "TrdCaptRpt"]
+		+ proposedEvent
+			[value "TrdCaptRpt"]
+			[value "FpML" path "TrdCaptRpt->Instrmt->SecXML"]
+		+ action
+			[value "TransTyp" path "TrdCaptRpt"]
+		+ messageInformation
+			[value "TrdCaptRpt"]
 
 	EventTimestamp:
 		+ dateTime
@@ -115,8 +114,8 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 			[value "TS" path "TrdCaptRpt->TrdRegTS"]
 		+ qualification
 			[set to EventTimestampQualificationEnum -> transactionCreationDateTime when path = "TrdCaptRpt->TxnTm"]
-			[set to EventTimestampQualificationEnum -> eventSentDateTime when path= "TrdCaptRpt->Hdr->Snt"]
-			[set to EventTimestampQualificationEnum -> executionDateTime when path= "TrdCaptRpt->TrdRegTS->TS" and "TrdCaptRpt->TrdRegTS->Typ" = 1]
+			[set to EventTimestampQualificationEnum -> eventSentDateTime when path = "TrdCaptRpt->Hdr->Snt"]
+			[set to EventTimestampQualificationEnum -> executionDateTime when path = "TrdCaptRpt->TrdRegTS->TS" and "TrdCaptRpt->TrdRegTS->Typ" = 1]
 
 	WorkflowState:
 		+ workflowStatus
@@ -154,22 +153,22 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 		+ identifier
 			[value "RptID" path "TrdCaptRpt"]
 
-    TradeState:
+	TradeState:
         [meta "id" path "trade"]
-        - trade
-        + trade
-            [value "trade" mapper "CmeParty"]
-            [hint "party"]
-            [hint "account"]
+		- trade
+		+ trade
+			[value "trade" mapper "CmeParty"]
+			[hint "party"]
+			[hint "account"]
 
 	ExecutionDetails:
 		+ executionType
 			[value "VenuTyp"]
 		+ executionVenue
-		    [value "Hdr"]
+			[value "Hdr"]
 
 	PartyReferencePayerReceiver:
-    	- payerPartyReference
+		- payerPartyReference
 		+ payerPartyReference
 			[value "payerPartyReference" mapper "TradeSideToParty"]
 			[value "buyerPartyReference" maps 2 mapper "TradeSideToParty"]
@@ -186,10 +185,10 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 		+ name
 			[value "SID" path "Hdr"]
 
-    enums
+	enums
 
 	ExecutionTypeEnum:
-	    - Electronic
+		- Electronic
 		+ Electronic
 			[value "E"]
 		+ OffFacility
@@ -230,4 +229,3 @@ synonym source CME_BASE extends FpML_5_10_Processes
 		+ House
 			[value "HOUS"]
 }
-

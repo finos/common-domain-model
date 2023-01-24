@@ -12,7 +12,6 @@ func ResolveTimeZoneFromTimeType: <"Defines inputs and outputs needed to derive 
 		productIdentifier ProductIdentifier (1..1)
 		timeType TimeTypeEnum (1..1)
 		determinationMethod DeterminationMethodEnum (1..1)
-
 	output:
 		time TimeZone (1..1)
 
@@ -20,24 +19,18 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
 	inputs:
 		quantity NonNegativeQuantitySchedule (0..*)
 		price PriceSchedule (0..*)
-		
 	output:
 		success boolean (1..1)
-
 	alias notional:
-		FilterQuantityByCurrencyExists( quantity )
-		    extract [ item -> value ]
-            distinct
-		    only-element
-
+		FilterQuantityByCurrencyExists(quantity)
+			extract [ item -> value ]
+			distinct
+			only-element
 	alias noOfUnits:
-		FilterQuantityByFinancialUnit( quantity, FinancialUnitEnum -> Share )
-		    extract [ item -> value ]
-            only-element
-
-	alias cashPrice:
-		price -> value only-element
-
+		FilterQuantityByFinancialUnit(quantity, FinancialUnitEnum -> Share)
+			extract [ item -> value ]
+			only-element
+	alias cashPrice: price -> value only-element
 	set success:
 		if cashPrice exists and noOfUnits exists and notional exists
 		then cashPrice * noOfUnits = notional

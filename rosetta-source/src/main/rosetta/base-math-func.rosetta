@@ -3,32 +3,30 @@ version "${project.version}"
 
 func CompareNumbers:
 	inputs:
-        n1 number (1..1)
-        op CompareOp (1..1)
-        n2 number (1..1)
+		n1 number (1..1)
+		op CompareOp (1..1)
+		n2 number (1..1)
 	output:
-        result boolean (1..1)
-
+		result boolean (1..1)
 	set result:
-        if op = CompareOp -> GreaterThan
-        then n1 > n2 = True
-        else if op = CompareOp -> GreaterThanOrEquals
-        then n1 >= n2 = True
-        else if op = CompareOp -> Equals
-        then n1 = n2 = True
-        else if op = CompareOp -> LessThanOrEquals
-        then n1 <= n2 = True
-        else if op = CompareOp -> LessThan
-        then n1 < n2 = True
-        else False
+		if op = CompareOp -> GreaterThan
+		then n1 > n2 = True
+		else if op = CompareOp -> GreaterThanOrEquals
+		then n1 >= n2 = True
+		else if op = CompareOp -> Equals
+		then n1 = n2 = True
+		else if op = CompareOp -> LessThanOrEquals
+		then n1 <= n2 = True
+		else if op = CompareOp -> LessThan
+		then n1 < n2 = True
+		else False
 
 func Abs: <"Returns the absolute value of a number. If the argument is not negative, the argument is returned. If the argument is negative, the negation of the argument is returned.">
 	inputs:
-	    arg number (1..1)
+		arg number (1..1)
 	output:
-	    result number (1..1)
-	set result:
-	    if arg < 0 then -1 * arg else arg
+		result number (1..1)
+	set result: if arg < 0 then -1 * arg else arg
 
 func Max: <"Returns the greater number of two supplied numbers.">
 	inputs:
@@ -36,8 +34,7 @@ func Max: <"Returns the greater number of two supplied numbers.">
 		b number (1..1)
 	output:
 		result number (1..1)
-	set result:
-		if a > b then a else b
+	set result: if a > b then a else b
 
 func Min: <"Returns the lesser number of two supplied numbers.">
 	inputs:
@@ -45,8 +42,7 @@ func Min: <"Returns the lesser number of two supplied numbers.">
 		b number (1..1)
 	output:
 		result number (1..1)
-	set result:
-		if a > b then b else a
+	set result: if a > b then b else a
 
 func RoundToNearest:
 	inputs:
@@ -69,64 +65,57 @@ func RoundToPrecision: <"Round a rate to the supplied precision, using the suppl
 		precision >= 0
 
 func CompareQuantityByUnitOfAmount:
-    inputs:
-        quantity1 Quantity (0..*)
-        op CompareOp (1..1)
-        quantity2 Quantity (0..*)
-        unitOfAmount UnitType (1..1)
-    output:
-        result boolean (1..1)
-
-    set result:
-        FilterQuantity( quantity1, unitOfAmount )
-            extract q1 [
-                FilterQuantity( quantity2, unitOfAmount )
-                    extract q2 [ CompareNumbers( q1 -> value, op, q2 -> value ) ]
-            ] flatten
-            all = True
+	inputs:
+		quantity1 Quantity (0..*)
+		op CompareOp (1..1)
+		quantity2 Quantity (0..*)
+		unitOfAmount UnitType (1..1)
+	output:
+		result boolean (1..1)
+	set result:
+		FilterQuantity(quantity1, unitOfAmount)
+			extract q1 [
+					FilterQuantity(quantity2, unitOfAmount)
+						extract q2 [
+								CompareNumbers(q1 -> value, op, q2 -> value)
+							]
+				]
+			flatten
+			all = True
 
 func FilterQuantity: <"Filter list of quantities based on unit type.">
-    inputs:
-        quantities Quantity (0..*) <"List of quantities to filter.">
-        unit UnitType (1..1) <"Currency unit type.">
-    output:
-        filteredQuantities Quantity (0..*)
-
-    add filteredQuantities:
-        quantities
-            filter [ item -> unit = unit ]
+	inputs:
+		quantities Quantity (0..*) <"List of quantities to filter.">
+		unit UnitType (1..1) <"Currency unit type.">
+	output:
+		filteredQuantities Quantity (0..*)
+	add filteredQuantities: quantities filter [ item -> unit = unit ]
 
 func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
-    inputs:
-        quantities QuantitySchedule (0..*) <"List of quantities to filter.">
-        currency string (1..1) <"Currency unit type.">
-    output:
-        filteredQuantities QuantitySchedule (0..*)
-
-    add filteredQuantities:
-        quantities
-            filter [ item -> unit -> currency = currency ]
+	inputs:
+		quantities QuantitySchedule (0..*) <"List of quantities to filter.">
+		currency string (1..1) <"Currency unit type.">
+	output:
+		filteredQuantities QuantitySchedule (0..*)
+	add filteredQuantities:
+		quantities filter [ item -> unit -> currency = currency ]
 
 func FilterQuantityByCurrencyExists: <"Filter list of quantities based on unit type.">
-    inputs:
-        quantities QuantitySchedule (0..*) <"List of quantities to filter.">
-    output:
-        filteredQuantities QuantitySchedule (0..*)
-
-    add filteredQuantities:
-        quantities
-            filter [ item -> unit -> currency exists ]
+	inputs:
+		quantities QuantitySchedule (0..*) <"List of quantities to filter.">
+	output:
+		filteredQuantities QuantitySchedule (0..*)
+	add filteredQuantities:
+		quantities filter [ item -> unit -> currency exists ]
 
 func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit type.">
-    inputs:
-        quantities QuantitySchedule (0..*) <"List of quantities to filter.">
-        financialUnit FinancialUnitEnum (1..1) <"FinancialUnitEnum unit type.">
-    output:
-        filteredQuantities QuantitySchedule (0..*)
-
-    add filteredQuantities:
-        quantities
-            filter [ item -> unit -> financialUnit = financialUnit ]
+	inputs:
+		quantities QuantitySchedule (0..*) <"List of quantities to filter.">
+		financialUnit FinancialUnitEnum (1..1) <"FinancialUnitEnum unit type.">
+	output:
+		filteredQuantities QuantitySchedule (0..*)
+	add filteredQuantities:
+		quantities filter [ item -> unit -> financialUnit = financialUnit ]
 
 func Create_NonNegativeQuantity: <"Create a non-negative quantity with given amount and unit of amount.">
 	inputs:
@@ -134,7 +123,6 @@ func Create_NonNegativeQuantity: <"Create a non-negative quantity with given amo
 		unit UnitType (1..1)
 	output:
 		quantity NonNegativeQuantity (1..1)
-
 	set quantity -> value: amount
 	set quantity -> unit: unit
 
@@ -144,10 +132,8 @@ func Create_NonNegativeQuantitySchedule: <"Create Quantity with given amount and
 		unit UnitType (1..1)
 	output:
 		quantity NonNegativeQuantitySchedule (1..1)
-
 	set quantity -> value: amount
 	set quantity -> unit: unit
-
 
 func Create_UnitType: <"Create UnitType with given currency or financial unit.">
 	inputs:
@@ -156,30 +142,27 @@ func Create_UnitType: <"Create UnitType with given currency or financial unit.">
 		financialUnit FinancialUnitEnum (0..1)
 	output:
 		unitType UnitType (1..1)
-
 	condition CurrencyOrFinancialUnitExists:
 		currency exists or financialUnit exists
-
 	set unitType -> currency: currency
 	set unitType -> financialUnit: financialUnit
 
 func AppendToVector: <"Append a single value to a vector (list of numbers).">
-    inputs:
-    	vector number (0..*) <"Input vector.">
-    	value number (1..1) <"Value to add to the vector.">
-    output:
-        resultVector number (0..*) <"Resulting vector.">
-
-    add resultVector: vector
-    add resultVector: value
+	inputs:
+		vector number (0..*) <"Input vector.">
+		value number (1..1) <"Value to add to the vector.">
+	output:
+		resultVector number (0..*) <"Resulting vector.">
+	add resultVector: vector
+	add resultVector: value
 
 func VectorOperation: <"Generates a result vector by applying the supplied arithmetic operation to each element of the supplied left and right vectors in turn.  i.e. result[n] = left[n] <op> right[n], where <op> is the arithmetic operation defined by ArithmeticOperationEnum.">
-    inputs:
+	inputs:
 		arithmeticOp ArithmeticOperationEnum (1..1) <"Vector operator.">
 		left number (0..*) <"Left vector.">
 		right number (0..*) <"Right vector.">
 	output:
-	    result number (0..*) <"Result vector.">
+		result number (0..*) <"Result vector.">
 
 func VectorScalarOperation: <"Generates a result vector by applying the supplied arithmetic operation and scalar right value to each element of the supplied left vector in turn. i.e. result[n] = left[n] <op> right, where <op> is the arithmetic operation defined by ArithmeticOperationEnum.">
 	inputs:
@@ -187,42 +170,35 @@ func VectorScalarOperation: <"Generates a result vector by applying the supplied
 		left number (0..*) <"Left vector.">
 		right number (0..1) <"Scalar number - a single value to be applied to all elements of vector.">
 	output:
-	    result number (0..*) <"Result vector.">
-
-    alias rightOrDefault:
-        if right exists then
-            right
-        else 0.0
-
+		result number (0..*) <"Result vector.">
+	alias rightOrDefault: if right exists then right else 0.0
 	add result:
-        left
-            extract [ ArithmeticOperation( item, arithmeticOp, rightOrDefault ) ]
+		left extract [ ArithmeticOperation(item, arithmeticOp, rightOrDefault) ]
 
 func VectorGrowthOperation: <"Generates a result vector by starting with the supplied base value (typically 1), and then multiplying it in turn by each growth factor, which is typically a number just above 1. For instance, a growth factor of 1.1 reprsents a 10% increase, and 0.9 a 10% decrease. The results will show the successive results of applying the successive growth factors, with the first value of the list being the supplied baseValue, and final value of the results list being the product of all of the supplied values.  i.e. result[1] = baseValue * factor[1], result[n] = result[n-1] * factor[n]. The resulting list will have the one more element than the supplied list of factors.">
-    inputs:
+	inputs:
 		baseValue number (1..1) <"Original value, typically 1.0.">
 		factor number (0..*) <"Vector of growth factors, which are all typically slightly greater than 1.0.">
-    output:
-        result number (0..*) <"Result vector, showing all of the interim growth values">
+	output:
+		result number (0..*) <"Result vector, showing all of the interim growth values">
 
 func ArithmeticOperation:
 	inputs:
-        n1 number (1..1)
-        op ArithmeticOperationEnum (1..1)
-        n2 number (1..1)
+		n1 number (1..1)
+		op ArithmeticOperationEnum (1..1)
+		n2 number (1..1)
 	output:
-        result number (1..1)
-
+		result number (1..1)
 	set result:
-        if op = ArithmeticOperationEnum -> Add then
-            n1 + n2
-        else if op = ArithmeticOperationEnum -> Subtract then
-            n1 - n2
-        else if op = ArithmeticOperationEnum -> Multiply then
-            n1 * n2
-        else if op = ArithmeticOperationEnum -> Divide then
-            n1 / n2
-        else if op = ArithmeticOperationEnum -> Max then
-            Max( n1, n2 )
-        else if op = ArithmeticOperationEnum -> Min then
-            Min( n1, n2 )
+		if op = ArithmeticOperationEnum -> Add
+		then n1 + n2
+		else if op = ArithmeticOperationEnum -> Subtract
+		then n1 - n2
+		else if op = ArithmeticOperationEnum -> Multiply
+		then n1 * n2
+		else if op = ArithmeticOperationEnum -> Divide
+		then n1 / n2
+		else if op = ArithmeticOperationEnum -> Max
+		then Max(n1, n2)
+		else if op = ArithmeticOperationEnum -> Min
+		then Min(n1, n2)

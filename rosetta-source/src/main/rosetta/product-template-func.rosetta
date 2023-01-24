@@ -12,14 +12,13 @@ import cdm.product.common.*
 import cdm.product.common.settlement.*
 
 func Create_TradeLot:
-    inputs:
-        lotIdentifier Identifier (0..*) <"The lot Identifiers.">
-        priceQuantity PriceQuantity (1..*) <"List of PriceQuantity.">
-    output:
-        tradeLot TradeLot (1..1)
-
-    add tradeLot -> lotIdentifier: lotIdentifier
-    add tradeLot -> priceQuantity: priceQuantity
+	inputs:
+		lotIdentifier Identifier (0..*) <"The lot Identifiers.">
+		priceQuantity PriceQuantity (1..*) <"List of PriceQuantity.">
+	output:
+		tradeLot TradeLot (1..1)
+	add tradeLot -> lotIdentifier: lotIdentifier
+	add tradeLot -> priceQuantity: priceQuantity
 
 func FilterTradeLot: <"Filter list of TradeLot based on TradeLot->lotIdentifier.">
 	inputs:
@@ -27,10 +26,8 @@ func FilterTradeLot: <"Filter list of TradeLot based on TradeLot->lotIdentifier.
 		lotIdentifier Identifier (0..*) <"The lot Identifiers to filter by.">
 	output:
 		filteredTradeLots TradeLot (0..*)
-
 	add filteredTradeLots:
-	    tradeLots
-	        filter [ item -> lotIdentifier = lotIdentifier ]
+		tradeLots filter [ item -> lotIdentifier = lotIdentifier ]
 
 func AddTradeLot: <"Add a TradeLot to an existing list of TradeLots.">
 	inputs:
@@ -38,7 +35,6 @@ func AddTradeLot: <"Add a TradeLot to an existing list of TradeLots.">
 		newTradeLot TradeLot (1..1) <"The TradeLot to append to the list.">
 	output:
 		updatedTradableProduct TradableProduct (1..1)
-
 	set updatedTradableProduct: tradableProduct
 	add updatedTradableProduct -> tradeLot: newTradeLot
 
@@ -48,38 +44,48 @@ func MergeTradeLot: <"Replace TradeLot in with matching TradeLot->lotIdentifier.
 		newTradeLot TradeLot (1..1) <"The TradeLot to replace a matching TradeLot in the list.">
 	output:
 		mergedTradeLots TradeLot (0..*)
-
 	add mergedTradeLots: <"Where the lot identifier matches, replace the existing TradeLot with the new TradeLot.">
-	    tradeLots
-	        extract [
-	            if item -> lotIdentifier = newTradeLot -> lotIdentifier
-	                or ( item -> lotIdentifier is absent and newTradeLot -> lotIdentifier is absent )
-	            then newTradeLot
-	            else item
-            ]
+		tradeLots
+			extract [
+					if item -> lotIdentifier = newTradeLot -> lotIdentifier
+						or (item -> lotIdentifier
+							is absent
+							and newTradeLot -> lotIdentifier is absent)
+					then newTradeLot
+					else item
+				]
 
 func CompareTradeLot: <"Compare the Quantity in TradeLot 1 to the Quantity (with the same unit of amount) in TradeLot 2, based on the CompareOp enum.">
 	inputs:
 		tradeLot1 TradeLot (1..1)
-        op CompareOp (1..1)
+		op CompareOp (1..1)
 		tradeLot2 TradeLot (1..1)
 	output:
 		result boolean (1..1)
-
-	alias unitOfAmounts:
-		tradeLot2 -> priceQuantity -> quantity -> unit distinct
-
+	alias unitOfAmounts: tradeLot2 -> priceQuantity -> quantity -> unit distinct
 	set result:
 		unitOfAmounts
-            extract unitOfAmount [
-                CompareQuantityByUnitOfAmount(
-                    tradeLot1 -> priceQuantity -> quantity extract [ Create_NonNegativeQuantity ( item -> value, item -> unit ) ],
-                    op,
-                    tradeLot2 -> priceQuantity -> quantity extract [ Create_NonNegativeQuantity ( item -> value, item -> unit ) ],
-                    unitOfAmount
-                )
-            ]
-		    all = True
+			extract unitOfAmount [
+					CompareQuantityByUnitOfAmount(
+							tradeLot1 -> priceQuantity -> quantity
+								extract [
+										Create_NonNegativeQuantity(
+												item -> value,
+												item -> unit
+											)
+									],
+							op,
+							tradeLot2 -> priceQuantity -> quantity
+								extract [
+										Create_NonNegativeQuantity(
+												item -> value,
+												item -> unit
+											)
+									],
+							unitOfAmount
+						)
+				]
+			all = True
 
 func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the given amount (regardless of unit of amount), based on the CompareOp enum.">
 	inputs:
@@ -88,29 +94,31 @@ func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the g
 		amount number (1..1)
 	output:
 		result boolean (1..1)
-
 	set result:
 		tradeLot -> priceQuantity -> quantity
-            filter [ item -> value exists ]
-            extract [ CompareNumbers( item -> value, op, amount ) ]
-		    all = True
+			filter [ item -> value exists ]
+			extract [ CompareNumbers(item -> value, op, amount) ]
+			all = True
 
 func PriceQuantityTriangulation: <"Defines all the scenarios which triangulation can be helpful validation between Prices and Quantities.">
 	inputs:
 		tradeLots TradeLot (0..*)
 	output:
 		success boolean (1..1)
-
 	set success:
-	    if tradeLots count > 0 then
-            tradeLots
-                extract [
-                    if item -> priceQuantity -> price -> priceExpression -> priceType contains PriceTypeEnum -> CashPrice then
-                        CashPriceQuantityNoOfUnitsTriangulation( item -> priceQuantity -> quantity, item -> priceQuantity -> price)
-                    else True
-                ]
-                all = True
-        else True
+		if tradeLots count > 0
+		then tradeLots
+			extract [
+					if item -> priceQuantity -> price -> priceExpression -> priceType
+						contains PriceTypeEnum -> CashPrice
+					then CashPriceQuantityNoOfUnitsTriangulation(
+							item -> priceQuantity -> quantity,
+							item -> priceQuantity -> price
+						)
+					else True
+				]
+			all = True
+		else True
 
 func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
 	inputs:
@@ -128,18 +136,8 @@ func Create_TradableProduct: <"Creates a new TradableProduct with the given inpu
 		adjustment NotionalAdjustmentEnum (0..1) <"The adjustment to set.">
 	output:
 		tradableProduct TradableProduct (1..1)
-
-	set tradableProduct -> product:
-         product
-
-    add tradableProduct -> tradeLot:
-        tradeLot
-
-    add tradableProduct -> counterparty:
-        counterparty
-
-    add tradableProduct -> ancillaryParty:
-        ancillaryParty
-
-    set tradableProduct -> adjustment:
-        adjustment
+	set tradableProduct -> product: product
+	add tradableProduct -> tradeLot: tradeLot
+	add tradableProduct -> counterparty: counterparty
+	add tradableProduct -> ancillaryParty: ancillaryParty
+	set tradableProduct -> adjustment: adjustment

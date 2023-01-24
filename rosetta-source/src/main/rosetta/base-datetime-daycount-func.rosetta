@@ -4,7 +4,6 @@ version "${project.version}"
 import cdm.base.datetime.*
 
 // ** following is the new year fraction calculation logic, which is independent of the calculation period generation logic
-
 func YearFraction: <"The fraction of a year represented by a date range">
 	[calculation]
 	inputs:
@@ -130,7 +129,6 @@ func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360_ISDA): 
 	set result:
 		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
-
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_364): <"the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 364.">
 	[calculation]
 	alias daysInPeriod: DateDifference(startDate, endDate)
@@ -152,54 +150,51 @@ func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_365L): <"'20
 		daysInPeriod / daysInYear
 
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> CAL_252): <"'2021 ISDA Definitions Section 4.6.1(x): if 'Calculation/252' is specified, the actual number of Calculation Days in the relevant Calculation Period or Compounding Period divided by 252, calculated as follows: [daysInPeriod/252], where 'daysInPeriod' is, unless otherwise specified in the Confirmation, in respect of the relevant Floating Amount or Fixed Amount to which this Day Count Fraction applies, the Business Days in the relevant Calculation Period or Compounding Period determined by reference to the Business Day and Business Day Convention applicable to the determination of such Floating Amount or Fixed Amount, as applicable.">
-
 	[calculation]
 	alias daysInPeriod: DateDifference(startDate, endDate)
 	set result:
 		daysInPeriod / 252
-		
+
 func YearFractionForOneDay: <"Return the year fraction represented by a single day, i.e 1 / dayCountBasis, where daycountBasis represents the denominator of the day count fraction. This perhaps should take into account leap years, though the ISDA compounding formulas do not cover ACT basis at the moment.">
 	[calculation]
 	inputs:
-		dcf DayCountFractionEnum (1..1)	<"Supplied Day count fraction.">
+		dcf DayCountFractionEnum (1..1) <"Supplied Day count fraction.">
 	output:
-		yearFrac number (1..1)	<"Corresponding year fraction.">
+		yearFrac number (1..1) <"Corresponding year fraction.">
 	// calculate and return the value from the DayCountBasis
 	set yearFrac: 1 / DayCountBasis(dcf)
-
 
 func DayCountBasis: <"Return the day count basis (the denominator of the day count fraction) for the day count fraction.">
 	[calculation]
 	inputs:
-		dcf DayCountFractionEnum (1..1)	<"Day count fraction.">
+		dcf DayCountFractionEnum (1..1) <"Day count fraction.">
 	output:
 		basis int (1..1) <"The corresponding basis, typically 360 or 365.">
 
 func DayCountBasis(dcf: DayCountFractionEnum -> ACT_360):
 	set basis: 360
 
-func DayCountBasis(dcf: DayCountFractionEnum ->_30_360):
+func DayCountBasis(dcf: DayCountFractionEnum -> _30_360):
 	set basis: 360
 
-func DayCountBasis(dcf: DayCountFractionEnum ->_30E_360):
+func DayCountBasis(dcf: DayCountFractionEnum -> _30E_360):
 	set basis: 360
 
 func DayCountBasis(dcf: DayCountFractionEnum -> ACT_365L):
 	set basis: 365
 
-func DayCountBasis(dcf: DayCountFractionEnum ->ACT_365_FIXED):
+func DayCountBasis(dcf: DayCountFractionEnum -> ACT_365_FIXED):
 	set basis: 365
 
 // the following day count bases are under review by ISDA Legal and may be updated in a future version of CDM
-
-func DayCountBasis(dcf: DayCountFractionEnum ->ACT_ACT_AFB):
+func DayCountBasis(dcf: DayCountFractionEnum -> ACT_ACT_AFB):
 	set basis: 365 // Should this support 366 in leap years?  requires passing in the actual dates
 
-func DayCountBasis(dcf: DayCountFractionEnum ->ACT_ACT_ISDA):
+func DayCountBasis(dcf: DayCountFractionEnum -> ACT_ACT_ISDA):
 	set basis: 365 // Should this support 366 in leap years?  requires passing in the actual dates
 
-func DayCountBasis(dcf: DayCountFractionEnum ->ACT_ACT_ICMA):
+func DayCountBasis(dcf: DayCountFractionEnum -> ACT_ACT_ICMA):
 	set basis: 365 // Should this support 366 in leap years? requires passing in the actual dates
 
-func DayCountBasis(dcf: DayCountFractionEnum ->CAL_252):
+func DayCountBasis(dcf: DayCountFractionEnum -> CAL_252):
 	set basis: 252

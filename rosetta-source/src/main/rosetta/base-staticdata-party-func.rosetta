@@ -7,12 +7,10 @@ func Create_Counterparty: <"Constructs a Counterparty given a party and a counte
 		role CounterpartyRoleEnum (1..1)
 	output:
 		counterparty Counterparty (1..1)
-
 	set counterparty -> partyReference: <"Party serves the role of a key.">
-		party as-key
-
-	set counterparty -> role:
-		role
+		party
+		as-key
+	set counterparty -> role: role
 
 func Create_PartyRole: <"Constructs a PartyRole given a party and party role enumeration value.">
 	inputs:
@@ -20,12 +18,8 @@ func Create_PartyRole: <"Constructs a PartyRole given a party and party role enu
 		role PartyRoleEnum (1..1)
 	output:
 		partyRole PartyRole (1..1)
-
-	set partyRole -> partyReference:
-		party
-
-	set partyRole -> role:
-		role
+	set partyRole -> partyReference: party
+	set partyRole -> role: role
 
 func ExtractCounterpartyByRole: <"Extracts from a list of Counterparty data types, the Counterparty that corresponds to the role i.e. Party1 or Party2.">
 	inputs:
@@ -33,11 +27,8 @@ func ExtractCounterpartyByRole: <"Extracts from a list of Counterparty data type
 		roleEnumToExtract CounterpartyRoleEnum (1..1) <"The counterparty role enum to filter by.">
 	output:
 		counterparty Counterparty (0..1) <"The counterparty with specified counterparty role.">
-
-    set counterparty:
-        counterparties
-            filter [ item -> role = roleEnumToExtract ]
-            only-element
+	set counterparty:
+		counterparties filter [ item -> role = roleEnumToExtract ] only-element
 
 func ExtractAncillaryPartyByRole: <"Extracts from a list of AncillaryParty data types, the AncillaryParty that corresponds to the AncillaryRoleEnum.">
 	inputs:
@@ -45,11 +36,10 @@ func ExtractAncillaryPartyByRole: <"Extracts from a list of AncillaryParty data 
 		roleEnumToExtract AncillaryRoleEnum (1..1) <"The ancillary role enum to filter by.">
 	output:
 		ancillaryParty AncillaryParty (0..1) <"The ancillary party with specified ancillary role.">
-
-    set ancillaryParty:
-        ancillaryParties
-            filter [ item -> role = roleEnumToExtract ]
-            only-element
+	set ancillaryParty:
+		ancillaryParties
+			filter [ item -> role = roleEnumToExtract ]
+			only-element
 
 func ReplaceParty: <"Removes the old party, and adds the new party.">
 	inputs:
@@ -58,11 +48,8 @@ func ReplaceParty: <"Removes the old party, and adds the new party.">
 		newParty Party (1..1) <"Specifies the party to be added.">
 	output:
 		updatedParties Party (0..*) <"The updated list of parties.">
-
-    add updatedParties:
-        parties
-            extract [ if item = oldParty then newParty else item ]
-            distinct
+	add updatedParties:
+		parties extract [ if item = oldParty then newParty else item ] distinct
 
 func Create_PayerReceiver:
 	inputs:
@@ -70,7 +57,6 @@ func Create_PayerReceiver:
 		receiver CounterpartyRoleEnum (0..1)
 	output:
 		payerReceiver PayerReceiver (1..1)
-
 	set payerReceiver -> payer: payer
 	set payerReceiver -> receiver: receiver
 
@@ -80,10 +66,7 @@ func FilterPartyRole: <"Filters the list of partyRoles based on the provided par
 		partyRoleEnum PartyRoleEnum (1..1)
 	output:
 		filteredPartyRoles PartyRole (0..*)
-
-	add filteredPartyRoles:
-	    partyRoles
-	        filter [ item -> role = partyRoleEnum ]
+	add filteredPartyRoles: partyRoles filter [ item -> role = partyRoleEnum ]
 
 func FilterRelatedPartyByRole: <"Filters the list of RelatedParty based on the provided partyRoleEnum.">
 	inputs:
@@ -91,7 +74,5 @@ func FilterRelatedPartyByRole: <"Filters the list of RelatedParty based on the p
 		partyRoleEnum PartyRoleEnum (1..1)
 	output:
 		filteredRelatedParties RelatedParty (0..*)
-
 	add filteredRelatedParties:
-	    relatedParties
-	        filter [ item -> role = partyRoleEnum ]
+		relatedParties filter [ item -> role = partyRoleEnum ]
