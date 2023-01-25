@@ -12,9 +12,7 @@ import cdm.observable.asset.*
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
 
-
 type ComputedAmount: <"A class to specify the outcome of a computed amount, for testing purposes.">
-
 	callFunction calculation (1..1)
 	amount number (1..1)
 	currency string (0..1) <"The currency in which the computed amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
@@ -24,30 +22,29 @@ type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcom
 	[metadata key]
 	cashflowType CashflowType (1..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
 	paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
-	
+
 	condition CashflowAmount: <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
 		if priceQuantity exists
 		then priceQuantity -> quantitySchedule -> value >= 0.0
 
 type CashflowType: <"Characterises the type of cashflow, which can result from either a scheduled or a non-scheduled lifecycle event.">
- 	cashflowType ScheduledTransferEnum (0..1) <"Type of cashflow corresponding to a scheduled event.">
- 	cashPrice CashPrice (0..1) <"Type of cashflow corresponding to a non-scheduled event, where a price must be agreed between the parties.">
- 	grossOrNet GrossOrNetEnum (0..1) <"Whether the cashflow is gross, net or a commission, if any.">
- 	priceExpression PriceExpressionEnum (0..1)
- 	
-	condition: <"A cashflow is either specified as a type of scheduled cashflow, or as a price agreed between parties in case of a non-scheduled cashflow.">
- 	    required choice cashflowType, cashPrice
-	
-type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
+	cashflowType ScheduledTransferEnum (0..1) <"Type of cashflow corresponding to a scheduled event.">
+	cashPrice CashPrice (0..1) <"Type of cashflow corresponding to a non-scheduled event, where a price must be agreed between the parties.">
+	grossOrNet GrossOrNetEnum (0..1) <"Whether the cashflow is gross, net or a commission, if any.">
+	priceExpression PriceExpressionEnum (0..1)
 
+	condition: <"A cashflow is either specified as a type of scheduled cashflow, or as a price agreed between parties in case of a non-scheduled cashflow.">
+		required choice cashflowType, cashPrice
+
+type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 	fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
 	multiplierValue number (0..1)
 
-	condition: one-of
+	condition:
+		one-of
 
 type ResolvablePriceQuantity: <"Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into a single quantity from the quantity notation which has a corresponding asset identifier. In addition to the base case, where quantity is directly specified as a number as part of the quantity notation, the other use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
 	[metadata key]
-
 	resolvedQuantity Quantity (0..1) <"A product's quantity as a single, non-negative amount.  When specified as part of a product definition, this quantity attribute would not be set.  Instead it is specified on the quantity notation along with an asset identifier matching this payout's asset identifier.  This allows the quantity to be resolved for a payout leg, which can then be specified here for convenience during data processing.  There needs to be at least one resolvable quantity across payout legs of a product to define an anchor that other payout quantities can refer to.  This attribute is ignored when mapping existing FpML messages.">
 	quantitySchedule NonNegativeQuantitySchedule (0..1) <"A payout's quantity specified as a schedule, which may also contain a single value if that quantity is constant. There can only be a single quantity schedule applicable to a payout: e.g. the notional for an interest rate leg. The quantity must be specified outside of the payout in a PriceQuantity object and only referenced inside the payout using an address.">
 		[metadata address "pointsTo"=PriceQuantity->quantity]
@@ -64,7 +61,6 @@ type ResolvablePriceQuantity: <"Generic class to specify the quantity for differ
 		then ResolvablePriceQuantity -> quantityReference -> reference exists
 
 type PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
-
 	payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each payout leg.">
 	priceQuantity ResolvablePriceQuantity (0..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
 	principalPayment PrincipalPayments (0..1) <"The specification of the principal exchange. Optional as only applicable in the case of cross-currency or zero-coupon swaps with a final payment.">
@@ -81,24 +77,24 @@ type RollFeature: <"Used in conjunction with an exchange-based pricing source. I
 	deliveryDateRollConvention Offset (0..1) <"Specifies, for a Commodity Transaction that references a delivery date for a listed future, the day on which the specified future will roll to the next nearby month prior to the expiration of the referenced future. If the future will not roll at all - i.e. the price will be taken from the expiring contract, 0 should be specified here. If the future will roll to the next nearby on the last trading day - i.e. the price will be taken from the next nearby on the last trading day, then 1 should be specified and so on.">
 
 type PricingDates: <"Specifies specific dates or parametric rules for the dates on which the price will be determined">
-	specifiedDates AdjustableDates (0..*)  <"Defines specified dates on which the price will be determined.">
+	specifiedDates AdjustableDates (0..*) <"Defines specified dates on which the price will be determined.">
 	parametricDates ParametricDates (0..1) <"Defines rules for the dates on which the price will be determined.">
-	
-	condition: one-of
+
+	condition:
+		one-of
 
 type ValuationDate: <"A single object that represents the different methods to specify a valuation date, as used for cash settlement. The Single / Multiple ValuationDate is used for the determination of recovery in a credit event, the RelativeDateOffset is used for cash-settled option, and FxFixingDate is used for cross-currency settlement.">
-
 	singleValuationDate SingleValuationDate (0..1) <"Where single valuation date is specified as being applicable for cash settlement, this element specifies the number of business days after satisfaction of all conditions to settlement when such valuation date occurs. ISDA 2003 Term: Single Valuation Date.">
 	multipleValuationDates MultipleValuationDates (0..1) <"Where multiple valuation dates are specified as being applicable for cash settlement, this element specifies (a) the number of applicable valuation dates, and (b) the number of business days after satisfaction of all conditions to settlement when the first such valuation date occurs, and (c) the number of business days thereafter of each successive valuation date. ISDA 2003 Term: Multiple Valuation Dates.">
 	valuationDate RelativeDateOffset (0..1) <"The date on which the cash settlement amount will be determined according to the cash settlement method if the parties have not otherwise been able to agree the cash settlement amount. This attribute was formerly part of 'OptionCashSettlement', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
 	fxFixingDate FxFixingDate (0..1) <"The date on which the currency rate will be determined for the purpose of specifying the amount in deliverable currency. This attribute was formerly part of 'NonDeliverableSettlement', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
 	fxFixingSchedule AdjustableDates (0..1) <"The date, when expressed as a schedule of date(s), on which the currency rate will be determined for the purpose of specifying the amount in deliverable currency. This attribute was formerly part of 'NonDeliverableSettlement', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
 
-	condition: one-of
+	condition:
+		one-of
 
 type CashSettlementTerms: <"Defines the terms required to compute and settle a cash settlement amount according to a fixing value, including the fixing source, fixing method and fixing date. In FpML, PhysicalSettlementTerms and CashSettlementTerms extend SettlementTerms. In the CDM, this extension paradigm has not been used because SettlementTerms class has been used for purposes related to securities transactions, while it is not used as such in the FpML standard (i.e. only as an abstract construct.">
 	[metadata key]
-
 	cashSettlementMethod CashSettlementMethodEnum (0..1) <"Specifies the type of cash settlement method: cash price, yield curve etc.">
 	valuationMethod ValuationMethod (0..1) <"Specifies the parameters required to obtain a valuation, including the source, quotation method (bid, mid etc.) and any applicable quotation amount.">
 	valuationDate ValuationDate (0..1) <"Defines the different methods to specify a valuation date, as used for cash settlement. The Single / Multiple ValuationDate is used for the determination of recovery in a credit event, the RelativeDateOffset is used for cash-settled option, and FxFixingDate is used for cross-currency settlement.">
@@ -116,32 +112,47 @@ type CashSettlementTerms: <"Defines the terms required to compute and settle a c
 		then recoveryFactor >= 0.0 and recoveryFactor <= 1.0
 
 	condition CashCollateralMethod: <"The cash collateral valuation method only applies to mid-market and replacement value methods.">
-		if valuationMethod -> cashCollateralValuationMethod exists then
-			cashSettlementMethod = CashSettlementMethodEnum -> MidMarketIndicativeQuotations or
-			cashSettlementMethod = CashSettlementMethodEnum -> MidMarketIndicativeQuotationsAlternate or
-			cashSettlementMethod = CashSettlementMethodEnum -> MidMarketCalculationAgentDetermination or
-			cashSettlementMethod = CashSettlementMethodEnum -> ReplacementValueFirmQuotations or
-			cashSettlementMethod = CashSettlementMethodEnum -> ReplacementValueCalculationAgentDetermination
-	
+		if valuationMethod -> cashCollateralValuationMethod exists
+		then cashSettlementMethod
+			= CashSettlementMethodEnum -> MidMarketIndicativeQuotations
+			or cashSettlementMethod
+				= CashSettlementMethodEnum -> MidMarketIndicativeQuotationsAlternate
+			or cashSettlementMethod
+				= CashSettlementMethodEnum -> MidMarketCalculationAgentDetermination
+			or cashSettlementMethod
+				= CashSettlementMethodEnum -> ReplacementValueFirmQuotations
+			or cashSettlementMethod
+				= CashSettlementMethodEnum -> ReplacementValueCalculationAgentDetermination
+
 	condition MidMarketValuationMethod: <"Certain cash collateral valuation parameters only apply to the mid-market valuation methods.">
-		if ( valuationMethod -> cashCollateralValuationMethod -> applicableCsa exists or
-			valuationMethod -> cashCollateralValuationMethod -> agreedDiscountRate exists or
-			valuationMethod -> cashCollateralValuationMethod -> cashCollateralInterestRate exists ) then
-				cashSettlementMethod = CashSettlementMethodEnum -> MidMarketIndicativeQuotations or
-				cashSettlementMethod = CashSettlementMethodEnum -> MidMarketIndicativeQuotationsAlternate or
-				cashSettlementMethod = CashSettlementMethodEnum -> MidMarketCalculationAgentDetermination
-	
+		if (valuationMethod -> cashCollateralValuationMethod -> applicableCsa
+			exists
+			or valuationMethod -> cashCollateralValuationMethod -> agreedDiscountRate
+				exists
+			or valuationMethod -> cashCollateralValuationMethod -> cashCollateralInterestRate
+				exists)
+		then cashSettlementMethod
+			= CashSettlementMethodEnum -> MidMarketIndicativeQuotations
+			or cashSettlementMethod
+				= CashSettlementMethodEnum -> MidMarketIndicativeQuotationsAlternate
+			or cashSettlementMethod
+				= CashSettlementMethodEnum -> MidMarketCalculationAgentDetermination
+
 	condition ReplacementValueMethod: <"Protected party can only be specified for replacement value methods.">
-		if valuationMethod -> cashCollateralValuationMethod -> protectedParty exists then
-			cashSettlementMethod = CashSettlementMethodEnum -> ReplacementValueFirmQuotations or
-			cashSettlementMethod = CashSettlementMethodEnum -> ReplacementValueCalculationAgentDetermination
-	
+		if valuationMethod -> cashCollateralValuationMethod -> protectedParty
+			exists
+		then cashSettlementMethod
+			= CashSettlementMethodEnum -> ReplacementValueFirmQuotations
+			or cashSettlementMethod
+				= CashSettlementMethodEnum -> ReplacementValueCalculationAgentDetermination
+
 	condition FirmQuotationMethod: <"Prescribed documentation adjustment can only be specified for firm quotations method.">
-		if valuationMethod -> cashCollateralValuationMethod -> prescribedDocumentationAdjustment exists then
-			cashSettlementMethod = CashSettlementMethodEnum -> ReplacementValueFirmQuotations
+		if valuationMethod -> cashCollateralValuationMethod -> prescribedDocumentationAdjustment
+			exists
+		then cashSettlementMethod
+			= CashSettlementMethodEnum -> ReplacementValueFirmQuotations
 
 type DeliverableObligations: <"A class to specify all the ISDA terms relevant to defining the deliverable obligations.">
-
 	accruedInterest boolean (0..1) <"Indicates whether accrued interest is included (true) or not (false). For cash settlement this specifies whether quotations should be obtained inclusive or not of accrued interest. For physical settlement this specifies whether the buyer should deliver the obligation with an outstanding principal balance that includes or excludes accrued interest. ISDA 2003 Term: Include/Exclude Accrued Interest.">
 	category ObligationCategoryEnum (0..1) <"Used in both obligations and deliverable obligations to represent a class or type of securities which apply. ISDA 2003 Term: Obligation Category/Deliverable Obligation Category.">
 	notSubordinated boolean (0..1) <"An obligation and deliverable obligation characteristic. An obligation that ranks at least equal with the most senior Reference Obligation in priority of payment or, if no Reference Obligation is specified in the related Confirmation, the obligations of the Reference Entity that are senior. ISDA 2003 Term: Not Subordinated.">
@@ -196,32 +207,28 @@ type DeliverableObligations: <"A class to specify all the ISDA terms relevant to
 			and transferable is absent
 
 type LoanParticipation extends PCDeliverableObligationCharac: <"A class to specify loan with a participation agreement whereby the buyer is capable of creating, or procuring the creation of, a contractual right in favour of the seller that provides the seller with recourse to the participation seller for a specified share in any payments due under the relevant loan which are received by the participation seller. ISDA 2003 Term: Direct Loan Participation.">
-
 	qualifyingParticipationSeller string (0..1) <"If Direct Loan Participation is specified as a deliverable obligation characteristic, this specifies any requirements for the Qualifying Participation Seller. The requirements may be listed free-form. ISDA 2003 Term: Qualifying Participation Seller.">
 
 type PCDeliverableObligationCharac: <"A class to specify the Partial Cash Deliverable Obligation Characteristic.">
-
 	applicable boolean (1..1) <"Indicates whether the provision is applicable.">
 	partialCashSettlement boolean (0..1) <"Specifies whether either 'Partial Cash Settlement of Assignable Loans', 'Partial Cash Settlement of Consent Required Loans' or 'Partial Cash Settlement of Participations' is applicable. If this element is specified and Assignable Loan is a Deliverable Obligation Characteristic, any Assignable Loan that is deliverable, but where a non-receipt of Consent by the Physical Settlement Date has occurred, the Loan can be cash settled rather than physically delivered. If this element is specified and Consent Required Loan is a Deliverable Obligation Characteristic, any Consent Required Loan that is deliverable, but where a non-receipt of Consent by the Physical Settlement Date has occurred, the Loan can be cash settled rather than physically delivered. If this element is specified and Direct Loan Participation is a Deliverable Obligation Characteristic, any Participation that is deliverable, but where this participation has not been effected (has not come into effect) by the Physical Settlement Date, the participation can be cash settled rather than physically delivered.">
 
 type PhysicalSettlementPeriod:
-
 	businessDaysNotSpecified boolean (0..1) <"An explicit indication that a number of business days are not specified and therefore ISDA fallback provisions should apply.">
 	businessDays int (0..1) <"A number of business days. Its precise meaning is dependant on the context in which this element is used. ISDA 2003 Term: Business Day.">
 	maximumBusinessDays int (0..1) <"A maximum number of business days. Its precise meaning is dependant on the context in which this element is used. Intended to be used to limit a particular ISDA fallback provision.">
-	condition: one-of
+
+	condition:
+		one-of
 
 	condition BusinessDays: <"FpML specifies businessDays as a NonNegativeInteger.">
-		if businessDays exists
-		then businessDays >= 0
+		if businessDays exists then businessDays >= 0
 
 	condition MaximumBusinessDays: <"FpML specifies maximumBusinessDays as a NonNegativeInteger.">
-		if maximumBusinessDays exists
-		then maximumBusinessDays >= 0
+		if maximumBusinessDays exists then maximumBusinessDays >= 0
 
 type PhysicalSettlementTerms: <"Specifies Physical Settlement Terms characteristics for the settlement of a Credit Default Swap or Option.">
 	[metadata key]
-
 	clearedPhysicalSettlement boolean (0..1) <"Specifies whether the swap resulting from physical settlement of the swaption transaction will clear through a clearing house. The meaning of Cleared Physical Settlement is defined in the 2006 ISDA Definitions, Section 15.2 (published in Supplement number 28).">
 	predeterminedClearingOrganizationParty AncillaryRoleEnum (0..1) <"Specifies the clearing organization (CCP, DCO) to which the trade should be cleared.">
 	physicalSettlementPeriod PhysicalSettlementPeriod (0..1) <"The number of business days used in the determination of the physical settlement date. The physical settlement date is this number of business days after all applicable conditions to settlement are satisfied. If a number of business days is not specified fallback provisions apply for determining the number of business days. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply the businessDaysNotSpecified element should be included. If a specified number of business days are to apply these should be specified in the businessDays element. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply but capped at a maximum number of business days then the maximum number should be specified in the maximumBusinessDays element. ISDA 2003 Term: Physical Settlement Period.">
@@ -231,35 +238,35 @@ type PhysicalSettlementTerms: <"Specifies Physical Settlement Terms characterist
 
 	condition PredeterminedClearingOrganizationParty:
 		if predeterminedClearingOrganizationParty exists
-		then predeterminedClearingOrganizationParty = AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
+		then predeterminedClearingOrganizationParty
+			= AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
 
 type PercentageRule: <"A class defining a content model for a calculation rule defined as percentage of the notional amount.">
-
 	paymentPercent number (1..1) <"A percentage of the notional amount.">
 	notionalAmountReference Money (1..1) <"A reference to the notional amount.">
 		[metadata reference]
 
 type SettlementDate: <"A data defining the settlement date(s) for cash or physical settlement as either a set of explicit dates, together with applicable adjustments, or as a date relative to some other (anchor) date, or as any date in a range of contiguous business days. This data type provides a level of abstraction on top of the different legacy methods used to specify a settlement / payment date, which vary across product types, asset classes and delivery types.">
 	[metadata key]
-
 	adjustableOrRelativeDate AdjustableOrAdjustedOrRelativeDate (0..1) <"A single settlement date subject to adjustment or specified as relative to another date (e.g. the trade date). This attribute was formerly part of 'SettlementTerms', which is now being harmonised to include a common 'SettlementDate', as inherited from 'SettlementBase'.">
 	valueDate date (0..1) <"The settlement date for a forward settling product. For Foreign Exchange contracts, this represents a common settlement date between both currency legs. To specify different settlement dates for each currency leg, see the ForeignExchange class. This attribute was formerly part of 'SettlementTerms', which is now being harmonised to include a common 'SettlementDate', as inherited from 'SettlementBase'.">
 	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date. This attributes was formerly part of 'CashSettlementPaymentDate' as included into 'OptionCashSettlement' (which is now merged into a unique 'CashSettlementTerms' data type.">
 	businessDateRange BusinessDateRange (0..1) <"A range of contiguous business days. This attribute is meant to be merged with the 'settlementDate' at some future point once we refactor 'Date' to use a single complex type across the model. This attributes was formerly part of 'CashSettlementPaymentDate', as included into 'OptionCashSettlement' (which is now merged into a unique 'CashSettlementTerms' data type.">
 	cashSettlementBusinessDays int (0..1) <"The number of business days used in the determination of the cash settlement payment date. If a cash settlement amount is specified, the cash settlement payment date will be this number of business days following the calculation of the final price. If a cash settlement amount is not specified, the cash settlement payment date will be this number of business days after all conditions to settlement are satisfied. ISDA 2003 Term: Cash Settlement Date. This attribute was formerly part of 'CashSettlementTerms' as used for credit event settlement, which now includes a common 'SettlementDate' attribute.">
 	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">
-	
+
 	condition BusinessDays: <"FpML specifies cashSettlementBusinessDays as a nonNegativeInteger. If cashSettlementBusinessDays is not specified, then another settlement date method must be specified.">
 		if cashSettlementBusinessDays exists
-			then cashSettlementBusinessDays >= 0
-		else
-			adjustableOrRelativeDate exists or valueDate exists or adjustableDates exists or businessDateRange exists
+		then cashSettlementBusinessDays >= 0
+		else adjustableOrRelativeDate exists
+			or valueDate exists
+			or adjustableDates exists
+			or businessDateRange exists
 
 	condition DateChoice: <"Settlement date must be specified either throught the 'settlementDate' or 'valueDate' attribute. This is a temporary work-around until such time when we can retire the 'valueDate' attribute.">
 		optional choice adjustableOrRelativeDate, valueDate, adjustableDates, businessDateRange
 
 type FxFixingDate extends Offset: <"Extends the Offset structure to specify an FX fixing date as an offset to dates specified somewhere else in the document.">
-
 	businessDayConvention BusinessDayConventionEnum (0..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
 	businessCenters BusinessCenters (0..1)
 	businessCentersReference BusinessCenters (0..1) <"A reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">
@@ -267,7 +274,7 @@ type FxFixingDate extends Offset: <"Extends the Offset structure to specify an F
 	dateRelativeToPaymentDates DateRelativeToPaymentDates (0..1) <"The payment date references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure.">
 	dateRelativeToCalculationPeriodDates DateRelativeToCalculationPeriodDates (0..1) <"The calculation period references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure. Implemented for Brazilian-CDI swaps where it will refer to the termination date of the appropriate leg.">
 	dateRelativeToValuationDates DateRelativeToValuationDates (0..1) <"The calculation period references on which settlements in non-deliverable currency are due and will then have to be converted according to the terms specified through the other parts of the nonDeliverableSettlement structure. Implemented for Brazilian-CDI swaps where it will refer to the termination date of the appropriate leg.">
-    fxFixingDate AdjustableOrRelativeDate (0..1) <"Describes the specific date when a non-deliverable forward or cash-settled option will 'fix' against a particular rate, which will be used to compute the ultimate cash settlement. This element should be omitted where a single, discrete fixing date cannot be identified e.g. on an american option, where fixing may occur at any date on a continuous range.  This attribute was formerly part of 'fxSettlementTerms', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
+	fxFixingDate AdjustableOrRelativeDate (0..1) <"Describes the specific date when a non-deliverable forward or cash-settled option will 'fix' against a particular rate, which will be used to compute the ultimate cash settlement. This element should be omitted where a single, discrete fixing date cannot be identified e.g. on an american option, where fixing may occur at any date on a continuous range.  This attribute was formerly part of 'fxSettlementTerms', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
 
 	condition BusinessCentersChoice: <"condition to represent an FpML choice construct.">
 		optional choice businessCenters, businessCentersReference
@@ -278,12 +285,14 @@ type FxFixingDate extends Offset: <"Extends the Offset structure to specify an F
 type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, which can either be cash, physical, or fx-based cash-settlement. This class can be used for the settlement of options and forwards, cash transactions (e.g. securities or foreign exchange), or in case of credit event.">
 	cashSettlementTerms CashSettlementTerms (0..*) <"Specifies the parameters associated with the cash settlement procedure.">
 	physicalSettlementTerms PhysicalSettlementTerms (0..1) <"Specifies the physical settlement terms which apply to the transaction.">
-	
+
 	condition OptionSettlementChoice: <"The option settlement cannot combine both physical and cash terms specification.">
 		optional choice cashSettlementTerms, physicalSettlementTerms /*, fxSettlementTerms*/
+
 	condition CashSettlementTerms: <"If the cash settlement terms are specified, then the settlementType can either be Cash, Election or CashOrPhysical">
 		if cashSettlementTerms exists
 		then settlementType <> SettlementTypeEnum -> Physical
+
 	condition PhysicalSettlementTerms: <"If the physical settlement terms are specified, then the settlementType can either be Physical, Election or CashOrPhysical">
 		if physicalSettlementTerms exists /* or fxSettlementTerms exists*/
 		then settlementType <> SettlementTypeEnum -> Cash
@@ -291,35 +300,36 @@ type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, w
 type PriceQuantity: <"Defines a settlement as an exchange between two parties of a specified quantity of an asset (the quantity) against a specified quantity of another asset (the price). The settlement is optional and can be either cash or physical. In the case of non-cash products, the settlement of the price/quantity would not be specified here and instead would be delegated to the product mechanics, as parameterised by the price/quantity values.">
 	[metadata key]
 	price PriceSchedule (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
-	    [metadata location]
+		[metadata location]
 	quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
-	    [metadata location]
+		[metadata location]
 	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference. The cardinality is optional as some quantity / price cases have no observable (e.g. a notional and a fixed rate in a given currency).">
 	buyerSeller BuyerSeller (0..1) <"Defines the direction of the exchange. The convention is that the buyer receives the quantity / pays the price, whereas the seller receives the price / pays the quantity. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
 	settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
 	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
 
 	condition RateOptionObservable: <"When the observable is a rate option, the price type must correspond to one of the interest rate price expressions.">
-	    if observable -> rateOption exists and price exists
-	    then 
-			price -> priceExpression -> priceType contains PriceTypeEnum -> InterestRate or
-			price-> priceExpression -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
+		if observable -> rateOption exists and price exists
+		then price -> priceExpression -> priceType
+			contains PriceTypeEnum -> InterestRate
+			or price -> priceExpression -> priceType
+				contains PriceTypeEnum -> MultiplierOfIndexValue
 
 	condition ActualSettlement: <"Settlement terms must be present when the settlement direction is specified.">
 		if buyerSeller exists then settlementTerms exists
 
 type FixedPrice: <"A predefined price accorded by the counterparties.">
-
-    price PriceSchedule (0..1) <"Fixed price step schedule, including an initial price specified as an absolute number.">
+	price PriceSchedule (0..1) <"Fixed price step schedule, including an initial price specified as an absolute number.">
 		[metadata address "pointsTo"=PriceQuantity->price]
 
 	condition NonNegativePrice_amount: <"For a non-negative price, the amount attribute must be positive.">
-        if price -> value exists then price -> value >= 0.0 and
-		if price -> datedValue exists then price -> datedValue -> value all >= 0.0
+		if price -> value exists
+		then price -> value >= 0.0
+			and if price -> datedValue exists
+			then price -> datedValue -> value all >= 0.0
 
 type PaymentDetail:
 	[metadata key]
-
 	paymentDate AdjustableOrRelativeDate (0..1)
 	paymentRule PaymentRule (1..1) <"The calculation rule.">
 	paymentAmount Money (0..1) <"A fixed payment amount.">
@@ -329,12 +339,10 @@ type PaymentDiscounting: <"This class corresponds to the FpML PaymentDiscounting
 	presentValueAmount Money (0..1) <"The amount representing the present value of the forecast payment.">
 
 type PaymentRule: <"A class defining the payment calculation rule. As of FpML 5.10, percentage rule is the only calculation rule that has been specified as part of the standard.">
-
 	percentageRule PercentageRule (0..1) <"This attribute is not present as part of the FpML construct, as the payment rule is specialised by means of runtime type extension through the xsi:type.">
 
 type PrincipalPayments: <"A class defining which principal exchanges occur for the stream.">
 	[metadata key]
-
 	initialPayment boolean (1..1) <"A true/false flag to indicate whether there is an initial exchange of principal on the effective date.">
 	finalPayment boolean (1..1) <"A true/false flag to indicate whether there is a final exchange of principal on the termination date.">
 	intermediatePayment boolean (1..1) <"A true/false flag to indicate whether there are intermediate or interim exchanges of principal during the term of the swap.">
@@ -342,34 +350,32 @@ type PrincipalPayments: <"A class defining which principal exchanges occur for t
 	principalPaymentSchedule PrincipalPaymentSchedule (0..1) <"Describe dates schedules for Principal Exchanges and related role of the parties when known.">
 
 type PrincipalPaymentSchedule: <"Describe dates schedules for Principal Exchanges and related role of the parties when known.">
-    initialPrincipalPayment PrincipalPayment (0..1) <"Principal Payment made at Trade inception.">
-    intermediatePrincipalPayment AdjustableRelativeOrPeriodicDates (0..1) <"Principal Payment as part of the Trade lifecycle e.g. as part of notional reset adjustements in a Cross Currency Swap with a varying notional leg.">
-    finalPrincipalPayment PrincipalPayment (0..1) <"Principal Payment at Trade maturity">
+	initialPrincipalPayment PrincipalPayment (0..1) <"Principal Payment made at Trade inception.">
+	intermediatePrincipalPayment AdjustableRelativeOrPeriodicDates (0..1) <"Principal Payment as part of the Trade lifecycle e.g. as part of notional reset adjustements in a Cross Currency Swap with a varying notional leg.">
+	finalPrincipalPayment PrincipalPayment (0..1) <"Principal Payment at Trade maturity">
 
 type PrincipalPayment: <"Any kind of principal payments when the amount is known and thus fixed.">
-    [metadata key]
-    principalPaymentDate AdjustableDate (0..1) <"The date where the PrincipalPayment shall be settled.">
-    payerReceiver PayerReceiver (0..1) <"Specifies the parties responsible for making and receiving payments defined by this structure.">
-    principalAmount Money (0..1) <"When known at the time the transaction is made, the cash amount to be paid.">
-    discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the principal payment amount.">
-    presentValuePrincipalAmount Money (0..1) <"The amount representing the present value of the principal payment.">
+	[metadata key]
+	principalPaymentDate AdjustableDate (0..1) <"The date where the PrincipalPayment shall be settled.">
+	payerReceiver PayerReceiver (0..1) <"Specifies the parties responsible for making and receiving payments defined by this structure.">
+	principalAmount Money (0..1) <"When known at the time the transaction is made, the cash amount to be paid.">
+	discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the principal payment amount.">
+	presentValuePrincipalAmount Money (0..1) <"The amount representing the present value of the principal payment.">
 
-    condition PrincipalAmount:
-    	required choice principalAmount, presentValuePrincipalAmount
+	condition PrincipalAmount:
+		required choice principalAmount, presentValuePrincipalAmount
 
-    condition DiscountFactor:
-    	if presentValuePrincipalAmount exists
-    	then discountFactor exists
+	condition DiscountFactor:
+		if presentValuePrincipalAmount exists then discountFactor exists
 
 type SettlementBase: <"A base class to be extended by the SettlementTerms class.">
 	[metadata key]
-
 	settlementType SettlementTypeEnum (1..1) <"Whether the settlement will be cash, physical, by election, ...">
 	transferSettlementType TransferSettlementEnum (0..1) <"The qualification as to how the transfer will settle, e.g. a DvP settlement.">
 	settlementCurrency string (0..1) <"The settlement currency is to be specified when the Settlement Amount cannot be known in advance. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
 		[docReference ICMA GMRA namingConvention "Contractual Currency"
-		    provision "As defined in GMRA paragraph 2(k)/ paragraph 7(a) All the payments made in respect of the Purchase Price or the Repurchase Price of any Transaction shall be made in the currency of the Purchase Price (the Contractual Currency) save as provided in paragraph 10(d)(ii). Notwithstanding the foregoing, the payee of any money may, at its option, accept tender thereof in any other currency, provided, however, that, to the extent permitted by applicable law, the obligation of the payer to pay such money will be discharged only to the extent of the amount of the Contractual Currency that such payee may, consistent with normal banking procedures, purchase with such other currency (after deduction of any premium and costs of exchange) for delivery within the customary delivery period for spot transactions in respect of the relevant currency."]
+			provision "As defined in GMRA paragraph 2(k)/ paragraph 7(a) All the payments made in respect of the Purchase Price or the Repurchase Price of any Transaction shall be made in the currency of the Purchase Price (the Contractual Currency) save as provided in paragraph 10(d)(ii). Notwithstanding the foregoing, the payee of any money may, at its option, accept tender thereof in any other currency, provided, however, that, to the extent permitted by applicable law, the obligation of the payer to pay such money will be discharged only to the extent of the amount of the Contractual Currency that such payee may, consistent with normal banking procedures, purchase with such other currency (after deduction of any premium and costs of exchange) for delivery within the customary delivery period for spot transactions in respect of the relevant currency."]
 	settlementDate SettlementDate (0..1) <"The date on which the settlement amount will be paid, subject to adjustment in accordance with any applicable business day convention. This component would not be present for a mandatory early termination provision where the cash settlement payment date is the mandatory early termination date.">
 	settlementCentre SettlementCentreEnum (0..1) <"Optional settlement centre as an enumerated list: Euroclear, Clearstream.">
 	settlementProvision SettlementProvision (0..1) <"Optionally defines the parameters that regulate a settlement.">
@@ -377,7 +383,7 @@ type SettlementBase: <"A base class to be extended by the SettlementTerms class.
 
 //ICMA-P2
 type SettlementProvision: <"Defines parameters that regulate a settlement, for instance whether this settlement should be netted with other ones or broken-down into smaller amounts.">
- 	shapingProvisions ShapingProvision (0..1) <"Defines the parameters that are necessary to 'shape' a settlement, i.e. break it down into smaller amounts.">
+	shapingProvisions ShapingProvision (0..1) <"Defines the parameters that are necessary to 'shape' a settlement, i.e. break it down into smaller amounts.">
 
 type ShapingProvision: <"Defines the applicable settlement limits that may require a settlement to be 'shaped', i.e. broken-down into smaller amounts.">
- 	shapeSchedule Money (1..*) <"Defines applicable settlement limits in each currency.">
+	shapeSchedule Money (1..*) <"Defines applicable settlement limits in each currency.">

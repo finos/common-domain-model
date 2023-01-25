@@ -47,13 +47,12 @@ func MergeTradeLot: <"Replace TradeLot in with matching TradeLot->lotIdentifier.
 	add mergedTradeLots: <"Where the lot identifier matches, replace the existing TradeLot with the new TradeLot.">
 		tradeLots
 			extract [
-					if item -> lotIdentifier = newTradeLot -> lotIdentifier
-						or (item -> lotIdentifier
-							is absent
-							and newTradeLot -> lotIdentifier is absent)
-					then newTradeLot
-					else item
-				]
+				if item -> lotIdentifier = newTradeLot -> lotIdentifier
+					or (item -> lotIdentifier is absent
+						and newTradeLot -> lotIdentifier is absent)
+				then newTradeLot
+				else item
+			]
 
 func CompareTradeLot: <"Compare the Quantity in TradeLot 1 to the Quantity (with the same unit of amount) in TradeLot 2, based on the CompareOp enum.">
 	inputs:
@@ -66,25 +65,25 @@ func CompareTradeLot: <"Compare the Quantity in TradeLot 1 to the Quantity (with
 	set result:
 		unitOfAmounts
 			extract unitOfAmount [
-					CompareQuantityByUnitOfAmount(
-							tradeLot1 -> priceQuantity -> quantity
-								extract [
-										Create_NonNegativeQuantity(
-												item -> value,
-												item -> unit
-											)
-									],
-							op,
-							tradeLot2 -> priceQuantity -> quantity
-								extract [
-										Create_NonNegativeQuantity(
-												item -> value,
-												item -> unit
-											)
-									],
-							unitOfAmount
-						)
-				]
+				CompareQuantityByUnitOfAmount(
+						tradeLot1 -> priceQuantity -> quantity
+							extract [
+								Create_NonNegativeQuantity(
+										item -> value,
+										item -> unit
+									)
+							],
+						op,
+						tradeLot2 -> priceQuantity -> quantity
+							extract [
+								Create_NonNegativeQuantity(
+										item -> value,
+										item -> unit
+									)
+							],
+						unitOfAmount
+					)
+			]
 			all = True
 
 func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the given amount (regardless of unit of amount), based on the CompareOp enum.">
@@ -109,14 +108,14 @@ func PriceQuantityTriangulation: <"Defines all the scenarios which triangulation
 		if tradeLots count > 0
 		then tradeLots
 			extract [
-					if item -> priceQuantity -> price -> priceExpression -> priceType
-						contains PriceTypeEnum -> CashPrice
-					then CashPriceQuantityNoOfUnitsTriangulation(
-							item -> priceQuantity -> quantity,
-							item -> priceQuantity -> price
-						)
-					else True
-				]
+				if item -> priceQuantity -> price -> priceExpression -> priceType
+					contains PriceTypeEnum -> CashPrice
+				then CashPriceQuantityNoOfUnitsTriangulation(
+						item -> priceQuantity -> quantity,
+						item -> priceQuantity -> price
+					)
+				else True
+			]
 			all = True
 		else True
 

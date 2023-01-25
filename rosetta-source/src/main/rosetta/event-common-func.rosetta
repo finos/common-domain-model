@@ -31,15 +31,15 @@ func QuantityIncreased:
 	set result: <"Check each after (list item) is greater than before (func input).">
 		after
 			extract [
-					CompareTradeLot(
-							item -> trade -> tradableProduct -> tradeLot
-								only-element,
-							CompareOp -> GreaterThan,
-							before -> trade -> tradableProduct -> tradeLot
-								only-element
-						)
-						= True
-				]
+				CompareTradeLot(
+						item -> trade -> tradableProduct -> tradeLot
+							only-element,
+						CompareOp -> GreaterThan,
+						before -> trade -> tradableProduct -> tradeLot
+							only-element
+					)
+					= True
+			]
 			all = True
 
 func QuantityDecreased:
@@ -51,24 +51,24 @@ func QuantityDecreased:
 	set result:
 		after
 			extract [
-					// check each after (item) is less than before (input)
-					CompareTradeLot(
+				// check each after (item) is less than before (input)
+				CompareTradeLot(
+						item -> trade -> tradableProduct -> tradeLot
+							only-element,
+						CompareOp -> LessThan,
+						before -> trade -> tradableProduct -> tradeLot
+							only-element
+					)
+					= True
+					and // check each after (item) is greater than zero
+					CompareTradeLotToAmount(
 							item -> trade -> tradableProduct -> tradeLot
 								only-element,
-							CompareOp -> LessThan,
-							before -> trade -> tradableProduct -> tradeLot
-								only-element
+							CompareOp -> GreaterThan,
+							0.0
 						)
 						= True
-						and // check each after (item) is greater than zero
-						CompareTradeLotToAmount(
-								item -> trade -> tradableProduct -> tradeLot
-									only-element,
-								CompareOp -> GreaterThan,
-								0.0
-							)
-							= True
-				]
+			]
 			all = True
 
 func QuantityDecreasedToZero:
@@ -97,13 +97,13 @@ func CompareTradeStatesToAmount: <"For each TradeState, compare the Quantity amo
 	set result:
 		tradeStates
 			extract [
-					CompareTradeLotToAmount(
-							item -> trade -> tradableProduct -> tradeLot
-								only-element,
-							op,
-							amount
-						)
-				]
+				CompareTradeLotToAmount(
+						item -> trade -> tradableProduct -> tradeLot
+							only-element,
+						op,
+						amount
+					)
+			]
 			all = True
 
 func TransfersForDate:
@@ -139,8 +139,7 @@ func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on th
 		identifiers ObservationIdentifier (1..1)
 	set identifiers -> observable -> rateOption:
 		payout -> rateSpecification -> floatingRate -> rateOption
-	set identifiers -> observationDate:
-		date
+	set identifiers -> observationDate: date
 
 // ResolveInterestRateReset is similar to ResolveEquityReset as they both only support the basic use cases for reset. Once support is added for stub periods and thus rate interpolation, the formula to derive the reset value will start to look different between the functions.
 func ResolveInterestRateReset: <"Defines how to resolve the reset value for an InterestRatePayout.">
@@ -369,7 +368,8 @@ func RateOfReturn: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation 
 	alias initialPriceValue: initialPrice -> value
 	alias finalPriceValue: finalPrice -> value
 	set rateOfReturn:
-		if finalPriceValue exists and initialPriceValue exists
+		if finalPriceValue exists
+			and initialPriceValue exists
 			and initialPriceValue > 0
 		then (finalPriceValue - initialPriceValue) / initialPriceValue
 
@@ -403,9 +403,8 @@ func Create_StockSplit: <"Function specification to create the fully-formed busi
 	alias preSplitPrice:
 		before -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price
 			filter [
-					item -> perUnitOf -> financialUnit
-						= FinancialUnitEnum -> Share
-				]
+				item -> perUnitOf -> financialUnit = FinancialUnitEnum -> Share
+			]
 			only-element
 	alias postSplitPrice: <"The pre-split price is divided by the adjustment ratio to determine the post-split price.">
 		Create_Price(
@@ -606,8 +605,7 @@ func CalculateTransfer: <"Function specification to calculate a transfer, e.g. f
 	output:
 		transfer Transfer (0..*)
 	add transfer: <"Assigns the result of the Create_Transfer function to the transferHistory attribute.">
-		if instruction -> payout -> interestRatePayout
-			exists
+		if instruction -> payout -> interestRatePayout exists
 			or instruction -> payout -> performancePayout exists
 			or instruction -> payout -> assetPayout exists
 		then Create_CashTransfer(instruction)
@@ -623,9 +621,9 @@ func CalculateTransfer: <"Function specification to calculate a transfer, e.g. f
 		then Create_AssetTransfer(instruction)
 
 func Create_Transfer: <"Defines how a transfer should be constructed, when representing the exchange of cash between parties.">
-		[docReference ICMA GMRA  namingConvention "Purchase Price"
+	[docReference ICMA GMRA  namingConvention "Purchase Price"
 		provision "As defined in the GMRA, paragraph 2(nn) The Purchase Price is the price at which the Purchased Securities are sold or are to be sold by Seller to Buyer."]
-		[docReference ICMA ERCCBestPractice namingConvention "Purchase Price"
+	[docReference ICMA ERCCBestPractice namingConvention "Purchase Price"
 		provision "ERCC Guide: Annex II  Glossary of repo terminology. The term for the sum of money paid by the Buyer to the Seller on the Purchase Date of a repo. It is equal to the initial Market Value of the collateral less any haircut or initial margin (called Margin Ratio in the GMRA)."]
 	inputs:
 		instruction TransferInstruction (1..1)
@@ -652,8 +650,7 @@ func Create_SecurityTransfer: <"Defines the creation of a Transfer, given a Trad
 	output:
 		transfer Transfer (1..1)
 	post-condition UnitsAndObservable:
-		if tradeState -> trade -> tradableProduct -> product -> security
-			exists
+		if tradeState -> trade -> tradableProduct -> product -> security exists
 			and tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> settlementTerms -> transferSettlementType
 				only-element
 				= TransferSettlementEnum -> DeliveryVersusPayment
@@ -771,9 +768,9 @@ func ResolveCashSettlementDate: <"A product agnostic function that resolves the 
 		date date (1..1)
 
 func SecurityFinanceCashSettlementAmount:
-		[docReference ICMA GMRA namingConvention "Repurchase Price"
+	[docReference ICMA GMRA namingConvention "Repurchase Price"
 		provision "As defined in GMRA paragraph 2(rr) The Repurchase Price is the sum of Purchase Price and Price Differential."]
-		[docReference ICMA ERCCBestPractice namingConvention "Repurchase Price"
+	[docReference ICMA ERCCBestPractice namingConvention "Repurchase Price"
 		provision "ERCC Guide: Annex II  Glossary of repo terminology. The term for the sum of money to be paid by the Seller of a repo to the Buyer on the Repurchase Date to buy back equivalent collateral. It is equal to the Purchase Price plus repo interest. This term also applies to the value of the cash owed to the Buyer on any day during the term of a repo, that is, the Purchase Price plus repo interest accrued up to that particular date. In the case of Buy/Sell-Backs, the Repurchase Price is net of the amount of any coupon, dividend or other income on the collateral paid to the Buyer during the life of the transaction plus reinvestment income to compensate for the delayed payment."]
 	inputs:
 		tradeState TradeState (1..1)
@@ -1040,8 +1037,7 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 	// performancePayout PerformancePayout (1..1)
 	output:
 		product Product (1..1)
-	alias payout:
-		product -> contractualProduct -> economicTerms -> payout
+	alias payout: product -> contractualProduct -> economicTerms -> payout
 //	condition PriceReturnTermsOnlyExists:  performancePayout -> returnTerms -> priceReturnTerms only exists
 	condition EquitySecurityType: <"Security must be equity (single name).">
 		security -> securityType = SecurityTypeEnum -> Equity
@@ -1051,8 +1047,7 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 		if masterConfirmation exists then NewFloatingPayout(masterConfirmation)
 	post-condition PayoutType: <"Other payout types must be absent.">
 		if masterConfirmation is absent
-		then payout -> interestRatePayout
-			is absent
+		then payout -> interestRatePayout is absent
 			and payout -> cashflow is absent
 			and payout -> creditDefaultPayout is absent
 			and payout -> forwardPayout is absent
@@ -1122,14 +1117,14 @@ func UpdateSpreadAdjustmentAndRateOptions: <"For each of the trade state's price
 	set updatedTradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity:
 		tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity
 			extract [
-					UpdateIndexTransitionPriceAndRateOption(
-							item,
-							FindMatchingIndexTransitionInstruction(
-									instructions,
-									item
-								)
-						)
-				]
+				UpdateIndexTransitionPriceAndRateOption(
+						item,
+						FindMatchingIndexTransitionInstruction(
+								instructions,
+								item
+							)
+					)
+			]
 
 func UpdateIndexTransitionPriceAndRateOption:
 	inputs:
@@ -1157,20 +1152,20 @@ func FindMatchingIndexTransitionInstruction:
 	set matchingInstruction:
 		instructions
 			filter [
-					// indexTenor period matches
-					item -> observable -> rateOption -> indexTenor -> period
-						= priceQuantity -> observable -> rateOption -> indexTenor -> period
-							// indexTenor periodMultiplier matches
-						and item -> observable -> rateOption -> indexTenor -> periodMultiplier
-							= priceQuantity -> observable -> rateOption -> indexTenor -> periodMultiplier
-								// quantity currency or price currency matches
-						and (
-						item -> quantity -> unit -> currency
-							= priceQuantity -> quantity -> unit -> currency
-							or item -> price -> unit -> currency
-								= priceQuantity -> price -> unit -> currency
-							)
-				]
+				// indexTenor period matches
+				item -> observable -> rateOption -> indexTenor -> period
+					= priceQuantity -> observable -> rateOption -> indexTenor -> period
+						// indexTenor periodMultiplier matches
+					and item -> observable -> rateOption -> indexTenor -> periodMultiplier
+						= priceQuantity -> observable -> rateOption -> indexTenor -> periodMultiplier
+							// quantity currency or price currency matches
+					and (
+					item -> quantity -> unit -> currency
+						= priceQuantity -> quantity -> unit -> currency
+						or item -> price -> unit -> currency
+							= priceQuantity -> price -> unit -> currency
+						)
+			]
 			first
 
 func Create_SecurityLendingInvoice: <"Defines the process of calculating and creating a Security Lending Invoice.">
@@ -1319,11 +1314,8 @@ func Create_Return: <"Defines the process of partially or fully returning a Secu
 	alias quantitySchedule:
 		returnInstruction -> quantity
 			extract [
-					Create_NonNegativeQuantitySchedule(
-							item -> value,
-							item -> unit
-						)
-				]
+				Create_NonNegativeQuantitySchedule(item -> value, item -> unit)
+			]
 	alias changePriceQuantity:
 		Create_PriceQuantity(empty, quantitySchedule, empty)
 	add returnEvent -> after: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially returned original contract, assuming there's a single security finance transaction in the original financial contract that is part returned.">
@@ -1444,7 +1436,8 @@ func Qualify_Roll: <"Qualification of a roll event based on: (i) terminating a s
 	alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
 	set is_event:
 		// The first 2 conditions imply that there is 1 and only 1 before and 1 open thanks to the "only-element" modifier
-		beforeEconomicterms exists and openEconomicTerms exists
+		beforeEconomicterms exists
+			and openEconomicTerms exists
 			and closedTradeState count = 1
 			and openEconomicTerms -> payout = beforeEconomicterms -> payout
 			and openEconomicTerms -> collateral
@@ -1504,9 +1497,9 @@ func Create_OnDemandRateChangePriceChangeInstruction: <"Creates a price change i
 			extract [ item -> price ]
 			flatten
 			filter [
-					item -> priceExpression -> priceType
-						= PriceTypeEnum -> InterestRate
-				]
+				item -> priceExpression -> priceType
+					= PriceTypeEnum -> InterestRate
+			]
 			only-element
 	alias newPrice: <"Create the new price object.">
 		Create_Price(
@@ -1557,55 +1550,55 @@ func Qualify_OnDemandRateChange: <"The qualification of on an-demand rate change
 			extract [ item -> price ]
 			flatten
 			filter [
-					item -> priceExpression -> priceType
-						= PriceTypeEnum -> InterestRate
-				]
+				item -> priceExpression -> priceType
+					= PriceTypeEnum -> InterestRate
+			]
 			extract [ item -> value ]
 	alias openPriceQuantityRateOnly: <"The rate value after. There must be 1 and only 1, and it must be different from the rate before.">
 		openTradableProduct -> tradeLot only-element -> priceQuantity
 			extract [ item -> price ]
 			flatten
 			filter [
-					item -> priceExpression -> priceType
-						= PriceTypeEnum -> InterestRate
-				]
+				item -> priceExpression -> priceType
+					= PriceTypeEnum -> InterestRate
+			]
 			extract [ item -> value ]
 	alias beforePriceQuantityNoRate: <"The price and quantity attributes before, excluding any rate price.">
 		beforeTradableProduct -> tradeLot only-element -> priceQuantity
 			extract [
-					Create_PriceQuantity(
-							item -> price
-								filter p [
-										p -> priceExpression -> priceType
-											<> PriceTypeEnum -> InterestRate
-									],
-							item -> quantity,
-							item -> observable
-						)
-				]
+				Create_PriceQuantity(
+						item -> price
+							filter p [
+								p -> priceExpression -> priceType
+									<> PriceTypeEnum -> InterestRate
+							],
+						item -> quantity,
+						item -> observable
+					)
+			]
 	alias openPriceQuantityNoRate: <"The price and quantity attributes after, excluding any rate price. They must be equal to the price and quantity before, excluding any rate price">
 		openTradableProduct -> tradeLot only-element -> priceQuantity
 			extract [
-					Create_PriceQuantity(
-							item -> price
-								filter p [
-										p -> priceExpression -> priceType
-											<> PriceTypeEnum -> InterestRate
-									],
-							item -> quantity,
-							item -> observable
-						)
-				]
+				Create_PriceQuantity(
+						item -> price
+							filter p [
+								p -> priceExpression -> priceType
+									<> PriceTypeEnum -> InterestRate
+							],
+						item -> quantity,
+						item -> observable
+					)
+			]
 	set is_event:
 		// The first 2 conditions imply that there is 1 and only 1 before and 1 open thanks to the "only-element" modifier
-		beforeEconomicterms exists and openEconomicTerms exists
+		beforeEconomicterms exists
+			and openEconomicTerms exists
 			and closedTradeState count = 1
 			and // openEconomicTerms -> payout = beforeEconomicterms -> payout and
 			openEconomicTerms -> collateral = beforeEconomicterms -> collateral
 			and beforePriceQuantityRateOnly count = 1
 			and openPriceQuantityRateOnly count = 1
-			and beforePriceQuantityRateOnly
-				only-element
+			and beforePriceQuantityRateOnly only-element
 				<> openPriceQuantityRateOnly only-element
 			and beforePriceQuantityNoRate = openPriceQuantityNoRate
 
@@ -1670,13 +1663,11 @@ func Qualify_Cancellation: <"Qualification of an cancellation event.">
 	set is_event:
 		businessEvent -> instruction -> before count = 1
 			and closedEconomicTerms exists
-			and openEconomicTerms
-				exists
-					// and openEconomicTerms -> payout = closedEconomicTerms -> payout
-					// and openEconomicTerms -> collateral = closedEconomicTerms -> collateral
+			and openEconomicTerms exists
+				// and openEconomicTerms -> payout = closedEconomicTerms -> payout
+				// and openEconomicTerms -> collateral = closedEconomicTerms -> collateral
 			and (
-			if openEconomicTerms -> terminationDate
-				exists
+			if openEconomicTerms -> terminationDate exists
 				and closedEconomicTerms -> terminationDate exists
 			then openEconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate
 				< closedEconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate
@@ -1695,43 +1686,43 @@ func Create_PairOffInstruction: <"Creates a set of instructions to pair-off a se
 	set instruction: <"Create a list of new execution instructions for each trade. The new execution instructions include new execution details, with the package component created using the pair reference and the componentId list.">
 		tradeState
 			extract [
-					Create_Instruction(
-							item,
-							Create_PrimitiveInstruction(
-									if item -> state -> positionState
-										= PositionStatusEnum -> Formed
-									then Create_ContractFormationInstruction(
-											item -> trade -> contractDetails -> documentation
-										),
-									Create_ExecutionInstruction(
-											item -> trade -> tradableProduct -> product,
-											item -> trade -> tradableProduct -> tradeLot
-												only-element -> priceQuantity,
-											item -> trade -> tradableProduct -> counterparty,
-											item -> trade -> tradableProduct -> ancillaryParty,
-											item -> trade -> party,
-											item -> trade -> partyRole,
-											Create_PackageExecutionDetails(
-													item -> trade -> executionDetails,
-													pairReference,
-													componentId
-												),
-											item -> trade -> tradeDate,
-											item -> trade -> tradeIdentifier
-										),
-									empty,
-									empty,
-									empty,
-									empty,
-									empty,
-									empty,
-									empty,
-									empty,
-									empty,
-									empty
-								)
-						)
-				]
+				Create_Instruction(
+						item,
+						Create_PrimitiveInstruction(
+								if item -> state -> positionState
+									= PositionStatusEnum -> Formed
+								then Create_ContractFormationInstruction(
+										item -> trade -> contractDetails -> documentation
+									),
+								Create_ExecutionInstruction(
+										item -> trade -> tradableProduct -> product,
+										item -> trade -> tradableProduct -> tradeLot
+											only-element -> priceQuantity,
+										item -> trade -> tradableProduct -> counterparty,
+										item -> trade -> tradableProduct -> ancillaryParty,
+										item -> trade -> party,
+										item -> trade -> partyRole,
+										Create_PackageExecutionDetails(
+												item -> trade -> executionDetails,
+												pairReference,
+												componentId
+											),
+										item -> trade -> tradeDate,
+										item -> trade -> tradeIdentifier
+									),
+								empty,
+								empty,
+								empty,
+								empty,
+								empty,
+								empty,
+								empty,
+								empty,
+								empty,
+								empty
+							)
+					)
+			]
 
 func Qualify_PairOff: <"Qualifies an event as a pair-off when all the details of the existing trades are maintained, except for their execution details which are updated to include a package component. This package component must be unique across all trades.">
 	[qualification BusinessEvent]
@@ -1743,18 +1734,15 @@ func Qualify_PairOff: <"Qualifies an event as a pair-off when all the details of
 	alias newTradeInstruction: <"New trade instructions, that contain only an execution primitive and (optionally) a contract formation primitive.">
 		businessEvent -> instruction
 			filter [
-					NewTradeInstructionOnlyExists(item -> primitiveInstruction)
-				]
+				NewTradeInstructionOnlyExists(item -> primitiveInstruction)
+			]
 	alias packageRef: <"Package details on the new trades.">
 		openTradeState -> trade -> executionDetails -> packageReference
 	set is_event:
 		// The first condition asserts that there are only new executions
-		newTradeInstruction
-			count
-			= businessEvent -> instruction
-				count
-					// All the trade details (except the execution instructions) are unchanged
-					// and openTradeNoExecutionDetails = beforeTradeNoExecutionDetails
+		newTradeInstruction count = businessEvent -> instruction count
+			// All the trade details (except the execution instructions) are unchanged
+			// and openTradeNoExecutionDetails = beforeTradeNoExecutionDetails
 			and openTradeState -> trade -> tradableProduct
 				= newTradeInstruction -> before -> trade -> tradableProduct
 					// All open trades are associated to a package, and that package is the same across all trades
@@ -1776,44 +1764,44 @@ func Create_ShapingInstruction: <"Creates a set of instructions to shape a trade
 		tradeLots
 			extract [ item -> priceQuantity ]
 			extract [
-					Create_PrimitiveInstruction(
-							if tradeState -> state -> positionState
-								= PositionStatusEnum -> Formed
-							then Create_ContractFormationInstruction(
-									tradeState -> trade -> contractDetails -> documentation
-								),
-							Create_ExecutionInstruction(
-									tradeState -> trade -> tradableProduct -> product,
-									tradeState -> trade -> tradableProduct -> tradeLot
-										only-element -> priceQuantity,
-									tradeState -> trade -> tradableProduct -> counterparty,
-									tradeState -> trade -> tradableProduct -> ancillaryParty,
-									tradeState -> trade -> party,
-									tradeState -> trade -> partyRole,
-									Create_PackageExecutionDetails(
-											tradeState -> trade -> executionDetails,
-											shapeIdentifier,
-											componentId
-										),
-									tradeState -> trade -> tradeDate,
-									tradeState -> trade -> tradeIdentifier
-								),
-							empty,
-							empty,
-							Create_QuantityChangeInstruction(
-									item,
-									QuantityChangeDirectionEnum -> Replace,
-									empty
-								),
-							empty,
-							empty,
-							empty,
-							empty,
-							empty,
-							empty,
-							empty
-						)
-				]
+				Create_PrimitiveInstruction(
+						if tradeState -> state -> positionState
+							= PositionStatusEnum -> Formed
+						then Create_ContractFormationInstruction(
+								tradeState -> trade -> contractDetails -> documentation
+							),
+						Create_ExecutionInstruction(
+								tradeState -> trade -> tradableProduct -> product,
+								tradeState -> trade -> tradableProduct -> tradeLot
+									only-element -> priceQuantity,
+								tradeState -> trade -> tradableProduct -> counterparty,
+								tradeState -> trade -> tradableProduct -> ancillaryParty,
+								tradeState -> trade -> party,
+								tradeState -> trade -> partyRole,
+								Create_PackageExecutionDetails(
+										tradeState -> trade -> executionDetails,
+										shapeIdentifier,
+										componentId
+									),
+								tradeState -> trade -> tradeDate,
+								tradeState -> trade -> tradeIdentifier
+							),
+						empty,
+						empty,
+						Create_QuantityChangeInstruction(
+								item,
+								QuantityChangeDirectionEnum -> Replace,
+								empty
+							),
+						empty,
+						empty,
+						empty,
+						empty,
+						empty,
+						empty,
+						empty
+					)
+			]
 
 func Qualify_Shaping: <"The qualification of a shaping event from the fact that (i) the only primitive is a split where the original trade is closed, (ii) the parties before and after the split remain the same (by contrast with an allocation, for instance) and (iii) the split trades contain a package component in their execution details. This package ties together the resulting shapes trades' identifiers and must be the same across all shaped trades. Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.">
 	[qualification BusinessEvent]
@@ -1831,15 +1819,16 @@ func Qualify_Shaping: <"The qualification of a shaping event from the fact that 
 		openTradeStates extract [ TradeNoExecutionDetails(item -> trade) ]
 	set is_event:
 		// There is a single before trade with a split instruction, resulting in a single closed trade and multiple open trades
-		beforeTradeState exists and closedTradeState exists
+		beforeTradeState exists
+			and closedTradeState exists
 			and openTradeStates count > 1
 			and businessEvent -> instruction -> primitiveInstruction -> split only exists
 				// Open trade counterparties should match before trade counterparties
 			and openTradeStates
 				extract [
-						item -> trade -> tradableProduct -> counterparty -> partyReference
-							= beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
-					]
+					item -> trade -> tradableProduct -> counterparty -> partyReference
+						= beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
+				]
 				all = True
 					// All open trades are associated to a package, and that package is the same across all trades
 			and packageRef count = openTradeNoExecutionDetails count
@@ -1943,9 +1932,7 @@ func Qualify_OnDemandPayment: <"Qualification of a on-demand payment.">
 			and businessEvent -> after count = 1
 			and afterTradeStates count = 1
 			and businessEvent -> instruction -> primitiveInstruction -> termsChange only exists
-			and afterCashFlow
-				count
-				> beforeCashFlow count // allows for adding multiple cashflows
+			and afterCashFlow count > beforeCashFlow count // allows for adding multiple cashflows
 			and afterCashFlow -> cashflowType -> cashflowType
 				all = ScheduledTransferEnum -> NetInterest
 
@@ -2032,23 +2019,23 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
 	add businessEvent -> after:
 		instruction
 			extract [
-					if item -> primitiveInstruction -> split exists
-					then Create_Split(
-							item -> primitiveInstruction -> split -> breakdown,
+				if item -> primitiveInstruction -> split exists
+				then Create_Split(
+						item -> primitiveInstruction -> split -> breakdown,
+						item -> before
+					)
+				else if item -> primitiveInstruction -> exercise exists
+				then Create_Exercise(
+						item -> primitiveInstruction -> exercise,
+						item -> before
+					)
+				else [
+					Create_TradeState(
+							item -> primitiveInstruction,
 							item -> before
 						)
-					else if item -> primitiveInstruction -> exercise exists
-					then Create_Exercise(
-							item -> primitiveInstruction -> exercise,
-							item -> before
-						)
-					else [
-						Create_TradeState(
-								item -> primitiveInstruction,
-								item -> before
-							)
-					]
 				]
+			]
 			flatten
 
 // TODO: we should have a condition to ensure that no trade is 'lost' between the before(s) and the after(s).
@@ -2098,8 +2085,7 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
 				termsChange /*after*/
 			)
 	alias contractFormation: <"Create contract formation if instructions exist.">
-		if primitiveInstruction
-			exists
+		if primitiveInstruction exists
 			and primitiveInstruction -> contractFormation is absent
 		then partyChange
 		else Create_ContractFormation(

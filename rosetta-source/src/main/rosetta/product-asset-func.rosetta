@@ -59,8 +59,7 @@ func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation o
 				notional,
 				rate
 			)
-	set floatingAmount:
-		floatingCalc -> calculatedAmount
+	set floatingAmount: floatingCalc -> calculatedAmount
 
 /* DayCountFraction has been removed and replaced by YearFraction in base-datetime-daycount-func */
 func ResolveRateIndex: <"The function to specify that the floating rate index enumeration will be expressed as a number once the rate is observed.">
@@ -93,17 +92,16 @@ func ResolveEquityInitialPrice: <"To be replaced by full resolve price function 
 	set initialPrice:
 		price
 			filter [
-					item -> perUnitOf -> financialUnit
-						= FinancialUnitEnum -> Share
-				]
+				item -> perUnitOf -> financialUnit = FinancialUnitEnum -> Share
+			]
 			extract [
-					Create_Price(
-							item -> value,
-							item -> unit,
-							item -> perUnitOf,
-							item -> priceExpression
-						)
-				]
+				Create_Price(
+						item -> value,
+						item -> unit,
+						item -> perUnitOf,
+						item -> priceExpression
+					)
+			]
 			only-element
 
 func DividendCashSettlementAmount: <"Based on the following legal text: means, in respect of a Dividend Period and the related Dividend Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent for such Dividend Period to which the Dividend Cash Settlement Amount relates, pursuant to the following formula: Dividend Cash Settlement Amount = Record Amount × Number Of Securities.">

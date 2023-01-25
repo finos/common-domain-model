@@ -45,6 +45,7 @@ type Resource: <"Describes the resource that contains the media representation o
 	comments string (0..1) <"Any additional comments that are deemed necessary. For example, which software version is required to open the document? Or, how does this resource relate to the others for this event?">
 	string string (0..1) <"Provides extra information as string. In case the extra information is in XML format, a CDATA section must be placed around the source message to prevent its interpretation as XML content.">
 	url string (0..1) <"Indicates where the resource can be found, as a URL that references the information on a web server accessible to the message recipient.">
+
 	condition ResourceChoice: <"Choice rule to represent an FpML choice construct. Note that FpML also provides the ability to have hexadecimalBinary or base64Binary, which have not been implemented in Rosetta until we see actual use cases.">
 		optional choice string, url
 
@@ -63,9 +64,11 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
 	agreementTerms AgreementTerms (0..1) <"Specification of the content of the legal agreement.">
 	relatedAgreements LegalAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
 	umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
+
 	condition ConsistentlyExecutedAgreements: <"An executed agreement can only point to executed related agreements if any.">
 		if relatedAgreements exists and agreementDate exists
 		then relatedAgreements -> agreementDate exists
+
 	condition AgreementVerification: <"A validation rule to ensure that the agreement elections are associated with the correct legal agreement type as specified.">
 		if agreementTerms -> agreement -> securityAgreementElections exists
 		then legalAgreementIdentification -> agreementName -> agreementType
@@ -103,10 +106,10 @@ type LegalAgreementIdentification: <"Specifies the type of legal agreement, iden
 		[synonym AcadiaSoft_AM_1_0 value "publisher"]
 	vintage int (0..1) <"In the case where successive definitions of the legal agreement have been developed, the vintage identification. This is typically (but not necessarily) done by referencing the year, e.g. 2013 in the case of the ISDA 2013 Standard Credit Support Annex.">
 		[synonym AcadiaSoft_AM_1_0 value "csaVersion"]
+
 	condition CSAMarginType: <"A condition to ensure that CSA margin type is only specified if a credit support agreemnt type is specified and its published vintage year is equal to or after 2016.">
 		if agreementName -> creditSupportAgreementMarginType exists
-		then agreementName -> creditSupportAgreementType
-			exists
+		then agreementName -> creditSupportAgreementType exists
 			and vintage >= 2016
 
 type AgreementName: <"Specifies the agreement name through an agreement type and optional detailed sub agreement type.">
@@ -125,25 +128,27 @@ type AgreementName: <"Specifies the agreement name through an agreement type and
 	masterConfirmationAnnexType MasterConfirmationAnnexTypeEnum (0..1) <"The type of master confirmation annex executed between the parties.">
 		[metadata scheme]
 	otherAgreement string (0..1) <"Definition of an agreement that is not enumerated in the CDM.">
+
 	condition AgreementType: <"A condition to ensure that the agreement type specified is consistent with the detailed documentation identified.">
 		if agreementType <> LegalAgreementTypeEnum -> Other
 		then otherAgreement is absent
 		else if agreementType <> LegalAgreementTypeEnum -> MasterAgreement
 		then masterAgreementType is absent
 		else if agreementType <> LegalAgreementTypeEnum -> MasterConfirmation
-		then masterConfirmationType
-			is absent
+		then masterConfirmationType is absent
 			and masterConfirmationAnnexType is absent
 		else if agreementType <> LegalAgreementTypeEnum -> Confirmation
-		then contractualDefinitionsType
-			is absent
+		then contractualDefinitionsType is absent
 			and contractualTermsSupplement is absent
 			and contractualMatrix is absent
+
 	condition CreditSupportAgreement: <"A condition to ensure that the credit supoort agreement type is specified when required.">
 		if agreementType = LegalAgreementTypeEnum -> CreditSupportAgreement
 		then creditSupportAgreementType exists
+
 	condition MasterConfirmation: <"If a master confirmation annex type is specified a master confirmation type must exist.">
 		if masterConfirmationAnnexType exists then masterConfirmationType exists
+
 	condition CSAMarginType: <"A condition to ensure that CSA margin type is only specified if a credit support agreemnt type is specified.">
 		if creditSupportAgreementMarginType exists
 		then creditSupportAgreementType exists
@@ -152,6 +157,7 @@ type UmbrellaAgreement: <"A class to specify a set of legal entities which are p
 	isApplicable boolean (1..1) <"The determination of whether Umbrella Agreement terms are Applicable (True), or Not Applicable (False)">
 	language string (0..1) <"The language associated with the umbrella agreement, and which applies to all the parties to the umbrella agreement.">
 	parties UmbrellaAgreementEntity (0..*) <"Underlying principals to the umbrella agreement.">
+
 	condition UmbrellaAgreementExists: <"Umbrella Agreement language and parties should not exist when Umbrella Agreement terms are Not Applicable.">
 		if isApplicable = True then language exists and parties exists
 
@@ -165,8 +171,10 @@ type AddressForNotices: <"Specification of the address and other details for not
 type OtherAgreementTerms: <"A class to specify a related legal agreement. For example, ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (s): Other CSA and Japanese Law CSA (VM). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (o): Other CSA.">
 	isSpecified boolean (1..1) <"The qualification of whether some other related agreement is specified (True) or not (False).">
 	legalDocument string (0..1) <"The specification of this other agreement, when the qualification is True.">
+
 	condition LegalDocumentNotSpecified: <"A data rule to enforce that the related legal agreement should not be referenced if it is deemed as not specified as part of the boolean attribute.">
 		if isSpecified = False then legalDocument is absent
+
 	condition LegalDocumentSpecified: <"A data rule to enforce that the related legal agreement should be referenced if it is deemed as specified as part of the boolean attribute.">
 		if isSpecified = True then legalDocument exists
 

@@ -43,25 +43,21 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 		[deprecated]
 	creditLimitInformation CreditLimitInformation (0..1)
 	workflowState WorkflowState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
+
 	condition WorkflowStepStatus:
-		(WorkflowStep -> businessEvent
-			exists
+		(WorkflowStep -> businessEvent exists
 			and WorkflowStep -> nextEvent -> instruction is absent
 			and WorkflowStep -> rejected is absent)
-			or (WorkflowStep -> nextEvent -> instruction
-				exists
+			or (WorkflowStep -> nextEvent -> instruction exists
 				and WorkflowStep -> businessEvent is absent
 				and WorkflowStep -> rejected is absent)
-			or (WorkflowStep -> rejected
-				exists
+			or (WorkflowStep -> rejected exists
 				and WorkflowStep -> businessEvent is absent
 				and WorkflowStep -> nextEvent is absent)
-			or (WorkflowStep -> proposedEvent
-				exists
+			or (WorkflowStep -> proposedEvent exists
 				and WorkflowStep -> nextEvent is absent
 				and WorkflowStep -> rejected is absent)
-			or (WorkflowStep -> previousWorkflowStep
-				exists
+			or (WorkflowStep -> previousWorkflowStep exists
 				and action = ActionEnum -> Cancel)
 
 type Workflow: <"A collection of workflow steps which together makeup an entire workflow sequence.">
@@ -74,6 +70,7 @@ type EventInstruction: <"Specifies instructions to create a BusinessEvent.">
 	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
 	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
 	instruction Instruction (0..*) <"Specifies the instructions to create the Business Event.">
+
 	condition CorporateAction:
 		if corporateActionIntent exists
 		then intent = EventIntentEnum -> CorporateActionAdjustment
@@ -98,6 +95,7 @@ type LimitApplicable:
 	currency string (0..1) <"The currency in which the applicable limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
 		[metadata scheme]
 	velocity Velocity (0..1)
+
 	condition LimitApplicableChoice: <"Choice rule to represent an FpML choice construct.">
 		optional choice amountUtilized, utilization
 
@@ -122,6 +120,7 @@ type PartyCustomisedWorkflow: <"A class to specify a party-related, non-standard
 		[metadata reference]
 	partyName string (0..1) <"The party name to which the workflow pertains to.">
 	customisedWorkflow CustomisedWorkflow (1..*) <"Non-standardized data in a generic form.">
+
 	condition PartyCustomisedWorkflowChoice: <"The identification of the party to which the PartyCustomisedWorkflow pertains to can be done through either a party reference or the party name.">
 		required choice partyName, partyReference
 

@@ -20,12 +20,15 @@ type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption
 	increasedCostOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Stock Borrow | If true, then increased cost of stock borrow is applicable.">
 	initialStockLoanRate number (0..1) <"Specifies the initial stock loan rate for Increased Cost of Stock Borrow. A percentage of 5% is represented as 0.05.">
 	determiningParty AncillaryRoleEnum (0..1) <"Specifies the party which determines additional disruption events.">
+
 	condition MaximumStockLoanRate: <" FpML specifies the maximumStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
 		if maximumStockLoanRate exists
 		then maximumStockLoanRate >= 0 and maximumStockLoanRate <= 1
+
 	condition InitialStockLoanRate: <" FpML specifies the initialStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
 		if initialStockLoanRate exists
 		then initialStockLoanRate >= 0 and initialStockLoanRate <= 1
+
 	condition DisruptionEventsDeterminingParty:
 		if determiningParty exists
 		then determiningParty
@@ -41,6 +44,7 @@ type ExtraordinaryEvents: <"Where the underlying is shares, defines market event
 	representations Representations (0..1)
 	nationalizationOrInsolvency NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Nationalization and Insolvency | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Nationalization shall occur if all the Securities or all or substantially all the assets of an Issuer are nationalized, expropriated or are otherwise required to be transferred to any governmental agency, authority, entity or instrumentality thereof. Insolvency Filing means as defined in the Confirmation Side Letter.">
 	delisting NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Delisting | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Delisting means Delisting (Broad Relisting) or Delisting (Narrow Relisting), as specified in the Relationship Supplement.">
+
 	condition ExtraordinaryEventsChoice: <"condition to represent an FpML choice construct.">
 		required choice additionalDisruptionEvents, failureToDeliver
 
@@ -57,6 +61,7 @@ type Trigger: <"Trigger point at which feature is effective.">
 		[metadata reference]
 	triggerType TriggerTypeEnum (0..1) <"The Triggering condition.">
 	triggerTimeType TriggerTimeTypeEnum (0..1) <"The valuation time type of knock condition.">
+
 	condition Choice1: <" Choice rule to represent an FpML choice construct.">
 		required choice level, levelPercentage , creditEvents , creditEventsReference
 
@@ -113,8 +118,10 @@ type PubliclyAvailableInformation:
 	standardPublicSources boolean (0..1) <"If this element is specified and set to 'true', indicates that ISDA defined Standard Public Sources are applicable.">
 	publicSource string (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not a credit event has occurred. ISDA 2003 Term: Public Source.">
 	specifiedNumber int (0..1) <"The minimum number of the specified public information sources that must publish information that reasonably confirms that a credit event has occurred. The market convention is two. ISDA 2003 Term: Specified Number.">
+
 	condition SourceChoice: <" FpML validation rule cd-36 - Context: PubliclyAvailableInformation (complex type). Either standardPublicSources or at least one publicSource element must exist.">
 		required choice standardPublicSources, publicSource
+
 	condition PositiveSpecifiedNumber: <" FpML specifies specifiedNumber as a positiveInteger.">
 		if specifiedNumber exists then specifiedNumber >= 0
 
@@ -134,8 +141,10 @@ type FeaturePayment: <"Payment made following trigger occurrence.">
 	currency string (0..1) <"The currency in which an amount is denominated.">
 		[metadata scheme]
 	paymentDate AdjustableOrRelativeDate (0..1) <"The feature payment date.">
+
 	condition FeaturePaymentChoice: <" Choice rule to represent an FpML choice construct.">
 		required choice levelPercentage, amount
+
 	condition Amount: <" The amount attribute is specified in FpML as non-negative decimal.">
 		if amount exists then amount >= 0.0
 

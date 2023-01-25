@@ -41,12 +41,16 @@ type CalculationPeriod extends CalculationPeriodBase: <"A data defining:  the pa
 	dayCountYearFraction number (0..1) <"The year fraction value of the calculation period, result of applying the ISDA rules for day count fraction defined in the ISDA Annex.">
 	forecastAmount Money (0..1) <"The amount representing the forecast of the accrued value of the calculation period. An intermediate value used to generate the forecastPaymentAmount in the PaymentCalculationPeriod.">
 	forecastRate number (0..1) <"A value representing the forecast rate used to calculate the forecast future value of the accrual period. This is a calculated rate determined based on averaging the rates in the rateObservation elements, and incorporates all of the rate treatment and averaging rules. A value of 1% should be represented as 0.01.">
+
 	condition NotionalChoice: <"condition to represent an FpML choice construct.">
 		required choice notionalAmount, fxLinkedNotionalAmount
+
 	condition RateChoice: <"condition to represent an FpML choice construct.">
 		required choice floatingRateDefinition, fixedRate
+
 	condition StartDateChoice: <"FpML validation rule ird-30 - Context: CalculationPeriod (complex type). unadjustedStartDate exists or adjustedStartDate exists.">
 		required choice adjustedStartDate, unadjustedStartDate
+
 	condition EndDateChoice: <"FpML validation rule ird-31 - Context: CalculationPeriod (complex type). unadjustedEndDate exists or adjustedEndDate exists.">
 		required choice adjustedEndDate, unadjustedEndDate
 
@@ -61,27 +65,32 @@ type CalculationPeriodDates: <"A data for:  defining the parameters used to gene
 	lastRegularPeriodEndDate date (0..1) <"The end date of the regular part of the calculation period schedule. It must only be specified if there is a final stub calculation period. This day may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 	stubPeriodType StubPeriodTypeEnum (0..1) <"Method to allocate any irregular period remaining after regular periods have been allocated between the effective and termination date.">
 	calculationPeriodFrequency CalculationPeriodFrequency (0..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">
+
 	condition FpML_ird_16: <"FpML validation rule ird-16 - If firstRegularPeriodStartDate exists within any element of type CalculationPeriodDates, then terminationDate/unadjustedDate must be after firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
 		if firstRegularPeriodStartDate exists
 		then terminationDate -> adjustableDate -> unadjustedDate
 			> firstRegularPeriodStartDate
+
 	condition FpML_ird_17: <"FpML validation rule ird-17 - If lastRegularPeriodEndDate exists, then terminationDate/unadjustedDate must be after lastRegularPeriodEndDate. This data rule applies within a given interest rate payout component.">
 		if lastRegularPeriodEndDate exists
 		then terminationDate -> adjustableDate -> unadjustedDate
 			> lastRegularPeriodEndDate
+
 	condition FpML_ird_18: <"FpML validation rule ird-18 - If firstRegularPeriodStartDate exists, and if lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
-		if firstRegularPeriodStartDate
-			exists
+		if firstRegularPeriodStartDate exists
 			and lastRegularPeriodEndDate exists
 		then lastRegularPeriodEndDate > firstRegularPeriodStartDate
+
 	condition FpML_ird_20: <"FpML validation rule ird-20 - If lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after effectiveDate/unadjustedDate. This data rule applies within a given interest rate payout component.">
 		if lastRegularPeriodEndDate exists
 		then lastRegularPeriodEndDate
 			> effectiveDate -> adjustableDate -> unadjustedDate
+
 	condition FpML_ird_21: <"FpML validation rule ird-21 - If firstPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before effectiveDate/unadjustedDate. This data rule applies within a given interest rate payout component.">
 		if firstPeriodStartDate exists and effectiveDate exists
 		then firstPeriodStartDate -> adjustableDate -> unadjustedDate
 			< effectiveDate -> adjustableDate -> unadjustedDate
+
 	condition FpML_ird_22: <"FpML validation rule ird-22 - If firstPeriodStartDate exists, and if firstRegularPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
 		if firstPeriodStartDate exists and firstRegularPeriodStartDate exists
 		then firstPeriodStartDate -> adjustableDate -> unadjustedDate
@@ -122,11 +131,14 @@ type PaymentCalculationPeriod: <"A data defining:  the adjusted payment date and
 	discountFactor number (0..1) <"A decimal value representing the discount factor used to calculate the present value of cash flow.">
 	forecastPaymentAmount Money (0..1) <"A monetary amount representing the forecast of the future value of the payment.">
 	presentValueAmount Money (0..1) <"A monetary amount representing the present value of the forecast payment.">
+
 	condition CalculationPeriodNumberOfDays: <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
 		if calculationPeriod -> calculationPeriodNumberOfDays exists
 		then calculationPeriod -> calculationPeriodNumberOfDays all >= 0
+
 	condition PaymentCalculationPeriodChoice: <"condition to represent an FpML choice construct.">
 		required choice calculationPeriod, fixedPaymentAmount
+
 	condition FpML_ird_34: <"FpML validation rule ird-34 - Either unadjustedPaymentDate or adjustedPaymentDate must exist.">
 		unadjustedPaymentDate exists or adjustedPaymentDate exists
 
@@ -153,6 +165,7 @@ type ObservationTerms: <"Class containing terms that are associated with observi
 	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
 	observationDates ObservationDates (1..1) <"Describes date details for a set of observation dates in parametric or non-parametric form.">
 	numberOfObservationDates int (0..1) <"The number of observation dates between observation start date and observation end date.">
+
 	condition PricingTime: <"Checks that a pricing time is specified either explicitly (through the pricing time) or implicitly (through a pricing time type different to Specific Time). If Specific Time is defined as pricing time type (i.e. no implicit time value), the condition checks that an explicit pricing time is provided.">
 		if pricingTimeType = TimeTypeEnum -> SpecificTime
 		then pricingTime exists
@@ -164,8 +177,10 @@ type ParametricDates: <"Defines rules for the dates on which the price will be d
 	dayFrequency number (0..1) <"Defines the occurrence of the dayOfWeek within the pricing period on which pricing will take place, e.g. the 3rd Friday within each Calculation Period. If omitted, every dayOfWeek will be a pricing day.">
 	lag Lag (0..1) <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
 	businessCenters BusinessCenters (1..1) <"The enumerated values to specify the business centers.">
+
 	condition ParametricDatesChoice:
 		required choice dayDistribution, dayOfWeek
+
 	condition DayOfWeekMethod:
 		if dayOfWeek exists then dayFrequency exists
 
@@ -184,12 +199,15 @@ type ResetDates: <"A data defining:  the parameters used to generate the reset d
 	rateCutOffDaysOffset Offset (0..1) <"Specifies the number of business days before the period end date when the rate cut-off date is assumed to apply. The financial business centers associated with determining the rate cut-off date are those specified in the reset dates adjustments. The rate cut-off number of days must be a negative integer (a value of zero would imply no rate cut off applies in which case the rateCutOffDaysOffset element should not be included). The relevant rate for each reset date in the period from, and including, a rate cut-off date to, but excluding, the next applicable period end date (or, in the case of the last calculation period, the termination date) will (solely for purposes of calculating the floating amount payable on the next applicable payment date) be deemed to be the relevant rate in effect on that rate cut-off date. For example, if rate cut-off days for a daily averaging deal is -2 business days, then the refix rate applied on (period end date - 2 days) will also be applied as the reset on (period end date - 1 day), i.e. the actual number of reset dates remains the same but from the rate cut-off date until the period end date, the same refix rate is applied. Note that in the case of several calculation periods contributing to a single payment, the rate cut-off is assumed only to apply to the final calculation period contributing to that payment. The day type associated with the offset must imply a business days offset.">
 	resetFrequency ResetFrequency (0..1) <"The frequency at which the reset dates occur. In the case of a weekly reset frequency, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency then this implies that more than one reset is established for each calculation period and some form of rate averaging is applicable.">
 	resetDatesAdjustments BusinessDayAdjustments (0..1) <"The definition of the business day convention and financial business centers used for adjusting the reset date if it would otherwise fall on a day that is not a business day in the specified business center.">
+
 	condition RateCutOffDaysOffset: <"FpML specifies that the rate cut-off number of days must be a negative integer with a value of zero would implying that no rate cut off applies, in which case the rateCutOffDaysOffset element should not be included.">
 		if rateCutOffDaysOffset exists
 		then rateCutOffDaysOffset -> periodMultiplier < 0
+
 	condition WeeklyPeriod: <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly. This data rule is focused on the first part of the assertion.">
 		if resetFrequency -> period = PeriodExtendedEnum -> W
 		then resetFrequency -> weeklyRollConvention exists
+
 	condition NonWeeklyPeriod: <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly. This data rule is focused on the latter part of the assertion.">
 		if resetFrequency -> period <> PeriodExtendedEnum -> W
 		then resetFrequency -> weeklyRollConvention is absent
@@ -209,6 +227,7 @@ type AveragingPeriod: <"Period over which an average value is taken.">
 	averagingObservations AveragingObservationList (0..1) <"A weighted list of averaging observation date and times.">
 	marketDisruption MarketDisruptionEnum (0..1) <"The market disruption event as defined by ISDA 2002 Definitions.">
 		[metadata scheme]
+
 	condition AveragingPeriodChoice: <" Choice rule to represent an FpML choice construct between unweighted and weighted averaging date and times.">
 		optional choice averagingDateTimes, averagingObservations
 
@@ -216,10 +235,13 @@ type WeightedAveragingObservation: <"A single weighted averaging observation.">
 	dateTime zonedDateTime (0..1) <"Observation date time, which should be used when literal observation dates are required. The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">
 	observationNumber int (0..1) <"Observation number, which should be unique, within a series generated by a date schedule.">
 	weight number (1..1) <"Observation weight, which is used as a multiplier for the observation value.">
+
 	condition WeightedAveragingObservationChoice: <" Choice rule to represent an FpML choice construct between date times for literal date values, and observation numbers for schedule generated observations.">
 		required choice dateTime, observationNumber
+
 	condition PositiveObservationNumber: <" FpML specifies observationNumber as a positive integer.">
 		if observationNumber exists then observationNumber >= 0
+
 	condition PositiveWeight: <" FpML specifies observationNumber as a non-negative decimal.">
 		weight >= 0.0
 
@@ -230,6 +252,7 @@ type AmountSchedule extends Schedule: <"A class to specify a currency amount or 
 type InitialFixingDate: <"A CDM class which purpose is to specify the initial fixing date either alongside the FpML interest rate specification as an offset of another date, or alongside the credit derivative specification as an unadjusted date.">
 	relativeDateOffset RelativeDateOffset (0..1)
 	initialFixingDate date (0..1)
+
 	condition:
 		one-of
 
@@ -242,9 +265,11 @@ type PaymentDates: <"Specifies the parameters to generate the payment date sched
 	payRelativeTo PayRelativeToEnum (0..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date or end date, each reset date, valuation date or the last pricing date. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment. The valuation date is applicable for Brazilian-CDI and equity swaps.">
 	paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">
 	paymentDatesAdjustments BusinessDayAdjustments (0..1) <"The definition of the business day convention and financial business centers used for adjusting the payment date if it would otherwise fall on a day that is not a business day in the specified business center.">
+
 	condition FpML_ird_35_cd_31: <"FpML validation rule ird-35 & cd-31- If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
 		if firstPaymentDate exists and lastRegularPaymentDate exists
 		then firstPaymentDate < lastRegularPaymentDate
+
 	condition NonZeroPeriodMultiplier: <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
 		if paymentDaysOffset exists
 		then paymentDaysOffset -> periodMultiplier <> 0
@@ -255,6 +280,7 @@ type PaymentDateSchedule: <"The payment dates when specified as relative to a se
 
 type ResetFrequency extends Frequency: <"A class defining the reset frequency. In the case of a weekly reset, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency the this implies that more or more reset dates is established for each calculation period and some form of rate averaging is applicable. The specific averaging method of calculation is specified in FloatingRateCalculation. In case the reset frequency is of value T (term), the period is defined by the swap/swapStream/calculationPerioDates/effectiveDate and the swap/swapStream/calculationPerioDates/terminationDate.">
 	weeklyRollConvention WeeklyRollConventionEnum (0..1) <"The day of the week on which a weekly reset date occurs. This element must be included if the reset frequency is defined as weekly and not otherwise.">
+
 	condition FpML_ird_49: <"FpML validation rule ird-49 - WeeklyRollConvention should exist if and only if the period is 'W'.">
 		if weeklyRollConvention exists then period = PeriodExtendedEnum -> W
 

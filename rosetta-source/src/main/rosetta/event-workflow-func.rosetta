@@ -31,13 +31,13 @@ func Create_WorkflowStep: <"Function to create a workflow step with a business e
 	condition ActionEnumChange: <"Valid action transitions are: New -> New, New -> Correct, New -> Cancel, Correct -> New, Correct -> Correct and Correct -> Cancel">
 		if (previousWorkflowStep -> action = ActionEnum -> New
 			or previousWorkflowStep -> action = ActionEnum -> Correct)
-		then (action = ActionEnum -> New or action = ActionEnum -> Correct
+		then (action = ActionEnum -> New
+			or action = ActionEnum -> Correct
 			or action = ActionEnum -> Cancel)
 	condition CancelledPreviousStep: <"You cannot create a business event on a cancelled previous step">
 		previousWorkflowStep -> action <> ActionEnum -> Cancel
 	condition NewAction: <"Action must be New if there is no previous step">
-		if (previousWorkflowStep
-			is absent
+		if (previousWorkflowStep is absent
 			or previousWorkflowStep -> action is absent)
 		then (action = ActionEnum -> New)
 	set workflowStep -> action: <"Assign the workflowStep action."> action
@@ -141,14 +141,12 @@ func Create_ProposedWorkflowStep: <"Represents the proposal to create a business
 	output:
 		proposedWorkflowStep WorkflowStep (1..1) <"Proposed WorkflowStep populated with the proposed instruction">
 	condition CorrectAction: <"When the previous step is new or corrected and contains an instruction (proposed), the following action can only be correct.">
-		if (previousWorkflowStep -> proposedEvent
-			exists
+		if (previousWorkflowStep -> proposedEvent exists
 			and (previousWorkflowStep -> action = ActionEnum -> New
 				or previousWorkflowStep -> action = ActionEnum -> Correct))
 		then action = ActionEnum -> Correct
 	condition NewAction: <"When the previous step contains a business event, the following action can only be new.">
-		if (previousWorkflowStep
-			is absent
+		if (previousWorkflowStep is absent
 			or previousWorkflowStep -> businessEvent exists)
 		then action = ActionEnum -> New
 	set proposedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">

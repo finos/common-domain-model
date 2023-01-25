@@ -40,7 +40,8 @@ func FixedAmountCalculation: <"Calculates the fixed amount for a calculation per
 	set fixedAmountDetails -> fixedRate: fixedRate
 	set fixedAmountDetails -> yearFraction: yearFraction
 	set fixedAmountDetails -> calculatedAmount:
-		calcAmt * fixedAmountDetails -> fixedRate
+		calcAmt
+			* fixedAmountDetails -> fixedRate
 			* fixedAmountDetails -> yearFraction
 
 func GetFixedRate: <"Look up the fixed rate for a calculation period.">
@@ -96,8 +97,7 @@ func ApplyFloatingRateSetting: <"Calculate a floating amount for a calculation p
 		floatingRateSetting FloatingRateSettingDetails (0..1) <"Details of the rate observation/calculation corresonding to the supplied rate definition and calculation period.">
 	output:
 		result FloatingAmountCalculationDetails (1..1) <"The details of the floating rate calculation, including raw rate, rate treatment details, notional, and calculated cashlow amount.">
-	alias floatingRate:
-		floatingRateSetting -> floatingRate
+	alias floatingRate: floatingRateSetting -> floatingRate
 	// apply rate treatments/processing
 	alias processingParameters:
 		GetFloatingRateProcessingParameters(
@@ -156,9 +156,7 @@ func CalculateFloatingCashFlow:
 	alias annualAccrual: notional * appliedRate
 	alias notionalAccrual: notional * yearFraction
 	alias cashflow: notionalAccrual * appliedRate
-	alias spreadExclusiveCashflow:
-		notionalAccrual
-			* spreadExclusiveRate
+	alias spreadExclusiveCashflow: notionalAccrual * spreadExclusiveRate
 	// record results
 	set result -> calculationPeriod: calculationPeriod
 	set result -> calculationPeriodNotionalAmount -> value: notional
@@ -177,8 +175,7 @@ func Create_CalculationPeriodBase: <"Create a CalculationPeriodBase type from Ca
 	output:
 		calcPeriod CalculationPeriodBase (1..1) <"The corresponding CalculationPeriodBase structure.">
 	set calcPeriod -> adjustedStartDate: calcPeriodData -> startDate
-	set calcPeriod -> adjustedEndDate:
-		calcPeriodData -> endDate
+	set calcPeriod -> adjustedEndDate: calcPeriodData -> endDate
 
 //-------------------------------------------------------
 // The following functions look up current notional
@@ -208,9 +205,7 @@ func GetQuantityScheduleStepValues: <"Find all schedule step values whose stepDa
 	add stepValues: <"Add all schedule step values whose stepDate is before or equal to the supplied periodStartDate.">
 		schedule -> datedValue
 			filter [ item -> date <= periodStartDate ]
-			extract [
-					item -> value
-				]
+			extract [ item -> value ]
 
 // -----------------------------------------------
 //
