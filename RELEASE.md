@@ -2,7 +2,7 @@
 
 _Background_
 
-This release updates the enumeration `PartyIdentifierTypeEnum` and adds FpML synonym mappings.
+This release updates the enumeration `PartyIdentifierTypeEnum` and adds the corresponding FpML synonym mappings.
 
 _What is being released?_
 
@@ -11,4 +11,4 @@ _What is being released?_
 
 _Review Directions_
 
-In Rosetta, open CDM for Digital Regulatory Reporting project, then Translate tab, and review samples in `fpml-5-10 > record-keeping > products > rates` 
+In Rosetta, select `CDM for Digital Regulatory Reporting` project, then then Translate tab, and review samples in `fpml-5-10 > record-keeping > products > rates` 
