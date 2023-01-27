@@ -11,4 +11,4 @@ _What is being released?_
 
 _Review Directions_
 
-In Rosetta, select `CDM for Digital Regulatory Reporting` project, then then Translate tab, and review samples in `fpml-5-10 > record-keeping > products > rates` 
+In Rosetta, select `CDM for Digital Regulatory Reporting` project, then the Translate tab, and review samples in `fpml-5-10 > record-keeping > products > rates` 
