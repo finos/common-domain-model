@@ -1,9 +1,14 @@
-# *Infrastructure - Java 8 Support*
+# *Product Model - Party Identifier Type*
+
+_Background_
+
+This release updates the enumeration `PartyIdentifierTypeEnum` and adds the corresponding FpML synonym mappings.
 
 _What is being released?_
 
-To provide a wider compatibility for CDM Java implementors, this release changes the Java version of the distributed CDM Java artefacts from version 11 to 8.
+- Value `MIC` added to enumeration `PartyIdentifierTypeEnum`
+- FpML mappings updated for `PartyIdentifierTypeEnum` values `MIC` and `LEI`
 
 _Review Directions_
 
-CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId `com.isda`, artifactId `cdm`) and recompile with Java 8 (or later).
+In Rosetta, select `CDM for Digital Regulatory Reporting` project, then the Translate tab, and review samples in `fpml-5-10 > record-keeping > products > rates` 

@@ -28,7 +28,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 class PartyMappingHelperTest {
 
@@ -95,6 +94,23 @@ class PartyMappingHelperTest {
 	}
 
 	@Test
+	void shouldMapPayerRefToParty1AndReceiverRefToParty2() {
+		PartyMappingHelper helper = new PartyMappingHelper(context, tradableProductBuilder, null);
+
+		PayerReceiverBuilder builder = PayerReceiver.builder();
+
+		helper.setCounterpartyRoleEnum(PAYER_PARTY_REF, builder::setPayer);
+
+		assertEquals(CounterpartyRoleEnum.PARTY_1, builder.getPayer());
+		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
+
+		helper.setCounterpartyRoleEnum(RECEIVER_PARTY_REF, builder::setReceiver);
+
+		assertEquals(CounterpartyRoleEnum.PARTY_2, builder.getReceiver());
+		assertTrue(helper.getBothCounterpartiesCollectedFuture().isDone());
+	}
+
+	@Test
 	void shouldMapPayerToParty1AndReceiverToParty2() throws ExecutionException, InterruptedException, TimeoutException {
 		PartyMappingHelper helper = new PartyMappingHelper(context, tradableProductBuilder, null);
 
@@ -119,7 +135,7 @@ class PartyMappingHelperTest {
 		assertEquals(CounterpartyRoleEnum.PARTY_1, partyExternalReferenceToCounterpartyRoleEnumMap.get(PAYER_PARTY_REF));
 		assertEquals(CounterpartyRoleEnum.PARTY_2, partyExternalReferenceToCounterpartyRoleEnumMap.get(RECEIVER_PARTY_REF));
 
-		 // test PartyMappingHelper.addCounterparties()
+		// test PartyMappingHelper.addCounterparties()
 		helper.addCounterparties();
 
 		// wait for invoked tasks to complete before assertions
@@ -162,26 +178,6 @@ class PartyMappingHelperTest {
 		assertNull(receiverUpdatedMapping.getRosettaValue());
 		assertNull(receiverUpdatedMapping.getError());
 		assertTrue(receiverUpdatedMapping.isCondition());
-	}
-
-	@Test
-	void shouldMapCounterpartyBecauseModelPathOutsideProduct() {
-		PartyMappingHelper helper = new PartyMappingHelper(context, tradableProductBuilder, null);
-
-		PayerReceiverBuilder builder = PayerReceiver.builder();
-		Path synonymPath = PAYER_XML_PATH.getParent();
-		helper.setCounterpartyRoleEnum(RosettaPath.valueOf("Contract.collateral.independentAmount.payer"), synonymPath, builder::setPayer);
-
-		assertNull(builder.getPayer());
-		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
-
-		Mapping updatedMapping = context.getMappings().get(0);
-		assertEquals(PAYER_XML_PATH, updatedMapping.getXmlPath());
-		assertEquals(PAYER_PARTY_REF, updatedMapping.getXmlValue());
-		assertNull(updatedMapping.getRosettaPath());
-		assertNull(updatedMapping.getRosettaValue());
-		assertEquals("no destination", updatedMapping.getError());
-		assertFalse(updatedMapping.isCondition());
 	}
 
 	private List<Mapping> getMappings(Path payerXmlPath, String payerXmlValue, Path receiverXmlPath, String receiverXmlValue) {
