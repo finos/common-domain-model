@@ -1,14 +1,14 @@
-# *Product Model - Party Identifier Type*
+# *Product Model - Synonym Hierarchy*
 
 _Background_
 
-This release updates the enumeration `PartyIdentifierTypeEnum` and adds the corresponding FpML synonym mappings.
+This release updates the synonym source hierarchy to represent that logical structure of the relationship between the versions of FpML and it's constituents.
 
 _What is being released?_
 
-- Value `MIC` added to enumeration `PartyIdentifierTypeEnum`
-- FpML mappings updated for `PartyIdentifierTypeEnum` values `MIC` and `LEI`
+- Updated FpML confirmations synonyms
+- Updated FpML processes synonyms
 
 _Review Directions_
 
-In Rosetta, select `CDM for Digital Regulatory Reporting` project, then the Translate tab, and review samples in `fpml-5-10 > record-keeping > products > rates` 
+In Rosetta, select `CDM` project, then view the `mapping -> FpML` and the `mapping -> FpML -> processes` Rosetta files
