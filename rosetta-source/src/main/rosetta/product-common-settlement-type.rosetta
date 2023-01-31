@@ -280,7 +280,9 @@ type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, w
 	physicalSettlementTerms PhysicalSettlementTerms (0..1) <"Specifies the physical settlement terms which apply to the transaction.">
 	
 	condition OptionSettlementChoice: <"The option settlement cannot combine both physical and cash terms specification.">
-		optional choice cashSettlementTerms, physicalSettlementTerms /*, fxSettlementTerms*/
+		if cashSettlementTerms exists and physicalSettlementTerms exists
+		then settlementType = SettlementTypeEnum -> Election or
+		settlementType = SettlementTypeEnum -> CashOrPhysical
 	condition CashSettlementTerms: <"If the cash settlement terms are specified, then the settlementType can either be Cash, Election or CashOrPhysical">
 		if cashSettlementTerms exists
 		then settlementType <> SettlementTypeEnum -> Physical
