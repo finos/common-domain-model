@@ -72,14 +72,13 @@ public class PartyMappingHelper {
 	 * Looks up party external reference synonym path, and maps value to CounterpartyRoleEnum, then sets on the given builder.
 	 */
 	public void setCounterpartyRoleEnum(RosettaPath modelPath, Path synonymPath, Consumer<CounterpartyRoleEnum> setter) {
-
 		setValueAndOptionallyUpdateMappings(
 				synonymPath.addElement("href"), // synonym path to party external reference
 				(partyExternalReference) -> {
 					// Map externalRef to CounterpartyRoleEnum and update builder object
 					String partyReference = translatePartyExternalReference(partyExternalReference);
-					if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
-						LOGGER.info("Setting CounterpartyRoleEnum for party reference {} in the model outside the product {}", modelPath.buildPath());
+					if (!modelPath.containsPath(PRODUCT_SUB_PATH)) {
+						LOGGER.info("Setting CounterpartyRoleEnum for party reference {} in the model outside the product {}", partyReference, modelPath.buildPath());
 					}
 					Optional<CounterpartyRoleEnum> counterpartyEnum =
 							getOrCreateCounterpartyRoleEnum(partyReference);
