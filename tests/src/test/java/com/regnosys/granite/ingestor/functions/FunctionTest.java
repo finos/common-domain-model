@@ -7,7 +7,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
-import com.regnosys.granite.ingestor.ExpectationUtil;
+import com.regnosys.ingest.test.framework.ingestor.ExpectationUtil;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.testing.ExecutionDescriptor;
@@ -46,7 +46,8 @@ class FunctionTest {
 			"cdm-sample-files/functions/sec-lending-execution-descriptor.json",
 			"cdm-sample-files/functions/fpml-processes-execution-descriptor.json",
 			"cdm-sample-files/functions/cme-cleared-confirm-1-17-execution-descriptor.json",
-			"cdm-sample-files/functions/dtcc-11-0-execution-descriptor.json");
+			"cdm-sample-files/functions/dtcc-11-0-execution-descriptor.json",
+			"cdm-sample-files/functions/repo-and-bond-execution-descriptor.json");
 
 	private static Injector injector;
 

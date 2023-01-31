@@ -4,7 +4,6 @@ import com.google.common.io.Resources;
 import org.fpml.fpml_5.confirmation.DataDocument;
 import org.fpml.fpml_5.confirmation.Party;
 import org.fpml.fpml_5.confirmation.Trade;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -55,13 +54,11 @@ public class Fpml510RecordKeepingSampleWriter {
 		return inFile.getFileName().toString().endsWith(".xml");
 	}
 
-	@NotNull
 	private Path toOutFile(Path inFile) {
 		return Paths.get(inFile.toString()
 			.replace("cdm-sample-files", "generated-sample-files"));
 	}
 
-	@NotNull
 	private String toResourcesPath(Path inFile) {
 		return inFile.toString()
 			.substring(inFile.toString().lastIndexOf("cdm-sample-files"));

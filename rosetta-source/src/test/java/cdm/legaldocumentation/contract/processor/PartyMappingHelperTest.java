@@ -10,7 +10,6 @@ import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +28,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 class PartyMappingHelperTest {
 
@@ -93,6 +91,23 @@ class PartyMappingHelperTest {
 		assertNull(updatedMapping.getRosettaValue());
 		assertNull(updatedMapping.getError());
 		assertTrue(updatedMapping.isCondition());
+	}
+
+	@Test
+	void shouldMapPayerRefToParty1AndReceiverRefToParty2() {
+		PartyMappingHelper helper = new PartyMappingHelper(context, tradableProductBuilder, null);
+
+		PayerReceiverBuilder builder = PayerReceiver.builder();
+
+		helper.setCounterpartyRoleEnum(PAYER_PARTY_REF, builder::setPayer);
+
+		assertEquals(CounterpartyRoleEnum.PARTY_1, builder.getPayer());
+		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
+
+		helper.setCounterpartyRoleEnum(RECEIVER_PARTY_REF, builder::setReceiver);
+
+		assertEquals(CounterpartyRoleEnum.PARTY_2, builder.getReceiver());
+		assertTrue(helper.getBothCounterpartiesCollectedFuture().isDone());
 	}
 
 	@Test
@@ -165,27 +180,6 @@ class PartyMappingHelperTest {
 		assertTrue(receiverUpdatedMapping.isCondition());
 	}
 
-	@Test
-	void shouldMapCounterpartyBecauseModelPathOutsideProduct() {
-		PartyMappingHelper helper = new PartyMappingHelper(context, tradableProductBuilder, null);
-
-		PayerReceiverBuilder builder = PayerReceiver.builder();
-		Path synonymPath = PAYER_XML_PATH.getParent();
-		helper.setCounterpartyRoleEnum(RosettaPath.valueOf("Contract.collateral.independentAmount.payer"), synonymPath, builder::setPayer);
-
-		assertNull(builder.getPayer());
-		assertFalse(helper.getBothCounterpartiesCollectedFuture().isDone());
-
-		Mapping updatedMapping = context.getMappings().get(0);
-		assertEquals(PAYER_XML_PATH, updatedMapping.getXmlPath());
-		assertEquals(PAYER_PARTY_REF, updatedMapping.getXmlValue());
-		assertNull(updatedMapping.getRosettaPath());
-		assertNull(updatedMapping.getRosettaValue());
-		assertEquals("no destination", updatedMapping.getError());
-		assertFalse(updatedMapping.isCondition());
-	}
-
-	@NotNull
 	private List<Mapping> getMappings(Path payerXmlPath, String payerXmlValue, Path receiverXmlPath, String receiverXmlValue) {
 		return Arrays.asList(
 				new Mapping(payerXmlPath,

@@ -118,8 +118,8 @@ public class TestObjectsFactory {
 		return partyBuilder.build();
 	}
 
-	private Identifier getIdentifier(String identifier, String issuer) {
-		return Identifier.builder()
+	private TradeIdentifier getIdentifier(String identifier, String issuer) {
+		return TradeIdentifier.builder()
 				.addAssignedIdentifier(AssignedIdentifier.builder()
 						.setIdentifier(FieldWithMetaString.builder().setValue(identifier).build()))
 				.setIssuerReference(ReferenceWithMetaParty.builder().setExternalReference(issuer).build())

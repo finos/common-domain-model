@@ -1,7 +1,6 @@
 package cdm.legaldocumentation.common.processor;
 
 import cdm.legaldocumentation.common.*;
-import cdm.legaldocumentation.csa.CreditSupportAgreementTypeEnum;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -9,7 +8,6 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.records.Date;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -81,7 +79,7 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
         return relatedAgreementBuilder.hasData() ? Optional.of(relatedAgreementBuilder.build()) : Optional.empty();
     }
 
-    @NotNull
+
     private Boolean setAgreementDetails(Path synonymPath, LegalAgreementBuilder legalAgreementBuilder, String date) {
         legalAgreementBuilder.setAgreementDate(Date.parse(date));
         switch (synonymPath.getLastElement().getPathName()) {
@@ -90,8 +88,7 @@ public class RelatedAgreementMappingProcessor extends MappingProcessor {
                 legalAgreementBuilder
                         .getOrCreateLegalAgreementIdentification()
                         .getOrCreateAgreementName()
-                        .setAgreementType(LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT)
-                        .setCreditSupportAgreementTypeValue(CreditSupportAgreementTypeEnum.COLLATERAL_TRANSFER_AGREEMENT);
+                        .setAgreementType(LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT);
                 return true;
             case "date_of_isda_master_agreement":
                 legalAgreementBuilder

@@ -1,11 +1,14 @@
-# *Infrastructure - Qualification*
+# *Product Model - Party Identifier Type*
+
+_Background_
+
+This release updates the enumeration `PartyIdentifierTypeEnum` and adds the corresponding FpML synonym mappings.
 
 _What is being released?_
 
-This release contains a bug fix related to qualification.  If multiple qualification matches are found, no qualifier will now be set, and an error will be generated.
+- Value `MIC` added to enumeration `PartyIdentifierTypeEnum`
+- FpML mappings updated for `PartyIdentifierTypeEnum` values `MIC` and `LEI`
 
 _Review Directions_
 
-This bug fix does not affect any examples in CDM as none were qualifying with multiple matches.  
-
-The fixed can be found in com.regnosys.rosetta.common.postprocess.qualify.QualificationResult.java.
+In Rosetta, select `CDM for Digital Regulatory Reporting` project, then the Translate tab, and review samples in `fpml-5-10 > record-keeping > products > rates` 

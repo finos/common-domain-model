@@ -2,6 +2,7 @@ namespace cdm.mapping.fpml.processes
 version "${project.version}"
 
 import cdm.base.math.*
+import cdm.base.staticdata.identifier.*
 
 import cdm.observable.asset.*
 
@@ -10,7 +11,7 @@ import cdm.mapping.fpml.*
 import cdm.event.workflow.*
 import cdm.event.common.*
 
-synonym source FpML_5_10_Processes extends FpML_5_10
+synonym source FpML_5_10_Processes extends FpML_5_13
 {
    WorkflowStep:
         + businessEvent
@@ -51,6 +52,7 @@ synonym source FpML_5_10_Processes extends FpML_5_10
             [merge "trade"]
             [merge "party"]
             [merge "account"]
+            [merge "quote"]
         + eventDate
             // [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
             [value "agreementDate" path "amendment" maps 2 dateFormat "yyyy-MM-ddz"]
@@ -66,13 +68,15 @@ synonym source FpML_5_10_Processes extends FpML_5_10
             [value "effectiveDate" path "termination" maps 2]
             [value "effectiveDate" path "amendment" maps 2]
             [value "effectiveDate" path "novation" maps 2]
+        + packageInformation
+            [value "ignore"] // not modelled in FpML
 
     Instruction:
         + before
             [value "termination"]
             [value "novation"]
             [value "amendment"]
-            [hint "trade", "party", "account"]
+            [hint "trade", "party", "account", "quote"]
 
     PrimitiveInstruction:
         + contractFormation
@@ -123,11 +127,21 @@ synonym source FpML_5_10_Processes extends FpML_5_10
             [set to FeeTypeEnum->Termination when path = "termination->payment"]
             [set to FeeTypeEnum->Renegotiation when path = "amendment->payment"]
 
-
     PriceQuantity:
         + quantity
             [value "outstandingNotionalAmount"]
             [value "outstandingNotionalAmount" path "sizeChange"]
+
+
+    Price:
+        + value
+            [value "value" mapper "PriceUnitType"]
+
+    PriceExpression:
+        + priceType
+            [value "measureType"]
+        + spreadType
+            [value "measureType"]
 
     EventTimestamp:
         + dateTime
@@ -168,7 +182,7 @@ synonym source FpML_5_10_Processes extends FpML_5_10
             [value "oldTrade" mapper "Party"]
             [value "feeTrade" mapper "Party"]
             [value "newTrade" mapper "Party"]
-            [hint "party", "account"]
+            [hint "party", "account", "quote"]
         + transferHistory
             // premium
             [value "bondOption" path "feeTrade", "bondOption" path "originalTrade", "bondOption" path "newTrade", "bondOption" path "oldTrade"]
@@ -197,6 +211,15 @@ synonym source FpML_5_10_Processes extends FpML_5_10
         + documentation
             [value "documentation" mapper "InstructionDocumentation"]
 
+    ExecutionDetails:
+        + packageReference
+            [hint "quote"]
+
+    IdentifiedList:
+        + price
+            [value "quote" set when "quote->measureType" = "PackagePrice"]
+            [value "quote" set when "quote->measureType" = "PackageSpread"]
+
     enums
 
     FeeTypeEnum:
@@ -208,4 +231,14 @@ synonym source FpML_5_10_Processes extends FpML_5_10
             [value "TerminationFee"]
         + Upfront
             [value "PrincipalExchange"]
+
+    PriceTypeEnum:
+        + CashPrice
+            [value "PackagePrice"]
+        + InterestRate
+            [value "PackageSpread"]
+
+    SpreadTypeEnum:
+        + Spread
+            [value "PackageSpread"]
 }

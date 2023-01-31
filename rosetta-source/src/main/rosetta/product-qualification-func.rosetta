@@ -782,7 +782,8 @@ func Qualify_SubProduct_FixedFloat: <"Qualifies a product as having the Sub Prod
 		or
 		((economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
 			and economicTerms -> payout -> interestRatePayout -> principalPayment -> finalPayment only-element = True)
-	        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1)
+	        and (economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+			or economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1))
 
 
 
@@ -1230,8 +1231,9 @@ func Qualify_RepurchaseAgreement:
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 	set is_product:
-		economicTerms -> payout -> securityPayout -> securityLeg count >= 1 and
-		economicTerms -> payout -> interestRatePayout count = 1
+		economicTerms -> payout -> interestRatePayout only exists and
+		economicTerms -> payout -> interestRatePayout count = 1 and
+		economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout only exists
 
 func Qualify_Commodity_Swap_FixedFloat: <"Qualifies a product as a Fixed Float Commodity Swap.  The determination of the qualification is based on the economic terms and the following criteria: 1) One Floating Leg represented by the CommodityPayout, with an underlier that is a commodity, 2) One Fixed Leg represented by the FixedPricePayout, and 3) there are no other payout types.">
 	[qualification Product]
@@ -1280,4 +1282,6 @@ func Qualify_SecurityLendingAgreement: <"Qualifies a product as a Security Loan.
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 	set is_product:
-		economicTerms -> payout -> securityFinancePayout exists
+		economicTerms -> payout -> assetPayout exists and
+		economicTerms -> payout -> interestRatePayout exists and
+		economicTerms -> collateral exists
