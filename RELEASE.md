@@ -2,13 +2,15 @@
 
 _Background_
 
-This release updates the enumeration `PartyIdentifierTypeEnum` and adds the corresponding FpML synonym mappings.
+This release contains the content discussed on the ARC regarding the `Equity Mappings` work in order to enhance the support and cover more elements of it.  
 
 _What is being released?_
 
-- Value `MIC` added to enumeration `PartyIdentifierTypeEnum`
-- FpML mappings updated for `PartyIdentifierTypeEnum` values `MIC` and `LEI`
+- Mapping coverage enhanced for `equityOptionTransactionSupplement`
+- Added mapping and element `isApplicable` in `AutomaticExercise` 
+- Changed cardinality of `thresHoldRate` and `followUpConfirmation` from (1..1) to (0..1) in order to reduce Validation issues with condition `ExerciseProcedureChoice`
+- Conditional mapping added to support priceExpression inside PriceExpression type. 
 
 _Review Directions_
 
-In Rosetta, select `CDM for Digital Regulatory Reporting` project, then the Translate tab, and review samples in `fpml-5-10 > record-keeping > products > rates` 
+In Rosetta, select `CDM for Digital Regulatory Reporting` project, then the Translate tab, and review samples in `fpml-5-10 > incomplete-products > equity-options` `fpml-5-10 > incomplete-products > equity-swaps`
