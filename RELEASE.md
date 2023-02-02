@@ -1,4 +1,4 @@
-# *Product Model - Party Identifier Type*
+# *Equity mappings - equity Model*
 
 _Background_
 
