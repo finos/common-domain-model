@@ -55,7 +55,7 @@ apart from Your Larger Work.
 the Licensor as a result of the distribution, purchase, sale,
 reproduction, display or use of Your Larger Work.
 
-## 5. Use of Designation \"ISDA CDM\"
+## 5. Use of Designation "ISDA CDM"
 
 - (a). You may use the designation "ISDA CDM":
 
