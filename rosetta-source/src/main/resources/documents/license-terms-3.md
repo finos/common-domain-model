@@ -57,31 +57,31 @@ reproduction, display or use of Your Larger Work.
 
 ## 5. Use of Designation \"ISDA CDM\"
 
-You may use the designation "ISDA CDM":
+- (a). You may use the designation "ISDA CDM":
 
-- (i).  to identify the ISDA CDM v3.0 approved by Licensor; and
-- (ii). to make the truthful claim that computer software or any other
-product or service is based on or compliant with a specified version
-of ISDA CDM v3.0.
+  - (i).  to identify the ISDA CDM v3.0 approved by Licensor; and
+  - (ii). to make the truthful claim that computer software or any other
+  product or service is based on or compliant with a specified version
+  of ISDA CDM v3.0.
 
-You agree not to use the designations "ISDA" or "ISDA CDM" in a
+- (b). You agree not to use the designations "ISDA" or "ISDA CDM" in a
 misleading or untruthful way, or in a way that falsely suggests
 endorsement or sponsorship by, or affiliation with, Licensor. You
 further agree that you will not:
 
-- (i).  identify any specifications or standards other than the ISDA CDM
-v3.0 approved by Licensor, or any computer software code containing
-such specifications or standards, including standards or
-specifications approved by ISDA that add to the ISDA CDM v3.0,
-unless those additions are clearly and conspicuously identified as
-such and in that event, You shall state conspicuously that they have
-neither been reviewed nor approved by ISDA;
-- (ii). advertise or promote any computer software or any other product or
-service as based on or compliant with ISDA CDM v3.0, unless You
-specify the version of the ISDA CDM v3.0; or
-- (iii). use the term "ISDA" or "ISDA CDM" as a trademark or part of a
-trademark for any software or any other product, or as a service
-mark or part of a service mark for any service.
+  - (i).  identify any specifications or standards other than the ISDA CDM
+  v3.0 approved by Licensor, or any computer software code containing
+  such specifications or standards, including standards or
+  specifications approved by ISDA that add to the ISDA CDM v3.0,
+  unless those additions are clearly and conspicuously identified as
+  such and in that event, You shall state conspicuously that they have
+  neither been reviewed nor approved by ISDA;
+  - (ii). advertise or promote any computer software or any other product or
+  service as based on or compliant with ISDA CDM v3.0, unless You
+  specify the version of the ISDA CDM v3.0; or
+  - (iii). use the term "ISDA" or "ISDA CDM" as a trademark or part of a
+  trademark for any software or any other product, or as a service
+  mark or part of a service mark for any service.
 
 ## 6. Revisions of the License
 
