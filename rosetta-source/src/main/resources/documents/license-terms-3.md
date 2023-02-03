@@ -9,7 +9,7 @@ Effective date of version 3.0: November 7, 2022
 - (a).  "Licensor" means International Swaps and Derivatives Association,
 Inc. ("ISDA").
 - (b).  "Larger Work" means a work, including but not limited to computer
-software, that combines the ISDA CDM v2.0, or portions thereof with
+software, that combines the ISDA CDM v3.0, or portions thereof with
 material not governed by the terms of this License.
 - (c).  "License" means this document.
 - (d).  "ISDA CDM v3.0" means the methodology and documentation of any
