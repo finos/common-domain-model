@@ -1,6 +1,7 @@
 namespace cdm.base.staticdata.party : <"Basic party concepts: legal entity, natural person, contact details, buyer / payer and all related enums.">
 version "${project.version}"
 
+import cdm.base.*
 import cdm.base.staticdata.identifier.*
 
 type Counterparty: <"Defines a counterparty enumerated value, e.g. Party1 or Party2, with an associated party reference. The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the CounterpartyEnum (e.g. values Party1 or Party2). The CounterpartyEnum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this Counterparty type, which is positioned outside of the product definition, allows the CounterpartyEnum to be associated with an actual party reference.">
@@ -24,7 +25,16 @@ type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model constru
 type PayerReceiver: <"Specifies the parties responsible for making and receiving payments defined by this structure.">
 
 	payer CounterpartyRoleEnum (1..1) <"Specifies the counterparty responsible for making the payments defined by this structure.  The party is one of the two principal parties to the transaction.">
+		[docReference ICMA GMRA namingConvention "Seller"
+			provision "As defined in the GMRA, paragraph 1(a). The Seller transfers Securities in exchange for the Purchase Price on the Purchase Date and agrees to buy Equivalent Securities from the Buyer in exchange for the Repurchase Price on the Repurchase Date."]
+		[docReference ICMA ERCCBestPractice 
+			namingConvention "Seller"
+			provision "ERCC Guide: Annex II  Glossary of repo terminology. The party to a repo who sells collateral for cash in the form of the Purchase Price on the Purchase Date and commits to buy back the same quantity of equivalent collateral on the Repurchase Date --- which will be a fixed maturity date or, in the case of open repo, on demand --- at an agreed or calculable Repurchase Price. The Seller is effectively borrowing cash. Cf Buyer."]
     receiver CounterpartyRoleEnum (1..1) <"Specifies the party that receives the payments corresponding to this structure.  The party is one of the two counterparties to the transaction.">
+		[docReference ICMA GMRA namingConvention "Buyer"
+			provision "As defined in the GMRA, paragraph 1(a). The Buyer purchases Securities at the Purchase Price on the Purchase Date and agrees to sell Equivalent Securities to the Seller in exchange for the Repurchase Price on the Repurchase Date."]
+		[docReference ICMA ERCCBestPractice namingConvention "Buyer"
+			provision "ERCC Guide: Annex II  Glossary of repo terminology. The party to a repo who buys collateral at the Purchase Price on the Purchase Date and commits to sell back the same quantity of equivalent collateral on the Repurchase Date --- which will be a fixed maturity date or, in the case of open repo, on demand --- at an agreed or calculable Repurchase Price. The Buyer is effectively a lender of cash and is said to be doing a reverse repo."]
 
 type PartyReferencePayerReceiver: <"Specifies the parties responsible for making and receiving payments defined by this structure.">
 

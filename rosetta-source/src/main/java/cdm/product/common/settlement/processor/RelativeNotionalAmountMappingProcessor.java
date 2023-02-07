@@ -7,7 +7,6 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,14 +46,14 @@ public class RelativeNotionalAmountMappingProcessor extends MappingProcessor {
                                 }));
     }
 
-    @NotNull
+
     private Optional<Mapping> getNotionalAmountHrefMapping(Path synonymPath) {
         return filterMappings(getMappings(), synonymPath).stream()
                 .filter(m -> m.getRosettaValue() instanceof Reference.ReferenceBuilder)
                 .findFirst();
     }
 
-    @NotNull
+
     private Optional<Path> getNotionalAmountIdSynonymPath(Mapping relativeNotionalAmountHrefMapping) {
         return getMappings().stream()
                 .filter(mapping -> mapping.getXmlPath().endsWith(Path.parse("notionalAmount.id")))
@@ -64,7 +63,7 @@ public class RelativeNotionalAmountMappingProcessor extends MappingProcessor {
                 .findFirst();
     }
 
-    @NotNull
+
     private Path convertPath(Path idPath) {
         return idPath.getParent().addElement("amount");
     }
