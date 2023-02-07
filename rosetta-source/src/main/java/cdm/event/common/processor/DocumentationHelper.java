@@ -2,16 +2,18 @@ package cdm.event.common.processor;
 
 import cdm.legaldocumentation.common.*;
 import cdm.legaldocumentation.common.metafields.FieldWithMetaContractualDefinitionsEnum;
+import cdm.legaldocumentation.contract.BrokerConfirmationTypeEnum;
+import cdm.legaldocumentation.csa.CreditSupportAgreementTypeEnum;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import cdm.legaldocumentation.master.MasterConfirmationAnnexTypeEnum;
 import cdm.legaldocumentation.master.MasterConfirmationTypeEnum;
-import cdm.product.collateral.CreditSupportAgreementTypeEnum;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.translation.SynonymToEnumMap;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.records.Date;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,7 +128,19 @@ public class DocumentationHelper {
     }
 
     private Optional<LegalAgreement> getBrokerConfirmation(Path synonymPath) {
+        Path brokerConfirmationPath = synonymPath.addElement("brokerConfirmation");
+
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
+
+        setValueAndUpdateMappings(brokerConfirmationPath.addElement("brokerConfirmationType"),
+                xmlValue -> {
+                    AgreementName.AgreementNameBuilder agreementName = builder.getOrCreateLegalAgreementIdentification().getOrCreateAgreementName();
+                    synonymToEnumMap.getEnumValueOptional(BrokerConfirmationTypeEnum.class, xmlValue)
+                            .ifPresent(agreementName::setBrokerConfirmationType);
+                },
+                mappings,
+                rosettaPath);
+
         return setAgreementType(builder, LegalAgreementTypeEnum.BROKER_CONFIRMATION);
     }
 
@@ -254,7 +268,7 @@ public class DocumentationHelper {
         return setAgreementType(builder, LegalAgreementTypeEnum.CONFIRMATION);
     }
 
-
+    @NotNull
     private Date parseDate(String xmlValue) {
         return Date.parse(xmlValue.replace("Z", ""));
     }
@@ -282,7 +296,7 @@ public class DocumentationHelper {
         return setAgreementType(builder, LegalAgreementTypeEnum.OTHER);
     }
 
-
+    @NotNull
     private Optional<LegalAgreement> setAgreementType(LegalAgreement.LegalAgreementBuilder builder, LegalAgreementTypeEnum masterAgreement) {
         if (builder.hasData()) {
             builder.getOrCreateLegalAgreementIdentification()

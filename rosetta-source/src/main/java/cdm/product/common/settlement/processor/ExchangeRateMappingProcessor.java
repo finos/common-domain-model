@@ -10,6 +10,7 @@ import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -55,6 +56,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 		return PriceExpression.builder().setPriceType(PriceTypeEnum.EXCHANGE_RATE).setSpreadType(base);
 	}
 
+	@NotNull
 	private Optional<FieldWithMetaPriceScheduleBuilder> getBuilder(Path synonymPath,
 			AtomicInteger priceIndex,
 			UnitTypeBuilder unitOfAmount,
@@ -84,6 +86,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 				.orElse(null);
 	}
 
+	@NotNull
 	private Optional<PriceSchedule.PriceScheduleBuilder> getExchangeRatePrice(List<FieldWithMetaPriceScheduleBuilder> priceBuilders) {
 		return priceBuilders.stream()
 				.map(FieldWithMetaPriceScheduleBuilder::getValue)

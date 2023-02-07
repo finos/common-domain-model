@@ -10,6 +10,7 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,7 @@ public class PartyMappingHelper {
 	/**
 	 * Get an instance of this party mapping helper from the MappingContext params.
 	 */
+	@NotNull
 	public synchronized static Optional<PartyMappingHelper> getInstance(MappingContext mappingContext) {
 		return Optional.ofNullable((PartyMappingHelper) mappingContext.getMappingParams().get(PARTY_MAPPING_HELPER_KEY));
 	}
@@ -64,38 +66,28 @@ public class PartyMappingHelper {
 	/**
 	 * Get an instance of this party mapping helper from the MappingContext params, or if not found throw exception.
 	 */
+	@NotNull
 	public synchronized static PartyMappingHelper getInstanceOrThrow(MappingContext mappingContext) {
 		return getInstance(mappingContext).orElseThrow(() -> new IllegalStateException("PartyMappingHelper not found."));
 	}
 
 	/**
-	 * Looks up party external reference synonym path, and maps value to CounterpartyRoleEnum, then sets on the given builder.
-	 */
-	public void setCounterpartyRoleEnum(RosettaPath modelPath, Path synonymPath, Consumer<CounterpartyRoleEnum> setter) {
-		setValueAndOptionallyUpdateMappings(
-				synonymPath.addElement("href"), // synonym path to party external reference
-				(partyExternalReference) -> {
-					// Map externalRef to CounterpartyRoleEnum and update builder object
-					String partyReference = translatePartyExternalReference(partyExternalReference);
-					if (!modelPath.containsPath(PRODUCT_SUB_PATH)) {
-						LOGGER.info("Setting CounterpartyRoleEnum for party reference {} in the model outside the product {}", partyReference, modelPath.buildPath());
-					}
-					Optional<CounterpartyRoleEnum> counterpartyEnum =
-							getOrCreateCounterpartyRoleEnum(partyReference);
-					counterpartyEnum.ifPresent(setter);
-					return counterpartyEnum.isPresent(); // return true to update synonym mapping stats to success
-				},
-				mappings,
-				modelPath);
-	}
-
-	/**
 	 * Maps party external reference to CounterpartyRoleEnum, then sets on the given builder.
 	 */
-	public void setCounterpartyRoleEnum(String partyReference, Consumer<CounterpartyRoleEnum> setter) {
-		// Map externalRef to CounterpartyRoleEnum and update builder object
-		getOrCreateCounterpartyRoleEnum(translatePartyExternalReference(partyReference))
-				.ifPresent(setter);
+	public void setCounterpartyRoleEnum(RosettaPath modelPath, Path synonymPath, Consumer<CounterpartyRoleEnum> setter) {
+		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
+			setValueAndOptionallyUpdateMappings(
+					synonymPath.addElement("href"), // synonym path to party external reference
+					(partyExternalReference) -> {
+						// Map externalRef to CounterpartyRoleEnum and update builder object
+						Optional<CounterpartyRoleEnum> counterpartyEnum =
+								getOrCreateCounterpartyRoleEnum(translatePartyExternalReference(partyExternalReference));
+						counterpartyEnum.ifPresent(setter);
+						return counterpartyEnum.isPresent(); // return true to update synonym mapping stats to success
+					},
+					mappings,
+					modelPath);
+		}
 	}
 
 	/**
@@ -153,6 +145,39 @@ public class PartyMappingHelper {
 				bothCounterpartiesCollected.complete(partyExternalReferenceToCounterpartyRoleEnumMap);
 			}
 			return counterpartyEnum;
+		}
+	}
+
+	/**
+	 * Cashflow payout is problematic because it is defined inside the Product yet can contain either a counterparty or ancillary role.
+	 * Model should be refactored so cashflow payout only allows counterparties, and any 3rd party payments are defined outside the
+	 * Product (e.g. SettlementTerms, or some new other party payment model similar to FpML).
+	 * <p>
+	 * If both counterparties have not yet been computed, get or create counterparty based on the party reference.
+	 * If both counterparties have already been computed, then add as an ancillary role.
+	 */
+	public void computeCashflowParty(RosettaPath modelPath,
+			Path synonymPath,
+			Consumer<CounterpartyRoleEnum> counterpartyRoleSetter,
+			Consumer<AncillaryRoleEnum> ancillaryRoleSetter,
+			AncillaryRoleEnum ancillaryRole) {
+
+		if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
+			setValueAndUpdateMappings(synonymPath.addElement("href"),
+					partyExternalReference -> {
+						String translatedPartyRef = translatePartyExternalReference(partyExternalReference);
+						Optional<CounterpartyRoleEnum> counterpartyRole = getOrCreateCounterpartyRoleEnum(translatedPartyRef);
+						if (counterpartyRole.isPresent()) {
+							counterpartyRoleSetter.accept(counterpartyRole.get());
+						} else {
+							LOGGER.info("Adding {} for {}", ancillaryRole, translatedPartyRef);
+							ancillaryRoleSetter.accept(ancillaryRole);
+							// add to tradableProduct
+							addAncillaryParty(translatedPartyRef, ancillaryRole);
+						}
+					},
+					mappings,
+					modelPath);
 		}
 	}
 

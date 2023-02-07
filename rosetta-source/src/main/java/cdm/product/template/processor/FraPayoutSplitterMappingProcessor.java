@@ -11,11 +11,13 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 import static cdm.observable.asset.metafields.ReferenceWithMetaFloatingRateOption.ReferenceWithMetaFloatingRateOptionBuilder;
 import static cdm.product.asset.FloatingRate.FloatingRateBuilder;
@@ -34,8 +36,11 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FraPayoutSplitterMappingProcessor.class);
 
+	private final ExecutorService executor;
+
 	public FraPayoutSplitterMappingProcessor(RosettaPath path, List<Path> synonymPaths, MappingContext context) {
 		super(path, synonymPaths, context);
+		this.executor = context.getExecutor();
 	}
 
 	@Override
@@ -81,6 +86,7 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 		updateFloatingLegParties(floatingLeg);
 	}
 
+	@NotNull
 	private Optional<Mapping> getReferenceMapping(Path synonymPath) {
 		return filterMappings(getContext().getMappings(), synonymPath).stream()
 				.filter(m -> m.getRosettaValue() instanceof Reference.ReferenceBuilder)
@@ -117,16 +123,22 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	}
 
 	private void updateFloatingLegParties(InterestRatePayoutBuilder floatingLeg) {
-		LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
-		PayerReceiverBuilder newBuilder = floatingLeg.getPayerReceiver().toBuilder();
-
 		PartyMappingHelper helper = PartyMappingHelper.getInstanceOrThrow(getContext());
-		getPartyReference("buyerPartyReference")
-				.ifPresent(partyReference ->
-						helper.setCounterpartyRoleEnum(partyReference, newBuilder::setReceiver));
-		getPartyReference("sellerPartyReference")
-				.ifPresent(partyReference -> helper.setCounterpartyRoleEnum(partyReference,
-						newBuilder::setPayer));
+
+		addInvokedTask(helper.getBothCounterpartiesCollectedFuture()
+				.thenAcceptAsync(map -> {
+					LOGGER.info("Flipping payer/receiver on new FRA interest rate payout");
+					PayerReceiverBuilder newBuilder = floatingLeg.getPayerReceiver().toBuilder();
+					// Get party references from xml mappings rather than rosetta mapped objects to avoid race conditions
+					getPartyReference("buyerPartyReference")
+							.map(helper::translatePartyExternalReference)
+							.map(map::get)
+							.ifPresent(newBuilder::setReceiver);
+					getPartyReference("sellerPartyReference")
+							.map(helper::translatePartyExternalReference)
+							.map(map::get)
+							.ifPresent(newBuilder::setPayer);
+				}, executor));
 	}
 
 	private Optional<String> getPartyReference(String endsWith) {

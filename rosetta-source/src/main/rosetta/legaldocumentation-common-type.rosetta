@@ -4,9 +4,9 @@ version "${project.version}"
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.identifier.*
 
+import cdm.legaldocumentation.csa.*
 import cdm.legaldocumentation.contract.*
 import cdm.legaldocumentation.master.*
-import cdm.product.collateral.*
 
 import cdm.mapping.config.*
 
@@ -57,6 +57,15 @@ type ResourceLength: <"A class to indicate the length of the resource.">
 
 	lengthUnit LengthUnitEnum (1..1) <"The length unit of the resource. For example, pages (pdf, text documents) or time (audio, video files).">
 	lengthValue number (1..1) <"The length value of the resource.">
+
+type Agreement: <"Specification of the standard set of terms that define a legal agreement.">
+
+	creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Elections to specify a Credit Support Annex or Credit Support Deed for Intial or Variation Margin.">
+	collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">
+	securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">
+	masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
+
+	condition: one-of
 
 type AgreementTerms: <"Specification of the content of a legal agreement.">
 
@@ -113,6 +122,7 @@ type LegalAgreementIdentification: <"Specifies the type of legal agreement, iden
 
 type AgreementName: <"Specifies the agreement name through an agreement type and optional detailed sub agreement type.">
 	agreementType LegalAgreementTypeEnum (1..1) <"Specification of the legal agreement type.">
+	brokerConfirmationType BrokerConfirmationTypeEnum (0..1) <"Specification of the broker confirmation type.">
 	creditSupportAgreementType CreditSupportAgreementTypeEnum (0..1) <"Specification of the credit support agreement type.">
 		[metadata scheme]
 	creditSupportAgreementMarginType CreditSupportAgreementMarginTypeEnum (0..1) <"specifies the type of margin for which a legal agreement is named.">
@@ -131,6 +141,7 @@ type AgreementName: <"Specifies the agreement name through an agreement type and
 	condition AgreementType: <"A condition to ensure that the agreement type specified is consistent with the detailed documentation identified.">
 		if agreementType <> LegalAgreementTypeEnum -> Other then otherAgreement is absent
         else if agreementType <> LegalAgreementTypeEnum -> MasterAgreement then masterAgreementType is absent
+        else if agreementType <> LegalAgreementTypeEnum -> BrokerConfirmation then brokerConfirmationType is absent
         else if agreementType <> LegalAgreementTypeEnum -> MasterConfirmation then masterConfirmationType is absent and masterConfirmationAnnexType is absent
         else if agreementType <> LegalAgreementTypeEnum -> Confirmation then contractualDefinitionsType is absent and contractualTermsSupplement is absent and contractualMatrix is absent
 		
@@ -143,6 +154,7 @@ type AgreementName: <"Specifies the agreement name through an agreement type and
 	condition CSAMarginType: <"A condition to ensure that CSA margin type is only specified if a credit support agreemnt type is specified.">
 			if creditSupportAgreementMarginType exists then creditSupportAgreementType exists
 
+			
 type UmbrellaAgreement: <"A class to specify a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement. This data representation reflects the ISDA Create representation.">
 
 	isApplicable boolean (1..1) <"The determination of whether Umbrella Agreement terms are Applicable (True), or Not Applicable (False)">

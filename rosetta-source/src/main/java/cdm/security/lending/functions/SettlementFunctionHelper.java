@@ -74,13 +74,13 @@ public class SettlementFunctionHelper {
         return settlementDate(businessEvent, Iterables::getLast);
     }
 
-    private LocalDate settlementDate(BusinessEvent businessEvent, Function<List<? extends AssetLeg>, AssetLeg> assetLegSelector) {
+    private LocalDate settlementDate(BusinessEvent businessEvent, Function<List<? extends SecurityFinanceLeg>, SecurityFinanceLeg> financeLegSelector) {
         return getSecurityPayout(businessEvent)
-                .map(Payout::getAssetPayout)
+                .map(Payout::getSecurityFinancePayout)
                 .filter(x -> !x.isEmpty()).map(Iterables::getLast)
-                .map(AssetPayout::getAssetLeg)
-                .filter(x -> !x.isEmpty()).map(assetLegSelector)
-                .map(AssetLeg::getSettlementDate)
+                .map(SecurityFinancePayout::getSecurityFinanceLeg)
+                .filter(x -> !x.isEmpty()).map(financeLegSelector)
+                .map(SecurityFinanceLeg::getSettlementDate)
                 .map(AdjustableOrRelativeDate::getAdjustableDate)
                 .map(AdjustableDate::getAdjustedDate)
                 .map(FieldWithMetaDate::getValue)
@@ -145,14 +145,14 @@ public class SettlementFunctionHelper {
 
     private Optional<PayerReceiver> getPayerReceiver(Payout payout) {
         return Optional.ofNullable(payout)
-                .map(Payout::getAssetPayout)
+                .map(Payout::getSecurityFinancePayout)
                 .filter(x -> !x.isEmpty()).map(Iterables::getLast)
-                .map(AssetPayout::getPayerReceiver);
+                .map(SecurityFinancePayout::getPayerReceiver);
     }
 
     private Optional<PayerReceiver> getReturnPayerReceiver(Payout payout) {
         return Optional.ofNullable(payout)
-                .map(Payout::getAssetPayout)
+                .map(Payout::getSecurityFinancePayout)
                 .filter(x -> !x.isEmpty()).map(Iterables::getLast)
                 .map(x -> invert(x.getPayerReceiver()));
     }
@@ -176,8 +176,8 @@ public class SettlementFunctionHelper {
 
     private Optional<Payout> getSecurityPayout(BusinessEvent executionBusinessEvent) {
         return getPayout(executionBusinessEvent)
-                .map(Payout::getAssetPayout)
-                .map(securityFinancePayouts -> Payout.builder().setAssetPayout(securityFinancePayouts)
+                .map(Payout::getSecurityFinancePayout)
+                .map(securityFinancePayouts -> Payout.builder().setSecurityFinancePayout(securityFinancePayouts)
                         .build());
     }
 

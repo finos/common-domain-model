@@ -3,6 +3,7 @@ package cdm.product.common.settlement.functions;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.product.common.settlement.PriceQuantity;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,6 +24,7 @@ public class UpdateAmountForEachQuantityImpl extends UpdateAmountForEachQuantity
 						.collect(Collectors.toList());
 	}
 
+	@NotNull
 	private List<? extends NonNegativeQuantitySchedule> updateAmountForEachQuantity(List<? extends FieldWithMetaNonNegativeQuantityScheduleBuilder> quantitiesToUpdate, BigDecimal newAmount) {
 		return emptyIfNull(quantitiesToUpdate)
 				.stream()
