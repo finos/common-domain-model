@@ -6,24 +6,26 @@ Effective date of version 3.0: November 7, 2022
 
 ## 1. Definitions
 
-a.  "Licensor" means International Swaps and Derivatives Association,
+- (a).  "Licensor" means International Swaps and Derivatives Association,
 Inc. ("ISDA").
-b.  "Larger Work" means a work, including but not limited to computer
+- (b).  "Larger Work" means a work, including but not limited to computer
 software, that combines the ISDA CDM v3.0, or portions thereof with
 material not governed by the terms of this License.
-c.  "License" means this document.
-d.  "ISDA CDM v3.0" means the methodology and documentation of any
-version 3.0 or sub-version with the designation of "3.\_" (e.g.,
+- (c).  "License" means this document.
+- (d).  "ISDA CDM v3.0" means the methodology and documentation of any
+version 3.0 or sub-version with the designation of "3._" (e.g.,
 3.1, 3.2, 3.3, etc.) located at
 <https://cdm.rosetta-technology.io/>.
-e.  "You" means an individual or a legal entity exercising rights under,
+- (e).  "You" means an individual or a legal entity exercising rights under,
 and complying with all of the terms of, this License or a future
 version of this License issued under Paragraph 6. For legal
 entities, "You" includes any entity which controls, is controlled
 by, or is under common control with You. For purposes of this
-definition, "control" means (a) the power, direct or indirect, to
+definition, "control" means 
+  - (a). the power, direct or indirect, to
 cause the direction or management of such entity, whether by
-contract or otherwise, or (b) ownership of fifty percent (50%) or
+  contract or otherwise, or 
+  - (b). ownership of fifty percent (50%) or
 more of the outstanding shares or beneficial ownership of such
 entity.
 
@@ -43,53 +45,53 @@ in each such copy or display the notice in Exhibit A.
 
 ## 4. Use of ISDA CDM v3.0 in Larger Works
 
-a.  You may use the ISDA CDM v3.0 in a Larger Work, including but not
+- (a).  You may use the ISDA CDM v3.0 in a Larger Work, including but not
 limited to computer software, and distribute Your Larger Work under
 a license of Your choice, which may contain terms different from
 this License, provided that the license for Your Larger Work does
 not attempt to limit the recipient's rights to use the ISDA CDM v3.0
 apart from Your Larger Work.
-b.  You hereby agree to indemnify Licensor for any liability incurred by
+- (b).  You hereby agree to indemnify Licensor for any liability incurred by
 the Licensor as a result of the distribution, purchase, sale,
 reproduction, display or use of Your Larger Work.
 
-## 5. Use of Designation \"ISDA CDM\"
+## 5. Use of Designation "ISDA CDM"
 
-You may use the designation "ISDA CDM":
+- (a). You may use the designation "ISDA CDM":
 
-i.  to identify the ISDA CDM v3.0 approved by Licensor; and
-ii. to make the truthful claim that computer software or any other
-product or service is based on or compliant with a specified version
-of ISDA CDM v3.0.
+  - (i).  to identify the ISDA CDM v3.0 approved by Licensor; and
+  - (ii). to make the truthful claim that computer software or any other
+  product or service is based on or compliant with a specified version
+  of ISDA CDM v3.0.
 
-You agree not to use the designations "ISDA" or "ISDA CDM" in a
+- (b). You agree not to use the designations "ISDA" or "ISDA CDM" in a
 misleading or untruthful way, or in a way that falsely suggests
 endorsement or sponsorship by, or affiliation with, Licensor. You
 further agree that you will not:
 
-i.  identify any specifications or standards other than the ISDA CDM
-v3.0 approved by Licensor, or any computer software code containing
-such specifications or standards, including standards or
-specifications approved by ISDA that add to the ISDA CDM v3.0,
-unless those additions are clearly and conspicuously identified as
-such and in that event, You shall state conspicuously that they have
-neither been reviewed nor approved by ISDA;
-ii. advertise or promote any computer software or any other product or
-service as based on or compliant with ISDA CDM v3.0, unless You
-specify the version of the ISDA CDM v3.0; or
-iii. use the term "ISDA" or "ISDA CDM" as a trademark or part of a
-trademark for any software or any other product, or as a service
-mark or part of a service mark for any service.
+  - (i).  identify any specifications or standards other than the ISDA CDM
+  v3.0 approved by Licensor, or any computer software code containing
+  such specifications or standards, including standards or
+  specifications approved by ISDA that add to the ISDA CDM v3.0,
+  unless those additions are clearly and conspicuously identified as
+  such and in that event, You shall state conspicuously that they have
+  neither been reviewed nor approved by ISDA;
+  - (ii). advertise or promote any computer software or any other product or
+  service as based on or compliant with ISDA CDM v3.0, unless You
+  specify the version of the ISDA CDM v3.0; or
+  - (iii). use the term "ISDA" or "ISDA CDM" as a trademark or part of a
+  trademark for any software or any other product, or as a service
+  mark or part of a service mark for any service.
 
 ## 6. Revisions of the License
 
-a.  Licensor may publish revised and/or new versions of the ISDA CDM
+- (a).  Licensor may publish revised and/or new versions of the ISDA CDM
 v3.0 and/or the License from time to time. Each version will be
 given a distinguishing version number, beginning with the
 designation of "3.0" or higher. ISDA reserves the right in its sole
 discretion to designate new terms and conditions governing the
 licensing of such versions.
-b.  Once You have used the ISDA CDM v3.0 under a particular version of
+- (b).  Once You have used the ISDA CDM v3.0 under a particular version of
 the License, You may always continue to use the same specifications
 under the terms of that version. You may also choose to use those
 specifications under the terms of any subsequent version of the
@@ -166,16 +168,16 @@ construed against the drafter shall not apply to this License.
 
 ## EXHIBIT A
 
--   The ISDA CDM™ portions of this document are subject to the ISDA CDM™
+- The ISDA CDM™ portions of this document are subject to the ISDA CDM™
     License Version 3.0 (the "License"); you may not use the ISDA CDM
     except in compliance with that License. You may obtain a copy of the
     License at . <http://www.isda.org/isda-cdm-3/>.
--   The portions of the ISDA CDM™ distributed under the License are
+- The portions of the ISDA CDM™ distributed under the License are
     distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND,
     either express or implied. See the License for the specific language
     governing rights and limitations under the License. You may obtain a
     copy of the License at . <http://www.isda.org/isda-cdm-3/>.
--   The Licensor of the ISDA CDM is the International Swaps and
+- The Licensor of the ISDA CDM is the International Swaps and
     Derivatives Association, Inc., 10 East 53rd Street, 9th Floor, New
     York, NY 10022, ATTN: Office of the General Counsel. All Rights
     Reserved.
