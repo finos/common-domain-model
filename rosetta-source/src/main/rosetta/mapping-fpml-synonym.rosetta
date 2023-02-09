@@ -21,14 +21,13 @@ import cdm.product.template.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 
+import cdm.legaldocumentation.csa.*
+import cdm.legaldocumentation.contract.*
 import cdm.legaldocumentation.common.*
 import cdm.legaldocumentation.master.*
 
 import cdm.event.common.*
 import cdm.event.workflow.*
-
-import cdm.product.collateral.*
-
 
 synonym source FpML
 
@@ -55,8 +54,6 @@ synonym source FpML_5_10 extends FpML
 			[value "fxFeature"]
 
 	ValuationDates:
-		+ valuationDatesInitial
-			[value "ignore"]
 		+ valuationDatesInterim
 			[value "valuationPriceInterim" path "rateOfReturn"]
 		+ valuationDatesFinal
@@ -350,7 +347,9 @@ synonym source FpML_5_10 extends FpML
 		+ exerciseFeeSchedule
 			[value "exerciseFeeSchedule"]
 
-
+	BrokerConfirmation:
+		+ brokerConfirmationType
+			[value "brokerConfirmationType" meta "brokerConfirmationTypeScheme"]
 
 	CalculationAgent:
 		+ calculationAgentParty
@@ -513,6 +512,11 @@ synonym source FpML_5_10 extends FpML
 		+ initialFixingDate
 			[value "initialFixingDate" path "feeLeg->periodicPayment->floatingAmountCalculation"]
 
+	IssuerTradeId:
+		+ issuer
+			[value "issuer" meta "issuerIdScheme"]
+		+ identifier
+			[value "tradeId" meta "id", "tradeIdScheme"]
 
 	ManualExercise:
 		+ exerciseNotice
@@ -899,6 +903,8 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementType" path "equityExercise"]
 			[set to SettlementTypeEnum->Cash when "cashSettlementTerms" exists]
 			[set to SettlementTypeEnum->Physical when "physicalSettlementTerms" exists]
+			[set to SettlementTypeEnum -> Physical when "physicalExercise" exists]
+            [set to SettlementTypeEnum -> Cash when "nonDeliverableSettlement" exists]
 		+ settlementCurrency
 			[value "settlementCurrency" maps 2 meta "currencyScheme"]
 			[value "settlementCurrency" path "settlementProvision"]
@@ -912,7 +918,8 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementCurrency" path "exercise"]
 			[value "settlementCurrency" path "equityExercise"]
 			[value "currency" path "amount"]
-		
+			[value "entitlementCurrency"]
+
 	SettlementTerms:
 		+ settlementDate
 			[value "cashSettlement"]
@@ -931,8 +938,6 @@ synonym source FpML_5_10 extends FpML
 			[hint "adjustedPaymentDate"]
 			[value "equityExercise"]
 			[hint "nonDeliverableSettlement"]
-		+ settlementProvision
-			[value "ignore"]
 		+ cashSettlementTerms
 			[value "cashSettlement"]
 			[value "cashSettlementTerms" set when rosettaPath = CreditDefaultPayout->settlementTerms]
@@ -962,6 +967,13 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementRateOption" meta "settlementRateOptionScheme"]
 		+ priceSourceDisruption
 			[value "priceSourceDisruption"]
+
+	SimplePayment:
+	 	[value "SimplePayment" meta "id"]
+		+ paymentAmount
+			[value "paymentAmount"]
+		+ paymentDate
+			[value "paymentDate"]
 
 	RateSchedule:
 		+ price
@@ -1227,7 +1239,7 @@ synonym source FpML_5_10 extends FpML
 
 	ObservationDates:
 		+ observationSchedule
-			[hint "rateObservation"]
+			[value "rateObservation"]
 			[hint "adjustedDate"]
 		+ periodicSchedule
 			[value "observationSchedule"]
@@ -1238,12 +1250,6 @@ synonym source FpML_5_10 extends FpML
 			[value "pricingDates"]
 
 	ObservationSchedule:
-		+ observationDate
-			[value "rateObservation"]
-
-	ObservationDate:
-		+ adjustedDate
-			[value "date"]
 		+ weight
 			[value "averageRateWeightingFactor"]
 
@@ -1461,7 +1467,7 @@ synonym source FpML_5_10 extends FpML
 			[value "relativePaymentDates"]
 			[value "paymentDates"]
 			[hint "adjustablePaymentDate"]
-			[hint "adjustedPaymentDate"]
+			[hint "adjustedPaymentDate"]			
 			[value "paymentDate" set when "paymentAmount" exists /*and rosettaPath = PriceQuantity->settlementTerms->settlementDate*/]
 		+ valueDate
 			[value "valueDate"]
@@ -1703,6 +1709,7 @@ synonym source FpML_5_10 extends FpML
 		+ fixedPaymentAmount
 			[value "fixedPaymentAmount"]
 			[value "amount" path "paymentAmount"]
+			[value "paymentAmount"]
 		+ discountFactor
 			[value "discountFactor"]
 		+ forecastPaymentAmount
@@ -1797,6 +1804,7 @@ synonym source FpML_5_10 extends FpML
             [hint "fra"]
             [hint "creditDefaultSwapOption"]
             [hint "bondOption"]
+			[value "genericProduct"]
 
 	ProductTaxonomy:
 		+ primaryAssetClass
@@ -1805,26 +1813,20 @@ synonym source FpML_5_10 extends FpML
 			[value "primaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
 			[value "primaryAssetClass" path "bondOption" meta "assetClassScheme"]
 			[value "primaryAssetClass" path "commoditySwaption" meta "assetClassScheme"]
+			[value "primaryAssetClass" path "genericProduct" meta "assetClassScheme"]
 		+ secondaryAssetClass
 			[value "secondaryAssetClass" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "fra" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "bondOption" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "commoditySwaption" meta "assetClassScheme"]
-		+ source
+			[value "secondaryAssetClass" path "genericProduct" meta "assetClassScheme"]
+		+ taxonomyValue
 			[value "productType" mapper "TaxonomySource"]
 			[value "productType" path "fra" mapper "TaxonomySource"]
 			[value "productType" path "creditDefaultSwapOption" mapper "TaxonomySource"]
 			[value "productType" path "bondOption" mapper "TaxonomySource"]
 			[value "productType" path "commoditySwaption" mapper "TaxonomySource"]
-
-    TaxonomyValue:
-        + name
-            [value "productType"]
-            [value "productType" path "fra"]
-            [value "productType" path "creditDefaultSwapOption"]
-            [value "productType" path "bondOption"]
-            [value "productType" path "commoditySwaption"]
 
 	Security:
 		+ productIdentifier
@@ -2024,17 +2026,16 @@ synonym source FpML_5_10 extends FpML
 			[value "tradeId" path "versionedTradeId" meta "tradeIdScheme"]
 			[value "businessUnitId" meta "unitScheme"]
 			[value "eventId"]
-		+ version
-			[value "version" path "versionedTradeId"]
-			[value "version"]
-
-	TradeIdentifier:
 		+ identifierType
 			// [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier" and "issuer->issuerIdScheme" = "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"]
 			[set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/uti"]
 			[set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"]
 			[set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/usi"]
 			[set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-swap-identifier"]
+
+		+ version
+			[value "version" path "versionedTradeId"]
+			[value "version"]
 
 	Identifier:
 		[meta "id"]
@@ -2172,9 +2173,11 @@ synonym source FpML_5_10 extends FpML
 			[set to FeeTypeEnum->Upfront when path = "otherPartyPayment"]
 			[set to FeeTypeEnum->Upfront when path = "initialPayment"]
 			[set to FeeTypeEnum->Upfront when path = "singlePayment->fixedAmount"]
+			[set to FeeTypeEnum->Upfront when "paymentType" = "Additional Payment"]
 			[set to FeeTypeEnum->Premium when path = "premium"]
  			[set to FeeTypeEnum->Premium when path = "equityPremium"]
 			[set to FeeTypeEnum->BrokerageCommission when "paymentType" = "Brokerage"]
+			[set to FeeTypeEnum->Novation when path = "novation->payment"]
 
 	ContractDetails:
 		+ documentation
@@ -2265,6 +2268,7 @@ synonym source FpML_5_10 extends FpML
 			[value "effectiveDate" path "dividendLeg"]
 			[value "effectiveDate" path "fixedLeg"]
 			[value "effectiveDate" path "returnLeg"]
+			[value "effectiveDate" path "genericProduct"]
 		+ terminationDate
 			[value "scheduledTerminationDate" path "generalTerms"]
 			[value "terminationDate"]
@@ -2274,6 +2278,7 @@ synonym source FpML_5_10 extends FpML
 			[value "terminationDate" path "dividendLeg"]
 			[value "terminationDate" path "fixedLeg"]
 			[value "terminationDate" path "returnLeg"]
+			[value "terminationDate" path "genericProduct"]
 		+ dateAdjustments
 			[value "dateAdjustments" path "generalTerms"]
 		+ extraordinaryEvents
@@ -2281,8 +2286,6 @@ synonym source FpML_5_10 extends FpML
 		+ calculationAgent
 			[value "calculationAgent"]
 			[hint "calculationAgentBusinessCenter"]
-		+ collateral
-			[value "ignore"]
 
 	GeneralTerms:
 		+ referenceInformation
@@ -2553,7 +2556,7 @@ synonym source FpML_5_10 extends FpML
 	Payout:
 		+ interestRatePayout
 			// For Swap Stream
-			[value "swapStream","additionalTerms" /*set when rosettaPath "interestRatePayout->rateSpecification->fixedRate" exists*/]
+			[value "swapStream"]
 			// For CapFloor:
 			[value "capFloorStream"]
 			// For FRA:
@@ -2579,6 +2582,7 @@ synonym source FpML_5_10 extends FpML
 			[value "commoditySwaption"]
 			[value "varianceOptionTransactionSupplement"]
 			[value "dividendSwapOptionTransactionSupplement"]
+			[value "genericProduct" set when "genericProduct->optionType" exists]
 		+ forwardPayout
 			[value "fxSingleLeg"]
 			[value "nearLeg"]
@@ -2592,9 +2596,7 @@ synonym source FpML_5_10 extends FpML
 		+ fixedPricePayout
 			[value "fixedLeg" path "commoditySwap"]
 			[value "fixedPayment" path "fixedLeg", "dividendPeriod" path "dividendLeg" mapper "DividendFixedLeg"]
-		+ assetPayout
-			[value "ignore"]
-		+ assetPayout
+		+ securityFinancePayout
 			[value "ignore"]
 		+ performancePayout
 			[value "varianceLeg"]
@@ -2663,6 +2665,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "fxVarianceSwap"]
 			[value "fxVolatilitySwap"]
 			[hint "fxVolatilitySwap"]
+			[hint "genericProduct"]
 		+ index
 			[hint "index"]
 		+ loan
@@ -2897,7 +2900,7 @@ synonym source FpML_5_10 extends FpML
 			[value "adjustedDate" path "paymentDate->adjustableDate" meta "id"]
 			[value "adjustedTerminationDate"]
 			[value "adjustedEffectiveDate"]
-			[value "adjustedPaymentDate"]
+			[value "adjustedPaymentDate"]			
 			//for FX Option
 			[value "expiryDate" maps 2]
 
@@ -2938,7 +2941,7 @@ synonym source FpML_5_10 extends FpML
 			[value "adjustedDate" path "paymentDate" meta "id" dateFormat "yyyy-MM-ddz"]
 			[value "adjustedDate" path "adjustableDate" meta "id"]
 			[value "adjustedPaymentDate" meta "id"]
-			[value "adjustedPaymentDate" path "FpML"]
+			[value "adjustedPaymentDate" path "FpML"]	
 		+ relativeDate
 			[value "relativeDate"]
 			[value "relativeDate" path "paymentDate"]
@@ -3696,6 +3699,28 @@ synonym source FpML_5_10 extends FpML
 		+ debtType
 			[value "debtType" meta "debtTypeScheme"]
 
+	CustodianTerms:
+		+ minimumAssets
+			[value "minimumAssets"]
+		+ minimumRating
+			[value "minimumRating"]
+
+	EligibilityToHoldCollateral:
+		+ partyTerms
+			[value "holdingPostedCollateral"]
+		+ custodianTerms
+			[value "custodianTerms"]
+		+ eligibleCountry
+			[value "eligibleCountry"]
+
+	HoldingAndUsingPostedCollateralElection:
+		+ party
+			[value "partyReference"]
+		+ eligibilityToHoldCollateral
+			[value "eligibilityToHoldCollateral"]
+		+ useOfPostedCollateral
+			[value "useOfPostedCollateral"]
+
 	LegalAgreement:
 		+ agreementTerms
 			[value "ignore"]
@@ -3732,6 +3757,12 @@ synonym source FpML_5_10 extends FpML
 		+ debtType
 			[value "debtType" meta "debtTypeScheme"]
 
+	PartyAgreementIdentifier:
+	 	[value "PartyDocumentIdentifier" meta "id"]
+		+ partyReference
+			[value "partyReference"]
+		+ documentIdentifier
+			[value "documentId" meta "legalDocumentIdScheme"]
 
 	UnitType:
 		+ capacityUnit
@@ -3763,12 +3794,19 @@ synonym source FpML_5_10 extends FpML
 	AveragingCalculationMethod:
 		+ calculationMethod
 			[value "averagingMethod" path "calculation"]
+			[value "averagingMethod"]
 		+ isWeighted
 			[set to False when "calculation->averagingMethod" = "Unweighted"]
+			[set to False when "averagingMethod" = "Unweighted"]
 			[set to False when "calculation->averagingMethod" = "Arithmetic"]
+			[set to False when "averagingMethod" = "Arithmetic"]
 			[set to False when "calculation->averagingMethod" = "Geometric"]
+			[set to False when "averagingMethod" = "Geometric"]
 			[set to False when "calculation->averagingMethod" = "Harmonic"]
+			[set to False when "averagingMethod" = "Harmonic"]
 			[set to True when "calculation->averagingMethod" = "Weighted"]
+			[set to True when "averagingMethod" = "Weighted"]
+
 
 	enums
 
@@ -5820,6 +5858,363 @@ synonym source FpML_5_10 extends FpML
 		+ Second
 			[value "Second"]
 
+	CollateralAssetDefinitionsEnum:
+		+ AU_CASH
+			[value "AU-CASH"]
+		+ AU_CIB
+			[value "AU-CIB"]
+		+ AU_FIB
+			[value "AU-FIB"]
+		+ AU_FRB
+			[value "AU-FRB"]
+		+ AU_ILB
+			[value "AU-ILB"]
+		+ AU_NOTE
+			[value "AU-NOTE"]
+		+ AU_STATENOTE
+			[value "AU-STATENOTE"]
+		+ AU_TAB
+			[value "AU-TAB"]
+		+ BE_BEL20
+			[value "BE-BEL20"]
+		+ BE_CERT
+			[value "BE-CERT"]
+		+ BE_LINEAR
+			[value "BE-LINEAR"]
+		+ BE_NOTE
+			[value "BE-NOTE"]
+		+ BE_REGIONGT
+			[value "BE-REGIONGT"]
+		+ BE_STATEGT
+			[value "BE-STATEGT"]
+		+ BE_STATELOAN
+			[value "BE-STATELOAN"]
+		+ CA_BOND
+			[value "CA-BOND"]
+		+ CA_CASH
+			[value "CA-CASH"]
+		+ CA_RRB
+			[value "CA-RRB"]
+		+ CA_TBILL
+			[value "CA-TBILL"]
+		+ CH_CANTON
+			[value "CH-CANTON"]
+		+ CH_CASH
+			[value "CH-CASH"]
+		+ CH_FEDBOND
+			[value "CH-FEDBOND"]
+		+ DE_BILL
+			[value "DE-BILL"]
+		+ DE_BOND
+			[value "DE-BOND"]
+		+ DE_ERBLAST
+			[value "DE-ERBLAST"]
+		+ DE_MUNI
+			[value "DE-MUNI"]
+		+ DE_NOTE2
+			[value "DE-NOTE2"]
+		+ DE_NOTE5_5
+			[value "DE-NOTE5.5"]
+		+ DE_PFAND
+			[value "DE-PFAND"]
+		+ DK_BILL
+			[value "DK-BILL"]
+		+ DK_BOLIGX
+			[value "DK-BOLIGX"]
+		+ DK_BOND
+			[value "DK-BOND"]
+		+ DK_CALLMORT
+			[value "DK-CALLMORT"]
+		+ DK_CASH
+			[value "DK-CASH"]
+		+ DK_KFX
+			[value "DK-KFX"]
+		+ DK_MORT
+			[value "DK-MORT"]
+		+ DK_NOTE
+			[value "DK-NOTE"]
+		+ ES_BILL
+			[value "ES-BILL"]
+		+ ES_BOND
+			[value "ES-BOND"]
+		+ ES_CEDULAS
+			[value "ES-CEDULAS"]
+		+ ES_CORP
+			[value "ES-CORP"]
+		+ ES_EQUITY
+			[value "ES-EQUITY"]
+		+ EU_CASH
+			[value "EU-CASH"]
+		+ EU_EURO100
+			[value "EU-EURO100"]
+		+ EU_EUROTOP300
+			[value "EU-EUROTOP300"]
+		+ EU_STOXX50
+			[value "EU-STOXX50"]
+		+ EU_STOXX600
+			[value "EU-STOXX600"]
+		+ FI_BILL
+			[value "FI-BILL"]
+		+ FI_BOND
+			[value "FI-BOND"]
+		+ FI_HEX
+			[value "FI-HEX"]
+		+ FR_BDT
+			[value "FR-BDT"]
+		+ FR_BTAN
+			[value "FR-BTAN"]
+		+ FR_BTF
+			[value "FR-BTF"]
+		+ FR_OAT
+			[value "FR-OAT"]
+		+ FR_STRIP
+			[value "FR-STRIP"]
+		+ GA_AU_GOV
+			[value "GA-AU-GOV"]
+		+ GA_BE_GOV
+			[value "GA-BE-GOV"]
+		+ GA_CA_GOV
+			[value "GA-CA-GOV"]
+		+ GA_CH_GOV
+			[value "GA-CH-GOV"]
+		+ GA_DE_GOV
+			[value "GA-DE-GOV"]
+		+ GA_DK_GOV
+			[value "GA-DK-GOV"]
+		+ GA_ES_GOV
+			[value "GA-ES-GOV"]
+		+ GA_EUROZONE_GOV
+			[value "GA-EUROZONE-GOV"]
+		+ GA_EU_GOV
+			[value "GA-EU-GOV"]
+		+ GA_FI_GOV
+			[value "GA-FI-GOV"]
+		+ GA_FR_GOV
+			[value "GA-FR-GOV"]
+		+ GA_G5_GOV
+			[value "GA-G5-GOV"]
+		+ GA_GB_GOV
+			[value "GA-GB-GOV"]
+		+ GA_HK_GOV
+			[value "GA-HK-GOV"]
+		+ GA_IT_GOV
+			[value "GA-IT-GOV"]
+		+ GA_JP_GOV
+			[value "GA-JP-GOV"]
+		+ GA_KR_GOV
+			[value "GA-KR-GOV"]
+		+ GA_NL_GOV
+			[value "GA-NL-GOV"]
+		+ GA_NO_GOV
+			[value "GA-NO-GOV"]
+		+ GA_NZ_GOV
+			[value "GA-NZ-GOV"]
+		+ GA_SE_GOV
+			[value "GA-SE-GOV"]
+		+ GA_SG_GOV
+			[value "GA-SG-GOV"]
+		+ GA_US_AGENCY
+			[value "GA-US-AGENCY"]
+		+ GA_US_GOV
+			[value "GA-US-GOV"]
+		+ GA_US_MORTGAGES
+			[value "GA-US-MORTGAGES"]
+		+ GB_CASH
+			[value "GB-CASH"]
+		+ GB_DDGILT
+			[value "GB-DDGILT"]
+		+ GB_FT100
+			[value "GB-FT100"]
+		+ GB_FT250
+			[value "GB-FT250"]
+		+ GB_FT350
+			[value "GB-FT350"]
+		+ GB_GILT
+			[value "GB-GILT"]
+		+ GB_INDEXGILT
+			[value "GB-INDEXGILT"]
+		+ GB_PERPGILT
+			[value "GB-PERPGILT"]
+		+ GB_RUMPGILT
+			[value "GB-RUMPGILT"]
+		+ GB_SUPR1
+			[value "GB-SUPR1"]
+		+ GB_SUPR2
+			[value "GB-SUPR2"]
+		+ GB_TBILL
+			[value "GB-TBILL"]
+		+ GB_ZEROGILT
+			[value "GB-ZEROGILT"]
+		+ HK_BILL
+			[value "HK-BILL"]
+		+ HK_CASH
+			[value "HK-CASH"]
+		+ HK_NOTE
+			[value "HK-NOTE"]
+		+ IT_BOT
+			[value "IT-BOT"]
+		+ IT_BTP
+			[value "IT-BTP"]
+		+ IT_CCT
+			[value "IT-CCT"]
+		+ IT_CORP
+			[value "IT-CORP"]
+		+ IT_CTZ
+			[value "IT-CTZ"]
+		+ IT_MIB30
+			[value "IT-MIB30"]
+		+ IT_REP
+			[value "IT-REP"]
+		+ JP_CASH
+			[value "JP-CASH"]
+		+ JP_CORPORATE
+			[value "JP-CORPORATE"]
+		+ JP_CP
+			[value "JP-CP"]
+		+ JP_EQUITY
+			[value "JP-EQUITY"]
+		+ JP_EUROBOND
+			[value "JP-EUROBOND"]
+		+ JP_JGB
+			[value "JP-JGB"]
+		+ KR_BOND
+			[value "KR-BOND"]
+		+ KR_CASH
+			[value "KR-CASH"]
+		+ KR_EXIM
+			[value "KR-EXIM"]
+		+ KR_KDICKRW
+			[value "KR-KDICKRW"]
+		+ KR_KDR
+			[value "KR-KDR"]
+		+ KR_KEPCO
+			[value "KR-KEPCO"]
+		+ KR_MSB
+			[value "KR-MSB"]
+		+ KR_NHC
+			[value "KR-NHC"]
+		+ KR_ROK
+			[value "KR-ROK"]
+		+ NL_AEX
+			[value "NL-AEX"]
+		+ NL_BILL
+			[value "NL-BILL"]
+		+ NL_BOND
+			[value "NL-BOND"]
+		+ NO_BOND
+			[value "NO-BOND"]
+		+ NO_CASH
+			[value "NO-CASH"]
+		+ NO_OBX
+			[value "NO-OBX"]
+		+ NO_TBILL
+			[value "NO-TBILL"]
+		+ NZ_BOND
+			[value "NZ-BOND"]
+		+ NZ_CASH
+			[value "NZ-CASH"]
+		+ NZ_TBILL
+			[value "NZ-TBILL"]
+		+ SE_CASH
+			[value "SE-CASH"]
+		+ SE_GOVT
+			[value "SE-GOVT"]
+		+ SE_ILGOVT
+			[value "SE-ILGOVT"]
+		+ SE_MORT
+			[value "SE-MORT"]
+		+ SE_OMX
+			[value "SE-OMX"]
+		+ SE_TBILL
+			[value "SE-TBILL"]
+		+ SG_BOND
+			[value "SG-BOND"]
+		+ SG_CASH
+			[value "SG-CASH"]
+		+ SG_TBILL
+			[value "SG-TBILL"]
+		+ SU_IADB
+			[value "SU-IADB"]
+		+ SU_IBRDDN
+			[value "SU-IBRDDN"]
+		+ SU_IBRDGB
+			[value "SU-IBRDGB"]
+		+ US_ARM
+			[value "US-ARM"]
+		+ US_CASH
+			[value "US-CASH"]
+		+ US_DERIV
+			[value "US-DERIV"]
+		+ US_DOW
+			[value "US-DOW"]
+		+ US_DOW_COMP
+			[value "US-DOW-COMP"]
+		+ US_DOW_TRAN
+			[value "US-DOW-TRAN"]
+		+ US_DOW_UTIL
+			[value "US-DOW-UTIL"]
+		+ US_FAMC
+			[value "US-FAMC"]
+		+ US_FCS
+			[value "US-FCS"]
+		+ US_FCSFAC
+			[value "US-FCSFAC"]
+		+ US_FHLB
+			[value "US-FHLB"]
+		+ US_FHLBNC
+			[value "US-FHLBNC"]
+		+ US_FHLBNCDN
+			[value "US-FHLBNCDN"]
+		+ US_FHLMC
+			[value "US-FHLMC"]
+		+ US_FHLMCMBS
+			[value "US-FHLMCMBS"]
+		+ US_FICO
+			[value "US-FICO"]
+		+ US_FNMA
+			[value "US-FNMA"]
+		+ US_FNMAMBS
+			[value "US-FNMAMBS"]
+		+ US_GNMA
+			[value "US-GNMA"]
+		+ US_GNMAMBS
+			[value "US-GNMAMBS"]
+		+ US_LEHM_BOND
+			[value "US-LEHM-BOND"]
+		+ US_NAS_100
+			[value "US-NAS-100"]
+		+ US_NAS_COMP
+			[value "US-NAS-COMP"]
+		+ US_NCAD
+			[value "US-NCAD"]
+		+ US_NCADN
+			[value "US-NCADN"]
+		+ US_NYSE_COMP
+			[value "US-NYSE-COMP"]
+		+ US_REFCORP
+			[value "US-REFCORP"]
+		+ US_SLMA
+			[value "US-SLMA"]
+		+ US_STRIP
+			[value "US-STRIP"]
+		+ US_S_P100
+			[value "US-S&P100"]
+		+ US_S_P400
+			[value "US-S&P400"]
+		+ US_S_P500
+			[value "US-S&P500"]
+		+ US_S_P600
+			[value "US-S&P600"]
+		+ US_TBILL
+			[value "US-TBILL"]
+		+ US_TBOND
+			[value "US-TBOND"]
+		+ US_TIPS
+			[value "US-TIPS"]
+		+ US_TNOTE
+			[value "US-TNOTE"]
+		+ US_TVA
+			[value "US-TVA"]
 
 	CreditRatingAgencyEnum:
 		+ AMBest
@@ -5839,6 +6234,15 @@ synonym source FpML_5_10 extends FpML
 		+ StandardAndPoors
 			[value "StandardAndPoors"]
 
+	HoldingPostedCollateralEnum:
+		+ AcceptableCustodian
+			[value "AcceptableCustodian"]
+
+	IndependentAmountEligibilityEnum:
+		+ None
+			[value "None"]
+		+ NoneUnlessSpecifiedInConfirmation
+			[value "NoneUnlessSpecifiedInConfirmation"]
 
 	CreditSupportAgreementTypeEnum:
 		+ CreditSupportDeed
@@ -5876,7 +6280,181 @@ synonym source FpML_5_10 extends FpML
 		+ Both
 			[value "Both"]
 
-	
+	BrokerConfirmationTypeEnum:
+		+ ABX
+			[value "ABX"]
+		+ AsiaCorporate
+			[value "AsiaCorporate"]
+		+ AsiaSovereign
+			[value "AsiaSovereign"]
+		+ AustraliaCorporate
+			[value "AustraliaCorporate"]
+		+ AustraliaSovereign
+			[value "AustraliaSovereign"]
+		+ CDSonLeveragedLoans
+			[value "CDSonLeveragedLoans"]
+		+ CDSonMBS
+			[value "CDSonMBS"]
+		+ CDXEmergingMarkets
+			[value "CDXEmergingMarkets"]
+		+ CDXEmergingMarketsDiversified
+			[value "CDXEmergingMarketsDiversified"]
+		+ CDXSwaption
+			[value "CDXSwaption"]
+		+ CDXTranche
+			[value "CDXTranche"]
+		+ CMBX
+			[value "CMBX"]
+		+ DJ_CDX_EM_
+			[value "DJ.CDX.EM "]
+		+ DJ_CDX_NA
+			[value "DJ.CDX.NA"]
+		+ EmergingEuropeanAndMiddleEasternSovereign
+			[value "EmergingEuropeanAndMiddleEasternSovereign"]
+		+ EmergingEuropeanCorporate
+			[value "EmergingEuropeanCorporate"]
+		+ EmergingEuropeanCorporateLPN
+			[value "EmergingEuropeanCorporateLPN"]
+		+ EuropeanCMBS
+			[value "EuropeanCMBS"]
+		+ EuropeanCorporate
+			[value "EuropeanCorporate"]
+		+ EuropeanRMBS
+			[value "EuropeanRMBS"]
+		+ JapanCorporate
+			[value "JapanCorporate"]
+		+ JapanSovereign
+			[value "JapanSovereign"]
+		+ LatinAmericaCorporate
+			[value "LatinAmericaCorporate"]
+		+ LatinAmericaCorporateBond
+			[value "LatinAmericaCorporateBond"]
+		+ LatinAmericaCorporateBondOrLoan
+			[value "LatinAmericaCorporateBondOrLoan"]
+		+ LatinAmericaSovereign
+			[value "LatinAmericaSovereign"]
+		+ MBX
+			[value "MBX"]
+		+ MCDX
+			[value "MCDX"]
+		+ NewZealandCorporate
+			[value "NewZealandCorporate"]
+		+ NewZealandSovereign
+			[value "NewZealandSovereign"]
+		+ NorthAmericanCorporate
+			[value "NorthAmericanCorporate"]
+		+ PO
+			[value "PO"]
+		+ SingaporeCorporate
+			[value "SingaporeCorporate"]
+		+ SingaporeSovereign
+			[value "SingaporeSovereign"]
+		+ StandardAsiaCorporate
+			[value "StandardAsiaCorporate"]
+		+ StandardAsiaSovereign
+			[value "StandardAsiaSovereign"]
+		+ StandardAustraliaCorporate
+			[value "StandardAustraliaCorporate"]
+		+ StandardAustraliaSovereign
+			[value "StandardAustraliaSovereign"]
+		+ StandardCDXTranche
+			[value "StandardCDXTranche"]
+		+ StandardEmergingEuropeanAndMiddleEasternSovereign
+			[value "StandardEmergingEuropeanAndMiddleEasternSovereign"]
+		+ StandardEmergingEuropeanCorporate
+			[value "StandardEmergingEuropeanCorporate"]
+		+ StandardEmergingEuropeanCorporateLPN
+			[value "StandardEmergingEuropeanCorporateLPN"]
+		+ StandardEuropeanCorporate
+			[value "StandardEuropeanCorporate"]
+		+ StandardJapanCorporate
+			[value "StandardJapanCorporate"]
+		+ StandardJapanSovereign
+			[value "StandardJapanSovereign"]
+		+ StandardLCDS
+			[value "StandardLCDS"]
+		+ StandardLCDSBullet
+			[value "StandardLCDSBullet"]
+		+ StandardLCDXBullet
+			[value "StandardLCDXBullet"]
+		+ StandardLCDXBulletTranche
+			[value "StandardLCDXBulletTranche"]
+		+ StandardLatinAmericaCorporateBond
+			[value "StandardLatinAmericaCorporateBond"]
+		+ StandardLatinAmericaCorporateBondOrLoan
+			[value "StandardLatinAmericaCorporateBondOrLoan"]
+		+ StandardLatinAmericaSovereign
+			[value "StandardLatinAmericaSovereign"]
+		+ StandardNewZealandCorporate
+			[value "StandardNewZealandCorporate"]
+		+ StandardNewZealandSovereign
+			[value "StandardNewZealandSovereign"]
+		+ StandardNorthAmericanCorporate
+			[value "StandardNorthAmericanCorporate"]
+		+ StandardSingaporeCorporate
+			[value "StandardSingaporeCorporate"]
+		+ StandardSingaporeSovereign
+			[value "StandardSingaporeSovereign"]
+		+ StandardSubordinatedEuropeanInsuranceCorporate
+			[value "StandardSubordinatedEuropeanInsuranceCorporate"]
+		+ StandardWesternEuropeanSovereign
+			[value "StandardWesternEuropeanSovereign"]
+		+ StandardiTraxxEuropeTranche
+			[value "StandardiTraxxEuropeTranche"]
+		+ SubordinatedEuropeanInsuranceCorporate
+			[value "SubordinatedEuropeanInsuranceCorporate"]
+		+ SukukCorporate
+			[value "SukukCorporate"]
+		+ SukukSovereign
+			[value "SukukSovereign"]
+		+ SyndicatedSecuredLoanCDS
+			[value "SyndicatedSecuredLoanCDS"]
+		+ TRX
+			[value "TRX"]
+		+ TRX_II
+			[value "TRX.II"]
+		+ USMunicipalFullFaithAndCredit
+			[value "USMunicipalFullFaithAndCredit"]
+		+ USMunicipalGeneralFund
+			[value "USMunicipalGeneralFund"]
+		+ USMunicipalRevenue
+			[value "USMunicipalRevenue"]
+		+ WesternEuropeanSovereign
+			[value "WesternEuropeanSovereign"]
+		+ iTraxxAsiaExJapan
+			[value "iTraxxAsiaExJapan"]
+		+ iTraxxAsiaExJapanSwaption
+			[value "iTraxxAsiaExJapanSwaption"]
+		+ iTraxxAsiaExJapanTranche
+			[value "iTraxxAsiaExJapanTranche"]
+		+ iTraxxAustralia
+			[value "iTraxxAustralia"]
+		+ iTraxxAustraliaSwaption
+			[value "iTraxxAustraliaSwaption"]
+		+ iTraxxAustraliaTranche
+			[value "iTraxxAustraliaTranche"]
+		+ iTraxxCJ
+			[value "iTraxxCJ"]
+		+ iTraxxCJTranche
+			[value "iTraxxCJTranche"]
+		+ iTraxxEurope
+			[value "iTraxxEurope"]
+		+ iTraxxEuropeSwaption
+			[value "iTraxxEuropeSwaption"]
+		+ iTraxxEuropeTranche
+			[value "iTraxxEuropeTranche"]
+		+ iTraxxJapan
+			[value "iTraxxJapan"]
+		+ iTraxxJapanSwaption
+			[value "iTraxxJapanSwaption"]
+		+ iTraxxJapanTranche
+			[value "iTraxxJapanTranche"]
+		+ iTraxxLevX
+			[value "iTraxxLevX"]
+		+ iTraxxSDI75
+			[value "iTraxxSDI75"]
+		+ iTraxxSovX
+			[value "iTraxxSovX"]
 
 	PartyDeterminationEnum:
 		+ ExercisingParty
@@ -6104,13 +6682,11 @@ synonym source FpML_5_10 extends FpML
 		+ ACT_ACT_AFB
 			[value "ACT/ACT.AFB"]
 		+ ACT_ACT_ICMA
-			[value "ACT/ACT.ICMA"]
-		+ ACT_ACT_ISMA
 			[value "ACT/ACT.ISMA"]
+			[value "ACT/ACT.ICMA"]
 		+ ACT_ACT_ISDA
 			[value "ACT/ACT.ISDA"]
-		+ CAL_252
-			[value "CAL/252"]
+		+ BUS_252
 			[value "BUS/252"]
 		+ _1_1
 			[value "1/1"]
@@ -8065,8 +8641,4 @@ synonym source FpML_5_12 extends FpML_5_10
 			[ value "SetInAdvance"]
 		+ FixingDate
 			[ value "FixingDate" ]
-}
-
-synonym source FpML_5_13 extends FpML_5_12 {
-
 }
