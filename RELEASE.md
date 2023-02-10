@@ -20,6 +20,8 @@ Mappings added to populate CDM attribute `Product -> contractualProduct` for gen
 
 Mappings added to populate CDM attribute `AveragingCalculationMethod`.
 
+Mappings updated for CDM attribute `PayerReceiver`
+
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
