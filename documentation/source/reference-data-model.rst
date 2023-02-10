@@ -20,6 +20,7 @@ The ``LegalEntity`` type is used when only a legal entity reference is appropria
      [metadata scheme]
    businessUnit BusinessUnit (0..*)
    person NaturalPerson (0..*)
+   personRole NaturalPersonRole (0..*)
    account Account (0..1)
    contactInformation ContactInformation (0..1)
 
