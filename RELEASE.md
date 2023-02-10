@@ -17,4 +17,4 @@ Related synonymm mappings were also adjusted to deal with changes.
 
 _Review Directions_
 
-In Rosetta, select `Project: "ISDA Common Domain Model"; Version CDM / 4.0.0-dev.xx`, then navigate to the relevant types mentioned above to review changes. 
+In the CDM Portal, select the Textual Browser to inspect the types mentioned above and review the changes.
