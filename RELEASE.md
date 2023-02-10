@@ -8,7 +8,6 @@ _What is being released?_
 
 - Attribute `personRole` of type NaturalPersonRole added to type `Party`
 - Attribute `assetPool` of type AssetPool added to type `Product`
-- Attribute `assetPool` of type AssetPool added to type `Product`
 - Enumeration 'MortgageSectorEnum' was deleted
 - Attribute commodityInfoPublisher which uses the enumeration'commodityInfoPublisherEnum' added to type CommodityProductDefinition
 - Attribute `deliveryNearby` added to type `DeliveryDateParameters`
