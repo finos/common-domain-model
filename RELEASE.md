@@ -6,16 +6,16 @@ This release updates and extends the FpML mapping coverage for the product model
 
 _What is being released?_
 
-* Mappings added to populate CDM attribute `SettlementBase -> settlementType` with code `Cash` or `Physical` when `nonDeliverableSettlement` or `physicalExercise` are present on the FpML input, respectively.
-* Mappings added to populate CDM attribute `SettlementBase -> settlementCurrency` with FpML element `entitlementCurrency`.
-* Mappings added to populate CDM attribute `productIdentifier` when the  instrument is a generic product.
-* Mappings added to populate CDM attributes `primaryAssetClass` and `secondaryAssetClass` when the  instrument is a generic product.
-* Mappings added to populate CDM attribute `TransferExpression -> priceTransfer` with code `Upfront` when payment type is `Additional Payment` and code `Novation` when the input is a novation.
-* Mappings added to populate CDM attributes `effectiveDate` and `terminationDate` for generic products.
-* Mappings added to populate CDM attribute `optionPayout` when the generic product is an option.
-* Mappings added to populate CDM attribute `Product -> contractualProduct` for generic products.
-* Mappings added to populate CDM attribute `AveragingCalculationMethod`.
-* Mappings updated for CDM attribute `PayerReceiver`.
+* Mappings added to populate CDM attribute `SettlementBase -> settlementType` with code `Cash` or `Physical` when `nonDeliverableSettlement` or `physicalExercise` are present on the FpML input, respectively
+* Mappings added to populate CDM attribute `SettlementBase -> settlementCurrency` with FpML element `entitlementCurrency`
+* Mappings added to populate CDM attribute `productIdentifier` when the  instrument is a generic product
+* Mappings added to populate CDM attributes `primaryAssetClass` and `secondaryAssetClass` when the  instrument is a generic product
+* Mappings added to populate CDM attribute `TransferExpression -> priceTransfer` with code `Upfront` when payment type is `Additional Payment` and code `Novation` when the input is a novation
+* Mappings added to populate CDM attributes `effectiveDate` and `terminationDate` for generic products
+* Mappings added to populate CDM attribute `optionPayout` when the generic product is an option
+* Mappings added to populate CDM attribute `Product -> contractualProduct` for generic products
+* Mappings added to populate CDM attribute `AveragingCalculationMethod`
+* Mappings updated for CDM attribute `PayerReceiver`
 
 _Review directions_
 
