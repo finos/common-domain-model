@@ -87,8 +87,8 @@ public class CreateNovationEventTest extends AbstractExampleTest {
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
-                                                .setIdentifierValue("UTI-Trade-Party-3")
-                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                                .setIdentifierValue("UTI-Trade-Party-3"))
+                                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuerValue("LEI-PARTY-3")))))
                 // Split breakdown to terminate the original trade
                 .addBreakdown(PrimitiveInstruction.builder()

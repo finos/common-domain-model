@@ -56,25 +56,19 @@ type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a mo
 type Taxonomy: <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object).">
 	source TaxonomySourceEnum (0..1) <"The source of the taxonomy that defines the rules for classifying the object. The taxonomy source is taken from a enumerated list of taxonomy names. Optional as the taxonomy source may not be provided.">
 	value TaxonomyValue (0..1) <"The value according to that taxonomy. Optional as it may not be possible to classify the object in that taxonomy.">
-	
+		
 type ProductTaxonomy extends Taxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 	primaryAssetClass AssetClassEnum (0..1) <"Classifies the most important risk class of the trade.">
 		[metadata scheme]
 	secondaryAssetClass AssetClassEnum (0..*) <" Classifies additional risk classes of the trade, if any.">
 		[metadata scheme]
-	taxonomyValue string (0..1)
-		[metadata scheme]
-		[deprecated]
-	taxonomySource TaxonomySourceEnum (0..1)
-		[deprecated]
 	productQualifier string (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features.">
 
 	condition TaxonomyType: <"Requires a taxonomy type to be chosen, either from a taxonomy source or using asset classes.">
-		required choice source, primaryAssetClass, secondaryAssetClass, taxonomySource
+		required choice source, primaryAssetClass, secondaryAssetClass
 
 	condition TaxonomySource: <"A taxonomy source can only be associated with a taxonomy value or productQualifier">
-		if source exists then value exists and
-		if taxonomySource exists then productQualifier exists
+		if source exists then ( value exists or productQualifier exists )
 	
 	condition TaxonomyValue: <"A taxonomy value and product qualifier are mutually exclusive. Choice is optional as it only applies when source exists.">
 		optional choice value, productQualifier
@@ -90,6 +84,7 @@ type Commodity extends ProductBase: <"Identifies a specific commodity by referen
 type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
 	referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
 	priceSource PriceSource (0..1) <"Specifies a publication that provides the commodity price, including, where applicable the details of where in the publication the price is published.  Applicable when the commodity reference price is not a futures contract">
+	commodityInfoPublisher CommodityInformationPublisherEnum (0..1) <"Specifies the publication where the commodity prices can be found.">
 	exchangeId string (1..1) <" Identifies the exchange from which the reference price should be sourced, using the scheme at the following url: http://www.fpml.org/coding-scheme/external/exchange-id-MIC-1-0">
 	    [metadata scheme]
 
@@ -98,7 +93,7 @@ type CommodityProductDefinition: <"Specifies the commodity underlier in the even
 
 type DeliveryDateParameters: <"Specifies a specific date or the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
 	
-	deliveryNearby cdm.base.datetime.Offset (0..1) <"Provides a container for the parametric representation that specifies which nearby contract date would be used as a refrence for a price .">
+	deliveryNearby cdm.base.datetime.Offset (0..1) <"Provides a container for the parametric representation that specifies which nearby contract date would be used as a refrence for a price.">
 	deliveryDate cdm.base.datetime.AdjustableDate (0..1) <"Specifies the specific contract date for the contract that should be referenced for a price.">
 	deliveryDateRollConvention cdm.base.datetime.Offset (0..1) <"Specifies, for a Commodity Transaction that references a listed future, the day on which the specified future will roll to the next nearby month prior to the expiration of the referenced future. If the future will not roll at all - i.e. the price will be taken from the expiring contract, 0 days should be specified here. If the future will roll to the next nearby on the last trading day - i.e. the price will be taken from the next nearby on the last trading day, then 1 business day should be specified and so on.">
 	deliveryDateExpirationConvention cdm.base.datetime.Offset (0..1)<"Specifies, for a Commodity Transaction that references a listed future, the day on which the specified future will expire ahead of the actual expiration of the referenced future. For example: Z21 Contract expires on 19Nov21, with an adjust of 2D the 'expire' will be 16Nov21. DeliveryDateRollConvention takes precedence. Example: Pricing on the Z21 Contract with NearbyContractDay and a deliveryDateRoll of 10D, Sampling of the F22 Contract will occur on 8Nov21 through the last Date of the Z21 Contract. With an ExpConvention of 5D, the last sampling date on the F22 contract will be 12Nov21.">
@@ -245,8 +240,6 @@ type AssetType: <"Represents a class to allow specification of the asset product
 	debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
 	equityType EquityTypeEnum (0..1) <"Represents a filter based on the type of equity.">
 	fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
-	// TBD: should this be a sub-category of SecurityType or even a DebtType?
-	// moneyMarketType MoneyMarketTypeEnum (0..1) <"Represents a filter based on the type of money-market asset.">
 	otherAssetType string (0..*) <"Specifies the eligible asset type when not enumerated.">
 	
 	condition SecuritySubType:
@@ -269,10 +262,6 @@ type AssetType: <"Represents a class to allow specification of the asset product
 		if assetType = AssetTypeEnum -> Other 
 		then otherAssetType exists
 
-	// condition MoneyMarketType:
-	// 	if assetType <> AssetTypeEnum -> MoneyMarket
-	// 	then moneyMarketType is absent
-	
 type PriceSource: <"Specifies a publication that provides the commodity price, including, where applicable, the details of where in the publication the price is published.">
 	pricePublisher string (1..1) <"Defines a publication in which the price can be found. (e.g Gas Daily, Platts Bloomberg. Commodity publishers can be found at this URL:  http://www.fpml.org/coding-scheme/commodity-information-provider>">
 	    [metadata scheme]

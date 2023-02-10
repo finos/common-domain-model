@@ -80,22 +80,16 @@ type PrimitiveInstruction: <"A Primitive Instruction describes the inputs requir
     stockSplit StockSplitInstruction (0..1) <"Specifies inputs needed to process a Stock Split business event.">
 	observation ObservationInstruction (0..1) <"Specifies inputs needed to process an observation.">
 
-type BusinessEvent: <"A business event represents a life cycle event of a trade. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
+type BusinessEvent extends EventInstruction: <"A business event represents a life cycle event of a trade. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
 	[rootType]
-
-	intent EventIntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
-	corporateActionIntent CorporateActionTypeEnum (0..1)
+	
 	eventQualifier string (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
-	eventDate date (1..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
-	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
-	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
-    instruction Instruction (0..*) <"Specifies the instructions  were used to create the Business Event.">
     after TradeState (0..*) <"Specifies the after trade state(s) created.">
 
-	condition CorporateAction:
-		if corporateActionIntent exists then intent = EventIntentEnum -> CorporateActionAdjustment
-		
+    condition EventDate:
+        eventDate exists
+
 type ObservationInstruction: <"Specifies inputs needed to process an observation.">
 	observationEvent ObservationEvent (1..1) <"Contains all information related to an observation.">
 
@@ -242,7 +236,7 @@ type SettlementOrigin: <"Defines the origin to the transfer as a reference for l
 		[metadata reference]
 	optionPayout OptionPayout (0..1) <"Represents a reference to an Option Payout.">
 		[metadata reference]
-	securityFinancePayout SecurityFinancePayout (0..1) <"Represents a reference to a Security Lending Payout.">
+	assetPayout AssetPayout (0..1) <"Represents a reference to an Asset Payout.">
     	[metadata reference]
 	settlementTerms SettlementTerms (0..1) <"Represents a reference to settlement terms, which may have been specified at execution.">
 		[metadata reference]
@@ -478,8 +472,7 @@ type ExecutionDetails: <"Defines specific attributes that relate to trade execut
 	executionType ExecutionTypeEnum (1..1) <"Identifies the type of execution, e.g. via voice, electronically...">
 	executionVenue LegalEntity (0..1) <"Represents the venue on which a trade was executed.">
 	packageReference IdentifiedList (0..1) <"A reference to the package linking the trade with other trades, in case the trade was executed as part of a package (hence this attribute is optional).">
-		// [metadata reference]
-
+		
 	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
 		if executionType = ExecutionTypeEnum -> Electronic
 		then executionVenue exists
@@ -678,7 +671,6 @@ type CollateralPortfolio: <"Represents common attributes to define the details o
 	collateralBalance CollateralBalance (0..*) <"Represents the populated or calculated collateral aggregate balance amount for the collateral portfolio.">
 	legalAgreement LegalAgreement (0..1) <" The specification of a legal agreement between two parties governing the collateral relationship such as Credit Support Agreement or Collateral Transfer Agreement etc. (NB: this can be provided by reference to a global key for each LegalAgreement object).">
      [metadata reference]
-
 
 type CollateralPosition extends Position: <"Specifies the individual components of collateral positions.">
 	
