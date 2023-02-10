@@ -15,7 +15,7 @@ material not governed by the terms of this License.
 - (d).  "ISDA CDM v4.0.0-DEV" means the methodology and documentation of any
 version 4.0.0-DEV or sub-version with the designation of "4.0.0-DEV._" (e.g.,
 4.0.0-DEV.1, 4.0.0-DEV.2, 4.0.0-DEV.3, etc.) located at
-<https://cdm.rosetta-technology.io/>.
+<http://portal.cdm.rosetta-technology.io/>.
 - (e).  "You" means an individual or a legal entity exercising rights under,
 and complying with all of the terms of, this License or a future
 version of this License issued under Paragraph 6. For legal

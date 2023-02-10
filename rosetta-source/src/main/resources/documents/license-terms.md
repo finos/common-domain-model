@@ -15,7 +15,7 @@ material not governed by the terms of this License.
 - (d).  "ISDA CDM v2.0" means the methodology and documentation of any
 version 2.0 or sub-version with the designation of "2._" (e.g.,
 2.1, 2.2, 2.3, etc.) located at
-<https://cdm.rosetta-technology.io/>.
+<http://portal.cdm.rosetta-technology.io/>.
 - (e).  "You" means an individual or a legal entity exercising rights under,
 and complying with all of the terms of, this License or a future
 version of this License issued under Paragraph 6. For legal
