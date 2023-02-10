@@ -15,7 +15,7 @@ _What is being released?_
 * Mappings added to populate CDM attribute `optionPayout` when the generic product is an option.
 * Mappings added to populate CDM attribute `Product -> contractualProduct` for generic products.
 * Mappings added to populate CDM attribute `AveragingCalculationMethod`.
-* Mappings updated for CDM attribute `PayerReceiver`
+* Mappings updated for CDM attribute `PayerReceiver`.
 
 _Review directions_
 
