@@ -63,6 +63,7 @@ This design allows to use anonymised ``Party1`` and ``Party2`` values to specify
      [metadata scheme]
    businessUnit BusinessUnit (0..*)
    person NaturalPerson (0..*)
+   personRole NaturalPersonRole (0..*)
    account Account (0..1)
    contactInformation ContactInformation (0..1)
 
@@ -381,6 +382,7 @@ A financial product is an instrument that is used to transfer financial risk bet
    contractualProduct ContractualProduct (0..1)
    index Index (0..1)
    loan Loan (0..1)
+   assetPool AssetPool (0..1)
    foreignExchange ForeignExchange (0..1)
    commodity Commodity (0..1)
      [metadata address "pointsTo"=Observable->commodity]
