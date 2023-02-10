@@ -21,7 +21,7 @@ _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
-In the CDM portal, select Ingestion and review the following samples: 
+In the CDM Portal, select Ingestion and review the following samples: 
 
 * `fpml-5-10 > products > fx > fx-ex07-non-deliverable-forward`
 * `fpml-5-10 > products > fx > fx-ex28-non--deliverable-w-disruption`
