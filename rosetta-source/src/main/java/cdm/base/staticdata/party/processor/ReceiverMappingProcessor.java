@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
+import static cdm.base.staticdata.party.processor.CreditPartyMappingHelper.isCreditFundingLeg;
+import static cdm.base.staticdata.party.processor.CreditPartyMappingHelper.isFra;
 
 /**
  * FpML mapping processor.
@@ -24,9 +26,12 @@ public class ReceiverMappingProcessor extends PayerReceiverMappingProcessor {
 	}
 
 	@Override
-	void setCounterparty(Path synonymPath, PayerReceiverBuilder builder) {
-		PartyMappingHelper.getInstance(getContext())
-				.ifPresent(helper ->
-						helper.setCounterpartyRoleEnum(getModelPath(), synonymPath, builder::setReceiver));
+	void setCounterparty(Path synonymPath, PayerReceiverBuilder builder, PartyMappingHelper helper) {
+		RosettaPath modelPath = getModelPath();
+		if (isCreditFundingLeg(modelPath, synonymPath) || isFra(modelPath, synonymPath)) {
+			helper.setCounterpartyRoleEnum(modelPath, synonymPath, builder::setPayer);
+		} else {
+			helper.setCounterpartyRoleEnum(modelPath, synonymPath, builder::setReceiver);
+		}
 	}
 }
