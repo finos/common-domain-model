@@ -1,14 +1,13 @@
-# *Product Model - Party Identifier Type*
+# *Product Model - Licence Terms*
 
 _Background_
 
-This release updates the enumeration `PartyIdentifierTypeEnum` and adds the corresponding FpML synonym mappings.
+CDM Portal link from Licence Terms was broken.
 
 _What is being released?_
 
-- Value `MIC` added to enumeration `PartyIdentifierTypeEnum`
-- FpML mappings updated for `PartyIdentifierTypeEnum` values `MIC` and `LEI`
+URL link on the Licence Term has been updated 
 
 _Review Directions_
 
-In Rosetta, select `CDM for Digital Regulatory Reporting` project, then the Translate tab, and review samples in `fpml-5-10 > record-keeping > products > rates` 
+In the CDM Portal, open Licence Terms click on the portal link it navigates you back to main CDM portal page.
