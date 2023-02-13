@@ -1,19 +1,14 @@
-# *Product Model - Orphan Types clean-up*
+# *Product Model - Licence Terms*
 
 _Background_
 
-This release relocates and deletes some unused types in the model and adjusts the corresponding FpML synonym mappings.
+CDM Portal link from Licence Terms was broken. 4.0.0-DEV.0 appears as 4.0.0-DEV
 
 _What is being released?_
 
-- Attribute `personRole` of type NaturalPersonRole added to type `Party`
-- Attribute `assetPool` of type AssetPool added to type `Product`
-- Enumeration 'MortgageSectorEnum' was deleted
-- Attribute commodityInfoPublisher which uses the enumeration'commodityInfoPublisherEnum' added to type CommodityProductDefinition
-- Attribute `deliveryNearby` added to type `DeliveryDateParameters`
-
-Related synonymm mappings were also adjusted to deal with changes.
+URL link on the Licence Term has been updated. Fixed Licence Terms to show 4.0.0-DEV.0 appears as 4.0.0-DEV.0. 
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser to inspect the types mentioned above and review the changes.
+In the CDM Portal, open Licence Terms click on the portal link it navigates you back to main CDM portal page.
+In the CDM Portal, open Licence Terms licence version is shown correctly as 4.0.0-DEV.0.
