@@ -19,19 +19,14 @@ import static cdm.base.staticdata.party.processor.CreditPartyMappingHelper.isFra
 @SuppressWarnings("unused")
 public class PayerMappingProcessor extends PayerReceiverMappingProcessor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PayerMappingProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PayerMappingProcessor.class);
 
-	public PayerMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
-		super(modelPath, synonymPaths, context);
-	}
+    public PayerMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
+        super(modelPath, synonymPaths, context);
+    }
 
-	@Override
-	void setCounterparty(Path synonymPath, PayerReceiverBuilder builder, PartyMappingHelper helper) {
-		RosettaPath modelPath = getModelPath();
-		if (isCreditFundingLeg(modelPath, synonymPath) || isFra(modelPath, synonymPath)) {
-			helper.setCounterpartyRoleEnum(modelPath, synonymPath, builder::setReceiver);
-		} else {
-			helper.setCounterpartyRoleEnum(modelPath, synonymPath, builder::setPayer);
-		}
-	}
+    @Override
+    void setCounterparty(Path synonymPath, PayerReceiverBuilder builder, PartyMappingHelper helper) {
+        helper.setCounterpartyRoleEnum(getModelPath(), synonymPath, builder::setPayer);
+    }
 }
