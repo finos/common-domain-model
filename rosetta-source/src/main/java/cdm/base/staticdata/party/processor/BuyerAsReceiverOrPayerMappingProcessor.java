@@ -17,11 +17,11 @@ import static cdm.base.staticdata.party.processor.CreditPartyMappingHelper.isFra
  * FpML mapping processor.
  */
 @SuppressWarnings("unused")
-public class BuyerAsPayerOrReceiverMappingProcessor extends PayerReceiverMappingProcessor {
+public class BuyerAsReceiverOrPayerMappingProcessor extends PayerReceiverMappingProcessor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(BuyerAsPayerOrReceiverMappingProcessor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BuyerAsReceiverOrPayerMappingProcessor.class);
 
-	public BuyerAsPayerOrReceiverMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
+	public BuyerAsReceiverOrPayerMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);
 	}
 
