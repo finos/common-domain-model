@@ -17,16 +17,14 @@ import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 @SuppressWarnings("unused")
 public class PayerMappingProcessor extends PayerReceiverMappingProcessor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PayerMappingProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PayerMappingProcessor.class);
 
-	public PayerMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
-		super(modelPath, synonymPaths, context);
-	}
+    public PayerMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
+        super(modelPath, synonymPaths, context);
+    }
 
-	@Override
-	void setCounterparty(Path synonymPath, PayerReceiverBuilder builder) {
-		PartyMappingHelper.getInstance(getContext())
-				.ifPresent(helper ->
-						helper.setCounterpartyRoleEnum(getModelPath(), synonymPath, builder::setPayer));
-	}
+    @Override
+    void setCounterparty(Path synonymPath, PayerReceiverBuilder builder, PartyMappingHelper helper) {
+        helper.setCounterpartyRoleEnum(getModelPath(), synonymPath, builder::setPayer);
+    }
 }
