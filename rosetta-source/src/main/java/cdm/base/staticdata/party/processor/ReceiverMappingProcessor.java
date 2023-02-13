@@ -24,9 +24,7 @@ public class ReceiverMappingProcessor extends PayerReceiverMappingProcessor {
 	}
 
 	@Override
-	void setCounterparty(Path synonymPath, PayerReceiverBuilder builder) {
-		PartyMappingHelper.getInstance(getContext())
-				.ifPresent(helper ->
-						helper.setCounterpartyRoleEnum(getModelPath(), synonymPath, builder::setReceiver));
+	void setCounterparty(Path synonymPath, PayerReceiverBuilder builder, PartyMappingHelper helper) {
+		helper.setCounterpartyRoleEnum(getModelPath(), synonymPath, builder::setReceiver);
 	}
 }

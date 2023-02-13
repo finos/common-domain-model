@@ -1,5 +1,6 @@
 package cdm.base.staticdata.party.processor;
 
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -22,8 +23,9 @@ public abstract class PayerReceiverMappingProcessor extends MappingProcessor {
 
 	@Override
 	public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
-		setCounterparty(synonymPath, (PayerReceiverBuilder) parent);
+		PartyMappingHelper.getInstance(getContext()).ifPresent(helper ->
+				setCounterparty(synonymPath, (PayerReceiverBuilder) parent, helper));
 	}
 
-	abstract void setCounterparty(Path synonymPath, PayerReceiverBuilder builder);
+	abstract void setCounterparty(Path synonymPath, PayerReceiverBuilder builder, PartyMappingHelper helper);
 }
