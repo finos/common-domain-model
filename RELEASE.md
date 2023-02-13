@@ -19,7 +19,7 @@ In data type `ObservationDate`:
 
 - data type contains attributes to represent an adjusted or unadjusted date, a weight for the observation and an observation reference.
 
-Related synonymm mappings have been adjusted to deal with changes.
+Related synonym mappings have been adjusted to deal with changes.
 
 _Review Directions_
 
@@ -89,7 +89,7 @@ _What is being released?_
 - Attribute commodityInfoPublisher which uses the enumeration'commodityInfoPublisherEnum' added to type CommodityProductDefinition
 - Attribute `deliveryNearby` added to type `DeliveryDateParameters`
 
-Related synonymm mappings were also adjusted to deal with changes.
+Related synonym mappings were also adjusted to deal with changes.
 
 _Review Directions_
 
