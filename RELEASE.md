@@ -8,7 +8,7 @@ _What is being released?_
 
 In data type `ObservationDates`:
 
-- attribute `observationSchedule` of data type `ObservationSchedule updated to optional single cardinality to represent a single schedule.
+- attribute `observationSchedule` of data type `ObservationSchedule` updated to optional single cardinality to represent a single schedule.
 
 In data type `ObservationSchedule`:
 
