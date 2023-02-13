@@ -899,6 +899,8 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementType" path "equityExercise"]
 			[set to SettlementTypeEnum->Cash when "cashSettlementTerms" exists]
 			[set to SettlementTypeEnum->Physical when "physicalSettlementTerms" exists]
+			[set to SettlementTypeEnum -> Physical when "physicalExercise" exists]
+            [set to SettlementTypeEnum -> Cash when "nonDeliverableSettlement" exists]
 		+ settlementCurrency
 			[value "settlementCurrency" maps 2 meta "currencyScheme"]
 			[value "settlementCurrency" path "settlementProvision"]
@@ -912,7 +914,8 @@ synonym source FpML_5_10 extends FpML
 			[value "settlementCurrency" path "exercise"]
 			[value "settlementCurrency" path "equityExercise"]
 			[value "currency" path "amount"]
-		
+			[value "entitlementCurrency"]
+
 	SettlementTerms:
 		+ settlementDate
 			[value "cashSettlement"]
@@ -1703,6 +1706,7 @@ synonym source FpML_5_10 extends FpML
 		+ fixedPaymentAmount
 			[value "fixedPaymentAmount"]
 			[value "amount" path "paymentAmount"]
+			[value "paymentAmount"]
 		+ discountFactor
 			[value "discountFactor"]
 		+ forecastPaymentAmount
@@ -1797,6 +1801,7 @@ synonym source FpML_5_10 extends FpML
             [hint "fra"]
             [hint "creditDefaultSwapOption"]
             [hint "bondOption"]
+			[value "genericProduct"]
 
 	ProductTaxonomy:
 		+ primaryAssetClass
@@ -1805,12 +1810,14 @@ synonym source FpML_5_10 extends FpML
 			[value "primaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
 			[value "primaryAssetClass" path "bondOption" meta "assetClassScheme"]
 			[value "primaryAssetClass" path "commoditySwaption" meta "assetClassScheme"]
+			[value "primaryAssetClass" path "genericProduct" meta "assetClassScheme"]
 		+ secondaryAssetClass
 			[value "secondaryAssetClass" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "fra" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "creditDefaultSwapOption" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "bondOption" meta "assetClassScheme"]
 			[value "secondaryAssetClass" path "commoditySwaption" meta "assetClassScheme"]
+			[value "secondaryAssetClass" path "genericProduct" meta "assetClassScheme"]
 		+ source
 			[value "productType" mapper "TaxonomySource"]
 			[value "productType" path "fra" mapper "TaxonomySource"]
@@ -2174,9 +2181,11 @@ synonym source FpML_5_10 extends FpML
 			[set to FeeTypeEnum->Upfront when path = "otherPartyPayment"]
 			[set to FeeTypeEnum->Upfront when path = "initialPayment"]
 			[set to FeeTypeEnum->Upfront when path = "singlePayment->fixedAmount"]
+			[set to FeeTypeEnum->Upfront when "paymentType" = "Additional Payment"]
 			[set to FeeTypeEnum->Premium when path = "premium"]
  			[set to FeeTypeEnum->Premium when path = "equityPremium"]
 			[set to FeeTypeEnum->BrokerageCommission when "paymentType" = "Brokerage"]
+			[set to FeeTypeEnum->Novation when path = "novation->payment"]
 
 	ContractDetails:
 		+ documentation
@@ -2267,6 +2276,7 @@ synonym source FpML_5_10 extends FpML
 			[value "effectiveDate" path "dividendLeg"]
 			[value "effectiveDate" path "fixedLeg"]
 			[value "effectiveDate" path "returnLeg"]
+			[value "effectiveDate" path "genericProduct"]
 		+ terminationDate
 			[value "scheduledTerminationDate" path "generalTerms"]
 			[value "terminationDate"]
@@ -2276,6 +2286,7 @@ synonym source FpML_5_10 extends FpML
 			[value "terminationDate" path "dividendLeg"]
 			[value "terminationDate" path "fixedLeg"]
 			[value "terminationDate" path "returnLeg"]
+			[value "terminationDate" path "genericProduct"]
 		+ dateAdjustments
 			[value "dateAdjustments" path "generalTerms"]
 		+ extraordinaryEvents
@@ -2581,6 +2592,7 @@ synonym source FpML_5_10 extends FpML
 			[value "commoditySwaption"]
 			[value "varianceOptionTransactionSupplement"]
 			[value "dividendSwapOptionTransactionSupplement"]
+			[value "genericProduct" set when "genericProduct->optionType" exists]
 		+ forwardPayout
 			[value "fxSingleLeg"]
 			[value "nearLeg"]
@@ -2665,6 +2677,7 @@ synonym source FpML_5_10 extends FpML
 			[hint "fxVarianceSwap"]
 			[value "fxVolatilitySwap"]
 			[hint "fxVolatilitySwap"]
+			[hint "genericProduct"]
 		+ index
 			[hint "index"]
 		+ loan
@@ -3100,16 +3113,16 @@ synonym source FpML_5_10 extends FpML
 			[value "receiverPartyReference" mapper "CashPaymentSeller"]
 
 	PayerReceiver:
-		+ payer
+	    + payer
 			[value "payerPartyReference" mapper "Payer"]
-			[value "buyerPartyReference" maps 2 mapper "Payer"]
+			[value "sellerPartyReference" maps 2 mapper "SellerAsPayerOrReceiver"]
 			[value "payerPartyReference" path "floatingLeg" mapper "Payer"] // FX Var / Vol swaps
 			[value "receiverPartyReference" path "fixedLeg" mapper "Payer"] // FX Var / Vol swaps
 			[value "putCurrencyAmount" maps 2 mapper "OptionBuyerAsPayer"]
 			[value "callCurrencyAmount" maps 2 mapper "OptionSellerAsPayer"]
 		+ receiver
 			[value "receiverPartyReference" mapper "Receiver"]
-			[value "sellerPartyReference" maps 2 mapper "Receiver"]
+			[value "buyerPartyReference" maps 2 mapper "BuyerAsReceiverOrPayer"]
 			[value "payerPartyReference" path "fixedLeg" mapper "Receiver"] // FX Var / Vol swaps
 			[value "receiverPartyReference" path "floatingLeg" mapper "Receiver"] // FX Var / Vol swaps
 			[value "putCurrencyAmount" maps 2 mapper "OptionSellerAsReceiver"]
@@ -3765,12 +3778,18 @@ synonym source FpML_5_10 extends FpML
 	AveragingCalculationMethod:
 		+ calculationMethod
 			[value "averagingMethod" path "calculation"]
+			[value "averagingMethod"]
 		+ isWeighted
 			[set to False when "calculation->averagingMethod" = "Unweighted"]
+			[set to False when "averagingMethod" = "Unweighted"]
 			[set to False when "calculation->averagingMethod" = "Arithmetic"]
+			[set to False when "averagingMethod" = "Arithmetic"]
 			[set to False when "calculation->averagingMethod" = "Geometric"]
+			[set to False when "averagingMethod" = "Geometric"]
 			[set to False when "calculation->averagingMethod" = "Harmonic"]
+			[set to False when "averagingMethod" = "Harmonic"]
 			[set to True when "calculation->averagingMethod" = "Weighted"]
+			[set to True when "averagingMethod" = "Weighted"]
 
 	enums
 
