@@ -2,12 +2,12 @@
 
 _Background_
 
-CDM Portal link from Licence Terms was broken.
+The url pointing to the CDM Portal link is broken in the Licence Terms.
 
 _What is being released?_
 
-URL link on the Licence Term has been updated 
+The URL link pointing to the CDM portal has been adjusted on the Licence Term. 
 
 _Review Directions_
 
-In the CDM Portal, open Licence Terms click on the portal link it navigates you back to main CDM portal page.
+In the CDM Portal, download a CDM distribution and inspect that the link to the CDM portal in Licence document point to the main CDM portal page.
