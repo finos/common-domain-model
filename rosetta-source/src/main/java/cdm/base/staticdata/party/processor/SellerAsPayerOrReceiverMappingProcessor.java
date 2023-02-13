@@ -17,16 +17,21 @@ import static cdm.base.staticdata.party.processor.CreditPartyMappingHelper.isFra
  * FpML mapping processor.
  */
 @SuppressWarnings("unused")
-public class ReceiverMappingProcessor extends PayerReceiverMappingProcessor {
+public class SellerAsPayerOrReceiverMappingProcessor extends PayerReceiverMappingProcessor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ReceiverMappingProcessor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SellerAsPayerOrReceiverMappingProcessor.class);
 
-	public ReceiverMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
+	public SellerAsPayerOrReceiverMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);
 	}
 
 	@Override
 	void setCounterparty(Path synonymPath, PayerReceiverBuilder builder, PartyMappingHelper helper) {
-		helper.setCounterpartyRoleEnum(getModelPath(), synonymPath, builder::setReceiver);
+		RosettaPath modelPath = getModelPath();
+		if (isCreditFundingLeg(modelPath, synonymPath) || isFra(modelPath, synonymPath)) {
+			helper.setCounterpartyRoleEnum(modelPath, synonymPath, builder::setReceiver);
+		} else {
+			helper.setCounterpartyRoleEnum(modelPath, synonymPath, builder::setPayer);
+		}
 	}
 }
