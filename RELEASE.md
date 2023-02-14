@@ -1,4 +1,4 @@
-# *Product Model - Licence Terms - Minor typo corrections*
+# *CDM Distribution - Licence Terms - Minor typo corrections*
 
 _Background_
 
