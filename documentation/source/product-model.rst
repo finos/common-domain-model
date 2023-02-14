@@ -63,6 +63,7 @@ This design allows to use anonymised ``Party1`` and ``Party2`` values to specify
      [metadata scheme]
    businessUnit BusinessUnit (0..*)
    person NaturalPerson (0..*)
+   personRole NaturalPersonRole (0..*)
    account Account (0..1)
    contactInformation ContactInformation (0..1)
 
@@ -345,6 +346,10 @@ Cash and physical settlement methods require different, specific parameters whic
    settlementCurrency string (0..1)
      [metadata scheme]
    settlementDate SettlementDate (0..1)
+   settlementCentre SettlementCentreEnum (0..1)
+   settlementProvision SettlementProvision (0..1)
+   standardSettlementStyle StandardSettlementStyleEnum (0..1)
+
 
 BuyerSeller
 """"""""""""
@@ -377,6 +382,7 @@ A financial product is an instrument that is used to transfer financial risk bet
    contractualProduct ContractualProduct (0..1)
    index Index (0..1)
    loan Loan (0..1)
+   assetPool AssetPool (0..1)
    foreignExchange ForeignExchange (0..1)
    commodity Commodity (0..1)
      [metadata address "pointsTo"=Observable->commodity]
@@ -455,6 +461,7 @@ The CDM specifies the various sets of possible remaining economic terms using th
    extraordinaryEvents ExtraordinaryEvents (0..1)
    calculationAgent CalculationAgent (0..1)
    nonStandardisedTerms boolean (0..1)
+   collateral Collateral (0..1)
 
 Payout
 """"""
@@ -472,9 +479,10 @@ The ``Payout`` type defines the composable payout types, each of which describes
    forwardPayout ForwardPayout (0..*)
    fixedPricePayout FixedPricePayout (0..*)
    securityPayout SecurityPayout (0..*)
-   securityFinancePayout SecurityFinancePayout (0..*)
+        [deprecated]
    cashflow Cashflow (0..*)
    performancePayout PerformancePayout (0..*)
+   assetPayout AssetPayout (0..*)
 
 A number of payout types extend a common data type called ``PayoutBase``. This data type provides a common structure for attributes such as quantity, price, settlement terms and the payer/receiver direction which are expected to be common across many payouts.
 
@@ -678,22 +686,21 @@ The ``ProductTaxonomy`` data structure and an instance of a CDM object (`seriali
 
 .. code-block:: Haskell
 
- type ProductTaxonomy:
+ type ProductTaxonomy extends Taxonomy:
      primaryAssetClass AssetClassEnum (0..1)
          [metadata scheme]
      secondaryAssetClass AssetClassEnum (0..*)
          [metadata scheme]
-     taxonomyValue string (0..1)
-         [metadata scheme]
-     taxonomySource TaxonomySourceEnum (0..1)
      productQualifier string (0..1)
 
-     condition TaxonomyValue:
-         required choice taxonomyValue, productQualifier, primaryAssetClass, secondaryAssetClass
+     condition TaxonomyType:
+         required choice source, primaryAssetClass, secondaryAssetClass
 
      condition TaxonomySource:
-         if taxonomySource exists then
-             taxonomyValue exists or productQualifier exists
+         if source exists then ( value exists or productQualifier exists )
+
+     condition TaxonomyValue:
+         optional choice value, productQualifier
 
 .. code-block:: Javascript
 

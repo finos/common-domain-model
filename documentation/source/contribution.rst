@@ -761,6 +761,7 @@ Example of how a code snippet should be edited in the documentation:
       [metadata scheme]
     businessUnit BusinessUnit (0..*)
     person NaturalPerson (0..*)
+    personRole NaturalPersonRole (0..*)
     account Account (0..1)
     contactInformation ContactInformation (0..1)
 
@@ -775,6 +776,7 @@ And the result will be rendered as:
      [metadata scheme]
    businessUnit BusinessUnit (0..*)
    person NaturalPerson (0..*)
+   personRole NaturalPersonRole (0..*)
    account Account (0..1)
    contactInformation ContactInformation (0..1)
 

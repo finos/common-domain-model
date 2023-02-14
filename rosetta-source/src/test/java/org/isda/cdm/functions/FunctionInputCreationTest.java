@@ -1,14 +1,12 @@
 package org.isda.cdm.functions;
 
 import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
+import cdm.base.datetime.AdjustableOrRelativeDate;
 import cdm.base.datetime.Period;
 import cdm.base.datetime.PeriodEnum;
 import cdm.base.math.*;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
-import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
-import cdm.base.staticdata.asset.common.ProductIdentifier;
-import cdm.base.staticdata.asset.common.Security;
-import cdm.base.staticdata.asset.common.SecurityTypeEnum;
+import cdm.base.staticdata.asset.common.*;
 import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
 import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
@@ -19,7 +17,7 @@ import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
-import cdm.event.common.functions.Create_BusinessEvent;
+import cdm.event.common.functions.*;
 import cdm.event.common.metafields.ReferenceWithMetaTradeState;
 import cdm.event.workflow.EventTimestamp;
 import cdm.event.workflow.EventTimestampQualificationEnum;
@@ -37,6 +35,8 @@ import cdm.product.asset.ReferenceInformation;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.common.settlement.ScheduledTransferEnum;
+import cdm.product.common.settlement.SettlementDate;
+import cdm.product.template.ContractualProduct;
 import cdm.product.template.Product;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
@@ -548,7 +548,7 @@ class FunctionInputCreationTest {
                                 .setPayerReceiver(PartyReferencePayerReceiver.builder()
                                         .setPayerPartyReference(counterparties.get(0).getPartyReference())
                                         .setReceiverPartyReference(counterparties.get(1).getPartyReference()))
-                                .setQuantity(Quantity.builder()
+                                .setQuantity(NonNegativeQuantity.builder()
                                         .setValue(BigDecimal.valueOf(2000.00))
                                         .setUnit(currencyUnitType))
                                 .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
@@ -642,15 +642,16 @@ class FunctionInputCreationTest {
                 .getPartyId().get(0)
                 .setIdentifierValue("LEI2CP0002");
 
-        Identifier tradeIdentifier = Identifier.builder()
+        TradeIdentifier tradeIdentifier = TradeIdentifier.builder()
                 .addAssignedIdentifier(AssignedIdentifier.builder()
                         .setIdentifier(FieldWithMetaString.builder()
                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/uti"))
-                                .setValue("LEI1RPT0003EFG"))
-                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                .setValue("LEI1RPT0003EFG")))
+                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                 .setIssuer(FieldWithMetaString.builder()
                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
                         .setValue("LEI1RPT0001"));
+
         tradeBuilder
                 .setTradeIdentifier(Lists.newArrayList(tradeIdentifier.build()))
                 .setTradeDateValue(effectiveDate);
@@ -695,12 +696,12 @@ class FunctionInputCreationTest {
                                                         .setIdentifier(FieldWithMetaString.builder().setValue("LEI3RPT0003").setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
-                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
                                                 .setIdentifier(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                        .setValue("LEI3RPT0003CCC"))
-                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                                        .setValue("LEI3RPT0003CCC")))
+                                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuer(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
                                                 .setValue("LEI3RPT0003"))))))
@@ -747,12 +748,12 @@ class FunctionInputCreationTest {
                                                                 .setMeta(MetaFields.builder()
                                                                         .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
-                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
                                                 .setIdentifier(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                        .setValue("LEI3RPT0003DDDD"))
-                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                                        .setValue("LEI3RPT0003DDDD")))
+                                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuer(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
                                                 .setValue("LEI3RPT0003")))))
@@ -812,12 +813,12 @@ class FunctionInputCreationTest {
                                                         .setIdentifierType(PartyIdentifierTypeEnum.LEI))
                                                 .build())
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
-                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
                                                 .setIdentifier(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                        .setValue("LEI1DCO01BETA"))
-                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                                        .setValue("LEI1DCO01BETA")))
+                                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuer(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
                                                 .setValue("LEI1DCO"))))))
@@ -835,12 +836,12 @@ class FunctionInputCreationTest {
                                                         .setIdentifierType(PartyIdentifierTypeEnum.LEI))
                                                 .build())
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
-                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
                                                 .setIdentifier(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                        .setValue("LEI1DCO01GAMMA"))
-                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                                        .setValue("LEI1DCO01GAMMA")))
+                                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuer(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
                                                 .setValue("LEI1DCO"))))))
@@ -887,12 +888,12 @@ class FunctionInputCreationTest {
                                                         .setIdentifier(FieldWithMetaString.builder().setValue("LEI2CP00A1")
                                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
-                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
                                                 .setIdentifier(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                        .setValue("LEI1RPT001POST1"))
-                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                                        .setValue("LEI1RPT001POST1")))
+                                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuer(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
                                                 .setValue("LEI1RPT001")))))
@@ -917,12 +918,12 @@ class FunctionInputCreationTest {
                                                                 .setMeta(MetaFields.builder()
                                                                         .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
-                                .setTradeId(Lists.newArrayList(Identifier.builder()
+                                .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
                                         .addAssignedIdentifier(AssignedIdentifier.builder()
                                                 .setIdentifier(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                        .setValue("LEI1RPT001POST2"))
-                                                .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER))
+                                                        .setValue("LEI1RPT001POST2")))
+                                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuer(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
                                                 .setValue("LEI1RPT001")))))
@@ -1231,15 +1232,15 @@ class FunctionInputCreationTest {
                 );
 
         exerciseInstructionBuilder.addReplacementTradeIdentifier(
-                Identifier.builder()
+                TradeIdentifier.builder()
                         .addAssignedIdentifier(
                                 AssignedIdentifier.builder()
-                                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIdentifier(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
                                                 .setValue("LEI1RPT0001IIIIEx")
                                         )
                         )
+                        .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                         .setIssuer(FieldWithMetaString.builder()
                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
                                 .setValue("LEI1RPT0001")
@@ -1746,6 +1747,154 @@ class FunctionInputCreationTest {
         PostProcessor postProcessor = injector.getInstance(PostProcessor.class);
         postProcessor.postProcess(WorkflowStep.class, workflowStep);
         return workflowStep.build();
+    }
+
+    @Test
+    void validateRollInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+        AdjustableOrRelativeDate effectiveRollDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/roll-primitive-instruction-effective-roll-date.json");
+        AdjustableOrRelativeDate terminationDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/roll-primitive-instruction-termination-date.json");
+        List<? extends PriceQuantity> priceQuantity = executionTradeState.getTrade().getTradableProduct().getTradeLot().get(0).getPriceQuantity();
+
+        Create_RollPrimitiveInstruction create_rollPrimitiveInstruction = injector.getInstance(Create_RollPrimitiveInstruction.class);
+        PrimitiveInstruction rollPrimitiveInstruction = create_rollPrimitiveInstruction.evaluate(executionTradeState,
+                effectiveRollDate,
+                terminationDate,
+                priceQuantity);
+
+        Date unadjustedRollDate = effectiveRollDate.getAdjustableDate().getUnadjustedDate();
+        Instruction.InstructionBuilder rollInstructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(rollPrimitiveInstruction);
+
+        reKey(rollInstructionBuilder);
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(rollInstructionBuilder.build()), null, unadjustedRollDate, unadjustedRollDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/roll-input.json", actual);
+    }
+    @Test
+    void validateOnDemandRateChangeInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/on-demand-rate-change-primitive-instruction-effective-date.json");
+        BigDecimal agreedRate = new BigDecimal("0.005");
+
+        Create_OnDemandRateChangePrimitiveInstruction create_onDemandRateChangePrimitiveInstruction = injector.getInstance(Create_OnDemandRateChangePrimitiveInstruction.class);
+        PrimitiveInstruction onDemandRateChangePrimitiveInstruction = create_onDemandRateChangePrimitiveInstruction.evaluate(executionTradeState, effectiveDate, agreedRate);
+
+        Date unadjustedEffectiveDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
+        Instruction.InstructionBuilder onDemandRateChangeInstructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(onDemandRateChangePrimitiveInstruction);
+
+        reKey(onDemandRateChangeInstructionBuilder);
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput( Lists.newArrayList(onDemandRateChangeInstructionBuilder.build()), null, unadjustedEffectiveDate, unadjustedEffectiveDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/on-demand-rate-change-input.json", actual);
+    }
+    @Test
+    void validatePairOffInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+
+        Identifier.IdentifierBuilder pairReferenceIdentifierBuilder = Identifier.builder();
+        pairReferenceIdentifierBuilder.getOrCreateAssignedIdentifier(0)
+                .setIdentifierValue("Package");
+
+        Create_PairOffInstruction create_pairOffInstruction = injector.getInstance(Create_PairOffInstruction.class);
+
+        List<? extends Instruction> pairOffInstruction = create_pairOffInstruction.evaluate(Lists.newArrayList(executionTradeState, executionTradeState), pairReferenceIdentifierBuilder.build());
+        List<Instruction> rekeyedPairOffInstruction = pairOffInstruction.stream().map(i -> {
+            Instruction.InstructionBuilder instructionBuilder = i.toBuilder();
+            reKey(instructionBuilder);
+            return instructionBuilder.build();
+        }).collect(Collectors.toList());
+
+        Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(rekeyedPairOffInstruction, null, tradeDate, tradeDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/pair-off-input.json", actual);
+    }
+
+    @Test
+    void validateCancellationInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+        AdjustableOrRelativeDate cancellationDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/cancellation-primitive-instruction-cancellation-date.json");
+
+        Create_CancellationPrimitiveInstruction create_cancellationPrimitiveInstruction = injector.getInstance(Create_CancellationPrimitiveInstruction.class);
+        PrimitiveInstruction cancellationPrimitiveInstruction = create_cancellationPrimitiveInstruction.evaluate(executionTradeState, null, cancellationDate);
+
+        Instruction.InstructionBuilder cancellationInstructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(cancellationPrimitiveInstruction);
+
+        reKey(cancellationInstructionBuilder);
+
+        Date unadjustedCancellationDate = cancellationDate.getAdjustableDate().getUnadjustedDate();
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(cancellationInstructionBuilder.build()), null, unadjustedCancellationDate, unadjustedCancellationDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/cancellation-input.json", actual);
+    }
+
+    @Test
+    void validateOnDemandInterestPaymentEventInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+
+        Money interestAmount = ResourcesUtils.getObject(Money.class, "cdm-sample-files/functions/repo-and-bond/on-demand-interest-payment-primitive-instruction-interest-amount.json");
+        SettlementDate settlementDate = ResourcesUtils.getObject(SettlementDate.class, "cdm-sample-files/functions/repo-and-bond/on-demand-interest-payment-primitive-instruction-settlement-date.json");
+
+        Create_OnDemandInterestPaymentPrimitiveInstruction create_onDemandInterestPaymentPrimitiveInstruction =
+                injector.getInstance(Create_OnDemandInterestPaymentPrimitiveInstruction.class);
+
+        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = create_onDemandInterestPaymentPrimitiveInstruction
+                .evaluate(executionTradeState, interestAmount, settlementDate)
+                .toBuilder();
+
+        reKey(primitiveInstructionBuilder);
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(primitiveInstructionBuilder);
+
+        Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, tradeDate, tradeDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/on-demand-interest-payment-input.json", actual);
+    }
+
+    @Test
+    void validateShapingEventInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+
+        List<TradeLot> tradeLots = ResourcesUtils.getObjectList(TradeLot.class, "cdm-sample-files/functions/repo-and-bond/shaping-primitive-instruction-trade-lots.json");
+        Identifier shapeIdentifier = ResourcesUtils.getObject(Identifier.class, "cdm-sample-files/functions/repo-and-bond/shaping-primitive-instruction-shape-identifier.json");
+
+        Create_ShapingInstruction create_shapingInstruction = injector.getInstance(Create_ShapingInstruction.class);
+        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = create_shapingInstruction.evaluate(executionTradeState, tradeLots, shapeIdentifier).toBuilder();
+
+        reKey(primitiveInstructionBuilder);
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(primitiveInstructionBuilder);
+
+        Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, tradeDate, tradeDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/shaping-input.json", actual);
+    }
+
+    private TradeState removeIsdaProductTaxonomy(TradeState tradeState) {
+        TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
+        ContractualProduct.ContractualProductBuilder contractualProductBuilder =
+                tradeStateBuilder.getTrade().getTradableProduct().getProduct().getContractualProduct();
+        List<? extends ProductTaxonomy.ProductTaxonomyBuilder> newProductTaxonomies = contractualProductBuilder.getProductTaxonomy().stream()
+                .filter(taxonomy -> taxonomy.getSource() == null || !taxonomy.getSource().equals(TaxonomySourceEnum.ISDA))
+                .collect(Collectors.toList());
+        contractualProductBuilder.setProductTaxonomy(newProductTaxonomies);
+        return tradeStateBuilder.build();
+    }
+
+    private TradeState getRepoExecutionAfterTradeState() throws IOException {
+        BusinessEvent executionBusinessEvent = ResourcesUtils.getObject(BusinessEvent.class, "cdm-sample-files/functions/repo-and-bond/repo-execution-func-output.json");
+        return ResourcesUtils.resolveReferences(removeIsdaProductTaxonomy(executionBusinessEvent.getAfter().get(0)));
     }
 
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {

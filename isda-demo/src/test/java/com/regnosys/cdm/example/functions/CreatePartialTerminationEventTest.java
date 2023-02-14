@@ -1,10 +1,7 @@
 package com.regnosys.cdm.example.functions;
 
 import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
-import cdm.base.math.NonNegativeQuantitySchedule;
-import cdm.base.math.Quantity;
-import cdm.base.math.QuantityChangeDirectionEnum;
-import cdm.base.math.UnitType;
+import cdm.base.math.*;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.PartyReferencePayerReceiver;
@@ -98,7 +95,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                                 .setPayerReceiver(PartyReferencePayerReceiver.builder()
                                         .setPayerPartyReference(payerPartyReference)
                                         .setReceiverPartyReference(receiverPartyReference))
-                                .setQuantity(Quantity.builder()
+                                .setQuantity(NonNegativeQuantity.builder()
                                         .setValue(BigDecimal.valueOf(2000.00))
                                         .setUnit(UnitType.builder()
                                                 .setCurrency(FieldWithMetaString.builder()

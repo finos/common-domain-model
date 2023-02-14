@@ -64,7 +64,7 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
 
  type Trade:
    [metadata key]
-   tradeIdentifier Identifier (1..*)
+   tradeIdentifier TradeIdentifier (1..*)
    tradeDate date (1..1)
      [metadata id]
    tradableProduct TradableProduct (1..1)
@@ -94,7 +94,6 @@ The ``ExecutionDetails`` data type represents details applicable to trade execut
    executionType ExecutionTypeEnum (1..1)
    executionVenue LegalEntity (0..1)
    packageReference IdentifiedList (0..1)
-     [metadata reference]
    
    condition ExecutionVenue:
      if executionType = ExecutionTypeEnum -> Electronic
@@ -196,7 +195,7 @@ A transfer is a multi-purpose object that represents the transfer of any asset, 
  type TransferBase:
    identifier Identifier (0..*)
      [metadata scheme]
-   quantity Quantity (1..1)
+   quantity NonNegativeQuantity (1..1)
    observable Observable (0..1)
    payerReceiver PartyReferencePayerReceiver (1..1)
    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
@@ -237,7 +236,7 @@ All primitive functions are prefixed by ``Create_`` followed by the name of the 
      counterparty Counterparty (1..1)
      ancillaryParty AncillaryParty (0..1)
      partyRole PartyRole (0..1)
-     tradeId Identifier (1..*)
+     tradeId TradeIdentifier (1..*)
      originalTrade TradeState (1..1)
    output:
      newTrade TradeState (1..1)
@@ -254,7 +253,7 @@ is associated to a primitive instruction data type that contains the function's 
    counterparty Counterparty (1..1)
    ancillaryParty AncillaryParty (0..1)
    partyRole PartyRole (0..1)
-   tradeId Identifier (1..*)
+   tradeId TradeIdentifier (1..*)
 
 The ``PrimitiveInstruction`` data type allows to build composite primitive instructions and therefore compose primitive operators. This data type contains one instruction attribute for each of the possible nine primitive instruction types - aligned onto the nine fundamental primitive operators.
 
@@ -358,7 +357,8 @@ Therefore, the execution function does not take any before state as input and al
    executionDetails ExecutionDetails (1..1)
    tradeDate date (1..1)
        [metadata id]
-   tradeIdentifier Identifier (1..*)
+   tradeIdentifier TradeIdentifier (1..*)
+   collateral Collateral (0..1)
 
 Contract Formation Primitive
 ''''''''''''''''''''''''''''
@@ -434,17 +434,11 @@ Business events are built according to the following principles:
 
 .. code-block:: Haskell
 
- type BusinessEvent:
+ type BusinessEvent extends EventInstruction:
    [metadata key]
    [rootType]
 
-   intent EventIntentEnum (0..1)
-   corporateActionIntent CorporateActionTypeEnum (0..1)
    eventQualifier string (0..1)
-   eventDate date (1..1)
-   effectiveDate date (0..1)
-   packageInformation IdentifiedList (0..1)
-   instruction Instruction (0..*)
    after TradeState (0..*)
 
 .. code-block:: Haskell
@@ -539,7 +533,7 @@ An example composition of primitive instructions to represent a complete lifecyc
         } ]
       }
     }
-    
+
 A business event is *atomic*, i.e. its primitive components cannot happen independently. They either all happen together or not at all. In the above partial novation example, the existing trade between the original parties must be downsized at the same time as the trade with the new party is instantiated. Trade compression is another example, that involves multiple before trades being downsized or terminated and new trades being created between multiple parties, all of which must happen concurrently.
 
 .. _event-qualification-section:
@@ -564,7 +558,7 @@ One distinction with the product approach is that the ``intent`` qualification i
    output: is_event boolean (1..1)
    alias primitiveInstruction: businessEvent -> instruction -> primitiveInstruction only-element
    alias transfer: TransfersForDate( businessEvent -> after -> transferHistory -> transfer, businessEvent -> eventDate ) only-element
-   
+
    set is_event:
      businessEvent -> intent is absent
        and (primitiveInstruction -> quantityChange only exists
@@ -674,9 +668,11 @@ Validation components are in place to check that the ``businessEvent`` and ``pro
 
  type EventInstruction:
    intent EventIntentEnum (0..1)
-   instruction Instruction (0..*)
+   corporateActionIntent CorporateActionTypeEnum (0..1)
    eventDate date (0..1)
    effectiveDate date (0..1)
+   packageInformation IdentifiedList (0..1)
+   instruction Instruction (0..*)
 
 Next Event
 """"""""""
