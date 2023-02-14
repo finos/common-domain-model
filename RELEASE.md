@@ -2,13 +2,13 @@
 
 _Background_
 
-CDM Portal link from Licence Terms was broken. 4.0.0-DEV.0 appears as 4.0.0-DEV
+The url pointing to the CDM Portal link is broken in the Licence Terms. 4.0.0-DEV.0 appears as 4.0.0-DEV
 
 _What is being released?_
 
-URL link on the Licence Term has been updated. Fixed Licence Terms to show 4.0.0-DEV.0 appears as 4.0.0-DEV.0. 
+The URL link pointing to the CDM portal has been adjusted on the Licence Term. Licence Terms licence version updated to 4.0.0-DEV.0
 
 _Review Directions_
 
-In the CDM Portal, open Licence Terms click on the portal link it navigates you back to main CDM portal page.
+IIn the CDM Portal, download a CDM distribution and inspect that the link to the CDM portal in Licence document point to the main CDM portal page..
 In the CDM Portal, open Licence Terms licence version is shown correctly as 4.0.0-DEV.0.
