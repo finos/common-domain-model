@@ -1,67 +1,80 @@
 [![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://community.finos.org/docs/governance/Software-Projects/stages/incubating)
 
-# CDM - Common Domain Model
+# Common Domain Model (CDM)
 
-Read the full docs [here](https://cdm.docs.rosetta-technology.io/source/cdm-overview.html#what-is-the-isda-cdm)!
+The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://community.finos.org/docs/governance/Standards-Projects), starting in February 2023.   \
+ \
+The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md). For versions before X.Y.Z and other license details, check License.md
 
-## What is the CDM
+To participate in the standard process and working group meetings, [enroll as a participant](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/Getting%20Started.md#best-practices) by completing a [Community Specification Contributor License Agreement](https://community.finos.org/docs/governance/Standards-Projects#ip-licensing-requirements) (CSL CLA).  All meetings are to be held [in accordance with the FINOS policies and procedures](https://community.finos.org/docs/governance/meeting-procedures).
 
-The Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a `domain model`_ and distributed in open source.
+For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see [Governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md). For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
-See more [here](https://cdm.docs.rosetta-technology.io/source/common-domain-model.html)
+## Governance overview
 
-## Purpose
+### Roles
 
-A single, digital processing standard for trade events and actions enhances financial markets' operational efficiency in several ways:
+The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#1roles) for each specific Working Group:
 
-* **Enables inter-operability and straight-through processing** across firms, solutions and platforms, reducing the need for reconciliation caused by variations in how each firm records trade lifecycle events.
-* **Accelerates financial technology innovation** by providing a common, readily operational foundation for how technologies like distributed ledger, smart contracts, cloud computing, and artificial intelligence can be applied to financial markets.
-* **Delivers better regulatory oversight**, promotes transparency and alignment between regulators and market participants and enables consistency in regulatory reporting, by providing a standard representation of trade data and supporting machine executable reporting requirements.
+* Maintainers - those who drive consensus within the working group
+* Editors - those who codify ideas into a formal specification
+* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
 
-## Design Principles
+### Active Working Groups
 
-To support these objectives, the CDM is built according to a set of design principles that include the following concepts:
+The following Working Groups are currently activated or about to be setup for this project:
 
-* **Normalisation** through abstraction of common components
-* **Composability** where objects are composed and qualified from the bottom up
-* **Mapping** to existing industry messaging formats
-* **Embedded logic** to represent industry processes
-* **Modularisation** into logical layers
+* FINOS CDM Steering Working Group
+* Structured Products Working Group
+* [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
+* [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
+* [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
+* ICMA CDM SteerCo for repo and bonds
+* Collateral Working Group
+* Technology Architecture Working Group
+* Contribution Review Committee
 
-These design principles are further detailed in the [https://cdm.docs.rosetta-technology.io/source/contribution.html#design-principles](design-principles) section of the CDM documentation.
+Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
 
-## Governance
+![alt_text](documentation/source/images/finos-cdm-governance-structure.png "image_tooltip")
 
-The CDM [governance framework](https://cdm.docs.rosetta-technology.io/source/contribution.html#governance) regulates the development of the CDM in open source.
+## Working Groups
 
-## Scope
+<span style="text-decoration:underline;">2.1.0 Any Participant may propose a Working Group.</span> Proposals for the formation of a new Working Group are made by completion of a [new CDM Working Group](https://github.com/finos/common-domain-model) template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group. 
 
-The product scope of the CDM includes OTC derivatives, cash securities, securities financing, and commodities.
+<span style="text-decoration:underline;">2.1.1 Approval of Specification Changes by Working Groups. </span>Participants of each Working Group approve the “proposed” changes from that working group; the “approved changes” within a given Working Group will be brought to the Steering Working Group as a proposed “Pre-Draft” contribution.
 
-## CDM Components
+* Participants of the CDM Steering Working Group approve DRAFT specification releases.
+* Maintainers of the CDM Steering Working Group will approve merging of the proposed “Pre-Draft” changes (coming from other Working Groups or otherwise from community) into the repo.
 
+<span style="text-decoration:underline;">2.2.0 CDM Steering Working Group.</span> The CDM Steering Working Group will review and approve completed Working Group formation proposals per 2.1.0.
 
-**The CDM is made of three sets of components**, as laid-out in the CDM components diagram below:
+<span style="text-decoration:underline;">2.2.1 CDM Steering Working Group Purpose:</span> The Steering Working Group is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups.
 
-* The CDM Distribution (in *blue*)
-* The Rosetta DSL (in *grey*)
-* CDM Applications (in *green*)
+<span style="text-decoration:underline;">2.2.2 Appointment of CDM Steering Working Group Maintainers:</span> 
 
-.. figure:: images/cdm-components-diagram.png
+* At the launch of the project, up to two initial Maintainers will be nominated by ICMA, ISDA, and ISLA (collectively, the “trade associations”).
+* Additional CDM Steering Group  Maintainers may be proposed by Participants. Proposed maintainers will be approved via consensus of the Participants and with agreement of existing Maintainers, and should meet the following criteria:
+    * Proven experience in data modelling and/or software development in financial markets.
+    * In-depth understanding and proven track record of contribution to the CDM, as well as other data standards (such as ISO) and messaging protocols (such as FIX, FpML or Swift).
 
-## CDM Distribution
+<span style="text-decoration:underline;">2.2.3 CDM Steering Working Group Decision Making:</span> As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#2decision-making), The CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
 
-The CDM distribution is openly accessible to all industry participants, subject to the CDM open source licence. This distribution is fully downloadable.
+<span style="text-decoration:underline;">2.2.4 CDM Steering Working Group Appointment of the Editor(s): </span>Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements. 
 
-## Development setup
+## CDM Design Principles
 
-The CDM is built using maven and can be built using the standard maven convensions
+Contributions to the CDM have to comply with the following set of design principles that include the following concepts:
 
-```sh
-mvn clean install
-```
+* **Normalisation** through abstraction of common components
+* **Composability** where objects are composed and qualified from the bottom up
+* **Mapping** to existing industry messaging formats
+* **Embedded logic** to represent industry processes
+* **Modularisation** into logical layers \
 
-See [here](https://cdm.docs.rosetta-technology.io/source/cdm-guidelines.html) for more infomation. 
+## CDM development guidelines 
+
+The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.docs.rosetta-technology.io/source/contribution.html).
 
 ## Roadmap
 
@@ -85,11 +98,10 @@ Steps:
 1. Fork it (<https://github.com/finos/cdm)
 1. Create your feature branch (`git checkout -b feature/my-new-feature`)
 1. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rosetta VS Code plugin](https://github.com/REGnosys/rosetta-dsl/tree/master/vscode-plugin)
-1. Read our [contribution guidelines](https://cdm.docs.rosetta-technology.io/source/contribution.html#how-to-contribute) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
+1. Read our [contribution guidelines](.github/CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
 1. Commit your changes (`git commit -am 'My New Feature'`)
 1. Push to the branch (`git push origin feature/my-new-feature`)
 1. Create a new Pull Request
-
 
 ## Documentation
 
@@ -100,7 +112,10 @@ _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted fr
 
 *Need an ICLA? Unsure if you are covered under an existing CCLA? Email [help@finos.org](mailto:help@finos.org)*
 
-
 ## License
 
-TBD
+Copyright 2021 FINOS and CDM Participants
+
+CDM specifications and draft specifications are subject to the Community Specification License (see [LICENSE.md](LICENSE.md))
+
+Reference implementations and other software contained in CDM repositories are licensed under the Apache License, Version 2.0 unless otherwise noted. SPDX-License-Identifier: Apache-2.0.
