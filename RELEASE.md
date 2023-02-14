@@ -16,5 +16,5 @@ _Review Directions_
 In the CDM Portal, select the Textual Browser to inspect the types mentioned above and review the changes.
 In the CDM Portal, select Ingestion and review the following samples in the test pack: 
 
-* `fpml-5-10 > incomplete-products > equity-options 
-* `fpml-5-10 > incomplete-products > commodity-derivatives 
+* `fpml-5-10 > incomplete-products > equity-options` 
+* `fpml-5-10 > incomplete-products > commodity-derivatives` 
