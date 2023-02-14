@@ -76,10 +76,6 @@ Contributions to the CDM have to comply with the following set of design princip
 
 The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.docs.rosetta-technology.io/source/contribution.html).
 
-## Roadmap
-
-TBD
-
 ## Contributing
 
 See guidelines [here](https://cdm.docs.rosetta-technology.io/source/contribution.html#how-to-contribute).
@@ -116,6 +112,4 @@ _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted fr
 
 Copyright 2021 FINOS and CDM Participants
 
-CDM specifications and draft specifications are subject to the Community Specification License (see [LICENSE.md](LICENSE.md))
-
-Reference implementations and other software contained in CDM repositories are licensed under the Apache License, Version 2.0 unless otherwise noted. SPDX-License-Identifier: Apache-2.0.
+Specifications in the repository are subject to the Community Specification License 1.0 available in the [LICENSE.md](LICENSE.md) file.
