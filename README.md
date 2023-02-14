@@ -38,29 +38,29 @@ Changes to the CDM may be proposed by CDM Working Groups, individual corporate c
 
 ![alt_text](documentation/source/images/finos-cdm-governance-structure.png "image_tooltip")
 
-## Working Groups
+## 2. Working Groups
 
-<span style="text-decoration:underline;">2.1.0 Any Participant may propose a Working Group.</span> Proposals for the formation of a new Working Group are made by completion of a [new CDM Working Group](https://github.com/finos/common-domain-model) template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group. 
+**2.1.0 Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a [new CDM Working Group](https://github.com/finos/common-domain-model) template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group. 
 
-<span style="text-decoration:underline;">2.1.1 Approval of Specification Changes by Working Groups. </span>Participants of each Working Group approve the “proposed” changes from that working group; the “approved changes” within a given Working Group will be brought to the Steering Working Group as a proposed “Pre-Draft” contribution.
+**2.1.1 Approval of Specification Changes by Working Groups.** Participants of each Working Group approve the “proposed” changes from that working group; the “approved changes” within a given Working Group will be brought to the Steering Working Group as a proposed “Pre-Draft” contribution.
 
 * Participants of the CDM Steering Working Group approve DRAFT specification releases.
 * Maintainers of the CDM Steering Working Group will approve merging of the proposed “Pre-Draft” changes (coming from other Working Groups or otherwise from community) into the repo.
 
-<span style="text-decoration:underline;">2.2.0 CDM Steering Working Group.</span> The CDM Steering Working Group will review and approve completed Working Group formation proposals per 2.1.0.
+**2.2.0 CDM Steering Working Group.** The CDM Steering Working Group will review and approve completed Working Group formation proposals per 2.1.0.
 
-<span style="text-decoration:underline;">2.2.1 CDM Steering Working Group Purpose:</span> The Steering Working Group is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups.
+**2.2.1 CDM Steering Working Group Purpose:** The Steering Working Group is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups.
 
-<span style="text-decoration:underline;">2.2.2 Appointment of CDM Steering Working Group Maintainers:</span> 
+**2.2.2 Appointment of CDM Steering Working Group Maintainers:**
 
 * At the launch of the project, up to two initial Maintainers will be nominated by ICMA, ISDA, and ISLA (collectively, the “trade associations”).
 * Additional CDM Steering Group  Maintainers may be proposed by Participants. Proposed maintainers will be approved via consensus of the Participants and with agreement of existing Maintainers, and should meet the following criteria:
     * Proven experience in data modelling and/or software development in financial markets.
     * In-depth understanding and proven track record of contribution to the CDM, as well as other data standards (such as ISO) and messaging protocols (such as FIX, FpML or Swift).
 
-<span style="text-decoration:underline;">2.2.3 CDM Steering Working Group Decision Making:</span> As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#2decision-making), The CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
+**2.2.3 CDM Steering Working Group Decision Making:** As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#2decision-making), The CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
 
-<span style="text-decoration:underline;">2.2.4 CDM Steering Working Group Appointment of the Editor(s): </span>Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements. 
+**2.2.4 CDM Steering Working Group Appointment of the Editor(s):** Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements. 
 
 ## CDM Design Principles
 
