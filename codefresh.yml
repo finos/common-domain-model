@@ -81,7 +81,7 @@ steps:
         shell: bash
         commands:
           - daml build -o target/cdm-daml-${{RELEASE_NAME}}.dar
-          - cd /codefresh/volume/rosetta-cdm/rosetta-source/target
+          - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target
           - tar -cvzf cdm-daml.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.tar.gz" -T cdm-daml.tar.gz
       BuildScala:
@@ -94,7 +94,7 @@ steps:
         commands:
           - sbt compile
           - sbt package
-          - cd /codefresh/volume/rosetta-cdm/rosetta-source/target/classes/cdm/scala/target/scala-2.12
+          - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/scala/target/scala-2.12
           - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-scala/${{RELEASE_NAME}}/cdm-scala-${{RELEASE_NAME}}.jar" -T cdm-scala_2.12-0.0.0.snapshot.jar
       BuildCSharp8:
         stage: 'build'
@@ -150,7 +150,7 @@ steps:
         working_directory: ./rosetta-source/
         shell: bash
         commands:
-          - cd /codefresh/volume/rosetta-cdm/rosetta-source/target/classes/cdm/kotlin
+          - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/kotlin
           - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
           - mvn -s /settings.xml -f kotlin-pom.xml clean deploy
 
