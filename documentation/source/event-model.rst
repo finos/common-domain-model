@@ -636,6 +636,7 @@ The CDM supports a workflow's audit trail by providing lineage from one step to 
    businessEvent BusinessEvent (0..1)
    proposedEvent EventInstruction (0..1)
    rejected boolean (0..1)
+   approval WorkflowStepApproval (0..*)
    previousWorkflowStep WorkflowStep (0..1)
      [metadata reference]
    nextEvent EventInstruction (0..1)
