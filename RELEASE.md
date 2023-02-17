@@ -14,11 +14,11 @@ A correction has also been made to the setting of the previousWorkflowStep in th
 
 Data Types
 
--	Added WorkflowStepApproval type:
-     - Includes approved, party, rejectedReason and timestamp
--	Modified WorkflowStep type:
-     - Added approval attribute of type WorkflowStepApproval
-
+  -	Added WorkflowStepApproval type:
+    - Includes approved, party, rejectedReason and timestamp
+  -	Modified WorkflowStep type:
+    - Added approval attribute of type WorkflowStepApproval
+    
 Functions
 
 -	Modified Create_AcceptedWorkflowStepFromInstruction function:
