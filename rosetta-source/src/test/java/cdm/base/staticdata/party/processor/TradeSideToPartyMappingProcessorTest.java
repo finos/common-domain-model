@@ -6,7 +6,6 @@ import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -83,7 +82,7 @@ class TradeSideToPartyMappingProcessorTest {
         assertNull(builder.getExternalReference());
     }
 
-    @NotNull
+
     private Mapping getErrorMapping(Path xmlPath, String xmlValue, Object rosettaValue, String error) {
         return new Mapping(xmlPath, xmlValue, null, rosettaValue, error, false, false, false);
     }

@@ -3,7 +3,7 @@ package com.regnosys.granite.projector.fpml_5_10;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-import com.regnosys.granite.ingestor.synonym.MappingResult;
+import com.regnosys.ingest.test.framework.ingestor.synonym.MappingResult;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import javax.xml.stream.XMLInputFactory;
