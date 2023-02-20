@@ -1,59 +1,100 @@
-# *ICMA Contribution - Removal of Deprecated Components*
+# *Product Model - Observation Dates*
 
 _Background_
 
-As part of ICMA's contribution to the CDM for Repo and Bonds, several model components that have been ear-marked as deprecated need to be removed. Those component are now supersded by new components from that contribution.
+This release revises the representation of a custom Observation schedule to improve representation in the model.
 
 _What is being released?_
 
-This release removes the following deprecated components:
+In data type `ObservationDates`:
 
-**Data types**
+- Attribute `observationSchedule` of data type `ObservationSchedule` updated to optional single cardinality to represent a single schedule.
 
-- `SecurityFinancePayout` (superseded by `AssetPayout`)
-- `SecurityFinanceLeg` (superseded by `AssetLeg`)
+In data type `ObservationSchedule`:
 
-**Attributes**
+- Attribute `observationDate` of data type `ObservationDate` updated to multiple cardinality to represent a list of observation dates
+- Attribute `dateAdjustments` added to represent a business day convention at the level of the schedule
 
-- In `Payout` and `SettlementOrigin`: `securityFinancePayout` (superseded by `assetPayout`)
-- In `Collateral`: `marginPercentage` (already represented within `eligibleCollateral`)
-- In `ProductTaxonomy`: `taxonomySource` and `taxonomyValue` (superseded by `source` and `value` in `Taxonomy` super-type)
-- In `AssignedIdentifier`: `identifierType` (moved to `TradeIdentifier`)
+In data type `ObservationDate`:
 
-**Annotations**
+- Data type contains attributes to represent an adjusted or unadjusted date, a weight for the observation and an observation reference.
 
-- In `ExecutionDetails`: the `[metadata reference]` annotation for `packageReference`
+Related synonym mappings have been adjusted to deal with changes.
 
-**Functions**
+_Review Directions_
 
-In addition, the functional model has been amended as follows:
+In the CDM Portal, select the Textual Browser to inspect the types mentioned above and review the changes.
 
-- The logic previously relying on the `securityFinancePayout` attribute now uses `assetPayout` and `collateral->collateralProvisions`, including the sec-lending product and event qualification logic. The functions impacted are:
+# *Product Model - Condition fixes*
 
-  - `CalculateTransfer`
-  - `Create_SecurityTransfer`
-  - `Create_SecurityFinanceTransfer`
-  - `ResolveTransfer`
-  - `SecurityFinanceCashSettlementAmount`
-  - `Create_BillingRecord`
-  - `ResolveSecurityFinanceBillingAmount`
-  - `Create_AssetPayoutTradeStateWithObservations`
-  - `Qualify_SecurityLendingAgreement`
-  - `Qualify_Repurchase`
-  - `Qualify_FullReturn`
-  
-- The sec-lending samples and mappers have been adjusted to reflect the new structure
-- Function names referring to "Security Finance" have replaced it with the more generic "Asset"
-- Model descriptions that use the term "Security Finance Payout" have replaced it with "Asset Payout"
+_What is being released?_
 
-**Other**
+Data type `SettlementTerms`:
 
-- Various comments that were left-over from the contribution have been removed
+- Condition `OptionSettlementChoice` has been updated to correctly represent relationship between settlementType and the need to represent physical or cash settlement terms
+
+Data type CorrelationReturnTerms:
+
+- Condition `CorrelationValue` has been updated to correctly represent the limit of the strike to be between the value 1 and -1
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser to inspect the types mentioned above and review the changes.
+
+# Product Model - FpML Mappings
+
+_Background_
+
+This release updates and extends the FpML mapping coverage for the product model.
+
+_What is being released?_
+
+* Mappings added to populate CDM attribute `SettlementBase -> settlementType` with code `Cash` or `Physical` when `nonDeliverableSettlement` or `physicalExercise` are present on the FpML input, respectively
+* Mappings added to populate CDM attribute `SettlementBase -> settlementCurrency` with FpML element `entitlementCurrency`
+* Mappings added to populate CDM attribute `productIdentifier` when the  instrument is a generic product
+* Mappings added to populate CDM attributes `primaryAssetClass` and `secondaryAssetClass` when the  instrument is a generic product
+* Mappings added to populate CDM attribute `TransferExpression -> priceTransfer` with code `Upfront` when payment type is `Additional Payment` and code `Novation` when the input is a novation
+* Mappings added to populate CDM attributes `effectiveDate` and `terminationDate` for generic products
+* Mappings added to populate CDM attribute `optionPayout` when the generic product is an option
+* Mappings added to populate CDM attribute `Product -> contractualProduct` for generic products
+* Mappings added to populate CDM attribute `AveragingCalculationMethod`
+* Mappings updated for CDM attribute `PayerReceiver`
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect the types and functions.
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
-In the CDM Portal, select Ingestion and review the sample in the "fis" folder.
+In the CDM Portal, select Ingestion and review the following samples: 
 
-In Rosetta, select the Visualisation tab and review the event examples in the "Security Lending" folder.
+* `fpml-5-10 > products > fx > fx-ex07-non-deliverable-forward`
+* `fpml-5-10 > products > fx > fx-ex28-non--deliverable-w-disruption`
+* `fpml-5-10 > products > rates > bond-option-uti`
+* `fpml-5-10 > products > rates > cb-option-usi`
+* `fpml-5-10 > incomplete-products > bond-options > bond-option`
+* `fpml-5-10 > incomplete-products > bond-options > cb-option`
+* `fpml-5-10 > incomplete-products > bond-options > cb-option-2`
+* `fpml-5-10 > incomplete-products > commodity-derivatives > com-ex22-physical-gas-option-multiple-expiration`
+* `fpml-5-10 > incomplete-products > commodity-derivatives > com-ex23-physical-power-option-daily-expiration-efet`
+* `fpml-5-10 > incomplete-products > commodity-derivatives > com-ex29-physical-eu-emissions-option`
+* `fpml-5-10 > incomplete-products > commodity-derivatives > com-ex31-physical-us-emissions-option`
+* `fpml-5-10 > incomplete-products > commodity-derivatives > com-ex47-physical-eu-emissions-option-pred-clearing`
+
+# *Product Model - Orphan Types clean-up*
+
+_Background_
+
+This release relocates and deletes some unused types in the model and adjusts the corresponding FpML synonym mappings.
+
+_What is being released?_
+
+- Attribute `personRole` of type NaturalPersonRole added to type `Party`
+- Attribute `assetPool` of type AssetPool added to type `Product`
+- Enumeration 'MortgageSectorEnum' was deleted
+- Attribute commodityInfoPublisher which uses the enumeration'commodityInfoPublisherEnum' added to type CommodityProductDefinition
+- Attribute `deliveryNearby` added to type `DeliveryDateParameters`
+
+Related synonym mappings were also adjusted to deal with changes.
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser to inspect the types mentioned above and review the changes.

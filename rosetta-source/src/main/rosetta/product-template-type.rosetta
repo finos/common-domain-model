@@ -319,6 +319,7 @@ type Product: <"Defines the product that is the subject of a tradable product de
 	contractualProduct ContractualProduct (0..1) <"Specifies the contractual product's economic terms, product identifier, and product taxonomy.">
 	index Index (0..1) <"Identifies an index by referencing a product identifier.">
 	loan Loan (0..1) <"Identifies a loan by referencing a product identifier and an optional set of attributes.">
+	assetPool AssetPool (0..1) <"Identifies an asset pool product for defining pool of assets backing an asset backed security.">
 	foreignExchange ForeignExchange (0..1) <"Defines a foreign exchange spot or forward transaction.">
 	commodity Commodity (0..1) <"Identifies a commodity by referencing a product identifier.">
 	    [metadata address "pointsTo"=Observable->commodity]
@@ -359,7 +360,7 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		then product -> contractualProduct -> economicTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
 
 	condition PerformancePayout_ExtraordinaryDividendsParty:
-		if product -> contractualProduct -> economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms exists
+		if product -> contractualProduct -> economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms -> extraordinaryDividendsParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> ExtraordinaryDividendsParty
 		and if ancillaryParty -> role contains AncillaryRoleEnum -> ExtraordinaryDividendsParty
 		then product -> contractualProduct -> economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms -> extraordinaryDividendsParty exists
