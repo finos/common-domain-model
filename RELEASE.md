@@ -4,7 +4,7 @@ _Background_
 
 The current CDM model provides the unambiguous data representation of an Eligible Collateral Schedule, which necessarily requires a relatively verbose definition of complex data relationships.
 
-When using the CDM Object Builder to manually construct an Eligible Collateral Schedule members need a simpler data model to be exposed to allow a quicker and simpler method for creating more complex Eligible Collateral Schedule information.
+When using the CDM Object Builder to manually construct an Eligible Collateral Schedule members need a quicker method for creating more complex Eligible Collateral Schedule information.
 
 The existing Eligible Collateral Schedule data type should not be changed as it has been tested and signed off by members as suitable for representing an unambiguous complete schedule.
 
