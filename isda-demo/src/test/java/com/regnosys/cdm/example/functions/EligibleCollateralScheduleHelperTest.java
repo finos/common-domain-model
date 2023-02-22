@@ -65,7 +65,7 @@ public class EligibleCollateralScheduleHelperTest extends AbstractExampleTest {
                         .addIssuerType(CollateralIssuerType.builder()
                                 .setIssuerType(IssuerTypeEnum.SOVEREIGN_CENTRAL_BANK))
                         .addIssuerCountryOfOrigin(FieldWithMetaString.builder()
-                                .setValue("GBR")
+                                .setValue("GB")
                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso3166"))))
                 .build();
     }
@@ -90,12 +90,12 @@ public class EligibleCollateralScheduleHelperTest extends AbstractExampleTest {
                         .setPeriodMultiplier(years)
                         .setPeriod(PeriodEnum.Y));
     }
-    private static EligibleCollateralCriteria getVariableCriteria(double marginPercentage, PeriodRange maturityRange) {
+    private static EligibleCollateralCriteria getVariableCriteria(double haircutPercentage, PeriodRange maturityRange) {
         return EligibleCollateralCriteria.builder()
                 .setTreatment(CollateralTreatment.builder()
                         .setIsIncluded(true)
                         .setValuationTreatment(CollateralValuationTreatment.builder()
-                                .setMarginPercentage(BigDecimal.valueOf(marginPercentage))))
+                                .setHaircutPercentage(BigDecimal.valueOf(haircutPercentage))))
                 .addAsset(AssetCriteria.builder()
                         .setMaturityType(MaturityTypeEnum.REMAINING_MATURITY)
                         .setMaturityRange(maturityRange))
