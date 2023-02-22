@@ -130,7 +130,7 @@ func Create_AcceptedWorkflowStepFromInstruction: <"Represents the acceptance of 
 	set acceptedWorkflowStep -> messageInformation: proposedWorkflowStep -> messageInformation
 	add acceptedWorkflowStep -> timestamp: proposedWorkflowStep -> timestamp
 	add acceptedWorkflowStep -> eventIdentifier: proposedWorkflowStep -> eventIdentifier
-	set acceptedWorkflowStep -> previousWorkflowStep: proposedWorkflowStep -> previousWorkflowStep as-key
+	set acceptedWorkflowStep -> previousWorkflowStep: proposedWorkflowStep as-key
     set acceptedWorkflowStep -> nextEvent: proposedWorkflowStep -> nextEvent
 
 	set acceptedWorkflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
@@ -154,6 +154,7 @@ func Create_ProposedWorkflowStep: <"Represents the proposal to create a business
 		previousWorkflowStep WorkflowStep (0..1) <"Optional previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
 		action ActionEnum (1..1) <"Specifies whether the event is new or a correction. The action cannot be a cancellation or new if the previous step is also new.">
 		proposedEvent EventInstruction (1..1) <"The proposed instruction for the step to initiate a workflow e.g. Clearing Instruction or Allocation Instruction">
+		approval WorkflowStepApproval (0..*) <"The approval status of all parties on the proposed event.">
 
 	output:
 		proposedWorkflowStep WorkflowStep (1..1) <"Proposed WorkflowStep populated with the proposed instruction">
@@ -186,6 +187,9 @@ func Create_ProposedWorkflowStep: <"Represents the proposal to create a business
 
 	set proposedWorkflowStep -> proposedEvent:
 	    proposedEvent
+	
+	add proposedWorkflowStep -> approval: <"Assign the party approval statuses for this WorkflowStep">
+		approval
 
 func Create_RejectedWorkflowStep: <"Represents the rejection of a proposed instruction that results in a workflow step containing the rejection flag, message details, identifiers, event timestamps, parties and accounts involved in the step. The previous workflow step input must exist to provide workflow lineage. This function will be further developed to provide the reasons for rejection.">
 	[creation WorkflowStep]
