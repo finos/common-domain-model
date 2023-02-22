@@ -1,100 +1,21 @@
-# *Product Model - Observation Dates*
+# *Legal Documentation & Collateral – Eligible Collateral Schedule Builder Function*
 
 _Background_
 
-This release revises the representation of a custom Observation schedule to improve representation in the model.
+The current CDM model provides the unambiguous data representation of an Eligible Collateral Schedule, which necessarily requires a relatively verbose definition of complex data relationships.
+
+When using the CDM Object Builder to manually construct an Eligible Collateral Schedule members need a quicker method for creating more complex Eligible Collateral Schedule information.
+
+The existing Eligible Collateral Schedule data type should not be changed as it has been tested and signed off by members as suitable for representing an unambiguous complete schedule.
 
 _What is being released?_
 
-In data type `ObservationDates`:
-
-- Attribute `observationSchedule` of data type `ObservationSchedule` updated to optional single cardinality to represent a single schedule.
-
-In data type `ObservationSchedule`:
-
-- Attribute `observationDate` of data type `ObservationDate` updated to multiple cardinality to represent a list of observation dates
-- Attribute `dateAdjustments` added to represent a business day convention at the level of the schedule
-
-In data type `ObservationDate`:
-
-- Data type contains attributes to represent an adjusted or unadjusted date, a weight for the observation and an observation reference.
-
-Related synonym mappings have been adjusted to deal with changes.
+Function `EligibleCollateralScheduleHelper` has been added to provide a quicker way to build an `EligibleCollateralSchedule` through the combination of common and variable schedule characteristics.  The function input `EligibleCollateralScheduleInstruction` contains common and variable `EligibleCollateralCriteria` which are merged by the function to form a complete `EligibleCollateralSchedule`.
 
 _Review Directions_
 
 In the CDM Portal, select the Textual Browser to inspect the types mentioned above and review the changes.
 
-# *Product Model - Condition fixes*
+In the CDM Portal, select the Downloads page, and download the ISDA CDM as a Java Examples project. Open the project and review the Java example `EligibleCollateralScheduleHelperTest`.
 
-_What is being released?_
-
-Data type `SettlementTerms`:
-
-- Condition `OptionSettlementChoice` has been updated to correctly represent relationship between settlementType and the need to represent physical or cash settlement terms
-
-Data type CorrelationReturnTerms:
-
-- Condition `CorrelationValue` has been updated to correctly represent the limit of the strike to be between the value 1 and -1
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser to inspect the types mentioned above and review the changes.
-
-# Product Model - FpML Mappings
-
-_Background_
-
-This release updates and extends the FpML mapping coverage for the product model.
-
-_What is being released?_
-
-* Mappings added to populate CDM attribute `SettlementBase -> settlementType` with code `Cash` or `Physical` when `nonDeliverableSettlement` or `physicalExercise` are present on the FpML input, respectively
-* Mappings added to populate CDM attribute `SettlementBase -> settlementCurrency` with FpML element `entitlementCurrency`
-* Mappings added to populate CDM attribute `productIdentifier` when the  instrument is a generic product
-* Mappings added to populate CDM attributes `primaryAssetClass` and `secondaryAssetClass` when the  instrument is a generic product
-* Mappings added to populate CDM attribute `TransferExpression -> priceTransfer` with code `Upfront` when payment type is `Additional Payment` and code `Novation` when the input is a novation
-* Mappings added to populate CDM attributes `effectiveDate` and `terminationDate` for generic products
-* Mappings added to populate CDM attribute `optionPayout` when the generic product is an option
-* Mappings added to populate CDM attribute `Product -> contractualProduct` for generic products
-* Mappings added to populate CDM attribute `AveragingCalculationMethod`
-* Mappings updated for CDM attribute `PayerReceiver`
-
-_Review directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-
-In the CDM Portal, select Ingestion and review the following samples: 
-
-* `fpml-5-10 > products > fx > fx-ex07-non-deliverable-forward`
-* `fpml-5-10 > products > fx > fx-ex28-non--deliverable-w-disruption`
-* `fpml-5-10 > products > rates > bond-option-uti`
-* `fpml-5-10 > products > rates > cb-option-usi`
-* `fpml-5-10 > incomplete-products > bond-options > bond-option`
-* `fpml-5-10 > incomplete-products > bond-options > cb-option`
-* `fpml-5-10 > incomplete-products > bond-options > cb-option-2`
-* `fpml-5-10 > incomplete-products > commodity-derivatives > com-ex22-physical-gas-option-multiple-expiration`
-* `fpml-5-10 > incomplete-products > commodity-derivatives > com-ex23-physical-power-option-daily-expiration-efet`
-* `fpml-5-10 > incomplete-products > commodity-derivatives > com-ex29-physical-eu-emissions-option`
-* `fpml-5-10 > incomplete-products > commodity-derivatives > com-ex31-physical-us-emissions-option`
-* `fpml-5-10 > incomplete-products > commodity-derivatives > com-ex47-physical-eu-emissions-option-pred-clearing`
-
-# *Product Model - Orphan Types clean-up*
-
-_Background_
-
-This release relocates and deletes some unused types in the model and adjusts the corresponding FpML synonym mappings.
-
-_What is being released?_
-
-- Attribute `personRole` of type NaturalPersonRole added to type `Party`
-- Attribute `assetPool` of type AssetPool added to type `Product`
-- Enumeration 'MortgageSectorEnum' was deleted
-- Attribute commodityInfoPublisher which uses the enumeration'commodityInfoPublisherEnum' added to type CommodityProductDefinition
-- Attribute `deliveryNearby` added to type `DeliveryDateParameters`
-
-Related synonym mappings were also adjusted to deal with changes.
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser to inspect the types mentioned above and review the changes.
+In the CDM Portal, select the Instance Viewer, review the visualisation examples in the Eligible Collateral folder.
