@@ -1,9 +1,6 @@
 package org.isda.cdm.functions;
 
-import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
-import cdm.base.datetime.AdjustableOrRelativeDate;
-import cdm.base.datetime.Period;
-import cdm.base.datetime.PeriodEnum;
+import cdm.base.datetime.*;
 import cdm.base.math.*;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.*;
@@ -32,6 +29,7 @@ import cdm.observable.asset.metafields.FieldWithMetaFloatingRateOption;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.ReferenceInformation;
+import cdm.product.collateral.*;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.common.settlement.ScheduledTransferEnum;
@@ -45,7 +43,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.collect.Lists;
-import com.google.inject.*;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
@@ -1895,6 +1895,72 @@ class FunctionInputCreationTest {
     private TradeState getRepoExecutionAfterTradeState() throws IOException {
         BusinessEvent executionBusinessEvent = ResourcesUtils.getObject(BusinessEvent.class, "cdm-sample-files/functions/repo-and-bond/repo-execution-func-output.json");
         return ResourcesUtils.resolveReferences(removeIsdaProductTaxonomy(executionBusinessEvent.getAfter().get(0)));
+    }
+
+    @Test
+    void validateEligibleCollateralScheduleHelper() throws IOException {
+        // Common criteria - GILTS
+        EligibleCollateralCriteria common = EligibleCollateralCriteria.builder()
+                .addAsset(AssetCriteria.builder()
+                        .addCollateralAssetType(AssetType.builder()
+                                .setAssetType(AssetTypeEnum.SECURITY)
+                                .setSecurityType(SecurityTypeEnum.DEBT)))
+                .addIssuer(IssuerCriteria.builder()
+                        .addIssuerType(CollateralIssuerType.builder()
+                                .setIssuerType(IssuerTypeEnum.SOVEREIGN_CENTRAL_BANK))
+                        .addIssuerCountryOfOrigin(FieldWithMetaString.builder()
+                                .setValue("GB")
+                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso3166"))))
+                .build();;
+
+        // Variable criteria - Valuation percentages for each maturity range
+        List<EligibleCollateralCriteria> variable = Arrays.asList(
+                getVariableCriteria(0.97, getMaturityRange(0, 1)),
+                getVariableCriteria(0.96, getMaturityRange(1, 5)),
+                getVariableCriteria(0.95, getMaturityRange(5, 10)),
+                getVariableCriteria(0.93, getMaturityRange(10, 30)),
+                getVariableCriteria(0.9, getMaturityRange(30)));
+
+        // Create instruction
+        EligibleCollateralScheduleInstruction instruction = EligibleCollateralScheduleInstruction.builder()
+                .setCommon(common)
+                .setVariable(variable)
+                .build();
+
+        assertJsonEquals("cdm-sample-files/functions/eligible-collateral/merge-criteria-func-input.json", instruction);
+    }
+
+    private static PeriodRange getMaturityRange(int lowerBound, int upperBound) {
+        return PeriodRange.builder()
+                .setLowerBound(getMaturityBound(lowerBound, true))
+                .setUpperBound(getMaturityBound(upperBound, false))
+                .build();
+    }
+
+    private static PeriodRange getMaturityRange(int lowerBound) {
+        return PeriodRange.builder()
+                .setLowerBound(getMaturityBound(lowerBound, true))
+                .build();
+    }
+
+    private static PeriodBound.PeriodBoundBuilder getMaturityBound(int years, boolean inclusive) {
+        return PeriodBound.builder()
+                .setInclusive(inclusive)
+                .setPeriod(Period.builder()
+                        .setPeriodMultiplier(years)
+                        .setPeriod(PeriodEnum.Y));
+    }
+
+    private static EligibleCollateralCriteria getVariableCriteria(double haircutPercentage, PeriodRange maturityRange) {
+        return EligibleCollateralCriteria.builder()
+                .setTreatment(CollateralTreatment.builder()
+                        .setIsIncluded(true)
+                        .setValuationTreatment(CollateralValuationTreatment.builder()
+                                .setHaircutPercentage(BigDecimal.valueOf(haircutPercentage))))
+                .addAsset(AssetCriteria.builder()
+                        .setMaturityType(MaturityTypeEnum.REMAINING_MATURITY)
+                        .setMaturityRange(maturityRange))
+                .build();
     }
 
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {

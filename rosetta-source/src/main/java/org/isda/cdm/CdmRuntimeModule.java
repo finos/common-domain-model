@@ -4,6 +4,8 @@ import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
 import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
+import cdm.product.collateral.functions.MergeEligibleCollateralCriteria;
+import cdm.product.collateral.functions.MergeEligibleCollateralCriteriaImpl;
 import cdm.product.common.schedule.functions.*;
 import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantity;
 import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantityImpl;
@@ -16,8 +18,8 @@ import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandlerProvider;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ValidatorFactory;
-import org.isda.cdm.qualify.CdmQualificationHandlerProvider;
 import org.isda.cdm.processor.CdmReferenceConfig;
+import org.isda.cdm.qualify.CdmQualificationHandlerProvider;
 
 public class CdmRuntimeModule extends AbstractModule {
 
@@ -49,6 +51,9 @@ public class CdmRuntimeModule extends AbstractModule {
 		// Require DSL changes to prevent overwriting of reference metadata  (not supported in DSL)
 		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
 		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
+
+		// Requires object merging (not supported in the DSL)
+		bind(MergeEligibleCollateralCriteria.class).to(bindMergeEligibleCollateralCriteria());
 
 		// Date functions (not supported in DSL)
 		bind(Now.class).to(bindNow());
@@ -160,5 +165,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends UpdateAmountForEachMatchingQuantity> bindUpdateAmountForEachMatchingQuantity() {
 		return UpdateAmountForEachMatchingQuantityImpl.class;
+	}
+
+	protected Class<? extends MergeEligibleCollateralCriteria> bindMergeEligibleCollateralCriteria() {
+		return MergeEligibleCollateralCriteriaImpl.class;
 	}
 }
