@@ -66,7 +66,7 @@ public class GenerateTemplateExampleJsonWriter {
 			new PathCollector<>(),
 			validator);
 
-		IngestionReport<TradeState> ingest = IngestionFactory.getInstance().getFpml510()
+		IngestionReport<TradeState> ingest = IngestionFactory.getInstance().getFpml5ConfirmationToTradeState()
 			.ingestValidateAndPostProcess(TradeState.class, UrlUtils.openURL(Resources.getResource(SAMPLE_PATH)));
 		generateTemplateExamples(ingest.getRosettaModelInstance(), outputPath);
 	}

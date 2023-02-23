@@ -146,7 +146,7 @@ class Fpml510ProjectionMapperTest {
 	static void globalSetUp() {
 		injector = Guice.createInjector(new CdmRuntimeModule());
 		initialiseIngestionFactory();
-		ingestionService = IngestionFactory.getInstance(INSTANCE_NAME).getFpml510();
+		ingestionService = IngestionFactory.getInstance(INSTANCE_NAME).getFpml5ConfirmationToTradeState();
 	}
 
 	@BeforeEach

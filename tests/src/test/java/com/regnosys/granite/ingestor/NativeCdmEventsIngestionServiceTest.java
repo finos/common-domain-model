@@ -28,7 +28,7 @@ public class NativeCdmEventsIngestionServiceTest extends IngestionTest<WorkflowS
 	static void setup() {
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		ingestionService = IngestionFactory.getInstance().getFpml510Processes();
+		ingestionService = IngestionFactory.getInstance().getFpml5ConfirmationToWorkflowStep();
 	}
 
 	@Override
