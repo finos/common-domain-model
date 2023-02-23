@@ -45,8 +45,8 @@ class SchemeImporterTest {
     @Disabled
     @Test
     void updateSynonyms() {
-//	Map<String, List<RosettaEnumeration>> enums = modelLoader.rosettaElements(RosettaEnumeration.class)
-//		.stream().collect(Collectors.groupingBy(RosettaNamed::getName));
+//		Map<String, List<RosettaEnumeration>> enums = modelLoader.rosettaElements(RosettaEnumeration.class)
+//			.stream().collect(Collectors.groupingBy(RosettaNamed::getName));
 
         Map<String, List<RosettaEnumeration>> enums = null;
 
