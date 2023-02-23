@@ -103,11 +103,9 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 
 		ev.setDefinition(r.getValue().get(descriptionIndex)
 			.getSimpleValue().getValue()
-				.replace("\n", " ")
-				.replace("\t", "")
-				.replace("\"", "'")
-				.replace("“", "'")
-				.replace("”", "'"));
+			.replace("\"", "'")
+			.replace("“", "'")
+			.replace("”", "'"));
 		return ev;
 	}
 
