@@ -1,35 +1,13 @@
-# *CDM Distribution - Licence Terms - Minor typo corrections*
-
-_Background_
-
-The URL pointing to the CDM Portal link is broken in the Licence Terms and 4.0.0-DEV.0 appears as 4.0.0-DEV
+# Product Model - BusinessCenterEnum splitting and linking
 
 _What is being released?_
 
-The URL pointing to the CDM portal has been adjusted on the Licence Term. The reference to the Licence Terms has also been updated to 4.0.0-DEV.0
+CDM enum `BusinessCenterEnum` has been splitted into two different enums: `BusinessCenterEnum` and `CommodityBusinessCalendarEnum`. Each new enum has been labeled with its corresponding FpML Coding scheme, those being `BusinessCenterScheme` and `CommodityBusinessCalendarScheme`, respectively
 
-_Review Directions_
+`commodityBusinessCalendar` of type `CommodityBusinessCalendarEnum` has been added to CDM type `BusinessCenters` so that commodity products are being supported in regards of the splitting described above. Also added that element to the required choice defined inside the type
 
-- In the CDM Portal, download a CDM distribution and inspect that the link to the CDM portal in Licence document point to the main CDM portal page.
-- In the CDM Portal, open the Licence Terms licence and inspect that is shown correctly as 4.0.0-DEV.0.
+Synonyms have been modified so that they support the mapping of FpML element `businessCalendar` into this new arrangement
 
-# *Mappings and model change - isApplicable attribute for AutomaticExercise*
+_Review directions_
 
-_Background_
-
-This release adds an element isApplicable inside AutomaticExercise, previously approved by the ARC.
-
-_What is being released?_
-
-In data type `AutomaticExercise`:
-
-- Attribute `isApplicable` of data type `AutomaticExercise` added in the CDM Model.
-- Mappings around `AutomaticExercise` were updated.
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser to inspect the types mentioned above and review the changes.
-In the CDM Portal, select Ingestion and review the following samples in the test pack: 
-
-* `fpml-5-10 > incomplete-products > equity-options` 
-* `fpml-5-10 > incomplete-products > commodity-derivatives` 
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
