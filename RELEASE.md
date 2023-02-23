@@ -1,4 +1,8 @@
-# Product Model - Credit Product Synonyms
+# Product Model - FpML synonym mappings for credit products
+
+_Background_
+
+This release updates and extends the FpML mapping coverage for the product model.
 
 _What is being released?_
 
