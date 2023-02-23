@@ -1,3 +1,6 @@
+## Versions before 4.0.0
+
+Previous versions are licensed under the ISDA CDM™ License and are available [here](https://github.com/REGnosys/rosetta-cdm/tree/3.0.0/cdm-distribution/src/main/resources/distribution). The pre transfer link for the ISDA CDM versions is available at [https://portal.cdm.rosetta-technology.io/#/](https://portal.cdm.rosetta-technology.io/#/).
 
 ## License Acceptance
 
