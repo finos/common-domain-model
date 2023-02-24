@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
-import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.isda.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,6 +12,8 @@ import org.junit.jupiter.params.provider.Arguments;
 
 import java.net.URL;
 import java.util.stream.Stream;
+
+import static org.isda.cdm.util.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
 
 public class Fpml512ProductIngestionServiceTest extends IngestionTest<TradeState> {
 
@@ -38,7 +39,7 @@ public class Fpml512ProductIngestionServiceTest extends IngestionTest<TradeState
 	static void setup() {
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		ingestionService = IngestionFactory.getInstance().getFpml5ConfirmationToTradeState();
+		ingestionService = getFpml5ConfirmationToTradeState();
 	}
 	
 	@Override
