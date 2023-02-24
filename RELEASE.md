@@ -2,11 +2,11 @@
 
 _Background_
 
-This release will simplify and rationalise the FpML synonym hierarchy and versions. This will make it easier for mappers to work on synonyms to map FpML documents into CDM objects.
+This release will simplify and rationalise the FpML synonym hierarchy and versions. This will make it easier for contributors working on synonyms to map FpML documents into CDM objects.
 
 _What is being released?_
 
-The following two mapping files are being renamed:
+The following two mapping files are being renamed, with their paths remaining unchanged :
 
 - `mapping-fpml-synonym.rosetta` to `mapping-fpml-confirmation-tradestate-synonym.rosetta`
 - `mapping-fpml-process-synonym.rosetta` to `mapping-fpml-confirmation-workflowstep-synonym.rosetta`
