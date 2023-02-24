@@ -40,7 +40,7 @@ class IsdaCreateIsdaCsdIm2016EngLawProjectionMapperTest {
 	@BeforeAll
 	static void globalSetUp() {
 		initialiseIngestionFactory();
-		ingestionServiceEnglishLaw = IngestionFactory.getInstance(INSTANCE_NAME).getIsdaCreateAll();
+		ingestionServiceEnglishLaw = IngestionFactory.getInstance(INSTANCE_NAME).getService("isdaCreateAll");
 	}
 
 	@BeforeEach
