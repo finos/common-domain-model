@@ -1,35 +1,25 @@
-# *CDM Distribution - Licence Terms - Minor typo corrections*
+# *Mappings and model change - Simplify FpML Synonym Hierarchy*
 
 _Background_
 
-The URL pointing to the CDM Portal link is broken in the Licence Terms and 4.0.0-DEV.0 appears as 4.0.0-DEV
+This release will simplify and rationalise the FpML synonym hierarchy and versions. This will make it easier for mappers to work on synonyms to map FpML documents into CDM objects.
 
 _What is being released?_
 
-The URL pointing to the CDM portal has been adjusted on the Licence Term. The reference to the Licence Terms has also been updated to 4.0.0-DEV.0
+The following two mapping files are being renamed:
+
+- `mapping-fpml-synonym.rosetta` to `mapping-fpml-confirmation-tradestate-synonym.rosetta`
+- `mapping-fpml-process-synonym.rosetta` to `mapping-fpml-confirmation-workflowstep-synonym.rosetta`
+
+The following synonym groups within these files are being renamed:
+
+- `FpML_5_10_Processes` to `FpML_5_Confirmation_To_WorkflowStep`
+- `FpML_5_10` to `FpML_5_Confirmation_To_TradeState`
+
+
+All synonym groups related to specific versions such as `5.10`, `5.12` and `5.13` have been removed. The above groupings will now contain synonyms for all FpML 5 versions.
 
 _Review Directions_
 
-- In the CDM Portal, download a CDM distribution and inspect that the link to the CDM portal in Licence document point to the main CDM portal page.
-- In the CDM Portal, open the Licence Terms licence and inspect that is shown correctly as 4.0.0-DEV.0.
+In the CDM Portal, select the Textual Browser to inspect the synonym source groups mentioned above.
 
-# *Mappings and model change - isApplicable attribute for AutomaticExercise*
-
-_Background_
-
-This release adds an element isApplicable inside AutomaticExercise, previously approved by the ARC.
-
-_What is being released?_
-
-In data type `AutomaticExercise`:
-
-- Attribute `isApplicable` of data type `AutomaticExercise` added in the CDM Model.
-- Mappings around `AutomaticExercise` were updated.
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser to inspect the types mentioned above and review the changes.
-In the CDM Portal, select Ingestion and review the following samples in the test pack: 
-
-* `fpml-5-10 > incomplete-products > equity-options` 
-* `fpml-5-10 > incomplete-products > commodity-derivatives` 
