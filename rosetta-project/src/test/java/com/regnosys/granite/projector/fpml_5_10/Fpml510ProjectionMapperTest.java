@@ -40,7 +40,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.regnosys.granite.projector.fpml_5_10.ProjectionMappingReport.ProjectionMappingReportBuilder;
-import static com.regnosys.granite.projector.util.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class Fpml510ProjectionMapperTest {
@@ -147,7 +146,9 @@ class Fpml510ProjectionMapperTest {
 	static void globalSetUp() {
 		injector = Guice.createInjector(new CdmRuntimeModule());
 		initialiseIngestionFactory();
-		ingestionService = getFpml5ConfirmationToTradeState();
+		ingestionService = IngestionFactory
+				.getInstance(INSTANCE_NAME)
+				.getService("FpML_5_Confirmation_To_TradeState");
 	}
 
 	@BeforeEach
