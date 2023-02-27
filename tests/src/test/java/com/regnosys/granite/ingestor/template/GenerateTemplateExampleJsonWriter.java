@@ -34,6 +34,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
+import static org.isda.cdm.util.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
+
 /**
  * Generates sample json for com.regnosys.cdm.example.template.TemplateExample.
  */
@@ -66,7 +68,7 @@ public class GenerateTemplateExampleJsonWriter {
 			new PathCollector<>(),
 			validator);
 
-		IngestionReport<TradeState> ingest = IngestionFactory.getInstance().getFpml510()
+		IngestionReport<TradeState> ingest = getFpml5ConfirmationToTradeState()
 			.ingestValidateAndPostProcess(TradeState.class, UrlUtils.openURL(Resources.getResource(SAMPLE_PATH)));
 		generateTemplateExamples(ingest.getRosettaModelInstance(), outputPath);
 	}
