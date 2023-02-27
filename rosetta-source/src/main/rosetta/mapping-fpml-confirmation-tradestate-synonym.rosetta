@@ -1,4 +1,4 @@
-namespace cdm.mapping.fpml
+namespace cdm.mapping.fpml.confirmation.tradestate
 version "${project.version}"
 
 import cdm.base.math.*
@@ -32,7 +32,7 @@ import cdm.product.collateral.*
 
 synonym source FpML
 
-synonym source FpML_5_10 extends FpML
+synonym source FpML_5_Confirmation_To_TradeState extends FpML
 {
 	PerformancePayout:
 	    [meta "id"]
@@ -467,6 +467,10 @@ synonym source FpML_5_10 extends FpML
 			[value "capRateSchedule"]
 		+ floorRateSchedule
 			[value "floorRateSchedule"]
+	 	+ calculationParameters
+			[value "calculationParameters"]
+		+ fallbackRate
+			[value "fallbackRate"]
 
 	FloatingRateSpecification:
 		+ finalRateRounding
@@ -961,6 +965,7 @@ synonym source FpML_5_10 extends FpML
 			[value "cashSettlementReferenceBanks"]
 		+ dealerOrCCP
 			[hint "dealer"]
+			[value "mutuallyAgreedClearinghouse"]
 
 	SettlementRateOption:
 		+ settlementRateOption
@@ -3215,6 +3220,8 @@ synonym source FpML_5_10 extends FpML
 			[value "entityName" path "referenceEntity" meta "entityNameScheme"]
 			[value "initialDesignation"]
 			[value "dealer"]
+        + name
+            [value "identifier"]
 
 	NaturalPerson:
 	 	[value "Person" meta "id"]
@@ -3438,6 +3445,11 @@ synonym source FpML_5_10 extends FpML
 			[value "fixing"]
 			[value "rateSourceFixing"]
 			[hint "settlementRateOption"]
+            [value "indicativeQuotations"]
+            // The following are un-tested:
+            // [value "indicativeQuotationsAlternate"]
+            // [value "calculationAgentDetermination"]
+            [value "firmQuotations"]
 		+ quotationMethod
 			[value "quotationMethod"]
 			[value "quotationRateType"]
@@ -3445,6 +3457,12 @@ synonym source FpML_5_10 extends FpML
 			[value "quotationAmount"]
 		+ minimumQuotationAmount
 			[value "minimumQuotationAmount"]
+		+ cashCollateralValuationMethod
+			[value "indicativeQuotations"]
+			// The following are un-tested:
+			// [value "indicativeQuotationsAlternate"]
+			// [value "calculationAgentDetermination"]
+			[value "firmQuotations"]
 
 	DeliverableObligations:
 		+ accruedInterest
@@ -3801,6 +3819,66 @@ synonym source FpML_5_10 extends FpML
 			[set to False when "averagingMethod" = "Harmonic"]
 			[set to True when "calculation->averagingMethod" = "Weighted"]
 			[set to True when "averagingMethod" = "Weighted"]
+
+	FloatingRateCalculationParameters:
+		+ calculationMethod
+			[value "calculationMethod"]
+		+ applicableBusinessDays
+			[value "applicableBusinessDays"]
+		+ observationShiftCalculation
+			[value "observationShift"]
+		+ lookbackCalculation
+			[value "lookback" ]
+		+ lockoutCalculation
+			[value "lockout"]
+
+	FallbackRateParameters:
+		+ floatingRateIndex
+			[value "floatingRateIndex"]
+		+ effectiveDate
+			[value "effectiveDate"]
+		+ calculationParameters
+			[value "calculationParameters"]
+		+ spreadAdjustment
+			[value "spreadAdjustment"]
+
+	OffsetCalculation:
+		+ offsetDays
+			[value "offsetDays"]
+
+	ObservationShiftCalculation:
+		+ offsetDays
+			[value "offsetDays"]
+		+ calculationBase
+			[value "observationPeriodDates"]
+		+ additionalBusinessDays
+			[value "additionalBusinessDays"]
+
+	ObservationParameters:
+		+ observationCapRate
+			[ value "observationCapRate"]
+		+ observationFloorRate
+			[value "observationFloorRate"]
+
+	AncillaryEntity:
+		+ ancillaryParty
+			[value "partyReference"]
+		+ legalEntity
+			[hint "identifier"]
+
+	CashCollateralValuationMethod:
+		+ applicableCsa
+			[value "applicableCsa"]
+		+ cashCollateralCurrency
+			[value "cashCollateralCurrency"]
+		+ cashCollateralInterestRate
+			[value "cashCollateralInterestRate"]
+		+ agreedDiscountRate
+			[value "agreedDiscountRate" meta "benchmarkRateScheme"]
+		+ protectedParty
+		 	[value "partyDetermination" path "protectedParty"]
+		+ prescribedDocumentationAdjustment
+			[value "prescribedDocumentationAdjustment"]
 
 	enums
 
@@ -6882,6 +6960,8 @@ synonym source FpML_5_10 extends FpML
 			[value "NegativeInterestRateMethod"]
 		+ ZeroInterestRateMethod
 			[value "ZeroInterestRateMethod"]
+        + ZeroInterestRateExcludingSpreadMethod
+            [value "ZeroInterestRateMethodExcludingSpread"]
 
 	NonCashDividendTreatmentEnum:
 		+ PotentialAdjustmentEvent
@@ -7978,99 +8058,6 @@ synonym source FpML_5_10 extends FpML
 			[value "http://www.fpml.org/coding-scheme/external/iso9362"]
 		+ MIC
 			[value "http://www.fpml.org/coding-scheme/external/iso10383"]
-}
-
-synonym source FpML_5_12 extends FpML_5_10
-{
-	FloatingRate:
-	 	+ calculationParameters
-			[value "calculationParameters"]
-		+ fallbackRate
-			[value "fallbackRate"]
-
-	FloatingRateCalculationParameters:
-		+ calculationMethod
-			[value "calculationMethod"]
-		+ applicableBusinessDays
-			[value "applicableBusinessDays"]
-		+ observationShiftCalculation
-			[value "observationShift"]
-		+ lookbackCalculation
-			[value "lookback" ]
-		+ lockoutCalculation
-			[value "lockout"]
-
-	FallbackRateParameters:
-		+ floatingRateIndex
-			[value "floatingRateIndex"]
-		+ effectiveDate
-			[value "effectiveDate"]
-		+ calculationParameters
-			[value "calculationParameters"]
-		+ spreadAdjustment
-			[value "spreadAdjustment"]
-
-	OffsetCalculation:
-		+ offsetDays
-			[value "offsetDays"]
-
-	ObservationShiftCalculation:
-		+ offsetDays
-			[value "offsetDays"]
-		+ calculationBase
-			[value "observationPeriodDates"]
-		+ additionalBusinessDays
-			[value "additionalBusinessDays"]
-
-	ObservationParameters:
-		+ observationCapRate
-			[ value "observationCapRate"]
-		+ observationFloorRate
-			[value "observationFloorRate"]
-
-	AncillaryEntity:
-		+ ancillaryParty
-			[value "partyReference"]
-		+ legalEntity
-			[hint "identifier"]
-
-	CashCollateralValuationMethod:
-		+ applicableCsa
-			[value "applicableCsa"]
-		+ cashCollateralCurrency
-			[value "cashCollateralCurrency"]
-		+ cashCollateralInterestRate
-			[value "cashCollateralInterestRate"]
-		+ agreedDiscountRate
-			[value "agreedDiscountRate" meta "benchmarkRateScheme"]
-		+ protectedParty
-		 	[value "partyDetermination" path "protectedParty"]
-		+ prescribedDocumentationAdjustment
-			[value "prescribedDocumentationAdjustment"]
-
-	LegalEntity:
-		+ name
-			[value "identifier"]
-
-	ValuationSource:
-		+ dealerOrCCP
-			[value "mutuallyAgreedClearinghouse"]
-
-	ValuationMethod:
-		+ valuationSource
-			[value "indicativeQuotations"]
-			// The following are un-tested:
-			// [value "indicativeQuotationsAlternate"]
-			// [value "calculationAgentDetermination"]
-			[value "firmQuotations"]
-		+ cashCollateralValuationMethod
-			[value "indicativeQuotations"]
-			// The following are un-tested:
-			// [value "indicativeQuotationsAlternate"]
-			// [value "calculationAgentDetermination"]
-			[value "firmQuotations"]
-
-	enums
 
 	CsaTypeEnum:
 		+ NoCSA
@@ -8088,19 +8075,11 @@ synonym source FpML_5_12 extends FpML_5_10
  		+ CompoundedIndex
 			[value "CompoundedIndex"]
 
- 	NegativeInterestRateTreatmentEnum:
- 		+ ZeroInterestRateExcludingSpreadMethod
-			[value "ZeroInterestRateMethodExcludingSpread"]
-
-	ObservationPeriodDatesEnum: 
+	ObservationPeriodDatesEnum:
 		+ Standard
 			[ value "Standard"]
 		+ SetInAdvance
 			[ value "SetInAdvance"]
 		+ FixingDate
 			[ value "FixingDate" ]
-}
-
-synonym source FpML_5_13 extends FpML_5_12 {
-
 }

@@ -1,32 +1,25 @@
-# Product Model - FpML synonym mappings for credit products
+# *Mappings and model change - Simplify FpML Synonym Hierarchy*
 
 _Background_
 
-This release updates and extends the FpML mapping coverage for the product model.
+This release will simplify and rationalise the FpML synonym hierarchy and versions. This will make it easier for contributors working on synonyms to map FpML documents into CDM objects.
 
 _What is being released?_
 
-- Mappings added to populate CDM attribute `CreditDefaultPayout -> generalTerms -> basketReferenceInformation -> basketName` with FpML path `underlyer -> basket -> basketName` for Credit products
+The following two mapping files are being renamed, with their paths remaining unchanged :
 
-- Mappings added to populate CDM attribute `CreditDefaultPayout -> generalTerms -> basketReferenceInformation -> basketId` with FpML paths `underlyer -> basket -> basketId` or `underlyer -> basket -> id` for Credit products
+- `mapping-fpml-synonym.rosetta` to `mapping-fpml-confirmation-tradestate-synonym.rosetta`
+- `mapping-fpml-process-synonym.rosetta` to `mapping-fpml-confirmation-workflowstep-synonym.rosetta`
 
-- Mappings added to populate CDM attribute `CreditDefaultPayout -> generalTerms -> basketReferenceInformation -> referencePool -> referencePoolItem -> referencePair` with FpML path `underlyer -> referenceEntity` for Credit products
+The following synonym groups within these files are being renamed:
+
+- `FpML_5_10_Processes` to `FpML_5_Confirmation_To_WorkflowStep`
+- `FpML_5_10` to `FpML_5_Confirmation_To_TradeState`
 
 
-# Product Model - Business centers - Enhancement for business day calendar location
+All synonym groups related to specific versions such as `5.10`, `5.12` and `5.13` have been removed. The above groupings will now contain synonyms for all FpML 5 versions.
 
-_Background_
+_Review Directions_
 
-The  definition of the enumerated list BusinessCenterEnum was previously conflating 2 separate concepts: the business centre calendar defined per geo-location and the business centre calendar defined by reference to a commodity exchange or as  specified in the ISDA definitions.
+In the CDM Portal, select the Textual Browser to inspect the synonym source groups mentioned above.
 
-_What is being released?_
-
-- CDM enum `BusinessCenterEnum` has been split into two different enums: `BusinessCenterEnum` and `CommodityBusinessCalendarEnum`. Each new enum has been labeled with its corresponding FpML Coding scheme, those being `BusinessCenterScheme` and `CommodityBusinessCalendarScheme`, respectively.
-
-- `commodityBusinessCalendar` of type `CommodityBusinessCalendarEnum` has been added to CDM type `BusinessCenters` so that commodity products are being supported in regards of the splitting described above. Also added that element to the required choice defined inside the type
-
-- FpML synonyms have been adjusted to reference the FpML element `businessCalendar`.
-
-_Review directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
