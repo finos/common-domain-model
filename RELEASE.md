@@ -1,4 +1,4 @@
-# *Event Model – Workflow Model - Representation of approvals for a Workflowstep*
+# *Workflow Model - Representation of approvals for a Workflowstep*
 
 _Background_
 
