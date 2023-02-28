@@ -1,25 +1,31 @@
-# *Mappings and model change - Simplify FpML Synonym Hierarchy*
+# *Workflow Model - Representation of approvals for a Workflowstep*
 
 _Background_
 
-This release will simplify and rationalise the FpML synonym hierarchy and versions. This will make it easier for contributors working on synonyms to map FpML documents into CDM objects.
+As part of the work done by the ISLA Trading Working Group some enhancements have been made to the WorkflowStep event model and associated functions.
 
 _What is being released?_
 
-The following two mapping files are being renamed, with their paths remaining unchanged :
+This release adds a new type of WorkflowStepApproval that can be used to track whether parties included on the workflow have approved a proposedEvent or not. A new approval object of type WorkflowStepApproval has been added to the existing WorkflowStep type.
 
-- `mapping-fpml-synonym.rosetta` to `mapping-fpml-confirmation-tradestate-synonym.rosetta`
-- `mapping-fpml-process-synonym.rosetta` to `mapping-fpml-confirmation-workflowstep-synonym.rosetta`
+The function Create_ProposedWorkflowStep has had approval added as an input. This is the only function updated as it is the only one that deals with proposed events rather than business events.
 
-The following synonym groups within these files are being renamed:
+A correction has also been made to the setting of the previousWorkflowStep in the Create_AcceptedWorkflowStepFromInstruction function.
 
-- `FpML_5_10_Processes` to `FpML_5_Confirmation_To_WorkflowStep`
-- `FpML_5_10` to `FpML_5_Confirmation_To_TradeState`
+Data Types
 
+- Added WorkflowStepApproval type:
+- Includes approved, party, rejectedReason and timestamp
+- Modified WorkflowStep type:
+- Added approval attribute of type WorkflowStepApproval
 
-All synonym groups related to specific versions such as `5.10`, `5.12` and `5.13` have been removed. The above groupings will now contain synonyms for all FpML 5 versions.
+Functions
+
+- Modified Create_AcceptedWorkflowStepFromInstruction function:
+- Modified previousWorkflowStep to be set to proposedWorkflowStep and not proposedWorkflowStep -> previousWorkflowStep
+- Modified Create_ProposedWorkflowStep function:
+- Added approval as an input to the function which, if present, will be added into the new WorkflowStep generated as the result of the function
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser to inspect the synonym source groups mentioned above.
-
+In the CDM Portal, select the Textual Browser and inspect the types and functions.

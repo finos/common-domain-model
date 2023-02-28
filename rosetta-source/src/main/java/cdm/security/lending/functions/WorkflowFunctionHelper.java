@@ -72,7 +72,8 @@ public class WorkflowFunctionHelper {
                 Collections.emptyList(),
                 previousWorkflowStep,
                 ActionEnum.NEW,
-                instruction);
+                instruction,
+                Collections.emptyList());
         return postProcess(WorkflowStep.class, workflowStep);
 
     }
