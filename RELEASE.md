@@ -1,21 +1,25 @@
-# *Legal Documentation & Collateral – Eligible Collateral Schedule Builder Function*
+# *Mappings and model change - Simplify FpML Synonym Hierarchy*
 
 _Background_
 
-The current CDM model provides the unambiguous data representation of an Eligible Collateral Schedule, which necessarily requires a relatively verbose definition of complex data relationships.
-
-When using the CDM Object Builder to manually construct an Eligible Collateral Schedule members need a quicker method for creating more complex Eligible Collateral Schedule information.
-
-The existing Eligible Collateral Schedule data type should not be changed as it has been tested and signed off by members as suitable for representing an unambiguous complete schedule.
+This release will simplify and rationalise the FpML synonym hierarchy and versions. This will make it easier for contributors working on synonyms to map FpML documents into CDM objects.
 
 _What is being released?_
 
-Function `EligibleCollateralScheduleHelper` has been added to provide a quicker way to build an `EligibleCollateralSchedule` through the combination of common and variable schedule characteristics.  The function input `EligibleCollateralScheduleInstruction` contains common and variable `EligibleCollateralCriteria` which are merged by the function to form a complete `EligibleCollateralSchedule`.
+The following two mapping files are being renamed, with their paths remaining unchanged :
+
+- `mapping-fpml-synonym.rosetta` to `mapping-fpml-confirmation-tradestate-synonym.rosetta`
+- `mapping-fpml-process-synonym.rosetta` to `mapping-fpml-confirmation-workflowstep-synonym.rosetta`
+
+The following synonym groups within these files are being renamed:
+
+- `FpML_5_10_Processes` to `FpML_5_Confirmation_To_WorkflowStep`
+- `FpML_5_10` to `FpML_5_Confirmation_To_TradeState`
+
+
+All synonym groups related to specific versions such as `5.10`, `5.12` and `5.13` have been removed. The above groupings will now contain synonyms for all FpML 5 versions.
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser to inspect the types mentioned above and review the changes.
+In the CDM Portal, select the Textual Browser to inspect the synonym source groups mentioned above.
 
-In the CDM Portal, select the Downloads page, and download the ISDA CDM as a Java Examples project. Open the project and review the Java example `EligibleCollateralScheduleHelperTest`.
-
-In the CDM Portal, select the Instance Viewer, review the visualisation examples in the Eligible Collateral folder.
