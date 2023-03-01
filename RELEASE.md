@@ -1,17 +1,15 @@
-# Product Model - FpML synonym mappings for credit products
+# Product Model - FpML synonym mappings for party information
 
 _Background_
 
-This release updates and extends the FpML mapping coverage for the product model.
+This release updates and extends the FpML mapping coverage for party representation.
 
 _What is being released?_
 
-- Mappings added to populate CDM attribute `CreditDefaultPayout -> generalTerms -> basketReferenceInformation -> basketName` with FpML path `underlyer -> basket -> basketName` for Credit products
+* Mappings added to populate CDM attribute `AssignedIdentifier -> identifier` with FpML elements `messageId`, `collateralPortfolio` and `eventId`; the latter being referenced with FpML `eventIdScheme`
 
-- Mappings added to populate CDM attribute `CreditDefaultPayout -> generalTerms -> basketReferenceInformation -> basketId` with FpML paths `underlyer -> basket -> basketId` or `underlyer -> basket -> id` for Credit products
-
-- Mappings added to populate CDM attribute `CreditDefaultPayout -> generalTerms -> basketReferenceInformation -> referencePool -> referencePoolItem -> referencePair` with FpML path `underlyer -> referenceEntity` for Credit products
+* Mappings added to populate CDM attributes `NaturalPerson -> firstName` and `NaturalPerson -> lastName` with FpML element `personId`, when that element is formatted as two strings (first and last name) separated by a dot
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+* In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
