@@ -33,9 +33,9 @@ public class AnnotatedRosettaEnumReader {
 	}
 
 	private boolean refIsAnnotatedWithBodyAndReference(RosettaDocReference documentReference, String body, String corpus) {
-		return documentReference.getBody() != null
-			&& body.equals(documentReference.getBody().getName())
-			&& documentReference.getCorpuses().stream()
+		return documentReference.getDocReference().getBody() != null
+			&& body.equals(documentReference.getDocReference().getBody().getName())
+			&& documentReference.getDocReference().getCorpuses().stream()
 			.filter(Objects::nonNull)
 			.anyMatch(x -> corpus.equals(x.getName()));
 	}
@@ -44,7 +44,7 @@ public class AnnotatedRosettaEnumReader {
 	 	return rosettaEnumeration
 			.getReferences()
 			.stream()
-			.flatMap(ref -> ref.getSegments().stream())
+			.flatMap(ref -> ref.getDocReference().getSegments().stream())
 			.filter(s -> s.getSegment().getName().equals("schemeLocation"))
 			.map(RosettaSegmentRef::getSegmentRef)
 			.findAny();

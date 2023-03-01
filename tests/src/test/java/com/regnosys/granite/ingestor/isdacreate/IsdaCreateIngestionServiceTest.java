@@ -58,7 +58,7 @@ public class IsdaCreateIngestionServiceTest extends IngestionTest<LegalAgreement
 	static void setup() {
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		ingestionService = IngestionFactory.getInstance().getIsdaCreateAll();
+		ingestionService = IngestionFactory.getInstance().getService("isdaCreateAll");
 	}
 
 	@Override
