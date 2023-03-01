@@ -2,13 +2,13 @@
 
 _Background_
 
-This release updates and extends the FpML mapping coverage for the party representation.
+This release updates and extends the FpML mapping coverage for party representation.
 
 _What is being released?_
 
-* Mappings added to populate CDM attribute `AssignedIdentifier -> identifier` with FpML elements `messageId`, `collateralPortfolio` and `eventId`, the last one being referenced with FpML `eventIdScheme`
+* Mappings added to populate CDM attribute `AssignedIdentifier -> identifier` with FpML elements `messageId`, `collateralPortfolio` and `eventId`; the latter being referenced with FpML `eventIdScheme`
 
-* Mappings added to populate CDM attributes `NaturalPerson -> firstName` and `NaturalPerson -> lastName` with FpML element `personId`, being it two strings (first and last name) separated by a point
+* Mappings added to populate CDM attributes `NaturalPerson -> firstName` and `NaturalPerson -> lastName` with FpML element `personId`, when that element is formatted as two strings (first and last name) separated by a dot
 
 _Review directions_
 
