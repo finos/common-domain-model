@@ -28,7 +28,7 @@ public class Fpml510IncompleteProcessesIngestionServiceTest extends IngestionTes
 	static void setup() {
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		ingestionService = IngestionFactory.getInstance().getFpml510Processes();
+		ingestionService = IngestionFactory.getInstance().getService("FpML_5_10_Processes");
 	}
 	
 	@Override

@@ -33,7 +33,7 @@ class InvalidProductTest extends IngestionTest<TradeState> {
 	static void setup() {
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		ingestionService = IngestionFactory.getInstance().getFpml510();
+		ingestionService = IngestionFactory.getInstance().getService("FpML_5_10");
 	}
 
 	@Override
