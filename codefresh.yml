@@ -151,7 +151,7 @@ steps:
         shell: bash
         commands:
           - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/kotlin
-          - mvn -s /settings.xml -f kotlin-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-parent
+          - mvn -s /settings.xml -f kotlin-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
           - mvn -s /settings.xml -f kotlin-pom.xml clean deploy
 
   BuildJavaDocs:
@@ -179,7 +179,7 @@ steps:
           isNotRelease: "${{TAG_REPO}} == false"
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-parent
+      - mvn -s /settings.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
       - cd cdm-distribution
       - mvn -U -s /settings.xml clean deploy -P distribute
 
@@ -195,7 +195,7 @@ steps:
           isRelease: "${{TAG_REPO}}"
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-parent
+      - mvn -s /settings.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
       - cd cdm-distribution
       - mvn -U -s /settings.xml clean deploy -P distribute,distribute-full
 
@@ -207,7 +207,7 @@ steps:
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f daml-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-parent
+      - mvn -s /settings.xml -f daml-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
       - mvn -U -s /settings.xml -f daml-pom.xml clean deploy
 
   DistributeScala:
@@ -218,7 +218,7 @@ steps:
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f scala-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-parent
+      - mvn -s /settings.xml -f scala-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
       - mvn -U -s /settings.xml -f scala-pom.xml clean deploy
 
   DistributeCSharp8:
@@ -229,7 +229,7 @@ steps:
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f csharp8-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-parent
+      - mvn -s /settings.xml -f csharp8-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
       - mvn -U -s /settings.xml -f csharp8-pom.xml clean deploy
 
   DistributeCSharp9:
@@ -240,7 +240,7 @@ steps:
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f csharp9-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-parent
+      - mvn -s /settings.xml -f csharp9-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
       - mvn -U -s /settings.xml -f csharp9-pom.xml clean deploy
 
   DistributeTypeScript:
@@ -251,7 +251,7 @@ steps:
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f typescript-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-parent
+      - mvn -s /settings.xml -f typescript-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
       - mvn -U -s /settings.xml -f typescript-pom.xml clean deploy
 
   DistributeGo:
@@ -262,7 +262,7 @@ steps:
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f golang-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-parent
+      - mvn -s /settings.xml -f golang-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
       - mvn -U -s /settings.xml -f golang-pom.xml clean deploy
 
   DistributeKotlin:
@@ -273,7 +273,7 @@ steps:
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f kotlin-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-parent
+      - mvn -s /settings.xml -f kotlin-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
       - mvn -U -s /settings.xml -f kotlin-pom.xml clean deploy
 
   NotifySlackOnFail:
