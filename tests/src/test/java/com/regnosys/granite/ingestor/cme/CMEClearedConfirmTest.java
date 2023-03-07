@@ -18,7 +18,7 @@ class CMEClearedConfirmTest extends IngestionTest<WorkflowStep> {
 
 	private static final String CME_CLEARED_1_17_FILES_DIR = "cdm-sample-files/cme-cleared-confirm-1-17/";
 
-	private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
+	private static final ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
 			.add(Resources.getResource(CME_CLEARED_1_17_FILES_DIR + "expectations.json"))
 			.build();
 

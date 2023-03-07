@@ -3,14 +3,15 @@ package com.regnosys.granite.projector.isdacreate;
 import cdm.legaldocumentation.common.LegalAgreement;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
+import com.google.inject.Module;
 import com.regnosys.ingest.test.framework.ingestor.postprocess.pathduplicates.PathCollector;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
-import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.RosettaModelObject;
+import org.isda.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -39,8 +40,8 @@ class IsdaCreateIsdaCsaIm2016NyLawProjectionMapperTest {
 
 	@BeforeAll
 	static void globalSetUp() {
-		initialiseIngestionFactory();
-		ingestionServiceEnglishLaw = IngestionFactory.getInstance(INSTANCE_NAME).getIsdaCreateAll();
+		initialiseIngestionFactory(new CdmRuntimeModule());
+		ingestionServiceEnglishLaw = IngestionFactory.getInstance(INSTANCE_NAME).getService("isdaCreateAll");
 	}
 
 	@BeforeEach
@@ -630,9 +631,9 @@ class IsdaCreateIsdaCsaIm2016NyLawProjectionMapperTest {
 		LOGGER.debug(json);
 	}
 
-	private static void initialiseIngestionFactory() {
+	private static void initialiseIngestionFactory(Module runtimeModule) {
 		IngestionFactory.init(INSTANCE_NAME, IsdaCreateIsdaCsaIm2016NyLawProjectionMapperTest.class.getClassLoader(),
-			ReferenceConfig.noScopeOrExcludedPaths(),
+				runtimeModule,
 			new PathCollector<>(),
 			new RosettaTypeValidator());
 	}

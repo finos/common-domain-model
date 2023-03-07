@@ -38,7 +38,7 @@ public class Fpml512ProductIngestionServiceTest extends IngestionTest<TradeState
 	static void setup() {
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		ingestionService = IngestionFactory.getInstance().getFpml512();
+		ingestionService = IngestionFactory.getInstance().getService("FpML_5_12");
 	}
 	
 	@Override

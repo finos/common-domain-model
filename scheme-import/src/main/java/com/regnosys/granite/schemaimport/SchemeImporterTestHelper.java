@@ -4,6 +4,7 @@ import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.rosetta.RosettaModel;
 import com.regnosys.rosetta.transgest.ModelLoader;
+import com.regnosys.testing.WhitespaceAgnosticAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public class SchemeImporterTestHelper {
 
         for (String fileName : generatedFromScheme.keySet()) {
             String contents = getContents(rosettaPaths, fileName);
-            assertEquals(contents, generatedFromScheme.get(fileName));
+            WhitespaceAgnosticAssert.assertEquals(contents, generatedFromScheme.get(fileName));
         }
     }
 

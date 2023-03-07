@@ -1,15 +1,14 @@
-# Product Model - FpML synonym mappings for party information
-
-_Background_
-
-This release updates and extends the FpML mapping coverage for party representation.
+# *Infrastructure - Dependency Updates*
 
 _What is being released?_
 
-* Mappings added to populate CDM attribute `AssignedIdentifier -> identifier` with FpML elements `messageId`, `collateralPortfolio` and `eventId`; the latter being referenced with FpML `eventIdScheme`
+This release updates the CDM library dependencies including: 
 
-* Mappings added to populate CDM attributes `NaturalPerson -> firstName` and `NaturalPerson -> lastName` with FpML element `personId`, when that element is formatted as two strings (first and last name) separated by a dot
+- Dependency `rosetta-dsl` updated to version `7.1.0` - contains bug fixes, a simplified dependency structure, and security updates
+- Dependency `ingest-test-framework` updated to version `5.5.0` - contains bug fixes related to synonym conditional mapping
+
+The release contains no changes to the model or test expectations.
 
 _Review directions_
 
-* In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.

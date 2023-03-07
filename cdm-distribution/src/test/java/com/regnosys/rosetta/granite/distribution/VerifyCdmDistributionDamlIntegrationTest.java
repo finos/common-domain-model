@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import static com.regnosys.rosetta.granite.distribution.VerifyFileUtils.*;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VerifyCdmDistributionDamlIntegrationTest {

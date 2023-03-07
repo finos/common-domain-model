@@ -1,21 +1,13 @@
 package com.regnosys.rosetta.granite.distribution;
 
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
-import java.util.HashMap;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.regnosys.rosetta.granite.distribution.VerifyFileUtils.getDistZipFile;
-import static com.regnosys.rosetta.granite.distribution.VerifyFileUtils.getFileCount;
-import static com.regnosys.rosetta.granite.distribution.VerifyFileUtils.getFolderFileCount;
+import static com.regnosys.rosetta.granite.distribution.VerifyFileUtils.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VerifyCdmDistributionIntegrationTest {
