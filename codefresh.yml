@@ -63,7 +63,7 @@ steps:
           isRelease: "${{TAG_REPO}}"
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys
-      - mvn -s /settings.xml  versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
+      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
       - mvn -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
       - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*"
       - mvn -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
@@ -82,8 +82,8 @@ steps:
         commands:
           - daml build -o target/cdm-daml-${{RELEASE_NAME}}.dar
           - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target
-          - tar -cvzf cdm-daml.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
-          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}" -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-daml/${{RELEASE_NAME}}/cdm-daml-${{RELEASE_NAME}}.tar.gz" -T cdm-daml.tar.gz
+          - tar -cvzf cdm-daml-${{RELEASE_NAME}}.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
+          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       BuildScala:
         stage: 'build'
         title: Scala build and deploy
@@ -95,7 +95,8 @@ steps:
           - sbt compile
           - sbt package
           - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/scala/target/scala-2.12
-          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-scala/${{RELEASE_NAME}}/cdm-scala-${{RELEASE_NAME}}.jar" -T cdm-scala_2.12-0.0.0.snapshot.jar
+          - mv cdm-scala_2.12-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
+          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build and deploy
@@ -107,8 +108,8 @@ steps:
           - dotnet build Cdm/Cdm.csproj
           - dotnet test Test/Test.csproj
           - dotnet publish Cdm/Cdm.csproj -c release -o ./app
-          - tar -cvzf cdm-csharp8.tar.gz app
-          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp8/${{RELEASE_NAME}}/cdm-csharp8-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp8.tar.gz
+          - tar -cvzf cdm-csharp8-${{RELEASE_NAME}}.tar.gz app
+          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       BuildCSharp9:
         stage: 'build'
         title: CSharp9 build and deploy
@@ -120,8 +121,8 @@ steps:
           - dotnet build Cdm/Cdm.csproj
           - dotnet test Test/Test.csproj
           - dotnet publish Cdm/Cdm.csproj -c release -o ./app
-          - tar -cvzf cdm-csharp9.tar.gz app
-          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-csharp9/${{RELEASE_NAME}}/cdm-csharp9-${{RELEASE_NAME}}.tar.gz" -T cdm-csharp9.tar.gz
+          - tar -cvzf cdm-csharp9-${{RELEASE_NAME}}.tar.gz app
+          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       BuildTypeScript:
         stage: 'build'
         title: TypeScript build and deploy
@@ -130,8 +131,8 @@ steps:
         working_directory: ./rosetta-source/target/classes/cdm
         shell: bash
         commands:
-          - tar -cvzf cdm-typescript.zip typescript
-          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-typescript/${{RELEASE_NAME}}/cdm-typescript-${{RELEASE_NAME}}.zip" -T cdm-typescript.zip
+          - tar -cvzf cdm-typescript-${{RELEASE_NAME}}.zip typescript
+          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-typescript-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       BuildGo:
         stage: 'build'
         title: Go build and deploy
@@ -140,8 +141,8 @@ steps:
         working_directory: ./rosetta-source/target/classes/cdm
         shell: bash
         commands:
-          - tar -cvzf cdm-golang.tar.gz golang
-          - curl --fail -u "${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}}"  -X PUT "https://regnosys.jfrog.io/regnosys/libs-snapshot-local/com/isda/cdm-golang/${{RELEASE_NAME}}/cdm-golang-${{RELEASE_NAME}}.zip" -T cdm-golang.tar.gz
+          - tar -cvzf cdm-golang-${{RELEASE_NAME}}.tar.gz golang
+          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       BuildKotlin:
         stage: 'build'
         title: Kotlin build and deploy
@@ -151,7 +152,7 @@ steps:
         shell: bash
         commands:
           - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/kotlin
-          - mvn -s /settings.xml -f kotlin-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}}
+          - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
           - mvn -s /settings.xml -f kotlin-pom.xml clean deploy
 
   BuildJavaDocs:
@@ -178,8 +179,8 @@ steps:
         all:
           isNotRelease: "${{TAG_REPO}} == false"
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml  versions:set -DnewVersion=${{RELEASE_NAME}}
+      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - cd cdm-distribution
       - mvn -U -s /settings.xml clean deploy -P distribute
 
@@ -194,8 +195,8 @@ steps:
         all:
           isRelease: "${{TAG_REPO}}"
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml  versions:set -DnewVersion=${{RELEASE_NAME}}
+      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - cd cdm-distribution
       - mvn -U -s /settings.xml clean deploy -P distribute,distribute-full
 
@@ -206,8 +207,8 @@ steps:
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
     working_directory: ./cdm-distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f daml-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}}
+      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -U -s /settings.xml -f daml-pom.xml clean deploy
 
   DistributeScala:
@@ -217,8 +218,8 @@ steps:
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
     working_directory: ./cdm-distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f scala-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}}
+      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f scala-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -U -s /settings.xml -f scala-pom.xml clean deploy
 
   DistributeCSharp8:
@@ -228,8 +229,8 @@ steps:
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
     working_directory: ./cdm-distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f csharp8-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}}
+      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -U -s /settings.xml -f csharp8-pom.xml clean deploy
 
   DistributeCSharp9:
@@ -239,8 +240,8 @@ steps:
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
     working_directory: ./cdm-distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f csharp9-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}}
+      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -U -s /settings.xml -f csharp9-pom.xml clean deploy
 
   DistributeTypeScript:
@@ -250,8 +251,8 @@ steps:
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
     working_directory: ./cdm-distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f typescript-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}}
+      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f typescript-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -U -s /settings.xml -f typescript-pom.xml clean deploy
 
   DistributeGo:
@@ -261,8 +262,8 @@ steps:
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
     working_directory: ./cdm-distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f golang-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}}
+      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f golang-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -U -s /settings.xml -f golang-pom.xml clean deploy
 
   DistributeKotlin:
@@ -272,8 +273,8 @@ steps:
     image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
     working_directory: ./cdm-distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys  /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f kotlin-pom.xml  versions:set -DnewVersion=${{RELEASE_NAME}}
+      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -U -s /settings.xml -f kotlin-pom.xml clean deploy
 
   NotifySlackOnFail:
