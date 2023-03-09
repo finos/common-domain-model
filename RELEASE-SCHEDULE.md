@@ -1,4 +1,4 @@
-# FINOS CDM Release Working Group
+# FINOS CDM Contribution Review Working Group
 
 ## Release schedule
 
@@ -23,7 +23,7 @@ Long Term Support (LTS)', 'In Development' and 'Maintenance'.
  the LTS team and have been determined to be appropriate and stable for the
  release line.
  * Maintenance - Critical bug fixes and security updates. New features may be
- added at the discretion of the LTS team - typically only in cases where
+ added at the discretion of the maintainers - typically only in cases where
  the new feature supports migration to later release lines.
  * In Development - new stuff
 
@@ -42,7 +42,7 @@ that are not End-of-Life.
 
 ## Mandate
 
-The Release working group's purpose is:
+The Contribution Review working group's purpose is:
 
 * Management/execution of the release and support process for all releases.
 
