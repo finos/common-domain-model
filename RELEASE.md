@@ -1,17 +1,14 @@
-# Product Model - Business centers - Enhancement for business day calendar location
-
-_Background_
-
-The  definition of the enumerated list BusinessCenterEnum was previously conflating 2 separate concepts: the business centre calendar defined per geo-location and the business centre calendar defined by reference to a commodity exchange or as  specified in the ISDA definitions.
+# *Infrastructure - Dependency Updates*
 
 _What is being released?_
 
-- CDM enum `BusinessCenterEnum` has been split into two different enums: `BusinessCenterEnum` and `CommodityBusinessCalendarEnum`. Each new enum has been labeled with its corresponding FpML Coding scheme, those being `BusinessCenterScheme` and `CommodityBusinessCalendarScheme`, respectively.
+This release updates the CDM library dependencies including:
 
-- `commodityBusinessCalendar` of type `CommodityBusinessCalendarEnum` has been added to CDM type `BusinessCenters` so that commodity products are being supported in regards of the splitting described above. Also added that element to the required choice defined inside the type
+- Dependency `rosetta-dsl` updated to version `7.1.0` - contains bug fixes, a simplified dependency structure, and security updates
+- Dependency `ingest-test-framework` updated to version `5.5.0` - contains bug fixes related to synonym conditional mapping
 
-- FpML synonyms have been adjusted to reference the FpML element `businessCalendar`.
+This release contains no changes to the model or test expectations.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
