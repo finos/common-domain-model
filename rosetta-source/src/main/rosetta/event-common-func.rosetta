@@ -1824,6 +1824,76 @@ func Create_TerminationInstruction: <"Creates the relevant primitive instruction
 	set instruction -> quantityChange: <"Set primitive instruction to be only a quantity change instruction (with values set to zero).">
 		Create_QuantityChangeInstruction( [changePriceQuantity], QuantityChangeDirectionEnum->Replace, empty )
 
+
+func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructions for a substitution of collateral by replacing the assetpayout of the trade.">
+	inputs:
+		//ICMA-P2 Instructions
+		tradeState TradeState (1..1) <"The original trade to be rolled.">
+		effectiveDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
+		newPayout Payout(1..1) <"New payout to subtitute for the original payout. The payout define the product and other contractual attributes.">
+		priceQuantity PriceQuantity (1..*) <"The price and quantity of the substituted product. ">
+	output: 
+		instruction PrimitiveInstruction (1..1)
+
+	condition ContractualProduct: <"Only a contractual product can be rolled.">
+		tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
+
+	set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
+		[ Create_TerminationInstruction( tradeState ) ]
+
+	add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
+		[
+		Create_PrimitiveInstruction(
+			empty, empty, empty, empty,
+			Create_QuantityChangeInstruction(
+				priceQuantity,
+				QuantityChangeDirectionEnum -> Replace,
+				empty
+				),
+			empty, empty,
+			Create_SubstitutionInstruction(
+				tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+				effectiveDate, newPayout
+				),
+			empty, empty, empty, empty
+			)
+		]
+
+func Create_SubstitutionInstruction:
+	inputs:
+		contractualProduct ContractualProduct (1..1)
+		effectiveDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
+		newPayout Payout (1..1)
+	output:
+		termsChangeInstruction TermsChangeInstruction (1..1)
+
+	set termsChangeInstruction -> product -> contractualProduct:
+		contractualProduct
+	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate:
+		effectiveDate
+	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> payout:
+		newPayout
+
+
+func Qualify_Substitution: <"Qualification of a collateral substitution event.">
+	[qualification BusinessEvent]
+	inputs:
+		businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+
+	alias beforeEconomicterms: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+	alias openEconomicTerms: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+	alias closedTradeState: FilterClosedTradeStates( businessEvent -> after )
+    
+	set is_event:
+		// The first 2 conditions imply that there is 1 and only 1 before and 1 open thanks to the "only-element" modifier
+		beforeEconomicterms exists and		
+		openEconomicTerms exists and
+		closedTradeState count = 1 and
+		openEconomicTerms -> payout <> beforeEconomicterms -> payout and
+		openEconomicTerms -> collateral <> beforeEconomicterms -> collateral and
+		openEconomicTerms -> effectiveDate = beforeEconomicterms -> terminationDate and
+		openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
 // End of ICMA - Phase 2 Contribution
 
 func Create_BusinessEvent: <"Creates a business event from instructions containing primitive instructions and optionally a trade state.">
