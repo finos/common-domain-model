@@ -733,40 +733,43 @@ synonym source FpML_5_10 extends FpML
 		+ effectiveDate
 			[value "ignore"] // Do not map, until a canonical representation of effective date is built in the CDM and existing effective date attributes can be re-directed here
 
-	PriceSchedule:
-		+ value
-			[value "initialRate" mapper "PriceUnitType"]
-			[value "initialValue" mapper "PriceUnitType"]
-			[value "rate" maps 2 mapper "PriceUnitType"]
-			[value "spotRate" mapper "PriceUnitType"]
-			[value "amount" mapper "PriceUnitType"]
-			[value "amount" path "initialPrice->netPrice" mapper "PriceUnitType"]
-			[value "fixedRate" mapper "PriceUnitType"]
-			[value "strikePrice" mapper "PriceUnitType"]
-			[value "spread" mapper "PriceUnitType"]
-			[value "spread" path "floatingRateCalculation" mapper "PriceUnitType"]
-			[value "referencePrice" mapper "PriceUnitType"]
-			[value "price" maps 2] // For Commodity Swap Fixed Leg
-			[value "amount" path "strikePricePerUnit" mapper "PriceUnitType"] // For Commodity Option
-			[value "varianceStrikePrice" mapper "PriceUnitType"]
-			[value "volatilityStrikePrice" mapper "PriceUnitType"]
-			[value "correlationStrikePrice" mapper "PriceUnitType"]
-			[value "fixedStrike" mapper "PriceUnitType"]
-		+ unit
-			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
-			[value "quotedCurrencyPair"]
-			[value "settlementAmount" path "nearLeg"]
-			// For Commodity Swap Fixed Leg
-			[hint "priceCurrency"]
-		+ perUnitOf
-			[value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
-			[value "quotedCurrencyPair"]
-			[value "settlementAmount" path "nearLeg"]
-			[value "amount"]
-			// For Commodity Swap Fixed Leg
-			[hint "priceUnit"]
-		+ datedValue
-			[value "step"]
+    PriceSchedule:
+        + value
+            [value "initialRate" mapper "PriceUnitType"]
+            [value "initialValue" mapper "PriceUnitType"]
+            [value "rate" maps 2 mapper "PriceUnitType"]
+            [value "spotRate" mapper "PriceUnitType"]
+            [value "amount" mapper "PriceUnitType"]
+            [value "amount" path "initialPrice->netPrice" mapper "PriceUnitType"]
+            [value "fixedRate" mapper "PriceUnitType"]
+            [value "strikePrice" mapper "PriceUnitType"]
+            [value "spread" mapper "PriceUnitType"]
+            [value "spread" path "floatingRateCalculation" mapper "PriceUnitType"]
+            [value "referencePrice" mapper "PriceUnitType"]
+            [value "price" maps 2] // For Commodity Swap Fixed Leg
+            [value "amount" path "strikePricePerUnit" mapper "PriceUnitType"] // For Commodity Option
+            [value "varianceStrikePrice" mapper "PriceUnitType"]
+            [value "volatilityStrikePrice" mapper "PriceUnitType"]
+            [value "correlationStrikePrice" mapper "PriceUnitType"]
+            [value "fixedStrike" mapper "PriceUnitType"]
+        + unit
+            [value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
+            [value "quotedCurrencyPair"]
+            [value "settlementAmount" path "nearLeg"]
+            // For Commodity Swap Fixed Leg
+            [hint "priceCurrency"]
+            [value "fixedPriceStep"]
+        + perUnitOf
+            [value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
+            [value "quotedCurrencyPair"]
+            [value "settlementAmount" path "nearLeg"]
+            [value "amount"]
+            // For Commodity Swap Fixed Leg
+            [hint "priceUnit"]
+            [value "fixedPriceStep"]
+        + datedValue
+            [value "step"]
+            [value "fixedPriceStep"]
 
 	PriceExpression:
  		+ priceType
@@ -1844,40 +1847,42 @@ synonym source FpML_5_10 extends FpML
 			[value "ignore"]
 
 	QuantitySchedule:
-		+ value
-			[value "initialValue" maps 2]
-			[value "amount" maps 2]
-			[value "openUnits" maps 2]
-			[value "numberOfOptions" maps 2]
-			[value "basketPercentage" maps 2]
-			[value "quantity" maps 2]
-			[value "amount" path "paymentAmount"]
-			[value "amount" path "fixedAmount"]
-			[value "amount" path "varianceAmount"]
-			[value "amount" path "notionalAmount"]
-			[value "vegaNotionalAmount" mapper "VegaNotionalAmount"]
-			[value "amount" path "vegaNotional" mapper "VegaNotionalAmount"]
-		+ unit
-			[value "singleUnderlyer"]
-			[value "basket"]
-			[value "basketPercentage"]
-			[hint "openUnits"]
-			[value "paymentAmount"]
-			[value "fixedAmount"]
-			[value "varianceAmount"]
-			[value "notionalAmount"]
-			[value "notionalStep"]
-		+ multiplier
-			[hint "optionEntitlement"]
-			[hint "entitlementCurrency"]
-		+ frequency
-			[value "Frequency"]
-			// For Commodity Swap Fixed Leg
-			[hint "quantityFrequency"]
-			[value "notionalStep"]
-		+ datedValue
-			[value "step"]
-			[value "notionalStep"]
+        + value
+            [value "initialValue" maps 2]
+            [value "amount" maps 2]
+            [value "openUnits" maps 2]
+            [value "numberOfOptions" maps 2]
+            [value "basketPercentage" maps 2]
+            [value "quantity" maps 2]
+            [value "amount" path "paymentAmount"]
+            [value "amount" path "fixedAmount"]
+            [value "amount" path "varianceAmount"]
+            [value "amount" path "notionalAmount"]
+            [value "vegaNotionalAmount" mapper "VegaNotionalAmount"]
+            [value "amount" path "vegaNotional" mapper "VegaNotionalAmount"]
+        + unit
+            [value "singleUnderlyer"]
+            [value "basket"]
+            [value "basketPercentage"]
+            [hint "openUnits"]
+            [value "paymentAmount"]
+            [value "fixedAmount"]
+            [value "varianceAmount"]
+            [value "notionalAmount"]
+            [value "notionalStep"]
+        + multiplier
+            [hint "optionEntitlement"]
+            [hint "entitlementCurrency"]
+        + frequency
+            [value "Frequency"]
+            // For Commodity Swap Fixed Leg
+            [hint "quantityFrequency"]
+            [value "notionalStep"]
+        + datedValue
+            [value "step"]
+            [value "notionalStep"]
+            [value "period"]
+            [value "calculationPeriod" path "period"]
 
 	Measure:
 	// Only used to map quantity multiplier
@@ -1911,12 +1916,14 @@ synonym source FpML_5_10 extends FpML
 			[value "step"]
 
 	DatedValue:
-	 	[value "Step" meta "id"]
-		+ date
-			[value "stepDate" maps 2]
-		+ value
-			[value "stepValue" maps 2]
-			[value "quantity"]
+        [value "Step" meta "id"]
+        + date
+            [value "stepDate" maps 2]
+            [value "startDate" maps 2]
+        + value
+            [value "stepValue" maps 2]
+            [value "totalQuantity" maps 2]
+            [value "quantity" set when path = "notionalStep"]
 
 	AdditionalDisruptionEvents:
 		+ changeInLaw
@@ -2190,54 +2197,55 @@ synonym source FpML_5_10 extends FpML
 			[hint "fixedRate"]
 
 	ResolvablePriceQuantity:
-	    [meta "id" path "notional"]
-		[meta "id" path "notionalSchedule"]
-		[meta "id" path "notionalSchedule->notionalStepSchedule"]
-		[meta "id" path "notionalAmount"]
-		[meta "id" path "calculationAmount"]
-		+ resolvedQuantity
-			[value "ignore"]
-		+ quantityReference
-			[value "relativeNotionalAmount" path "notional" meta "href"]
-			[value "constantNotionalScheduleReference" meta "href"]
-			// For CDS Option, CDX Index Option, Bond Option, Swaption:
-			[value "notionalReference" meta "href"]
-		+ quantitySchedule
-			// Swap Stream
-			[value "notionalStepSchedule" path "notionalSchedule" meta "initialValue"]
-			[meta "initialValue"]
-			// FRA and FX Variance Swap
-			[value "notional" meta "amount"]
-			// Equity Swap - Only mapping the notional amount in the payout, not the no. shares
-			[value "notionalAmount" meta "amount"]
-			[value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
+        [meta "id" path "notional"]
+        [meta "id" path "notionalSchedule"]
+        [meta "id" path "notionalSchedule->notionalStepSchedule"]
+        [meta "id" path "notionalAmount"]
+        [meta "id" path "calculationAmount"]
+        + resolvedQuantity
+            [value "ignore"]
+        + quantityReference
+            [value "relativeNotionalAmount" path "notional" meta "href"]
+            [value "constantNotionalScheduleReference" meta "href"]
+            // For CDS Option, CDX Index Option, Bond Option, Swaption:
+            [value "notionalReference" meta "href"]
+        + quantitySchedule
+            // Swap Stream
+            [value "notionalStepSchedule" path "notionalSchedule" meta "initialValue"]
+            [meta "initialValue"]
+            // FRA and FX Variance Swap
+            [value "notional" meta "amount"]
+            // Equity Swap - Only mapping the notional amount in the payout, not the no. shares
+            [value "notionalAmount" meta "amount"]
+            [value "relativeNotionalAmount" meta "href" mapper "RelativeNotionalAmount"]
             // Div Swaps
-			[value "singleUnderlyer" meta "openUnits"]
-			// Credit
-			[value "calculationAmount" meta "amount"]
-			// Repo
-			[value "settlementAmount" meta "amount"]
-			// FX
-			[value "paymentAmount" path "exchangedCurrency1" meta "amount"]
-			[value "paymentAmount" path "exchangedCurrency2" meta "amount"]
-			[value "putCurrencyAmount" meta "amount"]
-			[value "callCurrencyAmount" meta "amount"]
-			// Bond Option
-			[meta "numberOfOptions"]
-			// Commodity
-			[meta "totalNotionalQuantity"]
-			// Var / Vol / Corr Swap
-			[value "varianceAmount" path "amount->variance" meta "amount"]
-			[value "volatility" path "amount" meta "vegaNotionalAmount"]
-			[value "notionalAmount" path "amount->correlation" meta "amount"]
-			// Div Swap
-			[value "paymentAmount" meta "amount"]
-		+ reset
-			[value "notionalReset"]
-		+ futureValueNotional
-			[value "futureValueNotional"]
-		+ priceSchedule
-			[value "ignore"]
+            [value "singleUnderlyer" meta "openUnits"]
+            // Credit
+            [value "calculationAmount" meta "amount"]
+            [value "calculationAmount" path "protectionTerms" meta "amount"]
+            // Repo
+            [value "settlementAmount" meta "amount"]
+            // FX
+            [value "paymentAmount" path "exchangedCurrency1" meta "amount"]
+            [value "paymentAmount" path "exchangedCurrency2" meta "amount"]
+            [value "putCurrencyAmount" meta "amount"]
+            [value "callCurrencyAmount" meta "amount"]
+            // Bond Option
+            [meta "numberOfOptions"]
+            // Commodity
+            [meta "totalNotionalQuantity"]
+            // Var / Vol / Corr Swap
+            [value "varianceAmount" path "amount->variance" meta "amount"]
+            [value "volatility" path "amount" meta "vegaNotionalAmount"]
+            [value "notionalAmount" path "amount->correlation" meta "amount"]
+            // Div Swap
+            [value "paymentAmount" meta "amount"]
+        + reset
+            [value "notionalReset"]
+        + futureValueNotional
+            [value "futureValueNotional"]
+        + priceSchedule
+            [value "ignore"]
 
     CreditDefaultPayout:
         [meta "id"]
