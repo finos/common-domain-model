@@ -38,7 +38,7 @@ that are not End-of-Life.
 
 |  Release |      Status     |  Initial Release | Active LTS Start | Maintenance LTS Start | End-of-life |
 |:--------:|:---------------:|:----------------:|:----------------:|:---------------------:|:-----------:|
-| [2.x][]  | **End-of-Life** |   2019-03-31     | 2022-11-09       | 2022-11-09            | 2023-04-30  |
+| 2.x      | **End-of-Life** |   2019-03-31     | 2022-11-09       | 2022-11-09            | 2023-04-30  |
 
 ## Mandate
 
