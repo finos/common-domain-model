@@ -80,7 +80,13 @@ The CDM Development Guidelines are defined by the Steering Working Group. The fu
 
 ## Contributing
 
-See guidelines [here](https://cdm.docs.rosetta-technology.io/source/contribution.html#how-to-contribute).
+See guidelines for the licensing agreement [here](https://github.com/finos/common-domain-model/blob/master/.github/CONTRIBUTING.md).
+
+To implement changes in the CDM repository resolving an issue please read our [contribution guidelines](https://cdm.docs.rosetta-technology.io/source/contribution.html).
+
+NOTE: Commits and pull requests to FINOS repositories will only be accepted from those contributors with an active, executed Individual Contributor License Agreement (ICLA) with FINOS, OR who are covered under an existing and active Corporate Contribution License Agreement (CCLA) executed with FINOS. Commits from individuals not covered under an ICLA or CCLA will be flagged and blocked by the Linux Foundation EasyCLA tool. Please note that some CCLAs require individuals/employees to be explicitly named on the CCLA.
+
+Need an ICLA? Unsure if you are covered under an existing CCLA? Email help@finos.org.
 
 ### Contribution via Rosetta
 
