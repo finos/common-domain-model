@@ -5,9 +5,9 @@
 | Release  | Status              | Initial Release | Active LTS Start | Maintenance Start | End-of-life               |
 | :--:     | :---:               |  :---:          | :---:            | :---:             | :---:                     |
 | [2.x][]  | **Maintenance**     |  2019-03-31     | 2022-11-09       | 2022-11-09        | 2023-04-30                |
-| [3.x][]  | **Current**         |  2022-11-09     | -                | -                 | -                         |
-| 4.x      | **In Development**  |  -              | -                | -                 | -                         |
-| 5.x      | **Not Started**     |  -              | -                | -                 | -                         | 
+| [3.x][]  | **Current**         |  2022-11-09     | 2023-04-30       | 2023-10-31        | -                         |
+| 4.x      | **In Development**  |  2023-04-30     | 2023-10-31       | -                 | -                         |
+| 5.x      | **Not Started**     |  2023-10-31     | -                | -                 | -                         | 
 
 Dates are subject to change.
 
