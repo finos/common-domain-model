@@ -11,8 +11,7 @@
 
 Dates are subject to change.
 
-
-The Release schedule is available also as a [JSON][] file.
+<p><img src="CDM Release Schedule.svg" alt="CDM Release Schedule"/></p>
 
 ### Release Phases
 
