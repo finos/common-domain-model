@@ -15,21 +15,21 @@ Dates are subject to change.
 
 ### Release Phases
 
-There are three phases that a CDM release can be in: 'Current', 'Active
-Long Term Support (LTS)', 'In Development' and 'Maintenance'.
+There are five phases that a CDM release can be in: 'Current', 'Active
+Long Term Support (LTS)', 'In Development', 'Maintenance', and 'Not Started'.
 
  * Current - Is the current stable version.
  * Active LTS - New features, bug fixes, and updates that have been audited by
- the LTS team and have been determined to be appropriate and stable for the
- release line.
+ the Contribution Review Working Group and have been determined to be appropriate
+ and stable for the release line.
  * Maintenance - Critical bug fixes and security updates. New features may be
  added at the discretion of the maintainers - typically only in cases where
  the new feature supports migration to later release lines.
- * In Development - new stuff
+ * In Development - New content under development to be included in the next major
+ release.
 
-Changes required for critical security and bug fixes may lead to *semver-major*
-changes landing within a release stream, such situations will be rare and will
-land as *semver-minor*. Although, those changes should have a revert option included.
+Please refer to the Development Guidelines for further information on [semantic
+versioning]: https://cdm.docs.rosetta-technology.io/source/contribution.html#version-management guidelines.
 
 The term 'supported release lines' will be used to refer to all release lines
 that are not End-of-Life.
