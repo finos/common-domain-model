@@ -4,23 +4,23 @@ _What is being released?_
 
 This release adds the following fields:
 
-- **calculationMethod**. This field will be added as an enum. The enum will contain the following values:
-  - Ratio
-  - Return
-  - Spread
-- **calculationStyle**. This field will be added as an enum. The enum will contain the following values:
-  - YearOnYear
-  - ZeroCoupon
+- `calculationMethod`. This field will be added as an enum. The enum will contain the following values:
+  - `Ratio`
+  - `Return`
+  - `Spread`
+- `calculationStyle`. This field will be added as an enum. The enum will contain the following values:
+  - `YearOnYear`
+  - `ZeroCoupon`
 
 These fields can be found under the following paths:
 
-- For calculationMethod, please use - InterestRatePayout > rateSpecification > inflationRate > calculationMethod
-- For calculationStyle, please use - InterestRatePayout > rateSpecification > inflationRate > calculationStyle
+- For `calculationMethod`, please use - `InterestRatePayout -> rateSpecification -> inflationRate -> calculationMethod`
+- For `calculationStyle`, please use - `InterestRatePayout -> rateSpecification -> inflationRate -> calculationStyle`
 
 The enum values can be found under the following paths:
 
-- For calculationMethod, a new enum called "InflationCalculationMethodEnum" was added. This can be found at rosetta-source/src/main/rosetta/observable-asset-calculatedrate-enum.rosetta
-- For calculationStyle, a new enum called "InflationCalculationStyleEnum" was added. This can be found at rosetta-source/src/main/rosetta/observable-asset-calculatedrate-enum.rosetta
+- For `calculationMethod`, a new enum called `InflationCalculationMethodEnum` was added. This can be found at rosetta-source/src/main/rosetta/observable-asset-calculatedrate-enum.rosetta
+- For `calculationStyle`, a new enum called `InflationCalculationStyleEnum` was added. This can be found at rosetta-source/src/main/rosetta/observable-asset-calculatedrate-enum.rosetta
 
 _Review Directions_
 
