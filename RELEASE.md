@@ -1,25 +1,27 @@
-# *Mappings and model change - Simplify FpML Synonym Hierarchy*
-
-_Background_
-
-This release will simplify and rationalise the FpML synonym hierarchy and versions. This will make it easier for contributors working on synonyms to map FpML documents into CDM objects.
+# *Product Model - Inflation Swaps - calculationMethod and calculationStyle*
 
 _What is being released?_
 
-The following two mapping files are being renamed, with their paths remaining unchanged :
+This release adds the following fields:
 
-- `mapping-fpml-synonym.rosetta` to `mapping-fpml-confirmation-tradestate-synonym.rosetta`
-- `mapping-fpml-process-synonym.rosetta` to `mapping-fpml-confirmation-workflowstep-synonym.rosetta`
+- `calculationMethod`. This field will be added as an enum. The enum will contain the following values:
+  - `Ratio`
+  - `Return`
+  - `Spread`
+- `calculationStyle`. This field will be added as an enum. The enum will contain the following values:
+  - `YearOnYear`
+  - `ZeroCoupon`
 
-The following synonym groups within these files are being renamed:
+These fields can be found under the following paths:
 
-- `FpML_5_10_Processes` to `FpML_5_Confirmation_To_WorkflowStep`
-- `FpML_5_10` to `FpML_5_Confirmation_To_TradeState`
+- For `calculationMethod`, please use - `InterestRatePayout -> rateSpecification -> inflationRate -> calculationMethod`
+- For `calculationStyle`, please use - `InterestRatePayout -> rateSpecification -> inflationRate -> calculationStyle`
 
+The enum values can be found under the following paths:
 
-All synonym groups related to specific versions such as `5.10`, `5.12` and `5.13` have been removed. The above groupings will now contain synonyms for all FpML 5 versions.
+- For `calculationMethod`, a new enum called `InflationCalculationMethodEnum` was added. This can be found at rosetta-source/src/main/rosetta/observable-asset-calculatedrate-enum.rosetta
+- For `calculationStyle`, a new enum called `InflationCalculationStyleEnum` was added. This can be found at rosetta-source/src/main/rosetta/observable-asset-calculatedrate-enum.rosetta
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser to inspect the synonym source groups mentioned above.
-
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.

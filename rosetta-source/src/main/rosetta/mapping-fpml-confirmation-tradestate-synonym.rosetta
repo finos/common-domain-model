@@ -2033,31 +2033,33 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "additionalAcknowledgements"]
 
 	AssignedIdentifier:
-		+ identifier
-			[value "tradeId" meta "tradeIdScheme"]
-			[value "tradeId" path "versionedTradeId" meta "tradeIdScheme"]
-			[value "businessUnitId" meta "unitScheme"]
-			[value "eventId"]
-		+ version
-			[value "version" path "versionedTradeId"]
-			[value "version"]
+        + identifier
+            [value "tradeId" maps 2 meta "tradeIdScheme"]
+            [value "tradeId" path "versionedTradeId" meta "tradeIdScheme"]
+            [value "businessUnitId" meta "unitScheme"]
+            [value "eventId" meta "eventIdScheme"]
+            [value "messageId"]
+            [value "collateralPortfolio"]
+        + version
+            [value "version" path "versionedTradeId"]
+            [value "version"]
 
-	TradeIdentifier:
-		+ identifierType
-			// [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier" and "issuer->issuerIdScheme" = "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"]
-			[set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/uti"]
-			[set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"]
-			[set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/usi"]
-			[set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-swap-identifier"]
+     TradeIdentifier:
+        + identifierType
+            // [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier" and "issuer->issuerIdScheme" = "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"]
+            [set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/uti"]
+            [set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"]
+            [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/usi"]
+            [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-swap-identifier"]
 
-	Identifier:
-		[meta "id"]
-		[meta "id" path "versionedTradeId->tradeId"]
-		+ issuerReference
-			[value "issuer" meta "href"]
-			[value "partyReference" meta "href"]
-		+ issuer
-			[value "issuer" meta "issuerIdScheme"]
+    Identifier:
+        [meta "id"]
+        [meta "id" path "versionedTradeId->tradeId"]
+        + issuerReference
+            [value "issuer" meta "href"]
+            [value "partyReference" meta "href"]
+        + issuer
+            [value "issuer" maps 2 meta "issuerIdScheme"]
 
 	IdentifiedList:
 		+ listId
@@ -3151,12 +3153,12 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "referenceBankName"]
 
 	RelatedParty:
-		+ partyReference
-			[value "partyReference" maps 2 meta "href"]
-		+ accountReference
-			[value "accountReference" meta "href"]
-		+ role
-			[value "role"]
+        + partyReference
+            [value "partyReference" maps 2 meta "href"]
+        + accountReference
+            [value "accountReference" meta "href"]
+        + role
+            [value "role" maps 2]
 
 	Account:
 	 	[value "Account" meta "id"]
@@ -3224,21 +3226,23 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "identifier"]
 
 	NaturalPerson:
-	 	[value "Person" meta "id"]
-		+ honorific
-			[value "honorific"]
-		+ firstName
-			[value "firstName"]
-		+ middleName
-			[value "middleName"]
-		+ initial
-			[value "initial"]
-		+ surname
-			[value "surname"]
-		+ suffix
-			[value "suffix"]
-		+ dateOfBirth
-			[value "dateOfBirth"]
+        [value "Person" meta "id"]
+        + honorific
+            [value "honorific"]
+        + firstName
+            [value "firstName"]
+            [value "personId" maps 2 pattern "([a-zA-Z]*).([a-zA-Z]*)" "$1"]
+        + middleName
+            [value "middleName"]
+        + initial
+            [value "initial"]
+        + surname
+            [value "surname"]
+            [value "personId" maps 2 pattern "([a-zA-Z]*).([a-zA-Z]*)" "$2"]
+        + suffix
+            [value "suffix"]
+        + dateOfBirth
+            [value "dateOfBirth"]
 
 	PersonIdentifier:
 		+ identifier
