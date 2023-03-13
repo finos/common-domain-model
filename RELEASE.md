@@ -1,14 +1,41 @@
-# *Infrastructure - Dependency Updates*
+# *Product Model - Inflation Swaps - calculationMethod and calculationStyle*
 
 _What is being released?_
 
-This release updates the CDM library dependencies including:
+This release adds the following fields:
 
-- Dependency `rosetta-dsl` updated to version `7.1.0` - contains bug fixes, a simplified dependency structure, and security updates
-- Dependency `ingest-test-framework` updated to version `5.5.0` - contains bug fixes related to synonym conditional mapping
+- `calculationMethod` - This field will be added as an enum. The enum will contain the following values:
+  - `Ratio`
+  - `Return`
+  - `Spread`
+- `calculationStyle` - This field will be added as an enum. The enum will contain the following values:
+  - `YearOnYear`
+  - `ZeroCoupon`
 
-This release contains no changes to the model or test expectations.
+These fields can be found under the following paths:
 
-_Review directions_
+- For `calculationMethod`, please use - `InterestRatePayout -> rateSpecification -> inflationRate -> calculationMethod`
+- For `calculationStyle`, please use - `InterestRatePayout -> rateSpecification -> inflationRate -> calculationStyle`
 
-CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
+The enum values can be found under the following paths:
+
+- For `calculationMethod`, a new enum called `InflationCalculationMethodEnum` was added. This can be found at rosetta-source/src/main/rosetta/observable-asset-calculatedrate-enum.rosetta
+- For `calculationStyle`, a new enum called `InflationCalculationStyleEnum` was added. This can be found at rosetta-source/src/main/rosetta/observable-asset-calculatedrate-enum.rosetta
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+
+# *Product Model - Bond Reference - Coupon Rate*
+
+_What is being released?_
+
+This release adds the field `couponRate` to the `BondReference` type under `InterestRatePayout`.
+
+The path for this field would be the following:
+
+- InterestRatePayout > bondReference > couponRate. The `couponRate` is of type `FixedRateSpecification` with a cardinality of (0..1).
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
