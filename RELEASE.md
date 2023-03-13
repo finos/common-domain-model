@@ -1,4 +1,4 @@
-# Product Model - CDM enum and FpML coding scheme linking and updating
+# Product Model - Enum and FpML coding scheme update
 
 _Background_
 
